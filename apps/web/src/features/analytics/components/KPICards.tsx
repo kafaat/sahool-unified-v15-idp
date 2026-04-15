@@ -3,7 +3,7 @@
  * بطاقات مؤشرات الأداء الرئيسية
  */
 
-import React from "react";
+import React from 'react';
 import {
   TrendingUp,
   TrendingDown,
@@ -12,8 +12,8 @@ import {
   Sprout,
   DollarSign,
   BarChart,
-} from "lucide-react";
-import type { KPIMetric } from "../types";
+} from 'lucide-react';
+import type { KPIMetric } from '../types';
 
 interface KPICardsProps {
   kpis: KPIMetric[];
@@ -28,36 +28,49 @@ const iconMap: Record<string, React.ElementType> = {
 };
 
 const statusColors = {
-  good: "bg-green-50 border-green-200",
-  warning: "bg-yellow-50 border-yellow-200",
-  critical: "bg-red-50 border-red-200",
+  good: 'bg-green-50 border-green-200',
+  warning: 'bg-yellow-50 border-yellow-200',
+  critical: 'bg-red-50 border-red-200',
 };
 
 const trendColors = {
-  up: "text-green-600",
-  down: "text-red-600",
-  stable: "text-gray-600",
+  up: 'text-green-600',
+  down: 'text-red-600',
+  stable: 'text-gray-600',
 };
 
 export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
-  const getTrendIcon = (trend: "up" | "down" | "stable") => {
+  const getTrendIcon = (trend: 'up' | 'down' | 'stable') => {
     switch (trend) {
-      case "up":
+      case 'up':
         return TrendingUp;
-      case "down":
+      case 'down':
         return TrendingDown;
       default:
         return Minus;
     }
   };
 
+  // Empty state when KPIs payload is missing or empty.
+  if (!kpis || kpis.length === 0) {
+    return (
+      <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
+        <p className="text-gray-600">لا توجد مؤشرات متاحة | No KPIs available</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {kpis.map((kpi) => {
         const Icon = iconMap[kpi.icon] || BarChart;
-        const TrendIcon = getTrendIcon(kpi.trend);
-        const statusColor = statusColors[kpi.status];
-        const trendColor = trendColors[kpi.trend];
+        const trend = kpi.trend || 'stable';
+        const TrendIcon = getTrendIcon(trend);
+        const statusColor = statusColors[kpi.status] || statusColors.good;
+        const trendColor = trendColors[trend];
+        // Coerce numeric fields so missing/invalid values do not crash .toFixed/.toLocaleString.
+        const change = Number(kpi.change) || 0;
+        const value = Number(kpi.value) || 0;
 
         return (
           <div
@@ -71,8 +84,8 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
               <div className={`flex items-center gap-1 ${trendColor}`}>
                 <TrendIcon className="w-5 h-5" />
                 <span className="text-sm font-medium">
-                  {kpi.change > 0 ? "+" : ""}
-                  {kpi.change.toFixed(1)}%
+                  {change > 0 ? '+' : ''}
+                  {change.toFixed(1)}%
                 </span>
               </div>
             </div>
@@ -81,7 +94,7 @@ export const KPICards: React.FC<KPICardsProps> = ({ kpis }) => {
               <p className="text-sm text-gray-600">{kpi.nameAr}</p>
               <div className="flex items-baseline gap-2 mt-2">
                 <span className="text-3xl font-bold text-gray-900">
-                  {kpi.value.toLocaleString("ar-SA")}
+                  {value.toLocaleString('ar-SA')}
                 </span>
                 <span className="text-sm text-gray-500">{kpi.unitAr}</span>
               </div>

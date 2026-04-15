@@ -39,7 +39,7 @@ class Settings(BaseSettings):
     version: str = Field(default="16.0.0", description="Service version | إصدار الخدمة")
 
     # Server configuration
-    host: str = Field(default="0.0.0.0", description="Server host")
+    host: str = Field(default="0.0.0.0", description="Server host")  # nosec B104 - default for containerized deployment, overridden by env
     port: int = Field(default=8240, description="Server port")
     environment: Literal["development", "staging", "production", "test"] = Field(
         default="development",
@@ -61,6 +61,10 @@ class Settings(BaseSettings):
         default="",
         description="Webhook verification token (MUST be set via env) | رمز التحقق من webhook (يجب تعيينه عبر متغير البيئة)",
     )
+    whatsapp_app_secret: str = Field(
+        default="",
+        description="WhatsApp App Secret for X-Hub-Signature-256 HMAC verification (MUST be set via env) | سر التطبيق للتحقق من توقيع HMAC",
+    )
     whatsapp_api_version: str = Field(
         default="v17.0",
         description="WhatsApp Cloud API version | إصدار API واتساب السحابي",
@@ -69,7 +73,6 @@ class Settings(BaseSettings):
         default="",
         description="WhatsApp Business Account ID | معرف حساب الأعمال",
     )
-
     # LLM Orchestrator Service Configuration
     llm_orchestrator_url: str = Field(
         default="http://llm-orchestrator-service:8220",

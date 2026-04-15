@@ -11,7 +11,7 @@
  */
 
 // API exports
-export { advisorApi } from "./api";
+export { advisorApi } from './api';
 export type {
   Recommendation,
   RecommendationType,
@@ -21,7 +21,7 @@ export type {
   AdvisorQuery,
   AdvisorResponse,
   AdvisorFilters,
-} from "./api";
+} from './api';
 
 // Hooks exports
 export {
@@ -33,6 +33,25 @@ export {
   useCompleteAction,
   useAdvisorHistory,
   useAdvisorStats,
-} from "./hooks/useAdvisor";
+} from './hooks/useAdvisor';
 
-export const ADVISOR_FEATURE = "advisor" as const;
+// Explainability types
+export type {
+  Explanation,
+  ContributingFactor,
+  AlternativeRecommendation,
+  RuleExplanation,
+  ExplainIrrigationParams,
+  ExplainFertilizerParams,
+} from './types/explainability';
+export {
+  ExplanationType,
+  FactorType,
+  ImpactLevel,
+} from './types/explainability';
+
+// Explainability component
+export { ExplanationPanel } from './components/ExplanationPanel';
+export type { ExplanationPanelProps } from './components/ExplanationPanel';
+
+export const ADVISOR_FEATURE = 'advisor' as const;

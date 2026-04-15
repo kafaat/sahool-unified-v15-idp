@@ -17,10 +17,12 @@ import hashlib
 import json
 import logging
 import os
+import threading
 import time
 from collections import OrderedDict
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, TypeVar
+from typing import Any, TypeVar
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ class AdvisoryCache:
         self.default_ttl = default_ttl
         self._cache: OrderedDict[str, tuple[Any, float]] = OrderedDict()
         self._lock = asyncio.Lock()
+        self._sync_lock = threading.Lock()  # For sync decorator access
 
         # Cache statistics
         self._hits = 0
@@ -125,16 +128,17 @@ def get_advisory_cache() -> AdvisoryCache:
     return _advisory_cache
 
 
-def _generate_cache_key(func_name: str, *args, **kwargs) -> str:
-    """Generate a cache key from function name and arguments."""
+def _generate_cache_key(func_name: str, *args, tenant_id: str = "", **kwargs) -> str:
+    """Generate a cache key from function name, tenant context, and arguments."""
     key_data = {
         "func": func_name,
+        "tenant": tenant_id,
         "args": [
             str(arg)
             for arg in args
             if not hasattr(arg, "__class__") or str(type(arg).__name__) not in ("Request", "User")
         ],
-        "kwargs": {k: str(v) for k, v in sorted(kwargs.items()) if k not in ("user", "request")},
+        "kwargs": {k: str(v) for k, v in sorted(kwargs.items()) if k not in ("user", "request", "tenant_id")},
     }
     key_str = json.dumps(key_data, sort_keys=True)
     return hashlib.sha256(key_str.encode()).hexdigest()[:32]
@@ -155,28 +159,30 @@ def cache_disease_lookup(ttl: int = 3600):
         @wraps(func)
         def wrapper(*args, **kwargs):
             cache = get_advisory_cache()
-            cache_key = f"disease:{_generate_cache_key(func.__name__, *args, **kwargs)}"
+            tenant_id = kwargs.pop("tenant_id", "")
+            cache_key = f"disease:{_generate_cache_key(func.__name__, *args, tenant_id=tenant_id, **kwargs)}"
 
-            # Check cache synchronously (sync function)
-            if cache_key in cache._cache:
-                value, expires_at = cache._cache[cache_key]
-                if time.time() <= expires_at:
-                    cache._hits += 1
-                    logger.debug(f"Cache hit for disease lookup: {cache_key[:16]}...")
-                    return value
-                else:
-                    del cache._cache[cache_key]
+            # Check cache with thread-safe lock (sync function)
+            with cache._sync_lock:
+                if cache_key in cache._cache:
+                    value, expires_at = cache._cache[cache_key]
+                    if time.time() <= expires_at:
+                        cache._hits += 1
+                        logger.debug(f"Cache hit for disease lookup: {cache_key[:16]}...")
+                        return value
+                    else:
+                        del cache._cache[cache_key]
+                cache._misses += 1
 
-            cache._misses += 1
-
-            # Execute function
+            # Execute function (outside lock)
             result = func(*args, **kwargs)
 
             # Cache result
             if result is not None:
-                while len(cache._cache) >= cache.max_size:
-                    cache._cache.popitem(last=False)
-                cache._cache[cache_key] = (result, time.time() + ttl)
+                with cache._sync_lock:
+                    while len(cache._cache) >= cache.max_size:
+                        cache._cache.popitem(last=False)
+                    cache._cache[cache_key] = (result, time.time() + ttl)
 
             return result
 
@@ -195,7 +201,8 @@ def cache_fertilizer_plan(ttl: int = 1800):
         @wraps(func)
         def wrapper(*args, **kwargs):
             cache = get_advisory_cache()
-            cache_key = f"fertilizer:{_generate_cache_key(func.__name__, *args, **kwargs)}"
+            tenant_id = kwargs.pop("tenant_id", "")
+            cache_key = f"fertilizer:{_generate_cache_key(func.__name__, *args, tenant_id=tenant_id, **kwargs)}"
 
             # Check cache synchronously
             if cache_key in cache._cache:
@@ -235,7 +242,8 @@ def cache_crop_requirements(ttl: int = 7200):
         @wraps(func)
         def wrapper(*args, **kwargs):
             cache = get_advisory_cache()
-            cache_key = f"crop_req:{_generate_cache_key(func.__name__, *args, **kwargs)}"
+            tenant_id = kwargs.pop("tenant_id", "")
+            cache_key = f"crop_req:{_generate_cache_key(func.__name__, *args, tenant_id=tenant_id, **kwargs)}"
 
             # Check cache synchronously
             if cache_key in cache._cache:
@@ -301,39 +309,40 @@ async def cache_async_result(
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-async def invalidate_disease_cache() -> int:
-    """Invalidate all disease lookup caches."""
+async def invalidate_disease_cache(tenant_id: str = "") -> int:
+    """Invalidate disease lookup caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.delete_pattern("disease:")
-    logger.info(f"Invalidated {count} disease cache entries")
+    logger.info("invalidated_disease_cache", count=count, tenant_id=tenant_id or "all")
     return count
 
 
-async def invalidate_fertilizer_cache() -> int:
-    """Invalidate all fertilizer plan caches."""
+async def invalidate_fertilizer_cache(tenant_id: str = "") -> int:
+    """Invalidate fertilizer plan caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.delete_pattern("fertilizer:")
-    logger.info(f"Invalidated {count} fertilizer cache entries")
+    logger.info("invalidated_fertilizer_cache", count=count, tenant_id=tenant_id or "all")
     return count
 
 
-async def invalidate_crop_cache() -> int:
-    """Invalidate all crop requirements caches."""
+async def invalidate_crop_cache(tenant_id: str = "") -> int:
+    """Invalidate crop requirements caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.delete_pattern("crop_req:")
-    logger.info(f"Invalidated {count} crop requirement cache entries")
+    logger.info("invalidated_crop_cache", count=count, tenant_id=tenant_id or "all")
     return count
 
 
-async def invalidate_all_caches() -> dict[str, int]:
-    """Invalidate all advisory caches."""
+async def invalidate_all_caches(tenant_id: str = "") -> dict[str, int]:
+    """Invalidate all advisory caches, optionally scoped to a tenant."""
     cache = get_advisory_cache()
     count = await cache.clear()
 
-    # Reset statistics
-    cache._hits = 0
-    cache._misses = 0
+    # Reset statistics (thread-safe)
+    with cache._sync_lock:
+        cache._hits = 0
+        cache._misses = 0
 
-    logger.info(f"Invalidated all {count} cache entries")
+    logger.info("invalidated_all_caches", count=count, tenant_id=tenant_id or "all")
 
-    return {"total_invalidated": count}
+    return {"total_invalidated": count, "tenant_id": tenant_id or "all"}

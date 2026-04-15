@@ -1,3 +1,0 @@
-"""
-Agro Advisor Tests
-"""

@@ -25,6 +25,7 @@ See [ADR-000-template.md](./ADR-000-template.md) for the template.
 | [ADR-007](./ADR-007-redis-caching.md)              | Redis for Caching                  | Accepted | 2024-12-22 |
 | [ADR-008](./ADR-008-ai-architecture.md)            | AI Architecture & Model Selection  | Accepted | 2026-03-06 |
 | [ADR-009](./ADR-009-claude-code-workflow-integration.md) | Claude Code Workflow Integration | Accepted | 2026-03-11 |
+| [ADR-010](./ADR-010-skill-runtime.md)              | Incremental Skill Runtime (Registry + Router) | Proposed | 2026-04-14 |
 
 ## Status Definitions
 

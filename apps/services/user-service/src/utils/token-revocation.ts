@@ -47,6 +47,10 @@ export interface RevocationStats {
  * Redis-based token revocation service
  * خدمة إلغاء الرموز القائمة على Redis
  */
+// Redis reconnect tuning constants
+const MAX_RECONNECT_ATTEMPTS = 5;
+const MAX_RECONNECT_DELAY_MS = 5_000;
+
 @Injectable()
 export class RedisTokenRevocationStore
   implements OnModuleInit, OnModuleDestroy
@@ -60,14 +64,24 @@ export class RedisTokenRevocationStore
 
   private redis: RedisClientType | null = null;
   private initialized = false;
+  // Guard against concurrent calls to initialize() that would orphan connect() promises.
+  private initializing = false;
 
   constructor(private readonly redisUrl?: string) {}
 
   /**
-   * Initialize on module startup
+   * Initialize on module startup (fire-and-forget — never blocks NestJS startup).
+   * Security posture: FAIL-CLOSED — when Redis is unreachable, isTokenRevoked()
+   * returns true (denies access) so no revoked token can be accepted while Redis is down.
+   * The explicit .catch() ensures any unexpected error from initialize() is handled here
+   * rather than becoming an unhandled promise rejection that crashes the Node.js process.
    */
-  async onModuleInit(): Promise<void> {
-    await this.initialize();
+  onModuleInit(): void {
+    void this.initialize().catch((err: unknown) => {
+      this.logger.error(
+        `Unexpected Redis initialization error (service will use fail-closed mode): ${err instanceof Error ? err.message : String(err)}`,
+      );
+    });
   }
 
   /**
@@ -105,9 +119,11 @@ export class RedisTokenRevocationStore
    * Initialize Redis connection
    */
   async initialize(): Promise<void> {
-    if (this.initialized) {
+    if (this.initialized || this.initializing) {
       return;
     }
+
+    this.initializing = true;
 
     try {
       const url = this.buildRedisUrl();
@@ -116,13 +132,38 @@ export class RedisTokenRevocationStore
         url,
         socket: {
           connectTimeout: 5000,
-          keepAlive: 5000,
+          keepAlive: 30000,
+          reconnectStrategy: (retries: number) => {
+            // Fail after MAX_RECONNECT_ATTEMPTS retries (~17 s total with exponential back-off capped at MAX_RECONNECT_DELAY_MS).
+            // The caller (initialize) catches the resulting ReconnectStrategyError; subsequent
+            // Redis operations will trigger a fresh connect() attempt, so the service
+            // auto-recovers as soon as Redis becomes available again.
+            if (retries >= MAX_RECONNECT_ATTEMPTS) {
+              this.logger.error(`Redis max reconnection attempts (${retries}) exceeded`);
+              return new Error('Max reconnection attempts exceeded');
+            }
+            const delay = Math.min(1000 * Math.pow(2, retries), MAX_RECONNECT_DELAY_MS);
+            this.logger.warn(`Redis reconnecting in ${delay}ms (attempt ${retries + 1}/${MAX_RECONNECT_ATTEMPTS})`);
+            return delay;
+          },
         },
+        pingInterval: 60000,
       });
 
       // Error handling
       this.redis.on("error", (err) => {
         this.logger.error(`Redis error: ${err.message}`);
+      });
+
+      this.redis.on("end", () => {
+        this.logger.warn("Redis connection ended, marking store as uninitialized");
+        this.initialized = false;
+        // Do NOT reset this.initializing here: if initialize() is still running
+        // (awaiting connect() during the retry loop), resetting initializing would
+        // allow a concurrent initialize() call to start, creating a race where the
+        // catch block could null/disconnect the wrong (newly created) Redis client.
+        // The initialize() finally block is solely responsible for clearing initializing.
+        this.redis = null;
       });
 
       this.redis.on("connect", () => {
@@ -144,7 +185,24 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(`Failed to initialize Redis: ${message}`);
-      throw error;
+      // Clean up any partially-initialized client to prevent resource leaks on retry.
+      // Use disconnect() (immediate force-close) rather than quit() (async QUIT command)
+      // because initialization has already failed — Redis may be unreachable, so quit()
+      // could hang waiting for a server response that never arrives.
+      if (this.redis) {
+        try {
+          this.redis.disconnect();
+        } catch {
+          // ignore cleanup errors
+        }
+        this.redis = null;
+      }
+      // Do NOT re-throw: callers rely on fail-closed semantics (isTokenRevoked returns true,
+      // write operations return false) when Redis is unavailable. Throwing here would bypass
+      // those per-method catch blocks and propagate the error unexpectedly.
+      this.initialized = false;
+    } finally {
+      this.initializing = false;
     }
   }
 
@@ -224,8 +282,9 @@ export class RedisTokenRevocationStore
       return exists > 0;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      this.logger.error(`Error checking token revocation: ${message}`);
-      return false;
+      this.logger.error(`Error checking token revocation (fail-closed): ${message}`);
+      // Fail-closed: treat as revoked when Redis is unavailable
+      return true;
     }
   }
 
@@ -294,9 +353,9 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Error checking user token revocation: ${message}`,
+        `Error checking user token revocation (fail-closed): ${message}`,
       );
-      return false;
+      return true;
     }
   }
 
@@ -329,9 +388,9 @@ export class RedisTokenRevocationStore
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.logger.error(
-        `Error checking tenant token revocation: ${message}`,
+        `Error checking tenant token revocation (fail-closed): ${message}`,
       );
-      return false;
+      return true;
     }
   }
 
@@ -365,6 +424,63 @@ export class RedisTokenRevocationStore
     }
 
     return { isRevoked: false };
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // OTP Brute-Force Protection
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Get OTP verification attempts count
+   */
+  async getOtpAttempts(key: string): Promise<number> {
+    if (!this.initialized) await this.initialize();
+    try {
+      const value = await this.redis!.get(key);
+      if (!value) return 0;
+      const attempts = parseInt(value, 10);
+      return Number.isFinite(attempts) ? attempts : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  /**
+   * Increment OTP verification attempts (expires after 15 minutes).
+   * Uses the INCR return value to decide whether to set TTL: TTL is applied
+   * only when newCount === 1 (i.e. the key was just created), so concurrent
+   * increments never reset the 15-minute window.
+   *
+   * Note: INCR and EXPIRE are two separate Redis commands and are not atomic.
+   * In the unlikely event that the process crashes between them the key will
+   * persist without a TTL; a periodic cleanup job or a Lua-script approach
+   * would be required if strict atomicity is needed.
+   */
+  async incrementOtpAttempts(key: string): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    try {
+      const newCount = await this.redis!.incr(key);
+      // Only set TTL on first creation. Subsequent concurrent increments will
+      // see newCount > 1 and leave the existing expiry untouched.
+      if (newCount === 1) {
+        await this.redis!.expire(key, 900); // 15 minutes TTL
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      this.logger.error(`Failed to increment OTP attempts: ${message}`);
+    }
+  }
+
+  /**
+   * Reset OTP verification attempts (after successful verification)
+   */
+  async resetOtpAttempts(key: string): Promise<void> {
+    if (!this.initialized) await this.initialize();
+    try {
+      await this.redis!.del(key);
+    } catch {
+      // Best effort
+    }
   }
 
   /**

@@ -2,11 +2,16 @@
 Leveling optimization API endpoints.
 
 نقاط نهاية API لتحسين التسوية
+
+Tenant isolation is enforced via JWT claim ``tid`` (surfaced on the authenticated
+``User`` as ``tenant_id``). The service does NOT honour the ``X-Tenant-Id`` header
+for authorization — if you need the tenant identifier, read it from
+``current_user.tenant_id``.
 """
 
+import re
 import uuid
 from datetime import datetime
-from typing import List, Optional
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
@@ -38,21 +43,64 @@ from ..schemas import (
 
 logger = structlog.get_logger()
 
-# Authentication dependency
+# ---------------------------------------------------------------------------
+# Authentication dependency & user type
+# ---------------------------------------------------------------------------
 try:
     from shared.auth.dependencies import get_current_user
-except ImportError:
+    from shared.auth.models import User
+except ImportError:  # pragma: no cover - offline/unit-test fallback
     from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
     _bearer_scheme = HTTPBearer(auto_error=False)
 
-    async def get_current_user(
+    class User:  # type: ignore[no-redef]
+        """Fallback User shape when shared.auth is unavailable."""
+
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user(  # type: ignore[no-redef]
         credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
+    ) -> User:
         """Lightweight auth - validates Authorization header presence."""
         if not credentials:
             raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+        u = User()
+        u.id = "fallback"
+        u.tenant_id = None
+        return u
+
+
+# ---------------------------------------------------------------------------
+# Safe logging helpers (CodeQL log-injection guard)
+# ---------------------------------------------------------------------------
+_LOG_INJ_RE = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def _safe_log(value: object) -> str:
+    """Strip control chars so attacker-controlled values can't forge log lines."""
+    if value is None:
+        return ""
+    return _LOG_INJ_RE.sub("?", str(value))[:200]
+
+
+# ---------------------------------------------------------------------------
+# Field ID validation (defensive, avoids path-traversal-like inputs in logs)
+# ---------------------------------------------------------------------------
+_FIELD_ID_RE = re.compile(r"^[A-Za-z0-9_.-]{1,128}$")
+
+
+def _validate_field_id(field_id: str) -> str:
+    if not field_id or not _FIELD_ID_RE.match(field_id):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "invalid field_id",
+                "error_ar": "معرف حقل غير صالح",
+            },
+        )
+    return field_id
 
 
 router = APIRouter(prefix="/api/v1/leveling", tags=["Leveling | التسوية"])
@@ -261,14 +309,23 @@ def _get_equipment_recommendations(
 @router.post(
     "/analyze",
     response_model=LevelingAnalysisResponse,
+    response_model_by_alias=True,
     summary="Analyze field for leveling | تحليل الحقل للتسوية",
+    description=(
+        "Full leveling analysis. The response bundles **cut/fill volumes**, "
+        "equipment recommendations and cost estimation in a single envelope; "
+        "there is no separate `/cut-fill` endpoint.\n\n"
+        "يحتوي هذا المسار على أحجام القطع/الردم ضمن استجابته."
+    ),
     responses={
         400: {"model": ErrorResponse, "description": "Invalid input"},
         500: {"model": ErrorResponse, "description": "Analysis failed"},
     },
 )
 async def analyze_field_leveling(
-    request: LevelingAnalysisRequest, http_request: Request, _user=Depends(get_current_user)
+    request: LevelingAnalysisRequest,
+    http_request: Request,
+    current_user: User = Depends(get_current_user),
 ):
     """
     Analyze a field for leveling requirements and generate an optimal plan.
@@ -277,13 +334,20 @@ async def analyze_field_leveling(
 
     This endpoint:
     - Computes the optimal design plane
-    - Calculates cut/fill volumes
+    - Calculates cut/fill volumes (in the same response — no split endpoint)
     - Provides equipment recommendations
     - Estimates costs in SAR
+
+    Tenant isolation is enforced via ``current_user.tenant_id`` (from the JWT
+    ``tid`` claim). ``X-Tenant-Id`` header is ignored for authorization.
     """
+    _validate_field_id(request.field_id)
+
+    tenant_id = getattr(current_user, "tenant_id", None)
     logger.info(
         "leveling_analysis_requested",
-        field_id=request.field_id,
+        field_id=_safe_log(request.field_id),
+        tenant_id=_safe_log(tenant_id),
         point_count=len(request.elevation_points),
         method=request.method.value,
     )
@@ -492,20 +556,29 @@ async def analyze_field_leveling(
 @router.get(
     "/plan/{field_id}",
     response_model=LevelingPlan,
+    response_model_by_alias=True,
     summary="Get optimal leveling plan | الحصول على خطة التسوية المثلى",
 )
 async def get_leveling_plan(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get the optimal leveling plan for a field.
 
     الحصول على خطة التسوية المثلى للحقل
 
-    Note: In production, this would retrieve a stored plan from the database.
-    For demonstration, it returns a sample plan.
+    Note: In production, this would retrieve a stored plan from the database
+    filtered by ``current_user.tenant_id``. For demonstration, it returns a
+    sample plan.
     """
-    logger.info("leveling_plan_requested", field_id=field_id)
+    _validate_field_id(field_id)
+    tenant_id = getattr(current_user, "tenant_id", None)
+    logger.info(
+        "leveling_plan_requested",
+        field_id=_safe_log(field_id),
+        tenant_id=_safe_log(tenant_id),
+    )
 
     # In production, fetch from database
     # For now, return a sample response
@@ -557,25 +630,68 @@ async def get_leveling_plan(
 @router.get(
     "/cost/{field_id}",
     response_model=CostEstimate,
+    response_model_by_alias=True,
     summary="Get cost estimation | الحصول على تقدير التكلفة",
+    description=(
+        "Cost estimation for a leveling operation. Only ``cut_volume_m3`` is "
+        "required; ``fill_volume_m3`` defaults to the cut volume (balanced "
+        "earthwork) and ``field_area_hectares`` defaults to 1.0 hectare when "
+        "omitted — matching the unified API contract.\n\n"
+        "تقدير تكلفة عملية التسوية. المعلمة الوحيدة المطلوبة هي "
+        "``cut_volume_m3``؛ القيم الأخرى تأخذ قيمًا افتراضية عند عدم "
+        "تمريرها لتتوافق مع عقد الواجهة الموحدة."
+    ),
 )
 async def get_cost_estimation(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
-    cut_volume_m3: float = Query(..., description="Cut volume (m³) | حجم القطع (م³)"),
-    fill_volume_m3: float = Query(..., description="Fill volume (m³) | حجم الردم (م³)"),
-    field_area_hectares: float = Query(..., description="Field area (hectares) | مساحة الحقل (هكتار)"),
-    haul_distance_m: float = Query(default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"),
+    cut_volume_m3: float = Query(
+        ...,
+        ge=0,
+        description="Cut volume (m³) | حجم القطع (م³)",
+    ),
+    fill_volume_m3: float | None = Query(
+        default=None,
+        ge=0,
+        description=(
+            "Fill volume (m³) — defaults to cut_volume_m3 for balanced earthwork "
+            "| حجم الردم (م³) - افتراضيًا يساوي حجم القطع"
+        ),
+    ),
+    field_area_hectares: float | None = Query(
+        default=None,
+        gt=0,
+        description=(
+            "Field area (hectares) — defaults to 1.0 ha when omitted | مساحة الحقل (هكتار) - افتراضيًا 1.0 هكتار"
+        ),
+    ),
+    haul_distance_m: float = Query(
+        default=100.0,
+        ge=0,
+        description="Average haul distance (m) | متوسط مسافة النقل (م)",
+    ),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get detailed cost estimation for leveling operation.
 
     الحصول على تقدير التكلفة المفصل لعملية التسوية
     """
+    _validate_field_id(field_id)
+
+    # Apply contract defaults so only cut_volume_m3 is strictly required.
+    if fill_volume_m3 is None:
+        fill_volume_m3 = cut_volume_m3
+    if field_area_hectares is None:
+        field_area_hectares = 1.0
+
+    tenant_id = getattr(current_user, "tenant_id", None)
     logger.info(
         "cost_estimation_requested",
-        field_id=field_id,
+        field_id=_safe_log(field_id),
+        tenant_id=_safe_log(tenant_id),
         cut_volume=cut_volume_m3,
         fill_volume=fill_volume_m3,
+        field_area_ha=field_area_hectares,
     )
 
     # Create cut/fill model
@@ -604,22 +720,29 @@ async def get_cost_estimation(
 @router.get(
     "/equipment/{field_id}",
     response_model=list[EquipmentRecommendation],
+    response_model_by_alias=True,
     summary="Get equipment recommendations | الحصول على توصيات المعدات",
 )
 async def get_equipment_recommendations(
     field_id: str = Path(..., description="Field identifier | معرف الحقل"),
-    total_volume_m3: float = Query(..., description="Total earthwork volume (m³) | إجمالي حجم الحفريات (م³)"),
-    haul_distance_m: float = Query(default=100.0, description="Average haul distance (m) | متوسط مسافة النقل (م)"),
+    total_volume_m3: float = Query(..., ge=0, description="Total earthwork volume (m³) | إجمالي حجم الحفريات (م³)"),
+    haul_distance_m: float = Query(
+        default=100.0, ge=0, description="Average haul distance (m) | متوسط مسافة النقل (م)"
+    ),
     method: LevelingMethod = Query(default=LevelingMethod.SINGLE_PLANE, description="Leveling method | طريقة التسوية"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Get equipment recommendations for leveling operation.
 
     الحصول على توصيات المعدات لعملية التسوية
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(current_user, "tenant_id", None)
     logger.info(
         "equipment_recommendations_requested",
-        field_id=field_id,
+        field_id=_safe_log(field_id),
+        tenant_id=_safe_log(tenant_id),
         total_volume=total_volume_m3,
         haul_distance=haul_distance_m,
     )
@@ -644,9 +767,14 @@ async def get_equipment_recommendations(
 @router.post(
     "/simulate",
     response_model=SimulationResult,
+    response_model_by_alias=True,
     summary="Simulate leveling scenario | محاكاة سيناريو التسوية",
 )
-async def simulate_leveling(request: SimulationRequest, http_request: Request):
+async def simulate_leveling(
+    request: SimulationRequest,
+    http_request: Request,
+    current_user: User = Depends(get_current_user),
+):
     """
     Simulate a leveling scenario and return predicted results.
 
@@ -654,10 +782,15 @@ async def simulate_leveling(request: SimulationRequest, http_request: Request):
 
     This endpoint allows testing different leveling parameters
     before committing to an actual leveling plan.
+
+    Tenant is derived from ``current_user.tenant_id`` (JWT ``tid`` claim).
     """
+    _validate_field_id(request.field_id)
+    tenant_id = getattr(current_user, "tenant_id", None)
     logger.info(
         "leveling_simulation_requested",
-        field_id=request.field_id,
+        field_id=_safe_log(request.field_id),
+        tenant_id=_safe_log(tenant_id),
         target_grade_x=request.target_grade_x,
         target_grade_y=request.target_grade_y,
     )

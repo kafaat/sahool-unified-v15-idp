@@ -144,12 +144,25 @@ jobs:
           TOTAL_PRS="${{ steps.fetch-prs.outputs.total_prs }}"
           if [[ "$TOTAL_PRS" -eq 0 ]]; then
             echo "⚠️ No PRs to process"
+            # A `pull_request:labeled` trigger with a label that isn't
+            # `auto-merge` or `ready-to-merge` is a legitimate no-op:
+            # the workflow runs on EVERY label add, and most of those
+            # labels (size/L, area: ci-cd, dependencies, …) are not
+            # opt-ins for auto-merge. Treating that as a failure spams
+            # every PR with a red ❌ check on every label change.
+            # Only fail the workflow if a human ran it via
+            # workflow_dispatch and got nothing to merge — that IS a
+            # misuse worth surfacing.
+            if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+              echo "ℹ️ Triggered by a label that is not auto-merge/ready-to-merge — exiting cleanly (no-op)"
+              exit 0
+            fi
             if [[ "${{ github.event.inputs.dry_run }}" != "true" ]]; then
               echo "❌ No PRs found for merging"
               exit 1
             fi
           fi
-          
+
           echo "✅ Validation passed"
           echo "   - Total PRs: $TOTAL_PRS"
           echo "   - Merge strategy: ${{ github.event.inputs.merge_strategy || 'auto' }}"

@@ -3,12 +3,12 @@
  * سلة التسوق
  */
 
-"use client";
+'use client';
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from "lucide-react";
-import { useCart } from "../hooks/useCart";
+import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
+import { X, Minus, Plus, ShoppingCart, Trash2, CreditCard } from 'lucide-react';
+import { useCart } from '../hooks/useCart';
 
 interface CartProps {
   isOpen: boolean;
@@ -27,10 +27,16 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
         onClick={onClose}
+        role="presentation"
       />
 
       {/* Cart Sidebar */}
-      <div className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform animate-slide-in-right">
+      <div
+        className="fixed top-0 right-0 h-full w-full sm:w-96 bg-white z-50 shadow-2xl transform animate-slide-in-right"
+        role="dialog"
+        aria-modal="true"
+        aria-label="سلة التسوق"
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center gap-2">
@@ -42,6 +48,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
           </div>
           <button
             onClick={onClose}
+            aria-label="إغلاق سلة التسوق"
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <X className="w-6 h-6" />
@@ -53,9 +60,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
           {cart.items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center py-16">
               <ShoppingCart className="w-16 h-16 text-gray-300 mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                سلة التسوق فارغة
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">سلة التسوق فارغة</h3>
               <p className="text-gray-500">ابدأ بإضافة المنتجات إلى سلتك</p>
             </div>
           ) : (
@@ -64,9 +69,7 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
                 key={item.productId}
                 item={item}
                 onRemove={() => removeItem(item.productId)}
-                onUpdateQuantity={(quantity) =>
-                  updateQuantity(item.productId, quantity)
-                }
+                onUpdateQuantity={(quantity) => updateQuantity(item.productId, quantity)}
               />
             ))
           )}
@@ -99,10 +102,10 @@ export const Cart: React.FC<CartProps> = ({ isOpen, onClose, onCheckout }) => {
                   )}
                 </span>
               </div>
-              {cart.shipping > 0 && cart.subtotal > 400 && (
+              {cart.shipping > 0 && cart.subtotal > 400 && cart.subtotal < 500 && (
                 <div className="text-xs text-orange-600">
-                  أضف منتجات بقيمة {(500 - cart.subtotal).toFixed(2)}{" "}
-                  {cart.currency} للشحن المجاني!
+                  أضف منتجات بقيمة {Math.max(0, 500 - cart.subtotal).toFixed(2)} {cart.currency}{' '}
+                  للشحن المجاني!
                 </div>
               )}
               <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
@@ -150,11 +153,7 @@ interface CartItemProps {
   onUpdateQuantity: (quantity: number) => void;
 }
 
-const CartItem: React.FC<CartItemProps> = ({
-  item,
-  onRemove,
-  onUpdateQuantity,
-}) => {
+const CartItem: React.FC<CartItemProps> = ({ item, onRemove, onUpdateQuantity }) => {
   const { product, quantity } = item;
   const total = product.price * quantity;
   const [inputValue, setInputValue] = useState(String(quantity));
@@ -188,16 +187,17 @@ const CartItem: React.FC<CartItemProps> = ({
 
       {/* Details */}
       <div className="flex-1 min-w-0">
-        <h4 className="font-semibold text-gray-900 line-clamp-1">
-          {product.nameAr}
-        </h4>
+        <h4 className="font-semibold text-gray-900 line-clamp-1">{product.nameAr}</h4>
         <p className="text-sm text-gray-600 line-clamp-1">{product.name}</p>
 
         <div className="flex items-center justify-between mt-2">
           {/* Quantity Controls */}
           <div className="flex items-center gap-0 border border-gray-300 rounded-lg overflow-hidden">
             <button
-              onClick={() => { onUpdateQuantity(quantity - 1); setInputValue(String(quantity - 1)); }}
+              onClick={() => {
+                onUpdateQuantity(quantity - 1);
+                setInputValue(String(quantity - 1));
+              }}
               className="p-1.5 hover:bg-gray-100 active:bg-gray-200 transition-colors border-e border-gray-300"
               aria-label="تقليل الكمية"
             >
@@ -210,7 +210,10 @@ const CartItem: React.FC<CartItemProps> = ({
               onChange={(e) => setInputValue(e.target.value)}
               onBlur={() => {
                 const val = parseInt(inputValue, 10);
-                if (!isNaN(val) && val > 0) {
+                // Require a positive finite integer within a sane upper bound
+                // to defend against overflow values that could cause the total
+                // price calculation to blow up.
+                if (Number.isFinite(val) && Number.isInteger(val) && val > 0 && val <= 10000) {
                   onUpdateQuantity(val);
                   setInputValue(String(val));
                 } else {
@@ -221,7 +224,10 @@ const CartItem: React.FC<CartItemProps> = ({
               aria-label="الكمية"
             />
             <button
-              onClick={() => { onUpdateQuantity(quantity + 1); setInputValue(String(quantity + 1)); }}
+              onClick={() => {
+                onUpdateQuantity(quantity + 1);
+                setInputValue(String(quantity + 1));
+              }}
               className="p-1.5 hover:bg-gray-100 active:bg-gray-200 transition-colors border-s border-gray-300"
               aria-label="زيادة الكمية"
             >
@@ -244,6 +250,7 @@ const CartItem: React.FC<CartItemProps> = ({
       {/* Remove Button */}
       <button
         onClick={onRemove}
+        aria-label={`إزالة ${product.nameAr} من السلة`}
         className="p-2 hover:bg-red-50 text-red-600 rounded-lg transition-colors self-start"
       >
         <Trash2 className="w-5 h-5" />

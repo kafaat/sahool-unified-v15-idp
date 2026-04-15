@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Authentication Service
 /// خدمة التوثيق والمصادقة
 ///

@@ -7,8 +7,8 @@ export interface EdgeDevice {
   id: string;
   name: string;
   nameAr: string;
-  type: "jetson_orin" | "jetson_nano" | "raspberry_pi" | "custom";
-  status: "online" | "offline" | "syncing" | "error";
+  type: 'jetson_orin' | 'jetson_nano' | 'raspberry_pi' | 'custom';
+  status: 'online' | 'offline' | 'syncing' | 'error';
   ipAddress: string;
   location?: { latitude: number; longitude: number; fieldId?: string; fieldName?: string };
   models: string[];
@@ -26,7 +26,7 @@ export interface EdgeDeployment {
   deviceId: string;
   modelName: string;
   variant: string;
-  status: "queued" | "downloading" | "deploying" | "running" | "failed";
+  status: 'queued' | 'downloading' | 'deploying' | 'running' | 'failed';
   progress: number;
   startedAt: string;
   completedAt?: string;
@@ -34,7 +34,7 @@ export interface EdgeDeployment {
 
 export interface EdgeSyncStatus {
   deviceId: string;
-  status: "syncing" | "completed" | "failed";
+  status: 'syncing' | 'completed' | 'failed';
   progress: number;
   dataSize: number;
   startedAt: string;

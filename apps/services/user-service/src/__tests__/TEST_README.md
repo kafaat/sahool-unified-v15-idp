@@ -312,7 +312,7 @@ const hashSpy = jest
 
 await service.create(createUserDto);
 
-expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, 10);
+expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, 12);
 ```
 
 ## Continuous Integration

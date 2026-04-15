@@ -9,6 +9,10 @@ This directory contains Architecture Decision Records documenting significant ar
 | ADR | Title | Status | Date |
 |-----|-------|--------|------|
 | [ADR-0001](./0001-backend-root.md) | Backend Services Root Directory | Accepted | 2025-12-19 |
+| [ADR-0002](./0002-multi-tenancy.md) | Multi-Tenancy Strategy (RLS) | Accepted | 2026-04-02 |
+| [ADR-0003](./0003-event-versioning.md) | Event Versioning Strategy | Accepted | 2026-04-02 |
+| [ADR-0004](./0004-api-versioning.md) | API Versioning Strategy | Accepted | 2026-04-02 |
+| [ADR-0005](./0005-service-mesh.md) | Service Mesh Strategy | Accepted | 2026-04-02 |
 
 ## ADR Process
 
@@ -41,6 +45,10 @@ This directory contains Architecture Decision Records documenting significant ar
 ## Key Decisions Summary
 
 - **ADR-0001**: All backend microservices must reside in `apps/services/` (eliminates fragmentation across kernel/, kernel-services-v15.3/, services/)
+- **ADR-0002**: PostgreSQL Row-Level Security (RLS) as primary tenant isolation with application-layer middleware
+- **ADR-0003**: Semantic versioning for event schemas with 90-day deprecation and CI-enforced breaking change detection
+- **ADR-0004**: URL path versioning (`/api/v1/`, `/api/v2/`) with unified TypeScript/Dart contract system
+- **ADR-0005**: Phased service mesh adoption — Application-level (current) → NetworkPolicy → Istio (future)
 
 ## Related
 

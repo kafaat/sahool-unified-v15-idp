@@ -7,6 +7,7 @@
 /// - Real-time updates via WebSocket
 /// - Typing indicators
 /// - Online status
+library;
 
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,7 +84,7 @@ class ChatState {
     if (activeConversationId == null) return null;
     try {
       return conversations.firstWhere((c) => c.id == activeConversationId);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

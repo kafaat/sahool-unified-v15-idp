@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
 // Satellite Map Component
 // خريطة البيانات الفضائية
 // Updated: supports actual satellite imagery tiles with layer switching
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 interface SatelliteMapProps {
   fields: Array<{
@@ -15,7 +15,7 @@ interface SatelliteMapProps {
     ndvi: {
       current: number;
       average: number;
-      trend: "up" | "down" | "stable";
+      trend: 'up' | 'down' | 'stable';
     };
   }>;
   selectedFieldId: string | null;
@@ -25,43 +25,43 @@ interface SatelliteMapProps {
 // Tile layer definitions
 const TILE_LAYERS = {
   satellite: {
-    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    attribution: "© Esri, Maxar, Earthstar Geographics",
-    label: "صور فضائية",
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: '© Esri, Maxar, Earthstar Geographics',
+    label: 'صور فضائية',
   },
   osm: {
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution: "© OpenStreetMap contributors",
-    label: "خريطة الشوارع",
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenStreetMap contributors',
+    label: 'خريطة الشوارع',
   },
   terrain: {
-    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
-    attribution: "© OpenTopoMap contributors",
-    label: "التضاريس",
+    url: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenTopoMap contributors',
+    label: 'التضاريس',
   },
 } as const;
 
 type LayerType = keyof typeof TILE_LAYERS;
 
-export default function SatelliteMap({
-  fields,
-  selectedFieldId,
-  onFieldClick,
-}: SatelliteMapProps) {
+export default function SatelliteMap({ fields, selectedFieldId, onFieldClick }: SatelliteMapProps) {
   const mapRef = useRef<any>(null);
   const tileLayerRef = useRef<any>(null);
   const markersRef = useRef<Map<string, any>>(new Map());
   const [isClient, setIsClient] = useState(false);
-  const [activeLayer, setActiveLayer] = useState<LayerType>("satellite");
+  const [activeLayer, setActiveLayer] = useState<LayerType>('satellite');
+
+  // Use ref for callback prop to avoid rebuilding all markers on parent re-render
+  const onFieldClickRef = useRef(onFieldClick);
+  onFieldClickRef.current = onFieldClick;
 
   useEffect(() => {
     setIsClient(true);
     // Load Leaflet CSS dynamically
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
-    link.integrity = "sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=";
-    link.crossOrigin = "";
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    link.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    link.crossOrigin = '';
     document.head.appendChild(link);
     return () => {
       document.head.removeChild(link);
@@ -93,8 +93,8 @@ export default function SatelliteMap({
     const initMap = async () => {
       if (mapRef.current) return; // Already initialized
 
-      const L = (await import("leaflet")).default;
-      const map = L.map("satellite-map", {
+      const L = (await import('leaflet')).default;
+      const map = L.map('satellite-map', {
         center: [15.5527, 48.5164], // Yemen center
         zoom: 7,
         zoomControl: true,
@@ -125,7 +125,7 @@ export default function SatelliteMap({
     if (!isClient || !mapRef.current) return;
 
     const updateMarkers = async () => {
-      const L = (await import("leaflet")).default;
+      const L = (await import('leaflet')).default;
       const map = mapRef.current;
       if (!map) return;
 
@@ -138,53 +138,44 @@ export default function SatelliteMap({
         const ndvi = field.ndvi.current;
         const color = getNDVIColor(ndvi);
 
-        const marker = L.circleMarker(
-          [field.location.lat, field.location.lng],
-          {
-            radius: selectedFieldId === field.id ? 12 : 8,
-            fillColor: color,
-            color: selectedFieldId === field.id ? "#1e40af" : "#fff",
-            weight: selectedFieldId === field.id ? 3 : 2,
-            opacity: 1,
-            fillOpacity: 0.8,
-          },
-        );
+        const marker = L.circleMarker([field.location.lat, field.location.lng], {
+          radius: selectedFieldId === field.id ? 12 : 8,
+          fillColor: color,
+          color: selectedFieldId === field.id ? '#1e40af' : '#fff',
+          weight: selectedFieldId === field.id ? 3 : 2,
+          opacity: 1,
+          fillOpacity: 0.8,
+        });
 
         // SECURITY: Use DOM methods to prevent XSS from user data
-        const popupContent = document.createElement("div");
-        popupContent.style.cssText =
-          "direction: rtl; text-align: right; min-width: 220px;";
+        const popupContent = document.createElement('div');
+        popupContent.style.cssText = 'direction: rtl; text-align: right; min-width: 220px;';
 
-        const title = document.createElement("h3");
-        title.style.cssText = "margin: 0 0 8px 0; font-weight: bold;";
+        const title = document.createElement('h3');
+        title.style.cssText = 'margin: 0 0 8px 0; font-weight: bold;';
         title.textContent = field.farmName; // textContent prevents XSS
 
-        const subtitle = document.createElement("p");
-        subtitle.style.cssText = "margin: 0 0 4px 0; color: #666;";
+        const subtitle = document.createElement('p');
+        subtitle.style.cssText = 'margin: 0 0 4px 0; color: #666;';
         subtitle.textContent = field.fieldName;
 
-        const hr = document.createElement("hr");
-        hr.style.cssText =
-          "margin: 8px 0; border: none; border-top: 1px solid #eee;";
+        const hr = document.createElement('hr');
+        hr.style.cssText = 'margin: 8px 0; border: none; border-top: 1px solid #eee;';
 
         const trendText =
-          field.ndvi.trend === "up"
-            ? "↑ صاعد"
-            : field.ndvi.trend === "down"
-              ? "↓ هابط"
-              : "→ ثابت";
+          field.ndvi.trend === 'up' ? '↑ صاعد' : field.ndvi.trend === 'down' ? '↓ هابط' : '→ ثابت';
 
         popupContent.appendChild(title);
         popupContent.appendChild(subtitle);
         popupContent.appendChild(hr);
 
         // Current NDVI row
-        const currentRow = document.createElement("div");
+        const currentRow = document.createElement('div');
         currentRow.style.cssText =
-          "display: flex; justify-content: space-between; margin-bottom: 4px;";
-        const currentLabel = document.createElement("span");
-        currentLabel.textContent = "NDVI الحالي:";
-        const currentValue = document.createElement("strong");
+          'display: flex; justify-content: space-between; margin-bottom: 4px;';
+        const currentLabel = document.createElement('span');
+        currentLabel.textContent = 'NDVI الحالي:';
+        const currentValue = document.createElement('strong');
         currentValue.style.color = color;
         currentValue.textContent = ndvi.toFixed(2);
         currentRow.appendChild(currentLabel);
@@ -192,24 +183,23 @@ export default function SatelliteMap({
         popupContent.appendChild(currentRow);
 
         // Average row
-        const avgRow = document.createElement("div");
-        avgRow.style.cssText =
-          "display: flex; justify-content: space-between; margin-bottom: 4px;";
-        const avgLabel = document.createElement("span");
-        avgLabel.textContent = "المتوسط:";
-        const avgValue = document.createElement("strong");
+        const avgRow = document.createElement('div');
+        avgRow.style.cssText = 'display: flex; justify-content: space-between; margin-bottom: 4px;';
+        const avgLabel = document.createElement('span');
+        avgLabel.textContent = 'المتوسط:';
+        const avgValue = document.createElement('strong');
         avgValue.textContent = field.ndvi.average.toFixed(2);
         avgRow.appendChild(avgLabel);
         avgRow.appendChild(avgValue);
         popupContent.appendChild(avgRow);
 
         // Trend row
-        const trendRow = document.createElement("div");
+        const trendRow = document.createElement('div');
         trendRow.style.cssText =
-          "display: flex; justify-content: space-between; margin-bottom: 4px;";
-        const trendLabel = document.createElement("span");
-        trendLabel.textContent = "الاتجاه:";
-        const trendValue = document.createElement("strong");
+          'display: flex; justify-content: space-between; margin-bottom: 4px;';
+        const trendLabel = document.createElement('span');
+        trendLabel.textContent = 'الاتجاه:';
+        const trendValue = document.createElement('strong');
         trendValue.textContent = trendText;
         trendRow.appendChild(trendLabel);
         trendRow.appendChild(trendValue);
@@ -217,12 +207,11 @@ export default function SatelliteMap({
 
         // Health status row
         const healthLabel = getHealthLabel(ndvi);
-        const statusRow = document.createElement("div");
-        statusRow.style.cssText =
-          "display: flex; justify-content: space-between; margin-top: 4px;";
-        const statusLabel = document.createElement("span");
-        statusLabel.textContent = "الحالة:";
-        const statusValue = document.createElement("strong");
+        const statusRow = document.createElement('div');
+        statusRow.style.cssText = 'display: flex; justify-content: space-between; margin-top: 4px;';
+        const statusLabel = document.createElement('span');
+        statusLabel.textContent = 'الحالة:';
+        const statusValue = document.createElement('strong');
         statusValue.style.cssText = `color: ${color}; padding: 2px 8px; border-radius: 9999px; background: ${color}20; font-size: 12px;`;
         statusValue.textContent = healthLabel;
         statusRow.appendChild(statusLabel);
@@ -231,10 +220,8 @@ export default function SatelliteMap({
 
         marker.bindPopup(popupContent);
 
-        marker.on("click", () => {
-          if (onFieldClick) {
-            onFieldClick(field.id);
-          }
+        marker.on('click', () => {
+          onFieldClickRef.current?.(field.id);
         });
 
         marker.addTo(map);
@@ -244,16 +231,14 @@ export default function SatelliteMap({
       // Fit bounds to show all fields
       if (fields.length > 0) {
         const bounds = L.latLngBounds(
-          fields.map(
-            (f) => [f.location.lat, f.location.lng] as [number, number],
-          ),
+          fields.map((f) => [f.location.lat, f.location.lng] as [number, number])
         );
         map.fitBounds(bounds, { padding: [50, 50] });
       }
     };
 
     updateMarkers();
-  }, [isClient, fields, selectedFieldId, onFieldClick]);
+  }, [isClient, fields, selectedFieldId]);
 
   if (!isClient) {
     return (
@@ -284,8 +269,8 @@ export default function SatelliteMap({
               onClick={() => setActiveLayer(layerKey)}
               className={`px-3 py-1.5 text-xs rounded-md transition-colors ${
                 activeLayer === layerKey
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
             >
               {TILE_LAYERS[layerKey].label}
@@ -296,44 +281,39 @@ export default function SatelliteMap({
 
       {/* NDVI Legend */}
       <div className="absolute bottom-4 right-4 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3">
-        <h4 className="text-xs font-bold text-gray-700 mb-2">
-          مؤشر الغطاء النباتي
-        </h4>
+        <h4 className="text-xs font-bold text-gray-700 mb-2">مؤشر الغطاء النباتي</h4>
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs">
-            <span
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: "#1B5E20" }}
-            ></span>
-            <span>{"ممتاز (NDVI > 0.7)"}</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#004d00' }}></span>
+            <span>{'ممتاز (NDVI > 0.85)'}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: "#4CAF50" }}
-            ></span>
-            <span>جيد (0.5 - 0.7)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1B5E20' }}></span>
+            <span>صحي جداً (0.7 - 0.85)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: "#FDD835" }}
-            ></span>
-            <span>متوسط (0.3 - 0.5)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></span>
+            <span>صحي (0.55 - 0.7)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: "#FF9800" }}
-            ></span>
-            <span>ضعيف (0.15 - 0.3)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#8BC34A' }}></span>
+            <span>معتدل (0.45 - 0.55)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: "#F44336" }}
-            ></span>
-            <span>{"حرج (< 0.15)"}</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FDD835' }}></span>
+            <span>مجهد (0.35 - 0.45)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF9800' }}></span>
+            <span>مجهد جداً (0.25 - 0.35)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F44336' }}></span>
+            <span>حرج (0.15 - 0.25)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#8B0000' }}></span>
+            <span>{'تربة عارية (< 0.15)'}</span>
           </div>
         </div>
       </div>
@@ -342,17 +322,23 @@ export default function SatelliteMap({
 }
 
 export function getNDVIColor(ndvi: number): string {
-  if (ndvi >= 0.7) return "#1B5E20"; // Dark green - excellent
-  if (ndvi >= 0.5) return "#4CAF50"; // Green - good
-  if (ndvi >= 0.3) return "#FDD835"; // Yellow - moderate
-  if (ndvi >= 0.15) return "#FF9800"; // Orange - poor
-  return "#F44336"; // Red - critical
+  if (ndvi >= 0.85) return '#004d00'; // Very dark green - excellent
+  if (ndvi >= 0.7) return '#1B5E20'; // Dark green - very healthy
+  if (ndvi >= 0.55) return '#4CAF50'; // Green - healthy
+  if (ndvi >= 0.45) return '#8BC34A'; // Light green - moderate
+  if (ndvi >= 0.35) return '#FDD835'; // Yellow - stressed
+  if (ndvi >= 0.25) return '#FF9800'; // Orange - very stressed
+  if (ndvi >= 0.15) return '#F44336'; // Red - critical
+  return '#8B0000'; // Dark red - bare soil/dead
 }
 
 export function getHealthLabel(ndvi: number): string {
-  if (ndvi >= 0.7) return "ممتاز";
-  if (ndvi >= 0.5) return "جيد";
-  if (ndvi >= 0.3) return "متوسط";
-  if (ndvi >= 0.15) return "ضعيف";
-  return "حرج";
+  if (ndvi >= 0.85) return 'ممتاز';
+  if (ndvi >= 0.7) return 'صحي جداً';
+  if (ndvi >= 0.55) return 'صحي';
+  if (ndvi >= 0.45) return 'معتدل';
+  if (ndvi >= 0.35) return 'مجهد';
+  if (ndvi >= 0.25) return 'مجهد جداً';
+  if (ndvi >= 0.15) return 'حرج';
+  return 'تربة عارية';
 }

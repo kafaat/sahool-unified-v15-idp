@@ -33,14 +33,33 @@ logger = logging.getLogger(__name__)
 
 
 def _get_required_env(key: str, default: str | None = None) -> str:
-    """Get required environment variable, raise error if missing in production"""
+    """Get required environment variable.
+
+    In production/staging: returns empty string for JWT secrets so that
+    validate_jwt_configuration() can report the error via RuntimeError/AuthError.
+    In development/test: generates a random per-process fallback for JWT secrets.
+    """
     value = os.getenv(key, default)
     env = os.getenv("ENVIRONMENT", "development")
 
     if not value and env in ("production", "staging"):
-        raise RuntimeError(f"Required environment variable {key} is not set")
+        # Return empty string instead of raising - let validate_jwt_configuration()
+        # handle the error with proper RuntimeError/AuthError reporting.
+        logger.error(f"SECURITY: {key} is not set in {env} environment")
+        return ""
 
     if not value:
+        # SECURITY FIX: Never use a hardcoded fallback - it enables token forgery
+        # by anyone who knows the repository constant.
+        if key == "JWT_SECRET_KEY":
+            import secrets as _secrets
+
+            fallback = _secrets.token_hex(32)
+            logger.warning(
+                f"{key} not set - using random per-process fallback. "
+                "Tokens will NOT survive restarts. Set JWT_SECRET_KEY for persistence."
+            )
+            return fallback
         logger.warning(f"Using default value for {key} - NOT SAFE FOR PRODUCTION")
         return default or ""
 
@@ -49,8 +68,8 @@ def _get_required_env(key: str, default: str | None = None) -> str:
 
 JWT_SECRET_KEY = _get_required_env("JWT_SECRET_KEY", "")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")  # HS256 for symmetric encryption
-JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-idp")
-JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-platform")
+JWT_ISSUER = os.getenv("JWT_ISSUER", "sahool-platform")
+JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "sahool-api")
 JWT_ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
 JWT_REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
 JWT_LEEWAY_SECONDS = int(os.getenv("JWT_LEEWAY_SECONDS", "30"))  # Clock skew tolerance
@@ -231,7 +250,15 @@ def decode_token_unsafe(token: str) -> dict:
     - NEVER use for authorization decisions
     - NEVER trust data from this function for access control
     - Use ONLY for debugging, logging, or extracting non-sensitive metadata
+    - BLOCKED in production to prevent accidental misuse
     """
+    import os
+
+    env = os.getenv("ENVIRONMENT", "development")
+    if env in ("production", "staging"):
+        raise RuntimeError(
+            "decode_token_unsafe() is blocked in production/staging. Use decode_token() with proper verification instead."
+        )
     try:
         # nosemgrep: python.jwt.security.unverified-jwt-decode
         return jwt.decode(token, options=_get_unsafe_decode_options(), algorithms=["HS256", "HS384", "HS512"])

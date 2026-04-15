@@ -5,16 +5,15 @@ NATS event handler for AI chat queries.
 
 import json
 import logging
-from typing import Optional
 from datetime import UTC, datetime
+from typing import Optional
 
 from nats.aio.client import Client as NATS
-from nats.aio.errors import ErrConnectionClosed, ErrTimeout, ErrNoServers
 
-from src.config import settings
-from src.models import AIQuery, AIResponse, ResponseMetadata
 from src.cache import cache_manager
+from src.config import settings
 from src.llm_client import llm_client
+from src.models import AIQuery, AIResponse, ResponseMetadata
 
 logger = logging.getLogger(__name__)
 
@@ -79,9 +78,29 @@ class NATSEventHandler:
         try:
             # Parse message data
             data = json.loads(msg.data.decode())
+
+            # Extract tenant_id from NATS message subject or headers if not in payload
+            if "tenant_id" not in data or not data.get("tenant_id"):
+                # Try to extract from subject pattern: sahool.tenant.{tenant_id}.chat.ai_query
+                subject = msg.subject
+                parts = subject.split(".")
+                if len(parts) >= 4 and parts[1] == "tenant":
+                    data["tenant_id"] = parts[2]
+
             query = AIQuery(**data)
 
-            logger.info(f"Received AI query from user {query.user_id}: {query.query[:50]}... (lang: {query.language})")
+            # Validate tenant_id presence for multi-tenant isolation
+            if not query.tenant_id:
+                logger.warning(
+                    f"Missing tenant_id in AI query from user {query.user_id}, "
+                    f"conversation {query.conversation_id}. Rejecting for tenant isolation."
+                )
+                raise ValueError("tenant_id is required for tenant isolation")
+
+            logger.info(
+                f"Received AI query from user {query.user_id} "
+                f"(tenant: {query.tenant_id}): {query.query[:50]}... (lang: {query.language})"
+            )
 
             # Process query
             response = await self._process_query(query)
@@ -137,11 +156,12 @@ class NATSEventHandler:
         Returns:
             AI response with answer and metadata
         """
-        # Step 1: Check cache
+        # Step 1: Check cache (tenant-scoped)
         cached = await cache_manager.get(
             query=query.query,
             language=query.language,
             field_id=query.field_id,
+            tenant_id=query.tenant_id,
         )
 
         if cached:
@@ -161,7 +181,7 @@ class NATSEventHandler:
             context=query.context,
         )
 
-        # Step 3: Cache the response
+        # Step 3: Cache the response (tenant-scoped)
         await cache_manager.set(
             query=query.query,
             language=query.language,
@@ -169,6 +189,7 @@ class NATSEventHandler:
             answer_en=result.get("answer_en"),
             metadata=result["metadata"],
             field_id=query.field_id,
+            tenant_id=query.tenant_id,
         )
 
         # Step 4: Return response

@@ -18,74 +18,72 @@ Version: 1.0.0
 Updated: January 2026
 """
 
-import pytest
 from datetime import date, datetime, timedelta
 from typing import Any
 
-# Import all models and functions
-from shared.pest_scouting.models import (
-    PestCategory,
-    PestLifeStage,
-    InfestationLevel,
-    AlertPriority,
-    ScoutingMethod,
-    TreatmentType,
-    TreatmentUrgency,
-    CropType,
-    PestIdentification,
-    ScoutObservation,
-    ScoutReport,
-    PestAlert,
-    OutbreakRecord,
-    TreatmentRecommendation,
-    EconomicThreshold,
-)
+import pytest
 
 from shared.pest_scouting.identification import (
     PEST_DATABASE,
+    assess_infestation_level,
+    get_high_priority_pests,
     get_pest_by_id,
     get_pest_by_scientific_name,
-    search_pests_by_name,
-    get_pests_by_crop,
-    get_pests_by_category,
-    get_quarantine_pests,
-    get_high_priority_pests,
-    identify_by_symptoms,
-    identify_by_description,
-    assess_infestation_level,
-    get_similar_pests,
-    get_seasonal_pests,
     get_pest_risk_factors,
+    get_pests_by_category,
+    get_pests_by_crop,
+    get_quarantine_pests,
+    get_seasonal_pests,
+    get_similar_pests,
+    identify_by_description,
+    identify_by_symptoms,
+    search_pests_by_name,
 )
 
+# Import all models and functions
+from shared.pest_scouting.models import (
+    AlertPriority,
+    CropType,
+    EconomicThreshold,
+    InfestationLevel,
+    OutbreakRecord,
+    PestAlert,
+    PestCategory,
+    PestIdentification,
+    PestLifeStage,
+    ScoutingMethod,
+    ScoutObservation,
+    ScoutReport,
+    TreatmentRecommendation,
+    TreatmentType,
+    TreatmentUrgency,
+)
+from shared.pest_scouting.recommendations import (
+    TREATMENT_PROTOCOLS,
+    BiologicalOption,
+    ChemicalOption,
+    CulturalPractice,
+    generate_recommendation_from_alert,
+    generate_recommendations_from_report,
+    generate_treatment_recommendation,
+    get_ipm_calendar,
+    get_rotation_recommendation,
+    get_treatment_protocol,
+)
 from shared.pest_scouting.thresholds import (
     THRESHOLD_DATABASE,
     ThresholdAssessment,
+    assess_scout_report,
+    assess_threshold,
+    calculate_economic_injury_level,
+    calculate_gain_threshold,
+    calculate_treatment_roi,
+    estimate_yield_loss,
+    generate_threshold_alert,
     get_threshold,
     get_thresholds_for_crop,
     get_thresholds_for_pest,
-    assess_threshold,
-    assess_scout_report,
-    generate_threshold_alert,
-    calculate_economic_injury_level,
-    calculate_gain_threshold,
-    estimate_yield_loss,
-    calculate_treatment_roi,
 )
-
-from shared.pest_scouting.recommendations import (
-    TREATMENT_PROTOCOLS,
-    ChemicalOption,
-    BiologicalOption,
-    CulturalPractice,
-    get_treatment_protocol,
-    generate_treatment_recommendation,
-    generate_recommendation_from_alert,
-    generate_recommendations_from_report,
-    get_rotation_recommendation,
-    get_ipm_calendar,
-)
-
 
 # =============================================================================
 # FIXTURES

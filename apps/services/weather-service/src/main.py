@@ -12,7 +12,9 @@ Multi-Provider Support:
 import os
 import sys
 from contextlib import asynccontextmanager
+from enum import StrEnum
 from pathlib import Path
+from typing import Literal
 
 from fastapi import Depends, FastAPI, HTTPException
 
@@ -34,16 +36,15 @@ import structlog
 
 logger = structlog.get_logger()
 
+# Authentication imports
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import (
     ExternalServiceException,
     InternalServerException,
     add_request_id_middleware,
     setup_exception_handlers,
 )
-
-# Authentication imports
-from shared.auth.dependencies import get_current_user
-from shared.auth.models import User
 
 # Security headers middleware
 try:
@@ -56,6 +57,22 @@ except ImportError:
     def setup_security_headers(app):
         pass
 
+
+# Shared weather alerts module integration
+try:
+    from shared.weather_alerts import AlertGeneratorConfig, WeatherAlertGenerator
+
+    HAS_SHARED_ALERTS = True
+except ImportError:
+    HAS_SHARED_ALERTS = False
+
+# Prometheus metrics
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
 
 from datetime import UTC
 
@@ -78,6 +95,41 @@ from .risks import (
 USE_MOCK_WEATHER = os.getenv("USE_MOCK_WEATHER", "false").lower() == "true"
 USE_MULTI_PROVIDER = os.getenv("USE_MULTI_PROVIDER", "true").lower() == "true"
 
+# Prometheus metric definitions
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "weather_requests_total",
+        "Total weather API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "weather_request_duration_seconds",
+        "Weather API request latency",
+        ["endpoint"],
+    )
+    PROVIDER_FALLBACK = Counter(
+        "weather_provider_fallback_total",
+        "Weather provider fallback events",
+        ["from_provider", "to_provider"],
+    )
+
+
+# Prometheus middleware to record metrics per request
+if HAS_PROMETHEUS:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            import time as _time
+
+            endpoint = request.url.path
+            start = _time.time()
+            response = await call_next(request)
+            duration = _time.time() - start
+            REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+            REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+            return response
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -99,6 +151,14 @@ async def lifespan(app: FastAPI):
         app.state.multi_provider = None
         logger.info("weather_provider_initialized", provider="open-meteo")
 
+    # Initialize shared weather alerts module
+    if HAS_SHARED_ALERTS:
+        app.state.shared_alert_generator = WeatherAlertGenerator(AlertGeneratorConfig())
+        logger.info("shared_alert_generator_initialized")
+    else:
+        app.state.shared_alert_generator = None
+        logger.info("shared_alert_generator_unavailable", reason="import_failed")
+
     # Initialize publisher
     try:
         publisher = await get_publisher()
@@ -111,13 +171,15 @@ async def lifespan(app: FastAPI):
     yield
 
     # Cleanup
-    if getattr(app.state, "multi_provider", None):
-        await app.state.multi_provider.close()
-    if getattr(app.state, "weather_provider", None):
-        await app.state.weather_provider.close()
-    if getattr(app.state, "publisher", None):
-        await app.state.publisher.close()
     logger.info("service_shutting_down", service="weather-service")
+    for name in ("multi_provider", "weather_provider", "publisher"):
+        resource = getattr(app.state, name, None)
+        if resource:
+            try:
+                await resource.close()
+            except Exception as e:
+                logger.warning("shutdown_close_error", resource=name, error=str(e))
+    logger.info("service_shutdown_complete", service="weather-service")
 
 
 app = FastAPI(
@@ -130,6 +192,38 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# Prometheus request metrics middleware
+if HAS_PROMETHEUS:
+    app.add_middleware(PrometheusMiddleware)
+
+# CORS - Secure configuration
+try:
+    from starlette.middleware.cors import CORSMiddleware
+
+    try:
+        from shared.cors_config import CORS_SETTINGS
+
+        app.add_middleware(CORSMiddleware, **CORS_SETTINGS)
+    except ImportError:
+        ALLOWED_ORIGINS = [
+            o.strip()
+            for o in os.getenv(
+                "CORS_ORIGINS",
+                "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+            ).split(",")
+            if o.strip()
+        ]
+        _allow_credentials = "*" not in ALLOWED_ORIGINS
+        app.add_middleware(
+            CORSMiddleware,
+            allow_origins=ALLOWED_ORIGINS,
+            allow_credentials=_allow_credentials,
+            allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+            allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
+        )
+except ImportError:
+    pass
 
 # Security headers - رؤوس الأمان
 if SECURITY_HEADERS_AVAILABLE:
@@ -149,7 +243,16 @@ except ImportError:
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -178,50 +281,75 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    from datetime import datetime, timezone
+    checks = {}
+
+    # Check NATS connection
+    publisher = getattr(app.state, "publisher", None)
+    if publisher is not None:
+        checks["nats"] = "connected" if getattr(publisher, "_connected", False) else "disconnected"
+    else:
+        checks["nats"] = "not_configured"
+
+    # Check if providers are available
+    multi_provider = getattr(app.state, "multi_provider", None)
+    weather_provider = getattr(app.state, "weather_provider", None)
+    if multi_provider is not None or weather_provider is not None:
+        checks["providers"] = "available"
+    else:
+        checks["providers"] = "not_initialized"
+
+    all_ready = all(v not in ("disconnected", "not_initialized") for v in checks.values())
 
     return {
-        "status": "ready",
+        "status": "ready" if all_ready else "degraded",
         "service": "weather-service",
         "version": "16.0.0",
-        "checks": {
-            "service": "ready",
-        },
-        "timestamp": datetime.now(UTC).isoformat(),
+        "checks": checks,
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    if not HAS_PROMETHEUS:
+        from starlette.responses import Response
+
+        return Response(content="prometheus_client not installed", status_code=501)
+    from starlette.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 # ============== Request Models ==============
 
 
 class WeatherAssessRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    temp_c: float
-    humidity_pct: float | None = None
-    wind_speed_kmh: float | None = None
-    precipitation_mm: float | None = None
-    uv_index: float | None = None
-    correlation_id: str | None = None
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(max_length=100)
+    temp_c: float = Field(ge=-60, le=60)
+    humidity_pct: float | None = Field(default=None, ge=0, le=100)
+    wind_speed_kmh: float | None = Field(default=None, ge=0, le=400)
+    precipitation_mm: float | None = Field(default=None, ge=0, le=500)
+    uv_index: float | None = Field(default=None, ge=0, le=20)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class LocationRequest(BaseModel):
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     lat: float = Field(ge=-90, le=90)
     lon: float = Field(ge=-180, le=180)
-    correlation_id: str | None = None
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class IrrigationRequest(BaseModel):
-    tenant_id: str
-    field_id: str
-    temp_c: float
-    humidity_pct: float
-    wind_speed_kmh: float
-    precipitation_mm: float = 0
-    correlation_id: str | None = None
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(max_length=100)
+    temp_c: float = Field(ge=-60, le=60)
+    humidity_pct: float = Field(ge=0, le=100)
+    wind_speed_kmh: float = Field(ge=0, le=400)
+    precipitation_mm: float = Field(default=0, ge=0, le=500)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 # ============== Weather Endpoints ==============
@@ -261,7 +389,7 @@ async def assess(req: WeatherAssessRequest, user: User = Depends(get_current_use
                 )
                 event_ids.append(event_id)
             except Exception as e:
-                logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "field_id": req.field_id,
@@ -287,7 +415,7 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_current(req.lat, req.lon)
+            result = await app.state.multi_provider.get_current(req.lat, req.lon, tenant_id=req.tenant_id)
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -329,7 +457,7 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
                     )
                     event_ids.append(event_id)
                 except Exception as e:
-                    logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
+                    logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
         return {
             "field_id": req.field_id,
@@ -368,11 +496,12 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
         days: Number of forecast days (1-16)
     """
     _enforce_tenant(user, req.tenant_id)
+    days = max(1, min(days, 16))
 
     try:
         # Use multi-provider service if available
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_daily_forecast(req.lat, req.lon, min(days, 16))
+            result = await app.state.multi_provider.get_daily_forecast(req.lat, req.lon, days, tenant_id=req.tenant_id)
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -384,7 +513,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
             forecast = result.data
             provider = result.provider
         else:
-            forecast = await app.state.weather_provider.get_daily_forecast(req.lat, req.lon, min(days, 16))
+            forecast = await app.state.weather_provider.get_daily_forecast(req.lat, req.lon, days)
             provider = "Open-Meteo"
 
         # Publish forecast issued event
@@ -400,9 +529,7 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
                     correlation_id=req.correlation_id,
                 )
             except Exception as pub_err:
-                import logging
-
-                logging.getLogger(__name__).warning("nats_publish_failed: %s", pub_err)
+                logger.warning("nats_publish_failed", error=str(pub_err), exc_info=True)
 
         return {
             "field_id": req.field_id,
@@ -464,7 +591,7 @@ async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get
                 correlation_id=req.correlation_id,
             )
         except Exception as e:
-            logger.error("nats_publish_failed", subject="irrigation_adjustment", error=str(e))
+            logger.error("nats_publish_failed", subject="irrigation_adjustment", error=str(e), exc_info=True)
 
     return {
         "field_id": req.field_id,
@@ -481,7 +608,7 @@ async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get
 
 
 @app.get("/weather/heat-stress/{temp_c}")
-def check_heat_stress(temp_c: float):
+def check_heat_stress(temp_c: float, user: User = Depends(get_current_user)):
     """Quick heat stress check for a temperature"""
     alert_type, severity = heat_stress_risk(temp_c)
 
@@ -494,7 +621,7 @@ def check_heat_stress(temp_c: float):
 
 
 @app.get("/weather/providers")
-async def get_providers():
+async def get_providers(user: User = Depends(get_current_user)):
     """
     Get list of available weather providers
     الحصول على قائمة مزودي الطقس المتاحين
@@ -522,34 +649,37 @@ async def get_providers():
 class ETRequest(BaseModel):
     """Evapotranspiration calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60)
     humidity_pct: float = Field(ge=0, le=100)
-    wind_speed_kmh: float = Field(ge=0)
+    wind_speed_kmh: float = Field(ge=0, le=400)
     solar_radiation_mj: float = Field(default=15.0, ge=0, le=50)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class GDDRequest(BaseModel):
     """Growing Degree Days calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_max_c: float = Field(ge=-50, le=60)
     temp_min_c: float = Field(ge=-50, le=60)
     base_temp_c: float = Field(default=10.0, ge=0, le=30)
     upper_temp_c: float = Field(default=30.0, ge=20, le=50)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class SprayWindowRequest(BaseModel):
     """Spray window assessment request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60)
     humidity_pct: float = Field(ge=0, le=100)
-    wind_speed_kmh: float = Field(ge=0)
+    wind_speed_kmh: float = Field(ge=0, le=400)
     precipitation_probability: float = Field(default=0, ge=0, le=100)
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 @app.post("/weather/evapotranspiration")
@@ -572,6 +702,20 @@ async def calculate_et(req: ETRequest, user: User = Depends(get_current_user)):
         wind_speed_kmh=req.wind_speed_kmh,
         solar_radiation_mj=req.solar_radiation_mj,
     )
+
+    # Publish event for high ET conditions
+    et0_mm = result.get("et0_mm", 0)
+    if app.state.publisher and et0_mm > 7.0:
+        try:
+            await app.state.publisher.publish_weather_alert(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                alert_type="high_evapotranspiration",
+                severity="warning",
+                window_hours=24,
+            )
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
 
     return {
         "tenant_id": req.tenant_id,
@@ -629,6 +773,18 @@ async def assess_spray_window(req: SprayWindowRequest, user: User = Depends(get_
         precipitation_probability=req.precipitation_probability,
     )
 
+    if app.state.publisher and not result.get("is_suitable", True):
+        try:
+            await app.state.publisher.publish_weather_alert(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                alert_type="spray_window_unsuitable",
+                severity="advisory",
+                window_hours=6,
+            )
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="weather_alert", error=str(e))
+
     return {
         "tenant_id": req.tenant_id,
         "field_id": req.field_id,
@@ -659,8 +815,10 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                 }
             )
         weather = result.data
+        provider = getattr(result, "provider", "Open-Meteo")
     else:
         weather = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
+        provider = "Open-Meteo"
 
     temp_c = weather.temperature_c
     humidity_pct = weather.humidity_pct
@@ -715,8 +873,21 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                     correlation_id=req.correlation_id,
                 )
                 event_ids.append(event_id)
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
+
+    # Publish report generated event
+    if publisher:
+        try:
+            await publisher.publish_forecast_issued(
+                tenant_id=req.tenant_id,
+                field_id=req.field_id,
+                provider=provider,
+                days=1,
+                correlation_id=req.correlation_id,
+            )
+        except Exception as e:
+            logger.error("nats_publish_failed", subject="forecast_issued", error=str(e))
 
     return {
         "tenant_id": req.tenant_id,
@@ -738,44 +909,53 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
 class FrostRiskRequest(BaseModel):
     """Frost risk assessment request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
     humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
-    wind_speed_kmh: float = Field(ge=0, description="Wind speed km/h")
+    wind_speed_kmh: float = Field(ge=0, le=400, description="Wind speed km/h")
     cloud_cover_pct: float = Field(default=0, ge=0, le=100, description="Cloud cover %")
     dew_point_c: float | None = Field(default=None, ge=-50, le=50, description="Dew point °C")
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 class HeatStressRequest(BaseModel):
     """Heat stress assessment request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     temp_c: float = Field(ge=-50, le=60, description="Temperature °C")
     humidity_pct: float = Field(ge=0, le=100, description="Humidity %")
     solar_radiation_mj: float = Field(default=15.0, ge=0, le=50, description="Solar radiation MJ/m²/day")
-    wind_speed_kmh: float = Field(default=10.0, ge=0, description="Wind speed km/h")
+    wind_speed_kmh: float = Field(default=10.0, ge=0, le=400, description="Wind speed km/h")
+    correlation_id: str | None = Field(default=None, max_length=200)
+
+
+class ChillModel(StrEnum):
+    SIMPLE = "simple"
+    UTAH = "utah"
+    DYNAMIC = "dynamic"
 
 
 class ChillHoursRequest(BaseModel):
     """Chill hours calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(max_length=100)
     hourly_temps: list[float] = Field(..., description="List of hourly temperatures °C")
-    model: str = Field(default="utah", description="Model: simple, utah, or dynamic")
+    model: ChillModel = Field(default=ChillModel.UTAH, description="Model: simple, utah, or dynamic")
     base_temp_c: float = Field(default=7.2, ge=0, le=15, description="Base temp for simple model")
 
 
 class DroughtIndexRequest(BaseModel):
     """Drought index calculation request"""
 
-    tenant_id: str
-    field_id: str
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(default="", max_length=100)
     precipitation_mm: float = Field(ge=0, description="Total precipitation mm")
     et0_mm: float = Field(ge=0, description="Total ET0 mm")
     days: int = Field(default=30, ge=1, le=365, description="Period in days")
+    correlation_id: str | None = Field(default=None, max_length=200)
 
 
 @app.post("/weather/frost-risk")
@@ -812,8 +992,8 @@ async def assess_frost_risk(req: FrostRiskRequest, user: User = Depends(get_curr
                     title_ar=result.get("recommendation_ar", "خطر صقيع"),
                     title_en=result.get("recommendation_en", "Frost risk"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "tenant_id": req.tenant_id,
@@ -856,8 +1036,8 @@ async def assess_heat_stress(req: HeatStressRequest, user: User = Depends(get_cu
                     title_ar=result.get("recommendation_ar", "إجهاد حراري"),
                     title_en=result.get("recommendation_en", "Heat stress"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "tenant_id": req.tenant_id,
@@ -927,8 +1107,8 @@ async def calculate_drought(req: DroughtIndexRequest, user: User = Depends(get_c
                     title_ar=result.get("recommendation_ar", "جفاف"),
                     title_en=result.get("recommendation_en", "Drought"),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
     return {
         "tenant_id": req.tenant_id,
@@ -1018,8 +1198,151 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
     }
 
 
+# ---------------------------------------------------------------------------
+# Weather Graph URL endpoints (Farmonaut-style get-past-weather-graph)
+# نقاط نهاية رسم الطقس — يعيد رابط URL للرسم بدل JSON
+# ---------------------------------------------------------------------------
+
+from src.graph import (  # noqa: E402
+    DailyPoint,
+    GraphRequest,
+    GraphStore,
+    WeatherGraphRenderer,
+)
+
+
+class WeatherGraphGenerateRequest(BaseModel):
+    tenant_id: str = Field(min_length=1, max_length=100)
+    field_id: str = Field(min_length=1, max_length=100)
+    lat: float = Field(ge=-90, le=90)
+    lon: float = Field(ge=-180, le=180)
+    days: int = Field(default=14, ge=1, le=90)
+    metric: Literal["temperature", "precipitation", "humidity", "wind", "combined"] = "combined"
+    language: Literal["ar", "en"] = "ar"
+
+
+@app.post("/api/v1/weather/fields/{field_id}/graph")
+async def generate_weather_graph(
+    field_id: str,
+    req: WeatherGraphGenerateRequest,
+    user: User = Depends(get_current_user),
+):
+    """
+    Generate a weather history graph for a field and return its URL.
+
+    Farmonaut-style: the API returns a signed URL to a server-rendered
+    SVG chart. The client loads it as an <img src="..."> instead of
+    receiving JSON + rendering the chart in Dart/JS. This is much
+    lighter on the mobile client and gives identical visuals across
+    platforms.
+
+    Response:
+      {
+        "success": true,
+        "data": {
+          "graph_id": "...",
+          "url": "/api/v1/weather/graphs/{id}?tid=...&sig=...",
+          "expires_at": "2026-04-11T18:30:00Z",
+          "metric": "combined",
+          "days": 14
+        }
+      }
+    """
+    _enforce_tenant(user, req.tenant_id)
+
+    # Initialise lazy singletons on first call (one per process).
+    if not hasattr(app.state, "graph_renderer"):
+        app.state.graph_renderer = WeatherGraphRenderer()
+    if not hasattr(app.state, "graph_store"):
+        app.state.graph_store = GraphStore()
+
+    # Pull historical daily weather — the multi-provider service
+    # already exposes get_daily_forecast; for past data we use the
+    # provider's history method when available, else we gracefully
+    # fall back to an empty series so the SVG still renders.
+    daily_points: list[DailyPoint] = []
+    if app.state.multi_provider and hasattr(app.state.multi_provider, "get_historical_daily"):
+        try:
+            history_result = await app.state.multi_provider.get_historical_daily(
+                req.lat, req.lon, req.days, tenant_id=req.tenant_id
+            )
+            if history_result and getattr(history_result, "success", False):
+                for row in history_result.data or []:
+                    daily_points.append(
+                        DailyPoint(
+                            date=row.get("date", ""),
+                            temp_min_c=row.get("temp_min_c"),
+                            temp_max_c=row.get("temp_max_c"),
+                            precipitation_mm=row.get("precipitation_mm"),
+                            humidity_pct=row.get("humidity_pct"),
+                            wind_speed_kmh=row.get("wind_speed_kmh"),
+                        )
+                    )
+        except Exception as e:  # pragma: no cover - provider-specific
+            logger.warning("Historical fetch failed, rendering empty graph", error=str(e))
+
+    svg = app.state.graph_renderer.render(
+        GraphRequest(
+            field_id=field_id,
+            tenant_id=req.tenant_id,
+            metric=req.metric,
+            points=daily_points,
+            language=req.language,
+        )
+    )
+    graph_id, url_path, expires_at = app.state.graph_store.store(svg=svg, field_id=field_id, tenant_id=req.tenant_id)
+
+    return {
+        "success": True,
+        "data": {
+            "graph_id": graph_id,
+            "url": url_path,
+            "expires_at": expires_at.isoformat(),
+            "metric": req.metric,
+            "days": req.days,
+            "points_count": len(daily_points),
+        },
+    }
+
+
+@app.get("/api/v1/weather/graphs/{graph_id}")
+async def fetch_weather_graph(graph_id: str, tid: str, sig: str):
+    """
+    Serve the rendered SVG for a previously-generated graph.
+
+    The URL is signed with HMAC-SHA256 (stored tenant + graph_id),
+    so only clients who went through POST /fields/:id/graph can
+    fetch the resulting SVG. No JWT required on this read — the
+    signature is the authorisation. Cache-Control: private so
+    proxies don't leak per-tenant graphs.
+    """
+    from starlette.responses import Response as StarletteResponse
+
+    if not hasattr(app.state, "graph_store"):
+        raise HTTPException(status_code=404, detail="Graph not found")
+
+    svg = app.state.graph_store.fetch(graph_id, tid, sig)
+    if svg is None:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "message": "Graph not found or expired",
+                "message_ar": "الرسم غير موجود أو انتهت صلاحيته",
+            },
+        )
+
+    return StarletteResponse(
+        content=svg,
+        media_type="image/svg+xml",
+        headers={
+            "Cache-Control": "private, max-age=3600",
+            "Content-Disposition": f'inline; filename="weather-{graph_id}.svg"',
+        },
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8092))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

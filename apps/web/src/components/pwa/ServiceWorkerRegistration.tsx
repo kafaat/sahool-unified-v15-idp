@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from 'react';
+import { logger } from '@/lib/logger';
 
 interface ServiceWorkerStatus {
   isSupported: boolean;
@@ -28,28 +29,78 @@ export function useServiceWorker() {
       setStatus((prev) => ({ ...prev, isOnline: navigator.onLine }));
     };
 
-    window.addEventListener("online", updateOnlineStatus);
-    window.addEventListener("offline", updateOnlineStatus);
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
 
     return () => {
-      window.removeEventListener("online", updateOnlineStatus);
-      window.removeEventListener("offline", updateOnlineStatus);
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
     };
   }, []);
 
-  // Register service worker
+  // Register service worker.
+  //
+  // Chrome-specific note: once a service worker is installed, Chrome will
+  // keep serving cached responses for `/` and `/dashboard` (see `sw.js`)
+  // until the cache version is bumped OR the user manually clears site
+  // data. Firefox is less aggressive. During active development that
+  // manifests as "works in other browsers, broken in Chrome" because
+  // Chrome is pinning an old bundle hash while Firefox refetches.
+  //
+  // To avoid that class of bug we only register the SW when:
+  //   1. NODE_ENV === 'production', AND
+  //   2. `NEXT_PUBLIC_ENABLE_PWA !== 'false'` (kill switch).
+  // Development builds actively UNREGISTER any previously installed SW
+  // and purge its caches so a broken / stale SW cannot linger across
+  // dev sessions.
   useEffect(() => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const pwaKillSwitchOff = process.env.NEXT_PUBLIC_ENABLE_PWA === 'false';
+    const shouldRegister = isProduction && !pwaKillSwitchOff;
+
+    const unregisterAll = async () => {
+      if (!('serviceWorker' in navigator)) return;
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((r) => r.unregister()));
+        if ('caches' in window) {
+          const names = await caches.keys();
+          await Promise.all(
+            names.filter((n) => n.startsWith('sahool-')).map((n) => caches.delete(n))
+          );
+        }
+        if (registrations.length > 0) {
+          logger.log('[PWA] Unregistered stale service worker(s) and cleared sahool-* caches');
+        }
+      } catch (error) {
+        logger.error('[PWA] Failed to unregister existing service worker:', error);
+      }
+    };
+
     const registerSW = async () => {
-      if (!("serviceWorker" in navigator)) {
+      if (!('serviceWorker' in navigator)) {
         setStatus((prev) => ({ ...prev, isSupported: false }));
         return;
       }
 
       setStatus((prev) => ({ ...prev, isSupported: true }));
 
+      if (!shouldRegister) {
+        // Kill switch or non-production build: actively purge any SW that a
+        // prior visit may have installed. This is the "escape hatch" for
+        // Chrome users who already have a stale SW pinned.
+        await unregisterAll();
+        return;
+      }
+
       try {
-        const registration = await navigator.serviceWorker.register("/sw.js", {
-          scope: "/",
+        const registration = await navigator.serviceWorker.register('/sw.js', {
+          scope: '/',
+          // `updateViaCache: 'none'` forces the browser to bypass HTTP cache
+          // when checking for a new `/sw.js`, so a deploy is always picked
+          // up on the next navigation instead of waiting for the HTTP cache
+          // to expire.
+          updateViaCache: 'none',
         });
 
         setStatus((prev) => ({
@@ -59,15 +110,12 @@ export function useServiceWorker() {
         }));
 
         // Check for updates
-        registration.addEventListener("updatefound", () => {
+        registration.addEventListener('updatefound', () => {
           const newWorker = registration.installing;
 
           if (newWorker) {
-            newWorker.addEventListener("statechange", () => {
-              if (
-                newWorker.state === "installed" &&
-                navigator.serviceWorker.controller
-              ) {
+            newWorker.addEventListener('statechange', () => {
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                 setStatus((prev) => ({ ...prev, hasUpdate: true }));
               }
             });
@@ -79,9 +127,9 @@ export function useServiceWorker() {
           setStatus((prev) => ({ ...prev, hasUpdate: true }));
         }
 
-        console.log("[PWA] Service worker registered successfully");
+        logger.log('[PWA] Service worker registered successfully');
       } catch (error) {
-        console.error("[PWA] Service worker registration failed:", error);
+        logger.error('[PWA] Service worker registration failed:', error);
       }
     };
 
@@ -91,24 +139,22 @@ export function useServiceWorker() {
   // Update service worker
   const updateServiceWorker = useCallback(() => {
     if (status.registration?.waiting) {
-      status.registration.waiting.postMessage({ type: "SKIP_WAITING" });
+      status.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
       window.location.reload();
     }
   }, [status.registration]);
 
   // Clear cache
   const clearCache = useCallback(async () => {
-    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
-      navigator.serviceWorker.controller.postMessage({ type: "CLEAR_CACHE" });
+    if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
     }
 
     // Also clear caches directly
-    if ("caches" in window) {
+    if ('caches' in window) {
       const cacheNames = await caches.keys();
       await Promise.all(
-        cacheNames
-          .filter((name) => name.startsWith("sahool-"))
-          .map((name) => caches.delete(name)),
+        cacheNames.filter((name) => name.startsWith('sahool-')).map((name) => caches.delete(name))
       );
     }
   }, []);
@@ -162,7 +208,7 @@ export function OfflineIndicator() {
           <p className="text-sm text-yellow-700 mt-1">
             يمكنك متابعة العمل. سيتم مزامنة البيانات عند الاتصال.
             <span className="sr-only">
-              {" "}
+              {' '}
               - You can continue working. Data will sync when connected.
             </span>
           </p>
@@ -173,7 +219,12 @@ export function OfflineIndicator() {
           aria-label="إغلاق - Dismiss"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
       </div>
@@ -220,9 +271,7 @@ export function UpdatePrompt() {
             تحديث جديد متاح
             <span className="sr-only"> - New update available</span>
           </p>
-          <p className="text-sm text-blue-700 mt-1">
-            يتوفر إصدار جديد من التطبيق. انقر للتحديث.
-          </p>
+          <p className="text-sm text-blue-700 mt-1">يتوفر إصدار جديد من التطبيق. انقر للتحديث.</p>
           <div className="mt-3 flex gap-2">
             <button
               onClick={updateServiceWorker}
@@ -248,8 +297,7 @@ export function UpdatePrompt() {
  */
 export function InstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
-  const [deferredPrompt, setDeferredPrompt] =
-    useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -258,10 +306,10 @@ export function InstallPrompt() {
       setShowPrompt(true);
     };
 
-    window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener('beforeinstallprompt', handler);
 
     return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
+      window.removeEventListener('beforeinstallprompt', handler);
     };
   }, []);
 
@@ -271,8 +319,8 @@ export function InstallPrompt() {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === "accepted") {
-      console.log("[PWA] App installed");
+    if (outcome === 'accepted') {
+      logger.log('[PWA] App installed');
     }
 
     setDeferredPrompt(null);
@@ -337,7 +385,7 @@ export function InstallPrompt() {
 // Type for beforeinstallprompt event
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
 /**

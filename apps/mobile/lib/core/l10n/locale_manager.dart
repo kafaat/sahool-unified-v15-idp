@@ -7,11 +7,11 @@
 /// - Number and date formatting
 /// - Pluralization helpers
 /// - Islamic calendar support
+library;
 
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:shared_preferences/shared_preferences.dart';
 
 // =============================================================================
@@ -69,12 +69,17 @@ class LocaleNotifier extends Notifier<LocaleState> {
   }
 
   Future<void> _loadSavedLocale() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedLocale = prefs.getString(_localeKey);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedLocale = prefs.getString(_localeKey);
 
-    if (savedLocale == 'en') {
-      state = LocaleState.english();
-    } else {
+      if (savedLocale == 'en') {
+        state = LocaleState.english();
+      } else {
+        state = LocaleState.arabic();
+      }
+    } catch (_) {
+      // Fallback to Arabic if SharedPreferences fails
       state = LocaleState.arabic();
     }
   }
@@ -83,16 +88,24 @@ class LocaleNotifier extends Notifier<LocaleState> {
   /// التبديل إلى العربية
   Future<void> switchToArabic() async {
     state = LocaleState.arabic();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_localeKey, 'ar');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_localeKey, 'ar');
+    } catch (_) {
+      // Locale applied in memory even if persistence fails
+    }
   }
 
   /// Switch to English
   /// التبديل إلى الإنجليزية
   Future<void> switchToEnglish() async {
     state = LocaleState.english();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_localeKey, 'en');
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_localeKey, 'en');
+    } catch (_) {
+      // Locale applied in memory even if persistence fails
+    }
   }
 
   /// Toggle between languages

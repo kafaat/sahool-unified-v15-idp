@@ -42,7 +42,7 @@ class NetworkCache {
     final meta = prefs.getString('$_metaPrefix$key');
     if (meta == null) return null;
 
-    final metaData = CacheMeta.fromJson(jsonDecode(meta));
+    final metaData = CacheMeta.fromJson(jsonDecode(meta) as Map<String, dynamic>);
     if (metaData.isExpired) {
       await remove(key);
       return null;
@@ -118,7 +118,7 @@ class NetworkCache {
     final meta = prefs.getString('$_metaPrefix$key');
     if (meta == null) return null;
 
-    final metaData = CacheMeta.fromJson(jsonDecode(meta));
+    final metaData = CacheMeta.fromJson(jsonDecode(meta) as Map<String, dynamic>);
     if (metaData.isExpired) {
       await remove(key);
       return null;
@@ -180,7 +180,7 @@ class NetworkCache {
       if (key.startsWith(_metaPrefix)) {
         final meta = prefs.getString(key);
         if (meta != null) {
-          final metaData = CacheMeta.fromJson(jsonDecode(meta));
+          final metaData = CacheMeta.fromJson(jsonDecode(meta) as Map<String, dynamic>);
           if (metaData.isExpired) {
             final cacheKey = key.replaceFirst(_metaPrefix, '');
             await remove(cacheKey);
@@ -228,7 +228,7 @@ class NetworkCache {
       } else if (key.startsWith(_metaPrefix)) {
         final meta = prefs.getString(key);
         if (meta != null) {
-          final metaData = CacheMeta.fromJson(jsonDecode(meta));
+          final metaData = CacheMeta.fromJson(jsonDecode(meta) as Map<String, dynamic>);
           if (metaData.isExpired) {
             expiredCount++;
           }
@@ -250,7 +250,7 @@ class NetworkCache {
     final meta = prefs.getString('$_metaPrefix$key');
     if (meta == null) return false;
 
-    final metaData = CacheMeta.fromJson(jsonDecode(meta));
+    final metaData = CacheMeta.fromJson(jsonDecode(meta) as Map<String, dynamic>);
     return !metaData.isExpired;
   }
 }
@@ -289,7 +289,7 @@ class CacheMeta {
 
   factory CacheMeta.fromJson(Map<String, dynamic> json) => CacheMeta(
     key: json['key'] as String,
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     ttl: Duration(seconds: json['ttlSeconds'] as int),
     priority: CachePriority.values[json['priority'] as int],
   );

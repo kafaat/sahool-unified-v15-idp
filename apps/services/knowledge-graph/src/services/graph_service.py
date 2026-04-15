@@ -20,7 +20,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 
-from models import (
+from ..models import (
     Crop,
     Disease,
     GraphEdge,

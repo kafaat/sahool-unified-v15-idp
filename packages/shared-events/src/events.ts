@@ -12,6 +12,12 @@ export interface BaseEvent {
   eventType: string;
   timestamp: Date;
   version: string;
+  /**
+   * Tenant ID for multi-tenant event isolation.
+   * Extracted from JWT `tid` claim. Optional for system-level events
+   * (e.g. device.connected) that may not have a tenant context.
+   */
+  tenantId?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -20,14 +26,14 @@ export interface BaseEvent {
 // ============================================================================
 
 export interface FieldCreatedEvent extends BaseEvent {
-  eventType: "field.created";
+  eventType: 'sahool.field.created';
   payload: {
     fieldId: string;
     userId: string;
     name: string;
     area: number;
     location: {
-      type: "Polygon";
+      type: 'Polygon';
       coordinates: number[][][];
     };
     cropType?: string;
@@ -35,7 +41,7 @@ export interface FieldCreatedEvent extends BaseEvent {
 }
 
 export interface FieldUpdatedEvent extends BaseEvent {
-  eventType: "field.updated";
+  eventType: 'sahool.field.updated';
   payload: {
     fieldId: string;
     userId: string;
@@ -43,7 +49,7 @@ export interface FieldUpdatedEvent extends BaseEvent {
       name?: string;
       area?: number;
       location?: {
-        type: "Polygon";
+        type: 'Polygon';
         coordinates: number[][][];
       };
       cropType?: string;
@@ -52,7 +58,7 @@ export interface FieldUpdatedEvent extends BaseEvent {
 }
 
 export interface FieldDeletedEvent extends BaseEvent {
-  eventType: "field.deleted";
+  eventType: 'sahool.field.deleted';
   payload: {
     fieldId: string;
     userId: string;
@@ -65,7 +71,7 @@ export interface FieldDeletedEvent extends BaseEvent {
 // ============================================================================
 
 export interface OrderPlacedEvent extends BaseEvent {
-  eventType: "order.placed";
+  eventType: 'sahool.order.placed';
   payload: {
     orderId: string;
     userId: string;
@@ -86,7 +92,7 @@ export interface OrderPlacedEvent extends BaseEvent {
 }
 
 export interface OrderCompletedEvent extends BaseEvent {
-  eventType: "order.completed";
+  eventType: 'sahool.order.completed';
   payload: {
     orderId: string;
     userId: string;
@@ -97,7 +103,7 @@ export interface OrderCompletedEvent extends BaseEvent {
 }
 
 export interface OrderCancelledEvent extends BaseEvent {
-  eventType: "order.cancelled";
+  eventType: 'sahool.order.cancelled';
   payload: {
     orderId: string;
     userId: string;
@@ -111,17 +117,11 @@ export interface OrderCancelledEvent extends BaseEvent {
 // ============================================================================
 
 export interface SensorReadingEvent extends BaseEvent {
-  eventType: "sensor.reading";
+  eventType: 'sahool.sensor.reading';
   payload: {
     deviceId: string;
     fieldId?: string;
-    sensorType:
-      | "temperature"
-      | "humidity"
-      | "soil_moisture"
-      | "ph"
-      | "light"
-      | "other";
+    sensorType: 'temperature' | 'humidity' | 'soil_moisture' | 'ph' | 'light' | 'other';
     value: number;
     unit: string;
     latitude?: number;
@@ -131,7 +131,7 @@ export interface SensorReadingEvent extends BaseEvent {
 }
 
 export interface DeviceConnectedEvent extends BaseEvent {
-  eventType: "device.connected";
+  eventType: 'sahool.device.connected';
   payload: {
     deviceId: string;
     deviceType: string;
@@ -142,13 +142,13 @@ export interface DeviceConnectedEvent extends BaseEvent {
 }
 
 export interface DeviceDisconnectedEvent extends BaseEvent {
-  eventType: "device.disconnected";
+  eventType: 'sahool.device.disconnected';
   payload: {
     deviceId: string;
     deviceType: string;
     fieldId?: string;
     disconnectedAt: Date;
-    reason?: "timeout" | "user_action" | "error" | "other";
+    reason?: 'timeout' | 'user_action' | 'error' | 'other';
   };
 }
 
@@ -157,7 +157,7 @@ export interface DeviceDisconnectedEvent extends BaseEvent {
 // ============================================================================
 
 export interface UserCreatedEvent extends BaseEvent {
-  eventType: "user.created";
+  eventType: 'sahool.user.created';
   payload: {
     userId: string;
     email: string;
@@ -170,7 +170,7 @@ export interface UserCreatedEvent extends BaseEvent {
 }
 
 export interface UserUpdatedEvent extends BaseEvent {
-  eventType: "user.updated";
+  eventType: 'sahool.user.updated';
   payload: {
     userId: string;
     changes: {
@@ -189,7 +189,7 @@ export interface UserUpdatedEvent extends BaseEvent {
 // ============================================================================
 
 export interface InventoryLowStockEvent extends BaseEvent {
-  eventType: "inventory.low_stock";
+  eventType: 'sahool.inventory.low_stock';
   payload: {
     productId: string;
     productName: string;
@@ -201,12 +201,12 @@ export interface InventoryLowStockEvent extends BaseEvent {
 }
 
 export interface InventoryMovementEvent extends BaseEvent {
-  eventType: "inventory.movement";
+  eventType: 'sahool.inventory.movement';
   payload: {
     movementId: string;
     productId: string;
     quantity: number;
-    movementType: "in" | "out" | "transfer" | "adjustment";
+    movementType: 'in' | 'out' | 'transfer' | 'adjustment';
     fromWarehouseId?: string;
     toWarehouseId?: string;
     reason?: string;
@@ -219,13 +219,13 @@ export interface InventoryMovementEvent extends BaseEvent {
 // ============================================================================
 
 export interface NotificationSendEvent extends BaseEvent {
-  eventType: "notification.send";
+  eventType: 'sahool.notification.send';
   payload: {
     notificationId: string;
     recipientId: string;
-    recipientType: "user" | "group" | "all";
-    channel: "email" | "sms" | "push" | "in_app";
-    priority: "low" | "medium" | "high" | "urgent";
+    recipientType: 'user' | 'group' | 'all';
+    channel: 'email' | 'sms' | 'push' | 'in_app';
+    priority: 'low' | 'medium' | 'high' | 'urgent';
     subject: string;
     message: string;
     data?: Record<string, unknown>;
@@ -236,18 +236,9 @@ export interface NotificationSendEvent extends BaseEvent {
 // Event Union Types
 // ============================================================================
 
-export type FieldEvent =
-  | FieldCreatedEvent
-  | FieldUpdatedEvent
-  | FieldDeletedEvent;
-export type OrderEvent =
-  | OrderPlacedEvent
-  | OrderCompletedEvent
-  | OrderCancelledEvent;
-export type SensorEvent =
-  | SensorReadingEvent
-  | DeviceConnectedEvent
-  | DeviceDisconnectedEvent;
+export type FieldEvent = FieldCreatedEvent | FieldUpdatedEvent | FieldDeletedEvent;
+export type OrderEvent = OrderPlacedEvent | OrderCompletedEvent | OrderCancelledEvent;
+export type SensorEvent = SensorReadingEvent | DeviceConnectedEvent | DeviceDisconnectedEvent;
 export type UserEvent = UserCreatedEvent | UserUpdatedEvent;
 export type InventoryEvent = InventoryLowStockEvent | InventoryMovementEvent;
 export type NotificationEvent = NotificationSendEvent;
@@ -264,32 +255,37 @@ export type SahoolEvent =
 // Event Subject/Topic Constants
 // ============================================================================
 
+// All subjects MUST be `sahool.<domain>.<entity>.<action>` so they match
+// the Python publishers/subscribers in `shared/events/subjects.py`. Without
+// the `sahool.` prefix, TypeScript-published events never reach Python
+// consumers (e.g. iot-service alerts → notification-service was a silent
+// data loss bug before this convention was enforced).
 export const EventSubjects = {
   // Field events
-  FIELD_CREATED: "field.created",
-  FIELD_UPDATED: "field.updated",
-  FIELD_DELETED: "field.deleted",
+  FIELD_CREATED: 'sahool.field.created',
+  FIELD_UPDATED: 'sahool.field.updated',
+  FIELD_DELETED: 'sahool.field.deleted',
 
   // Order events
-  ORDER_PLACED: "order.placed",
-  ORDER_COMPLETED: "order.completed",
-  ORDER_CANCELLED: "order.cancelled",
+  ORDER_PLACED: 'sahool.order.placed',
+  ORDER_COMPLETED: 'sahool.order.completed',
+  ORDER_CANCELLED: 'sahool.order.cancelled',
 
   // Sensor events
-  SENSOR_READING: "sensor.reading",
-  DEVICE_CONNECTED: "device.connected",
-  DEVICE_DISCONNECTED: "device.disconnected",
+  SENSOR_READING: 'sahool.sensor.reading',
+  DEVICE_CONNECTED: 'sahool.device.connected',
+  DEVICE_DISCONNECTED: 'sahool.device.disconnected',
 
   // User events
-  USER_CREATED: "user.created",
-  USER_UPDATED: "user.updated",
+  USER_CREATED: 'sahool.user.created',
+  USER_UPDATED: 'sahool.user.updated',
 
   // Inventory events
-  INVENTORY_LOW_STOCK: "inventory.low_stock",
-  INVENTORY_MOVEMENT: "inventory.movement",
+  INVENTORY_LOW_STOCK: 'sahool.inventory.low_stock',
+  INVENTORY_MOVEMENT: 'sahool.inventory.movement',
 
   // Notification events
-  NOTIFICATION_SEND: "notification.send",
+  NOTIFICATION_SEND: 'sahool.notification.send',
 } as const;
 
 export type EventSubject = (typeof EventSubjects)[keyof typeof EventSubjects];

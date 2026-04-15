@@ -266,23 +266,32 @@ NUTRIENT_DEFICIENCIES = {
 
 
 def get_deficiency(deficiency_id: str) -> dict | None:
-    """Get nutrient deficiency by ID"""
-    return NUTRIENT_DEFICIENCIES.get(deficiency_id)
+    """Get nutrient deficiency by ID. Returns None if deficiency_id is empty or not found."""
+    if not deficiency_id or not isinstance(deficiency_id, str):
+        return None
+    return NUTRIENT_DEFICIENCIES.get(deficiency_id.strip())
 
 
 def get_deficiency_by_nutrient(nutrient: str) -> dict | None:
-    """Get deficiency info by nutrient symbol (N, P, K, etc.)"""
+    """Get deficiency info by nutrient symbol (N, P, K, etc.). Returns None if not found."""
+    if not nutrient or not isinstance(nutrient, str):
+        return None
+    nutrient = nutrient.strip()
     for def_id, deficiency in NUTRIENT_DEFICIENCIES.items():
-        if deficiency["nutrient"] == nutrient:
+        if deficiency.get("nutrient") == nutrient:
             return {"id": def_id, **deficiency}
     return None
 
 
-def diagnose_from_ndvi(ndvi: float, ndvi_history: list[float] = None) -> list[dict]:
+def diagnose_from_ndvi(ndvi: float, ndvi_history: list[float] | None = None) -> list[dict]:
     """
-    Diagnose potential nutrient issues from NDVI readings
-    Returns list of possible deficiencies ordered by likelihood
+    Diagnose potential nutrient issues from NDVI readings.
+    Returns list of possible deficiencies ordered by likelihood.
+    Returns empty list if NDVI is out of valid range.
     """
+    if not isinstance(ndvi, (int, float)) or not (-1 <= ndvi <= 1):
+        return []
+
     diagnoses = []
 
     if ndvi < 0.3:
@@ -312,15 +321,18 @@ def diagnose_from_ndvi(ndvi: float, ndvi_history: list[float] = None) -> list[di
         )
 
     # Check for declining trend
-    if ndvi_history and len(ndvi_history) >= 3:
-        trend = ndvi_history[-1] - ndvi_history[0]
-        if trend < -0.1:
-            diagnoses.append(
-                {
-                    "id": "phosphorus_deficiency",
-                    "confidence": 0.4,
-                    "reason": "declining_ndvi_trend",
-                }
-            )
+    if ndvi_history and isinstance(ndvi_history, list) and len(ndvi_history) >= 3:
+        # Validate all history values are valid floats in range
+        valid_history = all(isinstance(v, (int, float)) and -1 <= v <= 1 for v in ndvi_history)
+        if valid_history:
+            trend = ndvi_history[-1] - ndvi_history[0]
+            if trend < -0.1:
+                diagnoses.append(
+                    {
+                        "id": "phosphorus_deficiency",
+                        "confidence": 0.4,
+                        "reason": "declining_ndvi_trend",
+                    }
+                )
 
     return diagnoses

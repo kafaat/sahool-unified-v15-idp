@@ -6,7 +6,8 @@
  * Port: 3000 (field-management-service)
  */
 
-import { Router, Request, Response } from "express";
+import { Router, Request, Response } from 'express';
+import { logger } from '../middleware/logger';
 
 const router = Router();
 
@@ -42,7 +43,7 @@ interface FieldHealthRequest {
 
 interface RiskFactor {
   type: string;
-  severity: "low" | "medium" | "high" | "critical";
+  severity: 'low' | 'medium' | 'high' | 'critical';
   description_ar: string;
   description_en: string;
   impact_score: number;
@@ -112,10 +113,7 @@ function calculateNdviScore(ndviData: NDVIData, cropType: string): number {
 /**
  * Calculate soil moisture score based on crop type
  */
-function calculateSoilMoistureScore(
-  sensorData: SensorData,
-  cropType: string,
-): number {
+function calculateSoilMoistureScore(sensorData: SensorData, cropType: string): number {
   const moisture = sensorData.soil_moisture;
 
   // Optimal moisture ranges by crop type
@@ -129,8 +127,7 @@ function calculateSoilMoistureScore(
     default: [25, 40],
   };
 
-  const [optimalMin, optimalMax] =
-    optimalRanges[cropType.toLowerCase()] || optimalRanges.default;
+  const [optimalMin, optimalMax] = optimalRanges[cropType.toLowerCase()] || optimalRanges.default;
 
   let score: number;
 
@@ -158,10 +155,7 @@ function calculateSoilMoistureScore(
 /**
  * Calculate weather suitability score
  */
-function calculateWeatherScore(
-  weatherData: WeatherData,
-  cropType: string,
-): number {
+function calculateWeatherScore(weatherData: WeatherData, cropType: string): number {
   let score = 100;
 
   const precipitation = weatherData.precipitation;
@@ -220,26 +214,25 @@ function identifyRiskFactors(
   ndviScore: number,
   soilScore: number,
   weatherScore: number,
-  sensorScore: number,
+  sensorScore: number
 ): RiskFactor[] {
   const risks: RiskFactor[] = [];
 
   // Vegetation stress risk
   if (ndviScore < 40) {
     risks.push({
-      type: "vegetation_stress",
-      severity: ndviScore < 20 ? "critical" : "high",
-      description_ar: "ضعف شديد في النمو النباتي يتطلب تدخل فوري",
-      description_en:
-        "Severe vegetation stress requiring immediate intervention",
+      type: 'vegetation_stress',
+      severity: ndviScore < 20 ? 'critical' : 'high',
+      description_ar: 'ضعف شديد في النمو النباتي يتطلب تدخل فوري',
+      description_en: 'Severe vegetation stress requiring immediate intervention',
       impact_score: 100 - ndviScore,
     });
   } else if (ndviScore < 60) {
     risks.push({
-      type: "vegetation_stress",
-      severity: "medium",
-      description_ar: "إجهاد نباتي متوسط قد يؤثر على الإنتاجية",
-      description_en: "Moderate vegetation stress may affect productivity",
+      type: 'vegetation_stress',
+      severity: 'medium',
+      description_ar: 'إجهاد نباتي متوسط قد يؤثر على الإنتاجية',
+      description_en: 'Moderate vegetation stress may affect productivity',
       impact_score: 60 - ndviScore,
     });
   }
@@ -249,18 +242,18 @@ function identifyRiskFactors(
     const moisture = request.sensor_data.soil_moisture;
     if (moisture < 20) {
       risks.push({
-        type: "drought",
-        severity: "high",
-        description_ar: "جفاف شديد في التربة يتطلب ري فوري",
-        description_en: "Severe soil drought requiring immediate irrigation",
+        type: 'drought',
+        severity: 'high',
+        description_ar: 'جفاف شديد في التربة يتطلب ري فوري',
+        description_en: 'Severe soil drought requiring immediate irrigation',
         impact_score: 80,
       });
     } else {
       risks.push({
-        type: "waterlogging",
-        severity: "high",
-        description_ar: "رطوبة زائدة في التربة قد تسبب تعفن الجذور",
-        description_en: "Excessive soil moisture may cause root rot",
+        type: 'waterlogging',
+        severity: 'high',
+        description_ar: 'رطوبة زائدة في التربة قد تسبب تعفن الجذور',
+        description_en: 'Excessive soil moisture may cause root rot',
         impact_score: 70,
       });
     }
@@ -270,23 +263,20 @@ function identifyRiskFactors(
   if (weatherScore < 60) {
     if (request.weather_data.precipitation > 50) {
       risks.push({
-        type: "heavy_rain",
-        severity: "medium",
-        description_ar: "أمطار غزيرة قد تؤثر على العمليات الزراعية",
-        description_en: "Heavy rainfall may affect agricultural operations",
+        type: 'heavy_rain',
+        severity: 'medium',
+        description_ar: 'أمطار غزيرة قد تؤثر على العمليات الزراعية',
+        description_en: 'Heavy rainfall may affect agricultural operations',
         impact_score: 50,
       });
     }
 
-    if (
-      request.weather_data.wind_speed &&
-      request.weather_data.wind_speed > 40
-    ) {
+    if (request.weather_data.wind_speed && request.weather_data.wind_speed > 40) {
       risks.push({
-        type: "strong_winds",
-        severity: "high",
-        description_ar: "رياح قوية قد تضر بالمحاصيل",
-        description_en: "Strong winds may damage crops",
+        type: 'strong_winds',
+        severity: 'high',
+        description_ar: 'رياح قوية قد تضر بالمحاصيل',
+        description_en: 'Strong winds may damage crops',
         impact_score: 60,
       });
     }
@@ -295,10 +285,10 @@ function identifyRiskFactors(
   // Sensor malfunction risk
   if (sensorScore < 70) {
     risks.push({
-      type: "sensor_anomaly",
-      severity: "low",
-      description_ar: "قراءات شاذة من الأجهزة تحتاج للمراجعة",
-      description_en: "Anomalous sensor readings need review",
+      type: 'sensor_anomaly',
+      severity: 'low',
+      description_ar: 'قراءات شاذة من الأجهزة تحتاج للمراجعة',
+      description_en: 'Anomalous sensor readings need review',
       impact_score: 30,
     });
   }
@@ -314,77 +304,59 @@ function generateRecommendations(
   overallScore: number,
   riskFactors: RiskFactor[],
   soilScore: number,
-  ndviScore: number,
+  ndviScore: number
 ): { recommendations_ar: string[]; recommendations_en: string[] } {
   const recommendations_ar: string[] = [];
   const recommendations_en: string[] = [];
 
   // Overall health recommendations
   if (overallScore < 50) {
-    recommendations_ar.push("⚠️ الحقل يحتاج لتدخل فوري لتحسين الصحة العامة");
-    recommendations_en.push(
-      "⚠️ Field requires immediate intervention to improve overall health",
-    );
+    recommendations_ar.push('⚠️ الحقل يحتاج لتدخل فوري لتحسين الصحة العامة');
+    recommendations_en.push('⚠️ Field requires immediate intervention to improve overall health');
   }
 
   // Soil moisture recommendations
   const moisture = request.sensor_data.soil_moisture;
   if (moisture < 20) {
-    recommendations_ar.push("💧 تنفيذ خطة ري عاجلة لمعالجة الجفاف الشديد");
-    recommendations_en.push(
-      "💧 Implement emergency irrigation plan to address severe drought",
-    );
+    recommendations_ar.push('💧 تنفيذ خطة ري عاجلة لمعالجة الجفاف الشديد');
+    recommendations_en.push('💧 Implement emergency irrigation plan to address severe drought');
   } else if (moisture < 30) {
-    recommendations_ar.push("💧 زيادة معدل الري للوصول للرطوبة المثلى");
-    recommendations_en.push(
-      "💧 Increase irrigation rate to reach optimal moisture",
-    );
+    recommendations_ar.push('💧 زيادة معدل الري للوصول للرطوبة المثلى');
+    recommendations_en.push('💧 Increase irrigation rate to reach optimal moisture');
   } else if (moisture > 60) {
-    recommendations_ar.push("💧 تقليل الري وتحسين الصرف لمنع تعفن الجذور");
-    recommendations_en.push(
-      "💧 Reduce irrigation and improve drainage to prevent root rot",
-    );
+    recommendations_ar.push('💧 تقليل الري وتحسين الصرف لمنع تعفن الجذور');
+    recommendations_en.push('💧 Reduce irrigation and improve drainage to prevent root rot');
   }
 
   // Vegetation growth recommendations
   if (ndviScore < 40) {
-    recommendations_ar.push("🌱 فحص نظام التسميد وإجراء تحليل للتربة");
-    recommendations_en.push(
-      "🌱 Check fertilization system and conduct soil analysis",
-    );
-    recommendations_ar.push("🔍 فحص المحاصيل للكشف عن الآفات والأمراض");
-    recommendations_en.push("🔍 Inspect crops for pests and diseases");
+    recommendations_ar.push('🌱 فحص نظام التسميد وإجراء تحليل للتربة');
+    recommendations_en.push('🌱 Check fertilization system and conduct soil analysis');
+    recommendations_ar.push('🔍 فحص المحاصيل للكشف عن الآفات والأمراض');
+    recommendations_en.push('🔍 Inspect crops for pests and diseases');
   }
 
   // Weather recommendations
   if (request.weather_data.precipitation > 40) {
-    recommendations_ar.push("☔ تأجيل عمليات الرش والتسميد حتى تحسن الطقس");
-    recommendations_en.push(
-      "☔ Postpone spraying and fertilization until weather improves",
-    );
+    recommendations_ar.push('☔ تأجيل عمليات الرش والتسميد حتى تحسن الطقس');
+    recommendations_en.push('☔ Postpone spraying and fertilization until weather improves');
   }
 
   if (request.weather_data.wind_speed && request.weather_data.wind_speed > 40) {
-    recommendations_ar.push("💨 تركيب مصدات رياح لحماية المحاصيل");
-    recommendations_en.push("💨 Install windbreaks to protect crops");
+    recommendations_ar.push('💨 تركيب مصدات رياح لحماية المحاصيل');
+    recommendations_en.push('💨 Install windbreaks to protect crops');
   }
 
   // Maintenance recommendations
-  if (riskFactors.some((r) => r.type === "sensor_anomaly")) {
-    recommendations_ar.push(
-      "🔧 فحص وصيانة أجهزة الاستشعار للتأكد من دقة القراءات",
-    );
-    recommendations_en.push(
-      "🔧 Check and maintain sensors to ensure accurate readings",
-    );
+  if (riskFactors.some((r) => r.type === 'sensor_anomaly')) {
+    recommendations_ar.push('🔧 فحص وصيانة أجهزة الاستشعار للتأكد من دقة القراءات');
+    recommendations_en.push('🔧 Check and maintain sensors to ensure accurate readings');
   }
 
   // General improvement recommendations
   if (overallScore < 70) {
-    recommendations_ar.push("📊 زيادة تكرار المراقبة لتتبع تحسن الصحة");
-    recommendations_en.push(
-      "📊 Increase monitoring frequency to track health improvement",
-    );
+    recommendations_ar.push('📊 زيادة تكرار المراقبة لتتبع تحسن الصحة');
+    recommendations_en.push('📊 Increase monitoring frequency to track health improvement');
   }
 
   return { recommendations_ar, recommendations_en };
@@ -394,11 +366,11 @@ function generateRecommendations(
  * Get health status from score
  */
 function getHealthStatus(score: number): { status: string; status_ar: string } {
-  if (score >= 85) return { status: "excellent", status_ar: "ممتاز" };
-  if (score >= 70) return { status: "good", status_ar: "جيد" };
-  if (score >= 50) return { status: "fair", status_ar: "مقبول" };
-  if (score >= 30) return { status: "poor", status_ar: "ضعيف" };
-  return { status: "critical", status_ar: "حرج" };
+  if (score >= 85) return { status: 'excellent', status_ar: 'ممتاز' };
+  if (score >= 70) return { status: 'good', status_ar: 'جيد' };
+  if (score >= 50) return { status: 'fair', status_ar: 'مقبول' };
+  if (score >= 30) return { status: 'poor', status_ar: 'ضعيف' };
+  return { status: 'critical', status_ar: 'حرج' };
 }
 
 // ============================================================================
@@ -409,7 +381,7 @@ function getHealthStatus(score: number): { status: string; status_ar: string } {
  * POST /api/v1/field-health
  * Analyze agricultural field health
  */
-router.post("/field-health", async (req: Request, res: Response) => {
+router.post('/field-health', async (req: Request, res: Response) => {
   try {
     const request = req.body as FieldHealthRequest;
 
@@ -423,8 +395,7 @@ router.post("/field-health", async (req: Request, res: Response) => {
     ) {
       return res.status(400).json({
         success: false,
-        error:
-          "Missing required fields: field_id, crop_type, sensor_data, ndvi_data, weather_data",
+        error: 'Missing required fields: field_id, crop_type, sensor_data, ndvi_data, weather_data',
       });
     }
 
@@ -433,19 +404,19 @@ router.post("/field-health", async (req: Request, res: Response) => {
     if (soil_moisture < 0 || soil_moisture > 100) {
       return res.status(400).json({
         success: false,
-        error: "Invalid input data: soil_moisture must be between 0 and 100",
+        error: 'Invalid input data: soil_moisture must be between 0 and 100',
       });
     }
     if (temperature < -50 || temperature > 60) {
       return res.status(400).json({
         success: false,
-        error: "Invalid input data: temperature must be between -50 and 60",
+        error: 'Invalid input data: temperature must be between -50 and 60',
       });
     }
     if (humidity < 0 || humidity > 100) {
       return res.status(400).json({
         success: false,
-        error: "Invalid input data: humidity must be between 0 and 100",
+        error: 'Invalid input data: humidity must be between 0 and 100',
       });
     }
 
@@ -453,32 +424,22 @@ router.post("/field-health", async (req: Request, res: Response) => {
     if (request.ndvi_data.ndvi_value < -1 || request.ndvi_data.ndvi_value > 1) {
       return res.status(400).json({
         success: false,
-        error: "Invalid input data: ndvi_value must be between -1 and 1",
+        error: 'Invalid input data: ndvi_value must be between -1 and 1',
       });
     }
 
     // Calculate component scores
     const ndviScore = calculateNdviScore(request.ndvi_data, request.crop_type);
-    const soilMoistureScore = calculateSoilMoistureScore(
-      request.sensor_data,
-      request.crop_type,
-    );
-    const weatherScore = calculateWeatherScore(
-      request.weather_data,
-      request.crop_type,
-    );
+    const soilMoistureScore = calculateSoilMoistureScore(request.sensor_data, request.crop_type);
+    const weatherScore = calculateWeatherScore(request.weather_data, request.crop_type);
     const sensorAnomalyScore = calculateSensorAnomalyScore(request.sensor_data);
 
     // Calculate weighted overall score
     const overallHealthScore =
-      ndviScore * 0.4 +
-      soilMoistureScore * 0.25 +
-      weatherScore * 0.2 +
-      sensorAnomalyScore * 0.15;
+      ndviScore * 0.4 + soilMoistureScore * 0.25 + weatherScore * 0.2 + sensorAnomalyScore * 0.15;
 
     // Determine health status
-    const { status: healthStatus, status_ar: healthStatusAr } =
-      getHealthStatus(overallHealthScore);
+    const { status: healthStatus, status_ar: healthStatusAr } = getHealthStatus(overallHealthScore);
 
     // Identify risk factors
     const riskFactors = identifyRiskFactors(
@@ -486,7 +447,7 @@ router.post("/field-health", async (req: Request, res: Response) => {
       ndviScore,
       soilMoistureScore,
       weatherScore,
-      sensorAnomalyScore,
+      sensorAnomalyScore
     );
 
     // Generate recommendations
@@ -495,7 +456,7 @@ router.post("/field-health", async (req: Request, res: Response) => {
       overallHealthScore,
       riskFactors,
       soilMoistureScore,
-      ndviScore,
+      ndviScore
     );
 
     // Build response
@@ -519,9 +480,8 @@ router.post("/field-health", async (req: Request, res: Response) => {
         weather_weight: 0.2,
         sensor_anomaly_weight: 0.15,
         total_risk_factors: riskFactors.length,
-        critical_risks: riskFactors.filter((r) => r.severity === "critical")
-          .length,
-        high_risks: riskFactors.filter((r) => r.severity === "high").length,
+        critical_risks: riskFactors.filter((r) => r.severity === 'critical').length,
+        high_risks: riskFactors.filter((r) => r.severity === 'high').length,
       },
     };
 
@@ -530,11 +490,11 @@ router.post("/field-health", async (req: Request, res: Response) => {
       data: response,
     });
   } catch (error) {
-    console.error("Error in field health analysis:", error);
+    logger.error('Error in field health analysis:', error);
     res.status(500).json({
       success: false,
-      error: "Internal server error during health analysis",
-      detail: error instanceof Error ? error.message : "Unknown error",
+      error: 'Internal server error during health analysis',
+      detail: error instanceof Error ? error.message : 'Unknown error',
     });
   }
 });

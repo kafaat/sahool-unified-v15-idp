@@ -13,9 +13,9 @@ import sys
 from datetime import date, timedelta
 from pathlib import Path
 
-# Dynamic path: navigate to apps/services, then satellite-service
+# Dynamic path: navigate to apps/services, then vegetation-analysis-service
 services_dir = Path(__file__).parent.parent.resolve()
-sys.path.insert(0, str(services_dir / "satellite-service"))
+sys.path.insert(0, str(services_dir / "vegetation-analysis-service"))
 
 from src.weather_integration import WeatherIntegration
 

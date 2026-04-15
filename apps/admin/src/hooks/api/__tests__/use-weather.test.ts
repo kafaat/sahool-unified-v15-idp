@@ -3,21 +3,21 @@
  * اختبارات خطافات الطقس
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
-import { invalidateQueries } from "../use-api-query";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { invalidateQueries } from '../use-api-query';
 
-vi.mock("@/lib/api", () => ({
+vi.mock('@/lib/api', () => ({
   getWeatherCurrent: vi.fn().mockResolvedValue({
     temperature: 28,
     humidity: 65,
     wind_speed: 12,
-    description: "Partly cloudy",
-    description_ar: "غائم جزئياً",
+    description: 'Partly cloudy',
+    description_ar: 'غائم جزئياً',
   }),
   getWeatherForecast: vi.fn().mockResolvedValue([
-    { date: "2026-03-18", high: 32, low: 18 },
-    { date: "2026-03-19", high: 30, low: 17 },
+    { date: '2026-03-18', high: 32, low: 18 },
+    { date: '2026-03-19', high: 30, low: 17 },
   ]),
   getAgriculturalReport: vi.fn().mockResolvedValue({
     et: 5.5,
@@ -28,18 +28,20 @@ vi.mock("@/lib/api", () => ({
     temperature: 25,
     humidity: 70,
   }),
-  getWeatherForecastByLocation: vi.fn().mockResolvedValue([
-    { date: "2026-03-18", high: 28, low: 15 },
-  ]),
+  getWeatherForecastByLocation: vi
+    .fn()
+    .mockResolvedValue([{ date: '2026-03-18', high: 28, low: 15 }]),
   getWeatherLocations: vi.fn().mockResolvedValue({
     locations: [
-      { id: "sanaa", name: "صنعاء" },
-      { id: "aden", name: "عدن" },
+      { id: 'sanaa', name: 'صنعاء' },
+      { id: 'aden', name: 'عدن' },
     ],
   }),
-  fetchWeatherAlerts: vi.fn().mockResolvedValue([
-    { id: "a1", type: "heat", severity: "warning", message: "High temperature expected" },
-  ]),
+  fetchWeatherAlerts: vi
+    .fn()
+    .mockResolvedValue([
+      { id: 'a1', type: 'heat', severity: 'warning', message: 'High temperature expected' },
+    ]),
 }));
 
 import {
@@ -50,14 +52,14 @@ import {
   useWeatherForecastByLocation,
   useWeatherLocations,
   useWeatherAlerts,
-} from "../use-weather";
+} from '../use-weather';
 
 beforeEach(() => {
-  invalidateQueries("");
+  invalidateQueries('');
 });
 
-describe("useWeatherCurrent", () => {
-  it("fetches current weather by coordinates", async () => {
+describe('useWeatherCurrent', () => {
+  it('fetches current weather by coordinates', async () => {
     const { result } = renderHook(() => useWeatherCurrent(15.37, 44.19));
 
     await waitFor(() => {
@@ -68,21 +70,19 @@ describe("useWeatherCurrent", () => {
       expect.objectContaining({
         temperature: 28,
         humidity: 65,
-      }),
+      })
     );
   });
 
-  it("does not fetch without valid coordinates", () => {
+  it('does not fetch without valid coordinates', () => {
     const { result } = renderHook(() => useWeatherCurrent(0, 0));
     expect(result.current.isLoading).toBe(false);
   });
 });
 
-describe("useWeatherForecast", () => {
-  it("fetches forecast data", async () => {
-    const { result } = renderHook(() =>
-      useWeatherForecast(15.37, 44.19, 7),
-    );
+describe('useWeatherForecast', () => {
+  it('fetches forecast data', async () => {
+    const { result } = renderHook(() => useWeatherForecast(15.37, 44.19, 7));
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -92,11 +92,9 @@ describe("useWeatherForecast", () => {
   });
 });
 
-describe("useAgriculturalReport", () => {
-  it("fetches agricultural weather report", async () => {
-    const { result } = renderHook(() =>
-      useAgriculturalReport(15.37, 44.19),
-    );
+describe('useAgriculturalReport', () => {
+  it('fetches agricultural weather report', async () => {
+    const { result } = renderHook(() => useAgriculturalReport(15.37, 44.19));
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -106,35 +104,31 @@ describe("useAgriculturalReport", () => {
       expect.objectContaining({
         et: 5.5,
         spray_window: true,
-      }),
+      })
     );
   });
 });
 
-describe("useWeatherByLocation", () => {
-  it("fetches weather by location ID", async () => {
-    const { result } = renderHook(() => useWeatherByLocation("sanaa"));
+describe('useWeatherByLocation', () => {
+  it('fetches weather by location ID', async () => {
+    const { result } = renderHook(() => useWeatherByLocation('sanaa'));
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    expect(result.current.data).toEqual(
-      expect.objectContaining({ temperature: 25 }),
-    );
+    expect(result.current.data).toEqual(expect.objectContaining({ temperature: 25 }));
   });
 
-  it("does not fetch without location ID", () => {
-    const { result } = renderHook(() => useWeatherByLocation(""));
+  it('does not fetch without location ID', () => {
+    const { result } = renderHook(() => useWeatherByLocation(''));
     expect(result.current.isLoading).toBe(false);
   });
 });
 
-describe("useWeatherForecastByLocation", () => {
-  it("fetches forecast by location", async () => {
-    const { result } = renderHook(() =>
-      useWeatherForecastByLocation("sanaa"),
-    );
+describe('useWeatherForecastByLocation', () => {
+  it('fetches forecast by location', async () => {
+    const { result } = renderHook(() => useWeatherForecastByLocation('sanaa'));
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -144,8 +138,8 @@ describe("useWeatherForecastByLocation", () => {
   });
 });
 
-describe("useWeatherLocations", () => {
-  it("fetches available weather locations", async () => {
+describe('useWeatherLocations', () => {
+  it('fetches available weather locations', async () => {
     const { result } = renderHook(() => useWeatherLocations());
 
     await waitFor(() => {
@@ -156,15 +150,15 @@ describe("useWeatherLocations", () => {
   });
 });
 
-describe("useWeatherAlerts", () => {
-  it("fetches weather alerts for a location", async () => {
-    const { result } = renderHook(() => useWeatherAlerts("sanaa"));
+describe('useWeatherAlerts', () => {
+  it('fetches weather alerts for a location', async () => {
+    const { result } = renderHook(() => useWeatherAlerts('sanaa'));
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
     });
 
     expect(result.current.data).toHaveLength(1);
-    expect(result.current.data?.[0]).toHaveProperty("type", "heat");
+    expect(result.current.data?.[0]).toHaveProperty('type', 'heat');
   });
 });

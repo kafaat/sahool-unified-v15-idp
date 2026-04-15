@@ -55,29 +55,36 @@ class EmptyStateWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final effectiveIconColor = iconColor ?? SahoolColors.sageGreen;
     final effectiveBackgroundColor =
-        backgroundColor ?? effectiveIconColor.withOpacity(0.15);
+        backgroundColor ?? effectiveIconColor.withValues(alpha: 0.15);
 
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(compact ? 16 : 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
-          children: [
-            // Icon
-            customIcon ??
-                Container(
-                  padding: EdgeInsets.all(compact ? 16 : 24),
-                  decoration: BoxDecoration(
-                    color: effectiveBackgroundColor,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    icon,
-                    size: compact ? 48 : iconSize,
-                    color: effectiveIconColor,
-                  ),
-                ),
+    return Semantics(
+      container: true,
+      label: titleEn != null
+          ? '$titleAr - $titleEn'
+          : titleAr,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.all(compact ? 16 : 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
+            children: [
+              // Icon
+              ExcludeSemantics(
+                child: customIcon ??
+                    Container(
+                      padding: EdgeInsets.all(compact ? 16 : 24),
+                      decoration: BoxDecoration(
+                        color: effectiveBackgroundColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        icon,
+                        size: compact ? 48 : iconSize,
+                        color: effectiveIconColor,
+                      ),
+                    ),
+              ),
 
             SizedBox(height: compact ? 16 : 24),
 
@@ -151,6 +158,7 @@ class EmptyStateWidget extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
@@ -191,25 +199,32 @@ class ErrorStateWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Error icon
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: (iconColor ?? SahoolColors.danger).withOpacity(0.1),
-                shape: BoxShape.circle,
+    return Semantics(
+      container: true,
+      label: errorEn != null
+          ? '${errorAr ?? 'حدث خطأ'} - $errorEn'
+          : errorAr ?? 'حدث خطأ',
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Error icon
+              ExcludeSemantics(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: (iconColor ?? SahoolColors.danger).withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 56,
+                    color: iconColor ?? SahoolColors.danger,
+                  ),
+                ),
               ),
-              child: Icon(
-                icon,
-                size: 56,
-                color: iconColor ?? SahoolColors.danger,
-              ),
-            ),
 
             const SizedBox(height: 24),
 
@@ -299,6 +314,7 @@ class ErrorStateWidget extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
@@ -604,7 +620,7 @@ class NoAlertsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyStateWidget(
+    return const EmptyStateWidget(
       icon: Icons.notifications_none_rounded,
       titleAr: 'لا توجد تنبيهات',
       titleEn: 'No alerts',
@@ -622,7 +638,7 @@ class NoNotificationsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyStateWidget(
+    return const EmptyStateWidget(
       icon: Icons.inbox_rounded,
       titleAr: 'صندوق الوارد فارغ',
       titleEn: 'Inbox is empty',
@@ -741,7 +757,7 @@ class NoTransactionsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return EmptyStateWidget(
+    return const EmptyStateWidget(
       icon: Icons.receipt_long_rounded,
       titleAr: 'لا توجد معاملات',
       titleEn: 'No transactions',

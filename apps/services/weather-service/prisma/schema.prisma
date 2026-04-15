@@ -2,8 +2,8 @@
 // مخطط قاعدة بيانات خدمة الطقس الموحدة
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   // Direct URL for migrations (bypasses PgBouncer connection pooler)
   directUrl = env("DATABASE_URL_DIRECT")
   // TLS/SSL enforcement for secure connections
@@ -24,46 +24,47 @@ generator client {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model WeatherObservation {
-  id          String   @id @default(uuid())
+  id String @id @default(uuid())
 
   // الموقع
-  locationId  String   @map("location_id")
-  tenantId    String   @default("unassigned") @map("tenant_id") @db.VarChar(50)
-  latitude    Float
-  longitude   Float
+  locationId String @map("location_id")
+  tenantId   String @default("unassigned") @map("tenant_id") @db.VarChar(50)
+  latitude   Float
+  longitude  Float
 
   // التوقيت
-  timestamp   DateTime
+  timestamp DateTime
 
   // بيانات الطقس الأساسية
-  temperature Float    // درجة الحرارة (Celsius)
-  humidity    Float    // الرطوبة النسبية (%)
-  pressure    Float    // الضغط الجوي (hPa)
+  temperature Float // درجة الحرارة (Celsius)
+  humidity    Float // الرطوبة النسبية (%)
+  pressure    Float // الضغط الجوي (hPa)
 
   // الرياح
-  windSpeed     Float  // سرعة الرياح (m/s)
-  windDirection Float  // اتجاه الرياح (degrees)
+  windSpeed     Float // سرعة الرياح (m/s)
+  windDirection Float // اتجاه الرياح (degrees)
 
   // الهطول
-  rainfall    Float?   // كمية الأمطار (mm)
+  rainfall Float? // كمية الأمطار (mm)
 
   // بيانات إضافية
-  uvIndex     Float?   // مؤشر الأشعة فوق البنفسجية
-  cloudCover  Float?   // الغطاء السحابي (%)
-  visibility  Float?   // مدى الرؤية (meters)
+  uvIndex    Float? // مؤشر الأشعة فوق البنفسجية
+  cloudCover Float? // الغطاء السحابي (%)
+  visibility Float? // مدى الرؤية (meters)
 
   // المصدر
-  source      String   // المصدر (open-meteo, openweathermap, weatherapi)
-  rawData     Json?    @map("raw_data") // البيانات الخام من المزود
+  source  String // المصدر (open-meteo, openweathermap, weatherapi)
+  rawData Json?  @map("raw_data") // البيانات الخام من المزود
 
   // التوقيت
-  createdAt   DateTime @default(now()) @map("created_at")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  @@map("weather_observations")
   @@index([locationId, timestamp(sort: Desc)]) // للاستعلام عن آخر الأرصاد لموقع معين
-  @@index([tenantId, timestamp(sort: Desc)])   // للاستعلام عن بيانات مستأجر معين
-  @@index([timestamp(sort: Desc)])             // للاستعلامات الزمنية
-  @@index([latitude, longitude, timestamp])    // للاستعلام المكاني
+  @@index([tenantId, timestamp(sort: Desc)]) // للاستعلام عن بيانات مستأجر معين
+  @@index([timestamp(sort: Desc)]) // للاستعلامات الزمنية
+  @@index([latitude, longitude, timestamp]) // للاستعلام المكاني
+  @@index([tenantId, locationId, timestamp(sort: Desc)]) // Tenant-scoped location time-series
+  @@map("weather_observations")
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -72,33 +73,33 @@ model WeatherObservation {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model WeatherForecast {
-  id          String   @id @default(uuid())
+  id String @id @default(uuid())
 
   // الموقع
-  locationId  String   @map("location_id")
-  tenantId    String   @default("unassigned") @map("tenant_id") @db.VarChar(50)
+  locationId String @map("location_id")
+  tenantId   String @default("unassigned") @map("tenant_id") @db.VarChar(50)
 
   // التوقيت
   forecastFor DateTime @map("forecast_for") // التاريخ المتنبأ له
-  fetchedAt   DateTime @map("fetched_at")   // وقت جلب التنبؤ
+  fetchedAt   DateTime @map("fetched_at") // وقت جلب التنبؤ
 
   // المزود
-  provider    String   // المزود (open-meteo, openweathermap, weatherapi)
+  provider String // المزود (open-meteo, openweathermap, weatherapi)
 
   // البيانات
-  hourlyData  Json     @map("hourly_data") // بيانات التنبؤ الساعي (48 ساعة)
-  dailyData   Json     @map("daily_data")  // بيانات التنبؤ اليومي (7-14 يوم)
+  hourlyData Json @map("hourly_data") // بيانات التنبؤ الساعي (48 ساعة)
+  dailyData  Json @map("daily_data") // بيانات التنبؤ اليومي (7-14 يوم)
 
   // التوقيت
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@map("weather_forecasts")
+  @@unique([locationId, forecastFor, provider]) // تنبؤ واحد لكل موقع وتاريخ ومزود
   @@index([locationId, forecastFor(sort: Desc)]) // للاستعلام عن التنبؤات لموقع معين
-  @@index([tenantId, forecastFor(sort: Desc)])   // للاستعلام عن تنبؤات مستأجر معين
-  @@index([forecastFor(sort: Desc)])             // للاستعلامات الزمنية
-  @@index([fetchedAt(sort: Desc)])               // لحذف التنبؤات القديمة
-  @@unique([locationId, forecastFor, provider])  // تنبؤ واحد لكل موقع وتاريخ ومزود
+  @@index([tenantId, forecastFor(sort: Desc)]) // للاستعلام عن تنبؤات مستأجر معين
+  @@index([forecastFor(sort: Desc)]) // للاستعلامات الزمنية
+  @@index([fetchedAt(sort: Desc)]) // لحذف التنبؤات القديمة
+  @@map("weather_forecasts")
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -107,56 +108,56 @@ model WeatherForecast {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model WeatherAlert {
-  id          String   @id @default(uuid())
+  id String @id @default(uuid())
 
   // الموقع
-  locationId  String   @map("location_id")
-  tenantId    String   @default("unassigned") @map("tenant_id") @db.VarChar(50)
+  locationId String @map("location_id")
+  tenantId   String @default("unassigned") @map("tenant_id") @db.VarChar(50)
 
   // نوع التنبيه
-  alertType   AlertType @map("alert_type")
-  severity    AlertSeverity
+  alertType AlertType     @map("alert_type")
+  severity  AlertSeverity
 
   // المحتوى
   headline    String
-  description String   @db.Text
+  description String @db.Text
 
   // التوقيت
-  startTime   DateTime @map("start_time")
-  endTime     DateTime @map("end_time")
+  startTime DateTime @map("start_time")
+  endTime   DateTime @map("end_time")
 
   // المصدر
-  source      String
+  source String
 
   // التوقيت
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
-  @@map("weather_alerts")
   @@index([locationId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات موقع معين
-  @@index([tenantId, startTime(sort: Desc)])   // للاستعلام عن تنبيهات مستأجر معين
-  @@index([alertType, severity])               // للتصفية حسب النوع والخطورة
-  @@index([startTime, endTime])                // للتنبيهات النشطة
-  @@index([endTime(sort: Desc)])               // لحذف التنبيهات المنتهية
+  @@index([tenantId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات مستأجر معين
+  @@index([alertType, severity]) // للتصفية حسب النوع والخطورة
+  @@index([startTime, endTime]) // للتنبيهات النشطة
+  @@index([endTime(sort: Desc)]) // لحذف التنبيهات المنتهية
+  @@map("weather_alerts")
 }
 
 enum AlertType {
-  HEAT_STRESS      // إجهاد حراري
-  FROST            // صقيع
-  HEAVY_RAIN       // أمطار غزيرة
-  DROUGHT          // جفاف
-  STRONG_WIND      // رياح قوية
-  STORM            // عاصفة
-  DISEASE_RISK     // خطر الأمراض
-  OTHER            // أخرى
+  HEAT_STRESS // إجهاد حراري
+  FROST // صقيع
+  HEAVY_RAIN // أمطار غزيرة
+  DROUGHT // جفاف
+  STRONG_WIND // رياح قوية
+  STORM // عاصفة
+  DISEASE_RISK // خطر الأمراض
+  OTHER // أخرى
 }
 
 enum AlertSeverity {
-  INFO             // معلومة
-  MINOR            // طفيف
-  MODERATE         // متوسط
-  SEVERE           // شديد
-  EXTREME          // خطير جداً
+  INFO // معلومة
+  MINOR // طفيف
+  MODERATE // متوسط
+  SEVERE // شديد
+  EXTREME // خطير جداً
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -165,27 +166,27 @@ enum AlertSeverity {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 model LocationConfig {
-  id            String   @id @default(uuid())
+  id String @id @default(uuid())
 
   // المستأجر
-  tenantId      String   @map("tenant_id")
+  tenantId String @map("tenant_id")
 
   // المعلومات الأساسية
-  name          String
-  latitude      Float
-  longitude     Float
-  timezone      String   @default("Asia/Aden")
+  name      String
+  latitude  Float
+  longitude Float
+  timezone  String @default("Asia/Aden")
 
   // الإعدادات
-  isActive      Boolean  @default(true) @map("is_active")
-  fetchInterval Int      @default(3600) @map("fetch_interval") // بالثواني (الافتراضي: ساعة واحدة)
+  isActive      Boolean @default(true) @map("is_active")
+  fetchInterval Int     @default(3600) @map("fetch_interval") // بالثواني (الافتراضي: ساعة واحدة)
 
   // التوقيت
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([tenantId, latitude, longitude]) // موقع واحد لكل مستأجر وإحداثيات
+  @@index([tenantId, isActive]) // للاستعلام عن المواقع النشطة لمستأجر
+  @@index([isActive]) // للمواقع النشطة
   @@map("location_configs")
-  @@index([tenantId, isActive])                    // للاستعلام عن المواقع النشطة لمستأجر
-  @@index([isActive])                              // للمواقع النشطة
-  @@unique([tenantId, latitude, longitude])        // موقع واحد لكل مستأجر وإحداثيات
 }

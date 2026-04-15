@@ -114,7 +114,7 @@ class ChartWidget extends StatelessWidget {
         belowBarData: (config.type == ChartType.area || series.fillArea)
             ? BarAreaData(
                 show: true,
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
               )
             : null,
         dashArray: series.isDashed ? [5, 5] : null,
@@ -128,7 +128,7 @@ class ChartWidget extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: config.yAxis?.interval,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             strokeWidth: 1,
           ),
         ),
@@ -141,7 +141,7 @@ class ChartWidget extends StatelessWidget {
             ? LineTouchData(
                 enabled: true,
                 touchTooltipData: LineTouchTooltipData(
-                  getTooltipColor: (_) => SahoolColors.primary.withOpacity(0.9),
+                  getTooltipColor: (_) => SahoolColors.primary.withValues(alpha: 0.9),
                   tooltipRoundedRadius: 8,
                   getTooltipItems: (touchedSpots) {
                     return touchedSpots.map((spot) {
@@ -155,7 +155,7 @@ class ChartWidget extends StatelessWidget {
                   },
                 ),
               )
-            : LineTouchData(enabled: false),
+            : const LineTouchData(enabled: false),
       ),
       duration: config.enableAnimations
           ? Duration(milliseconds: config.animationDuration)
@@ -200,7 +200,7 @@ class ChartWidget extends StatelessWidget {
           drawVerticalLine: false,
           horizontalInterval: config.yAxis?.interval,
           getDrawingHorizontalLine: (value) => FlLine(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             strokeWidth: 1,
           ),
         ),
@@ -211,7 +211,7 @@ class ChartWidget extends StatelessWidget {
             ? BarTouchData(
                 enabled: true,
                 touchTooltipData: BarTouchTooltipData(
-                  getTooltipColor: (_) => SahoolColors.primary.withOpacity(0.9),
+                  getTooltipColor: (_) => SahoolColors.primary.withValues(alpha: 0.9),
                   tooltipRoundedRadius: 8,
                   getTooltipItem: (group, groupIndex, rod, rodIndex) {
                     final series = config.series[rodIndex];
@@ -317,9 +317,9 @@ class ChartWidget extends StatelessWidget {
             // Format date if x is ISO string
             if (point.x is String && (point.x as String).contains('T')) {
               try {
-                final date = DateTime.parse(point.x as String);
+                final date = DateTime.tryParse(point.x as String) ?? DateTime.now();
                 label = DateFormat('MM/dd').format(date);
-              } catch (_) {}
+              } catch (e) {}
             }
 
             return Padding(

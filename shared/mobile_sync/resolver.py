@@ -13,9 +13,10 @@ Updated: January 2026
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Callable
+from typing import Any
 
 from .models import (
     SYNC_ERRORS,
@@ -39,15 +40,26 @@ def detect_conflict(
     server_modified_at: datetime,
     server_modified_by: str | None = None,
     base_data: dict[str, Any] | None = None,
+    requesting_tenant_id: str | None = None,
 ) -> SyncConflict | None:
     """
     Detect if there's a conflict between local and server data.
 
     كشف ما إذا كان هناك تعارض بين البيانات المحلية والخادم.
 
+    Args:
+        requesting_tenant_id: Tenant ID of the requesting user. If provided,
+            raises PermissionError when it doesn't match the item's tenant.
+
     Returns:
         SyncConflict if conflict detected, None otherwise
+
+    Raises:
+        PermissionError: If requesting_tenant_id doesn't match local_item.tenant_id
     """
+    # Validate tenant isolation
+    if requesting_tenant_id is not None and local_item.tenant_id and local_item.tenant_id != requesting_tenant_id:
+        raise PermissionError("Tenant mismatch: access denied")
     # No conflict if server wasn't modified after local
     if server_modified_at <= local_item.local_modified_at:
         return None
@@ -67,8 +79,13 @@ def detect_conflict(
         # Detect schema mismatch - significant structural differences indicate schema version change
         # Exclude common metadata keys to reduce false positives from generic field overlap
         _metadata_keys = {
-            "id", "updated_at", "created_at", "_deleted",
-            "tenant_id", "version", "schema_version",
+            "id",
+            "updated_at",
+            "created_at",
+            "_deleted",
+            "tenant_id",
+            "version",
+            "schema_version",
         }
         local_keys = set(local_item.local_data.keys()) - _metadata_keys
         server_keys = set(server_data.keys()) - _metadata_keys
@@ -705,6 +722,7 @@ class ConflictResolutionManager:
         server_modified_at: datetime,
         server_modified_by: str | None = None,
         base_data: dict[str, Any] | None = None,
+        requesting_tenant_id: str | None = None,
     ) -> SyncConflict | None:
         """
         Detect if there's a conflict.
@@ -717,6 +735,7 @@ class ConflictResolutionManager:
             server_modified_at=server_modified_at,
             server_modified_by=server_modified_by,
             base_data=base_data,
+            requesting_tenant_id=requesting_tenant_id,
         )
 
     def resolve(

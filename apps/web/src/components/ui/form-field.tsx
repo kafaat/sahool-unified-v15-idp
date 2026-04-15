@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { clsx } from "clsx";
-import { Input, type InputProps } from "./input";
-import { validationPatterns, type ValidationRule } from "@/hooks/useFormValidation";
+import * as React from 'react';
+import { clsx } from 'clsx';
+import { Input, type InputProps } from './input';
+import { validationPatterns, type ValidationRule } from '@/hooks/useFormValidation';
 
-export interface FormFieldProps extends Omit<InputProps, "error"> {
+export interface FormFieldProps extends Omit<InputProps, 'error'> {
   /** Field name for form identification */
   name: string;
   /** Validation rules */
@@ -21,7 +21,7 @@ export interface FormFieldProps extends Omit<InputProps, "error"> {
   /** Maximum characters for counter */
   maxChars?: number;
   /** Validate on change vs blur */
-  validateOn?: "change" | "blur";
+  validateOn?: 'change' | 'blur';
   /** Custom validation function */
   onValidate?: (value: string) => { valid: boolean; error?: string; errorAr?: string };
   /** Success message when valid */
@@ -65,7 +65,7 @@ export function FormField({
   showValidationIcon = false,
   showCharCount = false,
   maxChars,
-  validateOn = "blur",
+  validateOn = 'blur',
   onValidate,
   successMessage,
   successMessageAr,
@@ -86,7 +86,7 @@ export function FormField({
   const countId = `${name}-count`;
 
   // Get the current value
-  const currentValue = typeof value === "string" ? value : "";
+  const currentValue = typeof value === 'string' ? value : '';
   const charCount = currentValue.length;
 
   // Validate the field
@@ -95,8 +95,8 @@ export function FormField({
       // Custom validation
       if (onValidate) {
         const result = onValidate(val);
-        setLocalError(result.valid ? null : result.error || "Invalid value");
-        setLocalErrorAr(result.valid ? null : result.errorAr || "قيمة غير صالحة");
+        setLocalError(result.valid ? null : result.error || 'Invalid value');
+        setLocalErrorAr(result.valid ? null : result.errorAr || 'قيمة غير صالحة');
         setIsValid(result.valid);
         return result.valid;
       }
@@ -104,25 +104,25 @@ export function FormField({
       // Rule-based validation
       for (const rule of rules) {
         switch (rule.type) {
-          case "required":
-            if (!val || val.trim() === "") {
-              setLocalError(rule.message || "This field is required");
-              setLocalErrorAr(rule.messageAr || "هذا الحقل مطلوب");
+          case 'required':
+            if (!val || val.trim() === '') {
+              setLocalError(rule.message || 'This field is required');
+              setLocalErrorAr(rule.messageAr || 'هذا الحقل مطلوب');
               setIsValid(false);
               return false;
             }
             break;
 
-          case "email":
+          case 'email':
             if (val && !validationPatterns.email.test(val)) {
-              setLocalError(rule.message || "Please enter a valid email");
-              setLocalErrorAr(rule.messageAr || "يرجى إدخال بريد إلكتروني صحيح");
+              setLocalError(rule.message || 'Please enter a valid email');
+              setLocalErrorAr(rule.messageAr || 'يرجى إدخال بريد إلكتروني صحيح');
               setIsValid(false);
               return false;
             }
             break;
 
-          case "minLength":
+          case 'minLength':
             if (val && val.length < rule.value) {
               setLocalError(rule.message || `Minimum ${rule.value} characters`);
               setLocalErrorAr(rule.messageAr || `الحد الأدنى ${rule.value} حرف`);
@@ -131,7 +131,7 @@ export function FormField({
             }
             break;
 
-          case "maxLength":
+          case 'maxLength':
             if (val && val.length > rule.value) {
               setLocalError(rule.message || `Maximum ${rule.value} characters`);
               setLocalErrorAr(rule.messageAr || `الحد الأقصى ${rule.value} حرف`);
@@ -140,28 +140,28 @@ export function FormField({
             }
             break;
 
-          case "pattern":
+          case 'pattern':
             if (val && !rule.value.test(val)) {
-              setLocalError(rule.message || "Invalid format");
-              setLocalErrorAr(rule.messageAr || "صيغة غير صحيحة");
+              setLocalError(rule.message || 'Invalid format');
+              setLocalErrorAr(rule.messageAr || 'صيغة غير صحيحة');
               setIsValid(false);
               return false;
             }
             break;
 
-          case "phone":
+          case 'phone':
             if (val && !validationPatterns.phone.test(val)) {
-              setLocalError(rule.message || "Invalid phone number");
-              setLocalErrorAr(rule.messageAr || "رقم الهاتف غير صحيح");
+              setLocalError(rule.message || 'Invalid phone number');
+              setLocalErrorAr(rule.messageAr || 'رقم الهاتف غير صحيح');
               setIsValid(false);
               return false;
             }
             break;
 
-          case "url":
+          case 'url':
             if (val && !validationPatterns.url.test(val)) {
-              setLocalError(rule.message || "Invalid URL");
-              setLocalErrorAr(rule.messageAr || "الرابط غير صحيح");
+              setLocalError(rule.message || 'Invalid URL');
+              setLocalErrorAr(rule.messageAr || 'الرابط غير صحيح');
               setIsValid(false);
               return false;
             }
@@ -174,7 +174,7 @@ export function FormField({
       setIsValid(rules.length > 0 && val.length > 0);
       return true;
     },
-    [rules, onValidate],
+    [rules, onValidate]
   );
 
   // Handle change with validation
@@ -182,11 +182,11 @@ export function FormField({
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange?.(e);
 
-      if (validateOn === "change" || touched) {
+      if (validateOn === 'change' || touched) {
         validate(e.target.value);
       }
     },
-    [onChange, validateOn, touched, validate],
+    [onChange, validateOn, touched, validate]
   );
 
   // Handle blur with validation
@@ -195,11 +195,11 @@ export function FormField({
       onBlur?.(e);
       setTouched(true);
 
-      if (validateOn === "blur") {
+      if (validateOn === 'blur') {
         validate(e.target.value);
       }
     },
-    [onBlur, validateOn, validate],
+    [onBlur, validateOn, validate]
   );
 
   // Compute final error state
@@ -209,14 +209,15 @@ export function FormField({
   const showSuccess = touched && isValid && !hasError && (successMessage || successMessageAr);
 
   // Build aria-describedby
-  const describedBy = [
-    hasError ? errorId : null,
-    showSuccess ? successId : null,
-    showCharCount ? countId : null,
-    inputProps.helperText ? `${name}-helper` : null,
-  ]
-    .filter(Boolean)
-    .join(" ") || undefined;
+  const describedBy =
+    [
+      hasError ? errorId : null,
+      showSuccess ? successId : null,
+      showCharCount ? countId : null,
+      inputProps.helperText ? `${name}-helper` : null,
+    ]
+      .filter(Boolean)
+      .join(' ') || undefined;
 
   // Validation icon
   const ValidationIcon = () => {
@@ -264,14 +265,14 @@ export function FormField({
   };
 
   return (
-    <div className={clsx("w-full", className)}>
+    <div className={clsx('w-full', className)}>
       <Input
         ref={inputRef}
         name={name}
         value={value}
         onChange={handleChange}
         onBlur={handleBlur}
-        error={hasError ? `${finalErrorAr || ""} ${finalError || ""}`.trim() : undefined}
+        error={hasError ? `${finalErrorAr || ''} ${finalError || ''}`.trim() : undefined}
         aria-describedby={describedBy}
         rightIcon={showValidationIcon ? <ValidationIcon /> : inputProps.rightIcon}
         {...inputProps}
@@ -292,12 +293,7 @@ export function FormField({
             stroke="currentColor"
             aria-hidden="true"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 13l4 4L19 7"
-            />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
           <span>{successMessageAr}</span>
           {successMessageAr && successMessage && <span className="mx-1">-</span>}
@@ -310,16 +306,14 @@ export function FormField({
         <p
           id={countId}
           className={clsx(
-            "mt-1 text-xs text-end",
-            maxChars && charCount > maxChars ? "text-red-500" : "text-gray-400",
+            'mt-1 text-xs text-end',
+            maxChars && charCount > maxChars ? 'text-red-500' : 'text-gray-400'
           )}
           aria-live="polite"
         >
           {maxChars ? `${charCount}/${maxChars}` : charCount}
           <span className="sr-only">
-            {maxChars
-              ? ` characters out of ${maxChars} maximum`
-              : ` characters entered`}
+            {maxChars ? ` characters out of ${maxChars} maximum` : ` characters entered`}
           </span>
         </p>
       )}
@@ -327,20 +321,20 @@ export function FormField({
   );
 }
 
-FormField.displayName = "FormField";
+FormField.displayName = 'FormField';
 
 /**
  * Pre-configured form field components for common use cases
  */
 
-export function EmailField(props: Omit<FormFieldProps, "type" | "rules">) {
+export function EmailField(props: Omit<FormFieldProps, 'type' | 'rules'>) {
   return (
     <FormField
       type="email"
       autoComplete="email"
       rules={[
-        { type: "required", messageAr: "البريد الإلكتروني مطلوب" },
-        { type: "email", messageAr: "يرجى إدخال بريد إلكتروني صحيح" },
+        { type: 'required', messageAr: 'البريد الإلكتروني مطلوب' },
+        { type: 'email', messageAr: 'يرجى إدخال بريد إلكتروني صحيح' },
       ]}
       showValidationIcon
       {...props}
@@ -348,14 +342,14 @@ export function EmailField(props: Omit<FormFieldProps, "type" | "rules">) {
   );
 }
 
-export function PasswordField(props: Omit<FormFieldProps, "type" | "rules">) {
+export function PasswordField(props: Omit<FormFieldProps, 'type' | 'rules'>) {
   return (
     <FormField
       type="password"
       autoComplete="current-password"
       rules={[
-        { type: "required", messageAr: "كلمة المرور مطلوبة" },
-        { type: "minLength", value: 8, messageAr: "كلمة المرور يجب أن تكون 8 أحرف على الأقل" },
+        { type: 'required', messageAr: 'كلمة المرور مطلوبة' },
+        { type: 'minLength', value: 8, messageAr: 'كلمة المرور يجب أن تكون 8 أحرف على الأقل' },
       ]}
       showValidationIcon
       {...props}
@@ -363,14 +357,14 @@ export function PasswordField(props: Omit<FormFieldProps, "type" | "rules">) {
   );
 }
 
-export function PhoneField(props: Omit<FormFieldProps, "type" | "rules">) {
+export function PhoneField(props: Omit<FormFieldProps, 'type' | 'rules'>) {
   return (
     <FormField
       type="tel"
       autoComplete="tel"
       rules={[
-        { type: "required", messageAr: "رقم الهاتف مطلوب" },
-        { type: "phone", messageAr: "يرجى إدخال رقم هاتف صحيح" },
+        { type: 'required', messageAr: 'رقم الهاتف مطلوب' },
+        { type: 'phone', messageAr: 'يرجى إدخال رقم هاتف صحيح' },
       ]}
       showValidationIcon
       {...props}
@@ -378,14 +372,14 @@ export function PhoneField(props: Omit<FormFieldProps, "type" | "rules">) {
   );
 }
 
-export function NameField(props: Omit<FormFieldProps, "type" | "rules">) {
+export function NameField(props: Omit<FormFieldProps, 'type' | 'rules'>) {
   return (
     <FormField
       type="text"
       autoComplete="name"
       rules={[
-        { type: "required", messageAr: "الاسم مطلوب" },
-        { type: "minLength", value: 2, messageAr: "الاسم يجب أن يكون حرفين على الأقل" },
+        { type: 'required', messageAr: 'الاسم مطلوب' },
+        { type: 'minLength', value: 2, messageAr: 'الاسم يجب أن يكون حرفين على الأقل' },
       ]}
       showValidationIcon
       {...props}

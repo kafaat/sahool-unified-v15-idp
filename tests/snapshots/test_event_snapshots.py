@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 import os
-from datetime import datetime, UTC
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from uuid import UUID
@@ -21,12 +21,12 @@ from uuid import UUID
 import pytest
 
 from shared.events.contracts import (
+    AgentExecutionCompletedEvent,
+    DiseaseDetectedEvent,
     FieldCreatedEvent,
     FieldUpdatedEvent,
-    WeatherForecastEvent,
     SatelliteDataReadyEvent,
-    DiseaseDetectedEvent,
-    AgentExecutionCompletedEvent,
+    WeatherForecastEvent,
 )
 
 # Deterministic UUIDs for reproducible snapshots
@@ -154,7 +154,7 @@ class TestFieldEventSnapshots:
         event = FieldCreatedEvent(
             field_id=_FIELD_UUID,
             farm_id=_FARM_UUID,
-            tenant_id=_TENANT_UUID,
+            tenant_id=str(_TENANT_UUID),
             name="Snapshot Test Field",
             geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             area_hectares=50.0,
@@ -177,6 +177,7 @@ class TestFieldEventSnapshots:
             field_id=_FIELD_UUID,
             name="Updated Field",
             area_hectares=55.0,
+            tenant_id=str(_TENANT_UUID),
         )
 
         data = json.loads(event.model_dump_json())
@@ -210,6 +211,7 @@ class TestWeatherEventSnapshots:
             precipitation=5.0,
             humidity=65.0,
             wind_speed=12.0,
+            tenant_id=str(_TENANT_UUID),
         )
 
         data = json.loads(event.model_dump_json())
@@ -236,7 +238,7 @@ class TestSatelliteEventSnapshots:
         """Test SatelliteDataReadyEvent schema stability."""
         event = SatelliteDataReadyEvent(
             field_id=_FIELD_UUID,
-            tenant_id=_TENANT_UUID,
+            tenant_id=str(_TENANT_UUID),
             satellite_source="sentinel-2a",
             capture_date=fixed_timestamp,
             cloud_coverage=10.5,
@@ -267,7 +269,7 @@ class TestHealthEventSnapshots:
         """Test DiseaseDetectedEvent schema stability."""
         event = DiseaseDetectedEvent(
             field_id=_FIELD_UUID,
-            tenant_id=_TENANT_UUID,
+            tenant_id=str(_TENANT_UUID),
             disease_name="Wheat Leaf Rust",
             disease_name_ar="صدأ أوراق القمح",
             severity="medium",
@@ -331,12 +333,13 @@ class TestEventSchemaStructure:
             FieldCreatedEvent(
                 field_id=_FIELD_UUID,
                 farm_id=_FARM_UUID,
-                tenant_id=_TENANT_UUID,
+                tenant_id=str(_TENANT_UUID),
                 name="Field",
                 geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             ),
-            FieldUpdatedEvent(field_id=_FIELD_UUID),
+            FieldUpdatedEvent(field_id=_FIELD_UUID, tenant_id=str(_TENANT_UUID)),
             WeatherForecastEvent(
+                field_id=_FIELD_UUID,
                 location_lat=24.7,
                 location_lon=46.7,
                 forecast_date=datetime.now(UTC),
@@ -344,6 +347,7 @@ class TestEventSchemaStructure:
                 precipitation=0.0,
                 humidity=50.0,
                 wind_speed=10.0,
+                tenant_id=str(_TENANT_UUID),
             ),
         ]
 
@@ -360,11 +364,11 @@ class TestEventSchemaStructure:
             FieldCreatedEvent(
                 field_id=_FIELD_UUID,
                 farm_id=_FARM_UUID,
-                tenant_id=_TENANT_UUID,
+                tenant_id=str(_TENANT_UUID),
                 name="Field",
                 geometry_wkt="POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))",
             ),
-            FieldUpdatedEvent(field_id=_FIELD_UUID),
+            FieldUpdatedEvent(field_id=_FIELD_UUID, tenant_id=str(_TENANT_UUID)),
         ]
 
         for event in field_events:

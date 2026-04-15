@@ -1,5 +1,6 @@
 /// Unit Tests for Advisor Feature Models
 /// اختبارات وحدات نماذج المستشار الزراعي
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/advisor/data/models/fertilizer_models.dart';
 import 'package:sahool_field_app/features/advisor/data/models/irrigation_models.dart';
@@ -55,7 +56,7 @@ void main() {
 
     test('copyWith preserves unchanged fields', () {
       // Arrange
-      final analysis = const SoilAnalysis(
+      const analysis = SoilAnalysis(
         ph: 7.0,
         nitrogen: 20.0,
         phosphorus: 14.0,

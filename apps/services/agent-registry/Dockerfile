@@ -14,6 +14,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 # Set working directory
 WORKDIR /app
 
+ENV PIP_NO_CACHE_DIR=1
+
 # Install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && apt-get install -y --no-install-recommends \
@@ -25,6 +27,14 @@ COPY constraints.txt .
 COPY apps/services/agent-registry/requirements.txt .
 
 # Install Python dependencies with multi-mirror fallback
+# Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --prefix=/install \
@@ -55,6 +65,7 @@ COPY --from=builder /install /usr/local
 # Copy shared modules (required for imports from shared/)
 COPY apps/services/shared/ ./shared/
 
+
 # Make registry module available at root level for imports
 RUN cp -r ./shared/registry ./registry
 
@@ -65,6 +76,15 @@ COPY apps/services/agent-registry/src /app/src
 RUN chown -R sahool:sahool /app
 
 # Switch to non-root user
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Environment

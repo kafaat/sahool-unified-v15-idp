@@ -1,6 +1,7 @@
+library;
+
 /// Risk Indicator Widget
 /// ودجت مؤشر المخاطر
-library;
 
 import 'package:flutter/material.dart';
 import '../../data/models/analytics_models.dart';
@@ -54,7 +55,7 @@ class RiskIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: _getLevelColor(level).withOpacity(0.1),
+        color: _getLevelColor(level).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: _getLevelColor(level)),
       ),
@@ -105,7 +106,7 @@ class RiskIndicator extends StatelessWidget {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),

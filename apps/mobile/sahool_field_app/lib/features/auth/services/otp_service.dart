@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/http/api_client.dart';
@@ -360,16 +359,16 @@ class OTPService {
     } on ApiException catch (e) {
       AppLogger.e('OTP send failed', tag: 'OTP', error: e);
       return _handleApiException<SendOTPResponse>(e);
-    } on RateLimitException catch (e) {
+    } on RateLimitException {
       AppLogger.w('OTP send rate limited', tag: 'OTP');
-      return Failure(
+      return const Failure(
         'تم تجاوز الحد المسموح. حاول مرة أخرى بعد قليل',
         statusCode: 429,
       );
     } catch (e, stackTrace) {
       AppLogger.e('OTP send error',
           tag: 'OTP', error: e, stackTrace: stackTrace);
-      return Failure('حدث خطأ غير متوقع');
+      return const Failure('حدث خطأ غير متوقع');
     }
   }
 
@@ -410,13 +409,13 @@ class OTPService {
     } on ApiException catch (e) {
       return _handleApiException<SendOTPResponse>(e);
     } on RateLimitException {
-      return Failure(
+      return const Failure(
         'انتظر قليلاً قبل إعادة الإرسال',
         statusCode: 429,
       );
     } catch (e) {
       AppLogger.e('OTP resend error', tag: 'OTP', error: e);
-      return Failure('حدث خطأ غير متوقع');
+      return const Failure('حدث خطأ غير متوقع');
     }
   }
 
@@ -485,14 +484,14 @@ class OTPService {
       AppLogger.e('OTP verification failed', tag: 'OTP', error: e);
       return _handleApiException<VerifyOTPResponse>(e);
     } on RateLimitException {
-      return Failure(
+      return const Failure(
         'تم تجاوز عدد المحاولات. حاول مرة أخرى لاحقاً',
         statusCode: 429,
       );
     } catch (e, stackTrace) {
       AppLogger.e('OTP verify error',
           tag: 'OTP', error: e, stackTrace: stackTrace);
-      return Failure('حدث خطأ غير متوقع');
+      return const Failure('حدث خطأ غير متوقع');
     }
   }
 
@@ -619,7 +618,7 @@ class OTPService {
   /// Handle API exceptions and convert to user-friendly messages
   ApiResult<T> _handleApiException<T>(ApiException e) {
     String message;
-    int? statusCode = e.statusCode;
+    final int? statusCode = e.statusCode;
 
     if (e.isNetworkError) {
       message = 'لا يوجد اتصال بالإنترنت. تحقق من اتصالك وحاول مرة أخرى';

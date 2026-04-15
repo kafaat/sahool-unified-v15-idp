@@ -536,9 +536,9 @@ class TestIngestionPipelineIntegration:
 
         chunker = TextChunker(
             ChunkConfig(
-                strategy=ChunkStrategy.FIXED_SIZE,
-                chunk_size=200,
-                chunk_overlap=50,
+                strategy=ChunkStrategy.SLIDING_WINDOW,
+                max_chunk_size=200,
+                overlap_size=50,
             )
         )
         chunks = chunker.chunk("This is a test text. " * 50)

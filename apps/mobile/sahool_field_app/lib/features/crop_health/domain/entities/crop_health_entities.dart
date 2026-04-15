@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Crop Health Domain Entities
 /// نماذج صحة المحاصيل
 

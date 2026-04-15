@@ -32,14 +32,14 @@ class SahoolGlass extends StatelessWidget {
         child: Container(
           padding: padding,
           decoration: BoxDecoration(
-            color: (backgroundColor ?? Colors.white).withOpacity(opacity),
+            color: (backgroundColor ?? Colors.white).withValues(alpha: opacity),
             border: Border.all(
-              color: borderColor ?? Colors.white.withOpacity(0.3),
+              color: borderColor ?? Colors.white.withValues(alpha: 0.3),
             ),
             borderRadius: BorderRadius.circular(borderRadius),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 15,
                 spreadRadius: 2,
               ),

@@ -11,7 +11,13 @@ Updated: March 2026
 from __future__ import annotations
 
 import json
+
+# Import guardrails for input/output validation (C-09)
+# SECURITY: Guardrails are MANDATORY in production/staging. If the import fails,
+# the service must refuse to start — otherwise prompt injection filtering is silently disabled.
+import os as _os
 import time
+from collections import defaultdict
 from datetime import UTC, datetime
 from typing import Any
 
@@ -20,8 +26,11 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import StreamingResponse
 
+from shared.ai.intent_classifier import AgriIntent, AgriIntentClassifier
+
 from ...core.agents import get_agent_router
 from ...core.config import get_settings
+from ...core.intent_router import IntentRouter
 from ...db import save_message
 from ...events.publisher import publish_copilot_event
 from ...models.schemas import (
@@ -33,11 +42,66 @@ from ...models.schemas import (
 )
 from ...rag import get_rag_service
 from ...security import MAX_PROMPT_CHARS
-from ...security.prompt_guard import detect_prompt_injection
+from ...security.prompt_guard import detect_prompt_injection, sanitize_input
 from ..deps import get_current_user
 
+_guardrails_import_err: Exception | None = None
+try:
+    from shared.guardrails import TrustLevel, input_filter
+
+    HAS_GUARDRAILS = True
+except ImportError as _err:
+    HAS_GUARDRAILS = False
+    _guardrails_import_err = _err
+
 logger = structlog.get_logger(__name__)
+
+if not HAS_GUARDRAILS:
+    _guardrails_env_raw = _os.getenv("ENVIRONMENT")
+    _guardrails_env = (_guardrails_env_raw or "development").lower()
+    _guardrails_msg = (
+        "shared.guardrails not available — AI input safety filtering (PII masking, policy enforcement) "
+        "is DISABLED. Install shared.guardrails to enable full input validation."
+    )
+    if _guardrails_env_raw is not None and _guardrails_env in ("production", "staging"):
+        # Fail hard only when ENVIRONMENT is explicitly set to production/staging.
+        # If unset (local dev / unit tests), warn instead of crashing.
+        # الفشل فقط عند تحديد ENVIRONMENT صراحةً كإنتاج/تجريب
+        raise RuntimeError(
+            f"[FATAL] {_guardrails_msg} Environment '{_guardrails_env}' requires guardrails to be installed."
+        ) from _guardrails_import_err
+    else:
+        logger.warning(
+            "guardrails_unavailable",
+            environment=_guardrails_env,
+            message=_guardrails_msg,
+        )
 router = APIRouter(tags=["Chat"])
+
+# Intent classification and routing (module-level singletons)
+_intent_classifier = AgriIntentClassifier()
+_intent_router: IntentRouter | None = None
+
+# In-memory rate limiter - حد الطلبات في الذاكرة
+_rate_limits: dict[str, list[float]] = defaultdict(list)
+_RATE_WINDOW = 60  # seconds
+_RATE_MAX = 30  # max requests per window
+
+
+def _check_rate_limit(user_id: str) -> None:
+    """Check per-user rate limit. Raises 429 if exceeded."""
+    now = time.time()
+    _rate_limits[user_id] = [t for t in _rate_limits[user_id] if now - t < _RATE_WINDOW]
+    if len(_rate_limits[user_id]) >= _RATE_MAX:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded | تم تجاوز حد الطلبات")
+    _rate_limits[user_id].append(now)
+
+
+def _get_intent_router() -> IntentRouter:
+    global _intent_router
+    if _intent_router is None:
+        _intent_router = IntentRouter()
+    return _intent_router
 
 
 def _get_http_client(req: Request) -> httpx.AsyncClient:
@@ -48,8 +112,7 @@ def _get_http_client(req: Request) -> httpx.AsyncClient:
     client = getattr(req.app.state, "http_client", None)
     if client is None:
         raise RuntimeError(
-            "http_client not initialized in app.state. "
-            "Ensure the lifespan context manager ran correctly."
+            "http_client not initialized in app.state. Ensure the lifespan context manager ran correctly."
         )
     return client
 
@@ -61,6 +124,10 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
     نقطة نهاية المحادثة الرئيسية مع RAG وتوجيه الوكلاء
     """
     start_time = time.time()
+
+    # Rate limit check - فحص حد الطلبات
+    _check_rate_limit(user.get("user_id", ""))
+
     settings = get_settings()
 
     # Validate total prompt size
@@ -103,6 +170,38 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
             },
         )
 
+    # Sanitize user input before further processing
+    user_query = sanitize_input(user_query)
+
+    # Guardrails input validation
+    if HAS_GUARDRAILS:
+        try:
+            guard_result = input_filter.filter_input(
+                text=user_query,
+                trust_level=TrustLevel.BASIC,
+                mask_pii=True,
+            )
+            if not guard_result.is_safe:
+                logger.warning(
+                    "Guardrails blocked input",
+                    session_id=request.session_id,
+                    violations=[str(v) for v in guard_result.violations],
+                )
+                raise HTTPException(
+                    status_code=400,
+                    detail={
+                        "error": "Input blocked by safety guardrails",
+                        "error_ar": "تم حظر الإدخال بواسطة حواجز الأمان",
+                        "violations": [str(v) for v in guard_result.violations],
+                    },
+                )
+            # Use the filtered (PII-masked) text for downstream processing
+            user_query = guard_result.filtered_text
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.warning("Guardrails input validation error, proceeding with caution", error=str(e))
+
     # Publish chat_started event
     nc = getattr(req.app.state, "nc", None)
     await publish_copilot_event(
@@ -115,6 +214,32 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
         },
     )
 
+    # Intent classification — run before RAG/LLM to enable service routing
+    # تصنيف النية — يتم قبل RAG/LLM لتمكين توجيه الخدمة
+    intent_result = None
+    intent_router_result = None
+    intent_context_text = ""
+    try:
+        intent_result = await _intent_classifier.classify(user_query)
+        if intent_result.confidence >= 0.7 and intent_result.intent != AgriIntent.GENERAL_ADVISORY:
+            field_id = getattr(request, "field_id", None)
+            if field_id is None:
+                request_context = getattr(request, "context", None)
+                if isinstance(request_context, dict):
+                    field_id = request_context.get("field_id")
+            intent_router_result = await _get_intent_router().route(
+                intent_result,
+                user_query,
+                {
+                    "field_id": field_id,
+                    "tenant_id": user.get("tenant_id"),
+                },
+            )
+            if intent_router_result and intent_router_result.response:
+                intent_context_text = json.dumps(intent_router_result.response, ensure_ascii=False)
+    except Exception as e:
+        logger.warning("Intent classification/routing failed, proceeding without", error=str(e))
+
     # Perform RAG search (service already initialized in lifespan)
     rag_context = []
     rag_context_text = ""
@@ -123,6 +248,7 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
         search_results = await rag_service.search(
             query=user_query,
             top_k=5,
+            tenant_id=user.get("tenant_id", ""),
         )
 
         if search_results:
@@ -141,6 +267,12 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
 
     except Exception as e:
         logger.warning("RAG search failed", error=str(e))
+
+    # Prepend intent-routed service context to RAG context if available
+    if intent_context_text:
+        rag_context_text = (
+            f"[Service context for {intent_result.intent.value}]:\n{intent_context_text}\n\n{rag_context_text}"
+        )
 
     # Route to appropriate agent
     agent_router = get_agent_router()
@@ -168,6 +300,9 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
         "Chat completed",
         session_id=request.session_id,
         agent=routing_result.agent_type.value,
+        intent=intent_result.intent.value if intent_result else None,
+        intent_confidence=intent_result.confidence if intent_result else None,
+        service_used=intent_router_result.service_used if intent_router_result else None,
         rag_hits=len(rag_context),
         elapsed_ms=elapsed_ms,
     )
@@ -229,6 +364,9 @@ async def chat(request: ChatRequest, req: Request, user: dict = Depends(get_curr
             content=response_content,
         ),
         rag_context=rag_context if rag_context else None,
+        intent=intent_result.intent.value if intent_result else None,
+        services_used=[intent_router_result.service_used] if intent_router_result else [],
+        confidence=intent_result.confidence if intent_result else None,
         usage={"total_chars": total_chars, "response_chars": len(response_content)},
         timestamp=datetime.now(UTC),
     )
@@ -256,19 +394,22 @@ async def chat_stream(request: ChatRequest, req: Request, user: dict = Depends(g
     # Prompt injection detection
     is_injection, pattern_name = detect_prompt_injection(user_query)
     if is_injection:
-        raise HTTPException(status_code=400, detail={"error": "Prompt injection detected", "error_ar": "تم اكتشاف محاولة حقن أوامر"})
+        raise HTTPException(
+            status_code=400, detail={"error": "Prompt injection detected", "error_ar": "تم اكتشاف محاولة حقن أوامر"}
+        )
+
+    # Sanitize user input before further processing
+    user_query = sanitize_input(user_query)
 
     # Build system prompt
     rag_context_text = ""
     try:
         rag_service = get_rag_service()
-        results = await rag_service.search(query=user_query, top_k=5)
+        results = await rag_service.search(query=user_query, top_k=5, tenant_id=user.get("tenant_id", ""))
         if results:
-            rag_context_text = rag_service.format_context_for_prompt(
-                results, language=_detect_language(user_query)
-            )
+            rag_context_text = rag_service.format_context_for_prompt(results, language=_detect_language(user_query))
     except Exception:
-        pass
+        logger.warning("RAG context retrieval failed, proceeding without context", exc_info=True)
 
     agent_router = get_agent_router()
     routing_result = agent_router.route(user_query)
@@ -457,7 +598,10 @@ async def _generate_response(
             )
             if response.status_code == 200:
                 data = response.json()
-                return data.get("message", {}).get("content", "")
+                response_content = data.get("message", {}).get("content", "")
+                if len(response_content) > 50000:
+                    response_content = response_content[:50000] + "\n\n[Response truncated]"
+                return response_content
 
         except Exception as e:
             logger.debug("Ollama not available", error=str(e))
@@ -482,7 +626,10 @@ async def _generate_response(
                 )
                 if response.status_code == 200:
                     data = response.json()
-                    return data["choices"][0]["message"]["content"]
+                    response_content = data["choices"][0]["message"]["content"]
+                    if len(response_content) > 50000:
+                        response_content = response_content[:50000] + "\n\n[Response truncated]"
+                    return response_content
 
             except Exception as e:
                 logger.warning("External LLM failed", error=str(e))

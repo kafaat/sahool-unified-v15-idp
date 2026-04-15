@@ -1,49 +1,50 @@
 {
-  "name": "@sahool/shared-ui",
-  "version": "16.0.0",
-  "description": "SAHOOL Shared UI Components - Unified UI library for all frontend apps",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
-  },
-  "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts --external react",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --external react --watch",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@sahool/shared-utils": "^16.0.0",
-    "lucide-react": "0.575.0"
-  },
-  "devDependencies": {
-    "@sentry/nextjs": "^9.5.0",
-    "@types/node": "^20.19.37",
-    "@types/react": "19.2.7",
-    "@types/react-dom": "19.2.3",
-    "tsup": "^8.0.1",
-    "typescript": "5.9.3",
-    "vitest": "3.2.4"
-  },
-  "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
+    "name": "@sahool/shared-ui",
+    "version": "16.0.0",
+    "description": "SAHOOL Shared UI Components - Unified UI library for all frontend apps",
+    "main": "dist/index.js",
+    "source": "src/index.ts",
+    "module": "dist/index.mjs",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        }
     },
-    "react-dom": {
-      "optional": true
+    "scripts": {
+        "build": "tsup src/index.ts --format cjs,esm --dts --external react",
+        "dev": "tsup src/index.ts --format cjs,esm --dts --external react --watch",
+        "typecheck": "tsc --noEmit"
+    },
+    "dependencies": {
+        "@sahool/shared-utils": "^16.0.0",
+        "lucide-react": "0.577.0"
+    },
+    "devDependencies": {
+        "@sentry/nextjs": "^9.5.0",
+        "@types/node": "^20.19.37",
+        "@types/react": "19.2.7",
+        "@types/react-dom": "19.2.3",
+        "tsup": "^8.0.1",
+        "typescript": "5.9.3",
+        "vitest": "3.2.4"
+    },
+    "peerDependencies": {
+        "react": ">=18.0.0",
+        "react-dom": ">=18.0.0"
+    },
+    "peerDependenciesMeta": {
+        "react": {
+            "optional": true
+        },
+        "react-dom": {
+            "optional": true
+        }
+    },
+    "sideEffects": false,
+    "engines": {
+        "node": ">=20.0.0"
     }
-  },
-  "sideEffects": false,
-  "engines": {
-    "node": ">=20.0.0"
-  }
 }

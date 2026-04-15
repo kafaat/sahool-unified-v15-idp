@@ -3,9 +3,10 @@
  * طبقة API لميزة المهام
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { TASK_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
-import type { Task, TaskFormData, TaskFilters, TaskStatus } from "./types";
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
+import { TASK_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import type { Task, TaskFormData, TaskFilters, TaskStatus } from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -13,32 +14,32 @@ const api = createApiClient();
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch tasks. Using cached data.",
-    ar: "فشل في جلب المهام. استخدام البيانات المخزنة.",
+    en: 'Failed to fetch tasks. Using cached data.',
+    ar: 'فشل في جلب المهام. استخدام البيانات المخزنة.',
   },
   CREATE_FAILED: {
-    en: "Failed to create task.",
-    ar: "فشل في إنشاء المهمة.",
+    en: 'Failed to create task.',
+    ar: 'فشل في إنشاء المهمة.',
   },
   UPDATE_FAILED: {
-    en: "Failed to update task.",
-    ar: "فشل في تحديث المهمة.",
+    en: 'Failed to update task.',
+    ar: 'فشل في تحديث المهمة.',
   },
   DELETE_FAILED: {
-    en: "Failed to delete task.",
-    ar: "فشل في حذف المهمة.",
+    en: 'Failed to delete task.',
+    ar: 'فشل في حذف المهمة.',
   },
   COMPLETE_FAILED: {
-    en: "Failed to complete task.",
-    ar: "فشل في إكمال المهمة.",
+    en: 'Failed to complete task.',
+    ar: 'فشل في إكمال المهمة.',
   },
   ASSIGN_FAILED: {
-    en: "Failed to assign task.",
-    ar: "فشل في تعيين المهمة.",
+    en: 'Failed to assign task.',
+    ar: 'فشل في تعيين المهمة.',
   },
 };
 
@@ -75,44 +76,41 @@ interface ApiTask {
   completedAt?: string;
 }
 
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_TASKS } from "./api.mock";
-
 // Helper functions for data transformation
 const mapStatusToBackend = (status: TaskStatus): string => {
   const statusMap: Record<TaskStatus, string> = {
-    open: "pending",
-    pending: "pending",
-    in_progress: "in_progress",
-    completed: "completed",
-    cancelled: "cancelled",
+    open: 'pending',
+    pending: 'pending',
+    in_progress: 'in_progress',
+    completed: 'completed',
+    cancelled: 'cancelled',
   };
   return statusMap[status] || status;
 };
 
 const mapStatusToFrontend = (status: string): TaskStatus => {
   const statusMap: Record<string, TaskStatus> = {
-    pending: "open",
-    open: "open",
-    in_progress: "in_progress",
-    completed: "completed",
-    cancelled: "cancelled",
+    pending: 'open',
+    open: 'open',
+    in_progress: 'in_progress',
+    completed: 'completed',
+    cancelled: 'cancelled',
   };
-  return (statusMap[status] as TaskStatus) || "open";
+  return (statusMap[status] as TaskStatus) || 'open';
 };
 
 function mapApiTaskToTask(task: ApiTask): Task {
   return {
-    id: task.id || task.task_id || "",
-    tenant_id: task.tenant_id || task.tenantId || "",
-    field_id: task.field_id || task.fieldId || "",
+    id: task.id || task.task_id || '',
+    tenant_id: task.tenant_id || task.tenantId || '',
+    field_id: task.field_id || task.fieldId || '',
     farm_id: task.farm_id || task.farmId,
-    title: task.title || "",
+    title: task.title || '',
     title_ar: task.title_ar,
     description: task.description,
     description_ar: task.description_ar,
-    status: mapStatusToFrontend(task.status || "pending"),
-    priority: (task.priority as Task["priority"]) || "medium",
+    status: mapStatusToFrontend(task.status || 'pending'),
+    priority: (task.priority as Task['priority']) || 'medium',
     type: task.type || task.taskType,
     due_date: task.due_date || task.dueDate,
     assigned_to: task.assigned_to || task.assigneeId || task.assignee_id,
@@ -124,72 +122,49 @@ function mapApiTaskToTask(task: ApiTask): Task {
   };
 }
 
-// Filter mock data based on filters
-function filterMockTasks(filters?: TaskFilters): Task[] {
-  if (!filters) return MOCK_TASKS;
-
-  return MOCK_TASKS.filter((task) => {
-    if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      const titleMatch = task.title?.toLowerCase().includes(searchLower);
-      const titleArMatch = task.title_ar?.toLowerCase().includes(searchLower);
-      const descMatch = task.description?.toLowerCase().includes(searchLower);
-      if (!titleMatch && !titleArMatch && !descMatch) return false;
-    }
-
-    if (filters.status && task.status !== filters.status) return false;
-    if (filters.priority && task.priority !== filters.priority) return false;
-    if (filters.field_id && task.field_id !== filters.field_id) return false;
-    if (filters.assigned_to && task.assigned_to !== filters.assigned_to)
-      return false;
-
-    if (filters.due_date_from && task.due_date) {
-      if (new Date(task.due_date) < new Date(filters.due_date_from))
-        return false;
-    }
-
-    if (filters.due_date_to && task.due_date) {
-      if (new Date(task.due_date) > new Date(filters.due_date_to)) return false;
-    }
-
-    return true;
-  });
-}
-
 // API Functions
 export const tasksApi = {
   /**
    * Get all tasks with optional filters
    * جلب جميع المهام مع فلاتر اختيارية
+   *
+   * Backend contract: GET /api/v1/tasks
+   *   - Query params: field_id, status, priority, assigned_to, due_before,
+   *     due_after, limit (1-100), offset (>=0)
+   *   - Response shape: { tasks: [...], total, limit, offset }
+   *
+   * Note: backend list endpoint does not support free-text search; the
+   * `search` filter is intentionally ignored to avoid 422 errors.
    */
   getTasks: async (filters?: TaskFilters): Promise<Task[]> => {
-    try {
+    return safeFetch(TASK_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
-
-      if (filters?.field_id) params.set("fieldId", filters.field_id);
-      if (filters?.status)
-        params.set("status", mapStatusToBackend(filters.status));
-      if (filters?.assigned_to) params.set("userId", filters.assigned_to);
-      if (filters?.priority) params.set("priority", filters.priority);
-      if (filters?.search) params.set("search", filters.search);
-      if (filters?.due_date_from)
-        params.set("dueDateFrom", filters.due_date_from);
-      if (filters?.due_date_to) params.set("dueDateTo", filters.due_date_to);
+      // Use backend snake_case param names (see task-service/src/routes/tasks.py)
+      if (filters?.field_id) params.set('field_id', filters.field_id);
+      if (filters?.status) params.set('status', mapStatusToBackend(filters.status));
+      if (filters?.assigned_to) params.set('assigned_to', filters.assigned_to);
+      if (filters?.priority) params.set('priority', filters.priority);
+      if (filters?.due_date_from) params.set('due_after', filters.due_date_from);
+      if (filters?.due_date_to) params.set('due_before', filters.due_date_to);
+      if (filters?.limit !== undefined) params.set('limit', String(filters.limit));
+      if (filters?.offset !== undefined) params.set('offset', String(filters.offset));
 
       const response = await api.get(`${TASK_ENDPOINTS.LIST}?${params.toString()}`);
-
-      const data = response.data.data || response.data;
-
-      if (Array.isArray(data)) {
-        return data.map(mapApiTaskToTask);
-      }
-
-      logger.warn("API returned unexpected format for tasks, using mock data");
-      return filterMockTasks(filters);
-    } catch (error) {
-      logger.warn("Failed to fetch tasks from API, using mock data:", error);
-      return filterMockTasks(filters);
-    }
+      // Backend returns { tasks: [...], total, limit, offset }. Also tolerate a
+      // flat array or an envelope { data: [...] } from upstream variants.
+      const body = response.data;
+      const envelopeData = body && typeof body === 'object' ? (body as Record<string, unknown>).data : undefined;
+      const tasksField = body && typeof body === 'object' ? (body as Record<string, unknown>).tasks : undefined;
+      const raw = Array.isArray(body)
+        ? body
+        : Array.isArray(tasksField)
+          ? tasksField
+          : Array.isArray(envelopeData)
+            ? envelopeData
+            : null;
+      if (raw) return raw.map((t) => mapApiTaskToTask(t as ApiTask));
+      throw new Error('Invalid response format for tasks | تنسيق الاستجابة غير صالح للمهام');
+    });
   },
 
   /**
@@ -197,27 +172,12 @@ export const tasksApi = {
    * جلب مهمة واحدة بواسطة المعرف
    */
   getTask: async (id: string): Promise<Task> => {
-    try {
+    return safeFetch(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }), async () => {
       const response = await api.get(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }));
-
       const data = response.data.data || response.data;
-
-      if (data && typeof data === "object") {
-        return mapApiTaskToTask(data as ApiTask);
-      }
-
-      throw new Error("Invalid response format");
-    } catch (error) {
-      logger.warn(
-        `Failed to fetch task ${id} from API, using mock data:`,
-        error,
-      );
-
-      const mockTask = MOCK_TASKS.find((t) => t.id === id);
-      if (mockTask) return mockTask;
-
-      throw new Error("Task not found");
-    }
+      if (data && typeof data === 'object') return mapApiTaskToTask(data as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -225,73 +185,58 @@ export const tasksApi = {
    * إنشاء مهمة جديدة
    */
   createTask: async (data: TaskFormData): Promise<Task> => {
-    try {
-      const payload = {
+    return safeFetch(TASK_ENDPOINTS.CREATE, async () => {
+      // Backend contract (task-service TaskCreateRequest):
+      //   title, title_ar, description, description_ar, task_type (enum),
+      //   priority (enum), field_id, assigned_to (UUID), due_date (ISO)
+      // NOTE: status is NOT accepted on create; the backend defaults to
+      // PENDING. Also the previous `assignee_id`/`taskType: 'general'` fields
+      // were silently dropped (Pydantic extra=ignore) and 'general' is not a
+      // valid TaskType enum value.
+      const payload: Record<string, unknown> = {
         title: data.title,
         title_ar: data.title_ar,
         description: data.description,
         description_ar: data.description_ar,
-        field_id: data.field_id || "",
-        assignee_id: data.assigned_to,
-        due_date: data.due_date,
         priority: data.priority,
-        status: data.status ? mapStatusToBackend(data.status) : "pending",
-        taskType: "general",
+        task_type: 'other',
       };
+      if (data.field_id) payload.field_id = data.field_id;
+      if (data.assigned_to) payload.assigned_to = data.assigned_to;
+      if (data.due_date) payload.due_date = data.due_date;
 
       const response = await api.post(TASK_ENDPOINTS.CREATE, payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === "object") {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error("Invalid response format");
-    } catch (error) {
-      logger.error("Failed to create task:", error);
-      throw new Error(ERROR_MESSAGES.CREATE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
    * Update an existing task
    * تحديث مهمة موجودة
    */
-  updateTask: async (
-    id: string,
-    data: Partial<TaskFormData>,
-  ): Promise<Task> => {
-    try {
+  updateTask: async (id: string, data: Partial<TaskFormData>): Promise<Task> => {
+    return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
+      // Backend contract (task-service TaskUpdateRequest) expects snake_case
+      // `assigned_to` (not `assignee_id`). Previously the wrong field name
+      // caused silent data loss via Pydantic extra=ignore.
       const payload: Record<string, unknown> = {};
-
       if (data.title !== undefined) payload.title = data.title;
       if (data.title_ar !== undefined) payload.title_ar = data.title_ar;
-      if (data.description !== undefined)
-        payload.description = data.description;
-      if (data.description_ar !== undefined)
-        payload.description_ar = data.description_ar;
-      if (data.status !== undefined)
-        payload.status = mapStatusToBackend(data.status);
+      if (data.description !== undefined) payload.description = data.description;
+      if (data.description_ar !== undefined) payload.description_ar = data.description_ar;
+      if (data.status !== undefined) payload.status = mapStatusToBackend(data.status);
       if (data.priority !== undefined) payload.priority = data.priority;
       if (data.due_date !== undefined) payload.due_date = data.due_date;
-      if (data.assigned_to !== undefined)
-        payload.assignee_id = data.assigned_to;
+      if (data.assigned_to !== undefined) payload.assigned_to = data.assigned_to;
       if (data.field_id !== undefined) payload.field_id = data.field_id;
 
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === "object") {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error("Invalid response format");
-    } catch (error) {
-      logger.error(`Failed to update task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.UPDATE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -299,12 +244,9 @@ export const tasksApi = {
    * حذف مهمة
    */
   deleteTask: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }), async () => {
       await api.delete(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }));
-    } catch (error) {
-      logger.error(`Failed to delete task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.DELETE_FAILED.en);
-    }
+    });
   },
 
   /**
@@ -313,28 +255,22 @@ export const tasksApi = {
    */
   completeTask: async (
     id: string,
-    evidence?: { notes?: string; photos?: string[] },
+    evidence?: { notes?: string; photos?: string[] }
   ): Promise<Task> => {
-    try {
-      const payload = {
-        evidence_notes: evidence?.notes,
-        evidence_photos: evidence?.photos || [],
-        completed_at: new Date().toISOString(),
-      };
-
+    return safeFetch(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), async () => {
+      // Backend contract (task-service TaskCompleteRequest):
+      //   notes, notes_ar, photo_urls, actual_duration_minutes, completion_metadata
+      // The old `evidence_notes`/`evidence_photos`/`completed_at` fields were
+      // silently dropped (Pydantic extra=ignore). `completed_at` is set
+      // server-side from the trusted clock to prevent client clock abuse.
+      const payload: Record<string, unknown> = {};
+      if (evidence?.notes) payload.notes = evidence.notes;
+      if (evidence?.photos && evidence.photos.length > 0) payload.photo_urls = evidence.photos;
       const response = await api.post(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === "object") {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error("Invalid response format");
-    } catch (error) {
-      logger.error(`Failed to complete task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.COMPLETE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -342,24 +278,13 @@ export const tasksApi = {
    * تحديث حالة المهمة
    */
   updateTaskStatus: async (id: string, status: TaskStatus): Promise<Task> => {
-    try {
-      const payload = {
-        status: mapStatusToBackend(status),
-      };
-
+    return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
+      const payload = { status: mapStatusToBackend(status) };
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === "object") {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error("Invalid response format");
-    } catch (error) {
-      logger.error(`Failed to update task status ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.UPDATE_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -367,24 +292,14 @@ export const tasksApi = {
    * تعيين مهمة لمستخدم
    */
   assignTask: async (id: string, userId: string): Promise<Task> => {
-    try {
-      const payload = {
-        assignee_id: userId,
-      };
-
+    return safeFetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), async () => {
+      // Backend expects `assigned_to` snake_case (previously sent wrong key).
+      const payload = { assigned_to: userId };
       const response = await api.put(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), payload);
-
       const taskData = response.data.data || response.data;
-
-      if (taskData && typeof taskData === "object") {
-        return mapApiTaskToTask(taskData as ApiTask);
-      }
-
-      throw new Error("Invalid response format");
-    } catch (error) {
-      logger.error(`Failed to assign task ${id}:`, error);
-      throw new Error(ERROR_MESSAGES.ASSIGN_FAILED.en);
-    }
+      if (taskData && typeof taskData === 'object') return mapApiTaskToTask(taskData as ApiTask);
+      throw new Error('Invalid response format | تنسيق الاستجابة غير صالح');
+    });
   },
 
   /**
@@ -418,8 +333,6 @@ export const tasksApi = {
   getOverdueTasks: async (): Promise<Task[]> => {
     const now = new Date().toISOString();
     const tasks = await tasksApi.getTasks({ due_date_to: now });
-    return tasks.filter(
-      (task) => task.status !== "completed" && task.status !== "cancelled",
-    );
+    return tasks.filter((task) => task.status !== 'completed' && task.status !== 'cancelled');
   },
 };

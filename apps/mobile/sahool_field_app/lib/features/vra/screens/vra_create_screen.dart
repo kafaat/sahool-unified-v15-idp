@@ -1,5 +1,6 @@
-/// VRA Create Screen - شاشة إنشاء الوصفة
 library;
+
+/// VRA Create Screen - شاشة إنشاء الوصفة
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -165,8 +166,9 @@ class _VRACreateScreenState extends ConsumerState<VRACreateScreen> {
                   );
                 }).toList(),
                 onChanged: (value) {
-                  if (value != null)
+                  if (value != null) {
                     setState(() => _selectedZoningMethod = value);
+                  }
                 },
               ),
               const SizedBox(height: 16),

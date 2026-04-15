@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Weather Domain Entities
 /// نماذج بيانات الطقس
 ///

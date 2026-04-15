@@ -1,5 +1,6 @@
-/// Movement Tile Widget - عنصر حركة المخزون
 library;
+
+/// Movement Tile Widget - عنصر حركة المخزون
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -189,7 +190,7 @@ class MovementTile extends StatelessWidget {
     }
 
     return CircleAvatar(
-      backgroundColor: color.withOpacity(0.15),
+      backgroundColor: color.withValues(alpha: 0.15),
       child: Icon(
         icon,
         color: color,

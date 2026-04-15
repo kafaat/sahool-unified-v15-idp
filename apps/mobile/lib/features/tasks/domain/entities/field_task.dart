@@ -2,6 +2,7 @@
 /// كيان مهمة الحقل - Domain Layer نظيف (بدون Flutter)
 ///
 /// يمثل المهام الزراعية المطلوبة للحقول
+library;
 
 /// أنواع المهام الزراعية
 enum TaskType {
@@ -103,7 +104,7 @@ class FieldTask {
       description: json['description'] as String?,
       fieldName: json['field_name'] as String,
       fieldId: json['field_id'] as String?,
-      dueTime: DateTime.parse(json['due_time'] as String),
+      dueTime: DateTime.tryParse(json['due_time'] as String) ?? DateTime.now(),
       type: TaskType.values.firstWhere(
         (t) => t.name == json['type'],
         orElse: () => TaskType.other,
@@ -114,7 +115,7 @@ class FieldTask {
       ),
       isCompleted: json['is_completed'] as bool? ?? false,
       completedAt: json['completed_at'] != null
-          ? DateTime.parse(json['completed_at'] as String)
+          ? DateTime.tryParse(json['completed_at'] as String) ?? DateTime.now()
           : null,
       notes: json['notes'] as String?,
     );

@@ -21,7 +21,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "io.sahool.field"
-    compileSdk = 36  // Android 16 - required by sqlcipher_flutter_libs with NDK 28
+    compileSdk = 35  // Android 15 - stable SDK for Flutter 3.27.x
     ndkVersion = "28.2.13676358"
 
     compileOptions {
@@ -41,7 +41,7 @@ android {
         // SQLCipher and biometric auth also benefit from API 23+
         // flutter_tts requires API 24+ for full compatibility
         minSdk = 24
-        targetSdk = 36  // Target Android 16
+        targetSdk = 35  // Target Android 15
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 

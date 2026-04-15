@@ -1,6 +1,8 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_map/flutter_map.dart' show LatLngBounds;
 import 'package:latlong2/latlong.dart';
 import '../utils/app_logger.dart';
 import '../utils/image_compression.dart';
@@ -145,7 +147,7 @@ class TileService {
     required LatLngBounds bounds,
     required List<int> zoomLevels,
     double? quality,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     final startTime = DateTime.now();
     int totalTiles = 0;
@@ -252,7 +254,7 @@ class TileService {
     required double radiusKm,
     required List<int> zoomLevels,
     double? quality,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     // احسب حدود المنطقة من نصف القطر - Calculate bounds from radius
     final bounds = _boundsFromRadius(center, radiusKm);
@@ -341,7 +343,7 @@ class TileService {
   /// الحصول على معلومات الكاش
   /// Get cache information
   Future<CacheSizeInfo> getCacheInfo() async {
-    return await ImageCompressionUtil.getCacheSize();
+    return ImageCompressionUtil.getCacheSize();
   }
 }
 

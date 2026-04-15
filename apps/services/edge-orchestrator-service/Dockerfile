@@ -29,10 +29,10 @@ COPY constraints.txt .
 COPY apps/services/edge-orchestrator-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip setuptools wheel || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip setuptools wheel
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
@@ -80,6 +80,7 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy shared modules (required for shared.middleware, shared.auth, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+
 
 # Copy application code
 # Note: Build context is repo root, so use full path

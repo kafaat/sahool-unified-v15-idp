@@ -1,7 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../ai/ai.dart';
-import '../http/api_client.dart';
-import '../storage/database.dart';
+import '../storage/database.dart' show AiMemoryTableData, AiKnowledgeBaseTableData;
 import 'providers.dart' show apiClientProvider;
 import '../../main.dart' show databaseProvider;
 

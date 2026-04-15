@@ -6,6 +6,7 @@
 /// - Weather forecasts
 /// - Weather alerts
 /// - Agricultural calendar
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';
@@ -57,7 +58,7 @@ class CurrentWeather {
       conditionAr: json['condition_ar'] as String?,
       icon: json['icon'] as String?,
       timestamp: json['timestamp'] != null
-          ? DateTime.parse(json['timestamp'] as String)
+          ? DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now()
           : DateTime.now(),
       location: json['location'] as String?,
     );
@@ -98,7 +99,7 @@ class ForecastDay {
 
   factory ForecastDay.fromJson(Map<String, dynamic> json) {
     return ForecastDay(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       tempMax: (json['temp_max'] as num?)?.toDouble() ?? 0.0,
       tempMin: (json['temp_min'] as num?)?.toDouble() ?? 0.0,
       avgTemp: (json['avg_temp'] as num?)?.toDouble(),
@@ -152,8 +153,8 @@ class WeatherAlert {
       headlineAr: json['headline_ar'] as String?,
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
-      startTime: DateTime.parse(json['start_time'] as String),
-      endTime: DateTime.parse(json['end_time'] as String),
+      startTime: DateTime.tryParse(json['start_time'] as String) ?? DateTime.now(),
+      endTime: DateTime.tryParse(json['end_time'] as String) ?? DateTime.now(),
       source: json['source'] as String?,
       affectedAreas: (json['affected_areas'] as List?)?.cast<String>(),
     );
@@ -199,7 +200,7 @@ class AgriculturalEvent {
       type: json['type'] as String? ?? 'general',
       description: json['description'] as String?,
       descriptionAr: json['description_ar'] as String?,
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       cropType: json['crop_type'] as String?,
       recommendation: json['recommendation'] as String?,
       recommendationAr: json['recommendation_ar'] as String?,
@@ -264,7 +265,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => ForecastDay.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['forecast'] != null) {
-          return (data['forecast'] as List)
+          return (data['forecast'] as List? ?? [])
               .map((e) => ForecastDay.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -284,7 +285,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => ForecastDay.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['forecast'] != null) {
-          return (data['forecast'] as List)
+          return (data['forecast'] as List? ?? [])
               .map((e) => ForecastDay.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -314,7 +315,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => WeatherAlert.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['alerts'] != null) {
-          return (data['alerts'] as List)
+          return (data['alerts'] as List? ?? [])
               .map((e) => WeatherAlert.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -358,7 +359,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.map((e) => AgriculturalEvent.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['events'] != null) {
-          return (data['events'] as List)
+          return (data['events'] as List? ?? [])
               .map((e) => AgriculturalEvent.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -377,7 +378,7 @@ class WeatherServiceConnector extends ServiceConnector {
           return data.cast<String>();
         }
         if (data is Map && data['locations'] != null) {
-          return (data['locations'] as List).cast<String>();
+          return (data['locations'] as List? ?? []).cast<String>();
         }
         return <String>[];
       },

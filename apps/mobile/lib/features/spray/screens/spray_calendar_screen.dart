@@ -14,9 +14,9 @@ class SprayCalendarScreen extends ConsumerStatefulWidget {
   final String fieldId;
 
   const SprayCalendarScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SprayCalendarScreen> createState() => _SprayCalendarScreenState();
@@ -41,7 +41,12 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
 
     // Calculate days from now to end of next month
     final now = DateTime.now();
-    final endOfNextMonth = DateTime(now.year, now.month + 2, 0);
+    final targetMonth = now.month + 2;
+    final endOfNextMonth = DateTime(
+      now.year + (targetMonth > 12 ? 1 : 0),
+      targetMonth > 12 ? targetMonth - 12 : targetMonth,
+      0,
+    );
     final daysToFetch = endOfNextMonth.difference(now).inDays;
 
     final windowsAsync = ref.watch(sprayWindowsProvider(
@@ -95,7 +100,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
                 Text(
                   error.toString(),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -132,7 +137,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
         ),
         calendarStyle: CalendarStyle(
           todayDecoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.5),
+            color: theme.colorScheme.primary.withValues(alpha: 0.5),
             shape: BoxShape.circle,
           ),
           selectedDecoration: BoxDecoration(
@@ -180,7 +185,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
             return Container(
               margin: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: _getStatusColor(bestStatus).withOpacity(0.1),
+                color: _getStatusColor(bestStatus).withValues(alpha: 0.1),
                 border: Border.all(
                   color: _getStatusColor(bestStatus),
                   width: 1,
@@ -248,7 +253,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
             return Container(
               margin: const EdgeInsets.all(4),
               decoration: BoxDecoration(
-                color: _getStatusColor(bestStatus).withOpacity(0.2),
+                color: _getStatusColor(bestStatus).withValues(alpha: 0.2),
                 border: Border.all(
                   color: theme.colorScheme.primary,
                   width: 2,
@@ -277,7 +282,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
         child: Text(
           isArabic ? 'اختر يوماً لعرض نوافذ الرش' : 'Select a day to view spray windows',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
       );
@@ -293,13 +298,13 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
             Icon(
               Icons.event_busy,
               size: 64,
-              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
             Text(
               isArabic ? 'لا توجد نوافذ رش في هذا اليوم' : 'No spray windows for this day',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -383,7 +388,7 @@ class _SprayCalendarScreenState extends ConsumerState<SprayCalendarScreen> {
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurface.withOpacity(0.3),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),

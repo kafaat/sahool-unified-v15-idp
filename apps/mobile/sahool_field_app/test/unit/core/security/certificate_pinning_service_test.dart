@@ -7,6 +7,7 @@
 /// - Local host bypass logic
 /// - Staging pin runtime configuration
 /// - Pin validation and expiry
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/core/security/certificate_pinning_service.dart';
@@ -443,7 +444,7 @@ void main() {
       );
 
       expect(pin.daysUntilExpiry, isNotNull);
-      expect(pin.daysUntilExpiry!, closeTo(100, 1));
+      expect(pin.daysUntilExpiry, closeTo(100, 1));
     });
 
     test('should return null days until expiry when no expiry date', () {

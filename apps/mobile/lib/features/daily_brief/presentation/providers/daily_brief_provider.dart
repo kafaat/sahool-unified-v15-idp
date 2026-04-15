@@ -1,14 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/http/api_client.dart';
+import '../../../../core/di/providers.dart' show apiClientProvider;
 
 /// Daily Brief Provider
 /// موفر بيانات الملخص اليومي
 
-/// API client provider for daily brief
-final _apiClientProvider = Provider.autoDispose<ApiClient>((ref) => ApiClient());
-
 final dailyBriefProvider = FutureProvider.autoDispose<DailyBrief>((ref) async {
-  final apiClient = ref.watch(_apiClientProvider);
+  final apiClient = ref.watch(apiClientProvider);
 
   try {
     final response = await apiClient.get('/api/v1/daily-brief');
@@ -16,7 +13,7 @@ final dailyBriefProvider = FutureProvider.autoDispose<DailyBrief>((ref) async {
     if (response.statusCode == 200 && response.data != null) {
       return DailyBrief.fromJson(response.data as Map<String, dynamic>);
     }
-  } catch (_) {
+  } catch (e) {
     // Fallback to local data when API is unavailable (offline-first)
     // الرجوع إلى البيانات المحلية عند عدم توفر الاتصال
   }

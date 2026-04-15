@@ -6,6 +6,7 @@
 /// - Push notifications integration
 /// - Personalized alerts based on farmer profile
 /// - Unread count badge
+library;
 
 import 'dart:async';
 import 'dart:convert';
@@ -81,9 +82,9 @@ class AppNotification {
       body: json['body'] as String,
       bodyAr: json['body_ar'] as String? ?? '',
       data: Map<String, dynamic>.from(json['data'] as Map? ?? {}),
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       expiresAt: json['expires_at'] != null
-          ? DateTime.parse(json['expires_at'] as String)
+          ? DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now()
           : null,
       isRead: json['is_read'] as bool? ?? false,
       actionUrl: json['action_url'] as String?,
@@ -335,12 +336,20 @@ class NotificationNotifier extends StateNotifier<NotificationState> {
 final farmerIdProvider = StateProvider<String>((ref) => '');
 
 /// مزود رابط API
+///
+/// The production URL is read from the `NOTIFICATION_API_URL` dart-define so
+/// it can be overridden at build time:
+///   flutter build apk --dart-define=NOTIFICATION_API_URL=https://api.sahool.io
+///
+/// Falls back to the canonical production origin when dart-define is absent.
+/// Development builds use the local notification service on port 8109.
 final apiBaseUrlProvider = Provider<String>((ref) {
-  // يمكن تغييره حسب البيئة
   const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction
-      ? 'https://api.sahool.io'
-      : 'http://localhost:8109';
+  if (isProduction) {
+    const overrideUrl = String.fromEnvironment('NOTIFICATION_API_URL');
+    return overrideUrl.isNotEmpty ? overrideUrl : 'https://api.sahool.io';
+  }
+  return 'http://localhost:8109';
 });
 
 /// مزود الإشعارات الرئيسي

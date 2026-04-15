@@ -16,6 +16,14 @@ COPY constraints.txt .
 COPY apps/services/iot-sensor-hub/requirements.txt ./requirements.txt
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun first with long timeout, then fallback to PyPI, finally Tencent
+# Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     -c constraints.txt -r requirements.txt || \
@@ -32,8 +40,18 @@ COPY shared/ ./shared/
 # Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
 COPY apps/services/shared/ ./shared/
 
+
 COPY apps/services/iot-sensor-hub/src ./src/
 
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 ENV PORT=8251

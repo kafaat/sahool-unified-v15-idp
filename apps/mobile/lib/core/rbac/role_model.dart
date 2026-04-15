@@ -150,7 +150,7 @@ enum Role {
       return Role.values.firstWhere(
         (r) => r.value == value || r.name == value,
       );
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

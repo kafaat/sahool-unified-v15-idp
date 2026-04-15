@@ -3,238 +3,198 @@
  * طبقة API لميزة المخزون
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { INVENTORY_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
+import { INVENTORY_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   InventoryItem,
   InventoryFilters,
   InventoryFormData,
   InventoryTransaction,
   InventoryStats,
-} from "./types";
+} from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch inventory data.",
-    ar: "فشل في جلب بيانات المخزون.",
+    en: 'Failed to fetch inventory data.',
+    ar: 'فشل في جلب بيانات المخزون.',
   },
   CREATE_FAILED: {
-    en: "Failed to create inventory item.",
-    ar: "فشل في إنشاء عنصر المخزون.",
+    en: 'Failed to create inventory item.',
+    ar: 'فشل في إنشاء عنصر المخزون.',
   },
   UPDATE_FAILED: {
-    en: "Failed to update inventory item.",
-    ar: "فشل في تحديث عنصر المخزون.",
+    en: 'Failed to update inventory item.',
+    ar: 'فشل في تحديث عنصر المخزون.',
   },
   DELETE_FAILED: {
-    en: "Failed to delete inventory item.",
-    ar: "فشل في حذف عنصر المخزون.",
+    en: 'Failed to delete inventory item.',
+    ar: 'فشل في حذف عنصر المخزون.',
   },
 };
 
-const MOCK_INVENTORY: InventoryItem[] = [
-  {
-    id: "1",
-    name: "Urea Fertilizer 46%",
-    nameAr: "سماد يوريا 46%",
-    category: "fertilizers",
-    status: "in_stock",
-    sku: "FERT-UREA-46",
-    quantity: 150,
-    unit: "bags",
-    unitAr: "كيس",
-    minQuantity: 50,
-    maxQuantity: 300,
-    purchasePrice: 85,
-    location: "Warehouse A",
-    locationAr: "المستودع أ",
-    lastRestocked: "2026-01-20",
-    metadata: {},
-    createdAt: "2025-06-01T10:00:00Z",
-    updatedAt: "2026-01-20T14:30:00Z",
-  },
-  {
-    id: "2",
-    name: "Wheat Seeds - Sakha 95",
-    nameAr: "بذور قمح - سخا 95",
-    category: "seeds",
-    status: "low_stock",
-    sku: "SEED-WHT-S95",
-    quantity: 25,
-    unit: "kg",
-    unitAr: "كجم",
-    minQuantity: 50,
-    maxQuantity: 500,
-    purchasePrice: 120,
-    location: "Cold Storage",
-    locationAr: "التخزين البارد",
-    expiryDate: "2026-06-01",
-    batchNumber: "B2025-001",
-    lastRestocked: "2025-12-15",
-    metadata: {},
-    createdAt: "2025-12-15T08:00:00Z",
-    updatedAt: "2026-01-15T11:00:00Z",
-  },
-  {
-    id: "3",
-    name: "Pesticide - Lambda-cyhalothrin",
-    nameAr: "مبيد حشري - لامبدا سيهالوثرين",
-    category: "pesticides",
-    status: "in_stock",
-    sku: "PEST-LAM-01",
-    quantity: 80,
-    unit: "liters",
-    unitAr: "لتر",
-    minQuantity: 20,
-    maxQuantity: 150,
-    purchasePrice: 250,
-    location: "Chemical Storage",
-    locationAr: "مخزن المواد الكيميائية",
-    expiryDate: "2027-03-15",
-    lastRestocked: "2026-01-10",
-    metadata: {},
-    createdAt: "2025-08-20T09:00:00Z",
-    updatedAt: "2026-01-10T16:00:00Z",
-  },
-  {
-    id: "4",
-    name: "Diesel Fuel",
-    nameAr: "وقود ديزل",
-    category: "fuel",
-    status: "in_stock",
-    sku: "FUEL-DSL-01",
-    quantity: 2500,
-    unit: "liters",
-    unitAr: "لتر",
-    minQuantity: 500,
-    maxQuantity: 5000,
-    purchasePrice: 2.5,
-    location: "Fuel Tank",
-    locationAr: "خزان الوقود",
-    lastRestocked: "2026-01-22",
-    metadata: {},
-    createdAt: "2025-01-01T10:00:00Z",
-    updatedAt: "2026-01-22T08:00:00Z",
-  },
-];
+// Sanity bounds to prevent request abuse / accidental huge pagination.
+const MAX_PAGE_SIZE = 200;
+const DEFAULT_PAGE_SIZE = 50;
 
-const MOCK_STATS: InventoryStats = {
-  totalItems: 4,
-  totalValue: 35750,
-  lowStockItems: 1,
-  outOfStockItems: 0,
-  expiringItems: 1,
-  byCategory: {
-    fertilizers: 1,
-    seeds: 1,
-    pesticides: 1,
-    fuel: 1,
-  },
-};
+/**
+ * Validates a quantity/price numeric value before sending over the wire.
+ * Rejects NaN, Infinity, and negative numbers. Floors to 4 decimal places
+ * to minimize JS float precision drift on unit conversions.
+ */
+function sanitizeNumeric(value: number, opts?: { allowNegative?: boolean }): number {
+  if (typeof value !== 'number' || Number.isNaN(value) || !Number.isFinite(value)) {
+    return 0;
+  }
+  if (!opts?.allowNegative && value < 0) {
+    return 0;
+  }
+  // Clamp float precision to 4 decimals (preserves gram-level accuracy for kg)
+  return Math.round(value * 10000) / 10000;
+}
+
+/**
+ * Normalizes inbound InventoryFormData to guard against NaN/precision loss
+ * before the payload is sent to the backend.
+ */
+function sanitizeInventoryPayload<T extends Partial<InventoryFormData>>(data: T): T {
+  const sanitized: Record<string, unknown> = { ...data };
+  if (typeof data.quantity === 'number') {
+    sanitized.quantity = sanitizeNumeric(data.quantity);
+  }
+  if (typeof data.minQuantity === 'number') {
+    sanitized.minQuantity = sanitizeNumeric(data.minQuantity);
+  }
+  if (typeof data.maxQuantity === 'number') {
+    sanitized.maxQuantity = sanitizeNumeric(data.maxQuantity);
+  }
+  if (typeof data.purchasePrice === 'number') {
+    sanitized.purchasePrice = sanitizeNumeric(data.purchasePrice);
+  }
+  if (typeof data.sellingPrice === 'number') {
+    sanitized.sellingPrice = sanitizeNumeric(data.sellingPrice);
+  }
+  if (typeof data.sku === 'string') {
+    sanitized.sku = data.sku.trim();
+  }
+  if (typeof data.name === 'string') {
+    sanitized.name = data.name.trim();
+  }
+  if (typeof data.nameAr === 'string') {
+    sanitized.nameAr = data.nameAr.trim();
+  }
+  return sanitized as T;
+}
+
+export interface InventoryListParams extends InventoryFilters {
+  page?: number;
+  pageSize?: number;
+}
 
 export const inventoryApi = {
-  getInventory: async (filters?: InventoryFilters): Promise<InventoryItem[]> => {
-    try {
+  getInventory: async (filters?: InventoryListParams): Promise<InventoryItem[]> => {
+    return safeFetch(INVENTORY_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
-      if (filters?.category) params.set("category", filters.category);
-      if (filters?.status) params.set("status", filters.status);
-      if (filters?.search) params.set("search", filters.search);
-      if (filters?.lowStock) params.set("low_stock", "true");
+      if (filters?.category) params.set('category', filters.category);
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.search) params.set('search', filters.search);
+      if (filters?.lowStock) params.set('low_stock', 'true');
+
+      // Apply bounded pagination to avoid silently truncated result sets
+      const pageSize = Math.min(
+        Math.max(1, Math.floor(filters?.pageSize ?? DEFAULT_PAGE_SIZE)),
+        MAX_PAGE_SIZE
+      );
+      const page = Math.max(1, Math.floor(filters?.page ?? 1));
+      params.set('limit', String(pageSize));
+      params.set('offset', String((page - 1) * pageSize));
 
       const response = await api.get(`${INVENTORY_ENDPOINTS.LIST}?${params.toString()}`);
       const data = response.data.data || response.data;
 
+      // Support both array and {items: [...]} envelope shapes
       if (Array.isArray(data)) {
         return data;
       }
+      if (data && Array.isArray((data as { items?: unknown }).items)) {
+        return (data as { items: InventoryItem[] }).items;
+      }
 
-      logger.warn("API returned unexpected format, using mock data");
-      return MOCK_INVENTORY;
-    } catch (error) {
-      logger.warn("Failed to fetch inventory from API, using mock data:", error);
-      return MOCK_INVENTORY;
-    }
+      return [];
+    });
   },
 
   getInventoryById: async (id: string): Promise<InventoryItem> => {
-    try {
+    return safeFetch(INVENTORY_ENDPOINTS.GET, async () => {
       const response = await api.get(buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }));
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn(`Failed to fetch inventory item ${id}, using mock data:`, error);
-      const mockItem = MOCK_INVENTORY.find((item) => item.id === id);
-      if (mockItem) return mockItem;
-      throw new Error(`Inventory item with ID ${id} not found`);
-    }
+    });
   },
 
   createInventory: async (data: InventoryFormData): Promise<InventoryItem> => {
-    try {
-      const response = await api.post(INVENTORY_ENDPOINTS.CREATE, data);
+    return safeFetch(INVENTORY_ENDPOINTS.CREATE, async () => {
+      const payload = sanitizeInventoryPayload(data);
+      const response = await api.post(INVENTORY_ENDPOINTS.CREATE, payload);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error("Failed to create inventory item:", error);
-      throw error;
-    }
+    });
   },
 
   updateInventory: async (id: string, data: Partial<InventoryFormData>): Promise<InventoryItem> => {
-    try {
-      const response = await api.put(buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: id }), data);
+    return safeFetch(INVENTORY_ENDPOINTS.UPDATE, async () => {
+      const payload = sanitizeInventoryPayload(data);
+      const response = await api.put(
+        buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: id }),
+        payload
+      );
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to update inventory item ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   deleteInventory: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(INVENTORY_ENDPOINTS.DELETE, async () => {
       await api.delete(buildUrl(INVENTORY_ENDPOINTS.DELETE, { itemId: id }));
-    } catch (error) {
-      logger.error(`Failed to delete inventory item ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   adjustQuantity: async (
     id: string,
-    adjustment: { quantity: number; type: "in" | "out" | "adjustment"; reason: string }
+    adjustment: { quantity: number; type: 'in' | 'out' | 'adjustment'; reason: string }
   ): Promise<InventoryItem> => {
-    try {
-      const response = await api.post(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id })}/adjust`, adjustment);
+    return safeFetch(INVENTORY_ENDPOINTS.UPDATE, async () => {
+      // 'adjustment' type may legitimately be negative (correction); 'in'/'out'
+      // are always positive and direction is encoded in `type`.
+      const sanitizedQty = sanitizeNumeric(adjustment.quantity, {
+        allowNegative: adjustment.type === 'adjustment',
+      });
+      const response = await api.post(
+        `${buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: id })}/adjust`,
+        { ...adjustment, quantity: sanitizedQty, reason: (adjustment.reason ?? '').trim() }
+      );
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to adjust inventory ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   getTransactions: async (itemId?: string): Promise<InventoryTransaction[]> => {
-    try {
-      const params = itemId ? `?item_id=${itemId}` : "";
-      const response = await api.get(`${INVENTORY_ENDPOINTS.LIST}/transactions${params}`);
-      return response.data.data || response.data;
-    } catch (error) {
-      logger.warn("Failed to fetch transactions, returning empty:", error);
-      return [];
-    }
+    return safeFetch(`${INVENTORY_ENDPOINTS.LIST}/transactions`, async () => {
+      // Use URLSearchParams to guarantee correct encoding of itemId
+      const qs = itemId ? `?${new URLSearchParams({ item_id: itemId }).toString()}` : '';
+      const response = await api.get(`${INVENTORY_ENDPOINTS.LIST}/transactions${qs}`);
+      const data = response.data.data || response.data;
+      return Array.isArray(data) ? data : [];
+    });
   },
 
   getStats: async (): Promise<InventoryStats> => {
-    try {
+    return safeFetch(`${INVENTORY_ENDPOINTS.LIST}/stats`, async () => {
       const response = await api.get(`${INVENTORY_ENDPOINTS.LIST}/stats`);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.warn("Failed to fetch inventory stats, using mock data:", error);
-      return MOCK_STATS;
-    }
+    });
   },
 };

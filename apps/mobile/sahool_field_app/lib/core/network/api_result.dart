@@ -1,3 +1,5 @@
+library;
+
 /// Sahool API Result Wrapper
 /// نمط النتيجة للتعامل الآمن مع الشبكة
 ///

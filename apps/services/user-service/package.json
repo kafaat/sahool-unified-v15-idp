@@ -27,11 +27,12 @@
     "@nestjs/swagger": "^8.1.0",
     "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "~5.22.0",
+    "@sahool/shared-events": "^16.0.0",
     "bcryptjs": "^2.4.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.15.1",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^8.0.4",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "prisma": "~5.22.0",
@@ -39,6 +40,7 @@
     "reflect-metadata": "^0.2.2",
     "helmet": "^8.0.0",
     "rxjs": "^7.8.1",
+    "prom-client": "^15.1.0",
     "uuid": "^11.0.3"
   },
   "devDependencies": {

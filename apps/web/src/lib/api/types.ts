@@ -24,12 +24,12 @@ export interface Pagination {
 }
 
 export interface GeoPoint {
-  type: "Point";
+  type: 'Point';
   coordinates: [number, number]; // [lng, lat]
 }
 
 export interface GeoPolygon {
-  type: "Polygon";
+  type: 'Polygon';
   coordinates: number[][][];
 }
 
@@ -49,7 +49,7 @@ export interface Field {
   crop_type?: string;
   description?: string;
   description_ar?: string;
-  status: "active" | "inactive" | "deleted";
+  status: 'active' | 'inactive' | 'deleted';
   polygon?: GeoPolygon;
   boundary?: GeoPolygon;
   geometry?: GeoPolygon;
@@ -95,7 +95,7 @@ export interface FieldUpdateRequest {
   crop_ar?: string;
   description?: string;
   description_ar?: string;
-  status?: "active" | "inactive";
+  status?: 'active' | 'inactive';
   irrigation_type?: string;
   soil_type?: string;
   planting_date?: string;
@@ -120,7 +120,7 @@ export interface NdviData {
     min: number;
     max: number;
     trend: number;
-    trendDirection: "improving" | "declining" | "stable";
+    trendDirection: 'improving' | 'declining' | 'stable';
   };
   history: NdviHistoryPoint[];
   lastUpdated: string;
@@ -208,8 +208,8 @@ export interface HourlyForecast {
 }
 
 export interface AgriculturalRisk {
-  type: "frost" | "heat" | "drought" | "flood" | "pest" | "disease";
-  severity: "low" | "medium" | "high" | "critical";
+  type: 'frost' | 'heat' | 'drought' | 'flood' | 'pest' | 'disease';
+  severity: 'low' | 'medium' | 'high' | 'critical';
   probability: number;
   description: string;
   descriptionAr: string;
@@ -226,15 +226,8 @@ export interface Sensor {
   id: string;
   fieldId: string;
   name: string;
-  type:
-    | "soil_moisture"
-    | "temperature"
-    | "humidity"
-    | "ph"
-    | "ec"
-    | "rain"
-    | "wind";
-  status: "online" | "offline" | "warning";
+  type: 'soil_moisture' | 'temperature' | 'humidity' | 'ph' | 'ec' | 'rain' | 'wind';
+  status: 'online' | 'offline' | 'warning';
   batteryLevel?: number;
   lastReading?: SensorReading;
   location?: GeoPoint;
@@ -246,7 +239,7 @@ export interface SensorReading {
   value: number;
   unit: string;
   timestamp: string;
-  quality?: "good" | "fair" | "poor";
+  quality?: 'good' | 'fair' | 'poor';
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -263,8 +256,8 @@ export interface Task {
   fieldName?: string;
   assignee_id?: string;
   assigneeName?: string;
-  status: "open" | "pending" | "in_progress" | "completed" | "cancelled";
-  priority: "urgent" | "high" | "medium" | "low";
+  status: 'open' | 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   taskType: string;
   due_date?: string;
   completed_at?: string;
@@ -281,7 +274,7 @@ export interface TaskCreateRequest {
   field_id: string;
   assignee_id?: string;
   due_date?: string;
-  priority?: "urgent" | "high" | "medium" | "low";
+  priority?: 'urgent' | 'high' | 'medium' | 'low';
   taskType: string;
 }
 
@@ -294,7 +287,7 @@ export interface Equipment {
   name: string;
   type: string;
   tenantId: string;
-  status: "available" | "in_use" | "maintenance" | "retired";
+  status: 'available' | 'in_use' | 'maintenance' | 'retired';
   specifications?: Record<string, any>;
   lastMaintenanceDate?: string;
   nextMaintenanceDate?: string;
@@ -307,7 +300,7 @@ export interface MaintenanceSchedule {
   equipmentId: string;
   type: string;
   scheduledDate: string;
-  status: "pending" | "completed" | "overdue";
+  status: 'pending' | 'completed' | 'overdue';
   notes?: string;
 }
 
@@ -315,11 +308,59 @@ export interface MaintenanceSchedule {
 // Irrigation Types
 // ═══════════════════════════════════════════════════════════════════════════
 
+/** Schedule lifecycle states (matches admin contract) */
+export type IrrigationStatus = 'active' | 'paused' | 'completed';
+
+/** Schedule execution mode (matches admin contract) */
+export type IrrigationScheduleType = 'manual' | 'automatic' | 'scheduled';
+
+/** Recurrence frequency (matches admin contract) */
+export type IrrigationFrequency = 'daily' | 'weekly' | 'custom';
+
+/** Physical irrigation method applied to the field (UI-only, not part of schedule API) */
+export type IrrigationMethod = 'drip' | 'sprinkler' | 'pivot' | 'flood' | 'manual';
+
+export interface IrrigationSchedule {
+  id: string;
+  fieldId: string;
+  fieldName?: string;
+  name: string;
+  type: IrrigationScheduleType;
+  status: IrrigationStatus;
+  startDate: string;
+  endDate?: string;
+  /** Legacy alias for startDate used by some UI components */
+  scheduledAt?: string;
+  frequency: IrrigationFrequency;
+  duration: number; // minutes
+  waterAmount: number; // liters or cubic meters
+  schedule?: {
+    daysOfWeek?: number[];
+    timeOfDay?: string;
+    interval?: number;
+  };
+  nextRun?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IrrigationScheduleCreate {
+  fieldId: string;
+  name: string;
+  type: IrrigationScheduleType;
+  startDate: string;
+  endDate?: string;
+  frequency: IrrigationFrequency;
+  duration: number;
+  waterAmount: number;
+  schedule?: IrrigationSchedule['schedule'];
+}
+
 export interface IrrigationRecommendation {
   fieldId: string;
   recommendedAmount: number; // mm
   recommendedDuration: number; // minutes
-  urgency: "none" | "low" | "medium" | "high";
+  urgency: 'none' | 'low' | 'medium' | 'high';
   reasoning: string;
   reasoningAr: string;
   et0: number; // Reference evapotranspiration
@@ -329,14 +370,60 @@ export interface IrrigationRecommendation {
 
 export interface ET0Calculation {
   value: number;
-  unit: "mm/day";
+  unit: 'mm/day';
   inputs: {
     temperature: number;
     humidity: number;
     windSpeed: number;
     solarRadiation: number;
   };
-  method: "FAO-56 Penman-Monteith";
+  method: 'FAO-56 Penman-Monteith';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// GDD & Spray Types (بيانات درجات النمو الحراري والرش)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export interface GDDRecord {
+  id: string;
+  fieldId: string;
+  fieldName: string;
+  cropType: string;
+  cropTypeAr: string;
+  plantingDate: string;
+  currentGDD: number;
+  targetGDD: number;
+  currentStage: string;
+  currentStageAr: string;
+  nextStage: string;
+  nextStageAr: string;
+  gddToNextStage: number;
+  estimatedDaysToNextStage: number;
+}
+
+export interface SprayWindow {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  windSpeed: number;
+  temperature: number;
+  humidity: number;
+  suitable: boolean;
+  reason?: string;
+  reasonAr?: string;
+}
+
+export interface SprayHistoryRecord {
+  id: string;
+  fieldId: string;
+  fieldName?: string;
+  sprayDate: string;
+  product: string;
+  dosage: number;
+  unit: string;
+  applicator?: string;
+  notes?: string;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -372,7 +459,7 @@ export interface CropHealthAnalysis {
     condition: string;
     conditionAr: string;
     confidence: number;
-    severity: "healthy" | "mild" | "moderate" | "severe";
+    severity: 'healthy' | 'mild' | 'moderate' | 'severe';
   };
   diseases?: DiseaseDetection[];
   recommendations: string[];
@@ -406,7 +493,7 @@ export interface MarketplaceListing {
   sellerName?: string;
   location?: string;
   images?: string[];
-  status: "active" | "sold" | "expired";
+  status: 'active' | 'sold' | 'expired';
   createdAt: string;
 }
 
@@ -417,8 +504,8 @@ export interface MarketplaceListing {
 export interface Subscription {
   id: string;
   tenantId: string;
-  plan: "free" | "basic" | "professional" | "enterprise";
-  status: "active" | "cancelled" | "expired" | "past_due";
+  plan: 'free' | 'basic' | 'professional' | 'enterprise';
+  status: 'active' | 'cancelled' | 'expired' | 'past_due';
   currentPeriodStart: string;
   currentPeriodEnd: string;
   features: string[];
@@ -435,7 +522,7 @@ export interface Invoice {
   tenantId: string;
   amount: number;
   currency: string;
-  status: "pending" | "paid" | "overdue" | "cancelled";
+  status: 'pending' | 'paid' | 'overdue' | 'cancelled';
   dueDate: string;
   paidAt?: string;
   items: InvoiceItem[];
@@ -457,10 +544,10 @@ export interface User {
   email: string;
   name: string;
   tenantId: string;
-  role: "admin" | "manager" | "operator" | "viewer";
+  role: 'admin' | 'manager' | 'operator' | 'viewer';
   avatar?: string;
   phone?: string;
-  language: "ar" | "en";
+  language: 'ar' | 'en';
   createdAt: string;
 }
 
@@ -474,10 +561,10 @@ export interface Tenant {
 }
 
 export interface TenantSettings {
-  defaultLanguage: "ar" | "en";
+  defaultLanguage: 'ar' | 'en';
   timezone: string;
   currency: string;
-  units: "metric" | "imperial";
+  units: 'metric' | 'imperial';
   notifications: {
     email: boolean;
     push: boolean;
@@ -494,7 +581,7 @@ export interface SyncStatus {
   userId: string;
   tenantId: string;
   lastSyncAt?: string;
-  status: "idle" | "syncing" | "conflict" | "error";
+  status: 'idle' | 'syncing' | 'conflict' | 'error';
   pendingDownloads: number;
   conflictsCount: number;
 }
@@ -502,7 +589,7 @@ export interface SyncStatus {
 export interface SyncResult {
   clientId: string;
   serverId?: string;
-  status: "created" | "updated" | "conflict" | "error";
+  status: 'created' | 'updated' | 'conflict' | 'error';
   server_version?: number;
   etag?: string;
   serverData?: any;

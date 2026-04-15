@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Achievement Models
 /// نماذج الإنجازات
 ///

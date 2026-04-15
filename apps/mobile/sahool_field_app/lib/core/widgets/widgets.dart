@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Core Widgets
 /// مكونات النواة المشتركة
 ///

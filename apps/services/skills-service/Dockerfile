@@ -26,10 +26,16 @@ RUN groupadd --system sahool && \
 
 
 # Upgrade pip (non-fatal in case of network issues)
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade pip || true
+RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
 
 # Install dependencies
 COPY constraints.txt .
+# Install build dependencies for cryptography/bcrypt
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY apps/services/skills-service/requirements.txt .
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try Aliyun mirror first with long timeout, then fallback to PyPI, finally Tencent
@@ -43,8 +49,13 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
+# Remove build tools from runtime image (reduce attack surface)
+RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy shared libraries
 COPY apps/services/shared/ ./shared/
+
 
 # Copy source
 COPY apps/services/skills-service/src/ ./src/
@@ -52,6 +63,15 @@ COPY apps/services/skills-service/src/ ./src/
 # Set ownership
 RUN chown -R sahool:sahool /app
 
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Default port (can be overridden via PORT env var)

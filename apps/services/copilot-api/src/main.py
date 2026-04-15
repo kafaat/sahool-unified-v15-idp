@@ -27,12 +27,55 @@ import structlog
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .api.v1 import chat_router, health_router, rag_router, tools_router
+from .api.v1.encyclopedia import router as encyclopedia_router
+from .api.v1.services_rec import router as services_rec_router
 from .core.config import Settings, get_settings
-from .db import init_db, close_db
+from .db import close_db, init_db
 from .rag import get_rag_service
+
+# Import security middleware - SecurityHeadersMiddleware (H-01)
+try:
+    from shared.middleware.security_headers import SecurityHeadersMiddleware, setup_security_headers
+
+    HAS_SECURITY_HEADERS = True
+except ImportError:
+    HAS_SECURITY_HEADERS = False
+
+# Import Observability middleware (H-02)
+try:
+    from shared.observability.middleware import ObservabilityMiddleware
+
+    HAS_OBSERVABILITY = True
+except ImportError:
+    HAS_OBSERVABILITY = False
+
+# Import InputSanitizationMiddleware (H-19)
+try:
+    from shared.middleware.input_sanitizer import InputSanitizationMiddleware
+
+    HAS_INPUT_SANITIZATION = True
+except ImportError:
+    HAS_INPUT_SANITIZATION = False
+
+# Import TokenRevocationMiddleware (C-08)
+try:
+    from shared.auth.revocation_middleware import TokenRevocationMiddleware
+
+    HAS_REVOCATION = True
+except ImportError:
+    HAS_REVOCATION = False
+
+# Import shared RateLimiter (H-04 - replaces in-memory defaultdict)
+try:
+    from shared.middleware.rate_limit import RateLimiter, rate_limit_middleware
+
+    HAS_RATE_LIMITER = True
+except ImportError:
+    HAS_RATE_LIMITER = False
 
 # Import AI Audit Logger for comprehensive logging
 try:
@@ -148,7 +191,10 @@ async def lifespan(app: FastAPI):
                 connect_timeout=5,
                 max_reconnect_attempts=3,
             )
-            logger.info("NATS connected", url=settings.nats_url)
+            import re
+
+            safe_url = re.sub(r"://[^@]+@", "://***@", settings.nats_url) if settings.nats_url else ""
+            logger.info("NATS connected", url=safe_url)
         except Exception as e:
             logger.warning("NATS connection failed, events disabled", error=str(e))
 
@@ -216,7 +262,8 @@ def create_app() -> FastAPI:
     # Setup unified error handling (includes request ID middleware)
     _has_shared_errors = False
     try:
-        from shared.errors_py import add_request_id_middleware as _add_req_id, setup_exception_handlers as _setup_exc
+        from shared.errors_py import add_request_id_middleware as _add_req_id
+        from shared.errors_py import setup_exception_handlers as _setup_exc
 
         _setup_exc(app)
         _add_req_id(app)
@@ -233,7 +280,34 @@ def create_app() -> FastAPI:
         allow_headers=["Authorization", "Content-Type", "Accept", "X-Request-ID", "X-Tenant-ID"],
     )
 
+    # Observability middleware - distributed tracing (H-02)
+    if HAS_OBSERVABILITY:
+        app.add_middleware(
+            ObservabilityMiddleware,
+            service_name="copilot-api",
+        )
+
+    # Tenant context middleware
     app.add_middleware(TenantContextMiddleware)
+
+    # Input sanitization middleware - XSS/injection protection (H-19)
+    if HAS_INPUT_SANITIZATION:
+        app.add_middleware(InputSanitizationMiddleware)
+
+    # Rate limiting middleware - shared, distributed (H-04)
+    if HAS_RATE_LIMITER:
+        app.add_middleware(rate_limit_middleware)
+
+    # Token revocation middleware - blocks revoked JWT tokens (C-08)
+    if HAS_REVOCATION:
+        app.add_middleware(
+            TokenRevocationMiddleware,
+            exempt_paths=["/healthz", "/health", "/readyz", "/docs", "/redoc", "/openapi.json", "/", "/info"],
+        )
+
+    # Security headers middleware - X-Frame-Options, CSP, etc. (H-01)
+    if HAS_SECURITY_HEADERS:
+        setup_security_headers(app)
 
     # Fallback request ID middleware (only if shared.errors_py not available)
     if not _has_shared_errors:
@@ -257,12 +331,14 @@ def create_app() -> FastAPI:
             path=request.url.path,
             request_id=getattr(request.state, "request_id", "unknown"),
         )
+        # Only expose exception details in development debug mode, never in production/staging
+        show_detail = settings.debug and settings.environment in ("development", "test")
         return JSONResponse(
             status_code=500,
             content={
                 "error": "Internal server error",
                 "error_ar": "خطأ داخلي في الخادم",
-                "detail": str(exc) if settings.debug else None,
+                "detail": str(exc) if show_detail else None,
             },
         )
 
@@ -271,6 +347,8 @@ def create_app() -> FastAPI:
     app.include_router(chat_router, prefix="/api/v1")
     app.include_router(tools_router, prefix="/api/v1")
     app.include_router(rag_router, prefix="/api/v1")
+    app.include_router(encyclopedia_router, prefix="/api/v1")
+    app.include_router(services_rec_router, prefix="/api/v1")
 
     # Root endpoint
     @app.get("/")

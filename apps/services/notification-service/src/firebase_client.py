@@ -382,8 +382,10 @@ class FirebaseClient:
                 data=data_payload,
             )
 
-            # Send multicast
-            response = messaging.send_multicast(message)
+            # Send multicast — firebase-admin v7 replaced send_multicast() with
+            # send_each_for_multicast(); fall back to send_multicast for older SDKs.
+            send_fn = getattr(messaging, "send_each_for_multicast", None) or messaging.send_multicast
+            response = send_fn(message)
 
             logger.info(
                 f"📬 Multicast sent: {response.success_count} successful, "

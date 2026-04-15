@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Crash Reporting Service
 /// خدمة تتبع الأعطال والأخطاء
 ///
@@ -502,8 +504,8 @@ class CrashReportingService {
       return;
     }
 
-    // Filter out certain errors if needed
-    if (_shouldFilterError(error)) {
+    // Filter out certain non-fatal errors if needed
+    if (!fatal && _shouldFilterError(error)) {
       return;
     }
 

@@ -1,9 +1,10 @@
+library;
+
 /// Example usage of ZonesMapLayer widget
 /// مثال على استخدام widget طبقة خريطة المناطق
 ///
 /// This file demonstrates various use cases for the ZonesMapLayer widget
 
-library;
 
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
@@ -133,7 +134,7 @@ class _ZonesMapExampleState extends State<ZonesMapExample> {
     });
   }
 
-  void _simulateLoading() async {
+  Future<void> _simulateLoading() async {
     setState(() {
       _isLoading = true;
     });
@@ -216,7 +217,7 @@ class _ZonesMapExampleState extends State<ZonesMapExample> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -2),
                   ),
@@ -340,7 +341,7 @@ class _StatItem extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
             shape: BoxShape.circle,
           ),
           child: Center(

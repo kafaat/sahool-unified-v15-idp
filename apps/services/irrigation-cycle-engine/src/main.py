@@ -20,6 +20,7 @@ Port: 8250
 from __future__ import annotations
 
 import json
+import logging
 import math
 import os
 import sys
@@ -33,8 +34,24 @@ sys.path.insert(0, "/app/shared")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 VERSION = "16.0.0"
 SERVICE_NAME = "irrigation-cycle-engine"
@@ -632,7 +649,7 @@ def readiness():
 
 
 @app.post("/api/v1/irrigation/et0", response_model=list[ET0Response])
-async def calculate_et0(req: ET0Request):
+async def calculate_et0(req: ET0Request, current_user: User = Depends(get_current_user)):
     """Calculate reference evapotranspiration (ET0) using FAO-56 Penman-Monteith."""
     results = []
     for w in req.weather:
@@ -658,7 +675,7 @@ async def calculate_et0(req: ET0Request):
 
 
 @app.post("/api/v1/irrigation/cycle", response_model=IrrigationCycleResponse)
-async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
+async def calculate_irrigation_cycle(req: IrrigationCycleRequest, current_user: User = Depends(get_current_user)):
     """
     Calculate irrigation cycle period and water requirements.
 
@@ -667,14 +684,17 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
     """
     try:
         result = engine.calculate_cycle(req)
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error("Irrigation cycle calculation failed: %s", e)
+        raise HTTPException(status_code=500, detail="Irrigation cycle calculation failed")
 
     # Publish NATS event (subject: sahool.{tenant_id}.irrigation.cycle_calculated)
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
-            tenant_id = os.getenv("TENANT_ID", "default")
+            tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.irrigation.cycle_calculated",
                 json.dumps(
@@ -687,14 +707,14 @@ async def calculate_irrigation_cycle(req: IrrigationCycleRequest):
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Failed to publish NATS event: %s", e)
 
     return result
 
 
 @app.post("/api/v1/irrigation/schedule", response_model=ScheduleResponse)
-async def generate_irrigation_schedule(req: ScheduleRequest):
+async def generate_irrigation_schedule(req: ScheduleRequest, current_user: User = Depends(get_current_user)):
     """
     Generate multi-day irrigation schedule using Yemen crop/climate/soil data.
 
@@ -827,6 +847,7 @@ async def assess_salinity(
     na: float = Query(default=0.0, description="Sodium (meq/L)"),
     ca: float = Query(default=0.0, description="Calcium (meq/L)"),
     mg: float = Query(default=0.0, description="Magnesium (meq/L)"),
+    current_user: User = Depends(get_current_user),
 ):
     """Assess salinity impact on irrigation and crop yield."""
     if not engine._salinity_module:
@@ -859,4 +880,4 @@ async def assess_salinity(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)  # nosec B104 - binding to all interfaces required for Docker container

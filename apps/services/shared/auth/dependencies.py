@@ -137,7 +137,7 @@ def require_roles(allowed_roles: list[str]) -> Callable:
     async def role_checker(
         current_user: User = Depends(get_current_active_user),
     ) -> User:
-        if not current_user.has_any_role(allowed_roles):
+        if not current_user.has_any_role(*allowed_roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"User does not have required role. Required: {allowed_roles}",

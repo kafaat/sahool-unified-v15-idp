@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 
 import 'tile_downloader.dart';
 import 'tile_storage.dart';
@@ -36,14 +35,14 @@ class RegionManager {
   MapRegion? getRegionById(String id) {
     try {
       return YemenRegions.all.firstWhere((r) => r.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
 
   /// Get downloaded regions - الحصول على المناطق المحملة
   Future<List<DownloadedRegion>> getDownloadedRegions() async {
-    return await _storage.getAllRegionsMetadata();
+    return _storage.getAllRegionsMetadata();
   }
 
   /// Check if region is downloaded - التحقق من تحميل المنطقة
@@ -171,12 +170,12 @@ class RegionManager {
 
   /// Get storage statistics - إحصائيات التخزين
   Future<StorageStats> getStorageStats() async {
-    return await _storage.getStorageStats();
+    return _storage.getStorageStats();
   }
 
   /// Cleanup expired tiles - تنظيف البلاطات المنتهية
   Future<CleanupResult> cleanupExpiredTiles({int expirationDays = 30}) async {
-    return await _storage.cleanupExpiredTiles(expirationDays: expirationDays);
+    return _storage.cleanupExpiredTiles(expirationDays: expirationDays);
   }
 
   /// Get download progress stream - الحصول على مجرى تقدم التحميل
@@ -709,7 +708,7 @@ class YemenRegions {
   static MapRegion? getById(String id) {
     try {
       return all.firstWhere((r) => r.id == id);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

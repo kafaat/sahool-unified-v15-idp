@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:crypto/crypto.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../auth/secure_storage_service.dart';
 import '../utils/app_logger.dart';
 
@@ -148,11 +147,11 @@ class SigningKeyService {
       try {
         final androidInfo = await deviceInfo.androidInfo;
         deviceId = '${androidInfo.id}_${androidInfo.device}_${androidInfo.model}';
-      } catch (_) {
+      } catch (e) {
         try {
           final iosInfo = await deviceInfo.iosInfo;
           deviceId = '${iosInfo.identifierForVendor}_${iosInfo.model}';
-        } catch (_) {
+        } catch (e) {
           // Fallback: generate random device ID
           final random = Random.secure();
           final bytes = List<int>.generate(16, (_) => random.nextInt(256));
@@ -211,7 +210,8 @@ class SigningKeyService {
         return true;
       }
 
-      final createdAt = DateTime.parse(createdAtStr);
+      final createdAt = DateTime.tryParse(createdAtStr);
+      if (createdAt == null) return true; // Treat unparseable as needing rotation
       final age = DateTime.now().difference(createdAt);
 
       if (age.inDays >= keyRotationDays) {
@@ -260,7 +260,7 @@ class SigningKeyService {
     try {
       final createdAtStr = await _secureStorage.read(_keySigningKeyCreatedAt);
       if (createdAtStr == null) return null;
-      return DateTime.parse(createdAtStr);
+      return DateTime.tryParse(createdAtStr) ?? DateTime.now();
     } catch (e) {
       return null;
     }

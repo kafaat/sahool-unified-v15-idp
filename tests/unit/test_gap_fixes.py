@@ -175,6 +175,7 @@ class TestWeatherAdapter:
 class TestNDVIAdapter:
     def test_ndvi_to_observation(self):
         from uuid import uuid4
+
         from shared.digital_twin.adapters import ndvi_to_field_observation
 
         payload = {"mean_ndvi": 0.72, "ts": "2026-02-20T10:30:00Z", "cloud_cover": 0.15}
@@ -305,10 +306,11 @@ class TestDecisionEngineCalibrated:
         assert engine._p_offset == -0.05
 
     def test_p_offset_triggers_irrigation(self):
+        from uuid import uuid4
+
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.models import AssimilationFlag, FieldDailyState
         from shared.digital_twin.repository import TwinRepository
-        from uuid import uuid4
 
         repo = TwinRepository(db_pool=None)
         state = FieldDailyState(
@@ -371,6 +373,7 @@ class TestBuildPredictorHelpers:
 
     def test_build_predictor_from_config(self):
         from datetime import timedelta
+
         from shared.calibration.adapters.build_predictor import build_predictor_from_config
         from shared.process_models.models import SoilProfile
 
@@ -695,9 +698,9 @@ class TestSoilTestingModule:
             SoilAmendmentRecommender,
             SoilTestInterpreter,
             SoilTrendAnalyzer,
+            get_ec_status,
             get_nutrient_status,
             get_ph_status,
-            get_ec_status,
         )
 
         assert NUTRIENT_THRESHOLDS is not None
@@ -910,9 +913,11 @@ class TestNumericalEdgeCases:
     @_SKIP_PYDANTIC
     def test_stress_factor_validation_bounds(self):
         """Pydantic should reject water_stress/n_stress outside [0,1]."""
-        from shared.digital_twin.models import FieldDailyState
         from uuid import uuid4
+
         from pydantic import ValidationError
+
+        from shared.digital_twin.models import FieldDailyState
 
         # Valid
         state = FieldDailyState(
@@ -998,10 +1003,11 @@ class TestDecisionEngineEdgeCases:
     @_SKIP_PYDANTIC
     def test_zero_depletion_no_irrigation(self):
         """When depletion is 0, no irrigation should be recommended."""
+        from uuid import uuid4
+
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.models import FieldDailyState
         from shared.digital_twin.repository import TwinRepository
-        from uuid import uuid4
 
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
@@ -1021,10 +1027,11 @@ class TestDecisionEngineEdgeCases:
     @_SKIP_PYDANTIC
     def test_high_depletion_triggers_irrigation(self):
         """Depletion exceeding RAW should trigger irrigation."""
+        from uuid import uuid4
+
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.models import FieldDailyState
         from shared.digital_twin.repository import TwinRepository
-        from uuid import uuid4
 
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
@@ -1044,10 +1051,11 @@ class TestDecisionEngineEdgeCases:
     @_SKIP_PYDANTIC
     def test_none_depletion_uses_zero_fallback(self):
         """Missing depletion_mm should default to 0, not crash."""
+        from uuid import uuid4
+
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.models import FieldDailyState
         from shared.digital_twin.repository import TwinRepository
-        from uuid import uuid4
 
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
@@ -1066,10 +1074,11 @@ class TestDecisionEngineEdgeCases:
     @_SKIP_PYDANTIC
     def test_taw_clamped_to_valid_range(self):
         """Extreme taw_mm values should be clamped, not crash."""
+        from uuid import uuid4
+
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.models import FieldDailyState
         from shared.digital_twin.repository import TwinRepository
-        from uuid import uuid4
 
         repo = TwinRepository(db_pool=None)
         engine = DecisionEngine(repo=repo)
@@ -1091,10 +1100,11 @@ class TestDecisionEngineEdgeCases:
     @_SKIP_PYDANTIC
     def test_calibrated_p_fraction_offset(self):
         """p_fraction_offset from calibration should shift the threshold."""
+        from uuid import uuid4
+
         from shared.digital_twin.decisions import DecisionEngine
         from shared.digital_twin.models import FieldDailyState
         from shared.digital_twin.repository import TwinRepository
-        from uuid import uuid4
 
         repo = TwinRepository(db_pool=None)
         # Positive offset raises RAW threshold → less likely to trigger irrigation

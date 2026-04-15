@@ -16,10 +16,31 @@ WORKDIR /workspace
 # Copy shared modules first (required for imports from ../../shared/)
 COPY apps/services/shared ./shared/
 
+# Copy @sahool/shared-events package (workspace dependency — same pattern
+# as iot-service). Required because chat-service now publishes
+# sahool.chat.* events through @sahool/shared-events.
+COPY packages/shared-events ./packages/shared-events/
+
+# Build shared-events so it's ready to be linked via the file: protocol.
+WORKDIR /workspace/packages/shared-events
+RUN npm config set registry https://registry.npmjs.org; \
+    if npm install && npm run build; then true; \
+    else npm config set registry https://registry.npmmirror.com && npm install && npm run build; fi
+
 # Copy service to maintain relative path: ../../shared/ from chat-service/src/
+WORKDIR /workspace
 COPY apps/services/chat-service ./chat-service/
 
 WORKDIR /workspace/chat-service
+
+# Rewrite the @sahool/shared-events dep to point at the locally-built copy
+# so `npm install` doesn't try to fetch a non-existent package from the
+# public registry.
+RUN npm pkg set dependencies.'@sahool/shared-events'='file:../packages/shared-events'
+
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
 
 # Install dependencies (with retries for network resilience)
 # Use shell-level retry loop for better handling of network timeouts
@@ -94,6 +115,9 @@ RUN --mount=type=cache,target=/root/.npm \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Copy prisma schema (for migrations)
 COPY --from=builder /workspace/chat-service/prisma ./prisma/

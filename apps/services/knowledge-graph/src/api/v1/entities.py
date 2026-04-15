@@ -3,27 +3,28 @@ Entity API endpoints
 نقاط نهاية API الكيانات
 """
 
+import logging
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from models import Crop, Disease, Treatment
+logger = logging.getLogger(__name__)
+
+from ...models import Crop, Disease, Treatment
 
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 router = APIRouter(prefix="/api/v1/entities", tags=["entities"])
@@ -54,13 +55,15 @@ async def list_crops(
             "data": crops,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list crops: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/crops/{crop_id}")
 async def get_crop(
     request,
     crop_id: str,
+    _user=Depends(get_current_user),
 ):
     """
     Get a specific crop by ID
@@ -80,13 +83,15 @@ async def get_crop(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get crop %s: %s", crop_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/crops")
 async def create_crop(
     request,
     crop: Crop,
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create a new crop in the knowledge graph
@@ -107,7 +112,8 @@ async def create_crop(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to create crop: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -119,6 +125,7 @@ async def create_crop(
 async def list_diseases(
     request,
     limit: int = Query(100, ge=1, le=500, description="Maximum diseases to return"),
+    _user=Depends(get_current_user),
 ):
     """
     List all diseases in the knowledge graph
@@ -134,13 +141,15 @@ async def list_diseases(
             "data": diseases,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list diseases: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/diseases/{disease_id}")
 async def get_disease(
     request,
     disease_id: str,
+    _user=Depends(get_current_user),
 ):
     """
     Get a specific disease by ID
@@ -160,13 +169,15 @@ async def get_disease(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/diseases")
 async def create_disease(
     request,
     disease: Disease,
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create a new disease in the knowledge graph
@@ -187,7 +198,8 @@ async def create_disease(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to create disease: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -199,6 +211,7 @@ async def create_disease(
 async def list_treatments(
     request,
     limit: int = Query(100, ge=1, le=500, description="Maximum treatments to return"),
+    _user=Depends(get_current_user),
 ):
     """
     List all treatments in the knowledge graph
@@ -214,13 +227,15 @@ async def list_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to list treatments: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/treatments/{treatment_id}")
 async def get_treatment(
     request,
     treatment_id: str,
+    _user=Depends(get_current_user),
 ):
     """
     Get a specific treatment by ID
@@ -240,13 +255,15 @@ async def get_treatment(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get treatment %s: %s", treatment_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/treatments")
 async def create_treatment(
     request,
     treatment: Treatment,
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create a new treatment in the knowledge graph
@@ -267,7 +284,8 @@ async def create_treatment(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to create treatment: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -281,6 +299,7 @@ async def search_entities(
     q: str = Query(..., description="Search query"),
     entity_type: str | None = Query(None, description="Filter by type (crop, disease, treatment)"),
     limit: int = Query(20, ge=1, le=100, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Search for entities by name or description
@@ -299,4 +318,5 @@ async def search_entities(
             "data": results,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to search entities: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")

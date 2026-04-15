@@ -16,41 +16,42 @@
 /**
  * Determines if the application is running in production mode
  */
-export const IS_PRODUCTION = process.env.NODE_ENV === "production";
+export const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 /**
  * Determines if the application is running in development mode
  */
-export const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
+export const IS_DEVELOPMENT = process.env.NODE_ENV === 'development';
 
 /**
  * Determines if the application is running in test mode
  */
-export const IS_TEST = process.env.NODE_ENV === "test";
+export const IS_TEST = process.env.NODE_ENV === 'test';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Base URL Configuration
 // ═══════════════════════════════════════════════════════════════════════════
 
 /**
- * Base URL for the API Gateway (Kong)
+ * Base URL for the API Gateway (Kong) — used in client-side code.
  * In production: Uses NEXT_PUBLIC_API_URL
  * In development: Falls back to localhost:8000 (Kong gateway port)
  */
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 /**
- * Alias for API_BASE_URL for backward compatibility
- * @deprecated Use API_BASE_URL instead
+ * Server-side only API URL — NOT exposed to the browser.
+ * Use this in API route handlers (login/route.ts, refresh/route.ts, etc.)
+ * instead of NEXT_PUBLIC_API_URL to avoid leaking the gateway address.
+ *
+ * Falls back to API_BASE_URL for backward compatibility.
  */
-export const API_URL = API_BASE_URL;
+export const API_URL = process.env.API_GATEWAY_URL || API_BASE_URL;
 
 /**
  * Base hostname without port for direct service access in development
  */
-export const API_BASE_HOST =
-  process.env.NEXT_PUBLIC_API_BASE || "http://localhost";
+export const API_BASE_HOST = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Service Ports (from unified contracts)
@@ -80,7 +81,7 @@ import {
   CHAT_ENDPOINTS,
   YIELD_ENDPOINTS,
   buildUrl,
-} from "@sahool/shared-types/contracts";
+} from '@sahool/shared-types/contracts';
 
 /**
  * Port mapping for all backend services
@@ -110,7 +111,7 @@ export const SERVICE_PORTS = {
   advisory: UNIFIED_PORTS.ADVISORY,
   yieldPrediction: UNIFIED_PORTS.YIELD_PREDICTION,
   fieldIntelligence: UNIFIED_PORTS.FIELD_INTELLIGENCE,
-  analytics: 8100,
+  // analytics: removed — port 8100 was deprecated crop-health service, no active service
   copilot: UNIFIED_PORTS.COPILOT_API,
   aiAdvisor: UNIFIED_PORTS.AI_ADVISOR,
   aiAgents: UNIFIED_PORTS.AI_AGENTS_CORE,
@@ -138,7 +139,7 @@ export const SERVICE_PORTS = {
   // Configuration & Misc
   providerConfig: UNIFIED_PORTS.PROVIDER_CONFIG,
   alerts: UNIFIED_PORTS.ALERT_SERVICE,
-  reports: 8084,
+  // reports: removed — port 8084 has no registered service in governance/services.yaml
   astronomicalCalendar: UNIFIED_PORTS.ASTRONOMICAL_CALENDAR,
   lowcode: UNIFIED_PORTS.LOWCODE_ENGINE,
 
@@ -158,6 +159,7 @@ export const SERVICE_PORTS = {
   // Community & Business
   marketplace: UNIFIED_PORTS.MARKETPLACE,
   research: UNIFIED_PORTS.RESEARCH_CORE,
+  disasterAssessment: UNIFIED_PORTS.DISASTER_ASSESSMENT,
 
   // Vision & Terrain
   yoloVision: UNIFIED_PORTS.YOLO_VISION,
@@ -179,13 +181,17 @@ export type ServicePortKey = keyof typeof SERVICE_PORTS;
 /**
  * Generates a service URL based on environment
  * In production: Uses base URL (Kong gateway handles routing)
- * In development: Uses direct port access
+ * In development: Uses API_GATEWAY_URL if set (Docker), otherwise direct port access
  *
  * @param port - The service port number
  * @returns The complete service URL
  */
 export function getServiceUrl(port: number): string {
-  return IS_PRODUCTION ? API_BASE_URL : `${API_BASE_HOST}:${port}`;
+  if (IS_PRODUCTION) return API_BASE_URL;
+  // When running inside Docker, use Kong gateway for all requests
+  const gatewayUrl = process.env.API_GATEWAY_URL;
+  if (gatewayUrl) return gatewayUrl;
+  return `${API_BASE_HOST}:${port}`;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -216,7 +222,7 @@ export const SERVICE_URLS = {
   advisory: getServiceUrl(SERVICE_PORTS.advisory),
   yieldPrediction: getServiceUrl(SERVICE_PORTS.yieldPrediction),
   fieldIntelligence: getServiceUrl(SERVICE_PORTS.fieldIntelligence),
-  analytics: getServiceUrl(SERVICE_PORTS.analytics),
+  // analytics: removed — no active service on port 8100
   copilot: getServiceUrl(SERVICE_PORTS.copilot),
   aiAdvisor: getServiceUrl(SERVICE_PORTS.aiAdvisor),
   aiAgents: getServiceUrl(SERVICE_PORTS.aiAgents),
@@ -244,7 +250,7 @@ export const SERVICE_URLS = {
   // Configuration & Misc
   providerConfig: getServiceUrl(SERVICE_PORTS.providerConfig),
   alerts: getServiceUrl(SERVICE_PORTS.alerts),
-  reports: getServiceUrl(SERVICE_PORTS.reports),
+  // reports: removed — no registered service on port 8084
   astronomicalCalendar: getServiceUrl(SERVICE_PORTS.astronomicalCalendar),
   lowcode: getServiceUrl(SERVICE_PORTS.lowcode),
 
@@ -264,6 +270,7 @@ export const SERVICE_URLS = {
   // Community & Business
   marketplace: getServiceUrl(SERVICE_PORTS.marketplace),
   research: getServiceUrl(SERVICE_PORTS.research),
+  disasterAssessment: getServiceUrl(SERVICE_PORTS.disasterAssessment),
 
   // Vision & Terrain
   yoloVision: getServiceUrl(SERVICE_PORTS.yoloVision),
@@ -316,28 +323,31 @@ export const API_PATHS = {
   // Crop Health & Diagnoses (from unified contracts)
   cropHealth: {
     diagnoses: CROP_HEALTH_ENDPOINTS.DIAGNOSES_LIST,
-    diagnosisById: (id: string) => buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id }),
+    diagnosisById: (id: string) =>
+      buildUrl(CROP_HEALTH_ENDPOINTS.DIAGNOSES_UPDATE, { diagnosisId: id }),
     stats: CROP_HEALTH_ENDPOINTS.DIAGNOSES_STATS,
     analyze: CROP_HEALTH_ENDPOINTS.ANALYZE,
   },
 
-  // Weather Services (direct service paths - not Kong-routed)
+  // Weather Services
+  // Kong route: /api/v1/weather with strip_path: true + service path /weather
   weather: {
-    current: "/weather/current",
-    forecast: "/weather/forecast",
-    agricultural: "/weather/agricultural-report",
-    alerts: (locationId: string) => `/v1/alerts/${locationId}`,
-    locations: "/v1/locations",
-    byLocation: (locationId: string) => `/v1/current/${locationId}`,
-    forecastByLocation: (locationId: string) => `/v1/forecast/${locationId}`,
+    current: '/weather/current',
+    forecast: '/weather/forecast',
+    agricultural: '/weather/agricultural-report',
+    alerts: (locationId: string) => `/weather/alerts/${locationId}`,
+    locations: '/weather/locations',
+    byLocation: (locationId: string) => `/weather/current/${locationId}`,
+    forecastByLocation: (locationId: string) => `/weather/forecast/${locationId}`,
   },
 
-  // Satellite & Vegetation (direct service paths - not Kong-routed)
+  // Satellite & Vegetation
+  // Kong route: /api/v1/satellite with strip_path: true → strips prefix, service gets /v1/...
   satellite: {
     timeseries: (fieldId: string) => `/v1/timeseries/${fieldId}`,
-    analyze: "/v1/analyze",
+    analyze: '/v1/analyze',
     indices: (fieldId: string) => `/v1/indices/${fieldId}`,
-    satellites: "/v1/satellites",
+    satellites: '/v1/satellites',
   },
 
   // Dashboard & Indicators (from unified contracts)
@@ -354,11 +364,17 @@ export const API_PATHS = {
     deviceById: (id: string) => buildUrl(IOT_ENDPOINTS.DEVICE_GET, { deviceId: id }),
   },
 
-  // Irrigation (from unified contracts)
+  // Irrigation (from unified contracts + service-specific paths)
   irrigation: {
     schedules: IRRIGATION_ENDPOINTS.SCHEDULES_LIST,
     recommendations: IRRIGATION_ENDPOINTS.RECOMMENDATIONS,
     history: (fieldId: string) => buildUrl(IRRIGATION_ENDPOINTS.HISTORY, { fieldId }),
+    // Service-specific paths (routed via Kong /api/v1/irrigation → strip → /v1/...)
+    calculate: '/v1/calculate',
+    methods: '/v1/methods',
+    crops: '/v1/crops',
+    waterBalance: (fieldId: string) => `/v1/water-balance/${fieldId}`,
+    efficiency: (fieldId: string) => `/v1/efficiency-report/${fieldId}`,
   },
 
   // Notifications (from unified contracts)
@@ -389,38 +405,48 @@ export const API_PATHS = {
     posts: CHAT_ENDPOINTS.COMMUNITY_POSTS,
     postById: (id: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id }),
     comments: (postId: string) => buildUrl(CHAT_ENDPOINTS.COMMUNITY_COMMENTS, { postId }),
+    approvePost: (id: string) => `${buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id })}/approve`,
+    hidePost: (id: string) => `${buildUrl(CHAT_ENDPOINTS.COMMUNITY_POST_GET, { postId: id })}/hide`,
   },
 
-  // Advisory (from unified contracts)
+  // Advisory (from unified contracts + service-specific paths)
   advisory: {
     recommendations: ADVISORY_ENDPOINTS.RECOMMENDATIONS,
     fertilizer: ADVISORY_ENDPOINTS.FERTILIZER_ADVISORY,
     calculate: ADVISORY_ENDPOINTS.FERTILIZER_CALCULATE,
+    // Service-specific (Kong /api/v1/advisory → strip → /api/v1/...)
+    diseaseAssess: '/api/v1/disease/assess',
+    diseasesByCrop: (crop: string) => `/api/v1/disease/crop/${crop}`,
+    fertilizerPlan: '/api/v1/fertilizer/plan',
+    crops: '/api/v1/crops',
+    cropDetail: (code: string) => `/api/v1/crops/${code}`,
+    cropVarieties: (code: string) => `/api/v1/crops/${code}/varieties`,
   },
 
-  // Yield (from unified contracts)
+  // Yield (from unified contracts + service-specific paths)
   yield: {
     predictions: YIELD_ENDPOINTS.PREDICTIONS,
     history: (fieldId: string) => buildUrl(YIELD_ENDPOINTS.HISTORY, { fieldId }),
+    predict: '/v1/predict',
   },
 
   // Analytics (admin-specific, no unified contract)
   analytics: {
-    overview: "/api/v1/analytics/overview",
-    reports: "/api/v1/analytics/reports",
-    export: "/api/v1/analytics/export",
+    overview: '/api/v1/analytics/overview',
+    reports: '/api/v1/analytics/reports',
+    export: '/api/v1/analytics/export',
   },
 
   // Copilot (admin-specific routing, different from Kong paths)
   copilot: {
-    chat: "/api/v1/chat",
-    chatHistory: "/api/v1/chat/history",
+    chat: '/api/v1/chat',
+    chatHistory: '/api/v1/chat/history',
     chatById: (id: string) => `/api/v1/chat/${id}`,
-    tools: "/api/v1/tools",
+    tools: '/api/v1/tools',
     toolExecute: (toolName: string) => `/api/v1/tools/${toolName}/execute`,
-    ragDocuments: "/api/v1/rag/documents",
-    ragSearch: "/api/v1/rag/search",
-    guardLogs: "/api/v1/security/guard-logs",
+    ragDocuments: '/api/v1/rag/documents',
+    ragSearch: '/api/v1/rag/search',
+    guardLogs: '/api/v1/security/guard-logs',
   },
 
   // Billing (from unified contracts)
@@ -453,11 +479,16 @@ export const API_PATHS = {
     devices: DRONE_ENDPOINTS.DEVICES,
   },
 
-  // Soil Analysis (from unified contracts)
+  // Soil Analysis (from unified contracts + service-specific)
   soilAnalysis: {
     tests: SOIL_ENDPOINTS.TESTS,
     testById: (id: string) => buildUrl(SOIL_ENDPOINTS.TEST_GET, { testId: id }),
     recommendations: SOIL_ENDPOINTS.RECOMMENDATIONS,
+    // Service-specific (Kong /api/v1/soil strip_path=false → service keeps full path)
+    interpret: '/v1/interpret',
+    amendmentPlan: '/v1/recommendations/amendment-plan',
+    cropRequirements: (crop: string) => `/v1/crops/${crop}/requirements`,
+    fieldTests: (fieldId: string) => `/v1/tests/field/${fieldId}`,
   },
 
   // Traceability (from unified contracts)
@@ -470,10 +501,10 @@ export const API_PATHS = {
 
   // Vision (direct service paths - vision service internal routing)
   vision: {
-    detectPest: "/api/v1/detect/pest",
-    detectDisease: "/api/v1/detect/disease",
-    detectWeed: "/api/v1/detect/weed",
-    models: "/api/v1/models/versions",
+    detectPest: '/api/v1/detect/pest',
+    detectDisease: '/api/v1/detect/disease',
+    detectWeed: '/api/v1/detect/weed',
+    models: '/api/v1/models/versions',
   },
 
   // Terrain (from unified contracts)
@@ -530,6 +561,7 @@ export const API_URLS = {
   communityChat: SERVICE_URLS.communityChat,
   marketplace: SERVICE_URLS.marketplace,
   research: SERVICE_URLS.research,
+  disasterAssessment: SERVICE_URLS.disasterAssessment,
   drone: SERVICE_URLS.drone,
   soilAnalysis: SERVICE_URLS.soilAnalysis,
   traceability: SERVICE_URLS.traceability,
@@ -602,8 +634,7 @@ export const API_URLS = {
   // Notification endpoints
   notificationEndpoints: {
     list: `${SERVICE_URLS.notifications}${API_PATHS.notifications.list}`,
-    byId: (id: string) =>
-      `${SERVICE_URLS.notifications}${API_PATHS.notifications.byId(id)}`,
+    byId: (id: string) => `${SERVICE_URLS.notifications}${API_PATHS.notifications.byId(id)}`,
     markRead: (id: string) =>
       `${SERVICE_URLS.notifications}${API_PATHS.notifications.markRead(id)}`,
     markAllRead: `${SERVICE_URLS.notifications}${API_PATHS.notifications.markAllRead}`,
@@ -666,9 +697,20 @@ export const API_URLS = {
   // Traceability endpoints
   traceabilityEndpoints: {
     batches: `${SERVICE_URLS.traceability}${API_PATHS.traceability.batches}`,
-    batchById: (id: string) => `${SERVICE_URLS.traceability}${API_PATHS.traceability.batchById(id)}`,
+    batchById: (id: string) =>
+      `${SERVICE_URLS.traceability}${API_PATHS.traceability.batchById(id)}`,
     events: `${SERVICE_URLS.traceability}${API_PATHS.traceability.events}`,
-    qrCode: (batchId: string) => `${SERVICE_URLS.traceability}${API_PATHS.traceability.qrCode(batchId)}`,
+    qrCode: (batchId: string) =>
+      `${SERVICE_URLS.traceability}${API_PATHS.traceability.qrCode(batchId)}`,
+  },
+
+  // Community endpoints
+  community: {
+    posts: `${SERVICE_URLS.communityChat}${API_PATHS.community.posts}`,
+    postById: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.postById(id)}`,
+    comments: (postId: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.comments(postId)}`,
+    approvePost: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.approvePost(id)}`,
+    hidePost: (id: string) => `${SERVICE_URLS.communityChat}${API_PATHS.community.hidePost(id)}`,
   },
 
   // Vision endpoints
@@ -730,9 +772,9 @@ export const RETRY_DELAY = 1000;
  * Default request headers
  */
 export const DEFAULT_HEADERS: Readonly<Record<string, string>> = {
-  "Content-Type": "application/json",
-  Accept: "application/json",
-  "Accept-Language": "ar,en",
+  'Content-Type': 'application/json',
+  Accept: 'application/json',
+  'Accept-Language': 'ar,en',
 } as const;
 
 /**
@@ -759,71 +801,72 @@ export const API_CONFIG = {
  */
 export type ServiceName =
   // Core Services
-  | "field-core" // @deprecated - use "field-management"
-  | "field-management"
-  | "auth"
-  | "users"
-  | "ws-gateway"
+  | 'field-core' // @deprecated - use "field-management"
+  | 'field-management'
+  | 'auth'
+  | 'users'
+  | 'ws-gateway'
   // Satellite & Remote Sensing
-  | "satellite" // @deprecated - use "vegetation-analysis"
-  | "vegetation-analysis"
-  | "ndvi-processor"
+  | 'satellite' // @deprecated - use "vegetation-analysis"
+  | 'vegetation-analysis'
+  | 'ndvi-processor'
   // Weather
-  | "weather"
+  | 'weather'
   // AI & Analytics
-  | "indicators"
-  | "crop-health" // @deprecated - use "crop-intelligence"
-  | "crop-intelligence"
-  | "advisory"
-  | "yield-prediction"
-  | "field-intelligence"
-  | "analytics"
-  | "copilot"
-  | "ai-advisor"
-  | "ai-agents"
-  | "knowledge-graph"
+  | 'indicators'
+  | 'crop-health' // @deprecated - use "crop-intelligence"
+  | 'crop-intelligence'
+  | 'advisory'
+  | 'yield-prediction'
+  | 'field-intelligence'
+  | 'analytics'
+  | 'copilot'
+  | 'ai-advisor'
+  | 'ai-agents'
+  | 'knowledge-graph'
   // IoT & Sensors
-  | "virtual-sensors"
-  | "iot-gateway"
-  | "iot-service"
+  | 'virtual-sensors'
+  | 'iot-gateway'
+  | 'iot-service'
   // Operations
-  | "irrigation"
-  | "task"
-  | "equipment"
-  | "inventory"
-  | "logistics"
-  | "supply-chain"
+  | 'irrigation'
+  | 'task'
+  | 'equipment'
+  | 'inventory'
+  | 'logistics'
+  | 'supply-chain'
   // Communication
-  | "notifications"
-  | "field-chat"
-  | "chat-service"
-  | "community-chat"
+  | 'notifications'
+  | 'field-chat' // @deprecated Use "chat-service" instead. Sunset: v17.0.0
+  | 'chat-service'
+  | 'community-chat' // @deprecated Use "chat-service" instead. Sunset: v17.0.0
   // Configuration & Misc
-  | "provider-config"
-  | "alerts"
-  | "reports"
-  | "astronomical-calendar"
-  | "lowcode"
+  | 'provider-config'
+  | 'alerts'
+  | 'reports'
+  | 'astronomical-calendar'
+  | 'lowcode'
   // Billing & Audit
-  | "billing"
-  | "audit"
+  | 'billing'
+  | 'audit'
   // Agriculture Domain
-  | "drone"
-  | "soil-analysis"
-  | "pest-detection"
-  | "traceability"
-  | "globalgap"
-  | "cooperative"
-  | "crm"
+  | 'drone'
+  | 'soil-analysis'
+  | 'pest-detection'
+  | 'traceability'
+  | 'globalgap'
+  | 'cooperative'
+  | 'crm'
   // Community & Business
-  | "marketplace"
-  | "research"
+  | 'marketplace'
+  | 'research'
+  | 'disaster-assessment'
   // Vision & Terrain
-  | "yolo-vision"
-  | "terrain-core"
-  | "hydrology"
-  | "leveling-optimizer"
-  | "edge-orchestrator";
+  | 'yolo-vision'
+  | 'terrain-core'
+  | 'hydrology'
+  | 'leveling-optimizer'
+  | 'edge-orchestrator';
 
 /**
  * API configuration interface for service-specific settings

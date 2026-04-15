@@ -5,25 +5,38 @@
  * Coverage:
  * - Health endpoint responses
  * - Module initialization
- * - JWT Auth Guard with mock verification
- * - User creation validation (DTO & service)
- * - Password validation (strength, hashing, comparison)
+ * - DTO validation (CreateUserDto)
+ * - Password strength & phone validation constraints
+ * - UserRole and UserStatus enum values
+ *
+ * NOTE: JwtAuthGuard tests are in src/auth/jwt-auth.guard.spec.ts
+ * NOTE: RolesGuard tests are in src/auth/roles.guard.spec.ts
+ * NOTE: UsersService CRUD tests are in src/users/users.service.spec.ts
+ * NOTE: AuthService tests are in src/auth/auth.service.spec.ts
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
 import {
-  ConflictException,
-  NotFoundException,
-  UnauthorizedException,
   HttpException,
   HttpStatus,
-  ExecutionContext,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { UsersService } from "../users/users.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserEventsService } from "../events/user-events.service";
+
+// Shared no-op events stub for every TestingModule below — UsersService
+// emits NATS events on every CRUD path now, but tests don't care about
+// those side-effects.
+const userEventsStub = {
+  publishUserCreated: jest.fn().mockResolvedValue(undefined),
+  publishUserUpdated: jest.fn().mockResolvedValue(undefined),
+  publishUserRoleChanged: jest.fn().mockResolvedValue(undefined),
+  publishUserStatusChanged: jest.fn().mockResolvedValue(undefined),
+  publishUserDeleted: jest.fn().mockResolvedValue(undefined),
+  isConnected: jest.fn().mockReturnValue(false),
+};
 import { CreateUserDto } from "../users/dto/create-user.dto";
-import { UpdateUserDto } from "../users/dto/update-user.dto";
 import {
   UserStatus,
   UserRole,
@@ -34,10 +47,8 @@ import {
   HealthController,
   HealthzController,
 } from "../health/health.controller";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { RolesGuard } from "../auth/roles.guard";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
-import * as bcrypt from "bcryptjs";
 import { validate } from "class-validator";
 import { plainToInstance } from "class-transformer";
 
@@ -64,6 +75,7 @@ describe("HealthController", () => {
       controllers: [HealthController, HealthzController],
       providers: [
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: UserEventsService, useValue: userEventsStub },
         { provide: RedisTokenRevocationStore, useValue: mockRedisStore },
       ],
     }).compile();
@@ -160,6 +172,7 @@ describe("HealthController", () => {
         controllers: [HealthController],
         providers: [
           { provide: PrismaService, useValue: mockPrisma },
+          { provide: UserEventsService, useValue: userEventsStub },
           // RedisTokenRevocationStore not provided
         ],
       }).compile();
@@ -232,6 +245,7 @@ describe("Module Initialization", () => {
         providers: [
           UsersService,
           { provide: PrismaService, useValue: mockPrismaService },
+          { provide: UserEventsService, useValue: userEventsStub },
         ],
       }).compile();
 
@@ -294,183 +308,18 @@ describe("Module Initialization", () => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════════
-// 3. AUTH GUARD TESTS (Mock JWT) | اختبارات حارس المصادقة
-// ═══════════════════════════════════════════════════════════════════════════
-
-describe("JwtAuthGuard", () => {
-  let guard: JwtAuthGuard;
-
-  beforeEach(() => {
-    guard = new JwtAuthGuard();
-  });
-
-  it("should be defined", () => {
-    expect(guard).toBeDefined();
-  });
-
-  describe("handleRequest", () => {
-    it("should return the user when authentication succeeds", () => {
-      const mockUser = {
-        id: "user-123",
-        email: "farmer@sahool.app",
-        roles: ["FARMER"],
-        tenantId: "tenant-1",
-      };
-
-      const result = guard.handleRequest(null, mockUser, null);
-
-      expect(result).toEqual(mockUser);
-    });
-
-    it("should throw UnauthorizedException when user is null", () => {
-      expect(() => guard.handleRequest(null, null, null)).toThrow(
-        UnauthorizedException,
-      );
-    });
-
-    it("should throw UnauthorizedException when user is false", () => {
-      expect(() => guard.handleRequest(null, false, null)).toThrow(
-        UnauthorizedException,
-      );
-    });
-
-    it("should throw the original error when err is provided", () => {
-      const originalError = new Error("Passport error");
-
-      expect(() => guard.handleRequest(originalError, null, null)).toThrow(
-        originalError,
-      );
-    });
-
-    it("should throw specific message for expired tokens", () => {
-      const info = { name: "TokenExpiredError" };
-
-      expect(() => guard.handleRequest(null, null, info)).toThrow(
-        "Token has expired",
-      );
-    });
-
-    it("should throw specific message for invalid tokens", () => {
-      const info = { name: "JsonWebTokenError" };
-
-      expect(() => guard.handleRequest(null, null, info)).toThrow(
-        "Invalid token",
-      );
-    });
-
-    it("should throw generic authentication failure for unknown info", () => {
-      const info = { name: "SomeOtherError" };
-
-      expect(() => guard.handleRequest(null, null, info)).toThrow(
-        "Authentication failed",
-      );
-    });
-  });
-});
-
-describe("RolesGuard", () => {
-  let guard: RolesGuard;
-  let reflector: Reflector;
-
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [RolesGuard, Reflector],
-    }).compile();
-
-    guard = module.get<RolesGuard>(RolesGuard);
-    reflector = module.get<Reflector>(Reflector);
-  });
-
-  function createMockExecutionContext(user: any): ExecutionContext {
-    return {
-      switchToHttp: () => ({
-        getRequest: () => ({ user }),
-        getResponse: () => ({}),
-        getNext: () => jest.fn(),
-      }),
-      getHandler: () => jest.fn(),
-      getClass: () => jest.fn() as any,
-      getArgs: () => [],
-      getArgByIndex: () => null,
-      switchToRpc: () => ({} as any),
-      switchToWs: () => ({} as any),
-      getType: () => "http" as any,
-    } as any;
-  }
-
-  it("should allow access when no roles are required", () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(undefined);
-
-    const context = createMockExecutionContext({
-      roles: ["FARMER"],
-    });
-
-    expect(guard.canActivate(context)).toBe(true);
-  });
-
-  it("should allow access when user has a required role", () => {
-    jest
-      .spyOn(reflector, "getAllAndOverride")
-      .mockReturnValue(["ADMIN", "MANAGER"]);
-
-    const context = createMockExecutionContext({
-      roles: ["ADMIN"],
-    });
-
-    expect(guard.canActivate(context)).toBe(true);
-  });
-
-  it("should deny access when user lacks required roles", () => {
-    jest
-      .spyOn(reflector, "getAllAndOverride")
-      .mockReturnValue(["ADMIN", "MANAGER"]);
-
-    const context = createMockExecutionContext({
-      roles: ["FARMER"],
-    });
-
-    expect(guard.canActivate(context)).toBe(false);
-  });
-
-  it("should deny access when user has no roles array", () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
-
-    const context = createMockExecutionContext({});
-
-    expect(guard.canActivate(context)).toBe(false);
-  });
-
-  it("should deny access when user is undefined", () => {
-    jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(["ADMIN"]);
-
-    const context = createMockExecutionContext(undefined);
-
-    expect(guard.canActivate(context)).toBe(false);
-  });
-
-  it("should allow when user has one of multiple required roles", () => {
-    jest
-      .spyOn(reflector, "getAllAndOverride")
-      .mockReturnValue(["ADMIN", "MANAGER", "FARMER"]);
-
-    const context = createMockExecutionContext({
-      roles: ["FARMER"],
-    });
-
-    expect(guard.canActivate(context)).toBe(true);
-  });
-});
+// NOTE: JwtAuthGuard tests are in src/auth/jwt-auth.guard.spec.ts
+// NOTE: RolesGuard tests are in src/auth/roles.guard.spec.ts
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 4. USER CREATION VALIDATION TESTS | اختبارات التحقق من إنشاء المستخدم
+// 3. USER CREATION VALIDATION TESTS | اختبارات التحقق من إنشاء المستخدم
 // ═══════════════════════════════════════════════════════════════════════════
 
 describe("User Creation Validation", () => {
   describe("CreateUserDto validation", () => {
     it("should pass with all valid fields", async () => {
       const dto = plainToInstance(CreateUserDto, {
-        tenantId: "tenant-123",
+        tenantId: "123e4567-e89b-4d3b-a456-426614174000",
         email: "farmer@sahool.app",
         password: "SecurePassword123!",
         firstName: "Ahmed",
@@ -541,13 +390,13 @@ describe("User Creation Validation", () => {
       expect(firstNameError).toBeDefined();
     });
 
-    it("should fail with lastName exceeding 50 characters", async () => {
+    it("should fail with lastName exceeding 100 characters", async () => {
       const dto = plainToInstance(CreateUserDto, {
-        tenantId: "tenant-123",
+        tenantId: "123e4567-e89b-12d3-a456-426614174000",
         email: "farmer@sahool.app",
         password: "SecurePassword123!",
         firstName: "Ahmed",
-        lastName: "A".repeat(51),
+        lastName: "A".repeat(101),
       });
 
       const errors = await validate(dto);
@@ -617,176 +466,7 @@ describe("User Creation Validation", () => {
     });
   });
 
-  describe("UsersService.create validation", () => {
-    let service: UsersService;
-    const mockPrismaService = {
-      user: {
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-        count: jest.fn(),
-      },
-    };
-
-    const mockUser = {
-      id: "user-123",
-      tenantId: "tenant-1",
-      email: "new@sahool.app",
-      passwordHash: "hashed_password",
-      firstName: "Test",
-      lastName: "User",
-      role: UserRole.FARMER,
-      status: UserStatus.ACTIVE,
-      emailVerified: false,
-      phoneVerified: false,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          UsersService,
-          { provide: PrismaService, useValue: mockPrismaService },
-        ],
-      }).compile();
-
-      service = module.get<UsersService>(UsersService);
-      jest.clearAllMocks();
-    });
-
-    it("should create a user with valid input", async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
-      mockPrismaService.user.create.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashed_password"));
-
-      const dto: CreateUserDto = {
-        tenantId: "tenant-1",
-        email: "new@sahool.app",
-        password: "SecurePass123!",
-        firstName: "Test",
-        lastName: "User",
-      };
-
-      const result = await service.create(dto);
-
-      expect(result).toBeDefined();
-      expect(result.id).toBe("user-123");
-    });
-
-    it("should throw ConflictException for duplicate email", async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue({ id: "existing" });
-
-      const dto: CreateUserDto = {
-        tenantId: "tenant-1",
-        email: "existing@sahool.app",
-        password: "SecurePass123!",
-        firstName: "Test",
-        lastName: "User",
-      };
-
-      await expect(service.create(dto)).rejects.toThrow(ConflictException);
-      expect(mockPrismaService.user.create).not.toHaveBeenCalled();
-    });
-
-    it("should hash the password with salt round 10", async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
-      mockPrismaService.user.create.mockResolvedValue(mockUser);
-
-      const hashSpy = jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashed_password"));
-
-      const dto: CreateUserDto = {
-        tenantId: "tenant-1",
-        email: "new@sahool.app",
-        password: "SecurePass123!",
-        firstName: "Test",
-        lastName: "User",
-      };
-
-      await service.create(dto);
-
-      expect(hashSpy).toHaveBeenCalledWith("SecurePass123!", 10);
-    });
-
-    it("should set default status to PENDING when not provided", async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
-      mockPrismaService.user.create.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashed"));
-
-      const dto: CreateUserDto = {
-        tenantId: "tenant-1",
-        email: "new@sahool.app",
-        password: "SecurePass123!",
-        firstName: "Test",
-        lastName: "User",
-      };
-
-      await service.create(dto);
-
-      expect(mockPrismaService.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            status: UserStatus.PENDING,
-          }),
-        }),
-      );
-    });
-
-    it("should set emailVerified and phoneVerified to false by default", async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
-      mockPrismaService.user.create.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashed"));
-
-      const dto: CreateUserDto = {
-        tenantId: "tenant-1",
-        email: "new@sahool.app",
-        password: "SecurePass123!",
-        firstName: "Test",
-        lastName: "User",
-      };
-
-      await service.create(dto);
-
-      expect(mockPrismaService.user.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            emailVerified: false,
-            phoneVerified: false,
-          }),
-        }),
-      );
-    });
-
-    it("should propagate database errors", async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
-      mockPrismaService.user.create.mockRejectedValue(
-        new Error("DB write error"),
-      );
-      jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("hashed"));
-
-      const dto: CreateUserDto = {
-        tenantId: "tenant-1",
-        email: "new@sahool.app",
-        password: "SecurePass123!",
-        firstName: "Test",
-        lastName: "User",
-      };
-
-      await expect(service.create(dto)).rejects.toThrow("DB write error");
-    });
-  });
+  // NOTE: UsersService.create tests are in src/users/users.service.spec.ts
 });
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -917,118 +597,7 @@ describe("Password Validation", () => {
     });
   });
 
-  describe("Password hashing and verification (bcrypt via UsersService)", () => {
-    let service: UsersService;
-    const mockPrismaService = {
-      user: {
-        findUnique: jest.fn(),
-        findMany: jest.fn(),
-        create: jest.fn(),
-        update: jest.fn(),
-        delete: jest.fn(),
-        count: jest.fn(),
-      },
-    };
-
-    beforeEach(async () => {
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          UsersService,
-          { provide: PrismaService, useValue: mockPrismaService },
-        ],
-      }).compile();
-
-      service = module.get<UsersService>(UsersService);
-      jest.clearAllMocks();
-    });
-
-    it("should verify correct password returns true", async () => {
-      const mockUser = {
-        id: "user-123",
-        passwordHash: "stored_hash",
-      };
-      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(true));
-
-      const result = await service.verifyPassword("user-123", "correct_pass");
-
-      expect(result).toBe(true);
-      expect(bcrypt.compare).toHaveBeenCalledWith(
-        "correct_pass",
-        "stored_hash",
-      );
-    });
-
-    it("should verify incorrect password returns false", async () => {
-      const mockUser = {
-        id: "user-123",
-        passwordHash: "stored_hash",
-      };
-      mockPrismaService.user.findUnique.mockResolvedValue(mockUser);
-      jest
-        .spyOn(bcrypt, "compare")
-        .mockImplementation(() => Promise.resolve(false));
-
-      const result = await service.verifyPassword("user-123", "wrong_pass");
-
-      expect(result).toBe(false);
-    });
-
-    it("should throw NotFoundException when verifying password for non-existent user", async () => {
-      mockPrismaService.user.findUnique.mockResolvedValue(null);
-
-      await expect(
-        service.verifyPassword("non-existent", "password"),
-      ).rejects.toThrow(NotFoundException);
-    });
-
-    it("should hash password on user update when password is provided", async () => {
-      const existingUser = {
-        id: "user-123",
-        email: "user@sahool.app",
-        passwordHash: "old_hash",
-      };
-      mockPrismaService.user.findUnique.mockResolvedValue(existingUser);
-      mockPrismaService.user.update.mockResolvedValue(existingUser);
-
-      const hashSpy = jest
-        .spyOn(bcrypt, "hash")
-        .mockImplementation(() => Promise.resolve("new_hashed_password"));
-
-      await service.update("user-123", {
-        password: "NewSecurePass123!",
-      } as UpdateUserDto);
-
-      expect(hashSpy).toHaveBeenCalledWith("NewSecurePass123!", 10);
-      expect(mockPrismaService.user.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            passwordHash: "new_hashed_password",
-          }),
-        }),
-      );
-    });
-
-    it("should not hash password on update when password is not provided", async () => {
-      const existingUser = {
-        id: "user-123",
-        email: "user@sahool.app",
-        passwordHash: "old_hash",
-      };
-      mockPrismaService.user.findUnique.mockResolvedValue(existingUser);
-      mockPrismaService.user.update.mockResolvedValue(existingUser);
-
-      const hashSpy = jest.spyOn(bcrypt, "hash");
-
-      await service.update("user-123", {
-        firstName: "Updated",
-      } as UpdateUserDto);
-
-      expect(hashSpy).not.toHaveBeenCalled();
-    });
-  });
+  // NOTE: Password hashing/verification tests via UsersService are in src/users/users.service.spec.ts
 
   describe("UserRole enum values", () => {
     it("should define all expected roles", () => {

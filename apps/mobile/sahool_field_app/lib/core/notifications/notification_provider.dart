@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Provider
 /// مزود الإشعارات
 ///
@@ -97,7 +99,7 @@ final unreadNotificationCountProvider = Provider<int>((ref) {
 /// مزود للتحقق من تفعيل الإشعارات
 final notificationsEnabledProvider = FutureProvider<bool>((ref) async {
   final manager = ref.watch(notificationManagerProvider);
-  return await manager.areNotificationsEnabled();
+  return manager.areNotificationsEnabled();
 });
 
 /// Provider for subscribed topics

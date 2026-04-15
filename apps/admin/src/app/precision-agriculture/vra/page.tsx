@@ -1,30 +1,22 @@
-"use client";
+'use client';
 
 // VRA (Variable Rate Application) Management
 // إدارة التطبيق المتغير
 
-import { useEffect, useState, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
-import StatusBadge from "@/components/ui/StatusBadge";
+import { useEffect, useState, useCallback } from 'react';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import StatusBadge from '@/components/ui/StatusBadge';
 // DataTable import removed - using inline table
 import {
   fetchVRAPrescriptions,
   approvePrescription,
   rejectPrescription,
-} from "@/lib/api/precision";
-import {
-  FileText,
-  CheckCircle,
-  XCircle,
-  Clock,
-  TrendingUp,
-  Filter,
-  Download,
-} from "lucide-react";
-import Link from "next/link";
-import { formatDate } from "@/lib/utils";
-import { logger } from "../../../lib/logger";
+} from '@/lib/api/precision';
+import { FileText, CheckCircle, XCircle, Clock, TrendingUp, Filter, Download } from 'lucide-react';
+import Link from 'next/link';
+import { formatDate } from '@/lib/utils';
+import { logger } from '../../../lib/logger';
 
 interface VRAPrescription {
   id: string;
@@ -32,8 +24,8 @@ interface VRAPrescription {
   farmName: string;
   fieldName: string;
   cropType: string;
-  prescriptionType: "fertilizer" | "pesticide" | "irrigation";
-  status: "pending" | "approved" | "rejected" | "applied";
+  prescriptionType: 'fertilizer' | 'pesticide' | 'irrigation';
+  status: 'pending' | 'approved' | 'rejected' | 'applied';
   createdAt: string;
   createdBy: string;
   approvedBy?: string;
@@ -46,21 +38,21 @@ interface VRAPrescription {
 export default function VRAPage() {
   const [prescriptions, setPrescriptions] = useState<VRAPrescription[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedStatus, setSelectedStatus] = useState<string>("all");
-  const [selectedType, setSelectedType] = useState<string>("all");
-  const [selectedFarm, _setSelectedFarm] = useState<string>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedFarm, _setSelectedFarm] = useState<string>('all');
 
   const loadPrescriptions = useCallback(async () => {
     setIsLoading(true);
     try {
       const data = await fetchVRAPrescriptions({
-        status: selectedStatus !== "all" ? selectedStatus : undefined,
-        type: selectedType !== "all" ? selectedType : undefined,
-        farmId: selectedFarm !== "all" ? selectedFarm : undefined,
+        status: selectedStatus !== 'all' ? selectedStatus : undefined,
+        type: selectedType !== 'all' ? selectedType : undefined,
+        farmId: selectedFarm !== 'all' ? selectedFarm : undefined,
       });
       setPrescriptions(data);
     } catch (error) {
-      logger.error("Failed to load VRA prescriptions:", error);
+      logger.error('Failed to load VRA prescriptions:', error);
     } finally {
       setIsLoading(false);
     }
@@ -70,12 +62,45 @@ export default function VRAPage() {
     loadPrescriptions();
   }, [loadPrescriptions]);
 
+  const handleExportCSV = useCallback(() => {
+    const headers = [
+      'المزرعة',
+      'الحقل',
+      'المحصول',
+      'نوع الوصفة',
+      'الحالة',
+      'المنطقة (هـ)',
+      'المناطق',
+      'التكلفة',
+      'التاريخ',
+    ];
+    const rows = prescriptions.map((p) => [
+      p.farmName,
+      p.fieldName,
+      p.cropType,
+      p.prescriptionType,
+      p.status,
+      p.area.toFixed(1),
+      p.zones.toString(),
+      p.totalCost.toFixed(2),
+      p.createdAt,
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((cell) => `"${String(cell ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `vra-prescriptions-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [prescriptions]);
+
   async function handleApprove(id: string) {
     try {
       await approvePrescription(id);
       loadPrescriptions();
     } catch (error) {
-      logger.error("Failed to approve prescription:", error);
+      logger.error('Failed to approve prescription:', error);
     }
   }
 
@@ -84,22 +109,22 @@ export default function VRAPage() {
       await rejectPrescription(id);
       loadPrescriptions();
     } catch (error) {
-      logger.error("Failed to reject prescription:", error);
+      logger.error('Failed to reject prescription:', error);
     }
   }
 
   const stats = {
     total: prescriptions.length,
-    pending: prescriptions.filter((p) => p.status === "pending").length,
-    approved: prescriptions.filter((p) => p.status === "approved").length,
-    applied: prescriptions.filter((p) => p.status === "applied").length,
+    pending: prescriptions.filter((p) => p.status === 'pending').length,
+    approved: prescriptions.filter((p) => p.status === 'approved').length,
+    applied: prescriptions.filter((p) => p.status === 'applied').length,
   };
 
   const getPrescriptionTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      fertilizer: "سماد",
-      pesticide: "مبيد",
-      irrigation: "ري",
+      fertilizer: 'سماد',
+      pesticide: 'مبيد',
+      irrigation: 'ري',
     };
     return labels[type] || type;
   };
@@ -171,9 +196,9 @@ export default function VRAPage() {
           </select>
 
           <button
-            disabled
-            className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير التقرير (قريبًا)"
+            onClick={handleExportCSV}
+            disabled={isLoading || prescriptions.length === 0}
+            className="mr-auto px-4 py-2 bg-sahool-600 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 hover:bg-sahool-700 disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Download className="w-4 h-4" />
             تصدير التقرير
@@ -224,10 +249,7 @@ export default function VRAPage() {
                 </tr>
               ) : prescriptions.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan={8}
-                    className="px-6 py-12 text-center text-gray-500"
-                  >
+                  <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                     لا توجد وصفات متاحة
                   </td>
                 </tr>
@@ -249,9 +271,7 @@ export default function VRAPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-gray-900 dark:text-gray-100">
-                        {getPrescriptionTypeLabel(
-                          prescription.prescriptionType,
-                        )}
+                        {getPrescriptionTypeLabel(prescription.prescriptionType)}
                       </span>
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
@@ -271,7 +291,7 @@ export default function VRAPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        {prescription.status === "pending" && (
+                        {prescription.status === 'pending' && (
                           <>
                             <button
                               onClick={() => handleApprove(prescription.id)}

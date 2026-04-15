@@ -1,0 +1,36 @@
+# ============================================================================
+# SAHOOL Mobile - Import Sorter Configuration
+# إعدادات ترتيب الاستيرادات
+# ============================================================================
+#
+# Automatically sorts Dart imports into organized groups.
+# Run: dart run import_sorter:main
+# Check: dart run import_sorter:main --exit-if-changed
+#
+# https://pub.dev/packages/import_sorter
+# ============================================================================
+
+# Enable emojis in comments (disabled for cleaner code)
+emojis: false
+
+# Comments to separate import groups
+comments: true
+
+# Ignore specific files or directories
+ignored_files:
+  - "**/*.g.dart"
+  - "**/*.freezed.dart"
+  - "**/generated/**"
+  - "lib/core/storage/database.g.dart"
+  - "build/**"
+  - ".dart_tool/**"
+
+# Import order (top to bottom):
+# 1. Dart SDK imports (dart:*)
+# 2. Flutter SDK imports (package:flutter/*)
+# 3. Package imports (external packages)
+# 4. Project imports (relative imports)
+# 5. Part directives
+
+# Custom regex patterns for import groups (optional)
+# The default order is: dart > flutter > package > project

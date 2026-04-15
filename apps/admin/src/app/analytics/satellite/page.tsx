@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 // Satellite Data Analytics
 // تحليلات البيانات الفضائية
 
-import { useEffect, useState, useCallback } from "react";
-import dynamic from "next/dynamic";
-import Header from "@/components/layout/Header";
-import StatCard from "@/components/ui/StatCard";
-import { fetchSatelliteData } from "@/lib/api/analytics";
+import { useEffect, useState, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import Header from '@/components/layout/Header';
+import StatCard from '@/components/ui/StatCard';
+import { fetchSatelliteData } from '@/lib/api/analytics';
 import {
   Satellite,
   TrendingUp,
@@ -17,13 +17,13 @@ import {
   Download,
   Eye,
   Activity,
-} from "lucide-react";
-import { formatDate } from "@/lib/utils";
-import { logger } from "../../../lib/logger";
-import { NDVITrendChart } from "./SatelliteCharts.dynamic";
+} from 'lucide-react';
+import { formatDate } from '@/lib/utils';
+import { logger } from '../../../lib/logger';
+import { NDVITrendChart } from './SatelliteCharts.dynamic';
 
 // Dynamic map import
-const SatelliteMap = dynamic(() => import("@/components/maps/SatelliteMap"), {
+const SatelliteMap = dynamic(() => import('@/components/maps/SatelliteMap'), {
   ssr: false,
   loading: () => (
     <div className="h-[500px] bg-gray-100 dark:bg-gray-700 animate-pulse rounded-xl flex items-center justify-center">
@@ -31,6 +31,16 @@ const SatelliteMap = dynamic(() => import("@/components/maps/SatelliteMap"), {
     </div>
   ),
 });
+
+type IndexType = 'ndvi' | 'ndwi' | 'savi' | 'evi' | 'ndre';
+
+const INDEX_OPTIONS: Array<{ value: IndexType; label: string; labelAr: string; icon: string }> = [
+  { value: 'ndvi', label: 'NDVI', labelAr: 'مؤشر الغطاء النباتي', icon: '🌿' },
+  { value: 'savi', label: 'SAVI', labelAr: 'المعدّل للتربة', icon: '🏜️' },
+  { value: 'ndwi', label: 'NDWI', labelAr: 'مؤشر المياه', icon: '💧' },
+  { value: 'ndre', label: 'NDRE', labelAr: 'الحافة الحمراء', icon: '🍃' },
+  { value: 'evi', label: 'EVI', labelAr: 'الغطاء المحسّن', icon: '🌱' },
+];
 
 interface SatelliteData {
   summary: {
@@ -49,13 +59,13 @@ interface SatelliteData {
     ndvi: {
       current: number;
       average: number;
-      trend: "up" | "down" | "stable";
+      trend: 'up' | 'down' | 'stable';
       change: number;
     };
     lastImageDate: string;
     alerts: Array<{
-      type: "anomaly" | "stress" | "disease" | "pest";
-      severity: "low" | "medium" | "high" | "critical";
+      type: 'anomaly' | 'stress' | 'disease' | 'pest';
+      severity: 'low' | 'medium' | 'high' | 'critical';
       message: string;
       messageAr: string;
       detectedAt: string;
@@ -70,28 +80,27 @@ interface SatelliteData {
 }
 
 const getNDVIColor = (ndvi: number) => {
-  if (ndvi >= 0.7) return "text-green-700";
-  if (ndvi >= 0.5) return "text-green-600";
-  if (ndvi >= 0.3) return "text-yellow-600";
-  if (ndvi >= 0.15) return "text-orange-600";
-  return "text-red-600";
+  if (ndvi >= 0.7) return 'text-green-700';
+  if (ndvi >= 0.5) return 'text-green-600';
+  if (ndvi >= 0.3) return 'text-yellow-600';
+  if (ndvi >= 0.15) return 'text-orange-600';
+  return 'text-red-600';
 };
 
 const getNDVILabel = (ndvi: number) => {
-  if (ndvi >= 0.7) return "ممتاز";
-  if (ndvi >= 0.5) return "جيد";
-  if (ndvi >= 0.3) return "متوسط";
-  if (ndvi >= 0.15) return "ضعيف";
-  return "حرج";
+  if (ndvi >= 0.7) return 'ممتاز';
+  if (ndvi >= 0.5) return 'جيد';
+  if (ndvi >= 0.3) return 'متوسط';
+  if (ndvi >= 0.15) return 'ضعيف';
+  return 'حرج';
 };
 
 export default function SatellitePage() {
   const [data, setData] = useState<SatelliteData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedField, setSelectedField] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<"week" | "month" | "season">(
-    "month",
-  );
+  const [selectedIndex, setSelectedIndex] = useState<IndexType>('ndvi');
+  const [dateRange, setDateRange] = useState<'week' | 'month' | 'season'>('month');
 
   const loadData = useCallback(async () => {
     setIsLoading(true);
@@ -105,7 +114,7 @@ export default function SatellitePage() {
         }
       }
     } catch (error) {
-      logger.error("Failed to load satellite data:", error);
+      logger.error('Failed to load satellite data:', error);
     } finally {
       setIsLoading(false);
     }
@@ -130,19 +139,17 @@ export default function SatellitePage() {
   }
 
   const criticalAlerts = data.fields.reduce(
-    (sum, field) =>
-      sum + field.alerts.filter((a) => a.severity === "critical").length,
-    0,
+    (sum, field) => sum + field.alerts.filter((a) => a.severity === 'critical').length,
+    0
   );
 
-  const avgNDVI = data.fields.length > 0
-    ? data.fields.reduce((sum, field) => sum + field.ndvi.current, 0) / data.fields.length
-    : 0;
+  const avgNDVI =
+    data.fields.length > 0
+      ? data.fields.reduce((sum, field) => sum + field.ndvi.current, 0) / data.fields.length
+      : 0;
 
   const selectedFieldData = data.fields.find((f) => f.id === selectedField);
-  const selectedFieldTrends = data.ndviTrends.filter(
-    (t) => t.fieldId === selectedField,
-  );
+  const selectedFieldTrends = data.ndviTrends.filter((t) => t.fieldId === selectedField);
 
   return (
     <div className="p-6">
@@ -152,11 +159,28 @@ export default function SatellitePage() {
           subtitle="Satellite Data Analytics - مراقبة صحة المحاصيل عبر الأقمار الصناعية"
         />
         <div className="flex items-center gap-3">
+          <div className="flex bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            {INDEX_OPTIONS.map((idx) => (
+              <button
+                key={idx.value}
+                onClick={() => idx.value === 'ndvi' && setSelectedIndex(idx.value)}
+                disabled={idx.value !== 'ndvi'}
+                className={`px-3 py-1.5 text-xs rounded-md transition-colors font-medium ${
+                  selectedIndex === idx.value
+                    ? 'bg-sahool-600 text-white shadow-sm'
+                    : idx.value !== 'ndvi'
+                      ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                      : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
+                }`}
+                title={idx.value !== 'ndvi' ? `${idx.labelAr} — قريباً` : idx.labelAr}
+              >
+                {idx.icon} {idx.label}
+              </button>
+            ))}
+          </div>
           <select
             value={dateRange}
-            onChange={(e) =>
-              setDateRange(e.target.value as "week" | "month" | "season")
-            }
+            onChange={(e) => setDateRange(e.target.value as 'week' | 'month' | 'season')}
             className="px-4 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
           >
             <option value="week">أسبوع</option>
@@ -228,7 +252,7 @@ export default function SatellitePage() {
             <h3 className="font-bold text-gray-900 dark:text-gray-100">اتجاه NDVI</h3>
             {selectedFieldData && (
               <select
-                value={selectedField || ""}
+                value={selectedField || ''}
                 onChange={(e) => setSelectedField(e.target.value)}
                 className="px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sahool-500"
               >
@@ -274,18 +298,18 @@ export default function SatellitePage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   <TrendingUp
-                    className={`w-4 h-4 ${selectedFieldData.ndvi.trend === "up" ? "text-green-600" : selectedFieldData.ndvi.trend === "down" ? "text-red-600 rotate-180" : "text-gray-400"}`}
+                    className={`w-4 h-4 ${selectedFieldData.ndvi.trend === 'up' ? 'text-green-600' : selectedFieldData.ndvi.trend === 'down' ? 'text-red-600 rotate-180' : 'text-gray-400'}`}
                   />
                   <span
                     className={
-                      selectedFieldData.ndvi.trend === "up"
-                        ? "text-green-600"
-                        : selectedFieldData.ndvi.trend === "down"
-                          ? "text-red-600"
-                          : "text-gray-600"
+                      selectedFieldData.ndvi.trend === 'up'
+                        ? 'text-green-600'
+                        : selectedFieldData.ndvi.trend === 'down'
+                          ? 'text-red-600'
+                          : 'text-gray-600'
                     }
                   >
-                    {selectedFieldData.ndvi.change >= 0 ? "+" : ""}
+                    {selectedFieldData.ndvi.change >= 0 ? '+' : ''}
                     {(selectedFieldData.ndvi.change * 100).toFixed(1)}%
                   </span>
                   <span className="text-gray-500">عن المتوسط</span>
@@ -316,13 +340,13 @@ export default function SatellitePage() {
                       <div
                         key={index}
                         className={`p-2 rounded-lg text-xs ${
-                          alert.severity === "critical"
-                            ? "bg-red-50 text-red-700"
-                            : alert.severity === "high"
-                              ? "bg-orange-50 text-orange-700"
-                              : alert.severity === "medium"
-                                ? "bg-yellow-50 text-yellow-700"
-                                : "bg-blue-50 text-blue-700"
+                          alert.severity === 'critical'
+                            ? 'bg-red-50 text-red-700'
+                            : alert.severity === 'high'
+                              ? 'bg-orange-50 text-orange-700'
+                              : alert.severity === 'medium'
+                                ? 'bg-yellow-50 text-yellow-700'
+                                : 'bg-blue-50 text-blue-700'
                         }`}
                       >
                         <div className="flex items-start gap-2">
@@ -383,7 +407,7 @@ export default function SatellitePage() {
               {data.fields.map((field) => (
                 <tr
                   key={field.id}
-                  className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${selectedField === field.id ? "bg-sahool-50" : ""}`}
+                  className={`hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${selectedField === field.id ? 'bg-sahool-50' : ''}`}
                   onClick={() => setSelectedField(field.id)}
                 >
                   <td className="px-6 py-4 cursor-pointer">
@@ -398,9 +422,7 @@ export default function SatellitePage() {
                     {field.area.toFixed(1)} هكتار
                   </td>
                   <td className="px-6 py-4">
-                    <span
-                      className={`text-sm font-bold ${getNDVIColor(field.ndvi.current)}`}
-                    >
+                    <span className={`text-sm font-bold ${getNDVIColor(field.ndvi.current)}`}>
                       {field.ndvi.current.toFixed(2)}
                     </span>
                   </td>
@@ -411,17 +433,17 @@ export default function SatellitePage() {
                     <div className="flex items-center gap-1">
                       <TrendingUp
                         className={`w-4 h-4 ${
-                          field.ndvi.trend === "up"
-                            ? "text-green-600"
-                            : field.ndvi.trend === "down"
-                              ? "text-red-600 rotate-180"
-                              : "text-gray-400"
+                          field.ndvi.trend === 'up'
+                            ? 'text-green-600'
+                            : field.ndvi.trend === 'down'
+                              ? 'text-red-600 rotate-180'
+                              : 'text-gray-400'
                         }`}
                       />
                       <span
-                        className={`text-sm ${field.ndvi.change >= 0 ? "text-green-600" : "text-red-600"}`}
+                        className={`text-sm ${field.ndvi.change >= 0 ? 'text-green-600' : 'text-red-600'}`}
                       >
-                        {field.ndvi.change >= 0 ? "+" : ""}
+                        {field.ndvi.change >= 0 ? '+' : ''}
                         {(field.ndvi.change * 100).toFixed(1)}%
                       </span>
                     </div>
@@ -460,8 +482,7 @@ export default function SatellitePage() {
           <div>
             <h3 className="font-bold mb-2">استخدام البيانات الفضائية</h3>
             <p className="text-sm opacity-80">
-              تم استخدام {data.summary.dataUsage.toFixed(1)} GB من بيانات
-              الأقمار الصناعية هذا الشهر
+              تم استخدام {data.summary.dataUsage.toFixed(1)} GB من بيانات الأقمار الصناعية هذا الشهر
             </p>
           </div>
           <Satellite className="w-12 h-12 opacity-20" />

@@ -1,8 +1,8 @@
-"use client";
-import * as React from "react";
-import { clsx } from "clsx";
+'use client';
+import * as React from 'react';
+import { clsx } from 'clsx';
 
-type ToastType = "success" | "error" | "info" | "warning";
+type ToastType = 'success' | 'error' | 'info' | 'warning';
 
 interface Toast {
   id: string;
@@ -19,11 +19,14 @@ interface Toast {
 }
 
 interface ToastContextType {
-  showToast: (toast: Omit<Toast, "id">) => void;
+  showToast: (toast: Omit<Toast, 'id'>) => void;
   hideToast: (id: string) => void;
 }
 
 const ToastContext = React.createContext<ToastContextType | null>(null);
+
+/** Maximum number of visible toasts at once to prevent UI overflow */
+const MAX_VISIBLE_TOASTS = 5;
 
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = React.useState<Toast[]>([]);
@@ -64,12 +67,28 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const showToast = React.useCallback(
-    (toast: Omit<Toast, "id">) => {
-      const id = globalThis.crypto?.randomUUID?.()?.substring(0, 7)
-        ?? Math.random().toString(36).substring(2, 9);
+    (toast: Omit<Toast, 'id'>) => {
+      const id =
+        globalThis.crypto?.randomUUID?.()?.substring(0, 7) ??
+        Math.random().toString(36).substring(2, 9);
       const newToast = { ...toast, id };
 
-      setToasts((prev) => [...prev, newToast]);
+      setToasts((prev) => {
+        const updated = [...prev, newToast];
+        // Evict oldest toasts if we exceed the limit
+        if (updated.length > MAX_VISIBLE_TOASTS) {
+          const excess = updated.slice(0, updated.length - MAX_VISIBLE_TOASTS);
+          for (const old of excess) {
+            const oldTimeout = timeoutsRef.current.get(old.id);
+            if (oldTimeout) {
+              clearTimeout(oldTimeout);
+              timeoutsRef.current.delete(old.id);
+            }
+          }
+          return updated.slice(-MAX_VISIBLE_TOASTS);
+        }
+        return updated;
+      });
 
       const duration = toast.duration || 5000;
       const timeout = setTimeout(() => {
@@ -79,13 +98,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       // Store the timeout ID for cleanup
       timeoutsRef.current.set(id, timeout);
     },
-    [hideToast],
+    [hideToast]
   );
 
-  const value = React.useMemo(
-    () => ({ showToast, hideToast }),
-    [showToast, hideToast],
-  );
+  const value = React.useMemo(() => ({ showToast, hideToast }), [showToast, hideToast]);
 
   return (
     <ToastContext.Provider value={value}>
@@ -98,7 +114,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 export function useToast() {
   const context = React.useContext(ToastContext);
   if (!context) {
-    throw new Error("useToast must be used within ToastProvider");
+    throw new Error('useToast must be used within ToastProvider');
   }
   return context;
 }
@@ -132,11 +148,17 @@ interface ToastItemProps {
 // Lazy-load Lucide icons. Toast icons are only rendered when a toast is
 // visible (triggered by user action), so they do not need to be in the
 // initial bundle. This saves ~5 KB of parsed JS on first load.
-const CheckCircle = React.lazy(() => import("lucide-react").then(m => ({ default: m.CheckCircle })));
-const AlertCircle = React.lazy(() => import("lucide-react").then(m => ({ default: m.AlertCircle })));
-const Info = React.lazy(() => import("lucide-react").then(m => ({ default: m.Info })));
-const AlertTriangle = React.lazy(() => import("lucide-react").then(m => ({ default: m.AlertTriangle })));
-const X = React.lazy(() => import("lucide-react").then(m => ({ default: m.X })));
+const CheckCircle = React.lazy(() =>
+  import('lucide-react').then((m) => ({ default: m.CheckCircle }))
+);
+const AlertCircle = React.lazy(() =>
+  import('lucide-react').then((m) => ({ default: m.AlertCircle }))
+);
+const Info = React.lazy(() => import('lucide-react').then((m) => ({ default: m.Info })));
+const AlertTriangle = React.lazy(() =>
+  import('lucide-react').then((m) => ({ default: m.AlertTriangle }))
+);
+const X = React.lazy(() => import('lucide-react').then((m) => ({ default: m.X })));
 
 function ToastItem({ toast, onClose }: ToastItemProps) {
   const icons = {
@@ -147,33 +169,28 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
   };
 
   const variants = {
-    success: "bg-sahool-green-50 border-sahool-green-500 text-sahool-green-800",
-    error: "bg-red-50 border-red-500 text-red-800",
-    info: "bg-blue-50 border-blue-500 text-blue-800",
-    warning: "bg-yellow-50 border-yellow-500 text-yellow-800",
+    success:
+      'bg-sahool-green-50 dark:bg-sahool-green-900/30 border-sahool-green-500 text-sahool-green-800 dark:text-sahool-green-200',
+    error: 'bg-red-50 dark:bg-red-900/30 border-red-500 text-red-800 dark:text-red-200',
+    info: 'bg-blue-50 dark:bg-blue-900/30 border-blue-500 text-blue-800 dark:text-blue-200',
+    warning:
+      'bg-yellow-50 dark:bg-yellow-900/30 border-yellow-500 text-yellow-800 dark:text-yellow-200',
   };
 
   return (
     <div
       className={clsx(
-        "flex items-start gap-3 p-4 rounded-lg border-s-4 shadow-lg",
-        toast.isExiting ? "animate-slide-out-right" : "animate-slide-in-right",
-        variants[toast.type],
+        'flex items-start gap-3 p-4 rounded-lg border-s-4 shadow-lg',
+        toast.isExiting ? 'animate-slide-out-right' : 'animate-slide-in-right',
+        variants[toast.type]
       )}
     >
       <React.Suspense fallback={<div className="w-5 h-5 flex-shrink-0" />}>
         <div className="flex-shrink-0 mt-0.5">{icons[toast.type]}</div>
       </React.Suspense>
       <div className="flex-1 min-w-0">
-        {toast.messageAr && (
-          <p className="font-semibold text-sm">{toast.messageAr}</p>
-        )}
-        <p
-          className={clsx(
-            "text-sm",
-            toast.messageAr && "text-xs mt-0.5 opacity-90",
-          )}
-        >
+        {toast.messageAr && <p className="font-semibold text-sm">{toast.messageAr}</p>}
+        <p className={clsx('text-sm', toast.messageAr && 'text-xs mt-0.5 opacity-90')}>
           {toast.message}
         </p>
         {toast.action && (
@@ -194,7 +211,7 @@ function ToastItem({ toast, onClose }: ToastItemProps) {
           type="button"
           onClick={() => onClose(toast.id)}
           className="flex-shrink-0 text-current opacity-50 hover:opacity-100 transition-opacity"
-          aria-label="Close notification"
+          aria-label="إغلاق الإشعار - Close notification"
         >
           <X className="w-4 h-4" />
         </button>

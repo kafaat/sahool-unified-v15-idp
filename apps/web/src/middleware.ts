@@ -17,84 +17,111 @@
  * - Locale constants are inlined (no @sahool/i18n barrel import ~24KB+ JSON)
  */
 
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 import {
   generateNonce,
   getCSPHeader,
   getCSPHeaderName,
   getCSPConfig,
-} from "@/lib/security/csp-config";
-import { validateJwtToken } from "@/lib/security/jwt-middleware";
-import { validateCsrfRequest } from "@/lib/security/csrf-server";
+} from '@/lib/security/csp-config';
+import { validateJwtToken } from '@/lib/security/jwt-middleware';
+import { validateCsrfRequest, generateCsrfToken } from '@/lib/security/csrf-server';
 
 // ---------------------------------------------------------------------------
 // Inline locale constants to avoid pulling in the full @sahool/i18n barrel
 // which imports all locale JSON files and re-exports next-intl client code.
 // These MUST stay in sync with packages/i18n/src/index.ts.
 // ---------------------------------------------------------------------------
-const locales = ["ar", "en"] as const;
-const defaultLocale: (typeof locales)[number] = "ar";
+const locales = ['ar', 'en'] as const;
+const defaultLocale: (typeof locales)[number] = 'ar';
 
 // ---------------------------------------------------------------------------
 // Edge-safe logger - avoids importing @/lib/logger which references
 // @sentry/nextjs (~300KB). In the edge middleware we only need console output.
 // ---------------------------------------------------------------------------
 const edgeLogger = {
+  /** Log security-relevant errors in all environments */
   error: (...args: unknown[]) => {
-    if (process.env.NODE_ENV === "development") {
-      console.error(...args);
+    console.error(...args);
+  },
+  /** Log debug information in development only */
+  debug: (...args: unknown[]) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(...args);
     }
   },
 };
 
 // Routes that don't require authentication
 const publicRoutes = [
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/reset-password",
-  "/verify-otp",
-  "/api/auth",
-  "/",
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/verify-otp',
+  '/api/auth',
+  '/',
 ];
 
 // Routes that require authentication
 const protectedRoutes = [
-  "/dashboard",
-  "/fields",
-  "/tasks",
-  "/weather",
-  "/analytics",
-  "/settings",
-  "/iot",
-  "/equipment",
-  "/wallet",
-  "/community",
-  "/marketplace",
-  "/crop-health",
-  "/copilot",
-  "/alerts",
-  "/compliance",
-  "/crops",
-  "/diseases",
-  "/documents",
-  "/disaster-assessment",
-  "/farms",
-  "/inventory",
-  "/irrigation",
-  "/logistics",
-  "/notifications",
-  "/pivot-irrigation",
-  "/precision-agriculture",
-  "/reports",
-  "/research",
-  "/satellite",
-  "/seasons",
-  "/sensors",
-  "/support",
-  "/users",
-  "/yield",
+  '/dashboard',
+  '/fields',
+  '/tasks',
+  '/weather',
+  '/analytics',
+  '/settings',
+  '/iot',
+  '/equipment',
+  '/wallet',
+  '/community',
+  '/marketplace',
+  '/crop-health',
+  '/copilot',
+  '/alerts',
+  '/compliance',
+  '/crops',
+  '/diseases',
+  '/documents',
+  '/disaster-assessment',
+  '/farms',
+  '/inventory',
+  '/irrigation',
+  '/logistics',
+  '/notifications',
+  '/pivot-irrigation',
+  '/precision-agriculture',
+  '/reports',
+  '/research',
+  '/satellite',
+  '/satellite-monitor',
+  '/seasons',
+  '/sensors',
+  '/support',
+  '/users',
+  '/yield',
+  '/scouting',
+  '/soil-map',
+  '/soil-analysis',
+  '/crop-protection',
+  '/crop-planning',
+  '/terrain',
+  '/epidemic',
+  '/drone',
+  '/vision',
+  '/edge-devices',
+  '/virtual-sensors',
+  '/market-prices',
+  '/cooperatives',
+  '/crop-insurance',
+  '/traceability',
+  '/harvest-quality',
+  '/seeds',
+  '/audit',
+  '/field-zones',
+  '/field-comparison',
+  '/field-prep',
 ];
 
 /**
@@ -111,17 +138,17 @@ const protectedRoutes = [
  */
 function detectLocale(request: NextRequest): (typeof locales)[number] {
   // 1. Explicit cookie takes priority
-  const cookieLocale = request.cookies.get("NEXT_LOCALE")?.value;
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
   if (cookieLocale && (locales as readonly string[]).includes(cookieLocale)) {
     return cookieLocale as (typeof locales)[number];
   }
 
   // 2. Parse Accept-Language header (first match wins)
-  const acceptLang = request.headers.get("accept-language") ?? "";
-  for (const part of acceptLang.split(",")) {
-    const lang = (part.split(";")[0] ?? "").trim().toLowerCase();
+  const acceptLang = request.headers.get('accept-language') ?? '';
+  for (const part of acceptLang.split(',')) {
+    const lang = (part.split(';')[0] ?? '').trim().toLowerCase();
     // Match exact ("ar", "en") or prefix ("ar-SA" -> "ar", "en-US" -> "en")
-    const prefix = lang.split("-")[0] ?? "";
+    const prefix = lang.split('-')[0] ?? '';
     if (prefix && (locales as readonly string[]).includes(prefix)) {
       return prefix as (typeof locales)[number];
     }
@@ -136,26 +163,36 @@ export async function middleware(request: NextRequest) {
   // ═══════════════════════════════════════════════════════════════════════════
   // 1. Allow static files and Next.js internals (no security headers needed)
   // ═══════════════════════════════════════════════════════════════════════════
-  if (
-    pathname.startsWith("/_next") ||
-    pathname.startsWith("/static")
-  ) {
+  if (pathname.startsWith('/_next') || pathname.startsWith('/static')) {
     return NextResponse.next();
   }
 
   // Allow API routes through with security headers but skip
   // locale detection, CSRF, and JWT checks (API routes handle auth themselves)
-  if (pathname.startsWith("/api")) {
-    const response = NextResponse.next();
-    response.headers.set("X-Content-Type-Options", "nosniff");
-    response.headers.set("X-Frame-Options", "DENY");
-    response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-    response.headers.set("X-XSS-Protection", "1; mode=block");
-    response.headers.set("Cache-Control", "no-store");
-    if (process.env.NODE_ENV === "production") {
+  if (pathname.startsWith('/api')) {
+    // For /api/v1/* requests (forwarded to Kong via next.config.js rewrite),
+    // inject the access_token cookie as an Authorization: Bearer header.
+    // Kong's JWT plugin expects the token in the Authorization header; the
+    // httpOnly cookie is invisible to client-side JS, so the middleware must
+    // bridge the gap before the rewrite forwards the request to Kong.
+    let responseInit: Parameters<typeof NextResponse.next>[0] | undefined;
+    if (pathname.startsWith('/api/v1/')) {
+      const accessToken = request.cookies.get('access_token')?.value;
+      if (accessToken) {
+        const requestHeaders = new Headers(request.headers);
+        requestHeaders.set('Authorization', `Bearer ${accessToken}`);
+        responseInit = { request: { headers: requestHeaders } };
+      }
+    }
+    const response = NextResponse.next(responseInit);
+    response.headers.set('X-Content-Type-Options', 'nosniff');
+    response.headers.set('X-Frame-Options', 'DENY');
+    response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+    response.headers.set('Cache-Control', 'no-store');
+    if (process.env.NODE_ENV === 'production') {
       response.headers.set(
-        "Strict-Transport-Security",
-        "max-age=31536000; includeSubDomains; preload",
+        'Strict-Transport-Security',
+        'max-age=31536000; includeSubDomains; preload'
       );
     }
     return response;
@@ -173,7 +210,7 @@ export async function middleware(request: NextRequest) {
   //    Server Actions (POST) that don't yet have a CSRF token.
   // ═══════════════════════════════════════════════════════════════════════════
   const isPublicRoute = publicRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
   if (isPublicRoute) {
@@ -196,11 +233,11 @@ export async function middleware(request: NextRequest) {
     });
 
     // Return 403 Forbidden for CSRF validation failures
-    return new NextResponse("CSRF validation failed", {
+    return new NextResponse('CSRF validation failed', {
       status: 403,
       headers: {
-        "Content-Type": "text/plain",
-        "X-CSRF-Error": csrfValidation.error || "CSRF token mismatch",
+        'Content-Type': 'text/plain',
+        'X-CSRF-Error': csrfValidation.error || 'CSRF token mismatch',
       },
     });
   }
@@ -209,7 +246,7 @@ export async function middleware(request: NextRequest) {
   // 5. Check if route requires authentication (unchanged)
   // ═══════════════════════════════════════════════════════════════════════════
   const isProtectedRoute = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`),
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
   );
 
   if (!isProtectedRoute) {
@@ -223,7 +260,16 @@ export async function middleware(request: NextRequest) {
   // ═══════════════════════════════════════════════════════════════════════════
   // 6. JWT Token Validation (with signature verification)
   // ═══════════════════════════════════════════════════════════════════════════
-  const jwtValidation = await validateJwtToken(request);
+  let jwtValidation: { valid: boolean; error?: string };
+  try {
+    jwtValidation = await validateJwtToken(request);
+  } catch (err) {
+    edgeLogger.error('[JWT] Validation threw an exception', {
+      path: pathname,
+      error: err instanceof Error ? err.message : String(err),
+    });
+    jwtValidation = { valid: false, error: 'Token validation error' };
+  }
 
   if (!jwtValidation.valid) {
     // Log JWT failure
@@ -232,17 +278,17 @@ export async function middleware(request: NextRequest) {
     });
 
     // Redirect to login with secure return URL
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL('/login', request.url);
 
     // Sanitize and validate return URL to prevent open redirect
     const returnTo = sanitizeReturnUrl(pathname + search, request.url);
     if (returnTo) {
-      loginUrl.searchParams.set("returnTo", returnTo);
+      loginUrl.searchParams.set('returnTo', returnTo);
     }
 
     // Add reason for development debugging
-    if (process.env.NODE_ENV === "development" && jwtValidation.error) {
-      loginUrl.searchParams.set("reason", jwtValidation.error);
+    if (process.env.NODE_ENV === 'development' && jwtValidation.error) {
+      loginUrl.searchParams.set('reason', jwtValidation.error);
     }
 
     return NextResponse.redirect(loginUrl);
@@ -258,40 +304,41 @@ export async function middleware(request: NextRequest) {
   setLocaleCookie(response, detectedLocale);
 
   // Generate CSRF token if not present
-  let csrfToken = request.cookies.get("csrf_token")?.value;
-  const clientCsrf = request.cookies.get("_csrf")?.value;
+  let csrfToken = request.cookies.get('csrf_token')?.value;
+  const clientCsrf = request.cookies.get('_csrf')?.value;
+
+  // Note: CSRF rotation for sensitive actions (password change, role update, 2FA)
+  // is handled in the API route handlers themselves by deleting the csrf_token and
+  // _csrf cookies. On the next page navigation, the middleware sees !csrfToken and
+  // generates a fresh token. This works because /api routes return early above
+  // (line 172) and never reach this code path.
+
   if (!csrfToken) {
-    // Use Web Crypto API for Edge Runtime compatibility
-    const randomValues = new Uint8Array(32);
-    crypto.getRandomValues(randomValues);
-    csrfToken = btoa(String.fromCharCode(...randomValues))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=/g, "");
+    csrfToken = generateCsrfToken();
     // Double-submit cookie pattern: httpOnly cookie for server-side validation
-    response.cookies.set("csrf_token", csrfToken, {
+    response.cookies.set('csrf_token', csrfToken, {
       httpOnly: true, // Server-side only - used for validation
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
       maxAge: 60 * 60 * 24, // 24 hours
     });
     // Client-readable cookie - JavaScript reads this to set X-CSRF-Token header
-    response.cookies.set("_csrf", csrfToken, {
+    response.cookies.set('_csrf', csrfToken, {
       httpOnly: false, // Must be readable by client-side JavaScript
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
       maxAge: 60 * 60 * 24, // 24 hours
     });
   } else if (!clientCsrf || clientCsrf !== csrfToken) {
     // Ensure _csrf cookie stays in sync with csrf_token (handles rolling deploys
     // where csrf_token exists from a prior version but _csrf is missing or stale)
-    response.cookies.set("_csrf", csrfToken, {
+    response.cookies.set('_csrf', csrfToken, {
       httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
       maxAge: 60 * 60 * 24, // 24 hours
     });
   }
@@ -305,14 +352,11 @@ export async function middleware(request: NextRequest) {
  * subsequent requests. This replaces the cookie-setting behaviour
  * that was previously handled by next-intl/middleware.
  */
-function setLocaleCookie(
-  response: NextResponse,
-  locale: (typeof locales)[number],
-): void {
-  response.cookies.set("NEXT_LOCALE", locale, {
-    path: "/",
+function setLocaleCookie(response: NextResponse, locale: (typeof locales)[number]): void {
+  response.cookies.set('NEXT_LOCALE', locale, {
+    path: '/',
     maxAge: 60 * 60 * 24 * 365, // 1 year
-    sameSite: "lax",
+    sameSite: 'lax',
   });
 }
 
@@ -322,37 +366,37 @@ function setLocaleCookie(
 function addSecurityHeaders(response: NextResponse): void {
   // Generate nonce for CSP
   const nonce = generateNonce();
-  response.headers.set("X-Nonce", nonce);
+  response.headers.set('X-Nonce', nonce);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Standard Security Headers
   // ═══════════════════════════════════════════════════════════════════════════
 
   // Prevent clickjacking attacks
-  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set('X-Frame-Options', 'DENY');
 
   // Prevent MIME type sniffing
-  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set('X-Content-Type-Options', 'nosniff');
 
   // Control referrer information
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 
-  // Legacy XSS protection (modern browsers use CSP)
-  response.headers.set("X-XSS-Protection", "1; mode=block");
+  // Note: X-XSS-Protection removed — deprecated since 2020 (MDN). CSP + nonce
+  // is the modern replacement and is already applied via the main middleware flow.
 
   // Permissions Policy - restrict browser features
   response.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(self), payment=()",
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(self), payment=()'
   );
 
   // ═══════════════════════════════════════════════════════════════════════════
   // HSTS - Force HTTPS in production
   // ═══════════════════════════════════════════════════════════════════════════
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === 'production') {
     response.headers.set(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains; preload",
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
     );
   }
 
@@ -403,6 +447,6 @@ export const config = {
      * NOTE: /api routes ARE included so the middleware can apply
      * security headers (X-Content-Type-Options, X-Frame-Options, etc.)
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)",
+    '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],
 };

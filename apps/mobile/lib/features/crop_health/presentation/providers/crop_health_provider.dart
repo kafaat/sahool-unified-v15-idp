@@ -1,12 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/http/api_client.dart';
+import '../../../../core/di/providers.dart' show apiClientProvider;
 import '../../data/remote/crop_health_api.dart';
 import '../../domain/entities/crop_health_entities.dart';
-
-/// API Client Provider
-final apiClientProvider = Provider.autoDispose<ApiClient>((ref) {
-  return ApiClient();
-});
 
 /// Crop Health API Provider
 final cropHealthApiProvider = Provider.autoDispose<CropHealthApi>((ref) {

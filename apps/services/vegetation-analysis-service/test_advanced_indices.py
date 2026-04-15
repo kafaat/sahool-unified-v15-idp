@@ -7,9 +7,9 @@ Verifies that all new functionality works correctly
 import sys
 from pathlib import Path
 
-# Dynamic path: navigate to apps/services, then satellite-service/src
+# Dynamic path: navigate to apps/services, then vegetation-analysis-service/src
 services_dir = Path(__file__).parent.parent.resolve()
-sys.path.insert(0, str(services_dir / "satellite-service" / "src"))
+sys.path.insert(0, str(services_dir / "vegetation-analysis-service" / "src"))
 
 from vegetation_indices import (
     BandData,

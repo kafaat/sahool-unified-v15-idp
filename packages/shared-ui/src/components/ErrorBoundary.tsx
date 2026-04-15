@@ -6,9 +6,9 @@
  * Optionally integrates with Sentry for error tracking when available
  */
 
-"use client";
+'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 export interface ErrorBoundaryProps {
   children: ReactNode;
@@ -30,10 +30,7 @@ interface ErrorBoundaryState {
  * Can be used across all SAHOOL applications
  * مكون حدود الخطأ المشترك
  */
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false, error: null, errorInfo: null };
@@ -52,28 +49,27 @@ export class ErrorBoundary extends Component<
       try {
         // Dynamically check if Sentry is available
         const Sentry = (window as any).Sentry;
-        if (Sentry && typeof Sentry.captureException === "function") {
+        if (Sentry && typeof Sentry.captureException === 'function') {
           Sentry.captureException(error, {
             extra: {
               componentStack: errorInfo.componentStack,
             },
           });
         }
-      } catch (sentryError) {
+      } catch {
         // Silently fail if Sentry is not available
-        console.warn("Sentry not available:", sentryError);
       }
     }
 
     // Call custom error handler if provided
     this.props.onError?.(error, errorInfo);
 
-    // Log to console in development
-    if (process.env.NODE_ENV === "development") {
-      console.error("ErrorBoundary caught:", error);
-      console.error("Component stack:", errorInfo.componentStack);
-    } else {
-      console.error("ErrorBoundary caught:", error, errorInfo);
+    // Log to console in development only
+    if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
+      console.error('ErrorBoundary caught:', error);
+      // eslint-disable-next-line no-console
+      console.error('Component stack:', errorInfo.componentStack);
     }
   }
 
@@ -87,7 +83,7 @@ export class ErrorBoundary extends Component<
 
     if (hasError && error) {
       // Custom fallback function
-      if (typeof fallback === "function") {
+      if (typeof fallback === 'function') {
         return fallback(error, this.handleRetry);
       }
 
@@ -102,12 +98,7 @@ export class ErrorBoundary extends Component<
           <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 text-center">
             {/* Error Icon */}
             <div className="mx-auto w-16 h-16 mb-4 text-red-500">
-              <svg
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                className="w-full h-full"
-              >
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-full h-full">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -128,9 +119,7 @@ export class ErrorBoundary extends Component<
             {/* Error Details (when enabled) */}
             {showDetails && error && (
               <div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 rounded text-left overflow-auto">
-                <p className="text-sm font-mono text-red-600 dark:text-red-400">
-                  {error.message}
-                </p>
+                <p className="text-sm font-mono text-red-600 dark:text-red-400">{error.message}</p>
                 {errorInfo && (
                   <pre className="mt-2 text-xs text-red-500 dark:text-red-300 whitespace-pre-wrap">
                     {errorInfo.componentStack}
@@ -173,10 +162,9 @@ export class ErrorBoundary extends Component<
  */
 export function withErrorBoundary<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">,
+  errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>
 ): React.FC<P> {
-  const displayName =
-    WrappedComponent.displayName || WrappedComponent.name || "Component";
+  const displayName = WrappedComponent.displayName || WrappedComponent.name || 'Component';
 
   const WithErrorBoundary: React.FC<P> = (props) => (
     <ErrorBoundary {...errorBoundaryProps}>
@@ -202,7 +190,7 @@ export function AsyncErrorBoundary({
 }: {
   children: ReactNode;
   fallback?: ReactNode;
-  errorBoundaryProps?: Omit<ErrorBoundaryProps, "children">;
+  errorBoundaryProps?: Omit<ErrorBoundaryProps, 'children'>;
 }): React.ReactElement {
   return (
     <ErrorBoundary fallback={fallback} {...errorBoundaryProps}>

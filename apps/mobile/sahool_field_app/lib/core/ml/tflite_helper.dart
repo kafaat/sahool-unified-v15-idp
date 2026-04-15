@@ -1,8 +1,9 @@
+library;
+
 /// TFLite Helper - مساعد TFLite
 ///
 /// TensorFlow Lite interpreter wrapper for on-device ML inference.
 /// Provides image preprocessing, model loading, and post-processing utilities.
-library;
 
 import 'dart:async';
 import 'dart:io';
@@ -151,7 +152,6 @@ class TFLiteHelper {
 
   // Isolate for background processing
   Isolate? _inferenceIsolate;
-  SendPort? _isolateSendPort;
 
   TFLiteHelper(this.config);
 
@@ -517,7 +517,6 @@ class TFLiteHelper {
   Future<void> dispose() async {
     _inferenceIsolate?.kill(priority: Isolate.immediate);
     _inferenceIsolate = null;
-    _isolateSendPort = null;
     _isInitialized = false;
   }
 }

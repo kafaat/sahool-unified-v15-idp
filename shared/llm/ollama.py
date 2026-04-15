@@ -14,8 +14,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, AsyncIterator
+from typing import Any
 
 from .config import OllamaConfig, get_config
 from .provider import (
@@ -45,6 +47,9 @@ class OllamaError(LLMProviderError):
 
     def __init__(self, message: str, status: GenerationStatus = GenerationStatus.ERROR):
         super().__init__(message, provider=ProviderType.OLLAMA, status=status)
+
+
+logger = logging.getLogger(__name__)
 
 
 class OllamaProvider(LLMProvider):
@@ -396,7 +401,15 @@ class OllamaProvider(LLMProvider):
                 response.raise_for_status()
                 async for line in response.aiter_lines():
                     if line:
-                        data = json.loads(line)
+                        try:
+                            data = json.loads(line)
+                        except json.JSONDecodeError:
+                            logger.warning(
+                                "Skipping malformed JSON line in Ollama stream (model=%s, line_length=%d)",
+                                model,
+                                len(line),
+                            )
+                            continue
                         text = data.get("response", "")
                         is_done = data.get("done", False)
 
@@ -463,7 +476,14 @@ class OllamaProvider(LLMProvider):
                 response.raise_for_status()
                 async for line in response.aiter_lines():
                     if line:
-                        data = json.loads(line)
+                        try:
+                            data = json.loads(line)
+                        except json.JSONDecodeError:
+                            logger.warning(
+                                "Skipping malformed JSON line in chat stream (line_length=%d)",
+                                len(line),
+                            )
+                            continue
                         text = data.get("message", {}).get("content", "")
                         is_done = data.get("done", False)
 

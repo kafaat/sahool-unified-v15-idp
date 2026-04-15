@@ -1,5 +1,6 @@
 /// SAHOOL Best Days Card
 /// بطاقة أفضل الأيام للنشاط الزراعي
+library;
 
 import 'package:flutter/material.dart';
 import '../../models/astronomical_models.dart';
@@ -59,7 +60,7 @@ class BestDaysCard extends StatelessWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.green.withOpacity(0.2),
+                    color: Colors.green.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Text(
@@ -142,7 +143,7 @@ class _BestDayTile extends StatelessWidget {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: rankColor.withOpacity(0.2),
+                color: rankColor.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
                 border: Border.all(color: rankColor, width: 2),
               ),
@@ -229,7 +230,7 @@ class _BestDayTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: scoreColor.withOpacity(0.2),
+                color: scoreColor.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
@@ -259,10 +260,10 @@ class _BestDayTile extends StatelessWidget {
   }
 
   Color _getScoreColor(int score) {
-    if (score >= 90) return Colors.green.shade700;
-    if (score >= 80) return Colors.green;
-    if (score >= 70) return Colors.lightGreen;
-    if (score >= 60) return Colors.lime;
+    if (score >= 9) return Colors.green.shade700;
+    if (score >= 8) return Colors.green;
+    if (score >= 7) return Colors.lightGreen;
+    if (score >= 6) return Colors.lime;
     return Colors.orange;
   }
 

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 /**
  * Enhanced Data Table Component
  * جدول البيانات المحسن مع الفرز والتصفية والتحديد المتعدد
  */
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
-import { cn } from "@/lib/utils";
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { cn } from '@/lib/utils';
 import {
   ChevronUp,
   ChevronDown,
@@ -17,9 +17,9 @@ import {
   ChevronsRight,
   Check,
   Minus,
-} from "lucide-react";
+} from 'lucide-react';
 
-export type SortDirection = "asc" | "desc" | null;
+export type SortDirection = 'asc' | 'desc' | null;
 
 export interface Column<T> {
   key: string;
@@ -30,7 +30,7 @@ export interface Column<T> {
   className?: string;
   headerClassName?: string;
   width?: string;
-  align?: "left" | "center" | "right";
+  align?: 'left' | 'center' | 'right';
 }
 
 export interface EnhancedDataTableProps<T> {
@@ -72,11 +72,11 @@ function EnhancedDataTableInner<T>({
   keyExtractor,
   onRowClick,
   onRowDoubleClick,
-  emptyMessage = "No data available",
-  emptyMessageAr = "لا توجد بيانات",
+  emptyMessage = 'No data available',
+  emptyMessageAr = 'لا توجد بيانات',
   caption,
   captionAr,
-  className = "",
+  className = '',
   isLoading = false,
   pagination = true,
   pageSize: initialPageSize = 10,
@@ -95,14 +95,9 @@ function EnhancedDataTableInner<T>({
   maxHeight,
 }: EnhancedDataTableProps<T>) {
   // Internal state for uncontrolled mode
-  const [internalSelectedKeys, setInternalSelectedKeys] = useState<Set<string>>(
-    new Set()
-  );
-  const [internalSortColumn, setInternalSortColumn] = useState<string | null>(
-    null
-  );
-  const [internalSortDirection, setInternalSortDirection] =
-    useState<SortDirection>(null);
+  const [internalSelectedKeys, setInternalSelectedKeys] = useState<Set<string>>(new Set());
+  const [internalSortColumn, setInternalSortColumn] = useState<string | null>(null);
+  const [internalSortDirection, setInternalSortDirection] = useState<SortDirection>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(initialPageSize);
 
@@ -129,10 +124,10 @@ function EnhancedDataTableInner<T>({
 
   const handleSort = useCallback(
     (column: string) => {
-      let newDirection: SortDirection = "asc";
+      let newDirection: SortDirection = 'asc';
       if (sortColumn === column) {
-        if (sortDirection === "asc") newDirection = "desc";
-        else if (sortDirection === "desc") newDirection = null;
+        if (sortDirection === 'asc') newDirection = 'desc';
+        else if (sortDirection === 'desc') newDirection = null;
       }
 
       if (onSort) {
@@ -158,13 +153,13 @@ function EnhancedDataTableInner<T>({
       if (bVal === null || bVal === undefined) return -1;
 
       const comparison =
-        typeof aVal === "string" && typeof bVal === "string"
-          ? aVal.localeCompare(bVal, "ar")
+        typeof aVal === 'string' && typeof bVal === 'string'
+          ? aVal.localeCompare(bVal, 'ar')
           : aVal < bVal
             ? -1
             : 1;
 
-      return sortDirection === "asc" ? comparison : -comparison;
+      return sortDirection === 'asc' ? comparison : -comparison;
     });
   }, [data, sortColumn, sortDirection]);
 
@@ -180,9 +175,7 @@ function EnhancedDataTableInner<T>({
   // Selection handlers
   const handleSelectAll = useCallback(() => {
     const pageKeys = new Set(paginatedData.map(keyExtractor));
-    const allSelected = paginatedData.every((item) =>
-      selectedKeys.has(keyExtractor(item))
-    );
+    const allSelected = paginatedData.every((item) => selectedKeys.has(keyExtractor(item)));
 
     if (allSelected) {
       // Deselect all on current page
@@ -211,11 +204,9 @@ function EnhancedDataTableInner<T>({
   );
 
   const isAllSelected =
-    paginatedData.length > 0 &&
-    paginatedData.every((item) => selectedKeys.has(keyExtractor(item)));
+    paginatedData.length > 0 && paginatedData.every((item) => selectedKeys.has(keyExtractor(item)));
   const isSomeSelected =
-    paginatedData.some((item) => selectedKeys.has(keyExtractor(item))) &&
-    !isAllSelected;
+    paginatedData.some((item) => selectedKeys.has(keyExtractor(item))) && !isAllSelected;
 
   // Render sort icon
   const renderSortIcon = (column: Column<T>) => {
@@ -225,9 +216,9 @@ function EnhancedDataTableInner<T>({
 
     return (
       <span className="inline-flex mr-1">
-        {isActive && sortDirection === "asc" ? (
+        {isActive && sortDirection === 'asc' ? (
           <ChevronUp className="w-4 h-4 text-sahool-600" />
-        ) : isActive && sortDirection === "desc" ? (
+        ) : isActive && sortDirection === 'desc' ? (
           <ChevronDown className="w-4 h-4 text-sahool-600" />
         ) : (
           <ChevronsUpDown className="w-4 h-4 text-gray-400" />
@@ -240,10 +231,7 @@ function EnhancedDataTableInner<T>({
   if (isLoading) {
     return (
       <div
-        className={cn(
-          "bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden",
-          className
-        )}
+        className={cn('bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden', className)}
       >
         <div className="animate-pulse">
           <div className="h-12 bg-gray-100 dark:bg-gray-700"></div>
@@ -262,10 +250,7 @@ function EnhancedDataTableInner<T>({
   if (data.length === 0) {
     return (
       <div
-        className={cn(
-          "bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center",
-          className
-        )}
+        className={cn('bg-white dark:bg-gray-800 rounded-xl shadow-sm p-12 text-center', className)}
       >
         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
           <svg
@@ -291,23 +276,18 @@ function EnhancedDataTableInner<T>({
   return (
     <div
       className={cn(
-        "bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden",
-        bordered && "border border-gray-200 dark:border-gray-700",
+        'bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden',
+        bordered && 'border border-gray-200 dark:border-gray-700',
         className
       )}
     >
-      <div
-        className={cn("overflow-x-auto", maxHeight && "overflow-y-auto")}
-        style={{ maxHeight }}
-      >
+      <div className={cn('overflow-x-auto', maxHeight && 'overflow-y-auto')} style={{ maxHeight }}>
         <table className="w-full">
-          {(captionAr || caption) && (
-            <caption className="sr-only">{captionAr || caption}</caption>
-          )}
+          {(captionAr || caption) && <caption className="sr-only">{captionAr || caption}</caption>}
           <thead
             className={cn(
-              "bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700",
-              stickyHeader && "sticky top-0 z-10"
+              'bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700',
+              stickyHeader && 'sticky top-0 z-10'
             )}
           >
             <tr>
@@ -316,12 +296,12 @@ function EnhancedDataTableInner<T>({
                   <button
                     onClick={handleSelectAll}
                     className={cn(
-                      "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                      'w-5 h-5 rounded border-2 flex items-center justify-center transition-colors',
                       isAllSelected
-                        ? "bg-sahool-600 border-sahool-600 text-white"
+                        ? 'bg-sahool-600 border-sahool-600 text-white'
                         : isSomeSelected
-                          ? "bg-sahool-100 border-sahool-600"
-                          : "border-gray-300 dark:border-gray-600 hover:border-sahool-500"
+                          ? 'bg-sahool-100 border-sahool-600'
+                          : 'border-gray-300 dark:border-gray-600 hover:border-sahool-500'
                     )}
                     aria-label="تحديد الكل"
                   >
@@ -333,36 +313,36 @@ function EnhancedDataTableInner<T>({
               {columns.map((col) => {
                 const colKey = col.sortKey || col.key;
                 const isActiveSortCol = sortColumn === colKey;
-                const ariaSortValue = isActiveSortCol && sortDirection === "asc"
-                  ? "ascending" as const
-                  : isActiveSortCol && sortDirection === "desc"
-                    ? "descending" as const
-                    : undefined;
+                const ariaSortValue =
+                  isActiveSortCol && sortDirection === 'asc'
+                    ? ('ascending' as const)
+                    : isActiveSortCol && sortDirection === 'desc'
+                      ? ('descending' as const)
+                      : undefined;
 
                 return (
-                <th
-                  key={col.key}
-                  scope="col"
-                  className={cn(
-                    "text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider",
-                    compact ? "px-4 py-2" : "px-6 py-3",
-                    col.align === "center" && "text-center",
-                    col.align === "left" && "text-left",
-                    col.align === "right" || !col.align ? "text-right" : "",
-                    col.sortable && "cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800",
-                    col.headerClassName
-                  )}
-                  style={{ width: col.width }}
-                  onClick={() =>
-                    col.sortable && handleSort(colKey)
-                  }
-                  aria-sort={ariaSortValue}
-                >
-                  <span className="inline-flex items-center gap-1">
-                    {col.header}
-                    {renderSortIcon(col)}
-                  </span>
-                </th>
+                  <th
+                    key={col.key}
+                    scope="col"
+                    className={cn(
+                      'text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider',
+                      compact ? 'px-4 py-2' : 'px-6 py-3',
+                      col.align === 'center' && 'text-center',
+                      col.align === 'left' && 'text-left',
+                      col.align === 'right' || !col.align ? 'text-right' : '',
+                      col.sortable &&
+                        'cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-800',
+                      col.headerClassName
+                    )}
+                    style={{ width: col.width }}
+                    onClick={() => col.sortable && handleSort(colKey)}
+                    aria-sort={ariaSortValue}
+                  >
+                    <span className="inline-flex items-center gap-1">
+                      {col.header}
+                      {renderSortIcon(col)}
+                    </span>
+                  </th>
                 );
               })}
             </tr>
@@ -378,19 +358,19 @@ function EnhancedDataTableInner<T>({
                   onClick={() => onRowClick?.(item)}
                   onDoubleClick={() => onRowDoubleClick?.(item)}
                   onKeyDown={(e) => {
-                    if (onRowClick && (e.key === "Enter" || e.key === " ")) {
+                    if (onRowClick && (e.key === 'Enter' || e.key === ' ')) {
                       e.preventDefault();
                       onRowClick(item);
                     }
                   }}
                   tabIndex={onRowClick ? 0 : undefined}
-                  role={onRowClick ? "button" : undefined}
+                  role={onRowClick ? 'button' : undefined}
                   className={cn(
-                    "transition-colors focus:outline-none focus:ring-2 focus:ring-sahool-500 focus:ring-inset",
-                    onRowClick && "cursor-pointer",
-                    hoverable && "hover:bg-gray-50 dark:hover:bg-gray-700/50",
-                    striped && index % 2 === 1 && "bg-gray-50/50 dark:bg-gray-800/50",
-                    isSelected && "bg-sahool-50 dark:bg-sahool-900/30"
+                    'transition-colors focus:outline-none focus:ring-2 focus:ring-sahool-500 focus:ring-inset',
+                    onRowClick && 'cursor-pointer',
+                    hoverable && 'hover:bg-gray-50 dark:hover:bg-gray-700/50',
+                    striped && index % 2 === 1 && 'bg-gray-50/50 dark:bg-gray-800/50',
+                    isSelected && 'bg-sahool-50 dark:bg-sahool-900/30'
                   )}
                 >
                   {selectable && (
@@ -401,12 +381,12 @@ function EnhancedDataTableInner<T>({
                           handleSelectRow(key);
                         }}
                         className={cn(
-                          "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                          'w-5 h-5 rounded border-2 flex items-center justify-center transition-colors',
                           isSelected
-                            ? "bg-sahool-600 border-sahool-600 text-white"
-                            : "border-gray-300 dark:border-gray-600 hover:border-sahool-500"
+                            ? 'bg-sahool-600 border-sahool-600 text-white'
+                            : 'border-gray-300 dark:border-gray-600 hover:border-sahool-500'
                         )}
-                        aria-label={isSelected ? "إلغاء التحديد" : "تحديد"}
+                        aria-label={isSelected ? 'إلغاء التحديد' : 'تحديد'}
                       >
                         {isSelected && <Check className="w-3 h-3" />}
                       </button>
@@ -416,18 +396,16 @@ function EnhancedDataTableInner<T>({
                     <td
                       key={col.key}
                       className={cn(
-                        "text-sm text-gray-900 dark:text-gray-100",
-                        compact ? "px-4 py-2" : "px-6 py-4",
-                        col.align === "center" && "text-center",
-                        col.align === "left" && "text-left",
+                        'text-sm text-gray-900 dark:text-gray-100',
+                        compact ? 'px-4 py-2' : 'px-6 py-4',
+                        col.align === 'center' && 'text-center',
+                        col.align === 'left' && 'text-left',
                         col.className
                       )}
                     >
                       {col.render
                         ? col.render(item, index)
-                        : String(
-                            (item as Record<string, unknown>)[col.key] ?? ""
-                          )}
+                        : String((item as Record<string, unknown>)[col.key] ?? '')}
                     </td>
                   ))}
                 </tr>
@@ -442,18 +420,18 @@ function EnhancedDataTableInner<T>({
         <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-600 dark:text-gray-400">
-              عرض{" "}
+              عرض{' '}
               <span className="font-medium text-gray-900 dark:text-gray-100">
                 {(currentPage - 1) * pageSize + 1}
-              </span>{" "}
-              -{" "}
+              </span>{' '}
+              -{' '}
               <span className="font-medium text-gray-900 dark:text-gray-100">
                 {Math.min(currentPage * pageSize, sortedData.length)}
-              </span>{" "}
-              من{" "}
+              </span>{' '}
+              من{' '}
               <span className="font-medium text-gray-900 dark:text-gray-100">
                 {sortedData.length}
-              </span>{" "}
+              </span>{' '}
               نتيجة
             </span>
 
@@ -493,14 +471,9 @@ function EnhancedDataTableInner<T>({
             </button>
 
             <span className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400">
-              صفحة{" "}
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {currentPage}
-              </span>{" "}
-              من{" "}
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {totalPages}
-              </span>
+              صفحة{' '}
+              <span className="font-medium text-gray-900 dark:text-gray-100">{currentPage}</span> من{' '}
+              <span className="font-medium text-gray-900 dark:text-gray-100">{totalPages}</span>
             </span>
 
             <button

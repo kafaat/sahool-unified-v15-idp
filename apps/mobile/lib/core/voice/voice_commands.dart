@@ -574,7 +574,7 @@ class VoiceCommandRegistry {
   static VoiceCommandDefinition? getCommand(VoiceCommandType type) {
     try {
       return commands.firstWhere((c) => c.type == type);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:path_provider/path_provider.dart';
@@ -43,6 +42,10 @@ class SahoolImageCacheManager {
   static SahoolImageCacheManager get instance {
     return _instance ??= SahoolImageCacheManager._();
   }
+
+  /// الحصول على مدير الكاش الداخلي لاستخدامه مع CachedNetworkImage
+  /// Get underlying cache manager for use with CachedNetworkImage
+  CacheManager get cacheManager => _cacheManager;
 
   /// تهيئة مع إعدادات مخصصة
   static void configure({
@@ -101,7 +104,7 @@ class SahoolImageCacheManager {
   Future<void> preloadImages(
     List<String> urls, {
     int concurrency = 3,
-    Function(int completed, int total)? onProgress,
+    void Function(int completed, int total)? onProgress,
   }) async {
     int completed = 0;
     final total = urls.length;

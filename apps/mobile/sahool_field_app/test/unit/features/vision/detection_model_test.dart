@@ -3,6 +3,7 @@
 ///
 /// Tests Detection, DetectionResult, DetectionSession, PlantCountResult,
 /// ModelInfo, BoundingBox, and all related enums.
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/vision/domain/detection_model.dart';
@@ -377,9 +378,9 @@ void main() {
     });
 
     test('isSuccess should return false when error present', () {
-      final errorResult = DetectionResult(
+      const errorResult = DetectionResult(
         resultId: 'result_err',
-        detections: const [],
+        detections: [],
         processingTimeMs: 0,
         imageWidth: 640,
         imageHeight: 480,

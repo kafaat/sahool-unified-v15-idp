@@ -1,0 +1,57 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# PR Size Labeler - Labels PRs by size (XS/S/M/L/XL/XXL)
+# تصنيف حجم طلبات الدمج
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: PR Size Labeler
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: pr-size-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  size-label:
+    name: Label PR Size
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Label PR by size
+        uses: codelytv/pr-size-labeler@v1
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          xs_label: "size/XS"
+          xs_max_size: 10
+          s_label: "size/S"
+          s_max_size: 50
+          m_label: "size/M"
+          m_max_size: 200
+          l_label: "size/L"
+          l_max_size: 500
+          xl_label: "size/XL"
+          xl_max_size: 1000
+          fail_if_xl: false
+          message_if_xl: |
+            ⚠️ **Large PR detected!** This PR has more than 1000 changed lines.
+
+            Consider breaking it into smaller, focused PRs for easier review.
+
+            ⚠️ **طلب دمج كبير!** يحتوي هذا الطلب على أكثر من 1000 سطر.
+            يُنصح بتقسيمه إلى طلبات أصغر لتسهيل المراجعة.
+          files_to_ignore: |
+            package-lock.json
+            pubspec.lock
+            *.generated.dart
+            *.g.dart
+            *.freezed.dart
+            **/*.snap
+            docs/**
+            **/*.md

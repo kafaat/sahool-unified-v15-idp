@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:crypto/crypto.dart';
-import 'dart:convert';
 import '../utils/app_logger.dart';
 
 /// SSL Certificate Pinning Service
@@ -317,13 +316,11 @@ class CertificatePinningService {
   void configureDio(Dio dio) {
     // In debug mode, optionally bypass pinning for development
     if (kDebugMode && allowDebugBypass) {
-      if (kDebugMode) {
-        AppLogger.w('Certificate pinning bypassed in debug mode',
-            tag: 'CertificatePinning');
-        AppLogger.w(
-            'Set allowDebugBypass=false to test pinning in debug builds',
-            tag: 'CertificatePinning');
-      }
+      AppLogger.w('Certificate pinning bypassed in debug mode',
+          tag: 'CertificatePinning');
+      AppLogger.w(
+          'Set allowDebugBypass=false to test pinning in debug builds',
+          tag: 'CertificatePinning');
       return;
     }
 
@@ -347,7 +344,7 @@ class CertificatePinningService {
                 AppLogger.e('Expected pins', tag: 'CertificatePinning', data: {
                   'pins': _getPinsForHost(host)
                       .map((p) => p.value.substring(0, 16))
-                      .join(", ")
+                      .join(', ')
                 });
               }
             }
@@ -363,7 +360,7 @@ class CertificatePinningService {
               tag: 'CertificatePinning');
           AppLogger.i('Configured domains',
               tag: 'CertificatePinning',
-              data: {'domains': getConfiguredDomains().join(", ")});
+              data: {'domains': getConfiguredDomains().join(', ')});
         }
       } else {
         if (kDebugMode) {
@@ -477,13 +474,20 @@ class CertificatePinningService {
   }
 
   /// Match public key
+  ///
+  /// Note: Dart's X509Certificate API does not expose the raw public key
+  /// separately from the full certificate DER encoding. As a result, this
+  /// method falls back to comparing the SHA256 hash of the full DER bytes,
+  /// which is equivalent to [_matchSha256]. For true SPKI/public-key
+  /// pinning, a platform channel to native code would be required.
   bool _matchPublicKey(X509Certificate cert, String expectedPublicKey) {
-    // Extract public key from certificate DER
-    final publicKeyBytes = cert.der;
-    final publicKeyHash = sha256.convert(publicKeyBytes);
-    final publicKeyFingerprint = publicKeyHash.toString();
+    // Dart's X509Certificate does not expose the public key separately.
+    // Hashing cert.der gives the full certificate hash, same as _matchSha256.
+    // TODO: Implement native platform channel for true SPKI pinning.
+    final certHash = sha256.convert(cert.der);
+    final certFingerprint = certHash.toString();
 
-    return publicKeyFingerprint.toLowerCase() ==
+    return certFingerprint.toLowerCase() ==
         expectedPublicKey.toLowerCase();
   }
 
@@ -655,7 +659,7 @@ Certificate Info:
             tag: 'CertificatePinning');
         AppLogger.i('Configured domains',
             tag: 'CertificatePinning',
-            data: {'domains': getConfiguredDomains().join(", ")});
+            data: {'domains': getConfiguredDomains().join(', ')});
         for (final domain in getConfiguredDomains()) {
           final pins = _certificatePins[domain]!;
           AppLogger.d('Domain pins',

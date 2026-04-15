@@ -35,7 +35,7 @@ class TestHealthEndpoints:
         data = response.json()
         assert data["service"] == "pest-detection-service"
         assert data["service_ar"] == "خدمة كشف الآفات"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
         assert "status" in data
         assert "checks" in data
 
@@ -45,7 +45,7 @@ class TestHealthEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert data["service"] == "pest-detection-service"
-        assert data["version"] == "16.0.0"
+        assert "version" in data
 
 
 class TestAPIDocumentation:

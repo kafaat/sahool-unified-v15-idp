@@ -5,6 +5,7 @@ Coverage: Push notification sending, topics, multicast, error handling
 """
 
 import json
+import os
 import sys
 from unittest.mock import MagicMock, call, patch
 
@@ -15,12 +16,12 @@ try:
     import firebase_admin  # noqa: F401
 
     firebase_admin_available = True
-except ImportError:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     firebase_admin_available = False
 
-pytestmark = pytest.mark.skipif(
-    not firebase_admin_available, reason="firebase_admin not installed"
-)
+pytestmark = pytest.mark.skipif(not firebase_admin_available, reason="firebase_admin not installed")
 
 
 @pytest.fixture
@@ -55,7 +56,12 @@ class TestFirebaseClientInitialization:
         creds_file = tmp_path / "firebase-creds.json"
         creds_file.write_text(json.dumps(mock_firebase_credentials))
 
-        with patch("firebase_admin.initialize_app") as mock_init:
+        # Also mock credentials.Certificate so the invalid test private key is not parsed
+        with (
+            patch("firebase_admin.credentials.Certificate") as mock_cert,
+            patch("firebase_admin.initialize_app") as mock_init,
+        ):
+            mock_cert.return_value = MagicMock()
             result = firebase_client.initialize(credentials_path=str(creds_file))
 
             assert result is True
@@ -64,7 +70,12 @@ class TestFirebaseClientInitialization:
 
     def test_initialize_with_credentials_dict(self, firebase_client, mock_firebase_credentials):
         """Test initialization with credentials dictionary"""
-        with patch("firebase_admin.initialize_app"):
+        # Also mock credentials.Certificate so the invalid test private key is not parsed
+        with (
+            patch("firebase_admin.credentials.Certificate") as mock_cert,
+            patch("firebase_admin.initialize_app"),
+        ):
+            mock_cert.return_value = MagicMock()
             result = firebase_client.initialize(credentials_dict=mock_firebase_credentials)
 
             assert result is True
@@ -72,10 +83,13 @@ class TestFirebaseClientInitialization:
 
     def test_initialize_from_environment(self, firebase_client, mock_firebase_credentials):
         """Test initialization from environment variables"""
+        # Also mock credentials.Certificate so the invalid test private key is not parsed
         with (
             patch.dict("os.environ", {"FIREBASE_CREDENTIALS_JSON": json.dumps(mock_firebase_credentials)}),
+            patch("firebase_admin.credentials.Certificate") as mock_cert,
             patch("firebase_admin.initialize_app"),
         ):
+            mock_cert.return_value = MagicMock()
             result = firebase_client.initialize()
 
             assert result is True
@@ -271,7 +285,7 @@ class TestMulticastNotifications:
 
         tokens = ["token-1", "token-2", "token-3"]
 
-        with patch("firebase_admin.messaging.send_multicast", return_value=mock_response):
+        with patch("firebase_admin.messaging.send_each_for_multicast", return_value=mock_response):
             result = firebase_client.send_multicast(
                 tokens=tokens,
                 title="Broadcast Alert",
@@ -299,7 +313,7 @@ class TestMulticastNotifications:
 
         tokens = ["token-1", "invalid-token", "token-3"]
 
-        with patch("firebase_admin.messaging.send_multicast", return_value=mock_response):
+        with patch("firebase_admin.messaging.send_each_for_multicast", return_value=mock_response):
             result = firebase_client.send_multicast(tokens=tokens, title="Test", body="Test")
 
             assert result["success_count"] == 2

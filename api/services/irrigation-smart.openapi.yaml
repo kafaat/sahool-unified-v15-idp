@@ -1,0 +1,892 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Irrigation Smart API
+  version: "4.12.0"
+  description: "Bilingual EN+AR — Smart irrigation scheduling, ET0 calculation (Penman-Monteith + Hargreaves), water balance analysis, pivot control, and efficiency tracking."
+  contact:
+    name: SAHOOL Developer Relations
+    email: developer@sahool.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://sahool.com/legal/terms
+  x-service-name: irrigation-smart
+  x-service-port: 8094
+  x-contract-version: "4.12.0"
+
+servers:
+  - url: https://api.sahool.com
+    description: Production
+  - url: https://sandbox.sahool.app
+    description: Sandbox
+  - url: http://localhost:8000
+    description: Local development
+
+tags:
+  - name: Irrigation
+    description: "Smart irrigation scheduling, water balance, ET0, pivot control, and efficiency."
+  - name: Health
+    description: Service health and readiness probes.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/irrigation/fields/{fieldId}/recommendation:
+    get:
+      operationId: getFieldIrrigationRecommendation
+      summary: Get irrigation recommendation for a field
+      description: "Returns a real-time irrigation recommendation for the given field, incorporating current ET0, crop coefficient (Kc), soil moisture deficit, recent rainfall, and forecast."
+      tags: [Irrigation]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+      responses:
+        "200":
+          description: Irrigation recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IrrigationRecommendationResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/calculate:
+    post:
+      operationId: calculateIrrigation
+      summary: Calculate irrigation volume and duration
+      description: "Calculates recommended irrigation volume (liters) and duration (minutes) given crop, stage, area, soil type, and method."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IrrigationCalcRequest"
+      responses:
+        "200":
+          description: Calculation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IrrigationCalcResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/et0:
+    post:
+      operationId: calculateEt0
+      summary: Compute reference evapotranspiration (ET0)
+      description: "Computes ET0 using FAO-56 Penman-Monteith (preferred) or Hargreaves fallback when limited inputs are available."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Et0Request"
+      responses:
+        "200":
+          description: ET0 result (mm/day)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Et0Response"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "429": { $ref: "#/components/responses/RateLimited" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/water-balance:
+    post:
+      operationId: computeWaterBalance
+      summary: Compute daily water balance for a field
+      description: "Returns daily water balance entries for the field over the requested number of days, including rainfall, ETc, irrigation, soil moisture percent, and deficit."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WaterBalanceRequest"
+      responses:
+        "200":
+          description: Water balance results
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WaterBalanceResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/sensor-reading:
+    post:
+      operationId: submitSoilSensorReading
+      summary: Submit soil moisture sensor reading
+      description: "Ingests a soil moisture sensor reading from the field (for farmers with soil-moisture probes). Triggers recalculation of soil moisture deficit."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SoilSensorReading"
+      responses:
+        "202":
+          description: Accepted for processing
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean }
+                  ingestedAt: { type: string, format: date-time }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/efficiency:
+    get:
+      operationId: getIrrigationEfficiency
+      summary: Get irrigation efficiency for a field
+      description: "Returns irrigation efficiency (percentage), water used (m3), crop yield, benchmark comparison, and recommendations for the given field and period."
+      tags: [Irrigation]
+      parameters:
+        - in: query
+          name: fieldId
+          required: true
+          schema: { type: string, format: uuid }
+        - in: query
+          name: period
+          required: true
+          description: "Period identifier (e.g., 2026-Q1, season-2026-winter, last-30d)."
+          schema: { type: string }
+      responses:
+        "200":
+          description: Efficiency report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EfficiencyResponse"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/schedule:
+    post:
+      operationId: generateIrrigationSchedule
+      summary: Generate an irrigation schedule
+      description: "Generates an irrigation schedule for the entire crop cycle based on sowing date, crop Kc curve, and irrigation method."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IrrigationScheduleCreate"
+      responses:
+        "201":
+          description: Generated schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IrrigationSchedule"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/schedules:
+    get:
+      operationId: listIrrigationSchedules
+      summary: List irrigation schedules
+      description: "Lists irrigation schedules, optionally filtered by field or status."
+      tags: [Irrigation]
+      parameters:
+        - in: query
+          name: fieldId
+          required: false
+          schema: { type: [string, "null"], format: uuid }
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: [string, "null"]
+            enum: [draft, active, completed, cancelled, null]
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total, limit, offset]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/IrrigationSchedule" }
+                  total: { type: integer }
+                  limit: { type: integer }
+                  offset: { type: integer }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "500": { $ref: "#/components/responses/ServerError" }
+    post:
+      operationId: createIrrigationSchedule
+      summary: Create an irrigation schedule
+      description: "Creates and persists a new irrigation schedule from the provided inputs."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IrrigationScheduleCreate"
+      responses:
+        "201":
+          description: Created schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IrrigationSchedule"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /api/v1/irrigation/schedules/{scheduleId}:
+    parameters:
+      - $ref: "#/components/parameters/ScheduleIdPath"
+    get:
+      operationId: getIrrigationSchedule
+      summary: Get irrigation schedule by id
+      tags: [Irrigation]
+      responses:
+        "200":
+          description: Schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IrrigationSchedule"
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: updateIrrigationSchedule
+      summary: Update an irrigation schedule
+      description: "Partially updates schedule fields such as status or stages."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [draft, active, completed, cancelled]
+                stages:
+                  type: array
+                  items: { $ref: "#/components/schemas/ScheduleStage" }
+      responses:
+        "200":
+          description: Updated schedule
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IrrigationSchedule"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteIrrigationSchedule
+      summary: Delete (cancel) an irrigation schedule
+      tags: [Irrigation]
+      responses:
+        "204":
+          description: Deleted
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/irrigation/history/{fieldId}:
+    get:
+      operationId: getIrrigationHistory
+      summary: Get irrigation history for a field
+      description: "Returns historical irrigation events for the field within the given date range."
+      tags: [Irrigation]
+      parameters:
+        - $ref: "#/components/parameters/FieldIdPath"
+        - in: query
+          name: startDate
+          required: true
+          schema: { type: string, format: date }
+        - in: query
+          name: endDate
+          required: true
+          schema: { type: string, format: date }
+      responses:
+        "200":
+          description: History events
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [fieldId, events]
+                properties:
+                  fieldId: { type: string, format: uuid }
+                  events:
+                    type: array
+                    items:
+                      type: object
+                      required: [date, amountMm, method]
+                      properties:
+                        date: { type: string, format: date }
+                        amountMm: { type: number, format: float }
+                        durationMin: { type: [number, "null"] }
+                        method: { type: string }
+                        source:
+                          type: string
+                          enum: [manual, scheduled, auto, sensor-triggered]
+                        notes: { type: [string, "null"] }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /api/v1/irrigation/recommendations:
+    get:
+      operationId: listBulkRecommendations
+      summary: List irrigation recommendations across fields (bulk)
+      description: "Returns recommendations for all fields within the calling user's tenant, or a specified tenant for privileged callers."
+      tags: [Irrigation]
+      parameters:
+        - in: query
+          name: tenantId
+          required: false
+          schema: { type: [string, "null"], format: uuid }
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+      responses:
+        "200":
+          description: Bulk recommendations
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, total]
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/IrrigationRecommendationResponse" }
+                  total: { type: integer }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+
+  /api/v1/irrigation/crops:
+    get:
+      operationId: listIrrigationCrops
+      summary: List crops with Kc curves and rooting depth
+      description: "Returns the catalog of supported crops with FAO Kc curves and typical rooting depth."
+      tags: [Irrigation]
+      responses:
+        "200":
+          description: Crop catalog
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/IrrigationCropCatalog" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/irrigation/methods:
+    get:
+      operationId: listIrrigationMethods
+      summary: List supported irrigation methods
+      description: "Returns metadata on drip, sprinkler, surface, pivot, and micro-sprinkler methods, including efficiency and suitability."
+      tags: [Irrigation]
+      responses:
+        "200":
+          description: Methods list
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/IrrigationMethodInfo" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+
+  /api/v1/irrigation/pivot/control:
+    post:
+      operationId: controlCenterPivot
+      summary: Control a center-pivot irrigation system
+      description: "Sends a control command to a center-pivot irrigation system (start, stop, set position in degrees, or set rate in mm)."
+      tags: [Irrigation]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PivotCommand"
+      responses:
+        "200":
+          description: Pivot status after command
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PivotStatusResponse"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "500": { $ref: "#/components/responses/ServerError" }
+
+  /healthz:
+    get:
+      operationId: healthz
+      summary: Liveness probe
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Live
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+  /readyz:
+    get:
+      operationId: readyz
+      summary: Readiness probe
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Ready
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+        "503":
+          description: Not ready
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+  /health:
+    get:
+      operationId: health
+      summary: Combined health status
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Health status
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    FieldIdPath:
+      in: path
+      name: fieldId
+      required: true
+      schema: { type: string, format: uuid }
+    ScheduleIdPath:
+      in: path
+      name: scheduleId
+      required: true
+      schema: { type: string, format: uuid }
+    Limit:
+      in: query
+      name: limit
+      required: false
+      schema: { type: integer, minimum: 1, maximum: 200, default: 50 }
+    Offset:
+      in: query
+      name: offset
+      required: false
+      schema: { type: integer, minimum: 0, default: 0 }
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    Conflict:
+      description: Conflict
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    RateLimited:
+      description: "Too many requests (limits: 60/min, 2000/hour)"
+      headers:
+        X-RateLimit-Limit:
+          schema: { type: integer }
+        X-RateLimit-Remaining:
+          schema: { type: integer }
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+    ServerError:
+      description: Server error
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/ApiError" }
+
+  schemas:
+    ApiError:
+      type: object
+      required: [success, error, errorCode]
+      properties:
+        success:
+          type: boolean
+          enum: [false]
+        error: { type: string }
+        errorAr: { type: [string, "null"] }
+        errorCode: { type: string }
+        requestId: { type: [string, "null"] }
+
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, error]
+        service: { type: string }
+        version: { type: string }
+        database: { type: [boolean, "null"] }
+        nats: { type: [boolean, "null"] }
+        uptime: { type: [number, "null"] }
+
+    Urgency:
+      type: string
+      enum: [none, low, medium, high]
+
+    IrrigationRecommendationResponse:
+      type: object
+      required:
+        - fieldId
+        - recommendedAmountMm
+        - recommendedDurationMin
+        - urgency
+        - reasoning
+        - et0
+        - etc
+        - soilMoistureDeficit
+        - confidence
+      properties:
+        fieldId: { type: string, format: uuid }
+        recommendedAmountMm:
+          type: number
+          format: float
+          minimum: 0
+          description: Recommended gross application in millimeters.
+        recommendedDurationMin:
+          type: number
+          format: float
+          minimum: 0
+        urgency: { $ref: "#/components/schemas/Urgency" }
+        reasoning: { type: string }
+        reasoningAr: { type: [string, "null"] }
+        et0:
+          type: number
+          format: float
+          description: Reference evapotranspiration (mm/day).
+        etc:
+          type: number
+          format: float
+          description: "Crop evapotranspiration, ET0 * Kc (mm/day)."
+        soilMoistureDeficit:
+          type: number
+          format: float
+        nextIrrigationDate:
+          type: [string, "null"]
+          format: date
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+
+    IrrigationCalcRequest:
+      type: object
+      required: [cropType, growthStage, plantedArea, soilType, irrigationMethod]
+      properties:
+        fieldId: { type: [string, "null"], format: uuid }
+        cropType: { type: string }
+        growthStage:
+          type: string
+          enum: [initial, development, mid-season, late-season, harvest]
+        plantedArea:
+          type: number
+          format: float
+          minimum: 0
+          description: Area in hectares.
+        soilType:
+          type: string
+          enum: [sandy, loamy, clay, silty, peaty, saline]
+        irrigationMethod:
+          type: string
+          enum: [drip, sprinkler, surface, pivot, micro-sprinkler]
+        recentRainfall:
+          type: [number, "null"]
+          format: float
+          description: Rainfall (mm) within the last 72h.
+
+    IrrigationCalcResponse:
+      type: object
+      required: [recommendedVolumeLiters, recommendedDurationMin, method, notes]
+      properties:
+        recommendedVolumeLiters: { type: number, format: float, minimum: 0 }
+        recommendedDurationMin: { type: number, format: float, minimum: 0 }
+        method: { type: string }
+        notes: { type: string }
+        notesAr: { type: [string, "null"] }
+
+    Et0Request:
+      type: object
+      required: [tempMaxC, tempMinC, humidityPercent, windSpeedMs, solarRadiationMjM2, lat]
+      properties:
+        tempMaxC: { type: number, format: float }
+        tempMinC: { type: number, format: float }
+        humidityPercent:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+        windSpeedMs: { type: number, format: float, minimum: 0 }
+        solarRadiationMjM2:
+          type: number
+          format: float
+          minimum: 0
+          description: "Solar radiation (MJ/m^2/day)."
+        elevation: { type: [number, "null"], format: float }
+        lat:
+          type: number
+          format: float
+          minimum: -90
+          maximum: 90
+
+    Et0Response:
+      type: object
+      required: [et0MmPerDay, method, inputs, computedAt]
+      properties:
+        et0MmPerDay:
+          type: number
+          format: float
+          minimum: 0
+        method:
+          type: string
+          enum: [penman-monteith, hargreaves]
+        inputs:
+          type: object
+          additionalProperties: true
+        computedAt:
+          type: string
+          format: date-time
+
+    WaterBalanceRequest:
+      type: object
+      required: [fieldId, days]
+      properties:
+        fieldId: { type: string, format: uuid }
+        days:
+          type: integer
+          minimum: 1
+          maximum: 365
+
+    WaterBalanceDay:
+      type: object
+      required: [date, rainfallMm, etcMm, irrigationMm, soilMoisturePct, deficit]
+      properties:
+        date: { type: string, format: date }
+        rainfallMm: { type: number, format: float }
+        etcMm: { type: number, format: float }
+        irrigationMm: { type: number, format: float }
+        soilMoisturePct: { type: number, format: float, minimum: 0, maximum: 100 }
+        deficit: { type: number, format: float }
+
+    WaterBalanceResponse:
+      type: object
+      required: [fieldId, days]
+      properties:
+        fieldId: { type: string, format: uuid }
+        days:
+          type: array
+          items: { $ref: "#/components/schemas/WaterBalanceDay" }
+
+    SoilSensorReading:
+      type: object
+      required: [fieldId, sensorId, timestamp, depthCm, moisturePct]
+      properties:
+        fieldId: { type: string, format: uuid }
+        sensorId: { type: string }
+        timestamp: { type: string, format: date-time }
+        depthCm: { type: number, format: float, minimum: 0 }
+        moisturePct: { type: number, format: float, minimum: 0, maximum: 100 }
+        temperatureC: { type: [number, "null"], format: float }
+        salinityDsm:
+          type: [number, "null"]
+          format: float
+          description: "Electrical conductivity (dS/m)."
+
+    ScheduleStage:
+      type: object
+      required: [stage, daysAfterSowing, kc, irrigationMm, frequency]
+      properties:
+        stage:
+          type: string
+          enum: [initial, development, mid-season, late-season]
+        daysAfterSowing: { type: integer, minimum: 0 }
+        kc: { type: number, format: float, minimum: 0 }
+        irrigationMm: { type: number, format: float, minimum: 0 }
+        frequency:
+          type: string
+          description: "Human-readable frequency (e.g., every 5 days)."
+
+    IrrigationScheduleCreate:
+      type: object
+      required: [fieldId, crop, sowingDate, irrigationMethod]
+      properties:
+        fieldId: { type: string, format: uuid }
+        crop: { type: string }
+        sowingDate: { type: string, format: date }
+        irrigationMethod:
+          type: string
+          enum: [drip, sprinkler, surface, pivot, micro-sprinkler]
+        customKcCurve:
+          type: [array, "null"]
+          items: { type: number, format: float, minimum: 0 }
+
+    IrrigationSchedule:
+      type: object
+      required: [id, fieldId, crop, stages, totalCycles, status, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        fieldId: { type: string, format: uuid }
+        crop: { type: string }
+        cropAr: { type: [string, "null"] }
+        stages:
+          type: array
+          items: { $ref: "#/components/schemas/ScheduleStage" }
+        totalCycles: { type: integer, minimum: 0 }
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled]
+        createdAt: { type: string, format: date-time }
+
+    EfficiencyResponse:
+      type: object
+      required: [fieldId, period, efficiency, waterUsedM3, benchmark, recommendations]
+      properties:
+        fieldId: { type: string, format: uuid }
+        period: { type: string }
+        efficiency:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+        waterUsedM3: { type: number, format: float, minimum: 0 }
+        cropYield: { type: [number, "null"], format: float }
+        benchmark: { type: number, format: float }
+        recommendations:
+          type: array
+          items: { type: string }
+
+    KcCurvePoint:
+      type: object
+      required: [stage, kc]
+      properties:
+        stage:
+          type: string
+          enum: [initial, development, mid-season, late-season]
+        kc: { type: number, format: float, minimum: 0 }
+
+    IrrigationCropCatalog:
+      type: object
+      required: [id, name, rootingDepthCm, kcCurve]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        rootingDepthCm: { type: number, format: float, minimum: 0 }
+        kcCurve:
+          type: array
+          items: { $ref: "#/components/schemas/KcCurvePoint" }
+
+    IrrigationMethodInfo:
+      type: object
+      required: [id, name, efficiencyPct, suitableFor]
+      properties:
+        id:
+          type: string
+          enum: [drip, sprinkler, surface, pivot, micro-sprinkler]
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        efficiencyPct:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 100
+        suitableFor:
+          type: array
+          items: { type: string }
+        costPerHa: { type: [number, "null"], format: float }
+
+    PivotCommand:
+      type: object
+      required: [pivotId, action]
+      properties:
+        pivotId: { type: string }
+        action:
+          type: string
+          enum: [start, stop, set-position, set-rate]
+        targetDegrees:
+          type: [number, "null"]
+          format: float
+          minimum: 0
+          maximum: 360
+        targetRateMm: { type: [number, "null"], format: float, minimum: 0 }
+
+    PivotStatusResponse:
+      type: object
+      required: [pivotId, status, positionDegrees, currentRateMm, lastUpdate]
+      properties:
+        pivotId: { type: string }
+        status:
+          type: string
+          enum: [running, stopped, error]
+        positionDegrees:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 360
+        currentRateMm: { type: number, format: float, minimum: 0 }
+        lastUpdate: { type: string, format: date-time }

@@ -19,6 +19,6 @@ export {
   type FAQItem,
   type ArticleSchema,
   type ProductSchema,
-} from "./JsonLd";
+} from './JsonLd';
 
-export { MetaTags, type MetaTagsProps } from "./MetaTags";
+export { MetaTags, type MetaTagsProps } from './MetaTags';

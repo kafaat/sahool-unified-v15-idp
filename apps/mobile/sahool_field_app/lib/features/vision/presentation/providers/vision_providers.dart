@@ -1,8 +1,9 @@
+library;
+
 /// Vision Feature Providers
 /// موفرو ميزة الرؤية
 ///
 /// Riverpod providers for vision/detection state management.
-library;
 
 import 'dart:typed_data';
 

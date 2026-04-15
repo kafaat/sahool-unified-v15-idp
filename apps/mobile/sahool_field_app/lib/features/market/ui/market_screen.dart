@@ -1,96 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/network/api_result.dart';
+import '../data/market_models.dart';
+import '../data/market_repository.dart';
 
-/// شاشة السوق الزراعي - تصميم احترافي
-/// Professional Agricultural Marketplace Screen
-class MarketScreen extends StatefulWidget {
+/// شاشة السوق الزراعي - مربوطة بـ marketplace-service API
+/// Agricultural Marketplace Screen - Connected to marketplace-service
+class MarketScreen extends ConsumerStatefulWidget {
   const MarketScreen({super.key});
 
   @override
-  State<MarketScreen> createState() => _MarketScreenState();
+  ConsumerState<MarketScreen> createState() => _MarketScreenState();
 }
 
-class _MarketScreenState extends State<MarketScreen> {
-  String _selectedCategory = 'all';
+class _MarketScreenState extends ConsumerState<MarketScreen> {
+  String? _selectedCategory;
   final _searchController = TextEditingController();
-  int _cartItemsCount = 3;
 
   final List<Map<String, dynamic>> _categories = [
-    {'id': 'all', 'label': 'الكل', 'icon': Icons.apps},
-    {'id': 'seeds', 'label': 'بذور ومحاصيل', 'icon': Icons.grass},
-    {'id': 'fertilizers', 'label': 'أسمدة', 'icon': Icons.science},
-    {'id': 'equipment', 'label': 'معدات ري', 'icon': Icons.water_drop},
-    {'id': 'tools', 'label': 'أدوات زراعية', 'icon': Icons.construction},
+    {'id': null, 'label': 'الكل', 'icon': Icons.apps},
+    {'id': 'GRAINS', 'label': 'حبوب', 'icon': Icons.grain},
+    {'id': 'VEGETABLES', 'label': 'خضروات', 'icon': Icons.eco},
+    {'id': 'FRUITS', 'label': 'فواكه', 'icon': Icons.apple},
+    {'id': 'SUPPLIES', 'label': 'مستلزمات', 'icon': Icons.science},
+    {'id': 'EQUIPMENT', 'label': 'معدات', 'icon': Icons.construction},
   ];
-
-  final List<Map<String, dynamic>> _products = [
-    {
-      'id': '1',
-      'name': 'بذور قمح يمني',
-      'seller': 'مؤسسة الحبوب',
-      'price': 250,
-      'unit': 'كيلو',
-      'rating': 4.8,
-      'image': null,
-      'category': 'seeds',
-    },
-    {
-      'id': '2',
-      'name': 'سماد يوريا 46%',
-      'seller': 'شركة الأسمدة',
-      'price': 180,
-      'unit': 'كيس 50كغ',
-      'rating': 4.5,
-      'image': null,
-      'category': 'fertilizers',
-    },
-    {
-      'id': '3',
-      'name': 'نظام ري بالتنقيط',
-      'seller': 'تقنيات الري',
-      'price': 1500,
-      'unit': 'مجموعة',
-      'rating': 4.9,
-      'image': null,
-      'category': 'equipment',
-    },
-    {
-      'id': '4',
-      'name': 'بذور طماطم هجين',
-      'seller': 'البذور الذهبية',
-      'price': 85,
-      'unit': 'علبة',
-      'rating': 4.7,
-      'image': null,
-      'category': 'seeds',
-    },
-    {
-      'id': '5',
-      'name': 'مبيد حشري طبيعي',
-      'seller': 'الحماية الزراعية',
-      'price': 120,
-      'unit': 'لتر',
-      'rating': 4.3,
-      'image': null,
-      'category': 'fertilizers',
-    },
-    {
-      'id': '6',
-      'name': 'مضخة مياه شمسية',
-      'seller': 'الطاقة الخضراء',
-      'price': 3500,
-      'unit': 'وحدة',
-      'rating': 4.6,
-      'image': null,
-      'category': 'equipment',
-    },
-  ];
-
-  List<Map<String, dynamic>> get _filteredProducts {
-    if (_selectedCategory == 'all') return _products;
-    return _products.where((p) => p['category'] == _selectedCategory).toList();
-  }
 
   @override
   void dispose() {
@@ -100,109 +36,156 @@ class _MarketScreenState extends State<MarketScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final productsAsync = ref.watch(productsFutureProvider(_selectedCategory));
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: Text(l10n.sahoolMarket),
+        title: const Text('سوق سهول'),
         backgroundColor: SahoolColors.forestGreen,
         foregroundColor: Colors.white,
         elevation: 0,
         actions: [
-          // سلة التسوق
-          Stack(
-            children: [
-              IconButton(
-                onPressed: () {
-                  // الانتقال لسلة التسوق
-                },
-                icon: const Icon(Icons.shopping_cart_outlined),
-              ),
-              if (_cartItemsCount > 0)
-                Positioned(
-                  right: 8,
-                  top: 8,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: SahoolColors.harvestGold,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Text(
-                      '$_cartItemsCount',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-            ],
+          IconButton(
+            onPressed: () {
+              // Navigate to cart
+            },
+            icon: const Icon(Icons.shopping_cart_outlined),
           ),
         ],
       ),
       body: Column(
         children: [
-          // 1. قسم البحث والتصنيفات
           _buildSearchAndCategories(),
-
-          // 2. شبكة المنتجات
           Expanded(
-            child: GridView.builder(
-              padding: const EdgeInsets.all(16),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.72,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+            child: productsAsync.when(
+              data: (result) => _buildProductsResult(result),
+              loading: () => const Center(
+                child: CircularProgressIndicator(
+                  color: SahoolColors.forestGreen,
+                ),
               ),
-              itemCount: _filteredProducts.length,
-              itemBuilder: (context, index) {
-                return _ProductCard(
-                  product: _filteredProducts[index],
-                  onAddToCart: () {
-                    setState(() => _cartItemsCount++);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'تمت إضافة ${_filteredProducts[index]['name']} للسلة',
-                        ),
-                        backgroundColor: SahoolColors.forestGreen,
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                );
-              },
+              error: (error, _) => _buildErrorState(error.toString()),
             ),
           ),
         ],
       ),
-      // زر بيع المحصول
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          // الانتقال لصفحة إضافة منتج
+          // Navigate to sell harvest
         },
         backgroundColor: SahoolColors.harvestGold,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: Text(
-          l10n.sellMyCrop,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+        label: const Text(
+          'بيع محصولي',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
+  Widget _buildProductsResult(ApiResult<List<ProductModel>> result) {
+    return result.when(
+      success: (products) {
+        if (products.isEmpty) {
+          return _buildEmptyState();
+        }
+        return RefreshIndicator(
+          onRefresh: () async {
+            ref.invalidate(productsFutureProvider(_selectedCategory));
+          },
+          child: GridView.builder(
+            padding: const EdgeInsets.all(16),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 0.72,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            itemCount: products.length,
+            itemBuilder: (context, index) {
+              return _ProductCard(
+                product: products[index],
+                onAddToCart: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        'تمت إضافة ${products[index].nameAr} للسلة',
+                      ),
+                      backgroundColor: SahoolColors.forestGreen,
+                      duration: const Duration(seconds: 2),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        );
+      },
+      failure: (message, statusCode) => _buildErrorState(message),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.storefront_outlined, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            'لا توجد منتجات حالياً',
+            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'جرّب تغيير التصنيف أو البحث',
+            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.cloud_off, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(
+            message,
+            style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: () {
+              ref.invalidate(productsFutureProvider(_selectedCategory));
+            },
+            icon: const Icon(Icons.refresh),
+            label: const Text('إعادة المحاولة'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: SahoolColors.forestGreen,
+              foregroundColor: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSearchAndCategories() {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -210,16 +193,15 @@ class _MarketScreenState extends State<MarketScreen> {
       ),
       child: Column(
         children: [
-          // شريط البحث
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: l10n.searchProductsPlaceholder,
+              hintText: 'ابحث عن بذور، أسمدة، معدات...',
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               suffixIcon: IconButton(
                 icon: const Icon(Icons.tune, color: Colors.grey),
                 onPressed: () {
-                  // فتح خيارات التصفية
+                  // Open filter options
                 },
               ),
               border: OutlineInputBorder(
@@ -232,8 +214,6 @@ class _MarketScreenState extends State<MarketScreen> {
             ),
           ),
           const SizedBox(height: 16),
-
-          // التصنيفات
           SizedBox(
             height: 40,
             child: ListView.builder(
@@ -243,7 +223,7 @@ class _MarketScreenState extends State<MarketScreen> {
                 final cat = _categories[index];
                 final isSelected = _selectedCategory == cat['id'];
                 return Padding(
-                  padding: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsetsDirectional.only(end: 8),
                   child: FilterChip(
                     label: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -259,7 +239,9 @@ class _MarketScreenState extends State<MarketScreen> {
                     ),
                     selected: isSelected,
                     onSelected: (selected) {
-                      setState(() => _selectedCategory = cat['id'] as String);
+                      setState(
+                        () => _selectedCategory = cat['id'] as String?,
+                      );
                     },
                     selectedColor: SahoolColors.forestGreen,
                     checkmarkColor: Colors.white,
@@ -283,7 +265,7 @@ class _MarketScreenState extends State<MarketScreen> {
 
 /// بطاقة المنتج
 class _ProductCard extends StatelessWidget {
-  final Map<String, dynamic> product;
+  final ProductModel product;
   final VoidCallback onAddToCart;
 
   const _ProductCard({
@@ -293,13 +275,13 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -311,24 +293,52 @@ class _ProductCard extends StatelessWidget {
           // صورة المنتج
           Expanded(
             flex: 3,
-            child: Container(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(16),
                 ),
+                image: product.imageUrl != null
+                    ? DecorationImage(
+                        image: NetworkImage(product.imageUrl!),
+                        fit: BoxFit.cover,
+                      )
+                    : null,
               ),
               child: Stack(
                 children: [
-                  // صورة المنتج (placeholder)
-                  Center(
-                    child: Icon(
-                      Icons.image_outlined,
-                      size: 50,
-                      color: Colors.grey[400],
+                  if (product.imageUrl == null)
+                    Center(
+                      child: Icon(
+                        product.category.icon,
+                        size: 50,
+                        color: Colors.grey[400],
+                      ),
                     ),
-                  ),
-                  // شارة التقييم
+                  if (product.organic)
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Text(
+                          'عضوي',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
                   Positioned(
                     top: 8,
                     right: 8,
@@ -344,16 +354,16 @@ class _ProductCard extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(
-                            Icons.star,
+                          Icon(
+                            product.category.icon,
                             size: 14,
-                            color: SahoolColors.harvestGold,
+                            color: SahoolColors.forestGreen,
                           ),
                           const SizedBox(width: 2),
                           Text(
-                            '${product['rating']}',
+                            product.category.arabicName,
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 10,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -375,9 +385,8 @@ class _ProductCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // اسم المنتج
                   Text(
-                    product['name'] as String,
+                    product.nameAr,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,
@@ -385,16 +394,15 @@ class _ProductCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  // البائع
-                  Text(
-                    product['seller'] as String,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[600],
+                  if (product.sellerName != null)
+                    Text(
+                      product.sellerName!,
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey[600],
+                      ),
+                      maxLines: 1,
                     ),
-                    maxLines: 1,
-                  ),
-                  // السعر وزر الإضافة
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -402,34 +410,30 @@ class _ProductCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            "\$${product['price']}",
+                            product.formattedPrice,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 14,
                               color: SahoolColors.forestGreen,
-                            ),
-                          ),
-                          Text(
-                            "/${product['unit']}",
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey[500],
                             ),
                           ),
                         ],
                       ),
-                      // زر الإضافة للسلة
                       InkWell(
-                        onTap: onAddToCart,
+                        onTap: product.isAvailable ? onAddToCart : null,
                         borderRadius: BorderRadius.circular(8),
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: SahoolColors.harvestGold,
+                            color: product.isAvailable
+                                ? SahoolColors.harvestGold
+                                : Colors.grey[300],
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(
-                            Icons.add,
+                          child: Icon(
+                            product.isAvailable
+                                ? Icons.add
+                                : Icons.block,
                             size: 18,
                             color: Colors.white,
                           ),

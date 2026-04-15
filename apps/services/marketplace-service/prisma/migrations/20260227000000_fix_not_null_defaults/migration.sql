@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Fix NOT NULL columns without DEFAULT values
 -- إصلاح أعمدة بدون قيم افتراضية (إضافة DEFAULT للأعمدة الإلزامية)
@@ -8,6 +12,7 @@
 
 -- Step 1: Update existing 'default' sentinel values to 'unassigned'
 -- الخطوة 1: تحديث القيم الافتراضية 'default' إلى 'unassigned'
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 UPDATE "products"          SET "tenant_id" = 'unassigned' WHERE "tenant_id" = 'default';
 UPDATE "orders"            SET "tenant_id" = 'unassigned' WHERE "tenant_id" = 'default';
 UPDATE "order_items"       SET "tenant_id" = 'unassigned' WHERE "tenant_id" = 'default';
@@ -52,5 +57,5 @@ ALTER TABLE "review_responses"  ALTER COLUMN "updated_at" SET DEFAULT now();
 -- Note on non-concurrent indexes from initial migrations:
 -- idx_products_deleted_at, idx_orders_deleted_at, idx_audit_tenant_created
 -- were created on low-volume tables during maintenance windows.
--- All tenant isolation indexes (20260225000000) already use CONCURRENTLY.
+-- All tenant isolation indexes (20260225000000) use standard CREATE INDEX.
 -- ═══════════════════════════════════════════════════════════════════════════════

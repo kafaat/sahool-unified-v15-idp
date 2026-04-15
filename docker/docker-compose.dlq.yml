@@ -27,7 +27,12 @@ services:
       - ../requirements:/app/requirements:ro
     command: >
       sh -c "
-      pip install -q fastapi uvicorn nats-py pydantic aiohttp &&
+      pip install --no-cache-dir --timeout=300 --retries=5
+      -i https://mirrors.aliyun.com/pypi/simple/
+      --trusted-host mirrors.aliyun.com
+      fastapi uvicorn nats-py pydantic aiohttp ||
+      pip install --no-cache-dir --timeout=300 --retries=5
+      fastapi uvicorn nats-py pydantic aiohttp &&
       cd /app/shared/events &&
       uvicorn dlq_service:app --host 0.0.0.0 --port 8190 --reload
       "
@@ -84,7 +89,12 @@ services:
       - ../requirements:/app/requirements:ro
     command: >
       sh -c "
-      pip install -q nats-py pydantic aiohttp &&
+      pip install --no-cache-dir --timeout=300 --retries=5
+      -i https://mirrors.aliyun.com/pypi/simple/
+      --trusted-host mirrors.aliyun.com
+      nats-py pydantic aiohttp ||
+      pip install --no-cache-dir --timeout=300 --retries=5
+      nats-py pydantic aiohttp &&
       cd /app/shared/events &&
       python dlq_monitoring.py
       "

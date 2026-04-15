@@ -2,18 +2,17 @@
 /// محاكاة اختبار الحقول
 ///
 /// Contains mock implementations for field-related unit tests using mocktail
+library;
 
 import 'dart:async';
 import 'package:mocktail/mocktail.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:drift/drift.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 import 'package:sahool_field_app/core/http/api_client.dart';
 import 'package:sahool_field_app/core/storage/database.dart';
 import 'package:sahool_field_app/core/sync/network_status.dart';
 import 'package:sahool_field_app/features/field/data/remote/fields_api.dart';
-import 'package:sahool_field_app/features/field/data/repo/fields_repo.dart';
 import 'package:sahool_field_app/features/field/domain/entities/field.dart' as domain;
 
 // =============================================================================
@@ -64,6 +63,9 @@ Field createMockDbField({
   LatLng? centroid,
   double areaHectares = 5.0,
   String? status = 'active',
+  String? irrigationType,
+  DateTime? plantingDate,
+  String? notes,
   double? ndviCurrent,
   DateTime? ndviUpdatedAt,
   bool synced = true,
@@ -85,6 +87,9 @@ Field createMockDbField({
     centroid: centroid,
     areaHectares: areaHectares,
     status: status,
+    irrigationType: irrigationType,
+    plantingDate: plantingDate,
+    notes: notes,
     ndviCurrent: ndviCurrent,
     ndviUpdatedAt: ndviUpdatedAt,
     synced: synced,
@@ -163,6 +168,12 @@ class _TestField extends Fake implements Field {
   @override
   final String? status;
   @override
+  final String? irrigationType;
+  @override
+  final DateTime? plantingDate;
+  @override
+  final String? notes;
+  @override
   final double? ndviCurrent;
   @override
   final DateTime? ndviUpdatedAt;
@@ -190,6 +201,9 @@ class _TestField extends Fake implements Field {
     this.centroid,
     required this.areaHectares,
     this.status,
+    this.irrigationType,
+    this.plantingDate,
+    this.notes,
     this.ndviCurrent,
     this.ndviUpdatedAt,
     required this.synced,

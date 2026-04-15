@@ -3,10 +3,10 @@
  * خطاف بيانات الطقس
  */
 
-import { useQuery } from "@tanstack/react-query";
-import { dashboardApi, type DashboardData } from "../api";
+import { useQuery } from '@tanstack/react-query';
+import { dashboardApi, type DashboardData } from '../api';
 
-export type WeatherData = DashboardData["weather"];
+export type WeatherData = DashboardData['weather'];
 
 interface UseWeatherOptions {
   /** Enable/disable the query */
@@ -21,7 +21,7 @@ export function useWeather(options: UseWeatherOptions = {}) {
   const { enabled = true } = options;
 
   return useQuery({
-    queryKey: ["dashboard", "weather"],
+    queryKey: ['dashboard', 'weather'],
     queryFn: dashboardApi.getWeather,
     staleTime: 5 * 60 * 1000, // 5 minutes - weather doesn't change rapidly
     refetchInterval: 10 * 60 * 1000, // Refetch every 10 minutes

@@ -1,9 +1,11 @@
+library;
+
 /// Satellite Repository - مستودع الأقمار الصناعية
 /// Handles caching and data management for satellite features
-library;
 
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'dart:developer' as developer;
 import '../remote/satellite_api.dart';
 import '../models/ndvi_data.dart';
 import '../models/field_health.dart';
@@ -180,8 +182,8 @@ class SatelliteRepository {
   Future<WeatherSummary> getWeatherForecast(String fieldId,
       {bool forceRefresh = false}) async {
     final cacheKey = 'weather_forecast_$fieldId';
-    final weatherCacheDuration =
-        const Duration(hours: 3); // Weather updates more frequently
+    const weatherCacheDuration =
+        Duration(hours: 3); // Weather updates more frequently
 
     if (!forceRefresh) {
       final cached = _getCachedData<WeatherSummary>(
@@ -284,24 +286,39 @@ class SatelliteRepository {
     String fieldId, {
     bool forceRefresh = false,
   }) async {
-    try {
-      // Fetch all data in parallel
-      final results = await Future.wait([
-        getFieldHealth(fieldId, forceRefresh: forceRefresh),
-        getNdviAnalysis(fieldId, forceRefresh: forceRefresh),
-        getWeatherForecast(fieldId, forceRefresh: forceRefresh),
-        getPhenologyData(fieldId, forceRefresh: forceRefresh),
-      ]);
+    // Fetch all data in parallel - handle partial failures gracefully
+    final results = await Future.wait<dynamic>([
+      getFieldHealth(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        developer.log('getFieldHealth failed: $e', name: 'SatelliteRepo');
+        return null;
+      }),
+      getNdviAnalysis(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        developer.log('getNdviAnalysis failed: $e', name: 'SatelliteRepo');
+        return null;
+      }),
+      getWeatherForecast(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        developer.log('getWeatherForecast failed: $e', name: 'SatelliteRepo');
+        return null;
+      }),
+      getPhenologyData(fieldId, forceRefresh: forceRefresh).catchError((e) {
+        developer.log('getPhenologyData failed: $e', name: 'SatelliteRepo');
+        return null;
+      }),
+    ]);
 
-      return SatelliteDashboardData(
-        fieldHealth: results[0] as FieldHealth,
-        ndviAnalysis: results[1] as NdviAnalysis,
-        weatherSummary: results[2] as WeatherSummary,
-        phenologyData: results[3] as PhenologyData,
-      );
-    } catch (e) {
-      rethrow;
+    final fieldHealth = results[0] as FieldHealth?;
+    final ndviAnalysis = results[1] as NdviAnalysis?;
+
+    if (fieldHealth == null && ndviAnalysis == null) {
+      throw Exception('Failed to load essential satellite dashboard data');
     }
+
+    return SatelliteDashboardData(
+      fieldHealth: fieldHealth,
+      ndviAnalysis: ndviAnalysis,
+      weatherSummary: results[2] as WeatherSummary?,
+      phenologyData: results[3] as PhenologyData?,
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

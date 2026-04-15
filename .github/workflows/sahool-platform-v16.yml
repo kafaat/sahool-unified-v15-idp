@@ -1,0 +1,348 @@
+name: SAHOOL Platform v16 - CI/CD
+
+on:
+  push:
+    branches: [main, develop, "feature/**", "hotfix/**"]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.env.example'
+      - '.github/release-drafter.yml'
+      - 'LICENSE'
+      - '.gitignore'
+  pull_request:
+    branches: [main, develop]
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '.env.example'
+      - '.github/release-drafter.yml'
+      - 'LICENSE'
+      - '.gitignore'
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}
+
+# Restrict GITHUB_TOKEN to minimum permissions across all jobs
+permissions:
+  contents: read
+
+jobs:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 1: Code Quality & Security
+  # ═══════════════════════════════════════════════════════════════════════════
+  lint-and-security:
+    name: "\U0001F50D Lint & Security Scan"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install ruff bandit safety
+
+      - name: Ruff (Python linting)
+        run: ruff check apps/services/ packages/ shared/
+
+      - name: Bandit (Security scan)
+        run: |
+          # Run bandit; exit code 1 = findings exist (expected for LOW), other codes = real error
+          bandit -r apps/services/ packages/ shared/ -c pyproject.toml -f json -o bandit-report.json --severity-level medium; BANDIT_EXIT=$?
+          if [ "$BANDIT_EXIT" -gt 1 ]; then
+            echo "::error::Bandit encountered an execution error (exit code $BANDIT_EXIT)"
+            exit $BANDIT_EXIT
+          fi
+          # Verify report was generated
+          if [ ! -f bandit-report.json ]; then
+            echo "::error::bandit-report.json not generated"
+            exit 1
+          fi
+          # Fail only if MEDIUM+ issues exist
+          MEDIUM_COUNT=$(python3 -c "import json; d=json.load(open('bandit-report.json')); print(len([r for r in d.get('results',[]) if r['issue_severity'] != 'LOW']))")
+          echo "Bandit MEDIUM+ findings: $MEDIUM_COUNT"
+          if [ "$MEDIUM_COUNT" -gt 0 ]; then
+            echo "::error::Found $MEDIUM_COUNT MEDIUM+ severity Bandit findings"
+            exit 1
+          fi
+
+      - name: Safety (Dependency vulnerability check — informational)
+        run: |
+          safety check -r requirements/base.txt -o json --save-json safety-report.json || true
+          echo "::notice::Safety check is informational only — review safety-report.json for details"
+
+      - name: Upload security report
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: security-scan-results
+          path: |
+            bandit-report.json
+            safety-report.json
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 2: Build & Test
+  # ═══════════════════════════════════════════════════════════════════════════
+  build-and-test:
+    name: "\U0001F3D7\uFE0F Build & Test"
+    runs-on: ubuntu-latest
+    needs: lint-and-security
+    strategy:
+      fail-fast: false
+      matrix:
+        service:
+          - notification-service
+          - user-service
+          - field-management-service
+          - irrigation-smart
+          # ─────────────────────────────────────────────────────────────
+          # Heavy services excluded — matches the convention established
+          # in .github/workflows/container-tests.yml (line ~295):
+          #
+          #   "Heavy services - test locally (require GPU/large dependencies):
+          #    ai-advisor, yolo26-vision-service, terrain-core-service,
+          #    hydrology-service, leveling-optimizer-service,
+          #    edge-orchestrator-service"
+          #
+          # The ai-advisor image pulls sentence-transformers==5.3.0 which
+          # transitively installs torch + CUDA runtime (~4.5 GB), exceeding
+          # the disk budget of the default GitHub-hosted ubuntu-latest
+          # runner. The build reliably fails with a disk-exhaustion or
+          # pip-timeout error partway through the PyTorch download,
+          # blocking every unrelated PR. It was already removed from
+          # container-tests.yml for the same reason; this workflow was
+          # simply out of sync. Test ai-advisor locally with:
+          #
+          #   docker build -f apps/services/ai-advisor/Dockerfile .
+          #
+          # Revisit: re-enable if/when we move to a larger runner
+          # (ubuntu-latest-8gb or a self-hosted GPU runner) or refactor
+          # the service to delay model downloads until first request.
+          # - ai-advisor  # see comment above
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build ${{ matrix.service }}
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          file: ./apps/services/${{ matrix.service }}/Dockerfile
+          push: false
+          load: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1  # v0.35.0
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:${{ github.sha }}
+          format: "sarif"
+          output: "trivy-results.sarif"
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 3: Integration Tests (NATS Event Bus)
+  # ═══════════════════════════════════════════════════════════════════════════
+  integration-tests:
+    name: "\U0001F517 Integration Tests"
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    services:
+      nats:
+        image: nats:2.10-alpine
+        ports:
+          - 4222:4222
+          - 8222:8222
+        options: >-
+          --health-cmd "wget -q --spider http://localhost:8222/healthz || exit 1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: sahool_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install test dependencies
+        run: pip install -c constraints.txt -r requirements/testing.txt
+
+      - name: Run integration tests
+        env:
+          NATS_URL: nats://localhost:4222
+          DATABASE_URL: postgresql://test:test@localhost:5432/sahool_test
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: "5432"
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: sahool_test
+          REDIS_URL: redis://localhost:6379
+          ENVIRONMENT: test
+          JWT_SECRET_KEY: test-secret-key-for-integration-tests-32ch
+          JWT_ALGORITHM: HS256
+        run: python -m pytest tests/integration/ -v --junitxml=test-results.xml
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: integration-test-results
+          path: test-results.xml
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 4: Push to Registry (main branch only)
+  # ═══════════════════════════════════════════════════════════════════════════
+  push-images:
+    name: "\U0001F4E4 Push to Registry"
+    runs-on: ubuntu-latest
+    needs: [integration-tests, build-and-test]
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push all services
+        run: |
+          services=("notification-service" "user-service" "field-management-service" "ai-advisor" "irrigation-smart")
+          for svc in "${services[@]}"; do
+            docker buildx build \
+              --push \
+              --tag ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${svc}:${{ github.sha }} \
+              --tag ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${svc}:latest \
+              --file ./apps/services/${svc}/Dockerfile \
+              .
+          done
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 5: Deploy to Staging
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy-staging:
+    name: "\U0001F680 Deploy to Staging"
+    runs-on: ubuntu-latest
+    needs: push-images
+    environment: staging
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v5
+
+      - name: Setup Helm
+        uses: azure/setup-helm@v5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name sahool-staging
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install sahool-v16 ./helm/sahool \
+            --namespace sahool-staging \
+            --set global.environment=staging \
+            --wait --timeout 10m
+
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n sahool-staging
+          kubectl rollout status deployment/notification-service -n sahool-staging
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 6: Production Deployment (manual approval)
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy-production:
+    name: "\U0001F680 Deploy to Production"
+    runs-on: ubuntu-latest
+    needs: deploy-staging
+    environment: production
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to Production EKS
+        run: |
+          aws eks update-kubeconfig --name sahool-production
+          helm upgrade --install sahool-v16 ./helm/sahool \
+            --namespace sahool-production \
+            --set global.environment=production \
+            --wait --timeout 15m
+
+      - name: Run smoke tests
+        run: |
+          kubectl exec deploy/notification-service -n sahool-production -- wget -q -O- http://localhost:8110/healthz
+          kubectl exec deploy/user-service -n sahool-production -- wget -q -O- http://localhost:3025/healthz
+
+      - name: Notify Slack
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: "#deployments"
+          text: "SAHOOL v16 ${{ github.ref_name }} deployed to production!"
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

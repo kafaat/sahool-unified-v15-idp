@@ -69,25 +69,27 @@ cluster_addr  = "https://VAULT_NODE_IP:8201"
 api_addr      = "https://vault.sahool.com:8200"
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Auto-Unseal - AWS KMS (Production Recommended)
+# Auto-Unseal - AWS KMS (Production)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment and configure for AWS deployments
-# seal "awskms" {
-#   region     = "us-east-1"
-#   kms_key_id = "alias/sahool-vault-unseal"
-#   endpoint   = "https://kms.us-east-1.amazonaws.com"
-# }
+# Static configuration — ops must update region/kms_key_id here before deploy.
+# The AWS SDK authenticates via the IAM role attached to the Vault pod/instance
+# (no AWS_ACCESS_KEY_ID needed when using IRSA or EC2 instance profile).
+#
+# To change the KMS key: update kms_key_id below and restart Vault.
+# To migrate/unseal with existing Shamir keys first if changing seal method.
+seal "awskms" {
+  region     = "me-south-1"
+  kms_key_id = "alias/sahool-vault-unseal"
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Auto-Unseal - Azure Key Vault (Production Recommended)
+# Auto-Unseal - Azure Key Vault (Alternative)
 # ─────────────────────────────────────────────────────────────────────────────
-# Uncomment and configure for Azure deployments
+# For Azure deployments, set these environment variables at deploy time:
+#   AZURE_TENANT_ID, AZURE_CLIENT_ID, AZURE_CLIENT_SECRET
 # seal "azurekeyvault" {
-#   tenant_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Tenant ID at deploy time
-#   client_id      = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client ID at deploy time
-#   client_secret  = "CHANGE_ME_BEFORE_DEPLOY"  # Inject Azure Client Secret at deploy time
-#   vault_name     = "sahool-vault"
-#   key_name       = "vault-unseal-key"
+#   vault_name = "sahool-vault"
+#   key_name   = "vault-unseal-key"
 # }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -149,7 +151,10 @@ plugin_directory = "/vault/plugins"
 # ─────────────────────────────────────────────────────────────────────────────
 # Service Registration (Kubernetes)
 # ─────────────────────────────────────────────────────────────────────────────
-# service_registration "kubernetes" {
-#   namespace      = "vault"
-#   pod_name       = "vault-0"
-# }
+# Enable so Vault pods are discoverable via k8s service annotations (Vault Helm chart).
+# pod_name uses VAULT_K8S_POD_NAME env var (set via Kubernetes Downward API in the
+# StatefulSet pod spec) so each replica registers with its own identity.
+# يتم تحديد اسم البود عبر متغير البيئة من Kubernetes Downward API
+service_registration "kubernetes" {
+  namespace = "vault"
+}

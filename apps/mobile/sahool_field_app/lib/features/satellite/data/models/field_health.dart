@@ -1,9 +1,9 @@
-/// Field Health Model - نموذج صحة الحقل
-/// Complete field health assessment from satellite data
 library;
 
+/// Field Health Model - نموذج صحة الحقل
+/// Complete field health assessment from satellite data
+
 import 'package:equatable/equatable.dart';
-import 'ndvi_data.dart';
 
 /// Field Health Score
 /// درجة صحة الحقل

@@ -33,7 +33,7 @@
 /// haptics.success();
 /// ```
 
-library haptics;
+library;
 
 export 'haptic_config.dart';
 export 'haptic_feedback_widget.dart';

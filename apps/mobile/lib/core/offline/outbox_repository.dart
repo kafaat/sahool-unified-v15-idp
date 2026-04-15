@@ -16,6 +16,7 @@ class OutboxRepository {
   static const String _storageKey = 'sahool_outbox';
   static const String _statsKey = 'sahool_outbox_stats';
   static const int _maxCompletedItems = 100;
+  static const int _maxPendingItems = 500;
 
   SharedPreferences? _prefs;
   List<OutboxEntry> _entries = [];
@@ -46,8 +47,9 @@ class OutboxRepository {
           .map((e) => OutboxEntry.fromJson(e as Map<String, dynamic>))
           .toList();
     } catch (e) {
-      AppLogger.e('Failed to load outbox', tag: 'OUTBOX', error: e);
+      AppLogger.e('Failed to load outbox, clearing corrupted data', tag: 'OUTBOX', error: e);
       _entries = [];
+      await _prefs?.remove(_storageKey);
     }
   }
 
@@ -95,6 +97,30 @@ class OutboxRepository {
           return;
         }
       }
+    }
+
+    // Prevent unbounded queue growth
+    final pendingCount = _entries.where(
+      (e) => e.status == OutboxStatus.pending || e.status == OutboxStatus.failed,
+    ).length;
+    if (pendingCount >= _maxPendingItems) {
+      // Find the truly oldest failed item by creation time
+      final failedEntries = _entries
+          .where((e) => e.status == OutboxStatus.failed)
+          .toList();
+
+      if (failedEntries.isEmpty) {
+        AppLogger.e('Outbox queue full with no failed items to evict', tag: 'OUTBOX');
+        return;
+      }
+
+      failedEntries.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      _entries.remove(failedEntries.first);
+
+      AppLogger.w(
+        'Outbox queue full ($pendingCount items). Dropped oldest failed item.',
+        tag: 'OUTBOX',
+      );
     }
 
     _entries.add(entry);
@@ -222,9 +248,22 @@ class OutboxRepository {
   // التنظيف والصيانة
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// تنظيف العناصر المكتملة
-  Future<void> clearCompleted() async {
-    _entries.removeWhere((e) => e.status == OutboxStatus.completed);
+  /// تنظيف العناصر المكتملة مع حد أقصى اختياري
+  /// [limit] - الحد الأقصى لعدد العناصر المحذوفة (null = حذف الكل)
+  Future<void> clearCompleted({int? limit}) async {
+    if (limit == null) {
+      _entries.removeWhere((e) => e.status == OutboxStatus.completed);
+    } else {
+      int removed = 0;
+      _entries.removeWhere((e) {
+        if (removed >= limit) return false;
+        if (e.status == OutboxStatus.completed) {
+          removed++;
+          return true;
+        }
+        return false;
+      });
+    }
     await _save();
     AppLogger.d('Cleared completed items', tag: 'OUTBOX');
   }
@@ -306,7 +345,7 @@ class OutboxRepository {
     if (pending.length <= 1) return;
 
     // Merge all updates into one
-    Map<String, dynamic> mergedData = {};
+    final Map<String, dynamic> mergedData = {};
     for (final entry in pending) {
       mergedData.addAll(entry.data);
     }

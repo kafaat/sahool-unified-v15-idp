@@ -110,7 +110,7 @@ final screenSecurityEnabledProvider = Provider<bool>((ref) {
 });
 
 /// Provider for specific screen types that should be secured
-final securedScreenTypesProvider = Provider<Set<SecuredScreenType>>((ref) {
+final securedScreenTypesProvider = Provider<Set<String>>((ref) {
   final securityConfig = ref.watch(securityConfigProvider);
   return securityConfig.securedScreenTypes;
 });
@@ -285,8 +285,16 @@ class _SecureScreenState extends ConsumerState<SecureScreen> {
 
   @override
   void dispose() {
-    // Always unsecure when leaving the screen
-    _disableSecurity();
+    // Unsecure the screen without calling setState (widget is being disposed)
+    if (_isSecured) {
+      try {
+        _secureApplicationController.open();
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Failed to unsecure screen on dispose: $e');
+        }
+      }
+    }
     super.dispose();
   }
 

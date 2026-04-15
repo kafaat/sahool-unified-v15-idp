@@ -13,6 +13,7 @@ Report endpoints:
 
 import calendar
 import logging
+import re
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
@@ -20,6 +21,19 @@ from fastapi import APIRouter, Depends, Header, Query
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
+
+# Strip CR/LF and other control characters from any value before logging it
+# (defence against CodeQL py/log-injection: log entries built from request
+# data must not allow attackers to inject newlines or escape sequences).
+_LOG_INJECTION_RE = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def _safe_log(value: Any) -> str:
+    """Return a log-safe representation of `value` (CR/LF/control stripped, capped)."""
+    if value is None:
+        return ""
+    return _LOG_INJECTION_RE.sub("?", str(value))[:200]
+
 
 # Create a router for report endpoints
 router = APIRouter(prefix="/api/v1", tags=["logistics-reports"])
@@ -396,7 +410,7 @@ async def get_daily_report(
 
     logger.info(
         "Generating daily report",
-        extra={"tenant_id": str(tenant_id)[:100], "date": str(target_date)},
+        extra={"tenant_id": _safe_log(tenant_id), "date": _safe_log(target_date)},
     )
 
     VEHICLES, STORAGE_FACILITIES, HARVEST_COLLECTIONS, SHIPMENTS = _get_stores()
@@ -484,9 +498,9 @@ async def get_weekly_report(
     logger.info(
         "Generating weekly report",
         extra={
-            "tenant_id": str(tenant_id)[:100],
-            "week_start": str(week_start_date),
-            "week_end": str(week_end_date),
+            "tenant_id": _safe_log(tenant_id),
+            "week_start": _safe_log(week_start_date),
+            "week_end": _safe_log(week_end_date),
         },
     )
 
@@ -600,7 +614,7 @@ async def get_monthly_report(
 
     logger.info(
         "Generating monthly report",
-        extra={"tenant_id": str(tenant_id)[:100], "month": str(target_month_str)[:7]},
+        extra={"tenant_id": _safe_log(tenant_id), "month": _safe_log(target_month_str)},
     )
 
     _, last_day = calendar.monthrange(target_year, target_month)

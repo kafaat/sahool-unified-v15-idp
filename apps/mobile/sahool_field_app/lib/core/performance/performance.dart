@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Performance Core
 /// ملفات تحسين الأداء
 ///

@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Home API v16
 /// واجهة برمجة الشاشة الرئيسية
 

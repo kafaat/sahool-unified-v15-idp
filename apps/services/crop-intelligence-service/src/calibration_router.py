@@ -50,7 +50,7 @@ except ImportError:
     _AUTH = False
 
     async def get_current_user():  # type: ignore[misc]
-        return None
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # ---------------------------------------------------------------------------

@@ -122,12 +122,23 @@ def assess_from_symptoms(
             continue
 
         # Calculate symptom match score
+        # Use word-boundary matching to avoid false positives like "small" matching
+        # "Small white flying insects". Only match if input is a meaningful substring
+        # (at least 4 chars) or an exact word match.
         disease_symptoms = [s.lower() for s in disease[symptoms_field]]
-        matches = sum(1 for symptom in symptoms_lower if any(symptom in ds or ds in symptom for ds in disease_symptoms))
+        matches = 0
+        for symptom in symptoms_lower:
+            for ds in disease_symptoms:
+                # Require minimum 4 chars for substring match to avoid false positives
+                if symptom == ds or (len(symptom) >= 4 and symptom in ds):
+                    matches += 1
+                    break
 
         if matches > 0:
-            match_ratio = matches / len(disease_symptoms)
-            confidence = min(0.9, match_ratio + 0.3)  # Base confidence + match bonus
+            # Scale confidence by both match count and coverage
+            # 1 symptom of 5 = 20% match, not 100% + bonus
+            match_ratio = matches / max(len(disease_symptoms), len(symptoms_lower))
+            confidence = min(0.9, match_ratio * 0.8 + 0.1)  # Scaled confidence
 
             assessments.append(
                 DiseaseAssessment(

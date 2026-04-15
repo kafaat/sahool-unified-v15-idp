@@ -14,8 +14,8 @@ from __future__ import annotations
 import hashlib
 import os
 import time
-from dataclasses import dataclass, field
 from collections import OrderedDict
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from typing import Any
@@ -141,7 +141,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.get(f"{self.config.ollama_base_url}/api/tags", timeout=5.0)
                 if response.status_code == 200:
                     self._initialized = True
@@ -171,13 +171,14 @@ class EmbeddingService:
         self.config.provider = EmbeddingProvider.SENTENCE_TRANSFORMERS
         return True
 
-    async def embed(self, text: str) -> EmbeddingResult:
+    async def embed(self, text: str, tenant_id: str = "") -> EmbeddingResult:
         """
         Generate embedding for text.
         توليد تضمين للنص
 
         Args:
             text: Text to embed
+            tenant_id: Tenant ID for cache isolation
 
         Returns:
             EmbeddingResult with vector
@@ -188,7 +189,7 @@ class EmbeddingService:
         start_time = time.time()
 
         # Check cache
-        cache_key = self._get_cache_key(text)
+        cache_key = self._get_cache_key(text, tenant_id)
         if self.config.cache_enabled and cache_key in self._cache:
             embedding, cached_time = self._cache[cache_key]
             if time.time() - cached_time < self.config.cache_ttl_seconds:
@@ -224,10 +225,7 @@ class EmbeddingService:
             # Purge expired entries before size-based eviction so that stale
             # items don't count toward cache_max_size and cause unnecessary churn.
             now = time.time()
-            expired_keys = [
-                k for k, (_, ts) in self._cache.items()
-                if now - ts >= self.config.cache_ttl_seconds
-            ]
+            expired_keys = [k for k, (_, ts) in self._cache.items() if now - ts >= self.config.cache_ttl_seconds]
             for k in expired_keys:
                 del self._cache[k]
             # Evict oldest live entries if cache still exceeds max size
@@ -246,7 +244,7 @@ class EmbeddingService:
             model=self.config.model,
         )
 
-    async def embed_batch(self, texts: list[str]) -> list[EmbeddingResult]:
+    async def embed_batch(self, texts: list[str], tenant_id: str = "") -> list[EmbeddingResult]:
         """
         Generate embeddings for multiple texts.
         توليد تضمينات لنصوص متعددة
@@ -255,7 +253,7 @@ class EmbeddingService:
         for i in range(0, len(texts), self.config.batch_size):
             batch = texts[i : i + self.config.batch_size]
             for text in batch:
-                result = await self.embed(text)
+                result = await self.embed(text, tenant_id=tenant_id)
                 results.append(result)
         return results
 
@@ -272,7 +270,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     f"{self.config.ollama_base_url}/api/embeddings",
                     json={
@@ -294,7 +292,7 @@ class EmbeddingService:
         try:
             import httpx
 
-            async with httpx.AsyncClient() as client:
+            async with httpx.AsyncClient(timeout=60.0) as client:
                 response = await client.post(
                     "https://api.openai.com/v1/embeddings",
                     headers={
@@ -341,10 +339,10 @@ class EmbeddingService:
 
         return embedding
 
-    def _get_cache_key(self, text: str) -> str:
-        """Generate cache key for text"""
+    def _get_cache_key(self, text: str, tenant_id: str = "") -> str:
+        """Generate cache key for text, scoped by tenant"""
         return hashlib.md5(
-            f"{self.config.provider}:{self.config.model}:{text}".encode(), usedforsecurity=False
+            f"{self.config.provider}:{self.config.model}:{tenant_id}:{text}".encode(), usedforsecurity=False
         ).hexdigest()
 
     @property

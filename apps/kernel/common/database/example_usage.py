@@ -80,7 +80,7 @@ def example_run_migrations():
     """
     print_section("Run Migrations Example", "مثال: تشغيل الهجرات")
 
-    database_url = os.getenv("DATABASE_URL", "postgresql://sahool:password@localhost/sahool")
+    database_url = os.getenv("DATABASE_URL", "postgresql://localhost/sahool")
     manager = MigrationManager(database_url)
 
     print("Running migrations to latest version...")
@@ -110,7 +110,7 @@ def example_rollback():
     """
     print_section("Rollback Example", "مثال: التراجع")
 
-    database_url = os.getenv("DATABASE_URL", "postgresql://sahool:password@localhost/sahool")
+    database_url = os.getenv("DATABASE_URL", "postgresql://localhost/sahool")
     manager = MigrationManager(database_url)
 
     steps = 1
@@ -140,7 +140,7 @@ def example_validate_checksums():
     """
     print_section("Checksum Validation Example", "مثال: التحقق من Checksum")
 
-    database_url = os.getenv("DATABASE_URL", "postgresql://sahool:password@localhost/sahool")
+    database_url = os.getenv("DATABASE_URL", "postgresql://localhost/sahool")
     manager = MigrationManager(database_url)
 
     print("Validating migration checksums...")
@@ -173,7 +173,7 @@ def example_seed_data():
     """
     print_section("Seed Data Example", "مثال: تعبئة البيانات")
 
-    database_url = os.getenv("DATABASE_URL", "postgresql://sahool:password@localhost/sahool")
+    database_url = os.getenv("DATABASE_URL", "postgresql://localhost/sahool")
     manager = MigrationManager(database_url)
 
     print("Seeding development data...")
@@ -215,7 +215,7 @@ def example_create_migration():
     """
     print_section("Create Migration Example", "مثال: إنشاء هجرة")
 
-    database_url = os.getenv("DATABASE_URL", "postgresql://sahool:password@localhost/sahool")
+    database_url = os.getenv("DATABASE_URL", "postgresql://localhost/sahool")
     manager = MigrationManager(database_url)
 
     migration_name = "add_weather_data"
@@ -249,7 +249,7 @@ def main():
     if not os.getenv("DATABASE_URL"):
         print("\n⚠️  Warning: DATABASE_URL not set, using default")
         print("⚠️  تحذير: DATABASE_URL غير محدد، استخدام الافتراضي")
-        print("Default: postgresql://sahool:password@localhost/sahool\n")
+        print("Default: postgresql://localhost/sahool\n")
 
     # تشغيل الأمثلة
     # Run examples

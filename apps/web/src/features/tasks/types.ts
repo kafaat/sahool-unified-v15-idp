@@ -7,7 +7,7 @@ import type {
   Task as ApiTask,
   TaskStatus as ApiTaskStatus,
   Priority as ApiPriority,
-} from "@sahool/api-client";
+} from '@sahool/api-client';
 
 // Re-export core types from API client
 export type Task = ApiTask & {
@@ -38,6 +38,11 @@ export interface TaskFormData {
 /**
  * Task Filters Interface
  * واجهة فلاتر المهام
+ *
+ * Note: `search` is kept for UI compatibility but is NOT forwarded to the
+ * task-service backend (it does not accept free-text search on the list
+ * endpoint). Client-side filtering should be used for search if needed.
+ * Pagination: `limit` max is 100 and `offset` must be >= 0 (backend constraints).
  */
 export interface TaskFilters {
   search?: string;
@@ -47,6 +52,8 @@ export interface TaskFilters {
   assigned_to?: string;
   due_date_from?: string;
   due_date_to?: string;
+  limit?: number;
+  offset?: number;
 }
 
 /**

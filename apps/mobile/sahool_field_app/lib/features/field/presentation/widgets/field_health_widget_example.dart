@@ -154,7 +154,7 @@ class FieldListScreenExample extends ConsumerWidget {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: SahoolColors.primary.withOpacity(0.1),
+                                  color: SahoolColors.primary.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(
@@ -249,7 +249,7 @@ class DashboardScreenExample extends ConsumerWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.warning_rounded,
                           color: SahoolColors.warning,
                           size: 24,

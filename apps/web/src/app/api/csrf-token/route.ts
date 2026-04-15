@@ -5,14 +5,15 @@
  * Generates and returns CSRF tokens for client-side requests
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { randomBytes } from "node:crypto";
+import { NextRequest, NextResponse } from 'next/server';
+import { randomBytes } from 'node:crypto';
+import { logger } from '@/lib/logger';
 
 /**
  * Generate a cryptographically secure CSRF token
  */
 function generateCsrfToken(): string {
-  return randomBytes(32).toString("base64url");
+  return randomBytes(32).toString('base64url');
 }
 
 /**
@@ -32,32 +33,32 @@ export async function GET(_request: NextRequest) {
 
     // Double-submit cookie pattern: one httpOnly cookie for server-side
     // validation, one readable cookie for client to include in headers.
-    response.cookies.set("csrf_token", csrfToken, {
+    response.cookies.set('csrf_token', csrfToken, {
       httpOnly: true, // Server-side only - used for validation
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
       maxAge: 60 * 60 * 24, // 24 hours
     });
 
     // Client-readable cookie - JavaScript reads this to set X-CSRF-Token header
-    response.cookies.set("_csrf", csrfToken, {
+    response.cookies.set('_csrf', csrfToken, {
       httpOnly: false, // Must be readable by client-side JavaScript
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
       maxAge: 60 * 60 * 24, // 24 hours
     });
 
     return response;
   } catch (error) {
-    console.error("Error generating CSRF token:", error);
+    logger.error('Error generating CSRF token:', error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to generate CSRF token",
+        error: 'Failed to generate CSRF token',
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
@@ -69,15 +70,15 @@ export async function GET(_request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { token } = await request.json();
-    const cookieToken = request.cookies.get("csrf_token")?.value;
+    const cookieToken = request.cookies.get('csrf_token')?.value;
 
     if (!token || !cookieToken) {
       return NextResponse.json(
         {
           success: false,
-          error: "CSRF token missing",
+          error: 'CSRF token missing',
         },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -85,24 +86,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: "CSRF token mismatch",
+          error: 'CSRF token mismatch',
         },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: "CSRF token valid",
+      message: 'CSRF token valid',
     });
   } catch (error) {
-    console.error("Error validating CSRF token:", error);
+    logger.error('Error validating CSRF token:', error);
     return NextResponse.json(
       {
         success: false,
-        error: "Failed to validate CSRF token",
+        error: 'Failed to validate CSRF token',
       },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

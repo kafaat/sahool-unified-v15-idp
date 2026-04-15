@@ -418,11 +418,11 @@ void main() {
 
   group('SpectralHealthIndicator', () {
     testWidgets('should render for NDVI', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar'), Locale('en')],
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        home: const Scaffold(
+        home: Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.ndvi,
             value: 0.72,
@@ -436,11 +436,11 @@ void main() {
     });
 
     testWidgets('should render for NDWI', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar'), Locale('en')],
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        home: const Scaffold(
+        home: Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.ndwi,
             value: 0.4,
@@ -454,11 +454,11 @@ void main() {
     });
 
     testWidgets('should show health label', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar'), Locale('en')],
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        home: const Scaffold(
+        home: Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.ndvi,
             value: 0.85,
@@ -472,11 +472,11 @@ void main() {
     });
 
     testWidgets('should contain CircularProgressIndicator', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar'), Locale('en')],
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
-        home: const Scaffold(
+        home: Scaffold(
           body: SpectralHealthIndicator(
             index: SpectralIndex.evi,
             value: 0.5,
@@ -529,13 +529,13 @@ void main() {
 
   group('SpectralLegendCard', () {
     testWidgets('should display NDVI legend in Arabic', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar'), Locale('en')],
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
-          child: const Scaffold(
+          child: Scaffold(
             body: SingleChildScrollView(
               child: SpectralLegendCard(index: SpectralIndex.ndvi),
             ),
@@ -548,13 +548,13 @@ void main() {
     });
 
     testWidgets('should display NDWI legend items', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        locale: const Locale('ar'),
-        supportedLocales: const [Locale('ar'), Locale('en')],
+      await tester.pumpWidget(const MaterialApp(
+        locale: Locale('ar'),
+        supportedLocales: [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         home: Directionality(
           textDirection: TextDirection.rtl,
-          child: const Scaffold(
+          child: Scaffold(
             body: SingleChildScrollView(
               child: SpectralLegendCard(index: SpectralIndex.ndwi),
             ),

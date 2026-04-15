@@ -24,3 +24,16 @@ etcd:
 session:
   ttl: 60
   retryTimes: 30
+
+# FIX: In standalone mode, only the proxy should bind to the public gRPC port 19530.
+# RootCoord defaults to 19530 and must be given a different port to avoid conflict
+# with the proxy. DataCoord and QueryCoord also need dedicated ports.
+# Port 0 = OS-assigned random port (safe for internal components).
+rootCoord:
+  port: 53100
+
+dataCoord:
+  port: 13333
+
+queryCoord:
+  port: 19531

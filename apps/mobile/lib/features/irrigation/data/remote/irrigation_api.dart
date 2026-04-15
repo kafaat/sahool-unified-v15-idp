@@ -142,7 +142,7 @@ class IrrigationCalculation {
       recommendation: json['recommendation'] as String,
       recommendationAr: json['recommendation_ar'] as String,
       nextIrrigationDate:
-          DateTime.parse(json['next_irrigation_date'] as String),
+          DateTime.tryParse(json['next_irrigation_date'] as String) ?? DateTime.now(),
     );
   }
 }
@@ -163,10 +163,10 @@ class IrrigationSchedule {
   factory IrrigationSchedule.fromJson(Map<String, dynamic> json) {
     return IrrigationSchedule(
       fieldId: json['field_id'] as String,
-      events: (json['events'] as List)
-          .map((e) => IrrigationEvent.fromJson(e))
+      events: (json['events'] as List? ?? [])
+          .map((e) => IrrigationEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      generatedAt: DateTime.parse(json['generated_at'] as String),
+      generatedAt: DateTime.tryParse(json['generated_at'] as String) ?? DateTime.now(),
     );
   }
 }
@@ -190,7 +190,7 @@ class IrrigationEvent {
 
   factory IrrigationEvent.fromJson(Map<String, dynamic> json) {
     return IrrigationEvent(
-      scheduledAt: DateTime.parse(json['scheduled_at'] as String),
+      scheduledAt: DateTime.tryParse(json['scheduled_at'] as String) ?? DateTime.now(),
       durationMinutes: (json['duration_minutes'] as num).toDouble(),
       waterAmountLiters: (json['water_amount_liters'] as num).toDouble(),
       status: json['status'] as String,
@@ -243,9 +243,9 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final crops = json['data'] as List;
-      return crops.map((c) => IrrigationCrop.fromJson(c)).toList();
+      return crops.map((c) => IrrigationCrop.fromJson(c as Map<String, dynamic>)).toList();
     } else {
       throw IrrigationApiException(
         'فشل جلب قائمة المحاصيل',
@@ -263,9 +263,9 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       final methods = json['data'] as List;
-      return methods.map((m) => IrrigationMethod.fromJson(m)).toList();
+      return methods.map((m) => IrrigationMethod.fromJson(m as Map<String, dynamic>)).toList();
     } else {
       throw IrrigationApiException(
         'فشل جلب طرق الري',
@@ -291,8 +291,8 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return IrrigationCalculation.fromJson(json['data']);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return IrrigationCalculation.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IrrigationApiException(
         'فشل حساب احتياجات الري',
@@ -319,8 +319,8 @@ class IrrigationApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['data'];
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return json['data'] as Map<String, dynamic>;
     } else {
       throw IrrigationApiException(
         'فشل حساب توازن المياه',
@@ -347,8 +347,8 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['data'];
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return json['data'] as Map<String, dynamic>;
     } else {
       throw IrrigationApiException(
         'فشل حساب كفاءة الري',
@@ -372,8 +372,8 @@ class IrrigationApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return IrrigationSchedule.fromJson(json['data']);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return IrrigationSchedule.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IrrigationApiException(
         'فشل جلب جدول الري',
@@ -402,8 +402,8 @@ class IrrigationApi {
     );
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final json = jsonDecode(response.body);
-      return IrrigationSchedule.fromJson(json['data']);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return IrrigationSchedule.fromJson(json['data'] as Map<String, dynamic>);
     } else {
       throw IrrigationApiException(
         'فشل إنشاء جدول الري',

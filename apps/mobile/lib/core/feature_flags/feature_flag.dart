@@ -3,6 +3,7 @@
 ///
 /// This file defines all feature flags available in the SAHOOL mobile app.
 /// Each flag has English and Arabic names, descriptions, and default values.
+library;
 
 /// Feature flag categories for organization
 /// فئات أعلام الميزات للتنظيم
@@ -487,7 +488,7 @@ class FeatureFlagValue {
       flag: flag,
       enabled: json['enabled'] as bool,
       lastUpdated: json['lastUpdated'] != null
-          ? DateTime.parse(json['lastUpdated'] as String)
+          ? DateTime.tryParse(json['lastUpdated'] as String) ?? DateTime.now()
           : null,
       source: json['source'] as String?,
     );

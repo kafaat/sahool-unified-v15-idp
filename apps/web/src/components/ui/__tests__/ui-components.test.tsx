@@ -3,252 +3,235 @@
  * اختبارات شاملة لمكونات واجهة المستخدم - التطبيق الويب
  */
 
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import "@testing-library/jest-dom";
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
 
 // ─── Button ─────────────────────────────────────────────────────────────────
-import { Button } from "../button";
+import { Button } from '../button';
 
-describe("Button Component", () => {
-  it("renders children correctly", () => {
+describe('Button Component', () => {
+  it('renders children correctly', () => {
     render(<Button>حفظ</Button>);
-    expect(screen.getByRole("button", { name: "حفظ" })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'حفظ' })).toBeInTheDocument();
   });
 
-  it("applies primary variant by default", () => {
+  it('applies primary variant by default', () => {
     render(<Button>Primary</Button>);
-    const btn = screen.getByRole("button");
+    const btn = screen.getByRole('button');
     expect(btn.className).toMatch(/bg-sahool-green-600/);
   });
 
-  it("applies secondary variant", () => {
+  it('applies secondary variant', () => {
     render(<Button variant="secondary">Secondary</Button>);
-    expect(screen.getByRole("button").className).toMatch(/bg-sahool-brown-500/);
+    expect(screen.getByRole('button').className).toMatch(/bg-sahool-brown-500/);
   });
 
-  it("applies outline variant", () => {
+  it('applies outline variant', () => {
     render(<Button variant="outline">Outline</Button>);
-    expect(screen.getByRole("button").className).toMatch(/border-2/);
+    expect(screen.getByRole('button').className).toMatch(/border-2/);
   });
 
-  it("applies ghost variant", () => {
+  it('applies ghost variant', () => {
     render(<Button variant="ghost">Ghost</Button>);
-    expect(screen.getByRole("button").className).toMatch(/text-gray-700/);
+    expect(screen.getByRole('button').className).toMatch(/text-gray-700/);
   });
 
-  it("applies danger variant", () => {
+  it('applies danger variant', () => {
     render(<Button variant="danger">Danger</Button>);
-    expect(screen.getByRole("button").className).toMatch(/bg-red-600/);
+    expect(screen.getByRole('button').className).toMatch(/bg-red-600/);
   });
 
-  it("renders small size", () => {
+  it('renders small size', () => {
     render(<Button size="sm">Small</Button>);
-    expect(screen.getByRole("button").className).toMatch(/text-sm/);
+    expect(screen.getByRole('button').className).toMatch(/text-sm/);
   });
 
-  it("renders large size", () => {
+  it('renders large size', () => {
     render(<Button size="lg">Large</Button>);
-    expect(screen.getByRole("button").className).toMatch(/text-lg/);
+    expect(screen.getByRole('button').className).toMatch(/text-lg/);
   });
 
-  it("renders full width when fullWidth is true", () => {
+  it('renders full width when fullWidth is true', () => {
     render(<Button fullWidth>Full Width</Button>);
-    expect(screen.getByRole("button").className).toMatch(/w-full/);
+    expect(screen.getByRole('button').className).toMatch(/w-full/);
   });
 
-  it("is disabled when disabled prop is true", () => {
+  it('is disabled when disabled prop is true', () => {
     render(<Button disabled>Disabled</Button>);
-    const btn = screen.getByRole("button");
+    const btn = screen.getByRole('button');
     expect(btn).toBeDisabled();
   });
 
-  it("shows loading state correctly", () => {
+  it('shows loading state correctly', () => {
     render(<Button isLoading>Save</Button>);
-    const btn = screen.getByRole("button");
+    const btn = screen.getByRole('button');
     expect(btn).toBeDisabled();
-    expect(btn).toHaveAttribute("aria-busy", "true");
+    expect(btn).toHaveAttribute('aria-busy', 'true');
   });
 
-  it("shows screen reader loading text when loading", () => {
+  it('shows screen reader loading text when loading', () => {
     render(
       <Button isLoading loadingTextAr="جاري الحفظ" loadingText="Saving">
         Save
-      </Button>,
+      </Button>
     );
     expect(screen.getByText(/جاري الحفظ/)).toBeInTheDocument();
   });
 
-  it("renders left icon", () => {
-    render(
-      <Button leftIcon={<span data-testid="left-icon">◀</span>}>
-        With Icon
-      </Button>,
-    );
-    expect(screen.getByTestId("left-icon")).toBeInTheDocument();
+  it('renders left icon', () => {
+    render(<Button leftIcon={<span data-testid="left-icon">◀</span>}>With Icon</Button>);
+    expect(screen.getByTestId('left-icon')).toBeInTheDocument();
   });
 
-  it("renders right icon", () => {
-    render(
-      <Button rightIcon={<span data-testid="right-icon">▶</span>}>
-        With Icon
-      </Button>,
-    );
-    expect(screen.getByTestId("right-icon")).toBeInTheDocument();
+  it('renders right icon', () => {
+    render(<Button rightIcon={<span data-testid="right-icon">▶</span>}>With Icon</Button>);
+    expect(screen.getByTestId('right-icon')).toBeInTheDocument();
   });
 
-  it("fires onClick when clicked", () => {
+  it('fires onClick when clicked', () => {
     const onClick = vi.fn();
     render(<Button onClick={onClick}>Click me</Button>);
-    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByRole('button'));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it("does not fire onClick when disabled", () => {
+  it('does not fire onClick when disabled', () => {
     const onClick = vi.fn();
     render(
       <Button onClick={onClick} disabled>
         Click me
-      </Button>,
+      </Button>
     );
-    fireEvent.click(screen.getByRole("button"));
+    fireEvent.click(screen.getByRole('button'));
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it("applies custom className", () => {
+  it('applies custom className', () => {
     render(<Button className="custom-class">Custom</Button>);
-    expect(screen.getByRole("button").className).toMatch(/custom-class/);
+    expect(screen.getByRole('button').className).toMatch(/custom-class/);
   });
 
-  it("uses submit type when specified", () => {
+  it('uses submit type when specified', () => {
     render(<Button type="submit">Submit</Button>);
-    expect(screen.getByRole("button")).toHaveAttribute("type", "submit");
+    expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
   });
 
-  it("defaults to button type", () => {
+  it('defaults to button type', () => {
     render(<Button>Button</Button>);
-    expect(screen.getByRole("button")).toHaveAttribute("type", "button");
+    expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
   });
 });
 
 // ─── Badge ──────────────────────────────────────────────────────────────────
-import { Badge } from "../badge";
+import { Badge } from '../badge';
 
-describe("Badge Component", () => {
-  it("renders children", () => {
+describe('Badge Component', () => {
+  it('renders children', () => {
     render(<Badge>نشط</Badge>);
-    expect(screen.getByText("نشط")).toBeInTheDocument();
+    expect(screen.getByText('نشط')).toBeInTheDocument();
   });
 
-  it("applies default variant", () => {
+  it('applies default variant', () => {
     render(<Badge>Default</Badge>);
-    expect(screen.getByText("Default").className).toMatch(/bg-gray-100/);
+    expect(screen.getByText('Default').className).toMatch(/bg-gray-100/);
   });
 
-  it("applies success variant", () => {
+  it('applies success variant', () => {
     render(<Badge variant="success">نجاح</Badge>);
-    expect(screen.getByText("نجاح").className).toMatch(/bg-sahool-green-100/);
+    expect(screen.getByText('نجاح').className).toMatch(/bg-sahool-green-100/);
   });
 
-  it("applies warning variant", () => {
+  it('applies warning variant', () => {
     render(<Badge variant="warning">تحذير</Badge>);
-    expect(screen.getByText("تحذير").className).toMatch(/bg-yellow-100/);
+    expect(screen.getByText('تحذير').className).toMatch(/bg-yellow-100/);
   });
 
-  it("applies danger variant", () => {
+  it('applies danger variant', () => {
     render(<Badge variant="danger">خطر</Badge>);
-    expect(screen.getByText("خطر").className).toMatch(/bg-red-100/);
+    expect(screen.getByText('خطر').className).toMatch(/bg-red-100/);
   });
 
-  it("applies info variant", () => {
+  it('applies info variant', () => {
     render(<Badge variant="info">معلومات</Badge>);
-    expect(screen.getByText("معلومات").className).toMatch(/bg-blue-100/);
+    expect(screen.getByText('معلومات').className).toMatch(/bg-blue-100/);
   });
 
-  it("renders small size", () => {
+  it('renders small size', () => {
     render(<Badge size="sm">Small</Badge>);
-    expect(screen.getByText("Small").className).toMatch(/text-xs/);
+    expect(screen.getByText('Small').className).toMatch(/text-xs/);
   });
 
-  it("renders large size", () => {
+  it('renders large size', () => {
     render(<Badge size="lg">Large</Badge>);
-    expect(screen.getByText("Large").className).toMatch(/text-base/);
+    expect(screen.getByText('Large').className).toMatch(/text-base/);
   });
 
-  it("applies custom className", () => {
+  it('applies custom className', () => {
     render(<Badge className="custom">Badge</Badge>);
-    expect(screen.getByText("Badge").className).toMatch(/custom/);
+    expect(screen.getByText('Badge').className).toMatch(/custom/);
   });
 
-  it("renders as span element", () => {
+  it('renders as span element', () => {
     render(<Badge>span badge</Badge>);
-    const badge = screen.getByText("span badge");
-    expect(badge.tagName).toBe("SPAN");
+    const badge = screen.getByText('span badge');
+    expect(badge.tagName).toBe('SPAN');
   });
 
-  it("has rounded-full class", () => {
+  it('has rounded-full class', () => {
     render(<Badge>Rounded</Badge>);
-    expect(screen.getByText("Rounded").className).toMatch(/rounded-full/);
+    expect(screen.getByText('Rounded').className).toMatch(/rounded-full/);
   });
 });
 
 // ─── Card ───────────────────────────────────────────────────────────────────
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-} from "../card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../card';
 
-describe("Card Component", () => {
-  it("renders children", () => {
+describe('Card Component', () => {
+  it('renders children', () => {
     render(<Card>Card Content</Card>);
-    expect(screen.getByText("Card Content")).toBeInTheDocument();
+    expect(screen.getByText('Card Content')).toBeInTheDocument();
   });
 
-  it("applies default variant with bg-white", () => {
+  it('applies default variant with bg-white', () => {
     const { container } = render(<Card>Default</Card>);
-    expect(container.firstChild).toHaveClass("bg-white");
+    expect(container.firstChild).toHaveClass('bg-white');
   });
 
-  it("applies bordered variant", () => {
+  it('applies bordered variant', () => {
     const { container } = render(<Card variant="bordered">Bordered</Card>);
-    expect((container.firstChild as HTMLElement)?.className).toMatch(
-      /border-sahool-green-200/,
-    );
+    expect((container.firstChild as HTMLElement)?.className).toMatch(/border-sahool-green-200/);
   });
 
-  it("applies elevated variant with shadow-lg", () => {
+  it('applies elevated variant with shadow-lg', () => {
     const { container } = render(<Card variant="elevated">Elevated</Card>);
     expect((container.firstChild as HTMLElement)?.className).toMatch(/shadow-lg/);
   });
 
-  it("applies interactive styles when interactive is true", () => {
+  it('applies interactive styles when interactive is true', () => {
     const { container } = render(<Card interactive>Interactive</Card>);
     const el = container.firstChild as HTMLElement;
     expect(el?.className).toMatch(/cursor-pointer/);
-    expect(el).toHaveAttribute("role", "button");
-    expect(el).toHaveAttribute("tabindex", "0");
+    expect(el).toHaveAttribute('role', 'button');
+    expect(el).toHaveAttribute('tabindex', '0');
   });
 
-  it("renders with small padding", () => {
+  it('renders with small padding', () => {
     const { container } = render(<Card padding="sm">SM</Card>);
     expect((container.firstChild as HTMLElement)?.className).toMatch(/p-4/);
   });
 
-  it("renders with large padding", () => {
+  it('renders with large padding', () => {
     const { container } = render(<Card padding="lg">LG</Card>);
     expect((container.firstChild as HTMLElement)?.className).toMatch(/p-8/);
   });
 
   it("renders as article element when as='article'", () => {
     const { container } = render(<Card as="article">Article Card</Card>);
-    expect(container.firstChild?.nodeName).toBe("ARTICLE");
+    expect(container.firstChild?.nodeName).toBe('ARTICLE');
   });
 
-  it("renders full card composition", () => {
+  it('renders full card composition', () => {
     render(
       <Card>
         <CardHeader>
@@ -257,202 +240,200 @@ describe("Card Component", () => {
         </CardHeader>
         <CardContent>محتوى البطاقة</CardContent>
         <CardFooter>تذييل البطاقة</CardFooter>
-      </Card>,
+      </Card>
     );
-    expect(screen.getByText("عنوان البطاقة")).toBeInTheDocument();
-    expect(screen.getByText("وصف البطاقة")).toBeInTheDocument();
-    expect(screen.getByText("محتوى البطاقة")).toBeInTheDocument();
-    expect(screen.getByText("تذييل البطاقة")).toBeInTheDocument();
+    expect(screen.getByText('عنوان البطاقة')).toBeInTheDocument();
+    expect(screen.getByText('وصف البطاقة')).toBeInTheDocument();
+    expect(screen.getByText('محتوى البطاقة')).toBeInTheDocument();
+    expect(screen.getByText('تذييل البطاقة')).toBeInTheDocument();
   });
 
-  it("CardTitle renders as h3", () => {
+  it('CardTitle renders as h3', () => {
     render(<CardTitle>Title</CardTitle>);
-    expect(screen.getByRole("heading", { level: 3 })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 3 })).toBeInTheDocument();
   });
 
-  it("CardDescription renders as p element", () => {
+  it('CardDescription renders as p element', () => {
     render(<CardDescription>Desc</CardDescription>);
-    const el = screen.getByText("Desc");
-    expect(el.tagName).toBe("P");
+    const el = screen.getByText('Desc');
+    expect(el.tagName).toBe('P');
   });
 
-  it("CardFooter has border-top class", () => {
+  it('CardFooter has border-top class', () => {
     const { container } = render(<CardFooter>Footer</CardFooter>);
     expect((container.firstChild as HTMLElement)?.className).toMatch(/border-t/);
   });
 });
 
 // ─── Input ──────────────────────────────────────────────────────────────────
-import { Input } from "../input";
+import { Input } from '../input';
 
-describe("Input Component", () => {
-  it("renders input element", () => {
+describe('Input Component', () => {
+  it('renders input element', () => {
     render(<Input placeholder="اكتب هنا..." />);
-    expect(screen.getByPlaceholderText("اكتب هنا...")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('اكتب هنا...')).toBeInTheDocument();
   });
 
-  it("renders with Arabic label", () => {
+  it('renders with Arabic label', () => {
     render(<Input labelAr="البريد الإلكتروني" id="email" />);
-    const label = screen.getByText("البريد الإلكتروني");
+    const label = screen.getByText('البريد الإلكتروني');
     expect(label).toBeInTheDocument();
   });
 
-  it("renders with both Arabic and English labels", () => {
+  it('renders with both Arabic and English labels', () => {
     render(<Input label="Email" labelAr="البريد الإلكتروني" id="email" />);
-    expect(screen.getByText("البريد الإلكتروني")).toBeInTheDocument();
-    expect(screen.getByText("Email")).toBeInTheDocument();
+    expect(screen.getByText('البريد الإلكتروني')).toBeInTheDocument();
+    expect(screen.getByText('Email')).toBeInTheDocument();
   });
 
-  it("shows error message with role alert", () => {
+  it('shows error message with role alert', () => {
     render(<Input error="خطأ في الإدخال" />);
-    const error = screen.getByRole("alert");
-    expect(error).toHaveTextContent("خطأ في الإدخال");
+    const error = screen.getByRole('alert');
+    expect(error).toHaveTextContent('خطأ في الإدخال');
   });
 
-  it("marks input as invalid when error is provided", () => {
+  it('marks input as invalid when error is provided', () => {
     render(<Input error="Invalid" />);
-    expect(screen.getByRole("textbox")).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole('textbox')).toHaveAttribute('aria-invalid', 'true');
   });
 
-  it("shows helper text", () => {
+  it('shows helper text', () => {
     render(<Input helperText="نص مساعد" />);
-    expect(screen.getByText("نص مساعد")).toBeInTheDocument();
+    expect(screen.getByText('نص مساعد')).toBeInTheDocument();
   });
 
-  it("does not show helper text when there is an error", () => {
+  it('does not show helper text when there is an error', () => {
     render(<Input error="Error" helperText="Helper" />);
-    expect(screen.queryByText("Helper")).not.toBeInTheDocument();
+    expect(screen.queryByText('Helper')).not.toBeInTheDocument();
   });
 
-  it("renders with left icon", () => {
+  it('renders with left icon', () => {
     render(<Input leftIcon={<span data-testid="left">L</span>} />);
-    expect(screen.getByTestId("left")).toBeInTheDocument();
+    expect(screen.getByTestId('left')).toBeInTheDocument();
   });
 
-  it("renders with right icon", () => {
+  it('renders with right icon', () => {
     render(<Input rightIcon={<span data-testid="right">R</span>} />);
-    expect(screen.getByTestId("right")).toBeInTheDocument();
+    expect(screen.getByTestId('right')).toBeInTheDocument();
   });
 
-  it("renders as disabled", () => {
+  it('renders as disabled', () => {
     render(<Input disabled />);
-    expect(screen.getByRole("textbox")).toBeDisabled();
+    expect(screen.getByRole('textbox')).toBeDisabled();
   });
 
-  it("fires onChange when user types", () => {
+  it('fires onChange when user types', () => {
     const onChange = vi.fn();
     render(<Input onChange={onChange} />);
-    fireEvent.change(screen.getByRole("textbox"), {
-      target: { value: "hello" },
+    fireEvent.change(screen.getByRole('textbox'), {
+      target: { value: 'hello' },
     });
     expect(onChange).toHaveBeenCalled();
   });
 
-  it("renders password type input", () => {
+  it('renders password type input', () => {
     const { container } = render(<Input type="password" />);
-    const input = container.querySelector("input[type=password]");
+    const input = container.querySelector('input[type=password]');
     expect(input).toBeInTheDocument();
   });
 
-  it("applies error border styling", () => {
+  it('applies error border styling', () => {
     render(<Input error="Error" />);
-    const input = screen.getByRole("textbox");
+    const input = screen.getByRole('textbox');
     expect(input.className).toMatch(/border-red-500/);
   });
 
-  it("links error to input via aria-describedby", () => {
+  it('links error to input via aria-describedby', () => {
     render(<Input id="test-input" error="Error message" />);
-    const input = screen.getByRole("textbox");
-    const describedBy = input.getAttribute("aria-describedby");
+    const input = screen.getByRole('textbox');
+    const describedBy = input.getAttribute('aria-describedby');
     expect(describedBy).toBeTruthy();
     const errorEl = document.getElementById(describedBy!);
-    expect(errorEl).toHaveTextContent("Error message");
+    expect(errorEl).toHaveTextContent('Error message');
   });
 
-  it("passes additional props to input", () => {
+  it('passes additional props to input', () => {
     render(<Input data-testid="my-input" readOnly />);
-    expect(screen.getByTestId("my-input")).toHaveAttribute("readonly");
+    expect(screen.getByTestId('my-input')).toHaveAttribute('readonly');
   });
 });
 
 // ─── Loading ────────────────────────────────────────────────────────────────
-import { Loading } from "../loading";
+import { Loading } from '../loading';
 
-describe("Loading Component", () => {
-  it("renders spinner variant by default with SVG", () => {
+describe('Loading Component', () => {
+  it('renders spinner variant by default with SVG', () => {
     const { container } = render(<Loading />);
-    expect(container.querySelector("svg")).toBeInTheDocument();
+    expect(container.querySelector('svg')).toBeInTheDocument();
   });
 
-  it("has accessible role=status", () => {
+  it('has accessible role=status', () => {
     render(<Loading />);
-    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
   });
 
-  it("shows loading text in Arabic", () => {
+  it('shows loading text in Arabic', () => {
     render(<Loading textAr="جاري التحميل..." />);
-    expect(screen.getByText("جاري التحميل...")).toBeInTheDocument();
+    expect(screen.getByText('جاري التحميل...')).toBeInTheDocument();
   });
 
-  it("shows bilingual text", () => {
+  it('shows bilingual text', () => {
     render(<Loading text="Loading" textAr="جاري التحميل" />);
-    expect(screen.getByText("Loading")).toBeInTheDocument();
-    expect(screen.getByText("جاري التحميل")).toBeInTheDocument();
+    expect(screen.getByText('Loading')).toBeInTheDocument();
+    expect(screen.getByText('جاري التحميل')).toBeInTheDocument();
   });
 
-  it("renders dots variant with animated divs", () => {
+  it('renders dots variant with animated divs', () => {
     const { container } = render(<Loading variant="dots" />);
-    expect(container.querySelector(".animate-bounce")).toBeInTheDocument();
+    expect(container.querySelector('.animate-bounce')).toBeInTheDocument();
   });
 
-  it("renders pulse variant with animated div", () => {
+  it('renders pulse variant with animated div', () => {
     const { container } = render(<Loading variant="pulse" />);
-    expect(container.querySelector(".animate-pulse")).toBeInTheDocument();
+    expect(container.querySelector('.animate-pulse')).toBeInTheDocument();
   });
 
-  it("has aria-busy=true", () => {
+  it('has aria-busy=true', () => {
     render(<Loading />);
-    expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
   });
 
-  it("applies large size class", () => {
+  it('applies large size class', () => {
     const { container } = render(<Loading size="lg" />);
-    const svg = container.querySelector("svg");
-    expect(svg?.getAttribute("class")).toMatch(/w-12/);
+    const svg = container.querySelector('svg');
+    expect(svg?.getAttribute('class')).toMatch(/w-12/);
   });
 
-  it("applies small size class", () => {
+  it('applies small size class', () => {
     const { container } = render(<Loading size="sm" />);
-    const svg = container.querySelector("svg");
-    expect(svg?.getAttribute("class")).toMatch(/w-4/);
+    const svg = container.querySelector('svg');
+    expect(svg?.getAttribute('class')).toMatch(/w-4/);
   });
 
-  it("applies custom className", () => {
+  it('applies custom className', () => {
     render(<Loading className="custom-loader" />);
-    expect(screen.getByRole("status").className).toMatch(/custom-loader/);
+    expect(screen.getByRole('status').className).toMatch(/custom-loader/);
   });
 
-  it("uses default aria-label of جاري التحميل when no text provided", () => {
+  it('uses default aria-label of جاري التحميل when no text provided', () => {
     render(<Loading />);
-    const status = screen.getByRole("status");
-    expect(status.getAttribute("aria-label")).toBe("جاري التحميل");
+    const status = screen.getByRole('status');
+    expect(status.getAttribute('aria-label')).toBe('جاري التحميل');
   });
 });
 
 // ─── Toast ───────────────────────────────────────────────────────────────────
-import { ToastProvider, useToast } from "../toast";
+import { ToastProvider, useToast } from '../toast';
 
 const ToastTestComponent = ({
-  type = "success" as "success" | "error" | "info" | "warning",
-  message = "رسالة اختبارية",
+  type = 'success' as 'success' | 'error' | 'info' | 'warning',
+  message = 'رسالة اختبارية',
   duration = 10000,
 }) => {
   const { showToast } = useToast();
   return (
     <button
-      onClick={() =>
-        showToast({ type, message, messageAr: message, duration })
-      }
+      onClick={() => showToast({ type, message, messageAr: message, duration })}
       data-testid="show-toast"
     >
       Show Toast
@@ -460,247 +441,227 @@ const ToastTestComponent = ({
   );
 };
 
-describe("Toast Component", () => {
-  it("renders ToastProvider without crashing", () => {
+describe('Toast Component', () => {
+  it('renders ToastProvider without crashing', () => {
     render(
       <ToastProvider>
         <div>Content</div>
-      </ToastProvider>,
+      </ToastProvider>
     );
-    expect(screen.getByText("Content")).toBeInTheDocument();
+    expect(screen.getByText('Content')).toBeInTheDocument();
   });
 
-  it("throws when useToast is used outside ToastProvider", () => {
-    const consoleError = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
+  it('throws when useToast is used outside ToastProvider', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
     expect(() => {
       render(<ToastTestComponent />);
     }).toThrow(/useToast must be used within ToastProvider/);
     consoleError.mockRestore();
   });
 
-  it("shows a success toast message", async () => {
+  it('shows a success toast message', async () => {
     render(
       <ToastProvider>
         <ToastTestComponent type="success" message="تم الحفظ بنجاح" />
-      </ToastProvider>,
+      </ToastProvider>
     );
-    fireEvent.click(screen.getByTestId("show-toast"));
+    fireEvent.click(screen.getByTestId('show-toast'));
     await waitFor(() => {
-      expect(screen.getAllByText("تم الحفظ بنجاح").length).toBeGreaterThan(0);
+      expect(screen.getAllByText('تم الحفظ بنجاح').length).toBeGreaterThan(0);
     });
   });
 
-  it("shows an error toast message", async () => {
+  it('shows an error toast message', async () => {
     render(
       <ToastProvider>
         <ToastTestComponent type="error" message="حدث خطأ" />
-      </ToastProvider>,
+      </ToastProvider>
     );
-    fireEvent.click(screen.getByTestId("show-toast"));
+    fireEvent.click(screen.getByTestId('show-toast'));
     await waitFor(() => {
-      expect(screen.getAllByText("حدث خطأ").length).toBeGreaterThan(0);
+      expect(screen.getAllByText('حدث خطأ').length).toBeGreaterThan(0);
     });
   });
 
-  it("shows a warning toast message", async () => {
+  it('shows a warning toast message', async () => {
     render(
       <ToastProvider>
         <ToastTestComponent type="warning" message="تحذير مهم" />
-      </ToastProvider>,
+      </ToastProvider>
     );
-    fireEvent.click(screen.getByTestId("show-toast"));
+    fireEvent.click(screen.getByTestId('show-toast'));
     await waitFor(() => {
-      expect(screen.getAllByText("تحذير مهم").length).toBeGreaterThan(0);
+      expect(screen.getAllByText('تحذير مهم').length).toBeGreaterThan(0);
     });
   });
 
-  it("shows an info toast message", async () => {
+  it('shows an info toast message', async () => {
     render(
       <ToastProvider>
         <ToastTestComponent type="info" message="معلومة مفيدة" />
-      </ToastProvider>,
+      </ToastProvider>
     );
-    fireEvent.click(screen.getByTestId("show-toast"));
+    fireEvent.click(screen.getByTestId('show-toast'));
     await waitFor(() => {
-      expect(screen.getAllByText("معلومة مفيدة").length).toBeGreaterThan(0);
+      expect(screen.getAllByText('معلومة مفيدة').length).toBeGreaterThan(0);
     });
   });
 
-  it("toast message appears after showToast is called", async () => {
+  it('toast message appears after showToast is called', async () => {
     // This test verifies the toast appears - timer dismissal is tested via setTimeout mock
-    const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
+    const setTimeoutSpy = vi.spyOn(globalThis, 'setTimeout');
     render(
       <ToastProvider>
-        <ToastTestComponent
-          type="success"
-          message="رسالة اختبار"
-          duration={3000}
-        />
-      </ToastProvider>,
+        <ToastTestComponent type="success" message="رسالة اختبار" duration={3000} />
+      </ToastProvider>
     );
-    fireEvent.click(screen.getByTestId("show-toast"));
+    fireEvent.click(screen.getByTestId('show-toast'));
     await waitFor(() => {
-      expect(screen.getAllByText("رسالة اختبار").length).toBeGreaterThan(0);
+      expect(screen.getAllByText('رسالة اختبار').length).toBeGreaterThan(0);
     });
     // Verify setTimeout was called with the duration
     expect(setTimeoutSpy).toHaveBeenCalled();
     setTimeoutSpy.mockRestore();
   });
 
-  it("can show multiple toasts simultaneously", async () => {
+  it('can show multiple toasts simultaneously', async () => {
     render(
       <ToastProvider>
         <ToastTestComponent type="success" message="أولى" />
         <ToastTestComponent type="error" message="ثانية" />
-      </ToastProvider>,
+      </ToastProvider>
     );
-    const buttons = screen.getAllByTestId("show-toast");
+    const buttons = screen.getAllByTestId('show-toast');
     fireEvent.click(buttons[0]);
     fireEvent.click(buttons[1]);
     await waitFor(() => {
-      expect(screen.getAllByText("أولى").length).toBeGreaterThan(0);
-      expect(screen.getAllByText("ثانية").length).toBeGreaterThan(0);
+      expect(screen.getAllByText('أولى').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('ثانية').length).toBeGreaterThan(0);
     });
   });
 });
 
 // ─── Modal ───────────────────────────────────────────────────────────────────
-import { Modal, ModalFooter } from "../modal";
+import { Modal, ModalFooter } from '../modal';
 
-vi.mock("react-focus-lock", () => ({
-  default: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
-  ),
+vi.mock('react-focus-lock', () => ({
+  default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-describe("Modal Component", () => {
-  it("renders nothing when isOpen is false", () => {
+describe('Modal Component', () => {
+  it('renders nothing when isOpen is false', () => {
     render(
       <Modal isOpen={false} onClose={vi.fn()} title="Test Modal">
         <div>Modal content</div>
-      </Modal>,
+      </Modal>
     );
-    expect(screen.queryByText("Modal content")).not.toBeInTheDocument();
+    expect(screen.queryByText('Modal content')).not.toBeInTheDocument();
   });
 
-  it("renders content when isOpen is true", () => {
+  it('renders content when isOpen is true', () => {
     render(
       <Modal isOpen={true} onClose={vi.fn()} title="Test Modal" titleAr="اختبار">
         <div>Modal content</div>
-      </Modal>,
+      </Modal>
     );
-    expect(screen.getByText("Modal content")).toBeInTheDocument();
+    expect(screen.getByText('Modal content')).toBeInTheDocument();
   });
 
-  it("shows bilingual title", () => {
+  it('shows bilingual title', () => {
     render(
-      <Modal
-        isOpen={true}
-        onClose={vi.fn()}
-        title="Test Modal"
-        titleAr="نافذة الاختبار"
-      >
+      <Modal isOpen={true} onClose={vi.fn()} title="Test Modal" titleAr="نافذة الاختبار">
         <div>content</div>
-      </Modal>,
+      </Modal>
     );
     // Use getAllByText since aria-live region also contains the text
-    expect(screen.getAllByText("نافذة الاختبار").length).toBeGreaterThan(0);
-    expect(screen.getByText("Test Modal")).toBeInTheDocument();
+    expect(screen.getAllByText('نافذة الاختبار').length).toBeGreaterThan(0);
+    expect(screen.getByText('Test Modal')).toBeInTheDocument();
   });
 
-  it("calls onClose when Escape key is pressed", () => {
+  it('calls onClose when Escape key is pressed', () => {
     const onClose = vi.fn();
     render(
       <Modal isOpen={true} onClose={onClose} title="Modal">
         <div>content</div>
-      </Modal>,
+      </Modal>
     );
-    fireEvent.keyDown(document, { key: "Escape" });
+    fireEvent.keyDown(document, { key: 'Escape' });
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("shows close button by default", () => {
+  it('shows close button by default', () => {
     render(
       <Modal isOpen={true} onClose={vi.fn()} title="Modal">
         <div>content</div>
-      </Modal>,
+      </Modal>
     );
     expect(screen.getByLabelText(/إغلاق/)).toBeInTheDocument();
   });
 
-  it("calls onClose when close button is clicked", () => {
+  it('calls onClose when close button is clicked', () => {
     const onClose = vi.fn();
     render(
       <Modal isOpen={true} onClose={onClose} title="Modal">
         <div>content</div>
-      </Modal>,
+      </Modal>
     );
     fireEvent.click(screen.getByLabelText(/إغلاق/));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it("hides close button when showCloseButton is false", () => {
+  it('hides close button when showCloseButton is false', () => {
     render(
-      <Modal
-        isOpen={true}
-        onClose={vi.fn()}
-        title="Modal"
-        showCloseButton={false}
-      >
+      <Modal isOpen={true} onClose={vi.fn()} title="Modal" showCloseButton={false}>
         <div>content</div>
-      </Modal>,
+      </Modal>
     );
     expect(screen.queryByLabelText(/إغلاق/)).not.toBeInTheDocument();
   });
 
-  it("renders ModalFooter with action buttons", () => {
+  it('renders ModalFooter with action buttons', () => {
     render(
       <Modal isOpen={true} onClose={vi.fn()} title="Modal">
         <ModalFooter>
           <button>Cancel</button>
           <button>Confirm</button>
         </ModalFooter>
-      </Modal>,
+      </Modal>
     );
-    expect(screen.getByRole("button", { name: "Cancel" })).toBeInTheDocument();
-    expect(
-      screen.getByRole("button", { name: "Confirm" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Confirm' })).toBeInTheDocument();
   });
 
-  it("has role=dialog", () => {
+  it('has role=dialog', () => {
     render(
       <Modal isOpen={true} onClose={vi.fn()} title="Modal">
         <div>content</div>
-      </Modal>,
+      </Modal>
     );
-    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 
-  it("has aria-modal=true on dialog", () => {
+  it('has aria-modal=true on dialog', () => {
     render(
       <Modal isOpen={true} onClose={vi.fn()} title="Modal">
         <div>content</div>
-      </Modal>,
+      </Modal>
     );
-    expect(screen.getByRole("dialog")).toHaveAttribute("aria-modal", "true");
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-modal', 'true');
   });
 
-  it("renders in different sizes", () => {
+  it('renders in different sizes', () => {
     const { rerender } = render(
       <Modal isOpen={true} onClose={vi.fn()} size="sm">
         <div>small</div>
-      </Modal>,
+      </Modal>
     );
-    expect(screen.getByText("small")).toBeInTheDocument();
+    expect(screen.getByText('small')).toBeInTheDocument();
 
     rerender(
       <Modal isOpen={true} onClose={vi.fn()} size="xl">
         <div>xlarge</div>
-      </Modal>,
+      </Modal>
     );
-    expect(screen.getByText("xlarge")).toBeInTheDocument();
+    expect(screen.getByText('xlarge')).toBeInTheDocument();
   });
 });

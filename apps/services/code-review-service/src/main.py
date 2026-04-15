@@ -18,10 +18,16 @@ from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 import aiohttp
 import uvicorn
 from config.settings import Settings
 from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -58,7 +64,10 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler()],
 )
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -727,6 +736,39 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+# CORS middleware - تكوين مشاركة الموارد عبر المصادر
+try:
+    from shared.cors_config import setup_cors_middleware
+
+    setup_cors_middleware(app)
+except ImportError:
+    ALLOWED_ORIGINS = os.getenv(
+        "CORS_ORIGINS",
+        "https://sahool.io,https://admin.sahool.io,http://localhost:3000",
+    ).split(",")
+
+    # Disable credentials when wildcard origin is used to avoid invalid CORS config
+    allow_credentials = all(origin != "*" for origin in ALLOWED_ORIGINS)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=ALLOWED_ORIGINS,
+        allow_credentials=allow_credentials,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+        allow_headers=[
+            "Accept",
+            "Accept-Language",
+            "Authorization",
+            "Content-Type",
+            "Content-Language",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Tenant-ID",
+            "X-API-Key",
+            "X-User-ID",
+        ],
+    )
+
 app.add_middleware(TenantContextMiddleware)
 
 
@@ -776,7 +818,7 @@ def liveness():
 
 
 @app.get("/models", response_model=list[ModelInfo])
-async def list_models():
+async def list_models(user: User = Depends(get_current_user)):
     """List available LLM models"""
     service = get_service()
     return service.get_available_models()
@@ -825,7 +867,9 @@ async def review_file_endpoint(request: FileReviewRequest, user: User = Depends(
 
 
 @app.post("/review/pr")
-async def review_pr_endpoint(request: PRReviewRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)):
+async def review_pr_endpoint(
+    request: PRReviewRequest, background_tasks: BackgroundTasks, user: User = Depends(get_current_user)
+):
     """Review a GitHub Pull Request"""
     service = get_service()
 
@@ -884,7 +928,7 @@ async def github_webhook(
 
 
 @app.get("/cache/stats", response_model=CacheStatsResponse)
-async def cache_stats():
+async def cache_stats(user: User = Depends(get_current_user)):
     """Get cache statistics"""
     service = get_service()
     if not service.cache:

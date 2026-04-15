@@ -129,13 +129,13 @@ class FuelLog {
       receiptNumber: json['receipt_number'] as String?,
       notes: json['notes'] as String?,
       notesAr: json['notes_ar'] as String?,
-      timestamp: DateTime.parse(json['timestamp'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       createdBy: json['created_by'] as String?,
       lat: (json['lat'] as num?)?.toDouble(),
       lon: (json['lon'] as num?)?.toDouble(),
       attachments: json['attachments'] != null
-          ? List<String>.from(json['attachments'] as List)
+          ? List<String>.from(json['attachments'] as List? ?? [])
           : null,
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -225,10 +225,10 @@ class FuelConsumptionSummary {
           (json['average_price_per_liter'] as num).toDouble(),
       refuelCount: json['refuel_count'] as int,
       totalHoursOperated: (json['total_hours_operated'] as num).toDouble(),
-      periodStart: DateTime.parse(json['period_start'] as String),
-      periodEnd: DateTime.parse(json['period_end'] as String),
+      periodStart: DateTime.tryParse(json['period_start'] as String) ?? DateTime.now(),
+      periodEnd: DateTime.tryParse(json['period_end'] as String) ?? DateTime.now(),
       dailyBreakdown: json['daily_breakdown'] != null
-          ? (json['daily_breakdown'] as List)
+          ? (json['daily_breakdown'] as List? ?? [])
               .map((e) =>
                   FuelConsumptionByDay.fromJson(e as Map<String, dynamic>))
               .toList()
@@ -271,7 +271,7 @@ class FuelConsumptionByDay {
 
   factory FuelConsumptionByDay.fromJson(Map<String, dynamic> json) {
     return FuelConsumptionByDay(
-      date: DateTime.parse(json['date'] as String),
+      date: DateTime.tryParse(json['date'] as String) ?? DateTime.now(),
       fuelConsumed: (json['fuel_consumed'] as num).toDouble(),
       cost: (json['cost'] as num).toDouble(),
       hoursOperated: (json['hours_operated'] as num).toDouble(),
@@ -329,7 +329,7 @@ class FuelAlert {
       threshold: (json['threshold'] as num).toDouble(),
       message: json['message'] as String,
       messageAr: json['message_ar'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       isAcknowledged: json['is_acknowledged'] as bool? ?? false,
     );
   }

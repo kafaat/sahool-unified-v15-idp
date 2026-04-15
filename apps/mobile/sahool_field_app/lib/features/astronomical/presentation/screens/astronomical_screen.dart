@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Astronomical Calendar Screen
 /// شاشة التقويم الفلكي
 ///

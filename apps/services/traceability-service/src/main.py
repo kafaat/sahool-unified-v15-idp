@@ -38,7 +38,12 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
             app.state.db_connected = True
             logger.info("Database connection pool created")
         except Exception as e:
@@ -64,10 +69,35 @@ async def lifespan(app: FastAPI):
         app.state.nats_connected = False
         logger.warning("NATS_URL not set, running without NATS")
 
+    # Start the field-event blockchain anchoring subscriber. Uses the
+    # same NATS connection + db pool (if available) we just opened.
+    app.state.field_event_subscriber = None
+    if getattr(app.state, "nats_connected", False):
+        try:
+            from src.anchoring import FieldEventSubscriber
+
+            app.state.field_event_subscriber = FieldEventSubscriber(
+                nats_client=app.state.nc,
+                db_pool=getattr(app.state, "db_pool", None),
+            )
+            await app.state.field_event_subscriber.start()
+            logger.info("Field event anchoring subscriber started")
+        except Exception as e:
+            logger.error("Failed to start field event subscriber", error=str(e))
+
     yield
 
     # Shutdown: Close connections
     logger.info("Shutting down traceability-service...")
+
+    # Stop the anchoring subscriber FIRST so no new messages arrive
+    # while the NATS connection is being torn down.
+    if getattr(app.state, "field_event_subscriber", None) is not None:
+        try:
+            await app.state.field_event_subscriber.stop()
+            logger.info("Field event anchoring subscriber stopped")
+        except Exception as e:
+            logger.warning("Failed to stop anchoring subscriber", error=str(e))
 
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         await app.state.db_pool.close()
@@ -121,6 +151,98 @@ try:
     logger.info("API routers registered")
 except ImportError as e:
     logger.error("Failed to import API routers", error=str(e))
+
+
+# ---------------------------------------------------------------------------
+# Blockchain anchor inspection endpoints
+# نقاط نهاية فحص سلسلة التتبع
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/v1/traceability/anchors/{tenant_id}/{field_id}")
+async def list_anchors(tenant_id: str, field_id: str):
+    """
+    Return the in-memory chain of anchored events for a given
+    (tenant, field). Useful for debugging and for the loan-
+    verification / export-certificate flows that need to show
+    the immutable activity log to auditors.
+    """
+    subscriber = getattr(app.state, "field_event_subscriber", None)
+    if subscriber is None:
+        return {
+            "success": True,
+            "data": {
+                "tenant_id": tenant_id,
+                "field_id": field_id,
+                "anchors": [],
+                "length": 0,
+                "subscriber_enabled": False,
+            },
+        }
+    anchors = subscriber.get_chain(tenant_id, field_id)
+    return {
+        "success": True,
+        "data": {
+            "tenant_id": tenant_id,
+            "field_id": field_id,
+            "anchors": [a.to_dict() for a in anchors],
+            "length": len(anchors),
+            "subscriber_enabled": True,
+        },
+    }
+
+
+@app.get("/api/v1/traceability/anchors/{tenant_id}/{field_id}/verify")
+async def verify_anchors(tenant_id: str, field_id: str):
+    """
+    Re-compute every hash in the field's chain and confirm it
+    matches. Returns ``valid: true`` only if the chain is untampered.
+    """
+    subscriber = getattr(app.state, "field_event_subscriber", None)
+    if subscriber is None:
+        return {
+            "success": True,
+            "data": {
+                "tenant_id": tenant_id,
+                "field_id": field_id,
+                "valid": True,
+                "subscriber_enabled": False,
+            },
+        }
+    valid = subscriber.verify_chain(tenant_id, field_id)
+    anchors = subscriber.get_chain(tenant_id, field_id)
+    return {
+        "success": True,
+        "data": {
+            "tenant_id": tenant_id,
+            "field_id": field_id,
+            "valid": valid,
+            "length": len(anchors),
+            "head_hash": anchors[-1].hash if anchors else None,
+            "subscriber_enabled": True,
+        },
+    }
+
+
+@app.get("/api/v1/traceability/anchors/stats")
+async def anchor_stats():
+    """Expose subscriber stats for Prometheus scrapers / ops."""
+    subscriber = getattr(app.state, "field_event_subscriber", None)
+    if subscriber is None:
+        return {
+            "success": True,
+            "data": {
+                "subscriber_enabled": False,
+                "messages_received": 0,
+                "anchors_created": 0,
+                "events_ignored": 0,
+                "errors": 0,
+            },
+        }
+    return {
+        "success": True,
+        "data": {"subscriber_enabled": True, **subscriber.stats},
+    }
 
 
 @app.get("/healthz")

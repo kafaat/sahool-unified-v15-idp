@@ -13,6 +13,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /app
 
+ENV PIP_NO_CACHE_DIR=1
+
 # Create non-root user for security
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
@@ -25,12 +27,13 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip to latest version with multi-mirror fallback
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip setuptools wheel || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip setuptools wheel
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with multi-mirror fallback
 COPY apps/services/vegetation-analysis-service/requirements.txt .
@@ -48,6 +51,11 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --prefix=/install \
     -c constraints.txt -r requirements.txt
 
+# Install sahool-eo local package for Sentinel Hub integration
+COPY packages/sahool-eo /tmp/sahool-eo
+RUN pip install --no-cache-dir --prefix=/install /tmp/sahool-eo || \
+    echo "WARNING: sahool-eo install failed — satellite data will use simulation mode"
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production
 # ─────────────────────────────────────────────────────────────────────────────
@@ -55,12 +63,28 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 WORKDIR /app
 
+# Upgrade system packages to patch CVEs
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
 # Create non-root user for security
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Copy installed packages from builder (no build-essential/gcc in production)
 COPY --from=builder /install /usr/local
+
+# Strip build tools from production image (reduces attack surface and CVE footprint)
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
+    rm -rf /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi
 
 # Copy root shared modules (shared.ai, shared.events, etc.)
 COPY shared/ ./shared/

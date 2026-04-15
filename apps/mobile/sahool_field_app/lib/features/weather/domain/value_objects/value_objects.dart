@@ -1,3 +1,5 @@
+library;
+
 /// Weather Domain Value Objects
 /// Barrel file for all value objects
 

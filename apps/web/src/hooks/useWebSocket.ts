@@ -7,14 +7,24 @@
  * - Heartbeat/ping-pong for stale connection detection
  * - Message buffering during reconnection
  * - Tab visibility awareness (pause when hidden)
+ * - Typed event handlers per category
+ * - useWebSocketEvent hook for filtering events by type
+ * - React Query cache invalidation on data events
  */
 
-import { useEffect, useRef, useCallback, useState } from "react";
-import { WSMessage } from "../types";
-import { logger } from "../lib/logger";
+import { useEffect, useRef, useCallback, useState } from 'react';
+import { WSMessage } from '../types';
+import { logger } from '../lib/logger';
+import {
+  wsClient,
+  TimelineEvent,
+  getEventCategory,
+  type EventCategory,
+} from '../lib/ws';
 
 interface UseWebSocketOptions {
   url: string;
+  token?: string | null;
   onMessage?: (message: WSMessage) => void;
   reconnectInterval?: number;
   enabled?: boolean;
@@ -24,6 +34,7 @@ interface UseWebSocketOptions {
 
 export function useWebSocket({
   url,
+  token,
   onMessage,
   reconnectInterval = 5000,
   enabled = true,
@@ -39,9 +50,7 @@ export function useWebSocket({
   const pongTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const onMessageRef = useRef(onMessage);
   const isMountedRef = useRef(true);
-  const isTabVisibleRef = useRef(
-    typeof document !== "undefined" ? !document.hidden : true,
-  );
+  const isTabVisibleRef = useRef(typeof document !== 'undefined' ? !document.hidden : true);
   const sendBufferRef = useRef<unknown[]>([]);
   // Use a ref for reconnect count in backoff calculation to keep connect() stable
   const reconnectCountRef = useRef(0);
@@ -64,8 +73,8 @@ export function useWebSocket({
         connectRef.current();
       }
     };
-    document.addEventListener("visibilitychange", handleVisibility);
-    return () => document.removeEventListener("visibilitychange", handleVisibility);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
   }, [isConnected, enabled]);
 
   // Flush buffered outbound messages over the now-open WebSocket
@@ -76,7 +85,7 @@ export function useWebSocket({
         try {
           wsRef.current?.send(JSON.stringify(msg));
         } catch (err) {
-          logger.error("Failed to flush buffered message:", err);
+          logger.error('Failed to flush buffered message:', err);
         }
       });
       sendBufferRef.current = [];
@@ -93,11 +102,11 @@ export function useWebSocket({
         // the stale-connection detector when heartbeatInterval < 10 s.
         if (pongTimeoutRef.current) return;
 
-        wsRef.current.send(JSON.stringify({ type: "ping", ts: Date.now() }));
+        wsRef.current.send(JSON.stringify({ type: 'ping', ts: Date.now() }));
 
         // Expect pong within 10 seconds
         pongTimeoutRef.current = setTimeout(() => {
-          logger.log("WebSocket heartbeat timeout - connection stale, reconnecting...");
+          logger.log('WebSocket heartbeat timeout - connection stale, reconnecting...');
           wsRef.current?.close();
         }, 10000);
       }
@@ -117,7 +126,13 @@ export function useWebSocket({
 
   const connect = useCallback(() => {
     // Don't connect if unmounted, disabled, tab hidden, or manually disconnected
-    if (!isMountedRef.current || !enabled || !isTabVisibleRef.current || !shouldReconnectRef.current) return;
+    if (
+      !isMountedRef.current ||
+      !enabled ||
+      !isTabVisibleRef.current ||
+      !shouldReconnectRef.current
+    )
+      return;
 
     try {
       // Clean up existing connection
@@ -133,7 +148,14 @@ export function useWebSocket({
         reconnectTimeoutRef.current = null;
       }
 
-      const ws = new WebSocket(url);
+      // Append token as query parameter when provided
+      let connectUrl = url;
+      if (token) {
+        const separator = url.includes('?') ? '&' : '?';
+        connectUrl = `${url}${separator}token=${encodeURIComponent(token)}`;
+      }
+
+      const ws = new WebSocket(connectUrl);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -145,7 +167,7 @@ export function useWebSocket({
         setError(null);
         setReconnectCount(0);
         reconnectCountRef.current = 0;
-        logger.log("WebSocket connected");
+        logger.log('WebSocket connected');
 
         // Flush any buffered outbound messages
         flushSendBuffer();
@@ -159,7 +181,7 @@ export function useWebSocket({
           const message: WSMessage = JSON.parse(event.data);
 
           // Handle pong response - clear pong timeout
-          if (message.type === "pong") {
+          if (message.type === 'pong') {
             if (pongTimeoutRef.current) {
               clearTimeout(pongTimeoutRef.current);
               pongTimeoutRef.current = null;
@@ -169,35 +191,40 @@ export function useWebSocket({
 
           onMessageRef.current?.(message);
         } catch (err) {
-          logger.error("Failed to parse WebSocket message:", err);
+          logger.error('Failed to parse WebSocket message:', err);
         }
       };
 
-      ws.onclose = () => {
+      ws.onclose = (event) => {
         // Ignore close events from stale sockets
         if (ws !== wsRef.current) return;
         if (!isMountedRef.current) return;
         setIsConnected(false);
         stopHeartbeat();
 
+        // Authentication failure - don't reconnect
+        const code = (event as CloseEvent)?.code;
+        if (code === 4001 || code === 4003) {
+          setError('Authentication failed');
+          logger.log('WebSocket authentication failed, not reconnecting');
+          return;
+        }
+
         // Don't reconnect if manually disconnected or unmounting
         if (!shouldReconnectRef.current) {
-          logger.log("WebSocket disconnected, reconnect suppressed");
+          logger.log('WebSocket disconnected, reconnect suppressed');
           return;
         }
 
         // Don't reconnect if tab is hidden
         if (!isTabVisibleRef.current) {
-          logger.log("WebSocket disconnected, tab hidden - waiting for visibility");
+          logger.log('WebSocket disconnected, tab hidden - waiting for visibility');
           return;
         }
 
         // Exponential backoff using ref to avoid dependency on state
         const currentCount = reconnectCountRef.current;
-        const backoff = Math.min(
-          reconnectInterval * Math.pow(2, currentCount),
-          60000
-        );
+        const backoff = Math.min(reconnectInterval * Math.pow(2, currentCount), 60000);
         logger.log(`WebSocket disconnected, reconnecting in ${backoff}ms...`);
         reconnectCountRef.current = currentCount + 1;
         setReconnectCount(reconnectCountRef.current);
@@ -213,14 +240,14 @@ export function useWebSocket({
 
       ws.onerror = (event) => {
         if (!isMountedRef.current || ws !== wsRef.current) return;
-        logger.error("WebSocket error:", event);
-        setError("Connection error");
+        logger.error('WebSocket error:', event);
+        setError('Connection unavailable');
       };
     } catch (err) {
-      logger.error("Failed to connect WebSocket:", err);
-      setError(err instanceof Error ? err.message : "Failed to connect");
+      logger.error('Failed to connect WebSocket:', err);
+      setError(err instanceof Error ? err.message : 'Failed to connect');
     }
-  }, [url, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
+  }, [url, token, reconnectInterval, enabled, flushSendBuffer, startHeartbeat, stopHeartbeat]);
 
   // Keep connectRef in sync with latest connect
   useEffect(() => {
@@ -252,16 +279,19 @@ export function useWebSocket({
     };
   }, [connect, enabled, stopHeartbeat]);
 
-  const send = useCallback((data: unknown) => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify(data));
-    } else {
-      // Buffer outbound message for sending when reconnected
-      if (sendBufferRef.current.length < maxBufferSize) {
-        sendBufferRef.current.push(data);
+  const send = useCallback(
+    (data: unknown) => {
+      if (wsRef.current?.readyState === WebSocket.OPEN) {
+        wsRef.current.send(JSON.stringify(data));
+      } else {
+        // Buffer outbound message for sending when reconnected
+        if (sendBufferRef.current.length < maxBufferSize) {
+          sendBufferRef.current.push(data);
+        }
       }
-    }
-  }, [maxBufferSize]);
+    },
+    [maxBufferSize]
+  );
 
   const disconnect = useCallback(() => {
     shouldReconnectRef.current = false;
@@ -277,3 +307,223 @@ export function useWebSocket({
 }
 
 export default useWebSocket;
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Typed Event Hooks
+// خطافات الأحداث المصنفة
+// ═══════════════════════════════════════════════════════════════════════════
+
+type TimelineEventHandler = (event: TimelineEvent) => void;
+
+/**
+ * React Query invalidation keys per event category.
+ * Maps ws-gateway event categories to the query keys that should be
+ * invalidated when such an event arrives.
+ */
+const QUERY_KEYS_BY_CATEGORY: Record<string, string[]> = {
+  field: ['fields', 'field-details'],
+  weather: ['weather', 'weather-forecast'],
+  satellite: ['satellite', 'satellite-imagery'],
+  ndvi: ['ndvi', 'ndvi-analysis', 'vegetation'],
+  inventory: ['inventory', 'stock'],
+  crop: ['crop-health', 'crops', 'disease', 'pest'],
+  spray: ['spray', 'spray-schedule'],
+  task: ['tasks', 'task-details'],
+  tasks: ['tasks', 'task-details'],
+  iot: ['iot', 'sensors', 'sensor-readings'],
+  user: ['users', 'user-status'],
+  chat: ['chat', 'messages'],
+  system: ['notifications'],
+  diagnosis: ['diagnosis', 'crop-health', 'disease'],
+  irrigation: ['irrigation', 'irrigation-schedules', 'water-balance'],
+  fertilizer: ['fertilizer', 'fertilizer-plans', 'nutrients'],
+};
+
+/**
+ * Subscribe to WebSocket events filtered by event type pattern.
+ * The pattern is matched against the event_type string.
+ *
+ * @param eventType - Full event type (e.g., 'field.updated') or category prefix (e.g., 'field')
+ * @param handler - Callback invoked when a matching event is received
+ *
+ * Usage:
+ * ```ts
+ * useWebSocketEvent('field.updated', (event) => {
+ *   console.log('Field updated:', event.payload);
+ * });
+ *
+ * // Or subscribe to all events in a category:
+ * useWebSocketEvent('crop', (event) => {
+ *   // Handles crop.disease.detected, crop.pest.detected, crop.health.alert
+ * });
+ * ```
+ */
+export function useWebSocketEvent(
+  eventType: string,
+  handler: TimelineEventHandler
+) {
+  const handlerRef = useRef(handler);
+
+  useEffect(() => {
+    handlerRef.current = handler;
+  }, [handler]);
+
+  useEffect(() => {
+    const unsubscribe = wsClient.onEvent((event: TimelineEvent) => {
+      const type = event.event_type;
+      // Exact match, dot-prefix match, or category-level match
+      // (handles legacy underscore events like "task_created" matching "task")
+      if (
+        type === eventType ||
+        type.startsWith(eventType + '.') ||
+        getEventCategory(type) === eventType
+      ) {
+        handlerRef.current(event);
+      }
+    });
+
+    return () => { unsubscribe(); };
+  }, [eventType]);
+}
+
+/**
+ * Hook that auto-invalidates React Query caches when relevant WebSocket
+ * events arrive. Pass a QueryClient instance to enable.
+ *
+ * @param queryClient - TanStack React Query QueryClient (optional)
+ *
+ * Usage:
+ * ```ts
+ * import { useQueryClient } from '@tanstack/react-query';
+ *
+ * function App() {
+ *   const queryClient = useQueryClient();
+ *   useWebSocketQueryInvalidation(queryClient);
+ * }
+ * ```
+ */
+export function useWebSocketQueryInvalidation(queryClient?: {
+  invalidateQueries: (opts: { queryKey: string[] }) => void;
+}) {
+  useEffect(() => {
+    if (!queryClient) return;
+
+    const unsubscribe = wsClient.onEvent((event: TimelineEvent) => {
+      const category = getEventCategory(event.event_type);
+      const keys = QUERY_KEYS_BY_CATEGORY[category];
+
+      if (keys) {
+        for (const key of keys) {
+          queryClient.invalidateQueries({ queryKey: [key] });
+        }
+      }
+    });
+
+    return () => { unsubscribe(); };
+  }, [queryClient]);
+}
+
+/**
+ * Typed event handler callbacks for each ws-gateway event category.
+ * All callbacks are optional - only provide the ones you need.
+ */
+export interface WebSocketEventHandlers {
+  onFieldEvent?: TimelineEventHandler;
+  onWeatherEvent?: TimelineEventHandler;
+  onSatelliteEvent?: TimelineEventHandler;
+  onNdviEvent?: TimelineEventHandler;
+  onInventoryEvent?: TimelineEventHandler;
+  onCropEvent?: TimelineEventHandler;
+  onSprayEvent?: TimelineEventHandler;
+  onChatEvent?: TimelineEventHandler;
+  onTaskEvent?: TimelineEventHandler;
+  onIotEvent?: TimelineEventHandler;
+  onSystemEvent?: TimelineEventHandler;
+  onUserEvent?: TimelineEventHandler;
+  onDiagnosisEvent?: TimelineEventHandler;
+  onIrrigationEvent?: TimelineEventHandler;
+  onFertilizerEvent?: TimelineEventHandler;
+}
+
+const HANDLER_CATEGORY_MAP: [keyof WebSocketEventHandlers, EventCategory][] = [
+  ['onFieldEvent', 'field'],
+  ['onWeatherEvent', 'weather'],
+  ['onSatelliteEvent', 'satellite'],
+  ['onNdviEvent', 'ndvi'],
+  ['onInventoryEvent', 'inventory'],
+  ['onCropEvent', 'crop'],
+  ['onSprayEvent', 'spray'],
+  ['onChatEvent', 'chat'],
+  ['onTaskEvent', 'task'],
+  ['onIotEvent', 'iot'],
+  ['onSystemEvent', 'system'],
+  ['onUserEvent', 'user'],
+  ['onDiagnosisEvent', 'diagnosis'],
+  ['onIrrigationEvent', 'irrigation'],
+  ['onFertilizerEvent', 'fertilizer'],
+];
+
+/**
+ * Hook to register typed event handlers for each WebSocket event category.
+ * Dispatches incoming events to the appropriate handler based on the
+ * event category prefix (e.g., 'crop.disease.detected' -> onCropEvent).
+ *
+ * Usage:
+ * ```ts
+ * useWebSocketEvents({
+ *   onFieldEvent: (event) => { /* field.created, field.updated, field.deleted *\/ },
+ *   onCropEvent: (event) => { /* crop.disease.detected, crop.pest.detected *\/ },
+ *   onWeatherEvent: (event) => { /* weather.alert, weather.updated *\/ },
+ * });
+ * ```
+ */
+export function useWebSocketEvents(handlers: WebSocketEventHandlers) {
+  const handlersRef = useRef(handlers);
+
+  useEffect(() => {
+    handlersRef.current = handlers;
+  }, [handlers]);
+
+  useEffect(() => {
+    const unsubscribe = wsClient.onEvent((event: TimelineEvent) => {
+      const category = getEventCategory(event.event_type);
+
+      for (const [handlerKey, cat] of HANDLER_CATEGORY_MAP) {
+        if (category === cat) {
+          const fn = handlersRef.current[handlerKey];
+          if (fn) fn(event);
+          return;
+        }
+      }
+
+      // Handle 'tasks' prefix (legacy) routing to onTaskEvent
+      if (category === 'tasks') {
+        const fn = handlersRef.current.onTaskEvent;
+        if (fn) fn(event);
+      }
+    });
+
+    return () => { unsubscribe(); };
+  }, []);
+}
+
+/**
+ * Hook to subscribe/unsubscribe to a chat or field room.
+ * Automatically cleans up on unmount.
+ *
+ * Usage:
+ * ```ts
+ * useWebSocketRoom(selectedChatRoomId);
+ * ```
+ */
+export function useWebSocketRoom(roomId: string | null | undefined) {
+  useEffect(() => {
+    if (!roomId) return;
+
+    wsClient.subscribeToRoom(roomId);
+
+    return () => {
+      wsClient.unsubscribeFromRoom(roomId);
+    };
+  }, [roomId]);
+}

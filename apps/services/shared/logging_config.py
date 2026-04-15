@@ -27,6 +27,7 @@ Usage:
 
 import logging
 import os
+import re
 import sys
 from contextvars import ContextVar
 from uuid import uuid4
@@ -35,6 +36,32 @@ import structlog
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
+
+# ─────────────────────────────────────────────────────────────────────────────
+# URL Credential Sanitization
+# ─────────────────────────────────────────────────────────────────────────────
+_URL_CREDENTIAL_RE = re.compile(r"(?P<scheme>[a-zA-Z][a-zA-Z0-9+\-.]*://)(?P<userinfo>[^@]+)@")
+_SENSITIVE_QUERY_PARAM_RE = re.compile(
+    r"((?:password|token|api_key|secret|access_token|refresh_token|auth)=)[^&]+",
+    re.IGNORECASE,
+)
+
+
+def sanitize_url(url: str) -> str:
+    """Mask credentials embedded in a connection URL before logging."""
+    if not isinstance(url, str):
+        return str(url)
+    result = _URL_CREDENTIAL_RE.sub(r"\g<scheme>***@", url)
+    result = _SENSITIVE_QUERY_PARAM_RE.sub(r"\1=***", result)
+    return result
+
+
+def sanitize_urls(urls: "list[str] | str") -> "list[str] | str":
+    """Sanitize a single URL string or a list of URL strings."""
+    if isinstance(urls, str):
+        return sanitize_url(urls)
+    return [sanitize_url(u) for u in urls]
+
 
 # Context variables for correlation tracking
 correlation_id_var: ContextVar[str | None] = ContextVar("correlation_id", default=None)

@@ -23,7 +23,7 @@
  * GeoJSON LineString geometry for drainage segments
  */
 interface HydroLineString {
-  type: "LineString";
+  type: 'LineString';
   coordinates: Array<[number, number]>; // [longitude, latitude] pairs
 }
 
@@ -31,7 +31,7 @@ interface HydroLineString {
  * GeoJSON Polygon geometry for basins and zones
  */
 interface HydroPolygon {
-  type: "Polygon";
+  type: 'Polygon';
   coordinates: Array<Array<[number, number]>>;
 }
 
@@ -39,7 +39,7 @@ interface HydroPolygon {
  * GeoJSON Feature for individual geographic features
  */
 interface HydroFeature<G = HydroLineString | HydroPolygon, P = Record<string, unknown>> {
-  type: "Feature";
+  type: 'Feature';
   geometry: G;
   properties: P;
 }
@@ -48,7 +48,7 @@ interface HydroFeature<G = HydroLineString | HydroPolygon, P = Record<string, un
  * GeoJSON FeatureCollection for network and zone collections
  */
 interface HydroFeatureCollection<G = HydroLineString | HydroPolygon, P = Record<string, unknown>> {
-  type: "FeatureCollection";
+  type: 'FeatureCollection';
   features: Array<HydroFeature<G, P>>;
 }
 
@@ -60,17 +60,17 @@ interface HydroFeatureCollection<G = HydroLineString | HydroPolygon, P = Record<
 /**
  * Flow direction algorithms
  */
-export type FlowDirectionMethod = "d8" | "dinf" | "mfd";
+export type FlowDirectionMethod = 'd8' | 'dinf' | 'mfd';
 
 /**
  * Risk level for waterlogging and depression
  */
-export type WaterloggingRisk = "low" | "medium" | "high" | "critical";
+export type WaterloggingRisk = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Depression risk level
  */
-export type DepressionRisk = "low" | "medium" | "high" | "critical";
+export type DepressionRisk = 'low' | 'medium' | 'high' | 'critical';
 
 /**
  * Stream order classification (Strahler method)
@@ -80,7 +80,7 @@ export type StreamOrder = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
 /**
  * Basin size classification
  */
-export type BasinSize = "micro" | "small" | "medium" | "large" | "major";
+export type BasinSize = 'micro' | 'small' | 'medium' | 'large' | 'major';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Drainage Network Types
@@ -116,7 +116,7 @@ export interface DrainageSegment {
 export interface DrainageNetworkResult {
   fieldId: string;
   tenantId?: string;
-  analyzedAt: string;  // ISO 8601 timestamp
+  analyzedAt: string; // ISO 8601 timestamp
   demSource: string;
   resolutionM: number;
 
@@ -165,7 +165,7 @@ export interface TWIZone {
   areaHa: number;
   areaPercent: number;
   waterloggingRisk: WaterloggingRisk;
-  irrigationSuitability: "excellent" | "good" | "moderate" | "poor";
+  irrigationSuitability: 'excellent' | 'good' | 'moderate' | 'poor';
   recommendations: string[];
   recommendationsAr: string[];
 }
@@ -227,7 +227,7 @@ export interface Depression {
   risk: DepressionRisk;
   riskNameEn: string;
   riskNameAr: string;
-  drainageTime: number;  // hours to drain naturally
+  drainageTime: number; // hours to drain naturally
   requiresIntervention: boolean;
   geometry: HydroPolygon;
 }
@@ -352,7 +352,7 @@ export interface WaterloggingZone {
   depthToWaterTableM: number;
 
   // Weather-based prediction
-  rainfallThresholdMm: number;  // Rainfall that triggers waterlogging
+  rainfallThresholdMm: number; // Rainfall that triggers waterlogging
   predictedDurationHours: number;
 
   recommendations: string[];
@@ -457,14 +457,14 @@ export interface WaterloggingPredictionRequest {
  * Health check response
  */
 export interface HydrologyHealthResponse {
-  status: "ok" | "degraded" | "error";
-  service: "hydrology-service";
-  serviceAr: "خدمة الهيدرولوجيا";
+  status: 'ok' | 'degraded' | 'error';
+  service: 'hydrology-service';
+  serviceAr: 'خدمة الهيدرولوجيا';
   version: string;
   timestamp: string;
   checks: {
-    database: "connected" | "disconnected";
-    nats: "connected" | "disconnected";
+    database: 'connected' | 'disconnected';
+    nats: 'connected' | 'disconnected';
     terrainService: string;
     weatherService: string;
   };

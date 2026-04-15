@@ -1,6 +1,7 @@
+library;
+
 /// Analytics Dashboard Screen - Main Analytics View
 /// شاشة لوحة تحكم التحليلات - العرض الرئيسي للتحليلات
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -307,7 +308,7 @@ class _AnalyticsDashboardScreenState
                 Expanded(
                   child: LinearProgressIndicator(
                     value: metric.value / 100,
-                    backgroundColor: metric.color.withOpacity(0.2),
+                    backgroundColor: metric.color.withValues(alpha: 0.2),
                     valueColor: AlwaysStoppedAnimation(metric.color),
                   ),
                 ),
@@ -348,7 +349,7 @@ class _AnalyticsDashboardScreenState
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: priorityColors[rec.priority]?.withOpacity(0.1),
+            color: priorityColors[rec.priority]?.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -369,7 +370,7 @@ class _AnalyticsDashboardScreenState
               fontSize: 10,
             ),
           ),
-          backgroundColor: priorityColors[rec.priority]?.withOpacity(0.1),
+          backgroundColor: priorityColors[rec.priority]?.withValues(alpha: 0.1),
           side: BorderSide.none,
         ),
       ),
@@ -686,7 +687,7 @@ class _AnalyticsDashboardScreenState
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: levelColors[risk.level]?.withOpacity(0.1),
+            color: levelColors[risk.level]?.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -708,7 +709,7 @@ class _AnalyticsDashboardScreenState
                   fontSize: 10,
                 ),
               ),
-              backgroundColor: levelColors[risk.level]?.withOpacity(0.1),
+              backgroundColor: levelColors[risk.level]?.withValues(alpha: 0.1),
               side: BorderSide.none,
               padding: EdgeInsets.zero,
             ),

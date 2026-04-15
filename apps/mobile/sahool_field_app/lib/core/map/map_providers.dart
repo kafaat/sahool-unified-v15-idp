@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Map Providers - Multiple Map Library Support
 /// دعم متعدد لمكتبات الخرائط
 ///
@@ -8,7 +10,6 @@
 /// - Google Maps (Requires API key)
 /// - Custom Tile Server
 
-import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Map Provider Types

@@ -4,8 +4,16 @@ AI Chat Assistant - Main FastAPI application.
 """
 
 import logging
+import os
 from contextlib import asynccontextmanager
+
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 try:
@@ -15,17 +23,20 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
-from src.config import settings
 from src.cache import cache_manager
-from src.llm_client import llm_client
+from src.config import settings
 from src.events import event_handler
+from src.llm_client import llm_client
 
 # Configure logging
 logging.basicConfig(
     level=getattr(logging, settings.LOG_LEVEL),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
@@ -87,7 +98,7 @@ async def lifespan(app: FastAPI):
 
 
 # Import unified error handling
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Create FastAPI app
 app = FastAPI(
@@ -100,6 +111,33 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# CORS middleware - use centralized config to prevent wildcard in production
+try:
+    from shared.cors_config import setup_cors_middleware
+
+    setup_cors_middleware(app)
+except ImportError:
+    cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+    allow_credentials = "*" not in cors_origins
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=allow_credentials,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+        allow_headers=[
+            "Accept",
+            "Accept-Language",
+            "Authorization",
+            "Content-Type",
+            "Content-Language",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Tenant-ID",
+            "X-API-Key",
+            "X-User-ID",
+        ],
+    )
 
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
@@ -238,7 +276,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "src.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=settings.PORT,
         reload=settings.ENVIRONMENT == "development",
         log_level=settings.LOG_LEVEL.lower(),

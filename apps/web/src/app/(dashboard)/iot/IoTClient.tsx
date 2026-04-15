@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL IoT & Sensors Page Client Component
  * صفحة إنترنت الأشياء والمستشعرات
  */
 
-import React, { useState } from "react";
-import { Activity, Zap, AlertTriangle } from "lucide-react";
+import React, { useState } from 'react';
+import { Activity, Zap, AlertTriangle } from 'lucide-react';
 import {
   SensorsDashboard,
   SensorReadings,
@@ -17,7 +17,7 @@ import {
   useSensorReadings,
   useActuators,
   useAlertRules,
-} from "@/features/iot";
+} from '@/features/iot';
 
 /**
  * Sensor Readings Section with Chart
@@ -37,23 +37,19 @@ function SensorReadingsSection({ sensorId }: { sensorId: string }) {
       <SensorChart
         readings={readings}
         sensorType={sensor.type}
-        sensorUnit={sensor.lastReading?.unit || ""}
-        sensorUnitAr={sensor.lastReading?.unit || ""}
+        sensorUnit={sensor.lastReading?.unit || ''}
+        sensorUnitAr={sensor.lastReading?.unit || ''}
         showStats={true}
       />
 
       {/* Readings Table */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">
-          قراءات {sensor.nameAr}
-        </h2>
-        <p className="text-sm text-gray-600 mb-6">
-          Recent Readings - {sensor.name}
-        </p>
+        <h2 className="text-xl font-bold text-gray-900 mb-4">قراءات {sensor.nameAr}</h2>
+        <p className="text-sm text-gray-600 mb-6">Recent Readings - {sensor.name}</p>
         <SensorReadings
           sensorId={sensorId}
           sensorName={sensor.name}
-          unit={sensor.lastReading?.unit || ""}
+          unit={sensor.lastReading?.unit || ''}
         />
       </div>
     </>
@@ -66,19 +62,20 @@ export default function IoTClient() {
   const { data: actuators } = useActuators();
   const { data: alertRules } = useAlertRules();
 
+  // Backend may return either 'active' or 'online' for a connected sensor.
   const activeSensors =
-    sensors?.filter((s) => s.status === "active").length || 0;
+    sensors?.filter((s) => s.status === 'active' || s.status === 'online').length || 0;
+  // Actuators may report 'on' (discrete) or 'online' (connected) depending on
+  // transport; treat both as "active" in the dashboard metric.
   const activeActuators =
-    actuators?.filter((a) => a.status === "on").length || 0;
+    actuators?.filter((a) => a.status === 'on' || a.status === 'online').length || 0;
   const activeAlerts = alertRules?.filter((r) => r.enabled).length || 0;
 
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-        <h1 className="text-3xl font-bold text-gray-900">
-          إنترنت الأشياء والمستشعرات
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900">إنترنت الأشياء والمستشعرات</h1>
         <p className="text-gray-600 mt-1">IoT & Sensors Management</p>
       </div>
 
@@ -91,12 +88,8 @@ export default function IoTClient() {
             </div>
             <span className="text-xs text-gray-500">متصل</span>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {activeSensors}
-          </h3>
-          <p className="text-sm text-gray-600">
-            مستشعرات نشطة | Active Sensors
-          </p>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{activeSensors}</h3>
+          <p className="text-sm text-gray-600">مستشعرات نشطة | Active Sensors</p>
         </div>
 
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -106,12 +99,8 @@ export default function IoTClient() {
             </div>
             <span className="text-xs text-gray-500">متصل</span>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {activeActuators}
-          </h3>
-          <p className="text-sm text-gray-600">
-            مشغلات نشطة | Active Actuators
-          </p>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{activeActuators}</h3>
+          <p className="text-sm text-gray-600">مشغلات نشطة | Active Actuators</p>
         </div>
 
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -121,9 +110,7 @@ export default function IoTClient() {
             </div>
             <span className="text-xs text-gray-500">مفعّل</span>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {activeAlerts}
-          </h3>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{activeAlerts}</h3>
           <p className="text-sm text-gray-600">قواعد التنبيه | Alert Rules</p>
         </div>
       </div>
@@ -134,23 +121,17 @@ export default function IoTClient() {
         <div className="lg:col-span-2 space-y-6">
           {/* Sensors Dashboard */}
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              لوحة المستشعرات
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">لوحة المستشعرات</h2>
             <p className="text-sm text-gray-600 mb-6">Sensors Dashboard</p>
             <SensorsDashboard onSensorClick={setSelectedSensorId} />
           </div>
 
           {/* Sensor Readings & Chart */}
-          {selectedSensorId && (
-            <SensorReadingsSection sensorId={selectedSensorId} />
-          )}
+          {selectedSensorId && <SensorReadingsSection sensorId={selectedSensorId} />}
 
           {/* Actuator Controls */}
           <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              التحكم بالمشغلات
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">التحكم بالمشغلات</h2>
             <p className="text-sm text-gray-600 mb-6">Actuator Controls</p>
             <ActuatorControls />
           </div>
@@ -158,9 +139,7 @@ export default function IoTClient() {
 
         {/* Alert Rules - 1/3 width */}
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">
-            قواعد التنبيه
-          </h2>
+          <h2 className="text-xl font-bold text-gray-900 mb-4">قواعد التنبيه</h2>
           <p className="text-sm text-gray-600 mb-6">Alert Rules</p>
           <AlertRules />
         </div>

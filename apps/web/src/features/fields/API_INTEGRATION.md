@@ -13,7 +13,7 @@ The Fields feature has been updated to use **real API endpoints** instead of moc
 ### 1. New API Layer (`api.ts`)
 
 - Created a dedicated API layer using **axios**
-- Connects to field-ops service endpoints
+- Connects to field-management-service service endpoints
 - Automatic token authentication from cookies
 - Smart error handling with fallback to mock data
 - Arabic and English error messages
@@ -37,7 +37,7 @@ The Fields feature has been updated to use **real API endpoints** instead of moc
 
 ## API Endpoints / نقاط نهاية API
 
-The feature connects to the following field-ops endpoints:
+The feature connects to the following field-management-service endpoints:
 
 | Method | Endpoint               | Description                  |
 | ------ | ---------------------- | ---------------------------- |
@@ -51,7 +51,7 @@ The feature connects to the following field-ops endpoints:
 ### Base URL
 
 - Default: `http://localhost:8000` (Kong Gateway)
-- Kong routes `/api/v1/fields/*` to field-ops service (port 8100)
+- Kong routes `/api/v1/fields/*` to field-management-service (port 3000)
 - Configurable via `NEXT_PUBLIC_API_URL` environment variable
 
 ---
@@ -60,7 +60,7 @@ The feature connects to the following field-ops endpoints:
 
 ### ✅ Real API Integration
 
-- Connects to actual field-ops microservice
+- Connects to actual field-management-service microservice
 - Automatic authentication with Bearer token
 - Timeout protection (10 seconds)
 
@@ -228,8 +228,8 @@ The API layer automatically maps between API fields and UI fields:
 ### 1. With API Available
 
 ```bash
-# Start the field-ops service (port 8100)
-cd services/field-ops
+# Start the field-management-service (port 3000)
+cd services/field-management-service
 npm run dev
 
 # Start Kong Gateway (port 8000)
@@ -246,7 +246,7 @@ npm run dev
 ### 2. With API Unavailable (Offline Mode)
 
 ```bash
-# Don't start field-ops service
+# Don't start field-management-service service
 # Only start web app
 cd apps/web
 npm run dev
@@ -308,7 +308,7 @@ For issues or questions:
 
 - Check browser console for detailed error messages
 - Verify `NEXT_PUBLIC_API_URL` is set correctly
-- Ensure field-ops service is running on port 8100
+- Ensure field-management-service service is running on port 3000
 - Check Kong Gateway is routing correctly
 
 ---

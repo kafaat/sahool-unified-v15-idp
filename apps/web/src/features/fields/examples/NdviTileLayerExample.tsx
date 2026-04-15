@@ -1,5 +1,4 @@
-// @ts-nocheck - Example file with maplibre type complexities
-"use client";
+'use client';
 
 /**
  * NDVI Tile Layer Usage Example
@@ -9,15 +8,11 @@
  * with MapLibre GL to display NDVI data on a map.
  */
 
-import React, { useRef, useEffect, useState, type RefObject } from "react";
-import maplibregl from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css";
-import {
-  NdviTileLayer,
-  NdviColorLegend,
-  NdviLoadingOverlay,
-} from "../components/NdviTileLayer";
-import { Calendar, Eye, EyeOff } from "lucide-react";
+import React, { useRef, useEffect, useState, type RefObject } from 'react';
+import maplibregl from 'maplibre-gl';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { NdviTileLayer, NdviColorLegend, NdviLoadingOverlay } from '../components/NdviTileLayer';
+import { Calendar, Eye, EyeOff } from 'lucide-react';
 
 /**
  * مثال تطبيقي كامل لعرض NDVI على الخريطة
@@ -50,17 +45,17 @@ export const NdviMapExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
         version: 8,
         sources: {
           osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
             tileSize: 256,
-            attribution: "&copy; OpenStreetMap contributors",
+            attribution: '&copy; OpenStreetMap contributors',
           },
         },
         layers: [
           {
-            id: "osm",
-            type: "raster",
-            source: "osm",
+            id: 'osm',
+            type: 'raster',
+            source: 'osm',
           },
         ],
       },
@@ -70,12 +65,12 @@ export const NdviMapExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
 
     // إضافة أدوات التحكم - Add navigation controls
     if (map.current) {
-      map.current.addControl(new maplibregl.NavigationControl(), "top-left");
+      map.current.addControl(new maplibregl.NavigationControl(), 'top-left');
     }
 
     // تعيين حالة التحميل - Set loading state
     if (map.current) {
-      map.current.on("load", () => {
+      map.current.on('load', () => {
         setMapLoaded(true);
       });
     }
@@ -94,7 +89,7 @@ export const NdviMapExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
    * NDVI layer load handler
    */
   const handleNdviLoad = () => {
-    console.log("NDVI layer loaded successfully");
+    console.log('NDVI layer loaded successfully');
     setIsNdviLoading(false);
   };
 
@@ -103,7 +98,7 @@ export const NdviMapExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
    * NDVI error handler
    */
   const handleNdviError = (error: Error) => {
-    console.error("NDVI layer error:", error);
+    console.error('NDVI layer error:', error);
     setIsNdviLoading(false);
     // يمكن إضافة إشعار للمستخدم هنا
     // Can add user notification here
@@ -138,9 +133,7 @@ export const NdviMapExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
       {/* لوحة التحكم - Control Panel */}
       <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-4 space-y-4 w-80">
         {/* عنوان - Title */}
-        <h3 className="text-lg font-bold text-gray-800 text-right">
-          طبقة NDVI
-        </h3>
+        <h3 className="text-lg font-bold text-gray-800 text-right">طبقة NDVI</h3>
 
         {/* اختيار التاريخ - Date Selection */}
         <div className="space-y-2">
@@ -151,18 +144,14 @@ export const NdviMapExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
           <input
             type="date"
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-right"
-            value={selectedDate?.toISOString().split("T")[0] || ""}
+            value={selectedDate?.toISOString().split('T')[0] || ''}
             onChange={(e) => {
-              setSelectedDate(
-                e.target.value ? new Date(e.target.value) : undefined,
-              );
+              setSelectedDate(e.target.value ? new Date(e.target.value) : undefined);
               setIsNdviLoading(true);
             }}
-            max={new Date().toISOString().split("T")[0]}
+            max={new Date().toISOString().split('T')[0]}
           />
-          <p className="text-xs text-gray-500 text-right">
-            اتركه فارغاً لآخر البيانات المتاحة
-          </p>
+          <p className="text-xs text-gray-500 text-right">اتركه فارغاً لآخر البيانات المتاحة</p>
         </div>
 
         {/* التحكم في الشفافية - Opacity Control */}
@@ -185,8 +174,8 @@ export const NdviMapExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
           onClick={toggleVisibility}
           className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-md font-medium transition-colors ${
             visible
-              ? "bg-green-600 text-white hover:bg-green-700"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ? 'bg-green-600 text-white hover:bg-green-700'
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
         >
           {visible ? (
@@ -236,19 +225,19 @@ export const SimpleNdviExample: React.FC = () => {
         version: 8,
         sources: {
           osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
             tileSize: 256,
           },
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }],
+        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
       },
       center: [44.2, 15.0],
       zoom: 10,
     }) as maplibregl.Map;
 
     if (map.current) {
-      map.current.on("load", () => setMapReady(true));
+      map.current.on('load', () => setMapReady(true));
     }
 
     return () => {
@@ -264,10 +253,7 @@ export const SimpleNdviExample: React.FC = () => {
       {mapReady && (
         <>
           {/* استخدام أبسط مع الإعدادات الافتراضية - Simplest usage with defaults */}
-          <NdviTileLayer
-            fieldId="field-123"
-            map={map as RefObject<maplibregl.Map | null>}
-          />
+          <NdviTileLayer fieldId="field-123" map={map as RefObject<maplibregl.Map | null>} />
 
           {/* إضافة مفتاح الألوان - Add color legend */}
           <NdviColorLegend className="absolute bottom-4 right-4" />
@@ -297,19 +283,19 @@ export const MultipleFieldsNdviExample: React.FC<{
         version: 8,
         sources: {
           osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
             tileSize: 256,
           },
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }],
+        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
       },
       center: [44.2, 15.0],
       zoom: 8,
     }) as maplibregl.Map;
 
     if (map.current) {
-      map.current.on("load", () => setMapReady(true));
+      map.current.on('load', () => setMapReady(true));
     }
 
     return () => {
@@ -358,9 +344,7 @@ export const MultipleFieldsNdviExample: React.FC<{
 /**
  * مثال مع المقارنة الزمنية - Temporal Comparison Example
  */
-export const TemporalComparisonExample: React.FC<{ fieldId: string }> = ({
-  fieldId,
-}) => {
+export const TemporalComparisonExample: React.FC<{ fieldId: string }> = ({ fieldId }) => {
   const map = useRef<maplibregl.Map | null>(null);
   const mapContainer = useRef<HTMLDivElement>(null);
   const [mapReady, setMapReady] = useState(false);
@@ -377,19 +361,19 @@ export const TemporalComparisonExample: React.FC<{ fieldId: string }> = ({
         version: 8,
         sources: {
           osm: {
-            type: "raster",
-            tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
+            type: 'raster',
+            tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
             tileSize: 256,
           },
         },
-        layers: [{ id: "osm", type: "raster", source: "osm" }],
+        layers: [{ id: 'osm', type: 'raster', source: 'osm' }],
       },
       center: [44.2, 15.0],
       zoom: 12,
     }) as maplibregl.Map;
 
     if (map.current) {
-      map.current.on("load", () => setMapReady(true));
+      map.current.on('load', () => setMapReady(true));
     }
 
     return () => {
@@ -404,9 +388,7 @@ export const TemporalComparisonExample: React.FC<{ fieldId: string }> = ({
 
       {/* لوحة المقارنة - Comparison panel */}
       <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-4 space-y-4 w-80">
-        <h3 className="text-lg font-bold text-gray-800 text-right">
-          مقارنة NDVI الزمنية
-        </h3>
+        <h3 className="text-lg font-bold text-gray-800 text-right">مقارنة NDVI الزمنية</h3>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1 text-right">
@@ -415,7 +397,7 @@ export const TemporalComparisonExample: React.FC<{ fieldId: string }> = ({
           <input
             type="date"
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-right"
-            value={currentDate.toISOString().split("T")[0]}
+            value={currentDate.toISOString().split('T')[0]}
             onChange={(e) => setCurrentDate(new Date(e.target.value))}
           />
         </div>
@@ -427,12 +409,8 @@ export const TemporalComparisonExample: React.FC<{ fieldId: string }> = ({
           <input
             type="date"
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-right"
-            value={compareDate?.toISOString().split("T")[0] || ""}
-            onChange={(e) =>
-              setCompareDate(
-                e.target.value ? new Date(e.target.value) : undefined,
-              )
-            }
+            value={compareDate?.toISOString().split('T')[0] || ''}
+            onChange={(e) => setCompareDate(e.target.value ? new Date(e.target.value) : undefined)}
           />
         </div>
 
@@ -441,7 +419,7 @@ export const TemporalComparisonExample: React.FC<{ fieldId: string }> = ({
           className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           disabled={!compareDate}
         >
-          {showComparison ? "إخفاء المقارنة" : "عرض المقارنة"}
+          {showComparison ? 'إخفاء المقارنة' : 'عرض المقارنة'}
         </button>
       </div>
 

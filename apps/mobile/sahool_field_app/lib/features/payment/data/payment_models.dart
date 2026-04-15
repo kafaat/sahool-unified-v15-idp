@@ -1,3 +1,5 @@
+library;
+
 /// نماذج بوابة المدفوعات
 /// Payment Gateway Models
 

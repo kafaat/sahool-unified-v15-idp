@@ -84,24 +84,18 @@ export interface ApiError {
  * type DomainError = { reason: "quota_exceeded" | "not_found" };
  * const result: ApiResult<Field, DomainError> = await fetchField(id);
  */
-export type ApiResult<T, E = ApiError> =
-  | { success: true; data: T }
-  | { success: false; error: E };
+export type ApiResult<T, E = ApiError> = { success: true; data: T } | { success: false; error: E };
 
 /**
  * Type guard for successful response
  */
-export function isSuccessResponse<T>(
-  response: ApiResponse<T>,
-): response is SuccessResponse<T> {
+export function isSuccessResponse<T>(response: ApiResponse<T>): response is SuccessResponse<T> {
   return response.success === true && response.data !== undefined;
 }
 
 /**
  * Type guard for error response
  */
-export function isErrorResponse(
-  response: ApiResponse<unknown>,
-): response is ErrorResponse {
+export function isErrorResponse(response: ApiResponse<unknown>): response is ErrorResponse {
   return response.success === false;
 }

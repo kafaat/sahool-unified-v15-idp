@@ -1,0 +1,391 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Migration Validator - Validates deprecated service migrations
+# التحقق من ترحيل الخدمات المهجورة
+#
+# Ensures:
+# 1. No new code references deprecated services
+# 2. Replacement services have feature parity
+# 3. Sunset dates are tracked and enforced
+# 4. Kong routes are properly redirected
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Migration Validator
+
+on:
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run weekly on Sundays at 8:00 AM (Asia/Aden)
+    - cron: "0 5 * * 0"
+  workflow_dispatch:
+
+concurrency:
+  group: migration-validator-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Deprecated Service Mapping (deprecated → replacement)
+  # ─────────────────────────────────────────────────────────────────────────
+  DEPRECATED_SERVICES: |
+    satellite-service:vegetation-analysis-service:2025-06-01
+    weather-advanced:weather-service:2025-06-01
+    crop-health-ai:crop-intelligence-service:2025-06-01
+    crop-health:crop-intelligence-service:2026-06-01
+    ndvi-engine:vegetation-analysis-service:2026-06-01
+    field-ops:field-management-service:2026-06-01
+    field-core:field-management-service:2026-06-01
+    field-service:field-management-service:2026-06-01
+    agro-advisor:advisory-service:2026-02-01
+    weather-core:weather-service:2026-02-01
+    community-chat:chat-service:2026-02-01
+    field-chat:chat-service:2026-02-01
+    ndvi-processor:vegetation-analysis-service:2026-02-01
+    yield-engine:yield-prediction-service:2026-02-01
+    fertilizer-advisor:advisory-service:2025-06-01
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 1: Check for references to deprecated services in new code
+  # ─────────────────────────────────────────────────────────────────────────
+  check-deprecated-references:
+    name: Check Deprecated References
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Check for deprecated service references in changed files
+        id: check-refs
+        run: |
+          set +e
+          WARNINGS=""
+          WARNING_COUNT=0
+
+          # Get changed files in this PR
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || echo "")
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files detected"
+            echo "warnings=" >> $GITHUB_OUTPUT
+            echo "count=0" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Deprecated service names to check
+          DEPRECATED_NAMES=(
+            "satellite-service"
+            "weather-advanced"
+            "crop-health-ai"
+            "crop-health"
+            "ndvi-engine"
+            "field-ops"
+            "field-core"
+            "field-service"
+            "agro-advisor"
+            "weather-core"
+            "community-chat"
+            "field-chat"
+            "ndvi-processor"
+            "yield-engine"
+            "fertilizer-advisor"
+          )
+
+          # Replacement service names
+          declare -A REPLACEMENTS=(
+            ["satellite-service"]="vegetation-analysis-service"
+            ["weather-advanced"]="weather-service"
+            ["crop-health-ai"]="crop-intelligence-service"
+            ["crop-health"]="crop-intelligence-service"
+            ["ndvi-engine"]="vegetation-analysis-service"
+            ["field-ops"]="field-management-service"
+            ["field-core"]="field-management-service"
+            ["field-service"]="field-management-service"
+            ["agro-advisor"]="advisory-service"
+            ["weather-core"]="weather-service"
+            ["community-chat"]="chat-service"
+            ["field-chat"]="chat-service"
+            ["ndvi-processor"]="vegetation-analysis-service"
+            ["yield-engine"]="yield-prediction-service"
+            ["fertilizer-advisor"]="advisory-service"
+          )
+
+          for FILE in $CHANGED_FILES; do
+            # Skip files that legitimately reference deprecated services
+            if [[ "$FILE" == archive/* ]] || [[ "$FILE" == docs/migrations/* ]] || \
+               [[ "$FILE" == *DEPRECATION* ]] || [[ "$FILE" == *DEDUP_MATRIX* ]] || \
+               [[ "$FILE" == .github/workflows/migration-validator.yml ]] || \
+               [[ "$FILE" == .github/workflows/container-tests.yml ]] || \
+               [[ "$FILE" == .github/workflows/security*.yml ]] || \
+               [[ "$FILE" == .github/labeler.yml ]] || \
+               [[ "$FILE" == .github/release-drafter.yml ]] || \
+               [[ "$FILE" == governance/* ]] || \
+               [[ "$FILE" == *CHANGELOG* ]] || [[ "$FILE" == *README* ]]; then
+              continue
+            fi
+
+            # Skip if file doesn't exist (deleted files)
+            if [ ! -f "$FILE" ]; then
+              continue
+            fi
+
+            # Skip self-referencing Dockerfiles in deprecated service dirs
+            for DEPRECATED in "${DEPRECATED_NAMES[@]}"; do
+              if [[ "$FILE" == apps/services/$DEPRECATED/* ]]; then
+                continue 2
+              fi
+            done
+
+            for DEPRECATED in "${DEPRECATED_NAMES[@]}"; do
+              # Only flag UNCOMMENTED, active references to deprecated services
+              # Match: service name as directory path, docker image, or service constant
+              # Skip: commented lines, label names, API paths, services still in codebase
+              ACTIVE_REFS=$(grep -nP "^[^#]*\b(apps/services/|image:|container_name:|SERVICE=)$DEPRECATED\b" "$FILE" 2>/dev/null || true)
+              if [ -n "$ACTIVE_REFS" ]; then
+                # Skip if the deprecated service still exists (not yet archived)
+                if [ -d "apps/services/$DEPRECATED" ]; then
+                  continue
+                fi
+                REPLACEMENT="${REPLACEMENTS[$DEPRECATED]}"
+                WARNINGS="${WARNINGS}\n⚠️ \`$FILE\` references deprecated service \`$DEPRECATED\` → Use \`$REPLACEMENT\` instead"
+                WARNING_COUNT=$((WARNING_COUNT + 1))
+              fi
+            done
+          done
+
+          echo "count=$WARNING_COUNT" >> $GITHUB_OUTPUT
+
+          if [ $WARNING_COUNT -gt 0 ]; then
+            # Write to file for PR comment
+            echo -e "$WARNINGS" > /tmp/migration-warnings.txt
+            echo "has_warnings=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_warnings=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment on PR with warnings
+        if: steps.check-refs.outputs.has_warnings == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            const warnings = fs.readFileSync('/tmp/migration-warnings.txt', 'utf8');
+            const count = '${{ steps.check-refs.outputs.count }}';
+
+            const body = `## ⚠️ Migration Warning | تحذير الترحيل
+
+            Found **${count}** reference(s) to deprecated services in this PR:
+
+            ${warnings}
+
+            ---
+
+            > **Action Required**: Please update these references to use the replacement services.
+            > **الإجراء المطلوب**: يرجى تحديث هذه المراجع لاستخدام الخدمات البديلة.
+
+            📖 See [Migration Guides](docs/migrations/) and [Deprecation Summary](apps/services/DEPRECATION_SUMMARY.md)`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 2: Track sunset dates and alert on overdue migrations
+  # ─────────────────────────────────────────────────────────────────────────
+  sunset-tracker:
+    name: Track Sunset Dates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check sunset dates
+        id: sunset
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          echo "## 📅 Migration Sunset Tracker | متتبع مواعيد الترحيل" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Report Date: $TODAY" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Replacement | Sunset Date | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-------------|-------------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          OVERDUE_COUNT=0
+          APPROACHING_COUNT=0
+
+          # Service mapping: deprecated:replacement:sunset_date
+          SERVICES=(
+            "satellite-service:vegetation-analysis-service:2025-06-01"
+            "weather-advanced:weather-service:2025-06-01"
+            "crop-health-ai:crop-intelligence-service:2025-06-01"
+            "fertilizer-advisor:advisory-service:2025-06-01"
+            "crop-health:crop-intelligence-service:2026-06-01"
+            "ndvi-engine:vegetation-analysis-service:2026-06-01"
+            "field-ops:field-management-service:2026-06-01"
+            "field-core:field-management-service:2026-06-01"
+            "field-service:field-management-service:2026-06-01"
+            "agro-advisor:advisory-service:2026-02-01"
+            "weather-core:weather-service:2026-02-01"
+            "community-chat:chat-service:2026-02-01"
+            "field-chat:chat-service:2026-02-01"
+            "ndvi-processor:vegetation-analysis-service:2026-02-01"
+            "yield-engine:yield-prediction-service:2026-02-01"
+          )
+
+          for ENTRY in "${SERVICES[@]}"; do
+            IFS=':' read -r SERVICE REPLACEMENT SUNSET <<< "$ENTRY"
+
+            # Check if archived
+            if [ -d "archive/deprecated-services/$SERVICE" ]; then
+              echo "| \`$SERVICE\` | \`$REPLACEMENT\` | $SUNSET | ✅ Archived |" >> $GITHUB_STEP_SUMMARY
+              continue
+            fi
+
+            # Check if still exists in active services
+            if [ -d "apps/services/$SERVICE" ]; then
+              if [[ "$TODAY" > "$SUNSET" ]]; then
+                echo "| \`$SERVICE\` | \`$REPLACEMENT\` | $SUNSET | 🔴 **OVERDUE** |" >> $GITHUB_STEP_SUMMARY
+                OVERDUE_COUNT=$((OVERDUE_COUNT + 1))
+              else
+                # Check if within 30 days
+                SUNSET_EPOCH=$(date -d "$SUNSET" +%s 2>/dev/null || echo "0")
+                TODAY_EPOCH=$(date +%s)
+                DIFF=$(( (SUNSET_EPOCH - TODAY_EPOCH) / 86400 ))
+                if [ "$DIFF" -lt 30 ] && [ "$DIFF" -gt 0 ]; then
+                  echo "| \`$SERVICE\` | \`$REPLACEMENT\` | $SUNSET | ⏰ ${DIFF}d remaining |" >> $GITHUB_STEP_SUMMARY
+                  APPROACHING_COUNT=$((APPROACHING_COUNT + 1))
+                else
+                  echo "| \`$SERVICE\` | \`$REPLACEMENT\` | $SUNSET | 🟡 Active (${DIFF}d) |" >> $GITHUB_STEP_SUMMARY
+                fi
+              fi
+            else
+              echo "| \`$SERVICE\` | \`$REPLACEMENT\` | $SUNSET | ✅ Removed |" >> $GITHUB_STEP_SUMMARY
+            fi
+          done
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Summary" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔴 Overdue: **$OVERDUE_COUNT**" >> $GITHUB_STEP_SUMMARY
+          echo "- ⏰ Approaching: **$APPROACHING_COUNT**" >> $GITHUB_STEP_SUMMARY
+
+          echo "overdue=$OVERDUE_COUNT" >> $GITHUB_OUTPUT
+          echo "approaching=$APPROACHING_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Create issue for overdue migrations
+        if: steps.sunset.outputs.overdue > 0
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const overdue = '${{ steps.sunset.outputs.overdue }}';
+
+            // Check if issue already exists
+            const existingIssues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'migration,priority: high',
+              per_page: 5
+            });
+
+            const hasExisting = existingIssues.data.some(
+              i => i.title.includes('Overdue Service Migrations')
+            );
+
+            if (!hasExisting) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `🔴 Overdue Service Migrations (${overdue} services)`,
+                body: `## Overdue Migrations Detected\n\n` +
+                  `**${overdue}** deprecated service(s) have passed their sunset date and should be archived.\n\n` +
+                  `### Action Required\n` +
+                  `1. Verify replacement services have full feature parity\n` +
+                  `2. Update Kong gateway routes\n` +
+                  `3. Move deprecated services to \`archive/deprecated-services/\`\n` +
+                  `4. Update \`governance/services.yaml\`\n\n` +
+                  `📖 See [Deprecation Summary](apps/services/DEPRECATION_SUMMARY.md)\n\n` +
+                  `---\n` +
+                  `_This issue was automatically created by the Migration Validator workflow._`,
+                labels: ['migration', 'priority: high', 'auto-generated']
+              });
+            }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Job 3: Validate replacement services health
+  # ─────────────────────────────────────────────────────────────────────────
+  validate-replacements:
+    name: Validate Replacement Services
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Verify replacement services exist and have required files
+        run: |
+          echo "## 🔍 Replacement Service Validation" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Service | Dockerfile | Main | Health | Tests | README |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-----------|------|--------|-------|--------|" >> $GITHUB_STEP_SUMMARY
+
+          REPLACEMENT_SERVICES=(
+            "vegetation-analysis-service"
+            "weather-service"
+            "crop-intelligence-service"
+            "field-management-service"
+            "advisory-service"
+            "chat-service"
+            "yield-prediction-service"
+          )
+
+          for SERVICE in "${REPLACEMENT_SERVICES[@]}"; do
+            SERVICE_DIR="apps/services/$SERVICE"
+
+            # Check existence
+            if [ ! -d "$SERVICE_DIR" ]; then
+              echo "| \`$SERVICE\` | ❌ Missing | - | - | - | - |" >> $GITHUB_STEP_SUMMARY
+              continue
+            fi
+
+            # Check Dockerfile
+            DOCKER="❌"
+            [ -f "$SERVICE_DIR/Dockerfile" ] && DOCKER="✅"
+
+            # Check main entry point
+            MAIN="❌"
+            [ -f "$SERVICE_DIR/src/main.py" ] || [ -f "$SERVICE_DIR/src/index.ts" ] && MAIN="✅"
+
+            # Check health endpoint
+            HEALTH="❌"
+            if grep -rq "healthz\|/health" "$SERVICE_DIR/src/" 2>/dev/null; then
+              HEALTH="✅"
+            fi
+
+            # Check tests
+            TESTS="❌"
+            [ -d "$SERVICE_DIR/tests" ] || [ -d "$SERVICE_DIR/src/__tests__" ] && TESTS="✅"
+
+            # Check README
+            README="❌"
+            [ -f "$SERVICE_DIR/README.md" ] && README="✅"
+
+            echo "| \`$SERVICE\` | $DOCKER | $MAIN | $HEALTH | $TESTS | $README |" >> $GITHUB_STEP_SUMMARY
+          done

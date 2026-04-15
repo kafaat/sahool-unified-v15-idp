@@ -34,11 +34,12 @@ COPY apps/services/copilot-api/requirements.txt .
 # Install Python dependencies with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip setuptools wheel || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip setuptools wheel
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
+# nosemgrep: dockerfile-pip-extra-index-url -- fallback mirrors for regional availability
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     --extra-index-url https://download.pytorch.org/whl/cpu \
@@ -60,6 +61,7 @@ WORKDIR /shared
 COPY shared/ ./
 COPY apps/services/shared/ ./
 
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Production Stage
 # ─────────────────────────────────────────────────────────────────────────────
@@ -75,6 +77,15 @@ COPY apps/services/copilot-api/src/ ./src/
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 RUN chown -R sahool:sahool /app
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Expose port

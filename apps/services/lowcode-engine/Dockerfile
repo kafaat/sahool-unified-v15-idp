@@ -20,16 +20,16 @@ RUN groupadd --system --gid 1000 sahool && \
 # Install system dependencies
 COPY docker/apt-update.sh /usr/local/bin/
 RUN apt-update.sh && apt-get install -y --no-install-recommends \
-    curl \
+    curl build-essential gcc libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies
 COPY constraints.txt .
@@ -46,8 +46,14 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
-# Copy shared modules
+# Remove build tools from runtime image (reduce attack surface)
+RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy shared modules (main shared/ first, then service-specific overlay)
 COPY shared/ ./shared/
+COPY apps/services/shared/ ./shared/
+
 
 # Copy source code
 COPY apps/services/lowcode-engine/src/ ./src/
@@ -57,6 +63,15 @@ RUN touch ./src/__init__.py ./src/api/__init__.py ./src/api/v1/__init__.py ./src
 
 # Security: Change ownership and use non-root user
 RUN chown -R sahool:sahool /app
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Expose port

@@ -7,6 +7,7 @@
 /// - Subscriptions
 /// - Invoices
 /// - Usage tracking
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';
@@ -42,7 +43,7 @@ class Wallet {
       currency: json['currency'] as String? ?? 'SAR',
       status: json['status'] as String?,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       updatedAt:
           json['updated_at'] != null ? DateTime.tryParse(json['updated_at'] as String) : null,
@@ -90,7 +91,7 @@ class BillingTransaction {
       descriptionAr: json['description_ar'] as String?,
       reference: json['reference'] as String?,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       completedAt:
           json['completed_at'] != null ? DateTime.tryParse(json['completed_at'] as String) : null,
@@ -144,7 +145,7 @@ class Subscription {
       planNameAr: json['plan_name_ar'] as String?,
       status: json['status'] as String? ?? 'inactive',
       startDate: json['start_date'] != null
-          ? DateTime.parse(json['start_date'] as String)
+          ? DateTime.tryParse(json['start_date'] as String) ?? DateTime.now()
           : DateTime.now(),
       endDate: json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) : null,
       nextBillingDate: json['next_billing_date'] != null
@@ -259,10 +260,10 @@ class Invoice {
       currency: json['currency'] as String? ?? 'SAR',
       status: json['status'] as String? ?? 'pending',
       issueDate: json['issue_date'] != null
-          ? DateTime.parse(json['issue_date'] as String)
+          ? DateTime.tryParse(json['issue_date'] as String) ?? DateTime.now()
           : DateTime.now(),
       dueDate:
-          json['due_date'] != null ? DateTime.parse(json['due_date'] as String) : DateTime.now(),
+          json['due_date'] != null ? DateTime.tryParse(json['due_date'] as String) ?? DateTime.now() : DateTime.now(),
       paidAt: json['paid_at'] != null ? DateTime.tryParse(json['paid_at'] as String) : null,
       invoiceNumber: json['invoice_number'] as String?,
       items: (json['items'] as List?)
@@ -326,10 +327,10 @@ class UsageSummary {
     return UsageSummary(
       period: json['period'] as String? ?? '',
       startDate: json['start_date'] != null
-          ? DateTime.parse(json['start_date'] as String)
+          ? DateTime.tryParse(json['start_date'] as String) ?? DateTime.now()
           : DateTime.now(),
       endDate:
-          json['end_date'] != null ? DateTime.parse(json['end_date'] as String) : DateTime.now(),
+          json['end_date'] != null ? DateTime.tryParse(json['end_date'] as String) ?? DateTime.now() : DateTime.now(),
       metrics: metricsJson.map(
         (key, value) => MapEntry(key, UsageMetric.fromJson(value as Map<String, dynamic>)),
       ),
@@ -478,7 +479,7 @@ class BillingServiceConnector extends ServiceConnector {
           return data.map((e) => BillingTransaction.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['transactions'] != null) {
-          return (data['transactions'] as List)
+          return (data['transactions'] as List? ?? [])
               .map((e) => BillingTransaction.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -513,7 +514,7 @@ class BillingServiceConnector extends ServiceConnector {
           return data.map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['plans'] != null) {
-          return (data['plans'] as List)
+          return (data['plans'] as List? ?? [])
               .map((e) => SubscriptionPlan.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -581,7 +582,7 @@ class BillingServiceConnector extends ServiceConnector {
           return data.map((e) => Invoice.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['invoices'] != null) {
-          return (data['invoices'] as List)
+          return (data['invoices'] as List? ?? [])
               .map((e) => Invoice.fromJson(e as Map<String, dynamic>))
               .toList();
         }

@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Pivot Irrigation Page Client Component
  * صفحة الري المحوري - Valley Style
  */
 
-import React, { useState } from "react";
-import { useTranslations } from "next-intl";
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import {
   Droplets,
   Play,
@@ -18,44 +18,15 @@ import {
   Grid3X3,
   Gauge,
   Clock,
-} from "lucide-react";
-
-// Mock data for demonstration
-const mockPivots = [
-  {
-    id: "pivot_001",
-    name: "المحوري الرئيسي",
-    nameEn: "Main Pivot",
-    fieldId: "field_001",
-    status: "running",
-    currentAngle: 127,
-    speed: 75,
-    direction: "clockwise",
-    areaHectares: 52.5,
-    sectorsCount: 8,
-    vriZonesCount: 48,
-    waterUsageM3: 1250,
-    lastIrrigation: "2026-01-22T14:30:00Z",
-  },
-  {
-    id: "pivot_002",
-    name: "محوري الحقل الشرقي",
-    nameEn: "East Field Pivot",
-    fieldId: "field_002",
-    status: "stopped",
-    currentAngle: 0,
-    speed: 0,
-    direction: "clockwise",
-    areaHectares: 35.2,
-    sectorsCount: 6,
-    vriZonesCount: 36,
-    waterUsageM3: 0,
-    lastIrrigation: "2026-01-21T08:00:00Z",
-  },
-];
+  Loader2,
+  AlertTriangle,
+} from 'lucide-react';
+import { pivotIrrigationApi, type Pivot } from '@/features/pivot-irrigation/api';
+import { ApiError } from '@/lib/api/safe-fetch';
+import { logger } from '@/lib/logger';
 
 interface PivotVisualizationProps {
-  pivot: (typeof mockPivots)[0];
+  pivot: Pivot;
 }
 
 function PivotVisualization({ pivot }: PivotVisualizationProps) {
@@ -70,14 +41,7 @@ function PivotVisualization({ pivot }: PivotVisualizationProps) {
     <div className="relative aspect-square max-w-xs mx-auto">
       <svg viewBox="0 0 200 200" className="w-full h-full">
         {/* Background circle */}
-        <circle
-          cx="100"
-          cy="100"
-          r="90"
-          fill="none"
-          stroke="#e5e7eb"
-          strokeWidth="2"
-        />
+        <circle cx="100" cy="100" r="90" fill="none" stroke="#e5e7eb" strokeWidth="2" />
 
         {/* Sectors */}
         {sectors.map((sector) => {
@@ -105,18 +69,12 @@ function PivotVisualization({ pivot }: PivotVisualizationProps) {
         <circle cx="100" cy="100" r="8" fill="#1e40af" />
 
         {/* Pivot arm */}
-        {pivot.status === "running" && (
+        {pivot.status === 'running' && (
           <line
             x1="100"
             y1="100"
-            x2={
-              100 +
-              80 * Math.cos(((pivot.currentAngle - 90) * Math.PI) / 180)
-            }
-            y2={
-              100 +
-              80 * Math.sin(((pivot.currentAngle - 90) * Math.PI) / 180)
-            }
+            x2={100 + 80 * Math.cos(((pivot.currentAngle - 90) * Math.PI) / 180)}
+            y2={100 + 80 * Math.sin(((pivot.currentAngle - 90) * Math.PI) / 180)}
             stroke="#1e40af"
             strokeWidth="4"
             strokeLinecap="round"
@@ -133,33 +91,28 @@ function PivotVisualization({ pivot }: PivotVisualizationProps) {
         )}
 
         {/* Status indicator */}
-        <circle
-          cx="100"
-          cy="100"
-          r="4"
-          fill={pivot.status === "running" ? "#22c55e" : "#ef4444"}
-        />
+        <circle cx="100" cy="100" r="4" fill={pivot.status === 'running' ? '#22c55e' : '#ef4444'} />
       </svg>
     </div>
   );
 }
 
 interface PivotCardProps {
-  pivot: (typeof mockPivots)[0];
+  pivot: Pivot;
   onSelect: () => void;
   isSelected: boolean;
 }
 
 function PivotCard({ pivot, onSelect, isSelected }: PivotCardProps) {
-  const t = useTranslations("pivotIrrigation");
+  const t = useTranslations('pivotIrrigation');
 
   return (
     <div
       onClick={onSelect}
       className={`bg-white rounded-xl border-2 p-6 cursor-pointer transition-all ${
         isSelected
-          ? "border-sahool-green-500 ring-2 ring-sahool-green-200"
-          : "border-gray-200 hover:border-sahool-green-300"
+          ? 'border-sahool-green-500 ring-2 ring-sahool-green-200'
+          : 'border-gray-200 hover:border-sahool-green-300'
       }`}
     >
       <div className="flex items-start justify-between mb-4">
@@ -169,12 +122,10 @@ function PivotCard({ pivot, onSelect, isSelected }: PivotCardProps) {
         </div>
         <div
           className={`px-3 py-1 rounded-full text-xs font-medium ${
-            pivot.status === "running"
-              ? "bg-green-100 text-green-700"
-              : "bg-gray-100 text-gray-700"
+            pivot.status === 'running' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
           }`}
         >
-          {pivot.status === "running" ? t("running") : t("stopped")}
+          {pivot.status === 'running' ? t('running') : t('stopped')}
         </div>
       </div>
 
@@ -194,7 +145,7 @@ function PivotCard({ pivot, onSelect, isSelected }: PivotCardProps) {
           <span className="font-medium mr-1">{pivot.vriZonesCount}</span>
         </div>
         <div>
-          <span className="text-gray-500">{t("currentAngle")}:</span>
+          <span className="text-gray-500">{t('currentAngle')}:</span>
           <span className="font-medium mr-1">{pivot.currentAngle}°</span>
         </div>
       </div>
@@ -203,14 +154,101 @@ function PivotCard({ pivot, onSelect, isSelected }: PivotCardProps) {
 }
 
 export default function PivotIrrigationClient() {
-  const t = useTranslations("pivotIrrigation");
-  const [selectedPivotId, setSelectedPivotId] = useState<string | null>(
-    mockPivots[0]?.id || null
-  );
+  const t = useTranslations('pivotIrrigation');
+  const [pivots, setPivots] = useState<Pivot[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedPivotId, setSelectedPivotId] = useState<string | null>(null);
+  const [isControlling, setIsControlling] = useState(false);
+  const [activeTab, setActiveTab] = useState<'sectors' | 'vri' | 'schedule' | 'statistics'>('sectors');
+  const speedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const selectedPivot = mockPivots.find((p) => p.id === selectedPivotId);
-  const runningPivots = mockPivots.filter((p) => p.status === "running").length;
-  const totalWaterUsage = mockPivots.reduce((sum, p) => sum + p.waterUsageM3, 0);
+  const fetchPivots = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await pivotIrrigationApi.getPivots();
+      setPivots(data);
+      if (data.length > 0) {
+        setSelectedPivotId((prev) => prev ?? data[0]!.id);
+      }
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب بيانات المحاور';
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleControlPivot = useCallback(async (action: 'start' | 'stop' | 'reverse') => {
+    if (!selectedPivotId || isControlling) return;
+    setIsControlling(true);
+    try {
+      const updated = await pivotIrrigationApi.controlPivot(selectedPivotId, action);
+      setPivots((prev) => prev.map((p) => (p.id === selectedPivotId ? updated : p)));
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في تنفيذ الأمر';
+      setError(message);
+    } finally {
+      setIsControlling(false);
+    }
+  }, [selectedPivotId, isControlling]);
+
+  const handleSpeedChange = useCallback((pivotId: string, speed: number) => {
+    // Update UI immediately for responsiveness
+    setPivots((prev) => prev.map((p) => (p.id === pivotId ? { ...p, speed } : p)));
+    // Debounce the backend call by 600 ms to avoid flooding the API
+    if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
+    speedTimerRef.current = setTimeout(() => {
+      pivotIrrigationApi.updateSpeed(pivotId, speed).catch((err) => {
+        logger.warn('Pivot speed update failed, keeping local state:', err);
+      });
+    }, 600);
+  }, []);
+
+  // Cleanup debounce timer on unmount to avoid stale state updates
+  useEffect(() => {
+    return () => {
+      if (speedTimerRef.current) clearTimeout(speedTimerRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    fetchPivots();
+  }, [fetchPivots]);
+
+  const selectedPivot = pivots.find((p) => p.id === selectedPivotId);
+  const runningPivots = pivots.filter((p) => p.status === 'running').length;
+  const totalWaterUsage = pivots.reduce((sum, p) => sum + p.waterUsageM3, 0);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-sahool-green-600 animate-spin mx-auto mb-3" />
+          <p className="text-gray-500">جاري تحميل بيانات المحاور...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
+          <p className="text-gray-500 mb-4">{error}</p>
+          <button
+            onClick={fetchPivots}
+            className="px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700"
+          >
+            إعادة المحاولة
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -218,12 +256,12 @@ export default function PivotIrrigationClient() {
       <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
-            <p className="text-gray-600 mt-1">{t("subtitle")}</p>
+            <h1 className="text-3xl font-bold text-gray-900">{t('title')}</h1>
+            <p className="text-gray-600 mt-1">{t('subtitle')}</p>
           </div>
           <button className="flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors">
             <PlusCircle className="w-5 h-5" />
-            <span>{t("addPivot")}</span>
+            <span>{t('addPivot')}</span>
           </button>
         </div>
       </div>
@@ -236,9 +274,7 @@ export default function PivotIrrigationClient() {
               <Droplets className="w-6 h-6 text-blue-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {mockPivots.length}
-          </h3>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{pivots.length}</h3>
           <p className="text-sm text-gray-600">إجمالي المحاور | Total Pivots</p>
         </div>
 
@@ -248,9 +284,7 @@ export default function PivotIrrigationClient() {
               <Play className="w-6 h-6 text-green-600" />
             </div>
           </div>
-          <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {runningPivots}
-          </h3>
+          <h3 className="text-3xl font-bold text-gray-900 mb-1">{runningPivots}</h3>
           <p className="text-sm text-gray-600">يعمل الآن | Running Now</p>
         </div>
 
@@ -263,9 +297,7 @@ export default function PivotIrrigationClient() {
           <h3 className="text-3xl font-bold text-gray-900 mb-1">
             {totalWaterUsage.toLocaleString()}
           </h3>
-          <p className="text-sm text-gray-600">
-            استهلاك المياه م³ | Water m³
-          </p>
+          <p className="text-sm text-gray-600">استهلاك المياه م³ | Water m³</p>
         </div>
 
         <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
@@ -275,11 +307,9 @@ export default function PivotIrrigationClient() {
             </div>
           </div>
           <h3 className="text-3xl font-bold text-gray-900 mb-1">
-            {mockPivots.reduce((sum, p) => sum + p.vriZonesCount, 0)}
+            {pivots.reduce((sum, p) => sum + p.vriZonesCount, 0)}
           </h3>
-          <p className="text-sm text-gray-600">
-            مناطق VRI | VRI Zones
-          </p>
+          <p className="text-sm text-gray-600">مناطق VRI | VRI Zones</p>
         </div>
       </div>
 
@@ -287,10 +317,8 @@ export default function PivotIrrigationClient() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Pivot List - 1/3 width */}
         <div className="space-y-4">
-          <h2 className="text-xl font-bold text-gray-900">
-            المحاور المسجلة | Registered Pivots
-          </h2>
-          {mockPivots.map((pivot) => (
+          <h2 className="text-xl font-bold text-gray-900">المحاور المسجلة | Registered Pivots</h2>
+          {pivots.map((pivot) => (
             <PivotCard
               key={pivot.id}
               pivot={pivot}
@@ -312,26 +340,34 @@ export default function PivotIrrigationClient() {
 
                 <div className="flex flex-wrap gap-4 mb-6">
                   <button
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors ${
-                      selectedPivot.status === "running"
-                        ? "bg-red-100 text-red-700 hover:bg-red-200"
-                        : "bg-green-100 text-green-700 hover:bg-green-200"
+                    onClick={() => handleControlPivot(selectedPivot.status === 'running' ? 'stop' : 'start')}
+                    disabled={isControlling}
+                    className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed ${
+                      selectedPivot.status === 'running'
+                        ? 'bg-red-100 text-red-700 hover:bg-red-200'
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
                     }`}
                   >
-                    {selectedPivot.status === "running" ? (
+                    {isControlling ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : selectedPivot.status === 'running' ? (
                       <>
                         <Pause className="w-5 h-5" />
-                        <span>{t("stopPivot")}</span>
+                        <span>{t('stopPivot')}</span>
                       </>
                     ) : (
                       <>
                         <Play className="w-5 h-5" />
-                        <span>{t("startPivot")}</span>
+                        <span>{t('startPivot')}</span>
                       </>
                     )}
                   </button>
 
-                  <button className="flex items-center gap-2 px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium transition-colors">
+                  <button
+                    onClick={() => handleControlPivot('reverse')}
+                    disabled={isControlling}
+                    className="flex items-center gap-2 px-6 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 font-medium transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
                     <RotateCcw className="w-5 h-5" />
                     <span>عكس الاتجاه</span>
                   </button>
@@ -345,15 +381,15 @@ export default function PivotIrrigationClient() {
                 {/* Speed Control */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">
-                    {t("speed")}: {selectedPivot.speed}%
+                    {t('speed')}: {selectedPivot.speed}%
                   </label>
                   <input
                     type="range"
                     min="0"
                     max="100"
                     value={selectedPivot.speed}
+                    onChange={(e) => handleSpeedChange(selectedPivot.id, Number(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                    readOnly
                   />
                 </div>
               </div>
@@ -361,38 +397,47 @@ export default function PivotIrrigationClient() {
               {/* Tabs for Sectors, VRI Zones, Schedule */}
               <div className="bg-white rounded-xl border-2 border-gray-200 p-6">
                 <div className="flex gap-4 border-b border-gray-200 mb-6">
-                  <button className="px-4 py-2 text-sahool-green-600 border-b-2 border-sahool-green-600 font-medium">
-                    {t("sectors")}
+                  <button
+                    onClick={() => setActiveTab('sectors')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'sectors' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    {t('sectors')}
                   </button>
-                  <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
-                    {t("vriZones")}
+                  <button
+                    onClick={() => setActiveTab('vri')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'vri' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    {t('vriZones')}
                   </button>
-                  <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
-                    {t("schedule")}
+                  <button
+                    onClick={() => setActiveTab('schedule')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'schedule' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    {t('schedule')}
                   </button>
-                  <button className="px-4 py-2 text-gray-500 hover:text-gray-700">
-                    {t("statistics")}
+                  <button
+                    onClick={() => setActiveTab('statistics')}
+                    className={`px-4 py-2 font-medium transition-colors ${activeTab === 'statistics' ? 'text-sahool-green-600 border-b-2 border-sahool-green-600' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    {t('statistics')}
                   </button>
                 </div>
 
                 {/* Sectors Grid */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {Array.from({ length: selectedPivot.sectorsCount }, (_, i) => (
-                    <div
-                      key={i}
-                      className="p-4 bg-gray-50 rounded-lg border border-gray-200"
-                    >
+                    <div key={i} className="p-4 bg-gray-50 rounded-lg border border-gray-200">
                       <div className="flex items-center justify-between mb-2">
                         <span className="font-medium">قطاع {i + 1}</span>
                         <span
                           className={`w-3 h-3 rounded-full ${
-                            i < 3 ? "bg-green-500" : "bg-gray-300"
+                            i < 3 ? 'bg-green-500' : 'bg-gray-300'
                           }`}
                         />
                       </div>
                       <div className="text-sm text-gray-600">
                         <div>
-                          الزاوية: {(i * 360) / selectedPivot.sectorsCount}° -{" "}
+                          الزاوية: {(i * 360) / selectedPivot.sectorsCount}° -{' '}
                           {((i + 1) * 360) / selectedPivot.sectorsCount}°
                         </div>
                         <div>معدل التطبيق: 100%</div>
@@ -413,13 +458,9 @@ export default function PivotIrrigationClient() {
                       <Play className="w-5 h-5 text-green-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
-                        بدأ دورة الري
-                      </p>
+                      <p className="font-medium text-gray-900">بدأ دورة الري</p>
                       <p className="text-sm text-gray-500">
-                        {new Date(
-                          selectedPivot.lastIrrigation
-                        ).toLocaleString("ar-SA")}
+                        {new Date(selectedPivot.lastIrrigation).toLocaleString('ar-SA')}
                       </p>
                     </div>
                   </div>
@@ -428,9 +469,7 @@ export default function PivotIrrigationClient() {
                       <Clock className="w-5 h-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
-                        تحديث جدول الري
-                      </p>
+                      <p className="font-medium text-gray-900">تحديث جدول الري</p>
                       <p className="text-sm text-gray-500">منذ 3 ساعات</p>
                     </div>
                   </div>
@@ -439,9 +478,7 @@ export default function PivotIrrigationClient() {
                       <BarChart3 className="w-5 h-5 text-purple-600" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
-                        تحديث مناطق VRI
-                      </p>
+                      <p className="font-medium text-gray-900">تحديث مناطق VRI</p>
                       <p className="text-sm text-gray-500">منذ يومين</p>
                     </div>
                   </div>
@@ -451,15 +488,11 @@ export default function PivotIrrigationClient() {
           ) : (
             <div className="bg-white rounded-xl border-2 border-gray-200 p-12 text-center">
               <Droplets className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-gray-900 mb-2">
-                {t("noPivots")}
-              </h3>
-              <p className="text-gray-500 mb-4">
-                قم بإضافة محوري جديد للبدء
-              </p>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">{t('noPivots')}</h3>
+              <p className="text-gray-500 mb-4">قم بإضافة محوري جديد للبدء</p>
               <button className="flex items-center gap-2 px-6 py-3 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 mx-auto">
                 <PlusCircle className="w-5 h-5" />
-                <span>{t("addPivot")}</span>
+                <span>{t('addPivot')}</span>
               </button>
             </div>
           )}

@@ -19,45 +19,45 @@ Updated: January 2026
 """
 
 import uuid
-from datetime import datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta
 from unittest.mock import MagicMock, patch
+
 import pytest
 
 from shared.ml_irrigation import (
-    # Enums
-    IrrigationUrgency,
-    CropStage,
-    SoilType,
-    IrrigationType,
-    AnomalyType,
+    CROP_COEFFICIENTS,
     AnomalySeverity,
-    PredictionConfidence,
-    # Feature models
-    WeatherFeatures,
-    SoilFeatures,
+    AnomalyType,
     CropFeatures,
+    CropStage,
+    HistoricalPattern,
+    IrrigationAnomaly,
     IrrigationFeatures,
     # Prediction models
     IrrigationPrediction,
-    WaterOptimizationResult,
-    IrrigationAnomaly,
-    HistoricalPattern,
-    IrrigationRecord,
     # Predictor
     IrrigationPredictor,
+    IrrigationRecord,
+    IrrigationType,
+    # Enums
+    IrrigationUrgency,
+    OptimizerConfig,
+    PredictionConfidence,
     PredictorConfig,
-    predict_irrigation,
-    get_predictor,
-    CROP_COEFFICIENTS,
+    SoilFeatures,
+    SoilType,
+    WaterOptimizationResult,
     # Optimizer
     WaterOptimizer,
-    OptimizerConfig,
-    optimize_water_usage,
-    detect_irrigation_anomalies,
+    # Feature models
+    WeatherFeatures,
     analyze_irrigation_patterns,
+    detect_irrigation_anomalies,
     get_optimizer,
+    get_predictor,
+    optimize_water_usage,
+    predict_irrigation,
 )
-
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Fixtures for Common Test Data

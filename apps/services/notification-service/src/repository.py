@@ -3,8 +3,9 @@ SAHOOL Notification Service - Data Repository Layer
 طبقة الوصول للبيانات - Repository Pattern
 """
 
+import hmac
 import logging
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -101,12 +102,15 @@ class NotificationRepository:
         return notifications
 
     @staticmethod
-    async def get_by_id(notification_id: UUID) -> Notification | None:
+    async def get_by_id(notification_id: UUID, tenant_id: str | None = None) -> Notification | None:
         """
         الحصول على إشعار بواسطة المعرف
         Get notification by ID
         """
-        return await Notification.filter(id=notification_id).first()
+        query = Notification.filter(id=notification_id)
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+        return await query.first()
 
     @staticmethod
     async def get_by_user(
@@ -174,7 +178,9 @@ class NotificationRepository:
         return count
 
     @staticmethod
-    async def mark_as_read(notification_id: UUID, read_at: datetime | None = None) -> bool:
+    async def mark_as_read(
+        notification_id: UUID, tenant_id: str | None = None, read_at: datetime | None = None
+    ) -> bool:
         """
         تحديد إشعار كمقروء
         Mark notification as read
@@ -182,7 +188,11 @@ class NotificationRepository:
         if read_at is None:
             read_at = datetime.now(UTC)
 
-        updated = await Notification.filter(id=notification_id).update(
+        query = Notification.filter(id=notification_id)
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        updated = await query.update(
             read_at=read_at,
             status="read",
         )
@@ -193,7 +203,9 @@ class NotificationRepository:
         return False
 
     @staticmethod
-    async def mark_multiple_as_read(notification_ids: list[UUID], read_at: datetime | None = None) -> int:
+    async def mark_multiple_as_read(
+        notification_ids: list[UUID], tenant_id: str | None = None, read_at: datetime | None = None
+    ) -> int:
         """
         تحديد إشعارات متعددة كمقروءة
         Mark multiple notifications as read
@@ -201,7 +213,11 @@ class NotificationRepository:
         if read_at is None:
             read_at = datetime.now(UTC)
 
-        updated = await Notification.filter(id__in=notification_ids).update(
+        query = Notification.filter(id__in=notification_ids)
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        updated = await query.update(
             read_at=read_at,
             status="read",
         )
@@ -229,7 +245,9 @@ class NotificationRepository:
         return updated
 
     @staticmethod
-    async def update_status(notification_id: UUID, status: str, sent_at: datetime | None = None) -> bool:
+    async def update_status(
+        notification_id: UUID, status: str, tenant_id: str | None = None, sent_at: datetime | None = None
+    ) -> bool:
         """
         تحديث حالة الإشعار
         Update notification status
@@ -238,7 +256,11 @@ class NotificationRepository:
         if sent_at:
             update_data["sent_at"] = sent_at
 
-        updated = await Notification.filter(id=notification_id).update(**update_data)
+        query = Notification.filter(id=notification_id)
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        updated = await query.update(**update_data)
 
         if updated:
             logger.info(f"Updated notification {notification_id} status to {status}")
@@ -246,25 +268,33 @@ class NotificationRepository:
         return False
 
     @staticmethod
-    async def delete(notification_id: UUID) -> bool:
+    async def delete(notification_id: UUID, tenant_id: str | None = None) -> bool:
         """
         حذف إشعار
         Delete a notification
         """
-        deleted = await Notification.filter(id=notification_id).delete()
+        query = Notification.filter(id=notification_id)
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        deleted = await query.delete()
         if deleted:
             logger.info(f"Deleted notification {notification_id}")
             return True
         return False
 
     @staticmethod
-    async def delete_old_notifications(days: int = 30) -> int:
+    async def delete_old_notifications(days: int = 30, tenant_id: str | None = None) -> int:
         """
         حذف الإشعارات القديمة
         Delete notifications older than specified days
         """
         cutoff_date = datetime.now(UTC) - timedelta(days=days)
-        deleted = await Notification.filter(created_at__lt=cutoff_date).delete()
+        query = Notification.filter(created_at__lt=cutoff_date)
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
+
+        deleted = await query.delete()
 
         logger.info(f"Deleted {deleted} notifications older than {days} days")
         return deleted
@@ -273,12 +303,16 @@ class NotificationRepository:
     async def get_pending_notifications(
         limit: int = 100,
         channel: str | None = None,
+        tenant_id: str | None = None,
     ) -> list[Notification]:
         """
         الحصول على الإشعارات المعلقة للإرسال
         Get pending notifications for sending
         """
         query = Notification.filter(status="pending")
+
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
 
         if channel:
             query = query.filter(channel=channel)
@@ -294,12 +328,16 @@ class NotificationRepository:
         governorate: str | None = None,
         crop: str | None = None,
         limit: int = 20,
+        tenant_id: str | None = None,
     ) -> list[Notification]:
         """
         الحصول على الإشعارات العامة
         Get broadcast notifications
         """
         query = Notification.filter()
+
+        if tenant_id:
+            query = query.filter(tenant_id=tenant_id)
 
         # Filter by governorate
         if governorate:
@@ -462,9 +500,12 @@ class NotificationChannelRepository:
         return await query.all()
 
     @staticmethod
-    async def get_by_id(channel_id: UUID) -> NotificationChannel | None:
-        """الحصول على قناة بواسطة المعرف"""
-        return await NotificationChannel.filter(id=channel_id).first()
+    async def get_by_id(channel_id: UUID, user_id: str | None = None) -> NotificationChannel | None:
+        """الحصول على قناة بواسطة المعرف مع التحقق من الملكية"""
+        query = NotificationChannel.filter(id=channel_id)
+        if user_id:
+            query = query.filter(user_id=user_id)
+        return await query.first()
 
     @staticmethod
     async def verify_channel(
@@ -481,7 +522,7 @@ class NotificationChannelRepository:
             return False
 
         # If verification code is provided, check it
-        if verification_code and channel.verification_code != verification_code:
+        if verification_code and not hmac.compare_digest(str(channel.verification_code or ""), str(verification_code)):
             return False
 
         channel.verified = True
@@ -495,13 +536,18 @@ class NotificationChannelRepository:
     @staticmethod
     async def update_channel(
         channel_id: UUID,
+        user_id: str | None = None,
         **kwargs,
     ) -> bool:
         """
-        تحديث قناة
-        Update a notification channel
+        تحديث قناة مع التحقق من الملكية
+        Update a notification channel with ownership validation
         """
-        updated = await NotificationChannel.filter(id=channel_id).update(**kwargs)
+        query = NotificationChannel.filter(id=channel_id)
+        if user_id:
+            query = query.filter(user_id=user_id)
+
+        updated = await query.update(**kwargs)
 
         if updated:
             logger.info(f"Updated notification channel {channel_id}")
@@ -509,12 +555,16 @@ class NotificationChannelRepository:
         return False
 
     @staticmethod
-    async def delete_channel(channel_id: UUID) -> bool:
+    async def delete_channel(channel_id: UUID, user_id: str | None = None) -> bool:
         """
-        حذف قناة
-        Delete a notification channel
+        حذف قناة مع التحقق من الملكية
+        Delete a notification channel with ownership validation
         """
-        deleted = await NotificationChannel.filter(id=channel_id).delete()
+        query = NotificationChannel.filter(id=channel_id)
+        if user_id:
+            query = query.filter(user_id=user_id)
+
+        deleted = await query.delete()
 
         if deleted:
             logger.info(f"Deleted notification channel {channel_id}")
@@ -714,17 +764,17 @@ class NotificationLogRepository:
         return await NotificationLog.filter(notification_id=notification_id).all()
 
     @staticmethod
-    async def get_failed_logs(limit: int = 100) -> list[NotificationLog]:
+    async def get_failed_logs(limit: int = 100, tenant_id: str | None = None) -> list[NotificationLog]:
         """الحصول على السجلات الفاشلة للمحاولة مرة أخرى"""
-        return (
-            await NotificationLog.filter(
-                status="failed",
-                retry_count__lt=3,  # Max 3 retries
-            )
-            .order_by("attempted_at")
-            .limit(limit)
-            .all()
+        query = NotificationLog.filter(
+            status="failed",
+            retry_count__lt=3,  # Max 3 retries
         )
+
+        if tenant_id:
+            query = query.filter(notification__tenant_id=tenant_id)
+
+        return await query.order_by("attempted_at").limit(limit).all()
 
     @staticmethod
     async def increment_retry(log_id: UUID) -> bool:

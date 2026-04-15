@@ -3,10 +3,10 @@
  * Helper functions for publishing events to NATS
  */
 
-import { StringCodec } from "nats";
-import { NatsClient } from "./nats-client";
-import { SahoolEvent, EventSubject } from "./events";
-import { v4 as uuidv4 } from "uuid";
+import { StringCodec } from 'nats';
+import { NatsClient } from './nats-client';
+import { SahoolEvent, EventSubject } from './events';
+import { v4 as uuidv4 } from 'uuid';
 
 const codec = StringCodec();
 
@@ -20,6 +20,12 @@ export interface PublishOptions {
    * Event version (defaults to '1.0')
    */
   version?: string;
+
+  /**
+   * Tenant ID for multi-tenant event isolation (from JWT `tid` claim).
+   * When provided, enables downstream consumers to filter by tenant.
+   */
+  tenantId?: string;
 
   /**
    * Additional metadata to attach to the event
@@ -42,38 +48,45 @@ export interface PublishOptions {
  */
 export async function publishEvent<T extends SahoolEvent>(
   subject: EventSubject,
-  payload: T["payload"],
-  options: PublishOptions = {},
+  payload: T['payload'],
+  options: PublishOptions = {}
 ): Promise<void> {
   const client = NatsClient.getInstance({
-    servers: process.env.NATS_URL || "nats://localhost:4222",
+    servers: process.env.NATS_URL || 'nats://localhost:4222',
   });
 
   const connection = client.getConnection();
   if (!connection || connection.isClosed()) {
-    throw new Error("NATS connection is not available. Please connect first.");
+    throw new Error('NATS connection is not available. Please connect first.');
   }
 
   const event: SahoolEvent = {
     eventId: options.eventId || uuidv4(),
     eventType: subject,
     timestamp: new Date(),
-    version: options.version || "1.0",
+    version: options.version || '1.0',
+    tenantId: options.tenantId,
     payload,
     metadata: options.metadata,
   } as SahoolEvent;
 
   const data = codec.encode(JSON.stringify(event));
 
-  if (options.debug !== false && process.env.NODE_ENV !== "production") {
+  if (options.debug !== false && process.env.NODE_ENV !== 'production') {
     console.log(`[EventPublisher] Publishing event: ${subject}`, event);
   }
 
-  connection.publish(subject, data);
+  try {
+    connection.publish(subject, data);
 
-  // Optionally wait for the publish to complete with timeout
-  if (options.timeout) {
-    await connection.flush();
+    // Optionally wait for the publish to complete with timeout
+    if (options.timeout) {
+      await connection.flush();
+    }
+  } catch (err) {
+    throw new Error(
+      `Failed to publish event '${subject}': ${err instanceof Error ? err.message : 'Unknown error'}`
+    );
   }
 }
 
@@ -88,14 +101,14 @@ export async function publishFieldCreated(
     name: string;
     area: number;
     location: {
-      type: "Polygon";
+      type: 'Polygon';
       coordinates: number[][][];
     };
     cropType?: string;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("field.created", payload, options);
+  await publishEvent('sahool.field.created', payload, options);
 }
 
 export async function publishFieldUpdated(
@@ -106,15 +119,15 @@ export async function publishFieldUpdated(
       name?: string;
       area?: number;
       location?: {
-        type: "Polygon";
+        type: 'Polygon';
         coordinates: number[][][];
       };
       cropType?: string;
     };
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("field.updated", payload, options);
+  await publishEvent('sahool.field.updated', payload, options);
 }
 
 export async function publishFieldDeleted(
@@ -123,9 +136,9 @@ export async function publishFieldDeleted(
     userId: string;
     deletedAt: Date;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("field.deleted", payload, options);
+  await publishEvent('sahool.field.deleted', payload, options);
 }
 
 // ============================================================================
@@ -150,9 +163,9 @@ export async function publishOrderPlaced(
       postalCode: string;
     };
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("order.placed", payload, options);
+  await publishEvent('sahool.order.placed', payload, options);
 }
 
 export async function publishOrderCompleted(
@@ -163,9 +176,9 @@ export async function publishOrderCompleted(
     totalAmount: number;
     currency: string;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("order.completed", payload, options);
+  await publishEvent('sahool.order.completed', payload, options);
 }
 
 export async function publishOrderCancelled(
@@ -175,9 +188,9 @@ export async function publishOrderCancelled(
     cancelledAt: Date;
     reason?: string;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("order.cancelled", payload, options);
+  await publishEvent('sahool.order.cancelled', payload, options);
 }
 
 // ============================================================================
@@ -188,22 +201,16 @@ export async function publishSensorReading(
   payload: {
     deviceId: string;
     fieldId?: string;
-    sensorType:
-      | "temperature"
-      | "humidity"
-      | "soil_moisture"
-      | "ph"
-      | "light"
-      | "other";
+    sensorType: 'temperature' | 'humidity' | 'soil_moisture' | 'ph' | 'light' | 'other';
     value: number;
     unit: string;
     latitude?: number;
     longitude?: number;
     readingTime: Date;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("sensor.reading", payload, options);
+  await publishEvent('sahool.sensor.reading', payload, options);
 }
 
 export async function publishDeviceConnected(
@@ -214,9 +221,9 @@ export async function publishDeviceConnected(
     connectedAt: Date;
     ipAddress?: string;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("device.connected", payload, options);
+  await publishEvent('sahool.device.connected', payload, options);
 }
 
 export async function publishDeviceDisconnected(
@@ -225,11 +232,11 @@ export async function publishDeviceDisconnected(
     deviceType: string;
     fieldId?: string;
     disconnectedAt: Date;
-    reason?: "timeout" | "user_action" | "error" | "other";
+    reason?: 'timeout' | 'user_action' | 'error' | 'other';
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("device.disconnected", payload, options);
+  await publishEvent('sahool.device.disconnected', payload, options);
 }
 
 // ============================================================================
@@ -246,9 +253,9 @@ export async function publishUserCreated(
     role: string;
     createdAt: Date;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("user.created", payload, options);
+  await publishEvent('sahool.user.created', payload, options);
 }
 
 export async function publishUserUpdated(
@@ -263,9 +270,9 @@ export async function publishUserUpdated(
     };
     updatedAt: Date;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("user.updated", payload, options);
+  await publishEvent('sahool.user.updated', payload, options);
 }
 
 // ============================================================================
@@ -281,9 +288,9 @@ export async function publishInventoryLowStock(
     unit: string;
     warehouseId?: string;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("inventory.low_stock", payload, options);
+  await publishEvent('sahool.inventory.low_stock', payload, options);
 }
 
 export async function publishInventoryMovement(
@@ -291,15 +298,15 @@ export async function publishInventoryMovement(
     movementId: string;
     productId: string;
     quantity: number;
-    movementType: "in" | "out" | "transfer" | "adjustment";
+    movementType: 'in' | 'out' | 'transfer' | 'adjustment';
     fromWarehouseId?: string;
     toWarehouseId?: string;
     reason?: string;
     movedAt: Date;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("inventory.movement", payload, options);
+  await publishEvent('sahool.inventory.movement', payload, options);
 }
 
 // ============================================================================
@@ -310,14 +317,14 @@ export async function publishNotificationSend(
   payload: {
     notificationId: string;
     recipientId: string;
-    recipientType: "user" | "group" | "all";
-    channel: "email" | "sms" | "push" | "in_app";
-    priority: "low" | "medium" | "high" | "urgent";
+    recipientType: 'user' | 'group' | 'all';
+    channel: 'email' | 'sms' | 'push' | 'in_app';
+    priority: 'low' | 'medium' | 'high' | 'urgent';
     subject: string;
     message: string;
     data?: Record<string, unknown>;
   },
-  options?: PublishOptions,
+  options?: PublishOptions
 ): Promise<void> {
-  await publishEvent("notification.send", payload, options);
+  await publishEvent('sahool.notification.send', payload, options);
 }

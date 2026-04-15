@@ -37,15 +37,22 @@ class DroneRepository:
     # Drones - الطائرات
     # ─────────────────────────────────────────────────────────────────────
 
-    async def list_drones(self, tenant_id: str, status: str | None = None) -> list[dict]:
+    async def list_drones(
+        self, tenant_id: str, status: str | None = None, limit: int = 500, offset: int = 0
+    ) -> list[dict]:
         query = "SELECT * FROM drones WHERE tenant_id = $1"
         params: list[Any] = [tenant_id]
+        idx = 2
         if status:
-            query += " AND status = $2"
+            query += f" AND status = ${idx}"
             params.append(status)
-        query += " ORDER BY created_at DESC"
+            idx += 1
+        query += f" ORDER BY created_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
+        params.extend([limit, offset])
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)
+            rows = await conn.fetch(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [dict(r) for r in rows]
 
     async def get_drone(self, drone_id: str, tenant_id: str) -> dict | None:
@@ -129,7 +136,12 @@ class DroneRepository:
     # ─────────────────────────────────────────────────────────────────────
 
     async def list_flight_plans(
-        self, tenant_id: str, field_id: str | None = None, plan_type: str | None = None
+        self,
+        tenant_id: str,
+        field_id: str | None = None,
+        plan_type: str | None = None,
+        limit: int = 500,
+        offset: int = 0,
     ) -> list[dict]:
         query = "SELECT * FROM flight_plans WHERE tenant_id = $1"
         params: list[Any] = [tenant_id]
@@ -141,9 +153,13 @@ class DroneRepository:
         if plan_type:
             query += f" AND plan_type = ${idx}"
             params.append(plan_type)
-        query += " ORDER BY created_at DESC"
+            idx += 1
+        query += f" ORDER BY created_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
+        params.extend([limit, offset])
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)
+            rows = await conn.fetch(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [dict(r) for r in rows]
 
     async def get_flight_plan(self, plan_id: str, tenant_id: str) -> dict | None:
@@ -188,7 +204,14 @@ class DroneRepository:
     # Missions - المهام
     # ─────────────────────────────────────────────────────────────────────
 
-    async def list_missions(self, tenant_id: str, status: str | None = None, drone_id: str | None = None) -> list[dict]:
+    async def list_missions(
+        self,
+        tenant_id: str,
+        status: str | None = None,
+        drone_id: str | None = None,
+        limit: int = 500,
+        offset: int = 0,
+    ) -> list[dict]:
         query = "SELECT * FROM missions WHERE tenant_id = $1"
         params: list[Any] = [tenant_id]
         idx = 2
@@ -201,9 +224,13 @@ class DroneRepository:
             if parsed_drone:
                 query += f" AND drone_id = ${idx}"
                 params.append(parsed_drone)
-        query += " ORDER BY created_at DESC"
+                idx += 1
+        query += f" ORDER BY created_at DESC LIMIT ${idx} OFFSET ${idx + 1}"
+        params.extend([limit, offset])
         async with self.pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)
+            rows = await conn.fetch(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [dict(r) for r in rows]
 
     async def get_mission(self, mission_id: str, tenant_id: str) -> dict | None:

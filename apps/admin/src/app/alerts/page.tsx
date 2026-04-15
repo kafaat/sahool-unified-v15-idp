@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
 // Alerts Management Page - Dynamic with Full CRUD
 // صفحة إدارة التنبيهات - ديناميكية مع جميع عمليات CRUD
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useToast } from '@/components/ui/Toast';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
 import {
   Bell,
   CloudRain,
@@ -15,6 +16,7 @@ import {
   Thermometer,
   AlertTriangle,
   Info,
+  Leaf,
   Plus,
   RefreshCw,
   Eye,
@@ -23,21 +25,18 @@ import {
   Trash2,
   X,
   Save,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { 
-  alertService, 
-  type Alert, 
-  type CreateAlertData,
-} from "@/lib/api";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { alertService, type Alert, type CreateAlertData } from '@/lib/api';
 
 export default function AlertsPage() {
+  const { toast } = useToast();
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [_searchQuery] = useState(""); // Reserved for future search feature
-  const [typeFilter, setTypeFilter] = useState("");
-  const [severityFilter, setSeverityFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [_searchQuery] = useState(''); // Reserved for future search feature
+  const [typeFilter, setTypeFilter] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -60,7 +59,7 @@ export default function AlertsPage() {
       setAlerts(response.data);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
-      logger.error("Failed to load alerts:", error);
+      logger.error('Failed to load alerts:', error);
       setAlerts([]);
     } finally {
       setIsLoading(false);
@@ -78,10 +77,10 @@ export default function AlertsPage() {
       await alertService.create(data);
       await loadAlerts();
       setShowCreateModal(false);
-      logger.info("Alert created successfully");
+      logger.info('Alert created successfully');
     } catch (error) {
-      logger.error("Failed to create alert:", error);
-      alert("فشل إنشاء التنبيه. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to create alert:', error);
+      toast.error('Failed to create alert', 'فشل إنشاء التنبيه. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
@@ -91,10 +90,10 @@ export default function AlertsPage() {
     try {
       await alertService.acknowledge(id);
       await loadAlerts();
-      logger.info("Alert acknowledged successfully");
+      logger.info('Alert acknowledged successfully');
     } catch (error) {
-      logger.error("Failed to acknowledge alert:", error);
-      alert("فشل إقرار التنبيه. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to acknowledge alert:', error);
+      toast.error('Failed to acknowledge alert', 'فشل إقرار التنبيه. يرجى المحاولة مرة أخرى.');
     }
   }
 
@@ -102,12 +101,12 @@ export default function AlertsPage() {
     try {
       await alertService.resolve(id, resolution);
       await loadAlerts();
-      logger.info("Alert resolved successfully");
+      logger.info('Alert resolved successfully');
       setShowDetailsModal(false);
       setSelectedAlert(null);
     } catch (error) {
-      logger.error("Failed to resolve alert:", error);
-      alert("فشل حل التنبيه. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to resolve alert:', error);
+      toast.error('Failed to resolve alert', 'فشل حل التنبيه. يرجى المحاولة مرة أخرى.');
     }
   }
 
@@ -118,110 +117,130 @@ export default function AlertsPage() {
       await loadAlerts();
       setShowDeleteModal(false);
       setSelectedAlert(null);
-      logger.info("Alert deleted successfully");
+      logger.info('Alert deleted successfully');
     } catch (error) {
-      logger.error("Failed to delete alert:", error);
-      alert("فشل حذف التنبيه. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to delete alert:', error);
+      toast.error('Failed to delete alert', 'فشل حذف التنبيه. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  const stats = useMemo(() => ({
-    total: alerts.length,
-    unread: alerts.filter((a) => a.status === "unread").length,
-    critical: alerts.filter((a) => a.severity === "critical").length,
-    acknowledged: alerts.filter((a) => a.status === "acknowledged").length,
-  }), [alerts]);
+  const stats = useMemo(
+    () => ({
+      total: alerts.length,
+      unread: alerts.filter((a) => a.status === 'unread').length,
+      critical: alerts.filter((a) => a.severity === 'critical').length,
+      acknowledged: alerts.filter((a) => a.status === 'acknowledged').length,
+    }),
+    [alerts]
+  );
 
-  const getAlertIcon = (type: Alert["type"]) => {
-    const icons = {
+  const getAlertIcon = (type: Alert['type']) => {
+    const icons: Record<Alert['type'], typeof AlertTriangle> = {
       weather: CloudRain,
       disease: Bug,
       pest: Bug,
       irrigation: Droplets,
       sensor: Thermometer,
       system: AlertTriangle,
+      ndvi_low: Leaf,
     };
     return icons[type] || AlertTriangle;
   };
 
-  const getAlertTypeLabel = (type: Alert["type"]) => {
-    const labels = {
-      weather: "طقس",
-      disease: "مرض",
-      pest: "آفات",
-      irrigation: "ري",
-      sensor: "مستشعر",
-      system: "نظام",
+  const getAlertTypeLabel = (type: Alert['type']) => {
+    const labels: Record<Alert['type'], string> = {
+      weather: 'طقس',
+      disease: 'مرض',
+      pest: 'آفات',
+      irrigation: 'ري',
+      sensor: 'مستشعر',
+      system: 'نظام',
+      ndvi_low: 'انخفاض NDVI',
     };
     return labels[type] || type;
   };
 
-  const getSeverityColor = (severity: Alert["severity"]) => {
-    const colors = {
-      info: "bg-blue-100 text-blue-800 border-blue-200",
-      warning: "bg-yellow-100 text-yellow-800 border-yellow-200",
-      critical: "bg-red-100 text-red-800 border-red-200",
+  const getSeverityColor = (severity: Alert['severity']) => {
+    const colors: Record<Alert['severity'], string> = {
+      info: 'bg-blue-100 text-blue-800 border-blue-200',
+      warning: 'bg-yellow-100 text-yellow-800 border-yellow-200',
+      critical: 'bg-red-100 text-red-800 border-red-200',
+      high: 'bg-red-100 text-red-800 border-red-200',
+      medium: 'bg-orange-100 text-orange-800 border-orange-200',
+      low: 'bg-green-100 text-green-800 border-green-200',
     };
     return colors[severity];
   };
 
-  const getSeverityLabel = (severity: Alert["severity"]) => {
-    const labels = {
-      info: "معلومات",
-      warning: "تحذير",
-      critical: "حرج",
+  const getSeverityLabel = (severity: Alert['severity']) => {
+    const labels: Record<Alert['severity'], string> = {
+      info: 'معلومات',
+      warning: 'تحذير',
+      critical: 'حرج',
+      high: 'مرتفع',
+      medium: 'متوسط',
+      low: 'منخفض',
     };
     return labels[severity];
   };
 
-  const getSeverityIcon = (severity: Alert["severity"]) => {
-    const icons = {
+  const getSeverityIcon = (severity: Alert['severity']) => {
+    const icons: Record<Alert['severity'], typeof AlertTriangle> = {
       info: Info,
       warning: AlertTriangle,
       critical: AlertTriangle,
+      high: AlertTriangle,
+      medium: AlertTriangle,
+      low: Info,
     };
     return icons[severity];
   };
 
-  const getStatusLabel = (status: Alert["status"]) => {
-    const labels = {
-      unread: "غير مقروء",
-      read: "مقروء",
-      acknowledged: "تم الإقرار",
-      resolved: "تم الحل",
+  const getStatusLabel = (status: Alert['status']) => {
+    const labels: Record<Alert['status'], string> = {
+      unread: 'غير مقروء',
+      read: 'مقروء',
+      acknowledged: 'تم الإقرار',
+      resolved: 'تم الحل',
+      dismissed: 'تم التجاهل',
     };
     return labels[status];
   };
 
-  const getStatusColor = (status: Alert["status"]) => {
-    const colors = {
-      unread: "bg-red-100 text-red-800",
-      read: "bg-blue-100 text-blue-800",
-      acknowledged: "bg-yellow-100 text-yellow-800",
-      resolved: "bg-green-100 text-green-800",
+  const getStatusColor = (status: Alert['status']) => {
+    const colors: Record<Alert['status'], string> = {
+      unread: 'bg-red-100 text-red-800',
+      read: 'bg-blue-100 text-blue-800',
+      acknowledged: 'bg-yellow-100 text-yellow-800',
+      resolved: 'bg-green-100 text-green-800',
+      dismissed: 'bg-gray-100 text-gray-800',
     };
     return colors[status];
   };
 
   const columns = [
     {
-      key: "type",
-      header: "النوع",
+      key: 'type',
+      header: 'النوع',
       render: (alert: Alert) => {
         const Icon = getAlertIcon(alert.type);
         const SeverityIcon = getSeverityIcon(alert.severity);
         return (
           <div className="flex items-center gap-3">
-            <div className={cn(
-              "w-10 h-10 rounded-full flex items-center justify-center border-2",
-              getSeverityColor(alert.severity)
-            )}>
+            <div
+              className={cn(
+                'w-10 h-10 rounded-full flex items-center justify-center border-2',
+                getSeverityColor(alert.severity)
+              )}
+            >
               <Icon className="w-5 h-5" />
             </div>
             <div>
-              <p className="font-medium text-gray-900 dark:text-gray-100">{getAlertTypeLabel(alert.type)}</p>
+              <p className="font-medium text-gray-900 dark:text-gray-100">
+                {getAlertTypeLabel(alert.type)}
+              </p>
               <div className="flex items-center gap-1 text-xs">
                 <SeverityIcon className="w-3 h-3" />
                 <span>{getSeverityLabel(alert.severity)}</span>
@@ -232,8 +251,8 @@ export default function AlertsPage() {
       },
     },
     {
-      key: "message",
-      header: "الرسالة",
+      key: 'message',
+      header: 'الرسالة',
       render: (alert: Alert) => (
         <div>
           <p className="font-medium text-gray-900 dark:text-gray-100">{alert.titleAr}</p>
@@ -242,34 +261,38 @@ export default function AlertsPage() {
       ),
     },
     {
-      key: "field",
-      header: "الحقل",
+      key: 'field',
+      header: 'الحقل',
       render: (alert: Alert) => (
-        <span className="text-gray-700 dark:text-gray-300">{alert.fieldName || "عام"}</span>
+        <span className="text-gray-700 dark:text-gray-300">{alert.fieldName || 'عام'}</span>
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (alert: Alert) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(alert.status))}>
+        <span
+          className={cn('px-2 py-1 rounded-full text-xs font-medium', getStatusColor(alert.status))}
+        >
           {getStatusLabel(alert.status)}
         </span>
       ),
     },
     {
-      key: "createdAt",
-      header: "التاريخ",
+      key: 'createdAt',
+      header: 'التاريخ',
       render: (alert: Alert) => (
-        <span className="text-sm text-gray-600 dark:text-gray-400">{formatDate(alert.createdAt)}</span>
+        <span className="text-sm text-gray-600 dark:text-gray-400">
+          {formatDate(alert.createdAt)}
+        </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (alert: Alert) => (
         <div className="flex items-center gap-1">
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedAlert(alert);
@@ -280,8 +303,8 @@ export default function AlertsPage() {
           >
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
-          {alert.status === "unread" && (
-            <button 
+          {alert.status === 'unread' && (
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleAcknowledge(alert.id);
@@ -292,8 +315,8 @@ export default function AlertsPage() {
               <Check className="w-4 h-4 text-yellow-600" />
             </button>
           )}
-          {alert.status !== "resolved" && (
-            <button 
+          {alert.status !== 'resolved' && (
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 handleResolve(alert.id);
@@ -304,7 +327,7 @@ export default function AlertsPage() {
               <CheckCheck className="w-4 h-4 text-green-600" />
             </button>
           )}
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedAlert(alert);
@@ -317,12 +340,12 @@ export default function AlertsPage() {
           </button>
         </div>
       ),
-      className: "w-40",
+      className: 'w-40',
     },
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة التنبيهات والإشعارات" subtitle={`${alerts.length} تنبيه`} />
 
       {/* Stats */}
@@ -355,7 +378,9 @@ export default function AlertsPage() {
               <AlertTriangle className="w-5 h-5 text-red-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.critical}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.critical}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">حرج</p>
             </div>
           </div>
@@ -366,7 +391,9 @@ export default function AlertsPage() {
               <Check className="w-5 h-5 text-yellow-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.acknowledged}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.acknowledged}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">تم الإقرار</p>
             </div>
           </div>
@@ -418,9 +445,14 @@ export default function AlertsPage() {
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
-          <button 
+          <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors"
           >
@@ -465,7 +497,9 @@ export default function AlertsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">تفاصيل التنبيه</h3>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                تفاصيل التنبيه
+              </h3>
               <button
                 onClick={() => {
                   setShowDetailsModal(false);
@@ -479,61 +513,88 @@ export default function AlertsPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">النوع والمستوى</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  النوع والمستوى
+                </label>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="px-3 py-1 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm">
                     {getAlertTypeLabel(selectedAlert.type)}
                   </span>
-                  <span className={cn(
-                    "px-3 py-1 rounded-lg text-sm font-medium",
-                    getSeverityColor(selectedAlert.severity)
-                  )}>
+                  <span
+                    className={cn(
+                      'px-3 py-1 rounded-lg text-sm font-medium',
+                      getSeverityColor(selectedAlert.severity)
+                    )}
+                  >
                     {getSeverityLabel(selectedAlert.severity)}
                   </span>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">العنوان</label>
-                <p className="text-lg font-medium text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.titleAr}</p>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  العنوان
+                </label>
+                <p className="text-lg font-medium text-gray-900 dark:text-gray-100 mt-1">
+                  {selectedAlert.titleAr}
+                </p>
                 <p className="text-sm text-gray-600 dark:text-gray-400">{selectedAlert.title}</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">الرسالة</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  الرسالة
+                </label>
                 <p className="text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.messageAr}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{selectedAlert.message}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {selectedAlert.message}
+                </p>
               </div>
 
               {selectedAlert.fieldName && (
                 <div>
-                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">الحقل</label>
+                  <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                    الحقل
+                  </label>
                   <p className="text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.fieldName}</p>
                 </div>
               )}
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">المصدر</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  المصدر
+                </label>
                 <p className="text-gray-900 dark:text-gray-100 mt-1">{selectedAlert.source}</p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">التاريخ</label>
-                <p className="text-gray-900 dark:text-gray-100 mt-1">{formatDate(selectedAlert.createdAt)}</p>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  التاريخ
+                </label>
+                <p className="text-gray-900 dark:text-gray-100 mt-1">
+                  {formatDate(selectedAlert.createdAt)}
+                </p>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">الحالة</label>
+                <label className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                  الحالة
+                </label>
                 <p className="mt-1">
-                  <span className={cn("px-3 py-1 rounded-full text-sm font-medium", getStatusColor(selectedAlert.status))}>
+                  <span
+                    className={cn(
+                      'px-3 py-1 rounded-full text-sm font-medium',
+                      getStatusColor(selectedAlert.status)
+                    )}
+                  >
                     {getStatusLabel(selectedAlert.status)}
                   </span>
                 </p>
               </div>
 
-              {selectedAlert.status !== "resolved" && (
+              {selectedAlert.status !== 'resolved' && (
                 <div className="flex gap-3 pt-4 border-t">
-                  {selectedAlert.status === "unread" && (
+                  {selectedAlert.status === 'unread' && (
                     <button
                       onClick={() => handleAcknowledge(selectedAlert.id)}
                       className="flex-1 px-4 py-2 border border-yellow-300 bg-yellow-50 text-yellow-700 rounded-lg hover:bg-yellow-100 transition-colors"
@@ -562,8 +623,8 @@ export default function AlertsPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">تأكيد الحذف</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              هل أنت متأكد من حذف التنبيه <strong>{selectedAlert.titleAr}</strong>؟
-              هذا الإجراء لا يمكن التراجع عنه.
+              هل أنت متأكد من حذف التنبيه <strong>{selectedAlert.titleAr}</strong>؟ هذا الإجراء لا
+              يمكن التراجع عنه.
             </p>
             <div className="flex gap-3">
               <button
@@ -581,7 +642,7 @@ export default function AlertsPage() {
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {isSubmitting ? "جاري الحذف..." : "حذف"}
+                {isSubmitting ? 'جاري الحذف...' : 'حذف'}
               </button>
             </div>
           </div>
@@ -592,7 +653,7 @@ export default function AlertsPage() {
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-center gap-2">
           <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -602,7 +663,7 @@ export default function AlertsPage() {
             صفحة {page} من {totalPages}
           </span>
           <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -627,14 +688,14 @@ function AlertFormModal({
   isSubmitting: boolean;
 }) {
   const [formData, setFormData] = useState<CreateAlertData>({
-    type: "system",
-    severity: "info",
-    title: "",
-    titleAr: "",
-    message: "",
-    messageAr: "",
-    source: "admin",
-    fieldId: "",
+    type: 'system',
+    severity: 'info',
+    title: '',
+    titleAr: '',
+    message: '',
+    messageAr: '',
+    source: 'admin',
+    fieldId: '',
     metadata: {},
   });
 
@@ -664,7 +725,9 @@ function AlertFormModal({
               </label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as Alert["type"] })}
+                onChange={(e) =>
+                  setFormData({ ...formData, type: e.target.value as Alert['type'] })
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               >
                 <option value="weather">طقس</option>
@@ -682,7 +745,9 @@ function AlertFormModal({
               </label>
               <select
                 value={formData.severity}
-                onChange={(e) => setFormData({ ...formData, severity: e.target.value as Alert["severity"] })}
+                onChange={(e) =>
+                  setFormData({ ...formData, severity: e.target.value as Alert['severity'] })
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               >
                 <option value="info">معلومات</option>
@@ -772,7 +837,7 @@ function AlertFormModal({
               className="flex-1 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {isSubmitting ? "جاري الإنشاء..." : "إنشاء"}
+              {isSubmitting ? 'جاري الإنشاء...' : 'إنشاء'}
             </button>
           </div>
         </form>

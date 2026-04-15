@@ -9,6 +9,9 @@ Features:
 - WhatsApp Business API integration
 """
 
+import hashlib
+import hmac as hmac_mod
+import ipaddress
 import json
 import os
 from contextlib import asynccontextmanager
@@ -16,9 +19,12 @@ from datetime import UTC, datetime, timezone
 
 import asyncpg
 import nats
-from fastapi import FastAPI, Request, Response
+from fastapi import Depends, FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field, field_validator
 
+from shared.auth.dependencies import get_current_user
+from shared.auth.models import User
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.logging import get_logger
@@ -28,6 +34,143 @@ logger = get_logger(__name__)
 # Service info
 SERVICE_NAME = "ussd-gateway"
 SERVICE_VERSION = "16.0.0"
+
+# ============================================================
+# Callback Authentication — مصادقة الاستدعاءات الخارجية
+# ============================================================
+# Telecom provider IP ranges — override via USSD_PROVIDER_CIDRS env var
+# (comma-separated CIDR list).  Empty string disables IP filtering.
+_PROVIDER_CIDRS_RAW = os.getenv("USSD_PROVIDER_CIDRS", "")
+USSD_PROVIDER_NETWORKS: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = [
+    ipaddress.ip_network(cidr.strip(), strict=False) for cidr in _PROVIDER_CIDRS_RAW.split(",") if cidr.strip()
+]
+USSD_HMAC_SECRET: str = os.getenv("USSD_HMAC_SECRET", "")
+
+
+def _verify_telecom_callback(request: Request, body: bytes) -> bool:
+    """
+    Verify that a USSD/SMS callback originates from a trusted telecom provider.
+    التحقق من أن الاستدعاء قادم من مزود اتصالات موثوق
+
+    Two-layer verification:
+    1. IP whitelist — client IP must belong to a configured CIDR range
+    2. HMAC signature — if X-Callback-Signature header is present
+    Either layer is sufficient when only one is configured; both must pass
+    when both are configured.
+    """
+    environment = os.getenv("ENVIRONMENT", "development")
+
+    # In development/test, skip verification when nothing is configured
+    if environment in ("development", "test") and not USSD_PROVIDER_NETWORKS and not USSD_HMAC_SECRET:
+        return True
+
+    # Fail-closed in production: reject if NEITHER verification mechanism is configured
+    if environment == "production" and not USSD_PROVIDER_NETWORKS and not USSD_HMAC_SECRET:
+        logger.error("telecom_callback_no_auth_configured — rejecting in production")
+        return False
+
+    # Layer 1: IP whitelist
+    ip_ok = True
+    if USSD_PROVIDER_NETWORKS:
+        # Use the immediate peer address as the source of truth. If the service
+        # is deployed behind a trusted proxy, proxy header handling must be
+        # configured at the ASGI/server layer so request.client.host is safely
+        # normalized before reaching this code.
+        client_ip_str = request.client.host if request.client else ""
+        try:
+            client_ip = ipaddress.ip_address(client_ip_str)
+            ip_ok = any(client_ip in network for network in USSD_PROVIDER_NETWORKS)
+        except ValueError:
+            ip_ok = False
+
+        if not ip_ok:
+            logger.warning("telecom_callback_ip_rejected", client_ip=client_ip_str)
+
+    # Layer 2: HMAC signature
+    hmac_ok = True
+    signature = request.headers.get("X-Callback-Signature")
+    if USSD_HMAC_SECRET:
+        if not signature:
+            hmac_ok = False
+        else:
+            expected = hmac_mod.new(
+                USSD_HMAC_SECRET.encode("utf-8"),
+                body,
+                hashlib.sha256,
+            ).hexdigest()
+            hmac_ok = hmac_mod.compare_digest(expected, signature)
+
+        if not hmac_ok:
+            logger.warning("telecom_callback_hmac_rejected")
+
+    # Both layers must pass when both are configured
+    if USSD_PROVIDER_NETWORKS and USSD_HMAC_SECRET:
+        return ip_ok and hmac_ok
+    # Otherwise either configured layer must pass
+    return ip_ok and hmac_ok
+
+
+# ============================================================
+# Rate Limiting - تحديد معدل الطلبات (wired after app creation below)
+# ============================================================
+
+
+# ============================================================
+# Request Models - نماذج الطلبات (Pydantic)
+# ============================================================
+
+
+class USSDCallbackRequest(BaseModel):
+    """USSD callback from telecom provider"""
+
+    sessionId: str = Field(default="", alias="session_id", max_length=256)
+    phoneNumber: str = Field(default="", alias="msisdn", max_length=20)
+    text: str = Field(default="", max_length=500)
+
+    model_config = {"populate_by_name": True}
+
+
+class USSDSimulateRequest(BaseModel):
+    """USSD simulation request"""
+
+    phone_number: str = Field(default="+966500000000", max_length=20)
+    text: str = Field(default="", max_length=500)
+    language: str = Field(default="ar", pattern=r"^(ar|en)$")
+
+
+class SendSMSRequest(BaseModel):
+    """Send SMS request"""
+
+    phone_number: str = Field(max_length=20)
+    message: str | None = Field(default=None, max_length=1600)
+    message_ar: str | None = Field(default=None, max_length=1600)
+    tenant_id: str | None = Field(default=None, max_length=128)
+
+    @field_validator("phone_number")
+    @classmethod
+    def phone_not_empty(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("phone_number is required")
+        return v.strip()
+
+
+class BulkSMSRequest(BaseModel):
+    """Bulk SMS request"""
+
+    phone_numbers: list[str] = Field(min_length=1, max_length=5000)
+    message: str | None = Field(default=None, max_length=1600)
+    message_ar: str | None = Field(default=None, max_length=1600)
+    tenant_id: str | None = Field(default=None, max_length=128)
+
+
+class WhatsAppSendRequest(BaseModel):
+    """WhatsApp send request"""
+
+    phone_number: str = Field(max_length=20)
+    message: str | None = Field(default=None, max_length=4096)
+    message_ar: str | None = Field(default=None, max_length=4096)
+    template: str | None = Field(default=None, max_length=256)
+    buttons: list[dict] = Field(default_factory=list, max_length=10)
 
 
 @asynccontextmanager
@@ -45,7 +188,12 @@ async def lifespan(app: FastAPI):
             db_url += f"?sslmode={ssl_mode}" if "?" not in db_url else f"&sslmode={ssl_mode}"
     if db_url:
         try:
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
             app.state.db_connected = True
             logger.info("Database connection established")
         except Exception as e:
@@ -105,6 +253,19 @@ app.add_middleware(
 
 # Tenant context middleware
 app.add_middleware(TenantContextMiddleware)
+
+# Rate Limiting - wire into app after creation
+try:
+    from shared.middleware.rate_limiter import setup_rate_limiting
+
+    setup_rate_limiting(
+        app,
+        use_redis=os.getenv("REDIS_URL") is not None,
+        exclude_paths=["/healthz", "/readyz", "/health", "/metrics"],
+    )
+    logger.info("Rate limiting enabled for ussd-gateway")
+except ImportError:
+    logger.warning("Rate limiter not available, endpoints are unprotected")
 
 
 # ============================================================
@@ -305,6 +466,14 @@ async def ussd_callback(request: Request):
 
     Supports Africa's Talking, Infobip, and local telcos
     """
+    # ── Verify callback origin (IP whitelist + HMAC) ─────────────
+    raw_body = await request.body()
+    if not _verify_telecom_callback(request, raw_body):
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized callback | استدعاء غير مصرح",
+        )
+
     # Parse request based on provider format
     content_type = request.headers.get("content-type", "")
 
@@ -315,11 +484,18 @@ async def ussd_callback(request: Request):
         form = await request.form()
         data = dict(form)
 
-    session_id = data.get("sessionId", data.get("session_id", ""))
-    phone_number = data.get("phoneNumber", data.get("msisdn", ""))
-    text = data.get("text", "")
+    # Validate input via Pydantic
+    validated = USSDCallbackRequest(
+        sessionId=data.get("sessionId", data.get("session_id", "")),
+        phoneNumber=data.get("phoneNumber", data.get("msisdn", "")),
+        text=data.get("text", ""),
+    )
 
-    logger.info(f"USSD request: phone={phone_number}, text={text}")
+    session_id = validated.sessionId
+    phone_number = validated.phoneNumber
+    text = validated.text
+
+    logger.info("USSD request: phone=%s, text_len=%d", phone_number[-4:] if phone_number else "?", len(text))
 
     # Determine user language preference
     language = await get_user_language(app, phone_number)
@@ -335,22 +511,23 @@ async def ussd_callback(request: Request):
 
 
 @app.post("/ussd/simulate")
-async def ussd_simulate(request: Request):
+async def ussd_simulate(body: USSDSimulateRequest):
     """
     Simulate USSD session for testing
     محاكاة جلسة USSD للاختبار
     """
-    data = await request.json()
-    phone_number = data.get("phone_number", "+966500000000")
-    text = data.get("text", "")
-    language = data.get("language", "ar")
-
-    response_text, end_session = await process_ussd_input(app, "test-session", phone_number, text, language)
+    response_text, end_session = await process_ussd_input(
+        app,
+        "test-session",
+        body.phone_number,
+        body.text,
+        body.language,
+    )
 
     return {
         "response": response_text,
         "end_session": end_session,
-        "language": language,
+        "language": body.language,
     }
 
 
@@ -360,19 +537,18 @@ async def ussd_simulate(request: Request):
 
 
 @app.post("/sms/send")
-async def send_sms(request: Request):
+async def send_sms(body: SendSMSRequest, current_user: User = Depends(get_current_user)):
     """
     Send SMS to farmer
     إرسال رسالة نصية للمزارع
     """
-    data = await request.json()
-    phone_number = data.get("phone_number")
-    message = data.get("message")
-    message_ar = data.get("message_ar")
-    tenant_id = data.get("tenant_id")
+    phone_number = body.phone_number
+    message = body.message
+    message_ar = body.message_ar
+    tenant_id = body.tenant_id
 
-    if not phone_number or not (message or message_ar):
-        return {"success": False, "error": "Missing phone_number or message"}
+    if not (message or message_ar):
+        return {"success": False, "error": "Missing message or message_ar"}
 
     # Get user language preference
     language = await get_user_language(app, phone_number)
@@ -410,6 +586,14 @@ async def receive_sms(request: Request):
 
     Supports keyword-based responses
     """
+    # ── Verify callback origin (IP whitelist + HMAC) ─────────────
+    raw_body = await request.body()
+    if not _verify_telecom_callback(request, raw_body):
+        raise HTTPException(
+            status_code=401,
+            detail="Unauthorized callback | استدعاء غير مصرح",
+        )
+
     content_type = request.headers.get("content-type", "")
 
     if "application/json" in content_type:
@@ -418,10 +602,10 @@ async def receive_sms(request: Request):
         form = await request.form()
         data = dict(form)
 
-    from_number = data.get("from", data.get("msisdn", ""))
-    message = data.get("text", data.get("message", "")).strip().upper()
+    from_number = str(data.get("from", data.get("msisdn", "")))[:20]
+    message = str(data.get("text", data.get("message", "")))[:500].strip().upper()
 
-    logger.info(f"SMS received: from={from_number}, message={message}")
+    logger.info("SMS received: from=%s, message_len=%d", from_number[-4:] if from_number else "?", len(message))
 
     # Process SMS keywords
     response = await process_sms_keyword(app, from_number, message)
@@ -433,19 +617,17 @@ async def receive_sms(request: Request):
 
 
 @app.post("/sms/bulk")
-async def send_bulk_sms(request: Request):
+async def send_bulk_sms(body: BulkSMSRequest, current_user: User = Depends(get_current_user)):
     """
     Send bulk SMS to multiple farmers
     إرسال رسائل جماعية للمزارعين
     """
-    data = await request.json()
-    phone_numbers = data.get("phone_numbers", [])
-    message = data.get("message")
-    message_ar = data.get("message_ar")
-    data.get("tenant_id")
+    phone_numbers = body.phone_numbers
+    message = body.message
+    message_ar = body.message_ar
 
-    if not phone_numbers or not (message or message_ar):
-        return {"success": False, "error": "Missing phone_numbers or message"}
+    if not (message or message_ar):
+        return {"success": False, "error": "Missing message or message_ar"}
 
     results = []
     for phone in phone_numbers:
@@ -479,7 +661,23 @@ async def whatsapp_webhook(request: Request):
     Handle WhatsApp Business API webhook
     معالجة webhook واتساب للأعمال
     """
-    data = await request.json()
+    body = await request.body()
+    if len(body) > 1_048_576:  # 1 MB limit
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(
+            status_code=413,
+            content={"status": "error", "message": "Payload too large"},
+        )
+    try:
+        data = json.loads(body)
+    except (json.JSONDecodeError, ValueError):
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(
+            status_code=400,
+            content={"status": "error", "message": "Invalid JSON payload"},
+        )
 
     # Handle different webhook types
     if "messages" in data:
@@ -500,20 +698,16 @@ async def whatsapp_webhook(request: Request):
 
 
 @app.post("/whatsapp/send")
-async def send_whatsapp(request: Request):
+async def send_whatsapp(body: WhatsAppSendRequest, current_user: User = Depends(get_current_user)):
     """
     Send WhatsApp message to farmer
     إرسال رسالة واتساب للمزارع
     """
-    data = await request.json()
-    phone_number = data.get("phone_number")
-    message = data.get("message")
-    message_ar = data.get("message_ar")
-    template = data.get("template")
-    buttons = data.get("buttons", [])
-
-    if not phone_number:
-        return {"success": False, "error": "Missing phone_number"}
+    phone_number = body.phone_number
+    message = body.message
+    message_ar = body.message_ar
+    template = body.template
+    buttons = body.buttons
 
     language = await get_user_language(app, phone_number)
     final_message = message_ar if language == "ar" else message
@@ -531,21 +725,33 @@ async def send_whatsapp(request: Request):
 # ============================================================
 
 
-async def get_user_language(app: FastAPI, phone_number: str) -> str:
+async def get_user_language(app: FastAPI, phone_number: str, tenant_id: str | None = None) -> str:
     """Get user's preferred language"""
     if not hasattr(app.state, "db_pool") or not app.state.db_pool:
         return "ar"  # Default to Arabic
 
     try:
         async with app.state.db_pool.acquire() as conn:
-            row = await conn.fetchrow(
-                """
-                SELECT preferred_language
-                FROM users
-                WHERE phone_number = $1
-                """,
-                phone_number,
-            )
+            if tenant_id:
+                row = await conn.fetchrow(
+                    """
+                    SELECT preferred_language
+                    FROM users
+                    WHERE phone_number = $1
+                    AND tenant_id = $2
+                    """,
+                    phone_number,
+                    tenant_id,
+                )
+            else:
+                row = await conn.fetchrow(
+                    """
+                    SELECT preferred_language
+                    FROM users
+                    WHERE phone_number = $1
+                    """,
+                    phone_number,
+                )
             if row:
                 return row["preferred_language"] or "ar"
     except Exception as e:
@@ -733,7 +939,7 @@ async def handle_alert_for_sms(app: FastAPI, msg):
 
         sms_text = f"{title_ar}\n{message_ar[:140]}"  # Limit to SMS length
 
-        # Get phone numbers for notification
+        # Get phone numbers for notification (batched to prevent memory exhaustion)
         if hasattr(app.state, "db_pool") and app.state.db_pool:
             async with app.state.db_pool.acquire() as conn:
                 rows = await conn.fetch(
@@ -743,6 +949,7 @@ async def handle_alert_for_sms(app: FastAPI, msg):
                     WHERE tenant_id = $1
                     AND sms_enabled = true
                     AND alert_types @> $2
+                    LIMIT 5000
                     """,
                     tenant_id,
                     [data.get("alert_type", "general")],
@@ -765,4 +972,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8183))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

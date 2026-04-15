@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Handler
 /// معالج الإشعارات
 ///
@@ -338,7 +340,7 @@ class NotificationHandler {
     } catch (e) {
       debugPrint('❌ Navigation failed: $e');
       // Fallback to home
-      navigatorState.pushNamed('/');
+      await navigatorState.pushNamed('/');
     }
   }
 

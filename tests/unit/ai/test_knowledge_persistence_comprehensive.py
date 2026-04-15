@@ -14,10 +14,10 @@ def _make_doc(**kwargs):
     """Create a BaseKnowledgeDocument with defaults."""
     from shared.ai.knowledge.models import (
         BaseKnowledgeDocument,
-        KnowledgeDomain,
-        SourceCredibilityLevel,
-        KnowledgeSourceMeta,
         GeospatialMetadata,
+        KnowledgeDomain,
+        KnowledgeSourceMeta,
+        SourceCredibilityLevel,
         VerificationStatus,
     )
 
@@ -113,8 +113,8 @@ class TestInMemoryRepositoryCRUD:
         assert repo.count() == 3
 
     def test_list_collections(self):
-        from shared.ai.knowledge.persistence import InMemoryKnowledgeRepository
         from shared.ai.knowledge.models import KnowledgeDomain
+        from shared.ai.knowledge.persistence import InMemoryKnowledgeRepository
 
         repo = InMemoryKnowledgeRepository()
         repo.save(_make_doc(domain=KnowledgeDomain.CROPS))
@@ -128,14 +128,14 @@ class TestDocumentQueryFilters:
     """Test all query filter combinations."""
 
     def _setup_repo(self):
-        from shared.ai.knowledge.persistence import InMemoryKnowledgeRepository
         from shared.ai.knowledge.models import (
-            KnowledgeDomain,
             GeospatialMetadata,
+            KnowledgeDomain,
             KnowledgeSourceMeta,
             SourceCredibilityLevel,
             VerificationStatus,
         )
+        from shared.ai.knowledge.persistence import InMemoryKnowledgeRepository
 
         repo = InMemoryKnowledgeRepository()
         repo.save(
@@ -161,8 +161,8 @@ class TestDocumentQueryFilters:
         return repo
 
     def test_filter_by_domain(self):
-        from shared.ai.knowledge.persistence import DocumentQuery
         from shared.ai.knowledge.models import KnowledgeDomain
+        from shared.ai.knowledge.persistence import DocumentQuery
 
         repo = self._setup_repo()
         page = repo.find(DocumentQuery(domain=KnowledgeDomain.CROPS))
@@ -206,7 +206,7 @@ class TestDocumentQueryFilters:
         assert page.total == 1
 
     def test_pagination(self):
-        from shared.ai.knowledge.persistence import InMemoryKnowledgeRepository, DocumentQuery
+        from shared.ai.knowledge.persistence import DocumentQuery, InMemoryKnowledgeRepository
 
         repo = InMemoryKnowledgeRepository()
         for i in range(10):
@@ -222,8 +222,8 @@ class TestDocumentQueryFilters:
         assert page2.has_next is False
 
     def test_combined_filters(self):
-        from shared.ai.knowledge.persistence import DocumentQuery
         from shared.ai.knowledge.models import KnowledgeDomain
+        from shared.ai.knowledge.persistence import DocumentQuery
 
         repo = self._setup_repo()
         page = repo.find(
@@ -268,8 +268,8 @@ class TestKnowledgeVectorStoreComprehensive:
         assert len(ids) == 1
 
     def test_store_document_with_chunks(self):
-        from shared.ai.knowledge.vector_store_integration import KnowledgeVectorStore
         from shared.ai.knowledge.ingestion.chunker import TextChunk
+        from shared.ai.knowledge.vector_store_integration import KnowledgeVectorStore
 
         provider = self._mock_embedding_provider()
         store = KnowledgeVectorStore(embedding_provider=provider)
@@ -327,8 +327,8 @@ class TestKnowledgeVectorStoreComprehensive:
         assert store._prefixed_collection("test_crops") == "test_crops"  # No double prefix
 
     def test_domain_filter_in_search(self):
-        from shared.ai.knowledge.vector_store_integration import KnowledgeVectorStore
         from shared.ai.knowledge.models import KnowledgeDomain
+        from shared.ai.knowledge.vector_store_integration import KnowledgeVectorStore
 
         provider = self._mock_embedding_provider()
         store = KnowledgeVectorStore(embedding_provider=provider)

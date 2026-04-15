@@ -3,8 +3,8 @@
 Example usage of GDD API endpoints.
 Demonstrates how to track crop development using Growing Degree Days.
 
-Run the satellite service first:
-  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service
+Run the vegetation analysis service first:
+  cd /home/user/sahool-unified-v15-idp/apps/services/vegetation-analysis-service
   uvicorn src.main:app --host 0.0.0.0 --port 8090
 
 Then run this script:
@@ -289,8 +289,8 @@ async def main():
 
     except Exception as e:
         print(f"\n❌ Error: {e}")
-        print("\nMake sure the satellite service is running:")
-        print("  cd /home/user/sahool-unified-v15-idp/apps/services/satellite-service")
+        print("\nMake sure the vegetation analysis service is running:")
+        print("  cd /home/user/sahool-unified-v15-idp/apps/services/vegetation-analysis-service")
         print("  uvicorn src.main:app --host 0.0.0.0 --port 8090")
 
 

@@ -251,15 +251,19 @@ jobs:
           retention-days: 30
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@v6
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: apps/services/ai-advisor/coverage.xml
           flags: agent-evaluation
           name: agent-evaluation-coverage
 
       - name: Comment PR with evaluation results
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const fs = require('fs');

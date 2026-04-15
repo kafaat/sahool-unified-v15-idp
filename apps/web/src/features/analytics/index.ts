@@ -13,19 +13,16 @@
 
 // Component exports
 // Chart components use dynamic imports to avoid bundling recharts (~120KB) on initial load
-export { AnalyticsDashboard } from "./components/AnalyticsDashboard";
-export { YieldAnalysis } from "./components/YieldAnalysis.dynamic";
-export { YieldChart } from "./components/YieldChart.dynamic";
-export { CostAnalysis } from "./components/CostAnalysis.dynamic";
-export { ComparisonChart } from "./components/ComparisonChart.dynamic";
-export { ReportGenerator } from "./components/ReportGenerator";
-export { KPICards } from "./components/KPICards";
+export { AnalyticsDashboard } from './components/AnalyticsDashboard';
+export { YieldAnalysis } from './components/YieldAnalysis.dynamic';
+export { YieldChart } from './components/YieldChart.dynamic';
+export { CostAnalysis } from './components/CostAnalysis.dynamic';
+export { ComparisonChart } from './components/ComparisonChart.dynamic';
+export { ReportGenerator } from './components/ReportGenerator';
+export { KPICards } from './components/KPICards';
 
 // API exports
-export {
-  analyticsApi,
-  ERROR_MESSAGES as ANALYTICS_ERROR_MESSAGES,
-} from "./api";
+export { analyticsApi, ERROR_MESSAGES as ANALYTICS_ERROR_MESSAGES } from './api';
 
 // Hook exports
 export {
@@ -38,7 +35,7 @@ export {
   useResourceUsage,
   useGenerateReport,
   useDownloadReport,
-} from "./hooks/useAnalytics";
+} from './hooks/useAnalytics';
 
 // Type exports
 export type {
@@ -60,6 +57,6 @@ export type {
   AnalyticsFilters,
   AnalyticsSummary,
   ResourceUsage,
-} from "./types";
+} from './types';
 
-export const ANALYTICS_FEATURE = "analytics" as const;
+export const ANALYTICS_FEATURE = 'analytics' as const;

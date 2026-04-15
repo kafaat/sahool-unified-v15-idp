@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Preferences
 /// تفضيلات الإشعارات
 ///

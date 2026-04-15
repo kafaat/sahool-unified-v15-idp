@@ -17,9 +17,11 @@ from __future__ import annotations
 
 import asyncio
 import logging
+import time
+from collections.abc import AsyncIterator
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, AsyncIterator
+from typing import Any
 
 from .config import (
     LLMConfig,
@@ -42,6 +44,11 @@ from .provider import (
 )
 
 logger = logging.getLogger(__name__)
+
+# Seconds before a cached availability result is considered stale and re-checked.
+# A short TTL means a temporarily-unavailable provider is retried quickly instead
+# of being blacklisted for the lifetime of the router instance.
+_AVAILABILITY_CACHE_TTL: float = 30.0  # seconds
 
 
 class AllProvidersFailedError(LLMProviderError):
@@ -127,6 +134,9 @@ class LLMRouter:
         self._providers: dict[ProviderType, LLMProvider] = {}
         self._stats = RouterStats()
         self._provider_available: dict[ProviderType, bool | None] = {}
+        # Monotonic timestamps (time.monotonic()) recording when each availability
+        # entry was last populated.  Missing keys are treated as "never checked".
+        self._provider_available_at: dict[ProviderType, float] = {}
 
     @property
     def config(self) -> LLMConfig:
@@ -158,26 +168,37 @@ class LLMRouter:
             return None
 
     async def _check_provider_available(self, provider_type: ProviderType) -> bool:
-        """Check if a provider is available (with caching)."""
-        # Return cached result if recent
+        """Check if a provider is available (with TTL-based caching).
+
+        The result is cached for _AVAILABILITY_CACHE_TTL seconds so that a
+        provider which fails a health check is automatically retried after the
+        TTL expires, rather than being permanently blacklisted for the lifetime
+        of the router.
+        """
+        # Return cached result only if it is still fresh
         cached = self._provider_available.get(provider_type)
-        if cached is not None:
+        cached_at = self._provider_available_at.get(provider_type, 0.0)
+        if cached is not None and (time.monotonic() - cached_at) < _AVAILABILITY_CACHE_TTL:
             return cached
 
         provider = await self._get_provider(provider_type)
         if provider is None:
             self._provider_available[provider_type] = False
+            self._provider_available_at[provider_type] = time.monotonic()
             return False
 
         try:
             available = await asyncio.wait_for(provider.is_available(), timeout=5.0)
             self._provider_available[provider_type] = available
+            self._provider_available_at[provider_type] = time.monotonic()
             return available
         except TimeoutError:
             self._provider_available[provider_type] = False
+            self._provider_available_at[provider_type] = time.monotonic()
             return False
         except Exception:
             self._provider_available[provider_type] = False
+            self._provider_available_at[provider_type] = time.monotonic()
             return False
 
     def _select_model(
@@ -364,8 +385,10 @@ class LLMRouter:
                 errors.append((provider_type, str(e)))
                 logger.warning(f"Provider {provider_type.value} failed: {e}")
 
-                # Clear availability cache on error
+                # Clear availability cache on error so the next caller
+                # re-checks availability rather than trusting a stale result.
                 self._provider_available[provider_type] = None
+                self._provider_available_at.pop(provider_type, None)
 
                 if not enable_fallback:
                     break
@@ -449,6 +472,7 @@ class LLMRouter:
             except Exception as e:
                 errors.append((provider_type, str(e)))
                 self._provider_available[provider_type] = None
+                self._provider_available_at.pop(provider_type, None)
 
                 if not enable_fallback:
                     break
@@ -523,6 +547,7 @@ class LLMRouter:
                 logger.warning(f"Error closing provider: {e}")
         self._providers.clear()
         self._provider_available.clear()
+        self._provider_available_at.clear()
 
     async def __aenter__(self) -> LLMRouter:
         """Async context manager entry."""

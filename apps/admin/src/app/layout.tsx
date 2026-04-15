@@ -1,37 +1,36 @@
-import type { Metadata } from "next";
-import { headers } from "next/headers";
-import "./globals.css";
-import { Providers } from "./providers";
-import { getDirection, getLocale } from "@/lib/i18n";
+import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import './globals.css';
+import { Providers } from './providers';
+import { getDirection, getLocale } from '@/lib/i18n';
 
 // Self-hosted Tajawal font via @font-face in globals.css (no external dependency)
-const tajawal = { variable: "--font-tajawal" };
+const tajawal = { variable: '--font-tajawal' };
 
 export const metadata: Metadata = {
-  title: "لوحة تحكم سهول | Sahool Admin Dashboard",
-  description: "لوحة تحكم المشرفين لمنصة سهول الزراعية الذكية",
-  keywords: ["سهول", "زراعة", "اليمن", "sahool", "agriculture", "yemen"],
+  title: 'لوحة تحكم سهول | Sahool Admin Dashboard',
+  description: 'لوحة تحكم المشرفين لمنصة سهول الزراعية الذكية',
+  keywords: ['سهول', 'زراعة', 'اليمن', 'sahool', 'agriculture', 'yemen'],
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: "/icon-192.png", sizes: "192x192" }],
+    apple: [{ url: '/icon-192.png', sizes: '192x192' }],
   },
 };
 
-// Force dynamic rendering to prevent static generation issues
-export const dynamic = "force-dynamic";
-
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
   // Get nonce from headers for CSP (set by middleware)
-  const headersList = await headers();
-  const nonce = headersList.get("X-Nonce") || "";
+  let nonce = '';
+  try {
+    const headersList = await headers();
+    nonce = headersList.get('X-Nonce') || '';
+  } catch (error) {
+    // Rare edge case: headers() may throw at build-time. Fall back gracefully.
+    console.error('[RootLayout] Failed to read headers(), falling back to default locale:', error);
+  }
 
   const locale = getLocale();
   const direction = getDirection(locale);
@@ -60,7 +59,9 @@ export default async function RootLayout({
         </noscript>
       </head>
       <body className="font-tajawal bg-gray-50 min-h-screen" suppressHydrationWarning>
-        <Providers>{children}</Providers>
+        <Providers>
+          <main id="main-content">{children}</main>
+        </Providers>
       </body>
     </html>
   );

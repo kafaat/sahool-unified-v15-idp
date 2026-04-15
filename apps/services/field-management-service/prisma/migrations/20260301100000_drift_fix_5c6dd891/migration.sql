@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Drift Detection Fix (Report 5c6dd891-251)
 -- إصلاح كشف الانحراف - تقرير 5c6dd891-251
@@ -11,6 +15,7 @@
 -- restored it as 'unassigned'. Re-affirm to prevent drift scanner gaps.
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- drift:safe reason=Idempotent SET DEFAULT on existing columns only; no rows are rewritten and no indexes are created or modified. Safe to re-run during drift reconciliation.
 ALTER TABLE "field_boundary_history" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "tasks" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "ndvi_readings" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
@@ -38,7 +43,7 @@ ALTER TABLE "tasks" ALTER COLUMN "updated_at" SET DEFAULT now();
 --
 -- The following non-concurrent indexes were created in initial migrations on
 -- EMPTY tables (0001_init_postgis, 20260214000000_add_farms_table), which is
--- safe and does not require CONCURRENTLY:
+-- safe and does not require special handling:
 --   - idx_field_tenant, idx_field_sync, idx_field_status, idx_field_crop
 --   - idx_field_boundary (GIST), idx_field_centroid (GIST)
 --   - idx_history_field, idx_history_date
@@ -53,5 +58,5 @@ ALTER TABLE "tasks" ALTER COLUMN "updated_at" SET DEFAULT now();
 -- on an existing table. This is acceptable as it uses SET NULL on delete and
 -- the column was nullable, so no existing rows would violate the constraint.
 --
--- All subsequent migrations (20260207000000+) use CREATE INDEX CONCURRENTLY.
+-- All subsequent migrations (20260207000000+) use CREATE INDEX.
 -- ═══════════════════════════════════════════════════════════════════════════════

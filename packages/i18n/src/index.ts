@@ -4,20 +4,20 @@
  */
 
 // Re-export locale files
-import arMessages from "./locales/ar.json";
-import enMessages from "./locales/en.json";
+import arMessages from './locales/ar.json';
+import enMessages from './locales/en.json';
 
 // Vision service translations
-import visionAr from "./vision/ar.json";
-import visionEn from "./vision/en.json";
+import visionAr from './vision/ar.json';
+import visionEn from './vision/en.json';
 
 // Terrain service translations
-import terrainAr from "./terrain/ar.json";
-import terrainEn from "./terrain/en.json";
+import terrainAr from './terrain/ar.json';
+import terrainEn from './terrain/en.json';
 
 // Edge device translations
-import edgeAr from "./edge/ar.json";
-import edgeEn from "./edge/en.json";
+import edgeAr from './edge/ar.json';
+import edgeEn from './edge/en.json';
 
 // Merge all messages
 export const messages = {
@@ -43,8 +43,8 @@ export const edgeMessages = { ar: edgeAr, en: edgeEn } as const;
 export type Locale = keyof typeof messages;
 export type Messages = typeof arMessages;
 
-export const locales: Locale[] = ["ar", "en"];
-export const defaultLocale: Locale = "ar";
+export const locales: Locale[] = ['ar', 'en'];
+export const defaultLocale: Locale = 'ar';
 
 /**
  * Get messages for a specific locale
@@ -58,8 +58,8 @@ export function getMessages(locale: Locale): Messages {
  */
 export function getLocaleDisplayName(locale: Locale): string {
   const names: Record<Locale, string> = {
-    ar: "العربية",
-    en: "English",
+    ar: 'العربية',
+    en: 'English',
   };
   return names[locale];
 }
@@ -68,14 +68,14 @@ export function getLocaleDisplayName(locale: Locale): string {
  * Check if locale is RTL
  */
 export function isRTL(locale: Locale): boolean {
-  return locale === "ar";
+  return locale === 'ar';
 }
 
 /**
  * Get text direction for locale
  */
-export function getDirection(locale: Locale): "rtl" | "ltr" {
-  return isRTL(locale) ? "rtl" : "ltr";
+export function getDirection(locale: Locale): 'rtl' | 'ltr' {
+  return isRTL(locale) ? 'rtl' : 'ltr';
 }
 
 // Re-export next-intl utilities for convenience
@@ -87,6 +87,6 @@ export {
   useTimeZone,
   useFormatter,
   NextIntlClientProvider,
-} from "next-intl";
+} from 'next-intl';
 
-export type { AbstractIntlMessages } from "next-intl";
+export type { AbstractIntlMessages } from 'next-intl';

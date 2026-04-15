@@ -1,3 +1,5 @@
+library;
+
 /// Sahool Dio Error Handler
 /// معالج أخطاء Dio لتحويلها لرسائل عربية مفهومة
 

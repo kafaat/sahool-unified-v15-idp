@@ -45,6 +45,14 @@ COPY constraints.txt .
 COPY apps/services/leveling-optimizer-service/requirements.txt .
 
 # Install Python dependencies with multi-mirror fallback
+# Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
     -c constraints.txt -r requirements.txt || \
@@ -65,6 +73,9 @@ COPY --from=builder /usr/local/bin /usr/local/bin
 
 # Copy shared modules (required for shared.middleware, shared.auth, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
+# Copy root shared/events (provides shared.events.subjects used by this service)
+COPY --chown=sahool:sahool shared/events/ ./shared/events/
+
 
 # Copy application code
 # Note: Build context is repo root, so use full path

@@ -13,6 +13,8 @@ Features:
 Port: 8135
 """
 
+import hashlib
+import hmac
 import json
 import os
 import sys
@@ -34,7 +36,8 @@ from slowapi.util import get_remote_address
 # Authentication imports
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
-from shared.errors_py import setup_exception_handlers, add_request_id_middleware as shared_add_request_id_middleware
+from shared.errors_py import add_request_id_middleware as shared_add_request_id_middleware
+from shared.errors_py import setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Add project root to path
@@ -52,10 +55,64 @@ SERVICE_PORT = 8135
 # Logger
 logger = structlog.get_logger()
 
+# ===============================================================================
+# WeChat Callback Security - أمان استدعاءات ويتشات
+# ===============================================================================
+# WeChat Official Account webhook signature verification uses SHA1:
+#   sort([token, timestamp, nonce]) → join → sha1 → compare with signature
+# The token is configured in the WeChat developer platform.
+_WECHAT_CALLBACK_TOKEN: str = os.getenv("WECHAT_CALLBACK_TOKEN", "")
 
-# ===============================================================================
-# Enums
-# ===============================================================================
+
+def _verify_wechat_signature(
+    signature: str | None,
+    timestamp: str | None,
+    nonce: str | None,
+) -> bool:
+    """
+    Verify WeChat Official Account callback signature.
+    التحقق من توقيع استدعاء حساب ويتشات الرسمي.
+
+    Algorithm (https://developers.weixin.qq.com/doc/offiaccount/Basic_Information/Access_Overview.html):
+    1. Sort [token, timestamp, nonce] lexicographically.
+    2. Concatenate into a single string.
+    3. SHA1-hash the string.
+    4. Compare (case-insensitive) with the ``signature`` query parameter.
+
+    Returns True when:
+    - WECHAT_CALLBACK_TOKEN is not set (dev/test – skip enforcement).
+    - All parameters are present and the SHA1 matches.
+
+    Returns False when WECHAT_CALLBACK_TOKEN is set but verification fails.
+    """
+    if not _WECHAT_CALLBACK_TOKEN:
+        _env = os.getenv("ENVIRONMENT", "development").lower()
+        if _env in ("production", "staging"):
+            # Fail-closed: reject callbacks when token is missing in prod/staging
+            # الرفض في الإنتاج عند غياب الرمز المميز
+            logger.error(
+                "wechat_callback_token_not_set_production",
+                message="WECHAT_CALLBACK_TOKEN is required in production/staging. Rejecting callback.",
+            )
+            return False
+        logger.warning(
+            "wechat_callback_token_not_set",
+            message="WeChat signature verification DISABLED – set WECHAT_CALLBACK_TOKEN in production",
+        )
+        return True
+
+    if not signature or not timestamp or not nonce:
+        logger.warning("wechat_callback_params_missing", signature=bool(signature))
+        return False
+
+    sort_str = "".join(sorted([_WECHAT_CALLBACK_TOKEN, timestamp, nonce]))
+    expected = hashlib.sha1(sort_str.encode("utf-8")).hexdigest()  # nosec B324 # nosemgrep: insecure-hash-algorithm-sha1 -- WeChat API protocol mandates SHA1 for callback verification
+
+    if not hmac.compare_digest(expected.lower(), signature.lower()):
+        logger.warning("wechat_signature_mismatch")
+        return False
+
+    return True
 
 
 class MessageType(StrEnum):
@@ -455,7 +512,16 @@ def validate_tenant_access(user: User, tenant_id: str) -> None:
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -524,6 +590,7 @@ async def lifespan(app: FastAPI):
             app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility,
                 max_size=10,
                 command_timeout=60,
             )
@@ -886,7 +953,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware
-cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
+cors_origins = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -897,7 +966,62 @@ app.add_middleware(
 )
 
 # Tenant context middleware
-app.add_middleware(TenantContextMiddleware)
+# /api/v1/callback is exempt: WeChat sends callbacks externally without tenant headers
+app.add_middleware(
+    TenantContextMiddleware,
+    exempt_paths=[
+        "/healthz",
+        "/readyz",
+        "/health",
+        "/metrics",
+        "/docs",
+        "/openapi.json",
+        "/api/v1/callback",
+    ],
+)
+
+
+# ===============================================================================
+# WeChat Callback Endpoints - نقاط نهاية استدعاء ويتشات
+# ===============================================================================
+
+
+@app.get("/api/v1/callback", tags=["Callback"])
+async def wechat_verify_callback(
+    signature: str = Query(..., description="WeChat signature"),
+    timestamp: str = Query(..., description="Timestamp"),
+    nonce: str = Query(..., description="Random nonce"),
+    echostr: str = Query(..., description="Echo string to return on success"),
+) -> str:
+    """WeChat server verification handshake (GET).
+
+    WeChat sends this to verify the server URL during configuration.
+    توثيق خادم ويتشات عند إعداد عنوان الاستدعاء.
+    """
+    if not _verify_wechat_signature(signature, timestamp, nonce):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid WeChat signature")
+    return echostr
+
+
+@app.post("/api/v1/callback", tags=["Callback"])
+async def wechat_receive_callback(
+    request: Request,
+    signature: str = Query(..., description="WeChat signature"),
+    timestamp: str = Query(..., description="Timestamp"),
+    nonce: str = Query(..., description="Random nonce"),
+):
+    """Receive incoming WeChat messages/events (POST).
+
+    WeChat pushes XML payloads to this endpoint for incoming messages.
+    استقبال رسائل وأحداث ويتشات الواردة.
+    """
+    if not _verify_wechat_signature(signature, timestamp, nonce):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid WeChat signature")
+
+    body = await request.body()
+    logger.info("wechat_callback_received", body_length=len(body))
+    # TODO: Parse XML payload and route to message handler
+    return {"status": "ok", "message": "Callback received"}
 
 
 # ===============================================================================
@@ -1560,5 +1684,5 @@ if __name__ == "__main__":
     import uvicorn
 
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
-    host = os.getenv("HOST", "0.0.0.0")
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker container
     uvicorn.run(app, host=host, port=SERVICE_PORT)

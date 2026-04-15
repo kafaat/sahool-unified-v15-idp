@@ -3,26 +3,27 @@
  * طبقة API لميزة المستشار الزراعي
  */
 
-import { createApiClient } from "@/lib/api/factory";
-import { ADVISORY_ENDPOINTS } from "@sahool/shared-types/contracts";
+import { createApiClient } from '@/lib/api/factory';
+import { ADVISORY_ENDPOINTS } from '@sahool/shared-types/contracts';
+import type {
+  Explanation,
+  ExplainIrrigationParams,
+  ExplainFertilizerParams,
+} from './types/explainability';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
 // Types
 export type RecommendationType =
-  | "irrigation"
-  | "fertilizer"
-  | "pest_control"
-  | "harvest"
-  | "planting"
-  | "general";
-export type RecommendationPriority = "low" | "medium" | "high" | "urgent";
-export type RecommendationStatus =
-  | "pending"
-  | "applied"
-  | "dismissed"
-  | "expired";
+  | 'irrigation'
+  | 'fertilizer'
+  | 'pest_control'
+  | 'harvest'
+  | 'planting'
+  | 'general';
+export type RecommendationPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type RecommendationStatus = 'pending' | 'applied' | 'dismissed' | 'expired';
 
 export interface Recommendation {
   id: string;
@@ -42,7 +43,7 @@ export interface Recommendation {
   validUntil?: string;
   createdAt: string;
   appliedAt?: string;
-  source: "ai" | "expert" | "system";
+  source: 'ai' | 'expert' | 'system';
   confidence?: number;
 }
 
@@ -85,19 +86,15 @@ export const advisorApi = {
   /**
    * Get recommendations for a field or all fields
    */
-  getRecommendations: async (
-    filters?: AdvisorFilters,
-  ): Promise<Recommendation[]> => {
+  getRecommendations: async (filters?: AdvisorFilters): Promise<Recommendation[]> => {
     const params = new URLSearchParams();
-    if (filters?.type) params.set("type", filters.type);
-    if (filters?.priority) params.set("priority", filters.priority);
-    if (filters?.status) params.set("status", filters.status);
-    if (filters?.fieldId) params.set("field_id", filters.fieldId);
-    if (filters?.cropType) params.set("crop_type", filters.cropType);
+    if (filters?.type) params.set('type', filters.type);
+    if (filters?.priority) params.set('priority', filters.priority);
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.fieldId) params.set('field_id', filters.fieldId);
+    if (filters?.cropType) params.set('crop_type', filters.cropType);
 
-    const response = await api.get(
-      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}?${params.toString()}`,
-    );
+    const response = await api.get(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}?${params.toString()}`);
     return response.data;
   },
 
@@ -120,14 +117,8 @@ export const advisorApi = {
   /**
    * Apply a recommendation (mark as applied)
    */
-  applyRecommendation: async (
-    id: string,
-    notes?: string,
-  ): Promise<Recommendation> => {
-    const response = await api.post(
-      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${id}/apply`,
-      { notes },
-    );
+  applyRecommendation: async (id: string, notes?: string): Promise<Recommendation> => {
+    const response = await api.post(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${id}/apply`, { notes });
     return response.data;
   },
 
@@ -141,12 +132,9 @@ export const advisorApi = {
   /**
    * Complete an action item
    */
-  completeAction: async (
-    recommendationId: string,
-    actionId: string,
-  ): Promise<Recommendation> => {
+  completeAction: async (recommendationId: string, actionId: string): Promise<Recommendation> => {
     const response = await api.post(
-      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${recommendationId}/actions/${actionId}/complete`,
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${recommendationId}/actions/${actionId}/complete`
     );
     return response.data;
   },
@@ -155,7 +143,7 @@ export const advisorApi = {
    * Get advisor chat history
    */
   getChatHistory: async (limit?: number): Promise<AdvisorResponse[]> => {
-    const params = limit ? `?limit=${limit}` : "";
+    const params = limit ? `?limit=${limit}` : '';
     const response = await api.get(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/history${params}`);
     return response.data;
   },
@@ -171,6 +159,45 @@ export const advisorApi = {
     byPriority: Record<RecommendationPriority, number>;
   }> => {
     const response = await api.get(`${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/stats`);
+    return response.data;
+  },
+
+  // ---------------------------------------------------------------------------
+  // Explainability endpoints
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Get the explanation for a recommendation
+   * الحصول على تفسير التوصية
+   */
+  getExplanation: async (recommendationId: string): Promise<Explanation> => {
+    const response = await api.get(
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/${recommendationId}/explanation`
+    );
+    return response.data;
+  },
+
+  /**
+   * Generate an explanation for an irrigation recommendation
+   * توليد تفسير لتوصية الري
+   */
+  explainIrrigation: async (params: ExplainIrrigationParams): Promise<Explanation> => {
+    const response = await api.post(
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/explain/irrigation`,
+      params
+    );
+    return response.data;
+  },
+
+  /**
+   * Generate an explanation for a fertilizer recommendation
+   * توليد تفسير لتوصية التسميد
+   */
+  explainFertilizer: async (params: ExplainFertilizerParams): Promise<Explanation> => {
+    const response = await api.post(
+      `${ADVISORY_ENDPOINTS.RECOMMENDATIONS}/explain/fertilizer`,
+      params
+    );
     return response.data;
   },
 };

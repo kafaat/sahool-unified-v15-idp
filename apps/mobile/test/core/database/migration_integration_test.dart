@@ -6,6 +6,7 @@
 ///
 /// Note: These tests use an unencrypted in-memory database for testing
 /// as SQLCipher is not available in the test environment.
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
@@ -21,7 +22,7 @@ class TestDatabase extends _$TestDatabase {
   TestDatabase(super.e);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -172,7 +173,7 @@ void main() {
 
     test('should have correct schema version', () async {
       final result = await db.customSelect('PRAGMA user_version').getSingle();
-      expect(result.read<int>('user_version'), equals(5));
+      expect(result.read<int>('user_version'), equals(6));
     });
   });
 
@@ -266,7 +267,7 @@ void main() {
   group('Schema Verification', () {
     test('should have required columns in tasks table', () async {
       final columns = await db.customSelect(
-        "PRAGMA table_info(test_tasks)",
+        'PRAGMA table_info(test_tasks)',
       ).get();
 
       final columnNames = columns.map((c) => c.read<String>('name')).toList();
@@ -280,7 +281,7 @@ void main() {
 
     test('should have required columns in fields table', () async {
       final columns = await db.customSelect(
-        "PRAGMA table_info(test_fields)",
+        'PRAGMA table_info(test_fields)',
       ).get();
 
       final columnNames = columns.map((c) => c.read<String>('name')).toList();
@@ -293,7 +294,7 @@ void main() {
 
     test('should have required columns in outbox table', () async {
       final columns = await db.customSelect(
-        "PRAGMA table_info(test_outbox)",
+        'PRAGMA table_info(test_outbox)',
       ).get();
 
       final columnNames = columns.map((c) => c.read<String>('name')).toList();

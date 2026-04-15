@@ -25,6 +25,7 @@ References:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import math
 import os
@@ -41,12 +42,42 @@ sys.path.insert(0, "/app")
 sys.path.insert(0, "/app/shared")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from fastapi import FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+import logging
+import re
+
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
+from pydantic import BaseModel, ConfigDict, Field
+
+# Log injection sanitizer (CodeQL LOG_INJECTION mitigation).
+_LOG_INJ_RE = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def _safe_log(value: Any) -> str:
+    """Sanitize a value for safe inclusion in log format args."""
+    if value is None:
+        return ""
+    return _LOG_INJ_RE.sub("?", str(value))[:200]
+
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 VERSION = "16.0.0"
 SERVICE_NAME = "iot-sensor-hub"
 PORT = int(os.getenv("PORT", "8251"))
+
+logger = logging.getLogger(SERVICE_NAME)
 
 # ---------------------------------------------------------------------------
 # Enums & Constants
@@ -157,6 +188,86 @@ class SensorReadingBatch(BaseModel):
     tenant_id: str | None = None
 
 
+class SensorReadingOut(BaseModel):
+    """
+    Public camelCase representation of a sensor reading.
+
+    Contract-compatible with ``SENSOR_LATEST`` / ``SENSOR_STREAM``
+    endpoints defined in ``@sahool/shared-types/contracts``.
+    All fields use camelCase aliases via Pydantic V2 aliasing.
+    """
+
+    model_config = ConfigDict(populate_by_name=True, by_alias=True)
+
+    id: str = Field(..., description="Reading identifier (uuid or node:type:timestamp)")
+    sensor_id: str = Field(..., alias="sensorId", description="Sensor / node identifier")
+    value: float = Field(..., description="Sensor value (filtered if Kalman applied)")
+    unit: str = Field(default="", description="Unit of measurement")
+    timestamp: datetime = Field(..., description="Reading timestamp")
+    quality: float | None = Field(default=None, description="Quality 0-1")
+    metadata: dict[str, Any] | None = Field(default=None, description="Additional metadata")
+
+
+class SensorOut(BaseModel):
+    """
+    Public camelCase representation of a sensor / node.
+
+    Contract-compatible with ``SENSORS`` list endpoint.
+    """
+
+    model_config = ConfigDict(populate_by_name=True, by_alias=True)
+
+    id: str = Field(..., description="Sensor / node identifier")
+    name: str = Field(..., description="Sensor display name (English)")
+    name_ar: str | None = Field(default=None, alias="nameAr", description="Sensor display name (Arabic)")
+    node_type: str = Field(..., alias="nodeType", description="Node hardware type")
+    field_id: str = Field(..., alias="fieldId", description="Field the sensor belongs to")
+    status: str = Field(..., description="online / offline")
+    last_seen: str | None = Field(default=None, alias="lastSeen", description="ISO-8601 last seen timestamp")
+    battery_level: float | None = Field(default=None, alias="batteryLevel", description="Battery level 0-100")
+    readings_count: int = Field(default=0, alias="readingsCount", description="Total readings received")
+    sensors: list[str] = Field(default_factory=list, description="List of supported sensor types")
+
+
+def _node_to_sensor_out(node: dict) -> dict:
+    """Convert an internal node dict to ``SensorOut`` serialization (by alias)."""
+    model = SensorOut(
+        id=node.get("node_id", ""),
+        name=node.get("name", ""),
+        name_ar=node.get("name_ar"),
+        node_type=node.get("node_type", ""),
+        field_id=node.get("field_id", ""),
+        status="online" if node.get("online") else "offline",
+        last_seen=node.get("last_seen"),
+        battery_level=node.get("battery_level"),
+        readings_count=int(node.get("readings_count", 0)),
+        sensors=list(node.get("sensors", []) or []),
+    )
+    return model.model_dump(by_alias=True)
+
+
+def _reading_record_to_out(record: dict, sensor_id: str) -> dict:
+    """Convert an internal reading buffer record to ``SensorReadingOut`` (by alias)."""
+    # Build a deterministic id if not provided
+    raw_ts = record.get("timestamp") or datetime.utcnow().isoformat()
+    reading_id = f"{sensor_id}:{record.get('sensor_type', 'value')}:{raw_ts}"
+    # Parse ISO timestamp tolerantly
+    try:
+        ts_parsed = datetime.fromisoformat(str(raw_ts).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        ts_parsed = datetime.utcnow()
+    model = SensorReadingOut(
+        id=reading_id,
+        sensorId=sensor_id,  # type: ignore[arg-type]
+        value=float(record.get("filtered_value", record.get("raw_value", 0.0))),
+        unit=str(record.get("unit") or ""),
+        timestamp=ts_parsed,
+        quality=record.get("quality"),
+        metadata={"sensor_type": record.get("sensor_type"), "raw_value": record.get("raw_value")},
+    )
+    return model.model_dump(by_alias=True, mode="json")
+
+
 class NodeRegistration(BaseModel):
     """Register a new IoT node."""
 
@@ -226,6 +337,7 @@ class Alert(BaseModel):
     sensor_type: str
     node_id: str
     field_id: str | None
+    tenant_id: str = ""
     value: float
     threshold: float
     message: str
@@ -314,13 +426,14 @@ class IoTSensorEngine:
         self.alerts: deque[Alert] = deque(maxlen=5000)
         self.stats = {"total_readings": 0, "filtered_readings": 0, "alerts_generated": 0}
 
-    def register_node(self, reg: NodeRegistration) -> dict:
+    def register_node(self, reg: NodeRegistration, tenant_id: str = "") -> dict:
         self.nodes[reg.node_id] = {
             "node_id": reg.node_id,
             "node_type": reg.node_type.value,
             "name": reg.name,
             "name_ar": reg.name_ar,
             "field_id": reg.field_id,
+            "tenant_id": tenant_id,
             "sensors": [s.value for s in reg.sensors],
             "latitude": reg.latitude,
             "longitude": reg.longitude,
@@ -394,7 +507,9 @@ class IoTSensorEngine:
         if not thresholds:
             return alerts
 
-        field_id = self.nodes.get(reading.node_id, {}).get("field_id")
+        node_data = self.nodes.get(reading.node_id, {})
+        field_id = node_data.get("field_id")
+        node_tenant_id = node_data.get("tenant_id", "")
 
         if "critical_low" in thresholds and filtered_value < thresholds["critical_low"]:
             alert = Alert(
@@ -403,6 +518,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["critical_low"],
                 message=f"CRITICAL: {reading.sensor_type.value} at {filtered_value:.1f} below critical threshold {thresholds['critical_low']}",
@@ -420,6 +536,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["warning_low"],
                 message=f"WARNING: {reading.sensor_type.value} at {filtered_value:.1f} below warning threshold {thresholds['warning_low']}",
@@ -437,6 +554,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["critical_high"],
                 message=f"CRITICAL: {reading.sensor_type.value} at {filtered_value:.1f} above critical threshold {thresholds['critical_high']}",
@@ -454,6 +572,7 @@ class IoTSensorEngine:
                 sensor_type=reading.sensor_type.value,
                 node_id=reading.node_id,
                 field_id=field_id,
+                tenant_id=node_tenant_id,
                 value=filtered_value,
                 threshold=thresholds["warning_high"],
                 message=f"WARNING: {reading.sensor_type.value} at {filtered_value:.1f} above warning threshold {thresholds['warning_high']}",
@@ -620,23 +739,27 @@ def readiness():
 
 # Node management
 @app.post("/api/v1/iot/nodes", status_code=201)
-async def register_node(reg: NodeRegistration):
+async def register_node(reg: NodeRegistration, current_user: User = Depends(get_current_user)):
     """Register a new IoT sensor node."""
-    node = iot_engine.register_node(reg)
+    tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
+    node = iot_engine.register_node(reg, tenant_id=tenant_id)
     return {"status": "registered", "node": node}
 
 
 @app.get("/api/v1/iot/nodes")
-async def list_nodes(field_id: str | None = Query(None)):
+async def list_nodes(field_id: str | None = Query(None), user: User = Depends(get_current_user)):
     """List registered IoT nodes."""
+    user_tenant = getattr(user, "tenant_id", None)
     nodes = list(iot_engine.nodes.values())
+    if user_tenant:
+        nodes = [n for n in nodes if n.get("tenant_id") == user_tenant]
     if field_id:
         nodes = [n for n in nodes if n["field_id"] == field_id]
     return {"nodes": nodes, "total": len(nodes)}
 
 
 @app.get("/api/v1/iot/nodes/{node_id}")
-async def get_node(node_id: str):
+async def get_node(node_id: str, user: User = Depends(get_current_user)):
     """Get node status and recent readings."""
     if node_id not in iot_engine.nodes:
         raise HTTPException(status_code=404, detail=f"Node not found: {node_id}")
@@ -647,38 +770,39 @@ async def get_node(node_id: str):
 
 # Sensor data ingestion
 @app.post("/api/v1/iot/readings")
-async def ingest_reading(reading: SensorReading):
+async def ingest_reading(reading: SensorReading, current_user: User = Depends(get_current_user)):
     """Ingest a single sensor reading with Kalman filtering and alert checking."""
     result = iot_engine.process_reading(reading)
 
-    # Publish to NATS (subject: sahool.{tenant_id}.iot.reading.{type})
+    # Publish to NATS (subject: sahool.tenant.{tenant_id}.iot.reading.{type})
     nc = getattr(app.state, "nc", None)
-    tenant_id = os.getenv("TENANT_ID", "default")
+    tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
     if nc and result["status"] == "accepted":
         try:
             await nc.publish(
-                f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
+                f"sahool.tenant.{tenant_id}.iot.reading.{reading.sensor_type.value}",
                 json.dumps(
                     {
                         "node_id": reading.node_id,
+                        "field_id": iot_engine.nodes.get(reading.node_id, {}).get("field_id"),
                         "sensor_type": reading.sensor_type.value,
                         "value": result["filtered_value"],
                         "timestamp": reading.timestamp.isoformat(),
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("nats_publish_reading_failed: %s", _safe_log(repr(e)))
 
     return result
 
 
 @app.post("/api/v1/iot/readings/batch")
-async def ingest_batch(batch: SensorReadingBatch):
+async def ingest_batch(batch: SensorReadingBatch, current_user: User = Depends(get_current_user)):
     """Ingest a batch of sensor readings."""
     results = []
     nc = getattr(app.state, "nc", None)
-    tenant_id = os.getenv("TENANT_ID", "default")
+    tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
 
     for reading in batch.readings:
         result = iot_engine.process_reading(reading)
@@ -688,18 +812,19 @@ async def ingest_batch(batch: SensorReadingBatch):
         if nc and result["status"] == "accepted":
             try:
                 await nc.publish(
-                    f"sahool.{tenant_id}.iot.reading.{reading.sensor_type.value}",
+                    f"sahool.tenant.{tenant_id}.iot.reading.{reading.sensor_type.value}",
                     json.dumps(
                         {
                             "node_id": reading.node_id,
+                            "field_id": iot_engine.nodes.get(reading.node_id, {}).get("field_id"),
                             "sensor_type": reading.sensor_type.value,
                             "value": result["filtered_value"],
                             "timestamp": reading.timestamp.isoformat(),
                         }
                     ).encode(),
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error("nats_publish_batch_failed: %s", _safe_log(repr(e)))
 
     accepted = sum(1 for r in results if r["status"] == "accepted")
     rejected = len(results) - accepted
@@ -713,7 +838,7 @@ async def ingest_batch(batch: SensorReadingBatch):
 
 # WDI calculation
 @app.post("/api/v1/iot/wdi", response_model=WDIResponse)
-async def calculate_wdi(req: WDIRequest):
+async def calculate_wdi(req: WDIRequest, current_user: User = Depends(get_current_user)):
     """
     Calculate Weighted Decision Index (WDI) for irrigation decision.
 
@@ -725,9 +850,9 @@ async def calculate_wdi(req: WDIRequest):
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
-            tenant_id = os.getenv("TENANT_ID", "default")
+            tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
             await nc.publish(
-                f"sahool.{tenant_id}.iot.wdi_calculated",
+                f"sahool.tenant.{tenant_id}.iot.wdi_calculated",
                 json.dumps(
                     {
                         "field_id": req.field_id,
@@ -737,8 +862,8 @@ async def calculate_wdi(req: WDIRequest):
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning("nats_publish_wdi_failed: %s", _safe_log(repr(e)))
 
     return result
 
@@ -749,9 +874,13 @@ async def get_alerts(
     severity: AlertSeverity | None = Query(None),
     field_id: str | None = Query(None),
     limit: int = Query(default=50, le=500),
+    user: User = Depends(get_current_user),
 ):
     """Get recent IoT alerts."""
+    user_tenant = getattr(user, "tenant_id", None)
     alerts = list(iot_engine.alerts)
+    if user_tenant:
+        alerts = [a for a in alerts if a.tenant_id == user_tenant]
     if severity:
         alerts = [a for a in alerts if a.severity == severity]
     if field_id:
@@ -762,7 +891,7 @@ async def get_alerts(
 
 # Offline cache
 @app.get("/api/v1/iot/cache/status")
-async def cache_status():
+async def cache_status(user: User = Depends(get_current_user)):
     """Get offline cache status."""
     return {
         "cache_size": iot_engine.offline_cache.size,
@@ -775,6 +904,7 @@ async def cache_status():
 async def sync_cache(
     limit: int = Query(default=1000, le=10000),
     confirm_clear: bool = Query(default=False, description="Set true to clear synced entries"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Retrieve cached entries and optionally clear them.
@@ -795,7 +925,7 @@ async def sync_cache(
 
 # Statistics
 @app.get("/api/v1/iot/stats")
-async def get_stats():
+async def get_stats(user: User = Depends(get_current_user)):
     """Get IoT hub statistics."""
     return {
         "nodes_registered": len(iot_engine.nodes),
@@ -823,7 +953,205 @@ async def list_sensor_types():
     }
 
 
+# ---------------------------------------------------------------------------
+# Alias routes aligned with @sahool/shared-types IOT_ENDPOINTS (4.3.0)
+# SENSORS, SENSOR_LATEST, SENSOR_STATS, SENSOR_STREAM
+# ---------------------------------------------------------------------------
+
+
+def _filter_tenant_nodes(user: User, field_id: str | None = None) -> list[dict]:
+    """Return nodes visible to this tenant (and optionally a field)."""
+    user_tenant = getattr(user, "tenant_id", None)
+    nodes = list(iot_engine.nodes.values())
+    if user_tenant:
+        nodes = [n for n in nodes if n.get("tenant_id") == user_tenant]
+    if field_id:
+        nodes = [n for n in nodes if n.get("field_id") == field_id]
+    return nodes
+
+
+@app.get("/api/v1/iot/sensors")
+async def list_sensors_alias(
+    field_id: str | None = Query(None, description="Optional field filter"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Alias for ``/api/v1/iot/nodes`` — returns sensors in camelCase shape.
+
+    Aligned with ``IOT_ENDPOINTS.SENSORS`` in the shared contracts package.
+    """
+    nodes = _filter_tenant_nodes(user, field_id=field_id)
+    sensors = [_node_to_sensor_out(n) for n in nodes]
+    return {"sensors": sensors, "total": len(sensors)}
+
+
+@app.get("/api/v1/iot/sensors/stats")
+async def sensors_stats_alias(user: User = Depends(get_current_user)):
+    """
+    Sensor summary statistics grouped by status and node type.
+
+    Aligned with ``IOT_ENDPOINTS.SENSOR_STATS`` in the shared contracts package.
+    """
+    nodes = _filter_tenant_nodes(user)
+    by_status: dict[str, int] = {"online": 0, "offline": 0}
+    by_type: dict[str, int] = {}
+    for n in nodes:
+        key = "online" if n.get("online") else "offline"
+        by_status[key] = by_status.get(key, 0) + 1
+        t = str(n.get("node_type", "unknown"))
+        by_type[t] = by_type.get(t, 0) + 1
+    return {
+        "total": len(nodes),
+        "byStatus": by_status,
+        "byType": by_type,
+    }
+
+
+@app.get("/api/v1/iot/sensors/stream")
+async def sensors_stream_alias(
+    request: Request,
+    sensor_id: str | None = Query(None, description="Optional sensor/node filter"),
+    field_id: str | None = Query(None, description="Optional field filter"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Server-Sent Events stream of live sensor readings.
+
+    Subscribes to NATS subject ``sahool.tenant.{tenantId}.iot.reading.*``
+    and forwards each message as a ``data:`` SSE event. Returns HTTP 501
+    with a bilingual explanation if ``sse-starlette`` is not installed or
+    NATS is unavailable.
+
+    Aligned with ``IOT_ENDPOINTS.SENSOR_STREAM`` in the shared contracts
+    package.
+    """
+    try:
+        from sse_starlette.sse import EventSourceResponse
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=501,
+            detail={
+                "error": "sse_not_available",
+                "message_en": (
+                    "Server-Sent Events dependency 'sse-starlette' is not "
+                    "installed. Install it to enable /sensors/stream."
+                ),
+                "message_ar": (
+                    "المكتبة المطلوبة لدفق الأحداث 'sse-starlette' غير مثبتة. قم بتثبيتها لتفعيل بث المستشعرات."
+                ),
+            },
+        ) from exc
+
+    nc = getattr(app.state, "nc", None)
+    if nc is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "nats_unavailable",
+                "message_en": "NATS connection not available; streaming disabled.",
+                "message_ar": "اتصال NATS غير متوفر؛ البث معطل.",
+            },
+        )
+
+    tenant_id = getattr(user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
+    subject_pattern = f"sahool.tenant.{tenant_id}.iot.reading.*"
+    queue: asyncio.Queue = asyncio.Queue(maxsize=256)
+
+    async def _cb(msg):
+        try:
+            data = json.loads(msg.data.decode()) if msg.data else {}
+        except Exception:
+            data = {"raw": msg.data.decode(errors="ignore") if msg.data else ""}
+        # Client-side filters
+        if sensor_id and str(data.get("node_id") or data.get("sensor_id")) != sensor_id:
+            return
+        if field_id and str(data.get("field_id") or "") != field_id:
+            return
+        try:
+            queue.put_nowait({"event": "reading", "data": json.dumps(data)})
+        except asyncio.QueueFull:
+            # Drop oldest when overwhelmed
+            try:
+                _ = queue.get_nowait()
+                queue.put_nowait({"event": "reading", "data": json.dumps(data)})
+            except Exception:
+                pass
+
+    try:
+        sub = await nc.subscribe(subject_pattern, cb=_cb)
+    except Exception as e:
+        logger.warning("sensors_stream_subscribe_failed: %s", _safe_log(repr(e)))
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "nats_subscribe_failed",
+                "message_en": "Failed to subscribe to sensor event stream.",
+                "message_ar": "فشل الاشتراك في بث أحداث المستشعرات.",
+            },
+        ) from e
+
+    async def _event_gen():
+        try:
+            # Initial hello event so the client knows the stream is live
+            yield {"event": "hello", "data": json.dumps({"tenantId": tenant_id})}
+            while True:
+                if await request.is_disconnected():
+                    break
+                try:
+                    item = await asyncio.wait_for(queue.get(), timeout=15.0)
+                    yield item
+                except TimeoutError:
+                    # Keepalive comment so proxies don't time out
+                    yield {"event": "ping", "data": "{}"}
+        finally:
+            try:
+                await sub.unsubscribe()
+            except Exception:
+                pass
+
+    return EventSourceResponse(_event_gen())
+
+
+@app.get("/api/v1/iot/sensors/{sensor_id}")
+async def get_sensor_alias(sensor_id: str, user: User = Depends(get_current_user)):
+    """
+    Alias for ``/api/v1/iot/nodes/{id}`` — returns a single sensor in camelCase shape.
+    """
+    node = iot_engine.nodes.get(sensor_id)
+    if not node:
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    user_tenant = getattr(user, "tenant_id", None)
+    if user_tenant and node.get("tenant_id") != user_tenant:
+        # Do not leak existence across tenants
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    recent = list(iot_engine.readings_buffer.get(sensor_id, []))[-20:]
+    return {
+        "sensor": _node_to_sensor_out(node),
+        "recentReadings": [_reading_record_to_out(r, sensor_id) for r in recent],
+    }
+
+
+@app.get("/api/v1/iot/sensors/{sensor_id}/latest")
+async def get_sensor_latest(sensor_id: str, user: User = Depends(get_current_user)):
+    """
+    Return the most recent filtered reading for a sensor in camelCase shape.
+
+    Aligned with ``IOT_ENDPOINTS.SENSOR_LATEST`` in the shared contracts package.
+    """
+    node = iot_engine.nodes.get(sensor_id)
+    if not node:
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    user_tenant = getattr(user, "tenant_id", None)
+    if user_tenant and node.get("tenant_id") != user_tenant:
+        raise HTTPException(status_code=404, detail=f"Sensor not found: {sensor_id}")
+    buffer = iot_engine.readings_buffer.get(sensor_id)
+    if not buffer:
+        raise HTTPException(status_code=404, detail="No readings available for this sensor yet")
+    record = buffer[-1]
+    return _reading_record_to_out(record, sensor_id)
+
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)  # nosec B104 - binding to all interfaces required for Docker container

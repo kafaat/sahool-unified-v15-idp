@@ -20,6 +20,13 @@ Usage:
     await nats.publish(SAHOOL_FIELD_CREATED, event_data)
 """
 
+import re
+
+_TENANT_UUID_RE = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$",
+    re.IGNORECASE,
+)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Field Subjects - موضوعات الحقول
 # ─────────────────────────────────────────────────────────────────────────────
@@ -27,6 +34,35 @@ Usage:
 SAHOOL_FIELD_CREATED = "sahool.field.created"
 SAHOOL_FIELD_UPDATED = "sahool.field.updated"
 SAHOOL_FIELD_DELETED = "sahool.field.deleted"
+SAHOOL_FIELD_ACTIVITY_RECORDED = "sahool.field.activity.recorded"
+SAHOOL_FIELD_HARVEST_COMPLETED = "sahool.field.harvest.completed"
+SAHOOL_FIELD_PROFITABILITY_ANALYZED = "sahool.field.profitability.analyzed"
+
+# Boundary changes - تغييرات الحدود
+SAHOOL_FIELD_BOUNDARY_CHANGED = "sahool.field.boundary.changed"
+
+# Crop season lifecycle - دورة حياة الموسم الزراعي
+SAHOOL_FIELD_CROP_SEASON_STARTED = "sahool.field.crop_season.started"
+SAHOOL_FIELD_CROP_SEASON_UPDATED = "sahool.field.crop_season.updated"
+SAHOOL_FIELD_CROP_SEASON_ENDED = "sahool.field.crop_season.ended"
+SAHOOL_FIELD_CROP_SEASON_DELETED = "sahool.field.crop_season.deleted"
+
+# Field operations - عمليات الحقل
+SAHOOL_FIELD_OPERATION_RECORDED = "sahool.field.operation.recorded"
+SAHOOL_FIELD_OPERATION_APPROVED = "sahool.field.operation.approved"
+SAHOOL_FIELD_OPERATION_REJECTED = "sahool.field.operation.rejected"
+SAHOOL_FIELD_OPERATION_UPDATED = "sahool.field.operation.updated"
+SAHOOL_FIELD_OPERATION_DELETED = "sahool.field.operation.deleted"
+
+# Field reports - تقارير الحقل
+SAHOOL_FIELD_REPORT_REQUESTED = "sahool.field.report.requested"
+SAHOOL_FIELD_REPORT_READY = "sahool.field.report.ready"
+SAHOOL_FIELD_REPORT_FAILED = "sahool.field.report.failed"
+
+# Sub-zones - المناطق الفرعية
+SAHOOL_FIELD_SUB_ZONE_CREATED = "sahool.field.sub_zone.created"
+SAHOOL_FIELD_SUB_ZONE_UPDATED = "sahool.field.sub_zone.updated"
+SAHOOL_FIELD_SUB_ZONE_DELETED = "sahool.field.sub_zone.deleted"
 
 # Wildcards for subscribing to all field events
 SAHOOL_FIELD_ALL = "sahool.field.>"
@@ -54,6 +90,8 @@ SAHOOL_WEATHER_ALERT_STORM = "sahool.weather.alert.storm"
 SAHOOL_WEATHER_ALERT_RAIN = "sahool.weather.alert.rain"
 SAHOOL_WEATHER_ALERT_DROUGHT = "sahool.weather.alert.drought"
 SAHOOL_WEATHER_ALERT_WIND = "sahool.weather.alert.wind"
+SAHOOL_WEATHER_FORECAST_ISSUED = "sahool.weather.forecast.issued"
+SAHOOL_WEATHER_IRRIGATION_ADJUSTMENT = "sahool.weather.irrigation.adjustment"
 
 # Wildcards
 SAHOOL_WEATHER_ALL = "sahool.weather.>"
@@ -78,6 +116,7 @@ SAHOOL_SATELLITE_ANOMALY_DISEASE = "sahool.satellite.anomaly.disease"
 # NDVI specific
 SAHOOL_NDVI_COMPUTED = "sahool.satellite.ndvi.computed"
 SAHOOL_NDVI_ANOMALY = "sahool.satellite.ndvi.anomaly"
+SAHOOL_SATELLITE_NDVI_TREND = "sahool.satellite.ndvi.trend"
 
 # Wildcards
 SAHOOL_SATELLITE_ALL = "sahool.satellite.>"
@@ -182,6 +221,7 @@ SAHOOL_BILLING_SUBSCRIPTION_UPDATED = "sahool.billing.subscription.updated"
 SAHOOL_BILLING_SUBSCRIPTION_RENEWED = "sahool.billing.subscription.renewed"
 SAHOOL_BILLING_SUBSCRIPTION_CANCELLED = "sahool.billing.subscription.cancelled"
 SAHOOL_BILLING_SUBSCRIPTION_EXPIRED = "sahool.billing.subscription.expired"
+SAHOOL_BILLING_SUBSCRIPTION_UPGRADED = "sahool.billing.subscription.upgraded"
 
 # Payment events
 SAHOOL_BILLING_PAYMENT_INITIATED = "sahool.billing.payment.initiated"
@@ -193,6 +233,16 @@ SAHOOL_BILLING_PAYMENT_REFUNDED = "sahool.billing.payment.refunded"
 SAHOOL_BILLING_INVOICE_CREATED = "sahool.billing.invoice.created"
 SAHOOL_BILLING_INVOICE_PAID = "sahool.billing.invoice.paid"
 SAHOOL_BILLING_INVOICE_OVERDUE = "sahool.billing.invoice.overdue"
+SAHOOL_BILLING_INVOICE_GENERATED = "sahool.billing.invoice.generated"
+
+# Payment extended events
+SAHOOL_BILLING_PAYMENT_CREATED = "sahool.billing.payment.created"
+SAHOOL_BILLING_PAYMENT_SUCCEEDED = "sahool.billing.payment.succeeded"
+
+# Subscription extended events
+SAHOOL_BILLING_SUBSCRIPTION_PAST_DUE = "sahool.billing.subscription.past_due"
+SAHOOL_BILLING_SUBSCRIPTION_PLAN_CHANGED = "sahool.billing.subscription.plan_changed"
+SAHOOL_BILLING_SUBSCRIPTION_TRIAL_EXPIRED = "sahool.billing.subscription.trial_expired"
 
 # Quota events
 SAHOOL_BILLING_QUOTA_EXCEEDED = "sahool.billing.quota.exceeded"
@@ -254,6 +304,8 @@ SAHOOL_TASK_UPDATED = "sahool.task.updated"
 SAHOOL_TASK_COMPLETED = "sahool.task.completed"
 SAHOOL_TASK_DELETED = "sahool.task.deleted"
 SAHOOL_TASK_ASSIGNED = "sahool.task.assigned"
+SAHOOL_TASK_STARTED = "sahool.task.started"
+SAHOOL_TASK_CANCELLED = "sahool.task.cancelled"
 
 SAHOOL_TASK_ALL = "sahool.task.*"
 
@@ -272,12 +324,36 @@ SAHOOL_RECOMMENDATION_ALL = "sahool.recommendation.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Advisory Subjects - موضوعات الاستشارات الزراعية
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_ADVISORY_RECOMMENDATION_ISSUED = "sahool.advisory.recommendation.issued"
+# Backward compatibility alias (original subject before dotted-action migration)
+SAHOOL_ADVISORY_RECOMMENDATION_ISSUED_LEGACY = "sahool.advisory.recommendation_issued"
+SAHOOL_ADVISORY_FERTILIZER_PLAN_ISSUED = "sahool.advisory.fertilizer_plan_issued"
+SAHOOL_ADVISORY_NUTRIENT_ASSESSMENT_ISSUED = "sahool.advisory.nutrient_assessment_issued"
+SAHOOL_ADVISORY_FERTILIZER_RECOMMENDED = "sahool.advisory.fertilizer.recommended"
+SAHOOL_ADVISORY_PEST_TREATMENT_RECOMMENDED = "sahool.advisory.pest.treatment.recommended"
+
+SAHOOL_ADVISORY_ALL = "sahool.advisory.>"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Alert Subjects - موضوعات التنبيهات
 # ─────────────────────────────────────────────────────────────────────────────
 
 SAHOOL_ALERT_CREATED = "sahool.alert.created"
 SAHOOL_ALERT_ACKNOWLEDGED = "sahool.alert.acknowledged"
 SAHOOL_ALERT_RESOLVED = "sahool.alert.resolved"
+SAHOOL_ALERT_UPDATED = "sahool.alert.updated"
+SAHOOL_ALERT_EXPIRED = "sahool.alert.expired"
+SAHOOL_ALERT_TRIGGERED = "sahool.alert.triggered"
+
+# Agricultural alert types
+SAHOOL_ALERT_STRESS_DETECTION = "sahool.alert.stress_detection"
+SAHOOL_ALERT_LAI_ANOMALY = "sahool.alert.lai_anomaly"
+SAHOOL_ALERT_PRE_HARVEST = "sahool.alert.pre_harvest"
+SAHOOL_ALERT_HARVEST_READINESS = "sahool.alert.harvest_readiness"
 
 SAHOOL_ALERT_ALL = "sahool.alert.*"
 
@@ -298,6 +374,17 @@ SAHOOL_IOT_THRESHOLD = "sahool.iot.threshold"
 SAHOOL_IOT_ALL = "sahool.iot.>"
 SAHOOL_IOT_SENSOR_ALL = "sahool.iot.sensor.*"
 SAHOOL_IOT_DEVICE_ALL = "sahool.iot.device.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Virtual Sensor Subjects - موضوعات المستشعرات الافتراضية
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_SENSOR_CALCULATED = "sahool.sensor.calculated"
+SAHOOL_SENSOR_ANOMALY = "sahool.sensor.anomaly"
+
+# Wildcards
+SAHOOL_SENSOR_ALL = "sahool.sensor.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -328,6 +415,15 @@ SAHOOL_ANALYSIS_YIELD = "sahool.analysis.yield"
 SAHOOL_ANALYSIS_IRRIGATION = "sahool.analysis.irrigation"
 
 SAHOOL_ANALYSIS_ALL = "sahool.analysis.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Field Intelligence Subjects - موضوعات ذكاء الحقول
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_FIELD_INTELLIGENCE_EVENT_PROCESSED = "sahool.field_intelligence.event_processed"
+
+SAHOOL_FIELD_INTELLIGENCE_ALL = "sahool.field_intelligence.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -409,14 +505,26 @@ SAHOOL_EDGE_ALL = "sahool.edge.*"
 # User/Auth Subjects - موضوعات المستخدمين والمصادقة
 # ─────────────────────────────────────────────────────────────────────────────
 
+# `user.created` is the platform-canonical "a user record now exists" event,
+# emitted regardless of provenance (admin-created, self-registered via
+# AuthService, partner OAuth, etc.). `user.registered` is the more specific
+# self-registration variant kept for backwards-compatibility with older
+# subscribers.
+SAHOOL_USER_CREATED = "sahool.user.created"
 SAHOOL_USER_REGISTERED = "sahool.user.registered"
 SAHOOL_USER_VERIFIED = "sahool.user.verified"
 SAHOOL_USER_LOGGED_IN = "sahool.user.logged_in"
 SAHOOL_USER_LOGGED_OUT = "sahool.user.logged_out"
 SAHOOL_USER_UPDATED = "sahool.user.updated"
 SAHOOL_USER_DELETED = "sahool.user.deleted"
+SAHOOL_USER_ROLE_CHANGED = "sahool.user.role_changed"
+SAHOOL_USER_STATUS_CHANGED = "sahool.user.status_changed"
+SAHOOL_USER_PASSWORD_CHANGED = "sahool.user.password_changed"
+SAHOOL_USER_2FA_ENABLED = "sahool.user.2fa_enabled"
+SAHOOL_USER_ACCOUNT_LOCKED = "sahool.user.account_locked"
+SAHOOL_USER_AUTHENTICATED = "sahool.user.authenticated"
 
-SAHOOL_USER_ALL = "sahool.user.*"
+SAHOOL_USER_ALL = "sahool.user.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -442,6 +550,8 @@ SAHOOL_INDICATORS_FIELD_SUMMARY = "sahool.indicators.field_summary"
 SAHOOL_INDICATORS_DASHBOARD_COMPUTED = "sahool.indicators.dashboard_computed"
 SAHOOL_INDICATORS_ALERTS_RETRIEVED = "sahool.indicators.alerts_retrieved"
 SAHOOL_INDICATORS_TREND_ANALYZED = "sahool.indicators.trend_analyzed"
+SAHOOL_INDICATORS_UPDATED = "sahool.indicators.updated"
+SAHOOL_INDICATORS_ALERT = "sahool.indicators.alert"
 
 SAHOOL_INDICATORS_ALL = "sahool.indicators.*"
 
@@ -480,6 +590,8 @@ SAHOOL_DRONE_FLIGHT_PLANNED = "sahool.drone.flight_planned"
 SAHOOL_DRONE_MISSION_CREATED = "sahool.drone.mission_created"
 SAHOOL_DRONE_MISSION_STARTED = "sahool.drone.mission_started"
 SAHOOL_DRONE_MISSION_ABORTED = "sahool.drone.mission_aborted"
+SAHOOL_DRONE_REGISTERED = "sahool.drone.registered"
+SAHOOL_DRONE_MISSION_COMPLETED = "sahool.drone.mission_completed"
 
 SAHOOL_DRONE_ALL = "sahool.drone.*"
 
@@ -496,6 +608,9 @@ SAHOOL_TRACEABILITY_HARVEST_RECORDED = "sahool.traceability.harvest_recorded"
 SAHOOL_TRACEABILITY_PROCESSING_RECORDED = "sahool.traceability.processing_recorded"
 SAHOOL_TRACEABILITY_STORAGE_RECORDED = "sahool.traceability.storage_recorded"
 SAHOOL_TRACEABILITY_TRANSPORT_RECORDED = "sahool.traceability.transport_recorded"
+# Blockchain-style anchor published by the traceability subscriber whenever
+# a `sahool.field.*` event is hashed and added to the field's trace chain.
+SAHOOL_TRACEABILITY_ANCHOR_CREATED = "sahool.traceability.anchor.created"
 
 SAHOOL_TRACEABILITY_ALL = "sahool.traceability.*"
 
@@ -513,6 +628,44 @@ SAHOOL_COMPLIANCE_CERTIFICATE_RENEWED = "sahool.compliance.certificate.renewed"
 SAHOOL_COMPLIANCE_CERTIFICATE_EXPIRED = "sahool.compliance.certificate.expired"
 
 SAHOOL_COMPLIANCE_ALL = "sahool.compliance.>"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# GlobalGAP Subjects - موضوعات الامتثال الدولي
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Compliance events
+SAHOOL_GLOBALGAP_COMPLIANCE_UPDATED = "sahool.globalgap.compliance.updated"
+SAHOOL_GLOBALGAP_COMPLIANCE_CHECK_REQUIRED = "sahool.globalgap.compliance.check_required"
+SAHOOL_GLOBALGAP_COMPLIANCE_VERIFIED = "sahool.globalgap.compliance.verified"
+
+# Audit events
+SAHOOL_GLOBALGAP_AUDIT_SCHEDULED = "sahool.globalgap.audit.scheduled"
+SAHOOL_GLOBALGAP_AUDIT_STARTED = "sahool.globalgap.audit.started"
+SAHOOL_GLOBALGAP_AUDIT_COMPLETED = "sahool.globalgap.audit.completed"
+SAHOOL_GLOBALGAP_AUDIT_FAILED = "sahool.globalgap.audit.failed"
+
+# Non-conformance events
+SAHOOL_GLOBALGAP_NONCONFORMANCE_DETECTED = "sahool.globalgap.nonconformance.detected"
+SAHOOL_GLOBALGAP_NONCONFORMANCE_RESOLVED = "sahool.globalgap.nonconformance.resolved"
+SAHOOL_GLOBALGAP_NONCONFORMANCE_ESCALATED = "sahool.globalgap.nonconformance.escalated"
+
+# Certificate events
+SAHOOL_GLOBALGAP_CERTIFICATE_EXPIRING = "sahool.globalgap.certificate.expiring"
+SAHOOL_GLOBALGAP_CERTIFICATE_RENEWED = "sahool.globalgap.certificate.renewed"
+SAHOOL_GLOBALGAP_CERTIFICATE_REVOKED = "sahool.globalgap.certificate.revoked"
+
+# Integration sync events
+SAHOOL_GLOBALGAP_INTEGRATION_IRRIGATION_SYNCED = "sahool.globalgap.integration.irrigation.synced"
+SAHOOL_GLOBALGAP_INTEGRATION_CROP_HEALTH_SYNCED = "sahool.globalgap.integration.crop_health.synced"
+SAHOOL_GLOBALGAP_INTEGRATION_FERTILIZER_SYNCED = "sahool.globalgap.integration.fertilizer.synced"
+SAHOOL_GLOBALGAP_INTEGRATION_FIELD_OPS_SYNCED = "sahool.globalgap.integration.field_ops.synced"
+
+# Wildcards
+SAHOOL_GLOBALGAP_ALL = "sahool.globalgap.>"
+SAHOOL_GLOBALGAP_COMPLIANCE_ALL = "sahool.globalgap.compliance.>"
+SAHOOL_GLOBALGAP_AUDIT_ALL = "sahool.globalgap.audit.>"
+SAHOOL_GLOBALGAP_CERTIFICATE_ALL = "sahool.globalgap.certificate.>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -593,6 +746,9 @@ SAHOOL_LLM_ALL = "sahool.llm.*"
 
 SAHOOL_CHAT_AI_QUERY = "sahool.chat.ai_query"
 SAHOOL_CHAT_AI_RESPONSE = "sahool.chat.ai_response"
+# Conversation lifecycle (peer-to-peer messaging, not AI-only)
+SAHOOL_CHAT_MESSAGE_SENT = "sahool.chat.message.sent"
+SAHOOL_CHAT_MESSAGE_READ = "sahool.chat.message.read"
 
 SAHOOL_CHAT_ALL = "sahool.chat.*"
 
@@ -601,9 +757,13 @@ SAHOOL_CHAT_ALL = "sahool.chat.*"
 # Irrigation Extended Subjects - موضوعات الري الإضافية
 # ─────────────────────────────────────────────────────────────────────────────
 
+SAHOOL_IRRIGATION_CALCULATED = "sahool.irrigation.calculated"
+SAHOOL_IRRIGATION_SCHEDULED = "sahool.irrigation.scheduled"
 SAHOOL_IRRIGATION_APPLIED = "sahool.irrigation.applied"
 SAHOOL_IRRIGATION_ALERT = "sahool.irrigation.alert"
 SAHOOL_IRRIGATION_HMC = "sahool.irrigation.hmc"
+SAHOOL_IRRIGATION_EXECUTED = "sahool.irrigation.executed"
+SAHOOL_IRRIGATION_PLAN_CREATED = "sahool.irrigation.plan_created"
 
 SAHOOL_IRRIGATION_ALL = "sahool.irrigation.>"
 
@@ -617,6 +777,15 @@ SAHOOL_SPRAY_WINDOW = "sahool.spray.window"
 SAHOOL_SPRAY_WARNING = "sahool.spray.warning"
 
 SAHOOL_SPRAY_ALL = "sahool.spray.*"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Fertilizer Subjects - موضوعات الأسمدة
+# ─────────────────────────────────────────────────────────────────────────────
+
+SAHOOL_FERTILIZER_APPLIED = "sahool.fertilizer.applied"
+
+SAHOOL_FERTILIZER_ALL = "sahool.fertilizer.*"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -686,15 +855,19 @@ def get_subject_for_event(event_type: str) -> str:
 
 def get_wildcard_subject(domain: str) -> str:
     """
-    Get wildcard subject for a domain to subscribe to all events in that domain.
+    Get wildcard subject for a domain to subscribe to all events in that domain,
+    including deeply nested sub-subjects.
+
+    Uses the NATS '>' wildcard which matches one or more tokens, allowing
+    subscription to subjects like 'sahool.field.created', 'sahool.field.boundary.updated', etc.
 
     Args:
         domain: Domain name (e.g., "field", "weather", "billing")
 
     Returns:
-        Wildcard subject (e.g., "sahool.field.*")
+        Wildcard subject (e.g., "sahool.field.>")
     """
-    return f"sahool.{domain}.*"
+    return f"sahool.{domain}.>"
 
 
 def is_valid_subject(subject: str) -> bool:
@@ -723,12 +896,16 @@ SUBJECT_REGISTRY = {
     "field.created": SAHOOL_FIELD_CREATED,
     "field.updated": SAHOOL_FIELD_UPDATED,
     "field.deleted": SAHOOL_FIELD_DELETED,
+    "field.activity.recorded": SAHOOL_FIELD_ACTIVITY_RECORDED,
+    "field.harvest.completed": SAHOOL_FIELD_HARVEST_COMPLETED,
+    "field.profitability.analyzed": SAHOOL_FIELD_PROFITABILITY_ANALYZED,
     # Weather
     "weather.forecast": SAHOOL_WEATHER_FORECAST,
     "weather.alert": SAHOOL_WEATHER_ALERT,
     # Satellite
     "satellite.data.ready": SAHOOL_SATELLITE_DATA_READY,
     "satellite.anomaly": SAHOOL_SATELLITE_ANOMALY,
+    "satellite.ndvi.trend": SAHOOL_SATELLITE_NDVI_TREND,
     # Health
     "health.disease.detected": SAHOOL_HEALTH_DISEASE_DETECTED,
     "health.stress.detected": SAHOOL_HEALTH_STRESS_DETECTED,
@@ -737,6 +914,7 @@ SUBJECT_REGISTRY = {
     "inventory.batch.expired": SAHOOL_INVENTORY_BATCH_EXPIRED,
     # Billing
     "billing.subscription.created": SAHOOL_BILLING_SUBSCRIPTION_CREATED,
+    "billing.subscription.upgraded": SAHOOL_BILLING_SUBSCRIPTION_UPGRADED,
     "billing.payment.completed": SAHOOL_BILLING_PAYMENT_COMPLETED,
     "billing.payment.failed": SAHOOL_BILLING_PAYMENT_FAILED,
     # Agent
@@ -759,6 +937,8 @@ SUBJECT_REGISTRY = {
     "task.completed": SAHOOL_TASK_COMPLETED,
     "task.deleted": SAHOOL_TASK_DELETED,
     "task.assigned": SAHOOL_TASK_ASSIGNED,
+    "task.started": SAHOOL_TASK_STARTED,
+    "task.cancelled": SAHOOL_TASK_CANCELLED,
     # Recommendation
     "recommendation.created": SAHOOL_RECOMMENDATION_CREATED,
     "recommendation.irrigation": SAHOOL_RECOMMENDATION_IRRIGATION,
@@ -776,6 +956,8 @@ SUBJECT_REGISTRY = {
     "vision.analysis_started": SAHOOL_VISION_ANALYSIS_STARTED,
     "vision.analysis_completed": SAHOOL_VISION_ANALYSIS_COMPLETED,
     "vision.analysis_failed": SAHOOL_VISION_ANALYSIS_FAILED,
+    # Field Intelligence
+    "field_intelligence.event_processed": SAHOOL_FIELD_INTELLIGENCE_EVENT_PROCESSED,
     # Terrain
     "terrain.analysis_started": SAHOOL_TERRAIN_ANALYSIS_STARTED,
     "terrain.analysis_completed": SAHOOL_TERRAIN_ANALYSIS_COMPLETED,
@@ -825,6 +1007,8 @@ SUBJECT_REGISTRY = {
     "indicators.dashboard_computed": SAHOOL_INDICATORS_DASHBOARD_COMPUTED,
     "indicators.alerts_retrieved": SAHOOL_INDICATORS_ALERTS_RETRIEVED,
     "indicators.trend_analyzed": SAHOOL_INDICATORS_TREND_ANALYZED,
+    "indicators.updated": SAHOOL_INDICATORS_UPDATED,
+    "indicators.alert": SAHOOL_INDICATORS_ALERT,
     # Skills
     "skills.evaluated": SAHOOL_SKILLS_EVALUATED,
     "skills.assessed": SAHOOL_SKILLS_ASSESSED,
@@ -842,6 +1026,8 @@ SUBJECT_REGISTRY = {
     "drone.mission_created": SAHOOL_DRONE_MISSION_CREATED,
     "drone.mission_started": SAHOOL_DRONE_MISSION_STARTED,
     "drone.mission_aborted": SAHOOL_DRONE_MISSION_ABORTED,
+    "drone.registered": SAHOOL_DRONE_REGISTERED,
+    "drone.mission_completed": SAHOOL_DRONE_MISSION_COMPLETED,
     # Traceability
     "traceability.batch_created": SAHOOL_TRACEABILITY_BATCH_CREATED,
     "traceability.batch_updated": SAHOOL_TRACEABILITY_BATCH_UPDATED,
@@ -851,6 +1037,7 @@ SUBJECT_REGISTRY = {
     "traceability.processing_recorded": SAHOOL_TRACEABILITY_PROCESSING_RECORDED,
     "traceability.storage_recorded": SAHOOL_TRACEABILITY_STORAGE_RECORDED,
     "traceability.transport_recorded": SAHOOL_TRACEABILITY_TRANSPORT_RECORDED,
+    "traceability.anchor.created": SAHOOL_TRACEABILITY_ANCHOR_CREATED,
     # Compliance
     "compliance.updated": SAHOOL_COMPLIANCE_UPDATED,
     "compliance.audit.completed": SAHOOL_COMPLIANCE_AUDIT_COMPLETED,
@@ -859,6 +1046,24 @@ SUBJECT_REGISTRY = {
     "compliance.certificate.created": SAHOOL_COMPLIANCE_CERTIFICATE_CREATED,
     "compliance.certificate.renewed": SAHOOL_COMPLIANCE_CERTIFICATE_RENEWED,
     "compliance.certificate.expired": SAHOOL_COMPLIANCE_CERTIFICATE_EXPIRED,
+    # GlobalGAP
+    "globalgap.compliance.updated": SAHOOL_GLOBALGAP_COMPLIANCE_UPDATED,
+    "globalgap.compliance.check_required": SAHOOL_GLOBALGAP_COMPLIANCE_CHECK_REQUIRED,
+    "globalgap.compliance.verified": SAHOOL_GLOBALGAP_COMPLIANCE_VERIFIED,
+    "globalgap.audit.scheduled": SAHOOL_GLOBALGAP_AUDIT_SCHEDULED,
+    "globalgap.audit.started": SAHOOL_GLOBALGAP_AUDIT_STARTED,
+    "globalgap.audit.completed": SAHOOL_GLOBALGAP_AUDIT_COMPLETED,
+    "globalgap.audit.failed": SAHOOL_GLOBALGAP_AUDIT_FAILED,
+    "globalgap.nonconformance.detected": SAHOOL_GLOBALGAP_NONCONFORMANCE_DETECTED,
+    "globalgap.nonconformance.resolved": SAHOOL_GLOBALGAP_NONCONFORMANCE_RESOLVED,
+    "globalgap.nonconformance.escalated": SAHOOL_GLOBALGAP_NONCONFORMANCE_ESCALATED,
+    "globalgap.certificate.expiring": SAHOOL_GLOBALGAP_CERTIFICATE_EXPIRING,
+    "globalgap.certificate.renewed": SAHOOL_GLOBALGAP_CERTIFICATE_RENEWED,
+    "globalgap.certificate.revoked": SAHOOL_GLOBALGAP_CERTIFICATE_REVOKED,
+    "globalgap.integration.irrigation.synced": SAHOOL_GLOBALGAP_INTEGRATION_IRRIGATION_SYNCED,
+    "globalgap.integration.crop_health.synced": SAHOOL_GLOBALGAP_INTEGRATION_CROP_HEALTH_SYNCED,
+    "globalgap.integration.fertilizer.synced": SAHOOL_GLOBALGAP_INTEGRATION_FERTILIZER_SYNCED,
+    "globalgap.integration.field_ops.synced": SAHOOL_GLOBALGAP_INTEGRATION_FIELD_OPS_SYNCED,
     # Copilot
     "copilot.chat_started": SAHOOL_COPILOT_CHAT_STARTED,
     "copilot.chat_completed": SAHOOL_COPILOT_CHAT_COMPLETED,
@@ -890,13 +1095,19 @@ SUBJECT_REGISTRY = {
     "chat.ai_query": SAHOOL_CHAT_AI_QUERY,
     "chat.ai_response": SAHOOL_CHAT_AI_RESPONSE,
     # Irrigation (extended)
+    "irrigation.calculated": SAHOOL_IRRIGATION_CALCULATED,
+    "irrigation.scheduled": SAHOOL_IRRIGATION_SCHEDULED,
     "irrigation.applied": SAHOOL_IRRIGATION_APPLIED,
     "irrigation.alert": SAHOOL_IRRIGATION_ALERT,
     "irrigation.hmc": SAHOOL_IRRIGATION_HMC,
+    "irrigation.executed": SAHOOL_IRRIGATION_EXECUTED,
+    "irrigation.plan_created": SAHOOL_IRRIGATION_PLAN_CREATED,
     # Spray
     "spray.scheduled": SAHOOL_SPRAY_SCHEDULED,
     "spray.window": SAHOOL_SPRAY_WINDOW,
     "spray.warning": SAHOOL_SPRAY_WARNING,
+    # Fertilizer
+    "fertilizer.applied": SAHOOL_FERTILIZER_APPLIED,
     # Community
     "community.channel_created": SAHOOL_COMMUNITY_CHANNEL_CREATED,
     "community.user_joined": SAHOOL_COMMUNITY_USER_JOINED,
@@ -904,6 +1115,11 @@ SUBJECT_REGISTRY = {
     "community.advisory_posted": SAHOOL_COMMUNITY_ADVISORY_POSTED,
     "community.alert_posted": SAHOOL_COMMUNITY_ALERT_POSTED,
     "community.tenant_setup": SAHOOL_COMMUNITY_TENANT_SETUP,
+    # Virtual Sensors
+    "sensor.calculated": SAHOOL_SENSOR_CALCULATED,
+    "sensor.anomaly": SAHOOL_SENSOR_ANOMALY,
+    # User (extended)
+    "user.authenticated": SAHOOL_USER_AUTHENTICATED,
 }
 
 
@@ -949,6 +1165,16 @@ def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
     """
     if not tenant_id:
         raise ValueError("tenant_id is required for tenant-scoped subjects")
+
+    # Validate tenant_id is a valid UUID format
+    if not _TENANT_UUID_RE.match(tenant_id):
+        raise ValueError(f"tenant_id must be a valid UUID, got: {tenant_id!r}")
+
+    # Reject NATS wildcard characters to prevent subject injection
+    for char in ("*", ">", "."):
+        if char in tenant_id:
+            raise ValueError(f"tenant_id contains illegal NATS wildcard character '{char}': {tenant_id!r}")
+
     return f"sahool.tenant.{tenant_id}.{domain}.{action}"
 
 

@@ -28,16 +28,41 @@ datasource db {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Farm {
-  id      String @id @default(uuid()) @db.Uuid
+  id String @id @default(uuid()) @db.Uuid
 
   // Basic Info
   name     String  @db.VarChar(255)
+  nameAr   String? @map("name_ar") @db.VarChar(255)
   tenantId String  @map("tenant_id") @db.VarChar(100)
   ownerId  String? @map("owner_id") @db.Uuid
 
   // Geospatial (PostGIS)
-  location Unsupported("geometry(Point, 4326)")?
-  boundary Unsupported("geometry(Polygon, 4326)")?
+  // `locationGeom` / `boundary` below are the PostGIS geometry columns
+  // (mapped to DB columns `location` / `boundary` for legacy compatibility).
+  // The optional string fields (`locationLabel`, `locationLabelAr`) are
+  // human-readable labels exposed to the UI.
+  //
+  // IMPORTANT: Prisma 5.22 reports a "Field X already defined" validation
+  // error when a Prisma field name collides with another field's @map target
+  // in the same model. `locationGeom @map("location")` therefore cannot
+  // coexist with a Prisma field literally named `location` — hence the
+  // camelCase rename to `locationLabel` / `locationLabelAr`. The API-facing
+  // DTO names (`location` / `locationAr`) are preserved via explicit
+  // mapping in `farms.service.ts` so no public contract breaks.
+  locationGeom Unsupported("geometry(Point, 4326)")?   @map("location")
+  boundary     Unsupported("geometry(Polygon, 4326)")?
+
+  // Display / domain fields
+  region                 String?  @map("region") @db.VarChar(255)
+  regionAr               String?  @map("region_ar") @db.VarChar(255)
+  waterSource            String?  @map("water_source") @db.VarChar(255)
+  waterSourceAr          String?  @map("water_source_ar") @db.VarChar(255)
+  workersCount           Int      @default(0) @map("workers_count")
+  status                 String   @default("active") @map("status") @db.VarChar(32) // active|inactive|archived
+  cultivatedAreaHectares Decimal? @map("cultivated_area_hectares") @db.Decimal(10, 2)
+  locationLabel          String?  @map("location_label") @db.VarChar(500)
+  locationLabelAr        String?  @map("location_label_ar") @db.VarChar(500)
+  owner                  String?  @map("owner_name") @db.VarChar(255)
 
   // Farm Details
   totalAreaHectares Decimal? @map("total_area_hectares") @db.Decimal(10, 4)
@@ -58,6 +83,7 @@ model Farm {
   // Indexes
   @@index([tenantId], name: "idx_farm_tenant")
   @@index([tenantId, isDeleted], name: "idx_farm_tenant_active")
+  @@index([tenantId, status], name: "idx_farm_tenant_status")
   @@index([ownerId], name: "idx_farm_owner")
   @@index([createdAt], name: "idx_farm_created")
   @@map("farms")
@@ -117,7 +143,12 @@ model Field {
   boundaryHistory FieldBoundaryHistory[]
   tasks           Task[]
   ndviReadings    NdviReading[]
-  farm            Farm?                   @relation(fields: [farmId], references: [id], onDelete: SetNull)
+  kpiSnapshots    FieldKpiSnapshot[]
+  farm            Farm?                  @relation(fields: [farmId], references: [id], onDelete: SetNull)
+  cropSeasons     CropSeason[]
+  operations      FieldOperation[]
+  subZones        FieldSubZone[]
+  reports         FieldReport[]
 
   // Indexes
   @@index([tenantId], name: "idx_field_tenant")
@@ -131,6 +162,8 @@ model Field {
   @@index([ownerId], name: "idx_field_owner")
   @@index([plantingDate], name: "idx_field_planting")
   @@index([expectedHarvest], name: "idx_field_harvest")
+  @@index([tenantId, cropType, createdAt], name: "idx_field_tenant_crop_date")
+  @@index([tenantId, plantingDate, status], name: "idx_field_tenant_planting_status")
   @@map("fields")
 }
 
@@ -189,9 +222,9 @@ model SyncStatus {
   tenantId String @map("tenant_id") @db.VarChar(100)
 
   // Sync State
-  lastSyncAt      DateTime?  @map("last_sync_at") @db.Timestamptz
-  lastSyncVersion BigInt     @default(0) @map("last_sync_version")
-  status          SyncState  @default(idle)
+  lastSyncAt      DateTime? @map("last_sync_at") @db.Timestamptz
+  lastSyncVersion BigInt    @default(0) @map("last_sync_version")
+  status          SyncState @default(idle)
 
   // Pending Operations
   pendingUploads   Int @default(0) @map("pending_uploads")
@@ -294,23 +327,534 @@ model NdviReading {
   field   Field  @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   // NDVI Data
-  value       Decimal   @db.Decimal(4, 3) // -1.000 to 1.000
-  capturedAt  DateTime  @map("captured_at") @db.Timestamptz
-  source      String    @default("satellite") @db.VarChar(50) // satellite, drone, manual
-  cloudCover  Decimal?  @map("cloud_cover") @db.Decimal(5, 2) // 0-100%
-  quality     String?   @db.VarChar(20) // good, moderate, poor
+  value      Decimal  @db.Decimal(4, 3) // -1.000 to 1.000
+  capturedAt DateTime @map("captured_at") @db.Timestamptz
+  source     String   @default("satellite") @db.VarChar(50) // satellite, drone, manual
+  cloudCover Decimal? @map("cloud_cover") @db.Decimal(5, 2) // 0-100%
+  quality    String?  @db.VarChar(20) // good, moderate, poor
 
   // Satellite Info
   satelliteName String? @map("satellite_name") @db.VarChar(50)
   bandInfo      Json?   @map("band_info") @db.JsonB
 
+  // Provider provenance (satellite flow audit H12).
+  // `provider` records which upstream client was used (e.g. `sentinel_hub_s2l2a`,
+  // `planet_labs`, `copernicus_stac`, `simulated`). `sceneId` is the provider's
+  // scene / tile / order identifier so we can re-fetch or audit any row.
+  // `requestId` correlates the reading back to the HTTP request that produced it.
+  provider  String? @db.VarChar(64)
+  sceneId   String? @map("scene_id") @db.VarChar(255)
+  requestId String? @map("request_id") @db.Uuid
+
+  // Soft-delete flag (satellite flow audit) — kept in sync with the parent
+  // Field's `is_deleted` so readings for removed fields can be filtered
+  // without losing the history.
+  isDeleted Boolean @default(false) @map("is_deleted")
+
   // Timestamps
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  // Idempotent import guard (satellite flow audit H17).
+  // Replaying the same satellite scene must NOT create duplicate rows —
+  // upserts in the write path should ON CONFLICT on this key.
+  @@unique([fieldId, capturedAt, satelliteName], name: "uq_ndvi_field_source_date")
   // Indexes
   @@index([tenantId], name: "idx_ndvi_tenant")
   @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
+  @@index([provider, sceneId], name: "idx_ndvi_provider_scene")
   @@map("ndvi_readings")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field KPI Snapshot - لقطات KPI للحقل
+// Caches latest Sentinel Hub + OpenWeather indices per field
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldKpiSnapshot {
+  id        String   @id @default(uuid()) @db.Uuid
+  fieldId   String   @map("field_id") @db.Uuid
+  tenantId  String   @map("tenant_id") @db.VarChar(100)
+  fetchedAt DateTime @default(now()) @map("fetched_at") @db.Timestamptz
+
+  // Sentinel Hub vegetation indices
+  ndvi Decimal? @db.Decimal(5, 4)
+  evi  Decimal? @db.Decimal(5, 4)
+  ndwi Decimal? @db.Decimal(5, 4)
+  savi Decimal? @db.Decimal(5, 4)
+  lai  Decimal? @db.Decimal(6, 4)
+  ndmi Decimal? @db.Decimal(5, 4)
+
+  // OpenWeather / weather service data
+  temperature        Decimal? @map("temperature_c") @db.Decimal(5, 2)
+  humidity           Decimal? @map("humidity_pct") @db.Decimal(5, 2)
+  windSpeed          Decimal? @map("wind_speed_kmh") @db.Decimal(6, 2)
+  precipitation      Decimal? @map("precipitation_mm") @db.Decimal(6, 2)
+  uvIndex            Decimal? @map("uv_index") @db.Decimal(4, 2)
+  weatherCondition   String?  @map("weather_condition") @db.VarChar(100)
+  weatherConditionAr String?  @map("weather_condition_ar") @db.VarChar(100)
+
+  satelliteSource String? @map("satellite_source") @db.VarChar(50)
+  weatherSource   String? @map("weather_source") @db.VarChar(50)
+
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([fieldId, fetchedAt(sort: Desc)], name: "idx_kpi_field_date")
+  @@index([tenantId], name: "idx_kpi_tenant")
+  @@map("field_kpi_snapshots")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Crop Season - مواسم المحاصيل
+// First-class archive of crop rotations on a field. Replaces the earlier
+// web-side `field.metadata.cropHistory[]` shim with a real relational table
+// so downstream services (NDVI pipeline, yield-prediction, irrigation-smart,
+// advisory-service) can query planted crops by date range with PostgreSQL
+// indexes instead of JSON probes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CropSeason {
+  id       String @id @default(uuid()) @db.Uuid
+  tenantId String @map("tenant_id") @db.VarChar(100)
+  fieldId  String @map("field_id") @db.Uuid
+
+  // Crop identity
+  cropType   String  @map("crop_type") @db.VarChar(100)
+  cropTypeAr String? @map("crop_type_ar") @db.VarChar(100)
+  // Seasonal classification (winter | spring | summer | autumn | year-round)
+  season     String? @db.VarChar(32)
+
+  // Timeline - all dates are DATE (no time) so they line up with how
+  // agronomists reason about operations ("the plow was on the 14th").
+  // Drive crop phenology / Zadoks staging for the NDVI pipeline.
+  sowingDate          DateTime  @map("sowing_date") @db.Date
+  expectedHarvestDate DateTime? @map("expected_harvest_date") @db.Date
+  actualHarvestDate   DateTime? @map("actual_harvest_date") @db.Date
+  endedAt             DateTime? @map("ended_at") @db.Timestamptz
+  endReason           String?   @map("end_reason") @db.VarChar(255)
+
+  // Denormalized flag for fast "current crop" lookup — only one row per
+  // (fieldId) should have isCurrent=true. Partial unique index below.
+  isCurrent Boolean @default(false) @map("is_current")
+
+  // Agronomic detail (captured via <StartCropSeasonModal>)
+  seedVariety         String?  @map("seed_variety") @db.VarChar(255)
+  seedVarietyAr       String?  @map("seed_variety_ar") @db.VarChar(255)
+  plantingDensityKgHa Decimal? @map("planting_density_kg_ha") @db.Decimal(10, 2)
+  irrigationType      String?  @map("irrigation_type") @db.VarChar(50)
+
+  // Post-harvest outcomes
+  yieldKgHa Decimal? @map("yield_kg_ha") @db.Decimal(10, 2)
+
+  // Free-form notes (max 2KB enforced at application layer)
+  notes String? @db.Text
+
+  // Flexible additive metadata (anything the UI wants to persist without
+  // forcing another migration — mirrors the Field.metadata pattern).
+  metadata Json? @db.JsonB
+
+  // ── ERP / accounting integration ────────────────────────────────────
+  // Cross-system reference so the same CropSeason can appear in
+  // QuickBooks / SAP / Odoo / Xero and be traced back.
+  externalId     String? @map("external_id") @db.VarChar(100)
+  externalSource String? @map("external_source") @db.VarChar(50)
+  costCenter     String? @map("cost_center") @db.VarChar(50)
+  projectCode    String? @map("project_code") @db.VarChar(50)
+  baseCurrency   String? @map("base_currency") @db.VarChar(8)
+
+  // Cached totals (materialised from field_operations rollup).
+  totalSeasonCost    Decimal?  @map("total_season_cost") @db.Decimal(14, 2)
+  totalSeasonRevenue Decimal?  @map("total_season_revenue") @db.Decimal(14, 2)
+  totalSeasonHours   Decimal?  @map("total_season_hours") @db.Decimal(10, 2)
+  totalsUpdatedAt    DateTime? @map("totals_updated_at") @db.Timestamptz
+
+  // Cached carbon totals (materialised from field_operations CO2 rollup).
+  // Updated by carbon-service when it recomputes per-operation emissions
+  // or by the FieldOperationsService.rollupForCropSeason() helper.
+  totalCo2EmissionsKg     Decimal?  @map("total_co2_emissions_kg") @db.Decimal(14, 2)
+  totalCo2SequestrationKg Decimal?  @map("total_co2_sequestration_kg") @db.Decimal(14, 2)
+  totalCo2NetKg           Decimal?  @map("total_co2_net_kg") @db.Decimal(14, 2)
+  carbonTotalsUpdatedAt   DateTime? @map("carbon_totals_updated_at") @db.Timestamptz
+
+  // Soft delete (audit compliance)
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+  deletedBy     String?   @map("deleted_by") @db.VarChar(100)
+  deletedReason String?   @map("deleted_reason") @db.Text
+
+  // Sync / audit
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field      Field            @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  operations FieldOperation[]
+
+  // Indexes
+  @@index([tenantId], name: "idx_crop_season_tenant")
+  @@index([fieldId], name: "idx_crop_season_field")
+  @@index([fieldId, sowingDate(sort: Desc)], name: "idx_crop_season_field_sown")
+  @@index([tenantId, cropType], name: "idx_crop_season_tenant_crop")
+  @@index([tenantId, sowingDate], name: "idx_crop_season_tenant_sown")
+  @@map("crop_seasons")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Operation - عمليات الحقل
+// First-class record of pre-sowing and in-season operations (plowing,
+// land preparation, fertilization, spraying, irrigation, harvesting, ...).
+// Links to CropSeason (so each operation rolls up into a per-season cost +
+// duration) and to Equipment via `equipmentId` (soft link — equipment lives
+// in a separate service, so we store the UUID + cached display name).
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldOperation {
+  id           String  @id @default(uuid()) @db.Uuid
+  tenantId     String  @map("tenant_id") @db.VarChar(100)
+  fieldId      String  @map("field_id") @db.Uuid
+  cropSeasonId String? @map("crop_season_id") @db.Uuid
+
+  // Operation type — stored as VARCHAR to keep it extensible from the
+  // client side without requiring enum migrations for each new op.
+  // Canonical values: plowing | land_preparation | fertilization |
+  // spraying | irrigation | harvesting | scouting | sowing | other
+  operationType String @map("operation_type") @db.VarChar(50)
+
+  // Timing — performedAt is the start of the operation; durationHours
+  // captures how long it took. When the operation spans a window you
+  // can also set `endedAt` separately.
+  performedAt   DateTime  @map("performed_at") @db.Date
+  endedAt       DateTime? @map("ended_at") @db.Timestamptz
+  durationHours Decimal?  @map("duration_hours") @db.Decimal(8, 2)
+
+  // ── Total cost + currency ───────────────────────────────────────────
+  costAmount   Decimal? @map("cost_amount") @db.Decimal(12, 2)
+  costCurrency String   @default("SAR") @map("cost_currency") @db.VarChar(8)
+
+  // ── Cost breakdown (IAS 41 "biological assets" disclosure) ──────────
+  fuelLiters    Decimal? @map("fuel_liters") @db.Decimal(10, 2)
+  fuelCost      Decimal? @map("fuel_cost") @db.Decimal(12, 2)
+  laborHours    Decimal? @map("labor_hours") @db.Decimal(8, 2)
+  laborCost     Decimal? @map("labor_cost") @db.Decimal(12, 2)
+  materialsCost Decimal? @map("materials_cost") @db.Decimal(12, 2)
+  overheadCost  Decimal? @map("overhead_cost") @db.Decimal(12, 2)
+  otherCost     Decimal? @map("other_cost") @db.Decimal(12, 2)
+
+  // ── Tax + multi-currency ────────────────────────────────────────────
+  taxAmount    Decimal? @map("tax_amount") @db.Decimal(12, 2)
+  taxRate      Decimal? @map("tax_rate") @db.Decimal(5, 2)
+  exchangeRate Decimal? @map("exchange_rate") @db.Decimal(14, 6)
+  baseCurrency String?  @map("base_currency") @db.VarChar(8)
+
+  // ── Vendor / invoice (accounting reconciliation) ────────────────────
+  invoiceNumber String?   @map("invoice_number") @db.VarChar(100)
+  invoiceDate   DateTime? @map("invoice_date") @db.Date
+  vendorId      String?   @map("vendor_id") @db.VarChar(100)
+  vendorName    String?   @map("vendor_name") @db.VarChar(255)
+  receiptUrl    String?   @map("receipt_url") @db.VarChar(500)
+
+  // ── GL / cost-center / project for ERP posting ─────────────────────
+  glAccount   String? @map("gl_account") @db.VarChar(50)
+  costCenter  String? @map("cost_center") @db.VarChar(50)
+  projectCode String? @map("project_code") @db.VarChar(50)
+
+  // ── ERP sync bookkeeping ────────────────────────────────────────────
+  externalId       String?   @map("external_id") @db.VarChar(100)
+  externalSource   String?   @map("external_source") @db.VarChar(50)
+  postedToErp      Boolean   @default(false) @map("posted_to_erp")
+  postedAt         DateTime? @map("posted_at") @db.Timestamptz
+  postingReference String?   @map("posting_reference") @db.VarChar(255)
+  postingError     String?   @map("posting_error") @db.Text
+  postingAttempts  Int       @default(0) @map("posting_attempts")
+
+  // ── Approval workflow (pending | approved | rejected) ──────────────
+  approvalStatus  String    @default("approved") @map("approval_status") @db.VarChar(20)
+  approvedBy      String?   @map("approved_by") @db.VarChar(100)
+  approvedAt      DateTime? @map("approved_at") @db.Timestamptz
+  rejectionReason String?   @map("rejection_reason") @db.Text
+
+  // Equipment linkage (cross-service soft link).
+  // `equipmentId` is a UUID owned by equipment-service. We cache the
+  // display name so the timeline can render a clickable chip even
+  // when equipment-service is temporarily offline.
+  equipmentId     String? @map("equipment_id") @db.Uuid
+  equipmentName   String? @map("equipment_name") @db.VarChar(255)
+  equipmentNameAr String? @map("equipment_name_ar") @db.VarChar(255)
+
+  // Labour / input metadata (additive — future-proofs the table without
+  // forcing another migration for every new attribute).
+  metadata Json? @db.JsonB
+
+  // Free-form notes (max 2KB enforced at application layer)
+  notes String? @db.Text
+
+  // ── Carbon footprint (IPCC Tier 1) ──────────────────────────────────
+  // Populated by carbon-service (port 8195) — computed from cost breakdown
+  // (fuel liters → combustion factor, fertiliser → N2O factor, machinery
+  // hours → embodied emissions). Sequestration applies to cover cropping,
+  // no-till, biochar, etc. Dashboards show net CO2e per season + per field.
+  co2EmissionsKg       Decimal?  @map("co2_emissions_kg") @db.Decimal(12, 2)
+  co2SequestrationKg   Decimal?  @map("co2_sequestration_kg") @db.Decimal(12, 2)
+  co2NetKg             Decimal?  @map("co2_net_kg") @db.Decimal(12, 2)
+  carbonCreditEligible Boolean   @default(false) @map("carbon_credit_eligible")
+  carbonMethodology    String?   @map("carbon_methodology") @db.VarChar(50)
+  emissionSourceType   String?   @map("emission_source_type") @db.VarChar(50)
+  carbonComputedAt     DateTime? @map("carbon_computed_at") @db.Timestamptz
+
+  // ── Soft delete (SOX / IFRS audit compliance) ──────────────────────
+  deletedAt     DateTime? @map("deleted_at") @db.Timestamptz
+  deletedBy     String?   @map("deleted_by") @db.VarChar(100)
+  deletedReason String?   @map("deleted_reason") @db.Text
+
+  // Audit
+  createdBy String?  @map("created_by") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field      Field       @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  cropSeason CropSeason? @relation(fields: [cropSeasonId], references: [id], onDelete: SetNull)
+
+  // Indexes
+  @@index([tenantId], name: "idx_field_op_tenant")
+  @@index([fieldId], name: "idx_field_op_field")
+  @@index([fieldId, performedAt(sort: Desc)], name: "idx_field_op_field_date")
+  @@index([cropSeasonId], name: "idx_field_op_crop_season")
+  @@index([equipmentId], name: "idx_field_op_equipment")
+  @@index([tenantId, operationType], name: "idx_field_op_tenant_type")
+  @@index([tenantId, performedAt], name: "idx_field_op_tenant_date")
+  @@index([tenantId, vendorId], name: "idx_field_op_vendor")
+  @@map("field_operations")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Outbox Event - Transactional outbox for reliable event publishing
+// مخرج أحداث معاملاتي للنشر الموثوق
+//
+// Events are written to this table in the SAME transaction as the business
+// data change. A separate background worker polls this table and publishes
+// rows to NATS (and optionally to external ERP webhooks). This implements
+// the standard microservices "transactional outbox" pattern to guarantee
+// at-least-once delivery without tying the DB commit to NATS availability.
+//
+// Schema intentionally mirrors shared/libs/outbox/models.py so downstream
+// consumers see identical envelope shapes regardless of which service
+// produced the event.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model OutboxEvent {
+  id            String    @id @default(uuid()) @db.Uuid
+  eventType     String    @map("event_type") @db.VarChar(200)
+  eventVersion  Int       @default(1) @map("event_version")
+  schemaRef     String    @map("schema_ref") @db.VarChar(240)
+  tenantId      String    @map("tenant_id") @db.Uuid
+  correlationId String    @map("correlation_id") @db.Uuid
+  aggregateType String?   @map("aggregate_type") @db.VarChar(100)
+  aggregateId   String?   @map("aggregate_id") @db.Uuid
+  payloadJson   String    @map("payload_json") @db.Text
+  published     Boolean   @default(false)
+  publishedAt   DateTime? @map("published_at") @db.Timestamptz
+  retryCount    Int       @default(0) @map("retry_count")
+  lastError     String?   @map("last_error") @db.Text
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([published, createdAt], name: "ix_outbox_published_created")
+  @@index([tenantId, createdAt], name: "ix_outbox_tenant_created")
+  @@index([aggregateType, aggregateId], name: "ix_outbox_aggregate")
+  @@map("outbox_events")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Idempotency Key - guard against duplicate POSTs
+// مفتاح idempotency - حماية من الإرسال المكرر
+//
+// Matches the RFC-draft "Idempotency-Key" header semantics used by Stripe /
+// Adyen / PayPal / AWS. A client retrying a request after a network error
+// re-sends the same key; the server replays the stored response instead of
+// executing the operation twice. A mismatched request body under the same
+// key returns 409 Conflict so replay attacks can't "grow" a transaction.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model IdempotencyKey {
+  id             String   @id @default(uuid()) @db.Uuid
+  tenantId       String   @map("tenant_id") @db.VarChar(100)
+  key            String   @db.VarChar(255)
+  method         String   @db.VarChar(10)
+  path           String   @db.VarChar(500)
+  requestHash    String   @map("request_hash") @db.VarChar(64)
+  responseStatus Int?     @map("response_status")
+  responseBody   String?  @map("response_body") @db.Text
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([tenantId, key, method, path], name: "uq_idempotency_tenant_key_method_path")
+  @@index([expiresAt], name: "ix_idempotency_expires")
+  @@map("idempotency_keys")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Operation Audit - append-only change log
+// سجل التدقيق - يسجل كل تعديل على عمليات الحقل
+//
+// Populated by a Postgres trigger (see migration) PLUS explicit service-layer
+// inserts that carry the correlation_id + actor_id. The trigger is a
+// belt-and-braces guarantee that no mutation ever slips through unrecorded,
+// even in emergency direct-SQL fixes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldOperationAudit {
+  id            String   @id @default(uuid()) @db.Uuid
+  tenantId      String   @map("tenant_id") @db.VarChar(100)
+  operationId   String   @map("operation_id") @db.Uuid
+  action        String   @db.VarChar(20)
+  actorId       String?  @map("actor_id") @db.VarChar(100)
+  beforeData    Json?    @map("before_data") @db.JsonB
+  afterData     Json?    @map("after_data") @db.JsonB
+  correlationId String?  @map("correlation_id") @db.Uuid
+  clientIp      String?  @map("client_ip") @db.VarChar(50)
+  userAgent     String?  @map("user_agent") @db.VarChar(500)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([tenantId], name: "idx_field_op_audit_tenant")
+  @@index([operationId, createdAt(sort: Desc)], name: "idx_field_op_audit_op")
+  @@index([tenantId, action, createdAt], name: "idx_field_op_audit_action")
+  @@map("field_operation_audit")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Carbon Event Dedup — حماية idempotency لمشترك الأحداث في carbon-service
+//
+// carbon-service subscribes to `sahool.field.operation.recorded` and runs
+// the IPCC Tier 1 engine per event. NATS delivers at-least-once so replays
+// are expected during broker restarts / consumer reconnects / network
+// blips. This table is the first line of defence: INSERT-before-compute
+// with (tenant_id, operation_id) as the natural PK. A replay hits the
+// ON CONFLICT DO NOTHING guard and the handler returns early.
+//
+// Schema deliberately minimal — just enough to:
+//   1. Dedupe by natural key
+//   2. Detect tampering (payload_hash)
+//   3. Support a "which events failed?" forensics query (error_message)
+//   4. Allow nightly GC of rows older than 30 days (created_at index)
+//
+// Owned by `carbon-service` but the table lives in field-management-service's
+// DB because carbon-service is stateless and shares the same Postgres
+// instance (same pattern as the `co2_*` columns on `field_operations`
+// from the Phase 1 `20260411200000_phase1_sub_zones_reports_co2` migration).
+// ─────────────────────────────────────────────────────────────────────────────
+
+model CarbonEventDedup {
+  tenantId         String    @map("tenant_id") @db.VarChar(100)
+  operationId      String    @map("operation_id") @db.Uuid
+  payloadHash      String    @map("payload_hash") @db.Char(64)
+  processedAt      DateTime  @default(now()) @map("processed_at") @db.Timestamptz
+  carbonComputedAt DateTime? @map("carbon_computed_at") @db.Timestamptz
+  errorMessage     String?   @map("error_message") @db.Text
+  correlationId    String?   @map("correlation_id") @db.VarChar(100)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  @@id([tenantId, operationId])
+  @@index([createdAt], name: "idx_carbon_dedup_age")
+  @@map("carbon_event_dedup")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Sub-Zone - المناطق الفرعية للحقل
+// Represents sub-polygons inside a single Field record. Critical for
+// terraced Yemeni farms where a logical "field" is actually 10-30 small
+// terraces each with different elevation, slope, aspect, and crop
+// performance. One NDVI reading across the whole field would mask this
+// variability — we capture it per terrace instead.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldSubZone {
+  id       String @id @default(uuid()) @db.Uuid
+  tenantId String @map("tenant_id") @db.VarChar(100)
+  fieldId  String @map("field_id") @db.Uuid
+
+  // Identity
+  name        String  @db.VarChar(255)
+  nameAr      String? @map("name_ar") @db.VarChar(255)
+  description String? @db.Text
+
+  // PostGIS polygon for the sub-zone — must lie inside the parent field
+  // boundary (enforced at the application layer via ST_Contains).
+  boundary     Unsupported("geometry(Polygon, 4326)")?
+  areaHectares Decimal?                                @map("area_hectares") @db.Decimal(10, 4)
+
+  // Topography (populated from terrain-core-service DEM lookup)
+  elevationM   Decimal? @map("elevation_m") @db.Decimal(8, 2)
+  slopeDegrees Decimal? @map("slope_degrees") @db.Decimal(5, 2)
+  aspect       String?  @db.VarChar(20) // N | NE | E | SE | S | SW | W | NW | flat
+  isTerrace    Boolean  @default(false) @map("is_terrace")
+  terraceLevel Int?     @map("terrace_level") // 1 = lowest, N = highest
+
+  // UI ordering
+  displayOrder Int @default(0) @map("display_order")
+
+  // Soft delete
+  deletedAt DateTime? @map("deleted_at") @db.Timestamptz
+  deletedBy String?   @map("deleted_by") @db.VarChar(100)
+
+  // Audit
+  createdBy String?  @map("created_by") @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], name: "idx_field_sub_zone_tenant")
+  @@index([fieldId, displayOrder], name: "idx_field_sub_zone_field")
+  @@map("field_sub_zones")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Field Report - تقارير الحقل (PDF/HTML)
+// Async-generated per-field reports. Caller POSTs a "generate report"
+// request; a background worker renders HTML (Arabic RTL, charts), uploads
+// to object storage, and stamps the URL back on the row. Mirrors the
+// Farmonaut pattern of returning a URL instead of bytes.
+// ─────────────────────────────────────────────────────────────────────────────
+
+model FieldReport {
+  id           String  @id @default(uuid()) @db.Uuid
+  tenantId     String  @map("tenant_id") @db.VarChar(100)
+  fieldId      String  @map("field_id") @db.Uuid
+  cropSeasonId String? @map("crop_season_id") @db.Uuid
+
+  // Report metadata
+  reportType String    @default("field_summary") @map("report_type") @db.VarChar(50)
+  language   String    @default("ar") @db.VarChar(8)
+  periodFrom DateTime? @map("period_from") @db.Date
+  periodTo   DateTime? @map("period_to") @db.Date
+
+  // Rendering state-machine: pending → rendering → ready | failed | expired
+  status         String    @default("pending") @db.VarChar(20)
+  renderedAt     DateTime? @map("rendered_at") @db.Timestamptz
+  errorMessage   String?   @map("error_message") @db.Text
+  renderAttempts Int       @default(0) @map("render_attempts")
+
+  // Output
+  contentHtml      String?   @map("content_html") @db.Text
+  contentUrl       String?   @map("content_url") @db.VarChar(1000)
+  contentSizeBytes BigInt?   @map("content_size_bytes")
+  contentType      String?   @map("content_type") @db.VarChar(50)
+  expiresAt        DateTime? @map("expires_at") @db.Timestamptz
+
+  // Snapshot of input data at render time (for audit / debugging)
+  inputSnapshot Json? @map("input_snapshot") @db.JsonB
+
+  // Audit
+  requestedBy String?  @map("requested_by") @db.VarChar(100)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId], name: "idx_field_report_tenant")
+  @@index([fieldId, createdAt(sort: Desc)], name: "idx_field_report_field")
+  @@index([cropSeasonId], name: "idx_field_report_crop_season")
+  @@map("field_reports")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────

@@ -1,0 +1,76 @@
+# Dependency Review Configuration
+# https://github.com/actions/dependency-review-action
+#
+# Uses allow-licenses (recommended) instead of the deprecated deny-licenses.
+# This list covers permissive and weak-copyleft SPDX identifiers that are
+# compatible with the SAHOOL proprietary codebase.  Strong copyleft licenses
+# (GPL, AGPL) are NOT listed and will therefore be blocked.
+#
+# If a new dependency triggers a license failure, verify the license is
+# acceptable for proprietary use before adding it here.
+
+fail-on-severity: high
+
+allow-licenses:
+  # ── Permissive ────────────────────────────────────────────────────────────
+  - MIT
+  - MIT-0
+  - Apache-2.0
+  - BSD-2-Clause
+  - BSD-3-Clause
+  - ISC
+  - 0BSD
+
+  # ── Public-domain equivalents ─────────────────────────────────────────────
+  - Unlicense
+  - CC0-1.0
+
+  # ── Creative Commons (attribution-only, no copyleft) ──────────────────────
+  - CC-BY-3.0
+  - CC-BY-4.0
+
+  # ── Language / ecosystem specific ─────────────────────────────────────────
+  - Python-2.0
+  - PSF-2.0
+  - Artistic-2.0
+  - PostgreSQL
+  - PHP-3.01
+
+  # ── Other permissive ──────────────────────────────────────────────────────
+  - BSL-1.0          # Boost Software License
+  - Zlib
+  - BlueOak-1.0.0
+  - W3C
+  - curl
+  - WTFPL
+  - OFL-1.1          # SIL Open Font License
+  - Unicode-3.0
+  - Unicode-DFS-2016
+  - AFL-3.0          # Academic Free License
+
+  # ── Weak copyleft (file/library-level, acceptable for proprietary use) ────
+  - MPL-2.0
+  - LGPL-2.0-only
+  - LGPL-2.0-or-later
+  - LGPL-2.1-only
+  - LGPL-2.1-or-later
+  - LGPL-3.0-only
+  - LGPL-3.0-or-later
+  - EPL-1.0
+  - EPL-2.0
+  - CDDL-1.0
+  - CDDL-1.1
+  - CPL-1.0
+  - EUPL-1.1
+  - EUPL-1.2
+  - MS-PL            # Microsoft Public License
+
+# Packages whose license cannot be resolved by the dependency graph.
+# GitHub's dependency graph sometimes returns "Null" for pip packages specified
+# with version ranges or extras (e.g. qrcode[pil]>=7.4.2,<9.0.0), and for
+# workspace-local npm packages that aren't published to the public registry
+# (GitHub can't query a non-existent `npm view` entry for their license).
+# Verify the actual license before adding a package here.
+allow-dependencies-licenses:
+  - pkg:pypi/qrcode              # Actually BSD-3-Clause; resolver fails on range-based pip specs
+  - pkg:npm/%40sahool/shared-events  # Workspace-local package; license field in its package.json is MIT

@@ -14,6 +14,7 @@
 /// - Response size limits
 /// - Tampering indicators (multiple headers, null bytes, body on 204/304)
 /// - SecurityHeaderException formatting
+library;
 
 import 'dart:convert';
 
@@ -441,7 +442,7 @@ void main() {
     // 11. Detects Content-Length mismatch
     // -------------------------------------------------------------------
     test('11 - detects Content-Length mismatch', () {
-      final body = '{"status":"ok"}';
+      const body = '{"status":"ok"}';
       final wrongLength = utf8.encode(body).length + 100;
 
       final interceptor = SecurityHeadersInterceptor(
@@ -945,7 +946,7 @@ void main() {
     });
 
     test('Content-Length validation is skipped when not enabled', () {
-      final body = '{"status":"ok"}';
+      const body = '{"status":"ok"}';
       final wrongLength = utf8.encode(body).length + 999;
 
       final interceptor = SecurityHeadersInterceptor(

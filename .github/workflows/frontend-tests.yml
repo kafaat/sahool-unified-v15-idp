@@ -18,6 +18,12 @@ on:
       - '.github/workflows/frontend-tests.yml'
       - '.github/actions/flutter-codegen/**'
       - '.github/actions/setup-node-packages/**'
+    paths-ignore:
+      # Auto-generated Dart contract files — content is only
+      # `Contract version: X.Y.Z` comment bumps, safe to skip the
+      # full frontend matrix (Web + Admin + Flutter Android build).
+      - 'apps/mobile/lib/core/contracts/**'
+      - 'apps/mobile/**/*.md'
   pull_request:
     branches: [main, develop]
     paths:
@@ -25,6 +31,9 @@ on:
       - 'apps/admin/**'
       - 'apps/mobile/**'
       - 'packages/**'
+    paths-ignore:
+      - 'apps/mobile/lib/core/contracts/**'
+      - 'apps/mobile/**/*.md'
 
 concurrency:
   group: frontend-tests-${{ github.ref }}
@@ -600,10 +609,37 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          GOOGLE_MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -668,10 +704,37 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          GOOGLE_MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -712,6 +775,10 @@ jobs:
 
     steps:
       - name: Free disk space
+        # Android NDK + Flutter SDK + Gradle cache + node_modules can
+        # push disk past 14 GB on a 7 GB-swap runner. Remove every
+        # hosted toolcache we don't use in this job to buy headroom.
+        # See §6 of docs/prompts/fix-flutter-android-ci-flake.md.
         run: |
           echo "=== Disk space before cleanup ==="
           df -h
@@ -721,6 +788,14 @@ jobs:
           sudo rm -rf /opt/ghc || true
           sudo rm -rf /opt/hostedtoolcache/CodeQL || true
           sudo rm -rf /usr/local/share/boost || true
+          # Additional toolcaches unused by Flutter Android builds
+          sudo rm -rf /opt/hostedtoolcache/Ruby || true
+          sudo rm -rf /opt/hostedtoolcache/PyPy || true
+          sudo rm -rf /opt/hostedtoolcache/go || true
+          sudo rm -rf /home/linuxbrew || true
+          sudo rm -rf /usr/local/share/powershell || true
+          sudo rm -rf /usr/local/lib/node_modules || true
+          sudo docker system prune --all --force >/dev/null 2>&1 || true
 
           # Clean apt cache
           sudo apt-get clean || true
@@ -744,11 +819,39 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+
+      - name: Cache Android NDK 27.0.12077973
+        # NDK is ~1 GB and version-pinned. Key on the NDK version so
+        # cache hits save a full sdkmanager download (see §5 of
+        # docs/prompts/fix-flutter-android-ci-flake.md). On a miss the
+        # retry-wrapped install below will populate it.
+        id: cache-android-ndk
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /usr/local/lib/android/sdk/ndk/27.0.12077973
+          key: android-ndk-27.0.12077973-${{ runner.os }}
 
       - name: Install required Android SDK components
+        # sdkmanager fetches ~1 GB from the Google CDN which is the single
+        # flakiest step of this job. Retry up to 3× with exponential back-off
+        # so transient 5xx / connection-reset errors don't fail the whole
+        # build. See docs/prompts/fix-flutter-android-ci-flake.md §2.
         run: |
-          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358"
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt: installing Android SDK components..."
+            if yes | sdkmanager --install \
+                 "platforms;android-35" \
+                 "ndk;27.0.12077973"; then
+              echo "✓ SDK components installed on attempt $attempt"
+              exit 0
+            fi
+            wait_s=$((attempt * 30))
+            echo "::warning::Attempt $attempt failed; sleeping ${wait_s}s before retry"
+            sleep $wait_s
+          done
+          echo "::error::Failed to install Android SDK components after 3 attempts"
+          exit 1
         working-directory: .
 
       - name: Setup Flutter
@@ -794,10 +897,37 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          GOOGLE_MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -810,8 +940,18 @@ jobs:
       - name: Build Android APK
         run: |
           echo "Building Android APK..."
-          # Override Gradle JVM args for CI (runners have ~7GB RAM)
-          export GRADLE_OPTS="-Xmx4G -XX:MaxMetaspaceSize=1G -XX:+HeapDumpOnOutOfMemoryError"
+          # Override Gradle JVM args for CI (runners have ~7 GB RAM).
+          # `org.gradle.daemon=false` is critical — daemon mode caches
+          # nothing in a fresh CI job but holds ~1 GB RAM hostage.
+          # See §7b of docs/prompts/fix-flutter-android-ci-flake.md.
+          export GRADLE_OPTS="-Xmx5g \
+            -XX:MaxMetaspaceSize=512m \
+            -XX:+HeapDumpOnOutOfMemoryError \
+            -Dfile.encoding=UTF-8 \
+            -Dorg.gradle.daemon=false \
+            -Dorg.gradle.caching=true \
+            -Dorg.gradle.parallel=true \
+            -Dorg.gradle.workers.max=2"
           flutter build apk --debug
 
       - name: Upload APK
@@ -879,10 +1019,37 @@ jobs:
       - name: Create .env file
         run: |
           cat > .env <<EOF
-          API_BASE_URL=https://api.sahool.app
-          WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
           ENV=test
+          ENVIRONMENT=test
+          API_BASE_URL=https://api.sahool.app
+          API_URL=http://localhost:8000
+          DEV_HOST=localhost
+          GATEWAY_PORT=8000
+          WS_GATEWAY_URL=ws://localhost:8081
+          NATS_URL=nats://localhost:4222
+          WEATHER_API_KEY=test_weather_key
+          WEATHER_PROVIDER=open-meteo
+          GOOGLE_MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
+          MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -986,20 +1153,30 @@ jobs:
           SERVER_PID=$!
           echo "SERVER_PID=$SERVER_PID" >> $GITHUB_ENV
 
-          # Health check with proper timeout
-          timeout=60
+          # Health check with generous timeout.
+          # 60s was hitting the edge on slower runners and caused
+          # intermittent E2E flakes — the Next.js production server
+          # cold-start sometimes exceeds 45s when RSC prefetching and
+          # the first request trigger additional bundle compilation.
+          # 120s gives a comfortable safety margin; on a healthy runner
+          # the server is up in <10s and we exit the loop immediately.
+          timeout=120
           elapsed=0
           while [ $elapsed -lt $timeout ]; do
             if curl -f http://localhost:3000 2>/dev/null; then
-              echo "✅ Server is ready"
+              echo "✅ Server is ready after ${elapsed}s"
+              # Brief warmup so Next.js finishes compiling the /login
+              # route (the first Playwright smoke test target) before
+              # the browser starts hitting it cold.
+              sleep 2
               exit 0
             fi
-            echo "Waiting for server... ($elapsed/$timeout seconds)"
+            echo "Waiting for server... (${elapsed}/${timeout}s)"
             sleep 3
             elapsed=$((elapsed + 3))
           done
 
-          echo "::error::Server failed to start within $timeout seconds"
+          echo "::error::Server failed to start within ${timeout}s"
           echo "=== Server logs ==="
           cat server.log
           kill $SERVER_PID 2>/dev/null || true
@@ -1067,11 +1244,21 @@ jobs:
 
     steps:
       - name: Free disk space
+        # Same cleanup as the Android Build job. See §6 of
+        # docs/prompts/fix-flutter-android-ci-flake.md.
         run: |
           echo "=== Freeing disk space ==="
           sudo rm -rf /usr/share/dotnet || true
           sudo rm -rf /opt/ghc || true
           sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo rm -rf /usr/local/share/boost || true
+          sudo rm -rf /opt/hostedtoolcache/Ruby || true
+          sudo rm -rf /opt/hostedtoolcache/PyPy || true
+          sudo rm -rf /opt/hostedtoolcache/go || true
+          sudo rm -rf /home/linuxbrew || true
+          sudo rm -rf /usr/local/share/powershell || true
+          sudo rm -rf /usr/local/lib/node_modules || true
+          sudo docker system prune --all --force >/dev/null 2>&1 || true
           df -h
         working-directory: .
 
@@ -1089,11 +1276,35 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+
+      - name: Cache Android NDK 27.0.12077973
+        # Same NDK cache as the Android Build job — see §5 of
+        # docs/prompts/fix-flutter-android-ci-flake.md.
+        id: cache-android-ndk
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+        with:
+          path: /usr/local/lib/android/sdk/ndk/27.0.12077973
+          key: android-ndk-27.0.12077973-${{ runner.os }}
 
       - name: Install required Android SDK components
+        # Same retry logic as the Android Build job — see
+        # docs/prompts/fix-flutter-android-ci-flake.md §2.
         run: |
-          yes | sdkmanager --install "platforms;android-36" "ndk;28.2.13676358"
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt: installing Android SDK components..."
+            if yes | sdkmanager --install \
+                 "platforms;android-35" \
+                 "ndk;27.0.12077973"; then
+              echo "✓ SDK components installed on attempt $attempt"
+              exit 0
+            fi
+            wait_s=$((attempt * 30))
+            echo "::warning::Attempt $attempt failed; sleeping ${wait_s}s before retry"
+            sleep $wait_s
+          done
+          echo "::error::Failed to install Android SDK components after 3 attempts"
+          exit 1
         working-directory: .
 
       - name: Setup Flutter
@@ -1124,12 +1335,37 @@ jobs:
         run: |
           cat > .env <<'EOF'
           ENV=test
+          ENVIRONMENT=test
           API_URL=http://localhost:8080
-          WS_URL=ws://localhost:8080
           API_BASE_URL=https://api.sahool.app
+          WS_URL=ws://localhost:8080
+          WS_GATEWAY_URL=ws://localhost:8081
+          DEV_HOST=localhost
+          GATEWAY_PORT=8080
+          NATS_URL=nats://localhost:4222
           WEATHER_API_KEY=test_weather_key
-          MAPS_API_KEY=test_maps_key
+          WEATHER_PROVIDER=open-meteo
+          GOOGLE_MAPS_API_KEY=test_maps_key
+          MAP_PROVIDER=osm
           MAPBOX_ACCESS_TOKEN=pk.test_token
+          CONNECT_TIMEOUT_SECONDS=30
+          RECEIVE_TIMEOUT_SECONDS=30
+          SYNC_INTERVAL_SECONDS=30
+          BG_SYNC_INTERVAL_MINUTES=15
+          MAX_RETRY_COUNT=3
+          OUTBOX_BATCH_SIZE=50
+          DEFAULT_TENANT_ID=test-tenant
+          APP_NAME=SAHOOL Field
+          APP_VERSION=16.0.0
+          BUILD_NUMBER=1
+          ENABLE_OFFLINE_MODE=true
+          ENABLE_BACKGROUND_SYNC=true
+          ENABLE_CAMERA=false
+          ENABLE_EDGE_AI=false
+          ENABLE_CERTIFICATE_PINNING=false
+          ENABLE_DEVICE_INTEGRITY=false
+          ENABLE_DATABASE_ENCRYPTION=false
+          SKIP_DEVICE_CHECKS=true
           EOF
           sed 's/^[[:space:]]*//' .env > .env.tmp && mv .env.tmp .env
 
@@ -1187,9 +1423,15 @@ jobs:
       - name: Enable KVM (for Android Emulator)
         id: kvm
         run: |
-          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          # Load KVM kernel modules
+          sudo modprobe kvm 2>/dev/null || true
+          sudo modprobe kvm_intel 2>/dev/null || sudo modprobe kvm_amd 2>/dev/null || true
+          # Set permissions on /dev/kvm
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo usermod -aG kvm $(whoami) 2>/dev/null || true
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          sudo chmod 660 /dev/kvm 2>/dev/null || true
           # Verify KVM is available — without it the emulator is extremely slow
           if [ -e /dev/kvm ] && [ -w /dev/kvm ]; then
             echo "kvm_available=true" >> $GITHUB_OUTPUT
@@ -1339,32 +1581,59 @@ jobs:
           echo "All test artifacts have been uploaded and are available for download." >> $GITHUB_STEP_SUMMARY
 
       - name: Comment PR with Test Results
+        # Report each component's status from the job's actual `result`,
+        # not from whether an artifact directory happened to land on
+        # disk. An upstream flake cancelling / skipping a downstream
+        # artifact upload used to be reported as "❌ Failed", causing
+        # false-alarm red checks on Web/Admin when only Flutter Android
+        # had flaked (see PR #1581). `needs.<job>.result` reflects the
+        # real outcome: success | failure | cancelled | skipped.
+        # See §7a of docs/prompts/fix-flutter-android-ci-flake.md.
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
+        env:
+          WEB_BUILD_RESULT: ${{ needs.web-build.result }}
+          ADMIN_BUILD_RESULT: ${{ needs.admin-build.result }}
+          FLUTTER_BUILD_RESULT: ${{ needs.flutter-android-build.result }}
+          E2E_RESULT: ${{ needs.web-e2e-tests.result }}
+          MOBILE_INTEG_RESULT: ${{ needs.mobile-integration-tests.result }}
         with:
           script: |
             const fs = require('fs');
 
-            let comment = '## 🧪 Frontend Test Results\n\n';
-            comment += '### Build Status\n\n';
+            // Real job outcomes from the workflow graph — not a
+            // guess based on artifact presence.
+            const jobs = {
+              webBuild:    process.env.WEB_BUILD_RESULT,
+              adminBuild:  process.env.ADMIN_BUILD_RESULT,
+              flutterBuild:process.env.FLUTTER_BUILD_RESULT,
+              e2e:         process.env.E2E_RESULT,
+              mobileInteg: process.env.MOBILE_INTEG_RESULT,
+            };
 
+            const icon = (r) =>
+              r === 'success'   ? '✅ Passed'    :
+              r === 'failure'   ? '❌ Failed'    :
+              r === 'cancelled' ? '🚫 Cancelled' :
+              r === 'skipped'   ? '⚠️ Skipped'   :
+                                  `❓ ${r || 'unknown'}`;
+
+            // Coverage artifacts are optional and uploaded opportunistically,
+            // so the existing artifact-presence check is still correct here.
             const artifactsPath = 'artifacts';
-            const webBuild = fs.existsSync(`${artifactsPath}/web-build`);
-            const adminBuild = fs.existsSync(`${artifactsPath}/admin-build`);
-            const flutterBuild = fs.existsSync(`${artifactsPath}/flutter-android-apk`);
-            const e2eTests = fs.existsSync(`${artifactsPath}/playwright-results`);
-            const mobileIntegration = fs.existsSync(`${artifactsPath}/mobile-integration-results`);
-            const webCoverage = fs.existsSync(`${artifactsPath}/web-coverage`);
-            const adminCoverage = fs.existsSync(`${artifactsPath}/admin-coverage`);
+            const webCoverage     = fs.existsSync(`${artifactsPath}/web-coverage`);
+            const adminCoverage   = fs.existsSync(`${artifactsPath}/admin-coverage`);
             const flutterCoverage = fs.existsSync(`${artifactsPath}/flutter-coverage`);
 
+            let comment = '## 🧪 Frontend Test Results\n\n';
+            comment += '### Build Status\n\n';
             comment += `| Component | Status |\n`;
             comment += `|-----------|--------|\n`;
-            comment += `| Web App | ${webBuild ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| Admin Dashboard | ${adminBuild ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| Flutter Android | ${flutterBuild ? '✅ Passed' : '❌ Failed'} |\n`;
-            comment += `| E2E Tests | ${e2eTests ? '✅ Completed' : '⚠️ Skipped'} |\n`;
-            comment += `| Mobile Integration | ${mobileIntegration ? '✅ Completed' : '⚠️ Skipped'} |\n`;
+            comment += `| Web App | ${icon(jobs.webBuild)} |\n`;
+            comment += `| Admin Dashboard | ${icon(jobs.adminBuild)} |\n`;
+            comment += `| Flutter Android | ${icon(jobs.flutterBuild)} |\n`;
+            comment += `| E2E Tests | ${icon(jobs.e2e)} |\n`;
+            comment += `| Mobile Integration | ${icon(jobs.mobileInteg)} |\n`;
 
             comment += '\n### 📊 Coverage Reports\n\n';
             if (webCoverage || adminCoverage || flutterCoverage) {
@@ -1460,7 +1729,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Comment Bundle Size
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const comment = '## 📦 Bundle Size Analysis\n\n' +

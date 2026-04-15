@@ -13,6 +13,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { NotFoundException, BadRequestException } from "@nestjs/common";
 import { ChatService } from "../chat/chat.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { ChatEventsService } from "../events/chat-events.service";
 import { SendMessageDto, MessageType } from "../chat/dto/send-message.dto";
 
 describe("MessageService (Message Operations)", () => {
@@ -83,6 +84,14 @@ describe("MessageService (Message Operations)", () => {
           provide: PrismaService,
           useValue: mockPrismaService,
         },
+        {
+          provide: ChatEventsService,
+          useValue: {
+            publishMessageSent: jest.fn(),
+            publishMessageRead: jest.fn(),
+            isConnected: jest.fn().mockReturnValue(false),
+          },
+        },
       ],
     }).compile();
 
@@ -115,7 +124,7 @@ describe("MessageService (Message Operations)", () => {
             create: jest.fn().mockResolvedValue(mockMessage),
           },
           conversation: {
-            update: jest.fn().mockResolvedValue(mockConversation),
+            updateMany: jest.fn().mockResolvedValue({ count: 1 }),
           },
           participant: {
             updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -150,7 +159,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: { create: jest.fn().mockResolvedValue(imageMessage) },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });
@@ -179,7 +188,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: { create: jest.fn().mockResolvedValue(offerMessage) },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });
@@ -204,7 +213,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: { create: jest.fn().mockResolvedValue(systemMessage) },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });
@@ -424,11 +433,7 @@ describe("MessageService (Message Operations)", () => {
         ...mockMessage,
         conversation: mockConversation,
       });
-      mockPrismaService.message.update.mockResolvedValue({
-        ...mockMessage,
-        isRead: true,
-        readAt: new Date(),
-      });
+      mockPrismaService.message.updateMany.mockResolvedValue({ count: 1 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.markMessageAsRead(
@@ -437,10 +442,10 @@ describe("MessageService (Message Operations)", () => {
         "tenant-001",
       );
 
-      // Service returns the original message from findUnique, not the updated one
+      // Service returns the original message from findFirst, not the updated one
       expect(result).toBeDefined();
-      expect(mockPrismaService.message.update).toHaveBeenCalledWith({
-        where: { id: mockMessageId },
+      expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith({
+        where: { id: mockMessageId, tenantId: "tenant-001" },
         data: {
           isRead: true,
           readAt: expect.any(Date),
@@ -457,7 +462,7 @@ describe("MessageService (Message Operations)", () => {
 
       await service.markMessageAsRead(mockMessageId, mockUserId, "tenant-001");
 
-      expect(mockPrismaService.message.update).not.toHaveBeenCalled();
+      expect(mockPrismaService.message.updateMany).not.toHaveBeenCalled();
     });
 
     it("should update participant lastReadAt when marking message read", async () => {
@@ -465,10 +470,7 @@ describe("MessageService (Message Operations)", () => {
         ...mockMessage,
         conversation: mockConversation,
       });
-      mockPrismaService.message.update.mockResolvedValue({
-        ...mockMessage,
-        isRead: true,
-      });
+      mockPrismaService.message.updateMany.mockResolvedValue({ count: 1 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
       await service.markMessageAsRead(mockMessageId, mockUserId2, "tenant-001");
@@ -477,6 +479,7 @@ describe("MessageService (Message Operations)", () => {
         where: {
           conversationId: mockConversationId,
           userId: mockUserId2,
+          tenantId: "tenant-001",
         },
         data: {
           lastReadAt: expect.any(Date),
@@ -490,7 +493,7 @@ describe("MessageService (Message Operations)", () => {
         ...mockMessage,
         conversation: mockConversation,
       });
-      mockPrismaService.message.update.mockResolvedValue(mockMessage);
+      mockPrismaService.message.updateMany.mockResolvedValue({ count: 1 });
       mockPrismaService.participant.updateMany.mockResolvedValue({ count: 1 });
 
       await service.markMessageAsRead(mockMessageId, mockUserId2, "tenant-001");
@@ -661,7 +664,7 @@ describe("MessageService (Message Operations)", () => {
       mockPrismaService.$transaction.mockImplementation(async (callback) => {
         return callback({
           message: { create: jest.fn().mockResolvedValue(mockMessage) },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });
@@ -690,7 +693,7 @@ describe("MessageService (Message Operations)", () => {
               attachmentUrl: dto.attachmentUrl,
             }),
           },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });
@@ -720,7 +723,7 @@ describe("MessageService (Message Operations)", () => {
               offerAmount: dto.offerAmount,
             }),
           },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });
@@ -747,7 +750,7 @@ describe("MessageService (Message Operations)", () => {
               messageType: "SYSTEM",
             }),
           },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });
@@ -846,7 +849,7 @@ describe("MessageService (Message Operations)", () => {
               content: maxContent,
             }),
           },
-          conversation: { update: jest.fn() },
+          conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
           participant: { updateMany: jest.fn() },
         });
       });

@@ -42,7 +42,7 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: sahool
+  IMAGE_PREFIX: ${{ github.repository_owner }}
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -51,6 +51,7 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -86,6 +87,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     steps:
       - name: Checkout code
@@ -118,11 +120,11 @@ jobs:
           PYTHONPATH=$PWD pytest tests/unit/test_gap_fixes.py -v --tb=short \
             --cov=shared/digital_twin --cov=shared/calibration --cov=shared/process_models \
             --cov-report=xml --cov-report=term-missing \
-            -x || true
+            -x
 
           # Run service-specific tests if they exist
           if [ -d apps/services/crop-intelligence-service/tests ]; then
-            PYTHONPATH=$PWD pytest apps/services/crop-intelligence-service/tests -v --tb=short || true
+            PYTHONPATH=$PWD pytest apps/services/crop-intelligence-service/tests -v --tb=short
           fi
         env:
           ENVIRONMENT: test
@@ -133,11 +135,13 @@ jobs:
           NATS_URL: ""
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v5
-        if: always()
-        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: crop-intelligence
           name: crop-intelligence-coverage
@@ -148,6 +152,7 @@ jobs:
   security:
     name: Security
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     steps:
       - name: Checkout code
@@ -191,6 +196,7 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [test, security]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
@@ -245,6 +251,7 @@ jobs:
   container-scan:
     name: Container Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
@@ -283,6 +290,7 @@ jobs:
   helm-lint:
     name: Helm Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: lint
     steps:
       - name: Checkout code
@@ -311,6 +319,7 @@ jobs:
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [lint, test, security, build, helm-lint]
     if: always()
     steps:

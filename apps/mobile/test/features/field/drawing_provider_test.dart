@@ -24,12 +24,12 @@ void main() {
     });
 
     test('isValid should return true when >= 3 points', () {
-      final state = DrawingState(
+      const state = DrawingState(
         isDrawing: true,
         points: [
-          const LatLng(15.37, 44.19),
-          const LatLng(15.38, 44.19),
-          const LatLng(15.38, 44.20),
+          LatLng(15.37, 44.19),
+          LatLng(15.38, 44.19),
+          LatLng(15.38, 44.20),
         ],
       );
       expect(state.isValid, isTrue);
@@ -37,20 +37,20 @@ void main() {
     });
 
     test('isValid should return false when < 3 points', () {
-      final state = DrawingState(
+      const state = DrawingState(
         isDrawing: true,
         points: [
-          const LatLng(15.37, 44.19),
-          const LatLng(15.38, 44.19),
+          LatLng(15.37, 44.19),
+          LatLng(15.38, 44.19),
         ],
       );
       expect(state.isValid, isFalse);
     });
 
     test('copyWith should preserve unchanged fields', () {
-      final original = DrawingState(
+      const original = DrawingState(
         isDrawing: true,
-        points: [const LatLng(15.37, 44.19)],
+        points: [LatLng(15.37, 44.19)],
         fieldName: 'حقل القمح',
       );
 

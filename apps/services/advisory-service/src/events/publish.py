@@ -9,7 +9,11 @@ import uuid
 from datetime import UTC, datetime
 
 import structlog
-from nats.aio.client import Client as NATS
+
+try:
+    from nats.aio.client import Client as NATS
+except ImportError:
+    NATS = None  # Optional: not available in test environments
 
 from .types import get_subject, get_version
 
@@ -80,22 +84,54 @@ class AdvisorPublisher:
 
     def __init__(self, nats_url: str = None):
         self.nats_url = nats_url or NATS_URL
-        self.nc: NATS | None = None
+        self.nc = None
         self._connected = False
+        self._nats_unavailable = False
 
     async def connect(self):
-        """Connect to NATS server"""
-        if self._connected:
+        """Connect to NATS server with auto-reconnect support"""
+        if self._connected and self.nc and self.nc.is_connected:
             return
 
-        self.nc = NATS()
+        # Reset state for reconnection
+        self._connected = False
+
+        if self._nats_unavailable:
+            return
+
+        if NATS is None:
+            logger.warning("nats-py not installed, event publishing disabled")
+            self._nats_unavailable = True
+            return
+
+        # Reuse existing client if it exists (avoid leaking connections)
+        if self.nc is None:
+            self.nc = NATS()
         try:
-            await self.nc.connect(self.nats_url)
+            await self.nc.connect(
+                self.nats_url,
+                reconnect_time_wait=2,
+                max_reconnect_attempts=60,
+                error_cb=self._on_error,
+                disconnected_cb=self._on_disconnect,
+                reconnected_cb=self._on_reconnect,
+            )
             self._connected = True
             logger.info("nats_connected", url=self.nats_url)
         except Exception as e:
             logger.error("nats_connection_failed", url=self.nats_url, error=str(e))
             raise
+
+    async def _on_error(self, e):
+        logger.error("nats_error", error=str(e))
+
+    async def _on_disconnect(self):
+        self._connected = False
+        logger.warning("nats_disconnected — will auto-reconnect")
+
+    async def _on_reconnect(self):
+        self._connected = True
+        logger.info("nats_reconnected")
 
     async def close(self):
         """Close NATS connection"""
@@ -130,8 +166,14 @@ class AdvisorPublisher:
         if not self._connected:
             await self.connect()
 
+        if self.nc is None:
+            logger.debug("NATS unavailable, skipping event publish", event_type=event_type)
+            return str(uuid.uuid4())
+
         version = get_version(event_type)
-        target_subject = subject or get_subject(event_type)
+        # Use tenant-scoped subject for multi-tenant data isolation
+        # استخدام موضوع مخصص للمستأجر لعزل بيانات المستأجرين
+        target_subject = subject or get_subject(event_type, tenant_id)
 
         envelope = EventEnvelope.create(
             event_type=event_type,
@@ -266,5 +308,8 @@ async def get_publisher() -> AdvisorPublisher:
     global _publisher
     if _publisher is None:
         _publisher = AdvisorPublisher()
-        await _publisher.connect()
+        try:
+            await _publisher.connect()
+        except Exception as e:
+            logger.warning("Failed to connect to NATS: %s", e)
     return _publisher

@@ -33,7 +33,7 @@
 /// ref.read(featureFlagsServiceProvider).setOverride(flag, true);
 /// ```
 
-library feature_flags;
+library;
 
 // Feature flag definitions
 export 'feature_flag.dart';

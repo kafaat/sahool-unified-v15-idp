@@ -32,8 +32,8 @@ class ApiResult<T> {
 class SprayService {
   final Dio _dio;
 
-  // Note: Add spray service port to ApiConfig when backend is ready
-  static const int sprayServicePort = 8098;
+  // Uses yield-prediction-service (consolidated from deprecated yield-engine:8098)
+  static const int sprayServicePort = 8152;
 
   SprayService({Dio? dio})
       : _dio = dio ??
@@ -81,7 +81,7 @@ class SprayService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final recommendations = (data['recommendations'] as List)
+      final recommendations = (data['recommendations'] as List? ?? [])
           .map((e) => SprayRecommendation.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -234,7 +234,7 @@ class SprayService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final windows = (data['windows'] as List)
+      final windows = (data['windows'] as List? ?? [])
           .map((e) => SprayWindow.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -288,7 +288,7 @@ class SprayService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final forecast = (data['forecast'] as List)
+      final forecast = (data['forecast'] as List? ?? [])
           .map((e) => WeatherCondition.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -355,7 +355,7 @@ class SprayService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final products = (data['products'] as List)
+      final products = (data['products'] as List? ?? [])
           .map((e) => SprayProduct.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -472,7 +472,7 @@ class SprayService {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final logs = (data['logs'] as List)
+      final logs = (data['logs'] as List? ?? [])
           .map((e) => SprayApplicationLog.fromJson(e as Map<String, dynamic>))
           .toList();
 

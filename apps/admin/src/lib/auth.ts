@@ -10,18 +10,18 @@
  * from client-side code is no longer recommended.
  */
 
-import { logger } from "./logger";
+import { logger } from './logger';
 // User type is now defined in ./auth/jwt-verify.ts (canonical location) to
 // avoid circular barrel imports that pull @sentry/nextjs into the edge bundle.
 // Import it here for local use; it is re-exported via `export *` below.
-import type { User } from "./auth/jwt-verify";
+import type { User } from './auth/jwt-verify';
 
 // Re-export server-side authorization utilities
-export * from "./auth/jwt-verify";
-export * from "./auth/route-protection";
-export * from "./auth/api-middleware";
+export * from './auth/jwt-verify';
+export * from './auth/route-protection';
+export * from './auth/api-middleware';
 
-const AUTH_USER_KEY = "sahool_admin_user";
+const AUTH_USER_KEY = 'sahool_admin_user';
 
 export interface AuthResponse {
   access_token: string;
@@ -41,24 +41,26 @@ export interface LoginCredentials {
  * @deprecated Use the useAuth hook from @/stores/auth.store instead
  * This function now uses server-side API routes for secure httpOnly cookie management
  */
-export async function login(
-  credentials: LoginCredentials,
-): Promise<AuthResponse> {
-  // Use server-side login endpoint that sets httpOnly cookies
-  const response = await fetch("/api/auth/login", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "same-origin",
-    body: JSON.stringify(credentials),
-  });
+export async function login(credentials: LoginCredentials): Promise<AuthResponse> {
+  let response: Response;
+  try {
+    // Use server-side login endpoint that sets httpOnly cookies
+    response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify(credentials),
+    });
+  } catch (error) {
+    logger.error('Login network error:', error);
+    throw new Error('فشل الاتصال بالخادم — Network error');
+  }
 
   if (!response.ok) {
-    const error = await response
-      .json()
-      .catch(() => ({ message: "فشل تسجيل الدخول" }));
-    throw new Error(error.message || error.error || "فشل تسجيل الدخول");
+    const error = await response.json().catch(() => ({ message: 'فشل تسجيل الدخول' }));
+    throw new Error(error.message || error.error || 'فشل تسجيل الدخول');
   }
 
   const data = await response.json();
@@ -69,8 +71,8 @@ export async function login(
 
   // Return mock response for backward compatibility
   return {
-    access_token: "stored_in_httponly_cookie",
-    token_type: "Bearer",
+    access_token: 'stored_in_httponly_cookie',
+    token_type: 'Bearer',
     user: data.user,
   };
 }
@@ -85,17 +87,17 @@ export async function login(
 export async function logout(): Promise<void> {
   // Use server-side logout endpoint to clear httpOnly cookies
   try {
-    await fetch("/api/auth/logout", {
-      method: "POST",
-      credentials: "same-origin",
+    await fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'same-origin',
     });
   } catch (error) {
-    logger.error("Logout error:", error);
+    logger.error('Logout error:', error);
   }
 
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     localStorage.removeItem(AUTH_USER_KEY);
-    window.location.href = "/login";
+    window.location.href = '/login';
   }
 }
 
@@ -108,7 +110,7 @@ export async function logout(): Promise<void> {
  */
 export function getToken(): string | undefined {
   logger.warn(
-    "getToken() is deprecated. Tokens are now stored in httpOnly cookies and not accessible from client-side.",
+    'getToken() is deprecated. Tokens are now stored in httpOnly cookies and not accessible from client-side.'
   );
   return undefined;
 }
@@ -122,7 +124,7 @@ export function getToken(): string | undefined {
  */
 export function setToken(_token: string): void {
   logger.warn(
-    "setToken() is deprecated. Use /api/auth/login endpoint to set tokens securely via httpOnly cookies.",
+    'setToken() is deprecated. Use /api/auth/login endpoint to set tokens securely via httpOnly cookies.'
   );
   // No-op - tokens are now managed server-side only
 }
@@ -135,7 +137,7 @@ export function setToken(_token: string): void {
  * Do NOT use this for authorization decisions - always verify on server.
  */
 export function getUser(): User | null {
-  if (typeof window === "undefined") return null;
+  if (typeof window === 'undefined') return null;
 
   const userStr = localStorage.getItem(AUTH_USER_KEY);
   if (!userStr) return null;
@@ -155,7 +157,7 @@ export function getUser(): User | null {
  * Authorization must always be verified server-side via JWT claims.
  */
 export function setUser(user: User): void {
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     localStorage.setItem(AUTH_USER_KEY, JSON.stringify(user));
   }
 }
@@ -185,13 +187,13 @@ export function isAuthenticated(): boolean {
  *
  * @deprecated Use server-side authorization for security-sensitive operations
  */
-export function hasRole(requiredRole: User["role"]): boolean {
+export function hasRole(requiredRole: User['role']): boolean {
   // SECURITY: This is only for client-side UI purposes
   // Actual authorization MUST be done server-side
   const user = getUser();
   if (!user) return false;
 
-  const roleHierarchy: Record<User["role"], number> = {
+  const roleHierarchy: Record<User['role'], number> = {
     admin: 3,
     supervisor: 2,
     viewer: 1,

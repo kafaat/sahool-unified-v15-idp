@@ -1,5 +1,6 @@
 /// نماذج بوابة المدفوعات
 /// Payment Gateway Models
+library;
 
 import 'package:equatable/equatable.dart';
 
@@ -64,22 +65,22 @@ class PaymentTransaction extends Equatable {
 
   factory PaymentTransaction.fromJson(Map<String, dynamic> json) {
     return PaymentTransaction(
-      id: json['id'] ?? json['transactionId'] ?? '',
-      externalId: json['externalId'] ?? json['reference'],
-      walletId: json['walletId'] ?? '',
-      amount: (json['amount'] ?? 0).toDouble(),
-      currency: json['currency'] ?? 'YER',
-      status: _parseStatus(json['status']),
-      type: _parseType(json['type']),
-      method: _parseMethod(json['method'] ?? json['paymentMethod']),
-      description: json['description'],
-      errorMessage: json['errorMessage'] ?? json['error'],
-      metadata: json['metadata'],
+      id: (json['id'] ?? json['transactionId'] ?? '') as String,
+      externalId: (json['externalId'] ?? json['reference']) as String?,
+      walletId: (json['walletId'] as String?) ?? '',
+      amount: ((json['amount'] ?? 0) as num).toDouble(),
+      currency: (json['currency'] as String?) ?? 'YER',
+      status: _parseStatus(json['status'] as String?),
+      type: _parseType(json['type'] as String?),
+      method: _parseMethod((json['method'] ?? json['paymentMethod']) as String?),
+      description: json['description'] as String?,
+      errorMessage: (json['errorMessage'] ?? json['error']) as String?,
+      metadata: json['metadata'] as Map<String, dynamic>?,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'])
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
       completedAt: json['completedAt'] != null
-          ? DateTime.parse(json['completedAt'])
+          ? DateTime.tryParse(json['completedAt'] as String) ?? DateTime.now()
           : null,
     );
   }
@@ -257,12 +258,12 @@ class TharwattPaymentResponse {
 
   factory TharwattPaymentResponse.fromJson(Map<String, dynamic> json) {
     return TharwattPaymentResponse(
-      transactionId: json['transactionId'] ?? json['transaction_id'] ?? json['id'] ?? '',
-      reference: json['reference'] ?? json['ref'],
-      status: json['status'] ?? 'pending',
-      message: json['message'] ?? json['msg'],
-      redirectUrl: json['redirectUrl'] ?? json['redirect_url'] ?? json['url'],
-      data: json['data'],
+      transactionId: (json['transactionId'] ?? json['transaction_id'] ?? json['id'] ?? '') as String,
+      reference: (json['reference'] ?? json['ref']) as String?,
+      status: (json['status'] as String?) ?? 'pending',
+      message: (json['message'] ?? json['msg']) as String?,
+      redirectUrl: (json['redirectUrl'] ?? json['redirect_url'] ?? json['url']) as String?,
+      data: json['data'] as Map<String, dynamic>?,
     );
   }
 
@@ -295,13 +296,24 @@ class TharwattConfig {
   }
 
   /// التكوين الإنتاجي
+  ///
+  /// The base URL is read from the `THARWATT_API_URL` dart-define so it can be
+  /// overridden at build time without modifying source code:
+  ///   flutter build apk --dart-define=THARWATT_API_URL=https://api.tharwatt.com
+  ///
+  /// If the dart-define is absent the value falls back to the canonical
+  /// production URL.  Do NOT hardcode the URL here; use dart-define instead.
   factory TharwattConfig.production({
     required String apiKey,
     required String merchantId,
     required String secretKey,
   }) {
+    const baseUrl = String.fromEnvironment(
+      'THARWATT_API_URL',
+      defaultValue: 'https://api.tharwatt.com',
+    );
     return TharwattConfig(
-      baseUrl: 'https://api.tharwatt.com',
+      baseUrl: baseUrl,
       apiKey: apiKey,
       merchantId: merchantId,
       secretKey: secretKey,

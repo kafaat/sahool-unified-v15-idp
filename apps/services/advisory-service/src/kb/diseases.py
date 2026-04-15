@@ -192,27 +192,46 @@ DISEASES = {
 
 
 def get_disease(disease_id: str) -> dict | None:
-    """Get disease by ID"""
-    return DISEASES.get(disease_id)
+    """Get disease by ID. Returns None if disease_id is empty or not found."""
+    if not disease_id or not isinstance(disease_id, str):
+        return None
+    return DISEASES.get(disease_id.strip())
 
 
 def get_diseases_by_crop(crop: str) -> list[dict]:
-    """Get all diseases for a specific crop"""
-    return [{"id": k, **v} for k, v in DISEASES.items() if v["crop"] == crop or v["crop"] == "general"]
+    """Get all diseases for a specific crop. Returns empty list if crop is missing or has no diseases."""
+    if not crop or not isinstance(crop, str):
+        return []
+    crop = crop.strip().lower()
+    results = []
+    for k, v in DISEASES.items():
+        disease_crop = v.get("crop", "")
+        if disease_crop == crop or disease_crop == "general":
+            results.append({"id": k, **v})
+    return results
 
 
 def search_diseases(query: str, lang: str = "ar") -> list[dict]:
-    """Search diseases by name or symptoms"""
+    """Search diseases by name or symptoms. Returns empty list for empty/invalid queries."""
+    if not query or not isinstance(query, str) or len(query.strip()) == 0:
+        return []
+
     results = []
-    query_lower = query.lower()
+    query_lower = query.strip().lower()
+
+    if lang not in ("ar", "en"):
+        lang = "ar"
 
     for disease_id, disease in DISEASES.items():
         name_field = "name_ar" if lang == "ar" else "name_en"
         symptoms_field = "symptoms_ar" if lang == "ar" else "symptoms_en"
 
-        if query_lower in disease[name_field].lower():
+        name_value = disease.get(name_field, "")
+        symptoms_list = disease.get(symptoms_field, [])
+
+        if query_lower in name_value.lower():
             results.append({"id": disease_id, **disease, "match": "name"})
-        elif any(query_lower in s.lower() for s in disease[symptoms_field]):
+        elif any(query_lower in s.lower() for s in symptoms_list):
             results.append({"id": disease_id, **disease, "match": "symptom"})
 
     return results

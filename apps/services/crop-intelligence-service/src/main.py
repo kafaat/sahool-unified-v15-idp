@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+from shared.db.simple_migrations import Migration, SimpleMigrationRunner
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 # Authentication imports - مصادقة JWT
@@ -35,13 +36,12 @@ try:
 except ImportError:
     AUTH_AVAILABLE = False
 
-    class User(BaseModel):  # type: ignore[no-redef]
-        id: str = ""
-        tenant_id: str = ""
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
     async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+        raise HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # Security headers middleware
@@ -57,7 +57,6 @@ except ImportError:
 
 
 from shared.middleware.tenant_context import TenantContextMiddleware
-
 
 from .decision_engine import (
     GrowthStage,
@@ -108,6 +107,115 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Database Migrations
+# ═══════════════════════════════════════════════════════════════════════════════
+
+MIGRATIONS = [
+    Migration(
+        version=1,
+        description="Create crop_health_observations table",
+        up="""
+            CREATE TABLE IF NOT EXISTS crop_health_observations (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                field_id VARCHAR(255) NOT NULL,
+                zone_id VARCHAR(255) NOT NULL,
+                captured_at TIMESTAMP WITH TIME ZONE,
+                source VARCHAR(50),
+                growth_stage VARCHAR(50),
+                ndvi FLOAT,
+                evi FLOAT,
+                ndre FLOAT,
+                lci FLOAT,
+                ndwi FLOAT,
+                savi FLOAT,
+                cloud_pct FLOAT DEFAULT 0,
+                notes TEXT,
+                tenant_id VARCHAR(255),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+            )
+        """,
+        down="DROP TABLE IF EXISTS crop_health_observations",
+    ),
+    Migration(
+        version=2,
+        description="Create crop_zones table",
+        up="""
+            CREATE TABLE IF NOT EXISTS crop_zones (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                zone_id VARCHAR(255) NOT NULL,
+                field_id VARCHAR(255) NOT NULL,
+                name VARCHAR(255),
+                name_ar VARCHAR(255),
+                geometry JSONB,
+                area_hectares FLOAT,
+                tenant_id VARCHAR(255),
+                created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                UNIQUE(zone_id, field_id)
+            )
+        """,
+        down="DROP TABLE IF EXISTS crop_zones",
+    ),
+    Migration(
+        version=3,
+        description="Create disease_detections table",
+        up="""
+            CREATE TABLE IF NOT EXISTS disease_detections (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                field_id VARCHAR(255) NOT NULL,
+                disease_name VARCHAR(255) NOT NULL,
+                disease_name_ar VARCHAR(255),
+                confidence FLOAT,
+                severity VARCHAR(50),
+                detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                tenant_id VARCHAR(255)
+            )
+        """,
+        down="DROP TABLE IF EXISTS disease_detections",
+    ),
+    Migration(
+        version=4,
+        description="Create processed_events table for NATS idempotency",
+        up="""
+            CREATE TABLE IF NOT EXISTS processed_events (
+                tenant_id      TEXT        NOT NULL DEFAULT '_global',
+                event_id       TEXT        NOT NULL,
+                subject        TEXT        NOT NULL,
+                service        TEXT        NOT NULL,
+                correlation_id TEXT,
+                status         TEXT        NOT NULL DEFAULT 'processed',
+                processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                PRIMARY KEY (tenant_id, event_id)
+            )
+        """,
+        down="DROP TABLE IF EXISTS processed_events",
+    ),
+    Migration(
+        version=5,
+        description="Add indexes for observations, zones, diseases, and events",
+        up="""
+            CREATE INDEX IF NOT EXISTS idx_observations_field_zone
+                ON crop_health_observations(field_id, zone_id);
+            CREATE INDEX IF NOT EXISTS idx_zones_field
+                ON crop_zones(field_id);
+            CREATE INDEX IF NOT EXISTS idx_disease_field
+                ON disease_detections(field_id);
+            CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
+                ON processed_events (processed_at);
+            CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
+                ON processed_events (correlation_id)
+                WHERE correlation_id IS NOT NULL;
+        """,
+        down="""
+            DROP INDEX IF EXISTS idx_processed_events_correlation;
+            DROP INDEX IF EXISTS idx_processed_events_ttl;
+            DROP INDEX IF EXISTS idx_disease_field;
+            DROP INDEX IF EXISTS idx_zones_field;
+            DROP INDEX IF EXISTS idx_observations_field_zone;
+        """,
+    ),
+]
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Feature Schema Definition (v1.0)
@@ -293,11 +401,11 @@ async def db_store_observation(
     field_id: str,
     zone_id: str,
     obs_data: dict[str, Any],
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> str | None:
     """
-    Store observation in database
-    تخزين الرصد في قاعدة البيانات
+    Store observation in database with mandatory tenant isolation.
+    تخزين الرصد في قاعدة البيانات مع عزل إلزامي للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -338,10 +446,11 @@ async def db_get_observations(
     field_id: str,
     zone_id: str,
     limit: int = 50,
+    tenant_id: str | None = None,
 ) -> list[dict[str, Any]]:
     """
-    Get observations from database
-    استرجاع الأرصاد من قاعدة البيانات
+    Get observations from database with optional tenant isolation.
+    استرجاع الأرصاد من قاعدة البيانات مع عزل اختياري للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -349,19 +458,35 @@ async def db_get_observations(
 
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT id, field_id, zone_id, captured_at, source, growth_stage,
-                       ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
-                FROM crop_health_observations
-                WHERE field_id = $1 AND zone_id = $2
-                ORDER BY captured_at DESC
-                LIMIT $3
-                """,
-                field_id,
-                zone_id,
-                limit,
-            )
+            if tenant_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT id, field_id, zone_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1 AND zone_id = $2 AND tenant_id = $3
+                    ORDER BY captured_at DESC
+                    LIMIT $4
+                    """,
+                    field_id,
+                    zone_id,
+                    tenant_id,
+                    limit,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT id, field_id, zone_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1 AND zone_id = $2
+                    ORDER BY captured_at DESC
+                    LIMIT $3
+                    """,
+                    field_id,
+                    zone_id,
+                    limit,
+                )
             observations = []
             for row in rows:
                 observations.append(
@@ -388,10 +513,13 @@ async def db_get_observations(
         return []
 
 
-async def db_get_field_observations(field_id: str) -> dict[str, list[dict[str, Any]]]:
+async def db_get_field_observations(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, list[dict[str, Any]]]:
     """
-    Get all observations for a field grouped by zone
-    استرجاع جميع أرصاد الحقل مجمعة حسب المنطقة
+    Get all observations for a field grouped by zone with optional tenant isolation.
+    استرجاع جميع أرصاد الحقل مجمعة حسب المنطقة مع عزل اختياري للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -399,16 +527,29 @@ async def db_get_field_observations(field_id: str) -> dict[str, list[dict[str, A
 
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT DISTINCT zone_id, field_id, captured_at, source, growth_stage,
-                       ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
-                FROM crop_health_observations
-                WHERE field_id = $1
-                ORDER BY zone_id, captured_at DESC
-                """,
-                field_id,
-            )
+            if tenant_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT DISTINCT zone_id, field_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1 AND tenant_id = $2
+                    ORDER BY zone_id, captured_at DESC
+                    """,
+                    field_id,
+                    tenant_id,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT DISTINCT zone_id, field_id, captured_at, source, growth_stage,
+                           ndvi, evi, ndre, lci, ndwi, savi, cloud_pct, notes
+                    FROM crop_health_observations
+                    WHERE field_id = $1
+                    ORDER BY zone_id, captured_at DESC
+                    """,
+                    field_id,
+                )
             result: dict[str, list[dict[str, Any]]] = {}
             for row in rows:
                 zone_id = row["zone_id"]
@@ -441,11 +582,11 @@ async def db_store_zone(
     field_id: str,
     zone_id: str,
     zone_data: dict[str, Any],
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> bool:
     """
-    Store zone in database
-    تخزين المنطقة في قاعدة البيانات
+    Store zone in database with mandatory tenant isolation.
+    تخزين المنطقة في قاعدة البيانات مع عزل إلزامي للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -478,10 +619,13 @@ async def db_store_zone(
         return False
 
 
-async def db_get_zones(field_id: str) -> dict[str, dict[str, Any]]:
+async def db_get_zones(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, dict[str, Any]]:
     """
-    Get zones for a field from database
-    استرجاع مناطق الحقل من قاعدة البيانات
+    Get zones for a field from database with optional tenant isolation.
+    استرجاع مناطق الحقل من قاعدة البيانات مع عزل اختياري للمستأجر
     """
     pool = get_db_pool()
     if not pool:
@@ -489,14 +633,25 @@ async def db_get_zones(field_id: str) -> dict[str, dict[str, Any]]:
 
     try:
         async with pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
-                SELECT zone_id, name, name_ar, geometry, area_hectares, created_at
-                FROM crop_zones
-                WHERE field_id = $1
-                """,
-                field_id,
-            )
+            if tenant_id:
+                rows = await conn.fetch(
+                    """
+                    SELECT zone_id, name, name_ar, geometry, area_hectares, created_at
+                    FROM crop_zones
+                    WHERE field_id = $1 AND tenant_id = $2
+                    """,
+                    field_id,
+                    tenant_id,
+                )
+            else:
+                rows = await conn.fetch(
+                    """
+                    SELECT zone_id, name, name_ar, geometry, area_hectares, created_at
+                    FROM crop_zones
+                    WHERE field_id = $1
+                    """,
+                    field_id,
+                )
             result = {}
             for row in rows:
                 geometry = None
@@ -524,10 +679,10 @@ async def db_store_disease_detection(
     disease_name_ar: str | None,
     confidence: float,
     severity: str | None,
-    tenant_id: str | None = None,
+    tenant_id: str,
 ) -> bool:
     """
-    Store disease detection in database
+    Store disease detection in database with mandatory tenant isolation.
     تخزين كشف المرض في قاعدة البيانات
     """
     pool = get_db_pool()
@@ -583,94 +738,19 @@ async def lifespan(app: FastAPI):
             db_url += f"?sslmode={ssl_mode}" if "?" not in db_url else f"&sslmode={ssl_mode}"
     if db_url:
         try:
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
             app.state.db_connected = True
             logger.info("Connected to database")
 
-            # Create tables if not exist
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS crop_health_observations (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        zone_id VARCHAR(255) NOT NULL,
-                        captured_at TIMESTAMP WITH TIME ZONE,
-                        source VARCHAR(50),
-                        growth_stage VARCHAR(50),
-                        ndvi FLOAT,
-                        evi FLOAT,
-                        ndre FLOAT,
-                        lci FLOAT,
-                        ndwi FLOAT,
-                        savi FLOAT,
-                        cloud_pct FLOAT DEFAULT 0,
-                        notes TEXT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-                    )
-                """)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS crop_zones (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        zone_id VARCHAR(255) NOT NULL,
-                        field_id VARCHAR(255) NOT NULL,
-                        name VARCHAR(255),
-                        name_ar VARCHAR(255),
-                        geometry JSONB,
-                        area_hectares FLOAT,
-                        tenant_id VARCHAR(255),
-                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        UNIQUE(zone_id, field_id)
-                    )
-                """)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS disease_detections (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        disease_name VARCHAR(255) NOT NULL,
-                        disease_name_ar VARCHAR(255),
-                        confidence FLOAT,
-                        severity VARCHAR(50),
-                        detected_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        tenant_id VARCHAR(255)
-                    )
-                """)
-                # Create processed_events table for NATS subscriber idempotency (Spec §4)
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS processed_events (
-                        tenant_id      TEXT        NOT NULL DEFAULT '_global',
-                        event_id       TEXT        NOT NULL,
-                        subject        TEXT        NOT NULL,
-                        service        TEXT        NOT NULL,
-                        correlation_id TEXT,
-                        status         TEXT        NOT NULL DEFAULT 'processed',
-                        processed_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-                        PRIMARY KEY (tenant_id, event_id)
-                    )
-                """)
-                # Create indexes for faster queries
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_observations_field_zone
-                    ON crop_health_observations(field_id, zone_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_zones_field
-                    ON crop_zones(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_disease_field
-                    ON disease_detections(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_processed_events_ttl
-                    ON processed_events (processed_at)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_processed_events_correlation
-                    ON processed_events (correlation_id)
-                    WHERE correlation_id IS NOT NULL
-                """)
-            logger.info("Database tables initialized")
+            # Run versioned migrations
+            migration_runner = SimpleMigrationRunner(app.state.db_pool, service_name="crop-intelligence-service")
+            await migration_runner.run(MIGRATIONS)
+            logger.info("Database migrations applied")
         except Exception as e:
             logger.warning("Failed to connect to database", error=str(e))
             app.state.db_pool = None
@@ -1002,12 +1082,17 @@ async def publish_disease_detected(
     confidence: float,
     severity: str | None = None,
     zone_id: str | None = None,
+    tenant_id: str | None = None,
 ) -> bool:
     """
     Publish disease detection event
     نشر حدث اكتشاف مرض
 
-    Subject: sahool.crop.disease_detected
+    Uses tenant-scoped subject when tenant_id is available for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Subject (global): sahool.crop.disease_detected
+    Subject (tenant): sahool.tenant.{tenant_id}.crop.disease_detected
     """
     data = {
         "field_id": field_id,
@@ -1015,9 +1100,20 @@ async def publish_disease_detected(
         "confidence": confidence,
         "severity": severity,
         "zone_id": zone_id,
+        "tenant_id": tenant_id,
         "timestamp": datetime.now(UTC).isoformat() + "Z",
     }
-    return await publish_event("sahool.crop.disease_detected", data)
+    # Use tenant-scoped subject for data isolation | استخدام موضوع مخصص للمستأجر لعزل البيانات
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+
+        subject = get_tenant_subject(tenant_id, "crop", "disease_detected")
+    else:
+        # SECURITY FIX: Log warning and use global subject as fallback,
+        # but include warning in event data for downstream consumers
+        logger.warning("Publishing disease_detected event without tenant_id - tenant isolation gap")
+        subject = "sahool.crop.disease_detected"
+    return await publish_event(subject, data)
 
 
 async def publish_health_assessed(
@@ -1026,12 +1122,17 @@ async def publish_health_assessed(
     health_score_ar: str,
     issues: list[str],
     zone_id: str | None = None,
+    tenant_id: str | None = None,
 ) -> bool:
     """
     Publish health assessment event
     نشر حدث تقييم الصحة
 
-    Subject: sahool.crop.health_assessed
+    Uses tenant-scoped subject when tenant_id is available for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Subject (global): sahool.crop.health_assessed
+    Subject (tenant): sahool.tenant.{tenant_id}.crop.health_assessed
     """
     data = {
         "field_id": field_id,
@@ -1039,9 +1140,19 @@ async def publish_health_assessed(
         "health_score_ar": health_score_ar,
         "issues": issues,
         "zone_id": zone_id,
+        "tenant_id": tenant_id,
         "timestamp": datetime.now(UTC).isoformat() + "Z",
     }
-    return await publish_event("sahool.crop.health_assessed", data)
+    # Use tenant-scoped subject for data isolation | استخدام موضوع مخصص للمستأجر لعزل البيانات
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+
+        subject = get_tenant_subject(tenant_id, "crop", "health_assessed")
+    else:
+        # SECURITY FIX: Log warning when publishing without tenant scoping
+        logger.warning("Publishing health_assessed event without tenant_id - tenant isolation gap")
+        subject = "sahool.crop.health_assessed"
+    return await publish_event(subject, data)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1049,20 +1160,26 @@ async def publish_health_assessed(
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-async def get_field_observations_data(field_id: str) -> dict[str, list[dict[str, Any]]]:
+async def get_field_observations_data(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, list[dict[str, Any]]]:
     """Get observations for a field from database or memory"""
     # Try database first
-    db_obs = await db_get_field_observations(field_id)
+    db_obs = await db_get_field_observations(field_id, tenant_id=tenant_id)
     if db_obs:
         return db_obs
     # Fall back to memory
     return OBSERVATIONS.get(field_id, {})
 
 
-async def get_zones_data(field_id: str) -> dict[str, dict[str, Any]]:
+async def get_zones_data(
+    field_id: str,
+    tenant_id: str | None = None,
+) -> dict[str, dict[str, Any]]:
     """Get zones for a field from database or memory"""
     # Try database first
-    db_zones = await db_get_zones(field_id)
+    db_zones = await db_get_zones(field_id, tenant_id=tenant_id)
     if db_zones:
         return db_zones
     # Fall back to memory
@@ -1081,6 +1198,10 @@ async def create_zone(
     user: User | None = Depends(get_current_user),
 ):
     """إنشاء منطقة جديدة في الحقل"""
+    if not user or not getattr(user, "tenant_id", None):
+        raise HTTPException(status_code=401, detail="Tenant context required")
+    tenant_id = str(user.tenant_id)
+
     zone_id = f"zone_{uuid4().hex[:8]}"
 
     zone_data = {
@@ -1091,8 +1212,8 @@ async def create_zone(
         "created_at": datetime.now(UTC).isoformat(),
     }
 
-    # Try to store in database first
-    stored_in_db = await db_store_zone(field_id, zone_id, zone_data)
+    # Try to store in database first with tenant isolation
+    stored_in_db = await db_store_zone(field_id, zone_id, zone_data, tenant_id)
 
     # Always store in memory as fallback
     if field_id not in ZONES:
@@ -1112,8 +1233,9 @@ async def list_zones(
     user: User | None = Depends(get_current_user),
 ):
     """قائمة المناطق في الحقل"""
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
     # Try to get from database first
-    db_zones = await db_get_zones(field_id)
+    db_zones = await db_get_zones(field_id, tenant_id=tenant_id)
     if db_zones:
         zones = [{"zone_id": zid, **zdata} for zid, zdata in db_zones.items()]
         return {"zones": zones, "count": len(zones), "source": "database"}
@@ -1132,8 +1254,9 @@ async def get_zones_geojson(
     user: User | None = Depends(get_current_user),
 ):
     """تصدير المناطق كـ GeoJSON"""
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
     # Try to get from database first
-    db_zones = await db_get_zones(field_id)
+    db_zones = await db_get_zones(field_id, tenant_id=tenant_id)
     zone_data = db_zones if db_zones else ZONES.get(field_id, {})
 
     if not zone_data:
@@ -1181,11 +1304,15 @@ async def ingest_observation(
 
     يستقبل بيانات من Sentinel-2 أو الدرونز أو مصادر أخرى
     """
+    if not user or not getattr(user, "tenant_id", None):
+        raise HTTPException(status_code=401, detail="Tenant context required")
+    tenant_id = str(user.tenant_id)
+
     obs = body.model_dump()
     obs["captured_at"] = body.captured_at.isoformat()
     obs["indices"] = body.indices.model_dump()
 
-    # Try to store in database
+    # Try to store in database with tenant isolation
     db_obs_id = await db_store_observation(
         field_id,
         zone_id,
@@ -1197,6 +1324,7 @@ async def ingest_observation(
             "cloud_pct": body.cloud_pct,
             "notes": body.notes,
         },
+        tenant_id,
     )
 
     # Always store in memory as fallback
@@ -1224,8 +1352,9 @@ async def list_observations(
     user: User | None = Depends(get_current_user),
 ):
     """قائمة الأرصاد للمنطقة"""
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, limit)
+    db_obs = await db_get_observations(field_id, zone_id, limit, tenant_id=tenant_id)
     if db_obs:
         return {"observations": db_obs, "count": len(db_obs), "source": "database"}
 
@@ -1256,13 +1385,15 @@ async def get_field_diagnosis(
     - قائمة الإجراءات المطلوبة مرتبة بالأولوية
     - روابط طبقات الخريطة
     """
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
+
     try:
         target = date.fromisoformat(date_str)
     except ValueError:
         raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح، استخدم YYYY-MM-DD")
 
     # Get observations from database or memory
-    zones = await get_field_observations_data(field_id)
+    zones = await get_field_observations_data(field_id, tenant_id=tenant_id)
 
     if not zones:
         raise HTTPException(status_code=404, detail="الحقل غير موجود أو لا توجد أرصاد")
@@ -1357,6 +1488,8 @@ async def get_zone_timeline(
 
     مفيدة لتتبع التغيرات وعرضها في رسم بياني
     """
+    tenant_id = str(user.tenant_id) if user and getattr(user, "tenant_id", None) else None
+
     try:
         start = date.fromisoformat(from_date)
         end = date.fromisoformat(to_date)
@@ -1364,7 +1497,7 @@ async def get_zone_timeline(
         raise HTTPException(status_code=400, detail="تنسيق تاريخ غير صالح")
 
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1000)
+    db_obs = await db_get_observations(field_id, zone_id, 1000, tenant_id=tenant_id)
     obs_list = db_obs if db_obs else OBSERVATIONS.get(field_id, {}).get(zone_id, [])
 
     if not obs_list:
@@ -1504,7 +1637,9 @@ async def export_vrt(
 
 
 @app.post("/api/v1/diagnose")
-def quick_diagnose(body: ObservationIn, zone_id: str = Query(default="zone_temp")):
+def quick_diagnose(
+    body: ObservationIn, zone_id: str = Query(default="zone_temp"), current_user: User = Depends(get_current_user)
+):
     """
     تشخيص سريع بدون حفظ
 
@@ -1559,6 +1694,7 @@ class DiseaseDetectionRequest(BaseModel):
 async def detect_crop_diseases(
     body: DiseaseDetectionRequest,
     field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
+    user: User | None = Depends(get_current_user),
 ):
     """
     كشف الأمراض المحتملة من المؤشرات النباتية
@@ -1582,6 +1718,9 @@ async def detect_crop_diseases(
     health_en, health_ar = get_overall_health_status(detections)
 
     # Publish disease detection events to NATS and store in database
+    if not user or not getattr(user, "tenant_id", None):
+        raise HTTPException(status_code=401, detail="Tenant context required")
+    tenant_id = str(user.tenant_id)
     if field_id and detections:
         for detection in detections:
             await publish_disease_detected(
@@ -1589,14 +1728,16 @@ async def detect_crop_diseases(
                 disease=detection.disease_type.value,
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
+                tenant_id=tenant_id,
             )
-            # Store in database
+            # Store in database with tenant isolation
             await db_store_disease_detection(
                 field_id=field_id,
                 disease_name=detection.disease_type.value,
                 disease_name_ar=getattr(detection, "disease_type_ar", None),
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
+                tenant_id=tenant_id,
             )
 
         # Publish health assessment event
@@ -1606,6 +1747,7 @@ async def detect_crop_diseases(
             health_score=health_en,
             health_score_ar=health_ar,
             issues=issues,
+            tenant_id=tenant_id,
         )
 
     return {
@@ -1638,13 +1780,18 @@ async def analyze_zone_diseases(
     humidity_pct: float | None = Query(default=None, ge=0, le=100),
     temp_c: float | None = Query(default=None, ge=-50, le=60),
     crop_type: CropType = Query(default=CropType.UNKNOWN),
+    tenant_id: str | None = Query(
+        default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"
+    ),
+    current_user: User = Depends(get_current_user),
 ):
     """
     تحليل أمراض المنطقة من آخر رصد
     Analyze zone diseases from latest observation
     """
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -1674,7 +1821,8 @@ async def analyze_zone_diseases(
 
     health_en, health_ar = get_overall_health_status(detections)
 
-    # Publish disease detection events to NATS
+    # Publish disease detection events to NATS with tenant isolation
+    # نشر أحداث اكتشاف الأمراض مع عزل المستأجر
     if detections:
         for detection in detections:
             await publish_disease_detected(
@@ -1683,6 +1831,7 @@ async def analyze_zone_diseases(
                 confidence=detection.confidence,
                 severity=detection.severity.value if detection.severity else None,
                 zone_id=zone_id,
+                tenant_id=tenant_id,
             )
 
     # Publish health assessment event
@@ -1693,10 +1842,11 @@ async def analyze_zone_diseases(
         health_score_ar=health_ar,
         issues=issues,
         zone_id=zone_id,
+        tenant_id=tenant_id,
     )
 
     # Get zone metadata
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {
@@ -1760,7 +1910,7 @@ class FertilizerPlanRequest(BaseModel):
 
 
 @app.post("/api/v1/nutrients/detect")
-def detect_nutrients(body: NutrientDetectionRequest):
+def detect_nutrients(body: NutrientDetectionRequest, current_user: User = Depends(get_current_user)):
     """كشف نقص العناصر الغذائية من المؤشرات النباتية"""
     deficiencies = detect_nutrient_deficiencies(
         ndvi=body.ndvi,
@@ -1791,7 +1941,7 @@ def detect_nutrients(body: NutrientDetectionRequest):
 
 
 @app.post("/api/v1/nutrients/fertilizer-plan")
-def create_fertilizer_plan(body: FertilizerPlanRequest):
+def create_fertilizer_plan(body: FertilizerPlanRequest, current_user: User = Depends(get_current_user)):
     """إنشاء خطة تسميد مخصصة"""
     deficiencies = detect_nutrient_deficiencies(
         ndvi=body.ndvi,
@@ -1824,10 +1974,12 @@ async def analyze_zone_nutrients(
     field_id: str,
     zone_id: str,
     field_area_hectares: float = Query(default=1.0, gt=0),
+    current_user: User = Depends(get_current_user),
 ):
     """تحليل العناصر الغذائية في المنطقة من آخر رصد"""
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
     # Try to get from database first
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -1857,7 +2009,7 @@ async def analyze_zone_nutrients(
         field_area_hectares=field_area_hectares,
     )
 
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {
@@ -1946,7 +2098,7 @@ class YieldPredictionRequest(BaseModel):
 
 
 @app.post("/api/v1/yield/predict")
-def predict_crop_yield(body: YieldPredictionRequest):
+def predict_crop_yield(body: YieldPredictionRequest, current_user: User = Depends(get_current_user)):
     """تنبؤ المحصول من المؤشرات النباتية"""
     try:
         crop = YieldCropType(body.crop_type.lower())
@@ -1988,9 +2140,11 @@ async def predict_zone_yield(
     crop_type: str = Query(default="wheat", description="نوع المحصول"),
     field_area_hectares: float = Query(default=1.0, gt=0),
     growth_stage_percent: float = Query(default=50.0, ge=0, le=100),
+    current_user: User = Depends(get_current_user),
 ):
     """تنبؤ محصول المنطقة من آخر رصد"""
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -2021,7 +2175,7 @@ async def predict_zone_yield(
         growth_stage_percent=growth_stage_percent,
     )
 
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {
@@ -2064,7 +2218,7 @@ class PestAssessmentRequest(BaseModel):
 
 
 @app.post("/api/v1/pests/assess")
-def assess_pests(body: PestAssessmentRequest):
+def assess_pests(body: PestAssessmentRequest, current_user: User = Depends(get_current_user)):
     """تقييم مخاطر الآفات بناءً على الظروف البيئية"""
     risks = assess_pest_risks(
         temp_c=body.temp_c,
@@ -2096,9 +2250,11 @@ async def assess_zone_pests(
     humidity_pct: float = Query(..., ge=0, le=100),
     crop_type: str = Query(default="general"),
     season: str = Query(default="summer"),
+    current_user: User = Depends(get_current_user),
 ):
     """تقييم مخاطر الآفات في المنطقة"""
-    db_obs = await db_get_observations(field_id, zone_id, 1)
+    user_tenant_id = str(current_user.tenant_id) if getattr(current_user, "tenant_id", None) else None
+    db_obs = await db_get_observations(field_id, zone_id, 1, tenant_id=user_tenant_id)
     if db_obs:
         obs_list = db_obs
     else:
@@ -2121,7 +2277,7 @@ async def assess_zone_pests(
     )
 
     summary = get_pest_summary(risks)
-    zone_metadata = await get_zones_data(field_id)
+    zone_metadata = await get_zones_data(field_id, tenant_id=user_tenant_id)
     zone_meta = zone_metadata.get(zone_id, {})
 
     return {
@@ -2164,6 +2320,10 @@ async def comprehensive_analysis(
     humidity_pct: float = Query(default=50, ge=0, le=100),
     field_area_hectares: float = Query(default=1.0, gt=0),
     field_id: str | None = Query(default=None, description="Optional field ID for event publishing"),
+    tenant_id: str | None = Query(
+        default=None, description="Tenant ID for scoped events | معرف المستأجر للأحداث المعزولة"
+    ),
+    current_user: User = Depends(get_current_user),
 ):
     """تحليل شامل للحقل"""
     try:
@@ -2226,6 +2386,7 @@ async def comprehensive_analysis(
         overall_status = "good"
 
     if field_id:
+        # Publish events with tenant isolation | نشر الأحداث مع عزل المستأجر
         if diseases:
             for disease in diseases:
                 await publish_disease_detected(
@@ -2233,6 +2394,7 @@ async def comprehensive_analysis(
                     disease=disease.disease_type.value,
                     confidence=disease.confidence,
                     severity=disease.severity.value if disease.severity else None,
+                    tenant_id=tenant_id,
                 )
 
         all_issues = []
@@ -2245,6 +2407,7 @@ async def comprehensive_analysis(
             health_score=overall_status,
             health_score_ar=health_ar,
             issues=all_issues,
+            tenant_id=tenant_id,
         )
 
     return {
@@ -2285,6 +2448,6 @@ async def comprehensive_analysis(
 if __name__ == "__main__":
     import uvicorn
 
-    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- bind all interfaces for Docker
+    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- bind all interfaces for Docker  # nosec B104 - binding to all interfaces required for Docker container
     port = int(os.getenv("PORT", 8095))
     uvicorn.run(app, host=host, port=port)

@@ -6,12 +6,13 @@
 /// - Shopping cart management
 /// - Order creation
 /// - Smart harvest listing
+library;
 
-import 'dart:async';
-import 'dart:convert';
-import 'package:flutter/foundation.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:http/http.dart' as http;
+
+import '../../core/config/api_config.dart';
+import '../../core/utils/app_logger.dart';
 
 // =============================================================================
 // Models
@@ -97,7 +98,7 @@ class Product {
       qualityGrade: json['qualityGrade'] as String?,
       featured: json['featured'] as bool? ?? false,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -245,7 +246,7 @@ class Order {
       serviceFee: (json['serviceFee'] as num?)?.toDouble() ?? 0,
       totalAmount: (json['totalAmount'] as num).toDouble(),
       status: json['status'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     );
   }
 
@@ -330,50 +331,73 @@ class MarketplaceState {
 // =============================================================================
 
 /// مزود السوق
+/// يستخدم Dio مع ApiConfig (نمط موحد) بدلاً من http.Client المباشر
 class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
-  final String _baseUrl;
   final String _userId;
+  final Dio _dio;
 
   MarketplaceNotifier({
-    required String baseUrl,
     required String userId,
-  })  : _baseUrl = baseUrl,
-        _userId = userId,
-        super(const MarketplaceState()) {
-    loadProducts();
+    Dio? dio,
+  })  : _userId = userId,
+        _dio = dio ??
+            Dio(BaseOptions(
+              baseUrl: ApiConfig.effectiveBaseUrl,
+              connectTimeout: ApiConfig.connectTimeout,
+              receiveTimeout: ApiConfig.receiveTimeout,
+              headers: ApiConfig.defaultHeaders,
+            )),
+        super(const MarketplaceState());
+
+  /// Initialize and load initial data. Call explicitly after construction
+  /// to avoid firing network requests in the constructor.
+  Future<void> init() async {
+    if (!mounted) return;
+    await loadProducts();
   }
 
-  /// تحميل المنتجات
+  /// تحميل المنتجات من marketplace-service عبر ApiConfig
   Future<void> loadProducts({ProductCategory? category}) async {
+    if (!mounted) return;
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      String url = '$_baseUrl/api/v1/market/products';
+      final queryParams = <String, dynamic>{};
       if (category != null) {
-        url += '?category=${category.name.toUpperCase()}';
+        queryParams['category'] = category.name.toUpperCase();
       }
 
-      final response = await http.get(Uri.parse(url));
+      final response = await _dio.get(
+        ApiConfig.marketProducts,
+        queryParameters: queryParams.isNotEmpty ? queryParams : null,
+      );
+      if (!mounted) return;
 
-      if (response.statusCode == 200) {
-        final products = await compute(_parseProductList, response.body);
+      final List data = response.data as List;
+      final products = data
+          .map((e) => Product.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final featured = products.where((p) => p.featured).toList();
 
-        final featured = products.where((p) => p.featured).toList();
-
-        state = state.copyWith(
-          products: products,
-          featuredProducts: featured,
-          selectedCategory: category,
-          clearCategory: category == null,
-          isLoading: false,
-        );
-      } else {
-        state = state.copyWith(
-          isLoading: false,
-          error: 'فشل في تحميل المنتجات',
-        );
-      }
+      state = state.copyWith(
+        products: products,
+        featuredProducts: featured,
+        selectedCategory: category,
+        clearCategory: category == null,
+        isLoading: false,
+      );
+    } on DioException catch (e) {
+      if (!mounted) return;
+      AppLogger.w(
+        'Marketplace products API unavailable (${e.type.name}), showing empty list',
+        tag: 'MARKETPLACE',
+      );
+      state = state.copyWith(
+        isLoading: false,
+        error: 'فشل في تحميل المنتجات - تحقق من الاتصال',
+      );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(
         isLoading: false,
         error: 'خطأ في الاتصال: ${e.toString()}',
@@ -443,7 +467,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     state = state.copyWith(cart: []);
   }
 
-  /// إنشاء طلب
+  /// إنشاء طلب عبر marketplace-service
   Future<Order?> createOrder({
     String? deliveryAddress,
     String? paymentMethod,
@@ -456,31 +480,30 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
         'quantity': item.quantity,
       }).toList();
 
-      final response = await http.post(
-        Uri.parse('$_baseUrl/api/v1/market/orders'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await _dio.post(
+        ApiConfig.marketOrders,
+        data: {
           'buyerId': _userId,
           'items': items,
           'deliveryAddress': deliveryAddress,
           'paymentMethod': paymentMethod,
-        }),
+        },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final order = Order.fromJson(data);
+      final data = response.data as Map<String, dynamic>;
+      final order = Order.fromJson(data);
 
-        // تفريغ السلة بعد الطلب الناجح
-        clearCart();
+      // تفريغ السلة بعد الطلب الناجح
+      clearCart();
 
-        // تحديث قائمة الطلبات
-        state = state.copyWith(orders: [order, ...state.orders]);
+      // تحديث قائمة الطلبات
+      state = state.copyWith(orders: [order, ...state.orders]);
 
-        return order;
-      }
+      return order;
+    } on DioException catch (e) {
+      AppLogger.w('Create order API failed (${e.type.name})', tag: 'MARKETPLACE');
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -488,16 +511,19 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   /// تحميل طلبات المستخدم
   Future<void> loadOrders() async {
     try {
-      final response = await http.get(
-        Uri.parse('$_baseUrl/api/v1/market/orders/$_userId'),
+      final response = await _dio.get(
+        ApiConfig.userMarketOrders(_userId),
       );
 
-      if (response.statusCode == 200) {
-        final orders = await compute(_parseOrderList, response.body);
+      final List data = response.data as List;
+      final orders = data
+          .map((e) => Order.fromJson(e as Map<String, dynamic>))
+          .toList();
 
-        state = state.copyWith(orders: orders);
-      }
-    } catch (_) {
+      state = state.copyWith(orders: orders);
+    } on DioException catch (e) {
+      AppLogger.w('Load orders API failed (${e.type.name})', tag: 'MARKETPLACE');
+    } catch (e) {
       // صمت
     }
   }
@@ -513,10 +539,9 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     String? governorate,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/api/v1/market/list-harvest'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
+      final response = await _dio.post(
+        ApiConfig.listHarvest,
+        data: {
           'userId': _userId,
           'yieldData': {
             'crop': crop,
@@ -527,20 +552,20 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
             'qualityGrade': qualityGrade,
             'governorate': governorate,
           },
-        }),
+        },
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final product = Product.fromJson(data);
+      final data = response.data as Map<String, dynamic>;
+      final product = Product.fromJson(data);
 
-        // إعادة تحميل المنتجات
-        await loadProducts();
+      // إعادة تحميل المنتجات
+      await loadProducts();
 
-        return product;
-      }
+      return product;
+    } on DioException catch (e) {
+      AppLogger.w('List harvest API failed (${e.type.name})', tag: 'MARKETPLACE');
       return null;
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -551,40 +576,20 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
 // =============================================================================
 
 /// مزود معرف المستخدم
-/// Top-level function for compute() isolate - parses products on background isolate
-List<Product> _parseProductList(String jsonStr) {
-  final data = jsonDecode(jsonStr) as List<dynamic>;
-  return data
-      .map((json) => Product.fromJson(json as Map<String, dynamic>))
-      .toList();
-}
-
-/// Top-level function for compute() isolate - parses orders on background isolate
-List<Order> _parseOrderList(String jsonStr) {
-  final data = jsonDecode(jsonStr) as List<dynamic>;
-  return data
-      .map((json) => Order.fromJson(json as Map<String, dynamic>))
-      .toList();
-}
-
 final marketUserIdProvider = StateProvider.autoDispose<String>((ref) => '');
 
-/// مزود رابط API
-final marketApiUrlProvider = Provider.autoDispose<String>((ref) {
-  const isProduction = bool.fromEnvironment('dart.vm.product');
-  return isProduction ? 'https://api.sahool.io' : 'http://localhost:3010';
-});
-
 /// مزود السوق الرئيسي
+/// يستخدم Dio مع ApiConfig للاتصال بـ marketplace-service
 final marketplaceProvider =
     StateNotifierProvider.autoDispose<MarketplaceNotifier, MarketplaceState>((ref) {
-  final baseUrl = ref.watch(marketApiUrlProvider);
   final userId = ref.watch(marketUserIdProvider);
 
-  return MarketplaceNotifier(
-    baseUrl: baseUrl,
-    userId: userId,
-  );
+  final notifier = MarketplaceNotifier(userId: userId);
+
+  // Initialize asynchronously after construction to avoid constructor side effects
+  notifier.init();
+
+  return notifier;
 });
 
 /// عدد عناصر السلة

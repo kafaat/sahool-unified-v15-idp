@@ -60,6 +60,9 @@ pytest-benchmark>=4.0.0
 pytest-json-report>=1.5.0
 allure-pytest>=2.13.2
 
+# Contract / Fuzz testing
+schemathesis>=3.38.0
+
 # Utilities
 python-dateutil>=2.9.0
 pytz>=2024.1

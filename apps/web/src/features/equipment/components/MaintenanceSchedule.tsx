@@ -3,66 +3,65 @@
  * مكون جدول الصيانة
  */
 
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  useMaintenanceRecords,
-  useCompleteMaintenance,
-} from "../hooks/useEquipment";
-import type { MaintenanceRecord, MaintenanceStatus } from "../types";
-import {
-  Calendar,
-  CheckCircle,
-  AlertCircle,
-  Loader2,
-  Plus,
-} from "lucide-react";
-import { logger } from "@/lib/logger";
+import { useState } from 'react';
+import { useMaintenanceRecords, useCompleteMaintenance } from '../hooks/useEquipment';
+import type { MaintenanceRecord } from '../types';
+import { Calendar, CheckCircle, AlertCircle, Loader2, Plus } from 'lucide-react';
+import { logger } from '@/lib/logger';
 
 interface MaintenanceScheduleProps {
   equipmentId?: string;
   limit?: number;
 }
 
-const statusColors: Record<MaintenanceStatus, string> = {
-  scheduled: "bg-blue-100 text-blue-800",
-  in_progress: "bg-yellow-100 text-yellow-800",
-  completed: "bg-green-100 text-green-800",
-  overdue: "bg-red-100 text-red-800",
+const statusColors: Record<string, string> = {
+  scheduled: 'bg-blue-100 text-blue-800',
+  in_progress: 'bg-yellow-100 text-yellow-800',
+  completed: 'bg-green-100 text-green-800',
+  overdue: 'bg-red-100 text-red-800',
 };
 
-const statusLabels: Record<MaintenanceStatus, string> = {
-  scheduled: "مجدولة",
-  in_progress: "قيد التنفيذ",
-  completed: "مكتملة",
-  overdue: "متأخرة",
+const statusLabels: Record<string, string> = {
+  scheduled: 'مجدولة',
+  in_progress: 'قيد التنفيذ',
+  completed: 'مكتملة',
+  overdue: 'متأخرة',
 };
 
-const typeLabels = {
-  routine: "دورية",
-  repair: "إصلاح",
-  inspection: "فحص",
-  emergency: "طارئة",
+const typeLabels: Record<string, string> = {
+  routine: 'دورية',
+  repair: 'إصلاح',
+  inspection: 'فحص',
+  emergency: 'طارئة',
 };
 
-export function MaintenanceSchedule({
-  equipmentId,
-  limit,
-}: MaintenanceScheduleProps) {
+const UNKNOWN_STATUS_CLASS = 'bg-gray-100 text-gray-700';
+const UNKNOWN_LABEL = 'غير محدد';
+
+/** Parse a maintenance date safely — returns null when invalid. */
+function safeParseDate(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? null : d;
+}
+
+function formatDateAr(value: string | null | undefined): string {
+  const d = safeParseDate(value);
+  return d ? d.toLocaleDateString('ar-YE') : UNKNOWN_LABEL;
+}
+
+export function MaintenanceSchedule({ equipmentId, limit }: MaintenanceScheduleProps) {
   const [showForm, setShowForm] = useState(false);
-  const {
-    data: records,
-    isLoading,
-    error,
-  } = useMaintenanceRecords(equipmentId);
+  const { data: records, isLoading, error } = useMaintenanceRecords(equipmentId);
   const completeMutation = useCompleteMaintenance();
 
   const handleComplete = async (recordId: string) => {
     try {
       await completeMutation.mutateAsync({ id: recordId });
     } catch (error) {
-      logger.error("Failed to complete maintenance:", error);
+      logger.error('Failed to complete maintenance:', error);
     }
   };
 
@@ -83,20 +82,22 @@ export function MaintenanceSchedule({
     );
   }
 
+  const now = new Date();
   const upcomingRecords = records
-    ?.filter(
-      (r) =>
-        r.status === "scheduled" && new Date(r.scheduledDate) >= new Date(),
-    )
+    ?.filter((r) => {
+      if (r.status !== 'scheduled') return false;
+      const d = safeParseDate(r.scheduledDate);
+      return d !== null && d >= now;
+    })
     .slice(0, limit);
   const overdueRecords = records
-    ?.filter(
-      (r) => r.status === "scheduled" && new Date(r.scheduledDate) < new Date(),
-    )
+    ?.filter((r) => {
+      if (r.status !== 'scheduled') return false;
+      const d = safeParseDate(r.scheduledDate);
+      return d !== null && d < now;
+    })
     .slice(0, limit);
-  const completedRecords = records
-    ?.filter((r) => r.status === "completed")
-    .slice(0, limit || 5);
+  const completedRecords = records?.filter((r) => r.status === 'completed').slice(0, limit || 5);
 
   return (
     <div className="space-y-6">
@@ -120,8 +121,7 @@ export function MaintenanceSchedule({
             <h3 className="font-semibold text-red-800">صيانة متأخرة</h3>
           </div>
           <p className="text-sm text-red-700">
-            لديك {overdueRecords.length} عملية صيانة متأخرة تحتاج إلى اهتمام
-            فوري
+            لديك {overdueRecords.length} عملية صيانة متأخرة تحتاج إلى اهتمام فوري
           </p>
         </div>
       )}
@@ -210,25 +210,23 @@ function MaintenanceRecordItem({
   onComplete,
   isCompleting,
 }: MaintenanceRecordItemProps) {
-  const canComplete = record.status !== "completed" && onComplete;
+  const canComplete = record.status !== 'completed' && onComplete;
 
   return (
-    <div className={`p-4 ${isOverdue ? "bg-red-50" : ""}`}>
+    <div className={`p-4 ${isOverdue ? 'bg-red-50' : ''}`}>
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-2">
-            <h4 className="font-medium text-gray-900">
-              {record.descriptionAr}
-            </h4>
+            <h4 className="font-medium text-gray-900">{record.descriptionAr}</h4>
             <span
               className={`px-2 py-1 rounded-full text-xs font-medium ${
-                statusColors[record.status]
+                statusColors[record.status] ?? UNKNOWN_STATUS_CLASS
               }`}
             >
-              {statusLabels[record.status]}
+              {statusLabels[record.status] ?? UNKNOWN_LABEL}
             </span>
             <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
-              {typeLabels[record.type]}
+              {typeLabels[record.type] ?? UNKNOWN_LABEL}
             </span>
           </div>
 
@@ -237,28 +235,25 @@ function MaintenanceRecordItem({
           <div className="flex flex-wrap gap-4 text-sm text-gray-500">
             <span className="flex items-center">
               <Calendar className="w-4 h-4 ml-1" />
-              {new Date(record.scheduledDate).toLocaleDateString("ar-YE")}
+              {formatDateAr(record.scheduledDate)}
             </span>
 
             {record.completedDate && (
               <span className="flex items-center text-green-600">
                 <CheckCircle className="w-4 h-4 ml-1" />
-                أُكملت في{" "}
-                {new Date(record.completedDate).toLocaleDateString("ar-YE")}
+                أُكملت في {formatDateAr(record.completedDate)}
               </span>
             )}
 
-            {record.cost && (
+            {typeof record.cost === 'number' && Number.isFinite(record.cost) && (
               <span className="font-medium">
-                التكلفة: {record.cost.toLocaleString("ar-YE")} ريال
+                التكلفة: {record.cost.toLocaleString('ar-YE')} ريال
               </span>
             )}
           </div>
 
           {record.equipmentName && (
-            <p className="text-xs text-gray-500 mt-2">
-              المعدة: {record.equipmentName}
-            </p>
+            <p className="text-xs text-gray-500 mt-2">المعدة: {record.equipmentName}</p>
           )}
         </div>
 

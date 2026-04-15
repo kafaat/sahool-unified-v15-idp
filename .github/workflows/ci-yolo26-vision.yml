@@ -31,7 +31,7 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: sahool
+  IMAGE_PREFIX: ${{ github.repository_owner }}
   SERVICE_NAME: yolo26-vision-service
   SERVICE_PATH: apps/services/yolo26-vision-service
 
@@ -42,6 +42,7 @@ jobs:
   lint:
     name: Code Quality (Ruff)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -85,6 +86,7 @@ jobs:
   test:
     name: Tests (pytest)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     steps:
       - name: Checkout code
@@ -131,11 +133,13 @@ jobs:
           MODEL_BASE_PATH: /tmp/yolo26-test-models
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v5
-        if: always()
-        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: yolo26-vision
           name: yolo26-vision-coverage
@@ -156,6 +160,7 @@ jobs:
   security:
     name: Security Scan (Bandit)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     steps:
       - name: Checkout code
@@ -204,6 +209,7 @@ jobs:
   build:
     name: Build Docker Image (CUDA)
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [test, security]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
@@ -380,6 +386,7 @@ jobs:
   container-scan:
     name: Container Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
@@ -461,6 +468,7 @@ jobs:
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [lint, test, security, build]
     if: always()
     steps:

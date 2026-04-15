@@ -122,7 +122,7 @@ class Settings(BaseSettings):
     # API Server Configuration
     # ═══════════════════════════════════════════════════════════════════════════
 
-    api_host: str = "0.0.0.0"
+    api_host: str = "0.0.0.0"  # nosec B104 - default for containerized deployment, overridden by env
     api_port: int = 8102
 
     # Rate limiting

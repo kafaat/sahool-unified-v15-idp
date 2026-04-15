@@ -212,7 +212,12 @@ export interface DailyWisdom {
     illumination: string;
     tips: string[];
   };
-  current_star?: any;
+  current_star?: {
+    name: string;
+    description?: string;
+    rising_date?: string;
+    setting_date?: string;
+  };
   season: {
     name: string;
     crops: string[];

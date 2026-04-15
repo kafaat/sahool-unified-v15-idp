@@ -3,9 +3,9 @@
  * مخطط قراءات المستشعر
  */
 
-"use client";
+'use client';
 
-import React, { useMemo } from "react";
+import React, { useMemo } from 'react';
 import {
   DynamicLineChart as LineChart,
   DynamicLine as Line,
@@ -17,16 +17,16 @@ import {
   DynamicTooltip as Tooltip,
   DynamicResponsiveContainer as ResponsiveContainer,
   DynamicLegend as Legend,
-} from "@/components/charts/LazyRecharts.dynamic";
-import { TrendingUp, TrendingDown, Activity } from "lucide-react";
-import type { SensorReading } from "../types";
+} from '@/components/charts/LazyRecharts.dynamic';
+import { TrendingUp, TrendingDown, Activity } from 'lucide-react';
+import type { SensorReading } from '../types';
 
 interface SensorChartProps {
   readings: SensorReading[];
   sensorType: string;
   sensorUnit: string;
   sensorUnitAr: string;
-  chartType?: "line" | "area";
+  chartType?: 'line' | 'area';
   showStats?: boolean;
 }
 
@@ -35,16 +35,16 @@ export const SensorChart: React.FC<SensorChartProps> = ({
   sensorType,
   sensorUnit,
   sensorUnitAr,
-  chartType = "area",
+  chartType = 'area',
   showStats = true,
 }) => {
   // Prepare chart data
   const chartData = useMemo(() => {
     return readings
       .map((reading) => ({
-        time: new Date(reading.timestamp).toLocaleTimeString("ar-SA", {
-          hour: "2-digit",
-          minute: "2-digit",
+        time: new Date(reading.timestamp).toLocaleTimeString('ar-SA', {
+          hour: '2-digit',
+          minute: '2-digit',
         }),
         value: reading.value,
         timestamp: reading.timestamp,
@@ -54,12 +54,17 @@ export const SensorChart: React.FC<SensorChartProps> = ({
 
   // Calculate statistics
   const stats = useMemo(() => {
-    if (readings.length === 0) {
+    // Filter to finite numeric values only — defensive against API
+    // responses that include null/undefined/NaN readings.
+    const values = readings
+      .map((r) => r.value)
+      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v));
+
+    if (values.length === 0) {
       return { current: 0, average: 0, min: 0, max: 0, trend: 0 };
     }
 
-    const values = readings.map((r) => r.value);
-    const current = values[0]; // Most recent reading
+    const current = values[0] ?? 0; // Most recent reading
     const average = values.reduce((sum, v) => sum + v, 0) / values.length;
     const min = Math.min(...values);
     const max = Math.max(...values);
@@ -69,15 +74,10 @@ export const SensorChart: React.FC<SensorChartProps> = ({
     const firstHalf = values.slice(0, mid);
     const secondHalf = values.slice(mid);
     const firstAvg =
-      firstHalf.length > 0
-        ? firstHalf.reduce((sum, v) => sum + v, 0) / firstHalf.length
-        : 0;
+      firstHalf.length > 0 ? firstHalf.reduce((sum, v) => sum + v, 0) / firstHalf.length : 0;
     const secondAvg =
-      secondHalf.length > 0
-        ? secondHalf.reduce((sum, v) => sum + v, 0) / secondHalf.length
-        : 0;
-    const rawTrend =
-      firstAvg !== 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
+      secondHalf.length > 0 ? secondHalf.reduce((sum, v) => sum + v, 0) / secondHalf.length : 0;
+    const rawTrend = firstAvg !== 0 ? ((secondAvg - firstAvg) / firstAvg) * 100 : 0;
     const trend = Number.isFinite(rawTrend) ? rawTrend : 0;
 
     return { current, average, min, max, trend };
@@ -86,18 +86,18 @@ export const SensorChart: React.FC<SensorChartProps> = ({
   // Get color based on sensor type
   const getColor = () => {
     switch (sensorType) {
-      case "temperature":
-        return "#ef4444"; // red
-      case "humidity":
-        return "#3b82f6"; // blue
-      case "soil_moisture":
-        return "#10b981"; // green
-      case "ph":
-        return "#8b5cf6"; // purple
-      case "light":
-        return "#f59e0b"; // amber
+      case 'temperature':
+        return '#ef4444'; // red
+      case 'humidity':
+        return '#3b82f6'; // blue
+      case 'soil_moisture':
+        return '#10b981'; // green
+      case 'ph':
+        return '#8b5cf6'; // purple
+      case 'light':
+        return '#f59e0b'; // amber
       default:
-        return "#6366f1"; // indigo
+        return '#6366f1'; // indigo
     }
   };
 
@@ -108,9 +108,7 @@ export const SensorChart: React.FC<SensorChartProps> = ({
       <div className="bg-white rounded-xl border-2 border-gray-200 p-8">
         <div className="text-center py-8">
           <Activity className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-          <p className="text-gray-500">
-            لا توجد قراءات متاحة | No readings available
-          </p>
+          <p className="text-gray-500">لا توجد قراءات متاحة | No readings available</p>
         </div>
       </div>
     );
@@ -125,7 +123,7 @@ export const SensorChart: React.FC<SensorChartProps> = ({
           <div className="bg-gray-50 rounded-lg p-3">
             <p className="text-xs text-gray-600 mb-1">الحالي | Current</p>
             <p className="text-xl font-bold" style={{ color }}>
-              {stats.current!.toFixed(2)}
+              {stats.current.toFixed(2)}
               <span className="text-sm text-gray-600 mr-1">{sensorUnitAr}</span>
             </p>
           </div>
@@ -171,13 +169,13 @@ export const SensorChart: React.FC<SensorChartProps> = ({
               <p
                 className={`text-xl font-bold ${
                   stats.trend > 0
-                    ? "text-green-600"
+                    ? 'text-green-600'
                     : stats.trend < 0
-                      ? "text-red-600"
-                      : "text-gray-600"
+                      ? 'text-red-600'
+                      : 'text-gray-600'
                 }`}
               >
-                {stats.trend > 0 ? "+" : ""}
+                {stats.trend > 0 ? '+' : ''}
                 {stats.trend.toFixed(1)}%
               </p>
             </div>
@@ -188,16 +186,10 @@ export const SensorChart: React.FC<SensorChartProps> = ({
       {/* Chart */}
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
-          {chartType === "area" ? (
+          {chartType === 'area' ? (
             <AreaChart data={chartData}>
               <defs>
-                <linearGradient
-                  id={`gradient-${sensorType}`}
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
+                <linearGradient id={`gradient-${sensorType}`} x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor={color} stopOpacity={0.3} />
                   <stop offset="95%" stopColor={color} stopOpacity={0.05} />
                 </linearGradient>
@@ -206,28 +198,28 @@ export const SensorChart: React.FC<SensorChartProps> = ({
               <XAxis
                 dataKey="time"
                 stroke="#6b7280"
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: '12px' }}
                 tickLine={false}
               />
               <YAxis
                 stroke="#6b7280"
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: '12px' }}
                 tickLine={false}
                 label={{
                   value: `${sensorUnitAr} (${sensorUnit})`,
                   angle: -90,
-                  position: "insideLeft",
-                  style: { fontSize: "12px", fill: "#6b7280" },
+                  position: 'insideLeft',
+                  style: { fontSize: '12px', fill: '#6b7280' },
                 }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "white",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "14px",
+                  backgroundColor: 'white',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
                 }}
-                labelStyle={{ fontWeight: "bold", marginBottom: "4px" }}
+                labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
               />
               <Area
                 type="monotone"
@@ -244,28 +236,28 @@ export const SensorChart: React.FC<SensorChartProps> = ({
               <XAxis
                 dataKey="time"
                 stroke="#6b7280"
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: '12px' }}
                 tickLine={false}
               />
               <YAxis
                 stroke="#6b7280"
-                style={{ fontSize: "12px" }}
+                style={{ fontSize: '12px' }}
                 tickLine={false}
                 label={{
                   value: `${sensorUnitAr} (${sensorUnit})`,
                   angle: -90,
-                  position: "insideLeft",
-                  style: { fontSize: "12px", fill: "#6b7280" },
+                  position: 'insideLeft',
+                  style: { fontSize: '12px', fill: '#6b7280' },
                 }}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "white",
-                  border: "2px solid #e5e7eb",
-                  borderRadius: "8px",
-                  fontSize: "14px",
+                  backgroundColor: 'white',
+                  border: '2px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '14px',
                 }}
-                labelStyle={{ fontWeight: "bold", marginBottom: "4px" }}
+                labelStyle={{ fontWeight: 'bold', marginBottom: '4px' }}
               />
               <Legend />
               <Line
@@ -285,8 +277,8 @@ export const SensorChart: React.FC<SensorChartProps> = ({
       {/* Time Range Info */}
       {chartData.length > 0 && (
         <div className="text-center text-sm text-gray-500">
-          {chartData.length} قراءة من {chartData[0]!.time} إلى{" "}
-          {chartData[chartData.length - 1]!.time}
+          {chartData.length} قراءة من {chartData[0]?.time ?? '-'} إلى{' '}
+          {chartData[chartData.length - 1]?.time ?? '-'}
         </div>
       )}
     </div>

@@ -215,17 +215,31 @@ class S3StorageProvider(StorageProvider):
 
     async def retrieve(self, storage_path: str) -> bytes:
         """Retrieve file from S3"""
-        # Placeholder - implement with boto3
-        raise NotImplementedError("S3 retrieval not implemented")
+        logger.error(
+            "s3_retrieve_not_implemented",
+            bucket=self.bucket_name,
+            path=storage_path,
+        )
+        raise NotImplementedError(
+            f"S3 retrieval not yet implemented for bucket={self.bucket_name}, path={storage_path}"
+        )
 
     async def delete(self, storage_path: str) -> bool:
         """Delete file from S3"""
-        # Placeholder - implement with boto3
-        return True
+        logger.warning(
+            "s3_delete_not_implemented",
+            bucket=self.bucket_name,
+            path=storage_path,
+        )
+        return False
 
     async def exists(self, storage_path: str) -> bool:
         """Check if file exists on S3"""
-        # Placeholder - implement with boto3
+        logger.warning(
+            "s3_exists_not_implemented",
+            bucket=self.bucket_name,
+            path=storage_path,
+        )
         return False
 
     async def get_url(self, storage_path: str, expires_in: int = 3600) -> str:

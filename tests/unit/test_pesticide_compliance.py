@@ -6,51 +6,50 @@ PPE requirements validation, and alert generation.
 """
 
 from datetime import UTC, datetime, timedelta
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock, patch
 
 import pytest
 
-from shared.pesticide_compliance.models import (
-    Pesticide,
-    PesticideApplication,
-    PesticideCategory,
-    ToxicityClass,
-    PPELevel,
-    PPERequirement,
-    ComplianceStatus,
-    MixCompatibility,
-    PHIViolation,
-    REIViolation,
-    TankMixCompatibility,
-    SprayDriftRisk,
-    ComplianceCheck,
-)
-from shared.pesticide_compliance.database import (
-    get_pesticide,
-    search_pesticides,
-    get_tank_mix_compatibility,
-    PESTICIDE_DATABASE,
-    PPE_MINIMAL,
-    PPE_STANDARD,
-    PPE_ENHANCED,
-    PPE_MAXIMUM,
+from shared.pesticide_compliance.alerts import (
+    generate_compliance_summary_alert,
+    generate_phi_alert,
+    generate_rei_alert,
+    generate_spray_drift_alert,
+    generate_tank_mix_alert,
 )
 from shared.pesticide_compliance.checker import (
     PesticideComplianceChecker,
+    assess_spray_drift_risk,
     check_phi_compliance,
     check_rei_compliance,
     check_tank_mix_compatibility,
     get_ppe_requirements,
-    assess_spray_drift_risk,
 )
-from shared.pesticide_compliance.alerts import (
-    generate_phi_alert,
-    generate_rei_alert,
-    generate_tank_mix_alert,
-    generate_spray_drift_alert,
-    generate_compliance_summary_alert,
+from shared.pesticide_compliance.database import (
+    PESTICIDE_DATABASE,
+    PPE_ENHANCED,
+    PPE_MAXIMUM,
+    PPE_MINIMAL,
+    PPE_STANDARD,
+    get_pesticide,
+    get_tank_mix_compatibility,
+    search_pesticides,
 )
-
+from shared.pesticide_compliance.models import (
+    ComplianceCheck,
+    ComplianceStatus,
+    MixCompatibility,
+    Pesticide,
+    PesticideApplication,
+    PesticideCategory,
+    PHIViolation,
+    PPELevel,
+    PPERequirement,
+    REIViolation,
+    SprayDriftRisk,
+    TankMixCompatibility,
+    ToxicityClass,
+)
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Test Fixtures

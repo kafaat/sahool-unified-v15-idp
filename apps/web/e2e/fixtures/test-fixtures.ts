@@ -133,8 +133,19 @@ export const test = base.extend<CustomFixtures>({
    * Test user fixture
    * إعداد المستخدم الاختباري
    */
-  testUser: async (_options, useFixture) => {
-    await useFixture(TEST_USER);
+  // Playwright passes `use` as the fixture-resolver — same name as the
+  // React 19 `use()` hook, which triggers react-hooks/rules-of-hooks.
+  // This is a Playwright fixture, not a React render context, so the
+  // hook rules don't apply. The rule is suppressed at the call site.
+  //
+  // Playwright also requires the first argument to use the destructuring
+  // pattern (even when no dependencies are needed) so it can statically
+  // inspect the dependency list — that's why the first arg is `{}` and
+  // not a plain identifier like `_options`.
+  // eslint-disable-next-line no-empty-pattern
+  testUser: async ({}, use) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    await use(TEST_USER);
   },
 
   /**
@@ -143,7 +154,8 @@ export const test = base.extend<CustomFixtures>({
    * إعداد الصفحة المصادقة
    * تسجيل دخول تلقائي قبل كل اختبار يستخدم هذا الإعداد
    */
-  authenticatedPage: async ({ page }, useFixture) => {
+  // See note above on `use` vs the React 19 `use()` hook.
+  authenticatedPage: async ({ page }, use) => {
     // In CI, mock all API calls to return test data
     if (process.env.CI) {
       await page.route("**/api/**", async (route) => {
@@ -179,7 +191,8 @@ export const test = base.extend<CustomFixtures>({
     await waitForPageLoad(page);
 
     // Run the test
-    await useFixture();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    await use();
 
     // Cleanup: logout after test (optional)
     try {

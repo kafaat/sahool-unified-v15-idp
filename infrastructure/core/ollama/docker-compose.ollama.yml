@@ -29,7 +29,7 @@ services:
   # Ollama CPU-only Service (Default)
   # ─────────────────────────────────────────────────────────────────────────────
   ollama:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.5.4
     container_name: sahool-ollama
     ports:
       - "127.0.0.1:11434:11434"
@@ -57,7 +57,7 @@ services:
   # Ollama GPU Service (NVIDIA)
   # ─────────────────────────────────────────────────────────────────────────────
   ollama-gpu:
-    image: ollama/ollama:latest
+    image: ollama/ollama:0.5.4
     container_name: sahool-ollama-gpu
     ports:
       - "127.0.0.1:11434:11434"
@@ -96,7 +96,7 @@ services:
   # Downloads and prepares default models on startup
   # ─────────────────────────────────────────────────────────────────────────────
   ollama-init:
-    image: curlimages/curl:latest
+    image: curlimages/curl:8.11.1
     container_name: sahool-ollama-init
     depends_on:
       ollama:
@@ -124,7 +124,7 @@ services:
   # Ollama GPU Model Initializer
   # ─────────────────────────────────────────────────────────────────────────────
   ollama-gpu-init:
-    image: curlimages/curl:latest
+    image: curlimages/curl:8.11.1
     container_name: sahool-ollama-gpu-init
     depends_on:
       ollama-gpu:

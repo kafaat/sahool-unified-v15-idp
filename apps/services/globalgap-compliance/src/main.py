@@ -358,8 +358,12 @@ async def get_checklists(
     Get available checklists
     الحصول على قوائم المراجعة المتاحة
     """
-    # Filter checklists | تصفية قوائم المراجعة
-    filtered = [c for c in _checklists.values() if c.get("ifa_version") == ifa_version and c.get("is_active", True)]
+    # Filter checklists by tenant and version | تصفية قوائم المراجعة حسب المستأجر والإصدار
+    filtered = [
+        c
+        for c in _checklists.values()
+        if c.get("ifa_version") == ifa_version and c.get("is_active", True) and c.get("tenant_id") == tenant_id
+    ]
 
     if checklist_type:
         filtered = [c for c in filtered if c.get("checklist_type") == checklist_type]
@@ -379,8 +383,10 @@ async def get_checklist_items(
     Get checklist items (control points)
     الحصول على عناصر قائمة المراجعة (نقاط التحكم)
     """
-    # Filter items | تصفية العناصر
-    filtered = [item for item in _checklist_items.values() if item.get("is_active", True)]
+    # Filter items by tenant | تصفية العناصر حسب المستأجر
+    filtered = [
+        item for item in _checklist_items.values() if item.get("is_active", True) and item.get("tenant_id") == tenant_id
+    ]
 
     if category:
         filtered = [item for item in filtered if item.get("category") == category.value]
@@ -713,4 +719,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", settings.service_port))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

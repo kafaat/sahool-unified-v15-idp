@@ -1,14 +1,14 @@
+const path = require("path");
+
 let withSentryConfig;
 let sentryInstalled = false;
 try {
   withSentryConfig = require("@sentry/nextjs").withSentryConfig;
   sentryInstalled = true;
 } catch (/** @type {any} */ err) {
-  // Only swallow when @sentry/nextjs itself is missing; rethrow transitive failures
-  const isSentryMissing =
-    err?.code === "MODULE_NOT_FOUND" &&
-    /['"]@sentry\/nextjs['"]/.test(err?.message ?? "");
-  if (!isSentryMissing) throw err;
+  // Swallow MODULE_NOT_FOUND for @sentry/nextjs or any of its transitive deps
+  // (e.g. next/constants when next is not hoisted to root in monorepo)
+  if (err?.code !== "MODULE_NOT_FOUND") throw err;
   // Fail fast when Sentry is expected (DSN configured) but the package is missing.
   // This prevents silently disabling source-map upload / instrumentation in CI/prod.
   if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
@@ -24,10 +24,17 @@ const withBundleAnalyzer = require("@next/bundle-analyzer")({
   enabled: process.env.ANALYZE === "true",
 });
 
+// ── Runtime Startup Validation ────────────────────────────────────────────────
+// Validate JWT_SECRET_KEY only at server RUNTIME, not during `next build`.
+// Build step (CI) doesn't have access to runtime secrets — they're injected
+// when the container starts. Checking here would break production builds.
+// Validation happens in: src/lib/auth/jwt-verify.ts at first token verification.
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  outputFileTracingRoot: path.resolve(__dirname, "../../"),
 
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
@@ -43,55 +50,77 @@ const nextConfig = {
   ],
 
   // Security Headers
+  //
+  // IMPORTANT (Chrome compatibility):
+  // Chrome enforces HSTS, COEP, COOP, and CORP more aggressively than other
+  // browsers. Sending them unconditionally — including in development over
+  // plain HTTP on a LAN IP — is exactly how you get "works in Firefox, broken
+  // in Chrome" reports:
+  //   - HSTS pins https:// for 2 years on first visit.
+  //   - COEP: credentialless blocks third-party map tiles / icons that don't
+  //     set CORP headers.
+  //   - COOP: same-origin breaks window.open popups (OAuth).
+  //
+  // We therefore emit these headers ONLY when NODE_ENV === 'production'.
+  // CSP is still applied via middleware.ts in every environment (with nonce).
   async headers() {
-    return [
+    const isProd = process.env.NODE_ENV === "production";
+
+    const baseHeaders = [
       {
-        source: "/:path*",
-        headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
+        key: "X-DNS-Prefetch-Control",
+        value: "on",
+      },
+      {
+        key: "X-Frame-Options",
+        value: "DENY",
+      },
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value:
+          "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
+      },
+    ];
+
+    const productionOnlyHeaders = isProd
+      ? [
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value:
-              "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
-          },
-          // CSP is now handled by middleware with nonce-based security
+          // CSP is handled by middleware with nonce-based security.
           // See: src/middleware.ts and src/lib/security/csp-config.ts
           {
             key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
+            // Explicit `unsafe-none` documents the intentional opt-out of
+            // cross-origin isolation. Flip to `credentialless` only after
+            // confirming every third-party tile/image origin sets CORP.
+            value: "unsafe-none",
           },
           {
             key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
+            // Keeps COOP's process isolation but still permits OAuth popups.
+            value: "same-origin-allow-popups",
           },
           {
             key: "Cross-Origin-Resource-Policy",
-            value: "same-origin",
+            value: "cross-origin",
           },
-        ],
+        ]
+      : [];
+
+    return [
+      {
+        source: "/:path*",
+        headers: [...baseHeaders, ...productionOnlyHeaders],
       },
       // Static assets - long-term caching (content-hashed, immutable)
       {
@@ -154,15 +183,14 @@ const nextConfig = {
 
   // Note: telemetry is disabled via NEXT_TELEMETRY_DISABLED env var in Dockerfile
 
-  // TypeScript - ignore during build since type-check runs separately in CI
+  // TypeScript errors must be fixed before build succeeds
   typescript: {
-    // Type checking is done by dedicated 'typecheck' job in CI pipeline
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
-  // ESLint - ignore during build since lint runs separately in CI
+  // ESLint errors must be fixed before build succeeds
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
 
   // Note: eslint configuration moved to .eslintrc.json or eslint.config.js
@@ -204,7 +232,6 @@ const nextConfig = {
     // factory function, which crashes at runtime with
     // "Cannot read properties of undefined (reading 'call')".
     if (!sentryInstalled) {
-      const path = require("path");
       config.resolve.alias = {
         ...config.resolve.alias,
         "@sentry/nextjs": path.resolve(__dirname, "src/lib/sentry-shim.ts"),
@@ -213,7 +240,6 @@ const nextConfig = {
 
     // Add parent node_modules to module resolution for workspace dependencies
     // This allows Next.js to find dependencies hoisted to the root in npm workspaces
-    const path = require("path");
     const parentNodeModules = path.resolve(__dirname, "../../node_modules");
     config.resolve.modules = [
       ...(config.resolve.modules || ["node_modules"]),
@@ -257,14 +283,9 @@ const nextConfig = {
               chunks: "all",
               priority: 30,
             },
-            // Group framework-level dependencies that rarely change
-            framework: {
-              test: /[\\/]node_modules[\\/](react|react-dom|next|scheduler)[\\/]/,
-              name: "framework",
-              chunks: "all",
-              priority: 40,
-              enforce: true,
-            },
+            // Note: no `framework` cacheGroup here — Next.js 15 ships its own
+            // framework chunk (react, react-dom, next, scheduler) and overriding
+            // it via splitChunks breaks production builds.
           },
         },
       };
@@ -288,7 +309,6 @@ const nextConfig = {
       "@sahool/shared-types",
       "@sahool/api-client",
       "react-leaflet",
-      "jose",
       "axios",
     ],
   },

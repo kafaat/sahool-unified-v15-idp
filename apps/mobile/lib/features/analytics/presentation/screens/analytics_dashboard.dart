@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/analytics_provider.dart';
 
 /// شاشة لوحة الإحصائيات والتحليلات
 /// Analytics Dashboard Screen
@@ -61,7 +62,9 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
 
   Widget _buildOverviewTab() {
     return RefreshIndicator(
-      onRefresh: () async {},
+      onRefresh: () async {
+        ref.invalidate(analyticsDashboardProvider);
+      },
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -176,8 +179,8 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: (trendUp ?? false)
-                          ? Colors.green.withOpacity(0.1)
-                          : Colors.red.withOpacity(0.1),
+                          ? Colors.green.withValues(alpha: 0.1)
+                          : Colors.red.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -247,7 +250,9 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
             _buildFieldRow('حقل البرسيم', '50 هكتار', 0.90, 'برسيم'),
             const SizedBox(height: 12),
             TextButton.icon(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/fields');
+              },
               icon: const Icon(Icons.visibility),
               label: const Text('عرض كل الحقول'),
             ),
@@ -267,7 +272,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF367C2B).withOpacity(0.1),
+              color: const Color(0xFF367C2B).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.grass, color: Color(0xFF367C2B)),
@@ -291,7 +296,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: healthColor.withOpacity(0.1),
+              color: healthColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -375,7 +380,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -436,7 +441,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
@@ -515,14 +520,14 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text('نسبة الإنجاز'),
+                    Text('نسبة الإنجاز'),
                     Text(
                       '49%',
                       style: TextStyle(
-                        color: const Color(0xFF367C2B),
+                        color: Color(0xFF367C2B),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -717,7 +722,7 @@ class _AnalyticsDashboardState extends ConsumerState<AnalyticsDashboard>
         leading: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: const Color(0xFF367C2B).withOpacity(0.1),
+            color: const Color(0xFF367C2B).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: const Color(0xFF367C2B)),

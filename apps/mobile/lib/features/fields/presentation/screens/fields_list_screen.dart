@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/semantics.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/accessibility/semantics_helper.dart';
+import '../../../../core/di/providers.dart';
+import '../../../../core/iam/iam_providers.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
 import 'field_details_screen.dart';
@@ -30,93 +33,72 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   String _sortBy = 'name';
   bool _isGridView = false;
 
-  // Mock data - في الإنتاج سيأتي من API
-  final List<FieldEntity> _fields = [
-    FieldEntity(
-      id: '1',
-      tenantId: 't1',
-      name: 'حقل القمح الشمالي',
-      areaHectares: 45.5,
-      cropType: 'قمح',
-      healthScore: 0.85,
-      ndviValue: 0.72,
-      ndwiValue: -0.05,
-      soilType: 'طيني',
-      irrigationType: 'محوري',
-      plantingDate: DateTime.now().subtract(const Duration(days: 60)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 90)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '2',
-      tenantId: 't1',
-      name: 'حقل الذرة الغربي',
-      areaHectares: 60.0,
-      cropType: 'ذرة',
-      healthScore: 0.72,
-      ndviValue: 0.65,
-      ndwiValue: -0.12,
-      soilType: 'رملي',
-      irrigationType: 'تنقيط',
-      plantingDate: DateTime.now().subtract(const Duration(days: 45)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 75)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '3',
-      tenantId: 't1',
-      name: 'حقل الشعير',
-      areaHectares: 35.0,
-      cropType: 'شعير',
-      healthScore: 0.45,
-      ndviValue: 0.42,
-      ndwiValue: -0.25,
-      soilType: 'طيني',
-      irrigationType: 'غمر',
-      plantingDate: DateTime.now().subtract(const Duration(days: 90)),
-      expectedHarvest: DateTime.now().add(const Duration(days: 30)),
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '4',
-      tenantId: 't1',
-      name: 'حقل البرسيم',
-      areaHectares: 50.0,
-      cropType: 'برسيم',
-      healthScore: 0.92,
-      ndviValue: 0.85,
-      ndwiValue: 0.02,
-      soilType: 'طيني رملي',
-      irrigationType: 'محوري',
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-    FieldEntity(
-      id: '5',
-      tenantId: 't1',
-      name: 'حقل النخيل',
-      areaHectares: 25.0,
-      cropType: 'نخيل',
-      healthScore: 0.78,
-      ndviValue: 0.68,
-      ndwiValue: -0.08,
-      soilType: 'رملي',
-      irrigationType: 'تنقيط',
-      status: FieldStatus.active,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    ),
-  ];
+  List<FieldEntity> _fields = [];
+  bool _isLoading = true;
+  String? _loadError;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFields();
+  }
+
+  Future<void> _loadFields() async {
+    setState(() {
+      _isLoading = true;
+      _loadError = null;
+    });
+
+    try {
+      final tenant = ref.read(currentTenantProvider);
+      final tenantId = tenant?.id ?? 'default';
+      final repo = ref.read(fieldsRepoProvider);
+      final domainFields = await repo.getAllFields(tenantId);
+
+      // Map domain Field entities to FieldEntity for the UI
+      final now = DateTime.now();
+      setState(() {
+        _fields = domainFields.map((f) {
+          final ndvi = f.ndviCurrent ?? 0.0;
+          double healthScore;
+          if (ndvi >= 0.6) {
+            healthScore = 0.8 + (ndvi - 0.6) * 0.5;
+          } else if (ndvi >= 0.4) {
+            healthScore = 0.5 + (ndvi - 0.4) * 1.5;
+          } else if (ndvi > 0) {
+            healthScore = ndvi;
+          } else {
+            healthScore = 0.0;
+          }
+
+          return FieldEntity(
+            id: f.id,
+            tenantId: f.tenantId,
+            name: f.name,
+            farmId: f.farmId,
+            areaHectares: f.areaHectares,
+            cropType: f.cropType ?? 'غير محدد',
+            healthScore: healthScore.clamp(0.0, 1.0),
+            ndviValue: f.ndviCurrent,
+            soilType: null,
+            irrigationType: null,
+            status: FieldStatus.fromString(f.status ?? 'active'),
+            createdAt: f.createdAt,
+            updatedAt: f.updatedAt,
+          );
+        }).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _loadError = 'فشل تحميل الحقول: $e';
+      });
+    }
+  }
 
   List<FieldEntity> get _filteredFields {
-    var fields = _fields.where((f) {
+    final fields = _fields.where((f) {
       if (_searchQuery.isNotEmpty &&
           !f.name.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
@@ -149,33 +131,40 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   /// Refresh fields from API
   /// تحديث الحقول من الخادم
   Future<void> _refreshFields() async {
-    // Simulate API call delay
-    // في الإنتاج، استبدل هذا باستدعاء API حقيقي
-    await Future.delayed(const Duration(milliseconds: 800));
+    try {
+      final tenant = ref.read(currentTenantProvider);
+      final tenantId = tenant?.id ?? 'default';
+      final repo = ref.read(fieldsRepoProvider);
 
-    // In production, fetch from API:
-    // final apiClient = ref.read(apiClientProvider);
-    // final response = await apiClient.get('/fields');
-    // final newFields = (response.data as List).map((f) => FieldEntity.fromJson(f)).toList();
+      // Try to refresh from server first
+      try {
+        await repo.refreshFromServer(tenantId);
+      } catch (e) {
+        // If server refresh fails (offline), just reload from local DB
+      }
 
-    // For now, just refresh with updated timestamps
-    setState(() {
-      for (var i = 0; i < _fields.length; i++) {
-        _fields[i] = _fields[i].copyWith(
-          updatedAt: DateTime.now(),
+      // Reload from local DB
+      await _loadFields();
+
+      // Show refresh confirmation
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('تم تحديث البيانات'),
+            duration: Duration(seconds: 1),
+            backgroundColor: Color(0xFF367C2B),
+          ),
         );
       }
-    });
-
-    // Show refresh confirmation
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم تحديث البيانات'),
-          duration: Duration(seconds: 1),
-          backgroundColor: Color(0xFF367C2B),
-        ),
-      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('فشل التحديث: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -274,26 +263,45 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            // Search and filters
-            _buildSearchAndFilters(),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : _loadError != null
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+                        const SizedBox(height: 16),
+                        Text(_loadError!, style: TextStyle(color: Colors.grey[600])),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: _loadFields,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('إعادة المحاولة'),
+                        ),
+                      ],
+                    ),
+                  )
+                : Column(
+                    children: [
+                      // Search and filters
+                      _buildSearchAndFilters(),
 
-            // Stats bar with live region for dynamic updates
-            Semantics(
-              liveRegion: true,
-              child: _buildStatsBar(),
-            ),
+                      // Stats bar with live region for dynamic updates
+                      Semantics(
+                        liveRegion: true,
+                        child: _buildStatsBar(),
+                      ),
 
-            // Fields list/grid
-            Expanded(
-              child: SahoolRefreshIndicator(
-                onRefresh: _refreshFields,
-                child: _isGridView ? _buildGridView() : _buildListView(),
-              ),
-            ),
-          ],
-        ),
+                      // Fields list/grid
+                      Expanded(
+                        child: SahoolRefreshIndicator(
+                          onRefresh: _refreshFields,
+                          child: _isGridView ? _buildGridView() : _buildListView(),
+                        ),
+                      ),
+                    ],
+                  ),
         floatingActionButton: Semantics(
           label: SahoolSemantics.addFieldButton,
           button: true,
@@ -315,7 +323,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -330,7 +338,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'ابحث عن حقل...',
-                prefixIcon: ExcludeSemantics(child: const Icon(Icons.search)),
+                prefixIcon: const ExcludeSemantics(child: Icon(Icons.search)),
                 suffixIcon: _searchQuery.isNotEmpty
                     ? Semantics(
                         label: SahoolSemantics.clearFilter,
@@ -447,7 +455,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         label: Text(label),
         selected: selected,
         onSelected: onSelected,
-        selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+        selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
         checkmarkColor: const Color(0xFF367C2B),
       ),
     );
@@ -614,22 +622,25 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
-  void _openFieldDetails(FieldEntity field) {
-    Navigator.push(
+  Future<void> _openFieldDetails(FieldEntity field) async {
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => FieldDetailsScreen(field: field),
       ),
     );
+    // Reload fields if a field was deleted or modified
+    if (result == 'deleted' && mounted) {
+      unawaited(_loadFields());
+    }
   }
 
-  void _addField() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('إضافة حقل جديد - قريباً'),
-        backgroundColor: Color(0xFF367C2B),
-      ),
-    );
+  Future<void> _addField() async {
+    final result = await Navigator.pushNamed(context, '/field-form');
+    // Reload fields if a field was created
+    if (result == true && mounted) {
+      unawaited(_loadFields());
+    }
   }
 
   Color _getHealthColor(double score) {

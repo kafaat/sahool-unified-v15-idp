@@ -190,7 +190,7 @@ def check_query_complexity(query: str) -> bool:
 # ═══════════════════════════════════════════════════════════════════════════════
 
 
-async def publish_event(subject: str, data: dict) -> None:
+async def publish_event(subject: str, data: dict) -> bool:
     """
     Publish an event to NATS.
 
@@ -199,13 +199,32 @@ async def publish_event(subject: str, data: dict) -> None:
     Args:
         subject: Event subject (e.g., "sahool.tenant_id.crm.farmer.created")
         data: Event payload dictionary
+
+    Returns:
+        True if published successfully, False otherwise
     """
-    if app.state.publisher:
-        try:
-            await app.state.publisher.publish(subject, json.dumps(data).encode())
-            logger.info("event_published", subject=subject, event_type=data.get("event_type"))
-        except Exception as e:
-            logger.error("event_publish_failed", subject=subject, error=str(e))
+    if app.state.publisher is None:
+        logger.warning(
+            "nats_publisher_not_initialized",
+            subject=subject,
+            event_type=data.get("event_type"),
+            message="NATS publisher is None - event will be lost. Check NATS connection during service startup.",
+        )
+        return False
+
+    try:
+        await app.state.publisher.publish(subject, json.dumps(data).encode())
+        logger.info("event_published", subject=subject, event_type=data.get("event_type"))
+        return True
+    except Exception as e:
+        logger.warning(
+            "event_publish_failed",
+            subject=subject,
+            event_type=data.get("event_type"),
+            error=str(e),
+            message="Failed to publish CRM event to NATS. Event data may be lost.",
+        )
+        return False
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -454,6 +473,7 @@ async def lifespan(app: FastAPI):
             app.state.db_pool = await asyncpg.create_pool(
                 db_url,
                 min_size=2,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility,
                 max_size=10,
                 command_timeout=60,
             )
@@ -840,7 +860,9 @@ async def general_exception_handler(request: Request, exc: Exception):
 
 
 # CORS middleware - Get allowed origins from environment
-cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
+cors_origins = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -1132,14 +1154,10 @@ async def get_farmer(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database
-        data = await crm_repo.farmers.get_by_id(farmer_id)
+        # Use database with mandatory tenant isolation
+        data = await crm_repo.farmers.get_by_id(farmer_id, tenant_id)
         if not data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-
-        # Verify farmer belongs to requested tenant
-        if data["tenant_id"] != tenant_id:
-            raise TenantAccessDeniedError(tenant_id=tenant_id)
 
         response = FarmerResponse(
             id=data["id"],
@@ -1206,13 +1224,10 @@ async def update_farmer(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database
-        existing = await crm_repo.farmers.get_by_id(farmer_id)
+        # Use database with mandatory tenant isolation
+        existing = await crm_repo.farmers.get_by_id(farmer_id, user.tenant_id)
         if not existing:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-
-        # Validate tenant access
-        validate_tenant_access(user, existing["tenant_id"])
 
         # Track old status for status change event
         old_status = existing["status"]
@@ -1392,13 +1407,10 @@ async def create_deal(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(deal_data.farmer_id)
+        # Use database - verify farmer exists with tenant isolation
+        farmer_data = await crm_repo.farmers.get_by_id(deal_data.farmer_id, user.tenant_id)
         if not farmer_data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data.farmer_id)
-
-        # Validate tenant access via farmer's tenant_id
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         data = await crm_repo.deals.create(
             farmer_id=deal_data.farmer_id,
@@ -1609,16 +1621,10 @@ async def update_deal_stage(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database
-        deal_data = await crm_repo.deals.get_by_id(deal_id)
+        # Use database with mandatory tenant isolation
+        deal_data = await crm_repo.deals.get_by_id(deal_id, user.tenant_id)
         if not deal_data:
             raise ResourceNotFoundError(resource_type="Deal", resource_id=deal_id)
-
-        # Get farmer for tenant validation
-        farmer_data = await crm_repo.farmers.get_by_id(deal_data["farmer_id"])
-        if not farmer_data:
-            raise ResourceNotFoundError(resource_type="Farmer", resource_id=deal_data["farmer_id"])
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         # Track old stage for event
         old_stage = deal_data["stage"]
@@ -1818,13 +1824,10 @@ async def log_interaction(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(interaction_data.farmer_id)
+        # Use database - verify farmer exists with tenant isolation
+        farmer_data = await crm_repo.farmers.get_by_id(interaction_data.farmer_id, user.tenant_id)
         if not farmer_data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=interaction_data.farmer_id)
-
-        # Validate tenant access via farmer's tenant_id
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         data = await crm_repo.interactions.create(
             farmer_id=interaction_data.farmer_id,
@@ -1946,11 +1949,10 @@ async def list_interactions(
     crm_repo = get_crm_repo(request)
 
     if crm_repo:
-        # Use database - first verify farmer exists
-        farmer_data = await crm_repo.farmers.get_by_id(farmer_id)
+        # Use database - verify farmer exists with tenant isolation
+        farmer_data = await crm_repo.farmers.get_by_id(farmer_id, user.tenant_id)
         if not farmer_data:
             raise ResourceNotFoundError(resource_type="Farmer", resource_id=farmer_id)
-        validate_tenant_access(user, farmer_data["tenant_id"])
 
         interactions_data = await crm_repo.interactions.list(
             farmer_id=farmer_id,
@@ -2197,5 +2199,5 @@ if __name__ == "__main__":
     import uvicorn
 
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
-    host = os.getenv("HOST", "0.0.0.0")
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker container
     uvicorn.run(app, host=host, port=SERVICE_PORT)

@@ -8,17 +8,29 @@ Centralized audit logging service for security compliance and operational tracea
 Provides hash chain integrity validation, field-level change tracking, and compliance reporting.
 """
 
+import json
 import logging
 import os
+import re
 import sys
+import uuid
 from contextlib import asynccontextmanager
+
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
 from datetime import UTC, datetime, timedelta, timezone
 from pathlib import Path as PathLib
 from typing import Literal
 from uuid import UUID
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query
-from pydantic import BaseModel, Field
+try:
+    import asyncpg
+except ImportError:
+    asyncpg = None  # type: ignore[assignment]
+from fastapi import Depends, FastAPI, Header, HTTPException, Path, Query, Request
+from pydantic import BaseModel, ConfigDict, Field
 
 # Add path to shared modules
 SHARED_PATH = PathLib("/app/shared")
@@ -44,7 +56,10 @@ from shared.middleware.tenant_context import TenantContextMiddleware
 # ═══════════════════════════════════════════════════════════════════════════════
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 def sanitize_log_input(value: str) -> str:
@@ -60,26 +75,28 @@ def sanitize_log_input(value: str) -> str:
 
 
 class AuditLogResponse(BaseModel):
-    """Audit log entry response"""
+    """Audit log entry response (camelCase aliases for frontend)"""
+
+    model_config = ConfigDict(populate_by_name=True)
 
     id: str
-    tenant_id: str
-    user_id: str
+    tenant_id: str = Field(..., alias="tenantId")
+    user_id: str = Field(..., alias="userId")
     action: str
     category: str
     severity: str
-    resource_type: str | None = None
-    resource_id: str | None = None
-    correlation_id: str | None = None
-    ip_address: str | None = None
+    resource_type: str | None = Field(default=None, alias="resourceType")
+    resource_id: str | None = Field(default=None, alias="resourceId")
+    correlation_id: str | None = Field(default=None, alias="correlationId")
+    ip_address: str | None = Field(default=None, alias="ipAddress")
     success: bool = True
-    error_code: str | None = None
-    error_message: str | None = None
+    error_code: str | None = Field(default=None, alias="errorCode")
+    error_message: str | None = Field(default=None, alias="errorMessage")
     details: dict | None = None
-    old_value: dict | None = None
-    new_value: dict | None = None
-    entry_hash: str | None = None
-    created_at: str
+    old_value: dict | None = Field(default=None, alias="oldValue")
+    new_value: dict | None = Field(default=None, alias="newValue")
+    entry_hash: str | None = Field(default=None, alias="entryHash")
+    created_at: str = Field(..., alias="createdAt")
 
 
 class AuditLogQuery(BaseModel):
@@ -121,14 +138,27 @@ class ComplianceReportResponse(BaseModel):
 
 
 class AuditStatsResponse(BaseModel):
-    """Audit statistics response"""
+    """Audit statistics response (camelCase aliases for frontend)"""
 
-    total_events: int
-    events_by_category: dict
-    events_by_severity: dict
-    failed_events: int
-    unique_users: int
-    chain_coverage_percent: float
+    model_config = ConfigDict(populate_by_name=True)
+
+    total_events: int = Field(..., alias="totalEvents")
+    events_by_category: dict = Field(..., alias="eventsByCategory")
+    events_by_severity: dict = Field(..., alias="eventsBySeverity")
+    failed_events: int = Field(..., alias="failedEvents")
+    unique_users: int = Field(..., alias="uniqueUsers")
+    chain_coverage_percent: float = Field(..., alias="chainCoveragePercent")
+
+
+class AuditLogCreate(BaseModel):
+    """Validated request body for creating audit log entries"""
+
+    action: str = Field(default="unknown", max_length=200)
+    category: str = Field(default="general", max_length=100)
+    severity: str = Field(default="info", pattern=r"^(info|warning|error|critical)$")
+    resource_type: str | None = Field(default=None, max_length=200)
+    resource_id: str | None = Field(default=None, max_length=200)
+    details: dict | None = None
 
 
 class PaginatedResponse(BaseModel):
@@ -139,6 +169,18 @@ class PaginatedResponse(BaseModel):
     skip: int
     limit: int
     has_more: bool
+
+
+class PaginatedAuditLogsResponse(BaseModel):
+    """Paginated audit logs response with camelCase item serialization."""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    items: list[AuditLogResponse]
+    total: int
+    skip: int
+    limit: int
+    has_more: bool = Field(..., alias="hasMore")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -168,6 +210,62 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
     return x_tenant_id
 
 
+def enforce_tenant_match(tenant_id: str, user: object) -> None:
+    """Verify X-Tenant-Id header matches the JWT tenant claim.
+
+    Raises HTTPException 403 if the authenticated user's tenant does not
+    match the tenant supplied via header, preventing cross-tenant access.
+    """
+    jwt_tenant = getattr(user, "tenant_id", None) or getattr(user, "tid", None)
+    # Also check dict-style user mocks used in tests
+    if jwt_tenant is None and isinstance(user, dict):
+        jwt_tenant = user.get("tenant_id") or user.get("tid")
+    if jwt_tenant and tenant_id != str(jwt_tenant):
+        raise HTTPException(status_code=403, detail="Tenant mismatch")
+
+
+def _get_user_tenant(user: object) -> str | None:
+    """Extract tenant id from JWT-bound user (tid claim / tenant_id attr)."""
+    tid = getattr(user, "tenant_id", None) or getattr(user, "tid", None)
+    if tid is None and isinstance(user, dict):
+        tid = user.get("tenant_id") or user.get("tid")
+    return str(tid) if tid else None
+
+
+_ADMIN_ROLES = {"admin", "super_admin"}
+
+
+def _user_has_admin_role(user: object) -> bool:
+    """Case-insensitively check if user has ADMIN or SUPER_ADMIN role."""
+    # dataclass/pydantic user with `roles` list
+    roles = getattr(user, "roles", None)
+    if roles is None and isinstance(user, dict):
+        roles = user.get("roles") or ([user.get("role")] if user.get("role") else [])
+    # Single `role` attribute fallback (per spec wording user.role)
+    if not roles:
+        single_role = getattr(user, "role", None)
+        if single_role:
+            roles = [single_role]
+    if not roles:
+        return False
+    normalized = {str(r).strip().lower() for r in roles if r}
+    return bool(normalized & _ADMIN_ROLES)
+
+
+def require_admin(user: object = Depends(get_current_user)) -> object:
+    """FastAPI dependency: only allow ADMIN or SUPER_ADMIN users.
+
+    Raises HTTPException 403 if the authenticated user does not hold an
+    admin-tier role. Used to guard sensitive audit log retrieval endpoints.
+    """
+    if not _user_has_admin_role(user):
+        raise HTTPException(
+            status_code=403,
+            detail="Admin privileges required to access audit logs",
+        )
+    return user
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Lifespan Management
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -181,16 +279,28 @@ async def lifespan(app: FastAPI):
     environment = os.getenv("ENVIRONMENT", "development").lower()
     is_ci_or_test = environment in ("test", "ci", "testing")
 
-    # Check database connection (via shared audit module)
+    # Database connection pool
+    app.state.db_pool = None
     try:
-        # In production, the shared audit module handles DB connections
-        # For CI/testing, we use in-memory storage
-        if is_ci_or_test:
+        db_url = os.getenv("DATABASE_URL")
+        if db_url and asyncpg:
+            # Enforce SSL for non-test environments
+            if not is_ci_or_test and "sslmode" not in db_url:
+                db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode=require"
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
+            app.state.db_available = True
+            logger.info("Database connection pool created")
+        elif is_ci_or_test:
             logger.info("Running in CI/test mode - using in-memory storage")
             app.state.db_available = False
         else:
-            app.state.db_available = True
-            logger.info("Database connection configured")
+            logger.warning("DATABASE_URL not configured - using in-memory storage")
+            app.state.db_available = False
     except Exception as e:
         if is_ci_or_test:
             logger.warning(f"Database not available in CI/test: {e}")
@@ -215,12 +325,62 @@ async def lifespan(app: FastAPI):
         logger.warning(f"NATS connection failed: {e}")
         app.state.nc = None
 
+    # Subscribe to platform events for audit logging
+    if app.state.nc:
+
+        async def handle_event(msg):
+            try:
+                data = json.loads(msg.data.decode())
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                logger.warning("invalid_nats_message", subject=getattr(msg, "subject", "unknown"))
+                return
+            tenant_id = data.get("tenant_id")
+            if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
+                logger.warning("missing_or_invalid_tenant_in_event", subject=getattr(msg, "subject", "unknown"))
+                return
+            if tenant_id not in _audit_logs:
+                _audit_logs[tenant_id] = []
+            _audit_logs[tenant_id].append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "subject": msg.subject,
+                    "action": msg.subject.split(".")[-1] if "." in msg.subject else msg.subject,
+                    "category": msg.subject.split(".")[1] if len(msg.subject.split(".")) > 1 else "system",
+                    "severity": data.get("severity", "info"),
+                    "user_id": data.get("user_id", "system"),
+                    "resource_type": data.get("resource_type"),
+                    "resource_id": data.get("resource_id"),
+                    "tenant_id": tenant_id,
+                    "success": data.get("success", True),
+                    "details": data,
+                    "data": data,
+                    "timestamp": datetime.now(UTC).isoformat(),
+                    "created_at": datetime.now(UTC).isoformat(),
+                }
+            )
+            logger.info(f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}")
+
+        audit_subjects = [
+            "sahool.user.authenticated",
+            "sahool.field.created",
+            "sahool.field.updated",
+            "sahool.field.deleted",
+            "sahool.alert.triggered",
+            "sahool.task.created",
+            "sahool.task.completed",
+        ]
+        for subject in audit_subjects:
+            await app.state.nc.subscribe(subject, cb=handle_event)
+            logger.info(f"Subscribed to NATS subject: {subject}")
+
     logger.info("Audit Service ready on port 8114")
     yield
 
     # Cleanup
     if getattr(app.state, "nc", None):
         await app.state.nc.close()
+    if getattr(app.state, "db_pool", None):
+        await app.state.db_pool.close()
     logger.info("Audit Service shutting down")
 
 
@@ -325,6 +485,7 @@ async def get_audit_logs(
 
     جلب سجلات التدقيق مع الفلاتر
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
 
     # Apply filters
@@ -358,6 +519,55 @@ async def get_audit_logs(
     }
 
 
+@app.post("/api/v1/audit/logs", tags=["Audit Logs"])
+async def create_audit_log(
+    body: AuditLogCreate,
+    request: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    user: object = Depends(get_current_user),
+):
+    """
+    Create a new audit log entry
+
+    إنشاء سجل تدقيق جديد
+    """
+    enforce_tenant_match(tenant_id, user)
+
+    # Always use authenticated user's ID - never trust request body for user_id
+    user_id = getattr(user, "id", None) or getattr(user, "sub", None) or "unknown"
+    if isinstance(user, dict):
+        user_id = user.get("id") or user.get("sub") or "unknown"
+
+    log_entry = {
+        "id": str(uuid.uuid4()),
+        "tenant_id": tenant_id,
+        "user_id": user_id,
+        "action": body.action,
+        "category": body.category,
+        "severity": body.severity,
+        "resource_type": body.resource_type,
+        "resource_id": body.resource_id,
+        "correlation_id": None,
+        "ip_address": request.client.host if request.client else None,
+        "success": True,
+        "error_code": None,
+        "error_message": None,
+        "details": body.details,
+        "old_value": None,
+        "new_value": None,
+        "created_at": datetime.now(UTC).isoformat(),
+    }
+
+    logs = _get_logs_for_tenant(tenant_id)
+    logs.append(log_entry)
+
+    logger.info(
+        f"Audit log created: action={sanitize_log_input(log_entry['action'])} tenant={sanitize_log_input(tenant_id)}"
+    )
+
+    return log_entry
+
+
 @app.get("/api/v1/audit/logs/{log_id}", response_model=AuditLogResponse, tags=["Audit Logs"])
 async def get_audit_log(
     log_id: str = Path(..., description="Audit log ID"),
@@ -369,6 +579,7 @@ async def get_audit_log(
 
     جلب سجل تدقيق محدد
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     for log in logs:
         if log.get("id") == log_id:
@@ -390,6 +601,7 @@ async def get_user_audit_trail(
 
     جلب مسار التدقيق لمستخدم محدد
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [entry for entry in logs if entry.get("user_id") == user_id]
 
@@ -429,6 +641,7 @@ async def get_resource_audit_trail(
 
     جلب مسار التدقيق لمورد محدد
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [
         entry
@@ -468,6 +681,7 @@ async def validate_hash_chain(
 
     التحقق من سلامة سلسلة التجزئة لسجلات التدقيق
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
 
     # Filter by date range
@@ -514,6 +728,7 @@ async def get_chain_summary(tenant_id: str = Depends(get_tenant_id), _current_us
 
     جلب ملخص سلسلة التجزئة للمستأجر
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     entries_with_hash = [entry for entry in logs if entry.get("entry_hash")]
 
@@ -549,6 +764,7 @@ async def get_compliance_report(
 
     إنشاء تقرير الامتثال
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
 
     # Filter by date range
@@ -617,6 +833,14 @@ async def get_audit_stats(
 
     جلب إحصائيات التدقيق
     """
+    enforce_tenant_match(tenant_id, _current_user)
+
+    # Validate period parameter to prevent injection
+    if not re.match(r"^(7|14|30|60|90|180|365)d$", period):
+        raise HTTPException(
+            status_code=400, detail="Invalid period. Allowed values: 7d, 14d, 30d, 60d, 90d, 180d, 365d"
+        )
+
     logs = _get_logs_for_tenant(tenant_id)
 
     # Parse period
@@ -670,6 +894,7 @@ async def get_security_events(
 
     جلب أحداث الأمان الأخيرة
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     filtered = [entry for entry in logs if entry.get("category") == "security"]
 
@@ -701,6 +926,7 @@ async def get_failed_logins(
 
     جلب محاولات تسجيل الدخول الفاشلة
     """
+    enforce_tenant_match(tenant_id, _current_user)
     logs = _get_logs_for_tenant(tenant_id)
     cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
 
@@ -741,7 +967,7 @@ async def export_audit_logs(
 
     تصدير سجلات التدقيق
     """
-    import json as json_module
+    enforce_tenant_match(tenant_id, _current_user)
 
     logs = _get_logs_for_tenant(tenant_id)
 
@@ -786,5 +1012,5 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8114))
-    host = os.getenv("HOST", "0.0.0.0")
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker container
     uvicorn.run(app, host=host, port=port)

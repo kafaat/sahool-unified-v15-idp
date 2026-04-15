@@ -10,7 +10,6 @@ import { login, TEST_USER } from "./helpers/auth.helpers";
 import {
   waitForPageLoad,
   waitForToast,
-  clickButtonByText,
 } from "./helpers/page.helpers";
 
 test.describe("VRA - Variable Rate Application", () => {

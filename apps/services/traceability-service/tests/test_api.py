@@ -74,8 +74,8 @@ class TestBatchEndpoints:
 
     def test_create_batch(self, db_client, mock_db_pool):
         """Test creating a produce batch."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         # Override auth dependency for testing
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
@@ -303,26 +303,42 @@ class TestProductJourney:
 
     def test_get_journey(self, db_client, mock_db_pool):
         """Test getting product journey by batch code."""
-        batch_id = uuid.uuid4()
-        mock_db_pool.fetchrow.return_value = _make_batch_record(id=batch_id, batch_code="WH-26-001")
-        mock_db_pool.fetch.side_effect = [
-            [_make_event_record("harvest", batch_id=batch_id)],
-            [],  # certifications
-        ]
+        from src.api.v1.batches import get_current_user
+        from src.main import app
 
-        response = db_client.get("/api/v1/traceability/journey/WH-26-001")
-        assert response.status_code == 200
-        data = response.json()
-        assert data["batch_code"] == "WH-26-001"
-        assert data["product_name_en"] == "Organic Wheat"
-        assert len(data["journey"]) == 1
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
+
+        try:
+            batch_id = uuid.uuid4()
+            mock_db_pool.fetchrow.return_value = _make_batch_record(id=batch_id, batch_code="WH-26-001")
+            mock_db_pool.fetch.side_effect = [
+                [_make_event_record("harvest", batch_id=batch_id)],
+                [],  # certifications
+            ]
+
+            response = db_client.get("/api/v1/traceability/journey/WH-26-001")
+            assert response.status_code == 200
+            data = response.json()
+            assert data["batch_code"] == "WH-26-001"
+            assert data["product_name_en"] == "Organic Wheat"
+            assert len(data["journey"]) == 1
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
 
     def test_journey_not_found(self, db_client, mock_db_pool):
         """Test 404 for non-existent batch code."""
-        mock_db_pool.fetchrow.return_value = None
+        from src.api.v1.batches import get_current_user
+        from src.main import app
 
-        response = db_client.get("/api/v1/traceability/journey/INVALID-CODE")
-        assert response.status_code == 404
+        app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
+
+        try:
+            mock_db_pool.fetchrow.return_value = None
+
+            response = db_client.get("/api/v1/traceability/journey/INVALID-CODE")
+            assert response.status_code == 404
+        finally:
+            app.dependency_overrides.pop(get_current_user, None)
 
 
 class TestRecallManagement:
@@ -330,8 +346,8 @@ class TestRecallManagement:
 
     def test_initiate_recall(self, db_client, mock_db_pool):
         """Test initiating a product recall."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 
@@ -366,8 +382,8 @@ class TestRecallManagement:
 
     def test_recall_already_recalled_batch(self, db_client, mock_db_pool):
         """Test that recalling an already recalled batch returns 400."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 
@@ -385,8 +401,8 @@ class TestRecallManagement:
 
     def test_recall_with_child_batches(self, db_client, mock_db_pool):
         """Test recall propagates to child batches."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 
@@ -421,8 +437,8 @@ class TestNATSEventPublishing:
 
     def test_create_batch_publishes_event(self, db_client, mock_db_pool, mock_nats):
         """Test batch creation publishes NATS event."""
-        from src.main import app
         from src.api.v1.batches import get_current_user
+        from src.main import app
 
         app.dependency_overrides[get_current_user] = lambda: {"id": "test-user", "role": "admin"}
 

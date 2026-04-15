@@ -3,8 +3,15 @@
  * طبقة API لميزة لوحة التحكم
  */
 
-import { DASHBOARD_ENDPOINTS, TASK_ENDPOINTS, ALERT_ENDPOINTS, buildUrl, API_PREFIX } from "@sahool/shared-types/contracts";
-import { createApiClient, logger } from "@/lib/api/factory";
+import {
+  DASHBOARD_ENDPOINTS,
+  TASK_ENDPOINTS,
+  ALERT_ENDPOINTS,
+  buildUrl,
+  API_PREFIX,
+} from '@sahool/shared-types/contracts';
+import { createApiClient, logger } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 
 /**
  * Dashboard Data Interface
@@ -26,7 +33,7 @@ export interface DashboardData {
   } | null;
   recentActivity: Array<{
     id: string;
-    type: "task" | "alert" | "field" | "weather";
+    type: 'task' | 'alert' | 'field' | 'weather';
     title: string;
     titleAr: string;
     description: string;
@@ -38,7 +45,7 @@ export interface DashboardData {
     title: string;
     titleAr: string;
     dueDate: string;
-    priority: "high" | "medium" | "low";
+    priority: 'high' | 'medium' | 'low';
     status: string;
   }>;
 }
@@ -49,17 +56,14 @@ const api = createApiClient();
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch dashboard data. Using cached data.",
-    ar: "فشل في جلب بيانات لوحة التحكم. استخدام البيانات المخزنة.",
+    en: 'Failed to fetch dashboard data. Using cached data.',
+    ar: 'فشل في جلب بيانات لوحة التحكم. استخدام البيانات المخزنة.',
   },
 };
-
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import { MOCK_DASHBOARD_DATA } from "./api.mock";
 
 // API Functions
 export const dashboardApi = {
@@ -67,123 +71,73 @@ export const dashboardApi = {
    * Get dashboard data
    */
   getDashboard: async (): Promise<DashboardData> => {
-    try {
+    return safeFetch(DASHBOARD_ENDPOINTS.SUMMARY, async () => {
       const response = await api.get(DASHBOARD_ENDPOINTS.SUMMARY);
-
-      // Handle different response formats
       const data = response.data.data || response.data;
-
-      // Validate response structure
-      if (data && typeof data === "object" && "stats" in data) {
+      if (data && typeof data === 'object' && 'stats' in data) {
         return data as DashboardData;
       }
-
-      logger.warn("API returned unexpected format, using mock data");
-      return MOCK_DASHBOARD_DATA;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch dashboard data from API, using mock data:",
-        error,
-      );
-      return MOCK_DASHBOARD_DATA;
-    }
+      throw new Error('API returned unexpected format | تنسيق الاستجابة غير متوقع');
+    });
   },
 
   /**
    * Get dashboard statistics only
    */
-  getStats: async (): Promise<DashboardData["stats"]> => {
-    try {
+  getStats: async (): Promise<DashboardData['stats']> => {
+    return safeFetch(DASHBOARD_ENDPOINTS.STATS, async () => {
       const response = await api.get(DASHBOARD_ENDPOINTS.STATS);
-      const stats = response.data.data || response.data;
-      return stats;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch dashboard stats from API, using mock data:",
-        error,
-      );
-      return MOCK_DASHBOARD_DATA.stats;
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
    * Get weather data for dashboard
    */
-  getWeather: async (): Promise<DashboardData["weather"]> => {
-    try {
+  getWeather: async (): Promise<DashboardData['weather']> => {
+    return safeFetch(DASHBOARD_ENDPOINTS.WEATHER_WIDGET, async () => {
       const response = await api.get(DASHBOARD_ENDPOINTS.WEATHER_WIDGET);
-      const weather = response.data.data || response.data;
-      return weather;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch weather data from API, using mock data:",
-        error,
-      );
-      return MOCK_DASHBOARD_DATA.weather;
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
    * Get recent activity
    */
-  getRecentActivity: async (
-    limit: number = 10,
-  ): Promise<DashboardData["recentActivity"]> => {
-    try {
+  getRecentActivity: async (limit: number = 10): Promise<DashboardData['recentActivity']> => {
+    return safeFetch(DASHBOARD_ENDPOINTS.RECENT_ACTIVITY, async () => {
       const params = new URLSearchParams();
-      params.set("limit", limit.toString());
+      params.set('limit', limit.toString());
 
-      const response = await api.get(
-        `${DASHBOARD_ENDPOINTS.RECENT_ACTIVITY}?${params.toString()}`,
-      );
+      const response = await api.get(`${DASHBOARD_ENDPOINTS.RECENT_ACTIVITY}?${params.toString()}`);
       const activity = response.data.data || response.data;
 
       if (Array.isArray(activity)) {
         return activity;
       }
 
-      logger.warn(
-        "API returned unexpected format for activity, using mock data",
-      );
-      return MOCK_DASHBOARD_DATA.recentActivity;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch recent activity from API, using mock data:",
-        error,
-      );
-      return MOCK_DASHBOARD_DATA.recentActivity;
-    }
+      throw new Error('API returned unexpected format for activity | تنسيق غير متوقع لبيانات النشاط');
+    });
   },
 
   /**
    * Get upcoming tasks
    */
-  getUpcomingTasks: async (
-    limit: number = 5,
-  ): Promise<DashboardData["upcomingTasks"]> => {
-    try {
+  getUpcomingTasks: async (limit: number = 5): Promise<DashboardData['upcomingTasks']> => {
+    return safeFetch(`${API_PREFIX}/dashboard/tasks/upcoming`, async () => {
       const params = new URLSearchParams();
-      params.set("limit", limit.toString());
-      params.set("status", "pending");
+      params.set('limit', limit.toString());
+      params.set('status', 'pending');
 
-      const response = await api.get(
-        `${API_PREFIX}/dashboard/tasks/upcoming?${params.toString()}`,
-      );
+      const response = await api.get(`${API_PREFIX}/dashboard/tasks/upcoming?${params.toString()}`);
       const tasks = response.data.data || response.data;
 
       if (Array.isArray(tasks)) {
         return tasks;
       }
 
-      logger.warn("API returned unexpected format for tasks, using mock data");
-      return MOCK_DASHBOARD_DATA.upcomingTasks;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch upcoming tasks from API, using mock data:",
-        error,
-      );
-      return MOCK_DASHBOARD_DATA.upcomingTasks;
-    }
+      throw new Error('API returned unexpected format for tasks | تنسيق غير متوقع لبيانات المهام');
+    });
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -196,7 +150,7 @@ export const dashboardApi = {
    */
   markTaskComplete: async (
     taskId: string,
-    notes?: string,
+    notes?: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await api.post(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId }), {
@@ -210,11 +164,11 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || "Failed to complete task",
+        error: response.data.error || 'Failed to complete task | فشل في إكمال المهمة',
       };
     } catch (error) {
-      logger.error("Failed to mark task as complete:", error);
-      return { success: false, error: "Network error while completing task" };
+      logger.error('Failed to mark task as complete:', error);
+      return { success: false, error: 'Network error while completing task | خطأ في الاتصال أثناء إكمال المهمة' };
     }
   },
 
@@ -224,7 +178,7 @@ export const dashboardApi = {
    */
   dismissAlert: async (
     alertId: string,
-    reason?: string,
+    reason?: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await api.post(`${buildUrl(ALERT_ENDPOINTS.GET, { alertId })}/dismiss`, {
@@ -238,11 +192,11 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || "Failed to dismiss alert",
+        error: response.data.error || 'Failed to dismiss alert | فشل في تجاهل التنبيه',
       };
     } catch (error) {
-      logger.error("Failed to dismiss alert:", error);
-      return { success: false, error: "Network error while dismissing alert" };
+      logger.error('Failed to dismiss alert:', error);
+      return { success: false, error: 'Network error while dismissing alert | خطأ في الاتصال أثناء تجاهل التنبيه' };
     }
   },
 
@@ -251,7 +205,7 @@ export const dashboardApi = {
    * تحديد الأنشطة كمقروءة
    */
   markActivityRead: async (
-    activityIds: string[],
+    activityIds: string[]
   ): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await api.post(`${DASHBOARD_ENDPOINTS.RECENT_ACTIVITY}/mark-read`, {
@@ -264,11 +218,11 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || "Failed to mark activity as read",
+        error: response.data.error || 'Failed to mark activity as read | فشل في تحديد النشاط كمقروء',
       };
     } catch (error) {
-      logger.error("Failed to mark activity as read:", error);
-      return { success: false, error: "Network error while marking activity" };
+      logger.error('Failed to mark activity as read:', error);
+      return { success: false, error: 'Network error while marking activity | خطأ في الاتصال أثناء تحديد النشاط' };
     }
   },
 
@@ -276,9 +230,7 @@ export const dashboardApi = {
    * Acknowledge an alert
    * الإقرار بتنبيه
    */
-  acknowledgeAlert: async (
-    alertId: string,
-  ): Promise<{ success: boolean; error?: string }> => {
+  acknowledgeAlert: async (alertId: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const response = await api.post(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId }));
 
@@ -288,13 +240,13 @@ export const dashboardApi = {
 
       return {
         success: false,
-        error: response.data.error || "Failed to acknowledge alert",
+        error: response.data.error || 'Failed to acknowledge alert | فشل في الإقرار بالتنبيه',
       };
     } catch (error) {
-      logger.error("Failed to acknowledge alert:", error);
+      logger.error('Failed to acknowledge alert:', error);
       return {
         success: false,
-        error: "Network error while acknowledging alert",
+        error: 'Network error while acknowledging alert | خطأ في الاتصال أثناء الإقرار بالتنبيه',
       };
     }
   },
@@ -313,30 +265,25 @@ export const dashboardApi = {
       titleAr: string;
       message: string;
       messageAr: string;
-      severity: "critical" | "warning" | "info";
+      severity: 'critical' | 'warning' | 'info';
       category: string;
       createdAt: string;
     }>
   > => {
-    try {
+    return safeFetch(DASHBOARD_ENDPOINTS.ALERTS_WIDGET, async () => {
       const params = new URLSearchParams();
-      if (options?.limit) params.set("limit", options.limit.toString());
-      if (options?.severity) params.set("severity", options.severity);
+      if (options?.limit) params.set('limit', options.limit.toString());
+      if (options?.severity) params.set('severity', options.severity);
 
-      const response = await api.get(
-        `${DASHBOARD_ENDPOINTS.ALERTS_WIDGET}?${params.toString()}`,
-      );
+      const response = await api.get(`${DASHBOARD_ENDPOINTS.ALERTS_WIDGET}?${params.toString()}`);
       const alerts = response.data.data || response.data;
 
       if (Array.isArray(alerts)) {
         return alerts;
       }
 
-      return [];
-    } catch (error) {
-      logger.warn("Failed to fetch alerts from API:", error);
-      return [];
-    }
+      throw new Error('API returned unexpected format for alerts | تنسيق غير متوقع لبيانات التنبيهات');
+    });
   },
 
   /**
@@ -344,35 +291,28 @@ export const dashboardApi = {
    * جلب الإحصائيات المحسنة مع الاتجاهات
    */
   getEnhancedStats: async (): Promise<{
-    stats: DashboardData["stats"];
+    stats: DashboardData['stats'];
     trends?: {
       fields?: {
         value: number;
-        direction: "up" | "down" | "stable";
+        direction: 'up' | 'down' | 'stable';
         percentage: number;
       };
       tasks?: {
         value: number;
-        direction: "up" | "down" | "stable";
+        direction: 'up' | 'down' | 'stable';
         percentage: number;
       };
       alerts?: {
         value: number;
-        direction: "up" | "down" | "stable";
+        direction: 'up' | 'down' | 'stable';
         percentage: number;
       };
     };
   }> => {
-    try {
+    return safeFetch(`${DASHBOARD_ENDPOINTS.STATS}/enhanced`, async () => {
       const response = await api.get(`${DASHBOARD_ENDPOINTS.STATS}/enhanced`);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch enhanced stats, falling back to basic stats:",
-        error,
-      );
-      return { stats: MOCK_DASHBOARD_DATA.stats };
-    }
+      return response.data.data || response.data;
+    });
   },
 };

@@ -1,3 +1,11 @@
+-- drift:safe reason=Indexes are added to tables created by 001_initial_schema.sql.
+-- This migration was applied during the initial GlobalGAP rollout when the tables
+-- contained no production data, so non-CONCURRENTLY builds did not lock any rows.
+-- The migration is already applied to all existing environments and cannot be
+-- rewritten retroactively. Any future index additions to these now-populated
+-- tables MUST be done in a separate standalone migration using
+-- CREATE INDEX CONCURRENTLY and marked with a drift:safe reason noting that it
+-- runs outside a transaction.
 -- ============================================================================
 -- GlobalGAP Compliance - Performance Indexes
 -- فهارس الأداء لنظام الامتثال GlobalGAP

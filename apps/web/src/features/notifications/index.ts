@@ -4,17 +4,23 @@
  */
 
 // API Layer
-export { notificationsApi, ERROR_MESSAGES } from "./api";
+export { notificationsApi, ERROR_MESSAGES } from './api';
 
 // Types
 export type {
+  BackendNotificationType,
+  LegacyNotificationType,
   Notification,
   NotificationType,
+  NotificationTypeConfig,
   NotificationPriority,
   NotificationChannel,
   NotificationPreferences,
   NotificationFilters,
-} from "./types";
+} from './types';
+
+// Helpers
+export { getNotificationConfig } from './types';
 
 // Hooks - Query
 export {
@@ -23,7 +29,7 @@ export {
   useNotification,
   useUnreadCount,
   useNotificationPreferences,
-} from "./hooks/useNotifications";
+} from './hooks/useNotifications';
 
 // Hooks - Mutations
 export {
@@ -32,4 +38,4 @@ export {
   useUpdatePreferences,
   useSubscribe,
   useUnsubscribe,
-} from "./hooks/useNotifications";
+} from './hooks/useNotifications';

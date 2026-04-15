@@ -3,15 +3,16 @@
  * طبقة API لميزة المعدات
  */
 
-import { createApiClient, logger } from "@/lib/api/factory";
-import { EQUIPMENT_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
+import { EQUIPMENT_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
 import type {
   Equipment,
   EquipmentFilters,
   EquipmentFormData,
   MaintenanceRecord,
   MaintenanceFormData,
-} from "./types";
+} from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
@@ -19,68 +20,73 @@ const api = createApiClient();
 // Error messages in Arabic and English
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch equipment data. Using cached data.",
-    ar: "فشل في جلب بيانات المعدات. استخدام البيانات المخزنة.",
+    en: 'Failed to fetch equipment data. Using cached data.',
+    ar: 'فشل في جلب بيانات المعدات. استخدام البيانات المخزنة.',
   },
   CREATE_FAILED: {
-    en: "Failed to create equipment.",
-    ar: "فشل في إنشاء المعدات.",
+    en: 'Failed to create equipment.',
+    ar: 'فشل في إنشاء المعدات.',
   },
   UPDATE_FAILED: {
-    en: "Failed to update equipment.",
-    ar: "فشل في تحديث المعدات.",
+    en: 'Failed to update equipment.',
+    ar: 'فشل في تحديث المعدات.',
   },
   DELETE_FAILED: {
-    en: "Failed to delete equipment.",
-    ar: "فشل في حذف المعدات.",
+    en: 'Failed to delete equipment.',
+    ar: 'فشل في حذف المعدات.',
   },
   MAINTENANCE_FAILED: {
-    en: "Failed to fetch maintenance records.",
-    ar: "فشل في جلب سجلات الصيانة.",
+    en: 'Failed to fetch maintenance records.',
+    ar: 'فشل في جلب سجلات الصيانة.',
   },
 };
-
-// Mock data for fallback (extracted to separate file for bundle optimization)
-import {
-  MOCK_EQUIPMENT,
-  MOCK_MAINTENANCE_RECORDS,
-  MOCK_STATS,
-} from "./api.mock";
 
 // API Functions
 export const equipmentApi = {
   /**
    * Get all equipment with filters
    * جلب جميع المعدات مع الفلاتر
+   *
+   * NOTE: equipment-service expects the query parameter `equipment_type`
+   * (not `type`) and returns an envelope of shape:
+   *   { equipment: [...], total, limit, offset }
+   * See apps/services/equipment-service/src/main.py::list_equipment. We must
+   * send the parameter names it expects and extract the correct envelope key.
    */
   getEquipment: async (filters?: EquipmentFilters): Promise<Equipment[]> => {
-    try {
+    return safeFetch(EQUIPMENT_ENDPOINTS.LIST, async () => {
       const params = new URLSearchParams();
-      if (filters?.type) params.set("type", filters.type);
-      if (filters?.status) params.set("status", filters.status);
-      if (filters?.fieldId) params.set("field_id", filters.fieldId);
-      if (filters?.search) params.set("search", filters.search);
+      if (filters?.type) params.set('equipment_type', filters.type);
+      if (filters?.status) params.set('status', filters.status);
+      if (filters?.fieldId) params.set('field_id', filters.fieldId);
+      if (filters?.search) params.set('search', filters.search);
 
       const response = await api.get(`${EQUIPMENT_ENDPOINTS.LIST}?${params.toString()}`);
-      const data = response.data.data || response.data;
+      const body = response.data as
+        | { equipment?: unknown; data?: unknown }
+        | Equipment[]
+        | null
+        | undefined;
 
-      if (Array.isArray(data)) {
-        return data;
+      // Equipment-service envelope: { equipment, total, limit, offset }
+      if (
+        body &&
+        typeof body === 'object' &&
+        !Array.isArray(body) &&
+        Array.isArray((body as { equipment?: unknown }).equipment)
+      ) {
+        return (body as { equipment: Equipment[] }).equipment;
       }
-
-      logger.warn("API returned unexpected format, using mock data");
-      return MOCK_EQUIPMENT;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch equipment from API, using mock data:",
-        error,
-      );
-      return MOCK_EQUIPMENT;
-    }
+      // Legacy / gateway-wrapped shapes: { data: [...] } or bare [...]
+      if (Array.isArray(body)) return body;
+      const nested = (body as { data?: unknown } | null | undefined)?.data;
+      if (Array.isArray(nested)) return nested as Equipment[];
+      return [];
+    });
   },
 
   /**
@@ -88,21 +94,10 @@ export const equipmentApi = {
    * جلب معدات حسب المعرف
    */
   getEquipmentById: async (id: string): Promise<Equipment> => {
-    try {
+    return safeFetch(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), async () => {
       const response = await api.get(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }));
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn(
-        `Failed to fetch equipment ${id} from API, using mock data:`,
-        error,
-      );
-      const mockEquipment = MOCK_EQUIPMENT.find((eq) => eq.id === id);
-      if (mockEquipment) {
-        return mockEquipment;
-      }
-      throw new Error(`Equipment with ID ${id} not found`);
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
@@ -110,30 +105,21 @@ export const equipmentApi = {
    * إنشاء معدات جديدة
    */
   createEquipment: async (data: EquipmentFormData): Promise<Equipment> => {
-    try {
+    return safeFetch(EQUIPMENT_ENDPOINTS.LIST, async () => {
       const response = await api.post(EQUIPMENT_ENDPOINTS.LIST, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error("Failed to create equipment:", error);
-      throw error;
-    }
+    });
   },
 
   /**
    * Update equipment
    * تحديث المعدات
    */
-  updateEquipment: async (
-    id: string,
-    data: Partial<EquipmentFormData>,
-  ): Promise<Equipment> => {
-    try {
+  updateEquipment: async (id: string, data: Partial<EquipmentFormData>): Promise<Equipment> => {
+    return safeFetch(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), async () => {
       const response = await api.put(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to update equipment ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   /**
@@ -141,12 +127,9 @@ export const equipmentApi = {
    * حذف المعدات
    */
   deleteEquipment: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }), async () => {
       await api.delete(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id }));
-    } catch (error) {
-      logger.error(`Failed to delete equipment ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   /**
@@ -155,51 +138,33 @@ export const equipmentApi = {
    */
   updateLocation: async (
     id: string,
-    location: { latitude: number; longitude: number; fieldId?: string },
+    location: { latitude: number; longitude: number; fieldId?: string }
   ): Promise<Equipment> => {
-    try {
-      const response = await api.patch(
-        `${buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id })}/location`,
-        location,
-      );
-      return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to update equipment location ${id}:`, error);
-      throw error;
-    }
+    return safeFetch(
+      `${buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id })}/location`,
+      async () => {
+        const response = await api.patch(
+          `${buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId: id })}/location`,
+          location
+        );
+        return response.data.data || response.data;
+      }
+    );
   },
 
   /**
    * Get maintenance records for equipment
    * جلب سجلات الصيانة للمعدات
    */
-  getMaintenanceRecords: async (
-    equipmentId?: string,
-  ): Promise<MaintenanceRecord[]> => {
-    try {
-      const params = equipmentId ? `?equipment_id=${equipmentId}` : "";
+  getMaintenanceRecords: async (equipmentId?: string): Promise<MaintenanceRecord[]> => {
+    return safeFetch(EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS, async () => {
+      const params = equipmentId ? `?equipment_id=${equipmentId}` : '';
       const response = await api.get(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}${params}`);
       const data = response.data.data || response.data;
 
-      if (Array.isArray(data)) {
-        return data;
-      }
-
-      logger.warn(
-        "API returned unexpected format for maintenance, using mock data",
-      );
-      return equipmentId
-        ? MOCK_MAINTENANCE_RECORDS.filter((m) => m.equipmentId === equipmentId)
-        : MOCK_MAINTENANCE_RECORDS;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch maintenance records from API, using mock data:",
-        error,
-      );
-      return equipmentId
-        ? MOCK_MAINTENANCE_RECORDS.filter((m) => m.equipmentId === equipmentId)
-        : MOCK_MAINTENANCE_RECORDS;
-    }
+      if (Array.isArray(data)) return data;
+      return [];
+    });
   },
 
   /**
@@ -207,37 +172,21 @@ export const equipmentApi = {
    * جلب سجل صيانة حسب المعرف
    */
   getMaintenanceById: async (id: string): Promise<MaintenanceRecord> => {
-    try {
+    return safeFetch(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`, async () => {
       const response = await api.get(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn(
-        `Failed to fetch maintenance record ${id} from API, using mock data:`,
-        error,
-      );
-      const mockRecord = MOCK_MAINTENANCE_RECORDS.find((m) => m.id === id);
-      if (mockRecord) {
-        return mockRecord;
-      }
-      throw new Error(`Maintenance record with ID ${id} not found`);
-    }
+      return response.data.data || response.data;
+    });
   },
 
   /**
    * Create maintenance record
    * إنشاء سجل صيانة
    */
-  createMaintenance: async (
-    data: MaintenanceFormData,
-  ): Promise<MaintenanceRecord> => {
-    try {
+  createMaintenance: async (data: MaintenanceFormData): Promise<MaintenanceRecord> => {
+    return safeFetch(EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS, async () => {
       const response = await api.post(EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error("Failed to create maintenance record:", error);
-      throw error;
-    }
+    });
   },
 
   /**
@@ -246,18 +195,12 @@ export const equipmentApi = {
    */
   updateMaintenance: async (
     id: string,
-    data: Partial<MaintenanceFormData>,
+    data: Partial<MaintenanceFormData>
   ): Promise<MaintenanceRecord> => {
-    try {
-      const response = await api.put(
-        `${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`,
-        data,
-      );
+    return safeFetch(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`, async () => {
+      const response = await api.put(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`, data);
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to update maintenance record ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   /**
@@ -265,32 +208,22 @@ export const equipmentApi = {
    * حذف سجل الصيانة
    */
   deleteMaintenance: async (id: string): Promise<void> => {
-    try {
+    return safeFetch(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`, async () => {
       await api.delete(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}`);
-    } catch (error) {
-      logger.error(`Failed to delete maintenance record ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   /**
    * Complete maintenance
    * إكمال الصيانة
    */
-  completeMaintenance: async (
-    id: string,
-    notes?: string,
-  ): Promise<MaintenanceRecord> => {
-    try {
-      const response = await api.post(
-        `${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}/complete`,
-        { notes },
-      );
+  completeMaintenance: async (id: string, notes?: string): Promise<MaintenanceRecord> => {
+    return safeFetch(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}/complete`, async () => {
+      const response = await api.post(`${EQUIPMENT_ENDPOINTS.MAINTENANCE_ALERTS}/${id}/complete`, {
+        notes,
+      });
       return response.data.data || response.data;
-    } catch (error) {
-      logger.error(`Failed to complete maintenance ${id}:`, error);
-      throw error;
-    }
+    });
   },
 
   /**
@@ -303,16 +236,9 @@ export const equipmentApi = {
     byStatus: Record<string, number>;
     maintenanceDue: number;
   }> => {
-    try {
+    return safeFetch(EQUIPMENT_ENDPOINTS.STATS, async () => {
       const response = await api.get(EQUIPMENT_ENDPOINTS.STATS);
-      const data = response.data.data || response.data;
-      return data;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch equipment stats from API, using mock data:",
-        error,
-      );
-      return MOCK_STATS;
-    }
+      return response.data.data || response.data;
+    });
   },
 };

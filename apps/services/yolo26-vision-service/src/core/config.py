@@ -32,7 +32,7 @@ class Settings(BaseSettings):
         default="development", description="Deployment environment"
     )
     debug: bool = Field(default=False, description="Enable debug mode")
-    host: str = Field(default="0.0.0.0", description="Service host")
+    host: str = Field(default="0.0.0.0", description="Service host")  # nosec B104 - default for containerized deployment, overridden by env
     port: int = Field(default=8150, description="Service port")
 
     # Database Configuration
@@ -131,6 +131,59 @@ class Settings(BaseSettings):
     allowed_image_extensions: list[str] = Field(
         default=[".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tiff"],
         description="Allowed image file extensions",
+    )
+
+    # VLM Secondary Verification Configuration
+    # Reduces false positives and false negatives via YOLO + VLM cooperative verification
+    vlm_provider: str = Field(
+        default="disabled",
+        description="VLM provider for secondary verification: disabled | qwen_vl | ollama | vllm",
+    )
+    qwen_vl_api_key: str = Field(
+        default="",
+        description="DashScope API key for Qwen-VL (set via QWEN_VL_API_KEY env var)",
+    )
+    qwen_vl_api_url: str = Field(
+        default="",
+        description="Qwen-VL API endpoint URL (empty = use DashScope default)",
+    )
+    qwen_vl_model: str = Field(
+        default="qwen-vl-plus",
+        description="Qwen-VL model variant (qwen-vl-plus or qwen-vl-max)",
+    )
+    ollama_vlm_url: str = Field(
+        default="http://localhost:11434",
+        description="Ollama server base URL for local vision models",
+    )
+    ollama_vlm_model: str = Field(
+        default="llava:7b",
+        description="Ollama vision model name (llava:7b, bakllava, llava:13b, etc.)",
+    )
+    # vLLM — platform-internal OpenAI-compat multimodal service (sahool-vllm:8270)
+    vllm_vlm_url: str = Field(
+        default="http://sahool-vllm:8270/v1",
+        description="vLLM server base URL for vision inference (platform-internal)",
+    )
+    vllm_vlm_model: str = Field(
+        default="deepseek-ai/deepseek-vl2",
+        description="Model name served by the vLLM server (must support vision/multimodal input)",
+    )
+    vlm_confirm_threshold: float = Field(
+        default=0.8,
+        ge=0.0,
+        le=1.0,
+        description="VLM confidence >= this value confirms detection (CONFIRMED verdict)",
+    )
+    vlm_suspect_threshold: float = Field(
+        default=0.5,
+        ge=0.0,
+        le=1.0,
+        description="VLM confidence >= this value but < confirm_threshold marks detection as suspicious",
+    )
+    vlm_timeout_seconds: float = Field(
+        default=30.0,
+        gt=0.0,
+        description="Timeout in seconds for VLM API calls",
     )
 
     @field_validator("jwt_secret_key", mode="after")

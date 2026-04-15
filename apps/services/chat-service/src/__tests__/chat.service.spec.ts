@@ -15,6 +15,7 @@ import { ChatService } from "../chat/chat.service";
 import { ChatController } from "../chat/chat.controller";
 import { HealthController } from "../health/health.controller";
 import { PrismaService } from "../prisma/prisma.service";
+import { ChatEventsService } from "../events/chat-events.service";
 import { CreateConversationDto } from "../chat/dto/create-conversation.dto";
 import { SendMessageDto, MessageType } from "../chat/dto/send-message.dto";
 
@@ -131,6 +132,7 @@ describe("Health Endpoints", () => {
         providers: [
           ChatService,
           { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
         ],
       }).compile();
 
@@ -159,6 +161,7 @@ describe("Health Endpoints", () => {
         controllers: [HealthController],
         providers: [
           { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
         ],
       }).compile();
 
@@ -232,6 +235,7 @@ describe("Module Initialization", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -250,6 +254,7 @@ describe("Module Initialization", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -264,6 +269,7 @@ describe("Module Initialization", () => {
       controllers: [HealthController],
       providers: [
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -287,6 +293,7 @@ describe("ChatService - Conversation Creation", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -437,6 +444,7 @@ describe("ChatService - Message Creation & Validation", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -461,7 +469,7 @@ describe("ChatService - Message Creation & Validation", () => {
     mockPrisma.$transaction.mockImplementation(async (callback: any) => {
       return callback({
         message: { create: jest.fn().mockResolvedValue(createdMessage) },
-        conversation: { update: jest.fn().mockResolvedValue(null) },
+        conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
         participant: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
       });
     });
@@ -525,7 +533,7 @@ describe("ChatService - Message Creation & Validation", () => {
     mockPrisma.$transaction.mockImplementation(async (callback: any) => {
       return callback({
         message: { create: mockCreate },
-        conversation: { update: jest.fn() },
+        conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
         participant: { updateMany: jest.fn() },
       });
     });
@@ -554,7 +562,7 @@ describe("ChatService - Message Creation & Validation", () => {
     mockPrisma.$transaction.mockImplementation(async (callback: any) => {
       return callback({
         message: { create: mockCreate },
-        conversation: { update: jest.fn() },
+        conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
         participant: { updateMany: jest.fn() },
       });
     });
@@ -576,19 +584,19 @@ describe("ChatService - Message Creation & Validation", () => {
 
     mockPrisma.conversation.findFirst.mockResolvedValue(mockConversation);
 
-    const mockUpdate = jest.fn().mockResolvedValue(null);
+    const mockUpdateMany = jest.fn().mockResolvedValue({ count: 1 });
     mockPrisma.$transaction.mockImplementation(async (callback: any) => {
       return callback({
         message: { create: jest.fn().mockResolvedValue(mockMessage) },
-        conversation: { update: mockUpdate },
+        conversation: { updateMany: mockUpdateMany },
         participant: { updateMany: jest.fn() },
       });
     });
 
     await service.sendMessage(dto, TENANT_ID);
 
-    expect(mockUpdate).toHaveBeenCalledWith({
-      where: { id: CONVERSATION_ID },
+    expect(mockUpdateMany).toHaveBeenCalledWith({
+      where: { id: CONVERSATION_ID, tenantId: TENANT_ID },
       data: {
         lastMessage: "Updated last message",
         lastMessageAt: expect.any(Date),
@@ -611,7 +619,7 @@ describe("ChatService - Message Creation & Validation", () => {
     mockPrisma.$transaction.mockImplementation(async (callback: any) => {
       return callback({
         message: { create: jest.fn().mockResolvedValue(mockMessage) },
-        conversation: { update: jest.fn() },
+        conversation: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
         participant: { updateMany: mockUpdateMany },
       });
     });
@@ -620,6 +628,7 @@ describe("ChatService - Message Creation & Validation", () => {
 
     expect(mockUpdateMany).toHaveBeenCalledWith({
       where: {
+        tenantId: TENANT_ID,
         conversationId: CONVERSATION_ID,
         userId: { not: USER_ID_BUYER },
       },
@@ -712,6 +721,7 @@ describe("ChatService - Participant Management", () => {
       providers: [
         ChatService,
         { provide: PrismaService, useValue: mockPrisma },
+          { provide: ChatEventsService, useValue: { publishMessageSent: jest.fn(), publishMessageRead: jest.fn(), isConnected: jest.fn().mockReturnValue(false) } },
       ],
     }).compile();
 
@@ -830,18 +840,14 @@ describe("ChatService - Participant Management", () => {
         conversation: mockConversation,
       };
       mockPrisma.message.findFirst.mockResolvedValue(msgWithConversation);
-      mockPrisma.message.update.mockResolvedValue({
-        ...mockMessage,
-        isRead: true,
-        readAt: new Date(),
-      });
+      mockPrisma.message.updateMany.mockResolvedValue({ count: 1 });
       mockPrisma.participant.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.markMessageAsRead(MESSAGE_ID, USER_ID_SELLER, TENANT_ID);
 
       expect(result).toBeDefined();
-      expect(mockPrisma.message.update).toHaveBeenCalledWith({
-        where: { id: MESSAGE_ID },
+      expect(mockPrisma.message.updateMany).toHaveBeenCalledWith({
+        where: { id: MESSAGE_ID, tenantId: TENANT_ID },
         data: {
           isRead: true,
           readAt: expect.any(Date),
@@ -849,6 +855,7 @@ describe("ChatService - Participant Management", () => {
       });
       expect(mockPrisma.participant.updateMany).toHaveBeenCalledWith({
         where: {
+          tenantId: TENANT_ID,
           conversationId: CONVERSATION_ID,
           userId: USER_ID_SELLER,
         },
@@ -869,7 +876,7 @@ describe("ChatService - Participant Management", () => {
 
       await service.markMessageAsRead(MESSAGE_ID, USER_ID_BUYER, TENANT_ID);
 
-      expect(mockPrisma.message.update).not.toHaveBeenCalled();
+      expect(mockPrisma.message.updateMany).not.toHaveBeenCalled();
       expect(mockPrisma.participant.updateMany).not.toHaveBeenCalled();
     });
 

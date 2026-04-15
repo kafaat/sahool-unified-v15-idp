@@ -6,11 +6,24 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/api_config.dart';
+import '../../../core/offline/offline_sync_engine.dart';
+import '../../../core/utils/app_logger.dart';
 import 'inventory_models.dart';
+
+/// Shared Dio instance for inventory service to avoid creating new connections per request
+final _inventoryDioProvider = Provider<Dio>((ref) {
+  return Dio(BaseOptions(
+    baseUrl: ApiConfig.inventoryServiceUrl,
+    connectTimeout: ApiConfig.connectTimeout,
+    sendTimeout: ApiConfig.sendTimeout,
+    receiveTimeout: ApiConfig.receiveTimeout,
+    headers: ApiConfig.defaultHeaders,
+  ));
+});
 
 /// Inventory Repository Provider
 final inventoryRepositoryProvider = Provider<InventoryRepository>((ref) {
-  return InventoryRepository();
+  return InventoryRepository(dio: ref.watch(_inventoryDioProvider));
 });
 
 /// نتيجة API
@@ -65,12 +78,12 @@ class InventoryRepository {
       if (expiringOnly != null) queryParams['expiring_only'] = expiringOnly;
 
       final response = await _dio.get(
-        '/v1/inventory/items',
+        '/api/v1/inventory/items',
         queryParameters: queryParams,
       );
 
       final data = response.data as Map<String, dynamic>;
-      final items = (data['items'] as List)
+      final items = (data['items'] as List? ?? [])
           .map((e) => InventoryItem.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -88,7 +101,7 @@ class InventoryRepository {
   /// جلب عنصر محدد
   Future<ApiResult<InventoryItem>> getItemById(String itemId) async {
     try {
-      final response = await _dio.get('/v1/inventory/items/$itemId');
+      final response = await _dio.get('/api/v1/inventory/items/$itemId');
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
       );
@@ -108,7 +121,7 @@ class InventoryRepository {
   /// جلب عنصر عبر الباركود
   Future<ApiResult<InventoryItem>> getItemByBarcode(String barcode) async {
     try {
-      final response = await _dio.get('/v1/inventory/items/barcode/$barcode');
+      final response = await _dio.get('/api/v1/inventory/items/barcode/$barcode');
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
       );
@@ -128,7 +141,7 @@ class InventoryRepository {
   /// جلب عنصر عبر SKU
   Future<ApiResult<InventoryItem>> getItemBySku(String sku) async {
     try {
-      final response = await _dio.get('/v1/inventory/items/sku/$sku');
+      final response = await _dio.get('/api/v1/inventory/items/sku/$sku');
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
       );
@@ -148,10 +161,10 @@ class InventoryRepository {
   /// جلب العناصر ذات المخزون المنخفض
   Future<ApiResult<List<InventoryItem>>> getLowStockItems() async {
     try {
-      final response = await _dio.get('/v1/inventory/items/low-stock');
+      final response = await _dio.get('/api/v1/inventory/items/low-stock');
 
       final data = response.data as Map<String, dynamic>;
-      final items = (data['items'] as List)
+      final items = (data['items'] as List? ?? [])
           .map((e) => InventoryItem.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -188,36 +201,61 @@ class InventoryRepository {
     String? descriptionAr,
     Map<String, dynamic>? metadata,
   }) async {
+    final itemData = {
+      'name': name,
+      'name_ar': nameAr,
+      'sku': sku,
+      'barcode': barcode,
+      'category': category.value,
+      'unit': unit.value,
+      'reorder_level': reorderLevel,
+      'max_capacity': maxCapacity,
+      'warehouse_id': warehouseId,
+      'supplier_id': supplierId,
+      'unit_price': unitPrice,
+      'batch_number': batchNumber,
+      'lot_number': lotNumber,
+      'expiry_date': expiryDate?.toIso8601String(),
+      'manufacture_date': manufactureDate?.toIso8601String(),
+      'image_url': imageUrl,
+      'description': description,
+      'description_ar': descriptionAr,
+      'metadata': metadata,
+    };
+
     try {
       final response = await _dio.post(
-        '/v1/inventory/items',
-        data: {
-          'name': name,
-          'name_ar': nameAr,
-          'sku': sku,
-          'barcode': barcode,
-          'category': category.value,
-          'unit': unit.value,
-          'reorder_level': reorderLevel,
-          'max_capacity': maxCapacity,
-          'warehouse_id': warehouseId,
-          'supplier_id': supplierId,
-          'unit_price': unitPrice,
-          'batch_number': batchNumber,
-          'lot_number': lotNumber,
-          'expiry_date': expiryDate?.toIso8601String(),
-          'manufacture_date': manufactureDate?.toIso8601String(),
-          'image_url': imageUrl,
-          'description': description,
-          'description_ar': descriptionAr,
-          'metadata': metadata,
-        },
+        '/api/v1/inventory/items',
+        data: itemData,
       );
+
+      AppLogger.i('Inventory item created via API', tag: 'InventoryRepo', data: {'name': name});
 
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'inventory',
+          data: itemData,
+          priority: SyncPriority.high,
+        );
+
+        AppLogger.w('Inventory item creation queued for offline sync (API unavailable)', tag: 'InventoryRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to create item',
         'فشل في إنشاء العنصر',
@@ -234,9 +272,11 @@ class InventoryRepository {
   ) async {
     try {
       final response = await _dio.put(
-        '/v1/inventory/items/$itemId',
+        '/api/v1/inventory/items/$itemId',
         data: updates,
       );
+
+      AppLogger.i('Inventory item updated via API', tag: 'InventoryRepo', data: {'itemId': itemId});
 
       return ApiResult.success(
         InventoryItem.fromJson(response.data as Map<String, dynamic>),
@@ -245,6 +285,29 @@ class InventoryRepository {
       if (e.response?.statusCode == 404) {
         return ApiResult.failure('Item not found', 'العنصر غير موجود');
       }
+
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueUpdate(
+          entityType: 'inventory',
+          entityId: itemId,
+          data: updates,
+          priority: SyncPriority.high,
+        );
+
+        AppLogger.w('Inventory item update queued for offline sync (API unavailable)', tag: 'InventoryRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to update item',
         'فشل في تحديث العنصر',
@@ -257,7 +320,7 @@ class InventoryRepository {
   /// حذف عنصر
   Future<ApiResult<void>> deleteItem(String itemId) async {
     try {
-      await _dio.delete('/v1/inventory/items/$itemId');
+      await _dio.delete('/api/v1/inventory/items/$itemId');
       return ApiResult.success(null);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
@@ -287,25 +350,50 @@ class InventoryRepository {
     String? notesAr,
     DateTime? movementDate,
   }) async {
+    final stockInData = {
+      'item_id': itemId,
+      'quantity': quantity,
+      'warehouse_id': warehouseId,
+      'batch_number': batchNumber,
+      'reference': reference,
+      'notes': notes,
+      'notes_ar': notesAr,
+      'movement_date': movementDate?.toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/in',
-        data: {
-          'item_id': itemId,
-          'quantity': quantity,
-          'warehouse_id': warehouseId,
-          'batch_number': batchNumber,
-          'reference': reference,
-          'notes': notes,
-          'notes_ar': notesAr,
-          'movement_date': movementDate?.toIso8601String(),
-        },
+        '/api/v1/inventory/stock/in',
+        data: stockInData,
       );
+
+      AppLogger.i('Stock in recorded via API', tag: 'InventoryRepo', data: {'itemId': itemId, 'quantity': quantity});
 
       return ApiResult.success(
         StockMovement.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'inventory',
+          data: {'type': 'stock_in', ...stockInData},
+          priority: SyncPriority.high,
+        );
+
+        AppLogger.w('Stock in queued for offline sync (API unavailable)', tag: 'InventoryRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to record stock in',
         'فشل في تسجيل إدخال المخزون',
@@ -325,24 +413,49 @@ class InventoryRepository {
     String? notesAr,
     DateTime? movementDate,
   }) async {
+    final stockOutData = {
+      'item_id': itemId,
+      'quantity': quantity,
+      'warehouse_id': warehouseId,
+      'reference': reference,
+      'notes': notes,
+      'notes_ar': notesAr,
+      'movement_date': movementDate?.toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/out',
-        data: {
-          'item_id': itemId,
-          'quantity': quantity,
-          'warehouse_id': warehouseId,
-          'reference': reference,
-          'notes': notes,
-          'notes_ar': notesAr,
-          'movement_date': movementDate?.toIso8601String(),
-        },
+        '/api/v1/inventory/stock/out',
+        data: stockOutData,
       );
+
+      AppLogger.i('Stock out recorded via API', tag: 'InventoryRepo', data: {'itemId': itemId, 'quantity': quantity});
 
       return ApiResult.success(
         StockMovement.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'inventory',
+          data: {'type': 'stock_out', ...stockOutData},
+          priority: SyncPriority.high,
+        );
+
+        AppLogger.w('Stock out queued for offline sync (API unavailable)', tag: 'InventoryRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to record stock out',
         'فشل في تسجيل إخراج المخزون',
@@ -361,23 +474,48 @@ class InventoryRepository {
     String? notesAr,
     DateTime? movementDate,
   }) async {
+    final applyData = {
+      'item_id': itemId,
+      'quantity': quantity,
+      'field_id': fieldId,
+      'notes': notes,
+      'notes_ar': notesAr,
+      'movement_date': movementDate?.toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/apply',
-        data: {
-          'item_id': itemId,
-          'quantity': quantity,
-          'field_id': fieldId,
-          'notes': notes,
-          'notes_ar': notesAr,
-          'movement_date': movementDate?.toIso8601String(),
-        },
+        '/api/v1/inventory/stock/apply',
+        data: applyData,
       );
+
+      AppLogger.i('Field application recorded via API', tag: 'InventoryRepo', data: {'itemId': itemId, 'fieldId': fieldId, 'quantity': quantity});
 
       return ApiResult.success(
         StockMovement.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'inventory',
+          data: {'type': 'field_application', ...applyData},
+          priority: SyncPriority.high,
+        );
+
+        AppLogger.w('Field application queued for offline sync (API unavailable)', tag: 'InventoryRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to record field application',
         'فشل في تسجيل التطبيق على الحقل',
@@ -395,22 +533,47 @@ class InventoryRepository {
     String? notesAr,
     DateTime? movementDate,
   }) async {
+    final adjustData = {
+      'item_id': itemId,
+      'quantity': quantity,
+      'notes': notes,
+      'notes_ar': notesAr,
+      'movement_date': movementDate?.toIso8601String(),
+    };
+
     try {
       final response = await _dio.post(
-        '/v1/inventory/stock/adjust',
-        data: {
-          'item_id': itemId,
-          'quantity': quantity,
-          'notes': notes,
-          'notes_ar': notesAr,
-          'movement_date': movementDate?.toIso8601String(),
-        },
+        '/api/v1/inventory/stock/adjust',
+        data: adjustData,
       );
+
+      AppLogger.i('Stock adjustment recorded via API', tag: 'InventoryRepo', data: {'itemId': itemId, 'quantity': quantity});
 
       return ApiResult.success(
         StockMovement.fromJson(response.data as Map<String, dynamic>),
       );
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'inventory',
+          data: {'type': 'stock_adjust', ...adjustData},
+          priority: SyncPriority.high,
+        );
+
+        AppLogger.w('Stock adjustment queued for offline sync (API unavailable)', tag: 'InventoryRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to adjust stock',
         'فشل في تعديل المخزون',
@@ -428,7 +591,7 @@ class InventoryRepository {
   }) async {
     try {
       final response = await _dio.get(
-        '/v1/inventory/movements/$itemId',
+        '/api/v1/inventory/movements/$itemId',
         queryParameters: {
           'limit': limit,
           'offset': offset,
@@ -436,7 +599,7 @@ class InventoryRepository {
       );
 
       final data = response.data as Map<String, dynamic>;
-      final movements = (data['movements'] as List)
+      final movements = (data['movements'] as List? ?? [])
           .map((e) => StockMovement.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -458,10 +621,10 @@ class InventoryRepository {
   /// جلب جميع المستودعات
   Future<ApiResult<List<Warehouse>>> getWarehouses() async {
     try {
-      final response = await _dio.get('/v1/inventory/warehouses');
+      final response = await _dio.get('/api/v1/inventory/warehouses');
 
       final data = response.data as Map<String, dynamic>;
-      final warehouses = (data['warehouses'] as List)
+      final warehouses = (data['warehouses'] as List? ?? [])
           .map((e) => Warehouse.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -483,10 +646,10 @@ class InventoryRepository {
   /// جلب جميع الموردين
   Future<ApiResult<List<Supplier>>> getSuppliers() async {
     try {
-      final response = await _dio.get('/v1/inventory/suppliers');
+      final response = await _dio.get('/api/v1/inventory/suppliers');
 
       final data = response.data as Map<String, dynamic>;
-      final suppliers = (data['suppliers'] as List)
+      final suppliers = (data['suppliers'] as List? ?? [])
           .map((e) => Supplier.fromJson(e as Map<String, dynamic>))
           .toList();
 
@@ -517,7 +680,7 @@ class InventoryRepository {
       });
 
       final response = await _dio.post(
-        '/v1/inventory/upload',
+        '/api/v1/inventory/upload',
         data: formData,
         options: Options(
           contentType: 'multipart/form-data',
@@ -561,7 +724,7 @@ class InventoryRepository {
   /// جلب إحصائيات المخزون
   Future<ApiResult<InventoryStats>> getStats() async {
     try {
-      final response = await _dio.get('/v1/inventory/stats');
+      final response = await _dio.get('/api/v1/inventory/stats');
       return ApiResult.success(
         InventoryStats.fromJson(response.data as Map<String, dynamic>),
       );

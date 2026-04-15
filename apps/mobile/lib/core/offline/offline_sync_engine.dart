@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../utils/app_logger.dart';
@@ -33,6 +31,7 @@ class OfflineSyncEngine {
   final _uuid = const Uuid();
 
   Timer? _syncTimer;
+  Timer? _retryTimer;
   bool _isSyncing = false;
   int _retryCount = 0;
   static const int _maxRetries = 5;
@@ -63,6 +62,7 @@ class OfflineSyncEngine {
   /// إيقاف المحرك
   void dispose() {
     _syncTimer?.cancel();
+    _retryTimer?.cancel();
     _syncStatusController.close();
   }
 
@@ -178,7 +178,7 @@ class OfflineSyncEngine {
   /// تنفيذ المزامنة
   Future<SyncResult> sync() async {
     if (_isSyncing) {
-      return SyncResult(
+      return const SyncResult(
         success: false,
         message: 'Sync already in progress',
       );
@@ -215,7 +215,10 @@ class OfflineSyncEngine {
         }
       }
 
-      _retryCount = 0;
+      // Only reset retry count on full success (no failures)
+      if (failCount == 0) {
+        _retryCount = 0;
+      }
       _updateStatus(failCount > 0 ? SyncStatus.partialSuccess : SyncStatus.success);
 
       final result = SyncResult(
@@ -345,7 +348,8 @@ class OfflineSyncEngine {
     final jitterMs = Random().nextInt(1000); // Add 0-1s jitter to prevent thundering herd
     final delay = Duration(seconds: baseDelaySeconds, milliseconds: jitterMs);
 
-    Timer(delay, _checkAndSync);
+    _retryTimer?.cancel();
+    _retryTimer = Timer(delay, _checkAndSync);
     AppLogger.d('Retry scheduled in ${delay.inSeconds}s (attempt $_retryCount)', tag: 'SYNC');
   }
 
@@ -380,9 +384,12 @@ class OfflineSyncEngine {
     _triggerSync();
   }
 
-  /// تنظيف العناصر المكتملة
+  /// تنظيف العناصر المكتملة (بحد أقصى لمنع حذف عدد كبير دفعة واحدة)
+  /// Limit batch size to prevent excessive deletions in one pass
+  static const int _clearBatchSize = 100;
+
   Future<void> clearCompleted() async {
-    await _outbox.clearCompleted();
+    await _outbox.clearCompleted(limit: _clearBatchSize);
   }
 }
 
@@ -411,6 +418,7 @@ enum SyncOperation {
 enum SyncPriority {
   low,
   normal,
+  medium,
   high,
   critical,
 }
@@ -503,7 +511,7 @@ class OutboxEntry {
         ? Map<String, dynamic>.from(json['previousData'] as Map)
         : null,
     priority: SyncPriority.values[json['priority'] as int],
-    createdAt: DateTime.parse(json['createdAt'] as String),
+    createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
     status: OutboxStatus.values.byName(json['status'] as String),
     retryCount: json['retryCount'] as int? ?? 0,
     lastError: json['lastError'] as String?,

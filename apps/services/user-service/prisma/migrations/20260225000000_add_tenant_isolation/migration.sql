@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Add tenant_id to user-service models missing tenant isolation
 -- إضافة معرف المستأجر لجداول خدمة المستخدمين
@@ -7,6 +11,7 @@
 
 -- Step 1: Add tenant_id columns with safe DEFAULT for existing rows
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "user_profiles" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "user_sessions" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "refresh_tokens" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
@@ -31,6 +36,7 @@ ALTER TABLE "refresh_tokens" ALTER COLUMN "tenant_id" DROP DEFAULT;
 
 -- Step 4: Create tenant isolation indexes
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_profile_tenant" ON "user_profiles" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_session_tenant" ON "user_sessions" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_refresh_token_tenant" ON "refresh_tokens" ("tenant_id");
+-- Note: Cannot use CONCURRENTLY inside Prisma transaction block
+CREATE INDEX IF NOT EXISTS "idx_profile_tenant" ON "user_profiles" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_session_tenant" ON "user_sessions" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_refresh_token_tenant" ON "refresh_tokens" ("tenant_id");

@@ -3,15 +3,15 @@ Tests for Two-Factor Authentication Configuration
 اختبارات إعدادات المصادقة الثنائية
 """
 
-from datetime import timezone, datetime, timedelta, UTC
+from datetime import UTC, datetime, timedelta, timezone
 
 import pytest
 
 from shared.auth.twofa_config import (
     TwoFAConfig,
     TwoFAEnforcementLevel,
-    get_production_config,
     get_development_config,
+    get_production_config,
     get_strict_config,
 )
 

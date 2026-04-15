@@ -1,5 +1,6 @@
 /// Unit Tests for Equipment Feature - Extended Models
 /// اختبارات وحدات المعدات - نماذج موسعة
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/equipment/domain/models/equipment.dart';
 import 'package:sahool_field_app/features/equipment/domain/models/equipment_status.dart';
@@ -138,7 +139,7 @@ void main() {
       // Equipment bought in 2022, purchase price 350000, age varies
       final value = equipment.currentValue;
       expect(value, isNotNull);
-      expect(value!, greaterThan(0));
+      expect(value, greaterThan(0));
       expect(value, lessThanOrEqualTo(350000.0));
     });
 
@@ -989,7 +990,7 @@ void main() {
 
   group('EquipmentStats - Extended', () {
     test('operationalPercentage calculates correctly', () {
-      final stats = EquipmentStats(
+      const stats = EquipmentStats(
         total: 20,
         byType: {'tractor': 10, 'pump': 10},
         byStatus: {'operational': 16, 'maintenance': 4},

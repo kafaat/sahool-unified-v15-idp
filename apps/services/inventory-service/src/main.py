@@ -10,6 +10,11 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import date
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import Depends, FastAPI, HTTPException, Query
 
 # Shared middleware imports
@@ -28,13 +33,14 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-
-    async def get_current_user():
-        return None
+    from fastapi import HTTPException as _HTTPException
 
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""
-        tenant_id: str = ""
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # Security headers middleware
@@ -69,27 +75,45 @@ from .alert_endpoints import init_alert_manager
 from .alert_endpoints import router as alert_router
 from .alert_manager import AlertManager
 from .inventory_analytics import InventoryAnalytics
-from .models.inventory import (
+
+# Import v2 ORM models so their tables are registered on the shared Base
+# metadata and created by tests / create_all calls. The binding is not
+# referenced again, so we explicitly ignore it via noqa. Bandit B101
+# forbids using `assert` in non-test production code, so the keep-alive
+# trick cannot rely on an assertion.
+from .models import inventory_v2 as _inventory_v2  # noqa: F401
+
+_ = _inventory_v2  # keep side-effect import alive without an assert
+
+from .models.inventory import (  # noqa: E402
     ItemCategory,
 )
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Security: Require DATABASE_URL from environment, no hardcoded defaults
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     # Fallback for local development only - requires explicit opt-in
     if os.getenv("ALLOW_DEV_DEFAULTS", "false").lower() == "true":
-        # Use environment variables for host/port, fallback to localhost only in dev
+        # All credentials must come from environment variables - no hardcoded passwords
         db_host = os.getenv("POSTGRES_HOST", "localhost")
         db_port = os.getenv("POSTGRES_PORT", "5432")
-        db_user = os.getenv("POSTGRES_USER", "postgres")
-        db_password = os.getenv("POSTGRES_PASSWORD", "postgres")
+        db_user = os.getenv("POSTGRES_USER")
+        db_password = os.getenv("POSTGRES_PASSWORD")
         db_name = os.getenv("POSTGRES_DB", "sahool_inventory")
+        if not db_user or not db_password:
+            raise ValueError(
+                "POSTGRES_USER and POSTGRES_PASSWORD environment variables are required. "
+                "Do not use hardcoded credentials."
+            )
         DATABASE_URL = f"postgresql+asyncpg://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}"
-        logger.warning("⚠️ Using development database defaults - NOT FOR PRODUCTION")
+        logger.warning("Using development database configuration from environment variables - NOT FOR PRODUCTION")
     else:
         raise ValueError(
             "DATABASE_URL environment variable is required. Set ALLOW_DEV_DEFAULTS=true for local development only."
@@ -159,6 +183,15 @@ app = FastAPI(
 
 # Include alert router
 app.include_router(alert_router)
+
+# Include Wave 2 inventory CRUD router (/api/v1/inventory).
+# Imported here (not at module top) so the static import graph stays
+# acyclic: `api.v1.inventory` lazy-imports back into `main` for the
+# `get_db` / `get_current_user` dependencies.
+import importlib as _importlib  # noqa: E402
+
+_inventory_v1_module = _importlib.import_module("src.api.v1.inventory")
+app.include_router(_inventory_v1_module.router)
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -476,4 +509,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8116))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

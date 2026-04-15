@@ -194,6 +194,8 @@ class YOLO26ModelManager:
         self._inference_lock = asyncio.Lock()
         self._loading_locks: dict[str, asyncio.Lock] = {}
         self._tracker_states: dict[str, Any] = {}
+        self._degraded_mode = False
+        self._degraded_tasks: list[str] = []
 
         logger.info(
             "yolo26_manager_initialized",
@@ -326,11 +328,19 @@ class YOLO26ModelManager:
         from ultralytics import YOLO
 
         if not model_path.exists():
-            # Fall back to pretrained model for development
-            logger.warning(
-                "model_not_found_using_pretrained",
+            # Determine task and variant from path for logging
+            task_info = model_path.stem  # e.g. "yolo26m-pest"
+            logger.error(
+                "agricultural_model_missing",
                 path=str(model_path),
+                task=task_info,
+                fallback="yolov8m.pt",
+                message="DEGRADED: Using generic model without agricultural training. "
+                "Detection results will NOT be calibrated for agricultural pest/disease/weed classes.",
             )
+            self._degraded_mode = True
+            if task_info not in self._degraded_tasks:
+                self._degraded_tasks.append(task_info)
             return YOLO("yolov8m.pt")
 
         return YOLO(str(model_path))

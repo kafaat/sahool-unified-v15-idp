@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
 // Disease Management Page - Sahool Vision AI
 // صفحة إدارة الأمراض - سهول فيجن
 
-import { useEffect, useState, useMemo, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import Header from "@/components/layout/Header";
-import AlertBadge from "@/components/ui/AlertBadge";
-import StatusBadge from "@/components/ui/StatusBadge";
-import { fetchDiagnoses, updateDiagnosisStatus } from "@/lib/api";
-import { formatDate, cn } from "@/lib/utils";
-import type { DiagnosisRecord } from "@/types";
-import { logger } from "../../lib/logger";
+import { useEffect, useState, useMemo, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Header from '@/components/layout/Header';
+import AlertBadge from '@/components/ui/AlertBadge';
+import StatusBadge from '@/components/ui/StatusBadge';
+import { fetchDiagnoses, updateDiagnosisStatus, downloadCSV } from '@/lib/api';
+import { formatDate, cn } from '@/lib/utils';
+import type { DiagnosisRecord } from '@/types';
+import { logger } from '../../lib/logger';
 import {
   Bug,
   Search,
@@ -25,39 +25,38 @@ import {
   RefreshCw,
   Download,
   Loader2,
-} from "lucide-react";
+} from 'lucide-react';
 
 const SEVERITY_OPTIONS = [
-  { value: "", label: "كل الخطورات" },
-  { value: "low", label: "منخفض" },
-  { value: "medium", label: "متوسط" },
-  { value: "high", label: "مرتفع" },
-  { value: "critical", label: "حرج" },
+  { value: '', label: 'كل الخطورات' },
+  { value: 'low', label: 'منخفض' },
+  { value: 'medium', label: 'متوسط' },
+  { value: 'high', label: 'مرتفع' },
+  { value: 'critical', label: 'حرج' },
 ];
 
 const STATUS_OPTIONS = [
-  { value: "", label: "كل الحالات" },
-  { value: "pending", label: "قيد المراجعة" },
-  { value: "confirmed", label: "مؤكد" },
-  { value: "rejected", label: "مرفوض" },
-  { value: "treated", label: "تم العلاج" },
+  { value: '', label: 'كل الحالات' },
+  { value: 'pending', label: 'قيد المراجعة' },
+  { value: 'confirmed', label: 'مؤكد' },
+  { value: 'rejected', label: 'مرفوض' },
+  { value: 'treated', label: 'تم العلاج' },
 ];
 
 function DiseasesContent() {
   const searchParams = useSearchParams();
-  const farmIdParam = searchParams?.get("farmId") || "";
+  const farmIdParam = searchParams?.get('farmId') || '';
 
   const [diagnoses, setDiagnoses] = useState<DiagnosisRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedDiagnosis, setSelectedDiagnosis] =
-    useState<DiagnosisRecord | null>(null);
+  const [selectedDiagnosis, setSelectedDiagnosis] = useState<DiagnosisRecord | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [severityFilter, setSeverityFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [severityFilter, setSeverityFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [farmIdFilter, _setFarmIdFilter] = useState(farmIdParam);
 
   // Pagination
@@ -74,7 +73,7 @@ function DiseasesContent() {
       const data = await fetchDiagnoses();
       setDiagnoses(data);
     } catch (error) {
-      logger.error("Failed to load diagnoses:", error);
+      logger.error('Failed to load diagnoses:', error);
     } finally {
       setIsLoading(false);
     }
@@ -88,7 +87,7 @@ function DiseasesContent() {
         if (
           !d.diseaseNameAr.toLowerCase().includes(query) &&
           !d.diseaseName.toLowerCase().includes(query) &&
-          !(d.farmName || "").toLowerCase().includes(query)
+          !(d.farmName || '').toLowerCase().includes(query)
         ) {
           return false;
         }
@@ -104,15 +103,15 @@ function DiseasesContent() {
   const totalPages = Math.ceil(filteredDiagnoses.length / itemsPerPage);
   const paginatedDiagnoses = filteredDiagnoses.slice(
     (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage,
+    currentPage * itemsPerPage
   );
 
   // Stats
   const stats = useMemo(() => {
     return {
       total: diagnoses.length,
-      pending: diagnoses.filter((d) => d.status === "pending").length,
-      critical: diagnoses.filter((d) => d.severity === "critical").length,
+      pending: diagnoses.filter((d) => d.status === 'pending').length,
+      critical: diagnoses.filter((d) => d.severity === 'critical').length,
       thisWeek: diagnoses.filter((d) => {
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
@@ -121,21 +120,16 @@ function DiseasesContent() {
     };
   }, [diagnoses]);
 
-  const handleStatusUpdate = async (
-    id: string,
-    status: "confirmed" | "rejected" | "treated",
-  ) => {
+  const handleStatusUpdate = async (id: string, status: 'confirmed' | 'rejected' | 'treated') => {
     setIsUpdating(true);
     try {
       await updateDiagnosisStatus(id, status);
-      setDiagnoses((prev) =>
-        prev.map((d) => (d.id === id ? { ...d, status } : d)),
-      );
+      setDiagnoses((prev) => prev.map((d) => (d.id === id ? { ...d, status } : d)));
       if (selectedDiagnosis?.id === id) {
         setSelectedDiagnosis({ ...selectedDiagnosis, status });
       }
     } catch (error) {
-      logger.error("Failed to update status:", error);
+      logger.error('Failed to update status:', error);
     } finally {
       setIsUpdating(false);
     }
@@ -152,11 +146,8 @@ function DiseasesContent() {
   };
 
   return (
-    <div className="p-6">
-      <Header
-        title="إدارة الأمراض"
-        subtitle="تشخيصات سهول فيجن للذكاء الاصطناعي"
-      />
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
+      <Header title="إدارة الأمراض" subtitle="تشخيصات سهول فيجن للذكاء الاصطناعي" />
 
       {/* Stats Summary */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -227,15 +218,15 @@ function DiseasesContent() {
           >
             <RefreshCw
               className={cn(
-                "w-5 h-5 text-gray-600 dark:text-gray-400",
-                isLoading && "animate-spin",
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
               )}
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(diagnoses, 'diagnoses')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -246,10 +237,7 @@ function DiseasesContent() {
       {isLoading ? (
         <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-gray-200 animate-pulse rounded-xl h-64"
-            ></div>
+            <div key={i} className="bg-gray-200 animate-pulse rounded-xl h-64"></div>
           ))}
         </div>
       ) : filteredDiagnoses.length === 0 ? (
@@ -301,12 +289,12 @@ function DiseasesContent() {
                   </div>
 
                   {/* Quick Actions */}
-                  {diagnosis.status === "pending" && (
+                  {diagnosis.status === 'pending' && (
                     <div className="mt-4 flex gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleStatusUpdate(diagnosis.id, "confirmed");
+                          handleStatusUpdate(diagnosis.id, 'confirmed');
                         }}
                         className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-50 text-green-700 rounded-lg text-sm font-medium hover:bg-green-100 transition-colors"
                         disabled={isUpdating}
@@ -317,7 +305,7 @@ function DiseasesContent() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleStatusUpdate(diagnosis.id, "rejected");
+                          handleStatusUpdate(diagnosis.id, 'rejected');
                         }}
                         className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-50 text-red-700 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
                         disabled={isUpdating}
@@ -346,9 +334,7 @@ function DiseasesContent() {
                 صفحة {currentPage} من {totalPages}
               </span>
               <button
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
                 className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -363,10 +349,7 @@ function DiseasesContent() {
       {isModalOpen && selectedDiagnosis && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/50"
-            onClick={closeModal}
-          ></div>
+          <div className="absolute inset-0 bg-black/50" onClick={closeModal}></div>
 
           {/* Modal Content */}
           <div className="relative bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-slide-up">
@@ -418,23 +401,23 @@ function DiseasesContent() {
                 <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-4">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">الموقع</p>
                   <p className="font-medium text-sm">
-                    {selectedDiagnosis.location.lat.toFixed(4)},{" "}
+                    {selectedDiagnosis.location.lat.toFixed(4)},{' '}
                     {selectedDiagnosis.location.lng.toFixed(4)}
                   </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-4">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">تاريخ التشخيص</p>
-                  <p className="font-medium">
-                    {formatDate(selectedDiagnosis.diagnosedAt)}
-                  </p>
+                  <p className="font-medium">{formatDate(selectedDiagnosis.diagnosedAt)}</p>
                 </div>
               </div>
 
               {/* Treatment Recommendation */}
               {(() => {
-                const treatment = (selectedDiagnosis as DiagnosisRecord & {
-                  treatment?: { recommendation?: string; recommendationAr?: string };
-                }).treatment;
+                const treatment = (
+                  selectedDiagnosis as DiagnosisRecord & {
+                    treatment?: { recommendation?: string; recommendationAr?: string };
+                  }
+                ).treatment;
                 if (!treatment) return null;
                 return (
                   <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
@@ -452,14 +435,10 @@ function DiseasesContent() {
               {/* Expert Review */}
               {selectedDiagnosis.expertReview && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-                  <h3 className="font-bold text-blue-800 mb-2">
-                    مراجعة الخبير
-                  </h3>
-                  <p className="text-blue-700 mb-2">
-                    {selectedDiagnosis.expertReview.notes}
-                  </p>
+                  <h3 className="font-bold text-blue-800 mb-2">مراجعة الخبير</h3>
+                  <p className="text-blue-700 mb-2">{selectedDiagnosis.expertReview.notes}</p>
                   <p className="text-sm text-blue-600">
-                    بواسطة: {selectedDiagnosis.expertReview.expertName} •{" "}
+                    بواسطة: {selectedDiagnosis.expertReview.expertName} •{' '}
                     {formatDate(selectedDiagnosis.expertReview.reviewedAt)}
                   </p>
                 </div>
@@ -467,12 +446,10 @@ function DiseasesContent() {
 
               {/* Actions */}
               <div className="flex gap-3">
-                {selectedDiagnosis.status === "pending" && (
+                {selectedDiagnosis.status === 'pending' && (
                   <>
                     <button
-                      onClick={() =>
-                        handleStatusUpdate(selectedDiagnosis.id, "confirmed")
-                      }
+                      onClick={() => handleStatusUpdate(selectedDiagnosis.id, 'confirmed')}
                       disabled={isUpdating}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors disabled:opacity-50"
                     >
@@ -480,9 +457,7 @@ function DiseasesContent() {
                       تأكيد التشخيص
                     </button>
                     <button
-                      onClick={() =>
-                        handleStatusUpdate(selectedDiagnosis.id, "rejected")
-                      }
+                      onClick={() => handleStatusUpdate(selectedDiagnosis.id, 'rejected')}
                       disabled={isUpdating}
                       className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
                     >
@@ -491,11 +466,9 @@ function DiseasesContent() {
                     </button>
                   </>
                 )}
-                {selectedDiagnosis.status === "confirmed" && (
+                {selectedDiagnosis.status === 'confirmed' && (
                   <button
-                    onClick={() =>
-                      handleStatusUpdate(selectedDiagnosis.id, "treated")
-                    }
+                    onClick={() => handleStatusUpdate(selectedDiagnosis.id, 'treated')}
                     disabled={isUpdating}
                     className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-sahool-600 text-white rounded-lg font-medium hover:bg-sahool-700 transition-colors disabled:opacity-50"
                   >
@@ -508,8 +481,8 @@ function DiseasesContent() {
                     const lat = selectedDiagnosis.location.lat;
                     const lng = selectedDiagnosis.location.lng;
                     if (
-                      typeof lat === "number" &&
-                      typeof lng === "number" &&
+                      typeof lat === 'number' &&
+                      typeof lng === 'number' &&
                       !isNaN(lat) &&
                       !isNaN(lng) &&
                       lat >= -90 &&
@@ -520,8 +493,8 @@ function DiseasesContent() {
                       const coords = encodeURIComponent(`${lat},${lng}`);
                       window.open(
                         `https://maps.google.com/?q=${coords}`,
-                        "_blank",
-                        "noopener,noreferrer",
+                        '_blank',
+                        'noopener,noreferrer'
                       );
                     }
                   }}

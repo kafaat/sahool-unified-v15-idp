@@ -499,6 +499,8 @@ class PredictiveMaintenanceEngine:
         Args:
             tenant_id: Tenant identifier
         """
+        if not tenant_id:
+            raise ValueError("tenant_id is required for PredictiveMaintenanceEngine")
         self.tenant_id = tenant_id
         self._equipment: dict[str, Equipment] = {}
         self._service_history: dict[str, list[ServiceRecord]] = {}
@@ -509,6 +511,11 @@ class PredictiveMaintenanceEngine:
         Register equipment with the engine
         تسجيل المعدات مع المحرك
         """
+        equipment_tenant_id = getattr(equipment, "tenant_id", None)
+        if not equipment_tenant_id:
+            raise ValueError("Equipment tenant_id is required and must be non-empty")
+        if equipment_tenant_id != self.tenant_id:
+            raise ValueError("Equipment does not belong to this tenant")
         self._equipment[equipment.id] = equipment
 
     def add_service_record(self, record: ServiceRecord) -> None:

@@ -1,5 +1,6 @@
-/// Item Detail Screen - شاشة تفاصيل العنصر
 library;
+
+/// Item Detail Screen - شاشة تفاصيل العنصر
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -49,7 +50,7 @@ class ItemDetailScreen extends ConsumerWidget {
             children: [
               Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
               const SizedBox(height: 16),
-              Text('فشل في تحميل التفاصيل'),
+              const Text('فشل في تحميل التفاصيل'),
               const SizedBox(height: 8),
               Text(error.toString()),
               const SizedBox(height: 16),
@@ -387,7 +388,7 @@ class ItemDetailScreen extends ConsumerWidget {
         child: Icon(
           _getCategoryIcon(item.category),
           size: 64,
-          color: Theme.of(context).primaryColor.withOpacity(0.3),
+          color: Theme.of(context).primaryColor.withValues(alpha: 0.3),
         ),
       ),
     );
@@ -462,9 +463,9 @@ class ItemDetailScreen extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

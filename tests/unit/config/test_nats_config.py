@@ -7,9 +7,9 @@ Tests to validate NATS configuration file security settings and structure.
 
 import os
 import re
-import pytest
 from pathlib import Path
 
+import pytest
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Test Fixtures

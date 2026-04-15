@@ -42,10 +42,13 @@ class Task(Base, TimestampMixin, TenantMixin):
 
     __tablename__ = "tasks"
 
-    # Primary Key
+    # Primary Key - UUID aligned with field-management-service Prisma schema
+    # (Prisma Task model uses `id String @id @default(uuid()) @db.Uuid`)
+    # Both services write to the same `tasks` table, so PK type must match.
     task_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         primary_key=True,
+        default=lambda: str(uuid.uuid4()),
         index=True,
     )
 
@@ -122,6 +125,17 @@ class Task(Base, TimestampMixin, TenantMixin):
     actual_duration_minutes: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
+    )
+
+    # Optimistic locking - قفل تفاؤلي
+    # Incremented on each successful update. Clients may pass `if_match_version`
+    # to detect concurrent modifications (kanban drag-drop races, stale tabs, etc.).
+    # A mismatch returns HTTP 409 Conflict rather than silently overwriting.
+    version: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=1,
+        server_default="1",
     )
 
     # Completion - الإنجاز
@@ -214,14 +228,15 @@ class TaskEvidence(Base, TimestampMixin):
 
     # Primary Key
     evidence_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         primary_key=True,
+        default=lambda: str(uuid.uuid4()),
         index=True,
     )
 
-    # Foreign Key to Task
+    # Foreign Key to Task (UUID, aligned with Prisma schema)
     task_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         ForeignKey("tasks.task_id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -283,9 +298,9 @@ class TaskHistory(Base, TimestampMixin):
         default=uuid.uuid4,
     )
 
-    # Foreign Key to Task
+    # Foreign Key to Task (UUID, aligned with Prisma schema)
     task_id: Mapped[str] = mapped_column(
-        String(50),
+        String(36),
         ForeignKey("tasks.task_id", ondelete="CASCADE"),
         nullable=False,
         index=True,

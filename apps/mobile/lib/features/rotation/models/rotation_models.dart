@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 
 /// Crop Family Enumeration - 15 major plant families
 enum CropFamily {
@@ -368,7 +367,7 @@ class SoilHealth {
         organicMatter: (json['organicMatter'] as num).toDouble(),
         ph: (json['ph'] as num).toDouble(),
         waterRetention: (json['waterRetention'] as num).toDouble(),
-        measuredAt: DateTime.parse(json['measuredAt'] as String),
+        measuredAt: DateTime.tryParse(json['measuredAt'] as String) ?? DateTime.now(),
       );
 }
 
@@ -431,10 +430,10 @@ class RotationYear {
             ? SoilHealth.fromJson(json['soilHealthAfter'] as Map<String, dynamic>)
             : null,
         plantingDate: json['plantingDate'] != null
-            ? DateTime.parse(json['plantingDate'] as String)
+            ? DateTime.tryParse(json['plantingDate'] as String) ?? DateTime.now()
             : null,
         harvestDate: json['harvestDate'] != null
-            ? DateTime.parse(json['harvestDate'] as String)
+            ? DateTime.tryParse(json['harvestDate'] as String) ?? DateTime.now()
             : null,
         yieldAmount: json['yieldAmount'] as double?,
         notes: json['notes'] as String?,
@@ -522,11 +521,11 @@ class RotationPlan {
         id: json['id'] as String,
         fieldId: json['fieldId'] as String,
         fieldName: json['fieldName'] as String,
-        rotationYears: (json['rotationYears'] as List)
+        rotationYears: (json['rotationYears'] as List? ?? [])
             .map((r) => RotationYear.fromJson(r as Map<String, dynamic>))
             .toList(),
-        createdAt: DateTime.parse(json['createdAt'] as String),
-        updatedAt: DateTime.parse(json['updatedAt'] as String),
+        createdAt: DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now(),
+        updatedAt: DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now(),
         preferences: json['preferences'] as Map<String, dynamic>?,
       );
 }

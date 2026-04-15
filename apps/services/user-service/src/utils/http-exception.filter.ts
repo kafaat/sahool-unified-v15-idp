@@ -70,7 +70,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         details = resp.details || resp.errors;
       }
     } else if (exception instanceof Error) {
-      message = exception.message;
+      // SECURITY: Never expose internal error messages in production responses.
+      // Log the real message server-side but intentionally leave `message` as the
+      // generic default ("An unexpected error occurred") that was set above.
+      this.logger.error(
+        `Unhandled internal error: ${exception.message}`,
+        exception.stack,
+      );
     }
 
     // Get request ID from headers

@@ -1,0 +1,191 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Release Drafter Configuration
+# تكوين مسودة الإصدار التلقائي
+#
+# Character budget notes
+# ─────────────────────
+# GitHub caps release bodies at 125,000 characters. When no *published*
+# release exists yet, release-drafter walks the entire history and can
+# easily overflow that limit on large monorepos.
+#
+# Every category uses `collapse-after: 5` so that the body stays bounded
+# regardless of history size, and `change-template` is kept short to
+# reduce per-PR overhead. See change-template and category-template below.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name-template: "v$RESOLVED_VERSION"
+tag-template: "v$RESOLVED_VERSION"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Per-entry template — kept short to stay within GitHub's 125k body cap.
+# Default template ("* $TITLE @$AUTHOR (#$NUMBER)") adds ~30 chars per PR
+# from the @author mention. Dropping it saves ~35 KB across a large history.
+# ─────────────────────────────────────────────────────────────────────────────
+change-template: "- $TITLE (#$NUMBER)"
+change-title-escapes: '\<*_&'
+category-template: "### $TITLE"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Categories - تصنيف التغييرات
+# Every category caps visible entries at 5. Beyond that, release-drafter
+# collapses into a "N more" summary, keeping the body bounded.
+# ─────────────────────────────────────────────────────────────────────────────
+categories:
+  - title: "🚀 Features | ميزات جديدة"
+    labels:
+      - "feature"
+      - "enhancement"
+      - "feat"
+    collapse-after: 5
+
+  - title: "🐛 Bug Fixes | إصلاح الأخطاء"
+    labels:
+      - "fix"
+      - "bugfix"
+      - "bug"
+    collapse-after: 5
+
+  - title: "🔒 Security | الأمان"
+    labels:
+      - "security"
+      - "type: security"
+      - "domain: security"
+    collapse-after: 5
+
+  - title: "🏗️ Infrastructure | البنية التحتية"
+    labels:
+      - "area: infrastructure"
+      - "area: ci-cd"
+      - "type: docker"
+    collapse-after: 5
+
+  - title: "📱 Mobile | التطبيق المحمول"
+    labels:
+      - "area: mobile"
+      - "flutter"
+    collapse-after: 5
+
+  - title: "🤖 AI & Intelligence | الذكاء الاصطناعي"
+    labels:
+      - "domain: ai"
+      - "domain: vision"
+    collapse-after: 5
+
+  - title: "🌾 Agriculture | الزراعة"
+    labels:
+      - "domain: irrigation"
+      - "domain: advisory"
+      - "domain: field-ops"
+      - "domain: iot"
+    collapse-after: 5
+
+  - title: "📦 Dependencies | الاعتماديات"
+    labels:
+      - "dependencies"
+      - "type: dependencies"
+    collapse-after: 5
+
+  - title: "📝 Documentation | التوثيق"
+    labels:
+      - "documentation"
+      - "area: documentation"
+    collapse-after: 5
+
+  - title: "⚠️ Deprecations | الإيقاف"
+    labels:
+      - "deprecation"
+      - "migration"
+    collapse-after: 3
+
+  - title: "🧹 Maintenance | الصيانة"
+    labels:
+      - "chore"
+      - "refactor"
+      - "cleanup"
+    collapse-after: 5
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Version Resolution - حساب رقم الإصدار
+# ─────────────────────────────────────────────────────────────────────────────
+version-resolver:
+  major:
+    labels:
+      - "breaking"
+      - "major"
+  minor:
+    labels:
+      - "feature"
+      - "enhancement"
+      - "feat"
+  patch:
+    labels:
+      - "fix"
+      - "bugfix"
+      - "bug"
+      - "security"
+      - "dependencies"
+      - "chore"
+  default: patch
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Exclude from release notes
+# ─────────────────────────────────────────────────────────────────────────────
+exclude-labels:
+  - "skip-changelog"
+  - "status: stale"
+
+exclude-contributors:
+  - "dependabot"
+  - "dependabot[bot]"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Autolabeler - تصنيف تلقائي من عنوان PR
+# ─────────────────────────────────────────────────────────────────────────────
+autolabeler:
+  - label: "feature"
+    title:
+      - "/^feat(\\(.+\\))?:/i"
+      - "/^feature:/i"
+
+  - label: "fix"
+    title:
+      - "/^fix(\\(.+\\))?:/i"
+      - "/^bugfix:/i"
+
+  - label: "documentation"
+    title:
+      - "/^docs(\\(.+\\))?:/i"
+
+  - label: "chore"
+    title:
+      - "/^chore(\\(.+\\))?:/i"
+      - "/^refactor(\\(.+\\))?:/i"
+
+  - label: "security"
+    title:
+      - "/^security(\\(.+\\))?:/i"
+      - "/security/i"
+
+  - label: "deprecation"
+    title:
+      - "/deprecat/i"
+      - "/migrat/i"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Release Notes Template
+# Kept intentionally compact. The $CHANGES block is already bounded by
+# the category collapse rules above; the surrounding template adds only
+# a small fixed overhead so we stay well under GitHub's 125k body cap.
+# ─────────────────────────────────────────────────────────────────────────────
+template: |
+  # SAHOOL Platform v$RESOLVED_VERSION | منصة سهول
+
+  _Release Date: $TODAY — Previous: $PREVIOUS_TAG_
+
+  ## What's Changed | التغييرات
+
+  $CHANGES
+
+  **Contributors**: $CONTRIBUTORS
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION

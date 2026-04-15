@@ -19,6 +19,8 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel, Field
 
+from .security_utils import sanitize_for_log
+
 logger = logging.getLogger(__name__)
 
 # NATS client - lazy import for optional dependency
@@ -75,7 +77,7 @@ def _get_nats_servers() -> list[str]:
         server_url = f"{parsed.scheme}://{parsed.hostname}:{parsed.port or 4222}"
         return [server_url]
     except Exception as e:
-        logger.warning(f"Failed to parse NATS_URL '{nats_url}': {e}. Using default.")
+        logger.warning("Failed to parse NATS_URL: %s. Using default.", sanitize_for_log(e))
         return ["nats://localhost:4222"]
 
 
@@ -86,8 +88,10 @@ def _get_nats_credentials() -> tuple[str | None, str | None]:
         parsed = urlparse(nats_url)
         if parsed.username and parsed.password:
             return parsed.username, parsed.password
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.debug(
+            "Failed to parse NATS credentials from URL: %s", type(exc).__name__
+        )  # nosemgrep: python-logger-credential-disclosure
     return None, None
 
 
@@ -231,9 +235,10 @@ class NATSSubscriber:
         }
 
         if self._notification_callback:
-            self._notification_callback(notification_data)
+            await self._notification_callback(notification_data)
             logger.info(
-                f"Irrigation recommendation notification created for field={field_id}",
+                "Irrigation recommendation notification created for field=%s",
+                sanitize_for_log(field_id),
             )
 
     async def _handle_decision_recommendation(self, event: ReceivedEvent):
@@ -284,9 +289,11 @@ class NATSSubscriber:
         }
 
         if self._notification_callback:
-            self._notification_callback(notification_data)
+            await self._notification_callback(notification_data)
             logger.info(
-                f"Decision recommendation notification: type={rec_type} field={field_id}",
+                "Decision recommendation notification: type=%s field=%s",
+                sanitize_for_log(rec_type),
+                sanitize_for_log(field_id),
             )
 
     async def close(self):
@@ -313,11 +320,34 @@ class NATSSubscriber:
 
     async def _message_handler(self, msg):
         """Handle incoming NATS message"""
-        try:
-            subject = msg.subject
-            data = json.loads(msg.data.decode("utf-8"))
+        subject = msg.subject
 
-            logger.info(f"Received message on {subject}")
+        # Decode raw bytes
+        try:
+            raw_text = msg.data.decode("utf-8")
+        except Exception as e:
+            logger.error(
+                "NATS message decode failed: subject=%s error=%s raw_bytes=%s",
+                sanitize_for_log(subject),
+                sanitize_for_log(e),
+                sanitize_for_log(msg.data[:200] if msg.data else b""),
+            )
+            return
+
+        # Parse JSON
+        try:
+            data = json.loads(raw_text)
+        except json.JSONDecodeError as e:
+            logger.error(
+                "NATS message JSON parse failed: subject=%s error=%s payload_preview=%s",
+                sanitize_for_log(subject),
+                sanitize_for_log(e),
+                sanitize_for_log(raw_text[:500]),
+            )
+            return
+
+        try:
+            logger.info("Received message on %s", sanitize_for_log(subject))
 
             # Derive event_type from payload or subject
             event_type = data.get("event_type", "")
@@ -346,12 +376,17 @@ class NATSSubscriber:
             if event.event_type in self._handlers:
                 await self._handlers[event.event_type](event)
 
-            # Default: use notification callback if available
-            if self._notification_callback:
+            # Default: use notification callback only if no specific handler ran
+            elif self._notification_callback:
                 await self._process_event_to_notification(event)
 
         except Exception as e:
-            logger.error(f"Error processing NATS message: {e}")
+            logger.error(
+                "Error processing NATS message: subject=%s error=%s event_id=%s",
+                sanitize_for_log(subject),
+                sanitize_for_log(e),
+                sanitize_for_log(data.get("event_id", "unknown")),
+            )
 
     async def _process_event_to_notification(self, event: ReceivedEvent):
         """Process event and create notification"""
@@ -359,10 +394,14 @@ class NATSSubscriber:
             notification_data = self._event_to_notification_data(event)
 
             if self._notification_callback:
-                self._notification_callback(notification_data)
-                logger.info(f"Notification created from event: {event.event_type} field={event.field_id}")
+                await self._notification_callback(notification_data)
+                logger.info(
+                    "Notification created from event: %s field=%s",
+                    sanitize_for_log(event.event_type),
+                    sanitize_for_log(event.field_id),
+                )
         except Exception as e:
-            logger.error(f"Error creating notification from event: {e}")
+            logger.error("Error creating notification from event: %s", sanitize_for_log(e))
 
     def _event_to_notification_data(self, event: ReceivedEvent) -> dict[str, Any]:
         """Convert NATS event to notification data"""

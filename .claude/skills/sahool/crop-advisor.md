@@ -1,3 +1,8 @@
+---
+name: crop-advisor
+description: Use when generating crop management advisories for SAHOOL farmers — planting decisions, irrigation schedules, fertilization rates, pest/disease control, harvest timing. TRIGGER when the user asks for "advisory", "recommendation", "نصيحة", "what should the farmer do", or when responding to field-level diagnostic outputs (NDVI drop, soil test result, pest detection, disease alert) with actionable guidance. Enforces the SAHOOL Advisory Framework (situation → analysis → recommendation → rationale → action plan → follow-up), bilingual EN/AR output, and priority-tagged alerts (Critical/Warning/Advisory/Informational).
+---
+
 # Crop Advisory Skill
 
 ## Description

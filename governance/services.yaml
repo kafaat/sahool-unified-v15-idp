@@ -38,7 +38,7 @@ event_architecture:
 
     business:
       description: "Business operations layer - طبقة الأعمال"
-      services: [notification-service, marketplace-service, billing-core, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, wechat-service, field-management-service, user-service, alert-service, inventory-service, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]  # community-chat and field-chat removed (deprecated → chat-service)
+      services: [notification-service, marketplace-service, billing-core, chat-service, research-core, mcp-server, task-service, equipment-service, ws-gateway, audit-service, crm-service, lowcode-engine, field-management-service, user-service, alert-service, inventory-service, provider-config, agent-registry, code-review-service, globalgap-compliance, logistics-service, cooperative-service, traceability-service, supply-chain-service, whatsapp-bot-service, copilot-api, ai-chat-assistant, ussd-gateway, demo-data]  # community-chat, field-chat, wechat-service removed (deprecated)
       rules:
         - "Consumes from Decision"
         - "User-facing operations"
@@ -105,10 +105,10 @@ services:
     port: 3023
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Only starts with --profile deprecated in docker-compose; use advisory-service for recommendations
     owner: "agro-team@sahool.io"
     team: agro
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-1
     events:
       produces:
@@ -255,10 +255,10 @@ services:
     port: 3022
     protocol: http
     health_endpoint: "/healthz"
-    status: active
+    status: deprecated  # Only starts with --profile deprecated in docker-compose; use vegetation-analysis-service for indices
     owner: "data-team@sahool.io"
     team: data
-    lifecycle: production
+    lifecycle: deprecated
     tier: tier-2
     events:
       produces:
@@ -384,8 +384,8 @@ services:
   # IOT SERVICE - خدمة إنترنت الأشياء
   # ═══════════════════════════════════════════════════════════════════════════
   iot-service:
-    name: "IoT Gateway"
-    name_ar: "بوابة إنترنت الأشياء"
+    name: "IoT Device Management"
+    name_ar: "خدمة إدارة أجهزة إنترنت الأشياء"
     type: nestjs
     category: integration
     layer: acquisition
@@ -1441,6 +1441,71 @@ services:
       cpu: "400m"
       memory: "384Mi"
       replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # PARTNER AUTH SERVICE - خادم مصادقة الشركاء (OAuth 2.0 / OIDC)
+  # ═══════════════════════════════════════════════════════════════════════════
+  partner-auth-service:
+    name: "Partner Auth Service"
+    name_ar: "خادم مصادقة الشركاء"
+    type: nestjs
+    category: core
+    layer: business
+    path: "apps/services/partner-auth-service"
+    port: 3030
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: production
+    tier: tier-1
+    events:
+      produces:
+        - PartnerClientCreated.v1
+        - PartnerTokenIssued.v1
+        - PartnerTokenRevoked.v1
+      consumes: []
+    dependencies:
+      - postgres
+      - redis
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 2
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # CARBON SERVICE - خدمة تتبع الكربون
+  # ═══════════════════════════════════════════════════════════════════════════
+  carbon-service:
+    name: "Carbon Service"
+    name_ar: "خدمة تتبع الكربون"
+    type: python
+    category: analytics
+    layer: business
+    path: "apps/services/carbon-service"
+    port: 8195
+    protocol: http
+    health_endpoint: "/healthz"
+    status: active
+    owner: "sustainability-team@sahool.io"
+    # `agro` is the closest team in the governance-validation allowlist
+    # (VALID_TEAMS in .github/workflows/governance-validation.yml). Add
+    # `sustainability` there if it becomes a dedicated team.
+    team: agro
+    lifecycle: production
+    tier: tier-2
+    events:
+      produces:
+        - CarbonFootprintComputed.v1
+      consumes:
+        - FieldOperationRecorded.v1
+    dependencies:
+      - postgres
+    resources:
+      cpu: "300m"
+      memory: "384Mi"
+      replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
   # ALERT SERVICE - خدمة التنبيهات
@@ -3610,7 +3675,7 @@ infrastructure:
     grafana:
       port: 3003  # Changed from 3000 to avoid conflict with field-management-service and web dashboard
     loki:
-      port: 3100
+      port: 3101  # Changed from 3100 to avoid conflict with Rocket.Chat (port 3100)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Infrastructure Services (Docker Compose)

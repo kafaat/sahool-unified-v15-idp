@@ -22,6 +22,7 @@
 /// - sahool://alert/{alertId} - Open alert details
 /// - sahool://reset-password?token=xxx - Password reset
 /// - sahool://verify-otp?identifier=xxx&purpose=xxx - OTP verification
+library;
 
 import 'dart:async';
 
@@ -300,7 +301,7 @@ class PasswordResetLinkData extends DeepLinkData {
 
   /// Check if the token is expired (tokens expire after 1 hour typically)
   bool get isExpired {
-    final expirationDuration = const Duration(hours: 1);
+    const expirationDuration = Duration(hours: 1);
     return DateTime.now().difference(receivedAt) > expirationDuration;
   }
 }
@@ -516,7 +517,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
       // Listen for incoming links while app is running (warm start)
       _linkSubscription = _appLinks.uriLinkStream.listen(
         (uri) => _handleUri(uri, isColdStart: false),
-        onError: (error) {
+        onError: (Object error) {
           AppLogger.e(
             'Deep link stream error',
             tag: 'DEEPLINK',
@@ -567,7 +568,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
           _processUri(state.pendingAuthLink!.uri, isInitial: false);
           state = state.copyWith(clearPendingAuthLink: true);
         }
-      } catch (_) {
+      } catch (e) {
         // Auth provider not available yet
       }
     }
@@ -659,7 +660,7 @@ class DeepLinkNotifier extends StateNotifier<DeepLinkState> {
           _navigateToLogin(deepLinkData);
           return;
         }
-      } catch (_) {
+      } catch (e) {
         // Auth provider not available, store link for later
         state = state.copyWith(pendingAuthLink: deepLinkData);
         return;
@@ -1210,14 +1211,14 @@ final deepLinkProvider =
   // Try to get router, but don't fail if not available
   try {
     router = ref.watch(goRouterProvider);
-  } catch (_) {
+  } catch (e) {
     // Router not yet available
   }
 
   // Try to get navigator key
   try {
     navigatorKey = ref.watch(navigatorKeyProvider);
-  } catch (_) {
+  } catch (e) {
     // Navigator key not yet available
   }
 

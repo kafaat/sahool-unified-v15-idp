@@ -11,9 +11,11 @@
 
 import {
   Injectable,
+  Optional,
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
+  ConflictException,
   Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -22,20 +24,24 @@ import * as crypto from "crypto";
 import * as nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserEventsService } from "../events/user-events.service";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
 import { JWTConfig } from "../utils/jwt.config";
 import { UserStatus } from "../utils/validation";
+import { BCRYPT_ROUNDS, DEFAULT_TENANT_ID, splitFullName } from "../utils/security.config";
 
 export interface LoginDto {
-  email: string;
+  email?: string;
+  phone?: string;
   password: string;
 }
 
 export interface RegisterDto {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
   phone?: string;
   tenantId?: string;
 }
@@ -52,7 +58,7 @@ export interface ResetPasswordDto {
 export interface SendOtpDto {
   identifier: string;
   channel: "sms" | "whatsapp" | "telegram" | "email";
-  purpose: "password_reset" | "verify_phone";
+  purpose: "password_reset" | "verify_phone" | "login";
   language?: string;
 }
 
@@ -77,10 +83,13 @@ export interface TokenResponse {
   user: {
     id: string;
     email: string;
+    name: string;
+    name_ar?: string;
     firstName: string;
     lastName: string;
     role: string;
     tenantId: string;
+    tenant_id: string;
   };
 }
 
@@ -104,6 +113,10 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
     private readonly revocationStore: RedisTokenRevocationStore,
+    // Optional — UserEventsService comes from the global EventsModule.
+    // Marked Optional() so the constructor still works in tests that
+    // don't set up the events module.
+    @Optional() private readonly userEvents?: UserEventsService,
   ) { }
 
   /**
@@ -127,27 +140,35 @@ export class AuthService {
    * تسجيل دخول المستخدم مع حماية قفل الحساب
    */
   async login(loginDto: LoginDto): Promise<TokenResponse> {
-    const { email, password } = loginDto;
+    const { password } = loginDto;
 
-    // Find user by email
-    const user = await this.prisma.user.findUnique({
-      where: { email },
-    });
+    // Find user by email or phone
+    let user;
+    if (loginDto.email) {
+      const email = loginDto.email.toLowerCase().trim();
+      user = await this.prisma.user.findUnique({ where: { email } });
+    } else if (loginDto.phone) {
+      const phone = loginDto.phone.trim();
+      user = await this.prisma.user.findFirst({ where: { phone } });
+    }
 
     if (!user) {
+      const identifier = loginDto.email || loginDto.phone || 'unknown';
       this.logger.warn(
         `Login attempt failed: User not found`,
-        { email: this.sanitizeForLog(email) },
+        { identifier: this.sanitizeForLog(identifier) },
       );
       throw new UnauthorizedException("Invalid email or password");
     }
+
+    const identifier = loginDto.email || loginDto.phone || user.email;
 
     // Check if account is locked
     const lockoutStatus = await this.checkAccountLockout(user.id);
     if (lockoutStatus.isLocked) {
       this.logger.warn(
         `Login attempt blocked: Account is locked`,
-        { email: this.sanitizeForLog(email), remainingMinutes: lockoutStatus.remainingMinutes },
+        { identifier: this.sanitizeForLog(identifier), remainingMinutes: lockoutStatus.remainingMinutes },
       );
       throw new UnauthorizedException(
         `Account is temporarily locked due to too many failed login attempts. Please try again in ${lockoutStatus.remainingMinutes} minutes.`,
@@ -169,7 +190,7 @@ export class AuthService {
       this.logger.warn(
         `Login attempt failed: Invalid password`,
         {
-          email: this.sanitizeForLog(email),
+          identifier: this.sanitizeForLog(identifier),
           attemptsRemaining: lockResult.attemptsRemaining,
           isNowLocked: lockResult.isNowLocked,
         },
@@ -192,10 +213,10 @@ export class AuthService {
     if (user.status !== UserStatus.ACTIVE) {
       this.logger.warn(
         `Login attempt failed: User status is ${user.status}`,
-        { email: this.sanitizeForLog(email) },
+        { identifier: this.sanitizeForLog(identifier) },
       );
       throw new UnauthorizedException(
-        `Account is ${user.status.toLowerCase()}. Please contact support.`,
+        'Account is not available. Please contact support.',
       );
     }
 
@@ -203,7 +224,7 @@ export class AuthService {
     if (!user.emailVerified) {
       this.logger.warn(
         `Login attempt: Email not verified`,
-        { email: this.sanitizeForLog(email) },
+        { identifier: this.sanitizeForLog(identifier) },
       );
       // You can either throw an error or allow login
       // throw new UnauthorizedException('Email not verified');
@@ -223,7 +244,7 @@ export class AuthService {
 
     this.logger.log(`User logged in successfully`, {
       userId: user.id,
-      email: this.sanitizeForLog(email),
+      identifier: this.sanitizeForLog(identifier),
     });
 
     return {
@@ -231,10 +252,13 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        name_ar: user.nameAr || undefined,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
         tenantId: user.tenantId,
+        tenant_id: user.tenantId,
       },
     };
   }
@@ -480,59 +504,66 @@ export class AuthService {
         throw new UnauthorizedException("Invalid refresh token");
       }
 
-      // Check if token was already used (replay attack detection)
-      if (storedToken.used) {
-        this.logger.error(
-          `Token reuse detected! Token: ${payload.jti.substring(0, 8)}..., Family: ${payload.family?.substring(0, 8)}...`,
-        );
+      // Use interactive transaction to prevent race condition on concurrent
+      // refresh requests with the same token (check-then-update atomicity)
+      const { user } = await this.prisma.$transaction(async (tx) => {
+        // Re-fetch token inside transaction for atomicity
+        const tokenRecord = await tx.refreshToken.findUnique({
+          where: { jti: payload.jti },
+        });
 
-        // Invalidate entire token family
-        if (payload.family) {
-          await this.invalidateTokenFamily(payload.family);
+        if (!tokenRecord) {
+          throw new UnauthorizedException("Invalid refresh token");
         }
 
-        throw new UnauthorizedException(
-          "Token reuse detected - all tokens in family have been invalidated",
-        );
-      }
+        // Check if token was already used (replay attack detection)
+        if (tokenRecord.used) {
+          this.logger.error(
+            `Token reuse detected! Token: ${payload.jti.substring(0, 8)}..., Family: ${payload.family?.substring(0, 8)}...`,
+          );
 
-      // Check if token is revoked
-      if (storedToken.revoked) {
-        this.logger.warn(
-          `Refresh attempt with revoked token: ${payload.jti.substring(0, 8)}...`,
-        );
-        throw new UnauthorizedException("Token has been revoked");
-      }
+          // Invalidate entire token family
+          if (payload.family) {
+            await this.invalidateTokenFamily(payload.family);
+          }
 
-      // Check if token is expired
-      if (storedToken.expiresAt < new Date()) {
-        this.logger.warn(
-          `Refresh attempt with expired token: ${payload.jti.substring(0, 8)}...`,
-        );
-        throw new UnauthorizedException("Refresh token has expired");
-      }
+          throw new UnauthorizedException(
+            "Token reuse detected - all tokens in family have been invalidated",
+          );
+        }
 
-      // Verify user still exists and is active
-      const user = await this.prisma.user.findUnique({
-        where: { id: payload.sub },
+        // Check if token is revoked
+        if (tokenRecord.revoked) {
+          throw new UnauthorizedException("Token has been revoked");
+        }
+
+        // Check if token is expired
+        if (tokenRecord.expiresAt < new Date()) {
+          throw new UnauthorizedException("Refresh token has expired");
+        }
+
+        // Verify user still exists and is active
+        const txUser = await tx.user.findUnique({
+          where: { id: payload.sub },
+        });
+
+        if (!txUser || txUser.status !== UserStatus.ACTIVE) {
+          throw new UnauthorizedException("User account is not active");
+        }
+
+        // Atomically mark current refresh token as used
+        await tx.refreshToken.update({
+          where: { jti: payload.jti },
+          data: {
+            used: true,
+            usedAt: new Date(),
+          },
+        });
+
+        return { user: txUser };
       });
 
-      if (!user || user.status !== UserStatus.ACTIVE) {
-        throw new UnauthorizedException("User account is not active");
-      }
-
-      // Mark current refresh token as used
-      const newRefreshJti = uuidv4();
-      await this.prisma.refreshToken.update({
-        where: { jti: payload.jti },
-        data: {
-          used: true,
-          usedAt: new Date(),
-          replacedBy: newRefreshJti,
-        },
-      });
-
-      // Mark old token as used in Redis (with short TTL for detection window)
+      // Outside transaction: Redis revocation and new token generation
       await this.revocationStore.revokeToken(payload.jti, {
         expiresIn: 300, // 5 minutes to detect concurrent reuse attempts
         reason: "refresh_token_rotated",
@@ -541,13 +572,31 @@ export class AuthService {
       });
 
       // Generate new token pair with same family
-      const tokens = await this.generateTokens(user, payload.family);
+      const newTokens = await this.generateTokens(user, payload.family);
+
+      // Update replacedBy with actual new refresh token JTI (verified from generated token)
+      try {
+        const newPayload = this.jwtService.verify(newTokens.refresh_token, {
+          secret: JWTConfig.SECRET,
+          issuer: JWTConfig.ISSUER,
+          audience: JWTConfig.AUDIENCE,
+        }) as JwtPayload;
+        await this.prisma.refreshToken.update({
+          where: { jti: payload.jti },
+          data: { replacedBy: newPayload.jti },
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        this.logger.warn(
+          `Failed to update refresh token chain for JTI ${payload.jti.substring(0, 8)}...: ${message}`,
+        );
+      }
 
       this.logger.log(
-        `Refresh token rotated for user: ${user.id}, Old JTI: ${payload.jti.substring(0, 8)}..., New JTI: ${newRefreshJti.substring(0, 8)}...`,
+        `Refresh token rotated for user: ${user.id}, Old JTI: ${payload.jti.substring(0, 8)}...`,
       );
 
-      return tokens;
+      return newTokens;
     } catch (error) {
       if (error instanceof UnauthorizedException) {
         throw error;
@@ -581,7 +630,17 @@ export class AuthService {
    * تسجيل مستخدم جديد
    */
   async register(registerDto: RegisterDto): Promise<TokenResponse> {
-    const { email, password, firstName, lastName, phone, tenantId } = registerDto;
+    const { password, phone, tenantId } = registerDto;
+    const email = registerDto.email.toLowerCase().trim();
+
+    // Handle name splitting: accept either `name` or `firstName`+`lastName`
+    const names = splitFullName(registerDto.name, registerDto.firstName, registerDto.lastName);
+    if (!names) {
+      throw new BadRequestException(
+        "Either 'name' or both 'firstName' and 'lastName' must be provided",
+      );
+    }
+    const { firstName, lastName } = names;
 
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
@@ -593,16 +652,15 @@ export class AuthService {
         `Registration attempt with existing email`,
         { email: this.sanitizeForLog(email) },
       );
-      throw new UnauthorizedException("Email already registered");
+      throw new ConflictException("Email already registered");
     }
 
     // Hash password
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
     // Create user with default tenant if not provided
     // Use the default tenant UUID from database (sahool-demo tenant)
-    const defaultTenantId = tenantId || "a0000000-0000-0000-0000-000000000001";
+    const defaultTenantId = tenantId || DEFAULT_TENANT_ID;
 
     const user = await this.prisma.user.create({
       data: {
@@ -625,6 +683,21 @@ export class AuthService {
       email: this.sanitizeForLog(email),
     });
 
+    // Publish `sahool.user.created` so audit-service, notification-service,
+    // and any future consumer can react. Self-registration was previously
+    // bypassing the event bus entirely (the R-1a fix only covered the
+    // admin path via UsersService.create) — this completes that work.
+    // Fire-and-forget; degraded NATS does not block account creation.
+    void this.userEvents?.publishUserCreated({
+      tenantId: user.tenantId,
+      userId: user.id,
+      email: user.email,
+      firstName: user.firstName ?? undefined,
+      lastName: user.lastName ?? undefined,
+      role: String(user.role),
+      createdAt: user.createdAt,
+    });
+
     // Generate tokens for immediate login
     const tokens = await this.generateTokens(user);
 
@@ -633,10 +706,13 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        name: `${user.firstName} ${user.lastName}`.trim(),
+        name_ar: user.nameAr || undefined,
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
         tenantId: user.tenantId,
+        tenant_id: user.tenantId,
       },
     };
   }
@@ -967,7 +1043,7 @@ SAHOOL - National Agricultural Intelligence Platform
    * Reset password using token
    * إعادة تعيين كلمة المرور باستخدام الرمز
    */
-  async resetPassword(token: string, newPassword: string): Promise<{
+  async resetPassword(token: string, newPassword: string, tenantId?: string): Promise<{
     success: boolean;
     message: string;
   }> {
@@ -978,12 +1054,14 @@ SAHOOL - National Agricultural Intelligence Platform
       .digest("hex");
 
     // Find user with matching token that hasn't expired
+    // SECURITY: Filter by tenantId to prevent cross-tenant password reset
     const user = await this.prisma.user.findFirst({
       where: {
         passwordResetToken: tokenHash,
         passwordResetExpiry: {
           gt: new Date(),
         },
+        ...(tenantId && { tenantId }),
       },
     });
 
@@ -998,8 +1076,7 @@ SAHOOL - National Agricultural Intelligence Platform
     }
 
     // Hash new password
-    const saltRounds = 12;
-    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+    const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
 
     // Update password and clear reset token
     await this.prisma.user.update({
@@ -1035,7 +1112,7 @@ SAHOOL - National Agricultural Intelligence Platform
    * Send OTP for password reset or phone verification
    * إرسال رمز التحقق لإعادة تعيين كلمة المرور أو التحقق من الهاتف
    */
-  async sendOtp(dto: SendOtpDto): Promise<{
+  async sendOtp(dto: SendOtpDto, tenantId?: string): Promise<{
     success: boolean;
     message: string;
     expiresIn?: number;
@@ -1045,9 +1122,13 @@ SAHOOL - National Agricultural Intelligence Platform
     // For password_reset, verify user exists (but don't reveal if not found)
     if (purpose === "password_reset") {
       // Check if identifier is email or phone
+      // SECURITY: Filter by tenantId to prevent cross-tenant user enumeration
       const isEmail = identifier.includes("@");
       const user = await this.prisma.user.findFirst({
-        where: isEmail ? { email: identifier } : { phone: identifier },
+        where: {
+          ...(isEmail ? { email: identifier } : { phone: identifier }),
+          ...(tenantId && { tenantId }),
+        },
       });
 
       if (!user) {
@@ -1129,13 +1210,37 @@ SAHOOL - National Agricultural Intelligence Platform
    * Verify OTP and return reset token for password reset
    * التحقق من رمز OTP وإرجاع رمز إعادة التعيين لإعادة تعيين كلمة المرور
    */
-  async verifyOtp(dto: VerifyOtpDto): Promise<{
+  async verifyOtp(dto: VerifyOtpDto, tenantId?: string): Promise<{
     success: boolean;
     message: string;
     resetToken?: string;
     verified?: boolean;
+    access_token?: string;
+    refresh_token?: string;
+    expires_in?: number;
+    token_type?: string;
+    user?: TokenResponse["user"];
   }> {
     const { identifier, otpCode, purpose } = dto;
+
+    // OTP brute-force protection: max 5 attempts per identifier per 15 minutes
+    const otpAttemptKey = `otp_attempts:${identifier}`;
+    try {
+      const attempts = await this.revocationStore.getOtpAttempts(otpAttemptKey);
+      if (attempts >= 5) {
+        this.logger.warn('OTP verification blocked: too many attempts', {
+          identifier: this.sanitizeForLog(identifier),
+        });
+        throw new BadRequestException(
+          'Too many verification attempts. Please wait 15 minutes and try again.',
+        );
+      }
+      await this.revocationStore.incrementOtpAttempts(otpAttemptKey);
+    } catch (error) {
+      if (error instanceof BadRequestException) throw error;
+      // If Redis is unavailable, allow the attempt but log warning
+      this.logger.warn('OTP rate limit check failed (Redis unavailable), allowing attempt');
+    }
 
     try {
       // Call notification service to verify OTP
@@ -1177,12 +1282,23 @@ SAHOOL - National Agricultural Intelligence Platform
         purpose,
       });
 
+      // Reset OTP attempt counter on successful verification
+      try {
+        await this.revocationStore.resetOtpAttempts(`otp_attempts:${identifier}`);
+      } catch {
+        // Best effort
+      }
+
       // For password_reset, generate a reset token
       if (purpose === "password_reset") {
         // Find user by identifier
+        // SECURITY: Filter by tenantId to prevent cross-tenant password reset via OTP
         const isEmail = identifier.includes("@");
         const user = await this.prisma.user.findFirst({
-          where: isEmail ? { email: identifier } : { phone: identifier },
+          where: {
+            ...(isEmail ? { email: identifier } : { phone: identifier }),
+            ...(tenantId && { tenantId }),
+          },
         });
 
         if (!user) {
@@ -1220,10 +1336,70 @@ SAHOOL - National Agricultural Intelligence Platform
         };
       }
 
+      // For login, find user by identifier and issue tokens (passwordless OTP login)
+      // SECURITY: Filter by tenantId to prevent cross-tenant login via OTP
+      if (purpose === "login") {
+        const isEmail = identifier.includes("@");
+        const user = await this.prisma.user.findFirst({
+          where: {
+            ...(isEmail ? { email: identifier } : { phone: identifier }),
+            ...(tenantId && { tenantId }),
+          },
+        });
+
+        if (!user) {
+          throw new BadRequestException("User not found.");
+        }
+
+        if (user.status !== UserStatus.ACTIVE) {
+          throw new BadRequestException("Account is not available. Please contact support.");
+        }
+
+        // Reset failed login counter on successful OTP login
+        await this.resetFailedLoginAttempts(user.id);
+
+        const tokens = await this.generateTokens(user);
+
+        await this.prisma.user.update({
+          where: { id: user.id },
+          data: {
+            lastLoginAt: new Date(),
+            ...(isEmail ? {} : { phoneVerified: true }),
+          },
+        });
+
+        this.logger.log(`User logged in via OTP`, {
+          userId: user.id,
+          identifier: this.sanitizeForLog(identifier),
+        });
+
+        return {
+          success: true,
+          message: "OTP login successful.",
+          verified: true,
+          ...tokens,
+          user: {
+            id: user.id,
+            email: user.email,
+            name: `${user.firstName} ${user.lastName}`.trim(),
+            name_ar: user.nameAr || undefined,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            tenantId: user.tenantId,
+            tenant_id: user.tenantId,
+          },
+        };
+      }
+
       // For verify_phone, update user's phone verification status
+      // SECURITY: Filter by tenantId to prevent cross-tenant phone verification
       if (purpose === "verify_phone") {
         const user = await this.prisma.user.findFirst({
-          where: { phone: identifier },
+          where: {
+            phone: identifier,
+            ...(tenantId && { tenantId }),
+          },
         });
 
         if (user) {

@@ -85,8 +85,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     // Listen for typing indicators
     _typingSubscription = chatRepo.typingStream.listen((data) {
       setState(() {
-        _isTyping = data['isTyping'] ?? false;
-        _typingUser = data['userName'];
+        _isTyping = (data['isTyping'] ?? false) as bool;
+        _typingUser = data['userName'] as String?;
       });
     });
 
@@ -95,7 +95,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       setState(() {
         _expertJoined = true;
       });
-      _showExpertJoinedSnackbar(data['expertName'] ?? 'خبير');
+      _showExpertJoinedSnackbar((data['expertName'] ?? 'خبير') as String);
     });
 
     // Add welcome message
@@ -244,7 +244,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: const Color(0xFF16A34A).withOpacity(0.1),
+              color: const Color(0xFF16A34A).withValues(alpha: 0.1),
               child: Row(
                 children: [
                   const Icon(Icons.topic, size: 18, color: Color(0xFF16A34A)),
@@ -299,7 +299,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   blurRadius: 10,
                   offset: const Offset(0, -5),
                 ),
@@ -589,7 +589,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(

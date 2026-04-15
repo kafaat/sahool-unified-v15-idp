@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:uuid/uuid.dart';
+import '../../../../core/config/api_config.dart';
 import '../../../../core/utils/app_logger.dart';
 import '../../../../core/offline/offline_sync_engine.dart';
 import '../../domain/models/scout_session.dart';
@@ -20,6 +24,14 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
   final _uuid = const Uuid();
   Timer? _trackingTimer;
   StreamSubscription? _locationSubscription;
+
+  /// Dio client for yolo26-vision-service (port 8150)
+  final Dio _visionDio = Dio(BaseOptions(
+    baseUrl: ApiConfig.effectiveBaseUrl,
+    connectTimeout: ApiConfig.connectTimeout,
+    receiveTimeout: ApiConfig.longOperationTimeout,
+    headers: ApiConfig.defaultHeaders,
+  ));
 
   FieldScoutNotifier(this._ref) : super(const FieldScoutState());
 
@@ -248,34 +260,78 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
     _locationSubscription = null;
   }
 
-  void _recordTrackPoint() {
+  Future<void> _recordTrackPoint() async {
     if (state.currentSession == null) return;
 
-    // In real implementation, get actual GPS coordinates
-    // For now, simulate with dummy data
-    final lastPoint = state.currentSession!.trackPoints.isNotEmpty
-        ? state.currentSession!.trackPoints.last
-        : const GeoPoint(latitude: 15.3694, longitude: 44.1910); // Sanaa default
+    try {
+      // Get real GPS position via geolocator
+      GeoPoint newPoint;
+      try {
+        LocationPermission effectivePermission = await Geolocator.checkPermission();
+        if (effectivePermission == LocationPermission.denied) {
+          effectivePermission = await Geolocator.requestPermission();
+        }
 
-    // Simulate slight movement
-    final newPoint = GeoPoint(
-      latitude: lastPoint.latitude + (0.00001 * (DateTime.now().second % 3 - 1)),
-      longitude: lastPoint.longitude + (0.00001 * (DateTime.now().second % 3 - 1)),
-      accuracy: 5.0,
-      timestamp: DateTime.now(),
-    );
+        final serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
-    final updatedTrackPoints = [
-      ...state.currentSession!.trackPoints,
-      newPoint,
-    ];
+        if (effectivePermission == LocationPermission.deniedForever ||
+            !serviceEnabled) {
+          // Permission permanently denied or services disabled: fall back without
+          // attempting to query the current position to avoid noisy failures.
+          final currentLocation = state.currentLocation;
+          if (currentLocation == null) {
+            AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
+            return;
+          }
+          newPoint = GeoPoint(
+            latitude: currentLocation.latitude,
+            longitude: currentLocation.longitude,
+            accuracy: currentLocation.accuracy,
+            timestamp: DateTime.now(),
+          );
+        } else {
+          final position = await Geolocator.getCurrentPosition(
+            locationSettings: const LocationSettings(
+              accuracy: LocationAccuracy.high,
+              timeLimit: Duration(seconds: 5),
+            ),
+          );
+          newPoint = GeoPoint(
+            latitude: position.latitude,
+            longitude: position.longitude,
+            accuracy: position.accuracy,
+            timestamp: DateTime.now(),
+          );
+        }
+      } catch (e) {
+        // Fall back to last known location
+        final currentLocation = state.currentLocation;
+        if (currentLocation == null) {
+          AppLogger.w('No GPS location available for track point', tag: 'SCOUT');
+          return;
+        }
+        newPoint = GeoPoint(
+          latitude: currentLocation.latitude,
+          longitude: currentLocation.longitude,
+          accuracy: currentLocation.accuracy,
+          timestamp: DateTime.now(),
+        );
+      }
 
-    state = state.copyWith(
-      currentSession: state.currentSession!.copyWith(
-        trackPoints: updatedTrackPoints,
-      ),
-      currentLocation: newPoint,
-    );
+      final updatedTrackPoints = [
+        ...state.currentSession!.trackPoints,
+        newPoint,
+      ];
+
+      state = state.copyWith(
+        currentSession: state.currentSession!.copyWith(
+          trackPoints: updatedTrackPoints,
+        ),
+        currentLocation: newPoint,
+      );
+    } catch (e) {
+      AppLogger.w('Failed to record track point: $e', tag: 'SCOUT');
+    }
   }
 
   /// تحديث الموقع الحالي
@@ -288,23 +344,60 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// تحليل صورة بالذكاء الاصطناعي
+  /// يرسل الصورة إلى yolo26-vision-service (port 8150) POST /api/v1/detect/disease
+  /// ويرجع لتحليل محلي عند عدم الاتصال
   Future<AIAnalysis> analyzeImage(String imagePath) async {
     state = state.copyWith(isAnalyzing: true);
 
     try {
-      // In real implementation, call AI service
-      await Future.delayed(const Duration(seconds: 2));
+      // Try vision service API first (offline-first: fall back on failure)
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(
+          imagePath,
+          filename: imagePath.split(Platform.pathSeparator).last,
+        ),
+        if (state.currentSession?.fieldId != null)
+          'field_id': state.currentSession!.fieldId,
+      });
 
+      final response = await _visionDio.post(
+        '/api/v1/detect/disease',
+        data: formData,
+        options: Options(
+          contentType: 'multipart/form-data',
+          receiveTimeout: ApiConfig.longOperationTimeout,
+        ),
+      );
+
+      final responseData = response.data as Map<String, dynamic>;
+      final analysis = _parseVisionResponse(responseData);
+
+      state = state.copyWith(
+        isAnalyzing: false,
+        lastAnalysis: analysis,
+      );
+
+      AppLogger.i(
+        'Vision analysis completed: ${analysis.detectedIssue ?? "no issue"} '
+        '(confidence: ${(analysis.confidence * 100).toStringAsFixed(1)}%)',
+        tag: 'SCOUT_AI',
+      );
+      return analysis;
+    } on DioException catch (e) {
+      AppLogger.w(
+        'Vision API unavailable (${e.type.name}), using offline fallback',
+        tag: 'SCOUT_AI',
+      );
+      // Offline fallback: return a pending analysis for manual entry
       final analysis = AIAnalysis(
-        modelVersion: '1.0.0',
-        confidence: 0.85,
-        detectedIssue: 'Possible nutrient deficiency',
-        category: IssueCategory.nutrient,
-        severity: IssueSeverity.medium,
+        modelVersion: 'offline',
+        confidence: 0.0,
+        detectedIssue: 'تحليل غير متاح - خدمة الذكاء الاصطناعي غير متصلة',
+        category: IssueCategory.other,
+        severity: IssueSeverity.low,
         suggestions: [
-          'فحص مستوى النيتروجين في التربة',
-          'تطبيق سماد متوازن',
-          'مراقبة التحسن خلال أسبوع',
+          'سيتم تحليل الصورة عند الاتصال بالخادم',
+          'يمكنك إضافة ملاحظاتك يدوياً',
         ],
         analyzedAt: DateTime.now(),
       );
@@ -313,8 +406,6 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
         isAnalyzing: false,
         lastAnalysis: analysis,
       );
-
-      AppLogger.i('AI analysis completed: ${analysis.detectedIssue}', tag: 'SCOUT_AI');
       return analysis;
     } catch (e) {
       state = state.copyWith(
@@ -323,6 +414,85 @@ class FieldScoutNotifier extends StateNotifier<FieldScoutState> {
       );
       rethrow;
     }
+  }
+
+  /// تحويل استجابة vision API إلى نموذج AIAnalysis
+  AIAnalysis _parseVisionResponse(Map<String, dynamic> data) {
+    // yolo26-vision-service response structure:
+    // { detections: [{label, confidence, severity, ...}], model_version, ... }
+    final detections = data['detections'] as List? ?? [];
+    if (detections.isEmpty) {
+      return AIAnalysis(
+        modelVersion: data['model_version'] as String? ?? 'yolo26',
+        confidence: 0.0,
+        detectedIssue: null,
+        suggestions: const ['لم يتم اكتشاف أي مشاكل في الصورة'],
+        analyzedAt: DateTime.now(),
+      );
+    }
+
+    // Use the highest-confidence detection
+    final best = detections.reduce((a, b) {
+      final aConf = (a as Map<String, dynamic>)['confidence'] as num? ?? 0;
+      final bConf = (b as Map<String, dynamic>)['confidence'] as num? ?? 0;
+      return aConf >= bConf ? a : b;
+    }) as Map<String, dynamic>;
+
+    final label = best['label'] as String? ?? '';
+    final confidence = (best['confidence'] as num?)?.toDouble() ?? 0.0;
+    final severityStr = best['severity'] as String?;
+    final categoryStr = best['category'] as String?;
+
+    final severity = _parseSeverity(severityStr);
+    final category = _parseCategory(categoryStr ?? label);
+
+    final recommendations = (data['recommendations'] as List?)
+            ?.map((r) => r.toString())
+            .toList() ??
+        ['راجع المتخصص الزراعي لتأكيد التشخيص'];
+
+    return AIAnalysis(
+      modelVersion: data['model_version'] as String? ?? 'yolo26',
+      confidence: confidence,
+      detectedIssue: label,
+      category: category,
+      severity: severity,
+      suggestions: recommendations,
+      analyzedAt: DateTime.now(),
+    );
+  }
+
+  IssueSeverity _parseSeverity(String? value) {
+    switch (value?.toLowerCase()) {
+      case 'critical':
+        return IssueSeverity.critical;
+      case 'high':
+        return IssueSeverity.high;
+      case 'medium':
+        return IssueSeverity.medium;
+      default:
+        return IssueSeverity.low;
+    }
+  }
+
+  IssueCategory _parseCategory(String label) {
+    final lower = label.toLowerCase();
+    if (lower.contains('pest') || lower.contains('insect') || lower.contains('weevil')) {
+      return IssueCategory.pest;
+    }
+    if (lower.contains('disease') || lower.contains('blight') || lower.contains('rust')) {
+      return IssueCategory.disease;
+    }
+    if (lower.contains('weed')) {
+      return IssueCategory.weed;
+    }
+    if (lower.contains('water') || lower.contains('irrigation')) {
+      return IssueCategory.water;
+    }
+    if (lower.contains('nutrient') || lower.contains('nitrogen') || lower.contains('deficiency')) {
+      return IssueCategory.nutrient;
+    }
+    return IssueCategory.other;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

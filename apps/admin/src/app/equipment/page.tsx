@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
 // Equipment Management Page
 // صفحة إدارة المعدات
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
-import { apiClient } from "@/lib/api";
-import { API_URLS } from "@/config/api";
-import { logger } from "@/lib/logger";
-import type { Equipment } from "@/types";
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
+import { apiClient, downloadCSV } from '@/lib/api';
+import { API_URLS } from '@/config/api';
+import { logger } from '@/lib/logger';
+import type { Equipment } from '@/types';
 import {
   Search,
   Plus,
@@ -28,15 +28,15 @@ import {
   X,
   Calendar,
   Eye,
-} from "lucide-react";
+} from 'lucide-react';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
 // أنواع البيانات
 // ═══════════════════════════════════════════════════════════════════════════
 
-type EquipmentType = "tractor" | "harvester" | "pump" | "sprayer" | "drone";
-type EquipmentStatus = "operational" | "maintenance" | "idle" | "broken";
+type EquipmentType = 'tractor' | 'harvester' | 'pump' | 'sprayer' | 'drone';
+type EquipmentStatus = 'operational' | 'maintenance' | 'idle' | 'broken';
 
 interface EquipmentItem extends Equipment {
   farm_name?: string;
@@ -61,33 +61,33 @@ interface CreateEquipmentPayload {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const EQUIPMENT_TYPES: { value: EquipmentType; label: string; labelEn: string }[] = [
-  { value: "tractor", label: "جرار", labelEn: "Tractor" },
-  { value: "harvester", label: "حصادة", labelEn: "Harvester" },
-  { value: "pump", label: "مضخة", labelEn: "Pump" },
-  { value: "sprayer", label: "رشاش", labelEn: "Sprayer" },
-  { value: "drone", label: "طائرة بدون طيار", labelEn: "Drone" },
+  { value: 'tractor', label: 'جرار', labelEn: 'Tractor' },
+  { value: 'harvester', label: 'حصادة', labelEn: 'Harvester' },
+  { value: 'pump', label: 'مضخة', labelEn: 'Pump' },
+  { value: 'sprayer', label: 'رشاش', labelEn: 'Sprayer' },
+  { value: 'drone', label: 'طائرة بدون طيار', labelEn: 'Drone' },
 ];
 
 const EQUIPMENT_STATUSES: { value: EquipmentStatus; label: string; labelEn: string }[] = [
-  { value: "operational", label: "تعمل", labelEn: "Operational" },
-  { value: "maintenance", label: "صيانة", labelEn: "Maintenance" },
-  { value: "idle", label: "متوقفة", labelEn: "Idle" },
-  { value: "broken", label: "معطلة", labelEn: "Broken" },
+  { value: 'operational', label: 'تعمل', labelEn: 'Operational' },
+  { value: 'maintenance', label: 'صيانة', labelEn: 'Maintenance' },
+  { value: 'idle', label: 'متوقفة', labelEn: 'Idle' },
+  { value: 'broken', label: 'معطلة', labelEn: 'Broken' },
 ];
 
 const MOCK_FARMS_LIST = [
-  { id: "farm-1", name: "مزرعة ١" },
-  { id: "farm-2", name: "مزرعة ٢" },
-  { id: "farm-3", name: "مزرعة ٣" },
-  { id: "farm-4", name: "مزرعة ٤" },
-  { id: "farm-5", name: "مزرعة ٥" },
+  { id: 'farm-1', name: 'مزرعة ١' },
+  { id: 'farm-2', name: 'مزرعة ٢' },
+  { id: 'farm-3', name: 'مزرعة ٣' },
+  { id: 'farm-4', name: 'مزرعة ٤' },
+  { id: 'farm-5', name: 'مزرعة ٥' },
 ];
 
 // Mock equipment data - dynamic import for dead-code elimination in production builds.
 // In production, the .mock module is never bundled because the import() is unreachable.
 async function getMockEquipment(): Promise<EquipmentItem[]> {
-  if (process.env.NODE_ENV !== "production") {
-    const { MOCK_EQUIPMENT } = await import("./equipment.mock");
+  if (process.env.NODE_ENV !== 'production') {
+    const { MOCK_EQUIPMENT } = await import('./equipment.mock');
     return MOCK_EQUIPMENT;
   }
   return [];
@@ -100,15 +100,15 @@ async function getMockEquipment(): Promise<EquipmentItem[]> {
 
 function getEquipmentTypeIcon(type: string) {
   switch (type) {
-    case "tractor":
+    case 'tractor':
       return <Tractor className="w-4 h-4" />;
-    case "harvester":
+    case 'harvester':
       return <Tractor className="w-4 h-4" />;
-    case "pump":
+    case 'pump':
       return <Droplets className="w-4 h-4" />;
-    case "sprayer":
+    case 'sprayer':
       return <SprayCan className="w-4 h-4" />;
-    case "drone":
+    case 'drone':
       return <Plane className="w-4 h-4" />;
     default:
       return <Wrench className="w-4 h-4" />;
@@ -122,34 +122,34 @@ function getEquipmentTypeLabel(type: string): string {
 
 function getStatusBadge(status: string) {
   switch (status) {
-    case "operational":
+    case 'operational':
       return {
-        label: "تعمل",
-        color: "text-green-700 bg-green-100",
+        label: 'تعمل',
+        color: 'text-green-700 bg-green-100',
         icon: <CheckCircle2 className="w-3 h-3" />,
       };
-    case "maintenance":
+    case 'maintenance':
       return {
-        label: "صيانة",
-        color: "text-yellow-700 bg-yellow-100",
+        label: 'صيانة',
+        color: 'text-yellow-700 bg-yellow-100',
         icon: <AlertTriangle className="w-3 h-3" />,
       };
-    case "idle":
+    case 'idle':
       return {
-        label: "متوقفة",
-        color: "text-gray-700 bg-gray-100",
+        label: 'متوقفة',
+        color: 'text-gray-700 bg-gray-100',
         icon: <PauseCircle className="w-3 h-3" />,
       };
-    case "broken":
+    case 'broken':
       return {
-        label: "معطلة",
-        color: "text-red-700 bg-red-100",
+        label: 'معطلة',
+        color: 'text-red-700 bg-red-100',
         icon: <XCircle className="w-3 h-3" />,
       };
     default:
       return {
         label: status,
-        color: "text-gray-700 bg-gray-100",
+        color: 'text-gray-700 bg-gray-100',
         icon: null,
       };
   }
@@ -170,25 +170,20 @@ function isMaintenanceDueSoon(nextMaintenanceDate: string | undefined): boolean 
 
 async function loadEquipmentFromAPI(): Promise<EquipmentItem[]> {
   try {
-    const response = await apiClient.get(
-      API_URLS.equipmentEndpoints.list
-    );
+    const response = await apiClient.get(API_URLS.equipmentEndpoints.list);
     return response.data;
   } catch {
-    logger.log("Falling back to static mock equipment data");
+    logger.log('Falling back to static mock equipment data');
     return getMockEquipment();
   }
 }
 
 async function createEquipmentAPI(payload: CreateEquipmentPayload): Promise<EquipmentItem | null> {
   try {
-    const response = await apiClient.post(
-      API_URLS.equipmentEndpoints.list,
-      payload
-    );
+    const response = await apiClient.post(API_URLS.equipmentEndpoints.list, payload);
     return response.data;
   } catch {
-    logger.log("Create equipment API unavailable, using mock response");
+    logger.log('Create equipment API unavailable, using mock response');
     // Return a mock created item for development
     const newItem: EquipmentItem = {
       id: `eq-${Date.now()}`,
@@ -208,15 +203,15 @@ async function createEquipmentAPI(payload: CreateEquipmentPayload): Promise<Equi
   }
 }
 
-async function updateEquipmentAPI(id: string, payload: Partial<EquipmentItem>): Promise<EquipmentItem | null> {
+async function updateEquipmentAPI(
+  id: string,
+  payload: Partial<EquipmentItem>
+): Promise<EquipmentItem | null> {
   try {
-    const response = await apiClient.put(
-      API_URLS.equipmentEndpoints.byId(id),
-      payload
-    );
+    const response = await apiClient.put(API_URLS.equipmentEndpoints.byId(id), payload);
     return response.data;
   } catch {
-    logger.log("Update equipment API unavailable, using local update");
+    logger.log('Update equipment API unavailable, using local update');
     return null;
   }
 }
@@ -232,10 +227,10 @@ export default function EquipmentPage() {
   const [selectedEquipment, setSelectedEquipment] = useState<EquipmentItem | null>(null);
 
   // Filters
-  const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [farmFilter, setFarmFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [farmFilter, setFarmFilter] = useState('');
 
   // Modals
   const [showAddModal, setShowAddModal] = useState(false);
@@ -244,11 +239,11 @@ export default function EquipmentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Add form state
-  const [formName, setFormName] = useState("");
-  const [formNameAr, setFormNameAr] = useState("");
-  const [formType, setFormType] = useState<EquipmentType>("tractor");
-  const [formStatus, setFormStatus] = useState<EquipmentStatus>("operational");
-  const [formFarm, setFormFarm] = useState(MOCK_FARMS_LIST[0]?.id || "");
+  const [formName, setFormName] = useState('');
+  const [formNameAr, setFormNameAr] = useState('');
+  const [formType, setFormType] = useState<EquipmentType>('tractor');
+  const [formStatus, setFormStatus] = useState<EquipmentStatus>('operational');
+  const [formFarm, setFormFarm] = useState(MOCK_FARMS_LIST[0]?.id || '');
 
   const loadEquipment = useCallback(async () => {
     setIsLoading(true);
@@ -256,7 +251,7 @@ export default function EquipmentPage() {
       const data = await loadEquipmentFromAPI();
       setEquipment(data);
     } catch (error) {
-      logger.error("Failed to load equipment:", error);
+      logger.error('Failed to load equipment:', error);
     } finally {
       setIsLoading(false);
     }
@@ -273,8 +268,8 @@ export default function EquipmentPage() {
         const query = searchQuery.toLowerCase();
         if (
           !eq.name.toLowerCase().includes(query) &&
-          !(eq.nameAr || "").toLowerCase().includes(query) &&
-          !(eq.farm_name || "").toLowerCase().includes(query)
+          !(eq.nameAr || '').toLowerCase().includes(query) &&
+          !(eq.farm_name || '').toLowerCase().includes(query)
         ) {
           return false;
         }
@@ -289,14 +284,14 @@ export default function EquipmentPage() {
   // Stats
   const stats = useMemo(() => {
     const total = equipment.length;
-    const operational = equipment.filter((eq) => eq.status === "operational").length;
+    const operational = equipment.filter((eq) => eq.status === 'operational').length;
     const maintenance = equipment.filter(
       (eq) =>
-        eq.status === "maintenance" ||
+        eq.status === 'maintenance' ||
         isMaintenanceDueSoon(eq.next_maintenance_date || eq.nextMaintenance)
     ).length;
-    const idle = equipment.filter((eq) => eq.status === "idle").length;
-    const broken = equipment.filter((eq) => eq.status === "broken").length;
+    const idle = equipment.filter((eq) => eq.status === 'idle').length;
+    const broken = equipment.filter((eq) => eq.status === 'broken').length;
     return { total, operational, maintenance, idle, broken };
   }, [equipment]);
 
@@ -313,11 +308,11 @@ export default function EquipmentPage() {
 
   // Reset form
   function resetForm() {
-    setFormName("");
-    setFormNameAr("");
-    setFormType("tractor");
-    setFormStatus("operational");
-    setFormFarm(MOCK_FARMS_LIST[0]?.id || "");
+    setFormName('');
+    setFormNameAr('');
+    setFormType('tractor');
+    setFormStatus('operational');
+    setFormFarm(MOCK_FARMS_LIST[0]?.id || '');
   }
 
   // Handle add equipment
@@ -331,7 +326,7 @@ export default function EquipmentPage() {
       nameAr: formNameAr,
       type: formType,
       status: formStatus,
-      farm_name: selectedFarm?.name || "",
+      farm_name: selectedFarm?.name || '',
       farm_id: formFarm,
     });
 
@@ -349,12 +344,10 @@ export default function EquipmentPage() {
     const result = await updateEquipmentAPI(item.id, { status: newStatus });
     // Update locally regardless of API success (offline-first)
     setEquipment((prev) =>
-      prev.map((eq) =>
-        eq.id === item.id ? { ...eq, status: newStatus } : eq
-      )
+      prev.map((eq) => (eq.id === item.id ? { ...eq, status: newStatus } : eq))
     );
     if (result) {
-      logger.log("Equipment status updated via API");
+      logger.log('Equipment status updated via API');
     }
     setShowEditModal(false);
     setSelectedEquipment(null);
@@ -375,43 +368,47 @@ export default function EquipmentPage() {
   // Table columns
   const columns = [
     {
-      key: "name",
-      header: "اسم المعدة",
+      key: 'name',
+      header: 'اسم المعدة',
       render: (item: EquipmentItem) => (
         <div className="flex items-center gap-3">
-          <div className={cn(
-            "w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0",
-            item.type === "tractor" && "bg-blue-100 text-blue-600",
-            item.type === "harvester" && "bg-amber-100 text-amber-600",
-            item.type === "pump" && "bg-cyan-100 text-cyan-600",
-            item.type === "sprayer" && "bg-purple-100 text-purple-600",
-            item.type === "drone" && "bg-emerald-100 text-emerald-600",
-          )}>
+          <div
+            className={cn(
+              'w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0',
+              item.type === 'tractor' && 'bg-blue-100 text-blue-600',
+              item.type === 'harvester' && 'bg-amber-100 text-amber-600',
+              item.type === 'pump' && 'bg-cyan-100 text-cyan-600',
+              item.type === 'sprayer' && 'bg-purple-100 text-purple-600',
+              item.type === 'drone' && 'bg-emerald-100 text-emerald-600'
+            )}
+          >
             {getEquipmentTypeIcon(item.type)}
           </div>
           <div>
-            <p className="font-medium text-gray-900 dark:text-gray-100">{item.nameAr || item.name}</p>
+            <p className="font-medium text-gray-900 dark:text-gray-100">
+              {item.nameAr || item.name}
+            </p>
             <p className="text-xs text-gray-500 dark:text-gray-400">{item.name}</p>
           </div>
         </div>
       ),
     },
     {
-      key: "type",
-      header: "النوع",
+      key: 'type',
+      header: 'النوع',
       render: (item: EquipmentItem) => (
         <span className="text-gray-700 dark:text-gray-300">{getEquipmentTypeLabel(item.type)}</span>
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (item: EquipmentItem) => {
         const badge = getStatusBadge(item.status);
         return (
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium",
+              'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium',
               badge.color
             )}
           >
@@ -422,15 +419,15 @@ export default function EquipmentPage() {
       },
     },
     {
-      key: "farm_name",
-      header: "المزرعة",
+      key: 'farm_name',
+      header: 'المزرعة',
       render: (item: EquipmentItem) => (
-        <span className="text-gray-700 dark:text-gray-300">{item.farm_name || "-"}</span>
+        <span className="text-gray-700 dark:text-gray-300">{item.farm_name || '-'}</span>
       ),
     },
     {
-      key: "lastMaintenance",
-      header: "آخر صيانة",
+      key: 'lastMaintenance',
+      header: 'آخر صيانة',
       render: (item: EquipmentItem) => (
         <span className="text-gray-600 dark:text-gray-400 text-sm">
           {formatDate(item.last_maintenance_date || item.lastMaintenance)}
@@ -438,16 +435,16 @@ export default function EquipmentPage() {
       ),
     },
     {
-      key: "nextMaintenance",
-      header: "الصيانة القادمة",
+      key: 'nextMaintenance',
+      header: 'الصيانة القادمة',
       render: (item: EquipmentItem) => {
         const nextDate = item.next_maintenance_date || item.nextMaintenance;
         const dueSoon = isMaintenanceDueSoon(nextDate);
         return (
           <span
             className={cn(
-              "text-sm",
-              dueSoon ? "text-yellow-600 font-medium" : "text-gray-600 dark:text-gray-400"
+              'text-sm',
+              dueSoon ? 'text-yellow-600 font-medium' : 'text-gray-600 dark:text-gray-400'
             )}
           >
             {formatDate(nextDate)}
@@ -461,8 +458,8 @@ export default function EquipmentPage() {
       },
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (item: EquipmentItem) => (
         <div className="flex items-center gap-1">
           <button
@@ -487,25 +484,22 @@ export default function EquipmentPage() {
           </button>
         </div>
       ),
-      className: "w-24",
+      className: 'w-24',
     },
   ];
 
   return (
-    <div className="p-6">
-      <Header
-        title="إدارة المعدات"
-        subtitle={`${equipment.length} معدة مسجلة`}
-      />
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
+      <Header title="إدارة المعدات" subtitle={`${equipment.length} معدة مسجلة`} />
 
       {/* Stat Cards */}
       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
         <div
           className={cn(
-            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
-            statusFilter === "" && "ring-2 ring-sahool-500 border-sahool-500"
+            'bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all',
+            statusFilter === '' && 'ring-2 ring-sahool-500 border-sahool-500'
           )}
-          onClick={() => setStatusFilter("")}
+          onClick={() => setStatusFilter('')}
         >
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</p>
@@ -518,12 +512,10 @@ export default function EquipmentPage() {
 
         <div
           className={cn(
-            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
-            statusFilter === "operational" && "ring-2 ring-green-500 border-green-500"
+            'bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all',
+            statusFilter === 'operational' && 'ring-2 ring-green-500 border-green-500'
           )}
-          onClick={() =>
-            setStatusFilter(statusFilter === "operational" ? "" : "operational")
-          }
+          onClick={() => setStatusFilter(statusFilter === 'operational' ? '' : 'operational')}
         >
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold text-green-600">{stats.operational}</p>
@@ -536,12 +528,10 @@ export default function EquipmentPage() {
 
         <div
           className={cn(
-            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
-            statusFilter === "maintenance" && "ring-2 ring-yellow-500 border-yellow-500"
+            'bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all',
+            statusFilter === 'maintenance' && 'ring-2 ring-yellow-500 border-yellow-500'
           )}
-          onClick={() =>
-            setStatusFilter(statusFilter === "maintenance" ? "" : "maintenance")
-          }
+          onClick={() => setStatusFilter(statusFilter === 'maintenance' ? '' : 'maintenance')}
         >
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold text-yellow-600">{stats.maintenance}</p>
@@ -554,12 +544,10 @@ export default function EquipmentPage() {
 
         <div
           className={cn(
-            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
-            statusFilter === "idle" && "ring-2 ring-gray-400 border-gray-400"
+            'bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all',
+            statusFilter === 'idle' && 'ring-2 ring-gray-400 border-gray-400'
           )}
-          onClick={() =>
-            setStatusFilter(statusFilter === "idle" ? "" : "idle")
-          }
+          onClick={() => setStatusFilter(statusFilter === 'idle' ? '' : 'idle')}
         >
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">{stats.idle}</p>
@@ -572,12 +560,10 @@ export default function EquipmentPage() {
 
         <div
           className={cn(
-            "bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all",
-            statusFilter === "broken" && "ring-2 ring-red-500 border-red-500"
+            'bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700 cursor-pointer transition-all',
+            statusFilter === 'broken' && 'ring-2 ring-red-500 border-red-500'
           )}
-          onClick={() =>
-            setStatusFilter(statusFilter === "broken" ? "" : "broken")
-          }
+          onClick={() => setStatusFilter(statusFilter === 'broken' ? '' : 'broken')}
         >
           <div className="flex items-center justify-between">
             <p className="text-2xl font-bold text-red-600">{stats.broken}</p>
@@ -654,15 +640,15 @@ export default function EquipmentPage() {
           >
             <RefreshCw
               className={cn(
-                "w-5 h-5 text-gray-600 dark:text-gray-400",
-                isLoading && "animate-spin"
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
               )}
             />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(equipment, 'equipment')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
@@ -696,7 +682,9 @@ export default function EquipmentPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4 animate-in fade-in slide-in-from-bottom-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">إضافة معدة جديدة</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                إضافة معدة جديدة
+              </h2>
               <button
                 onClick={() => setShowAddModal(false)}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -800,10 +788,10 @@ export default function EquipmentPage() {
                 onClick={handleAddEquipment}
                 disabled={isSubmitting || !formName.trim() || !formNameAr.trim()}
                 className={cn(
-                  "flex items-center gap-2 px-6 py-2 bg-sahool-600 text-white rounded-lg transition-colors",
+                  'flex items-center gap-2 px-6 py-2 bg-sahool-600 text-white rounded-lg transition-colors',
                   isSubmitting || !formName.trim() || !formNameAr.trim()
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-sahool-700"
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-sahool-700'
                 )}
               >
                 {isSubmitting && <RefreshCw className="w-4 h-4 animate-spin" />}
@@ -831,24 +819,28 @@ export default function EquipmentPage() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
               {/* Equipment Header */}
               <div className="flex items-center gap-4 mb-6">
-                <div className={cn(
-                  "w-14 h-14 rounded-xl flex items-center justify-center",
-                  selectedEquipment.type === "tractor" && "bg-blue-100 text-blue-600",
-                  selectedEquipment.type === "harvester" && "bg-amber-100 text-amber-600",
-                  selectedEquipment.type === "pump" && "bg-cyan-100 text-cyan-600",
-                  selectedEquipment.type === "sprayer" && "bg-purple-100 text-purple-600",
-                  selectedEquipment.type === "drone" && "bg-emerald-100 text-emerald-600",
-                )}>
+                <div
+                  className={cn(
+                    'w-14 h-14 rounded-xl flex items-center justify-center',
+                    selectedEquipment.type === 'tractor' && 'bg-blue-100 text-blue-600',
+                    selectedEquipment.type === 'harvester' && 'bg-amber-100 text-amber-600',
+                    selectedEquipment.type === 'pump' && 'bg-cyan-100 text-cyan-600',
+                    selectedEquipment.type === 'sprayer' && 'bg-purple-100 text-purple-600',
+                    selectedEquipment.type === 'drone' && 'bg-emerald-100 text-emerald-600'
+                  )}
+                >
                   {getEquipmentTypeIcon(selectedEquipment.type)}
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
                     {selectedEquipment.nameAr || selectedEquipment.name}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{selectedEquipment.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {selectedEquipment.name}
+                  </p>
                 </div>
               </div>
 
@@ -867,7 +859,7 @@ export default function EquipmentPage() {
                     return (
                       <span
                         className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium",
+                          'inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium',
                           badge.color
                         )}
                       >
@@ -880,15 +872,15 @@ export default function EquipmentPage() {
                 <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">المزرعة</p>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
-                    {selectedEquipment.farm_name || "-"}
+                    {selectedEquipment.farm_name || '-'}
                   </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">ساعات التشغيل</p>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {selectedEquipment.hoursUsed != null
-                      ? `${selectedEquipment.hoursUsed.toLocaleString("ar-YE")} ساعة`
-                      : "-"}
+                      ? `${selectedEquipment.hoursUsed.toLocaleString('ar-YE')} ساعة`
+                      : '-'}
                   </p>
                 </div>
                 <div className="bg-gray-50 dark:bg-gray-950 rounded-lg p-3">
@@ -898,8 +890,7 @@ export default function EquipmentPage() {
                   </div>
                   <p className="font-medium text-gray-900 dark:text-gray-100">
                     {formatDate(
-                      selectedEquipment.last_maintenance_date ||
-                        selectedEquipment.lastMaintenance
+                      selectedEquipment.last_maintenance_date || selectedEquipment.lastMaintenance
                     )}
                   </p>
                 </div>
@@ -910,18 +901,16 @@ export default function EquipmentPage() {
                   </div>
                   <p
                     className={cn(
-                      "font-medium",
+                      'font-medium',
                       isMaintenanceDueSoon(
-                        selectedEquipment.next_maintenance_date ||
-                          selectedEquipment.nextMaintenance
+                        selectedEquipment.next_maintenance_date || selectedEquipment.nextMaintenance
                       )
-                        ? "text-yellow-600"
-                        : "text-gray-900 dark:text-gray-100"
+                        ? 'text-yellow-600'
+                        : 'text-gray-900 dark:text-gray-100'
                     )}
                   >
                     {formatDate(
-                      selectedEquipment.next_maintenance_date ||
-                        selectedEquipment.nextMaintenance
+                      selectedEquipment.next_maintenance_date || selectedEquipment.nextMaintenance
                     )}
                   </p>
                 </div>
@@ -932,12 +921,12 @@ export default function EquipmentPage() {
                       <div className="flex-1 h-3 bg-gray-200 rounded-full overflow-hidden">
                         <div
                           className={cn(
-                            "h-full rounded-full transition-all",
+                            'h-full rounded-full transition-all',
                             selectedEquipment.fuelLevel >= 60
-                              ? "bg-green-500"
+                              ? 'bg-green-500'
                               : selectedEquipment.fuelLevel >= 30
-                                ? "bg-yellow-500"
-                                : "bg-red-500"
+                                ? 'bg-yellow-500'
+                                : 'bg-red-500'
                           )}
                           style={{ width: `${selectedEquipment.fuelLevel}%` }}
                         />
@@ -980,7 +969,9 @@ export default function EquipmentPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 animate-in fade-in slide-in-from-bottom-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">تعديل حالة المعدة</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                تعديل حالة المعدة
+              </h2>
               <button
                 onClick={() => {
                   setShowEditModal(false);
@@ -992,16 +983,18 @@ export default function EquipmentPage() {
               </button>
             </div>
 
-            <div className="p-6">
+            <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
               <div className="flex items-center gap-3 mb-6">
-                <div className={cn(
-                  "w-10 h-10 rounded-lg flex items-center justify-center",
-                  selectedEquipment.type === "tractor" && "bg-blue-100 text-blue-600",
-                  selectedEquipment.type === "harvester" && "bg-amber-100 text-amber-600",
-                  selectedEquipment.type === "pump" && "bg-cyan-100 text-cyan-600",
-                  selectedEquipment.type === "sprayer" && "bg-purple-100 text-purple-600",
-                  selectedEquipment.type === "drone" && "bg-emerald-100 text-emerald-600",
-                )}>
+                <div
+                  className={cn(
+                    'w-10 h-10 rounded-lg flex items-center justify-center',
+                    selectedEquipment.type === 'tractor' && 'bg-blue-100 text-blue-600',
+                    selectedEquipment.type === 'harvester' && 'bg-amber-100 text-amber-600',
+                    selectedEquipment.type === 'pump' && 'bg-cyan-100 text-cyan-600',
+                    selectedEquipment.type === 'sprayer' && 'bg-purple-100 text-purple-600',
+                    selectedEquipment.type === 'drone' && 'bg-emerald-100 text-emerald-600'
+                  )}
+                >
                   {getEquipmentTypeIcon(selectedEquipment.type)}
                 </div>
                 <div>
@@ -1023,15 +1016,13 @@ export default function EquipmentPage() {
                   return (
                     <button
                       key={s.value}
-                      onClick={() =>
-                        handleStatusUpdate(selectedEquipment, s.value)
-                      }
+                      onClick={() => handleStatusUpdate(selectedEquipment, s.value)}
                       disabled={isCurrentStatus}
                       className={cn(
-                        "flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-sm font-medium",
+                        'flex items-center gap-2 p-3 rounded-lg border-2 transition-all text-sm font-medium',
                         isCurrentStatus
-                          ? "border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed"
-                          : "border-gray-200 dark:border-gray-600 hover:border-sahool-500 hover:bg-sahool-50 text-gray-700 dark:text-gray-300"
+                          ? 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-900 text-gray-400 cursor-not-allowed'
+                          : 'border-gray-200 dark:border-gray-600 hover:border-sahool-500 hover:bg-sahool-50 text-gray-700 dark:text-gray-300'
                       )}
                     >
                       {badge.icon}

@@ -7,6 +7,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { NotFoundException, BadRequestException } from "@nestjs/common";
 import { ChatService } from "../src/chat/chat.service";
 import { PrismaService } from "../src/prisma/prisma.service";
+import { ChatEventsService } from "../src/events/chat-events.service";
 import { CreateConversationDto } from "../src/chat/dto/create-conversation.dto";
 import { SendMessageDto } from "../src/chat/dto/send-message.dto";
 import { MessageType } from "../src/chat/dto/send-message.dto";
@@ -103,6 +104,14 @@ describe("ChatService", () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: ChatEventsService,
+          useValue: {
+            publishMessageSent: jest.fn(),
+            publishMessageRead: jest.fn(),
+            isConnected: jest.fn().mockReturnValue(false),
+          },
         },
       ],
     }).compile();
@@ -239,7 +248,7 @@ describe("ChatService", () => {
             create: jest.fn().mockResolvedValue(mockMessage),
           },
           conversation: {
-            update: jest.fn().mockResolvedValue(mockConversation),
+            updateMany: jest.fn().mockResolvedValue({ count: 1 }),
           },
           participant: {
             updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -306,7 +315,7 @@ describe("ChatService", () => {
             }),
           },
           conversation: {
-            update: jest.fn().mockResolvedValue(mockConversation),
+            updateMany: jest.fn().mockResolvedValue({ count: 1 }),
           },
           participant: {
             updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -342,7 +351,7 @@ describe("ChatService", () => {
             }),
           },
           conversation: {
-            update: jest.fn().mockResolvedValue(mockConversation),
+            updateMany: jest.fn().mockResolvedValue({ count: 1 }),
           },
           participant: {
             updateMany: jest.fn().mockResolvedValue({ count: 1 }),
@@ -372,7 +381,7 @@ describe("ChatService", () => {
             create: jest.fn().mockResolvedValue(mockMessage),
           },
           conversation: {
-            update: jest.fn().mockResolvedValue(mockConversation),
+            updateMany: jest.fn().mockResolvedValue({ count: 1 }),
           },
           participant: {
             updateMany: mockUpdateMany,
@@ -384,10 +393,10 @@ describe("ChatService", () => {
 
       expect(mockUpdateMany).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: {
+          where: expect.objectContaining({
             conversationId: "conv-123",
             userId: { not: "user-123" },
-          },
+          }),
           data: {
             unreadCount: { increment: 1 },
           },
@@ -577,7 +586,7 @@ describe("ChatService", () => {
       mockPrismaService.message.findFirst.mockResolvedValue(
         messageWithConversation,
       );
-      mockPrismaService.message.update.mockResolvedValue({
+      mockPrismaService.message.updateMany.mockResolvedValue({
         ...messageWithConversation,
         isRead: true,
       });
@@ -585,8 +594,8 @@ describe("ChatService", () => {
 
       const result = await service.markMessageAsRead("msg-123", "user-456", "tenant-001");
 
-      expect(mockPrismaService.message.update).toHaveBeenCalledWith({
-        where: { id: "msg-123" },
+      expect(mockPrismaService.message.updateMany).toHaveBeenCalledWith({
+        where: { id: "msg-123", tenantId: "tenant-001" },
         data: {
           isRead: true,
           readAt: expect.any(Date),
@@ -607,7 +616,7 @@ describe("ChatService", () => {
 
       await service.markMessageAsRead("msg-123", "user-123", "tenant-001");
 
-      expect(mockPrismaService.message.update).not.toHaveBeenCalled();
+      expect(mockPrismaService.message.updateMany).not.toHaveBeenCalled();
     });
 
     it("should throw NotFoundException when message not found", async () => {

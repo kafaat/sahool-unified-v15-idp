@@ -13,8 +13,28 @@ on:
   push:
     branches: [main]
     tags: ['v*']
+    paths:
+      - '**/Dockerfile*'
+      - 'apps/services/**'
+      - 'docker/**'
+      - 'requirements*.txt'
+      - 'constraints*.txt'
+      - 'package*.json'
+      - 'pnpm-lock.yaml'
+      - '.dockerignore'
+      - '.github/workflows/docker-buildx.yml'
   pull_request:
     branches: [main]
+    paths:
+      - '**/Dockerfile*'
+      - 'apps/services/**'
+      - 'docker/**'
+      - 'requirements*.txt'
+      - 'constraints*.txt'
+      - 'package*.json'
+      - 'pnpm-lock.yaml'
+      - '.dockerignore'
+      - '.github/workflows/docker-buildx.yml'
   workflow_dispatch:
     inputs:
       service:
@@ -49,7 +69,7 @@ permissions:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/sahool
+  IMAGE_PREFIX: ${{ github.repository_owner }}
 
 jobs:
   prepare:
@@ -254,7 +274,7 @@ jobs:
       - name: Generate SBOM
         # Only generate SBOM if image was actually pushed to registry
         if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
-        uses: anchore/sbom-action@v0.23.1
+        uses: anchore/sbom-action@v0.24.0
         continue-on-error: true
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}
@@ -432,7 +452,7 @@ jobs:
       - name: Generate SBOM
         # Only generate SBOM if image was actually pushed to registry
         if: steps.check.outputs.exists == 'true' && steps.build-push.outcome == 'success' && github.event.inputs.push == 'true'
-        uses: anchore/sbom-action@v0.23.1
+        uses: anchore/sbom-action@v0.24.0
         continue-on-error: true
         with:
           image: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}/${{ matrix.service }}:sha-${{ github.sha }}

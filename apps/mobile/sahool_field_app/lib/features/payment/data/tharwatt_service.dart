@@ -1,3 +1,5 @@
+library;
+
 /// خدمة بوابة ثروات للمدفوعات
 /// Tharwatt Payment Gateway Service
 ///
@@ -5,6 +7,7 @@
 /// https://developers-test.tharwatt.com:5253/
 
 import 'package:dio/dio.dart';
+import '../../../core/contracts/api_endpoints.dart';
 import '../../../core/network/api_result.dart';
 import 'payment_models.dart';
 
@@ -39,7 +42,7 @@ class TharwattPaymentService {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/payment/deposit',
+        PaymentEndpoints.deposit,
         data: {
           'walletId': walletId,
           'amount': amount,
@@ -76,7 +79,7 @@ class TharwattPaymentService {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/payment/withdraw',
+        PaymentEndpoints.withdraw,
         data: {
           'walletId': walletId,
           'amount': amount,
@@ -113,7 +116,7 @@ class TharwattPaymentService {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/payment/transfer',
+        PaymentEndpoints.transfer,
         data: {
           'fromWalletId': fromWalletId,
           'toPhoneNumber': toPhoneNumber,
@@ -149,7 +152,7 @@ class TharwattPaymentService {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/payment/topup',
+        PaymentEndpoints.topup,
         data: {
           'walletId': walletId,
           'mobileNumber': mobileNumber,
@@ -178,7 +181,7 @@ class TharwattPaymentService {
   ) async {
     try {
       final response = await _dio.get(
-        '/api/v1/payment/status/$transactionId',
+        PaymentEndpoints.status(transactionId),
       );
 
       final transaction = PaymentTransaction.fromJson(response.data);
@@ -203,7 +206,7 @@ class TharwattPaymentService {
   }) async {
     try {
       final response = await _dio.get(
-        '/api/v1/payment/transactions',
+        PaymentEndpoints.transactions,
         queryParameters: {
           'walletId': walletId,
           'page': page,
@@ -231,7 +234,7 @@ class TharwattPaymentService {
   Future<ApiResult<double>> checkBalance(String walletId) async {
     try {
       final response = await _dio.get(
-        '/api/v1/payment/balance/$walletId',
+        PaymentEndpoints.balance(walletId),
       );
 
       final balance = (response.data['balance'] ?? 0).toDouble();
@@ -250,7 +253,7 @@ class TharwattPaymentService {
   Future<ApiResult<bool>> validatePhoneNumber(String phoneNumber) async {
     try {
       final response = await _dio.post(
-        '/api/v1/payment/validate-phone',
+        PaymentEndpoints.validatePhone,
         data: {'phoneNumber': phoneNumber},
       );
 
@@ -269,7 +272,7 @@ class TharwattPaymentService {
   /// الحصول على قائمة المشغلين المدعومين
   Future<ApiResult<List<MobileOperator>>> getSupportedOperators() async {
     try {
-      final response = await _dio.get('/api/v1/payment/operators');
+      final response = await _dio.get(PaymentEndpoints.operators);
 
       final List<dynamic> data = response.data['operators'] ?? response.data;
       final operators =
@@ -289,7 +292,7 @@ class TharwattPaymentService {
   Future<ApiResult<bool>> cancelTransaction(String transactionId) async {
     try {
       await _dio.post(
-        '/api/v1/payment/cancel/$transactionId',
+        PaymentEndpoints.cancel(transactionId),
       );
       return const Success(true);
     } on DioException catch (e) {

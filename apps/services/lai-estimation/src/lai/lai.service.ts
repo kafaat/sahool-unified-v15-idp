@@ -294,6 +294,7 @@ export class LAIService {
     dataSource: DataSource = DataSource.FUSION,
     cropType?: CropType,
     date?: string,
+    _tenantId?: string,
   ): Promise<LAIEstimationResult> {
     // Simulate spectral data retrieval (in production, fetch from satellite/UAV services)
     const simulatedBands = this.simulateSpectralBands(fieldId, date);
@@ -343,6 +344,7 @@ export class LAIService {
     startDate?: string,
     endDate?: string,
     dataSource: DataSource = DataSource.PLANETSCOPE,
+    _tenantId?: string,
   ): Promise<LAITimeSeriesPoint[]> {
     const start = startDate
       ? new Date(startDate)
@@ -387,6 +389,7 @@ export class LAIService {
   async compareLAI(
     fieldId: string,
     cropType: CropType = CropType.SOYBEAN,
+    _tenantId?: string,
   ): Promise<LAIComparisonResult> {
     const estimation = await this.estimateLAI(
       fieldId,

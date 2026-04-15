@@ -1,53 +1,166 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Package, Plus, Search, AlertTriangle } from "lucide-react";
-import { useInventory, useInventoryStats } from "@/features/inventory";
-import type { InventoryItem, InventoryCategory } from "@/features/inventory";
+import React, { useState, useMemo } from 'react';
+import { Package, Plus, Search, AlertTriangle, X } from 'lucide-react';
+import { useInventory, useInventoryStats, useUpdateInventory, useCreateInventory } from '@/features/inventory';
+import type { InventoryItem, InventoryCategory, InventoryFormData } from '@/features/inventory';
 
-const categories: Array<{ value: InventoryCategory | "all"; label: string; labelAr: string }> = [
-  { value: "all", label: "All Categories", labelAr: "جميع الفئات" },
-  { value: "fertilizers", label: "Fertilizers", labelAr: "الأسمدة" },
-  { value: "seeds", label: "Seeds", labelAr: "البذور" },
-  { value: "pesticides", label: "Pesticides", labelAr: "المبيدات" },
-  { value: "equipment", label: "Equipment", labelAr: "المعدات" },
-  { value: "fuel", label: "Fuel", labelAr: "الوقود" },
-  { value: "other", label: "Other", labelAr: "أخرى" },
+const categories: Array<{ value: InventoryCategory | 'all'; label: string; labelAr: string }> = [
+  { value: 'all', label: 'All Categories', labelAr: 'جميع الفئات' },
+  { value: 'fertilizers', label: 'Fertilizers', labelAr: 'الأسمدة' },
+  { value: 'seeds', label: 'Seeds', labelAr: 'البذور' },
+  { value: 'pesticides', label: 'Pesticides', labelAr: 'المبيدات' },
+  { value: 'equipment', label: 'Equipment', labelAr: 'المعدات' },
+  { value: 'fuel', label: 'Fuel', labelAr: 'الوقود' },
+  { value: 'other', label: 'Other', labelAr: 'أخرى' },
 ];
 
+/**
+ * Parse a numeric input guarding against empty string (NaN), negatives,
+ * and float precision drift. Returns a clamped, rounded, non-negative number.
+ * Prevents the common bug where `Number('')` yields NaN and bleeds into
+ * the API payload as a silent data-quality error.
+ */
+function parseNonNegativeNumber(raw: string): number {
+  const n = Number(raw);
+  if (!Number.isFinite(n) || Number.isNaN(n) || n < 0) {
+    return 0;
+  }
+  // Clamp to 4 decimal places to avoid 0.1 + 0.2 style drift
+  return Math.round(n * 10000) / 10000;
+}
+
+/**
+ * Safely format a quantity for display. Shows em-dash for missing values
+ * and localizes thousands separators.
+ */
+function formatQuantity(qty: number | undefined | null): string {
+  if (qty === null || qty === undefined || !Number.isFinite(qty)) return '—';
+  return qty.toLocaleString();
+}
+
 export default function InventoryClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<InventoryCategory | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<InventoryCategory | 'all'>('all');
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [editQuantity, setEditQuantity] = useState(0);
+  const [editPurchasePrice, setEditPurchasePrice] = useState(0);
+  const [editNotes, setEditNotes] = useState('');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newName, setNewName] = useState('');
+  const [newNameAr, setNewNameAr] = useState('');
+  const [newCategory, setNewCategory] = useState<InventoryCategory>('fertilizers');
+  const [newQuantity, setNewQuantity] = useState(0);
+  const [newUnit, setNewUnit] = useState('');
+  const [newUnitAr, setNewUnitAr] = useState('');
+  const [newPurchasePrice, setNewPurchasePrice] = useState(0);
+  const [newLocation, setNewLocation] = useState('');
+  const [newLocationAr, setNewLocationAr] = useState('');
+  const [createError, setCreateError] = useState<string | null>(null);
 
   // Fetch data using React Query hooks
-  const { data: inventory = [], isLoading, error } = useInventory(
-    selectedCategory !== "all" ? { category: selectedCategory } : undefined
-  );
+  const {
+    data: inventory = [],
+    isLoading,
+    error,
+  } = useInventory(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useInventoryStats();
+  const updateInventory = useUpdateInventory();
+  const createInventory = useCreateInventory();
 
-  // Filter inventory based on search term
-  const filteredInventory = useMemo(() => {
-    if (!searchTerm) return inventory;
-    const term = searchTerm.toLowerCase();
-    return inventory.filter(
-      (item) =>
-        item.name.toLowerCase().includes(term) ||
-        item.nameAr.includes(searchTerm)
+  const handleOpenEdit = (item: InventoryItem) => {
+    setEditingItem(item);
+    setEditQuantity(item.quantity);
+    setEditPurchasePrice(item.purchasePrice);
+    setEditNotes(item.notes ?? '');
+  };
+
+  const handleSaveEdit = () => {
+    if (!editingItem) return;
+    updateInventory.mutate(
+      { id: editingItem.id, data: { quantity: editQuantity, purchasePrice: editPurchasePrice, notes: editNotes || undefined } },
+      { onSuccess: () => setEditingItem(null) }
     );
+  };
+
+  const handleCreate = () => {
+    setCreateError(null);
+    const trimmedNameAr = newNameAr.trim();
+    const trimmedName = newName.trim();
+    if (!trimmedNameAr) {
+      setCreateError('اسم العنصر بالعربية مطلوب');
+      return;
+    }
+    // Require a unit so the backend can interpret quantity correctly
+    // (e.g. kg vs ton). Without a unit, stock math is ambiguous and
+    // unit-conversion bugs surface later.
+    const hasUnit = newUnit.trim().length > 0 || newUnitAr.trim().length > 0;
+    if (!hasUnit) {
+      setCreateError('الوحدة مطلوبة (مثال: kg, ton)');
+      return;
+    }
+    const data: InventoryFormData = {
+      name: trimmedName,
+      nameAr: trimmedNameAr,
+      category: newCategory,
+      sku: '',
+      quantity: newQuantity,
+      unit: newUnit.trim(),
+      unitAr: newUnitAr.trim(),
+      minQuantity: 0,
+      purchasePrice: newPurchasePrice,
+      location: newLocation.trim() || undefined,
+      locationAr: newLocationAr.trim() || undefined,
+    };
+    createInventory.mutate(data, {
+      onSuccess: () => {
+        setShowCreateDialog(false);
+        setNewName('');
+        setNewNameAr('');
+        setNewCategory('fertilizers');
+        setNewQuantity(0);
+        setNewUnit('');
+        setNewUnitAr('');
+        setNewPurchasePrice(0);
+        setNewLocation('');
+        setNewLocationAr('');
+        setCreateError(null);
+      },
+      onError: (err: unknown) => {
+        setCreateError(
+          err instanceof Error ? err.message : 'فشل في إضافة العنصر'
+        );
+      },
+    });
+  };
+
+  // Filter inventory based on search term. Includes SKU so barcode/QR
+  // scans can locate items directly. Lowercases both sides for EN matching;
+  // Arabic normalization is handled by String.includes naturally.
+  const filteredInventory = useMemo(() => {
+    const rawTerm = searchTerm.trim();
+    if (!rawTerm) return inventory;
+    const term = rawTerm.toLowerCase();
+    return inventory.filter((item) => {
+      const nameMatch = item.name?.toLowerCase().includes(term) ?? false;
+      const nameArMatch = item.nameAr?.includes(rawTerm) ?? false;
+      const skuMatch = item.sku?.toLowerCase().includes(term) ?? false;
+      return nameMatch || nameArMatch || skuMatch;
+    });
   }, [inventory, searchTerm]);
 
-  const getStatusBadge = (status: InventoryItem["status"]) => {
+  const getStatusBadge = (status: InventoryItem['status']) => {
     const styles = {
-      in_stock: "bg-green-100 text-green-800",
-      low_stock: "bg-yellow-100 text-yellow-800",
-      out_of_stock: "bg-red-100 text-red-800",
-      expired: "bg-red-100 text-red-800",
+      in_stock: 'bg-green-100 text-green-800',
+      low_stock: 'bg-yellow-100 text-yellow-800',
+      out_of_stock: 'bg-red-100 text-red-800',
+      expired: 'bg-red-100 text-red-800',
     };
     const labels = {
-      in_stock: "متوفر",
-      low_stock: "مخزون منخفض",
-      out_of_stock: "نفذ المخزون",
-      expired: "منتهي الصلاحية",
+      in_stock: 'متوفر',
+      low_stock: 'مخزون منخفض',
+      out_of_stock: 'نفذ المخزون',
+      expired: 'منتهي الصلاحية',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -81,6 +194,139 @@ export default function InventoryClient() {
 
   return (
     <div className="space-y-6">
+      {/* Edit Dialog */}
+      {editingItem && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative">
+            <button onClick={() => setEditingItem(null)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">تعديل العنصر</h2>
+            <p className="text-sm text-gray-500 mb-4">{editingItem.nameAr} ({editingItem.name})</p>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الكمية ({editingItem.unitAr || editingItem.unit})</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.0001"
+                  value={editQuantity}
+                  onChange={(e) => setEditQuantity(parseNonNegativeNumber(e.target.value))}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">سعر الشراء (ريال)</label>
+                <input
+                  type="number"
+                  min={0}
+                  step="0.01"
+                  value={editPurchasePrice}
+                  onChange={(e) => setEditPurchasePrice(parseNonNegativeNumber(e.target.value))}
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">ملاحظات</label>
+                <textarea value={editNotes} onChange={(e) => setEditNotes(e.target.value)} rows={3} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setEditingItem(null)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleSaveEdit} disabled={updateInventory.isPending} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {updateInventory.isPending ? 'جاري الحفظ...' : 'حفظ'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-1">إضافة عنصر جديد</h2>
+            <p className="text-sm text-gray-500 mb-4">Add New Item</p>
+            {createError && (
+              <div className="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {createError}
+              </div>
+            )}
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم العنصر (عربي)</label>
+                <input type="text" value={newNameAr} onChange={(e) => setNewNameAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="أدخل الاسم بالعربية" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم العنصر (إنجليزي)</label>
+                <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="Enter name in English" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الفئة</label>
+                <select value={newCategory} onChange={(e) => setNewCategory(e.target.value as InventoryCategory)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500">
+                  {categories.filter((c) => c.value !== 'all').map((c) => (
+                    <option key={c.value} value={c.value}>{c.labelAr}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الكمية</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.0001"
+                    value={newQuantity}
+                    onChange={(e) => setNewQuantity(parseNonNegativeNumber(e.target.value))}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">سعر الشراء (ريال)</label>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={newPurchasePrice}
+                    onChange={(e) => setNewPurchasePrice(parseNonNegativeNumber(e.target.value))}
+                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الوحدة (عربي)</label>
+                  <input type="text" value={newUnitAr} onChange={(e) => setNewUnitAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="كغ" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الوحدة (إنجليزي)</label>
+                  <input type="text" value={newUnit} onChange={(e) => setNewUnit(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="kg" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (عربي)</label>
+                  <input type="text" value={newLocationAr} onChange={(e) => setNewLocationAr(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="المستودع الرئيسي" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">الموقع (إنجليزي)</label>
+                  <input type="text" value={newLocation} onChange={(e) => setNewLocation(e.target.value)} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="Main warehouse" />
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreate} disabled={createInventory.isPending || !newNameAr} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createInventory.isPending ? 'جاري الإضافة...' : 'إضافة'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -88,9 +334,8 @@ export default function InventoryClient() {
           <p className="text-gray-500 mt-1">Inventory Management</p>
         </div>
         <button
-          disabled
-          title="قريباً - Coming soon"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة عنصر</span>
@@ -113,7 +358,9 @@ export default function InventoryClient() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي العناصر</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalItems ?? inventory.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalItems ?? inventory.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">القيمة الإجمالية</div>
@@ -145,7 +392,7 @@ export default function InventoryClient() {
         </div>
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value as InventoryCategory | "all")}
+          onChange={(e) => setSelectedCategory(e.target.value as InventoryCategory | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {categories.map((cat) => (
@@ -167,7 +414,9 @@ export default function InventoryClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الكمية</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الموقع</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الحالة</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  الإجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -195,12 +444,17 @@ export default function InventoryClient() {
                       {categories.find((c) => c.value === item.category)?.labelAr ?? item.category}
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-900">
-                      {item.quantity} {item.unitAr || item.unit}
+                      {formatQuantity(item.quantity)} {item.unitAr || item.unit || ''}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">{item.locationAr || item.location}</td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {item.locationAr || item.location}
+                    </td>
                     <td className="px-4 py-3">{getStatusBadge(item.status)}</td>
                     <td className="px-4 py-3">
-                      <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
+                      <button
+                        onClick={() => handleOpenEdit(item)}
+                        className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                      >
                         تعديل
                       </button>
                     </td>

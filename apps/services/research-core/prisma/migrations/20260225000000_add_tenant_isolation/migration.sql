@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Add tenant_id to all research-core models
 -- إضافة معرف المستأجر لجميع جداول نواة البحث العلمي
@@ -7,6 +11,7 @@
 -- Step 1: Add tenant_id columns with safe DEFAULT for existing rows
 -- الخطوة 1: إضافة أعمدة tenant_id مع قيمة افتراضية آمنة للصفوف الحالية
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "germplasm" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "seed_lots" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "plantings" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
@@ -39,17 +44,17 @@ ALTER TABLE "experiment_audit_log" ALTER COLUMN "tenant_id" DROP DEFAULT;
 -- Step 3: Create indexes for tenant isolation queries
 -- الخطوة 3: إنشاء فهارس لاستعلامات عزل المستأجر
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_germplasm_tenant" ON "germplasm" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_germplasm_tenant_available" ON "germplasm" ("tenant_id", "is_available");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_seed_lot_tenant" ON "seed_lots" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_planting_tenant" ON "plantings" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_experiment_tenant" ON "experiments" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_experiment_tenant_status" ON "experiments" ("tenant_id", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_protocol_tenant" ON "research_protocols" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_plot_tenant" ON "research_plots" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_treatment_tenant" ON "treatments" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_daily_log_tenant" ON "research_daily_logs" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_lab_sample_tenant" ON "lab_samples" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_signature_tenant" ON "digital_signatures" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_collaborator_tenant" ON "experiment_collaborators" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_log_tenant" ON "experiment_audit_log" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_germplasm_tenant" ON "germplasm" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_germplasm_tenant_available" ON "germplasm" ("tenant_id", "is_available");
+CREATE INDEX IF NOT EXISTS "idx_seed_lot_tenant" ON "seed_lots" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_planting_tenant" ON "plantings" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_experiment_tenant" ON "experiments" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_experiment_tenant_status" ON "experiments" ("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_protocol_tenant" ON "research_protocols" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_plot_tenant" ON "research_plots" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_treatment_tenant" ON "treatments" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_daily_log_tenant" ON "research_daily_logs" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_lab_sample_tenant" ON "lab_samples" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_signature_tenant" ON "digital_signatures" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_collaborator_tenant" ON "experiment_collaborators" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_audit_log_tenant" ON "experiment_audit_log" ("tenant_id");

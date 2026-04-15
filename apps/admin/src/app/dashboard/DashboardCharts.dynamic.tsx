@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Dynamic Dashboard Charts - Lazy loaded wrappers
@@ -8,7 +8,7 @@
  * Shows loading skeleton while the chart library is being fetched.
  */
 
-import dynamic from "next/dynamic";
+import dynamic from 'next/dynamic';
 
 const ChartSkeleton = () => (
   <div className="h-full bg-gray-100 animate-pulse rounded flex items-center justify-center">
@@ -18,14 +18,7 @@ const ChartSkeleton = () => (
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -36,16 +29,16 @@ const ChartSkeleton = () => (
 );
 
 export const YieldTrendChart = dynamic(
-  () => import("./DashboardCharts").then((mod) => mod.YieldTrendChart),
-  { loading: () => <ChartSkeleton />, ssr: false },
+  () => import('./DashboardCharts').then((mod) => mod.YieldTrendChart),
+  { loading: () => <ChartSkeleton />, ssr: false }
 );
 
 export const WeeklyActivityChart = dynamic(
-  () => import("./DashboardCharts").then((mod) => mod.WeeklyActivityChart),
-  { loading: () => <ChartSkeleton />, ssr: false },
+  () => import('./DashboardCharts').then((mod) => mod.WeeklyActivityChart),
+  { loading: () => <ChartSkeleton />, ssr: false }
 );
 
 export const CropDistributionChart = dynamic(
-  () => import("./DashboardCharts").then((mod) => mod.CropDistributionChart),
-  { loading: () => <ChartSkeleton />, ssr: false },
+  () => import('./DashboardCharts').then((mod) => mod.CropDistributionChart),
+  { loading: () => <ChartSkeleton />, ssr: false }
 );

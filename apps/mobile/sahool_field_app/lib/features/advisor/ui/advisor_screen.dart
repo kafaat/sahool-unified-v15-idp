@@ -105,7 +105,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
             Container(
               width: 40,
               height: 40,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: SahoolColors.primaryGradient,
                 shape: BoxShape.circle,
               ),
@@ -178,12 +178,12 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         child: Row(
           children: suggestions.map((suggestion) {
             return Padding(
-              padding: const EdgeInsets.only(left: 8),
+              padding: const EdgeInsetsDirectional.only(start: 8),
               child: ActionChip(
                 label: Text(suggestion),
                 onPressed: () => _sendMessage(suggestion),
                 backgroundColor: Colors.white,
-                side: BorderSide(color: SahoolColors.primary.withOpacity(0.3)),
+                side: BorderSide(color: SahoolColors.primary.withValues(alpha: 0.3)),
               ),
             );
           }).toList(),
@@ -194,7 +194,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
 
   Widget _buildTypingIndicator() {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -226,7 +226,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
           width: 8,
           height: 8,
           decoration: BoxDecoration(
-            color: SahoolColors.primary.withOpacity(0.3 + (value * 0.7)),
+            color: SahoolColors.primary.withValues(alpha: 0.3 + (value * 0.7)),
             shape: BoxShape.circle,
           ),
         );
@@ -241,7 +241,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -264,7 +264,7 @@ class _AdvisorScreenState extends State<AdvisorScreen> {
                 decoration: BoxDecoration(
                   color: _isRecording
                       ? SahoolColors.danger
-                      : SahoolColors.primary.withOpacity(0.1),
+                      : SahoolColors.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -336,7 +336,7 @@ class _ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: message.isUser ? Alignment.centerLeft : Alignment.centerRight,
+      alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         constraints: BoxConstraints(
@@ -344,8 +344,8 @@ class _ChatBubble extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: message.isUser
-              ? CrossAxisAlignment.start
-              : CrossAxisAlignment.end,
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             Container(
               padding: const EdgeInsets.all(16),
@@ -354,8 +354,8 @@ class _ChatBubble extends StatelessWidget {
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(message.isUser ? 4 : 20),
-                  bottomRight: Radius.circular(message.isUser ? 20 : 4),
+                  bottomLeft: Radius.circular(message.isUser ? 20 : 4),
+                  bottomRight: Radius.circular(message.isUser ? 4 : 20),
                 ),
                 boxShadow: SahoolShadows.small,
               ),

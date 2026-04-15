@@ -11,7 +11,7 @@ import sys
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import Depends, FastAPI, Header, HTTPException, status
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, status
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -212,7 +212,7 @@ def readiness():
     }
 
 
-@app.get("/api/v1/registry/stats", tags=["Registry"])
+@app.get("/api/v1/registry/stats", tags=["Registry"], dependencies=[Depends(verify_api_key)])
 async def get_registry_stats():
     """
     Get registry statistics
@@ -239,7 +239,7 @@ async def get_registry_stats():
 
 
 @app.post("/api/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
-async def register_agent(request: RegisterAgentRequest):
+async def register_agent(request: RegisterAgentRequest, http_request: Request):
     """
     Register a new agent
     تسجيل وكيل جديد
@@ -257,6 +257,9 @@ async def register_agent(request: RegisterAgentRequest):
                 detail="Service not initialized",
             )
 
+        # Extract tenant_id from request state (set by TenantContextMiddleware)
+        tenant_id = getattr(http_request.state, "tenant_id", None)
+
         # Register in registry (for indexing and discovery)
         await registry.register_agent(request.agent_card)
 
@@ -267,6 +270,7 @@ async def register_agent(request: RegisterAgentRequest):
             "agent_registered_successfully",
             agent_id=request.agent_card.agent_id,
             version=request.agent_card.version,
+            tenant_id=tenant_id,
         )
 
         return {
@@ -276,11 +280,13 @@ async def register_agent(request: RegisterAgentRequest):
         }
 
     except Exception as e:
-        logger.error("register_agent_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("register_agent_failed", error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
-@app.get("/api/v1/registry/agents/{agent_id}", tags=["Agents"])
+@app.get("/api/v1/registry/agents/{agent_id}", tags=["Agents"], dependencies=[Depends(verify_api_key)])
 async def get_agent(agent_id: str):
     """
     Get agent card by ID
@@ -307,11 +313,13 @@ async def get_agent(agent_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("get_agent_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("get_agent_failed", agent_id=agent_id, error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
-@app.get("/api/v1/registry/agents", tags=["Agents"])
+@app.get("/api/v1/registry/agents", tags=["Agents"], dependencies=[Depends(verify_api_key)])
 async def list_agents(
     status: str | None = None,
     category: str | None = None,
@@ -345,8 +353,10 @@ async def list_agents(
         }
 
     except Exception as e:
-        logger.error("list_agents_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("list_agents_failed", error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
 @app.delete(
@@ -354,7 +364,7 @@ async def list_agents(
     tags=["Agents"],
     dependencies=[Depends(verify_api_key)],
 )
-async def deregister_agent(agent_id: str):
+async def deregister_agent(agent_id: str, http_request: Request):
     """
     Deregister an agent
     إلغاء تسجيل وكيل
@@ -372,6 +382,9 @@ async def deregister_agent(agent_id: str):
                 detail="Service not initialized",
             )
 
+        # Extract tenant_id from request state (set by TenantContextMiddleware)
+        tenant_id = getattr(http_request.state, "tenant_id", None)
+
         # Deregister from registry
         await registry.deregister_agent(agent_id)
 
@@ -384,7 +397,7 @@ async def deregister_agent(agent_id: str):
                 detail=f"Agent not found: {agent_id}",
             )
 
-        logger.info("agent_deregistered_successfully", agent_id=agent_id)
+        logger.info("agent_deregistered_successfully", agent_id=agent_id, tenant_id=tenant_id)
 
         return {
             "status": "success",
@@ -395,8 +408,10 @@ async def deregister_agent(agent_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        logger.error("deregister_agent_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("deregister_agent_failed", agent_id=agent_id, error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
 # ============================================================================
@@ -404,7 +419,7 @@ async def deregister_agent(agent_id: str):
 # ============================================================================
 
 
-@app.get("/api/v1/registry/discover/capability", tags=["Discovery"])
+@app.get("/api/v1/registry/discover/capability", tags=["Discovery"], dependencies=[Depends(verify_api_key)])
 async def discover_by_capability(capability: str):
     """
     Discover agents by capability
@@ -428,11 +443,13 @@ async def discover_by_capability(capability: str):
         }
 
     except Exception as e:
-        logger.error("discover_by_capability_failed", capability=capability, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("discover_by_capability_failed", capability=capability, error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
-@app.get("/api/v1/registry/discover/skill", tags=["Discovery"])
+@app.get("/api/v1/registry/discover/skill", tags=["Discovery"], dependencies=[Depends(verify_api_key)])
 async def discover_by_skill(skill: str):
     """
     Discover agents by skill
@@ -456,11 +473,13 @@ async def discover_by_skill(skill: str):
         }
 
     except Exception as e:
-        logger.error("discover_by_skill_failed", skill=skill, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("discover_by_skill_failed", skill=skill, error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
-@app.post("/api/v1/registry/discover/tags", tags=["Discovery"])
+@app.post("/api/v1/registry/discover/tags", tags=["Discovery"], dependencies=[Depends(verify_api_key)])
 async def discover_by_tags(request: DiscoverByTagsRequest):
     """
     Discover agents by tags
@@ -484,8 +503,10 @@ async def discover_by_tags(request: DiscoverByTagsRequest):
         }
 
     except Exception as e:
-        logger.error("discover_by_tags_failed", tags=request.tags, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("discover_by_tags_failed", tags=request.tags, error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
 # ============================================================================
@@ -493,7 +514,7 @@ async def discover_by_tags(request: DiscoverByTagsRequest):
 # ============================================================================
 
 
-@app.get("/api/v1/registry/agents/{agent_id}/health", tags=["Health"])
+@app.get("/api/v1/registry/agents/{agent_id}/health", tags=["Health"], dependencies=[Depends(verify_api_key)])
 async def check_agent_health(agent_id: str):
     """
     Check health of a specific agent
@@ -512,11 +533,13 @@ async def check_agent_health(agent_id: str):
         return health_result.model_dump()
 
     except Exception as e:
-        logger.error("check_agent_health_failed", agent_id=agent_id, error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("check_agent_health_failed", agent_id=agent_id, error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
-@app.get("/api/v1/registry/health/all", tags=["Health"])
+@app.get("/api/v1/registry/health/all", tags=["Health"], dependencies=[Depends(verify_api_key)])
 async def get_all_health_statuses():
     """
     Get health statuses of all agents
@@ -539,8 +562,10 @@ async def get_all_health_statuses():
         }
 
     except Exception as e:
-        logger.error("get_all_health_statuses_failed", error=str(e))
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        logger.error("get_all_health_statuses_failed", error=str(e), exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error | خطأ داخلي في الخادم"
+        ) from e
 
 
 # ---------------------------------------------------------------------------
@@ -568,7 +593,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=settings.service_port,
         log_level=settings.log_level.lower(),
         reload=False,

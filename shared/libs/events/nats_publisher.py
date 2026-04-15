@@ -166,11 +166,26 @@ class NATSPublisher:
 
     async def publish_analysis_event(self, event: AnalysisEvent) -> bool:
         """
-        Publish an analysis event to NATS
+        Publish an analysis event to NATS.
 
-        Subject format: sahool.analysis.{event_type}
+        Subject is **tenant-scoped** when `event.tenant_id` is set, so that
+        wildcard subscribers (e.g. ``sahool.tenant.{tenant}.satellite.>``)
+        cannot accidentally receive events for other tenants:
+
+            tenant-scoped: sahool.tenant.{tenant_id}.{event_type}
+            fallback:      sahool.{event_type}
+
+        The event_type is expected to already use dots (e.g.
+        ``satellite.ndvi.computed``), so we pass it through unchanged.
+        The legacy ``sahool.analysis.{underscored_type}`` format was
+        dropped because no subscriber was listening for it (see satellite
+        flow audit, H13).
         """
-        subject = f"sahool.analysis.{event.event_type.replace('.', '_')}"
+        event_type = event.event_type.lstrip(".")
+        if event.tenant_id:
+            subject = f"sahool.tenant.{event.tenant_id}.{event_type}"
+        else:
+            subject = f"sahool.{event_type}"
         data = event.to_json().encode("utf-8")
 
         success = await self.publish(subject, data)
@@ -178,7 +193,8 @@ class NATSPublisher:
         if success:
             logger.info(
                 f"📤 Analysis event published: {event.event_type} "
-                f"field={event.field_id} priority={event.notification_priority}"
+                f"subject={subject} field={event.field_id} "
+                f"priority={event.notification_priority}"
             )
 
         return success

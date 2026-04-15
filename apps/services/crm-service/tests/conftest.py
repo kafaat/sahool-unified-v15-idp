@@ -8,8 +8,11 @@ Author: SAHOOL Platform Team
 
 import os
 import sys
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+from collections.abc import Generator
 from datetime import date, datetime
-from typing import Generator
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

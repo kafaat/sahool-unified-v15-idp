@@ -129,9 +129,9 @@ class NdviBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -175,8 +175,8 @@ class NdviLegendBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = NdviColormap.generateGradient(
       steps: 20,
-      minNdvi: -0.2,
-      maxNdvi: 0.9,
+      minNdvi: -1.0,
+      maxNdvi: 1.0,
       stops: NdviColormap.yemenStops,
     );
 
@@ -331,13 +331,13 @@ class _NdviChartPainter extends CustomPainter {
     if (statistics.history.isEmpty) return;
 
     final history = statistics.history;
-    final padding = 20.0;
+    const padding = 20.0;
     final chartWidth = size.width - padding * 2;
     final chartHeight = size.height - padding * 2;
 
     // Draw grid
     final gridPaint = Paint()
-      ..color = Colors.grey.withOpacity(0.2)
+      ..color = Colors.grey.withValues(alpha: 0.2)
       ..strokeWidth = 1;
 
     for (int i = 0; i <= 4; i++) {
@@ -538,9 +538,9 @@ class SpectralBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

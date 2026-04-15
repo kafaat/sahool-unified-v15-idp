@@ -133,11 +133,11 @@ void main() {
         const tenantId = 'tenant_test';
         const name = 'Test Field';
         final boundary = [
-          LatLng(24.7136, 46.6753),
-          LatLng(24.7140, 46.6753),
-          LatLng(24.7140, 46.6760),
-          LatLng(24.7136, 46.6760),
-          LatLng(24.7136, 46.6753), // Close the polygon
+          const LatLng(24.7136, 46.6753),
+          const LatLng(24.7140, 46.6753),
+          const LatLng(24.7140, 46.6760),
+          const LatLng(24.7136, 46.6760),
+          const LatLng(24.7136, 46.6753), // Close the polygon
         ];
 
         // Act
@@ -168,11 +168,11 @@ void main() {
           tenantId: 'tenant_test',
           name: 'New Field',
           boundary: [
-            LatLng(24.7136, 46.6753),
-            LatLng(24.7140, 46.6753),
-            LatLng(24.7140, 46.6760),
-            LatLng(24.7136, 46.6760),
-            LatLng(24.7136, 46.6753),
+            const LatLng(24.7136, 46.6753),
+            const LatLng(24.7140, 46.6753),
+            const LatLng(24.7140, 46.6760),
+            const LatLng(24.7136, 46.6760),
+            const LatLng(24.7136, 46.6753),
           ],
         );
 
@@ -189,11 +189,11 @@ void main() {
           tenantId: 'tenant_test',
           name: 'Field 1',
           boundary: [
-            LatLng(24.7136, 46.6753),
-            LatLng(24.7140, 46.6753),
-            LatLng(24.7140, 46.6760),
-            LatLng(24.7136, 46.6760),
-            LatLng(24.7136, 46.6753),
+            const LatLng(24.7136, 46.6753),
+            const LatLng(24.7140, 46.6753),
+            const LatLng(24.7140, 46.6760),
+            const LatLng(24.7136, 46.6760),
+            const LatLng(24.7136, 46.6753),
           ],
         );
 
@@ -201,11 +201,11 @@ void main() {
           tenantId: 'tenant_test',
           name: 'Field 2',
           boundary: [
-            LatLng(24.7146, 46.6763),
-            LatLng(24.7150, 46.6763),
-            LatLng(24.7150, 46.6770),
-            LatLng(24.7146, 46.6770),
-            LatLng(24.7146, 46.6763),
+            const LatLng(24.7146, 46.6763),
+            const LatLng(24.7150, 46.6763),
+            const LatLng(24.7150, 46.6770),
+            const LatLng(24.7146, 46.6770),
+            const LatLng(24.7146, 46.6763),
           ],
         );
 

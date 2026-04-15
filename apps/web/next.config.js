@@ -1,14 +1,14 @@
+const path = require("path");
+
 let withSentryConfig;
 let sentryInstalled = false;
 try {
   withSentryConfig = require("@sentry/nextjs").withSentryConfig;
   sentryInstalled = true;
 } catch (/** @type {any} */ err) {
-  // Only swallow when @sentry/nextjs itself is missing; rethrow transitive failures
-  const isSentryMissing =
-    err?.code === "MODULE_NOT_FOUND" &&
-    /['"]@sentry\/nextjs['"]/.test(err?.message ?? "");
-  if (!isSentryMissing) throw err;
+  // Swallow MODULE_NOT_FOUND for @sentry/nextjs or any of its transitive deps
+  // (e.g. next/constants when next is not hoisted to root in monorepo)
+  if (err?.code !== "MODULE_NOT_FOUND") throw err;
   // Fail fast when Sentry is expected (DSN configured) but the package is missing.
   // This prevents silently disabling source-map upload / instrumentation in CI/prod.
   if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
@@ -31,6 +31,10 @@ const withNextIntl = createNextIntlPlugin("./src/i18n.ts");
 const nextConfig = {
   reactStrictMode: true,
 
+  // Allow cross-origin requests from local network in development
+  // (prevents "Cross origin request detected" warning)
+  allowedDevOrigins: (process.env.ALLOWED_DEV_ORIGINS?.split(",").map(s => s.trim()).filter(Boolean)) || ["localhost", "127.0.0.1"],
+
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
 
@@ -43,17 +47,17 @@ const nextConfig = {
     "@sahool/shared-types",
     "@sahool/api-client",
     "@sahool/i18n",
+    "@sahool/design-system",
   ],
 
-  // Ignore ESLint warnings during build - lint job checks separately
+  // ESLint errors must be fixed before build succeeds
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
 
-  // TypeScript - ignore during build since type-check runs separately in CI
+  // TypeScript errors must be fixed before build succeeds
   typescript: {
-    // Type checking is done by dedicated 'typecheck' job in CI pipeline
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
   // Note: i18n is handled via next-intl for App Router
@@ -78,6 +82,14 @@ const nextConfig = {
         protocol: "https",
         hostname: "sentinel-hub.com",
       },
+      {
+        protocol: "https",
+        hostname: "maps.googleapis.com",
+      },
+      {
+        protocol: "https",
+        hostname: "maps.gstatic.com",
+      },
     ],
     formats: ["image/avif", "image/webp"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
@@ -85,55 +97,90 @@ const nextConfig = {
   },
 
   // Security headers
+  //
+  // IMPORTANT (Chrome compatibility):
+  // Chrome enforces Strict-Transport-Security, Cross-Origin-Embedder-Policy,
+  // Cross-Origin-Opener-Policy, and Cross-Origin-Resource-Policy more
+  // aggressively than other browsers. In particular:
+  //
+  //   - HSTS on http://<lan-ip>:3000 will make Chrome pin HTTPS for 2 years
+  //     the first time it sees it, breaking local/dev access thereafter.
+  //   - COEP: credentialless blocks third-party images/tiles (OpenStreetMap,
+  //     Google Maps, Sentinel Hub) unless they explicitly set CORP.
+  //   - COOP: same-origin breaks window.open() popups (OAuth, social login).
+  //   - CORP: same-origin marks the document itself as same-origin-only.
+  //
+  // To keep those headers' security benefit in production without wedging
+  // Chrome during development, we only emit them when NODE_ENV=production.
+  // `async headers()` is evaluated once at next build/start time, so
+  // reading NODE_ENV here captures the build environment — exactly what
+  // we want.
   async headers() {
-    return [
+    const isProd = process.env.NODE_ENV === "production";
+
+    const baseHeaders = [
       {
-        source: "/:path*",
-        headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
+        key: "X-DNS-Prefetch-Control",
+        value: "on",
+      },
+      {
+        key: "X-Frame-Options",
+        value: "DENY",
+      },
+      {
+        key: "X-Content-Type-Options",
+        value: "nosniff",
+      },
+      {
+        key: "Referrer-Policy",
+        value: "strict-origin-when-cross-origin",
+      },
+      {
+        key: "Permissions-Policy",
+        value:
+          "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
+      },
+    ];
+
+    const productionOnlyHeaders = isProd
+      ? [
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
           },
-          {
-            key: "X-Frame-Options",
-            value: "DENY",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value:
-              "camera=(), microphone=(), geolocation=(self), payment=(), usb=(), interest-cohort=()",
-          },
-          // Note: CSP headers are set in middleware.ts with nonce support
-          // CSP headers here are for static assets that bypass middleware
+          // Note: CSP headers are set in middleware.ts with nonce support.
+          // These cross-origin isolation headers are prod-only so Chrome
+          // doesn't block third-party map tiles / OAuth popups in dev.
           {
             key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
+            // `unsafe-none` is the browser default; we keep the header
+            // explicit so it's obvious in devtools that we've intentionally
+            // opted OUT of cross-origin isolation. Switch to `credentialless`
+            // or `require-corp` only if / when every third-party tile /
+            // image / OAuth endpoint the app loads is CORP-compliant.
+            value: "unsafe-none",
           },
           {
             key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
+            // `same-origin-allow-popups` keeps the isolation benefit of
+            // COOP while still letting `window.open()` succeed for OAuth
+            // and social-login popups.
+            value: "same-origin-allow-popups",
           },
           {
             key: "Cross-Origin-Resource-Policy",
-            value: "same-origin",
+            // `cross-origin` lets legitimate CDNs and tile servers embed
+            // this document's resources; the document itself is still
+            // protected by CSP + SameSite cookies.
+            value: "cross-origin",
           },
-        ],
+        ]
+      : [];
+
+    return [
+      {
+        source: "/:path*",
+        headers: [...baseHeaders, ...productionOnlyHeaders],
       },
       // Static assets - long-term caching (content-hashed, immutable)
       {
@@ -174,6 +221,7 @@ const nextConfig = {
   // Output configuration for Docker/standalone deployments
   // Always use standalone for optimal Docker image size (copies only needed files)
   output: "standalone",
+  outputFileTracingRoot: path.resolve(__dirname, "../../"),
 
   // Compiler optimizations
   compiler: {
@@ -204,7 +252,7 @@ const nextConfig = {
       "@sahool/shared-types",
       "@sahool/api-client",
       "react-leaflet",
-      "jose",
+      "@react-google-maps/api",
       "axios",
     ],
   },
@@ -223,7 +271,6 @@ const nextConfig = {
     // Using `false` causes webpack to generate a module reference without a
     // factory function, which crashes at runtime with
     // "Cannot read properties of undefined (reading 'call')".
-    const path = require("path");
     if (!sentryInstalled) {
       config.resolve.alias = {
         ...config.resolve.alias,
@@ -269,21 +316,17 @@ const nextConfig = {
               chunks: "all",
               priority: 30,
             },
-            // Separate mapping libraries (leaflet, maplibre) into their own chunk
+            // Separate mapping libraries (leaflet, maplibre, google-maps) into their own chunk
             maps: {
-              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|maplibre-gl)[\\/]/,
+              test: /[\\/]node_modules[\\/](leaflet|react-leaflet|maplibre-gl|@react-google-maps)[\\/]/,
               name: "maps",
               chunks: "all",
               priority: 30,
             },
-            // Group framework-level dependencies that rarely change
-            framework: {
-              test: /[\\/]node_modules[\\/](react|react-dom|next|scheduler)[\\/]/,
-              name: "framework",
-              chunks: "all",
-              priority: 40,
-              enforce: true,
-            },
+            // NOTE: Do NOT add a "framework" cacheGroup here — Next.js has its own
+            // built-in "framework" chunk for React/React-DOM/scheduler. Overriding it
+            // breaks the chunk loading order and causes
+            // "Cannot read properties of undefined (reading 'call')" at runtime.
           },
         },
       };

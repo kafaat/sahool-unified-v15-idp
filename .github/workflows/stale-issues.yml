@@ -1,0 +1,75 @@
+# Stale Issues & PRs - Automatically manages inactive issues and pull requests
+# Runs weekly to label and close stale items
+
+name: Stale Issues & PRs
+
+on:
+  schedule:
+    # Run every Monday at 6:00 AM UTC
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: stale-issues
+  cancel-in-progress: true
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  stale:
+    name: Manage Stale Items
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Mark and close stale issues/PRs
+        uses: actions/stale@v10
+        with:
+          # Issue configuration
+          days-before-stale: 60
+          days-before-close: 14
+          stale-issue-label: "status: stale"
+          stale-issue-message: |
+            This issue has been automatically marked as stale because it has not had
+            any activity for 60 days. It will be closed in 14 days if no further
+            activity occurs.
+
+            هذه المشكلة تم تصنيفها تلقائياً كخاملة لعدم وجود نشاط لمدة 60 يوماً.
+            سيتم إغلاقها خلال 14 يوماً إذا لم يكن هناك نشاط إضافي.
+          close-issue-message: |
+            This issue has been automatically closed due to inactivity.
+            Feel free to reopen it if the issue is still relevant.
+
+            تم إغلاق هذه المشكلة تلقائياً بسبب عدم النشاط.
+            لا تتردد في إعادة فتحها إذا كانت لا تزال ذات صلة.
+
+          # PR configuration
+          days-before-pr-stale: 30
+          days-before-pr-close: 7
+          stale-pr-label: "status: stale"
+          stale-pr-message: |
+            This pull request has been automatically marked as stale because it has not had
+            any activity for 30 days. It will be closed in 7 days if no further activity occurs.
+
+            هذا الطلب تم تصنيفه تلقائياً كخامل لعدم وجود نشاط لمدة 30 يوماً.
+          close-pr-message: |
+            This pull request has been automatically closed due to inactivity.
+            Feel free to reopen it if the changes are still needed.
+
+          # Exemptions - never mark these as stale
+          exempt-issue-labels: "priority: critical,priority: high,status: blocked,type: security,pinned"
+          exempt-pr-labels: "priority: critical,priority: high,status: blocked,type: security"
+          exempt-all-milestones: true
+          exempt-all-assignees: false
+
+          # Limits
+          operations-per-run: 100
+
+          # Remove stale label when activity resumes
+          remove-stale-when-updated: true
+
+          # Only process issues/PRs in specific states
+          only-labels: ""
+          ascending: true

@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Outbox Pattern Implementation
 /// تنفيذ نمط صندوق الصادر للمزامنة
 ///

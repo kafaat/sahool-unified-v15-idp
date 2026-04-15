@@ -1,6 +1,5 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'glass_colors.dart';
 
 /// SAHOOL Theme Animations System
 /// نظام حركات الثيم لسهول
@@ -272,7 +271,7 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
               : null,
         );
 
-        return Container(
+        return DecoratedBox(
           decoration: decoration,
           child: widget.child,
         );
@@ -393,8 +392,8 @@ class _MeshGradientPainter extends CustomPainter {
         ),
         radius: 0.8,
         colors: [
-          colors[i].withOpacity(intensity),
-          colors[i].withOpacity(0),
+          colors[i].withValues(alpha: intensity),
+          colors[i].withValues(alpha: 0),
         ],
       );
 
@@ -493,9 +492,9 @@ class _GlassShimmerState extends State<GlassShimmer>
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      shimmerColor.withOpacity(0),
-                      shimmerColor.withOpacity(widget.intensity),
-                      shimmerColor.withOpacity(0),
+                      shimmerColor.withValues(alpha: 0),
+                      shimmerColor.withValues(alpha: widget.intensity),
+                      shimmerColor.withValues(alpha: 0),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                     transform: _SlidingGradientTransform(
@@ -506,9 +505,9 @@ class _GlassShimmerState extends State<GlassShimmer>
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      shimmerColor.withOpacity(0),
-                      shimmerColor.withOpacity(widget.intensity),
-                      shimmerColor.withOpacity(0),
+                      shimmerColor.withValues(alpha: 0),
+                      shimmerColor.withValues(alpha: widget.intensity),
+                      shimmerColor.withValues(alpha: 0),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                     transform: _SlidingGradientTransform(
@@ -607,11 +606,11 @@ class _PulsingGlowState extends State<PulsingGlow>
     return AnimatedBuilder(
       animation: _opacityAnimation,
       builder: (context, child) {
-        return Container(
+        return DecoratedBox(
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
-                color: widget.glowColor.withOpacity(_opacityAnimation.value),
+                color: widget.glowColor.withValues(alpha: _opacityAnimation.value),
                 blurRadius: widget.blurRadius,
                 spreadRadius: widget.blurRadius / 4,
               ),
@@ -677,7 +676,7 @@ class _AnimatedGlassBorderState extends State<AnimatedGlassBorder>
   @override
   Widget build(BuildContext context) {
     if (!widget.enabled) {
-      return Container(
+      return DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(widget.borderRadius),
           border: Border.all(
@@ -802,7 +801,9 @@ class FadeThroughTransition extends StatelessWidget {
 /// مسار صفحة مع انتقال زجاجي
 class GlassPageRoute<T> extends PageRouteBuilder<T> {
   final Widget page;
+  @override
   final Duration transitionDuration;
+  @override
   final Duration reverseTransitionDuration;
 
   GlassPageRoute({

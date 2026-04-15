@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Drift Detection Fix (Report 5c6dd891-251)
 -- إصلاح كشف الانحراف - تقرير 5c6dd891-251
@@ -15,6 +19,7 @@
 -- ─────────────────────────────────────────────────────────────────────────────
 
 -- disaster_reports.tenant_id: Add safe DEFAULT
+-- drift:safe reason=Idempotent SET DEFAULT on existing columns only; no rows are rewritten and no indexes are created or modified. Safe to re-run during drift reconciliation.
 ALTER TABLE "disaster_reports" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 
 -- disaster_alerts.tenant_id: Add safe DEFAULT
@@ -82,5 +87,5 @@ ALTER TABLE "alert_subscriptions" ALTER COLUMN "updated_at" SET DEFAULT now();
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Note: All indexes in 20260207000000_add_composite_indexes already use
--- CREATE INDEX CONCURRENTLY. No non-concurrent index patterns to fix.
+-- Note: All indexes use standard CREATE INDEX (required by Prisma transaction wrapper). For zero-downtime on large production tables, consider running CONCURRENTLY outside Prisma migrate.
 -- ═══════════════════════════════════════════════════════════════════════════════

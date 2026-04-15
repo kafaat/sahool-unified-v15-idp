@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Manager
 /// مدير الإشعارات المركزي
 ///
@@ -18,7 +20,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -177,13 +178,13 @@ class NotificationManager {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     // iOS/macOS initialization
-    final darwinSettings = DarwinInitializationSettings(
+    const darwinSettings = DarwinInitializationSettings(
       requestAlertPermission: false,
       requestBadgePermission: false,
       requestSoundPermission: false,
     );
 
-    final initSettings = InitializationSettings(
+    const initSettings = InitializationSettings(
       android: androidSettings,
       iOS: darwinSettings,
       macOS: darwinSettings,
@@ -483,7 +484,7 @@ class NotificationManager {
       icon: '@mipmap/ic_launcher',
     );
 
-    final iosDetails = DarwinNotificationDetails(
+    const iosDetails = DarwinNotificationDetails(
       presentAlert: false,
       presentBadge: false,
       presentSound: false,
@@ -519,7 +520,7 @@ class NotificationManager {
   /// Get pending notifications
   /// الحصول على الإشعارات المعلقة
   Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    return await _localNotifications.pendingNotificationRequests();
+    return _localNotifications.pendingNotificationRequests();
   }
 
   /// Get active notifications (Android only)
@@ -531,7 +532,7 @@ class NotificationManager {
               AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
-        return await androidPlugin.getActiveNotifications();
+        return androidPlugin.getActiveNotifications();
       }
     }
     return [];

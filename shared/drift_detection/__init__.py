@@ -46,8 +46,14 @@ from shared.drift_detection.models import (
 if TYPE_CHECKING:
     from shared.drift_detection.engine import (
         DriftDetectionEngine as DriftDetectionEngine,
+    )
+    from shared.drift_detection.engine import (
         compare_with_baseline as compare_with_baseline,
+    )
+    from shared.drift_detection.engine import (
         create_baseline as create_baseline,
+    )
+    from shared.drift_detection.engine import (
         load_baseline as load_baseline,
     )
     from shared.drift_detection.quality_gates import (

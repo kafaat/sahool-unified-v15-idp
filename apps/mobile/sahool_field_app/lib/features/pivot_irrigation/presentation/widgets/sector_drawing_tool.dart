@@ -1,6 +1,7 @@
+library;
+
 /// Sector Drawing Tool - أداة رسم القطاعات
 /// Interactive tool for drawing and editing pivot sectors on a circular field
-library;
 
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -184,7 +185,7 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
 
           return Card(
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            color: isSelected ? const Color(0xFF367C2B).withOpacity(0.1) : null,
+            color: isSelected ? const Color(0xFF367C2B).withValues(alpha: 0.1) : null,
             child: ListTile(
               dense: true,
               leading: Container(
@@ -525,7 +526,7 @@ class _SectorDrawingToolState extends State<SectorDrawingTool> {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF367C2B).withOpacity(0.1),
+                      color: const Color(0xFF367C2B).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -758,7 +759,7 @@ class _SectorDrawingPainter extends CustomPainter {
       // Sector fill
       final color = _hexToColor(sector.color);
       final sectorPaint = Paint()
-        ..color = isSelected ? color : color.withOpacity(0.7)
+        ..color = isSelected ? color : color.withValues(alpha: 0.7)
         ..style = PaintingStyle.fill;
 
       canvas.drawArc(
@@ -876,7 +877,7 @@ class _SectorDrawingPainter extends CustomPainter {
     }
 
     final sector = sectors[selectedSectorIndex!];
-    final handleRadius = 12.0;
+    const handleRadius = 12.0;
 
     // Start handle
     final startAngle = _degreesToRadians(sector.startAngle - 90);
@@ -960,7 +961,7 @@ class _SectorDrawingPainter extends CustomPainter {
           color: Colors.grey[700],
           fontSize: 12,
           fontWeight: FontWeight.bold,
-          backgroundColor: Colors.white.withOpacity(0.8),
+          backgroundColor: Colors.white.withValues(alpha: 0.8),
         ),
       ),
       textDirection: TextDirection.rtl,
@@ -1028,7 +1029,7 @@ class _ControlButton extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: isActive ? color : color.withOpacity(0.1),
+                color: isActive ? color : color.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(

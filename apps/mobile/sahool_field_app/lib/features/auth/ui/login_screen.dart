@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/auth/auth_service.dart';
 import '../../../core/auth/biometric_service.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/utils/input_validator.dart';
@@ -18,12 +18,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 }
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
+  static const int _otpLength = 6;
   final _phoneController = TextEditingController();
   final List<TextEditingController> _otpControllers = List.generate(
-    4,
+    _otpLength,
     (_) => TextEditingController(),
   );
-  final List<FocusNode> _otpFocusNodes = List.generate(4, (_) => FocusNode());
+  final List<FocusNode> _otpFocusNodes =
+      List.generate(_otpLength, (_) => FocusNode());
 
   bool _isOtpSent = false;
   bool _isLoading = false;
@@ -70,6 +72,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         context.go('/map');
       }
     } on BiometricException catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(e.message),
@@ -85,16 +88,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   void dispose() {
     _phoneController.dispose();
-    for (var controller in _otpControllers) {
+    for (final controller in _otpControllers) {
       controller.dispose();
     }
-    for (var node in _otpFocusNodes) {
+    for (final node in _otpFocusNodes) {
       node.dispose();
     }
     super.dispose();
   }
 
-  void _sendOtp() async {
+  /// Build E.164 phone number from input (Yemen +967)
+  String _buildFullPhone() {
+    final raw = _phoneController.text.replaceAll(RegExp(r'\D'), '');
+    final normalized = raw.startsWith('0') ? raw.substring(1) : raw;
+    return '+967$normalized';
+  }
+
+  Future<void> _sendOtp() async {
     // Validate phone number
     final validation = InputValidator.validateYemenPhone(_phoneController.text);
 
@@ -110,8 +120,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _phoneErrorMessage = null;
     });
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    // Real API call via AuthStateNotifier
+    final notifier = ref.read(authStateProvider.notifier);
+    final error = await notifier.sendLoginOtp(
+      identifier: _buildFullPhone(),
+      channel: 'sms',
+    );
+
+    if (!mounted) return;
+
+    if (error != null) {
+      setState(() {
+        _isLoading = false;
+        _phoneErrorMessage = error;
+      });
+      return;
+    }
 
     setState(() {
       _isLoading = false;
@@ -137,11 +161,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     });
   }
 
-  void _verifyOtp() async {
+  Future<void> _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
 
     // Validate OTP
-    final validation = InputValidator.validateOtp(otp, length: 4);
+    final validation = InputValidator.validateOtp(otp, length: _otpLength);
 
     if (!validation.isValid) {
       setState(() {
@@ -155,12 +179,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _otpErrorMessage = null;
     });
 
-    // Simulate verification
-    await Future.delayed(const Duration(seconds: 1));
+    // Real API call via AuthStateNotifier
+    final notifier = ref.read(authStateProvider.notifier);
+    final success = await notifier.loginWithOtp(
+      identifier: _buildFullPhone(),
+      otpCode: otp,
+    );
 
-    if (mounted) {
-      context.go('/map');
+    if (!mounted) return;
+
+    if (!success) {
+      final authState = ref.read(authStateProvider);
+      setState(() {
+        _isLoading = false;
+        _otpErrorMessage = authState.error ?? 'رمز التحقق غير صحيح';
+      });
+      // Clear OTP inputs for retry
+      for (final c in _otpControllers) {
+        c.clear();
+      }
+      _otpFocusNodes[0].requestFocus();
+      return;
     }
+
+    // Success → go to main app
+    context.go('/map');
   }
 
   void _onOtpChanged(int index, String value) {
@@ -171,7 +214,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
     }
 
-    if (value.isNotEmpty && index < 3) {
+    if (value.isNotEmpty && index < _otpLength - 1) {
       _otpFocusNodes[index + 1].requestFocus();
     }
     if (value.isEmpty && index > 0) {
@@ -180,7 +223,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     // Auto verify when all digits entered
     final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length == 4) {
+    if (otp.length == _otpLength) {
       _verifyOtp();
     }
   }
@@ -215,7 +258,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: SahoolColors.primary.withOpacity(0.1),
+                        color: SahoolColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -235,7 +278,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 8),
                     Text(
                       _isOtpSent
-                          ? 'تم إرسال رمز مكون من 4 أرقام إلى\n${_phoneController.text}'
+                          ? 'تم إرسال رمز مكون من 6 أرقام إلى\n${_phoneController.text}'
                           : 'أدخل رقم هاتفك للمتابعة',
                       style: TextStyle(
                         fontSize: 16,
@@ -337,7 +380,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(16),
@@ -422,11 +465,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(4, (index) {
+          children: List.generate(_otpLength, (index) {
             return Container(
-              width: 64,
-              height: 72,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
+              width: 48,
+              height: 64,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               child: TextField(
                 controller: _otpControllers[index],
                 focusNode: _otpFocusNodes[index],

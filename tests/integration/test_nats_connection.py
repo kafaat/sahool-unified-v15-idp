@@ -22,7 +22,7 @@ import json
 import os
 import uuid
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock, patch, PropertyMock
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
 
@@ -48,7 +48,7 @@ except ImportError:
     _subscriber_available = False
 
 try:
-    from shared.events.dlq_config import DLQConfig, should_retry, is_retriable_error
+    from shared.events.dlq_config import DLQConfig, is_retriable_error, should_retry
 
     _dlq_available = True
 except ImportError:

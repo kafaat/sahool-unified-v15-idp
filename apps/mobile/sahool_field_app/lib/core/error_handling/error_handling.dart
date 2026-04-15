@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Error Handling Module
 /// وحدة معالجة الأخطاء لتطبيق سهول
 ///

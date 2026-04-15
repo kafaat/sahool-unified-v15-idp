@@ -1,0 +1,13 @@
+# Illustration Assets for SAHOOL Onboarding
+# ملفات الرسوم التوضيحية لشاشات الإعداد
+#
+# This directory contains SVG illustrations for the onboarding flow.
+# Currently using animated programmatic illustrations in AnimatedIllustration widget.
+# Add custom SVG files here for production use.
+#
+# Expected files:
+# - field_illustration.svg
+# - weather_illustration.svg
+# - ndvi_illustration.svg
+# - irrigation_illustration.svg
+# - task_illustration.svg

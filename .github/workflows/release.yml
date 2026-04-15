@@ -52,6 +52,7 @@ jobs:
   validate:
     name: Validate Release
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     outputs:
       version: ${{ steps.version.outputs.version }}
       version_major: ${{ steps.version.outputs.major }}
@@ -190,6 +191,7 @@ jobs:
   lint-and-test:
     name: Lint and Test
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: validate
     steps:
       - uses: actions/checkout@v6
@@ -211,11 +213,12 @@ jobs:
       - name: Test
         run: |
           export PYTHONPATH=$PWD
-          pytest --tb=short || true
+          pytest --tb=short
 
   build-images:
     name: Build Images (${{ matrix.service }})
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [validate, lint-and-test]
     permissions:
       contents: read
@@ -336,6 +339,7 @@ jobs:
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [validate, build-images]
     permissions:
       contents: write
@@ -413,7 +417,7 @@ jobs:
           RELEASE_EOF
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           name: SAHOOL v${{ needs.validate.outputs.version }}
           tag_name: v${{ needs.validate.outputs.version }}
@@ -427,6 +431,7 @@ jobs:
   notify:
     name: Notify Release
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [validate, build-images, create-release]
     if: always()
     steps:

@@ -188,7 +188,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              color: isSelected ? cat.color.withOpacity(0.15) : Colors.white,
+              color: isSelected ? cat.color.withValues(alpha: 0.15) : Colors.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: isSelected ? cat.color : Colors.grey[300]!,
@@ -288,7 +288,7 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: severityColor.withOpacity(0.1),
+                  color: severityColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
@@ -338,9 +338,9 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
             ? Stack(
                 children: [
                   // Placeholder image
-                  Container(
+                  DecoratedBox(
                     decoration: BoxDecoration(
-                      color: SahoolColors.primary.withOpacity(0.1),
+                      color: SahoolColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Center(
@@ -408,14 +408,18 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
   }
 
   void _submitReport() {
+    final now = DateTime.now();
+    final timestamp = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')} '
+        '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.check_circle, color: SahoolColors.success),
-            const SizedBox(width: 12),
-            const Text('تم الإرسال'),
+            Icon(Icons.check_circle, color: SahoolColors.success),
+            SizedBox(width: 12),
+            Text('تم الإرسال'),
           ],
         ),
         content: Column(
@@ -436,6 +440,12 @@ class _ScoutingScreenState extends State<ScoutingScreen> {
                   Text('النوع: $_selectedCategory'),
                   Text('المشكلة: $_selectedIssue'),
                   Text('الشدة: ${(_severity * 100).toInt()}%'),
+                  const SizedBox(height: 8),
+                  Text('الوقت: $timestamp'),
+                  const Text(
+                    'الموقع: سيتم تسجيله تلقائياً من GPS',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
             ),

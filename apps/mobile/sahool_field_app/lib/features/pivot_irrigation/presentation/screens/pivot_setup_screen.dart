@@ -1,6 +1,7 @@
+library;
+
 /// Pivot Setup Screen - شاشة إعداد المحوري
 /// Configure pivot irrigation system with optional sector drawing
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -425,7 +426,7 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
 
     return Material(
       color: isSelected
-          ? const Color(0xFF367C2B).withOpacity(0.1)
+          ? const Color(0xFF367C2B).withValues(alpha: 0.1)
           : Colors.grey[100],
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
@@ -474,9 +475,9 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF367C2B).withOpacity(0.1),
+        color: const Color(0xFF367C2B).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF367C2B).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF367C2B).withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -627,10 +628,10 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
     bool value,
     Function(bool) onChanged,
   ) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color:
-            value ? const Color(0xFF367C2B).withOpacity(0.1) : Colors.grey[100],
+            value ? const Color(0xFF367C2B).withValues(alpha: 0.1) : Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: value ? const Color(0xFF367C2B) : Colors.grey[300]!,
@@ -735,7 +736,7 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
   ) {
     return Material(
       color: isSelected
-          ? const Color(0xFF367C2B).withOpacity(0.1)
+          ? const Color(0xFF367C2B).withValues(alpha: 0.1)
           : Colors.grey[100],
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
@@ -801,7 +802,7 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               decoration: BoxDecoration(
-                color: const Color(0xFF367C2B).withOpacity(0.1),
+                color: const Color(0xFF367C2B).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
@@ -942,7 +943,7 @@ class _PivotSetupScreenState extends State<PivotSetupScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),

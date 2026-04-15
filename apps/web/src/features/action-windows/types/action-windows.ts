@@ -9,14 +9,9 @@
 // Window Status Types
 // ═══════════════════════════════════════════════════════════════════════════
 
-export type WindowStatus = "optimal" | "marginal" | "avoid";
+export type WindowStatus = 'optimal' | 'marginal' | 'avoid';
 
-export type ActionType =
-  | "spray"
-  | "irrigate"
-  | "fertilize"
-  | "plant"
-  | "harvest";
+export type ActionType = 'spray' | 'irrigate' | 'fertilize' | 'plant' | 'harvest';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Weather Condition Types
@@ -83,14 +78,14 @@ export interface IrrigationWindow {
   startTime: string;
   endTime: string;
   status: WindowStatus;
-  priority: "urgent" | "high" | "medium" | "low";
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   waterAmount: number; // mm
   duration: number; // hours
   soilMoisture: {
     current: number; // %
     target: number; // %
     deficit: number; // mm
-    status: "critical" | "low" | "optimal" | "high";
+    status: 'critical' | 'low' | 'optimal' | 'high';
     statusAr: string;
   };
   et: {
@@ -107,7 +102,7 @@ export interface IrrigationWindow {
 
 export interface IrrigationNeed {
   fieldId: string;
-  urgency: "none" | "low" | "medium" | "high" | "critical";
+  urgency: 'none' | 'low' | 'medium' | 'high' | 'critical';
   recommendedAmount: number; // mm
   recommendedDuration: number; // hours
   nextIrrigationDate: string;
@@ -129,7 +124,7 @@ export interface ActionRecommendation {
   fieldName?: string;
   fieldNameAr?: string;
   actionType: ActionType;
-  priority: "urgent" | "high" | "medium" | "low";
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   title: string;
   titleAr: string;
   description: string;
@@ -192,12 +187,12 @@ export interface Timeline {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export interface ThresholdIndicator {
-  parameter: "wind" | "temperature" | "humidity" | "rain";
+  parameter: 'wind' | 'temperature' | 'humidity' | 'rain';
   parameterAr: string;
   currentValue: number;
   threshold: number;
-  operator: "less_than" | "greater_than" | "between";
-  status: "good" | "warning" | "danger";
+  operator: 'less_than' | 'greater_than' | 'between';
+  status: 'good' | 'warning' | 'danger';
   unit: string;
   message: string;
   messageAr: string;

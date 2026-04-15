@@ -44,4 +44,4 @@ export 'rbac_service.dart';
 export 'role_guard.dart';
 
 // Riverpod providers - المزودات
-export 'rbac_providers.dart';
+export 'rbac_providers.dart' hide RouteGuardService, RouteGuardResult;

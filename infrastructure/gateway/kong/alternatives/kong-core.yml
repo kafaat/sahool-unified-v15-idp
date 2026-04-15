@@ -1,0 +1,1479 @@
+# ==============================================================================
+# WARNING — STANDALONE ALTERNATIVE TO kong.yml
+# ==============================================================================
+# This file is a STANDALONE configuration.  It defines the same routes as
+# kong.yml but WITHOUT JWT authentication on most services (by design, for
+# internal/dev environments where authentication is handled at the service layer).
+#
+# DO NOT load this file TOGETHER WITH kong.yml or kong-security.yml:
+#   - It duplicates every route name defined in kong.yml → Kong will refuse to
+#     start and report "duplicate entity" errors.
+#   - It omits JWT on 57 of 59 services; merging it with kong.yml (which has
+#     JWT) would silently strip JWT from those routes.
+#
+# Correct usage:
+#   DB-less:  KONG_DECLARATIVE_CONFIG=/etc/kong/kong-core.yml  (instead of kong.yml)
+#   deck:     deck sync --state kong-core.yml                   (clean environment)
+# ==============================================================================
+
+_format_version: '3.0'
+_transform: true
+plugins:
+  - name: cors
+    config:
+      origins:
+        - "https://app.sahool.app"
+        - "https://admin.sahool.app"
+        - "https://api.sahool.app"
+        - "https://dashboard.sahool.app"
+        - "https://mobile.sahool.app"
+        # Development
+        - "http://localhost:3000"
+        - "http://localhost:3001"
+        - "http://localhost:5173"
+        - "http://localhost:8080"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Authorization
+        - Content-Length
+        - Content-Type
+        - Date
+        - X-Request-Id
+        - X-Correlation-Id
+        - X-Tenant-Id
+      exposed_headers:
+        - X-Request-Id
+        - X-Correlation-Id
+        - X-RateLimit-Limit-Minute
+        - X-RateLimit-Remaining-Minute
+      credentials: false
+      max_age: 3600
+      preflight_continue: false
+  - name: prometheus
+    config: {}
+  - name: correlation-id
+    config:
+      header_name: X-Correlation-Id
+      generator: uuid#counter
+      echo_downstream: true
+  - name: request-size-limiting
+    config:
+      allowed_payload_size: 10
+      size_unit: megabytes
+      require_content_length: false
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - 'X-Content-Type-Options: nosniff'
+          - 'X-Frame-Options: DENY'
+          # X-XSS-Protection is deprecated — removed; use Content-Security-Policy instead.
+          # HSTS preload flag omitted until domain is submitted to https://hstspreload.org.
+          - 'Strict-Transport-Security: max-age=31536000; includeSubDomains'
+          - 'Referrer-Policy: strict-origin-when-cross-origin'
+          - 'Permissions-Policy: geolocation=(), microphone=(), camera=()'
+      remove:
+        headers:
+          - Server
+          - X-Powered-By
+  - name: bot-detection
+    config:
+      deny:
+        - sqlmap
+        - Nikto
+        - masscan
+        - ZmEu
+        - dirbuster
+        - gobuster
+        - nuclei
+        - nmap
+      allow:
+        - Googlebot
+        - bingbot
+services:
+  - name: field-management-service
+    host: field-management-service
+    port: 3000
+    protocol: http
+    routes:
+      - name: field-management-service-route
+        paths:
+          - /api/v1/fields
+          - /api/v1/field
+        strip_path: false
+        protocols:
+          - http
+          - https
+  - name: user-service-public
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-auth-public
+        paths:
+          - /api/v1/auth/login
+          - /api/v1/auth/register
+          - /api/v1/auth/forgot-password
+          - /api/v1/auth/reset-password
+          - /api/v1/auth/send-otp
+          - /api/v1/auth/verify-otp
+          - /api/v1/auth/refresh
+        strip_path: false
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 500
+          policy: local
+          fault_tolerant: true
+  - name: user-service
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-protected
+        paths:
+          - /api/v1/auth/logout
+          - /api/v1/auth/logout-all
+          - /api/v1/auth/me
+          - /api/v1/users
+        strip_path: false
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: user-service-health
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-health-route
+        paths:
+          - /api/v1/health
+          - /api/v1/healthz
+          - /api/v1/readyz
+        strip_path: false
+        protocols:
+          - http
+          - https
+  - name: marketplace-service
+    host: marketplace-service
+    port: 3010
+    protocol: http
+    routes:
+      - name: marketplace-service-route
+        paths:
+          - /api/v1/marketplace
+          - /marketplace
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 1000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
+  - name: research-core
+    host: research-core
+    port: 3015
+    protocol: http
+    routes:
+      - name: research-core-route
+        paths:
+          - /api/v1/research
+          - /research
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: disaster-assessment
+    host: disaster-assessment
+    port: 3020
+    protocol: http
+    routes:
+      - name: disaster-assessment-route
+        paths:
+          - /api/v1/disaster
+          - /disaster
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: chat-service
+    host: chat-service
+    port: 8115
+    protocol: http
+    routes:
+      - name: chat-service-route
+        paths:
+          - /api/v1/chat
+          - /chat
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: iot-service
+    host: iot-service
+    port: 8117
+    protocol: http
+    routes:
+      - name: iot-service-route
+        paths:
+          - /api/v1/iot
+          - /iot
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: ws-gateway
+    host: ws-gateway
+    port: 8081
+    protocol: http
+    routes:
+      - name: ws-gateway-route
+        paths:
+          - /ws
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: billing-core
+    host: billing-core
+    port: 8089
+    protocol: http
+    routes:
+      - name: billing-core-route
+        paths:
+          - /api/v1/billing
+          - /billing
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 127.0.0.1/32
+          status: 403
+          message: "Access denied. Billing API is restricted. \u0627\u0644\u0648\u0635\
+            \u0648\u0644 \u0645\u0631\u0641\u0648\u0636. API \u0627\u0644\u0641\u0648\
+            \u062A\u0631\u0629 \u0645\u062D\u0638\u0648\u0631."
+      - name: rate-limiting
+        config:
+          minute: 20
+          hour: 200
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
+  - name: vegetation-analysis-service
+    host: vegetation-analysis-service
+    port: 8090
+    protocol: http
+    routes:
+      - name: vegetation-analysis-service-route
+        paths:
+          - /api/v1/vegetation
+          - /vegetation
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: satellite-route
+        paths:
+          - /api/v1/satellite
+          - /satellite
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: ndvi-route
+        paths:
+          - /api/v1/ndvi
+          - /ndvi
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: proxy-cache
+        config:
+          response_code:
+            - 200
+          request_method:
+            - GET
+          content_type:
+            - application/json
+          cache_ttl: 1800
+          strategy: memory
+  - name: indicators-service
+    host: indicators-service
+    port: 8091
+    protocol: http
+    routes:
+      - name: indicators-service-route
+        paths:
+          - /api/v1/indicators
+          - /indicators
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: weather-service
+    host: weather-service
+    port: 8092
+    protocol: http
+    # Service path prepended after strip: /api/v1/weather/current → strip → /current → /weather/current
+    path: /weather
+    routes:
+      - name: weather-service-route
+        paths:
+          - /api/v1/weather
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: proxy-cache
+        config:
+          response_code:
+            - 200
+          request_method:
+            - GET
+          content_type:
+            - application/json
+          cache_ttl: 900
+          strategy: memory
+  - name: advisory-service
+    host: advisory-service
+    port: 8093
+    protocol: http
+    routes:
+      - name: advisory-service-route
+        paths:
+          - /api/v1/advisory
+          - /api/v1/fertilizer
+          - /advisory
+          - /fertilizer
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: irrigation-smart
+    host: irrigation-smart
+    port: 8094
+    protocol: http
+    routes:
+      - name: irrigation-smart-route
+        paths:
+          - /api/v1/irrigation
+          - /irrigation
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: crop-intelligence-service
+    host: crop-intelligence-service
+    port: 8095
+    protocol: http
+    routes:
+      - name: crop-intelligence-service-route
+        paths:
+          - /api/v1/crop-health
+          - /api/v1/crop
+          - /crop
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: virtual-sensors
+    host: virtual-sensors
+    port: 8119
+    protocol: http
+    routes:
+      - name: virtual-sensors-route
+        paths:
+          - /api/v1/virtual-sensors
+          - /virtual-sensors
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: yield-prediction-service
+    host: yield-prediction-service
+    port: 8152
+    protocol: http
+    routes:
+      - name: yield-prediction-service-route
+        paths:
+          - /api/v1/yield
+          - /yield
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: equipment-service
+    host: equipment-service
+    port: 8101
+    protocol: http
+    routes:
+      - name: equipment-service-route
+        paths:
+          - /api/v1/equipment
+          - /equipment
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: task-service
+    host: task-service
+    port: 8103
+    protocol: http
+    routes:
+      - name: task-service-route
+        paths:
+          - /api/v1/tasks
+          - /api/v1/task
+          - /task
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: provider-config
+    host: provider-config
+    port: 8104
+    protocol: http
+    routes:
+      - name: provider-config-route
+        paths:
+          - /api/v1/provider-config
+          - /provider-config
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: iot-gateway
+    host: iot-gateway
+    port: 8106
+    protocol: http
+    routes:
+      - name: iot-gateway-route
+        paths:
+          - /api/v1/iot-gateway
+          - /iot-gateway
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: ip-restriction
+        config:
+          allow:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+            - 127.0.0.1/32
+          status: 403
+          message: "Access denied. IoT Gateway is restricted. \u0627\u0644\u0648\u0635\
+            \u0648\u0644 \u0645\u0631\u0641\u0648\u0636. \u0628\u0648\u0627\u0628\u0629\
+            \ IoT \u0645\u062D\u0638\u0648\u0631\u0629."
+      - name: rate-limiting
+        config:
+          minute: 100
+          hour: 5000
+          policy: redis
+          redis_host: redis
+          redis_port: 6379
+          redis_timeout: 2000
+          fault_tolerant: true
+          hide_client_headers: false
+  - name: notification-service
+    host: notification-service
+    port: 8110
+    protocol: http
+    routes:
+      - name: notification-service-route
+        paths:
+          - /api/v1/notifications
+          - /api/v1/notification
+          - /notification
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: notification-channels-route
+        paths:
+          - /api/v1/channels
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: notification-preferences-route
+        paths:
+          - /api/v1/preferences
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: notification-alerts-route
+        paths:
+          - /api/v1/alerts
+          - /alerts
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: notification-stats-route
+        paths:
+          - /api/v1/notification-stats
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: notification-reminders-route
+        paths:
+          - /api/v1/reminders
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: notification-farmers-route
+        paths:
+          - /api/v1/farmers
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: astronomical-calendar
+    host: astronomical-calendar
+    port: 8111
+    protocol: http
+    routes:
+      - name: astronomical-calendar-route
+        paths:
+          - /api/v1/astronomy
+          - /astronomy
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: ai-advisor
+    host: ai-advisor
+    port: 8112
+    protocol: http
+    routes:
+      - name: ai-advisor-route
+        paths:
+          - /api/v1/ai-advisor
+          - /ai-advisor
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: alert-service
+    host: alert-service
+    port: 8113
+    protocol: http
+    routes:
+      - name: alert-service-route
+        paths:
+          - /api/v1/alert-management
+          - /alert-management
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: inventory-service
+    host: inventory-service
+    port: 8116
+    protocol: http
+    routes:
+      - name: inventory-service-route
+        paths:
+          - /api/v1/inventory
+          - /inventory
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: field-intelligence
+    host: field-intelligence
+    port: 8120
+    protocol: http
+    routes:
+      - name: field-intelligence-route
+        paths:
+          - /api/v1/field-intelligence
+          - /field-intelligence
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: skills-service
+    host: skills-service
+    port: 8121
+    protocol: http
+    routes:
+      - name: skills-service-route
+        paths:
+          - /api/v1/skills
+          - /skills
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: audit-service
+    host: audit-service
+    port: 8114
+    protocol: http
+    routes:
+      - name: audit-service-route
+        paths:
+          - /api/v1/audit
+          - /audit
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: local
+          fault_tolerant: true
+  - name: crm-service
+    host: crm-service
+    port: 8131
+    protocol: http
+    routes:
+      - name: crm-service-route
+        paths:
+          - /api/v1/crm
+          - /crm
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: lowcode-engine
+    host: lowcode-engine
+    port: 8132
+    protocol: http
+    routes:
+      - name: lowcode-engine-route
+        paths:
+          - /api/v1/lowcode
+          - /lowcode
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: community-service
+    host: community-service
+    port: 8133
+    protocol: http
+    routes:
+      - name: community-service-route
+        paths:
+          - /api/v1/community
+          - /community
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: globalgap-compliance
+    host: globalgap-compliance
+    port: 8128
+    protocol: http
+    routes:
+      - name: globalgap-compliance-route
+        paths:
+          - /api/v1/globalgap
+          - /globalgap
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: logistics-service
+    host: logistics-service
+    port: 8167
+    protocol: http
+    routes:
+      - name: logistics-service-route
+        paths:
+          - /api/v1/logistics
+          - /logistics
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: ussd-gateway
+    host: ussd-gateway
+    port: 8183
+    protocol: http
+    routes:
+      - name: ussd-gateway-route
+        paths:
+          - /api/v1/ussd
+          - /ussd
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: ai-chat-assistant
+    host: ai-chat-assistant
+    port: 8260
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: ai-chat-assistant-route
+        paths:
+          - /api/v1/ai-chat
+          - /ai-chat
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1000
+          policy: local
+          fault_tolerant: true
+  - name: knowledge-graph
+    host: knowledge-graph
+    port: 8140
+    protocol: http
+    routes:
+      - name: knowledge-graph-route
+        paths:
+          - /api/v1/knowledge
+          - /knowledge
+        strip_path: true
+        protocols:
+          - http
+          - https
+  - name: copilot-api
+    host: copilot-api
+    port: 8088
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: copilot-api-route
+        paths:
+          - /api/v1/copilot
+          - /copilot
+        strip_path: false
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: digital-twin-engine
+    host: digital-twin-engine
+    port: 8253
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: digital-twin-route
+        paths:
+          - /api/v1/digital-twin
+          - /digital-twin
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1000
+          policy: local
+          fault_tolerant: true
+  - name: fertigation-engine
+    host: fertigation-engine
+    port: 8252
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: fertigation-route
+        paths:
+          - /api/v1/fertigation
+          - /fertigation
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: iot-sensor-hub
+    host: iot-sensor-hub
+    port: 8251
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: iot-sensor-hub-route
+        paths:
+          - /api/v1/iot-sensor-hub
+          - /iot-sensor-hub
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 5000
+          policy: local
+          fault_tolerant: true
+  - name: irrigation-cycle-engine
+    host: irrigation-cycle-engine
+    port: 8250
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: irrigation-cycle-route
+        paths:
+          - /api/v1/irrigation-cycle
+          - /irrigation-cycle
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: pest-detection-service
+    host: pest-detection-service
+    port: 8125
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: pest-detection-route
+        paths:
+          - /api/v1/pest-detection
+          - /pest-detection
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+          size_unit: megabytes
+  - name: soil-analysis-service
+    host: soil-analysis-service
+    port: 8134
+    protocol: http
+    routes:
+      - name: soil-analysis-route
+        paths:
+          - /api/v1/soil
+        strip_path: false
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: supply-chain-service
+    host: supply-chain-service
+    port: 8230
+    protocol: http
+    routes:
+      - name: supply-chain-route
+        paths:
+          - /api/v1/supply-chain
+          - /supply-chain
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: traceability-service
+    host: traceability-service
+    port: 8123
+    protocol: http
+    routes:
+      - name: traceability-route
+        paths:
+          - /api/v1/traceability
+        strip_path: false
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: cooperative-service
+    host: cooperative-service
+    port: 8127
+    protocol: http
+    routes:
+      - name: cooperative-route
+        paths:
+          - /api/v1/cooperatives
+        strip_path: false
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: drone-service
+    host: drone-service
+    port: 8126
+    protocol: http
+    routes:
+      - name: drone-route
+        paths:
+          - /api/v1/drones
+        strip_path: false
+        protocols:
+          - http
+          - https
+      - name: drone-flights-route
+        paths:
+          - /api/v1/flights
+        strip_path: false
+        protocols:
+          - http
+          - https
+      - name: drone-missions-route
+        paths:
+          - /api/v1/missions
+        strip_path: false
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+  - name: ground-vision-service
+    host: ground-vision-service
+    port: 8182
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: ground-vision-route
+        paths:
+          - /api/v1/ground-vision
+          - /ground-vision
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 2000
+          policy: local
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 50
+          size_unit: megabytes
+  - name: root-endpoint
+    url: http://kong:8000
+    routes:
+      - name: root-route
+        paths:
+          - /
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          content_type: application/json
+          body: '{"platform":"SAHOOL","version":"16.0.0","description":"National Agricultural
+            Intelligence Platform","status":"operational","endpoints":{"/health":"Health
+            check","/ping":"Ping check","/api/v1":"API Gateway"},"documentation":"https://github.com/kafaat/sahool-unified-v15-idp"}'
+  - name: health-check
+    url: http://kong:8000
+    routes:
+      - name: health-route
+        paths:
+          - /health
+          - /ping
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          message: SAHOOL Platform is healthy
+  - name: yolo26-vision-service
+    host: yolo26-vision-service
+    port: 8150
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: vision-detect-pest-route
+        paths:
+          - /api/v1/vision/detect/pest
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: vision-detect-disease-route
+        paths:
+          - /api/v1/vision/detect/disease
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: vision-detect-weed-route
+        paths:
+          - /api/v1/vision/detect/weed
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: vision-count-plants-route
+        paths:
+          - /api/v1/vision/count/plants
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: vision-classify-ripeness-route
+        paths:
+          - /api/v1/vision/classify/ripeness
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: vision-segment-leaf-route
+        paths:
+          - /api/v1/vision/segment/leaf
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: vision-base-route
+        paths:
+          - /api/v1/vision
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: local
+          fault_tolerant: true
+      - name: request-size-limiting
+        config:
+          allowed_payload_size: 25
+          size_unit: megabytes
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - 'X-Service: yolo26-vision-service'
+              - 'X-Rate-Limit-Tier: premium'
+  - name: terrain-core-service
+    host: terrain-core-service
+    port: 8185
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: terrain-analyze-route
+        paths:
+          - /api/v1/terrain/analyze
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: terrain-slope-route
+        paths:
+          - /api/v1/terrain/slope
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+      - name: terrain-flow-route
+        paths:
+          - /api/v1/terrain/flow
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+      - name: terrain-twi-route
+        paths:
+          - /api/v1/terrain/twi
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+      - name: terrain-base-route
+        paths:
+          - /api/v1/terrain
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - 'X-Service: terrain-core-service'
+  - name: hydrology-service
+    host: hydrology-service
+    port: 8165
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: hydrology-analyze-route
+        paths:
+          - /api/v1/hydrology/analyze
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: hydrology-drainage-route
+        paths:
+          - /api/v1/hydrology/drainage
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+      - name: hydrology-base-route
+        paths:
+          - /api/v1/hydrology
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - 'X-Service: hydrology-service'
+  - name: leveling-optimizer-service
+    host: leveling-optimizer-service
+    port: 8170
+    protocol: http
+    connect_timeout: 15000
+    write_timeout: 60000
+    read_timeout: 60000
+    routes:
+      - name: leveling-analyze-route
+        paths:
+          - /api/v1/leveling/analyze
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: leveling-plan-route
+        paths:
+          - /api/v1/leveling/plan
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+      - name: leveling-base-route
+        paths:
+          - /api/v1/leveling
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 30
+          hour: 1500
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - 'X-Service: leveling-optimizer-service'
+  - name: edge-orchestrator-service
+    host: edge-orchestrator-service
+    port: 8180
+    protocol: http
+    connect_timeout: 10000
+    write_timeout: 30000
+    read_timeout: 30000
+    routes:
+      - name: edge-devices-route
+        paths:
+          - /api/v1/edge/devices
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+      - name: edge-jobs-route
+        paths:
+          - /api/v1/edge/jobs
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - POST
+      - name: edge-base-route
+        paths:
+          - /api/v1/edge
+        strip_path: true
+        protocols:
+          - http
+          - https
+    plugins:
+      - name: jwt
+        config:
+          claims_to_verify:
+            - exp
+      - name: acl
+        config:
+          allow:
+            - professional-users
+            - enterprise-users
+      - name: rate-limiting
+        config:
+          minute: 60
+          hour: 3000
+          policy: local
+          fault_tolerant: true
+      - name: response-transformer
+        config:
+          add:
+            headers:
+              - 'X-Service: edge-orchestrator-service'
+  - name: whatsapp-bot-service
+    host: whatsapp-bot-service
+    port: 8240
+    protocol: http
+    connect_timeout: 30000
+    write_timeout: 120000
+    read_timeout: 120000
+    routes:
+      - name: whatsapp-bot-route
+        paths:
+          - /api/v1/whatsapp
+          - /whatsapp
+        strip_path: true
+        protocols:
+          - http
+          - https
+      - name: whatsapp-webhook-route
+        paths:
+          - /api/v1/whatsapp/webhook
+        strip_path: false
+        protocols:
+          - http
+          - https
+        methods:
+          - GET
+          - POST
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 120
+          hour: 5000
+          policy: local
+          fault_tolerant: true
+routes: []

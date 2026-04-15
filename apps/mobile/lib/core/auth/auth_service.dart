@@ -234,7 +234,7 @@ class AuthService {
       // In development, fallback to mock if API fails
       if (kDebugMode && e is ApiException && e.isNetworkError) {
         AppLogger.w('API unavailable, falling back to mock mode', tag: 'AUTH');
-        return await _loginWithMock(email, password);
+        return _loginWithMock(email, password);
       }
 
       rethrow;
@@ -259,7 +259,12 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       // Extract tokens
       final accessToken = data['access_token'] ?? data['accessToken'];
@@ -277,15 +282,15 @@ class AuthService {
       );
 
       // Extract user data
-      final userData = data['user'] ?? data;
+      final userData = (data['user'] ?? data) as Map<String, dynamic>;
       final user = User(
-        id: userData['id'] ?? userData['_id'] ?? 'unknown',
-        email: userData['email'] ?? email,
-        name: userData['name'] ?? userData['username'] ?? 'مستخدم',
-        role: userData['role'] ?? 'farmer',
-        tenantId: userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId,
-        phone: userData['phone'],
-        avatarUrl: userData['avatar_url'] ?? userData['avatarUrl'],
+        id: (userData['id'] ?? userData['_id'] ?? 'unknown') as String,
+        email: (userData['email'] ?? email) as String,
+        name: (userData['name'] ?? userData['username'] ?? 'مستخدم') as String,
+        role: (userData['role'] ?? 'farmer') as String,
+        tenantId: (userData['tenant_id'] ?? userData['tenantId'] ?? EnvConfig.defaultTenantId) as String,
+        phone: userData['phone'] as String?,
+        avatarUrl: (userData['avatar_url'] ?? userData['avatarUrl']) as String?,
       );
 
       // Set auth token in API client for subsequent requests
@@ -408,11 +413,16 @@ class AuthService {
         throw AuthException('استجابة غير صالحة من الخادم');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
-      final success = data['success'] ?? false;
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
+      final success = (data['success'] as bool?) ?? false;
 
       if (!success) {
-        final message = data['message'] ?? 'فشل تغيير كلمة المرور';
+        final message = (data['message'] ?? 'فشل تغيير كلمة المرور') as String;
         throw AuthException(message);
       }
 
@@ -571,84 +581,6 @@ class AuthService {
     }
   }
 
-  /// Refresh token using real API (kept for backwards compatibility)
-  /// Note: This is now delegated to TokenManager
-  @Deprecated('Use tokenManager.refreshToken() instead')
-  Future<void> _refreshTokenWithApi(String refreshTokenValue) async {
-    AppLogger.i('Refreshing token via API (legacy method)', tag: 'AUTH');
-
-    try {
-      final response = await apiClient!.post(
-        '/api/v1/auth/refresh',
-        {
-          'refresh_token': refreshTokenValue,
-        },
-      );
-
-      // Parse API response
-      if (response == null) {
-        throw AuthException('استجابة غير صالحة من الخادم');
-      }
-
-      final data = response is Map<String, dynamic> ? response : response['data'];
-
-      // Extract new tokens
-      final accessToken = data['access_token'] ?? data['accessToken'];
-      final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshTokenValue;
-      final expiresIn = data['expires_in'] ?? data['expiresIn'] ?? 3600;
-
-      if (accessToken == null) {
-        throw AuthException('بيانات التوكن مفقودة في الاستجابة');
-      }
-
-      final tokens = TokenPair(
-        accessToken: accessToken as String,
-        refreshToken: newRefreshToken as String,
-        expiresIn: expiresIn is int ? expiresIn : int.parse(expiresIn.toString()),
-      );
-
-      // Update auth token in API client
-      apiClient!.setAuthToken(tokens.accessToken);
-
-      await _storeTokens(tokens);
-      _scheduleTokenRefresh(tokens.expiresIn);
-
-      AppLogger.i('API token refresh successful', tag: 'AUTH');
-    } on ApiException catch (e) {
-      AppLogger.e('API token refresh failed', tag: 'AUTH', error: e);
-
-      // Convert API exceptions to auth exceptions
-      if (e.statusCode == 401 || e.statusCode == 403) {
-        throw AuthException('انتهت صلاحية الجلسة', code: 'SESSION_EXPIRED');
-      } else if (e.isNetworkError) {
-        throw AuthException('لا يوجد اتصال بالإنترنت', code: 'NETWORK_ERROR');
-      } else {
-        throw AuthException(e.message, code: e.code);
-      }
-    }
-  }
-
-  /// Refresh token using mock data (development only)
-  @Deprecated('Use tokenManager.refreshToken() instead')
-  Future<void> _refreshTokenWithMock() async {
-    AppLogger.w('Using MOCK token refresh (development only)', tag: 'AUTH');
-
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    // Simulated response
-    final tokens = TokenPair(
-      accessToken: 'mock_new_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_new_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
-      expiresIn: 3600,
-    );
-
-    await _storeTokens(tokens);
-    _scheduleTokenRefresh(tokens.expiresIn);
-
-    AppLogger.i('Mock token refresh successful', tag: 'AUTH');
-  }
-
   /// Get current access token
   Future<String?> getAccessToken() async {
     return secureStorage.getAccessToken();
@@ -732,11 +664,12 @@ class User {
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
+    final email = json['email'] as String;
     return User(
       id: json['id'] as String,
-      email: json['email'] as String,
-      name: json['name'] as String,
-      role: json['role'] as String,
+      email: email,
+      name: (json['name'] as String?) ?? email,
+      role: (json['role'] as String?) ?? 'viewer',
       tenantId: json['tenant_id'] as String,
       phone: json['phone'] as String?,
       avatarUrl: json['avatar_url'] as String?,

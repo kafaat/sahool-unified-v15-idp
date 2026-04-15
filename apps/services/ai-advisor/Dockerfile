@@ -13,7 +13,8 @@ ARG PYTHON_VERSION=3.11
 # ─────────────────────────────────────────────────────────────────────────────
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /build
 
@@ -45,10 +46,10 @@ RUN mkdir -p ~/.pip && \
 # Upgrade pip and build tools (multi-mirror fallback)
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Copy requirements and constraints | نسخ المتطلبات والقيود
 COPY --chown=sahool:sahool apps/services/ai-advisor/requirements.txt /tmp/requirements.txt
@@ -103,6 +104,12 @@ COPY --chown=sahool:sahool shared/ /app/shared/
 # Copy services shared modules overlay (shared.errors_py, shared.middleware, etc.)
 COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
 
+
+# Copy platform-bootstrap package (event bus, tenant context, observability)
+# Placed at /app/platform_bootstrap/ so that PYTHONPATH=/app resolves it as
+# `from platform_bootstrap.event_bus import SAHOOLEventBus`.
+COPY --chown=sahool:sahool packages/platform-bootstrap/src/ /app/platform_bootstrap/
+
 # Copy application code | نسخ كود التطبيق
 COPY --chown=sahool:sahool apps/services/ai-advisor/src /app/src
 
@@ -113,6 +120,15 @@ ENV PYTHONUNBUFFERED=1 \
     PORT=8112
 
 # Switch to non-root user | التبديل إلى مستخدم غير جذر
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Expose port | كشف المنفذ

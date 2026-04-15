@@ -1,0 +1,495 @@
+/// Virtual Sensors Repository - API Integration
+/// مستودع المستشعرات الافتراضية - تكامل API
+library;
+
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../../../../core/config/api_config.dart';
+import '../../../../core/config/env_config.dart';
+import '../models/virtual_sensor_models.dart';
+
+/// Exception for virtual sensors API errors
+/// استثناء أخطاء واجهة المستشعرات الافتراضية
+class VirtualSensorsException implements Exception {
+  final String message;
+  final String messageAr;
+  final int? statusCode;
+
+  VirtualSensorsException(this.message, {this.messageAr = '', this.statusCode});
+
+  @override
+  String toString() => 'VirtualSensorsException: $message';
+}
+
+/// Repository for Virtual Sensors service
+/// مستودع خدمة المستشعرات الافتراضية
+class VirtualSensorsRepository {
+  final http.Client _client;
+  final String? _authToken;
+
+  /// Base URL for virtual sensors service (port 8096)
+  static String get _baseUrl => ApiConfig.useDirectServices
+      ? EnvConfig.virtualSensorsUrl
+      : ApiConfig.effectiveBaseUrl;
+
+  VirtualSensorsRepository({
+    http.Client? client,
+    String? authToken,
+  })  : _client = client ?? http.Client(),
+        _authToken = authToken;
+
+  Map<String, String> get _headers => {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        if (_authToken != null) 'Authorization': 'Bearer $_authToken',
+      };
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ET0 Calculations
+  // حسابات التبخر-نتح المرجعي
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Calculate reference evapotranspiration (ET0)
+  /// حساب التبخر-نتح المرجعي
+  Future<ET0Response> calculateET0(WeatherInput weather) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$_baseUrl/v1/et0/calculate'),
+        headers: _headers,
+        body: json.encode({
+          'temperature_max': weather.temperatureMax,
+          'temperature_min': weather.temperatureMin,
+          'humidity': weather.humidity,
+          'wind_speed': weather.windSpeed,
+          if (weather.solarRadiation != null)
+            'solar_radiation': weather.solarRadiation,
+          if (weather.sunshineHours != null)
+            'sunshine_hours': weather.sunshineHours,
+          'latitude': weather.latitude,
+          'altitude': weather.altitude,
+          'date': (weather.date ?? DateTime.now()).toIso8601String().split('T')[0],
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        return ET0Response(
+          et0: (data['et0'] as num).toDouble(),
+          et0Ar: (data['et0_ar'] as String?) ?? '',
+          method: (data['method'] as String?) ?? 'FAO-56 Penman-Monteith',
+          weatherSummary: (data['weather_summary'] as Map<String, dynamic>?) ?? {},
+          calculationDate: DateTime.parse(data['calculation_date'] as String),
+        );
+      }
+
+      throw VirtualSensorsException(
+        'Failed to calculate ET0',
+        messageAr: 'فشل في حساب التبخر-نتح',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      if (e is VirtualSensorsException) rethrow;
+      throw VirtualSensorsException(
+        'Network error: ${e.toString()}',
+        messageAr: 'خطأ في الشبكة',
+      );
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Crop Data
+  // بيانات المحاصيل
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Get supported crops with Kc values
+  /// الحصول على المحاصيل المدعومة مع قيم Kc
+  Future<List<CropKcOption>> getSupportedCrops() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$_baseUrl/v1/crops'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> crops = (data['crops'] as List<dynamic>?) ?? [];
+        return crops.map((item) {
+          final e = item as Map<String, dynamic>;
+          return CropKcOption(
+            cropId: (e['crop_id'] as String?) ?? '',
+            name: (e['name'] as String?) ?? '',
+            nameAr: (e['name_ar'] as String?) ?? '',
+            kcInitial: (e['kc_initial'] as num?)?.toDouble() ?? 0.3,
+            kcMid: (e['kc_mid'] as num?)?.toDouble() ?? 1.0,
+            kcEnd: (e['kc_end'] as num?)?.toDouble() ?? 0.5,
+            rootDepthMax: (e['root_depth_max'] as num?)?.toDouble() ?? 1.0,
+            criticalPeriods: List<String>.from((e['critical_periods'] as Iterable?) ?? []),
+          );
+        }).toList();
+      }
+
+      throw VirtualSensorsException(
+        'Failed to fetch crops',
+        messageAr: 'فشل في جلب المحاصيل',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      if (e is VirtualSensorsException) rethrow;
+      throw VirtualSensorsException(
+        'Network error: ${e.toString()}',
+        messageAr: 'خطأ في الشبكة',
+      );
+    }
+  }
+
+  /// Calculate crop evapotranspiration (ETc)
+  /// حساب التبخر-نتح للمحصول
+  Future<CropETcResponse> calculateCropETc({
+    required WeatherInput weather,
+    required String cropType,
+    required GrowthStage growthStage,
+    double fieldAreaHectares = 1.0,
+    int? daysInStage,
+  }) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/v1/etc/calculate').replace(
+        queryParameters: {
+          'crop_type': cropType,
+          'growth_stage': growthStage.name,
+          'field_area_hectares': fieldAreaHectares.toString(),
+          if (daysInStage != null) 'days_in_stage': daysInStage.toString(),
+        },
+      );
+
+      final response = await _client.post(
+        uri,
+        headers: _headers,
+        body: json.encode({
+          'temperature_max': weather.temperatureMax,
+          'temperature_min': weather.temperatureMin,
+          'humidity': weather.humidity,
+          'wind_speed': weather.windSpeed,
+          if (weather.solarRadiation != null)
+            'solar_radiation': weather.solarRadiation,
+          if (weather.sunshineHours != null)
+            'sunshine_hours': weather.sunshineHours,
+          'latitude': weather.latitude,
+          'altitude': weather.altitude,
+          'date': (weather.date ?? DateTime.now()).toIso8601String().split('T')[0],
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        return CropETcResponse(
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
+          kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
+          et0: (data['et0'] as num?)?.toDouble() ?? 0.0,
+          etc: (data['etc'] as num?)?.toDouble() ?? 0.0,
+          dailyWaterNeedLiters: (data['daily_water_need_liters'] as num?)?.toDouble() ?? 0.0,
+          dailyWaterNeedM3: (data['daily_water_need_m3'] as num?)?.toDouble() ?? 0.0,
+          weeklyWaterNeedM3: (data['weekly_water_need_m3'] as num?)?.toDouble() ?? 0.0,
+          criticalPeriod: (data['critical_period'] as bool?) ?? false,
+          notes: (data['notes'] as String?) ?? '',
+          notesAr: (data['notes_ar'] as String?) ?? '',
+        );
+      }
+
+      throw VirtualSensorsException(
+        'Failed to calculate ETc',
+        messageAr: 'فشل في حساب التبخر-نتح للمحصول',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      if (e is VirtualSensorsException) rethrow;
+      throw VirtualSensorsException(
+        'Network error: ${e.toString()}',
+        messageAr: 'خطأ في الشبكة',
+      );
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Soil Data
+  // بيانات التربة
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Get supported soil types
+  /// الحصول على أنواع التربة المدعومة
+  Future<List<SoilTypeInfo>> getSoilTypes() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$_baseUrl/v1/soils'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> soils = (data['soils'] as List<dynamic>?) ?? [];
+        return soils.map((item) {
+          final e = item as Map<String, dynamic>;
+          return SoilTypeInfo(
+            soilType: (e['soil_type'] as String?) ?? '',
+            nameAr: (e['name_ar'] as String?) ?? '',
+            fieldCapacity: (e['field_capacity'] as num?)?.toDouble() ?? 0.27,
+            wiltingPoint: (e['wilting_point'] as num?)?.toDouble() ?? 0.12,
+            availableWaterCapacity: (e['available_water_capacity'] as num?)?.toDouble() ?? 0.15,
+            infiltrationRateMmHr: (e['infiltration_rate_mm_hr'] as num?)?.toDouble() ?? 13.0,
+          );
+        }).toList();
+      }
+
+      throw VirtualSensorsException(
+        'Failed to fetch soil types',
+        messageAr: 'فشل في جلب أنواع التربة',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      if (e is VirtualSensorsException) rethrow;
+      throw VirtualSensorsException(
+        'Network error: ${e.toString()}',
+        messageAr: 'خطأ في الشبكة',
+      );
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Irrigation Methods
+  // طرق الري
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Get irrigation methods with efficiencies
+  /// الحصول على طرق الري مع كفاءاتها
+  Future<List<IrrigationMethodInfo>> getIrrigationMethods() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$_baseUrl/v1/irrigation-methods'),
+        headers: _headers,
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        final List<dynamic> methods = (data['methods'] as List<dynamic>?) ?? [];
+        return methods.map((item) {
+          final e = item as Map<String, dynamic>;
+          return IrrigationMethodInfo(
+            method: (e['method'] as String?) ?? '',
+            efficiency: (e['efficiency'] as num?)?.toDouble() ?? 0.7,
+            efficiencyPercent: (e['efficiency_percent'] as String?) ?? '70%',
+          );
+        }).toList();
+      }
+
+      throw VirtualSensorsException(
+        'Failed to fetch irrigation methods',
+        messageAr: 'فشل في جلب طرق الري',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      if (e is VirtualSensorsException) rethrow;
+      throw VirtualSensorsException(
+        'Network error: ${e.toString()}',
+        messageAr: 'خطأ في الشبكة',
+      );
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Irrigation Recommendation
+  // توصيات الري
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Get complete irrigation recommendation
+  /// الحصول على توصية ري شاملة
+  Future<IrrigationRecommendation> getIrrigationRecommendation({
+    required String cropType,
+    required GrowthStage growthStage,
+    required SoilType soilType,
+    required IrrigationMethod irrigationMethod,
+    required WeatherInput weather,
+    double fieldAreaHectares = 1.0,
+    DateTime? lastIrrigationDate,
+    double? lastIrrigationAmount,
+  }) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('$_baseUrl/v1/irrigation/recommend'),
+        headers: _headers,
+        body: json.encode({
+          'crop_type': cropType,
+          'growth_stage': growthStage.name,
+          'soil_type': soilType.name,
+          'irrigation_method': irrigationMethod.name,
+          'field_area_hectares': fieldAreaHectares,
+          if (lastIrrigationDate != null)
+            'last_irrigation_date': lastIrrigationDate.toIso8601String().split('T')[0],
+          if (lastIrrigationAmount != null)
+            'last_irrigation_amount': lastIrrigationAmount,
+          'weather': {
+            'temperature_max': weather.temperatureMax,
+            'temperature_min': weather.temperatureMin,
+            'humidity': weather.humidity,
+            'wind_speed': weather.windSpeed,
+            if (weather.solarRadiation != null)
+              'solar_radiation': weather.solarRadiation,
+            if (weather.sunshineHours != null)
+              'sunshine_hours': weather.sunshineHours,
+            'latitude': weather.latitude,
+            'altitude': weather.altitude,
+            'date': (weather.date ?? DateTime.now()).toIso8601String().split('T')[0],
+          },
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        return IrrigationRecommendation(
+          recommendationId: (data['recommendation_id'] as String?) ?? '',
+          timestamp: DateTime.parse(data['timestamp'] as String),
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
+          fieldAreaHectares: (data['field_area_hectares'] as num?)?.toDouble() ?? 1.0,
+          et0: (data['et0'] as num?)?.toDouble() ?? 0.0,
+          kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
+          etc: (data['etc'] as num?)?.toDouble() ?? 0.0,
+          soilType: (data['soil_type'] as String?) ?? '',
+          soilTypeAr: (data['soil_type_ar'] as String?) ?? '',
+          estimatedMoisture: (data['estimated_moisture'] as num?)?.toDouble() ?? 0.0,
+          moistureDepletionPercent: (data['moisture_depletion_percent'] as num?)?.toDouble() ?? 0.0,
+          irrigationNeeded: (data['irrigation_needed'] as bool?) ?? false,
+          urgency: _parseUrgency(data['urgency'] as String?),
+          urgencyAr: (data['urgency_ar'] as String?) ?? '',
+          recommendedAmountMm: (data['recommended_amount_mm'] as num?)?.toDouble() ?? 0.0,
+          recommendedAmountLiters: (data['recommended_amount_liters'] as num?)?.toDouble() ?? 0.0,
+          recommendedAmountM3: (data['recommended_amount_m3'] as num?)?.toDouble() ?? 0.0,
+          grossIrrigationMm: (data['gross_irrigation_mm'] as num?)?.toDouble() ?? 0.0,
+          optimalTime: (data['optimal_time'] as String?) ?? '',
+          optimalTimeAr: (data['optimal_time_ar'] as String?) ?? '',
+          nextIrrigationDays: (data['next_irrigation_days'] as int?) ?? 0,
+          advice: (data['advice'] as String?) ?? '',
+          adviceAr: (data['advice_ar'] as String?) ?? '',
+          warnings: List<String>.from((data['warnings'] as Iterable?) ?? []),
+          warningsAr: List<String>.from((data['warnings_ar'] as Iterable?) ?? []),
+        );
+      }
+
+      throw VirtualSensorsException(
+        'Failed to get irrigation recommendation',
+        messageAr: 'فشل في الحصول على توصية الري',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      if (e is VirtualSensorsException) rethrow;
+      throw VirtualSensorsException(
+        'Network error: ${e.toString()}',
+        messageAr: 'خطأ في الشبكة',
+      );
+    }
+  }
+
+  /// Quick irrigation check
+  /// فحص سريع للري
+  Future<QuickIrrigationCheck> quickIrrigationCheck({
+    required String cropType,
+    required GrowthStage growthStage,
+    SoilType soilType = SoilType.loam,
+    required int daysSinceIrrigation,
+    required double temperature,
+    double humidity = 50,
+  }) async {
+    try {
+      final uri = Uri.parse('$_baseUrl/v1/irrigation/quick-check').replace(
+        queryParameters: {
+          'crop_type': cropType,
+          'growth_stage': growthStage.name,
+          'soil_type': soilType.name,
+          'days_since_irrigation': daysSinceIrrigation.toString(),
+          'temperature': temperature.toString(),
+          'humidity': humidity.toString(),
+        },
+      );
+
+      final response = await _client.get(uri, headers: _headers);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body) as Map<String, dynamic>;
+        return QuickIrrigationCheck(
+          cropType: (data['crop_type'] as String?) ?? '',
+          cropNameAr: (data['crop_name_ar'] as String?) ?? '',
+          growthStage: (data['growth_stage'] as String?) ?? '',
+          daysSinceIrrigation: (data['days_since_irrigation'] as int?) ?? 0,
+          estimatedEt0: (data['estimated_et0'] as num?)?.toDouble() ?? 0.0,
+          kc: (data['kc'] as num?)?.toDouble() ?? 1.0,
+          estimatedEtc: (data['estimated_etc'] as num?)?.toDouble() ?? 0.0,
+          estimatedWaterLossMm: (data['estimated_water_loss_mm'] as num?)?.toDouble() ?? 0.0,
+          estimatedDepletionPercent: (data['estimated_depletion_percent'] as num?)?.toDouble() ?? 0.0,
+          status: (data['status'] as String?) ?? '',
+          statusAr: (data['status_ar'] as String?) ?? '',
+          needsIrrigation: (data['needs_irrigation'] as bool?) ?? false,
+          recommendation: (data['recommendation'] as String?) ?? '',
+          recommendationAr: (data['recommendation_ar'] as String?) ?? '',
+        );
+      }
+
+      throw VirtualSensorsException(
+        'Failed to perform quick check',
+        messageAr: 'فشل في إجراء الفحص السريع',
+        statusCode: response.statusCode,
+      );
+    } catch (e) {
+      if (e is VirtualSensorsException) rethrow;
+      throw VirtualSensorsException(
+        'Network error: ${e.toString()}',
+        messageAr: 'خطأ في الشبكة',
+      );
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Service Health
+  // صحة الخدمة
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Check if service is available
+  /// التحقق من توفر الخدمة
+  Future<bool> isServiceAvailable() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('$_baseUrl/healthz'),
+        headers: _headers,
+      ).timeout(const Duration(seconds: 5));
+
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Helpers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  UrgencyLevel _parseUrgency(String? value) {
+    switch (value) {
+      case 'none':
+        return UrgencyLevel.none;
+      case 'low':
+        return UrgencyLevel.low;
+      case 'medium':
+        return UrgencyLevel.medium;
+      case 'high':
+        return UrgencyLevel.high;
+      case 'critical':
+        return UrgencyLevel.critical;
+      default:
+        return UrgencyLevel.none;
+    }
+  }
+
+  void dispose() {
+    _client.close();
+  }
+}

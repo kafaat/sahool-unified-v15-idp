@@ -37,19 +37,19 @@ class WeatherSummary extends Equatable {
     final forecastData = json['forecast'] ?? [];
 
     return WeatherSummary(
-      fieldId: json['field_id'] ?? json['fieldId'] ?? '',
-      temperature: (json['temperature'] ?? json['temp'] ?? 0.0).toDouble(),
-      minTemp: (json['min_temp'] ?? json['minTemp'] ?? 0.0).toDouble(),
-      maxTemp: (json['max_temp'] ?? json['maxTemp'] ?? 0.0).toDouble(),
-      precipitation: (json['precipitation'] ?? json['rain'] ?? 0.0).toDouble(),
-      humidity: (json['humidity'] ?? 0.0).toDouble(),
-      et0: (json['et0'] ?? json['evapotranspiration'] ?? 0.0).toDouble(),
-      condition: json['condition'] ?? json['weather'] ?? 'clear',
-      conditionAr: json['condition_ar'] ?? json['conditionAr'] ?? 'صافي',
+      fieldId: (json['field_id'] ?? json['fieldId'] ?? '') as String,
+      temperature: ((json['temperature'] ?? json['temp'] ?? 0.0) as num).toDouble(),
+      minTemp: ((json['min_temp'] ?? json['minTemp'] ?? 0.0) as num).toDouble(),
+      maxTemp: ((json['max_temp'] ?? json['maxTemp'] ?? 0.0) as num).toDouble(),
+      precipitation: ((json['precipitation'] ?? json['rain'] ?? 0.0) as num).toDouble(),
+      humidity: ((json['humidity'] ?? 0.0) as num).toDouble(),
+      et0: ((json['et0'] ?? json['evapotranspiration'] ?? 0.0) as num).toDouble(),
+      condition: (json['condition'] ?? json['weather'] ?? 'clear') as String,
+      conditionAr: (json['condition_ar'] ?? json['conditionAr'] ?? 'صافي') as String,
       updatedAt: DateTime.parse(
-        json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String(),
+        (json['updated_at'] ?? json['updatedAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
-      forecast: (forecastData as List)
+      forecast: (forecastData as List? ?? [])
           .map((item) => DailyForecastSummary.fromJson(item as Map<String, dynamic>))
           .toList(),
     );
@@ -117,13 +117,13 @@ class DailyForecastSummary extends Equatable {
 
   factory DailyForecastSummary.fromJson(Map<String, dynamic> json) {
     return DailyForecastSummary(
-      date: DateTime.parse(json['date'] ?? DateTime.now().toIso8601String()),
-      tempMin: (json['temp_min'] ?? json['tempMin'] ?? 0.0).toDouble(),
-      tempMax: (json['temp_max'] ?? json['tempMax'] ?? 0.0).toDouble(),
-      precipitation: (json['precipitation'] ?? json['rain'] ?? 0.0).toDouble(),
-      condition: json['condition'] ?? json['weather'] ?? 'clear',
-      conditionAr: json['condition_ar'] ?? json['conditionAr'] ?? 'صافي',
-      icon: json['icon'],
+      date: DateTime.tryParse(json['date'] as String? ?? '') ?? DateTime.now(),
+      tempMin: ((json['temp_min'] ?? json['tempMin'] ?? 0.0) as num).toDouble(),
+      tempMax: ((json['temp_max'] ?? json['tempMax'] ?? 0.0) as num).toDouble(),
+      precipitation: ((json['precipitation'] ?? json['rain'] ?? 0.0) as num).toDouble(),
+      condition: (json['condition'] ?? json['weather'] ?? 'clear') as String,
+      conditionAr: (json['condition_ar'] ?? json['conditionAr'] ?? 'صافي') as String,
+      icon: json['icon'] as String?,
     );
   }
 
@@ -166,15 +166,15 @@ class WeatherAlertSummary extends Equatable {
 
   factory WeatherAlertSummary.fromJson(Map<String, dynamic> json) {
     return WeatherAlertSummary(
-      id: json['id'] ?? '',
-      type: WeatherAlertType.fromString(json['type'] ?? 'general'),
-      severity: json['severity'] ?? 'info',
-      message: json['message'] ?? '',
-      messageAr: json['message_ar'] ?? json['messageAr'] ?? '',
+      id: (json['id'] ?? '') as String,
+      type: WeatherAlertType.fromString((json['type'] ?? 'general') as String),
+      severity: (json['severity'] ?? 'info') as String,
+      message: (json['message'] ?? '') as String,
+      messageAr: (json['message_ar'] ?? json['messageAr'] ?? '') as String,
       startsAt: DateTime.parse(
-        json['starts_at'] ?? json['startsAt'] ?? DateTime.now().toIso8601String(),
+        (json['starts_at'] ?? json['startsAt'] ?? DateTime.now().toIso8601String()) as String,
       ),
-      endsAt: json['ends_at'] != null ? DateTime.parse(json['ends_at']) : null,
+      endsAt: json['ends_at'] != null ? DateTime.tryParse(json['ends_at'] as String) : null,
     );
   }
 

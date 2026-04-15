@@ -1,5 +1,6 @@
-/// Category Filter Widget - فلتر الفئات
 library;
+
+/// Category Filter Widget - فلتر الفئات
 
 import 'package:flutter/material.dart';
 
@@ -34,7 +35,7 @@ class CategoryFilter extends StatelessWidget {
               selected: selectedCategory == null,
               onSelected: (_) => onCategoryChanged(null),
               backgroundColor: Colors.grey.shade100,
-              selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+              selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
             ),
           ),
           // الفئات
@@ -56,7 +57,7 @@ class CategoryFilter extends StatelessWidget {
                 selected: selectedCategory == category,
                 onSelected: (_) => onCategoryChanged(category),
                 backgroundColor: Colors.grey.shade100,
-                selectedColor: Theme.of(context).primaryColor.withOpacity(0.2),
+                selectedColor: Theme.of(context).primaryColor.withValues(alpha: 0.2),
               ),
             );
           }),

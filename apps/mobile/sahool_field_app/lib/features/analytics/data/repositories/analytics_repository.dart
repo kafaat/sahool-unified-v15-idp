@@ -1,9 +1,10 @@
+library;
+
 /// Analytics Repository - Data Access Layer for Predictive Analytics
 /// مستودع التحليلات - طبقة الوصول للبيانات للتحليلات التنبؤية
 ///
 /// Connected to field-intelligence service (port 8120) via Kong gateway
 /// Falls back to local computation when offline
-library;
 
 import 'dart:math' as math;
 import '../../../../core/api/kong_gateway_client.dart';
@@ -580,11 +581,11 @@ class AnalyticsRepository {
         level: rainfall < 10 ? RiskLevel.high : RiskLevel.moderate,
         probability: 1 - (rainfall / 50).clamp(0.0, 1.0),
         potentialImpact: 70,
-        mitigationSteps: [
+        mitigationSteps: const [
           'Increase irrigation frequency',
           'Apply mulch to retain moisture'
         ],
-        mitigationStepsAr: [
+        mitigationStepsAr: const [
           'زيادة تكرار الري',
           'استخدام الغطاء للحفاظ على الرطوبة'
         ],
@@ -604,11 +605,11 @@ class AnalyticsRepository {
         level: temperature > 40 ? RiskLevel.critical : RiskLevel.high,
         probability: ((temperature - 35) / 15).clamp(0.0, 1.0),
         potentialImpact: 60,
-        mitigationSteps: [
+        mitigationSteps: const [
           'Provide shade where possible',
           'Increase irrigation during peak heat'
         ],
-        mitigationStepsAr: [
+        mitigationStepsAr: const [
           'توفير الظل حيثما أمكن',
           'زيادة الري خلال ذروة الحرارة'
         ],
@@ -628,11 +629,11 @@ class AnalyticsRepository {
         level: humidity > 85 ? RiskLevel.high : RiskLevel.moderate,
         probability: ((humidity - 70) / 30).clamp(0.0, 1.0),
         potentialImpact: 50,
-        mitigationSteps: [
+        mitigationSteps: const [
           'Scout fields regularly',
           'Apply preventive pesticides'
         ],
-        mitigationStepsAr: ['فحص الحقول بانتظام', 'تطبيق المبيدات الوقائية'],
+        mitigationStepsAr: const ['فحص الحقول بانتظام', 'تطبيق المبيدات الوقائية'],
       );
       risks.add(r);
       totalRiskScore += r.probability * r.potentialImpact;
@@ -649,8 +650,8 @@ class AnalyticsRepository {
         level: ndvi < 0.25 ? RiskLevel.high : RiskLevel.moderate,
         probability: 1 - ndvi,
         potentialImpact: 55,
-        mitigationSteps: ['Conduct soil test', 'Apply balanced fertilizer'],
-        mitigationStepsAr: ['إجراء تحليل التربة', 'تطبيق سماد متوازن'],
+        mitigationSteps: const ['Conduct soil test', 'Apply balanced fertilizer'],
+        mitigationStepsAr: const ['إجراء تحليل التربة', 'تطبيق سماد متوازن'],
       );
       risks.add(r);
       totalRiskScore += r.probability * r.potentialImpact;

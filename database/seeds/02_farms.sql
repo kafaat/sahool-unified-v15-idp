@@ -6,7 +6,23 @@
 
 -- Insert Farms in Sana'a Governorate (صنعاء)
 
-INSERT INTO farms (id, tenant_id, name, name_ar, owner_id, latitude, longitude, address, address_ar, region, governorate, total_area_hectares, status, created_at, updated_at)
+INSERT INTO farms (
+    id,
+    tenant_id,
+    name,
+    name_ar,
+    owner_id,
+    latitude,
+    longitude,
+    address,
+    address_ar,
+    region,
+    governorate,
+    total_area_hectares,
+    status,
+    created_at,
+    updated_at
+)
 VALUES
 (
     '11111111-1111-1111-1111-111111111111',
@@ -45,7 +61,23 @@ VALUES
 
 -- Insert Farms in Ta'izz Governorate (تعز)
 
-INSERT INTO farms (id, tenant_id, name, name_ar, owner_id, latitude, longitude, address, address_ar, region, governorate, total_area_hectares, status, created_at, updated_at)
+INSERT INTO farms (
+    id,
+    tenant_id,
+    name,
+    name_ar,
+    owner_id,
+    latitude,
+    longitude,
+    address,
+    address_ar,
+    region,
+    governorate,
+    total_area_hectares,
+    status,
+    created_at,
+    updated_at
+)
 VALUES
 (
     '22222222-1111-1111-1111-111111111111',
@@ -84,7 +116,23 @@ VALUES
 
 -- Insert Farms in Hadramout Governorate (حضرموت)
 
-INSERT INTO farms (id, tenant_id, name, name_ar, owner_id, latitude, longitude, address, address_ar, region, governorate, total_area_hectares, status, created_at, updated_at)
+INSERT INTO farms (
+    id,
+    tenant_id,
+    name,
+    name_ar,
+    owner_id,
+    latitude,
+    longitude,
+    address,
+    address_ar,
+    region,
+    governorate,
+    total_area_hectares,
+    status,
+    created_at,
+    updated_at
+)
 VALUES
 (
     '33333333-1111-1111-1111-111111111111',
@@ -123,7 +171,23 @@ VALUES
 
 -- Insert Farms in Ibb Governorate (إب)
 
-INSERT INTO farms (id, tenant_id, name, name_ar, owner_id, latitude, longitude, address, address_ar, region, governorate, total_area_hectares, status, created_at, updated_at)
+INSERT INTO farms (
+    id,
+    tenant_id,
+    name,
+    name_ar,
+    owner_id,
+    latitude,
+    longitude,
+    address,
+    address_ar,
+    region,
+    governorate,
+    total_area_hectares,
+    status,
+    created_at,
+    updated_at
+)
 VALUES
 (
     '44444444-1111-1111-1111-111111111111',
@@ -162,7 +226,23 @@ VALUES
 
 -- Insert Farms in Al-Hudaydah Governorate (الحديدة)
 
-INSERT INTO farms (id, tenant_id, name, name_ar, owner_id, latitude, longitude, address, address_ar, region, governorate, total_area_hectares, status, created_at, updated_at)
+INSERT INTO farms (
+    id,
+    tenant_id,
+    name,
+    name_ar,
+    owner_id,
+    latitude,
+    longitude,
+    address,
+    address_ar,
+    region,
+    governorate,
+    total_area_hectares,
+    status,
+    created_at,
+    updated_at
+)
 VALUES
 (
     '55555555-1111-1111-1111-111111111111',
@@ -206,16 +286,19 @@ SELECT
     governorate,
     total_area_hectares,
     status,
-    (SELECT name FROM users WHERE id = farms.owner_id) as owner_name
+    (
+        SELECT name FROM users
+        WHERE id = farms.owner_id
+    ) AS owner_name
 FROM farms
 ORDER BY governorate, name;
 
 -- Show summary by governorate
 SELECT
     governorate,
-    COUNT(*) as farm_count,
-    ROUND(SUM(total_area_hectares)::numeric, 2) as total_hectares,
-    ROUND(AVG(total_area_hectares)::numeric, 2) as avg_hectares
+    COUNT(*) AS farm_count,
+    ROUND(SUM(total_area_hectares)::NUMERIC, 2) AS total_hectares,
+    ROUND(AVG(total_area_hectares)::NUMERIC, 2) AS avg_hectares
 FROM farms
 GROUP BY governorate
 ORDER BY governorate;

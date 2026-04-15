@@ -1,53 +1,81 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets } from "lucide-react";
-import { useCrops, useCropStats } from "@/features/crops";
-import type { CropCategory, CropStage } from "@/features/crops";
+import React, { useState, useMemo } from 'react';
+import { Sprout, Plus, Search, AlertTriangle, Leaf, Sun, Droplets, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { useCrops, useCropStats, useCreateCrop } from '@/features/crops';
+import type { CropCategory, CropStage, CropFormData } from '@/features/crops';
 
 const categoryLabels: Record<CropCategory, string> = {
-  cereals: "حبوب",
-  vegetables: "خضروات",
-  fruits: "فواكه",
-  legumes: "بقوليات",
-  forage: "أعلاف",
-  industrial: "صناعية",
+  cereals: 'حبوب',
+  vegetables: 'خضروات',
+  fruits: 'فواكه',
+  legumes: 'بقوليات',
+  forage: 'أعلاف',
+  industrial: 'صناعية',
 };
 
 const stageConfig: Record<CropStage, { color: string; labelAr: string }> = {
-  germination: { color: "bg-amber-100 text-amber-800", labelAr: "إنبات" },
-  seedling: { color: "bg-lime-100 text-lime-800", labelAr: "بادرة" },
-  vegetative: { color: "bg-green-100 text-green-800", labelAr: "نمو خضري" },
-  flowering: { color: "bg-pink-100 text-pink-800", labelAr: "إزهار" },
-  fruiting: { color: "bg-orange-100 text-orange-800", labelAr: "إثمار" },
-  maturity: { color: "bg-yellow-100 text-yellow-800", labelAr: "نضج" },
-  harvest: { color: "bg-red-100 text-red-800", labelAr: "حصاد" },
+  germination: { color: 'bg-amber-100 text-amber-800', labelAr: 'إنبات' },
+  seedling: { color: 'bg-lime-100 text-lime-800', labelAr: 'بادرة' },
+  vegetative: { color: 'bg-green-100 text-green-800', labelAr: 'نمو خضري' },
+  flowering: { color: 'bg-pink-100 text-pink-800', labelAr: 'إزهار' },
+  fruiting: { color: 'bg-orange-100 text-orange-800', labelAr: 'إثمار' },
+  maturity: { color: 'bg-yellow-100 text-yellow-800', labelAr: 'نضج' },
+  harvest: { color: 'bg-red-100 text-red-800', labelAr: 'حصاد' },
 };
 
-const categories: Array<{ value: CropCategory | "all"; labelAr: string }> = [
-  { value: "all", labelAr: "جميع الفئات" },
-  { value: "cereals", labelAr: "حبوب" },
-  { value: "vegetables", labelAr: "خضروات" },
-  { value: "fruits", labelAr: "فواكه" },
-  { value: "legumes", labelAr: "بقوليات" },
-  { value: "forage", labelAr: "أعلاف" },
-  { value: "industrial", labelAr: "صناعية" },
+const categories: Array<{ value: CropCategory | 'all'; labelAr: string }> = [
+  { value: 'all', labelAr: 'جميع الفئات' },
+  { value: 'cereals', labelAr: 'حبوب' },
+  { value: 'vegetables', labelAr: 'خضروات' },
+  { value: 'fruits', labelAr: 'فواكه' },
+  { value: 'legumes', labelAr: 'بقوليات' },
+  { value: 'forage', labelAr: 'أعلاف' },
+  { value: 'industrial', labelAr: 'صناعية' },
 ];
 
 function getHealthColor(score: number): string {
-  if (score >= 80) return "text-green-600";
-  if (score >= 60) return "text-yellow-600";
-  return "text-red-600";
+  if (score >= 80) return 'text-green-600';
+  if (score >= 60) return 'text-yellow-600';
+  return 'text-red-600';
 }
 
 export default function CropsClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<CropCategory | "all">("all");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<CropCategory | 'all'>('all');
+  const [expandedCropId, setExpandedCropId] = useState<string | null>(null);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newCrop, setNewCrop] = useState<Omit<CropFormData, 'expectedHarvestDate' | 'irrigationType' | 'irrigationTypeAr'>>({ name: '', nameAr: '', variety: '', varietyAr: '', category: 'cereals' as CropCategory, fieldId: '', plantingDate: '', areaHa: 0 });
 
-  const { data: crops = [], isLoading, error } = useCrops(
-    selectedCategory !== "all" ? { category: selectedCategory } : undefined
-  );
+  const {
+    data: crops = [],
+    isLoading,
+    error,
+  } = useCrops(selectedCategory !== 'all' ? { category: selectedCategory } : undefined);
   const { data: stats } = useCropStats();
+  const createCrop = useCreateCrop();
+
+  const handleCreateCrop = () => {
+    // Basic required-field guard — backend CropFormData expects these populated
+    if (
+      !newCrop.name.trim() ||
+      !newCrop.nameAr.trim() ||
+      !newCrop.fieldId.trim() ||
+      !newCrop.plantingDate ||
+      newCrop.areaHa <= 0
+    ) {
+      return;
+    }
+    createCrop.mutate(
+      { ...newCrop, expectedHarvestDate: '', irrigationType: '', irrigationTypeAr: '' },
+      {
+        onSuccess: () => {
+          setShowCreateDialog(false);
+          setNewCrop({ name: '', nameAr: '', variety: '', varietyAr: '', category: 'cereals', fieldId: '', plantingDate: '', areaHa: 0 });
+        },
+      }
+    );
+  };
 
   const filteredCrops = useMemo(() => {
     if (!searchTerm) return crops;
@@ -82,6 +110,62 @@ export default function CropsClient() {
 
   return (
     <div className="space-y-6">
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowCreateDialog(false)} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة محصول جديد</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المحصول (EN)</label>
+                <input value={newCrop.name} onChange={(e) => setNewCrop({ ...newCrop, name: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">اسم المحصول (AR)</label>
+                <input value={newCrop.nameAr} onChange={(e) => setNewCrop({ ...newCrop, nameAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الصنف (EN)</label>
+                <input value={newCrop.variety} onChange={(e) => setNewCrop({ ...newCrop, variety: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الصنف (AR)</label>
+                <input value={newCrop.varietyAr} onChange={(e) => setNewCrop({ ...newCrop, varietyAr: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" dir="rtl" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الفئة</label>
+                <select value={newCrop.category} onChange={(e) => setNewCrop({ ...newCrop, category: e.target.value as CropCategory })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500">
+                  {categories.filter((c) => c.value !== 'all').map((c) => (
+                    <option key={c.value} value={c.value}>{c.labelAr}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">معرّف الحقل</label>
+                <input value={newCrop.fieldId} onChange={(e) => setNewCrop({ ...newCrop, fieldId: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" placeholder="FIELD-001" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">المساحة (هكتار)</label>
+                <input type="number" min={0} value={newCrop.areaHa} onChange={(e) => setNewCrop({ ...newCrop, areaHa: Number(e.target.value) })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">تاريخ الزراعة</label>
+                <input type="date" value={newCrop.plantingDate} onChange={(e) => setNewCrop({ ...newCrop, plantingDate: e.target.value })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreateCrop} disabled={createCrop.isPending || !newCrop.name.trim() || !newCrop.nameAr.trim() || !newCrop.fieldId.trim() || !newCrop.plantingDate || newCrop.areaHa <= 0} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createCrop.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -89,9 +173,8 @@ export default function CropsClient() {
           <p className="text-gray-500 mt-1">Crop Management</p>
         </div>
         <button
-          disabled
-          title="قريباً - Coming soon"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة محصول</span>
@@ -102,7 +185,9 @@ export default function CropsClient() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي المحاصيل</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalCrops ?? crops.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalCrops ?? crops.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">المساحة الكلية</div>
@@ -142,11 +227,13 @@ export default function CropsClient() {
         </div>
         <select
           value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value as CropCategory | "all")}
+          onChange={(e) => setSelectedCategory(e.target.value as CropCategory | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {categories.map((c) => (
-            <option key={c.value} value={c.value}>{c.labelAr}</option>
+            <option key={c.value} value={c.value}>
+              {c.labelAr}
+            </option>
           ))}
         </select>
       </div>
@@ -159,7 +246,10 @@ export default function CropsClient() {
           filteredCrops.map((crop) => {
             const stage = stageConfig[crop.currentStage];
             return (
-              <div key={crop.id} className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow">
+              <div
+                key={crop.id}
+                className="bg-white rounded-lg border p-5 hover:shadow-md transition-shadow"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-sahool-green-100 rounded-lg flex items-center justify-center">
@@ -167,7 +257,9 @@ export default function CropsClient() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{crop.nameAr}</h3>
-                      <p className="text-sm text-gray-500">{crop.varietyAr} ({crop.variety})</p>
+                      <p className="text-sm text-gray-500">
+                        {crop.varietyAr} ({crop.variety})
+                      </p>
                     </div>
                   </div>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${stage.color}`}>
@@ -199,10 +291,32 @@ export default function CropsClient() {
                       <span className="text-gray-500">NDVI: {crop.ndvi.toFixed(2)}</span>
                     )}
                   </div>
-                  <button className="text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium">
+                  <button
+                    onClick={() => setExpandedCropId(expandedCropId === crop.id ? null : crop.id)}
+                    className="flex items-center gap-1 text-sahool-green-600 hover:text-sahool-green-700 text-sm font-medium"
+                  >
                     تفاصيل
+                    {expandedCropId === crop.id ? (
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    )}
                   </button>
                 </div>
+
+                {expandedCropId === crop.id && (
+                  <div className="mt-3 pt-3 border-t text-sm text-gray-600 space-y-1">
+                    <p><span className="text-gray-400">المحصول:</span> {crop.nameAr} ({crop.varietyAr})</p>
+                    <p><span className="text-gray-400">الحقل:</span> {crop.fieldNameAr}</p>
+                    <p><span className="text-gray-400">المرحلة:</span> {stageConfig[crop.currentStage].labelAr}</p>
+                    <p><span className="text-gray-400">الصحة:</span> {crop.healthScore}%</p>
+                    {crop.ndvi !== undefined && (
+                      <p><span className="text-gray-400">NDVI:</span> {crop.ndvi.toFixed(2)}</p>
+                    )}
+                    <p><span className="text-gray-400">المساحة:</span> {crop.areaHa} هـ</p>
+                    <p><span className="text-gray-400">الري:</span> {crop.irrigationTypeAr}</p>
+                  </div>
+                )}
               </div>
             );
           })

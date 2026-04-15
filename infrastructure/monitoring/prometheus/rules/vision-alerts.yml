@@ -1,0 +1,238 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - Vision Service Alert Rules
+# قواعد تنبيهات خدمة الرؤية الحاسوبية
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-03-24
+
+groups:
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Vision Service Availability Alerts
+  # تنبيهات توفر خدمة الرؤية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: vision-service-availability
+    interval: 60s
+    rules:
+      - alert: VisionServiceDown
+        expr: up{job="yolo26-vision-service"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "YOLO26 Vision Service is down"
+          summary_ar: "خدمة الرؤية YOLO26 متوقفة"
+          description: "The YOLO26 Vision Service has been unreachable for more than 5 minutes. All pest, disease, and weed detection capabilities are offline."
+          description_ar: "خدمة الرؤية YOLO26 غير قابلة للوصول منذ أكثر من 5 دقائق. جميع قدرات اكتشاف الآفات والأمراض والأعشاب الضارة غير متاحة."
+          impact: "No computer vision detection available. Critical pest alerts will not be generated."
+          impact_ar: "لا تتوفر كشف بالرؤية الحاسوبية. لن يتم إنشاء تنبيهات الآفات الحرجة."
+          action: "Check vision service pod status, GPU driver availability, and container health."
+          action_ar: "تحقق من حالة حاوية خدمة الرؤية وتوفر تعريف GPU وصحة الحاوية."
+
+      - alert: VisionServiceHighLatency
+        expr: |
+          histogram_quantile(0.95,
+            sum by (le) (
+              rate(http_request_duration_seconds_bucket{service="yolo26-vision-service"}[5m])
+            )
+          ) > 5
+        for: 10m
+        labels:
+          severity: warning
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision Service P95 latency is {{ $value | humanize }}s (threshold: 5s)"
+          summary_ar: "زمن استجابة خدمة الرؤية P95 هو {{ $value | humanize }} ثانية (الحد: 5 ثوان)"
+          description: "YOLO26 Vision Service P95 latency exceeds 5 seconds. Detection results are being delayed."
+          description_ar: "زمن استجابة خدمة الرؤية YOLO26 P95 يتجاوز 5 ثوان. نتائج الاكتشاف متأخرة."
+          impact: "Delayed pest and disease detection may allow spread before alerts are generated"
+          impact_ar: "قد يسمح تأخر اكتشاف الآفات والأمراض بالانتشار قبل إنشاء التنبيهات"
+          action: "Check GPU utilization, model cache, and consider scaling up or using a smaller model variant."
+          action_ar: "تحقق من استخدام GPU وذاكرة التخزين المؤقت للنموذج وفكر في التوسع أو استخدام نسخة نموذج أصغر."
+
+      - alert: VisionServiceHighErrorRate
+        expr: |
+          sum(rate(http_requests_total{service="yolo26-vision-service",status=~"5.."}[5m]))
+          /
+          sum(rate(http_requests_total{service="yolo26-vision-service"}[5m]))
+          > 0.1
+        for: 5m
+        labels:
+          severity: critical
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision Service error rate is {{ $value | humanizePercentage }} (threshold: 10%)"
+          summary_ar: "معدل أخطاء خدمة الرؤية {{ $value | humanizePercentage }} (الحد: 10%)"
+          description: "More than 10% of requests to the YOLO26 Vision Service are failing with 5xx errors."
+          description_ar: "أكثر من 10% من الطلبات لخدمة الرؤية YOLO26 تفشل بأخطاء 5xx."
+          impact: "Detection capabilities significantly degraded. Critical pest alerts may be missed."
+          impact_ar: "قدرات الاكتشاف متدهورة بشكل كبير. قد تُفقد تنبيهات الآفات الحرجة."
+          action: "Check service logs for error patterns, GPU memory, and model inference failures."
+          action_ar: "تحقق من سجلات الخدمة لأنماط الأخطاء وذاكرة GPU وفشل استدلال النموذج."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Vision Detection Quality Alerts
+  # تنبيهات جودة اكتشاف الرؤية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: vision-detection-quality
+    interval: 60s
+    rules:
+      - alert: VisionLowDetectionConfidence
+        expr: vision_detection_confidence_avg < 0.5
+        for: 15m
+        labels:
+          severity: warning
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision detection confidence is low: {{ $value | humanize }}"
+          summary_ar: "ثقة اكتشاف الرؤية منخفضة: {{ $value | humanize }}"
+          description: "Average detection confidence has dropped below 0.5 for 15 minutes. Detection quality is degraded and results may be unreliable."
+          description_ar: "انخفض متوسط ثقة الاكتشاف إلى أقل من 0.5 لمدة 15 دقيقة. جودة الاكتشاف متدهورة وقد تكون النتائج غير موثوقة."
+          impact: "Unreliable pest and disease detection may lead to missed threats or false alerts"
+          impact_ar: "قد يؤدي اكتشاف الآفات والأمراض غير الموثوق إلى تهديدات مفقودة أو تنبيهات خاطئة"
+          action: "Review image quality, check model calibration, and verify lighting conditions in field images."
+          action_ar: "راجع جودة الصور وتحقق من معايرة النموذج وتأكد من ظروف الإضاءة في صور الحقل."
+
+      - alert: VisionHighFalsePositiveRate
+        expr: |
+          rate(vision_false_positive_detections_total[30m])
+          /
+          rate(vision_detections_total[30m])
+          > 0.2
+        for: 30m
+        labels:
+          severity: warning
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision false positive rate is {{ $value | humanizePercentage }} (threshold: 20%)"
+          summary_ar: "معدل الإيجابيات الخاطئة للرؤية {{ $value | humanizePercentage }} (الحد: 20%)"
+          description: "More than 20% of detections are false positives. Model may need recalibration or confidence threshold adjustment."
+          description_ar: "أكثر من 20% من الاكتشافات إيجابيات خاطئة. قد يحتاج النموذج إلى إعادة معايرة أو تعديل حد الثقة."
+          impact: "Farmers receiving incorrect alerts leading to unnecessary treatments and increased costs"
+          impact_ar: "المزارعون يتلقون تنبيهات غير صحيحة مما يؤدي إلى علاجات غير ضرورية وتكاليف إضافية"
+          action: "Increase confidence threshold, review recent model updates, and check for image quality issues."
+          action_ar: "ارفع حد الثقة وراجع تحديثات النموذج الأخيرة وتحقق من مشاكل جودة الصور."
+
+      - alert: VisionModelLoadFailure
+        expr: increase(vision_model_load_failures_total[5m]) > 0
+        labels:
+          severity: critical
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision model failed to load: {{ $labels.model_variant }}"
+          summary_ar: "فشل تحميل نموذج الرؤية: {{ $labels.model_variant }}"
+          description: "A YOLO26 model variant failed to load. Detection capabilities for the affected model are unavailable."
+          description_ar: "فشل تحميل نسخة نموذج YOLO26. قدرات الاكتشاف للنموذج المتأثر غير متاحة."
+          impact: "Detection tasks requiring this model variant will fail"
+          impact_ar: "مهام الاكتشاف التي تتطلب نسخة النموذج هذه ستفشل"
+          action: "Check model file integrity, GPU memory availability, and disk space for model storage."
+          action_ar: "تحقق من سلامة ملف النموذج وتوفر ذاكرة GPU ومساحة القرص لتخزين النموذج."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Vision GPU Resource Alerts
+  # تنبيهات موارد GPU للرؤية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: vision-gpu-resources
+    interval: 60s
+    rules:
+      - alert: VisionGPUMemoryHigh
+        expr: (vision_gpu_memory_usage_bytes / vision_gpu_memory_total_bytes) > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision GPU memory usage is {{ $value | humanizePercentage }} (threshold: 90%)"
+          summary_ar: "استخدام ذاكرة GPU للرؤية {{ $value | humanizePercentage }} (الحد: 90%)"
+          description: "GPU memory utilization exceeds 90%. Risk of out-of-memory errors during inference."
+          description_ar: "استخدام ذاكرة GPU يتجاوز 90%. خطر أخطاء نفاد الذاكرة أثناء الاستدلال."
+          impact: "New detection requests may fail with GPU OOM errors"
+          impact_ar: "قد تفشل طلبات الاكتشاف الجديدة بأخطاء نفاد ذاكرة GPU"
+          action: "Reduce model cache size, switch to smaller model variants, or add GPU resources."
+          action_ar: "قلل حجم ذاكرة التخزين المؤقت للنموذج أو انتقل إلى نسخ نموذج أصغر أو أضف موارد GPU."
+
+      - alert: VisionGPUMemoryCritical
+        expr: (vision_gpu_memory_usage_bytes / vision_gpu_memory_total_bytes) > 0.95
+        for: 2m
+        labels:
+          severity: critical
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision GPU memory critically high: {{ $value | humanizePercentage }} (threshold: 95%)"
+          summary_ar: "ذاكرة GPU للرؤية حرجة: {{ $value | humanizePercentage }} (الحد: 95%)"
+          description: "GPU memory utilization exceeds 95%. Imminent risk of out-of-memory failures and service crash."
+          description_ar: "استخدام ذاكرة GPU يتجاوز 95%. خطر وشيك لفشل نفاد الذاكرة وتعطل الخدمة."
+          impact: "Service crash imminent. All vision detection will stop."
+          impact_ar: "تعطل الخدمة وشيك. ستتوقف جميع عمليات اكتشاف الرؤية."
+          action: "Immediately evict cached models, restart service if needed, and investigate memory leak."
+          action_ar: "أزل النماذج المخزنة مؤقتاً فوراً وأعد تشغيل الخدمة إذا لزم الأمر وتحقق من تسرب الذاكرة."
+
+      - alert: VisionBatchQueueBacklog
+        expr: vision_batch_queue_size > 100
+        for: 10m
+        labels:
+          severity: warning
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Vision batch queue backlog: {{ $value }} items (threshold: 100)"
+          summary_ar: "تراكم طابور الدُفعات للرؤية: {{ $value }} عنصر (الحد: 100)"
+          description: "The batch processing queue has more than 100 pending items for 10 minutes. Processing is not keeping up with demand."
+          description_ar: "طابور معالجة الدُفعات يحتوي على أكثر من 100 عنصر معلق لمدة 10 دقائق. المعالجة لا تواكب الطلب."
+          impact: "Detection results are significantly delayed. Time-sensitive pest alerts may arrive too late."
+          impact_ar: "نتائج الاكتشاف متأخرة بشكل كبير. قد تصل تنبيهات الآفات الحساسة للوقت متأخرة جداً."
+          action: "Scale up vision service replicas, optimize batch processing, or reduce image resolution."
+          action_ar: "وسّع نسخ خدمة الرؤية أو حسّن معالجة الدُفعات أو قلل دقة الصور."
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Vision Critical Pest Alerts
+  # تنبيهات الآفات الحرجة بالرؤية
+  # ═══════════════════════════════════════════════════════════════════════════
+  - name: vision-critical-pest-alerts
+    interval: 60s
+    rules:
+      - alert: VisionCriticalPestDetected
+        expr: increase(vision_critical_pest_detections_total{pest_type=~"red_palm_weevil|locust"}[5m]) > 0
+        labels:
+          severity: critical
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "CRITICAL: {{ $labels.pest_type }} detected in region {{ $labels.region }}"
+          summary_ar: "حرج: تم اكتشاف {{ $labels.pest_type }} في المنطقة {{ $labels.region }}"
+          description: "A critical pest (Red Palm Weevil or Locust) has been detected by computer vision. Immediate response required within 24-48 hours."
+          description_ar: "تم اكتشاف آفة حرجة (سوسة النخيل الحمراء أو جراد) بواسطة الرؤية الحاسوبية. مطلوب استجابة فورية خلال 24-48 ساعة."
+          impact: "Lethal pest with potential for catastrophic crop loss. Rapid spread to neighboring fields."
+          impact_ar: "آفة مميتة مع احتمال خسارة كارثية للمحصول. انتشار سريع إلى الحقول المجاورة."
+          action: "Immediately isolate affected area, report to Ministry of Agriculture, and deploy pheromone traps. Apply treatment within 48 hours."
+          action_ar: "اعزل المنطقة المصابة فوراً وأبلغ وزارة الزراعة وانشر مصائد الفيرومونات. طبق العلاج خلال 48 ساعة."
+
+      - alert: VisionDiseaseOutbreak
+        expr: |
+          count by (disease_type) (
+            count by (disease_type, region) (
+              increase(vision_disease_detections_total[24h]) > 0
+            )
+          ) >= 3
+        for: 0s
+        labels:
+          severity: warning
+          category: vision
+          platform: sahool
+        annotations:
+          summary: "Disease outbreak: {{ $labels.disease_type }} detected in {{ $value }} regions"
+          summary_ar: "تفشي مرض: تم اكتشاف {{ $labels.disease_type }} في {{ $value }} مناطق"
+          description: "The same disease has been detected by vision AI in 3 or more fields within 24 hours. An outbreak pattern is forming."
+          description_ar: "تم اكتشاف نفس المرض بواسطة الرؤية الاصطناعية في 3 حقول أو أكثر خلال 24 ساعة. يتشكل نمط تفشي."
+          impact: "Rapid disease spread across multiple fields. Regional crop loss risk."
+          impact_ar: "انتشار سريع للمرض عبر حقول متعددة. خطر خسارة المحصول على المستوى الإقليمي."
+          action: "Isolate affected fields, apply appropriate fungicide/treatment, and notify neighboring farms."
+          action_ar: "اعزل الحقول المصابة وطبق المبيد الفطري/العلاج المناسب وأبلغ المزارع المجاورة."

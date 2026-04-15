@@ -8,7 +8,11 @@ import os
 from datetime import UTC, datetime, timedelta
 
 import httpx
-from nats.aio.client import Client as NATS
+
+try:
+    from nats.aio.client import Client as NATS
+except ImportError:
+    NATS = None  # Optional: not available in test environments
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://fieldops:8080")
@@ -142,20 +146,23 @@ class TaskAutomationHook:
         print("🔗 Task Automation Hook started")
 
         # Subscribe to recommendation events
+        # FIX: Advisory service publishes to sahool.tenant.{tenant_id}.advisory.*
+        # Using wildcard '*' for tenant_id so all tenants' events are received.
+        # The tenant_id is read from the event envelope payload, not the subject.
         await self.nc.subscribe(
-            "sahool.advisory.recommendation_issued",
+            "sahool.tenant.*.advisory.recommendation_issued",
             cb=self._handle_recommendation,
         )
 
         # Subscribe to fertilizer plan events
         await self.nc.subscribe(
-            "sahool.advisory.fertilizer_plan_issued",
+            "sahool.tenant.*.advisory.fertilizer_plan_issued",
             cb=self._handle_fertilizer_plan,
         )
 
         # Subscribe to nutrient assessment events
         await self.nc.subscribe(
-            "sahool.advisory.nutrient_assessment_issued",
+            "sahool.tenant.*.advisory.nutrient_assessment_issued",
             cb=self._handle_nutrient_assessment,
         )
 

@@ -6,11 +6,11 @@ from pathlib import Path
 
 import pytest
 
-from shared.drift_detection.detectors.config_drift import ConfigDriftDetector
-from shared.drift_detection.detectors.schema_drift import SchemaDriftDetector
 from shared.drift_detection.detectors.api_drift import APIDriftDetector
-from shared.drift_detection.detectors.event_drift import EventDriftDetector
+from shared.drift_detection.detectors.config_drift import ConfigDriftDetector
 from shared.drift_detection.detectors.data_drift import DataDriftDetector
+from shared.drift_detection.detectors.event_drift import EventDriftDetector
+from shared.drift_detection.detectors.schema_drift import SchemaDriftDetector
 from shared.drift_detection.detectors.security_drift import SecurityDriftDetector
 from shared.drift_detection.models import DriftCategory, DriftSeverity
 
@@ -178,6 +178,40 @@ class TestSchemaDriftDetector:
         detector = SchemaDriftDetector(str(tmp_path))
         assert detector.category == DriftCategory.SCHEMA
 
+    @pytest.mark.asyncio
+    async def test_cross_tenant_models_exempted(self, tmp_path: Path):
+        """partner-auth-service/{OAuthClient,SigningKey} are architecturally
+        cross-tenant and MUST NOT be flagged for missing tenant_id."""
+        svc = tmp_path / "apps" / "services" / "partner-auth-service" / "prisma"
+        svc.mkdir(parents=True)
+        (svc / "schema.prisma").write_text(
+            "model OAuthClient {\n"
+            "  id String @id\n"
+            '  clientId String @unique @map("client_id")\n'
+            "}\n"
+            "\n"
+            "model SigningKey {\n"
+            "  id String @id\n"
+            "  kid String @unique\n"
+            "}\n"
+            "\n"
+            "model AccessToken {\n"
+            "  id String @id\n"
+            '  tenantId String @map("tenant_id")\n'
+            "}\n"
+        )
+        detector = SchemaDriftDetector(str(tmp_path))
+        results = await detector.detect()
+        tenant_results = [
+            r
+            for r in results
+            if r.source == "tenant_isolation" and r.service_name == "partner-auth-service"
+        ]
+        assert tenant_results == [], (
+            f"Expected no tenant_isolation drifts for partner-auth-service "
+            f"cross-tenant models, got: {[(r.service_name, r.actual) for r in tenant_results]}"
+        )
+
 
 class TestAPIDriftDetector:
     """Tests for APIDriftDetector."""
@@ -288,3 +322,66 @@ class TestSecurityDriftDetector:
         # All required headers exist
         header_drifts = [r for r in results if r.source == "security_headers"]
         assert len(header_drifts) == 0
+
+    # ------------------------------------------------------------------
+    # SECRET_PATTERNS: literal values should trigger; env-var refs should not
+    # ------------------------------------------------------------------
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_detects_hardcoded_password(self, tmp_path: Path):
+        """A literal hardcoded password in a .py file must be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "config.py").write_text('PASSWORD = "SuperSecret123!"\n')
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan"]
+        assert len(secret_drifts) >= 1
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_detects_hardcoded_api_key(self, tmp_path: Path):
+        """A literal hardcoded API key in a .py file must be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "client.py").write_text('api_key = "abcdefghijklmnop12345678"\n')
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan"]
+        assert len(secret_drifts) >= 1
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_skips_env_var_reference_password(self, tmp_path: Path):
+        """A password value starting with '$' (env var ref) must NOT be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        # $PASSWORD and ${PASSWORD} are environment variable references, not secrets
+        (src / "config.py").write_text(
+            'password = "$PASSWORD"\npwd = "${DB_PASSWORD}"\npasswd = "$REDIS_PASSWD"\n'
+        )
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan" and "config.py" in r.file_path]
+        assert len(secret_drifts) == 0, (
+            "Env-var-style references ($VAR) should not be flagged as hardcoded secrets"
+        )
+
+    @pytest.mark.asyncio
+    async def test_secret_scan_skips_env_var_reference_api_key(self, tmp_path: Path):
+        """An API key value starting with '$' (env var ref) must NOT be flagged."""
+        src = tmp_path / "src"
+        src.mkdir()
+        (src / "client.py").write_text('api_key = "$MY_API_KEY"\napikey = "$WEATHER_APIKEY"\n')
+
+        detector = SecurityDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        secret_drifts = [r for r in results if r.source == "secret_scan" and "client.py" in r.file_path]
+        assert len(secret_drifts) == 0, (
+            "Env-var-style API key references ($VAR) should not be flagged as hardcoded secrets"
+        )

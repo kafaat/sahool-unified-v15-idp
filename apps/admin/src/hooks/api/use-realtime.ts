@@ -6,29 +6,29 @@
  * to auto-invalidate data when real-time updates arrive.
  */
 
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useWebSocket } from "@/hooks/useWebSocket";
-import { invalidateQueries } from "./use-api-query";
+import { useEffect, useRef } from 'react';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { invalidateQueries } from './use-api-query';
 
 type RealtimeEvent =
-  | "alert"
-  | "sensor"
-  | "irrigation"
-  | "diagnosis"
-  | "farm_update"
-  | "weather"
-  | "task";
+  | 'alert'
+  | 'sensor'
+  | 'irrigation'
+  | 'diagnosis'
+  | 'farm_update'
+  | 'weather'
+  | 'task';
 
 const EVENT_TO_CACHE_KEYS: Record<RealtimeEvent, string[]> = {
-  alert: ["alerts", "dashboard"],
-  sensor: ["sensors", "fields"],
-  irrigation: ["irrigation", "fields"],
-  diagnosis: ["diagnoses", "dashboard"],
-  farm_update: ["fields", "dashboard"],
-  weather: ["weather"],
-  task: ["tasks"],
+  alert: ['alerts', 'dashboard'],
+  sensor: ['sensors', 'fields'],
+  irrigation: ['irrigation', 'fields'],
+  diagnosis: ['diagnoses', 'dashboard'],
+  farm_update: ['fields', 'dashboard'],
+  weather: ['weather'],
+  task: ['tasks'],
 };
 
 /**
@@ -47,13 +47,20 @@ const EVENT_TO_CACHE_KEYS: Record<RealtimeEvent, string[]> = {
  */
 export function useRealtimeSync(events: RealtimeEvent[] = []) {
   const { isConnected, subscribe } = useWebSocket({ autoConnect: true });
+  // Use a ref to avoid re-subscriptions when the events array reference changes
+  const eventsRef = useRef(events);
+  eventsRef.current = events;
+
+  // Stable key based on event names to only re-subscribe when events actually change
+  const eventsKey = events.join(',');
 
   useEffect(() => {
     if (!isConnected) return;
 
+    const currentEvents = eventsRef.current;
     const effectiveEvents =
-      events.length > 0
-        ? events
+      currentEvents.length > 0
+        ? currentEvents
         : (Object.keys(EVENT_TO_CACHE_KEYS) as RealtimeEvent[]);
 
     const unsubscribers = effectiveEvents.map((event) =>
@@ -64,13 +71,13 @@ export function useRealtimeSync(events: RealtimeEvent[] = []) {
             invalidateQueries(key);
           }
         }
-      }),
+      })
     );
 
     return () => {
       unsubscribers.forEach((unsub) => unsub());
     };
-  }, [isConnected, subscribe, events]);
+  }, [isConnected, subscribe, eventsKey]);
 
   return { isConnected };
 }

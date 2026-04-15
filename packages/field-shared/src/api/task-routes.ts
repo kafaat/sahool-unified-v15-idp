@@ -5,8 +5,9 @@
  * Migrated from field-ops Python service to TypeScript
  */
 
-import { Router, Request, Response } from "express";
-import { v4 as uuidv4 } from "uuid";
+import { Router, Request, Response } from 'express';
+import { logger } from '../middleware/logger';
+import { v4 as uuidv4 } from 'uuid';
 
 const router = Router();
 
@@ -51,7 +52,7 @@ const _operations: Map<string, OperationResponse> = new Map();
  * POST /operations
  * Create a field operation
  */
-router.post("/operations", async (req: Request, res: Response) => {
+router.post('/operations', async (req: Request, res: Response) => {
   try {
     const op = req.body as OperationCreate;
 
@@ -59,7 +60,7 @@ router.post("/operations", async (req: Request, res: Response) => {
     if (!op.tenant_id || !op.field_id || !op.operation_type) {
       return res.status(400).json({
         success: false,
-        error: "Missing required fields: tenant_id, field_id, operation_type",
+        error: 'Missing required fields: tenant_id, field_id, operation_type',
       });
     }
 
@@ -71,7 +72,7 @@ router.post("/operations", async (req: Request, res: Response) => {
       tenant_id: op.tenant_id,
       field_id: op.field_id,
       operation_type: op.operation_type,
-      status: "scheduled",
+      status: 'scheduled',
       scheduled_date: op.scheduled_date,
       completed_date: undefined,
       notes: op.notes,
@@ -87,10 +88,10 @@ router.post("/operations", async (req: Request, res: Response) => {
       data: opData,
     });
   } catch (error) {
-    console.error("Error creating operation:", error);
+    logger.error('Error creating operation:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to create operation",
+      error: 'Failed to create operation',
     });
   }
 });
@@ -99,7 +100,7 @@ router.post("/operations", async (req: Request, res: Response) => {
  * GET /operations/:id
  * Get operation by ID
  */
-router.get("/operations/:id", async (req: Request, res: Response) => {
+router.get('/operations/:id', async (req: Request, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const operation = _operations.get(id);
@@ -107,7 +108,7 @@ router.get("/operations/:id", async (req: Request, res: Response) => {
     if (!operation) {
       return res.status(404).json({
         success: false,
-        error: "Operation not found",
+        error: 'Operation not found',
       });
     }
 
@@ -116,10 +117,10 @@ router.get("/operations/:id", async (req: Request, res: Response) => {
       data: operation,
     });
   } catch (error) {
-    console.error("Error fetching operation:", error);
+    logger.error('Error fetching operation:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to fetch operation",
+      error: 'Failed to fetch operation',
     });
   }
 });
@@ -128,14 +129,14 @@ router.get("/operations/:id", async (req: Request, res: Response) => {
  * GET /operations
  * List operations for a field
  */
-router.get("/operations", async (req: Request, res: Response) => {
+router.get('/operations', async (req: Request, res: Response) => {
   try {
     const { field_id, status, tenant_id, skip = 0, limit = 50 } = req.query;
 
     if (!field_id && !tenant_id) {
       return res.status(400).json({
         success: false,
-        error: "Missing required parameter: field_id or tenant_id",
+        error: 'Missing required parameter: field_id or tenant_id',
       });
     }
 
@@ -171,10 +172,10 @@ router.get("/operations", async (req: Request, res: Response) => {
       },
     });
   } catch (error) {
-    console.error("Error listing operations:", error);
+    logger.error('Error listing operations:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to list operations",
+      error: 'Failed to list operations',
     });
   }
 });
@@ -183,7 +184,7 @@ router.get("/operations", async (req: Request, res: Response) => {
  * POST /operations/:id/complete
  * Mark operation as completed
  */
-router.post("/operations/:id/complete", async (req: Request, res: Response) => {
+router.post('/operations/:id/complete', async (req: Request, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const operation = _operations.get(id);
@@ -191,11 +192,11 @@ router.post("/operations/:id/complete", async (req: Request, res: Response) => {
     if (!operation) {
       return res.status(404).json({
         success: false,
-        error: "Operation not found",
+        error: 'Operation not found',
       });
     }
 
-    operation.status = "completed";
+    operation.status = 'completed';
     operation.completed_date = new Date().toISOString();
     operation.updated_at = new Date().toISOString();
 
@@ -206,10 +207,10 @@ router.post("/operations/:id/complete", async (req: Request, res: Response) => {
       data: operation,
     });
   } catch (error) {
-    console.error("Error completing operation:", error);
+    logger.error('Error completing operation:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to complete operation",
+      error: 'Failed to complete operation',
     });
   }
 });
@@ -218,7 +219,7 @@ router.post("/operations/:id/complete", async (req: Request, res: Response) => {
  * PATCH /operations/:id
  * Update operation
  */
-router.patch("/operations/:id", async (req: Request, res: Response) => {
+router.patch('/operations/:id', async (req: Request, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
     const operation = _operations.get(id);
@@ -226,7 +227,7 @@ router.patch("/operations/:id", async (req: Request, res: Response) => {
     if (!operation) {
       return res.status(404).json({
         success: false,
-        error: "Operation not found",
+        error: 'Operation not found',
       });
     }
 
@@ -235,8 +236,7 @@ router.patch("/operations/:id", async (req: Request, res: Response) => {
     // Update allowed fields
     if (updates.status !== undefined) operation.status = updates.status;
     if (updates.notes !== undefined) operation.notes = updates.notes;
-    if (updates.scheduled_date !== undefined)
-      operation.scheduled_date = updates.scheduled_date;
+    if (updates.scheduled_date !== undefined) operation.scheduled_date = updates.scheduled_date;
     if (updates.metadata !== undefined)
       operation.metadata = { ...operation.metadata, ...updates.metadata };
 
@@ -249,10 +249,10 @@ router.patch("/operations/:id", async (req: Request, res: Response) => {
       data: operation,
     });
   } catch (error) {
-    console.error("Error updating operation:", error);
+    logger.error('Error updating operation:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to update operation",
+      error: 'Failed to update operation',
     });
   }
 });
@@ -261,14 +261,14 @@ router.patch("/operations/:id", async (req: Request, res: Response) => {
  * DELETE /operations/:id
  * Delete an operation
  */
-router.delete("/operations/:id", async (req: Request, res: Response) => {
+router.delete('/operations/:id', async (req: Request, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
 
     if (!_operations.has(id)) {
       return res.status(404).json({
         success: false,
-        error: "Operation not found",
+        error: 'Operation not found',
       });
     }
 
@@ -276,13 +276,13 @@ router.delete("/operations/:id", async (req: Request, res: Response) => {
 
     res.json({
       success: true,
-      message: "Operation deleted successfully",
+      message: 'Operation deleted successfully',
     });
   } catch (error) {
-    console.error("Error deleting operation:", error);
+    logger.error('Error deleting operation:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to delete operation",
+      error: 'Failed to delete operation',
     });
   }
 });
@@ -291,30 +291,28 @@ router.delete("/operations/:id", async (req: Request, res: Response) => {
  * GET /stats/tenant/:tenant_id
  * Get statistics for a tenant
  */
-router.get("/stats/tenant/:tenant_id", async (req: Request, res: Response) => {
+router.get('/stats/tenant/:tenant_id', async (req: Request, res: Response) => {
   try {
     const tenant_id = Array.isArray(req.params.tenant_id)
       ? req.params.tenant_id[0]
       : req.params.tenant_id;
 
-    const tenantOps = Array.from(_operations.values()).filter(
-      (o) => o.tenant_id === tenant_id,
-    );
+    const tenantOps = Array.from(_operations.values()).filter((o) => o.tenant_id === tenant_id);
 
     const stats = {
       tenant_id,
       operations: {
         total: tenantOps.length,
-        scheduled: tenantOps.filter((o) => o.status === "scheduled").length,
-        completed: tenantOps.filter((o) => o.status === "completed").length,
-        in_progress: tenantOps.filter((o) => o.status === "in_progress").length,
+        scheduled: tenantOps.filter((o) => o.status === 'scheduled').length,
+        completed: tenantOps.filter((o) => o.status === 'completed').length,
+        in_progress: tenantOps.filter((o) => o.status === 'in_progress').length,
       },
       by_type: tenantOps.reduce(
         (acc, op) => {
           acc[op.operation_type] = (acc[op.operation_type] || 0) + 1;
           return acc;
         },
-        {} as Record<string, number>,
+        {} as Record<string, number>
       ),
     };
 
@@ -323,10 +321,10 @@ router.get("/stats/tenant/:tenant_id", async (req: Request, res: Response) => {
       data: stats,
     });
   } catch (error) {
-    console.error("Error fetching tenant stats:", error);
+    logger.error('Error fetching tenant stats:', error);
     res.status(500).json({
       success: false,
-      error: "Failed to fetch tenant statistics",
+      error: 'Failed to fetch tenant statistics',
     });
   }
 });

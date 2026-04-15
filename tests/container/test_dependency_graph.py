@@ -160,8 +160,8 @@ def _find_cycles(graph: dict[str, list[str]]) -> list[list[str]]:
     Returns a list of cycles, where each cycle is a list of service names.
     """
     WHITE, GRAY, BLACK = 0, 1, 2
-    color: dict[str, int] = {node: WHITE for node in graph}
-    parent: dict[str, str | None] = {node: None for node in graph}
+    color: dict[str, int] = dict.fromkeys(graph, WHITE)
+    parent: dict[str, str | None] = dict.fromkeys(graph)
     cycles: list[list[str]] = []
 
     for start in graph:
@@ -314,7 +314,7 @@ class TestDependencyGraphAcyclic:
         # Topological order: deps come before the service.
         # In-degree: count how many services list this node as a dependency.
         # Actually we want reverse: edges go FROM dependency TO dependent.
-        reverse_in_degree: dict[str, int] = {node: 0 for node in all_nodes}
+        reverse_in_degree: dict[str, int] = dict.fromkeys(all_nodes, 0)
         for node, deps in dependency_graph.items():
             # node depends on deps, so node has in_degree = len(deps)
             for dep in deps:
@@ -322,7 +322,7 @@ class TestDependencyGraphAcyclic:
                     reverse_in_degree[node] = reverse_in_degree.get(node, 0)
 
         # Simpler: just count deps as in-degree for each node
-        node_in_degree: dict[str, int] = {node: 0 for node in all_nodes}
+        node_in_degree: dict[str, int] = dict.fromkeys(all_nodes, 0)
         for node, deps in dependency_graph.items():
             for dep in deps:
                 if dep in all_nodes:
@@ -333,7 +333,7 @@ class TestDependencyGraphAcyclic:
         # Here: if service A depends_on B, then B must start before A.
         # Edge: B -> A. In-degree of A = number of its dependencies.
         queue: deque[str] = deque()
-        in_deg: dict[str, int] = {node: 0 for node in all_nodes}
+        in_deg: dict[str, int] = dict.fromkeys(all_nodes, 0)
         adj: dict[str, list[str]] = {node: [] for node in all_nodes}
 
         for node, deps in dependency_graph.items():
@@ -439,7 +439,7 @@ class TestDependencyOrdering:
 
         if failures:
             pytest.fail(
-                f"Services with DATABASE_URL must depend on pgbouncer or postgres:\n"
+                "Services with DATABASE_URL must depend on pgbouncer or postgres:\n"
                 + "\n".join(failures)
             )
 
@@ -473,7 +473,7 @@ class TestDependencyOrdering:
 
         if failures:
             pytest.fail(
-                f"Services with NATS_URL must depend on nats:\n"
+                "Services with NATS_URL must depend on nats:\n"
                 + "\n".join(failures)
             )
 
@@ -506,7 +506,7 @@ class TestDependencyOrdering:
 
         if failures:
             pytest.fail(
-                f"Services with REDIS_URL must depend on redis:\n"
+                "Services with REDIS_URL must depend on redis:\n"
                 + "\n".join(failures)
             )
 
@@ -538,7 +538,7 @@ class TestDependencyCompleteness:
                     missing.append(f"  {svc_name} -> {dep} (not defined)")
 
         assert not missing, (
-            f"depends_on references undefined services:\n" + "\n".join(missing)
+            "depends_on references undefined services:\n" + "\n".join(missing)
         )
 
     def test_app_services_have_infra_dependency(
@@ -598,7 +598,7 @@ class TestDependencyCompleteness:
 
         if failures:
             pytest.fail(
-                f"Application services without infrastructure dependencies:\n"
+                "Application services without infrastructure dependencies:\n"
                 + "\n".join(failures)
             )
 
@@ -618,7 +618,7 @@ class TestDependencyCompleteness:
                 )
 
         assert not violations, (
-            f"Services depend on deprecated services:\n" + "\n".join(violations)
+            "Services depend on deprecated services:\n" + "\n".join(violations)
         )
 
 
@@ -649,7 +649,7 @@ class TestDependencyConditions:
                 )
 
         assert not bare_list_services, (
-            f"Services using bare-list depends_on (should use condition format):\n"
+            "Services using bare-list depends_on (should use condition format):\n"
             + "\n".join(bare_list_services)
         )
 
@@ -689,8 +689,8 @@ class TestDependencyConditions:
                     )
 
         assert not violations, (
-            f"depends_on entries should use service_healthy for services "
-            f"with healthchecks:\n" + "\n".join(violations)
+            "depends_on entries should use service_healthy for services "
+            "with healthchecks:\n" + "\n".join(violations)
         )
 
     def test_infra_healthcheck_deps_use_service_healthy(
@@ -736,8 +736,8 @@ class TestDependencyConditions:
                         )
 
         assert not violations, (
-            f"Infrastructure services with healthchecks must be depended on "
-            f"via service_healthy:\n" + "\n".join(violations)
+            "Infrastructure services with healthchecks must be depended on "
+            "via service_healthy:\n" + "\n".join(violations)
         )
 
 
@@ -874,7 +874,7 @@ class TestInfrastructureDependencyIsolation:
                 )
 
         assert not violations, (
-            f"Infrastructure services depending on application services:\n"
+            "Infrastructure services depending on application services:\n"
             + "\n".join(violations)
         )
 
@@ -896,6 +896,6 @@ class TestInfrastructureDependencyIsolation:
                     external_refs.append(f"  {infra_svc} -> {dep}")
 
         assert not external_refs, (
-            f"Infrastructure subgraph references non-infra services:\n"
+            "Infrastructure subgraph references non-infra services:\n"
             + "\n".join(external_refs)
         )

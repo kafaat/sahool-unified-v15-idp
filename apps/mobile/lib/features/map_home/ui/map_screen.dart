@@ -1,10 +1,16 @@
+import 'dart:async' show unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:latlong2/latlong.dart' hide Path;
+import '../../../core/di/providers.dart';
+import '../../../core/iam/iam_providers.dart';
 import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/widgets/connectivity_widget.dart';
+import '../../weather/presentation/providers/weather_provider.dart';
 import '../../../core/ui/field_status_mapper.dart';
 import '../../../core/ui/sync_indicator.dart';
 import '../../field/domain/entities/field.dart';
@@ -27,9 +33,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   int _selectedLayerIndex = 0;
   bool _isSearchExpanded = false;
 
-  // حالة الاتصال (للتجربة)
-  bool _isOnline = true;
-  int _pendingSync = 3;
+  // حالة الاتصال والمزامنة - تُقرأ تفاعلياً من connectivityProvider في build
 
   late final MapController _mapController;
   String _searchQuery = '';
@@ -38,8 +42,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   // الحقل المحدد (null = لا يوجد حقل محدد)
   Field? _selectedField;
 
-  /// Active spectral index for overlay coloring
-  SpectralIndex _activeSpectralIndex = SpectralIndex.ndvi;
+  /// Compute the active spectral index from the selected layer
+  SpectralIndex get _activeSpectralIndex {
+    switch (_selectedLayerIndex) {
+      case 3:
+        return SpectralIndex.ndwi;
+      case 4:
+        return SpectralIndex.evi;
+      case 5:
+        return SpectralIndex.savi;
+      default:
+        return SpectralIndex.ndvi;
+    }
+  }
 
   final List<MapLayerOption> _layers = [
     MapLayerOption('القمر الصناعي', Icons.satellite_alt, true),
@@ -51,102 +66,46 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    _mapController = MapController();
-  }
-
-  @override
   void dispose() {
     _mapController.dispose();
     super.dispose();
   }
 
-  // بيانات وهمية للحقول (Mock Data)
-  final List<Field> _mockFields = [
-    Field(
-      id: '1',
-      name: 'القطعة الشمالية',
-      tenantId: 'mock',
-      cropType: 'قمح',
-      areaHectares: 2.4,
-      ndviCurrent: 0.78,
-      status: 'healthy',
-      pendingTasks: 1,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '2',
-      name: 'حقل الذرة',
-      tenantId: 'mock',
-      cropType: 'ذرة',
-      areaHectares: 3.1,
-      ndviCurrent: 0.65,
-      status: 'healthy',
-      pendingTasks: 0,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '3',
-      name: 'البستان الغربي',
-      tenantId: 'mock',
-      cropType: 'عنب',
-      areaHectares: 1.8,
-      ndviCurrent: 0.52,
-      status: 'stressed',
-      pendingTasks: 2,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '4',
-      name: 'حقل الطماطم',
-      tenantId: 'mock',
-      cropType: 'طماطم',
-      areaHectares: 0.9,
-      ndviCurrent: 0.35,
-      status: 'critical',
-      pendingTasks: 4,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '5',
-      name: 'المنطقة الجنوبية',
-      tenantId: 'mock',
-      cropType: 'برسيم',
-      areaHectares: 4.2,
-      ndviCurrent: 0.71,
-      status: 'healthy',
-      pendingTasks: 0,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-    Field(
-      id: '6',
-      name: 'حقل البطاطا',
-      tenantId: 'mock',
-      cropType: 'بطاطا',
-      areaHectares: 1.5,
-      ndviCurrent: 0.48,
-      status: 'stressed',
-      pendingTasks: 1,
-      createdAt: DateTime(2025, 1, 1),
-      updatedAt: DateTime(2025, 1, 1),
-    ),
-  ];
+  // Fields loaded from repository via provider
+  List<Field> _repoFields = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _mapController = MapController();
+    _loadFields();
+  }
+
+  Future<void> _loadFields() async {
+    try {
+      final tenant = ref.read(currentTenantProvider);
+      final tenantId = tenant?.id ?? 'default';
+      final repo = ref.read(fieldsRepoProvider);
+      final fields = await repo.getAllFields(tenantId);
+      if (mounted) {
+        setState(() {
+          _repoFields = fields;
+        });
+      }
+    } catch (e) {
+      // Silently fall back to empty list - fields will load on next refresh
+    }
+  }
 
   List<Field> get _filteredFields {
-    var fields = _mockFields;
+    var fields = _repoFields;
     // Apply status filter
     if (_activeFilter == 'نشط') {
       fields = fields.where((f) => f.healthStatus == FieldStatus.healthy).toList();
     } else if (_activeFilter == 'تنبيه') {
       fields = fields.where((f) => f.needsAttention).toList();
     } else if (_activeFilter == 'حصاد') {
-      fields = fields.where((f) => f.ndvi >= 0.7).toList();
+      fields = fields.where((f) => f.ndvi >= 0.8).toList();
     }
     // Apply search query
     if (_searchQuery.isNotEmpty) {
@@ -183,7 +142,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           _buildEmergencyButton(),
 
           // 7. لوحة المهام المنزلقة (تظهر فقط عندما لا يكون هناك حقل محدد)
-          if (_selectedField == null) DailyTasksSheet(),
+          if (_selectedField == null) const DailyTasksSheet(),
 
           // 8. لوحة تفاصيل الحقل (تغطي الشاشة عند تحديد حقل)
           if (_selectedField != null) _buildFieldContextPanel(),
@@ -227,15 +186,24 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  // إحداثيات وهمية للحقول (اليمن - صنعاء)
-  final List<LatLng> _fieldLocations = const [
-    LatLng(15.3694, 44.1910), // القطعة الشمالية
-    LatLng(15.3550, 44.2050), // حقل الذرة
-    LatLng(15.3800, 44.1750), // البستان الغربي
-    LatLng(15.3450, 44.1850), // حقل الطماطم
-    LatLng(15.3300, 44.2100), // المنطقة الجنوبية
-    LatLng(15.3600, 44.1600), // حقل البطاطا
-  ];
+  /// Field center locations derived from actual field centroids or boundary centers.
+  /// Falls back to Sanaa region default when no geospatial data is available.
+  List<LatLng> get _fieldLocations {
+    const defaultCenter = LatLng(15.3694, 44.1910);
+    if (_repoFields.isEmpty) return [defaultCenter];
+    return _repoFields.map((field) {
+      // Use centroid if available
+      if (field.centroid != null) return field.centroid!;
+      // Fall back to boundary center if available
+      if (field.boundary.isNotEmpty) {
+        final avgLat = field.boundary.map((p) => p.latitude).reduce((a, b) => a + b) / field.boundary.length;
+        final avgLng = field.boundary.map((p) => p.longitude).reduce((a, b) => a + b) / field.boundary.length;
+        return LatLng(avgLat, avgLng);
+      }
+      // Last resort: default center
+      return defaultCenter;
+    }).toList();
+  }
 
   /// الخريطة الحقيقية - FlutterMap
   Widget _buildMapPlaceholder() {
@@ -253,14 +221,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       case 5: // SAVI
         // Use satellite imagery as base for spectral overlays
         tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        _activeSpectralIndex = const [
-          SpectralIndex.ndvi,
-          SpectralIndex.ndvi,
-          SpectralIndex.ndvi,
-          SpectralIndex.ndwi,
-          SpectralIndex.evi,
-          SpectralIndex.savi,
-        ][_selectedLayerIndex];
         break;
       default: // Map
         tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
@@ -269,7 +229,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return FlutterMap(
       mapController: _mapController,
       options: MapOptions(
-        initialCenter: const LatLng(15.3694, 44.1910), // صنعاء
+        initialCenter: _fieldLocations.isNotEmpty
+            ? _fieldLocations.first
+            : const LatLng(15.3694, 44.1910), // default: صنعاء
         initialZoom: 12,
         onTap: (tapPosition, point) {
           if (_selectedField != null) {
@@ -304,7 +266,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   LatLng(loc.latitude + offset, loc.longitude + offset),
                   LatLng(loc.latitude + offset, loc.longitude - offset),
                 ],
-                color: color.withOpacity(0.4),
+                color: color.withValues(alpha: 0.4),
                 borderColor: color,
                 borderStrokeWidth: 2,
                 label: '${_activeSpectralIndex.code}: ${field.ndvi.toStringAsFixed(2)}',
@@ -366,11 +328,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 80,
       right: 70,
-      child: SyncIndicator(
-        isOnline: _isOnline,
-        pendingCount: _pendingSync,
-        onTap: () => context.push('/sync'),
-      ),
+      child: Builder(builder: (context) {
+        final connectivity = ref.watch(connectivityProvider);
+        return SyncIndicator(
+          isOnline: connectivity.isOnline,
+          pendingCount: connectivity.pendingSyncCount,
+          onTap: () => context.push('/sync'),
+        );
+      }),
     );
   }
 
@@ -449,7 +414,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       label: Text(label),
       selected: _activeFilter == label,
       onSelected: (_) => setState(() => _activeFilter = label),
-      selectedColor: SahoolColors.primary.withOpacity(0.2),
+      selectedColor: SahoolColors.primary.withValues(alpha: 0.2),
       checkmarkColor: SahoolColors.primary,
     );
   }
@@ -472,7 +437,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           }),
           const SizedBox(height: 16),
           _buildMapControlButton(Icons.my_location, 'موقعي', () {
-            _mapController.move(const LatLng(15.3694, 44.1910), 14);
+            unawaited(_centerOnUserLocation());
           }, highlight: true),
           const SizedBox(height: 8),
           _buildMapControlButton(Icons.crop_free, 'إطار', () {
@@ -493,8 +458,33 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
+  Future<void> _centerOnUserLocation() async {
+    try {
+      final permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        await Geolocator.requestPermission();
+      }
+      final position = await Geolocator.getCurrentPosition(
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+          timeLimit: Duration(seconds: 10),
+        ),
+      );
+      _mapController.move(
+        LatLng(position.latitude, position.longitude),
+        14,
+      );
+    } catch (e) {
+      // Fall back to first field location or default
+      final center = _fieldLocations.isNotEmpty
+          ? _fieldLocations.first
+          : const LatLng(15.3694, 44.1910);
+      _mapController.move(center, 14);
+    }
+  }
+
   Widget _buildMapControlButton(IconData icon, String tooltip, VoidCallback onPressed, {bool highlight = false}) {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: highlight ? SahoolColors.primary : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -543,7 +533,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: isSelected ? SahoolColors.primary.withOpacity(0.1) : Colors.transparent,
+                    color: isSelected ? SahoolColors.primary.withValues(alpha: 0.1) : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -591,7 +581,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
               children: [
                 Expanded(child: _buildStatItem('مهام', '${_getTotalTasks()}', SahoolColors.info, Icons.task_alt)),
                 Expanded(child: _buildStatItem('تنبيهات', '${_getCriticalCount()}', SahoolColors.danger, Icons.warning_amber)),
-                Expanded(child: _buildStatItem('حقول', '${_mockFields.length}', SahoolColors.success, Icons.grass)),
+                Expanded(child: _buildStatItem('حقول', '${_repoFields.length}', SahoolColors.success, Icons.grass)),
               ],
             ),
             const SizedBox(height: 16),
@@ -621,16 +611,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  int _getTotalTasks() => _mockFields.fold(0, (sum, f) => sum + f.pendingTasks);
+  int _getTotalTasks() => _repoFields.fold(0, (sum, f) => sum + f.pendingTasks);
 
-  int _getCriticalCount() => _mockFields.where((f) => f.needsAttention).length;
+  int _getCriticalCount() => _repoFields.where((f) => f.needsAttention).length;
 
   double _getAverageHealth() {
-    if (_mockFields.isEmpty) return 0;
-    return _mockFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _mockFields.length;
+    if (_repoFields.isEmpty) return 0;
+    return _repoFields.map((f) => f.ndvi).reduce((a, b) => a + b) / _repoFields.length;
   }
 
   Widget _buildWeatherBadge() {
+    final weatherState = ref.watch(weatherProvider);
+    final temp = weatherState.data?.current.temperature;
+    final tempText = temp != null ? '${temp.round()}°C' : '--°C';
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -644,7 +638,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           Icon(Icons.wb_sunny, size: 18, color: Colors.orange[900]),
           const SizedBox(width: 6),
           Text(
-            '32°C',
+            tempText,
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange[900]),
           ),
         ],
@@ -658,7 +652,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 24),
@@ -710,11 +704,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
-            const Icon(Icons.add_task, color: SahoolColors.primary),
-            const SizedBox(width: 8),
-            const Text('إضافة مهمة'),
+            Icon(Icons.add_task, color: SahoolColors.primary),
+            SizedBox(width: 8),
+            Text('إضافة مهمة'),
           ],
         ),
         content: Text('إضافة مهمة جديدة لحقل "${_selectedField?.name}"'),
@@ -736,11 +730,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.warning, color: SahoolColors.danger),
-            const SizedBox(width: 8),
-            const Text('طوارئ'),
+            SizedBox(width: 8),
+            Text('طوارئ'),
           ],
         ),
         content: const Text('هل تريد الإبلاغ عن حالة طوارئ في الحقل؟'),

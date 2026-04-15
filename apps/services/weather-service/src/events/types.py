@@ -14,8 +14,8 @@ SUBJECT_PREFIX = "sahool.weather"
 # NATS Subjects
 SUBJECTS = {
     WEATHER_ALERT: f"{SUBJECT_PREFIX}.alert",
-    WEATHER_FORECAST_ISSUED: f"{SUBJECT_PREFIX}.forecast_issued",
-    IRRIGATION_ADJUSTMENT: f"{SUBJECT_PREFIX}.irrigation_adjustment",
+    WEATHER_FORECAST_ISSUED: f"{SUBJECT_PREFIX}.forecast.issued",
+    IRRIGATION_ADJUSTMENT: f"{SUBJECT_PREFIX}.irrigation.adjustment",
 }
 
 # Event Versions

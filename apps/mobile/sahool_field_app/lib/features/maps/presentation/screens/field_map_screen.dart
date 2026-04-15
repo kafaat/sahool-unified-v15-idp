@@ -153,7 +153,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   Widget _buildMapView() {
     // Placeholder for MapLibre map
     // In production, use maplibre_gl package
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -200,7 +200,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -233,7 +233,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.blue),
                     ),
@@ -268,8 +268,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     return Chip(
       avatar: Icon(icon, size: 16, color: color),
       label: Text(label, style: TextStyle(fontSize: 12, color: color)),
-      backgroundColor: color.withOpacity(0.1),
-      side: BorderSide(color: color.withOpacity(0.3)),
+      backgroundColor: color.withValues(alpha: 0.1),
+      side: BorderSide(color: color.withValues(alpha: 0.3)),
       padding: EdgeInsets.zero,
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
@@ -356,7 +356,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         onPressed: onPressed,
         style: IconButton.styleFrom(
           backgroundColor:
-              isActive ? color.withOpacity(0.1) : Colors.transparent,
+              isActive ? color.withValues(alpha: 0.1) : Colors.transparent,
         ),
       ),
     );
@@ -377,7 +377,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF367C2B).withOpacity(0.1),
+                    color: const Color(0xFF367C2B).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -619,11 +619,36 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
+  /// Whether the map controller is attached to a live FlutterMap widget.
+  ///
+  /// The current build uses a placeholder view instead of FlutterMap,
+  /// so the controller is not attached and its methods must not be called.
+  bool get _isMapControllerAttached {
+    try {
+      // Accessing camera throws if the controller is not attached
+      _mapController.camera;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Center map on field bounds with padding and smooth animation
   ///
   /// Calculates the bounding box of the field geometry and uses
   /// the map controller to fit the bounds with appropriate padding.
   void _centerOnField() {
+    // Guard: controller must be attached to a FlutterMap widget
+    if (!_isMapControllerAttached) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('الخريطة غير جاهزة بعد'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     // Check if we have field boundary data
     if (_fieldBoundary.isEmpty) {
       // Try to use initialCenter as fallback
@@ -707,7 +732,7 @@ class _MapGridPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.green.withOpacity(0.1)
+      ..color = Colors.green.withValues(alpha: 0.1)
       ..strokeWidth = 1;
 
     // رسم خطوط أفقية
@@ -730,7 +755,7 @@ class _MapGridPainter extends CustomPainter {
 
     // رسم بعض المربعات لمحاكاة الحقول
     final fieldPaint = Paint()
-      ..color = Colors.green.withOpacity(0.3)
+      ..color = Colors.green.withValues(alpha: 0.3)
       ..style = PaintingStyle.fill;
 
     final fieldRects = [

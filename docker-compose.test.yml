@@ -2,9 +2,10 @@
 # SAHOOL v16.0.0 Test Environment - Docker Compose
 # بيئة الاختبار لمنصة سهول
 #
-# This docker-compose file sets up a test environment for running integration
-# and E2E tests. It uses the same services as production but with test-specific
-# configurations.
+# ⚠️ SECURITY WARNING: This file contains default test credentials.
+# These defaults are ONLY for local testing and CI. Never use these in
+# production. Set proper secrets via environment variables or a .env file.
+# تحذير أمني: يحتوي هذا الملف على بيانات اعتماد افتراضية للاختبار فقط.
 #
 # Usage:
 #   docker-compose -f docker-compose.test.yml up -d
@@ -68,7 +69,7 @@ services:
       - sahool-test-network
 
   qdrant_test:
-    image: qdrant/qdrant:v1.7.4
+    image: qdrant/qdrant:v1.10.1
     container_name: sahool-qdrant-test
     ports:
       - "6335:6333"  # Different port
@@ -127,6 +128,48 @@ services:
     networks:
       - sahool-test-network
 
+  weather_service_test:
+    build:
+      context: .
+      dockerfile: apps/services/weather-service/Dockerfile
+    container_name: sahool-weather-service-test
+    environment:
+      - PORT=8092
+      - LOG_LEVEL=DEBUG
+      - ENVIRONMENT=test
+      - DATABASE_URL=postgresql://sahool_test:${POSTGRES_PASSWORD:-test_password_123}@postgres_test:5432/sahool_test
+      - NATS_URL=nats://nats_test:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:-test_redis_pass}@redis_test:6379/0
+      # Weather API - use mock provider in test
+      - USE_MOCK_WEATHER=true
+      - USE_MULTI_PROVIDER=false
+      - OPENWEATHERMAP_API_KEY=${OPENWEATHERMAP_API_KEY:-test_openweather_key}
+      - WEATHERAPI_KEY=${WEATHERAPI_KEY:-test_weatherapi_key}
+      # Cache Configuration
+      - WEATHER_CACHE_ENABLED=true
+      - WEATHER_CACHE_CURRENT_TTL=10
+      - WEATHER_CACHE_FORECAST_TTL=60
+      # Feature Toggles
+      - WEATHER_ALERTS_ENABLED=true
+      - WEATHER_AG_INDICES_ENABLED=true
+    ports:
+      - "8192:8092"  # Different port to avoid conflicts
+    depends_on:
+      postgres_test:
+        condition: service_healthy
+      nats_test:
+        condition: service_healthy
+      redis_test:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    networks:
+      - sahool-test-network
+
   # ai_advisor_test removed - requires PyTorch/CUDA (~4.5GB), exceeds CI disk space
   # Test locally with: docker build -f apps/services/ai-advisor/Dockerfile .
 
@@ -166,6 +209,7 @@ services:
       - nats_test
       - qdrant_test
       - billing_core_test
+      - weather_service_test
     command: |
       sh -c "
         echo 'Waiting for services to be ready...'

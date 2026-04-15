@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Community Management Page
 // صفحة إدارة المجتمع
 
-import { useEffect, useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
 import {
   MessageSquare,
   Search,
@@ -18,17 +18,18 @@ import {
   AlertTriangle,
   CheckCircle,
   XCircle,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { MOCK_POSTS } from "./community.mock";
-import type { Post } from "./community.mock";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { apiClient } from '@/lib/api';
+import { API_URLS } from '@/config/api';
+import type { Post } from './community.mock';
 
 export default function CommunityPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     loadPosts();
@@ -37,12 +38,44 @@ export default function CommunityPage() {
   async function loadPosts() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setPosts(MOCK_POSTS);
+      const response = await apiClient.get(API_URLS.community.posts);
+      const data = response.data?.data || response.data || [];
+      setPosts(Array.isArray(data) ? data : []);
     } catch (error) {
-      logger.error("Failed to load posts:", error);
+      logger.error('Failed to load posts:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        const { MOCK_POSTS } = await import('./community.mock');
+        setPosts(MOCK_POSTS);
+      }
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleApprovePost(postId: string) {
+    try {
+      await apiClient.post(API_URLS.community.approvePost(postId), {});
+      setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, status: 'active' as const } : p)));
+    } catch (error) {
+      logger.error('Failed to approve post:', error);
+    }
+  }
+
+  async function handleHidePost(postId: string) {
+    try {
+      await apiClient.post(API_URLS.community.hidePost(postId), {});
+      setPosts((prev) => prev.map((p) => (p.id === postId ? { ...p, status: 'hidden' as const } : p)));
+    } catch (error) {
+      logger.error('Failed to hide post:', error);
+    }
+  }
+
+  async function handleDeletePost(postId: string) {
+    try {
+      await apiClient.delete(API_URLS.community.postById(postId));
+      setPosts((prev) => prev.filter((p) => p.id !== postId));
+    } catch (error) {
+      logger.error('Failed to delete post:', error);
     }
   }
 
@@ -63,40 +96,45 @@ export default function CommunityPage() {
     });
   }, [posts, searchQuery, categoryFilter, statusFilter]);
 
-  const stats = useMemo(() => ({
-    total: posts.length,
-    active: posts.filter((p) => p.status === "active").length,
-    flagged: posts.filter((p) => p.status === "flagged").length,
-    pending: posts.filter((p) => p.status === "pending").length,
-  }), [posts]);
+  const stats = useMemo(
+    () => ({
+      total: posts.length,
+      active: posts.filter((p) => p.status === 'active').length,
+      flagged: posts.filter((p) => p.status === 'flagged').length,
+      pending: posts.filter((p) => p.status === 'pending').length,
+    }),
+    [posts]
+  );
 
-  const getStatusLabel = (status: Post["status"]) => {
-    const labels: Record<Post["status"], string> = {
-      active: "نشط",
-      flagged: "مُبلغ عنه",
-      hidden: "مخفي",
-      pending: "قيد المراجعة",
+  const getStatusLabel = (status: Post['status']) => {
+    const labels: Record<Post['status'], string> = {
+      active: 'نشط',
+      flagged: 'مُبلغ عنه',
+      hidden: 'مخفي',
+      pending: 'قيد المراجعة',
     };
     return labels[status];
   };
 
-  const getStatusColor = (status: Post["status"]) => {
-    const colors: Record<Post["status"], string> = {
-      active: "bg-green-100 text-green-800",
-      flagged: "bg-red-100 text-red-800",
-      hidden: "bg-gray-100 text-gray-800",
-      pending: "bg-yellow-100 text-yellow-800",
+  const getStatusColor = (status: Post['status']) => {
+    const colors: Record<Post['status'], string> = {
+      active: 'bg-green-100 text-green-800',
+      flagged: 'bg-red-100 text-red-800',
+      hidden: 'bg-gray-100 text-gray-800',
+      pending: 'bg-yellow-100 text-yellow-800',
     };
     return colors[status];
   };
 
   const columns = [
     {
-      key: "content",
-      header: "المنشور",
+      key: 'content',
+      header: 'المنشور',
       render: (post: Post) => (
         <div className="max-w-md">
-          <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2">{post.contentAr}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+            {post.contentAr}
+          </p>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             بواسطة: {post.authorAr} • {post.categoryAr}
           </p>
@@ -104,8 +142,8 @@ export default function CommunityPage() {
       ),
     },
     {
-      key: "engagement",
-      header: "التفاعل",
+      key: 'engagement',
+      header: 'التفاعل',
       render: (post: Post) => (
         <div className="flex items-center gap-4 text-sm">
           <span className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
@@ -118,36 +156,42 @@ export default function CommunityPage() {
       ),
     },
     {
-      key: "reports",
-      header: "البلاغات",
+      key: 'reports',
+      header: 'البلاغات',
       render: (post: Post) => (
-        <span className={cn(
-          "flex items-center gap-1",
-          post.reports > 0 ? "text-red-600 font-medium" : "text-gray-400"
-        )}>
+        <span
+          className={cn(
+            'flex items-center gap-1',
+            post.reports > 0 ? 'text-red-600 font-medium' : 'text-gray-400'
+          )}
+        >
           <Flag className="w-4 h-4" /> {post.reports}
         </span>
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (post: Post) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(post.status))}>
+        <span
+          className={cn('px-2 py-1 rounded-full text-xs font-medium', getStatusColor(post.status))}
+        >
           {getStatusLabel(post.status)}
         </span>
       ),
     },
     {
-      key: "createdAt",
-      header: "التاريخ",
+      key: 'createdAt',
+      header: 'التاريخ',
       render: (post: Post) => (
-        <span className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(post.createdAt)}</span>
+        <span className="text-gray-500 dark:text-gray-400 text-sm">
+          {formatDate(post.createdAt)}
+        </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (post: Post) => (
         <div className="flex items-center gap-1">
           <button
@@ -157,39 +201,39 @@ export default function CommunityPage() {
           >
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
-          {(post.status === "flagged" || post.status === "pending") && (
+          {(post.status === 'flagged' || post.status === 'pending') && (
             <button
-              disabled
-              className="p-2 hover:bg-green-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              title="قبول (قريبًا)"
+              onClick={() => handleApprovePost(post.id)}
+              className="p-2 hover:bg-green-50 rounded-lg transition-colors"
+              title="قبول"
             >
               <CheckCircle className="w-4 h-4 text-green-500" />
             </button>
           )}
-          {post.status !== "hidden" && (
+          {post.status !== 'hidden' && (
             <button
-              disabled
-              className="p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              title="إخفاء (قريبًا)"
+              onClick={() => handleHidePost(post.id)}
+              className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+              title="إخفاء"
             >
               <XCircle className="w-4 h-4 text-red-500" />
             </button>
           )}
           <button
-            disabled
-            className="p-2 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="حذف (قريبًا)"
+            onClick={() => handleDeletePost(post.id)}
+            className="p-2 hover:bg-red-50 rounded-lg transition-colors"
+            title="حذف"
           >
             <Trash2 className="w-4 h-4 text-red-500" />
           </button>
         </div>
       ),
-      className: "w-40",
+      className: 'w-40',
     },
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة المجتمع" subtitle={`${posts.length} منشور`} />
 
       {/* Stats */}
@@ -283,7 +327,12 @@ export default function CommunityPage() {
             onClick={loadPosts}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-300',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
         </div>
       </div>

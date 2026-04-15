@@ -9,9 +9,28 @@ import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .preferences_service import PreferencesService
+
+# Import authentication dependencies
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from pydantic import BaseModel as _BaseModel
+
+    class User(_BaseModel):  # type: ignore[no-redef]
+        id: str = ""
+        tenant_id: str = ""
+
+    async def get_current_user():
+        # Fail-secure: reject requests when auth module is unavailable
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
+
 
 logger = logging.getLogger("sahool-notifications.preferences-controller")
 
@@ -33,15 +52,44 @@ def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -
 # =============================================================================
 
 
+ALLOWED_CHANNEL_TYPES = {"email", "sms", "push", "whatsapp", "in_app"}
+ALLOWED_EVENT_TYPES = {
+    "weather_alert",
+    "pest_outbreak",
+    "irrigation_reminder",
+    "crop_health",
+    "market_price",
+    "system",
+    "task_reminder",
+}
+
+
 class UpdateEventPreferenceRequest(BaseModel):
     """طلب تحديث تفضيلات حدث - Update Event Preference Request"""
 
-    user_id: str = Field(..., description="User ID")
-    event_type: str = Field(..., description="Event type (weather_alert, pest_outbreak, etc.)")
-    channels: list[str] = Field(..., description="List of channel types to use")
+    user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
+    event_type: str = Field(
+        ..., min_length=1, max_length=50, description="Event type (weather_alert, pest_outbreak, etc.)"
+    )
+    channels: list[str] = Field(..., min_length=1, description="List of channel types to use")
     enabled: bool = Field(True, description="Whether this event type is enabled")
-    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
+    tenant_id: str | None = Field(None, max_length=100, description="Tenant ID for multi-tenancy")
     metadata: dict[str, Any] | None = Field(None, description="Additional metadata")
+
+    @field_validator("channels")
+    @classmethod
+    def validate_channels(cls, v: list[str]) -> list[str]:
+        for ch in v:
+            if ch not in ALLOWED_CHANNEL_TYPES:
+                raise ValueError(f"Invalid channel type '{ch}'. Allowed: {', '.join(sorted(ALLOWED_CHANNEL_TYPES))}")
+        return v
+
+    @field_validator("event_type")
+    @classmethod
+    def validate_event_type(cls, v: str) -> str:
+        if v not in ALLOWED_EVENT_TYPES:
+            raise ValueError(f"Invalid event type '{v}'. Allowed: {', '.join(sorted(ALLOWED_EVENT_TYPES))}")
+        return v
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -59,10 +107,14 @@ class UpdateEventPreferenceRequest(BaseModel):
 class SetQuietHoursRequest(BaseModel):
     """طلب تحديد ساعات الهدوء - Set Quiet Hours Request"""
 
-    user_id: str = Field(..., description="User ID")
-    quiet_hours_start: str | None = Field(None, description="Start time in HH:MM format (e.g., '22:00')")
-    quiet_hours_end: str | None = Field(None, description="End time in HH:MM format (e.g., '06:00')")
-    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
+    user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
+    quiet_hours_start: str | None = Field(
+        None, pattern=r"^\d{2}:\d{2}$", description="Start time in HH:MM format (e.g., '22:00')"
+    )
+    quiet_hours_end: str | None = Field(
+        None, pattern=r"^\d{2}:\d{2}$", description="End time in HH:MM format (e.g., '06:00')"
+    )
+    tenant_id: str | None = Field(None, max_length=100, description="Tenant ID for multi-tenancy")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -79,9 +131,9 @@ class SetQuietHoursRequest(BaseModel):
 class BulkUpdatePreferencesRequest(BaseModel):
     """طلب تحديث تفضيلات متعددة - Bulk Update Preferences Request"""
 
-    user_id: str = Field(..., description="User ID")
-    preferences: list[dict[str, Any]] = Field(..., description="List of preference updates")
-    tenant_id: str | None = Field(None, description="Tenant ID for multi-tenancy")
+    user_id: str = Field(..., min_length=1, max_length=100, description="User ID")
+    preferences: list[dict[str, Any]] = Field(..., min_length=1, description="List of preference updates")
+    tenant_id: str | None = Field(None, max_length=100, description="Tenant ID for multi-tenancy")
 
     model_config = ConfigDict(
         json_schema_extra={
@@ -192,7 +244,11 @@ async def get_event_preference(
 
 
 @router.post("/update", summary="تحديث تفضيلات حدث - Update Event Preference")
-async def update_preference(request: UpdateEventPreferenceRequest, tenant_id: str = Depends(get_tenant_id)):
+async def update_preference(
+    request: UpdateEventPreferenceRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """
     تحديث تفضيلات نوع حدث معين
     Update preferences for a specific event type
@@ -200,9 +256,16 @@ async def update_preference(request: UpdateEventPreferenceRequest, tenant_id: st
     Configure which channels to use for each event type.
     Available channels: email, sms, push, whatsapp, in_app
     """
+    # Enforce tenant isolation
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(403, "Tenant mismatch")
+    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="User ID mismatch")
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id
     try:
         result = await PreferencesService.update_event_preference(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             event_type=request.event_type,
             channels=request.channels,
             enabled=request.enabled,
@@ -225,7 +288,11 @@ async def update_preference(request: UpdateEventPreferenceRequest, tenant_id: st
 
 
 @router.post("/quiet-hours", summary="تحديد ساعات الهدوء - Set Quiet Hours")
-async def set_quiet_hours(request: SetQuietHoursRequest, tenant_id: str = Depends(get_tenant_id)):
+async def set_quiet_hours(
+    request: SetQuietHoursRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """
     تحديد ساعات الهدوء (عدم الإزعاج)
     Set quiet hours (do not disturb period)
@@ -234,9 +301,16 @@ async def set_quiet_hours(request: SetQuietHoursRequest, tenant_id: str = Depend
     Time format: HH:MM (24-hour format)
     Example: 22:00 to 06:00 (10 PM to 6 AM)
     """
+    # Enforce tenant isolation
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(403, "Tenant mismatch")
+    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="User ID mismatch")
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id
     try:
         result = await PreferencesService.set_quiet_hours(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             quiet_hours_start=request.quiet_hours_start,
             quiet_hours_end=request.quiet_hours_end,
             tenant_id=tenant_id,
@@ -261,16 +335,27 @@ async def set_quiet_hours(request: SetQuietHoursRequest, tenant_id: str = Depend
 
 
 @router.post("/bulk-update", summary="تحديث تفضيلات متعددة - Bulk Update Preferences")
-async def bulk_update_preferences(request: BulkUpdatePreferencesRequest, tenant_id: str = Depends(get_tenant_id)):
+async def bulk_update_preferences(
+    request: BulkUpdatePreferencesRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """
     تحديث تفضيلات متعددة دفعة واحدة
     Bulk update multiple preferences at once
 
     Useful for initial setup or updating all preferences together.
     """
+    # Enforce tenant isolation
+    if hasattr(current_user, "tenant_id") and current_user.tenant_id and current_user.tenant_id != tenant_id:
+        raise HTTPException(403, "Tenant mismatch")
+    if hasattr(request, "user_id") and request.user_id and request.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="User ID mismatch")
+    # Enforce ownership: use authenticated user's ID
+    effective_user_id = current_user.id
     try:
         result = await PreferencesService.bulk_update_preferences(
-            user_id=request.user_id,
+            user_id=effective_user_id,
             preferences=request.preferences,
             tenant_id=tenant_id,
         )

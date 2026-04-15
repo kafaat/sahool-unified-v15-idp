@@ -1,6 +1,9 @@
 apiVersion: v2
 name: crop-intelligence-service
-description: SAHOOL Crop Intelligence Service - Microservice
+# DEPRECATED: Use helm/services/crop-intelligence-service/ instead.
+# This generic chart is superseded by the production-enhanced version in helm/services/.
+deprecated: true
+description: SAHOOL Crop Intelligence Service - Microservice (DEPRECATED - use helm/services/)
 type: application
 version: 1.0.0
 appVersion: "16.0.0"

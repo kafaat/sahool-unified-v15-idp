@@ -72,8 +72,8 @@ describe("TenantGuard rejects when user.tenantId does not match request tenantId
 
   it("should reject when x-tenant-id header differs from JWT tenantId for farmer", () => {
     const context = createMockContext({
-      user: { id: "farmer-1", roles: ["farmer"], tenantId: "tenant-A" },
-      headers: { "x-tenant-id": "tenant-B" },
+      user: { id: "farmer-1", roles: ["farmer"], tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+      headers: { "x-tenant-id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
     });
 
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
@@ -81,8 +81,8 @@ describe("TenantGuard rejects when user.tenantId does not match request tenantId
 
   it("should reject when x-tenant-id header differs from JWT tenantId for viewer", () => {
     const context = createMockContext({
-      user: { id: "viewer-1", roles: ["viewer"], tenantId: "tenant-100" },
-      headers: { "x-tenant-id": "tenant-200" },
+      user: { id: "viewer-1", roles: ["viewer"], tenantId: "11111111-1111-1111-1111-111111111100" },
+      headers: { "x-tenant-id": "22222222-2222-2222-2222-222222222200" },
     });
 
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
@@ -93,9 +93,9 @@ describe("TenantGuard rejects when user.tenantId does not match request tenantId
       user: {
         id: "user-1",
         roles: ["farmer", "manager", "supervisor"],
-        tenantId: "tenant-A",
+        tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       },
-      headers: { "x-tenant-id": "tenant-B" },
+      headers: { "x-tenant-id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
     });
 
     expect(() => guard.canActivate(context)).toThrow(ForbiddenException);
@@ -103,8 +103,8 @@ describe("TenantGuard rejects when user.tenantId does not match request tenantId
 
   it("should allow admin users to access different tenants", () => {
     const context = createMockContext({
-      user: { id: "admin-1", roles: ["admin"], tenantId: "tenant-A" },
-      headers: { "x-tenant-id": "tenant-B" },
+      user: { id: "admin-1", roles: ["admin"], tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+      headers: { "x-tenant-id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
     });
 
     expect(guard.canActivate(context)).toBe(true);
@@ -115,9 +115,9 @@ describe("TenantGuard rejects when user.tenantId does not match request tenantId
       user: {
         id: "admin-1",
         roles: ["admin", "farmer"],
-        tenantId: "tenant-A",
+        tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
       },
-      headers: { "x-tenant-id": "tenant-C" },
+      headers: { "x-tenant-id": "cccccccc-cccc-cccc-cccc-cccccccccccc" },
     });
 
     expect(guard.canActivate(context)).toBe(true);
@@ -125,7 +125,7 @@ describe("TenantGuard rejects when user.tenantId does not match request tenantId
 
   it("should allow when no header is provided and user has tenantId", () => {
     const context = createMockContext({
-      user: { id: "farmer-1", roles: ["farmer"], tenantId: "tenant-A" },
+      user: { id: "farmer-1", roles: ["farmer"], tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
       headers: {},
     });
 
@@ -134,27 +134,27 @@ describe("TenantGuard rejects when user.tenantId does not match request tenantId
 
   it("should set tenantId on request from JWT when no header", () => {
     const context = createMockContext({
-      user: { id: "farmer-1", roles: ["farmer"], tenantId: "tenant-A" },
+      user: { id: "farmer-1", roles: ["farmer"], tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
       headers: {},
     });
 
     guard.canActivate(context);
 
     const request = context.switchToHttp().getRequest() as any;
-    expect(request.tenantId).toBe("tenant-A");
+    expect(request.tenantId).toBe("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
   });
 
   it("should set tenantId on request from header for admin cross-tenant", () => {
     const context = createMockContext({
-      user: { id: "admin-1", roles: ["admin"], tenantId: "tenant-A" },
-      headers: { "x-tenant-id": "tenant-B" },
+      user: { id: "admin-1", roles: ["admin"], tenantId: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" },
+      headers: { "x-tenant-id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" },
     });
 
     guard.canActivate(context);
 
     const request = context.switchToHttp().getRequest() as any;
     // requestedTenantId = headerTenantId || userTenantId, so header wins
-    expect(request.tenantId).toBe("tenant-B");
+    expect(request.tenantId).toBe("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
   });
 
   it("should reject when no tenant information is available at all", () => {

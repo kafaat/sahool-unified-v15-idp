@@ -8,7 +8,7 @@
  * - Integrates with error tracking service (when configured)
  */
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = process.env.NODE_ENV === 'development';
 
 // Sentry DSN check - only load Sentry when properly configured
 const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -17,7 +17,10 @@ const isSentryEnabled = Boolean(SENTRY_DSN && SENTRY_DSN.length > 0);
 /** Minimal Sentry interface for the methods we actually use */
 interface SentryLike {
   captureException(error: unknown, hint?: { extra?: Record<string, unknown> }): string;
-  captureMessage(message: string, captureContext?: { level?: string; extra?: Record<string, unknown> }): string;
+  captureMessage(
+    message: string,
+    captureContext?: { level?: string; extra?: Record<string, unknown> }
+  ): string;
 }
 
 // Lazy-loaded Sentry module to avoid OpenTelemetry issues when not configured
@@ -28,25 +31,27 @@ async function getSentry(): Promise<SentryLike | null> {
   if (SentryModule) return SentryModule;
 
   try {
-    const mod = await import("@sentry/nextjs");
+    const mod = await import('@sentry/nextjs');
     // Validate the module actually exposes the methods we need.
     // When @sentry/nextjs is aliased to `false` (webpack) the import
     // resolves to an empty module instead of throwing.
     if (
-      typeof (mod as Record<string, unknown>).captureException === "function" &&
-      typeof (mod as Record<string, unknown>).captureMessage === "function"
+      typeof (mod as Record<string, unknown>).captureException === 'function' &&
+      typeof (mod as Record<string, unknown>).captureMessage === 'function'
     ) {
       SentryModule = mod as SentryLike;
       return SentryModule;
     }
     if (isDev) {
-      console.warn("[Logger] @sentry/nextjs loaded but missing expected methods, continuing without error tracking");
+      console.warn(
+        '[Logger] @sentry/nextjs loaded but missing expected methods, continuing without error tracking'
+      );
     }
     return null;
   } catch (error) {
     // Sentry import failed - continue without it
     if (isDev) {
-      console.warn("[Logger] Sentry import failed, continuing without error tracking:", error);
+      console.warn('[Logger] Sentry import failed, continuing without error tracking:', error);
     }
     return null;
   }
@@ -64,12 +69,38 @@ export const logger = {
   },
 
   /**
-   * Log errors (development only)
-   * تسجيل الأخطاء (بيئة التطوير فقط)
+   * Log errors (all environments)
+   * تسجيل الأخطاء (جميع البيئات)
+   *
+   * In production, errors are logged as structured JSON to avoid exposing
+   * sensitive details while still capturing actionable information.
    */
   error: (...args: unknown[]) => {
     if (isDev) {
       console.error(...args);
+    } else {
+      // In production, log structured JSON to avoid exposing sensitive details
+      const firstArg = args[0];
+      const entry: Record<string, unknown> = {
+        level: 'error',
+        service: 'sahool-web',
+        timestamp: new Date().toISOString(),
+        message: firstArg instanceof Error ? firstArg.message : String(firstArg),
+      };
+      if (firstArg instanceof Error && firstArg.stack) {
+        entry.stack = firstArg.stack;
+      }
+      if (args.length > 1) {
+        entry.details = args.slice(1).map((a) =>
+          a instanceof Error ? { error: a.message, stack: a.stack } : a
+        );
+      }
+      try {
+        console.error(JSON.stringify(entry));
+      } catch {
+        // Fallback if entry contains circular refs or non-serializable values
+        console.error(entry.message, entry.stack ?? '');
+      }
     }
   },
 
@@ -140,30 +171,32 @@ export const logger = {
       const extraData = args.slice(1);
 
       // Use async Sentry loading to avoid blocking and OpenTelemetry issues
-      getSentry().then((Sentry) => {
-        if (!Sentry) return;
+      getSentry()
+        .then((Sentry) => {
+          if (!Sentry) return;
 
-        if (firstArg instanceof Error) {
-          // Handle Error objects
-          Sentry.captureException(firstArg, {
-            extra: extraData.length > 0 ? { context: extraData } : undefined,
-          });
-        } else if (typeof firstArg === "string") {
-          // Handle string messages
-          Sentry.captureMessage(firstArg, {
-            level: "error",
-            extra: extraData.length > 0 ? { context: extraData } : undefined,
-          });
-        } else {
-          // Handle other types (objects, etc.)
-          Sentry.captureMessage("Critical error occurred", {
-            level: "error",
-            extra: { context: args },
-          });
-        }
-      }).catch(() => {
-        // Silently fail if Sentry cannot be loaded
-      });
+          if (firstArg instanceof Error) {
+            // Handle Error objects
+            Sentry.captureException(firstArg, {
+              extra: extraData.length > 0 ? { context: extraData } : undefined,
+            });
+          } else if (typeof firstArg === 'string') {
+            // Handle string messages
+            Sentry.captureMessage(firstArg, {
+              level: 'error',
+              extra: extraData.length > 0 ? { context: extraData } : undefined,
+            });
+          } else {
+            // Handle other types (objects, etc.)
+            Sentry.captureMessage('Critical error occurred', {
+              level: 'error',
+              extra: { context: args },
+            });
+          }
+        })
+        .catch(() => {
+          // Silently fail if Sentry cannot be loaded
+        });
     }
   },
 
@@ -182,11 +215,11 @@ export const logger = {
       // This prevents exposing sensitive information in console
       console.error(
         JSON.stringify({
-          level: "error",
-          service: "sahool-web",
+          level: 'error',
+          service: 'sahool-web',
           timestamp: new Date().toISOString(),
           message: args,
-        }),
+        })
       );
     }
   },

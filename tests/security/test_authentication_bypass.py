@@ -4,14 +4,15 @@ Authentication Bypass Prevention Tests for SAHOOL Platform.
 Tests validate JWT security, token handling, and authentication edge cases.
 """
 
-import pytest
-import jwt
-import time
 import base64
 import json
+import time
+import uuid
 from datetime import datetime, timedelta
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional
 
+import jwt
+import pytest
 
 TEST_SECRET_KEY = "test-secret-key-for-unit-tests-only-32chars"
 TEST_ALGORITHM = "HS256"
@@ -40,7 +41,7 @@ class JWTAuthenticator:
             "roles": roles,
             "iat": now,
             "exp": now + expires_delta,
-            "jti": f"{user_id}-{int(now.timestamp())}",
+            "jti": f"{user_id}-{uuid.uuid4().hex[:12]}",
         }
         return jwt.encode(payload, self.secret_key, algorithm=self.algorithm)
 
@@ -410,9 +411,9 @@ class TestMalformedTokenHandling:
         assert authenticator.verify_token("") is None
 
     def test_null_token(self, authenticator):
-        """Test null token is handled."""
-        with pytest.raises((TypeError, AttributeError)):
-            authenticator.verify_token(None)
+        """Test null token is rejected gracefully."""
+        result = authenticator.verify_token(None)
+        assert result is None
 
     def test_non_base64_token(self, authenticator):
         """Test non-base64 token is rejected."""

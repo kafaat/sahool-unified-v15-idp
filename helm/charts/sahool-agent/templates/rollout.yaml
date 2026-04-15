@@ -368,6 +368,11 @@ spec:
               containers:
               - name: smoke-test
                 image: {{ .Values.rollout.analysis.smokeTests.image | default "curlimages/curl:8.5.0" }}
+                securityContext:
+                  runAsNonRoot: true
+                  runAsUser: 1000
+                  allowPrivilegeEscalation: false
+                  readOnlyRootFilesystem: true
                 command:
                 - sh
                 - -c

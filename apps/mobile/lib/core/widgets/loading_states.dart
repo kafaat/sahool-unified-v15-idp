@@ -152,17 +152,20 @@ class SkeletonCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SahoolShimmer(
-      child: Container(
-        height: height,
-        width: width,
-        margin: margin ?? const EdgeInsets.symmetric(vertical: 6),
-        padding: padding,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: BorderRadius.circular(borderRadius),
+    return Semantics(
+      label: 'جاري التحميل - Loading',
+      child: SahoolShimmer(
+        child: Container(
+          height: height,
+          width: width,
+          margin: margin ?? const EdgeInsets.symmetric(vertical: 6),
+          padding: padding,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(borderRadius),
+          ),
+          child: child,
         ),
-        child: child,
       ),
     );
   }
@@ -188,14 +191,17 @@ class SkeletonList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      padding: padding ?? const EdgeInsets.all(16),
-      itemCount: itemCount,
-      separatorBuilder: (_, __) => SizedBox(height: spacing),
-      itemBuilder: (context, index) =>
-          itemBuilder?.call(index) ?? SkeletonCard(height: itemHeight),
+    return Semantics(
+      label: 'جاري تحميل $itemCount عنصر - Loading $itemCount items',
+      child: ListView.separated(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        padding: padding ?? const EdgeInsets.all(16),
+        itemCount: itemCount,
+        separatorBuilder: (_, __) => SizedBox(height: spacing),
+        itemBuilder: (context, index) =>
+            itemBuilder?.call(index) ?? SkeletonCard(height: itemHeight),
+      ),
     );
   }
 }
@@ -277,12 +283,12 @@ class FieldCardSkeleton extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
                 // Title and subtitle
-                Expanded(
+                const Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ShimmerContainer(width: 120, height: 16),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       ShimmerContainer(width: 80, height: 12),
                     ],
                   ),
@@ -304,10 +310,10 @@ class FieldCardSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: List.generate(
                 3,
-                (_) => Column(
+                (_) => const Column(
                   children: [
                     ShimmerContainer(width: 40, height: 10),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     ShimmerContainer(width: 50, height: 14),
                   ],
                 ),
@@ -355,9 +361,9 @@ class FieldsListSkeleton extends StatelessWidget {
       shrinkWrap: true,
       padding: const EdgeInsets.all(16),
       itemCount: count,
-      itemBuilder: (_, index) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: const FieldCardSkeleton(),
+      itemBuilder: (_, index) => const Padding(
+        padding: EdgeInsets.only(bottom: 12),
+        child: FieldCardSkeleton(),
       ),
     );
   }
@@ -385,7 +391,7 @@ class WeatherCardSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Location and date
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ShimmerContainer(width: 100, height: 14),
@@ -407,11 +413,11 @@ class WeatherCardSkeleton extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Column(
+                const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShimmerContainer(width: 100, height: 48),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     ShimmerContainer(width: 80, height: 16),
                   ],
                 ),
@@ -423,10 +429,10 @@ class WeatherCardSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(
                 4,
-                (_) => Column(
+                (_) => const Column(
                   children: [
                     ShimmerContainer(width: 24, height: 24),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     ShimmerContainer(width: 40, height: 12),
                   ],
                 ),
@@ -455,7 +461,7 @@ class WeatherScreenSkeleton extends StatelessWidget {
           const WeatherCardSkeleton(),
           const SizedBox(height: 24),
           // Hourly section title
-          SahoolShimmer(child: ShimmerContainer(width: 120, height: 18)),
+          const SahoolShimmer(child: ShimmerContainer(width: 120, height: 18)),
           const SizedBox(height: 12),
           // Hourly forecast
           SizedBox(
@@ -478,7 +484,7 @@ class WeatherScreenSkeleton extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           // Daily section title
-          SahoolShimmer(child: ShimmerContainer(width: 140, height: 18)),
+          const SahoolShimmer(child: ShimmerContainer(width: 140, height: 18)),
           const SizedBox(height: 12),
           // Daily forecast
           ...List.generate(
@@ -530,11 +536,11 @@ class MapSkeleton extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.95),
+                color: Colors.white.withValues(alpha: 0.95),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                   ),
                 ],
@@ -616,7 +622,7 @@ class NdviSkeleton extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ShimmerContainer(width: 100, height: 18),
@@ -660,10 +666,10 @@ class NdviSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(
                 4,
-                (_) => Column(
+                (_) => const Column(
                   children: [
                     ShimmerContainer(width: 50, height: 12),
-                    const SizedBox(height: 4),
+                    SizedBox(height: 4),
                     ShimmerContainer(width: 40, height: 20),
                   ],
                 ),
@@ -700,7 +706,7 @@ class ChartSkeleton extends StatelessWidget {
         child: Column(
           children: [
             // Title
-            Row(
+            const Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ShimmerContainer(width: 100, height: 16),
@@ -734,7 +740,7 @@ class ChartSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: List.generate(
                 7,
-                (_) => ShimmerContainer(width: 24, height: 10),
+                (_) => const ShimmerContainer(width: 24, height: 10),
               ),
             ),
           ],
@@ -777,7 +783,7 @@ class SahoolLoadingScreen extends StatelessWidget {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: SahoolColors.primary.withOpacity(0.1),
+                  color: SahoolColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Icon(
@@ -898,8 +904,8 @@ class SahoolLoadingOverlay extends StatelessWidget {
         if (isLoading)
           GestureDetector(
             onTap: dismissible ? () {} : null,
-            child: Container(
-              color: Colors.black.withOpacity(0.3),
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: 0.3),
               child: Center(
                 child: Container(
                   padding: const EdgeInsets.all(24),
@@ -908,7 +914,7 @@ class SahoolLoadingOverlay extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 20,
                       ),
                     ],
@@ -1196,9 +1202,9 @@ class SahoolLoadingButton extends StatelessWidget {
           backgroundColor: backgroundColor ?? SahoolColors.primary,
           foregroundColor: foregroundColor ?? Colors.white,
           disabledBackgroundColor:
-              (backgroundColor ?? SahoolColors.primary).withOpacity(0.7),
+              (backgroundColor ?? SahoolColors.primary).withValues(alpha: 0.7),
           disabledForegroundColor:
-              (foregroundColor ?? Colors.white).withOpacity(0.9),
+              (foregroundColor ?? Colors.white).withValues(alpha: 0.9),
         ),
         child: isLoading
             ? Row(
@@ -1211,7 +1217,7 @@ class SahoolLoadingButton extends StatelessWidget {
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
                       valueColor: AlwaysStoppedAnimation<Color>(
-                        (foregroundColor ?? Colors.white).withOpacity(0.9),
+                        (foregroundColor ?? Colors.white).withValues(alpha: 0.9),
                       ),
                     ),
                   ),

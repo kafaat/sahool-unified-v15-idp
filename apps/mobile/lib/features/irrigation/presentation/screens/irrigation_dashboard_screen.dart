@@ -2,6 +2,7 @@
 /// Main irrigation management screen with field selector, water balance,
 /// scheduling overview, and quick action buttons.
 /// الشاشة الرئيسية لإدارة الري مع اختيار الحقل وتوازن المياه والجدولة
+library;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -132,10 +133,10 @@ class _IrrigationDashboardScreenState
   Widget _buildFieldSelector(String? selectedFieldId, bool isArabic) {
     if (widget.fields.isEmpty) {
       return OrganicCard(
-        color: SahoolColors.paleOlive.withOpacity(0.5),
+        color: SahoolColors.paleOlive.withValues(alpha: 0.5),
         child: Row(
           children: [
-            Icon(Icons.info_outline, color: SahoolColors.sageGreen),
+            const Icon(Icons.info_outline, color: SahoolColors.sageGreen),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
@@ -155,7 +156,7 @@ class _IrrigationDashboardScreenState
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SahoolColors.sageGreen.withOpacity(0.3)),
+        border: Border.all(color: SahoolColors.sageGreen.withValues(alpha: 0.3)),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
@@ -291,7 +292,7 @@ class _IrrigationDashboardScreenState
       error: (_, __) => Center(
         child: Text(
           isArabic ? 'خطأ في تحميل البيانات' : 'Error loading data',
-          style: TextStyle(color: SahoolColors.danger),
+          style: const TextStyle(color: SahoolColors.danger),
         ),
       ),
     );
@@ -343,8 +344,8 @@ class _IrrigationDashboardScreenState
           isArabic: isArabic,
         );
       },
-      loading: () => OrganicCard(
-        child: const Padding(
+      loading: () => const OrganicCard(
+        child: Padding(
           padding: EdgeInsets.all(32),
           child: Center(
             child: CircularProgressIndicator(
@@ -354,19 +355,19 @@ class _IrrigationDashboardScreenState
         ),
       ),
       error: (error, _) => OrganicCard(
-        color: SahoolColors.danger.withOpacity(0.05),
+        color: SahoolColors.danger.withValues(alpha: 0.05),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Row(
             children: [
-              Icon(Icons.error_outline, color: SahoolColors.danger),
+              const Icon(Icons.error_outline, color: SahoolColors.danger),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   isArabic
                       ? 'فشل في تحميل توازن المياه'
                       : 'Failed to load water balance',
-                  style: TextStyle(color: SahoolColors.danger),
+                  style: const TextStyle(color: SahoolColors.danger),
                 ),
               ),
               TextButton(
@@ -403,8 +404,8 @@ class _IrrigationDashboardScreenState
 
         return OrganicCard(
           color: isUrgent
-              ? SahoolColors.harvestGold.withOpacity(0.1)
-              : SahoolColors.forestGreen.withOpacity(0.05),
+              ? SahoolColors.harvestGold.withValues(alpha: 0.1)
+              : SahoolColors.forestGreen.withValues(alpha: 0.05),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -414,8 +415,8 @@ class _IrrigationDashboardScreenState
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: isUrgent
-                          ? SahoolColors.harvestGold.withOpacity(0.2)
-                          : SahoolColors.forestGreen.withOpacity(0.1),
+                          ? SahoolColors.harvestGold.withValues(alpha: 0.2)
+                          : SahoolColors.forestGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -564,7 +565,7 @@ class _IrrigationDashboardScreenState
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: Colors.blue.withOpacity(0.1),
+                      color: Colors.blue.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.grass, color: Colors.blue),
@@ -614,7 +615,7 @@ class _IrrigationDashboardScreenState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: SahoolColors.harvestGold.withOpacity(0.1),
+                    color: SahoolColors.harvestGold.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -717,7 +718,7 @@ class _IrrigationDashboardScreenState
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: SahoolColors.forestGreen.withOpacity(0.1),
+                      color: SahoolColors.forestGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Icon(Icons.calendar_month,
@@ -834,10 +835,10 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.05),
+            color: color.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -887,9 +888,9 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.08),
+          color: color.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.2)),
+          border: Border.all(color: color.withValues(alpha: 0.2)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -997,7 +998,7 @@ class _ScheduleEventTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SahoolColors.paleOlive.withOpacity(0.3),
+        color: SahoolColors.paleOlive.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -1006,7 +1007,7 @@ class _ScheduleEventTile extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: SahoolColors.forestGreen.withOpacity(0.1),
+              color: SahoolColors.forestGreen.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -1090,7 +1091,7 @@ class _EventStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -1286,7 +1287,7 @@ class _IrrigationCalculatorSheetState
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: SahoolColors.harvestGold.withOpacity(0.1),
+                  color: SahoolColors.harvestGold.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child:
@@ -1437,7 +1438,7 @@ class _IrrigationCalculatorSheetState
                   if (_result != null) ...[
                     const SizedBox(height: 24),
                     OrganicCard(
-                      color: SahoolColors.forestGreen.withOpacity(0.05),
+                      color: SahoolColors.forestGreen.withValues(alpha: 0.05),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1471,7 +1472,7 @@ class _IrrigationCalculatorSheetState
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: Colors.blue.withOpacity(0.05),
+                              color: Colors.blue.withValues(alpha: 0.05),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(

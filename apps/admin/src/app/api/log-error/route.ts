@@ -3,12 +3,21 @@
  * نقطة نهاية API لتسجيل الأخطاء - لوحة التحكم
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { logger } from "../../../lib/logger";
+import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '../../../lib/logger';
+import { getClientIP } from '@/lib/security/client-ip';
 
 // ═══════════════════════════════════════════════════════════════════════════
-// Types
+// Validation Schema (lightweight Zod-like runtime validation without extra dep)
 // ═══════════════════════════════════════════════════════════════════════════
+
+const MAX_MESSAGE_LEN = 4096;
+const MAX_STACK_LEN = 16384;
+const MAX_URL_LEN = 2048;
+const MAX_ENV_LEN = 64;
+const MAX_USER_AGENT_LEN = 512;
+const MAX_TIMESTAMP_LEN = 64;
+const MAX_CONTEXT_JSON_LEN = 8192;
 
 interface ErrorLogPayload {
   message: string;
@@ -19,6 +28,75 @@ interface ErrorLogPayload {
   timestamp: string;
   environment?: string;
   context?: Record<string, unknown>;
+}
+
+/**
+ * Validate and sanitise the request body.
+ * Returns either a sanitised payload or an error string.
+ */
+function validatePayload(
+  body: unknown,
+): { ok: true; data: ErrorLogPayload } | { ok: false; error: string } {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) {
+    return { ok: false, error: 'Request body must be a JSON object' };
+  }
+
+  const obj = body as Record<string, unknown>;
+
+  // ── Required fields ─────────────────────────────────────────────────
+  if (typeof obj.message !== 'string' || obj.message.length === 0) {
+    return { ok: false, error: 'Missing or invalid field: message (non-empty string required)' };
+  }
+  if (typeof obj.timestamp !== 'string' || obj.timestamp.length === 0) {
+    return { ok: false, error: 'Missing or invalid field: timestamp (non-empty string required)' };
+  }
+
+  // ── Optional string fields ──────────────────────────────────────────
+  for (const field of ['stack', 'componentStack', 'url', 'userAgent', 'environment'] as const) {
+    if (obj[field] !== undefined && typeof obj[field] !== 'string') {
+      return { ok: false, error: `Invalid field: ${field} (string expected)` };
+    }
+  }
+
+  // ── Optional object field ───────────────────────────────────────────
+  if (
+    obj.context !== undefined &&
+    (typeof obj.context !== 'object' || obj.context === null || Array.isArray(obj.context))
+  ) {
+    return { ok: false, error: 'Invalid field: context (object expected)' };
+  }
+
+  // ── Length limits to prevent log injection / oversized payloads ──────
+  const truncate = (v: string | undefined, max: number): string | undefined =>
+    v && v.length > max ? v.slice(0, max) + '…[truncated]' : v;
+
+  // Truncate context to prevent oversized payloads
+  let safeContext: Record<string, unknown> | undefined;
+  if (obj.context !== undefined) {
+    try {
+      const contextStr = JSON.stringify(obj.context);
+      if (contextStr.length > MAX_CONTEXT_JSON_LEN) {
+        safeContext = { _truncated: true, _original_size: contextStr.length };
+      } else {
+        safeContext = obj.context as Record<string, unknown>;
+      }
+    } catch {
+      safeContext = { _error: 'non-serializable context' };
+    }
+  }
+
+  const data: ErrorLogPayload = {
+    message: truncate(obj.message as string, MAX_MESSAGE_LEN)!,
+    timestamp: truncate(obj.timestamp as string, MAX_TIMESTAMP_LEN)!,
+    stack: truncate(obj.stack as string | undefined, MAX_STACK_LEN),
+    componentStack: truncate(obj.componentStack as string | undefined, MAX_STACK_LEN),
+    url: truncate(obj.url as string | undefined, MAX_URL_LEN),
+    userAgent: truncate(obj.userAgent as string | undefined, MAX_USER_AGENT_LEN),
+    environment: truncate(obj.environment as string | undefined, MAX_ENV_LEN),
+    context: safeContext,
+  };
+
+  return { ok: true, data };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -72,26 +150,6 @@ function isRateLimited(ip: string): boolean {
   return false;
 }
 
-/**
- * Get client IP address
- * الحصول على عنوان IP للعميل
- */
-function getClientIP(request: NextRequest): string {
-  const forwarded = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
-
-  if (forwarded) {
-    const firstIp = forwarded.split(",")[0];
-    return firstIp ? firstIp.trim() : "unknown";
-  }
-
-  if (realIp) {
-    return realIp;
-  }
-
-  return "unknown";
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Log Handler
 // ═══════════════════════════════════════════════════════════════════════════
@@ -105,42 +163,49 @@ export async function POST(request: NextRequest) {
     // Rate limiting
     const clientIP = getClientIP(request);
     if (isRateLimited(clientIP)) {
-      return NextResponse.json(
-        { error: "Too many error reports" },
-        { status: 429 },
-      );
+      return NextResponse.json({ error: 'Too many error reports' }, { status: 429 });
     }
 
-    const payload: ErrorLogPayload = await request.json();
-
-    // Validate required fields
-    if (!payload.message || !payload.timestamp) {
-      return NextResponse.json(
-        { error: "Missing required fields: message, timestamp" },
-        { status: 400 },
-      );
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
+
+    // ── Validate & sanitise payload ─────────────────────────────────────
+    const result = validatePayload(body);
+    if (!result.ok) {
+      return NextResponse.json({ error: result.error }, { status: 400 });
+    }
+    const sanitized = result.data;
 
     // Log to console in development
-    if (process.env.NODE_ENV === "development") {
-      logger.error("[Admin Error Log]", JSON.stringify(payload, null, 2));
+    if (process.env.NODE_ENV === 'development') {
+      logger.error('[Admin Error Log]', JSON.stringify(sanitized, null, 2));
     }
 
     // Create structured log entry
     const logEntry = {
-      level: "error",
-      service: "sahool-admin",
-      ...payload,
+      level: 'error',
+      service: 'sahool-admin',
+      ...sanitized,
       clientIP,
       receivedAt: new Date().toISOString(),
       requestHeaders: {
-        userAgent: request.headers.get("user-agent"),
-        referer: request.headers.get("referer"),
+        userAgent: request.headers.get('user-agent'),
+        referer: request.headers.get('referer'),
       },
     };
 
-    // Log structured error
-    logger.error(JSON.stringify(logEntry));
+    // Log structured error (safe stringify to handle circular refs)
+    let logStr: string;
+    try {
+      logStr = JSON.stringify(logEntry);
+    } catch {
+      logStr = JSON.stringify({ level: 'error', service: 'sahool-admin', message: sanitized.message, receivedAt: logEntry.receivedAt });
+    }
+    logger.error(logStr);
 
     // In production, you would:
     // 1. Send to external logging service (e.g., LogRocket, Datadog, Sentry)
@@ -158,7 +223,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, logged: true });
   } catch (error) {
-    logger.error("[Error Log API] Failed to process error:", error);
-    return NextResponse.json({ error: "Failed to log error" }, { status: 500 });
+    logger.error('[Error Log API] Failed to process error:', error);
+    return NextResponse.json({ error: 'Failed to log error' }, { status: 500 });
   }
 }

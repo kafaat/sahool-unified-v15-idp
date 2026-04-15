@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Voice Core
 /// ملفات الأوامر الصوتية
 ///

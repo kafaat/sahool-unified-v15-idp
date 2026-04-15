@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
-import { logger } from "@/lib/logger";
+import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { logger } from '@/lib/logger';
 
 interface Props {
   children: ReactNode;
@@ -52,26 +52,26 @@ export class ErrorBoundary extends Component<Props, State> {
 
   private logErrorToServer = async (error: Error, errorInfo: ErrorInfo) => {
     try {
-      await fetch("/api/log-error", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      await fetch('/api/log-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          type: "react_error_boundary",
+          type: 'react_error_boundary',
           errorId: this.state.errorId,
           componentName: this.props.componentName,
           message: error.message,
           stack: error.stack,
           componentStack: errorInfo.componentStack,
-          url: typeof window !== "undefined" ? window.location.href : "",
+          url: typeof window !== 'undefined' ? window.location.href : '',
           timestamp: new Date().toISOString(),
-          environment: process.env.NODE_ENV || "production",
-          userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+          environment: process.env.NODE_ENV || 'production',
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
         }),
       });
     } catch (e) {
       // Silent fail - don't let error logging break the app
-      if (process.env.NODE_ENV === "development") {
-        logger.error("Failed to log error to server:", e);
+      if (process.env.NODE_ENV === 'development') {
+        logger.error('Failed to log error to server:', e);
       }
     }
   };
@@ -81,8 +81,8 @@ export class ErrorBoundary extends Component<Props, State> {
   };
 
   handleGoHome = (): void => {
-    if (typeof window !== "undefined") {
-      window.location.href = "/";
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
     }
   };
 
@@ -92,7 +92,7 @@ export class ErrorBoundary extends Component<Props, State> {
         this.props.fallback || (
           <div
             className="min-h-[400px] flex items-center justify-center p-8 bg-gray-50"
-                       role="alert"
+            role="alert"
             aria-live="assertive"
             aria-atomic="true"
           >
@@ -123,33 +123,35 @@ export class ErrorBoundary extends Component<Props, State> {
                   </svg>
                 </div>
                 <div>
-                  <h2 id="error-title" className="text-xl font-bold text-gray-800">
-                    حدث خطأ غير متوقع
-                    <span className="sr-only"> - An unexpected error occurred</span>
+                  <h2 id="error-title" className="text-xl font-bold text-gray-800 dark:text-gray-200">
+                    <span className="block">حدث خطأ غير متوقع</span>
+                    <span className="block text-sm font-normal text-gray-500 dark:text-gray-400 mt-0.5">
+                      An unexpected error occurred
+                    </span>
                   </h2>
-                  <p id="error-description" className="text-gray-500 text-sm">
-                    نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً
-                    <span className="sr-only"> - We apologize for the inconvenience. We will fix this soon.</span>
+                  <p id="error-description" className="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                    <span className="block">نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً</span>
+                    <span className="block text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                      We apologize for the inconvenience. We will fix this soon.
+                    </span>
                   </p>
                 </div>
               </div>
 
               {this.state.errorId && (
                 <p className="text-xs text-gray-400 mb-4" aria-label="Error reference ID">
-                  <span className="font-mono">
-                    رمز المرجع: {this.state.errorId}
-                  </span>
+                  <span className="font-mono">رمز المرجع: {this.state.errorId}</span>
                 </p>
               )}
 
-              {process.env.NODE_ENV === "development" && this.state.error && (
+              {process.env.NODE_ENV === 'development' && this.state.error && (
                 <div
                   className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
                   role="region"
                   aria-label="Error details for developers"
                 >
-                  <h3 className="font-medium text-red-800 mb-2">
-                    رسالة الخطأ:
+                  <h3 className="font-medium text-red-800 dark:text-red-300 mb-2">
+                    رسالة الخطأ • Error Message:
                   </h3>
                   <code className="text-sm text-red-700 block break-all">
                     {this.state.error.message}
@@ -167,7 +169,11 @@ export class ErrorBoundary extends Component<Props, State> {
                 </div>
               )}
 
-              <div className="flex gap-3 justify-end" role="group" aria-label="Error recovery actions">
+              <div
+                className="flex gap-3 justify-end"
+                role="group"
+                aria-label="Error recovery actions"
+              >
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
@@ -211,7 +217,7 @@ export class ErrorBoundary extends Component<Props, State> {
  */
 export function withErrorBoundary<P extends object>(
   WrappedComponent: React.ComponentType<P>,
-  fallback?: ReactNode,
+  fallback?: ReactNode
 ): React.FC<P> {
   const WithErrorBoundary: React.FC<P> = (props) => (
     <ErrorBoundary fallback={fallback}>
@@ -220,7 +226,7 @@ export function withErrorBoundary<P extends object>(
   );
 
   WithErrorBoundary.displayName = `withErrorBoundary(${
-    WrappedComponent.displayName || WrappedComponent.name || "Component"
+    WrappedComponent.displayName || WrappedComponent.name || 'Component'
   })`;
 
   return WithErrorBoundary;

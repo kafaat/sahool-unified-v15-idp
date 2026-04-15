@@ -212,6 +212,14 @@ jobs:
       - name: Install npm dependencies
         if: inputs.setup-node && inputs.npm-install
         run: |
+          # actions/cache restores ~/.npm *including* ~/.npm/_cacache/tmp/,
+          # which can contain leftover half-written files from a previous
+          # run that was cancelled mid-install. A fresh `npm install` then
+          # hits EEXIST on those tmp paths. The _cacache/tmp/ subdir is
+          # ephemeral by contract (npm re-creates it per-install), so
+          # wiping it pre-install is safe and does NOT invalidate the
+          # real content-addressed cache under ~/.npm/_cacache/content-v2/.
+          rm -rf ~/.npm/_cacache/tmp/ 2>/dev/null || true
           npm install --legacy-peer-deps --quiet 2>/dev/null || true
 
       # ─────────────────────────────────────────────────────────────────────────

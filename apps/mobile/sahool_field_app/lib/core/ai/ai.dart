@@ -1,3 +1,5 @@
+library;
+
 /// AI Skills Integration - Core Module
 ///
 /// Provides:

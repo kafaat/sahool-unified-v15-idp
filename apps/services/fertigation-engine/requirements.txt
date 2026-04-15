@@ -1,8 +1,8 @@
 # fertigation-engine requirements
 # Core
-fastapi==0.135.1
+fastapi>=0.115.0,<1.0.0
 starlette>=0.49.1
-uvicorn[standard]==0.41.0
+uvicorn[standard]==0.42.0
 pydantic==2.12.5
 httpx==0.28.1
 python-dotenv==1.2.2

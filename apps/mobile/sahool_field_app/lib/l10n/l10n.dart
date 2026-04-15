@@ -41,7 +41,7 @@ class AppLocalizations {
   ) {
     // Check if the current device locale is supported
     if (locale != null) {
-      for (var supportedLocale in supportedLocales) {
+      for (final supportedLocale in supportedLocales) {
         if (supportedLocale.languageCode == locale.languageCode) {
           return supportedLocale;
         }
@@ -284,11 +284,11 @@ class DirectionalIcon extends StatelessWidget {
 
   const DirectionalIcon(
     this.icon, {
-    Key? key,
+    super.key,
     this.size,
     this.color,
     this.flipForRTL = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

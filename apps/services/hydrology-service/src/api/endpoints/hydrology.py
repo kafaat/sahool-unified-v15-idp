@@ -9,17 +9,36 @@ Provides endpoints for:
 - Depression identification
 - Stream detection
 - Basin delineation
+
+Tenant isolation is enforced STRICTLY via the JWT ``tid`` claim (surfaced on the
+authenticated ``User`` as ``tenant_id``). ``X-Tenant-Id`` is accepted as a
+legacy/informational header but is NEVER authoritative — any mismatch against
+the JWT tenant results in ``403``.
 """
 
 import logging
 import re
 import time
 import uuid
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import httpx
 from fastapi import APIRouter, Depends, Header, HTTPException, Query
+
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:  # pragma: no cover - offline/unit-test fallback
+    from fastapi import HTTPException as _HTTPException
+
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():  # type: ignore[no-redef]
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 # ==============================================================================
 # Security: Input Validation
@@ -90,11 +109,60 @@ router = APIRouter(prefix="/api/v1/hydrology", tags=["Hydrology | الهيدرو
 # ==============================================================================
 
 
-def get_tenant_id(x_tenant_id: str | None = Header(None, alias="X-Tenant-Id")) -> str:
-    """Extract and validate tenant ID from X-Tenant-Id header - استخراج معرف المستأجر من الهيدر"""
-    if not x_tenant_id:
-        raise HTTPException(status_code=400, detail="X-Tenant-Id header is required")
-    return x_tenant_id
+# Safe-log helper to defeat log-injection attempts via attacker-controlled values.
+_LOG_INJ_RE = re.compile(r"[\r\n\t\x00-\x1f\x7f]")
+
+
+def _safe_log(value: object) -> str:
+    """Sanitize a value for structured logging (strips control characters)."""
+    if value is None:
+        return ""
+    return _LOG_INJ_RE.sub("?", str(value))[:200]
+
+
+def get_tenant_id(
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-Id"),
+    current_user: User = Depends(get_current_user),
+) -> str:
+    """
+    Resolve the effective tenant_id STRICTLY from the JWT ``tid`` claim.
+
+    استخراج معرف المستأجر من مطالبة JWT (لا يعتمد على الهيدر)
+
+    - The authoritative source is ``current_user.tenant_id`` (from the JWT).
+    - ``X-Tenant-Id`` is accepted only as a legacy informational header: if
+      provided, it must match the JWT tenant or the request is rejected with
+      ``403``.
+    - If the JWT carries no tenant AND no header is supplied, the request is
+      rejected with ``400``.
+    """
+    jwt_tenant = getattr(current_user, "tenant_id", None)
+
+    # Authoritative path: JWT tenant
+    if jwt_tenant:
+        if x_tenant_id and x_tenant_id != jwt_tenant:
+            raise HTTPException(
+                status_code=403,
+                detail=(
+                    "X-Tenant-Id does not match authenticated user's tenant | "
+                    "معرف المستأجر لا يتطابق مع المستأجر المصادق عليه"
+                ),
+            )
+        return jwt_tenant
+
+    # Fallback: no tenant on the JWT — this should only happen in offline
+    # test harnesses. Preserve backwards compatibility with the header, but
+    # refuse if neither source provided a value.
+    if x_tenant_id:
+        return x_tenant_id
+
+    raise HTTPException(
+        status_code=400,
+        detail=(
+            "Tenant context missing: JWT has no tid claim and no X-Tenant-Id "
+            "header was provided | السياق المستأجر مفقود"
+        ),
+    )
 
 
 async def fetch_dem_from_terrain_service(
@@ -235,9 +303,15 @@ def generate_mock_analysis_data(field_id: str, resolution_m: float = 30.0) -> tu
 # ==============================================================================
 
 
-@router.post("/analyze", response_model=HydrologyAnalysisResponse)
+@router.post(
+    "/analyze",
+    response_model=HydrologyAnalysisResponse,
+    response_model_by_alias=True,
+)
 async def analyze_hydrology(
-    request: HydrologyAnalysisRequest, tenant_id: str = Depends(get_tenant_id)
+    request: HydrologyAnalysisRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> HydrologyAnalysisResponse:
     """
     Full hydrology analysis for a field.
@@ -256,9 +330,14 @@ async def analyze_hydrology(
     start_time = time.time()
     settings = get_settings()
 
+    # Tenant is already derived from JWT (tid claim) by get_tenant_id.
     effective_tenant_id = tenant_id
 
-    logger.info("Starting hydrology analysis", field_id=request.field_id, tenant_id=effective_tenant_id)
+    logger.info(
+        "Starting hydrology analysis",
+        field_id=_safe_log(request.field_id),
+        tenant_id=_safe_log(effective_tenant_id),
+    )
 
     # Try to fetch real DEM data
     dem = await fetch_dem_from_terrain_service(request.field_id, effective_tenant_id)
@@ -343,12 +422,17 @@ async def analyze_hydrology(
     return HydrologyAnalysisResponse(success=True, data=result, processing_time_ms=round(processing_time, 2))
 
 
-@router.get("/drainage/{field_id}", response_model=DrainageNetworkResponse)
+@router.get(
+    "/drainage/{field_id}",
+    response_model=DrainageNetworkResponse,
+    response_model_by_alias=True,
+)
 async def get_drainage_network(
     field_id: str,
     flow_threshold: int = Query(default=100, ge=10, le=10000, description="Flow accumulation threshold"),
     include_pattern: bool = Query(default=True, description="Include drainage pattern classification"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> DrainageNetworkResponse:
     """
     Get drainage network for a field.
@@ -371,12 +455,17 @@ async def get_drainage_network(
     )
 
 
-@router.get("/wetness/{field_id}", response_model=WetnessAnalysisResponse)
+@router.get(
+    "/wetness/{field_id}",
+    response_model=WetnessAnalysisResponse,
+    response_model_by_alias=True,
+)
 async def get_wetness_analysis(
     field_id: str,
     include_prediction: bool = Query(default=True, description="Include waterlogging prediction"),
     rainfall_mm: float | None = Query(default=None, ge=0, description="Expected rainfall for prediction"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> WetnessAnalysisResponse:
     """
     Get wetness/waterlogging analysis for a field.
@@ -400,12 +489,17 @@ async def get_wetness_analysis(
     return WetnessAnalysisResponse(success=True, data=wetness, analyzed_at=datetime.now(UTC))
 
 
-@router.get("/depressions/{field_id}", response_model=DepressionAnalysisResponse)
+@router.get(
+    "/depressions/{field_id}",
+    response_model=DepressionAnalysisResponse,
+    response_model_by_alias=True,
+)
 async def get_depressions(
     field_id: str,
     min_depth_m: float = Query(default=0.1, ge=0.01, le=10.0, description="Minimum depression depth"),
     min_area_sqm: float = Query(default=10.0, ge=1.0, description="Minimum depression area"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> DepressionAnalysisResponse:
     """
     Identify depressions/sinks in the field.
@@ -423,11 +517,16 @@ async def get_depressions(
     return DepressionAnalysisResponse(success=True, data=depressions, analyzed_at=datetime.now(UTC))
 
 
-@router.get("/streams/{field_id}", response_model=StreamNetworkResponse)
+@router.get(
+    "/streams/{field_id}",
+    response_model=StreamNetworkResponse,
+    response_model_by_alias=True,
+)
 async def get_streams(
     field_id: str,
     min_order: int = Query(default=1, ge=1, le=6, description="Minimum Strahler stream order"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> StreamNetworkResponse:
     """
     Detect streams in the field.
@@ -444,11 +543,16 @@ async def get_streams(
     return StreamNetworkResponse(success=True, data=streams, analyzed_at=datetime.now(UTC))
 
 
-@router.get("/basins/{field_id}", response_model=BasinDelineationResponse)
+@router.get(
+    "/basins/{field_id}",
+    response_model=BasinDelineationResponse,
+    response_model_by_alias=True,
+)
 async def get_basins(
     field_id: str,
     min_area_ha: float = Query(default=0.5, ge=0.1, description="Minimum basin area in hectares"),
     tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
 ) -> BasinDelineationResponse:
     """
     Delineate drainage basins/watersheds.

@@ -15,6 +15,7 @@ from typing import Any
 import structlog
 from fastapi import Depends, FastAPI, HTTPException, status
 from pydantic import BaseModel, Field
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
@@ -392,7 +393,16 @@ if REVOCATION_AVAILABLE:
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -870,7 +880,7 @@ async def analyze_field(request: FieldAnalysisRequest, user: User = Depends(get_
 
 
 @app.get("/v1/advisor/agents", tags=["Advisor"])
-async def list_agents():
+async def list_agents(user: User = Depends(get_current_user)):
     """
     List available agents
     قائمة الوكلاء المتاحين
@@ -900,7 +910,7 @@ async def list_agents():
 
 
 @app.get("/v1/advisor/tools", tags=["Advisor"])
-async def list_tools():
+async def list_tools(user: User = Depends(get_current_user)):
     """
     List available external tools
     قائمة الأدوات الخارجية المتاحة
@@ -915,7 +925,7 @@ async def list_tools():
 
 
 @app.get("/v1/advisor/rag/info", tags=["RAG"])
-async def get_rag_info():
+async def get_rag_info(user: User = Depends(get_current_user)):
     """
     Get RAG system information
     الحصول على معلومات نظام RAG
@@ -1007,7 +1017,7 @@ async def get_memory_context(
 
 
 @app.get("/v1/advisor/evaluation/stats", tags=["Evaluation"])
-async def get_evaluation_stats():
+async def get_evaluation_stats(user: User = Depends(get_current_user)):
     """
     Get recommendation evaluation statistics
     الحصول على إحصائيات تقييم التوصيات
@@ -1039,7 +1049,7 @@ async def get_evaluation_stats():
 
 
 @app.get("/v1/advisor/context-engineering/status", tags=["System"])
-async def get_context_engineering_status():
+async def get_context_engineering_status(user: User = Depends(get_current_user)):
     """
     Get context engineering modules status
     الحصول على حالة وحدات هندسة السياق
@@ -1074,15 +1084,13 @@ async def get_context_engineering_status():
 
 
 @app.get("/v1/advisor/cost/usage", tags=["Monitoring"])
-async def get_cost_usage(user_id: str | None = None):
+async def get_cost_usage(user: User = Depends(get_current_user)):
     """
-    Get LLM cost usage statistics
-    الحصول على إحصائيات تكلفة استخدام نماذج اللغة
-
-    Args:
-        user_id: Optional user ID to filter statistics
+    Get LLM cost usage statistics for the authenticated user
+    الحصول على إحصائيات تكلفة استخدام نماذج اللغة للمستخدم المصادق عليه
     """
     try:
+        user_id = user.id
         stats = cost_tracker.get_usage_stats(user_id=user_id)
 
         return {
@@ -1102,7 +1110,7 @@ async def get_cost_usage(user_id: str | None = None):
                 if stats["monthly_limit"] > 0
                 else 0,
             },
-            "user_id": user_id or "anonymous",
+            "user_id": user_id,
         }
     except Exception as e:
         logger.error("get_cost_usage_failed", error=str(e))
@@ -1114,7 +1122,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=settings.service_port,
         log_level=settings.log_level.lower(),
         reload=False,

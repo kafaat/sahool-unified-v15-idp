@@ -1,8 +1,10 @@
+library;
+
 /// Equipment Location Map Screen - شاشة موقع المعدة على الخريطة
 /// Displays equipment location on a map with marker
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
+import 'package:latlong2/latlong.dart' hide Path;
 
 import '../../../core/theme/sahool_theme.dart';
 
@@ -114,7 +116,7 @@ class _EquipmentLocationMapScreenState
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: SahoolColors.forestGreen.withOpacity(0.4),
+                color: SahoolColors.forestGreen.withValues(alpha: 0.4),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -159,7 +161,7 @@ class _EquipmentLocationMapScreenState
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

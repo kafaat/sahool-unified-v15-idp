@@ -184,56 +184,30 @@ bool isRetryable(String code) => getErrorMessage(code).retryable;
   // Generate api_endpoints.dart
   // ─────────────────────────────────────────────────────────────────────────
 
-  const ENDPOINT_GROUPS: Array<{ tsName: string; dartClass: string; label: string }> = [
-    { tsName: "HEALTH_ENDPOINTS", dartClass: "HealthEndpoints", label: "Health & Infrastructure" },
-    { tsName: "SERVICE_HEALTH_ENDPOINTS", dartClass: "ServiceHealthEndpoints", label: "Per-service Kong health checks" },
-    { tsName: "AUTH_ENDPOINTS", dartClass: "AuthEndpoints", label: "Auth - المصادقة" },
-    { tsName: "FIELD_ENDPOINTS", dartClass: "FieldEndpoints", label: "Field Management - إدارة الحقول" },
-    { tsName: "WEATHER_ENDPOINTS", dartClass: "WeatherEndpoints", label: "Weather - الطقس" },
-    { tsName: "SATELLITE_ENDPOINTS", dartClass: "SatelliteEndpoints", label: "Satellite & NDVI - الأقمار الصناعية" },
-    { tsName: "CROP_HEALTH_ENDPOINTS", dartClass: "CropHealthEndpoints", label: "Crop Health - صحة المحاصيل" },
-    { tsName: "IRRIGATION_ENDPOINTS", dartClass: "IrrigationEndpoints", label: "Irrigation - الري" },
-    { tsName: "ADVISORY_ENDPOINTS", dartClass: "AdvisoryEndpoints", label: "Advisory - الاستشارات" },
-    { tsName: "TASK_ENDPOINTS", dartClass: "TaskEndpoints", label: "Tasks - المهام" },
-    { tsName: "EQUIPMENT_ENDPOINTS", dartClass: "EquipmentEndpoints", label: "Equipment - المعدات" },
-    { tsName: "ALERT_ENDPOINTS", dartClass: "AlertEndpoints", label: "Alerts - التنبيهات" },
-    { tsName: "NOTIFICATION_ENDPOINTS", dartClass: "NotificationEndpoints", label: "Notifications - الإشعارات" },
-    { tsName: "IOT_ENDPOINTS", dartClass: "IotEndpoints", label: "IoT - إنترنت الأشياء" },
-    { tsName: "VIRTUAL_SENSOR_ENDPOINTS", dartClass: "VirtualSensorEndpoints", label: "Virtual Sensors" },
-    { tsName: "MARKETPLACE_ENDPOINTS", dartClass: "MarketplaceEndpoints", label: "Marketplace - السوق" },
-    { tsName: "BILLING_ENDPOINTS", dartClass: "BillingEndpoints", label: "Billing - الفوترة" },
-    { tsName: "CHAT_ENDPOINTS", dartClass: "ChatEndpoints", label: "Chat - الدردشة" },
-    { tsName: "INDICATOR_ENDPOINTS", dartClass: "IndicatorEndpoints", label: "Indicators - المؤشرات" },
-    { tsName: "INTELLIGENCE_ENDPOINTS", dartClass: "IntelligenceEndpoints", label: "Intelligence - الذكاء الحقلي" },
-    { tsName: "YIELD_ENDPOINTS", dartClass: "YieldEndpoints", label: "Yield - الإنتاجية" },
-    { tsName: "AI_ENDPOINTS", dartClass: "AiEndpoints", label: "AI & Copilot" },
-    { tsName: "VISION_ENDPOINTS", dartClass: "VisionEndpoints", label: "Vision - الرؤية الحاسوبية" },
-    { tsName: "TERRAIN_ENDPOINTS", dartClass: "TerrainEndpoints", label: "Terrain & Hydrology" },
-    { tsName: "HYDROLOGY_ENDPOINTS", dartClass: "HydrologyEndpoints", label: "Hydrology - الهيدرولوجيا" },
-    { tsName: "VEGETATION_ENDPOINTS", dartClass: "VegetationEndpoints", label: "Vegetation - الغطاء النباتي" },
-    { tsName: "USER_ENDPOINTS", dartClass: "UserEndpoints", label: "Users (Admin)" },
-    { tsName: "AUDIT_ENDPOINTS", dartClass: "AuditEndpoints", label: "Audit (Admin)" },
-    { tsName: "SOIL_ENDPOINTS", dartClass: "SoilEndpoints", label: "Soil - التربة" },
-    { tsName: "DRONE_ENDPOINTS", dartClass: "DroneEndpoints", label: "Drone - الطائرات المسيّرة" },
-    { tsName: "INVENTORY_ENDPOINTS", dartClass: "InventoryEndpoints", label: "Inventory - المخزون" },
-    { tsName: "TRACEABILITY_ENDPOINTS", dartClass: "TraceabilityEndpoints", label: "Traceability - التتبع" },
-    { tsName: "PROVIDER_ENDPOINTS", dartClass: "ProviderEndpoints", label: "Providers" },
-    { tsName: "DISASTER_ENDPOINTS", dartClass: "DisasterEndpoints", label: "Disasters - الكوارث" },
-    { tsName: "AGRO_RULES_ENDPOINTS", dartClass: "AgroRulesEndpoints", label: "Agro Rules" },
-    { tsName: "EDGE_ENDPOINTS", dartClass: "EdgeEndpoints", label: "Edge Orchestrator" },
-    { tsName: "COMMUNITY_ENDPOINTS", dartClass: "CommunityEndpoints", label: "Community - المجتمع" },
-    { tsName: "DASHBOARD_ENDPOINTS", dartClass: "DashboardEndpoints", label: "Dashboard - لوحة المعلومات" },
-    { tsName: "ASTRONOMICAL_ENDPOINTS", dartClass: "AstronomicalEndpoints", label: "Astronomical - التقويم الفلكي" },
-    { tsName: "FARM_ENDPOINTS", dartClass: "FarmEndpoints", label: "Farms - المزارع" },
-    { tsName: "SEASON_ENDPOINTS", dartClass: "SeasonEndpoints", label: "Seasons - المواسم" },
-    { tsName: "COMPLIANCE_ENDPOINTS", dartClass: "ComplianceEndpoints", label: "Compliance - الامتثال" },
-    { tsName: "DOCUMENT_ENDPOINTS", dartClass: "DocumentEndpoints", label: "Documents - المستندات" },
-    { tsName: "LOGISTICS_ENDPOINTS", dartClass: "LogisticsEndpoints", label: "Logistics - اللوجستيات" },
-    { tsName: "RESEARCH_ENDPOINTS", dartClass: "ResearchEndpoints", label: "Research - الأبحاث" },
-    { tsName: "SCOUTING_ENDPOINTS", dartClass: "ScoutingEndpoints", label: "Scouting - الكشف" },
-    { tsName: "VRA_ENDPOINTS", dartClass: "VraEndpoints", label: "VRA - التطبيق المتغير" },
-    { tsName: "TEAM_ENDPOINTS", dartClass: "TeamEndpoints", label: "Team - الفريق" },
-  ];
+  // Auto-discover all *_ENDPOINTS exports from the TypeScript module so the
+  // generator stays in sync as new endpoint groups are added (no manual list
+  // to keep aligned). HEALTH_ENDPOINTS first for stability.
+  const allKeys = Object.keys(endpointsModule).filter((k) =>
+    /^[A-Z][A-Z0-9_]*_ENDPOINTS$/.test(k),
+  );
+  const orderedKeys = [
+    "HEALTH_ENDPOINTS",
+    "SERVICE_HEALTH_ENDPOINTS",
+    "AUTH_ENDPOINTS",
+    ...allKeys
+      .filter((k) => !["HEALTH_ENDPOINTS", "SERVICE_HEALTH_ENDPOINTS", "AUTH_ENDPOINTS"].includes(k))
+      .sort(),
+  ].filter((k, i, a) => a.indexOf(k) === i && k in endpointsModule);
+
+  const ENDPOINT_GROUPS = orderedKeys.map((tsName) => {
+    // CROP_HEALTH_ENDPOINTS → CropHealthEndpoints
+    const dartClass = tsName
+      .replace(/_ENDPOINTS$/, "Endpoints")
+      .toLowerCase()
+      .replace(/(?:^|_)([a-z0-9])/g, (_, c: string) => c.toUpperCase());
+    const label = tsName.replace(/_ENDPOINTS$/, "").toLowerCase().replace(/_/g, " ");
+    return { tsName, dartClass, label };
+  });
 
   const endpointsClassBlocks: string[] = [];
   for (const { tsName, dartClass, label } of ENDPOINT_GROUPS) {

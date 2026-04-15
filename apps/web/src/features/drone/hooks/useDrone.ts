@@ -3,24 +3,22 @@
  * خطافات React لميزة الطائرات بدون طيار
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { droneApi } from "../api";
-import type { FlightPlan, DroneFilters } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { droneApi } from '../api';
+import type { FlightPlan, DroneFilters } from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const droneKeys = {
-  all: ["drone"] as const,
-  flights: () => [...droneKeys.all, "flights"] as const,
-  flightList: (filters?: DroneFilters) =>
-    [...droneKeys.flights(), filters] as const,
-  flightDetail: (id: string) =>
-    [...droneKeys.all, "flight", id] as const,
-  devices: () => [...droneKeys.all, "devices"] as const,
+  all: ['drone'] as const,
+  flights: () => [...droneKeys.all, 'flights'] as const,
+  flightList: (filters?: DroneFilters) => [...droneKeys.flights(), filters] as const,
+  flightDetail: (id: string) => [...droneKeys.all, 'flight', id] as const,
+  devices: () => [...droneKeys.all, 'devices'] as const,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════

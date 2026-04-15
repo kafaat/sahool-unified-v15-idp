@@ -1,3 +1,5 @@
+library;
+
 /// Message Model
 /// نموذج الرسالة
 ///

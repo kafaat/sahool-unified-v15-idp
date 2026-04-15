@@ -7,6 +7,7 @@
 /// - Irrigation scheduling
 /// - Sensor readings
 /// - Efficiency analysis
+library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../network/api_result.dart';
@@ -61,7 +62,7 @@ class IrrigationCalculation {
       recommendation: json['recommendation'] as String?,
       recommendationAr: json['recommendation_ar'] as String?,
       calculationDate: json['calculation_date'] != null
-          ? DateTime.parse(json['calculation_date'] as String)
+          ? DateTime.tryParse(json['calculation_date'] as String) ?? DateTime.now()
           : DateTime.now(),
       factors: json['factors'] as Map<String, dynamic>?,
     );
@@ -106,7 +107,7 @@ class WaterBalance {
       statusAr: json['status_ar'] as String?,
       daysUntilStress: (json['days_until_stress'] as num?)?.toInt(),
       measurementDate: json['measurement_date'] != null
-          ? DateTime.parse(json['measurement_date'] as String)
+          ? DateTime.tryParse(json['measurement_date'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -154,7 +155,7 @@ class IrrigationScheduleItem {
     return IrrigationScheduleItem(
       id: json['id'] as String? ?? '',
       fieldId: json['field_id'] as String? ?? '',
-      scheduledTime: DateTime.parse(json['scheduled_time'] as String),
+      scheduledTime: DateTime.tryParse(json['scheduled_time'] as String) ?? DateTime.now(),
       amount: (json['amount'] as num?)?.toDouble() ?? 0.0,
       unit: json['unit'] as String? ?? 'mm',
       duration: (json['duration'] as num?)?.toInt(),
@@ -252,7 +253,7 @@ class SensorReading {
       type: json['type'] as String? ?? '',
       value: (json['value'] as num?)?.toDouble() ?? 0.0,
       unit: json['unit'] as String? ?? '',
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
       fieldId: json['field_id'] as String?,
       location: json['location'] as Map<String, dynamic>?,
       status: json['status'] as String?,
@@ -295,7 +296,7 @@ class IrrigationEfficiency {
       recommendations: (json['recommendations'] as List?)?.cast<String>(),
       recommendationsAr: (json['recommendations_ar'] as List?)?.cast<String>(),
       analysisDate: json['analysis_date'] != null
-          ? DateTime.parse(json['analysis_date'] as String)
+          ? DateTime.tryParse(json['analysis_date'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -334,7 +335,7 @@ class IrrigationServiceConnector extends ServiceConnector {
   /// الحصول على توازن المياه للحقل
   Future<ApiResult<WaterBalance>> getWaterBalance(String fieldId) async {
     return get(
-      '${getEndpoint('water-balance') ?? '/api/v1/irrigation/water-balance'}',
+      getEndpoint('water-balance') ?? '/api/v1/irrigation/water-balance',
       queryParameters: {'field_id': fieldId},
       parser: (data) => WaterBalance.fromJson(data as Map<String, dynamic>),
     );
@@ -365,7 +366,7 @@ class IrrigationServiceConnector extends ServiceConnector {
               .toList();
         }
         if (data is Map && data['schedule'] != null) {
-          return (data['schedule'] as List)
+          return (data['schedule'] as List? ?? [])
               .map((e) => IrrigationScheduleItem.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -416,7 +417,7 @@ class IrrigationServiceConnector extends ServiceConnector {
           return data.map((e) => IrrigationMethod.fromJson(e as Map<String, dynamic>)).toList();
         }
         if (data is Map && data['methods'] != null) {
-          return (data['methods'] as List)
+          return (data['methods'] as List? ?? [])
               .map((e) => IrrigationMethod.fromJson(e as Map<String, dynamic>))
               .toList();
         }
@@ -435,7 +436,7 @@ class IrrigationServiceConnector extends ServiceConnector {
           return data.cast<Map<String, dynamic>>();
         }
         if (data is Map && data['crops'] != null) {
-          return (data['crops'] as List).cast<Map<String, dynamic>>();
+          return (data['crops'] as List? ?? []).cast<Map<String, dynamic>>();
         }
         return <Map<String, dynamic>>[];
       },
@@ -464,7 +465,7 @@ class IrrigationServiceConnector extends ServiceConnector {
   /// الحصول على تحليل كفاءة الري
   Future<ApiResult<IrrigationEfficiency>> getEfficiency(String fieldId) async {
     return get(
-      '${getEndpoint('efficiency') ?? '/api/v1/irrigation/efficiency'}',
+      getEndpoint('efficiency') ?? '/api/v1/irrigation/efficiency',
       queryParameters: {'field_id': fieldId},
       parser: (data) => IrrigationEfficiency.fromJson(data as Map<String, dynamic>),
     );

@@ -3,27 +3,28 @@ Relationship API endpoints
 نقاط نهاية API العلاقات
 """
 
+import logging
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 
-from models import RelationshipType
+logger = logging.getLogger(__name__)
+
+from ...models import RelationshipType
 
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Lightweight auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 router = APIRouter(prefix="/api/v1/relationships", tags=["relationships"])
@@ -51,7 +52,8 @@ async def get_affected_crops(
             "data": crops,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get affected crops for disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/disease-treatments/{disease_id}")
@@ -59,6 +61,7 @@ async def get_disease_treatments(
     request,
     disease_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get all treatments for a disease
@@ -75,7 +78,8 @@ async def get_disease_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get treatments for disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/crop-compatible-treatments/{crop_id}")
@@ -83,6 +87,7 @@ async def get_compatible_treatments(
     request,
     crop_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get treatments compatible with a crop
@@ -99,7 +104,8 @@ async def get_compatible_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get compatible treatments for crop %s: %s", crop_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/diseases-by-crop/{crop_id}")
@@ -107,6 +113,7 @@ async def get_diseases_by_crop(
     request,
     crop_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get diseases that affect a crop
@@ -123,7 +130,8 @@ async def get_diseases_by_crop(
             "data": diseases,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get diseases for crop %s: %s", crop_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/preventive-treatments/{disease_id}")
@@ -131,6 +139,7 @@ async def get_preventive_treatments(
     request,
     disease_id: str,
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get preventive treatments for a disease
@@ -147,15 +156,17 @@ async def get_preventive_treatments(
             "data": treatments,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get preventive treatments for disease %s: %s", disease_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/related/{entity_type}/{entity_id}")
 async def get_all_related(
     request,
-    entity_type: str = Query(..., description="Entity type (crop, disease, treatment)"),
-    entity_id: str = Query(..., description="Entity ID"),
+    entity_type: str = Path(..., description="Entity type (crop, disease, treatment)"),
+    entity_id: str = Path(..., description="Entity ID"),
     limit: int = Query(50, ge=1, le=200, description="Maximum results"),
+    _user=Depends(get_current_user),
 ):
     """
     Get all entities related to a given entity
@@ -177,16 +188,18 @@ async def get_all_related(
             "data": related,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to get related entities for %s/%s: %s", entity_type, entity_id, e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.get("/path/{source_type}/{source_id}/{target_type}/{target_id}")
 async def find_path(
     request,
-    source_type: str = Query(..., description="Source entity type"),
-    source_id: str = Query(..., description="Source entity ID"),
-    target_type: str = Query(..., description="Target entity type"),
-    target_id: str = Query(..., description="Target entity ID"),
+    source_type: str = Path(..., description="Source entity type"),
+    source_id: str = Path(..., description="Source entity ID"),
+    target_type: str = Path(..., description="Target entity type"),
+    target_id: str = Path(..., description="Target entity ID"),
+    _user=Depends(get_current_user),
 ):
     """
     Find the relationship path between two entities
@@ -216,7 +229,8 @@ async def find_path(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to find relationship path: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/validate")
@@ -227,6 +241,7 @@ async def validate_relationship(
     target_type: str = Query(..., description="Target entity type"),
     target_id: str = Query(..., description="Target entity ID"),
     relationship_type: RelationshipType = Query(..., description="Relationship type"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Validate if a specific relationship exists
@@ -248,7 +263,8 @@ async def validate_relationship(
             "data": result,
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to validate relationship: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")
 
 
 @router.post("/add")
@@ -260,6 +276,7 @@ async def add_relationship(
     target_id: str = Query(..., description="Target entity ID"),
     relationship_type: RelationshipType = Query(..., description="Relationship type"),
     confidence: float = Query(1.0, ge=0.0, le=1.0, description="Confidence score"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create a new relationship between two entities
@@ -295,4 +312,5 @@ async def add_relationship(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("Failed to add relationship: %s", e, exc_info=True)
+        raise HTTPException(status_code=500, detail="Internal server error | خطأ داخلي في الخادم")

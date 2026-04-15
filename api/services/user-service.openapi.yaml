@@ -1,0 +1,953 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL User Service API
+  version: "4.12.0"
+  description: |
+    **EN** — Internal user authentication + profile management for SAHOOL farmers,
+    cooperatives, and admins. JWT HS256. 2FA via TOTP. Token revocation via Redis.
+    Use partner-auth-service for OAuth 2.0 / OIDC partner integrations.
+
+    **AR** — إدارة المصادقة والملف الشخصي الداخلية لمزارعي سهول والتعاونيات والمسؤولين.
+  contact:
+    name: SAHOOL Developer Relations
+    email: developer@sahool.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://sahool.com/legal/terms
+  x-service-name: user-service
+  x-service-port: 3025
+  x-contract-version: "4.12.0"
+
+servers:
+  - url: https://api.sahool.com
+    description: Production
+  - url: https://sandbox.sahool.app
+    description: Sandbox
+  - url: http://localhost:8000
+    description: Local (via Kong gateway)
+
+tags:
+  - name: Auth
+    description: Authentication, registration, session, OTP, password flows.
+  - name: Users
+    description: User profile management (CRUD, status, 2FA).
+  - name: Health
+    description: Liveness, readiness, combined health probes.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /api/v1/auth/login:
+    post:
+      operationId: authLogin
+      tags: [Auth]
+      summary: Authenticate a user
+      description: Exchange credentials (email or phone + password) for a JWT token pair.
+      security: []
+      x-rateLimit:
+        perMinute: 30
+        perHour: 500
+        scope: ip
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LoginRequest' }
+            example:
+              email: farmer@example.com
+              password: S3cure!Pass
+              tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjMifQ.sig
+                refresh_token: rt_7f8e2a9b1c3d4e5f
+                token_type: bearer
+                expires_in: 3600
+                requires_2fa: false
+                user:
+                  id: 11111111-1111-1111-1111-111111111111
+                  email: farmer@example.com
+                  name: Ahmed Al-Rashid
+                  nameAr: أحمد الراشد
+                  role: FARMER
+                  status: ACTIVE
+                  tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+                  language: ar
+                  createdAt: '2025-09-01T10:00:00Z'
+                  updatedAt: '2026-03-15T12:34:56Z'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/register:
+    post:
+      operationId: authRegister
+      tags: [Auth]
+      summary: Register a new user
+      description: Create a SAHOOL user account and return an initial JWT token pair.
+      security: []
+      x-rateLimit: { perMinute: 30, perHour: 500, scope: ip }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RegisterRequest' }
+            example:
+              email: new.farmer@example.com
+              password: S3cure!Pass
+              name: Noura Al-Saud
+              nameAr: نورة آل سعود
+              phone: "+966500000001"
+              language: ar
+              tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LoginResponse' }
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9...
+                refresh_token: rt_new_abc123
+                token_type: bearer
+                expires_in: 3600
+                user:
+                  id: 22222222-2222-2222-2222-222222222222
+                  email: new.farmer@example.com
+                  name: Noura Al-Saud
+                  nameAr: نورة آل سعود
+                  role: FARMER
+                  status: PENDING
+                  tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+                  language: ar
+                  createdAt: '2026-04-12T08:15:00Z'
+                  updatedAt: '2026-04-12T08:15:00Z'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/refresh:
+    post:
+      operationId: authRefresh
+      tags: [Auth]
+      summary: Rotate access and refresh tokens
+      description: Exchange a valid refresh token for a new token pair.
+      security: []
+      x-rateLimit: { perMinute: 30, perHour: 500, scope: ip }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RefreshRequest' }
+            example: { refresh_token: rt_7f8e2a9b1c3d4e5f }
+      responses:
+        '200':
+          description: New token pair issued
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TokenPair' }
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.rotated
+                refresh_token: rt_rotated_9x8y7z
+                token_type: bearer
+                expires_in: 3600
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/logout:
+    post:
+      operationId: authLogout
+      tags: [Auth]
+      summary: Revoke current access token
+      description: Invalidates the caller's current access token via the Redis revocation list.
+      responses:
+        '200':
+          description: Logged out
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+              example: { status: ok }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/auth/logout-all:
+    post:
+      operationId: authLogoutAll
+      tags: [Auth]
+      summary: Revoke all active tokens for the current user
+      responses:
+        '200':
+          description: All sessions revoked
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/LogoutAllResponse' }
+              example: { status: ok, revokedCount: 4 }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/auth/me:
+    get:
+      operationId: authMe
+      tags: [Auth]
+      summary: Get the currently authenticated user
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+              example:
+                id: 11111111-1111-1111-1111-111111111111
+                email: farmer@example.com
+                name: Ahmed Al-Rashid
+                nameAr: أحمد الراشد
+                role: FARMER
+                status: ACTIVE
+                tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+                language: ar
+                permissions: [fields.read, irrigation.manage]
+                createdAt: '2025-09-01T10:00:00Z'
+                updatedAt: '2026-03-15T12:34:56Z'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/auth/forgot-password:
+    post:
+      operationId: authForgotPassword
+      tags: [Auth]
+      summary: Initiate a password reset
+      description: Sends a reset link. Always returns 200 regardless of whether the email exists.
+      security: []
+      x-rateLimit: { perMinute: 30, perHour: 500, scope: ip }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ForgotPasswordRequest' }
+      responses:
+        '200':
+          description: Reset email dispatched (if the address exists)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+              example: { status: sent }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/reset-password:
+    post:
+      operationId: authResetPassword
+      tags: [Auth]
+      summary: Complete a password reset
+      security: []
+      x-rateLimit: { perMinute: 30, perHour: 500, scope: ip }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ResetPasswordRequest' }
+      responses:
+        '200':
+          description: Password updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+              example: { status: ok }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/send-otp:
+    post:
+      operationId: authSendOtp
+      tags: [Auth]
+      summary: Send a one-time password via SMS or email
+      security: []
+      x-rateLimit: { perMinute: 30, perHour: 500, scope: ip }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendOtpRequest' }
+            example: { phone: "+966500000001" }
+      responses:
+        '200':
+          description: OTP dispatched
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpDispatchResponse' }
+              example: { status: sent, cooldownSeconds: 60 }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/resend-otp:
+    post:
+      operationId: authResendOtp
+      tags: [Auth]
+      summary: Resend a previously requested OTP
+      security: []
+      x-rateLimit: { perMinute: 30, perHour: 500, scope: ip }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SendOtpRequest' }
+      responses:
+        '200':
+          description: OTP re-dispatched
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpDispatchResponse' }
+              example: { status: sent, cooldownSeconds: 60 }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/verify-otp:
+    post:
+      operationId: authVerifyOtp
+      tags: [Auth]
+      summary: Verify a one-time password
+      security: []
+      x-rateLimit: { perMinute: 30, perHour: 500, scope: ip }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/VerifyOtpRequest' }
+            example: { phone: "+966500000001", otp: "482913" }
+      responses:
+        '200':
+          description: Verified
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpVerifyResponse' }
+              example: { verified: true }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /api/v1/auth/activity:
+    get:
+      operationId: authActivity
+      tags: [Auth]
+      summary: List active sessions for the current user
+      responses:
+        '200':
+          description: Session list
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserSessionList' }
+              example:
+                sessions:
+                  - id: sess_01HZ
+                    device: iPhone 15 Pro
+                    ip: 185.234.12.4
+                    userAgent: Mozilla/5.0 (iPhone)
+                    location: Riyadh, SA
+                    lastSeen: '2026-04-12T07:00:00Z'
+                    createdAt: '2026-04-10T09:00:00Z'
+                    current: true
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /api/v1/users:
+    get:
+      operationId: listUsers
+      tags: [Users]
+      summary: List users (admin)
+      description: Admin-only paginated listing with optional filters.
+      parameters:
+        - { name: tenantId, in: query, schema: { type: string, format: uuid } }
+        - { name: role, in: query, schema: { $ref: '#/components/schemas/UserRole' } }
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/UserStatus' } }
+        - { name: search, in: query, schema: { type: string }, description: "Free-text search over name, email, phone." }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+      responses:
+        '200':
+          description: Paginated users
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PaginatedUsers' }
+              example:
+                results:
+                  - id: 11111111-1111-1111-1111-111111111111
+                    email: farmer@example.com
+                    name: Ahmed Al-Rashid
+                    role: FARMER
+                    status: ACTIVE
+                    tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+                    createdAt: '2025-09-01T10:00:00Z'
+                    updatedAt: '2026-03-15T12:34:56Z'
+                total: 128
+                limit: 50
+                offset: 0
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      operationId: createUser
+      tags: [Users]
+      summary: Create a user (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateUserDto' }
+            example:
+              email: worker@example.com
+              password: S3cure!Pass
+              name: Khalid Worker
+              role: WORKER
+              tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+              language: ar
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+              example:
+                id: 33333333-3333-3333-3333-333333333333
+                email: worker@example.com
+                name: Khalid Worker
+                role: WORKER
+                status: PENDING
+                tenantId: 6b1c0e4a-52e6-4f9e-9d4a-5a7a2f6d1b77
+                language: ar
+                createdAt: '2026-04-12T08:20:00Z'
+                updatedAt: '2026-04-12T08:20:00Z'
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/v1/users/{userId}:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    get:
+      operationId: getUser
+      tags: [Users]
+      summary: Get a user by id (self or admin)
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    patch:
+      operationId: updateUser
+      tags: [Users]
+      summary: Update a user (self or admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UpdateUserDto' }
+      responses:
+        '200':
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      operationId: deleteUser
+      tags: [Users]
+      summary: Soft-delete a user (admin)
+      responses:
+        '204': { description: Deleted }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/users/{userId}/suspend:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      operationId: suspendUser
+      tags: [Users]
+      summary: Suspend a user (admin)
+      responses:
+        '200':
+          description: Suspended
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/users/{userId}/activate:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      operationId: activateUser
+      tags: [Users]
+      summary: Activate a user (admin)
+      responses:
+        '200':
+          description: Activated
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserProfile' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /api/v1/users/{userId}/change-password:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      operationId: changePassword
+      tags: [Users]
+      summary: Change the caller's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+      responses:
+        '200':
+          description: Password changed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+              example: { status: ok }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/v1/users/{userId}/2fa/enable:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      operationId: enable2fa
+      tags: [Users]
+      summary: Enable TOTP-based 2FA (self)
+      description: Returns a provisioning URI and QR seed for authenticator apps.
+      responses:
+        '200':
+          description: 2FA setup payload
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TwoFactorEnableResponse' }
+              example:
+                secret: JBSWY3DPEHPK3PXP
+                otpauthUrl: otpauth://totp/SAHOOL:farmer@example.com?secret=JBSWY3DPEHPK3PXP&issuer=SAHOOL
+                qrCodeDataUrl: data:image/png;base64,iVBORw0KGgo...
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/v1/users/{userId}/2fa/disable:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      operationId: disable2fa
+      tags: [Users]
+      summary: Disable 2FA (requires current password)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/Disable2faRequest' }
+      responses:
+        '200':
+          description: 2FA disabled
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusResponse' }
+              example: { status: ok }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /api/v1/users/{userId}/2fa/verify:
+    parameters:
+      - $ref: '#/components/parameters/UserIdParam'
+    post:
+      operationId: verify2fa
+      tags: [Users]
+      summary: Verify a TOTP code (self)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TwoFactorVerifyRequest' }
+            example: { code: "482913" }
+      responses:
+        '200':
+          description: Verified
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/OtpVerifyResponse' }
+              example: { verified: true }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /healthz:
+    get:
+      operationId: healthLiveness
+      tags: [Health]
+      summary: Liveness probe
+      security: []
+      responses:
+        '200':
+          description: Alive
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthResponse' }
+              example: { status: ok, service: user-service, version: 4.12.0, timestamp: '2026-04-12T08:00:00Z' }
+
+  /readyz:
+    get:
+      operationId: healthReadiness
+      tags: [Health]
+      summary: Readiness probe
+      security: []
+      responses:
+        '200':
+          description: Ready
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthResponse' }
+        '503':
+          description: Not ready
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthResponse' }
+
+  /health:
+    get:
+      operationId: healthCombined
+      tags: [Health]
+      summary: Combined health status
+      security: []
+      responses:
+        '200':
+          description: Combined health
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/HealthResponse' }
+              example:
+                status: ok
+                service: user-service
+                version: 4.12.0
+                database: true
+                cache: true
+                timestamp: '2026-04-12T08:00:00Z'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT HS256 issued by SAHOOL user-service. Shared secret with partner-auth, field-management, and other SAHOOL services.
+
+  parameters:
+    UserIdParam:
+      name: userId
+      in: path
+      required: true
+      description: User UUID.
+      schema: { type: string, format: uuid }
+
+  responses:
+    Unauthorized:
+      description: Missing or invalid credentials.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example:
+            success: false
+            error: Invalid credentials
+            errorAr: بيانات اعتماد غير صحيحة
+            errorCode: AUTH_INVALID_CREDENTIALS
+            requestId: req_01HZABCDXYZ
+    Forbidden:
+      description: Caller lacks permission for this resource.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example:
+            success: false
+            error: Permission denied
+            errorAr: الإذن مرفوض
+            errorCode: AUTH_FORBIDDEN
+    NotFound:
+      description: Resource not found.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example:
+            success: false
+            error: User not found
+            errorAr: المستخدم غير موجود
+            errorCode: USER_NOT_FOUND
+    ValidationError:
+      description: Request failed validation.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example:
+            success: false
+            error: "password must be at least 8 characters"
+            errorAr: "يجب أن تحتوي كلمة المرور على 8 أحرف على الأقل"
+            errorCode: VALIDATION_ERROR
+    RateLimited:
+      description: Too many requests.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ApiError' }
+          example:
+            success: false
+            error: Rate limit exceeded
+            errorAr: تم تجاوز حد الطلبات
+            errorCode: RATE_LIMIT_EXCEEDED
+
+  schemas:
+    UserRole:
+      type: string
+      enum: [ADMIN, MANAGER, FARMER, WORKER, VIEWER]
+      description: User authorization role.
+    UserStatus:
+      type: string
+      enum: [ACTIVE, INACTIVE, SUSPENDED, PENDING]
+    Language:
+      type: string
+      enum: [ar, en]
+
+    UserProfile:
+      type: object
+      required: [id, email, name, role, status, tenantId, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        email: { type: string, format: email }
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        phone: { type: [string, "null"], example: "+966500000001" }
+        role: { $ref: '#/components/schemas/UserRole' }
+        status: { $ref: '#/components/schemas/UserStatus' }
+        tenantId: { type: string, format: uuid }
+        language: { $ref: '#/components/schemas/Language' }
+        avatar: { type: [string, "null"], format: uri }
+        permissions:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+
+    UserSession:
+      type: object
+      required: [id, device, ip, lastSeen, createdAt]
+      properties:
+        id: { type: string }
+        device: { type: string }
+        ip: { type: string }
+        userAgent: { type: [string, "null"] }
+        location: { type: [string, "null"] }
+        lastSeen: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        current: { type: boolean }
+
+    UserSessionList:
+      type: object
+      required: [sessions]
+      properties:
+        sessions:
+          type: array
+          items: { $ref: '#/components/schemas/UserSession' }
+
+    CreateUserDto:
+      type: object
+      required: [email, password, name, tenantId]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8, writeOnly: true }
+        name: { type: string }
+        nameAr: { type: string }
+        phone: { type: string }
+        role: { $ref: '#/components/schemas/UserRole' }
+        tenantId: { type: string, format: uuid }
+        language: { $ref: '#/components/schemas/Language' }
+
+    UpdateUserDto:
+      type: object
+      description: Partial update. Password changes go through /change-password.
+      properties:
+        email: { type: string, format: email }
+        name: { type: string }
+        nameAr: { type: string }
+        phone: { type: string }
+        role: { $ref: '#/components/schemas/UserRole' }
+        tenantId: { type: string, format: uuid }
+        language: { $ref: '#/components/schemas/Language' }
+        avatar: { type: string, format: uri }
+
+    LoginRequest:
+      type: object
+      required: [password]
+      description: Exactly one of `email` or `phone` must be supplied.
+      properties:
+        email: { type: string, format: email }
+        phone: { type: string }
+        password: { type: string, writeOnly: true }
+        tenantId: { type: string, format: uuid }
+
+    RegisterRequest:
+      type: object
+      required: [email, password, name, tenantId]
+      properties:
+        email: { type: string, format: email }
+        password: { type: string, minLength: 8, writeOnly: true }
+        name: { type: string }
+        nameAr: { type: string }
+        phone: { type: string }
+        language: { $ref: '#/components/schemas/Language' }
+        tenantId: { type: string, format: uuid }
+
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token: { type: string }
+
+    ForgotPasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+
+    ResetPasswordRequest:
+      type: object
+      required: [token, newPassword]
+      properties:
+        token: { type: string }
+        newPassword: { type: string, minLength: 8, writeOnly: true }
+
+    SendOtpRequest:
+      type: object
+      description: One of `phone` or `email` is required.
+      properties:
+        phone: { type: string }
+        email: { type: string, format: email }
+
+    VerifyOtpRequest:
+      type: object
+      required: [otp]
+      properties:
+        phone: { type: string }
+        email: { type: string, format: email }
+        otp: { type: string, minLength: 4, maxLength: 8 }
+
+    ChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string, writeOnly: true }
+        newPassword: { type: string, minLength: 8, writeOnly: true }
+
+    Disable2faRequest:
+      type: object
+      required: [password]
+      properties:
+        password: { type: string, writeOnly: true }
+
+    TwoFactorVerifyRequest:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, minLength: 6, maxLength: 6 }
+
+    TwoFactorEnableResponse:
+      type: object
+      required: [secret, otpauthUrl]
+      properties:
+        secret: { type: string }
+        otpauthUrl: { type: string }
+        qrCodeDataUrl: { type: string, description: Base64-encoded PNG data URL. }
+
+    LoginResponse:
+      type: object
+      required: [access_token, token_type, expires_in, user]
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        token_type: { type: string, const: bearer }
+        expires_in: { type: integer, description: Access token TTL in seconds. }
+        requires_2fa: { type: boolean }
+        user: { $ref: '#/components/schemas/UserProfile' }
+
+    TokenPair:
+      type: object
+      required: [access_token, refresh_token, token_type, expires_in]
+      properties:
+        access_token: { type: string }
+        refresh_token: { type: string }
+        token_type: { type: string, const: bearer }
+        expires_in: { type: integer }
+
+    StatusResponse:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, example: ok }
+
+    LogoutAllResponse:
+      type: object
+      required: [status, revokedCount]
+      properties:
+        status: { type: string }
+        revokedCount: { type: integer }
+
+    OtpDispatchResponse:
+      type: object
+      required: [status, cooldownSeconds]
+      properties:
+        status: { type: string, example: sent }
+        cooldownSeconds: { type: integer, example: 60 }
+
+    OtpVerifyResponse:
+      type: object
+      required: [verified]
+      properties:
+        verified: { type: boolean }
+
+    PaginatedUsers:
+      type: object
+      required: [results, total, limit, offset]
+      properties:
+        results:
+          type: array
+          items: { $ref: '#/components/schemas/UserProfile' }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+
+    HealthResponse:
+      type: object
+      required: [status, service, version, timestamp]
+      properties:
+        status:
+          type: string
+          enum: [ok, degraded, not_ready]
+        service:
+          type: string
+          const: user-service
+        version: { type: string }
+        database: { type: boolean }
+        cache: { type: boolean }
+        timestamp: { type: string, format: date-time }
+
+    ApiError:
+      type: object
+      required: [success, error, errorCode]
+      properties:
+        success: { type: boolean, const: false }
+        error: { type: string }
+        errorAr: { type: string }
+        errorCode: { type: string, example: AUTH_INVALID_CREDENTIALS }
+        requestId: { type: string }

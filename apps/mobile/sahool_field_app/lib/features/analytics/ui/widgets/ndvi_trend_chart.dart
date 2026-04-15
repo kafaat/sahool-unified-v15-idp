@@ -49,7 +49,7 @@ class NdviTrendChart extends StatelessWidget {
       height: height,
       child: AspectRatio(
         aspectRatio: height != null ? 2.0 : 1.70,
-        child: Container(
+        child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
             color: Colors.white,
@@ -91,7 +91,7 @@ class NdviTrendChart extends StatelessWidget {
       horizontalInterval: 0.25,
       getDrawingHorizontalLine: (value) {
         return FlLine(
-          color: Colors.grey.withOpacity(0.1),
+          color: Colors.grey.withValues(alpha: 0.1),
           strokeWidth: 1,
         );
       },
@@ -159,7 +159,7 @@ class NdviTrendChart extends StatelessWidget {
     return LineTouchData(
       enabled: true,
       touchTooltipData: LineTouchTooltipData(
-        getTooltipColor: (touchedSpot) => SahoolColors.primary.withOpacity(0.9),
+        getTooltipColor: (touchedSpot) => SahoolColors.primary.withValues(alpha: 0.9),
         tooltipRoundedRadius: 8,
         getTooltipItems: (touchedSpots) {
           return touchedSpots.map((spot) {
@@ -221,8 +221,8 @@ class NdviTrendChart extends StatelessWidget {
               show: true,
               gradient: LinearGradient(
                 colors: [
-                  SahoolColors.primary.withOpacity(0.3),
-                  SahoolColors.primary.withOpacity(0.0),
+                  SahoolColors.primary.withValues(alpha: 0.3),
+                  SahoolColors.primary.withValues(alpha: 0.0),
                 ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -327,11 +327,11 @@ class TrendIndicator extends StatelessWidget {
   Color get _backgroundColor {
     switch (trend) {
       case TrendDirection.improving:
-        return SahoolColors.success.withOpacity(0.1);
+        return SahoolColors.success.withValues(alpha: 0.1);
       case TrendDirection.declining:
-        return SahoolColors.danger.withOpacity(0.1);
+        return SahoolColors.danger.withValues(alpha: 0.1);
       case TrendDirection.stable:
-        return SahoolColors.info.withOpacity(0.1);
+        return SahoolColors.info.withValues(alpha: 0.1);
     }
   }
 }

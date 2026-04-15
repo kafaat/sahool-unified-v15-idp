@@ -1,3 +1,8 @@
+---
+name: obsidian-markdown
+description: Use when generating Obsidian-compatible Markdown for SAHOOL farm documentation — wikilinks, callouts, Dataview queries, bilingual EN/AR frontmatter, task lists, and tag hierarchies (#sahool/field, #sahool/crop/*, #sahool/irrigation, #sahool/advisory). TRIGGER when writing content for an Obsidian vault, using [[wikilinks]], creating farm-facing .md under docs/knowledge-base/, or when the user asks to "write for Obsidian", "add to vault", or "create farm docs".
+---
+
 # Obsidian Markdown Skill for Farm Documentation
 
 ## Description

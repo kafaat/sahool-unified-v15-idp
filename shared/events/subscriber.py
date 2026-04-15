@@ -37,7 +37,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from .contracts import BaseEvent
 from .dlq_config import (
@@ -107,6 +107,21 @@ class SubscriberConfig(BaseModel):
     # Dead Letter Queue
     enable_dlq: bool = Field(default=True, description="Enable Dead Letter Queue for failed messages")
     dlq_config: DLQConfig | None = Field(None, description="DLQ configuration (uses defaults if None)")
+
+    # TLS Configuration
+    tls_enabled: bool = Field(default=False, description="Enable TLS for NATS connection")
+    tls_ca_path: str | None = Field(default=None, description="Path to CA certificate")
+    tls_cert_path: str | None = Field(default=None, description="Path to client certificate")
+    tls_key_path: str | None = Field(default=None, description="Path to client key")
+
+    @model_validator(mode="after")
+    def _load_tls_from_env(self) -> SubscriberConfig:
+        if os.getenv("NATS_TLS_ENABLED", "").lower() in ("true", "1", "yes"):
+            self.tls_enabled = True
+            self.tls_ca_path = self.tls_ca_path or os.getenv("NATS_TLS_CA")
+            self.tls_cert_path = self.tls_cert_path or os.getenv("NATS_TLS_CERT")
+            self.tls_key_path = self.tls_key_path or os.getenv("NATS_TLS_KEY")
+        return self
 
 
 class Subscription(BaseModel):
@@ -309,6 +324,17 @@ class EventSubscriber:
                 _safe_servers = self.config.servers
             logger.info(f"Connecting to NATS: {_safe_servers}")
 
+            connect_opts = {}
+            if self.config.tls_enabled:
+                import ssl
+
+                tls_context = ssl.create_default_context()
+                if self.config.tls_ca_path:
+                    tls_context.load_verify_locations(self.config.tls_ca_path)
+                if self.config.tls_cert_path and self.config.tls_key_path:
+                    tls_context.load_cert_chain(self.config.tls_cert_path, self.config.tls_key_path)
+                connect_opts["tls"] = tls_context
+
             self._nc = await nats.connect(
                 servers=self.config.servers,
                 name=self.config.name,
@@ -319,6 +345,7 @@ class EventSubscriber:
                 reconnected_cb=self._reconnected_callback,
                 closed_cb=self._closed_callback,
                 pending_size=self.config.pending_messages_limit,
+                **connect_opts,
             )
 
             # Enable JetStream if configured
@@ -620,10 +647,15 @@ class EventSubscriber:
                 # ── 5. Record processed event_id ───────────────────────
                 if eid:
                     self._processed_event_ids[eid] = asyncio.get_event_loop().time()
-                    # Evict oldest entries when over limit
+                    # Evict entries with oldest timestamp when over limit
                     if len(self._processed_event_ids) > self._dedup_max_size:
                         excess = len(self._processed_event_ids) - self._dedup_max_size
-                        for old_key in list(self._processed_event_ids)[:excess]:
+                        # Sort by timestamp (value) and evict the oldest
+                        oldest_keys = sorted(
+                            self._processed_event_ids,
+                            key=lambda k: self._processed_event_ids[k],
+                        )[:excess]
+                        for old_key in oldest_keys:
                             del self._processed_event_ids[old_key]
 
                 # ── 6. ACK only after full success ─────────────────────
@@ -750,9 +782,43 @@ class EventSubscriber:
         self._connected = False
 
     async def _reconnected_callback(self):
-        """Handle reconnection."""
+        """Handle reconnection and re-establish all subscriptions."""
         logger.info("✅ NATS reconnected successfully")
         self._connected = True
+
+        # Re-initialize JetStream context after reconnection
+        if self.config.enable_jetstream and self._nc:
+            try:
+                self._js = self._nc.jetstream(domain=self.config.jetstream_domain)
+            except Exception as e:
+                logger.warning(f"Failed to re-initialize JetStream after reconnection: {e}")
+
+        # Re-establish all subscriptions from the handlers registry
+        if self._handlers:
+            logger.info(f"Re-establishing {len(self._handlers)} subscriptions after reconnection")
+            old_handlers = dict(self._handlers)
+            self._subscriptions.clear()
+            self._handlers.clear()
+
+            resubscribed = 0
+            for subject, subscription in old_handlers.items():
+                try:
+                    success = await self.subscribe(
+                        subject=subscription.subject,
+                        handler=subscription.handler,
+                        event_class=subscription.event_class,
+                        queue_group=subscription.queue_group,
+                        durable_name=subscription.durable_name,
+                        auto_ack=subscription.auto_ack,
+                    )
+                    if success:
+                        resubscribed += 1
+                    else:
+                        logger.error(f"Failed to re-subscribe to {subject}")
+                except Exception as e:
+                    logger.error(f"Error re-subscribing to {subject}: {e}")
+
+            logger.info(f"Re-established {resubscribed}/{len(old_handlers)} subscriptions after reconnection")
 
     async def _closed_callback(self):
         """Handle connection closure."""
@@ -801,6 +867,7 @@ class EventSubscriber:
 # ─────────────────────────────────────────────────────────────────────────────
 
 _subscriber_instance: EventSubscriber | None = None
+_subscriber_lock: asyncio.Lock | None = None
 
 
 async def get_subscriber(
@@ -810,6 +877,7 @@ async def get_subscriber(
     """
     Get or create the singleton subscriber instance.
     الحصول على أو إنشاء مشترك الأحداث الوحيد
+    Async-safe with double-check locking.
 
     Args:
         service_name: Service name
@@ -818,14 +886,22 @@ async def get_subscriber(
     Returns:
         EventSubscriber instance
     """
-    global _subscriber_instance
+    global _subscriber_instance, _subscriber_lock
 
-    if _subscriber_instance is None:
-        _subscriber_instance = EventSubscriber(
-            service_name=service_name,
-            service_version=service_version,
-        )
-        await _subscriber_instance.connect()
+    if _subscriber_instance is not None:
+        return _subscriber_instance
+
+    if _subscriber_lock is None:
+        _subscriber_lock = asyncio.Lock()
+    async with _subscriber_lock:
+        # Double-check after acquiring lock
+        if _subscriber_instance is None:
+            instance = EventSubscriber(
+                service_name=service_name,
+                service_version=service_version,
+            )
+            await instance.connect()
+            _subscriber_instance = instance
 
     return _subscriber_instance
 
@@ -834,9 +910,10 @@ async def close_subscriber():
     """Close the singleton subscriber instance."""
     global _subscriber_instance
 
-    if _subscriber_instance:
-        await _subscriber_instance.close()
-        _subscriber_instance = None
+    async with _subscriber_lock:
+        if _subscriber_instance is not None:
+            await _subscriber_instance.close()
+            _subscriber_instance = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

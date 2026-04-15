@@ -75,8 +75,23 @@ class PromptInjectionDetector:
             r"you\s+are\s+now\s+a?\s*\w+",
             r"act\s+as\s+a?\s*\w+",
             r"pretend\s+to\s+be",
-            r"تجاهل\s+التعليمات",
-            r"انسى\s+كل\s+شيء",
+            r"تجاهل\s+التعليمات",  # "ignore instructions"
+            r"تجاهل\s+(كل|جميع)\s+التعليمات",  # "ignore all instructions"
+            r"انسى\s+كل\s+شيء",  # "forget everything"
+            r"تصرف\s+ك",  # "act as"
+            r"أنت\s+الآن\s+",  # "you are now"
+            r"تظاهر\s+(أنك|بأنك)",  # "pretend you are"
+        ]
+
+        # Jailbreak and bypass patterns (H-06)
+        self.jailbreak_patterns = [
+            r"\bjailbreak\b",
+            r"\bdan\s+mode\b",
+            r"\bdeveloper\s+mode\b",
+            r"\broleplay\s+as\b",
+            r"bypass\s+(safety|filter|restriction|guardrail)",
+            r"كسر\s+(الحماية|القيود)",  # "break protection/restrictions"
+            r"تجاوز\s+(الحماية|المرشح|القيود)",  # "bypass protection/filter/restrictions"
         ]
 
         # Data exfiltration patterns
@@ -85,7 +100,8 @@ class PromptInjectionDetector:
             r"reveal\s+(the\s+|your\s+)?(system|hidden)\s+(prompt|instructions)",
             r"what\s+(are|were)\s+your\s+(original|system)\s+instructions",
             r"repeat\s+(your|the)\s+(instructions|prompt)",
-            r"أظهر\s+التعليمات",
+            r"أظهر\s+التعليمات",  # "show instructions"
+            r"(أظهر|اكشف|اعرض)\s+(تعليمات|أوامر)\s+(النظام|الأصلية)",  # "show/reveal system instructions"
         ]
 
         # Role confusion patterns
@@ -107,7 +123,11 @@ class PromptInjectionDetector:
 
         # Compile all patterns
         self.all_patterns = (
-            self.override_patterns + self.exfiltration_patterns + self.role_confusion_patterns + self.escape_patterns
+            self.override_patterns
+            + self.jailbreak_patterns
+            + self.exfiltration_patterns
+            + self.role_confusion_patterns
+            + self.escape_patterns
         )
         self.compiled_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in self.all_patterns]
 
@@ -391,6 +411,7 @@ class InputFilter:
             violations.append(f"Input exceeds maximum length ({len(text)} > {policy.max_input_length})")
             violations_ar.append(f"المدخل يتجاوز الحد الأقصى للطول ({len(text)} > {policy.max_input_length})")
             metadata["input_length"] = len(text)
+            text = text[: policy.max_input_length]
 
         # 2. Check for prompt injection
         if policy.check_prompt_injection:

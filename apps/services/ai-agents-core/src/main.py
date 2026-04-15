@@ -11,6 +11,11 @@ import sys
 from datetime import datetime
 from typing import Any
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from agents import (
     AgentContext,
     AgentPercept,
@@ -25,7 +30,7 @@ from fastapi import Depends, FastAPI, HTTPException
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
@@ -35,7 +40,10 @@ from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Initialize FastAPI
 app = FastAPI(
@@ -56,6 +64,7 @@ app.add_middleware(TenantContextMiddleware)
 # Rate Limiting - Critical for AI agent endpoints
 try:
     from fastapi import Request
+
     from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def ai_agents_tier_func(request: Request) -> RateLimitTier:
@@ -94,8 +103,8 @@ feedback_learner = FeedbackLearnerAgent()
 
 # Request/Response Models
 class AnalysisRequest(BaseModel):
-    field_id: str
-    crop_type: str
+    field_id: str = Field(..., max_length=100)
+    crop_type: str = Field(..., max_length=50)
     sensor_data: dict[str, Any] | None = None
     weather_data: dict[str, Any] | None = None
     image_data: dict[str, Any] | None = None
@@ -105,10 +114,10 @@ class FeedbackRequest(BaseModel):
     recommendation_id: str
     agent_id: str
     action_type: str
-    rating: float  # -1 to 1
+    rating: float = Field(..., ge=-1, le=1)
     success: bool
     actual_result: dict[str, Any] | None = None
-    comments: str | None = None
+    comments: str | None = Field(None, max_length=2000)
 
 
 class SensorDataRequest(BaseModel):
@@ -166,7 +175,7 @@ async def analyze_field(request: AnalysisRequest, user: User = Depends(get_curre
 
     except Exception as e:
         logger.error(f"Analysis error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Analysis failed") from e
 
 
 # Edge agent endpoints
@@ -190,7 +199,7 @@ async def process_sensor_data(request: SensorDataRequest, user: User = Depends(g
 
     except Exception as e:
         logger.error(f"Sensor processing error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Sensor processing failed") from e
 
 
 @app.post("/api/v1/edge/mobile")
@@ -213,7 +222,7 @@ async def mobile_quick_action(data: dict[str, Any], user: User = Depends(get_cur
 
     except Exception as e:
         logger.error(f"Mobile action error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Mobile action failed") from e
 
 
 # Learning endpoints
@@ -245,12 +254,12 @@ async def submit_feedback(request: FeedbackRequest, user: User = Depends(get_cur
 
     except Exception as e:
         logger.error(f"Feedback error: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+        raise HTTPException(status_code=500, detail="Feedback failed") from e
 
 
 # System status
 @app.get("/api/v1/system/status")
-async def get_system_status():
+async def get_system_status(user: User = Depends(get_current_user)):
     """حالة النظام"""
     return {
         "coordinator": coordinator.get_system_status(),
@@ -266,7 +275,7 @@ async def get_system_status():
 
 # Agent metrics
 @app.get("/api/v1/agents/{agent_id}/metrics")
-async def get_agent_metrics(agent_id: str):
+async def get_agent_metrics(agent_id: str, user: User = Depends(get_current_user)):
     """مقاييس وكيل محدد"""
     agents = {
         "coordinator": coordinator,
@@ -287,4 +296,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", "8161"))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

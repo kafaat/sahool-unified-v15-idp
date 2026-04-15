@@ -1,5 +1,6 @@
-/// GDD Chart Screen - شاشة الرسم البياني لدرجات النمو الحراري
 library;
+
+/// GDD Chart Screen - شاشة الرسم البياني لدرجات النمو الحراري
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -197,7 +198,7 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
   Widget _buildDateRangeInfo(BuildContext context) {
     final dateFormat = DateFormat('dd MMM yyyy', 'ar');
     return Card(
-      color: Theme.of(context).primaryColor.withOpacity(0.1),
+      color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -378,7 +379,7 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -435,7 +436,7 @@ class _GDDChartScreenState extends ConsumerState<GDDChartScreen> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),

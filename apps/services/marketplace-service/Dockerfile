@@ -47,6 +47,10 @@ WORKDIR /workspace/packages/nestjs-auth
 RUN npm pkg delete scripts.prepare
 WORKDIR /workspace/marketplace-service
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Install dependencies with retry loop for network resilience
 # Note: Do NOT use --ignore-scripts here; Prisma needs its postinstall to download engine binaries
 RUN --mount=type=cache,target=/root/.npm \
@@ -135,6 +139,9 @@ RUN --mount=type=cache,target=/root/.npm \
     done || \
     (npm config set registry https://registry.npmmirror.com && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Copy prisma schema from builder (for migrations)
 COPY --from=builder /workspace/marketplace-service/prisma ./prisma/

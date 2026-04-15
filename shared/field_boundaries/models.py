@@ -200,7 +200,7 @@ class BoundaryPoint(BaseModel):
     accuracy_m: float = Field(default=5.0, ge=0, description="GPS accuracy in meters | دقة GPS بالمتر")
     accuracy_level: CoordinateAccuracy = Field(default=CoordinateAccuracy.UNKNOWN)
     altitude_m: float | None = Field(default=None, description="Altitude in meters | الارتفاع بالمتر")
-    captured_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    captured_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
     device_id: str | None = Field(default=None, description="Device that captured the point | الجهاز الذي التقط النقطة")
     notes: str | None = Field(default=None)
     notes_ar: str | None = Field(default=None)
@@ -298,30 +298,57 @@ class FieldBoundary(BaseModel):
             },
         }
 
-    def to_postgis_insert(self, table_name: str = "field_boundaries") -> str:
+    def to_postgis_insert(self, table_name: str = "field_boundaries") -> tuple[str, list]:
         """
-        Generate PostGIS INSERT statement | إنشاء جملة INSERT لـ PostGIS
+        Generate parameterized PostGIS INSERT statement | إنشاء جملة INSERT لـ PostGIS
 
         Args:
-            table_name: Target table name
+            table_name: Target table name (must be an application constant)
 
         Returns:
-            SQL INSERT statement
+            Tuple of (SQL template with $N placeholders, parameter list)
+
+        SECURITY: Uses parameterized queries to prevent SQL injection.
+        Never interpolate user-supplied values into SQL strings.
+        table_name is interpolated directly - callers MUST ensure it is
+        an application constant, never user input.
         """
-        geometry_sql = self.geometry.to_postgis()
-        return f"""
+        import json as _json
+
+        geometry_geojson = _json.dumps(self.geometry.model_dump())
+
+        sql = f"""
         INSERT INTO {table_name} (
             id, field_id, tenant_id, owner_id, name, name_ar,
             boundary_type, status, geometry, area_hectares,
             perimeter_meters, version, created_at, updated_at
         ) VALUES (
-            '{self.id}', '{self.field_id}', '{self.tenant_id}', '{self.owner_id}',
-            '{self.name}', '{self.name_ar}', '{self.boundary_type.value}',
-            '{self.status.value}', {geometry_sql}, {self.area_hectares},
-            {self.perimeter_meters}, {self.version},
-            '{self.created_at.isoformat()}', '{self.updated_at.isoformat()}'
+            $1, $2, $3, $4,
+            $5, $6, $7,
+            $8, ST_GeomFromGeoJSON($9), $10,
+            $11, $12,
+            $13, $14
         );
-        """
+        """  # nosec B608 - table_name is an application constant per caller contract
+
+        params = [
+            self.id,
+            self.field_id,
+            self.tenant_id,
+            self.owner_id,
+            self.name,
+            self.name_ar,
+            self.boundary_type.value,
+            self.status.value,
+            geometry_geojson,
+            self.area_hectares,
+            self.perimeter_meters,
+            self.version,
+            self.created_at.isoformat(),
+            self.updated_at.isoformat(),
+        ]
+
+        return (sql, params)
 
 
 class BoundaryConflict(BaseModel):
@@ -362,7 +389,7 @@ class BoundaryConflict(BaseModel):
     resolved_at: datetime | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
-    detected_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    detected_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
 
     # Severity | الخطورة
     severity: str = Field(default="medium", description="Conflict severity: low, medium, high | خطورة التعارض")
@@ -424,7 +451,7 @@ class BoundaryShareRequest(BaseModel):
     response_message_ar: str | None = Field(default=None)
 
     # Timestamps | الطوابع الزمنية
-    created_at: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
     responded_at: datetime | None = Field(default=None)
     expires_at: datetime | None = Field(default=None)
 
@@ -447,7 +474,7 @@ class GPSTrack(BaseModel):
     is_closed: bool = Field(default=False, description="Whether track forms closed loop | هل المسار يشكل حلقة مغلقة")
 
     # Metadata | البيانات الوصفية
-    start_time: datetime = Field(default_factory=datetime.now(UTC).replace(tzinfo=None))
+    start_time: datetime = Field(default_factory=lambda: datetime.now(UTC).replace(tzinfo=None))
     end_time: datetime | None = Field(default=None)
     total_distance_m: float | None = Field(default=None, ge=0)
     average_accuracy_m: float | None = Field(default=None, ge=0)

@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/auth/auth_service.dart';
 import '../../../core/auth/biometric_service.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/utils/app_logger.dart';
 import '../../../core/utils/input_validator.dart';
+import '../services/otp_service.dart';
 import 'biometric_login_widget.dart';
 
 /// OTP Login Screen - تسجيل الدخول برقم الهاتف
@@ -20,14 +23,15 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _phoneController = TextEditingController();
   final List<TextEditingController> _otpControllers = List.generate(
-    4,
+    6,
     (_) => TextEditingController(),
   );
-  final List<FocusNode> _otpFocusNodes = List.generate(4, (_) => FocusNode());
+  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
 
   bool _isOtpSent = false;
   bool _isLoading = false;
   int _resendTimer = 0;
+  Timer? _resendCountdownTimer;
   String? _phoneErrorMessage;
   String? _otpErrorMessage;
 
@@ -54,41 +58,55 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       // Auto-trigger biometric if available and enabled
       if (available && enabled) {
-        _authenticateWithBiometric();
+        unawaited(_authenticateWithBiometric());
       }
     }
   }
 
   Future<void> _authenticateWithBiometric() async {
     try {
-      final biometricService = ref.read(biometricServiceProvider);
-      final authenticated = await biometricService.authenticate(
-        reason: 'قم بالتحقق لتسجيل الدخول إلى سهول',
-      );
+      // تسجيل الدخول بالبصمة مع استرجاع التوكن عبر AuthService
+      final authService = ref.read(authServiceProvider);
+      final user = await authService.loginWithBiometric();
 
-      if (authenticated && mounted) {
+      if (user != null && mounted) {
         context.go('/map');
       }
+    } on AuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } on BiometricException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message),
-          backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e.message),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     } catch (e) {
       // Silent fail - user can use phone/OTP
+      AppLogger.w('Biometric auto-login failed', tag: 'LOGIN');
     }
   }
 
   @override
   void dispose() {
+    _resendCountdownTimer?.cancel();
+    _resendCountdownTimer = null;
     _phoneController.dispose();
-    for (var controller in _otpControllers) {
+    for (final controller in _otpControllers) {
       controller.dispose();
     }
-    for (var node in _otpFocusNodes) {
+    for (final node in _otpFocusNodes) {
       node.dispose();
     }
     super.dispose();
@@ -110,38 +128,71 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _phoneErrorMessage = null;
     });
 
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // إرسال رمز التحقق عبر خدمة OTP الفعلية
+      final otpService = ref.read(otpServiceProvider);
+      final phoneWithCode = '+967${_phoneController.text}';
+      final result = await otpService.sendOTP(
+        identifier: phoneWithCode,
+        channel: OTPChannel.sms,
+        purpose: OTPPurpose.phoneVerification,
+      );
 
-    setState(() {
-      _isLoading = false;
-      _isOtpSent = true;
-      _resendTimer = 60;
-    });
+      result.when(
+        success: (response) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _isOtpSent = true;
+              _resendTimer = response.cooldownSeconds ?? 60;
+            });
 
-    // Start countdown
-    _startResendTimer();
+            // Start countdown
+            _startResendTimer();
 
-    // Focus first OTP field
-    _otpFocusNodes[0].requestFocus();
+            // Focus first OTP field
+            _otpFocusNodes[0].requestFocus();
+          }
+        },
+        failure: (message, statusCode) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _phoneErrorMessage = message;
+            });
+          }
+        },
+      );
+    } catch (e) {
+      AppLogger.e('OTP send failed', error: e, tag: 'LOGIN');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _phoneErrorMessage = 'حدث خطأ أثناء إرسال رمز التحقق';
+        });
+      }
+    }
   }
 
   void _startResendTimer() {
-    Future.doWhile(() async {
-      await Future.delayed(const Duration(seconds: 1));
-      if (mounted && _resendTimer > 0) {
-        setState(() => _resendTimer--);
-        return true;
+    _resendCountdownTimer?.cancel();
+    _resendCountdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted || _resendTimer <= 0) {
+        timer.cancel();
+        return;
       }
-      return false;
+      setState(() => _resendTimer--);
+      if (_resendTimer <= 0) {
+        timer.cancel();
+      }
     });
   }
 
   Future<void> _verifyOtp() async {
     final otp = _otpControllers.map((c) => c.text).join();
 
-    // Validate OTP
-    final validation = InputValidator.validateOtp(otp, length: 4);
+    // Validate OTP - 6 أرقام
+    final validation = InputValidator.validateOtp(otp, length: 6);
 
     if (!validation.isValid) {
       setState(() {
@@ -155,11 +206,61 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       _otpErrorMessage = null;
     });
 
-    // Simulate verification
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // التحقق من رمز OTP عبر الخدمة الفعلية
+      final otpService = ref.read(otpServiceProvider);
+      final phoneWithCode = '+967${_phoneController.text}';
+      final result = await otpService.verifyOTP(
+        identifier: phoneWithCode,
+        otp: otp,
+        purpose: OTPPurpose.phoneVerification,
+      );
 
-    if (mounted) {
-      context.go('/map');
+      await result.when(
+        success: (response) async {
+          // تسجيل الدخول باستخدام AuthService وتخزين التوكن
+          try {
+            final authService = ref.read(authServiceProvider);
+            // Use phone login - the backend issues tokens after OTP verification
+            final user = await authService.login(phoneWithCode, otp);
+            AppLogger.i('Login successful', tag: 'LOGIN', data: {'userId': user.id});
+
+            if (mounted) {
+              setState(() => _isLoading = false);
+              context.go('/map');
+            }
+          } on AuthException catch (e) {
+            AppLogger.e('Auth after OTP failed', error: e, tag: 'LOGIN');
+            if (mounted) {
+              setState(() {
+                _isLoading = false;
+                _otpErrorMessage = e.message;
+              });
+            }
+          }
+        },
+        failure: (message, statusCode) {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+              _otpErrorMessage = message;
+            });
+            // مسح حقول OTP عند الخطأ
+            for (final controller in _otpControllers) {
+              controller.clear();
+            }
+            _otpFocusNodes[0].requestFocus();
+          }
+        },
+      );
+    } catch (e) {
+      AppLogger.e('OTP verification failed', error: e, tag: 'LOGIN');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _otpErrorMessage = 'حدث خطأ أثناء التحقق من الرمز';
+        });
+      }
     }
   }
 
@@ -171,16 +272,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       });
     }
 
-    if (value.isNotEmpty && index < 3) {
+    if (value.isNotEmpty && index < 5) {
       _otpFocusNodes[index + 1].requestFocus();
     }
     if (value.isEmpty && index > 0) {
       _otpFocusNodes[index - 1].requestFocus();
     }
 
-    // Auto verify when all digits entered
+    // Auto verify when all 6 digits entered
     final otp = _otpControllers.map((c) => c.text).join();
-    if (otp.length == 4) {
+    if (otp.length == 6) {
       _verifyOtp();
     }
   }
@@ -215,7 +316,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
-                        color: SahoolColors.primary.withOpacity(0.1),
+                        color: SahoolColors.primary.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -235,7 +336,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     const SizedBox(height: 8),
                     Text(
                       _isOtpSent
-                          ? 'تم إرسال رمز مكون من 4 أرقام إلى\n${_phoneController.text}'
+                          ? 'تم إرسال رمز مكون من 6 أرقام إلى\n${_phoneController.text}'
                           : 'أدخل رقم هاتفك للمتابعة',
                       style: TextStyle(
                         fontSize: 16,
@@ -310,19 +411,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               // Biometric login option
               if (_isBiometricAvailable && _isBiometricEnabled && !_isOtpSent)
                 BiometricLoginWidget(
-                  onAuthenticated: () {
-                    if (mounted) {
-                      context.go('/map');
+                  onSuccess: () async {
+                    // تسجيل الدخول بالبصمة مع استرجاع التوكن
+                    try {
+                      final authService = ref.read(authServiceProvider);
+                      await authService.loginWithBiometric();
+                      if (context.mounted) {
+                        context.go('/map');
+                      }
+                    } on AuthException catch (e) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.message),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      AppLogger.e('Biometric login failed', error: e, tag: 'LOGIN');
                     }
                   },
                 ),
 
               const SizedBox(height: 24),
 
-              // Help text
+              // Help text - نص المساعدة
               Center(
                 child: TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _showHelpDialog(),
                   icon: const Icon(Icons.help_outline, size: 20),
                   label: const Text('تحتاج مساعدة؟'),
                 ),
@@ -334,11 +452,71 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 
+  /// عرض نافذة المساعدة
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.help_outline, color: SahoolColors.primary),
+            SizedBox(width: 8),
+            Text('المساعدة'),
+          ],
+        ),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'كيفية تسجيل الدخول:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text('1. أدخل رقم هاتفك اليمني (9 أرقام تبدأ بـ 7)'),
+            SizedBox(height: 4),
+            Text('2. اضغط "أرسل الرمز"'),
+            SizedBox(height: 4),
+            Text('3. أدخل رمز التحقق المكون من 6 أرقام'),
+            SizedBox(height: 16),
+            Text(
+              'للتواصل مع الدعم الفني:',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 8),
+            Text('البريد: support@sahool.app'),
+            Text('الهاتف: +967-1-XXX-XXX'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('حسناً'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// عرض رسالة اليمن فقط عند الضغط على رمز البلد
+  void _showCountryCodeInfo() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('التطبيق يدعم حالياً أرقام الهواتف اليمنية فقط (+967)'),
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
   Widget _buildPhoneInput() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(16),
@@ -350,31 +528,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ),
           child: Row(
             children: [
-              // Country code
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(color: Colors.grey[300]!),
+              // Country code - اليمن فقط
+              GestureDetector(
+                onTap: _showCountryCodeInfo,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      left: BorderSide(color: Colors.grey[300]!),
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    const Text(
-                      '🇾🇪',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '+967',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[700],
+                  child: Row(
+                    children: [
+                      const Text(
+                        '🇾🇪',
+                        style: TextStyle(fontSize: 24),
                       ),
-                    ),
-                    Icon(Icons.arrow_drop_down, color: Colors.grey[600]),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        '+967',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Icon(Icons.info_outline, color: Colors.grey[500], size: 16),
+                    ],
+                  ),
                 ),
               ),
               // Phone input
@@ -422,11 +604,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(4, (index) {
+          children: List.generate(6, (index) {
             return Container(
-              width: 64,
-              height: 72,
-              margin: const EdgeInsets.symmetric(horizontal: 8),
+              width: 48,
+              height: 64,
+              margin: const EdgeInsets.symmetric(horizontal: 4),
               child: TextField(
                 controller: _otpControllers[index],
                 focusNode: _otpFocusNodes[index],

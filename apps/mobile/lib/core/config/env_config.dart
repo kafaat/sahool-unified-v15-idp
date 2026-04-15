@@ -82,7 +82,7 @@ class EnvConfig {
       }
     }
 
-    if (!loaded && kDebugMode) {
+    if (!loaded) {
       AppLogger.w('No .env file found. Using dart-define/defaults.', tag: 'EnvConfig');
       _loadedFrom = 'defaults (no .env file)';
     }
@@ -472,7 +472,7 @@ class EnvConfig {
       case AppEnvironment.staging:
         return 'wss://ws-staging.sahool.app';
       case AppEnvironment.development:
-        return 'ws://10.0.2.2:8081';
+        return 'ws://10.0.2.2:8081'; // nosemgrep: detect-insecure-websocket -- development-only; production/staging use wss://
     }
   }
 

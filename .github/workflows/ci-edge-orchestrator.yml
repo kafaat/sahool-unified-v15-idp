@@ -31,7 +31,7 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: sahool
+  IMAGE_PREFIX: ${{ github.repository_owner }}
   SERVICE_NAME: edge-orchestrator-service
   SERVICE_PATH: apps/services/edge-orchestrator-service
   SERVICE_PORT: 8180
@@ -43,6 +43,7 @@ jobs:
   lint:
     name: Code Quality (Ruff)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -77,6 +78,7 @@ jobs:
   test-unit:
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     steps:
       - name: Checkout code
@@ -116,11 +118,13 @@ jobs:
           NATS_URL: ""
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v5
-        if: always()
-        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: edge-orchestrator-unit
           name: edge-orchestrator-unit-coverage
@@ -131,6 +135,7 @@ jobs:
   test-integration:
     name: Integration Tests (Device Communication)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     continue-on-error: true
     services:
@@ -267,6 +272,7 @@ jobs:
   security:
     name: Security Scan (Bandit)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: lint
     steps:
       - name: Checkout code
@@ -320,6 +326,7 @@ jobs:
   build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [test-unit, test-integration, security]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     steps:
@@ -458,6 +465,7 @@ jobs:
   container-scan:
     name: Container Security Scan
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: build
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
@@ -536,6 +544,7 @@ jobs:
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [lint, test-unit, test-integration, security, build]
     if: always()
     steps:

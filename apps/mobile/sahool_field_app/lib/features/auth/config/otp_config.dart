@@ -8,6 +8,7 @@ import '../../../core/sync/sync_metrics_providers.dart'
     show sharedPreferencesProvider;
 import '../../../core/http/api_client.dart';
 import '../../../core/utils/app_logger.dart';
+import '../services/otp_service.dart' show OTPChannel;
 import '../ui/otp_verification_screen.dart';
 
 part 'otp_config.g.dart';

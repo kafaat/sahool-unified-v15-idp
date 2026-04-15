@@ -38,7 +38,7 @@ class HourlyForecastList extends StatelessWidget {
               boxShadow: isNow
                   ? [
                       BoxShadow(
-                        color: const Color(0xFF367C2B).withOpacity(0.3),
+                        color: const Color(0xFF367C2B).withValues(alpha: 0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),

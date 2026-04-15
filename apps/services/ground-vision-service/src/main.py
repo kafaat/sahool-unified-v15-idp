@@ -11,10 +11,31 @@ import os
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
+
 from shared.middleware.tenant_context import TenantContextMiddleware
+
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 # Import unified error handling
 try:
@@ -31,7 +52,10 @@ logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO"),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Service configuration
 SERVICE_NAME = "ground-vision-service"
@@ -93,6 +117,7 @@ async def lifespan(app: FastAPI):
             state.db_pool = await asyncpg.create_pool(
                 database_url,
                 min_size=2,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility,
                 max_size=10,
             )
             logger.info("Database connection pool created")
@@ -223,6 +248,14 @@ if HAS_ERROR_HANDLERS:
 app.add_middleware(TenantContextMiddleware)
 
 
+async def get_tenant_id(
+    x_tenant_id: str | None = Header(None, alias="X-Tenant-ID"),
+) -> str:
+    if not x_tenant_id:
+        raise HTTPException(status_code=400, detail="X-Tenant-ID header required")
+    return x_tenant_id
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Health Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -296,19 +329,26 @@ class CameraResponse(BaseModel):
 
 
 @app.post("/api/v1/cameras", response_model=CameraResponse, tags=["Cameras"])
-async def register_camera(request: CameraRegistration):
+async def register_camera(request: CameraRegistration, current_user: User = Depends(get_current_user)):
     """
     Register a new tower camera.
 
     تسجيل كاميرا برج جديدة
     """
+    # Validate tenant_id in request matches authenticated user's tenant
+    if current_user.tenant_id and request.tenant_id != current_user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Camera tenant_id does not match authenticated user's tenant | معرف المستأجر للكاميرا لا يتطابق مع المستأجر المصادق عليه",
+        )
+
     logger.info(f"Registering camera {request.camera_id} at tower {request.tower_id}")
     created_at = datetime.now(UTC).isoformat()
 
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """INSERT INTO cameras (camera_id, tower_id, name, name_ar, latitude, longitude,
                    altitude_m, focal_length_mm, sensor_width_mm, sensor_height_mm,
                    image_width_px, image_height_px, zoom_min, zoom_max, tenant_id, status, created_at)
@@ -364,7 +404,7 @@ async def register_camera(request: CameraRegistration):
 
 @app.get("/api/v1/cameras", tags=["Cameras"])
 async def list_cameras(
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     tower_id: str = Query(None, description="Filter by tower"),
 ):
     """
@@ -396,7 +436,7 @@ async def list_cameras(
 
 
 @app.get("/api/v1/cameras/{camera_id}", tags=["Cameras"])
-async def get_camera(camera_id: str):
+async def get_camera(camera_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get camera details.
 
@@ -405,8 +445,9 @@ async def get_camera(camera_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM cameras WHERE camera_id=$1",
+                "SELECT * FROM cameras WHERE camera_id=$1 AND tenant_id=$2",
                 camera_id,
+                tenant_id,
             )
             if row:
                 return dict(row)
@@ -443,7 +484,7 @@ class FrameProcessResponse(BaseModel):
 
 
 @app.post("/api/v1/frames/process", response_model=FrameProcessResponse, tags=["Frames"])
-async def process_frame(request: FrameProcessRequest):
+async def process_frame(request: FrameProcessRequest, current_user: User = Depends(get_current_user)):
     """
     Process a captured frame.
 
@@ -486,7 +527,7 @@ async def process_frame(request: FrameProcessRequest):
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """INSERT INTO frame_results (frame_id, camera_id, field_id, tenant_id,
                    detections_count, anomalies_count, processed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7)""",
@@ -538,7 +579,7 @@ async def process_frame(request: FrameProcessRequest):
 
 @app.get("/api/v1/detections", tags=["Detections"])
 async def list_detections(
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     field_id: str = Query(None, description="Filter by field"),
     operation_type: str = Query(None, description="Filter by operation type"),
     from_date: str = Query(None, description="Start date (ISO format)"),
@@ -595,7 +636,7 @@ async def list_detections(
 
 
 @app.get("/api/v1/detections/{detection_id}", tags=["Detections"])
-async def get_detection(detection_id: str):
+async def get_detection(detection_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get detection details.
 
@@ -604,8 +645,9 @@ async def get_detection(detection_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM detections WHERE detection_id=$1",
+                "SELECT * FROM detections WHERE detection_id=$1 AND tenant_id=$2",
                 detection_id,
+                tenant_id,
             )
             if row:
                 return dict(row)
@@ -643,7 +685,7 @@ class TimelineAnalysisResponse(BaseModel):
 
 
 @app.post("/api/v1/timeline/analyze", response_model=TimelineAnalysisResponse, tags=["Timeline"])
-async def analyze_timeline(request: TimelineAnalysisRequest):
+async def analyze_timeline(request: TimelineAnalysisRequest, current_user: User = Depends(get_current_user)):
     """
     Analyze crop timeline from frames.
 
@@ -658,6 +700,8 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
     import time
 
     start_time = time.time()
+
+    tenant_id = current_user.tenant_id or request.tenant_id
 
     analysis_id = f"analysis_{request.field_id}_{datetime.now(UTC).strftime('%Y%m%d%H%M%S')}"
 
@@ -690,13 +734,13 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """INSERT INTO timeline_analyses (analysis_id, field_id, tenant_id,
                    crop_type, growth_stage, confidence, processing_time_ms, analyzed_at)
                    VALUES ($1,$2,$3,$4,$5,$6,$7,$8)""",
                 analysis_id,
                 request.field_id,
-                request.tenant_id,
+                tenant_id,
                 crop_type,
                 growth_stage,
                 confidence,
@@ -722,15 +766,15 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
         try:
             import json
 
-            subject = f"sahool.{request.tenant_id}.ground_vision.timeline_updated"
+            subject = f"sahool.{tenant_id}.ground_vision.timeline_updated"
             payload = json.dumps(
                 {
                     "analysis_id": analysis_id,
                     "field_id": request.field_id,
-                    "tenant_id": request.tenant_id,
-                    "crop_type": "wheat",
-                    "growth_stage": "tillering",
-                    "confidence": 0.85,
+                    "tenant_id": tenant_id,
+                    "crop_type": crop_type,
+                    "growth_stage": growth_stage,
+                    "confidence": confidence,
                     "processing_time_ms": processing_time,
                     "timestamp": datetime.now(UTC).isoformat(),
                 },
@@ -748,7 +792,7 @@ async def analyze_timeline(request: TimelineAnalysisRequest):
 @app.get("/api/v1/timeline/{field_id}", tags=["Timeline"])
 async def get_field_timeline(
     field_id: str,
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     from_date: str = Query(None, description="Start date"),
     to_date: str = Query(None, description="End date"),
 ):
@@ -793,7 +837,7 @@ async def get_field_timeline(
 
 @app.get("/api/v1/anomalies", tags=["Anomalies"])
 async def list_anomalies(
-    tenant_id: str = Query(..., description="Tenant identifier"),
+    tenant_id: str = Depends(get_tenant_id),
     field_id: str = Query(None, description="Filter by field"),
     severity: str = Query(None, description="Filter by severity"),
     status: str = Query(None, description="Filter by status"),
@@ -845,7 +889,7 @@ async def list_anomalies(
 
 
 @app.get("/api/v1/anomalies/{anomaly_id}", tags=["Anomalies"])
-async def get_anomaly(anomaly_id: str):
+async def get_anomaly(anomaly_id: str, tenant_id: str = Depends(get_tenant_id)):
     """
     Get anomaly details.
 
@@ -854,8 +898,9 @@ async def get_anomaly(anomaly_id: str):
     if state.db_pool:
         try:
             row = await state.db_pool.fetchrow(
-                "SELECT * FROM anomalies WHERE anomaly_id=$1",
+                "SELECT * FROM anomalies WHERE anomaly_id=$1 AND tenant_id=$2",
                 anomaly_id,
+                tenant_id,
             )
             if row:
                 return dict(row)
@@ -874,7 +919,9 @@ class AnomalyAcknowledgeRequest(BaseModel):
 
 
 @app.post("/api/v1/anomalies/{anomaly_id}/acknowledge", tags=["Anomalies"])
-async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeRequest):
+async def acknowledge_anomaly(
+    anomaly_id: str, request: AnomalyAcknowledgeRequest, current_user: User = Depends(get_current_user)
+):
     """
     Acknowledge an anomaly.
 
@@ -884,14 +931,16 @@ async def acknowledge_anomaly(anomaly_id: str, request: AnomalyAcknowledgeReques
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            tenant_id = current_user.tenant_id or ""
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """UPDATE anomalies SET status='acknowledged',
                    acknowledged_by=$1, acknowledged_notes=$2, acknowledged_at=$3
-                   WHERE anomaly_id=$4""",
+                   WHERE anomaly_id=$4 AND tenant_id=$5""",
                 request.acknowledged_by,
                 request.notes,
                 acknowledged_at,
                 anomaly_id,
+                tenant_id,
             )
             if result == "UPDATE 0":
                 raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
@@ -917,7 +966,9 @@ class AnomalyResolveRequest(BaseModel):
 
 
 @app.post("/api/v1/anomalies/{anomaly_id}/resolve", tags=["Anomalies"])
-async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
+async def resolve_anomaly(
+    anomaly_id: str, request: AnomalyResolveRequest, current_user: User = Depends(get_current_user)
+):
     """
     Resolve an anomaly.
 
@@ -927,15 +978,17 @@ async def resolve_anomaly(anomaly_id: str, request: AnomalyResolveRequest):
     if state.db_pool:
         try:
             # Safe: asyncpg parameterized query with $N placeholders (not string interpolation)
-            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+            tenant_id = current_user.tenant_id or ""
+            result = await state.db_pool.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, sql-injection-db-cursor-execute -- parameterized with $N placeholders
                 """UPDATE anomalies SET status='resolved',
                    resolved_by=$1, resolution_notes=$2, resolution_notes_ar=$3, resolved_at=$4
-                   WHERE anomaly_id=$5""",
+                   WHERE anomaly_id=$5 AND tenant_id=$6""",
                 request.resolved_by,
                 request.resolution_notes,
                 request.resolution_notes_ar,
                 resolved_at,
                 anomaly_id,
+                tenant_id,
             )
             if result == "UPDATE 0":
                 raise HTTPException(status_code=404, detail="Anomaly not found | الشذوذ غير موجود")
@@ -994,7 +1047,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=SERVICE_PORT,
         reload=os.getenv("ENVIRONMENT", "development") == "development",
     )

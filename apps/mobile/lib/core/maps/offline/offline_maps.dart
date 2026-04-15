@@ -30,7 +30,7 @@
 ///   ],
 /// );
 /// ```
-library offline_maps;
+library;
 
 // Core components
 export 'tile_downloader.dart';

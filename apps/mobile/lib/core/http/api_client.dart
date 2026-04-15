@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../config/env_config.dart';
@@ -412,7 +411,7 @@ class ApiClient {
         String message = 'حدث خطأ غير متوقع';
 
         if (data is Map) {
-          message = data['message'] ?? data['error'] ?? message;
+          message = (data['message'] ?? data['error'] ?? message) as String;
         }
 
         return ApiException(
@@ -438,9 +437,19 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    // Add auth token
-    if (_client.authToken != null) {
-      options.headers['Authorization'] = 'Bearer ${_client.authToken}';
+    final token = _client.authToken;
+
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    } else if (kDebugMode) {
+      // Warn when a request proceeds without a token — this is expected for
+      // public endpoints (/auth/login, /health, etc.) but may indicate a bug
+      // for protected ones. The _TokenInterceptorWrapper (configured later)
+      // will handle protected paths more strictly once auth is set up.
+      AppLogger.w(
+        'Request to ${options.path} sent without an Authorization header',
+        tag: 'AuthInterceptor',
+      );
     }
 
     // Add tenant ID

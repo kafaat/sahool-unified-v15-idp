@@ -1,22 +1,30 @@
 # SAHOOL Audit Service Dependencies
+# PyJWT required by apps/services/shared/auth/jwt.py (import jwt at module level)
 # متطلبات خدمة التدقيق
 # Updated: January 2026
 # Version: 16.0.0
 
 # Web Framework (matching shared versions)
-fastapi==0.135.1
+fastapi>=0.115.0,<1.0.0
 starlette>=0.49.1
-uvicorn[standard]==0.41.0
+uvicorn[standard]==0.42.0
 pydantic==2.12.5
 
 # HTTP Client
 httpx==0.28.1
+
+# JWT Authentication (shared/auth/jwt.py imports jwt at module level)
+# CVE-2024-53861 (issuer validation bypass) fixed in 2.10.1
+PyJWT>=2.10.1,<3.0.0
 
 # Database & ORM (sync SQLAlchemy - uses psycopg2)
 # Note: Tortoise ORM removed - using SQLAlchemy only for consistency
 sqlalchemy==2.0.48
 alembic==1.18.4
 psycopg2-binary==2.9.11
+
+# Async database driver (used by lifespan for connection pool)
+asyncpg>=0.30.0,<1.0.0
 
 # NATS Messaging
 nats-py==2.14.0

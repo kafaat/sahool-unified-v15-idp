@@ -3,74 +3,83 @@
  * مكون إنشاء التقارير
  */
 
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useTranslations } from "next-intl";
-import { FileText, Download, CheckCircle } from "lucide-react";
-import { useGenerateReport, useDownloadReport } from "../hooks/useAnalytics";
-import type {
-  AnalyticsFilters,
-  ReportConfig,
-  ReportSectionType,
-} from "../types";
-import { logger } from "@/lib/logger";
+import React, { useState } from 'react';
+import { useTranslations } from 'next-intl';
+import { FileText, Download, CheckCircle } from 'lucide-react';
+import { useGenerateReport, useDownloadReport } from '../hooks/useAnalytics';
+import type { AnalyticsFilters, ReportConfig, ReportSectionType } from '../types';
+import { logger } from '@/lib/logger';
 
 interface ReportGeneratorProps {
   filters?: AnalyticsFilters;
 }
 
+// Restrict download filename to safe characters to prevent path traversal/injection
+// when the backend echoes an attacker-controlled report id.
+const SAFE_FILENAME_CHARS = /[^a-zA-Z0-9_-]/g;
+const sanitizeFilenamePart = (part: string, fallback: string): string => {
+  const cleaned = (part || '').replace(SAFE_FILENAME_CHARS, '').slice(0, 64);
+  return cleaned || fallback;
+};
+
+// Map format choice to actual file extension (excel -> xlsx).
+const formatToExtension = (format: 'pdf' | 'excel' | 'csv'): string => {
+  if (format === 'excel') return 'xlsx';
+  return format;
+};
+
 export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
-  const t = useTranslations("analytics");
-  const tSections = useTranslations("reportSections");
+  const t = useTranslations('analytics');
+  const tSections = useTranslations('reportSections');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const reportSections: Array<{
     type: ReportSectionType;
   }> = [
-    { type: "summary" },
-    { type: "yield_analysis" },
-    { type: "cost_analysis" },
-    { type: "revenue_analysis" },
-    { type: "comparison" },
-    { type: "recommendations" },
+    { type: 'summary' },
+    { type: 'yield_analysis' },
+    { type: 'cost_analysis' },
+    { type: 'revenue_analysis' },
+    { type: 'comparison' },
+    { type: 'recommendations' },
   ];
 
   const getSectionLabel = (type: ReportSectionType): string => {
     const typeKey =
-      type === "yield_analysis"
-        ? "yieldAnalysis"
-        : type === "cost_analysis"
-          ? "costAnalysis"
-          : type === "revenue_analysis"
-            ? "revenueAnalysis"
+      type === 'yield_analysis'
+        ? 'yieldAnalysis'
+        : type === 'cost_analysis'
+          ? 'costAnalysis'
+          : type === 'revenue_analysis'
+            ? 'revenueAnalysis'
             : type;
     return tSections(typeKey);
   };
 
   const getSectionDescription = (type: ReportSectionType): string => {
     const typeKey =
-      type === "yield_analysis"
-        ? "yieldAnalysisDesc"
-        : type === "cost_analysis"
-          ? "costAnalysisDesc"
-          : type === "revenue_analysis"
-            ? "revenueAnalysisDesc"
-            : type === "summary"
-              ? "summaryDesc"
-              : type === "comparison"
-                ? "comparisonDesc"
-                : "recommendationsDesc";
+      type === 'yield_analysis'
+        ? 'yieldAnalysisDesc'
+        : type === 'cost_analysis'
+          ? 'costAnalysisDesc'
+          : type === 'revenue_analysis'
+            ? 'revenueAnalysisDesc'
+            : type === 'summary'
+              ? 'summaryDesc'
+              : type === 'comparison'
+                ? 'comparisonDesc'
+                : 'recommendationsDesc';
     return tSections(typeKey);
   };
-  const defaultTitle = t("reportTitle");
+  const defaultTitle = t('reportTitle');
   const [config, setConfig] = useState<ReportConfig>({
     title: defaultTitle,
     titleAr: defaultTitle,
     period: {
-      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split("T")[0]!,
-      end: new Date().toISOString().split("T")[0]!,
+      start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]!,
+      end: new Date().toISOString().split('T')[0]!,
     },
     sections: reportSections.map((section) => ({
       type: section.type,
@@ -78,8 +87,8 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
     })),
     includeCharts: true,
     includeTables: true,
-    format: "pdf",
-    language: "ar",
+    format: 'pdf',
+    language: 'ar',
   });
 
   const generateMutation = useGenerateReport();
@@ -89,29 +98,42 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
     setConfig({
       ...config,
       sections: config.sections.map((section) =>
-        section.type === sectionType
-          ? { ...section, enabled: !section.enabled }
-          : section,
+        section.type === sectionType ? { ...section, enabled: !section.enabled } : section
       ),
     });
   };
 
   const handleGenerate = async () => {
+    // Validate date range before submitting - start must be <= end and not future.
+    setValidationError(null);
+    const startMs = Date.parse(config.period.start);
+    const endMs = Date.parse(config.period.end);
+    if (Number.isNaN(startMs) || Number.isNaN(endMs)) {
+      setValidationError('الرجاء اختيار نطاق تاريخ صالح | Please pick a valid date range');
+      return;
+    }
+    if (startMs > endMs) {
+      setValidationError('يجب أن يكون تاريخ البداية قبل تاريخ النهاية | Start date must be before end date');
+      return;
+    }
+
     try {
       const result = await generateMutation.mutateAsync(config);
 
       // Auto-download after generation
       const blob = await downloadMutation.mutateAsync(result.reportId);
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
-      a.download = `sahool-report-${result.reportId}.${config.format}`;
+      // Sanitize reportId before using as filename part.
+      const safeId = sanitizeFilenamePart(result.reportId, 'report');
+      a.download = `sahool-report-${safeId}.${formatToExtension(config.format)}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
     } catch (error) {
-      logger.error("Failed to generate report:", error);
+      logger.error('Failed to generate report:', error);
     }
   };
 
@@ -119,31 +141,28 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
     <div className="space-y-6">
       {/* Report Configuration */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-6">
-          {t("reportSettings")}
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">{t('reportSettings')}</h3>
 
         <div className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t("reportTitle")}
+              {t('reportTitle')}
             </label>
             <input
               type="text"
               value={config.titleAr}
-              onChange={(e) =>
-                setConfig({ ...config, titleAr: e.target.value })
-              }
+              maxLength={200}
+              onChange={(e) => setConfig({ ...config, titleAr: e.target.value.slice(0, 200) })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                         />
+            />
           </div>
 
           {/* Date Range */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("fromDate")}
+                {t('fromDate')}
               </label>
               <input
                 type="date"
@@ -158,9 +177,7 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("toDate")}
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('toDate')}</label>
               <input
                 type="date"
                 value={config.period.end}
@@ -179,14 +196,14 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("reportFormat")}
+                {t('reportFormat')}
               </label>
               <select
                 value={config.format}
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    format: e.target.value as ReportConfig["format"],
+                    format: e.target.value as ReportConfig['format'],
                   })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
@@ -198,21 +215,21 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                {t("language")}
+                {t('language')}
               </label>
               <select
                 value={config.language}
                 onChange={(e) =>
                   setConfig({
                     ...config,
-                    language: e.target.value as ReportConfig["language"],
+                    language: e.target.value as ReportConfig['language'],
                   })
                 }
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
-                <option value="ar">{t("arabic")}</option>
-                <option value="en">{t("english")}</option>
-                <option value="both">{t("both")}</option>
+                <option value="ar">{t('arabic')}</option>
+                <option value="en">{t('english')}</option>
+                <option value="both">{t('both')}</option>
               </select>
             </div>
             <div className="flex items-end">
@@ -220,14 +237,10 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
                 <input
                   type="checkbox"
                   checked={config.includeCharts}
-                  onChange={(e) =>
-                    setConfig({ ...config, includeCharts: e.target.checked })
-                  }
+                  onChange={(e) => setConfig({ ...config, includeCharts: e.target.checked })}
                   className="w-5 h-5 text-green-500 rounded focus:ring-green-500"
                 />
-                <span className="text-sm font-medium text-gray-700">
-                  {t("includeCharts")}
-                </span>
+                <span className="text-sm font-medium text-gray-700">{t('includeCharts')}</span>
               </label>
             </div>
           </div>
@@ -236,33 +249,25 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
 
       {/* Sections Selection */}
       <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
-          {t("reportSections")}
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t('reportSections')}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {reportSections.map((section) => {
-            const enabled =
-              config.sections.find((s) => s.type === section.type)?.enabled ||
-              false;
+            const enabled = config.sections.find((s) => s.type === section.type)?.enabled || false;
             return (
               <div
                 key={section.type}
                 onClick={() => toggleSection(section.type)}
                 className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
                   enabled
-                    ? "bg-green-50 border-green-500"
-                    : "bg-gray-50 border-gray-200 hover:border-gray-300"
+                    ? 'bg-green-50 border-green-500'
+                    : 'bg-gray-50 border-gray-200 hover:border-gray-300'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <h4 className="font-medium text-gray-900">
-                        {getSectionLabel(section.type)}
-                      </h4>
-                      {enabled && (
-                        <CheckCircle className="w-5 h-5 text-green-500" />
-                      )}
+                      <h4 className="font-medium text-gray-900">{getSectionLabel(section.type)}</h4>
+                      {enabled && <CheckCircle className="w-5 h-5 text-green-500" />}
                     </div>
                     <p className="text-sm text-gray-600 mt-1">
                       {getSectionDescription(section.type)}
@@ -285,33 +290,36 @@ export const ReportGenerator: React.FC<ReportGeneratorProps> = (_props) => {
           {generateMutation.isPending || downloadMutation.isPending ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-              <span>{t("generatingReport")}</span>
+              <span>{t('generatingReport')}</span>
             </>
           ) : (
             <>
               <FileText className="w-6 h-6" />
-              <span>{t("generateReport")}</span>
+              <span>{t('generateReport')}</span>
               <Download className="w-5 h-5" />
             </>
           )}
         </button>
       </div>
 
+      {/* Validation Error (client-side date range) */}
+      {validationError && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center">
+          <p className="text-yellow-800 font-medium">{validationError}</p>
+        </div>
+      )}
+
       {/* Success Message */}
       {generateMutation.isSuccess && !downloadMutation.isPending && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-          <p className="text-green-800 font-medium">
-            {t("reportGeneratedSuccess")}
-          </p>
+          <p className="text-green-800 font-medium">{t('reportGeneratedSuccess')}</p>
         </div>
       )}
 
       {/* Error Message */}
       {(generateMutation.isError || downloadMutation.isError) && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-          <p className="text-red-800 font-medium">
-            {t("reportGeneratedFailed")}
-          </p>
+          <p className="text-red-800 font-medium">{t('reportGeneratedFailed')}</p>
         </div>
       )}
     </div>

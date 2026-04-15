@@ -3,28 +3,28 @@
  * خطافات React لميزة تقييم الكوارث
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { disasterApi } from "../api";
-import type { DisasterFilters, DisasterFormData } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { disasterApi } from '../api';
+import type { DisasterFilters, DisasterFormData } from '../types';
 
 export const disasterKeys = {
-  all: ["disaster"] as const,
+  all: ['disaster'] as const,
   risks: {
-    all: ["risks"] as const,
-    lists: () => [...disasterKeys.risks.all, "list"] as const,
+    all: ['risks'] as const,
+    lists: () => [...disasterKeys.risks.all, 'list'] as const,
     list: (filters?: DisasterFilters) => [...disasterKeys.risks.lists(), filters] as const,
-    detail: (id: string) => [...disasterKeys.risks.all, "detail", id] as const,
+    detail: (id: string) => [...disasterKeys.risks.all, 'detail', id] as const,
   },
   events: {
-    all: ["events"] as const,
-    lists: () => [...disasterKeys.events.all, "list"] as const,
+    all: ['events'] as const,
+    lists: () => [...disasterKeys.events.all, 'list'] as const,
     list: (filters?: DisasterFilters) => [...disasterKeys.events.lists(), filters] as const,
-    detail: (id: string) => [...disasterKeys.events.all, "detail", id] as const,
+    detail: (id: string) => [...disasterKeys.events.all, 'detail', id] as const,
   },
-  weatherAlerts: () => [...disasterKeys.all, "weather-alerts"] as const,
-  stats: () => [...disasterKeys.all, "stats"] as const,
+  weatherAlerts: () => [...disasterKeys.all, 'weather-alerts'] as const,
+  stats: () => [...disasterKeys.all, 'stats'] as const,
 };
 
 export function useDisasterRisks(filters?: DisasterFilters) {

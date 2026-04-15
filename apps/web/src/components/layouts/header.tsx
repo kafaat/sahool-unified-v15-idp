@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Web Dashboard Header
@@ -8,58 +8,78 @@
  * hidden by default and only shown after the user clicks their profile button.
  */
 
-import React, { useState, useEffect, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
-import { Bell, ChevronDown } from "lucide-react";
-import { useAuth } from "@/stores/auth.store";
-import { Badge } from "@/components/ui/badge";
-import { LocaleSwitcher } from "@/components/common/LocaleSwitcher";
-import { clsx } from "clsx";
-import dynamic from "next/dynamic";
-import ThemeToggle from "@/components/ui/ThemeToggle";
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
+import { Bell, ChevronDown, Menu } from 'lucide-react';
+import { useAuth } from '@/stores/auth.store';
+import { Badge } from '@/components/ui/badge';
+import { LocaleSwitcher } from '@/components/common/LocaleSwitcher';
+import { clsx } from 'clsx';
+import dynamic from 'next/dynamic';
+import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useUnreadCount } from '@/features/notifications/hooks/useNotifications';
 
 // Lazy-load the user menu dropdown -- only shown on click interaction
-const UserMenuDropdown = dynamic(
-  () => import("@/components/layouts/UserMenuDropdown"),
-  { ssr: false },
-);
+const UserMenuDropdown = dynamic(() => import('@/components/layouts/UserMenuDropdown'), {
+  ssr: false,
+});
 
-export const Header = React.memo(function Header() {
+interface HeaderProps {
+  /** Callback to toggle the mobile sidebar drawer */
+  onMenuToggle?: () => void;
+}
+
+export const Header = React.memo(function Header({ onMenuToggle }: HeaderProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
-  const t = useTranslations("common");
+  const t = useTranslations('common');
   const [showUserMenu, setShowUserMenu] = useState(false);
+  // Gap #26: wire notification bell to real unread count
+  const { data: unreadCount = 0 } = useUnreadCount();
+  const hasUnread = unreadCount > 0;
 
   // Close menu on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (showUserMenu && !target.closest("[data-user-menu]")) {
+      if (showUserMenu && !target.closest('[data-user-menu]')) {
         setShowUserMenu(false);
       }
     };
 
     if (showUserMenu) {
-      document.addEventListener("click", handleClickOutside);
+      document.addEventListener('click', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [showUserMenu]);
 
   const handleLogout = async () => {
     await logout();
-    router.push("/login");
+    router.push('/login');
   };
 
   return (
     <header className="h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 flex items-center justify-between transition-colors">
       {/* Left section */}
       <div className="flex items-center gap-4">
+        {/* Hamburger menu — visible only on mobile (<md) */}
+        {onMenuToggle && (
+          <button
+            type="button"
+            onClick={onMenuToggle}
+            className="md:hidden p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500"
+            aria-label="Toggle menu"
+            data-testid="mobile-menu"
+          >
+            <Menu className="w-6 h-6" aria-hidden="true" />
+          </button>
+        )}
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {t("welcomeMessage")}, {user?.name_ar || user?.name}
+          {t('welcomeMessage')}, {user?.name_ar || user?.name}
         </h2>
         <Badge variant="success" size="sm">
           {user?.role}
@@ -74,31 +94,45 @@ export const Header = React.memo(function Header() {
         {/* Theme Toggle */}
         <ThemeToggle variant="dropdown" />
 
-        {/* Notifications */}
+        {/* Notifications — Gap #26: shows real unread count badge */}
         <button
           type="button"
-          className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label={t("notifications") || "Notifications"}
+          onClick={() => router.push('/notifications')}
+          className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+          aria-label={
+            hasUnread
+              ? `${t('notifications') || 'Notifications'} (${unreadCount})`
+              : (t('notifications') || 'Notifications')
+          }
         >
           <Bell className="w-5 h-5" />
-          <span
-            className="absolute top-1 end-1 w-2 h-2 bg-red-500 rounded-full"
-            aria-label={t("newNotifications") || "New notifications"}
-          />
+          {hasUnread && (
+            <span
+              className="absolute top-1 end-1 min-w-[1.1rem] h-[1.1rem] bg-red-500 rounded-full flex items-center justify-center text-white text-[0.6rem] font-bold leading-none px-0.5"
+              aria-hidden="true"
+            >
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
+        <span className="sr-only" aria-live="polite">
+          {hasUnread
+            ? `${unreadCount} ${t('unreadNotifications') || 'unread notifications'}`
+            : ''}
+        </span>
 
         {/* User Menu */}
         <div className="relative" data-user-menu>
           <button
             type="button"
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-            aria-label="قائمة المستخدم"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+            aria-label="قائمة المستخدم - User menu"
             aria-expanded={showUserMenu}
             aria-haspopup="true"
           >
             <div className="w-8 h-8 bg-sahool-green-600 rounded-full flex items-center justify-center text-white font-semibold">
-              {user?.name_ar?.[0] || user?.name?.[0] || "U"}
+              {user?.name_ar?.[0] || user?.name?.[0] || 'U'}
             </div>
             <div className="text-start hidden sm:block">
               <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -108,8 +142,8 @@ export const Header = React.memo(function Header() {
             </div>
             <ChevronDown
               className={clsx(
-                "w-4 h-4 text-gray-400 transition-transform",
-                showUserMenu && "rotate-180",
+                'w-4 h-4 text-gray-400 transition-transform',
+                showUserMenu && 'rotate-180'
               )}
             />
           </button>
@@ -122,17 +156,17 @@ export const Header = React.memo(function Header() {
                 userEmail={user?.email}
                 onProfileClick={() => {
                   setShowUserMenu(false);
-                  router.push("/dashboard/profile");
+                  router.push('/dashboard/profile');
                 }}
                 onSettingsClick={() => {
                   setShowUserMenu(false);
-                  router.push("/dashboard/settings");
+                  router.push('/dashboard/settings');
                 }}
                 onLogout={handleLogout}
                 onClose={() => setShowUserMenu(false)}
-                profileLabel={t("profile")}
-                settingsLabel={t("settings")}
-                logoutLabel={t("logout")}
+                profileLabel={t('profile')}
+                settingsLabel={t('settings')}
+                logoutLabel={t('logout')}
               />
             </Suspense>
           )}

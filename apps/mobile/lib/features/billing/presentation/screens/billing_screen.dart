@@ -102,14 +102,18 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
                 ),
           ),
           const SizedBox(height: 12),
-          ...ref.watch(availablePlansProvider).map((plan) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: PlanCard(
-                  plan: plan,
-                  isCurrent: plan.id == state.currentPlan?.id,
-                  onUpgrade: () => _handlePlanChange(plan),
-                ),
-              )),
+          ...ref.watch(availablePlansProvider).when(
+                data: (plans) => plans.map((plan) => Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: PlanCard(
+                        plan: plan,
+                        isCurrent: plan.id == state.currentPlan?.id,
+                        onUpgrade: () => _handlePlanChange(plan),
+                      ),
+                    )),
+                loading: () => [const Center(child: CircularProgressIndicator())],
+                error: (e, _) => [Text('خطأ في تحميل الخطط: $e')],
+              ),
         ],
       ),
     );
@@ -123,12 +127,12 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [SahoolColors.forestGreen, SahoolColors.forestGreen.withOpacity(0.8)],
+          colors: [SahoolColors.forestGreen, SahoolColors.forestGreen.withValues(alpha: 0.8)],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: SahoolColors.forestGreen.withOpacity(0.3),
+            color: SahoolColors.forestGreen.withValues(alpha: 0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -147,7 +151,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -172,7 +176,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
           const SizedBox(height: 8),
           Text(
             'التجديد: 15 مارس 2026',
-            style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 13),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13),
           ),
         ],
       ),
@@ -201,7 +205,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
   }
 
   Widget _buildUsageRow(String label, int used, int total, Color color) {
-    final percentage = used / total;
+    final percentage = total > 0 ? used / total : 0.0;
     return Column(
       children: [
         Row(
@@ -273,7 +277,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
         leading: Container(
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: statusColor.withOpacity(0.1),
+            color: statusColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(Icons.receipt, color: statusColor),
@@ -291,7 +295,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
-                color: statusColor.withOpacity(0.1),
+                color: statusColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
@@ -328,7 +332,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.blue.withOpacity(0.1),
+                  color: Colors.blue.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(Icons.credit_card, color: Colors.blue),
@@ -336,7 +340,7 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
               title: const Text('**** **** **** 4242', style: TextStyle(fontWeight: FontWeight.bold)),
               subtitle: const Text('Visa - تنتهي 12/27'),
               trailing: TextButton(
-                onPressed: () {},
+                onPressed: () => _showPaymentMethodPicker(context),
                 child: const Text('تغيير'),
               ),
             ),
@@ -362,6 +366,103 @@ class _BillingScreenState extends ConsumerState<BillingScreen>
                 ),
               )),
         ],
+      ),
+    );
+  }
+
+  void _showPaymentMethodPicker(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'اختر طريقة الدفع',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.credit_card,
+              title: 'بطاقة ائتمان / خصم',
+              subtitle: 'Visa, Mastercard',
+              color: Colors.blue,
+            ),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.account_balance,
+              title: 'تحويل بنكي',
+              subtitle: 'تحويل مباشر من حسابك البنكي',
+              color: Colors.green,
+            ),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.phone_android,
+              title: 'محفظة إلكترونية',
+              subtitle: 'Apple Pay, Google Pay',
+              color: Colors.orange,
+            ),
+            _buildPaymentOption(
+              context: sheetContext,
+              icon: Icons.account_balance_wallet,
+              title: 'رصيد المحفظة',
+              subtitle: 'الدفع من رصيد محفظة سهول',
+              color: Colors.purple,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentOption({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+  }) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: ListTile(
+        leading: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: color),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(this.context).showSnackBar(
+            SnackBar(
+              content: Text('تم اختيار: $title'),
+              backgroundColor: SahoolColors.forestGreen,
+            ),
+          );
+        },
       ),
     );
   }

@@ -3,15 +3,16 @@ Tests for shared/monitoring/metrics.py module
 اختبارات وحدة المقاييس للمراقبة
 """
 
-import pytest
 import time
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from shared.monitoring.metrics import (
-    MetricsRegistry,
     Counter,
     Gauge,
     Histogram,
+    MetricsRegistry,
     get_registry,
     track_db_query,
     track_external_call,

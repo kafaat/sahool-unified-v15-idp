@@ -148,7 +148,7 @@ class OfflineMapManager {
     required LatLngBounds bounds,
     int minZoom = 10,
     int maxZoom = 16,
-    Function(double progress)? onProgress,
+    void Function(double progress)? onProgress,
   }) {
     return _downloader.downloadRegion(
       bounds: bounds,

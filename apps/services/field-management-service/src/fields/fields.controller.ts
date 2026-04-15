@@ -34,6 +34,7 @@ import {
   ApiHeader,
 } from "@nestjs/swagger";
 import { FieldsService } from "./fields.service";
+import { KpiSnapshotService, CreateKpiSnapshotDto } from "./kpi-snapshot.service";
 import {
   CreateFieldDto,
   UpdateFieldDto,
@@ -44,12 +45,15 @@ import {
   FieldResponseDto,
   PaginatedFieldsResponseDto,
 } from "./dto/field.dto";
-import { getRequestTenantId } from "../auth/tenant.utils";
+import { getRequestTenantId, assertTenantOwnership } from "../auth/tenant.utils";
 
 @ApiTags("Fields - الحقول")
 @Controller("api/v1/fields")
 export class FieldsController {
-  constructor(private readonly fieldsService: FieldsService) {}
+  constructor(
+    private readonly fieldsService: FieldsService,
+    private readonly kpiSnapshotService: KpiSnapshotService,
+  ) {}
 
   /**
    * Create a new field
@@ -133,6 +137,37 @@ export class FieldsController {
       success: true,
       data: fields,
       query: { lat: query.lat, lng: query.lng, radius: query.radius },
+    };
+  }
+
+  /**
+   * Get field statistics for tenant
+   *
+   * NOTE: This route MUST be declared before `@Get(":id")` so that NestJS
+   * matches the literal `stats/` prefix before the UUID route. Otherwise
+   * `ParseUUIDPipe` on `:id` will reject the literal "stats" segment and
+   * return HTTP 400 on every stats request.
+   */
+  @Get("stats/:tenantId")
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @ApiOperation({
+    summary: "Get field statistics",
+    description: "جلب إحصائيات الحقول للمستأجر",
+  })
+  @ApiParam({ name: "tenantId", type: String })
+  @ApiResponse({ status: 200, description: "Statistics retrieved" })
+  async getStats(
+    @Req() req: any,
+    @Param("tenantId") pathTenantId: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    // Reject if the path param doesn't match the authenticated tenant
+    assertTenantOwnership(pathTenantId, tenantId, "stats");
+    const stats = await this.fieldsService.getStats(tenantId);
+    return {
+      success: true,
+      data: stats,
+      timestamp: new Date().toISOString(),
     };
   }
 
@@ -303,24 +338,54 @@ export class FieldsController {
   }
 
   /**
-   * Get field statistics for tenant
+   * Get latest KPI snapshot for a field
+   * جلب أحدث لقطة KPI للحقل
    */
-  @Get("stats/:tenantId")
-  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  @Get(":id/kpi-snapshot")
   @ApiOperation({
-    summary: "Get field statistics",
-    description: "جلب إحصائيات الحقول للمستأجر",
+    summary: "Get latest KPI snapshot",
+    description: "جلب أحدث لقطة KPI من Sentinel Hub + OpenWeather",
   })
-  @ApiParam({ name: "tenantId", type: String })
-  @ApiResponse({ status: 200, description: "Statistics retrieved" })
-  async getStats(@Req() req: any) {
-    // Always use the authenticated tenant ID, ignore path param
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 200, description: "KPI snapshot retrieved" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async getKpiSnapshot(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
     const tenantId = getRequestTenantId(req);
-    const stats = await this.fieldsService.getStats(tenantId);
+    const snapshot = await this.kpiSnapshotService.getLatest(id, tenantId);
     return {
       success: true,
-      data: stats,
-      timestamp: new Date().toISOString(),
+      data: snapshot,
     };
   }
+
+  /**
+   * Save a new KPI snapshot for a field
+   * حفظ لقطة KPI جديدة للحقل
+   */
+  @Post(":id/kpi-snapshot")
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: "Save KPI snapshot",
+    description: "حفظ لقطة KPI جديدة وتحديث صحة الحقل",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 201, description: "KPI snapshot saved" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async saveKpiSnapshot(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Body(new ValidationPipe({ transform: true })) dto: CreateKpiSnapshotDto,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const snapshot = await this.kpiSnapshotService.save(id, tenantId, dto);
+    return {
+      success: true,
+      data: snapshot,
+      message: "تم حفظ لقطة KPI بنجاح",
+    };
+  }
+
 }

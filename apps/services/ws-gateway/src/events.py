@@ -67,6 +67,18 @@ class EventType(StrEnum):
     SYSTEM_NOTIFICATION = "system.notification"
     SYNC_REQUIRED = "system.sync_required"
 
+    # Irrigation Events
+    IRRIGATION_STARTED = "irrigation.started"
+    IRRIGATION_COMPLETED = "irrigation.completed"
+    IRRIGATION_SCHEDULED = "irrigation.scheduled"
+    IRRIGATION_ALERT = "irrigation.alert"
+
+    # Fertilizer Events
+    FERTILIZER_APPLIED = "fertilizer.applied"
+    FERTILIZER_SCHEDULED = "fertilizer.scheduled"
+    FERTILIZER_RECOMMENDATION = "fertilizer.recommendation"
+    FERTILIZER_ALERT = "fertilizer.alert"
+
     # User Events
     USER_ONLINE = "user.online"
     USER_OFFLINE = "user.offline"
@@ -105,6 +117,14 @@ EVENT_MESSAGES_AR: dict[EventType, str] = {
     EventType.IOT_OFFLINE: "المستشعر غير متصل",
     EventType.SYSTEM_NOTIFICATION: "إشعار النظام",
     EventType.SYNC_REQUIRED: "مطلوب مزامنة",
+    EventType.IRRIGATION_STARTED: "بدأ الري",
+    EventType.IRRIGATION_COMPLETED: "اكتمل الري",
+    EventType.IRRIGATION_SCHEDULED: "تمت جدولة الري",
+    EventType.IRRIGATION_ALERT: "تنبيه الري",
+    EventType.FERTILIZER_APPLIED: "تم تطبيق السماد",
+    EventType.FERTILIZER_SCHEDULED: "تمت جدولة التسميد",
+    EventType.FERTILIZER_RECOMMENDATION: "توصية تسميد",
+    EventType.FERTILIZER_ALERT: "تنبيه التسميد",
     EventType.USER_ONLINE: "المستخدم متصل",
     EventType.USER_OFFLINE: "المستخدم غير متصل",
 }
@@ -143,6 +163,14 @@ EVENT_MESSAGES_EN: dict[EventType, str] = {
     EventType.IOT_OFFLINE: "Sensor offline",
     EventType.SYSTEM_NOTIFICATION: "System notification",
     EventType.SYNC_REQUIRED: "Sync required",
+    EventType.IRRIGATION_STARTED: "Irrigation started",
+    EventType.IRRIGATION_COMPLETED: "Irrigation completed",
+    EventType.IRRIGATION_SCHEDULED: "Irrigation scheduled",
+    EventType.IRRIGATION_ALERT: "Irrigation alert",
+    EventType.FERTILIZER_APPLIED: "Fertilizer applied",
+    EventType.FERTILIZER_SCHEDULED: "Fertilizer scheduled",
+    EventType.FERTILIZER_RECOMMENDATION: "Fertilizer recommendation",
+    EventType.FERTILIZER_ALERT: "Fertilizer alert",
     EventType.USER_ONLINE: "User online",
     EventType.USER_OFFLINE: "User offline",
 }
@@ -178,6 +206,11 @@ EVENT_PRIORITIES: dict[EventType, EventPriority] = {
     EventType.TASK_OVERDUE: EventPriority.MEDIUM,
     EventType.LOW_STOCK: EventPriority.MEDIUM,
     EventType.SPRAY_WARNING: EventPriority.MEDIUM,
+    EventType.IRRIGATION_ALERT: EventPriority.HIGH,
+    EventType.FERTILIZER_ALERT: EventPriority.HIGH,
+    EventType.IRRIGATION_STARTED: EventPriority.MEDIUM,
+    EventType.IRRIGATION_SCHEDULED: EventPriority.MEDIUM,
+    EventType.FERTILIZER_RECOMMENDATION: EventPriority.MEDIUM,
     EventType.SATELLITE_READY: EventPriority.LOW,
     EventType.CHAT_MESSAGE: EventPriority.LOW,
 }

@@ -1,12 +1,15 @@
 /**
  * SAHOOL API Client
- * Unified API client for connecting frontend to backend services
+ * Domain-specific API methods for the web frontend.
+ *
+ * Transport layer is delegated to the unified client (@sahool/api-client),
+ * which provides: JWT auth, token refresh, CSRF, retry, HTTPS enforcement.
+ * This file only contains domain method wrappers.
  */
 
-import Cookies from "js-cookie";
+import axios from 'axios';
 import {
   ADVISORY_ENDPOINTS,
-  AGRO_RULES_ENDPOINTS,
   ALERT_ENDPOINTS,
   AUTH_ENDPOINTS,
   CHAT_ENDPOINTS,
@@ -25,10 +28,9 @@ import {
   WEATHER_ENDPOINTS,
   YIELD_ENDPOINTS,
   buildUrl,
-} from "@sahool/shared-types/contracts";
-import { sanitizers, validators, validationErrors } from "../validation";
-import { logger } from "../logger";
-import { getCsrfHeaders } from "../security/security";
+} from '@sahool/shared-types/contracts';
+import { sanitizers, validators, validationErrors } from '../validation';
+import { unifiedApiClient } from './unified-client';
 import type {
   AgriculturalRisk,
   ApiResponse,
@@ -42,9 +44,14 @@ import type {
   Sensor,
   SensorReading,
   IrrigationRecommendation,
+  IrrigationSchedule,
+  IrrigationScheduleCreate,
   ET0Calculation,
   FertilizerRecommendation,
   CropHealthAnalysis,
+  GDDRecord,
+  SprayWindow,
+  SprayHistoryRecord,
   Task,
   TaskCreateRequest,
   Equipment,
@@ -53,441 +60,72 @@ import type {
   Subscription,
   Invoice,
   User,
-} from "./types";
+} from './types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "";
-
-// Only warn during development, don't throw during build
-if (typeof window !== "undefined") {
-  if (!API_BASE_URL) {
-    console.warn("NEXT_PUBLIC_API_URL environment variable is not set");
-  } else if (
-    process.env.NODE_ENV === "production" &&
-    !API_BASE_URL.startsWith("https://") &&
-    !API_BASE_URL.includes("localhost")
-  ) {
-    logger.warn(
-      "Warning: API_BASE_URL should use HTTPS in production environment",
-    );
-  }
-}
-
-interface RequestOptions extends RequestInit {
-  params?: Record<string, string>;
-  skipRetry?: boolean;
-  timeout?: number;
-}
-
-// Configuration
-const DEFAULT_TIMEOUT = 30000; // 30 seconds
-const MAX_RETRY_ATTEMPTS = 3;
-const RETRY_DELAY = 1000; // 1 second
-
-// Helper function to delay for retry logic
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+// Note: tenant_id is extracted server-side from the JWT in the httpOnly cookie.
+// The access_token cookie cannot be read by client-side JS (httpOnly).
+// Weather API endpoints receive the JWT via withCredentials: true and the
+// backend extracts tenant_id from the token's `tid` claim automatically.
 
 class SahoolApiClient {
-  private baseUrl: string;
-  private token: string | null = null;
-  private refreshPromise: Promise<boolean> | null = null;
-
-  constructor(baseUrl: string = API_BASE_URL) {
-    this.baseUrl = baseUrl;
-  }
-
-  setToken(token: string) {
-    this.token = token;
-  }
-
-  clearToken() {
-    this.token = null;
+  /**
+   * Set auth token. No-op in cookie-based auth mode — token management
+   * is handled by httpOnly cookies via the unified client.
+   * Retained for backward compatibility with tests and legacy code.
+   */
+  setToken(_token: string): void {
+    // No-op: auth is cookie-based via withCredentials
   }
 
   /**
-   * Attempt to refresh the access token using the refresh token from cookies
-   * Returns true if successful, false otherwise
+   * Clear auth token. No-op in cookie-based auth mode.
+   * Retained for backward compatibility with tests and legacy code.
    */
-  private async attemptTokenRefresh(): Promise<boolean> {
-    // If there's already a refresh in progress, wait for it
-    if (this.refreshPromise) {
-      return this.refreshPromise;
-    }
-
-    // Start a new refresh
-    this.refreshPromise = (async () => {
-      try {
-        // Only attempt in browser environment
-        if (typeof window === "undefined") {
-          return false;
-        }
-
-        const refreshToken = Cookies.get("refresh_token");
-
-        if (!refreshToken) {
-          logger.warn("No refresh token available");
-          return false;
-        }
-
-        logger.info("Attempting to refresh access token");
-
-        // Call the refresh endpoint
-        const response = await this.refreshToken(refreshToken);
-
-        if (response.success && response.data?.access_token) {
-          const newAccessToken = response.data.access_token;
-
-          // Clear any legacy path-scoped cookie before setting the root one,
-          // so an old cookie on the current route cannot shadow the new value.
-          Cookies.remove("access_token");
-
-          // Update the stored token
-          Cookies.set("access_token", newAccessToken, {
-            expires: 7,
-            secure: window.location.protocol === "https:",
-            sameSite: "strict",
-            path: "/",
-          });
-          this.setToken(newAccessToken);
-
-          logger.info("Successfully refreshed access token");
-          return true;
-        } else {
-          logger.warn("Failed to refresh token:", response.error);
-
-          // Clear invalid tokens (root-scoped + legacy path-scoped)
-          Cookies.remove("access_token", { path: "/" });
-          Cookies.remove("refresh_token", { path: "/" });
-          Cookies.remove("access_token");
-          Cookies.remove("refresh_token");
-          this.clearToken();
-
-          return false;
-        }
-      } catch (error) {
-        logger.error("Error refreshing token:", error);
-        return false;
-      } finally {
-        // Clear the refresh promise after completion
-        this.refreshPromise = null;
-      }
-    })();
-
-    return this.refreshPromise;
+  clearToken(): void {
+    // No-op: auth is cookie-based via withCredentials
   }
 
   /**
-   * Redirect to login page
+   * Core request method — delegates to the unified axios instance.
+   * Token management, retry, CSRF, and 401 handling are all provided
+   * by the shared @sahool/api-client interceptors.
    */
-  private redirectToLogin() {
-    if (typeof window !== "undefined") {
-      logger.info("Redirecting to login page");
-      window.location.href = "/login";
-    }
-  }
-
-  /**
-   * Decode JWT payload from a token string.
-   * Handles base64url encoding with proper padding.
-   *
-   * @returns Parsed payload object, or null if decoding fails
-   */
-  private decodeJwtPayload(token: string): Record<string, any> | null {
-    try {
-      const parts = token.split(".");
-      if (parts.length !== 3 || !parts[1]) return null;
-      let b64 = parts[1].replace(/-/g, "+").replace(/_/g, "/");
-      const pad = b64.length % 4;
-      if (pad) b64 += "=".repeat(4 - pad);
-      const binary = atob(b64);
-      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
-      return JSON.parse(new TextDecoder().decode(bytes));
-    } catch {
-      return null;
-    }
-  }
-
-  /**
-   * Check if JWT token is expired
-   * Returns true if token is expired or will expire within 60 seconds
-   */
-  private isTokenExpired(token: string): boolean {
-    const payload = this.decodeJwtPayload(token);
-    if (!payload?.exp) return true;
-
-    const expirationTime = payload.exp * 1000;
-    const bufferTime = 60 * 1000;
-    return Date.now() >= expirationTime - bufferTime;
-  }
-
-  /**
-   * Check token and refresh if necessary before making a request
-   * Returns true if token is valid or was successfully refreshed
-   */
-  private async ensureValidToken(): Promise<boolean> {
-    // No token check needed if no token is set
-    if (!this.token) {
-      return true;
-    }
-
-    // Check if token is expired
-    if (this.isTokenExpired(this.token)) {
-      logger.info("Token is expired or expiring soon, attempting refresh");
-      return await this.attemptTokenRefresh();
-    }
-
-    return true;
-  }
-
-  /**
-   * Extract tenant_id (tid) from JWT token payload.
-   * Used to automatically set X-Tenant-ID header for server-side RLS.
-   */
-  private extractTenantFromToken(token: string): string | null {
-    const payload = this.decodeJwtPayload(token);
-    return payload?.tid || null;
-  }
-
   private async request<T>(
     endpoint: string,
-    options: RequestOptions = {},
+    options: {
+      method?: string;
+      body?: string;
+      params?: Record<string, string>;
+      headers?: Record<string, string>;
+      timeout?: number;
+    } = {}
   ): Promise<ApiResponse<T>> {
-    const {
-      params,
-      skipRetry = false,
-      timeout = DEFAULT_TIMEOUT,
-      ...fetchOptions
-    } = options;
+    try {
+      const response = await unifiedApiClient.request({
+        url: endpoint,
+        method: (options.method as any) || 'GET',
+        data: options.body ? JSON.parse(options.body) : undefined,
+        params: options.params,
+        headers: options.headers,
+        timeout: options.timeout,
+      });
 
-    // Check and refresh token if needed (skip for auth endpoints)
-    if (
-      endpoint !== AUTH_ENDPOINTS.REFRESH &&
-      endpoint !== AUTH_ENDPOINTS.LOGIN
-    ) {
-      const tokenValid = await this.ensureValidToken();
-      if (!tokenValid) {
-        logger.warn("Unable to ensure valid token, redirecting to login");
-        this.redirectToLogin();
+      const data = response.data;
+      return typeof data === 'object' && data !== null ? data : { success: true, data: data as T };
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const data = error.response?.data;
         return {
           success: false,
-          error: "Session expired. Please login again.",
+          error: data?.error || data?.message || error.message || 'Request failed',
         };
       }
+      return {
+        success: false,
+        error:
+          error instanceof Error ? error.message : 'Network error - please check your connection',
+      };
     }
-
-    // Build URL with query params
-    let url = `${this.baseUrl}${endpoint}`;
-    if (params) {
-      const searchParams = new URLSearchParams(params);
-      url += `?${searchParams.toString()}`;
-    }
-
-    // Set headers
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      ...options.headers,
-    };
-
-    if (this.token) {
-      (headers as Record<string, string>)["Authorization"] =
-        `Bearer ${this.token}`;
-
-      // Extract tenant_id (tid) from JWT and set X-Tenant-ID header
-      // This enables server-side tenant isolation (RLS + middleware filtering)
-      const tenantId = this.extractTenantFromToken(this.token);
-      if (tenantId) {
-        (headers as Record<string, string>)["X-Tenant-ID"] = tenantId;
-      }
-    }
-
-    // Add CSRF headers for state-changing requests
-    const method = (fetchOptions.method || "GET").toUpperCase();
-    if (["POST", "PUT", "DELETE", "PATCH"].includes(method)) {
-      const csrfHeaders = getCsrfHeaders();
-      Object.assign(headers, csrfHeaders);
-    }
-
-    // Retry logic
-    let lastError: Error | null = null;
-    const maxAttempts = skipRetry ? 1 : MAX_RETRY_ATTEMPTS;
-
-    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-      try {
-        // Create AbortController for timeout
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-        let response: Response;
-        try {
-          response = await fetch(url, {
-            ...fetchOptions,
-            headers,
-            signal: controller.signal,
-            credentials: "include", // Ensure httpOnly cookies are sent with requests
-          });
-        } finally {
-          clearTimeout(timeoutId);
-        }
-
-        // Parse response
-        let data: any;
-        const contentType = response.headers.get("content-type");
-
-        if (contentType && contentType.includes("application/json")) {
-          try {
-            data = await response.json();
-          } catch {
-            return {
-              success: false,
-              error: "Invalid JSON response from server",
-            };
-          }
-        } else {
-          data = await response.text();
-        }
-
-        // Handle HTTP errors
-        if (!response.ok) {
-          // Handle 401 Unauthorized - try to refresh token
-          if (
-            response.status === 401 &&
-            endpoint !== AUTH_ENDPOINTS.REFRESH &&
-            endpoint !== AUTH_ENDPOINTS.LOGIN
-          ) {
-            logger.info("Received 401 response, attempting token refresh");
-
-            const refreshSuccess = await this.attemptTokenRefresh();
-
-            if (refreshSuccess) {
-              // Token refreshed successfully, retry the original request
-              logger.info("Token refreshed, retrying original request");
-
-              // Update authorization header with new token
-              if (this.token) {
-                (headers as Record<string, string>)["Authorization"] =
-                  `Bearer ${this.token}`;
-              }
-
-              // Retry the request with the new token
-              const retryController = new AbortController();
-              const retryTimeoutId = setTimeout(
-                () => retryController.abort(),
-                timeout,
-              );
-
-              let retryResponse: Response;
-              try {
-                retryResponse = await fetch(url, {
-                  ...fetchOptions,
-                  headers,
-                  credentials: "include",
-                  signal: retryController.signal,
-                });
-              } finally {
-                clearTimeout(retryTimeoutId);
-              }
-
-              // Parse retry response
-              let retryData: any;
-              const retryContentType =
-                retryResponse.headers.get("content-type");
-
-              if (
-                retryContentType &&
-                retryContentType.includes("application/json")
-              ) {
-                try {
-                  retryData = await retryResponse.json();
-                } catch {
-                  return {
-                    success: false,
-                    error: "Invalid JSON response from server",
-                  };
-                }
-              } else {
-                retryData = await retryResponse.text();
-              }
-
-              if (!retryResponse.ok) {
-                return {
-                  success: false,
-                  error:
-                    retryData.error ||
-                    retryData.message ||
-                    `Request failed with status ${retryResponse.status}`,
-                };
-              }
-
-              // Successful retry response
-              return typeof retryData === "object" && retryData !== null
-                ? retryData
-                : { success: true, data: retryData as T };
-            } else {
-              // Token refresh failed, redirect to login
-              logger.warn("Token refresh failed, redirecting to login");
-              this.redirectToLogin();
-
-              return {
-                success: false,
-                error: "Session expired. Please login again.",
-              };
-            }
-          }
-
-          // Don't retry other client errors (4xx), only server errors (5xx) and network issues
-          if (response.status >= 400 && response.status < 500) {
-            return {
-              success: false,
-              error:
-                data.error ||
-                data.message ||
-                `Request failed with status ${response.status}`,
-            };
-          }
-
-          // For server errors, retry if we have attempts left
-          if (attempt < maxAttempts - 1) {
-            await delay(RETRY_DELAY * (attempt + 1)); // Exponential backoff
-            continue;
-          }
-
-          return {
-            success: false,
-            error:
-              data.error || data.message || `Server error: ${response.status}`,
-          };
-        }
-
-        // Successful response
-        return typeof data === "object" && data !== null
-          ? data
-          : { success: true, data: data as T };
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error("Unknown error");
-
-        // Handle abort/timeout
-        if (error instanceof Error && error.name === "AbortError") {
-          return {
-            success: false,
-            error: "Request timeout - please try again",
-          };
-        }
-
-        // Retry on network errors if we have attempts left
-        if (attempt < maxAttempts - 1) {
-          await delay(RETRY_DELAY * (attempt + 1));
-          continue;
-        }
-      }
-    }
-
-    // All retries failed
-    return {
-      success: false,
-      error:
-        lastError?.message || "Network error - please check your connection",
-    };
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -511,9 +149,9 @@ class SahoolApiClient {
       refresh_token?: string;
       user: User;
     }>(AUTH_ENDPOINTS.LOGIN, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ email: sanitizedEmail, password }),
-      skipRetry: true, // Don't retry auth requests
+      // Auth requests don't need retry (handled by unified client's interceptors)
     });
   }
 
@@ -521,21 +159,25 @@ class SahoolApiClient {
     return this.request<User>(AUTH_ENDPOINTS.ME);
   }
 
-  async refreshToken(refreshToken: string) {
-    return this.request<{ access_token: string }>(AUTH_ENDPOINTS.REFRESH, {
-      method: "POST",
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
+  /**
+   * Gap #4/#13: Token refresh must go through the Next.js server-side proxy
+   * (/api/auth/refresh) which reads the httpOnly refresh_token cookie.
+   * Calling /api/v1/auth/refresh directly from client-side JS would fail
+   * because the httpOnly cookie is not accessible to JavaScript.
+   */
+  async refreshToken() {
+    const response = await fetch('/api/auth/refresh', { method: 'POST', credentials: 'include' });
+    if (!response.ok) {
+      throw new Error('Token refresh failed');
+    }
+    return response.json() as Promise<{ success: boolean; access_token: string }>;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Field Operations API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getFields(
-    tenantId: string,
-    options?: { limit?: number; offset?: number },
-  ) {
+  async getFields(tenantId: string, options?: { limit?: number; offset?: number }) {
     return this.request<Field[]>(FIELD_ENDPOINTS.LIST, {
       params: {
         tenantId,
@@ -550,31 +192,40 @@ class SahoolApiClient {
   }
 
   async createField(data: FieldCreateRequest) {
-    return this.request<Field>(FIELD_ENDPOINTS.CREATE, {
-      method: "POST",
+    return this.request<Field>(FIELD_ENDPOINTS.LIST, {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateField(fieldId: string, data: FieldUpdateRequest, etag?: string) {
-    const headers: HeadersInit = {};
+    const headers: Record<string, string> = {};
     if (etag) {
-      headers["If-Match"] = etag;
+      headers['If-Match'] = etag;
     }
-    return this.request<Field>(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId }), {
-      method: "PUT",
+    return this.request<Field>(buildUrl(FIELD_ENDPOINTS.GET, { fieldId }), {
+      method: 'PUT',
       body: JSON.stringify(data),
       headers,
     });
   }
 
   async deleteField(fieldId: string) {
-    return this.request<void>(buildUrl(FIELD_ENDPOINTS.DELETE, { fieldId }), {
-      method: "DELETE",
+    return this.request<void>(buildUrl(FIELD_ENDPOINTS.GET, { fieldId }), {
+      method: 'DELETE',
     });
   }
 
   async getNearbyFields(lat: number, lng: number, radius: number = 5000) {
+    if (lat < -90 || lat > 90) {
+      return { success: false as const, error: 'Latitude must be between -90 and 90' };
+    }
+    if (lng < -180 || lng > 180) {
+      return { success: false as const, error: 'Longitude must be between -180 and 180' };
+    }
+    if (radius <= 0 || !isFinite(radius)) {
+      return { success: false as const, error: 'Radius must be a positive finite number' };
+    }
     return this.request<Field[]>(FIELD_ENDPOINTS.NEARBY, {
       params: {
         lat: String(lat),
@@ -589,9 +240,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldNdvi(fieldId: string) {
-    return this.request<NdviData>(
-      buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }),
-    );
+    return this.request<NdviData>(buildUrl(SATELLITE_ENDPOINTS.NDVI_FIELD, { fieldId }));
   }
 
   async getNdviSummary(tenantId: string) {
@@ -605,11 +254,10 @@ class SahoolApiClient {
   // Kong route: /api/v1/weather → strips to / → service has /weather/* endpoints
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getWeather(lat: number, lng: number, fieldId: string = "default") {
+  async getWeather(lat: number, lng: number, fieldId: string = 'default') {
     return this.request<WeatherData>(WEATHER_ENDPOINTS.KONG_CURRENT, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
-        tenant_id: "default",
         field_id: fieldId,
         lat,
         lon: lng,
@@ -617,11 +265,15 @@ class SahoolApiClient {
     });
   }
 
-  async getWeatherForecast(lat: number, lng: number, days: number = 7, fieldId: string = "default") {
+  async getWeatherForecast(
+    lat: number,
+    lng: number,
+    days: number = 7,
+    fieldId: string = 'default'
+  ) {
     return this.request<WeatherForecast>(WEATHER_ENDPOINTS.KONG_FORECAST, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
-        tenant_id: "default",
         field_id: fieldId,
         lat,
         lon: lng,
@@ -630,34 +282,25 @@ class SahoolApiClient {
     });
   }
 
-  async getAgriculturalRisks(lat: number, lng: number, fieldId: string = "default") {
-    return this.request<AgriculturalRisk[]>(
-      WEATHER_ENDPOINTS.KONG_AGRICULTURAL_REPORT,
-      {
-        method: "POST",
-        body: JSON.stringify({
-          tenant_id: "default",
-          field_id: fieldId,
-          lat,
-          lon: lng,
-        }),
-      },
-    );
+  async getAgriculturalRisks(lat: number, lng: number, fieldId: string = 'default') {
+    return this.request<AgriculturalRisk[]>(WEATHER_ENDPOINTS.KONG_AGRICULTURAL_REPORT, {
+      method: 'POST',
+      body: JSON.stringify({
+        field_id: fieldId,
+        lat,
+        lon: lng,
+      }),
+    });
   }
 
   // Weather Advanced API (location_id based - for Yemen locations)
   // Kong route: /api/v1/weather → strips to / → service has /v1/* endpoints
   async getWeatherByLocation(locationId: string) {
-    return this.request<WeatherData>(
-      buildUrl(WEATHER_ENDPOINTS.KONG_CURRENT_BY_LOCATION, { locationId }),
-    );
+    return this.request<WeatherData>(buildUrl(WEATHER_ENDPOINTS.KONG_CURRENT_BY_LOCATION, { locationId }));
   }
 
   async getWeatherForecastByLocation(locationId: string, days: number = 7) {
-    return this.request<WeatherForecast>(
-      buildUrl(WEATHER_ENDPOINTS.KONG_FORECAST_BY_LOCATION, { locationId }),
-      { params: { days: String(days) } },
-    );
+    return this.request<WeatherForecast>(`${buildUrl(WEATHER_ENDPOINTS.KONG_FORECAST_BY_LOCATION, { locationId })}?days=${days}`);
   }
 
   async getWeatherLocations(): Promise<ApiResponse<unknown>> {
@@ -668,15 +311,22 @@ class SahoolApiClient {
   // Crop Health AI API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async analyzeCropHealth(
-    imageFile: File,
-  ): Promise<ApiResponse<CropHealthAnalysis>> {
-    // Validate file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  async analyzeCropHealth(imageFile: File): Promise<ApiResponse<CropHealthAnalysis>> {
+    // Validate file type by MIME type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (!allowedTypes.includes(imageFile.type)) {
       return {
         success: false,
-        error: "Invalid file type. Please upload a JPEG, PNG, or WebP image.",
+        error: 'Invalid file type. Please upload a JPEG, PNG, or WebP image.',
+      };
+    }
+
+    // Validate file extension as a secondary check against extension spoofing
+    const allowedExtensions = /\.(jpg|jpeg|png|webp)$/i;
+    if (!allowedExtensions.test(imageFile.name)) {
+      return {
+        success: false,
+        error: 'Invalid file extension. Please upload a JPEG, PNG, or WebP image.',
       };
     }
 
@@ -685,73 +335,37 @@ class SahoolApiClient {
     if (imageFile.size > maxSize) {
       return {
         success: false,
-        error: "File size exceeds 10MB limit.",
+        error: 'File size exceeds 10MB limit.',
       };
     }
 
     const formData = new FormData();
-    formData.append("image", imageFile);
+    formData.append('image', imageFile);
 
     try {
-      // Create AbortController for timeout
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for image upload
+      const response = await unifiedApiClient.post(CROP_HEALTH_ENDPOINTS.INTELLIGENCE_ANALYZE, formData, {
+        timeout: 60000, // 60 second timeout for image upload
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
-      // Build headers with auth and CSRF tokens
-      const uploadHeaders: Record<string, string> = this.token
-        ? { Authorization: `Bearer ${this.token}` }
-        : {};
-
-      // Add CSRF protection for file upload (POST request)
-      const csrfHeaders = getCsrfHeaders();
-      Object.assign(uploadHeaders, csrfHeaders);
-
-      let response: Response;
-      try {
-        response = await fetch(
-          `${this.baseUrl}${CROP_HEALTH_ENDPOINTS.ANALYZE}`,
-          {
-            method: "POST",
-            headers: uploadHeaders,
-            body: formData,
-            signal: controller.signal,
-            credentials: "include", // Ensure httpOnly cookies are sent with requests
-          },
-        );
-      } finally {
-        clearTimeout(timeoutId);
-      }
-
-      // Dynamic API response
-      let data: any;
-      try {
-        data = await response.json();
-      } catch {
-        return {
-          success: false,
-          error: "Invalid response from server",
-        };
-      }
-
-      if (!response.ok) {
-        return {
-          success: false,
-          error: data?.error || data?.message || "Failed to analyze image",
-        };
-      }
-
-      return data as ApiResponse<CropHealthAnalysis>;
+      return response.data as ApiResponse<CropHealthAnalysis>;
     } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
+      if (axios.isAxiosError(error)) {
+        const data = error.response?.data;
+        if (error.code === 'ECONNABORTED') {
+          return {
+            success: false,
+            error: 'Upload timeout - please try again with a smaller image',
+          };
+        }
         return {
           success: false,
-          error: "Upload timeout - please try again with a smaller image",
+          error: data?.error || data?.message || 'Failed to analyze image',
         };
       }
-
       return {
         success: false,
-        error: error instanceof Error ? error.message : "Network error",
+        error: error instanceof Error ? error.message : 'Network error',
       };
     }
   }
@@ -761,30 +375,63 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSensorData(fieldId: string) {
-    return this.request<Sensor[]>(
-      buildUrl(IOT_ENDPOINTS.FIELD_SENSORS, { fieldId }),
-    );
+    return this.request<Sensor[]>(buildUrl(IOT_ENDPOINTS.FIELD_SENSORS, { fieldId }));
   }
 
   async getSensorHistory(sensorId: string, from: Date, to: Date) {
-    return this.request<SensorReading[]>(
-      buildUrl(IOT_ENDPOINTS.SENSOR_HISTORY, { sensorId }),
-      {
-        params: {
-          from: from.toISOString(),
-          to: to.toISOString(),
-        },
+    return this.request<SensorReading[]>(buildUrl(IOT_ENDPOINTS.SENSOR_HISTORY, { sensorId }), {
+      params: {
+        from: from.toISOString(),
+        to: to.toISOString(),
       },
-    );
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Irrigation API
   // ═══════════════════════════════════════════════════════════════════════════
 
+  async getIrrigationSchedules() {
+    return this.request<IrrigationSchedule[]>(IRRIGATION_ENDPOINTS.SCHEDULES_LIST);
+  }
+
+  async createIrrigationSchedule(data: IrrigationScheduleCreate) {
+    return this.request<IrrigationSchedule>(IRRIGATION_ENDPOINTS.SCHEDULES_LIST, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateIrrigationSchedule(id: string, data: Partial<IrrigationScheduleCreate>) {
+    return this.request<IrrigationSchedule>(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }), {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deleteIrrigationSchedule(id: string) {
+    return this.request<void>(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }), {
+      method: 'DELETE',
+    });
+  }
+
+  async startIrrigationSchedule(id: string) {
+    return this.request<IrrigationSchedule>(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }), {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'active' }),
+    });
+  }
+
+  async stopIrrigationSchedule(id: string) {
+    return this.request<IrrigationSchedule>(buildUrl(IRRIGATION_ENDPOINTS.SCHEDULES_GET, { scheduleId: id }), {
+      method: 'PUT',
+      body: JSON.stringify({ status: 'paused' }),
+    });
+  }
+
   async getIrrigationRecommendation(fieldId: string) {
     return this.request<IrrigationRecommendation>(
-      buildUrl(IRRIGATION_ENDPOINTS.RECOMMENDATION, { fieldId }),
+      buildUrl(IRRIGATION_ENDPOINTS.RECOMMENDATION, { fieldId })
     );
   }
 
@@ -795,7 +442,7 @@ class SahoolApiClient {
     solarRadiation: number;
   }) {
     return this.request<ET0Calculation>(IRRIGATION_ENDPOINTS.ET0, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -815,13 +462,36 @@ class SahoolApiClient {
       ph: number;
     };
   }) {
-    return this.request<FertilizerRecommendation>(
-      ADVISORY_ENDPOINTS.RECOMMEND,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    return this.request<FertilizerRecommendation>(ADVISORY_ENDPOINTS.RECOMMEND, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Growing Degree Days (GDD) API
+  // Kong route: /api/v1/weather → weather-service:8092
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getGDDData() {
+    return this.request<GDDRecord[]>(WEATHER_ENDPOINTS.GDD);
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Spray Management API
+  // Kong route: /api/v1/weather → weather-service:8092 (spray windows)
+  //             /api/v1/advisory → advisory-service:8093 (spray history)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  async getSprayWindows() {
+    return this.request<SprayWindow[]>(WEATHER_ENDPOINTS.SPRAY_WINDOWS);
+  }
+
+  async getSprayHistory(params?: { limit?: number }) {
+    const queryParams = params?.limit ? { limit: String(params.limit) } : undefined;
+    return this.request<SprayHistoryRecord[]>(ADVISORY_ENDPOINTS.SPRAY_HISTORY, {
+      params: queryParams,
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -835,14 +505,9 @@ class SahoolApiClient {
     return this.request<any>(FIELD_ENDPOINTS.SYNC, { params });
   }
 
-  async batchSync(data: {
-    deviceId: string;
-    userId: string;
-    tenantId: string;
-    fields: any[];
-  }) {
+  async batchSync(data: { deviceId: string; userId: string; tenantId: string; fields: any[] }) {
     return this.request<any>(FIELD_ENDPOINTS.SYNC_BATCH, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
@@ -862,14 +527,14 @@ class SahoolApiClient {
     };
   }) {
     return this.request<any>(ADVISORY_ENDPOINTS.ADVICE, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getDiseaseDetection(cropType: string, symptoms: string[]) {
     return this.request<any>(ADVISORY_ENDPOINTS.DISEASE, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ cropType, symptoms }),
     });
   }
@@ -880,60 +545,29 @@ class SahoolApiClient {
     soilAnalysis: any;
   }) {
     return this.request<any>(ADVISORY_ENDPOINTS.NUTRIENTS, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Agro Rules API (خدمة مسترجعة من kernel)
+  // Agro Rules — REMOVED: agro-rules is a NATS-only worker with no HTTP port.
+  // These methods called /api/v1/agro-rules/* which has no Kong route.
+  // IoT automation rules are handled via NATS events, not REST.
   // ═══════════════════════════════════════════════════════════════════════════
-
-  async getIoTRules(fieldId: string) {
-    return this.request<any>(
-      buildUrl(AGRO_RULES_ENDPOINTS.FIELD_RULES, { fieldId }),
-    );
-  }
-
-  async createIoTRule(data: {
-    fieldId: string;
-    condition: string;
-    action: string;
-    threshold: number;
-  }) {
-    return this.request<any>(AGRO_RULES_ENDPOINTS.CREATE_RULE, {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
-  }
-
-  async triggerRule(ruleId: string) {
-    return this.request<any>(
-      buildUrl(AGRO_RULES_ENDPOINTS.TRIGGER_RULE, { ruleId }),
-      {
-        method: "POST",
-      },
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Chat Service API (خدمة المحادثات - port 8115)
   // Kong route: /api/v1/chat → chat-service:8115
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getFieldMessages(
-    fieldId: string,
-    options?: { limit?: number; offset?: number },
-  ) {
-    return this.request<any[]>(
-      buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES, { fieldId }),
-      {
-        params: {
-          limit: String(options?.limit || 50),
-          offset: String(options?.offset || 0),
-        },
+  async getFieldMessages(fieldId: string, options?: { limit?: number; offset?: number }) {
+    return this.request<any[]>(buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES, { fieldId }), {
+      params: {
+        limit: String(options?.limit || 50),
+        offset: String(options?.offset || 0),
       },
-    );
+    });
   }
 
   async sendFieldMessage(fieldId: string, message: string) {
@@ -941,7 +575,7 @@ class SahoolApiClient {
     const sanitizedMessage = sanitizers.html(message);
 
     // Validate message is safe text
-    if (!validators.safeText(message)) {
+    if (!validators.safeText(sanitizedMessage)) {
       return {
         success: false,
         error: validationErrors.unsafeText,
@@ -963,19 +597,14 @@ class SahoolApiClient {
       };
     }
 
-    return this.request<any>(
-      buildUrl(CHAT_ENDPOINTS.FIELD_SEND, { fieldId }),
-      {
-        method: "POST",
-        body: JSON.stringify({ message: sanitizedMessage }),
-      },
-    );
+    return this.request<any>(buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES, { fieldId }), {
+      method: 'POST',
+      body: JSON.stringify({ message: sanitizedMessage }),
+    });
   }
 
   async getFieldChatParticipants(fieldId: string) {
-    return this.request<any[]>(
-      buildUrl(CHAT_ENDPOINTS.FIELD_PARTICIPANTS, { fieldId }),
-    );
+    return this.request<any[]>(buildUrl(CHAT_ENDPOINTS.FIELD_PARTICIPANTS, { fieldId }));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -988,37 +617,25 @@ class SahoolApiClient {
   }
 
   async updateFieldBoundary(fieldId: string, boundary: any, etag?: string) {
-    const headers: HeadersInit = {};
-    if (etag) headers["If-Match"] = etag;
+    const headers: Record<string, string> = {};
+    if (etag) headers['If-Match'] = etag;
 
-    return this.request<any>(
-      buildUrl(FIELD_ENDPOINTS.BOUNDARY_UPDATE, { fieldId }),
-      {
-        method: "PUT",
-        body: JSON.stringify({ boundary }),
-        headers,
-      },
-    );
+    return this.request<any>(buildUrl(FIELD_ENDPOINTS.BOUNDARY, { fieldId }), {
+      method: 'PUT',
+      body: JSON.stringify({ boundary }),
+      headers,
+    });
   }
 
   async getFieldBoundaryHistory(fieldId: string) {
-    return this.request<any[]>(
-      buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }),
-    );
+    return this.request<any[]>(buildUrl(FIELD_ENDPOINTS.BOUNDARY_HISTORY, { fieldId }));
   }
 
-  async rollbackFieldBoundary(
-    fieldId: string,
-    historyId: string,
-    reason?: string,
-  ) {
-    return this.request<any>(
-      buildUrl(FIELD_ENDPOINTS.BOUNDARY_ROLLBACK, { fieldId }),
-      {
-        method: "POST",
-        body: JSON.stringify({ historyId, reason }),
-      },
-    );
+  async rollbackFieldBoundary(fieldId: string, historyId: string, reason?: string) {
+    return this.request<any>(buildUrl(FIELD_ENDPOINTS.BOUNDARY_ROLLBACK, { fieldId }), {
+      method: 'POST',
+      body: JSON.stringify({ historyId, reason }),
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1032,9 +649,7 @@ class SahoolApiClient {
   }
 
   async getEquipmentById(equipmentId: string) {
-    return this.request<Equipment>(
-      buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId }),
-    );
+    return this.request<Equipment>(buildUrl(EQUIPMENT_ENDPOINTS.GET, { equipmentId }));
   }
 
   async createEquipment(data: {
@@ -1043,26 +658,21 @@ class SahoolApiClient {
     tenantId: string;
     specifications?: any;
   }) {
-    return this.request<Equipment>(EQUIPMENT_ENDPOINTS.CREATE, {
-      method: "POST",
+    return this.request<Equipment>(EQUIPMENT_ENDPOINTS.LIST, {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateEquipmentStatus(equipmentId: string, status: string) {
-    return this.request<Equipment>(
-      buildUrl(EQUIPMENT_ENDPOINTS.STATUS, { equipmentId }),
-      {
-        method: "PUT",
-        body: JSON.stringify({ status }),
-      },
-    );
+    return this.request<Equipment>(buildUrl(EQUIPMENT_ENDPOINTS.STATUS, { equipmentId }), {
+      method: 'PUT',
+      body: JSON.stringify({ status }),
+    });
   }
 
   async getEquipmentMaintenanceSchedule(equipmentId: string) {
-    return this.request<MaintenanceSchedule[]>(
-      buildUrl(EQUIPMENT_ENDPOINTS.MAINTENANCE, { equipmentId }),
-    );
+    return this.request<MaintenanceSchedule[]>(buildUrl(EQUIPMENT_ENDPOINTS.MAINTENANCE, { equipmentId }));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1094,41 +704,41 @@ class SahoolApiClient {
 
   async updateTask(
     taskId: string,
-    data: { status?: string; title?: string; description?: string },
+    data: { status?: string; title?: string; description?: string }
   ) {
-    return this.request<Task>(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId }), {
-      method: "PUT",
+    return this.request<Task>(buildUrl(TASK_ENDPOINTS.GET, { taskId }), {
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
   async createTask(data: TaskCreateRequest) {
-    return this.request<Task>(TASK_ENDPOINTS.CREATE, {
-      method: "POST",
+    return this.request<Task>(TASK_ENDPOINTS.LIST, {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async updateTaskStatus(
     taskId: string,
-    status: "pending" | "in_progress" | "completed" | "cancelled",
+    status: 'pending' | 'in_progress' | 'completed' | 'cancelled'
   ) {
     return this.request<Task>(buildUrl(TASK_ENDPOINTS.STATUS, { taskId }), {
-      method: "PUT",
+      method: 'PUT',
       body: JSON.stringify({ status }),
     });
   }
 
   async completeTask(taskId: string, notes?: string) {
     return this.request<Task>(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId }), {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ notes }),
     });
   }
 
   async deleteTask(taskId: string) {
-    return this.request<void>(buildUrl(TASK_ENDPOINTS.DELETE, { taskId }), {
-      method: "DELETE",
+    return this.request<void>(buildUrl(TASK_ENDPOINTS.GET, { taskId }), {
+      method: 'DELETE',
     });
   }
 
@@ -1136,11 +746,7 @@ class SahoolApiClient {
   // Alerts API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getAlerts(options: {
-    tenantId?: string;
-    status?: string;
-    fieldId?: string;
-  }) {
+  async getAlerts(options: { tenantId?: string; status?: string; fieldId?: string }) {
     const params: Record<string, string> = {};
     if (options.tenantId) params.tenantId = options.tenantId;
     if (options.status) params.status = options.status;
@@ -1150,12 +756,9 @@ class SahoolApiClient {
   }
 
   async acknowledgeAlert(alertId: string) {
-    return this.request<any>(
-      buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId }),
-      {
-        method: "POST",
-      },
-    );
+    return this.request<any>(buildUrl(ALERT_ENDPOINTS.ACKNOWLEDGE, { alertId }), {
+      method: 'POST',
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1163,37 +766,34 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   getWebSocketUrl(): string {
-    const wsProtocol = this.baseUrl.startsWith("https") ? "wss" : "ws";
-    const wsHost = this.baseUrl.replace(/^https?:\/\//, "");
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+    const wsProtocol = baseUrl.startsWith('https') ? 'wss' : 'ws';
+    const wsHost = baseUrl.replace(/^https?:\/\//, '');
     return `${wsProtocol}://${wsHost}/ws`;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Provider Config API (خدمة مسترجعة من kernel)
+  // Provider Config API (provider-config service, port 8104)
+  // Kong route: /api/v1/provider-config  (was incorrectly /api/v1/providers)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getProviders() {
-    return this.request<any[]>(PROVIDER_ENDPOINTS.LIST);
+    return this.request<any[]>(PROVIDER_ENDPOINTS.PROVIDER_CONFIG_LIST);
   }
 
   async getProviderConfig(providerId: string) {
-    return this.request<any>(
-      buildUrl(PROVIDER_ENDPOINTS.CONFIG, { providerId }),
-    );
+    return this.request<any>(buildUrl(PROVIDER_ENDPOINTS.PROVIDER_CONFIG_ITEM, { providerId }));
   }
 
   async updateProviderConfig(providerId: string, config: any) {
-    return this.request<any>(
-      buildUrl(PROVIDER_ENDPOINTS.CONFIG_UPDATE, { providerId }),
-      {
-        method: "PUT",
-        body: JSON.stringify(config),
-      },
-    );
+    return this.request<any>(buildUrl(PROVIDER_ENDPOINTS.PROVIDER_CONFIG_ITEM, { providerId }), {
+      method: 'PUT',
+      body: JSON.stringify(config),
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Crop Health API (خدمة مسترجعة من kernel - مع OpenAPI)
+  // Crop Intelligence API (خدمة ذكاء المحاصيل - مع OpenAPI)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getCropHealthDecision(data: {
@@ -1202,19 +802,16 @@ class SahoolApiClient {
     weatherConditions: any;
     soilMoisture?: number;
   }) {
-    return this.request<any>(CROP_HEALTH_ENDPOINTS.DECISION, {
-      method: "POST",
+    return this.request<any>(CROP_HEALTH_ENDPOINTS.INTELLIGENCE_DECISION, {
+      method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
   async getCropHealthHistory(fieldId: string, days: number = 30) {
-    return this.request<any[]>(
-      buildUrl(CROP_HEALTH_ENDPOINTS.HISTORY, { fieldId }),
-      {
-        params: { days: String(days) },
-      },
-    );
+    return this.request<any[]>(buildUrl(CROP_HEALTH_ENDPOINTS.INTELLIGENCE_HISTORY, { fieldId }), {
+      params: { days: String(days) },
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1222,39 +819,28 @@ class SahoolApiClient {
   // Kong route: /api/v1/satellite → strips to / → service has /v1/* endpoints
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getSatelliteImagery(
-    fieldId: string,
-    options?: { from?: string; to?: string },
-  ) {
+  async getSatelliteImagery(fieldId: string, options?: { from?: string; to?: string }) {
     // Maps to vegetation-analysis-service /v1/timeseries/{field_id}
     // Filter out undefined values to prevent "undefined" string in query params
     const params = options
       ? Object.fromEntries(Object.entries(options).filter(([, v]) => v != null))
       : undefined;
-    return this.request<any[]>(
-      buildUrl(SATELLITE_ENDPOINTS.TIMESERIES, { fieldId }),
-      {
-        params: params as Record<string, string>,
-      },
-    );
+    return this.request<any[]>(buildUrl(SATELLITE_ENDPOINTS.TIMESERIES, { fieldId }), {
+      params: params as Record<string, string>,
+    });
   }
 
-  async requestSatelliteAnalysis(
-    fieldId: string,
-    analysisType: "ndvi" | "moisture" | "thermal",
-  ) {
+  async requestSatelliteAnalysis(fieldId: string, analysisType: 'ndvi' | 'moisture' | 'thermal') {
     // Maps to vegetation-analysis-service /v1/analyze (POST)
     return this.request<any>(SATELLITE_ENDPOINTS.ANALYZE, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({ field_id: fieldId, analysis_type: analysisType }),
     });
   }
 
   async getSatelliteIndices(fieldId: string) {
     // Maps to vegetation-analysis-service /v1/indices/{field_id}
-    return this.request<any>(
-      buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId }),
-    );
+    return this.request<any>(buildUrl(SATELLITE_ENDPOINTS.INDICES, { fieldId }));
   }
 
   async getSatelliteSatellites() {
@@ -1266,10 +852,7 @@ class SahoolApiClient {
   // Marketplace API
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getMarketplaceListings(options?: {
-    category?: string;
-    region?: string;
-  }) {
+  async getMarketplaceListings(options?: { category?: string; region?: string }) {
     const params = options
       ? Object.fromEntries(Object.entries(options).filter(([, v]) => v != null))
       : undefined;
@@ -1286,13 +869,10 @@ class SahoolApiClient {
     quantity: number;
     unit: string;
   }) {
-    return this.request<MarketplaceListing>(
-      MARKETPLACE_ENDPOINTS.LISTING_CREATE,
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-      },
-    );
+    return this.request<MarketplaceListing>(MARKETPLACE_ENDPOINTS.LISTINGS, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1300,21 +880,15 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getSubscription(tenantId: string) {
-    return this.request<Subscription>(
-      buildUrl(BILLING_ENDPOINTS.TENANT_SUBSCRIPTION, { tenantId }),
-    );
+    return this.request<Subscription>(buildUrl(BILLING_ENDPOINTS.TENANT_SUBSCRIPTION, { tenantId }));
   }
 
   async getInvoices(tenantId: string) {
-    return this.request<Invoice[]>(
-      buildUrl(BILLING_ENDPOINTS.TENANT_INVOICES, { tenantId }),
-    );
+    return this.request<Invoice[]>(buildUrl(BILLING_ENDPOINTS.TENANT_INVOICES, { tenantId }));
   }
 
   async getUsageStats(tenantId: string) {
-    return this.request<any>(
-      buildUrl(BILLING_ENDPOINTS.TENANT_USAGE, { tenantId }),
-    );
+    return this.request<any>(buildUrl(BILLING_ENDPOINTS.TENANT_USAGE, { tenantId }));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1330,18 +904,19 @@ class SahoolApiClient {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // Disaster Assessment API
+  // Disaster Assessment API (disaster-assessment service, port 3020)
+  // Kong route: /api/v1/disaster  (was incorrectly /api/v1/disasters — note: singular)
   // ═══════════════════════════════════════════════════════════════════════════
 
   async assessDisaster(fieldId: string, disasterType: string) {
-    return this.request<any>(DISASTER_ENDPOINTS.ASSESS, {
-      method: "POST",
+    return this.request<any>(DISASTER_ENDPOINTS.ASSESS_SINGULAR, {
+      method: 'POST',
       body: JSON.stringify({ fieldId, disasterType }),
     });
   }
 
   async getDisasterAlerts(region: string) {
-    return this.request<any[]>(DISASTER_ENDPOINTS.ALERTS, {
+    return this.request<any[]>(DISASTER_ENDPOINTS.ALERTS_SINGULAR, {
       params: { region },
     });
   }
@@ -1351,24 +926,17 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getLivingFieldScore(fieldId: string) {
-    return this.request<any>(
-      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_SCORE, { fieldId }),
-    );
+    return this.request<any>(buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_SCORE, { fieldId }));
   }
 
   async getFieldZones(fieldId: string) {
-    return this.request<any[]>(
-      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ZONES, { fieldId }),
-    );
+    return this.request<any[]>(buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ZONES, { fieldId }));
   }
 
   async getFieldIntelligenceAlerts(fieldId: string) {
-    return this.request<any[]>(
-      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ALERTS, { fieldId }),
-      {
-        params: { status: "active" },
-      },
-    );
+    return this.request<any[]>(buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_ALERTS, { fieldId }), {
+      params: { status: 'active' },
+    });
   }
 
   async createTaskFromAlert(
@@ -1378,18 +946,15 @@ class SahoolApiClient {
       titleAr: string;
       description?: string;
       descriptionAr?: string;
-      priority: "urgent" | "high" | "medium" | "low";
+      priority: 'urgent' | 'high' | 'medium' | 'low';
       dueDate?: string;
       assigneeId?: string;
-    },
+    }
   ) {
-    return this.request<any>(
-      buildUrl(INTELLIGENCE_ENDPOINTS.CREATE_TASK, { alertId }),
-      {
-        method: "POST",
-        body: JSON.stringify(taskData),
-      },
-    );
+    return this.request<any>(buildUrl(INTELLIGENCE_ENDPOINTS.CREATE_TASK, { alertId }), {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
   }
 
   async getBestDaysForActivity(activity: string, days: number = 14) {
@@ -1403,7 +968,7 @@ class SahoolApiClient {
 
   async validateTaskDate(date: string, activity: string) {
     return this.request<any>(INTELLIGENCE_ENDPOINTS.VALIDATE_DATE, {
-      method: "POST",
+      method: 'POST',
       body: JSON.stringify({
         date: new Date(date).toISOString(),
         activity: activity.toLowerCase(),
@@ -1412,9 +977,7 @@ class SahoolApiClient {
   }
 
   async getFieldRecommendations(fieldId: string) {
-    return this.request<any[]>(
-      buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_RECOMMENDATIONS, { fieldId }),
-    );
+    return this.request<any[]>(buildUrl(INTELLIGENCE_ENDPOINTS.FIELD_RECOMMENDATIONS, { fieldId }));
   }
 }
 

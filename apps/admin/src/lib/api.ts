@@ -1,94 +1,25 @@
-// Sahool Admin Dashboard - API Configuration
-// إعدادات الاتصال بالخادم
+// Sahool Admin Dashboard - API Layer
+// طبقة API للوحة الإدارة
+//
+// This module delegates to the unified @sahool/api-client via unified-client.ts.
+// All exports are preserved for backward compatibility.
 
-import axios, {
-  type AxiosResponse,
-  type AxiosError,
-  type InternalAxiosRequestConfig,
-} from "axios";
-import type {
-  Farm,
-  DiagnosisRecord,
-  DashboardStats,
-  WeatherAlert,
-  SensorReading,
-} from "@/types";
-import { apiClient as authApiClient } from "./api-client";
-import Cookies from "js-cookie";
-import { logger } from "./logger";
+import type { Farm, DiagnosisRecord, DashboardStats, WeatherAlert, SensorReading } from '@/types';
+import { apiClient as authApiClient } from './api-client';
+export { apiClient as adminApiClient, extractErrorMessageAr } from './api-client';
+export type { AdminRole, Permission, AuditLogEntry } from './api-client';
+import { logger } from './logger';
 
 // Import API configuration from centralized config
-import { API_URLS, API_CONFIG, TIMEOUT_TIERS } from "@/config/api";
+import { API_URLS, TIMEOUT_TIERS } from '@/config/api';
 
 // Re-export API_URLS for consumers of this module
 export { API_URLS };
 
-// Helper function to get token from cookies
-// NOTE: This will return undefined since tokens are now stored in httpOnly cookies
-// and are not accessible from client-side JavaScript for security reasons.
-//
-// Authentication flow uses Next.js API routes as server-side proxies which can
-// access httpOnly cookies. See implementations in:
-//   - /app/api/auth/me/route.ts - Current user endpoint
-//   - /app/api/auth/login/route.ts - Login with cookie setting
-//   - /app/api/auth/logout/route.ts - Logout with cookie clearing
-//   - /app/api/auth/refresh/route.ts - Token refresh
-//
-// For other API calls that require authentication, the backend services should
-// be configured to accept cookie-based authentication via Kong gateway, or
-// additional Next.js API routes should be created following the same pattern.
-function getToken(): string | undefined {
-  return Cookies.get("sahool_admin_token");
-}
-
-// Axios instance with defaults
-// NOTE: withCredentials is set to true to send httpOnly cookies with requests
-export const apiClient = axios.create({
-  timeout: API_CONFIG.timeout,
-  withCredentials: true, // Send cookies with cross-origin requests
-  headers: {
-    "Content-Type": "application/json",
-    Accept: "application/json",
-    "Accept-Language": "ar,en",
-  },
-});
-
-// Add auth token interceptor - uses centralized token management
-// NOTE: With httpOnly cookies, this interceptor may not be able to add the
-// Authorization header. Backend services should be configured to accept
-// cookie-based authentication, OR these API calls should be proxied through
-// Next.js API routes where tokens can be injected server-side.
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = getToken();
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add response interceptor for auth errors - consistent with auth store
-apiClient.interceptors.response.use(
-  (response: AxiosResponse) => response,
-  async (error: AxiosError) => {
-    if (error.response?.status === 401) {
-      // Clear session via logout endpoint
-      try {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          credentials: "same-origin",
-        });
-      } catch (logoutError) {
-        logger.error("Logout error:", logoutError);
-      }
-
-      authApiClient.clearToken();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-    return Promise.reject(error);
-  },
-);
+// Unified API client — replaces raw axios.create() with @sahool/api-client instance.
+// Provides: token refresh with queuing, retry with exponential backoff, HTTPS enforcement.
+import { apiClient } from './unified-client';
+export { apiClient };
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Image Upload API (FormData support)
@@ -96,12 +27,7 @@ apiClient.interceptors.response.use(
 // ═══════════════════════════════════════════════════════════════════════════
 
 const MAX_IMAGE_SIZE_MB = 50;
-const ALLOWED_IMAGE_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/tiff",
-];
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/tiff'];
 
 /**
  * Upload an image for crop disease diagnosis
@@ -113,7 +39,7 @@ export async function uploadDiagnosisImage(
     fieldId: string;
     cropType?: string;
     notes?: string;
-  },
+  }
 ): Promise<{
   diagnosisId: string;
   imageUrl: string;
@@ -122,29 +48,25 @@ export async function uploadDiagnosisImage(
 }> {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     throw new Error(
-      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(', ')}`
     );
   }
   if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
     throw new Error(
-      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`,
+      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`
     );
   }
 
   const formData = new FormData();
-  formData.append("image", file);
-  formData.append("field_id", metadata.fieldId);
-  if (metadata.cropType) formData.append("crop_type", metadata.cropType);
-  if (metadata.notes) formData.append("notes", metadata.notes);
+  formData.append('image', file);
+  formData.append('field_id', metadata.fieldId);
+  if (metadata.cropType) formData.append('crop_type', metadata.cropType);
+  if (metadata.notes) formData.append('notes', metadata.notes);
 
-  const response = await apiClient.post(
-    API_URLS.diagnoses.analyze,
-    formData,
-    {
-      headers: { "Content-Type": "multipart/form-data" },
-      timeout: TIMEOUT_TIERS.upload,
-    },
-  );
+  const response = await apiClient.post(API_URLS.diagnoses.analyze, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: TIMEOUT_TIERS.upload,
+  });
   return response.data;
 }
 
@@ -154,11 +76,11 @@ export async function uploadDiagnosisImage(
  */
 export async function uploadVisionImage(
   file: File,
-  task: "pest" | "disease" | "weed",
+  task: 'pest' | 'disease' | 'weed',
   options?: {
     confidence?: number;
-    modelVariant?: "n" | "s" | "m" | "l" | "x";
-  },
+    modelVariant?: 'n' | 's' | 'm' | 'l' | 'x';
+  }
 ): Promise<{
   detections: Array<{
     class: string;
@@ -170,19 +92,19 @@ export async function uploadVisionImage(
 }> {
   if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
     throw new Error(
-      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(", ")}`,
+      `Unsupported image type: ${file.type}. Allowed: ${ALLOWED_IMAGE_TYPES.join(', ')}`
     );
   }
   if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
     throw new Error(
-      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`,
+      `Image too large: ${(file.size / 1024 / 1024).toFixed(1)}MB. Max: ${MAX_IMAGE_SIZE_MB}MB`
     );
   }
 
   const formData = new FormData();
-  formData.append("image", file);
-  if (options?.confidence) formData.append("confidence", String(options.confidence));
-  if (options?.modelVariant) formData.append("model_variant", options.modelVariant);
+  formData.append('image', file);
+  if (options?.confidence) formData.append('confidence', String(options.confidence));
+  if (options?.modelVariant) formData.append('model_variant', options.modelVariant);
 
   const endpoint = {
     pest: API_URLS.visionEndpoints.detectPest,
@@ -191,7 +113,7 @@ export async function uploadVisionImage(
   }[task];
 
   const response = await apiClient.post(endpoint, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: { 'Content-Type': 'multipart/form-data' },
     timeout: TIMEOUT_TIERS.analysis,
   });
   return response.data;
@@ -205,18 +127,22 @@ export async function fetchDashboardStats(): Promise<DashboardStats> {
     const response = await apiClient.get(API_URLS.dashboard.stats);
     return response.data;
   } catch (error) {
-    logger.error("fetchDashboardStats failed", { error });
+    logger.error('fetchDashboardStats failed', { error });
     throw error;
   }
 }
 
 // Farms / Fields
-export async function fetchFarms(): Promise<Farm[]> {
+export async function fetchFarms(page = 1, limit = 100): Promise<Farm[]> {
   try {
-    const response = await apiClient.get(API_URLS.fields.list);
-    return response.data;
+    const response = await apiClient.get(API_URLS.fields.list, {
+      params: { page, limit },
+    });
+    // Backend returns { data: [...], meta: { total, page, limit } }
+    const result = response.data;
+    return Array.isArray(result) ? result : (result?.data ?? []);
   } catch (error) {
-    logger.error("Failed to fetch farms:", error);
+    logger.error('Failed to fetch farms:', error);
     return [];
   }
 }
@@ -226,7 +152,7 @@ export async function fetchFarmById(id: string): Promise<Farm> {
     const response = await apiClient.get(API_URLS.fields.byId(id));
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch farm by ID:", error);
+    logger.error('Failed to fetch farm by ID:', error);
     throw error;
   }
 }
@@ -239,65 +165,58 @@ export async function fetchDiagnoses(params?: {
   governorate?: string;
   limit?: number;
   offset?: number;
-  timeRange?: "day" | "week" | "month";
+  timeRange?: 'day' | 'week' | 'month';
 }): Promise<DiagnosisRecord[]> {
   try {
-    const response = await apiClient.get(
-      API_URLS.diagnoses.list,
-      {
-        params: {
-          status: params?.status,
-          severity: params?.severity,
-          governorate: params?.governorate,
-          limit: params?.limit || 50,
-          offset: params?.offset || 0,
-          time_range: params?.timeRange,
-        },
+    const response = await apiClient.get(API_URLS.diagnoses.list, {
+      params: {
+        status: params?.status,
+        severity: params?.severity,
+        governorate: params?.governorate,
+        limit: params?.limit || 50,
+        offset: params?.offset || 0,
+        time_range: params?.timeRange,
       },
-    );
+    });
 
     // Map backend response to our frontend model
     return (response.data || []).map((d: Record<string, unknown>, _index: number) => ({
       id: d.id as string,
-      farmId:
-        (d.field_id as string) || `farm-${(d.id as string) || "unknown"}`,
-      farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
-      imageUrl: (d.image_url as string) || "",
-      thumbnailUrl:
-        (d.thumbnail_url as string) ||
-        (d.image_url as string) ||
-        "",
-      cropType: (d.crop_type as string) || "unknown",
+      farmId: (d.field_id as string) || `farm-${(d.id as string) || 'unknown'}`,
+      farmName: d.governorate ? `مزرعة في ${d.governorate}` : 'مزرعة',
+      imageUrl: (d.image_url as string) || '',
+      thumbnailUrl: (d.thumbnail_url as string) || (d.image_url as string) || '',
+      cropType: (d.crop_type as string) || 'unknown',
       diseaseId: d.disease_id as string,
       diseaseName: d.disease_name as string,
       diseaseNameAr: d.disease_name_ar as string,
       confidence: Number.isFinite(d.confidence as number) ? (d.confidence as number) * 100 : 0,
-      severity: d.severity as "low" | "medium" | "high" | "critical",
-      status: d.status as "pending" | "confirmed" | "rejected" | "treated",
+      severity: d.severity as 'low' | 'medium' | 'high' | 'critical',
+      status: d.status as 'pending' | 'confirmed' | 'rejected' | 'treated',
       location: (d.location as { lat: number; lng: number }) || {
         lat: 15.3694,
         lng: 44.191,
       },
       diagnosedAt: d.timestamp as string,
-      createdBy: (d.farmer_id as string) || "unknown",
+      createdBy: (d.farmer_id as string) || 'unknown',
       expertReview: d.expert_notes
         ? {
-            expertId: "expert-1",
-            expertName: "خبير زراعي",
+            expertId: 'expert-1',
+            expertName: 'خبير زراعي',
             notes: d.expert_notes as string,
             reviewedAt: d.updated_at as string,
           }
         : undefined,
     }));
   } catch (error) {
-    logger.error("Failed to fetch diagnoses:", error);
+    logger.error('Failed to fetch diagnoses:', error);
     return [];
   }
 }
 
 // Diagnosis Statistics for Dashboard
 export async function fetchDiagnosisStats(params?: {
-  timeRange?: "day" | "week" | "month";
+  timeRange?: 'day' | 'week' | 'month';
 }): Promise<{
   total: number;
   pending: number;
@@ -309,10 +228,9 @@ export async function fetchDiagnosisStats(params?: {
   byGovernorate: Record<string, number>;
 }> {
   try {
-    const response = await apiClient.get(
-      API_URLS.diagnoses.stats,
-      { params: { time_range: params?.timeRange } },
-    );
+    const response = await apiClient.get(API_URLS.diagnoses.stats, {
+      params: { time_range: params?.timeRange },
+    });
     const data = response.data || {};
     return {
       total: data.total || 0,
@@ -325,7 +243,7 @@ export async function fetchDiagnosisStats(params?: {
       byGovernorate: data.by_governorate || {},
     };
   } catch (error) {
-    logger.error("Failed to fetch diagnosis stats:", error);
+    logger.error('Failed to fetch diagnosis stats:', error);
     return {
       total: 0,
       pending: 0,
@@ -341,45 +259,67 @@ export async function fetchDiagnosisStats(params?: {
 
 export async function updateDiagnosisStatus(
   id: string,
-  status: "confirmed" | "rejected" | "treated",
-  notes?: string,
+  status: 'confirmed' | 'rejected' | 'treated',
+  notes?: string
 ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
   try {
-    const response = await apiClient.patch(
-      API_URLS.diagnoses.byId(id),
-      null,
-      {
-        params: {
-          status,
-          expert_notes: notes,
-        },
+    const response = await apiClient.patch(API_URLS.diagnoses.byId(id), null, {
+      params: {
+        status,
+        expert_notes: notes,
       },
-    );
+    });
     return response.data;
   } catch (error) {
-    logger.error("Failed to update diagnosis status:", error);
+    logger.error('Failed to update diagnosis status:', error);
     throw error;
   }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Weather API (POST-based with lat/lon coordinates)
-// Uses weather-service (port 8092) — weather-core (8108) deprecated & archived
+// Uses weather-service (port 8092)
 // ═══════════════════════════════════════════════════════════════════════════
 
-export async function getWeatherCurrent(
-  lat: number,
-  lng: number,
-  fieldId: string = "default"
-) {
+/**
+ * Weather API functions — proxied through Next.js API route (/api/weather)
+ * to extract tenant_id from the httpOnly JWT cookie server-side.
+ *
+ * واجهة الطقس — تمر عبر وكيل Next.js لاستخراج معرف المستأجر من الكوكي
+ */
+
+/**
+ * Helper to handle weather proxy responses consistently.
+ * Redirects to login on 401 (matching apiClient interceptor behavior).
+ */
+async function handleWeatherResponse(response: Response): Promise<unknown | null> {
+  if (response.status === 401) {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch (logoutError) {
+      logger.error('Logout error during weather auth redirect:', logoutError);
+    }
+    authApiClient.clearToken();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/login';
+    }
+    return null;
+  }
+  if (!response.ok) return null;
+  return await response.json();
+}
+
+export async function getWeatherCurrent(lat: number, lng: number, fieldId: string = 'default') {
   try {
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.current,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch('/api/weather', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'current', lat, lon: lng, field_id: fieldId }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
-    logger.error("Failed to fetch current weather:", error);
+    logger.error('Failed to fetch current weather:', error);
     return null;
   }
 }
@@ -388,33 +328,33 @@ export async function getWeatherForecast(
   lat: number,
   lng: number,
   days: number = 7,
-  fieldId: string = "default"
+  fieldId: string = 'default'
 ) {
   try {
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.forecast,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng, days }
-    );
-    return response.data;
+    const response = await fetch('/api/weather', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'forecast', lat, lon: lng, field_id: fieldId, days }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
-    logger.error("Failed to fetch weather forecast:", error);
+    logger.error('Failed to fetch weather forecast:', error);
     return null;
   }
 }
 
-export async function getAgriculturalReport(
-  lat: number,
-  lng: number,
-  fieldId: string = "default"
-) {
+export async function getAgriculturalReport(lat: number, lng: number, fieldId: string = 'default') {
   try {
-    const response = await apiClient.post(
-      API_URLS.weatherEndpoints.agricultural,
-      { tenant_id: "default", field_id: fieldId, lat, lon: lng }
-    );
-    return response.data;
+    const response = await fetch('/api/weather', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'agricultural', lat, lon: lng, field_id: fieldId }),
+    });
+    return await handleWeatherResponse(response);
   } catch (error) {
-    logger.error("Failed to fetch agricultural report:", error);
+    logger.error('Failed to fetch agricultural report:', error);
     return null;
   }
 }
@@ -424,64 +364,56 @@ export async function getAgriculturalReport(
 // Note: weather-advanced has been consolidated into weather-service
 export async function getWeatherByLocation(locationId: string) {
   try {
-    const response = await apiClient.get(
-      API_URLS.weatherEndpoints.byLocation(locationId)
-    );
-    return response.data;
+    // Route through internal proxy to preserve tenant context
+    const response = await fetch(`/api/weather?action=current&locationId=${encodeURIComponent(locationId)}`);
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
-    logger.error("Failed to fetch weather by location:", error);
+    logger.error('Failed to fetch weather by location:', error);
     return null;
   }
 }
 
 export async function getWeatherForecastByLocation(locationId: string, days: number = 7) {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.weather}/v1/forecast/${locationId}?days=${days}`
-    );
-    return response.data;
+    const response = await fetch(`/api/weather?action=forecast&locationId=${encodeURIComponent(locationId)}&days=${days}`);
+    if (!response.ok) return null;
+    return await response.json();
   } catch (error) {
-    logger.error("Failed to fetch weather forecast by location:", error);
+    logger.error('Failed to fetch weather forecast by location:', error);
     return null;
   }
 }
 
 export async function getWeatherLocations() {
   try {
-    const response = await apiClient.get(
-      API_URLS.weatherEndpoints.locations
-    );
-    return response.data;
+    const response = await fetch('/api/weather?action=locations');
+    if (!response.ok) return { locations: [] };
+    return await response.json();
   } catch (error) {
-    logger.error("Failed to fetch weather locations:", error);
+    logger.error('Failed to fetch weather locations:', error);
     return { locations: [] };
   }
 }
 
 // Weather Alerts (from weather-service)
-export async function fetchWeatherAlerts(locationId: string = "sanaa"): Promise<WeatherAlert[]> {
+export async function fetchWeatherAlerts(locationId: string = 'sanaa'): Promise<WeatherAlert[]> {
   try {
-    const response = await apiClient.get(
-      API_URLS.weatherEndpoints.alerts(locationId)
-    );
+    const response = await apiClient.get(API_URLS.weatherEndpoints.alerts(locationId));
     return response.data?.alerts || [];
   } catch (error) {
-    logger.error("Failed to fetch weather alerts:", error);
+    logger.error('Failed to fetch weather alerts:', error);
     return [];
   }
 }
 
 // Sensor Readings
-export async function fetchSensorReadings(
-  farmId: string,
-): Promise<SensorReading[]> {
+export async function fetchSensorReadings(farmId: string): Promise<SensorReading[]> {
   try {
-    const response = await apiClient.get(
-      API_URLS.sensors.readings(farmId),
-    );
+    const response = await apiClient.get(API_URLS.sensors.readings(farmId));
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch sensor readings:", error);
+    logger.error('Failed to fetch sensor readings:', error);
     return [];
   }
 }
@@ -503,25 +435,20 @@ export async function fetchNotifications(params?: {
   }>
 > {
   try {
-    const response = await apiClient.get(
-      API_URLS.notificationEndpoints.list,
-      { params },
-    );
+    const response = await apiClient.get(API_URLS.notificationEndpoints.list, { params });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch notifications:", error);
+    logger.error('Failed to fetch notifications:', error);
     return [];
   }
 }
 
 export async function markNotificationRead(id: string): Promise<boolean> {
   try {
-    await apiClient.patch(
-      API_URLS.notificationEndpoints.markRead(id),
-    );
+    await apiClient.patch(API_URLS.notificationEndpoints.markRead(id));
     return true;
   } catch (error) {
-    logger.error("Failed to mark notification as read:", error);
+    logger.error('Failed to mark notification as read:', error);
     return false;
   }
 }
@@ -551,29 +478,23 @@ export async function fetchTasks(params?: {
     });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch tasks:", error);
+    logger.error('Failed to fetch tasks:', error);
     return [];
   }
 }
 
-export async function updateTaskStatus(
-  id: string,
-  status: string,
-): Promise<boolean> {
+export async function updateTaskStatus(id: string, status: string): Promise<boolean> {
   try {
     await apiClient.patch(API_URLS.taskEndpoints.byId(id), { status });
     return true;
   } catch (error) {
-    logger.error("Failed to update task status:", error);
+    logger.error('Failed to update task status:', error);
     return false;
   }
 }
 
 // Community Posts
-export async function fetchCommunityPosts(params?: {
-  category?: string;
-  limit?: number;
-}): Promise<
+export async function fetchCommunityPosts(params?: { category?: string; limit?: number }): Promise<
   Array<{
     id: string;
     title: string;
@@ -592,16 +513,13 @@ export async function fetchCommunityPosts(params?: {
     });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch community posts:", error);
+    logger.error('Failed to fetch community posts:', error);
     return [];
   }
 }
 
 // Equipment
-export async function fetchEquipment(params?: {
-  type?: string;
-  status?: string;
-}): Promise<
+export async function fetchEquipment(params?: { type?: string; status?: string }): Promise<
   Array<{
     id: string;
     name: string;
@@ -614,13 +532,10 @@ export async function fetchEquipment(params?: {
   }>
 > {
   try {
-    const response = await apiClient.get(
-      API_URLS.equipmentEndpoints.list,
-      { params },
-    );
+    const response = await apiClient.get(API_URLS.equipmentEndpoints.list, { params });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch equipment:", error);
+    logger.error('Failed to fetch equipment:', error);
     return [];
   }
 }
@@ -635,53 +550,48 @@ export async function getSatelliteTimeseries(
   options?: { from?: string; to?: string }
 ) {
   try {
-    const response = await apiClient.get(
-      API_URLS.satelliteEndpoints.timeseries(fieldId),
-      { params: options }
-    );
+    const response = await apiClient.get(API_URLS.satelliteEndpoints.timeseries(fieldId), {
+      params: options,
+    });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch satellite timeseries:", error);
+    logger.error('Failed to fetch satellite timeseries:', error);
     return [];
   }
 }
 
 export async function requestSatelliteAnalysis(
   fieldId: string,
-  analysisType: "ndvi" | "moisture" | "thermal"
+  analysisType: 'ndvi' | 'moisture' | 'thermal'
 ) {
   try {
-    const response = await apiClient.post(
-      API_URLS.satelliteEndpoints.analyze,
-      { field_id: fieldId, analysis_type: analysisType }
-    );
+    const response = await apiClient.post(API_URLS.satelliteEndpoints.analyze, {
+      field_id: fieldId,
+      analysis_type: analysisType,
+    });
     return response.data;
   } catch (error) {
-    logger.error("Failed to request satellite analysis:", error);
+    logger.error('Failed to request satellite analysis:', error);
     return null;
   }
 }
 
 export async function getSatelliteIndices(fieldId: string) {
   try {
-    const response = await apiClient.get(
-      API_URLS.satelliteEndpoints.indices(fieldId)
-    );
+    const response = await apiClient.get(API_URLS.satelliteEndpoints.indices(fieldId));
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch satellite indices:", error);
+    logger.error('Failed to fetch satellite indices:', error);
     return null;
   }
 }
 
 export async function getAvailableSatellites() {
   try {
-    const response = await apiClient.get(
-      API_URLS.satelliteEndpoints.satellites
-    );
+    const response = await apiClient.get(API_URLS.satelliteEndpoints.satellites);
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch available satellites:", error);
+    logger.error('Failed to fetch available satellites:', error);
     return { satellites: [] };
   }
 }
@@ -692,15 +602,16 @@ export async function getAvailableSatellites() {
 // ═══════════════════════════════════════════════════════════════════════════
 
 /** Fetch yield trend data from indicators service */
-export async function fetchYieldTrends(period: "7d" | "30d" | "90d" = "30d"): Promise<Array<{ month: string; yield: number; forecast: number }>> {
+export async function fetchYieldTrends(
+  period: '7d' | '30d' | '90d' = '30d'
+): Promise<Array<{ month: string; yield: number; forecast: number }>> {
   try {
-    const response = await apiClient.get(
-      API_URLS.dashboard.trends,
-      { params: { metric: "yield", period } }
-    );
+    const response = await apiClient.get(API_URLS.dashboard.trends, {
+      params: { metric: 'yield', period },
+    });
     return response.data?.data || [];
   } catch (error) {
-    logger.error("Failed to fetch yield trends:", error);
+    logger.error('Failed to fetch yield trends:', error);
     return [];
   }
 }
@@ -708,29 +619,30 @@ export async function fetchYieldTrends(period: "7d" | "30d" | "90d" = "30d"): Pr
 /** Fetch crop distribution data from indicators dashboard */
 export async function fetchCropDistribution(): Promise<Array<{ name: string; value: number }>> {
   try {
-    const response = await apiClient.get(
-      API_URLS.dashboard.stats
+    const response = await apiClient.get(API_URLS.dashboard.stats);
+    return (
+      response.data?.crop_distribution?.map((c: { crop: string; area: number }) => ({
+        name: c.crop,
+        value: c.area,
+      })) || []
     );
-    return response.data?.crop_distribution?.map((c: { crop: string; area: number }) => ({
-      name: c.crop,
-      value: c.area,
-    })) || [];
   } catch (error) {
-    logger.error("Failed to fetch crop distribution:", error);
+    logger.error('Failed to fetch crop distribution:', error);
     return [];
   }
 }
 
 /** Fetch weekly activity data (diagnoses, irrigations, alerts) */
-export async function fetchWeeklyActivity(): Promise<Array<{ day: string; diagnoses: number; irrigations: number; alerts: number }>> {
+export async function fetchWeeklyActivity(): Promise<
+  Array<{ day: string; diagnoses: number; irrigations: number; alerts: number }>
+> {
   try {
-    const response = await apiClient.get(
-      API_URLS.dashboard.trends,
-      { params: { metric: "weekly_activity", period: "7d" } }
-    );
+    const response = await apiClient.get(API_URLS.dashboard.trends, {
+      params: { metric: 'weekly_activity', period: '7d' },
+    });
     return response.data?.data || [];
   } catch (error) {
-    logger.error("Failed to fetch weekly activity:", error);
+    logger.error('Failed to fetch weekly activity:', error);
     return [];
   }
 }
@@ -744,9 +656,7 @@ export async function fetchPlatformMetrics(): Promise<{
   monthlyGrowthRate: number;
 }> {
   try {
-    const response = await apiClient.get(
-      API_URLS.dashboard.stats
-    );
+    const response = await apiClient.get(API_URLS.dashboard.stats);
     const data = response.data;
     return {
       activeFarmers: data?.active_users || 0,
@@ -756,21 +666,27 @@ export async function fetchPlatformMetrics(): Promise<{
       monthlyGrowthRate: data?.monthly_growth_rate || 0,
     };
   } catch (error) {
-    logger.error("Failed to fetch platform metrics:", error);
-    return { activeFarmers: 0, dailySales: 0, irrigationOps: 0, avgTemperature: 0, monthlyGrowthRate: 0 };
+    logger.error('Failed to fetch platform metrics:', error);
+    return {
+      activeFarmers: 0,
+      dailySales: 0,
+      irrigationOps: 0,
+      avgTemperature: 0,
+      monthlyGrowthRate: 0,
+    };
   }
 }
 
 /** Fetch advisory recommendations for a field */
 export async function fetchAdvisoryRecommendations(fieldId: string, cropType?: string) {
   try {
-    const response = await apiClient.post(
-      `${API_URLS.advisory}/api/v1/advisory/recommendations`,
-      { field_id: fieldId, crop_type: cropType }
-    );
+    const response = await apiClient.post(`${API_URLS.advisory}/api/v1/advisory/recommendations`, {
+      field_id: fieldId,
+      crop_type: cropType,
+    });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch advisory recommendations:", error);
+    logger.error('Failed to fetch advisory recommendations:', error);
     return { recommendations: [], sources: [] };
   }
 }
@@ -778,13 +694,13 @@ export async function fetchAdvisoryRecommendations(fieldId: string, cropType?: s
 /** Fetch yield prediction for a field */
 export async function fetchYieldPrediction(fieldId: string, cropType: string) {
   try {
-    const response = await apiClient.post(
-      `${API_URLS.yieldPrediction}/api/v1/yield/predict`,
-      { field_id: fieldId, crop_type: cropType }
-    );
+    const response = await apiClient.post(`${API_URLS.yieldPrediction}/api/v1/yield/predict`, {
+      field_id: fieldId,
+      crop_type: cropType,
+    });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch yield prediction:", error);
+    logger.error('Failed to fetch yield prediction:', error);
     return null;
   }
 }
@@ -797,7 +713,7 @@ export async function fetchFieldIntelligence(fieldId: string) {
     );
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch field intelligence:", error);
+    logger.error('Failed to fetch field intelligence:', error);
     return null;
   }
 }
@@ -810,13 +726,10 @@ export async function fetchAlerts(params?: {
   limit?: number;
 }) {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.alerts}/api/v1/alerts`,
-      { params }
-    );
+    const response = await apiClient.get(`${API_URLS.alerts}/api/v1/alerts`, { params });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch alerts:", error);
+    logger.error('Failed to fetch alerts:', error);
     return { data: [], meta: { total: 0, page: 1, limit: 20 } };
   }
 }
@@ -824,12 +737,10 @@ export async function fetchAlerts(params?: {
 /** Fetch billing subscription info */
 export async function fetchBillingSubscription() {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.billing}/api/v1/billing/subscription`
-    );
+    const response = await apiClient.get(`${API_URLS.billing}/api/v1/billing/subscription`);
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch billing subscription:", error);
+    logger.error('Failed to fetch billing subscription:', error);
     return null;
   }
 }
@@ -843,7 +754,7 @@ export async function fetchAstronomicalToday(lat?: number, lon?: number) {
     );
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch astronomical data:", error);
+    logger.error('Failed to fetch astronomical data:', error);
     return null;
   }
 }
@@ -854,14 +765,16 @@ export async function checkServicesHealth(): Promise<Record<string, boolean>> {
   const results: Record<string, boolean> = {};
 
   await Promise.all(
-    services.map(async ([name, url]) => {
-      try {
-        await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
-        results[name] = true;
-      } catch {
-        results[name] = false;
-      }
-    }),
+    services
+      .filter(([, url]) => typeof url === 'string')
+      .map(async ([name, url]) => {
+        try {
+          await apiClient.get(`${url}/healthz`, { timeout: TIMEOUT_TIERS.healthCheck });
+          results[name] = true;
+        } catch {
+          results[name] = false;
+        }
+      })
   );
 
   return results;
@@ -898,13 +811,15 @@ export {
   type CreateIrrigationData,
   type Alert,
   type CreateAlertData,
+  type AlertRule,
+  type AlertRulesResponse,
   type Equipment,
   type CreateEquipmentData,
   type PaginationParams,
   type PaginatedResponse,
   type ApiResponse as ServiceApiResponse,
   type SensorReading,
-} from "./api/services";
+} from './api/services';
 
 export {
   // Extended Services
@@ -924,4 +839,28 @@ export {
   type CreateExperimentData,
   type MarketplaceListing,
   type CreateListingData,
-} from "./api/extended-services";
+} from './api/extended-services';
+
+export {
+  // Advanced Services
+  auditService,
+  visionService,
+  terrainService,
+  edgeService,
+  droneService,
+  virtualSensorService,
+  scoutingService,
+  // Advanced Utility
+  downloadCSV,
+  // Advanced Types
+  type AuditLog,
+  type AuditStats,
+  type VisionModel,
+  type VisionDetection,
+  type TerrainAnalysis,
+  type EdgeDevice,
+  type DroneDevice,
+  type DroneFlight,
+  type VirtualSensor,
+  type ScoutingReport,
+} from './api/advanced-services';

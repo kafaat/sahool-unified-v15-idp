@@ -3,14 +3,14 @@
  * Provides JSON structured logging for production environments
  */
 
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from 'express';
 
 export enum LogLevel {
-  DEBUG = "debug",
-  INFO = "info",
-  WARN = "warn",
-  ERROR = "error",
-  FATAL = "fatal",
+  DEBUG = 'debug',
+  INFO = 'info',
+  WARN = 'warn',
+  ERROR = 'error',
+  FATAL = 'fatal',
 }
 
 interface LogContext {
@@ -45,12 +45,12 @@ interface LogEntry {
   [key: string]: any;
 }
 
-class Logger {
+export class Logger {
   private service: string;
   private version: string;
   private defaultContext: LogContext;
 
-  constructor(service: string = "field-core", version: string = "15.3.0") {
+  constructor(service: string = 'field-core', version: string = '15.3.0') {
     this.service = service;
     this.version = version;
     this.defaultContext = {};
@@ -60,7 +60,7 @@ class Logger {
     level: LogLevel,
     message: string,
     context?: LogContext,
-    extra?: Record<string, any>,
+    extra?: Record<string, any>
   ): LogEntry {
     return {
       level,
@@ -85,61 +85,49 @@ class Logger {
     }
   }
 
-  debug(
-    message: string,
-    context?: LogContext,
-    extra?: Record<string, any>,
-  ): void {
-    if (process.env.LOG_LEVEL === "debug") {
+  debug(message: string, context?: LogContext, extra?: Record<string, any>): void {
+    if (process.env.LOG_LEVEL === 'debug') {
       this.output(this.formatEntry(LogLevel.DEBUG, message, context, extra));
     }
   }
 
-  info(
-    message: string,
-    context?: LogContext,
-    extra?: Record<string, any>,
-  ): void {
+  info(message: string, context?: LogContext, extra?: Record<string, any>): void {
     this.output(this.formatEntry(LogLevel.INFO, message, context, extra));
   }
 
-  warn(
-    message: string,
-    context?: LogContext,
-    extra?: Record<string, any>,
-  ): void {
+  warn(message: string, context?: LogContext, extra?: Record<string, any>): void {
     this.output(this.formatEntry(LogLevel.WARN, message, context, extra));
   }
 
-  error(
-    message: string,
-    error?: Error,
-    context?: LogContext,
-    extra?: Record<string, any>,
-  ): void {
+  error(message: string, error?: unknown, context?: LogContext, extra?: Record<string, any>): void {
     const entry = this.formatEntry(LogLevel.ERROR, message, context, extra);
-    if (error) {
+    if (error instanceof Error) {
       entry.error = {
         name: error.name,
         message: error.message,
-        stack: process.env.NODE_ENV !== "production" ? error.stack : undefined,
+        stack: process.env.NODE_ENV !== 'production' ? error.stack : undefined,
+      };
+    } else if (error) {
+      entry.error = {
+        name: 'UnknownError',
+        message: String(error),
       };
     }
     this.output(entry);
   }
 
-  fatal(
-    message: string,
-    error?: Error,
-    context?: LogContext,
-    extra?: Record<string, any>,
-  ): void {
+  fatal(message: string, error?: unknown, context?: LogContext, extra?: Record<string, any>): void {
     const entry = this.formatEntry(LogLevel.FATAL, message, context, extra);
-    if (error) {
+    if (error instanceof Error) {
       entry.error = {
         name: error.name,
         message: error.message,
         stack: error.stack,
+      };
+    } else if (error) {
+      entry.error = {
+        name: 'UnknownError',
+        message: String(error),
       };
     }
     this.output(entry);
@@ -151,21 +139,12 @@ class Logger {
     statusCode: number,
     duration: number,
     context?: LogContext,
-    extra?: Record<string, any>,
+    extra?: Record<string, any>
   ): void {
     const level =
-      statusCode >= 500
-        ? LogLevel.ERROR
-        : statusCode >= 400
-          ? LogLevel.WARN
-          : LogLevel.INFO;
+      statusCode >= 500 ? LogLevel.ERROR : statusCode >= 400 ? LogLevel.WARN : LogLevel.INFO;
 
-    const entry = this.formatEntry(
-      level,
-      `${method} ${url} ${statusCode}`,
-      context,
-      extra,
-    );
+    const entry = this.formatEntry(level, `${method} ${url} ${statusCode}`, context, extra);
     entry.http = {
       method,
       url,
@@ -184,8 +163,8 @@ class Logger {
 
 // Global logger instance
 export const logger = new Logger(
-  process.env.SERVICE_NAME || "field-core",
-  process.env.SERVICE_VERSION || "15.3.0",
+  process.env.SERVICE_NAME || 'field-core',
+  process.env.SERVICE_VERSION || '15.3.0'
 );
 
 // Generate unique request ID
@@ -194,42 +173,37 @@ function generateRequestId(): string {
 }
 
 // Express middleware for request logging
-export function requestLogger(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function requestLogger(req: Request, res: Response, next: NextFunction): void {
   const startTime = Date.now();
 
   // Generate or use existing request ID
-  const requestId =
-    (req.headers["x-request-id"] as string) || generateRequestId();
-  const tenantId = req.headers["x-tenant-id"] as string;
-  const traceId = req.headers["x-trace-id"] as string;
+  const requestId = (req.headers['x-request-id'] as string) || generateRequestId();
+  const tenantId = req.headers['x-tenant-id'] as string;
+  const traceId = req.headers['x-trace-id'] as string;
 
   // Add to request for downstream use
   (req as any).requestId = requestId;
   (req as any).logger = logger.child({ requestId, tenantId, traceId });
 
   // Set response header
-  res.setHeader("X-Request-ID", requestId);
+  res.setHeader('X-Request-ID', requestId);
 
   // Log request start
   logger.debug(
-    "Request started",
+    'Request started',
     { requestId, tenantId },
     {
       http: {
         method: req.method,
         url: req.originalUrl,
-        userAgent: req.headers["user-agent"],
+        userAgent: req.headers['user-agent'],
         ip: req.ip || req.socket.remoteAddress,
       },
-    },
+    }
   );
 
   // Log response on finish
-  res.on("finish", () => {
+  res.on('finish', () => {
     const duration = Date.now() - startTime;
 
     logger.http(
@@ -244,10 +218,10 @@ export function requestLogger(
           url: req.originalUrl,
           statusCode: res.statusCode,
           duration,
-          userAgent: req.headers["user-agent"],
+          userAgent: req.headers['user-agent'],
           ip: req.ip || req.socket.remoteAddress,
         },
-      },
+      }
     );
   });
 
@@ -255,14 +229,9 @@ export function requestLogger(
 }
 
 // Error logging middleware
-export function errorLogger(
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function errorLogger(err: Error, req: Request, res: Response, next: NextFunction): void {
   const requestId = (req as any).requestId;
-  const tenantId = req.headers["x-tenant-id"] as string;
+  const tenantId = req.headers['x-tenant-id'] as string;
 
   logger.error(
     `Request failed: ${err.message}`,
@@ -273,7 +242,7 @@ export function errorLogger(
         method: req.method,
         url: req.originalUrl,
       },
-    },
+    }
   );
 
   next(err);

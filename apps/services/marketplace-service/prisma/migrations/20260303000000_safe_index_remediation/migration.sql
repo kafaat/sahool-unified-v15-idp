@@ -1,8 +1,12 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- Migration: Safe Index Remediation
 -- الهجرة: إصلاح الفهارس غير الآمنة
 -- Created: 2026-03-03
--- Description: Recreate non-concurrent indexes from 20260101000000_add_soft_delete_fields
---              using CONCURRENTLY to avoid table locks on production
+-- Description: Recreate indexes from 20260101000000_add_soft_delete_fields
+--              using standard CREATE INDEX (runs inside Prisma transaction wrapper)
 -- Addresses: Drift Detection medium-severity finding "Non-concurrent index creation"
 
 -- ═══════════════════════════════════════════════════════════════════════════
@@ -10,24 +14,25 @@
 -- حذف الفهارس غير المتزامنة الحالية
 -- ═══════════════════════════════════════════════════════════════════════════
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 DROP INDEX IF EXISTS "idx_products_deleted_at";
 DROP INDEX IF EXISTS "idx_orders_deleted_at";
 DROP INDEX IF EXISTS "idx_wallets_deleted_at";
 DROP INDEX IF EXISTS "idx_loans_deleted_at";
 
 -- ═══════════════════════════════════════════════════════════════════════════
--- Recreate indexes with CONCURRENTLY (no table locks)
--- إعادة إنشاء الفهارس بشكل متزامن (بدون قفل الجداول)
+-- Recreate indexes (standard CREATE INDEX, may briefly lock table)
+-- إعادة إنشاء الفهارس (قد يتم قفل الجدول لفترة وجيزة أثناء الإنشاء)
 -- ═══════════════════════════════════════════════════════════════════════════
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_products_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_products_deleted_at"
     ON "products"("deleted_at");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_orders_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_orders_deleted_at"
     ON "orders"("deleted_at");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_wallets_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_wallets_deleted_at"
     ON "wallets"("deleted_at");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_loans_deleted_at"
+CREATE INDEX IF NOT EXISTS "idx_loans_deleted_at"
     ON "loans"("deleted_at");

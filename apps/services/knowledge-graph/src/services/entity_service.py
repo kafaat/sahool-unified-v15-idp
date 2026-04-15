@@ -6,7 +6,7 @@ Entity Service - CRUD operations for graph entities
 import logging
 from typing import Any, Dict, List, Optional
 
-from models import Crop, Disease, Treatment
+from ..models import Crop, Disease, Treatment
 
 logger = logging.getLogger(__name__)
 

@@ -1,6 +1,7 @@
+library;
+
 /// Weather Card Widget - ودجت بطاقة الطقس
 /// Summary card for weather information
-library;
 
 import 'package:flutter/material.dart';
 import '../data/models/weather_data.dart';
@@ -32,7 +33,7 @@ class WeatherCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),

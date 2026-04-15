@@ -3,11 +3,11 @@
  * خطاف عمليات التعديل في الحقول
  */
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { FieldFormData } from "../types";
-import { fieldsApi } from "../api";
-import { logger } from "@/lib/logger";
-import { fieldKeys } from "./queryKeys";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { FieldFormData } from '../types';
+import { fieldsApi } from '../api';
+import { logger } from '@/lib/logger';
+import { fieldKeys } from './queryKeys';
 
 /**
  * Hook to create a new field
@@ -17,13 +17,8 @@ export function useCreateField() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      data,
-      tenantId,
-    }: {
-      data: FieldFormData;
-      tenantId?: string;
-    }) => fieldsApi.createField(data, tenantId),
+    mutationFn: ({ data, tenantId }: { data: FieldFormData; tenantId?: string }) =>
+      fieldsApi.createField(data, tenantId),
     onSuccess: () => {
       // Invalidate all field queries to refetch
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
@@ -33,12 +28,9 @@ export function useCreateField() {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        logger.error(
-          "Create field error:",
-          errorData.messageAr || errorData.message,
-        );
+        logger.error('Create field error:', errorData.messageAr || errorData.message);
       } catch {
-        logger.error("Create field error:", error.message);
+        logger.error('Create field error:', error.message);
       }
     },
   });
@@ -61,25 +53,43 @@ export function useUpdateField() {
       data: Partial<FieldFormData>;
       tenantId?: string;
     }) => fieldsApi.updateField(id, data, tenantId),
-    onSuccess: (updatedField, variables) => {
-      // Update cache with new data
-      queryClient.setQueryData(fieldKeys.detail(variables.id), updatedField);
+    onMutate: async ({ id, data }) => {
+      // Cancel any outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: fieldKeys.detail(id) });
+      await queryClient.cancelQueries({ queryKey: fieldKeys.lists() });
 
-      // Invalidate lists to refetch
+      // Snapshot the previous value for rollback
+      const previousField = queryClient.getQueryData(fieldKeys.detail(id));
+
+      // Optimistically update the cache
+      queryClient.setQueryData(fieldKeys.detail(id), (old: any) => {
+        if (!old) return old;
+        return { ...old, ...data };
+      });
+
+      return { previousField, id };
+    },
+    onSuccess: (updatedField, variables) => {
+      // Replace optimistic cache entry with server-confirmed data
+      queryClient.setQueryData(fieldKeys.detail(variables.id), updatedField);
       queryClient.invalidateQueries({ queryKey: fieldKeys.lists() });
       queryClient.invalidateQueries({ queryKey: fieldKeys.stats() });
     },
-    onError: (error: Error) => {
-      // Parse error message
+    onError: (error: Error, _variables, context) => {
+      // Rollback to the previous value on error
+      if (context?.previousField !== undefined) {
+        queryClient.setQueryData(fieldKeys.detail(context.id), context.previousField);
+      }
       try {
         const errorData = JSON.parse(error.message);
-        logger.error(
-          "Update field error:",
-          errorData.messageAr || errorData.message,
-        );
+        logger.error('Update field error:', errorData.messageAr || errorData.message);
       } catch {
-        logger.error("Update field error:", error.message);
+        logger.error('Update field error:', error.message);
       }
+    },
+    onSettled: (_data, _error, variables) => {
+      // Always refetch after error or success to sync with server
+      queryClient.invalidateQueries({ queryKey: fieldKeys.detail(variables.id) });
     },
   });
 }
@@ -105,12 +115,9 @@ export function useDeleteField() {
       // Parse error message
       try {
         const errorData = JSON.parse(error.message);
-        logger.error(
-          "Delete field error:",
-          errorData.messageAr || errorData.message,
-        );
+        logger.error('Delete field error:', errorData.messageAr || errorData.message);
       } catch {
-        logger.error("Delete field error:", error.message);
+        logger.error('Delete field error:', error.message);
       }
     },
   });
@@ -129,7 +136,6 @@ export function useFieldMutations() {
     createField,
     updateField,
     deleteField,
-    isLoading:
-      createField.isPending || updateField.isPending || deleteField.isPending,
+    isLoading: createField.isPending || updateField.isPending || deleteField.isPending,
   };
 }

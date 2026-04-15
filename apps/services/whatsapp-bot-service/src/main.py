@@ -106,14 +106,15 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-
-    async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+    from fastapi import HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]
         id: str = ""
-        tenant_id: str = ""
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        """Placeholder when auth not available"""
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 @asynccontextmanager
@@ -174,6 +175,7 @@ async def lifespan(app: FastAPI):
                 settings.database_url,
                 min_size=settings.db_pool_min_size,
                 max_size=settings.db_pool_max_size,
+                statement_cache_size=0,  # PgBouncer transaction mode
             )
             app.state.db_connected = True
             logger.info("database_connected")
@@ -307,8 +309,22 @@ if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
 # Tenant context middleware - عزل المستأجرين
+# /webhook is exempt: Meta sends webhooks externally without tenant headers
+# مسار /webhook معفى: Meta ترسل webhooks خارجياً بدون ترويسة المستأجر
 if TENANT_MIDDLEWARE_AVAILABLE:
-    app.add_middleware(TenantContextMiddleware)
+    app.add_middleware(
+        TenantContextMiddleware,
+        exempt_paths=[
+            "/healthz",
+            "/readyz",
+            "/health",
+            "/metrics",
+            "/docs",
+            "/openapi.json",
+            "/webhook",
+            "/",
+        ],
+    )
 
 # Include routers
 app.include_router(webhook_router)

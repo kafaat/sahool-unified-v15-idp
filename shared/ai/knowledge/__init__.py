@@ -37,20 +37,24 @@ from .collections import (
     SOIL_KNOWLEDGE,
     WEATHER_KNOWLEDGE,
 )
+from .corrective_retrieval import (
+    ConfidenceLevel,
+    CorrectiveRetrievalEngine,
+    CRAGResult,
+    EmbeddingsSimilarityProvider,
+    KeywordSimilarityProvider,
+    RefinedChunk,
+    RetrievalAction,
+    RetrievalEvaluation,
+    SemanticSimilarityProvider,
+)
+from .events import KnowledgeEventPublisher
+from .freshness_monitor import KnowledgeFreshnessMonitor
 from .graph_builder import (
     AgriculturalKnowledgeGraph,
     KGEntity,
     KGRelation,
     build_agricultural_knowledge_graph,
-)
-from .freshness_monitor import KnowledgeFreshnessMonitor
-from .corrective_retrieval import (
-    ConfidenceLevel,
-    CorrectiveRetrievalEngine,
-    CRAGResult,
-    RefinedChunk,
-    RetrievalAction,
-    RetrievalEvaluation,
 )
 from .metrics import KnowledgeMetrics
 from .models import (
@@ -71,8 +75,6 @@ from .models import (
     SoilTypeDocument,
     WeatherPatternDocument,
 )
-
-from .events import KnowledgeEventPublisher
 from .persistence import DocumentPage, DocumentQuery, InMemoryKnowledgeRepository, KnowledgeRepository
 from .quality_gate import KnowledgeQualityGate, QualityCheckResult
 from .serialization import KnowledgeSerializer
@@ -128,6 +130,10 @@ __all__ = [
     "RetrievalAction",
     "RetrievalEvaluation",
     "ConfidenceLevel",
+    # Semantic Similarity Providers (GAP-18)
+    "SemanticSimilarityProvider",
+    "KeywordSimilarityProvider",
+    "EmbeddingsSimilarityProvider",
     # Vector Store Integration (GAP-01)
     "KnowledgeVectorStore",
     "VectorSearchResult",

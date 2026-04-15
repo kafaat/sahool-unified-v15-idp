@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Astronomical Calendar Domain Entities
 /// نماذج التقويم الفلكي الزراعي
 

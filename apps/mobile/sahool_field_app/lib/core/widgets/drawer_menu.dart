@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import '../constants/navigation_constants.dart';
 import '../config/theme.dart';
 
@@ -13,7 +12,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Drawer(
-      child: Container(
+      child: ColoredBox(
         color: Colors.white,
         child: SafeArea(
           child: Column(
@@ -49,7 +48,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
           end: Alignment.bottomLeft,
           colors: [
             SahoolTheme.primary,
-            SahoolTheme.primary.withOpacity(0.8),
+            SahoolTheme.primary.withValues(alpha: 0.8),
           ],
         ),
       ),
@@ -66,7 +65,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -94,7 +93,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
                     Text(
                       'مزرعة الخير',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                       ),
                     ),
@@ -130,7 +129,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.2),
+          color: Colors.white.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -147,7 +146,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.9),
+                color: Colors.white.withValues(alpha: 0.9),
                 fontSize: 11,
               ),
             ),
@@ -202,7 +201,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: SahoolTheme.primary.withOpacity(0.1),
+          color: SahoolTheme.primary.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
@@ -232,7 +231,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: NavigationConstants.getColor(featureKey).withOpacity(0.1),
+          color: NavigationConstants.getColor(featureKey).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
@@ -268,8 +267,8 @@ class SahoolDrawerMenu extends ConsumerWidget {
         height: 44,
         decoration: BoxDecoration(
           color: isMain
-              ? SahoolTheme.primary.withOpacity(0.1)
-              : NavigationConstants.getColor(key).withOpacity(0.1),
+              ? SahoolTheme.primary.withValues(alpha: 0.1)
+              : NavigationConstants.getColor(key).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(
@@ -426,7 +425,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.red.withOpacity(0.1),
+            color: Colors.red.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Icon(
@@ -449,7 +448,7 @@ class SahoolDrawerMenu extends ConsumerWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => Directionality(
         textDirection: TextDirection.rtl,
@@ -500,6 +499,12 @@ class SahoolDrawerMenu extends ConsumerWidget {
       'advisor': NavigationConstants.advisor,
       'scanner': NavigationConstants.scanner,
       'scouting': NavigationConstants.scouting,
+      'crops': NavigationConstants.crops,
+      'achievements': NavigationConstants.achievements,
+      'iot': NavigationConstants.iot,
+      'lab': NavigationConstants.lab,
+      'research': NavigationConstants.research,
+      'wallet': NavigationConstants.wallet,
     };
     return routeMap[featureKey];
   }

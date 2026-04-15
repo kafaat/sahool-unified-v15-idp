@@ -1,5 +1,6 @@
-/// VRA Detail Screen - شاشة تفاصيل الوصفة
 library;
+
+/// VRA Detail Screen - شاشة تفاصيل الوصفة
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -249,7 +250,7 @@ class _VRADetailScreenState extends ConsumerState<VRADetailScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color),
       ),

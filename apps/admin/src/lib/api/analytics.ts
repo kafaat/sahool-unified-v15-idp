@@ -1,8 +1,8 @@
 // Analytics API Client
 // عميل API للتحليلات
 
-import { apiClient, API_URLS } from "../api";
-import { logger } from "../logger";
+import { apiClient, API_URLS } from '../api';
+import { logger } from '../logger';
 
 // Profitability Analytics Types
 export interface ProfitabilityData {
@@ -62,13 +62,13 @@ export interface SatelliteData {
     ndvi: {
       current: number;
       average: number;
-      trend: "up" | "down" | "stable";
+      trend: 'up' | 'down' | 'stable';
       change: number;
     };
     lastImageDate: string;
     alerts: Array<{
-      type: "anomaly" | "stress" | "disease" | "pest";
-      severity: "low" | "medium" | "high" | "critical";
+      type: 'anomaly' | 'stress' | 'disease' | 'pest';
+      severity: 'low' | 'medium' | 'high' | 'critical';
       message: string;
       messageAr: string;
       detectedAt: string;
@@ -82,26 +82,33 @@ export interface SatelliteData {
   }>;
 }
 
+// Whether to use mock data fallback when a service is unavailable.
+// In production, errors are re-thrown so the UI shows a real error state.
+// In development, mock data is returned to allow offline-first development.
+const USE_MOCK_FALLBACK = process.env.NODE_ENV === 'development';
+
 // Profitability API Functions
 export async function fetchProfitabilityData(params?: {
-  period?: "month" | "quarter" | "year";
+  period?: 'month' | 'quarter' | 'year';
   farmId?: string;
 }): Promise<ProfitabilityData> {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.yieldPrediction}/v1/profitability`,
-      { params },
-    );
+    const response = await apiClient.get(`${API_URLS.yieldPrediction}/v1/profitability`, {
+      params,
+    });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch profitability data:", error);
-    return generateMockProfitabilityData();
+    logger.error('Failed to fetch profitability data:', error);
+    if (USE_MOCK_FALLBACK) {
+      return generateMockProfitabilityData();
+    }
+    throw error;
   }
 }
 
 // Satellite Analytics API Functions
 export async function fetchSatelliteData(params?: {
-  range?: "week" | "month" | "season";
+  range?: 'week' | 'month' | 'season';
   farmId?: string;
 }): Promise<SatelliteData> {
   try {
@@ -110,8 +117,11 @@ export async function fetchSatelliteData(params?: {
     });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch satellite data:", error);
-    return generateMockSatelliteData();
+    logger.error('Failed to fetch satellite data:', error);
+    if (USE_MOCK_FALLBACK) {
+      return generateMockSatelliteData();
+    }
+    throw error;
   }
 }
 
@@ -121,45 +131,52 @@ export async function fetchNDVITrends(params?: {
   endDate?: string;
 }): Promise<Array<{ date: string; ndvi: number; fieldId: string }>> {
   try {
-    const response = await apiClient.get(
-      `${API_URLS.satellite}/v1/ndvi-trends`,
-      { params },
-    );
+    const response = await apiClient.get(`${API_URLS.satellite}/v1/ndvi-trends`, { params });
     return response.data;
   } catch (error) {
-    logger.error("Failed to fetch NDVI trends:", error);
+    logger.error('Failed to fetch NDVI trends:', error);
     return [];
   }
+}
+
+// Deterministic helpers for mock data (no Math.random() — avoids security warnings)
+function deterministicValue(index: number, min: number, max: number): number {
+  const normalized = ((index * 7 + 13) % 100) / 100;
+  return min + normalized * (max - min);
+}
+
+function selectByIndex<T>(arr: readonly T[], index: number): T {
+  return arr[index % arr.length]!;
 }
 
 // Mock Data Generators
 function generateMockProfitabilityData(): ProfitabilityData {
   const crops = [
-    { crop: "wheat", cropAr: "قمح", area: 120 },
-    { crop: "coffee", cropAr: "بن", area: 85 },
-    { crop: "qat", cropAr: "قات", area: 95 },
-    { crop: "corn", cropAr: "ذرة", area: 60 },
-    { crop: "vegetables", cropAr: "خضروات", area: 40 },
+    { crop: 'wheat', cropAr: 'قمح', area: 120 },
+    { crop: 'coffee', cropAr: 'بن', area: 85 },
+    { crop: 'qat', cropAr: 'قات', area: 95 },
+    { crop: 'corn', cropAr: 'ذرة', area: 60 },
+    { crop: 'vegetables', cropAr: 'خضروات', area: 40 },
   ];
 
   const months = [
-    "يناير",
-    "فبراير",
-    "مارس",
-    "أبريل",
-    "مايو",
-    "يونيو",
-    "يوليو",
-    "أغسطس",
-    "سبتمبر",
-    "أكتوبر",
-    "نوفمبر",
-    "ديسمبر",
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
   ];
 
-  const byCrop = crops.map((crop) => {
-    const revenue = crop.area * (1000 + Math.random() * 2000);
-    const costs = revenue * (0.5 + Math.random() * 0.3);
+  const byCrop = crops.map((crop, i) => {
+    const revenue = crop.area * (1000 + deterministicValue(i, 0, 2000));
+    const costs = revenue * (0.5 + deterministicValue(i + 5, 0, 0.3));
     const profit = revenue - costs;
     return {
       ...crop,
@@ -170,9 +187,9 @@ function generateMockProfitabilityData(): ProfitabilityData {
     };
   });
 
-  const byMonth = months.map((month) => {
-    const revenue = 50000 + Math.random() * 100000;
-    const costs = revenue * (0.55 + Math.random() * 0.2);
+  const byMonth = months.map((month, i) => {
+    const revenue = 50000 + deterministicValue(i, 0, 100000);
+    const costs = revenue * (0.55 + deterministicValue(i + 3, 0, 0.2));
     return {
       month,
       revenue,
@@ -186,11 +203,11 @@ function generateMockProfitabilityData(): ProfitabilityData {
   const netProfit = totalRevenue - totalCosts;
 
   const costCategories = [
-    { category: "seeds", categoryAr: "بذور", percentage: 15 },
-    { category: "fertilizer", categoryAr: "أسمدة", percentage: 25 },
-    { category: "pesticides", categoryAr: "مبيدات", percentage: 18 },
-    { category: "labor", categoryAr: "عمالة", percentage: 30 },
-    { category: "equipment", categoryAr: "معدات", percentage: 12 },
+    { category: 'seeds', categoryAr: 'بذور', percentage: 15 },
+    { category: 'fertilizer', categoryAr: 'أسمدة', percentage: 25 },
+    { category: 'pesticides', categoryAr: 'مبيدات', percentage: 18 },
+    { category: 'labor', categoryAr: 'عمالة', percentage: 30 },
+    { category: 'equipment', categoryAr: 'معدات', percentage: 12 },
   ];
 
   const costBreakdown = costCategories.map((cat) => ({
@@ -199,13 +216,13 @@ function generateMockProfitabilityData(): ProfitabilityData {
   }));
 
   const seasons = [
-    { season: "spring", seasonAr: "ربيع", crops: 8 },
-    { season: "summer", seasonAr: "صيف", crops: 12 },
-    { season: "fall", seasonAr: "خريف", crops: 10 },
-    { season: "winter", seasonAr: "شتاء", crops: 6 },
-  ].map((season) => {
-    const revenue = 150000 + Math.random() * 100000;
-    const costs = revenue * (0.6 + Math.random() * 0.1);
+    { season: 'spring', seasonAr: 'ربيع', crops: 8 },
+    { season: 'summer', seasonAr: 'صيف', crops: 12 },
+    { season: 'fall', seasonAr: 'خريف', crops: 10 },
+    { season: 'winter', seasonAr: 'شتاء', crops: 6 },
+  ].map((season, i) => {
+    const revenue = 150000 + deterministicValue(i + 10, 0, 100000);
+    const costs = revenue * (0.6 + deterministicValue(i + 15, 0, 0.1));
     return {
       ...season,
       revenue,
@@ -230,9 +247,12 @@ function generateMockProfitabilityData(): ProfitabilityData {
 }
 
 function generateMockSatelliteData(): SatelliteData {
+  const alertTypes = ['anomaly', 'stress', 'disease', 'pest'] as const;
+  const severities = ['low', 'medium', 'high', 'critical'] as const;
+
   const fields = Array.from({ length: 15 }, (_, i) => {
-    const ndviCurrent = 0.3 + Math.random() * 0.5;
-    const ndviAverage = 0.4 + Math.random() * 0.3;
+    const ndviCurrent = 0.3 + deterministicValue(i, 0, 0.5);
+    const ndviAverage = 0.4 + deterministicValue(i + 3, 0, 0.3);
     const change = (ndviCurrent - ndviAverage) / ndviAverage;
 
     // Generate NDVI trends for the last 30 days
@@ -240,54 +260,51 @@ function generateMockSatelliteData(): SatelliteData {
       date: new Date(Date.now() - (29 - j) * 24 * 60 * 60 * 1000).toISOString(),
       ndvi: Math.max(
         0.2,
-        Math.min(0.9, ndviCurrent + (Math.random() - 0.5) * 0.2),
+        Math.min(0.9, ndviCurrent + (deterministicValue(i * 30 + j, 0, 1) - 0.5) * 0.2)
       ),
       fieldId: `field-${i + 1}`,
       fieldName: `حقل ${String.fromCharCode(65 + i)}`,
     }));
 
-    const hasAlerts = Math.random() > 0.6;
+    const hasAlerts = i % 3 === 0;
     const alerts = hasAlerts
       ? [
           {
-            type: ["anomaly", "stress", "disease", "pest"][
-              Math.floor(Math.random() * 4)
-            ] as "anomaly" | "stress" | "disease" | "pest",
-            severity: ["low", "medium", "high", "critical"][
-              Math.floor(Math.random() * 4)
-            ] as "low" | "medium" | "high" | "critical",
-            message: "Anomaly detected in vegetation index",
-            messageAr: "تم اكتشاف شذوذ في مؤشر النباتات",
+            type: selectByIndex(alertTypes, i),
+            severity: selectByIndex(severities, i + 1),
+            message: 'Anomaly detected in vegetation index',
+            messageAr: 'تم اكتشاف شذوذ في مؤشر النباتات',
             detectedAt: new Date(
-              Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
+              Date.now() - deterministicValue(i, 0, 7) * 24 * 60 * 60 * 1000
             ).toISOString(),
           },
         ]
       : [];
 
+    const farmIdx = (i % 10) + 1;
     return {
       id: `field-${i + 1}`,
-      farmId: `farm-${Math.floor(Math.random() * 10) + 1}`,
-      farmName: `مزرعة ${Math.floor(Math.random() * 10) + 1}`,
+      farmId: `farm-${farmIdx}`,
+      farmName: `مزرعة ${farmIdx}`,
       fieldName: `حقل ${String.fromCharCode(65 + i)}`,
-      area: 10 + Math.random() * 40,
+      area: 10 + deterministicValue(i, 0, 40),
       location: {
-        lat: 15.5 + Math.random() * 2,
-        lng: 44.0 + Math.random() * 4,
+        lat: 15.5 + deterministicValue(i, 0, 2),
+        lng: 44.0 + deterministicValue(i + 7, 0, 4),
       },
       ndvi: {
         current: ndviCurrent,
         average: ndviAverage,
         trend:
           change > 0.05
-            ? ("up" as const)
+            ? ('up' as const)
             : change < -0.05
-              ? ("down" as const)
-              : ("stable" as const),
+              ? ('down' as const)
+              : ('stable' as const),
         change,
       },
       lastImageDate: new Date(
-        Date.now() - Math.random() * 5 * 24 * 60 * 60 * 1000,
+        Date.now() - deterministicValue(i, 0, 5) * 24 * 60 * 60 * 1000
       ).toISOString(),
       alerts,
       trends,
@@ -301,8 +318,8 @@ function generateMockSatelliteData(): SatelliteData {
     summary: {
       totalFields: fields.length,
       lastUpdate: new Date().toISOString(),
-      coverage: 85 + Math.random() * 15,
-      dataUsage: 45 + Math.random() * 30,
+      coverage: 85 + deterministicValue(0, 0, 15),
+      dataUsage: 45 + deterministicValue(1, 0, 30),
     },
     fields: fields.map(({ trends: _trends, ...field }) => field), // Remove trends from fields
     ndviTrends,

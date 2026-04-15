@@ -3,6 +3,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import '../../../../core/config/api_config.dart';
 import '../models/ndvi_data.dart';
@@ -40,8 +41,15 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return NdviAnalysis.fromJson(json);
+      try {
+        final json = jsonDecode(response.body) as Map<String, dynamic>;
+        return NdviAnalysis.fromJson(json);
+      } catch (e) {
+        throw SatelliteApiException(
+          'فشل تحليل استجابة NDVI: $e',
+          statusCode: response.statusCode,
+        );
+      }
     } else {
       throw SatelliteApiException(
         'فشل جلب تحليل NDVI',
@@ -63,8 +71,15 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> timeSeries = data['time_series'] ?? data['timeseries'] ?? data;
+      final decoded = jsonDecode(response.body);
+      final List<dynamic> timeSeries;
+      if (decoded is List) {
+        timeSeries = decoded;
+      } else if (decoded is Map<String, dynamic>) {
+        timeSeries = (decoded['time_series'] ?? decoded['timeseries'] ?? []) as List<dynamic>;
+      } else {
+        timeSeries = [];
+      }
       return timeSeries.map((item) => NdviDataPoint.fromJson(item as Map<String, dynamic>)).toList();
     } else {
       throw SatelliteApiException(
@@ -87,10 +102,14 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final indicesData = data['indices'] ?? data;
-
-      return (indicesData as Map<String, dynamic>).map(
+      final decoded = jsonDecode(response.body);
+      final Map<String, dynamic> indicesData;
+      if (decoded is Map<String, dynamic>) {
+        indicesData = (decoded['indices'] as Map<String, dynamic>?) ?? decoded;
+      } else {
+        indicesData = {};
+      }
+      return indicesData.map(
         (key, value) => MapEntry(key, (value as num).toDouble()),
       );
     } else {
@@ -114,7 +133,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return FieldHealth.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -137,7 +156,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return WeatherSummary.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -155,8 +174,15 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final List<dynamic> alerts = data['alerts'] ?? data;
+      final decoded = jsonDecode(response.body);
+      final List<dynamic> alerts;
+      if (decoded is List) {
+        alerts = decoded;
+      } else if (decoded is Map<String, dynamic>) {
+        alerts = (decoded['alerts'] ?? []) as List<dynamic>;
+      } else {
+        alerts = [];
+      }
       return alerts.map((item) => WeatherAlertSummary.fromJson(item as Map<String, dynamic>)).toList();
     } else {
       throw SatelliteApiException(
@@ -179,7 +205,7 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
       return PhenologyData.fromJson(json);
     } else {
       throw SatelliteApiException(
@@ -213,8 +239,8 @@ class SatelliteApi {
     final response = await _client.get(uri, headers: _headers);
 
     if (response.statusCode == 200) {
-      final json = jsonDecode(response.body);
-      return json['image_url'] ?? json['imageUrl'] ?? '';
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+      return (json['image_url'] ?? json['imageUrl'] ?? '') as String;
     } else {
       throw SatelliteApiException(
         'فشل جلب صورة القمر الصناعي',
@@ -231,19 +257,39 @@ class SatelliteApi {
   /// Get complete satellite dashboard data for a field
   /// جلب بيانات لوحة الأقمار الصناعية الكاملة للحقل
   Future<SatelliteDashboardData> getDashboardData(String fieldId) async {
-    // Fetch all data in parallel for better performance
-    final results = await Future.wait([
-      getFieldHealth(fieldId),
-      getNdviAnalysis(fieldId),
-      getWeatherForecast(fieldId),
-      getPhenologyData(fieldId),
+    // Fetch all data in parallel - handle partial failures gracefully
+    final results = await Future.wait<dynamic>([
+      getFieldHealth(fieldId).catchError((e) {
+        developer.log('getFieldHealth failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
+      getNdviAnalysis(fieldId).catchError((e) {
+        developer.log('getNdviAnalysis failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
+      getWeatherForecast(fieldId).catchError((e) {
+        developer.log('getWeatherForecast failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
+      getPhenologyData(fieldId).catchError((e) {
+        developer.log('getPhenologyData failed: $e', name: 'SatelliteApi');
+        return null;
+      }),
     ]);
 
+    // Require at least field health or NDVI data
+    if (results[0] == null && results[1] == null) {
+      throw SatelliteApiException(
+        'فشل جلب بيانات الحقل الأساسية',
+        statusCode: 0,
+      );
+    }
+
     return SatelliteDashboardData(
-      fieldHealth: results[0] as FieldHealth,
-      ndviAnalysis: results[1] as NdviAnalysis,
-      weatherSummary: results[2] as WeatherSummary,
-      phenologyData: results[3] as PhenologyData,
+      fieldHealth: results[0] as FieldHealth?,
+      ndviAnalysis: results[1] as NdviAnalysis?,
+      weatherSummary: results[2] as WeatherSummary?,
+      phenologyData: results[3] as PhenologyData?,
     );
   }
 
@@ -255,17 +301,20 @@ class SatelliteApi {
 /// Satellite Dashboard Data
 /// بيانات لوحة الأقمار الصناعية
 class SatelliteDashboardData {
-  final FieldHealth fieldHealth;
-  final NdviAnalysis ndviAnalysis;
-  final WeatherSummary weatherSummary;
-  final PhenologyData phenologyData;
+  final FieldHealth? fieldHealth;
+  final NdviAnalysis? ndviAnalysis;
+  final WeatherSummary? weatherSummary;
+  final PhenologyData? phenologyData;
 
   SatelliteDashboardData({
-    required this.fieldHealth,
-    required this.ndviAnalysis,
-    required this.weatherSummary,
-    required this.phenologyData,
+    this.fieldHealth,
+    this.ndviAnalysis,
+    this.weatherSummary,
+    this.phenologyData,
   });
+
+  /// Whether essential data is available
+  bool get hasEssentialData => fieldHealth != null || ndviAnalysis != null;
 }
 
 /// Satellite API Exception

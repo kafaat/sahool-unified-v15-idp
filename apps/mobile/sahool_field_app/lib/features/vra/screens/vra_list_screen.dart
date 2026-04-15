@@ -1,5 +1,6 @@
-/// VRA List Screen - شاشة قائمة الوصفات
 library;
+
+/// VRA List Screen - شاشة قائمة الوصفات
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -351,7 +352,7 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color),
       ),

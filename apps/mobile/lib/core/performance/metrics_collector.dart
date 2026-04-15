@@ -60,7 +60,7 @@ class MetricEntry {
         ),
         name: json['name'] as String,
         value: (json['value'] as num).toDouble(),
-        timestamp: DateTime.parse(json['timestamp'] as String),
+        timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
         metadata: json['metadata'] as Map<String, dynamic>?,
       );
 }
@@ -146,9 +146,9 @@ class MetricsCollector {
     _initialized = true;
 
     // Start periodic flush timer (every 30 seconds in debug, 5 minutes in profile)
-    final flushInterval = kDebugMode
-        ? const Duration(seconds: 30)
-        : const Duration(minutes: 5);
+    const flushInterval = kDebugMode
+        ? Duration(seconds: 30)
+        : Duration(minutes: 5);
 
     _flushTimer = Timer.periodic(flushInterval, (_) => flush());
 
@@ -171,7 +171,7 @@ class MetricsCollector {
       final jsonStr = _prefs.getString(_storageKey);
       if (jsonStr == null || jsonStr.isEmpty) return;
 
-      final List<dynamic> jsonList = json.decode(jsonStr);
+      final List<dynamic> jsonList = json.decode(jsonStr) as List<dynamic>;
       for (final item in jsonList) {
         try {
           _buffer.add(MetricEntry.fromJson(item as Map<String, dynamic>));
@@ -379,7 +379,7 @@ class MetricsCollector {
     // Check if enough time has passed since last sync
     final lastSyncStr = _prefs.getString(_lastSyncKey);
     if (lastSyncStr != null) {
-      final lastSync = DateTime.parse(lastSyncStr);
+      final lastSync = DateTime.tryParse(lastSyncStr) ?? DateTime.now();
       if (DateTime.now().difference(lastSync) < _minSyncInterval) {
         return true; // Too soon to sync
       }
@@ -428,7 +428,7 @@ class MetricsCollector {
   /// Get last sync time
   DateTime? getLastSyncTime() {
     final str = _prefs.getString(_lastSyncKey);
-    return str != null ? DateTime.parse(str) : null;
+    return str != null ? DateTime.tryParse(str) : null;
   }
 
   /// Export all metrics as JSON (for debugging)

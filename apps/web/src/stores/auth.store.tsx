@@ -1,8 +1,8 @@
-"use client";
-import * as React from "react";
-import Cookies from "js-cookie";
-import { authApiClient } from "@/lib/api/auth-client";
-import { logger } from "@/lib/logger";
+'use client';
+import * as React from 'react';
+import Cookies from 'js-cookie';
+import { authApiClient } from '@/lib/api/auth-client';
+import { logger } from '@/lib/logger';
 
 /**
  * Fetch CSRF token from the server
@@ -13,15 +13,15 @@ import { logger } from "@/lib/logger";
  */
 export async function fetchCsrfToken(): Promise<boolean> {
   try {
-    const response = await fetch("/api/csrf-token");
+    const response = await fetch('/api/csrf-token');
     if (response.ok) {
       // Token is automatically set in cookie by the API route
       return true;
     }
-    logger.error("CSRF token fetch failed with status:", response.status);
+    logger.error('CSRF token fetch failed with status:', response.status);
     return false;
   } catch (error) {
-    logger.error("Failed to fetch CSRF token:", error);
+    logger.error('Failed to fetch CSRF token:', error);
     // SECURITY: Treat CSRF failure as critical - log for monitoring
     return false;
   }
@@ -39,12 +39,12 @@ export async function fetchCsrfToken(): Promise<boolean> {
  */
 export function isE2ETestModeEnabled(): boolean {
   // CRITICAL: Production builds MUST have NODE_ENV=production
-  if (process.env.NODE_ENV !== "development") {
+  if (process.env.NODE_ENV !== 'development') {
     return false;
   }
 
   // SECURITY: Require explicit E2E flag - no implicit localhost detection
-  return process.env.NEXT_PUBLIC_E2E_TEST === "true";
+  return process.env.NEXT_PUBLIC_E2E_TEST === 'true';
 }
 
 /**
@@ -58,7 +58,7 @@ export function tryLoadMockSession(): User | null {
     return null;
   }
 
-  const mockSession = Cookies.get("user_session");
+  const mockSession = Cookies.get('user_session');
   if (!mockSession) {
     return null;
   }
@@ -66,18 +66,18 @@ export function tryLoadMockSession(): User | null {
   try {
     const mockUser = JSON.parse(mockSession);
     logger.warn(
-      "[SECURITY WARNING] Using mock authentication - E2E test mode only. " +
-        "This should NEVER appear in production logs."
+      '[SECURITY WARNING] Using mock authentication - E2E test mode only. ' +
+        'This should NEVER appear in production logs.'
     );
     return {
-      id: mockUser.id || "test-user",
-      email: mockUser.email || "test@sahool.com",
-      name: mockUser.name || "Test User",
-      name_ar: mockUser.nameAr || "مستخدم اختباري",
-      role: mockUser.role || "user",
+      id: mockUser.id || 'test-user',
+      email: mockUser.email || 'test@sahool.com',
+      name: mockUser.name || 'Test User',
+      name_ar: mockUser.nameAr || 'مستخدم اختباري',
+      role: mockUser.role || 'user',
     };
   } catch {
-    logger.warn("Invalid mock session format");
+    logger.warn('Invalid mock session format');
     return null;
   }
 }
@@ -97,7 +97,7 @@ const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12
 function sanitizeUser(data: User): User {
   const user = { ...data };
   if (user.tenant_id && !UUID_REGEX.test(user.tenant_id)) {
-    logger.error("Invalid tenant_id format, clearing value");
+    logger.error('Invalid tenant_id format, clearing value');
     user.tenant_id = undefined;
   }
   return user;
@@ -125,10 +125,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       // Set cookies via secure server-side API route
       // This ensures httpOnly flag is set, preventing XSS attacks
-      const sessionResponse = await fetch("/api/auth/session", {
-        method: "POST",
+      const sessionResponse = await fetch('/api/auth/session', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           access_token,
@@ -137,12 +137,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!sessionResponse.ok) {
-        throw new Error("Failed to create secure session");
+        throw new Error('Failed to create secure session');
       }
 
       // Set token in API client for immediate use
       // Note: Subsequent requests will use the httpOnly cookie automatically
       authApiClient.setToken(access_token);
+
+      // Set readable tenant_id cookie so unified-client.ts can inject X-Tenant-ID header
+      // API returns tenantId (camelCase) or tenant_id (snake_case)
+      const tenantId = (user as unknown as Record<string, unknown>)?.tenantId as string || user?.tenant_id;
+      if (tenantId) {
+        Cookies.set('tenant_id', tenantId, { path: '/', sameSite: 'Strict' });
+      }
 
       // User type from API matches our User interface
       setUser(sanitizeUser(user));
@@ -150,7 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fetch CSRF token for subsequent requests
       await fetchCsrfToken();
     } else {
-      throw new Error(response.error || "Login failed");
+      throw new Error(response.error || 'Login failed');
     }
   }, []);
 
@@ -160,8 +167,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       try {
-        await fetch("/api/auth/session", {
-          method: "DELETE",
+        await fetch('/api/auth/session', {
+          method: 'DELETE',
           signal: controller.signal,
         });
       } finally {
@@ -169,33 +176,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       // Continue with logout even if API call fails
-      logger.error("Failed to clear session cookies:", error);
+      logger.error('Failed to clear session cookies:', error);
     }
 
     // Clear all client-accessible cookies.
     // httpOnly cookies (access_token, refresh_token, csrf_token) are cleared
     // server-side by DELETE /api/auth/session, but if that request failed
     // we still need to clean up any non-httpOnly copies the browser may hold.
-    Cookies.remove("_csrf", { path: "/" });
-    Cookies.remove("access_token", { path: "/" });
-    Cookies.remove("refresh_token", { path: "/" });
-
-    // Also remove legacy path-scoped cookies (set without explicit path by
-    // older builds, which default to the current route). Without this, a
-    // stale cookie scoped to e.g. /dashboard could shadow the root removal.
-    Cookies.remove("access_token");
-    Cookies.remove("refresh_token");
+    const cookiesToClear = [
+      '_csrf',
+      'access_token',
+      'refresh_token',
+      'csrf_token',
+      'tenant_id',
+      'locale',           // locale preference (set by middleware)
+      'session_id',       // session identifier
+    ];
+    const isSecure = window.location.protocol === 'https:';
+    const domain = window.location.hostname;
+    const dotDomain = domain.startsWith('.') ? domain : `.${domain}`;
+    for (const name of cookiesToClear) {
+      // Remove with all attribute combinations so no stale cookie survives.
+      Cookies.remove(name, { path: '/' });
+      Cookies.remove(name, { path: '/', secure: isSecure });
+      Cookies.remove(name, { path: '/', domain });
+      Cookies.remove(name, { path: '/', domain: dotDomain });
+      Cookies.remove(name, { path: '/', secure: isSecure, domain });
+      Cookies.remove(name, { path: '/', secure: isSecure, domain: dotDomain });
+      // Also remove legacy path-scoped cookies (set without explicit path by
+      // older builds, which default to the current route). Without this, a
+      // stale cookie scoped to e.g. /dashboard could shadow the root removal.
+      Cookies.remove(name);
+    }
 
     // Clear E2E mock session cookie so logout is fully effective in test mode
     if (isE2ETestModeEnabled()) {
-      Cookies.remove("user_session", { path: "/" });
+      Cookies.remove('user_session', { path: '/' });
     }
 
     // Notify other tabs about logout
     try {
-      if (typeof BroadcastChannel !== "undefined") {
-        const channel = new BroadcastChannel("sahool_auth");
-        channel.postMessage({ type: "logout" });
+      if (typeof BroadcastChannel !== 'undefined') {
+        const channel = new BroadcastChannel('sahool_auth');
+        channel.postMessage({ type: 'logout' });
         channel.close();
       }
     } catch {
@@ -211,7 +234,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       // Check if session exists via server-side API
       // Note: We can't read httpOnly cookies from client-side JS
-      const sessionCheck = await fetch("/api/auth/session");
+      const sessionCheck = await fetch('/api/auth/session');
       const sessionData = await sessionCheck.json();
 
       if (!sessionData.hasSession) {
@@ -244,14 +267,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const ctrl = new AbortController();
           const tid = setTimeout(() => ctrl.abort(), 5000);
           try {
-            await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
+            await fetch('/api/auth/session', { method: 'DELETE', signal: ctrl.signal });
           } finally {
             clearTimeout(tid);
           }
-        } catch { /* best-effort cleanup */ }
+        } catch {
+          /* best-effort cleanup */
+        }
       }
     } catch (error) {
-      logger.error("Auth check failed:", error);
+      logger.error('Auth check failed:', error);
 
       // SECURITY: Try E2E mock session only in explicit test mode
       const mockUser = tryLoadMockSession();
@@ -267,7 +292,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const ctrl = new AbortController();
         const tid = setTimeout(() => ctrl.abort(), 5000);
         try {
-          await fetch("/api/auth/session", { method: "DELETE", signal: ctrl.signal });
+          await fetch('/api/auth/session', { method: 'DELETE', signal: ctrl.signal });
         } finally {
           clearTimeout(tid);
         }
@@ -289,28 +314,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const handleSessionExpired = () => {
       logout();
     };
-    window.addEventListener("auth:session-expired", handleSessionExpired);
+    window.addEventListener('auth:session-expired', handleSessionExpired);
     return () => {
-      window.removeEventListener("auth:session-expired", handleSessionExpired);
+      window.removeEventListener('auth:session-expired', handleSessionExpired);
     };
   }, [logout]);
 
   // Broadcast logout across browser tabs via BroadcastChannel
   React.useEffect(() => {
-    if (typeof BroadcastChannel === "undefined") return;
+    if (typeof BroadcastChannel === 'undefined') return;
 
-    const channel = new BroadcastChannel("sahool_auth");
+    const channel = new BroadcastChannel('sahool_auth');
 
     const handleMessage = (event: MessageEvent) => {
-      if (event.data?.type === "logout") {
+      if (event.data?.type === 'logout') {
         authApiClient.clearToken();
         setUser(null);
       }
     };
 
-    channel.addEventListener("message", handleMessage);
+    channel.addEventListener('message', handleMessage);
     return () => {
-      channel.removeEventListener("message", handleMessage);
+      channel.removeEventListener('message', handleMessage);
       channel.close();
     };
   }, []);
@@ -324,7 +349,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       logout,
       checkAuth,
     }),
-    [user, isLoading, login, logout, checkAuth],
+    [user, isLoading, login, logout, checkAuth]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -332,6 +357,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export const useAuth = () => {
   const context = React.useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
   return context;
 };

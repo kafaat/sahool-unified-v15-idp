@@ -73,7 +73,15 @@ class FieldsRepo {
     required List<LatLng> boundary,
     String? cropType,
     String? farmId,
+    String? irrigationType,
+    DateTime? plantingDate,
+    String? notes,
   }) async {
+    // Validate boundary has minimum points for a valid polygon
+    if (boundary.isNotEmpty && boundary.length < 3) {
+      throw ArgumentError('Field boundary must have at least 3 points');
+    }
+
     final fieldId = _uuid.v4();
     final now = DateTime.now();
 
@@ -92,6 +100,9 @@ class FieldsRepo {
         boundary: boundary,
         centroid: Value(centroid),
         areaHectares: areaHectares,
+        irrigationType: Value(irrigationType),
+        plantingDate: Value(plantingDate),
+        notes: Value(notes),
         createdAt: now,
         updatedAt: now,
       ),
@@ -106,6 +117,9 @@ class FieldsRepo {
         'name': name,
         'crop_type': cropType,
         'area_hectares': areaHectares,
+        'irrigation_type': irrigationType,
+        'planting_date': plantingDate?.toIso8601String(),
+        'notes': notes,
         'local_id': fieldId,
       },
     );
@@ -136,6 +150,9 @@ class FieldsRepo {
       boundary: boundary,
       centroid: centroid,
       areaHectares: areaHectares,
+      irrigationType: irrigationType,
+      plantingDate: plantingDate,
+      notes: notes,
       createdAt: now,
       updatedAt: now,
       synced: false,
@@ -199,6 +216,9 @@ class FieldsRepo {
     String? name,
     String? cropType,
     String? status,
+    String? irrigationType,
+    DateTime? plantingDate,
+    String? notes,
   }) async {
     final field = await _db.getFieldById(fieldId);
     if (field == null) return;
@@ -210,6 +230,9 @@ class FieldsRepo {
         name: name != null ? Value(name) : const Value.absent(),
         cropType: cropType != null ? Value(cropType) : const Value.absent(),
         status: status != null ? Value(status) : const Value.absent(),
+        irrigationType: irrigationType != null ? Value(irrigationType) : const Value.absent(),
+        plantingDate: plantingDate != null ? Value(plantingDate) : const Value.absent(),
+        notes: notes != null ? Value(notes) : const Value.absent(),
         updatedAt: Value(DateTime.now()),
         synced: const Value(false),
       ),
@@ -230,6 +253,9 @@ class FieldsRepo {
           if (name != null) 'name': name,
           if (cropType != null) 'crop_type': cropType,
           if (status != null) 'status': status,
+          if (irrigationType != null) 'irrigation_type': irrigationType,
+          if (plantingDate != null) 'planting_date': plantingDate.toIso8601String(),
+          if (notes != null) 'notes': notes,
         }),
       ),
     );
@@ -329,6 +355,9 @@ class FieldsRepo {
       centroid: dbField.centroid,
       areaHectares: dbField.areaHectares,
       status: dbField.status,
+      irrigationType: dbField.irrigationType,
+      plantingDate: dbField.plantingDate,
+      notes: dbField.notes,
       ndviCurrent: dbField.ndviCurrent,
       ndviUpdatedAt: dbField.ndviUpdatedAt,
       synced: dbField.synced,

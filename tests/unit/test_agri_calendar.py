@@ -12,10 +12,25 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from datetime import date, timedelta
 from typing import Any
 
+import pytest
+
+from shared.agri_calendar.islamic import (
+    DAY_NAMES,
+    HIJRI_MONTH_ENUM,
+    HIJRI_MONTH_NAMES,
+    ISLAMIC_EVENTS,
+    HijriCalendar,
+    IslamicEventsManager,
+    format_dual_date,
+    get_current_hijri_date,
+    get_labor_advisory,
+    get_upcoming_islamic_events,
+    gregorian_to_hijri,
+    hijri_to_gregorian,
+)
 from shared.agri_calendar.models import (
     AgriculturalSeason,
     CalendarEvent,
@@ -34,40 +49,25 @@ from shared.agri_calendar.models import (
     TraditionalSeason,
     TraditionalSeasonInfo,
 )
+from shared.agri_calendar.planting import (
+    CROP_NAMES_AR,
+    PLANTING_WINDOWS,
+    PlantingRecommendationEngine,
+    get_crop_name_ar,
+    get_crops_to_plant_now,
+    get_planting_calendar,
+    get_planting_recommendation,
+)
 from shared.agri_calendar.seasons import (
+    REGION_METADATA,
+    TRADITIONAL_SEASONS,
     SeasonCalculator,
     get_current_season,
     get_current_traditional_season,
     get_region_info,
     list_saudi_regions,
     list_yemen_regions,
-    REGION_METADATA,
-    TRADITIONAL_SEASONS,
 )
-from shared.agri_calendar.planting import (
-    PlantingRecommendationEngine,
-    get_planting_recommendation,
-    get_crops_to_plant_now,
-    get_planting_calendar,
-    get_crop_name_ar,
-    CROP_NAMES_AR,
-    PLANTING_WINDOWS,
-)
-from shared.agri_calendar.islamic import (
-    HijriCalendar,
-    IslamicEventsManager,
-    gregorian_to_hijri,
-    hijri_to_gregorian,
-    get_current_hijri_date,
-    get_upcoming_islamic_events,
-    get_labor_advisory,
-    format_dual_date,
-    HIJRI_MONTH_NAMES,
-    HIJRI_MONTH_ENUM,
-    DAY_NAMES,
-    ISLAMIC_EVENTS,
-)
-
 
 # =============================================================================
 # SEASON CALCULATIONS TESTS - اختبارات حسابات المواسم
@@ -140,9 +140,10 @@ class TestSeasonCalculations:
         seasons = calc.get_all_seasons(Region.RIYADH)
 
         winter = [s for s in seasons if s.season == AgriculturalSeason.WINTER][0]
-        start, end = winter.get_date_range(2026)
+        current_year = date.today().year
+        start, end = winter.get_date_range(current_year)
 
-        assert start.year == 2026
+        assert start.year == current_year
         assert start.month == 12
         assert end.month == 2
 
@@ -576,17 +577,19 @@ class TestIslamicEvents:
         manager = IslamicEventsManager()
         ramadan = next(e for e in manager.events if "Ramadan" in e.name_en)
 
-        # Get Ramadan date for 2026
-        ramadan_2026 = manager.get_event_gregorian_date(ramadan, 2026)
+        # Get Ramadan date for the current year
+        current_year = date.today().year
+        ramadan_current = manager.get_event_gregorian_date(ramadan, current_year)
 
-        assert ramadan_2026 is not None
-        assert isinstance(ramadan_2026, date)
-        assert ramadan_2026.year == 2026
+        assert ramadan_current is not None
+        assert isinstance(ramadan_current, date)
+        assert ramadan_current.year == current_year
 
     def test_get_upcoming_islamic_events(self):
         """Test getting upcoming Islamic events"""
         manager = IslamicEventsManager()
-        upcoming = manager.get_upcoming_events(days_ahead=60)
+        # Use 180 days window to avoid date-dependent failures
+        upcoming = manager.get_upcoming_events(days_ahead=180)
 
         assert len(upcoming) > 0
 

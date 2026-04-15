@@ -53,6 +53,9 @@ except ImportError:
         pass
 
 
+# Configure structured logging
+import structlog
+
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
@@ -64,9 +67,6 @@ from .registry import (
     get_registry,
     set_registry,
 )
-
-# Configure structured logging
-import structlog
 
 logger = structlog.get_logger("iot-gateway")
 
@@ -118,12 +118,34 @@ async def handle_mqtt_message(msg: MqttMessage):
 
         if not device:
             # Auto-register device if enabled (for backward compatibility)
-            # In production, devices should be pre-registered
+            # SECURITY: In production/staging, devices MUST be pre-registered via /device/register.
+            # IOT_AUTO_REGISTER=true is dangerous: all devices go to DEFAULT_TENANT.
             auto_register_enabled = os.getenv("IOT_AUTO_REGISTER", "false").lower() == "true"
+            _env = os.getenv("ENVIRONMENT", "development").lower()
 
             if auto_register_enabled:
+                # Security: Reject auto-registration in production/staging environments
+                # الأمان: رفض التسجيل التلقائي في بيئات الإنتاج والاختبار
+                if _env in ("production", "staging"):
+                    logger.error(
+                        f"MQTT auto-registration BLOCKED in {_env}: Device {reading.device_id} not registered. "
+                        "Pre-register devices via POST /device/register before sending MQTT data."
+                    )
+                    return
+
+                # Security: Reject auto-registration when DEFAULT_TENANT is not explicitly configured
+                # to avoid silently registering all devices under a generic placeholder tenant.
+                if DEFAULT_TENANT == "default":
+                    logger.error(
+                        f"MQTT auto-registration BLOCKED: DEFAULT_TENANT is not configured. "
+                        f"Set DEFAULT_TENANT env var to a valid tenant ID before enabling IOT_AUTO_REGISTER. "
+                        f"Device: {reading.device_id}"
+                    )
+                    return
+
                 logger.warning(
-                    f"Auto-registering device {reading.device_id} from MQTT. This should be disabled in production."
+                    f"Auto-registering device {reading.device_id} from MQTT under tenant {DEFAULT_TENANT}. "
+                    "Disable IOT_AUTO_REGISTER in production and pre-register devices."
                 )
                 # Use async auto-register if Redis-backed registry is available
                 if isinstance(registry, RedisDeviceRegistry):
@@ -353,6 +375,7 @@ except ImportError:
 # Rate Limiting - Critical for IoT endpoints to prevent sensor data flooding
 try:
     from fastapi import Request
+
     from shared.middleware.rate_limiter import RateLimitTier, setup_rate_limiting
 
     def iot_tier_func(request: Request) -> RateLimitTier:
@@ -516,12 +539,74 @@ class DeviceRegisterRequest(BaseModel):
     metadata: dict | None = None
 
 
+# ---------------------------------------------------------------------------
+# Response normalization (snake_case -> camelCase)
+# ---------------------------------------------------------------------------
+# Mapping between internal snake_case keys produced by Device.to_dict() and
+# the public camelCase keys we want to expose in HTTP responses. We keep a
+# deny-by-default strategy: any unknown key is passed through unchanged to
+# avoid accidentally dropping data.
+
+_SNAKE_TO_CAMEL_KEYS: dict[str, str] = {
+    "device_id": "deviceId",
+    "tenant_id": "tenantId",
+    "field_id": "fieldId",
+    "device_type": "deviceType",
+    "name_ar": "nameAr",
+    "name_en": "nameEn",
+    "last_seen": "lastSeen",
+    "last_reading": "lastReading",
+    "firmware_version": "firmwareVersion",
+    "battery_level": "batteryLevel",
+    "signal_strength": "signalStrength",
+    "created_at": "createdAt",
+    "updated_at": "updatedAt",
+    "sensor_type": "sensorType",
+    "event_id": "eventId",
+    "is_online": "isOnline",
+}
+
+
+def _camelize(key: str) -> str:
+    """Convert a snake_case key to camelCase (cached lookup first)."""
+    if key in _SNAKE_TO_CAMEL_KEYS:
+        return _SNAKE_TO_CAMEL_KEYS[key]
+    if "_" not in key:
+        return key
+    parts = key.split("_")
+    return parts[0] + "".join(p.title() for p in parts[1:] if p)
+
+
+def normalize_response(data):
+    """
+    Recursively convert snake_case dict keys to camelCase for HTTP responses.
+
+    Leaves list order and scalar values unchanged. This is applied only to
+    public HTTP responses from the gateway; internal event payloads keep
+    their event-contract casing (see ``publish_sensor_reading``).
+    """
+    if isinstance(data, dict):
+        return {_camelize(k): normalize_response(v) for k, v in data.items()}
+    if isinstance(data, list):
+        return [normalize_response(item) for item in data]
+    return data
+
+
 # ============== Authorization & Validation Functions ==============
 
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -663,13 +748,15 @@ async def post_sensor_reading(req: SensorReadingRequest, user: User = Depends(ge
 
     logger.info(f"Sensor reading published. Event: {safe_event_id}, Device: {safe_device_id}, Type: {safe_sensor_type}")
 
-    return {
-        "status": "ok",
-        "event_id": event_id,
-        "device_id": req.device_id,
-        "sensor_type": req.sensor_type,
-        "value": req.value,
-    }
+    return normalize_response(
+        {
+            "status": "ok",
+            "event_id": event_id,
+            "device_id": req.device_id,
+            "sensor_type": req.sensor_type,
+            "value": req.value,
+        }
+    )
 
 
 @app.post("/sensor/batch")
@@ -761,12 +848,14 @@ async def post_batch_readings(req: BatchReadingRequest, user: User = Depends(get
         f"Batch reading published. Device: {sanitize_log_value(req.device_id)}, Count: {validated_count}, Events: {len(event_ids)}"
     )
 
-    return {
-        "status": "ok",
-        "count": len(event_ids),
-        "validated_count": validated_count,
-        "event_ids": event_ids,
-    }
+    return normalize_response(
+        {
+            "status": "ok",
+            "count": len(event_ids),
+            "validated_count": validated_count,
+            "event_ids": event_ids,
+        }
+    )
 
 
 # ============== Device Endpoints ==============
@@ -813,38 +902,48 @@ async def register_device(req: DeviceRegisterRequest, user: User = Depends(get_c
             name_en=req.name_en,
         )
 
-    return {
-        "status": "ok",
-        "device": device.to_dict(),
-    }
+    return normalize_response(
+        {
+            "status": "ok",
+            "device": device.to_dict(),
+        }
+    )
 
 
 @app.get("/device/{device_id}")
-def get_device(device_id: str):
+def get_device(device_id: str, user: User = Depends(get_current_user)):
     """Get device information"""
     device = registry.get(device_id)
     if not device:
         raise HTTPException(status_code=404, detail="Device not found")
 
-    return device.to_dict()
+    # Enforce tenant isolation
+    _enforce_tenant(user, device.tenant_id)
+
+    return normalize_response(device.to_dict())
 
 
 @app.get("/device/{device_id}/status")
-def get_device_status(device_id: str):
+def get_device_status(device_id: str, user: User = Depends(get_current_user)):
     """Get device status"""
     device = registry.get(device_id)
     if not device:
         raise HTTPException(status_code=404, detail="Device not found")
 
-    return {
-        "device_id": device_id,
-        "status": device.status,
-        "is_online": device.is_online(),
-        "last_seen": device.last_seen,
-        "last_reading": device.last_reading,
-        "battery_level": device.battery_level,
-        "signal_strength": device.signal_strength,
-    }
+    # Enforce tenant isolation
+    _enforce_tenant(user, device.tenant_id)
+
+    return normalize_response(
+        {
+            "device_id": device_id,
+            "status": device.status,
+            "is_online": device.is_online(),
+            "last_seen": device.last_seen,
+            "last_reading": device.last_reading,
+            "battery_level": device.battery_level,
+            "signal_strength": device.signal_strength,
+        }
+    )
 
 
 @app.get("/devices")
@@ -853,26 +952,33 @@ async def list_devices(
     device_type: str | None = Query(None, description="Filter by device type"),
     limit: int = Query(default=50, ge=1, le=100, description="Maximum number of devices to return"),
     offset: int = Query(default=0, ge=0, description="Number of devices to skip"),
+    user: User = Depends(get_current_user),
 ):
     """List registered devices with pagination"""
+    tenant_id = user.tenant_id or ""
     if field_id:
-        all_devices = registry.get_by_field(field_id)
+        all_devices = registry.get_by_field(field_id, tenant_id=tenant_id)
     elif device_type:
-        all_devices = registry.get_by_type(device_type)
+        all_devices = registry.get_by_type(device_type, tenant_id=tenant_id)
     else:
-        all_devices = registry.list_all()
+        if tenant_id:
+            all_devices = registry.get_by_tenant(tenant_id)
+        else:
+            all_devices = registry.list_all()
 
     # Apply pagination
     total = len(all_devices)
     paginated_devices = all_devices[offset : offset + limit]
 
-    return {
-        "devices": [d.to_dict() for d in paginated_devices],
-        "total": total,
-        "limit": limit,
-        "offset": offset,
-        "has_more": (offset + limit) < total,
-    }
+    return normalize_response(
+        {
+            "devices": [d.to_dict() for d in paginated_devices],
+            "total": total,
+            "limit": limit,
+            "offset": offset,
+            "has_more": (offset + limit) < total,
+        }
+    )
 
 
 @app.delete("/device/{device_id}")
@@ -894,27 +1000,31 @@ async def delete_device(device_id: str, user: User = Depends(get_current_user)):
         if not registry.delete(device_id):
             raise HTTPException(status_code=404, detail="Device not found")
 
-    return {"status": "ok", "device_id": device_id}
+    return normalize_response({"status": "ok", "device_id": device_id})
 
 
 # ============== Field Endpoints ==============
 
 
 @app.get("/field/{field_id}/devices")
-def get_field_devices(field_id: str):
+def get_field_devices(field_id: str, user: User = Depends(get_current_user)):
     """Get all devices for a field"""
-    devices = registry.get_by_field(field_id)
-    return {
-        "field_id": field_id,
-        "devices": [d.to_dict() for d in devices],
-        "count": len(devices),
-    }
+    tenant_id = user.tenant_id or ""
+    devices = registry.get_by_field(field_id, tenant_id=tenant_id)
+    return normalize_response(
+        {
+            "field_id": field_id,
+            "devices": [d.to_dict() for d in devices],
+            "count": len(devices),
+        }
+    )
 
 
 @app.get("/field/{field_id}/latest")
-def get_field_latest_readings(field_id: str):
+def get_field_latest_readings(field_id: str, user: User = Depends(get_current_user)):
     """Get latest readings from all devices in a field"""
-    devices = registry.get_by_field(field_id)
+    tenant_id = user.tenant_id or ""
+    devices = registry.get_by_field(field_id, tenant_id=tenant_id)
 
     readings = []
     for device in devices:
@@ -928,18 +1038,20 @@ def get_field_latest_readings(field_id: str):
                 }
             )
 
-    return {
-        "field_id": field_id,
-        "readings": readings,
-        "count": len(readings),
-    }
+    return normalize_response(
+        {
+            "field_id": field_id,
+            "readings": readings,
+            "count": len(readings),
+        }
+    )
 
 
 # ============== Stats ==============
 
 
 @app.get("/stats")
-def get_stats():
+def get_stats(user: User = Depends(get_current_user)):
     """Get gateway statistics"""
     pub_stats = publisher.get_stats() if publisher else {}
     reg_stats = registry.get_stats() if registry else {}
@@ -958,4 +1070,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8106))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

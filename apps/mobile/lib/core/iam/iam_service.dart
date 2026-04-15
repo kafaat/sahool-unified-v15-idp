@@ -9,20 +9,17 @@
 /// - Session management | إدارة الجلسات
 ///
 /// This is the central coordination point for all IAM operations.
+library;
 
 import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../auth/secure_storage_service.dart';
 import '../utils/app_logger.dart';
 import 'models/iam_models.dart';
-import 'permission_manager.dart';
-import 'identity_provider.dart';
-import 'access_control.dart';
 
 // =============================================================================
 // IAM Configuration
@@ -217,7 +214,7 @@ class IAMService {
     required DateTime refreshTokenExpiry,
   }) async {
     if (!isAuthenticated) {
-      throw IAMException(
+      throw const IAMException(
         'Cannot update tokens: No active session',
         'لا يمكن تحديث التوكنات: لا توجد جلسة نشطة',
       );
@@ -333,14 +330,14 @@ class IAMService {
   /// التبديل إلى مستأجر مختلف
   Future<void> switchTenant(String tenantId) async {
     if (currentUser == null) {
-      throw IAMException(
+      throw const IAMException(
         'Cannot switch tenant: Not authenticated',
         'لا يمكن تبديل المستأجر: غير مصادق',
       );
     }
 
     if (!availableTenants.contains(tenantId)) {
-      throw IAMException(
+      throw const IAMException(
         'Cannot switch tenant: Access denied',
         'لا يمكن تبديل المستأجر: الوصول مرفوض',
       );
@@ -413,14 +410,14 @@ class IAMService {
   /// إنشاء توكن قدرات العمل بدون اتصال
   Future<Map<String, dynamic>> createOfflineToken() async {
     if (!isAuthenticated) {
-      throw IAMException(
+      throw const IAMException(
         'Cannot create offline token: Not authenticated',
         'لا يمكن إنشاء توكن بدون اتصال: غير مصادق',
       );
     }
 
     if (!config.enableOfflineTokens) {
-      throw IAMException(
+      throw const IAMException(
         'Offline tokens are disabled',
         'توكنات العمل بدون اتصال معطلة',
       );
@@ -456,7 +453,7 @@ class IAMService {
       if (tokenData == null) return false;
 
       final token = jsonDecode(tokenData) as Map<String, dynamic>;
-      final expiry = DateTime.parse(token['expires_at'] as String);
+      final expiry = DateTime.tryParse(token['expires_at'] as String) ?? DateTime.now();
 
       if (DateTime.now().isAfter(expiry)) {
         AppLogger.w('Offline token expired', tag: 'IAM');

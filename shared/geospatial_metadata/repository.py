@@ -393,13 +393,15 @@ class GeospatialMetadataRepository:
 
         sql = (
             "UPDATE geospatial_metadata.metadata_records "
-            "SET " + set_sql + " "
+            "SET " + set_sql + " "  # nosec B608 - set_sql is built from allowlisted column names; values use $N params
             "WHERE tenant_id = $1::uuid AND id = $2::uuid AND deleted_at IS NULL "
             "RETURNING id"
         )
 
         async with self.pool.acquire() as conn:
-            row = await conn.fetchrow(sql, *params)
+            row = await conn.fetchrow(
+                sql, *params
+            )  # nosemgrep: asyncpg-sqli -- sql uses $N parameterized placeholders; columns from allowlist
             if row:
                 logger.info(
                     "geospatial_metadata_updated",

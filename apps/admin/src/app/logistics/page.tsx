@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 // Logistics Management Page
 // صفحة إدارة اللوجستيات
 
-import { useEffect, useState, useMemo } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo } from 'react';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
 import {
   Truck,
   Search,
@@ -18,16 +18,17 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { MOCK_SHIPMENTS } from "./logistics.mock";
-import type { Shipment } from "./logistics.mock";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { apiClient, downloadCSV } from '@/lib/api';
+import { LOGISTICS_ENDPOINTS } from '@sahool/shared-types/contracts';
+import type { Shipment } from './logistics.mock';
 
 export default function LogisticsPage() {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
 
   useEffect(() => {
     loadShipments();
@@ -36,10 +37,15 @@ export default function LogisticsPage() {
   async function loadShipments() {
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setShipments(MOCK_SHIPMENTS);
+      const response = await apiClient.get(LOGISTICS_ENDPOINTS.SHIPMENTS);
+      const data = response.data?.data || response.data || [];
+      setShipments(Array.isArray(data) ? data : []);
     } catch (error) {
-      logger.error("Failed to load shipments:", error);
+      logger.error('Failed to load shipments:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        const { MOCK_SHIPMENTS } = await import('./logistics.mock');
+        setShipments(MOCK_SHIPMENTS);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -62,37 +68,40 @@ export default function LogisticsPage() {
     });
   }, [shipments, searchQuery, statusFilter]);
 
-  const stats = useMemo(() => ({
-    total: shipments.length,
-    inTransit: shipments.filter((s) => s.status === "in_transit").length,
-    delivered: shipments.filter((s) => s.status === "delivered").length,
-    delayed: shipments.filter((s) => s.status === "delayed").length,
-  }), [shipments]);
+  const stats = useMemo(
+    () => ({
+      total: shipments.length,
+      inTransit: shipments.filter((s) => s.status === 'in_transit').length,
+      delivered: shipments.filter((s) => s.status === 'delivered').length,
+      delayed: shipments.filter((s) => s.status === 'delayed').length,
+    }),
+    [shipments]
+  );
 
-  const getStatusLabel = (status: Shipment["status"]) => {
-    const labels: Record<Shipment["status"], string> = {
-      pending: "قيد الانتظار",
-      in_transit: "في الطريق",
-      delivered: "تم التسليم",
-      delayed: "متأخر",
-      cancelled: "ملغي",
+  const getStatusLabel = (status: Shipment['status']) => {
+    const labels: Record<Shipment['status'], string> = {
+      pending: 'قيد الانتظار',
+      in_transit: 'في الطريق',
+      delivered: 'تم التسليم',
+      delayed: 'متأخر',
+      cancelled: 'ملغي',
     };
     return labels[status];
   };
 
-  const getStatusColor = (status: Shipment["status"]) => {
-    const colors: Record<Shipment["status"], string> = {
-      pending: "bg-yellow-100 text-yellow-800",
-      in_transit: "bg-blue-100 text-blue-800",
-      delivered: "bg-green-100 text-green-800",
-      delayed: "bg-red-100 text-red-800",
-      cancelled: "bg-gray-100 text-gray-800",
+  const getStatusColor = (status: Shipment['status']) => {
+    const colors: Record<Shipment['status'], string> = {
+      pending: 'bg-yellow-100 text-yellow-800',
+      in_transit: 'bg-blue-100 text-blue-800',
+      delivered: 'bg-green-100 text-green-800',
+      delayed: 'bg-red-100 text-red-800',
+      cancelled: 'bg-gray-100 text-gray-800',
     };
     return colors[status];
   };
 
-  const getStatusIcon = (status: Shipment["status"]) => {
-    const icons: Record<Shipment["status"], React.ReactNode> = {
+  const getStatusIcon = (status: Shipment['status']) => {
+    const icons: Record<Shipment['status'], React.ReactNode> = {
       pending: <Clock className="w-4 h-4" />,
       in_transit: <Truck className="w-4 h-4" />,
       delivered: <CheckCircle className="w-4 h-4" />,
@@ -104,35 +113,41 @@ export default function LogisticsPage() {
 
   const columns = [
     {
-      key: "tracking",
-      header: "رقم التتبع",
+      key: 'tracking',
+      header: 'رقم التتبع',
       render: (shipment: Shipment) => (
         <div>
-          <p className="font-medium text-gray-900 dark:text-gray-100 font-mono">{shipment.trackingNumber}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(shipment.createdAt)}</p>
+          <p className="font-medium text-gray-900 dark:text-gray-100 font-mono">
+            {shipment.trackingNumber}
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {formatDate(shipment.createdAt)}
+          </p>
         </div>
       ),
     },
     {
-      key: "route",
-      header: "المسار",
+      key: 'route',
+      header: 'المسار',
       render: (shipment: Shipment) => (
         <div className="text-sm">
           <p className="text-gray-500 dark:text-gray-400">من: {shipment.originAr}</p>
-          <p className="text-gray-900 dark:text-gray-100 font-medium">إلى: {shipment.destinationAr}</p>
+          <p className="text-gray-900 dark:text-gray-100 font-medium">
+            إلى: {shipment.destinationAr}
+          </p>
         </div>
       ),
     },
     {
-      key: "receiver",
-      header: "المستلم",
+      key: 'receiver',
+      header: 'المستلم',
       render: (shipment: Shipment) => (
         <span className="text-gray-700 dark:text-gray-300">{shipment.receiverAr}</span>
       ),
     },
     {
-      key: "details",
-      header: "التفاصيل",
+      key: 'details',
+      header: 'التفاصيل',
       render: (shipment: Shipment) => (
         <div className="text-sm">
           <span className="text-gray-600 dark:text-gray-400">{shipment.weight} كجم</span>
@@ -142,11 +157,13 @@ export default function LogisticsPage() {
       ),
     },
     {
-      key: "delivery",
-      header: "التسليم",
+      key: 'delivery',
+      header: 'التسليم',
       render: (shipment: Shipment) => (
         <div className="text-sm">
-          <p className="text-gray-500 dark:text-gray-400">المتوقع: {formatDate(shipment.estimatedDelivery)}</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            المتوقع: {formatDate(shipment.estimatedDelivery)}
+          </p>
           {shipment.actualDelivery && (
             <p className="text-green-600">الفعلي: {formatDate(shipment.actualDelivery)}</p>
           )}
@@ -154,37 +171,47 @@ export default function LogisticsPage() {
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (shipment: Shipment) => (
-        <span className={cn(
-          "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
-          getStatusColor(shipment.status)
-        )}>
+        <span
+          className={cn(
+            'inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium',
+            getStatusColor(shipment.status)
+          )}
+        >
           {getStatusIcon(shipment.status)}
           {getStatusLabel(shipment.status)}
         </span>
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (_shipment: Shipment) => (
         <div className="flex items-center gap-1">
-          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="عرض (قريبًا)">
+          <button
+            disabled
+            className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="عرض (قريبًا)"
+          >
             <Eye className="w-4 h-4 text-gray-500" />
           </button>
-          <button disabled className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" title="تتبع (قريبًا)">
+          <button
+            disabled
+            className="p-2 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            title="تتبع (قريبًا)"
+          >
             <MapPin className="w-4 h-4 text-blue-500" />
           </button>
         </div>
       ),
-      className: "w-24",
+      className: 'w-24',
     },
   ];
 
   return (
-    <div className="p-6">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
       <Header title="إدارة اللوجستيات" subtitle={`${shipments.length} شحنة`} />
 
       {/* Stats */}
@@ -206,7 +233,9 @@ export default function LogisticsPage() {
               <Truck className="w-5 h-5 text-sahool-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.inTransit}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.inTransit}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">في الطريق</p>
             </div>
           </div>
@@ -217,7 +246,9 @@ export default function LogisticsPage() {
               <CheckCircle className="w-5 h-5 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stats.delivered}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                {stats.delivered}
+              </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">تم التسليم</p>
             </div>
           </div>
@@ -266,12 +297,17 @@ export default function LogisticsPage() {
             onClick={loadShipments}
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-300", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-300',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
           <button
-            disabled
-            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            title="تصدير (قريبًا)"
+            onClick={() => downloadCSV(shipments, 'shipments')}
+            className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            title="تصدير CSV"
           >
             <Download className="w-5 h-5 text-gray-600 dark:text-gray-300" />
           </button>

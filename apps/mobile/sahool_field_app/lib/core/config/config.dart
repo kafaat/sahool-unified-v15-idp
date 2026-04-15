@@ -1,8 +1,9 @@
+library;
+
 /// SAHOOL Field App Configuration
 /// @deprecated This file is deprecated. Use EnvConfig from env_config.dart instead.
 /// All hardcoded URLs (192.168.8.205) have been removed.
 /// Import 'env_config.dart' and use EnvConfig class directly.
-library;
 
 import 'env_config.dart' as env;
 

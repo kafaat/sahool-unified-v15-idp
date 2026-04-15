@@ -1,6 +1,7 @@
+library;
+
 /// Spray Log Screen - شاشة تسجيل الرش
 /// نموذج لتسجيل تطبيق الرش
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,10 +17,10 @@ class SprayLogScreen extends ConsumerStatefulWidget {
   final String? recommendationId;
 
   const SprayLogScreen({
-    Key? key,
+    super.key,
     required this.fieldId,
     this.recommendationId,
-  }) : super(key: key);
+  });
 
   @override
   ConsumerState<SprayLogScreen> createState() => _SprayLogScreenState();
@@ -317,7 +318,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
           child: Text(
             isArabic ? 'اختر نوع الرش أولاً' : 'Select spray type first',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ),
@@ -337,7 +338,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
               child: Text(
                 isArabic ? 'لا توجد منتجات متاحة' : 'No products available',
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ),
@@ -414,7 +415,7 @@ class _SprayLogScreenState extends ConsumerState<SprayLogScreen> {
                     Container(
                       width: 120,
                       height: 120,
-                      margin: const EdgeInsets.only(right: 8),
+                      margin: const EdgeInsetsDirectional.only(end: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         image: DecorationImage(

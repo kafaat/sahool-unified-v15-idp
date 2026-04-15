@@ -14,9 +14,11 @@ import { ConflictException, NotFoundException } from "@nestjs/common";
 import * as bcrypt from "bcryptjs";
 import { UsersService } from "./users.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { UserEventsService } from "../events/user-events.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UserStatus, UserRole } from "../utils/validation";
+import { BCRYPT_ROUNDS } from "../utils/security.config";
 
 describe("UsersService", () => {
   let service: UsersService;
@@ -78,12 +80,28 @@ describe("UsersService", () => {
       },
     };
 
+    // No-op UserEventsService — publish calls are fire-and-forget in the
+    // real service (`void this.events.publish...`) so a stub is sufficient
+    // for every CRUD test.
+    const mockUserEventsService = {
+      publishUserCreated: jest.fn().mockResolvedValue(undefined),
+      publishUserUpdated: jest.fn().mockResolvedValue(undefined),
+      publishUserRoleChanged: jest.fn().mockResolvedValue(undefined),
+      publishUserStatusChanged: jest.fn().mockResolvedValue(undefined),
+      publishUserDeleted: jest.fn().mockResolvedValue(undefined),
+      isConnected: jest.fn().mockReturnValue(false),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UsersService,
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: UserEventsService,
+          useValue: mockUserEventsService,
         },
       ],
     }).compile();
@@ -112,7 +130,7 @@ describe("UsersService", () => {
         where: { email: createUserDto.email },
         select: { id: true },
       });
-      expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith(createUserDto.password, BCRYPT_ROUNDS);
       expect(prismaService.user.create).toHaveBeenCalled();
     });
 
@@ -137,7 +155,7 @@ describe("UsersService", () => {
 
       await service.create(createUserDto);
 
-      expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, 10);
+      expect(hashSpy).toHaveBeenCalledWith(createUserDto.password, BCRYPT_ROUNDS);
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           passwordHash: mockPasswordHash,
@@ -429,7 +447,7 @@ describe("UsersService", () => {
 
       await service.update(mockUserId, updateWithPassword);
 
-      expect(bcrypt.hash).toHaveBeenCalledWith("NewPassword123!", 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith("NewPassword123!", BCRYPT_ROUNDS);
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: mockUserId },
         data: expect.objectContaining({
@@ -470,12 +488,14 @@ describe("UsersService", () => {
       const result = await service.remove(mockUserId);
 
       expect(result.status).toBe(UserStatus.INACTIVE);
-      expect(prismaService.user.update).toHaveBeenCalledWith({
-        where: { id: mockUserId },
-        data: {
-          status: UserStatus.INACTIVE,
-        },
-      });
+      expect(prismaService.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: mockUserId },
+          data: {
+            status: UserStatus.INACTIVE,
+          },
+        }),
+      );
       expect(prismaService.user.delete).not.toHaveBeenCalled();
     });
 
@@ -589,14 +609,14 @@ describe("UsersService", () => {
   });
 
   describe("countActive", () => {
-    it("should return count of active users", async () => {
+    it("should return count of active users filtered by tenant", async () => {
       prismaService.user.count.mockResolvedValue(10);
 
-      const result = await service.countActive();
+      const result = await service.countActive(mockTenantId);
 
       expect(result).toBe(10);
       expect(prismaService.user.count).toHaveBeenCalledWith({
-        where: { status: UserStatus.ACTIVE },
+        where: { status: UserStatus.ACTIVE, tenantId: mockTenantId },
       });
     });
   });

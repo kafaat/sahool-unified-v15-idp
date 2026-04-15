@@ -25,17 +25,17 @@ DROP INDEX IF EXISTS "digital_signatures_entityType_entityId_signerId_purpose_ke
 -- Step 2: Create tenant-scoped unique constraints
 -- الخطوة 2: إنشاء قيود التفرد المقيدة بالمستأجر
 
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "uq_germplasm_tenant_accession"
-  ON "germplasm" ("tenant_id", "accessionNumber");
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_germplasm_tenant_accession"
+  ON "germplasm" ("tenant_id", "accession_number");
 
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "uq_seed_lot_tenant_number"
-  ON "seed_lots" ("tenant_id", "lotNumber");
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_seed_lot_tenant_number"
+  ON "seed_lots" ("tenant_id", "lot_number");
 
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "uq_daily_log_tenant_offline"
-  ON "research_daily_logs" ("tenant_id", "offlineId");
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_daily_log_tenant_offline"
+  ON "research_daily_logs" ("tenant_id", "offline_id");
 
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "uq_lab_sample_tenant_code"
-  ON "lab_samples" ("tenant_id", "sampleCode");
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_lab_sample_tenant_code"
+  ON "lab_samples" ("tenant_id", "sample_code");
 
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "uq_signature_tenant_entity"
-  ON "digital_signatures" ("tenant_id", "entityType", "entityId", "signerId", "purpose");
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_signature_tenant_entity"
+  ON "digital_signatures" ("tenant_id", "entity_type", "entity_id", "signer_id", "purpose");

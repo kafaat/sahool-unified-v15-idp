@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Map Core
 /// Barrel file for offline-capable map components
 

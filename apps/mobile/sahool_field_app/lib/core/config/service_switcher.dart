@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Service Switcher
 /// نظام التبديل بين الخدمات للمقارنة والاختبار
 ///
@@ -183,7 +185,7 @@ class ServiceRegistry {
         status: ServiceStatus.deprecated,
       ),
       modern: EndpointConfig(
-        port: 8097,
+        port: 8115,
         endpoint: '/ws',
       ),
       mock: EndpointConfig(
@@ -194,11 +196,6 @@ class ServiceRegistry {
     ServiceType.notifications: ServiceConfig(
       name: 'Notification Service',
       nameAr: 'خدمة الإشعارات',
-      legacy: EndpointConfig(
-        port: 8089,
-        endpoint: '/notify',
-        status: ServiceStatus.deprecated,
-      ),
       modern: EndpointConfig(
         port: 8110,
         endpoint: '/v1/notify',

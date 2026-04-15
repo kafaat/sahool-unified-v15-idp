@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Admin Registration Page
  * صفحة التسجيل للوحة الإدارة
  */
 
-import { useState, Suspense } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Loader2, Lock, Mail, Eye, EyeOff, Leaf, User, Phone } from "lucide-react";
+import { useState, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Loader2, Lock, Mail, Eye, EyeOff, Leaf, User, Phone } from 'lucide-react';
 
 interface RegisterFormData {
   email: string;
@@ -22,34 +22,61 @@ function RegisterForm() {
   const router = useRouter();
 
   const [formData, setFormData] = useState<RegisterFormData>({
-    email: "",
-    password: "",
-    firstName: "",
-    lastName: "",
-    phone: "",
+    email: '',
+    password: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
+  const [phoneError, setPhoneError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  /**
+   * Validate Yemeni phone format: +967XXXXXXXXX or 7XXXXXXXX
+   * Matches backend @IsYemeniPhone() decorator in user-service.
+   */
+  const validateYemeniPhone = (phone: string): string => {
+    if (!phone) return ''; // optional
+    const normalized = phone.replace(/\s+/g, '');
+    // Accept: +967 followed by 9 digits starting with 7, OR 9 digits starting with 7
+    const yemeniPattern = /^(\+967)?7\d{8}$/;
+    if (!yemeniPattern.test(normalized)) {
+      return 'رقم هاتف يمني غير صالح (مثال: +9677XXXXXXXX)';
+    }
+    return '';
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'phone') {
+      setPhoneError(validateYemeniPhone(value));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
+
+    // Validate phone before submit
+    const phoneValidation = validateYemeniPhone(formData.phone);
+    if (phoneValidation) {
+      setPhoneError(phoneValidation);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       // Call register via Next.js API route (proxied to backend)
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        credentials: "same-origin",
+        credentials: 'same-origin',
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -62,20 +89,24 @@ function RegisterForm() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || data.message || data.detail || "فشل التسجيل");
+        throw new Error(data.error || data.message || data.detail || 'فشل التسجيل');
       }
 
       // Registration successful - redirect to login
-      router.push("/login");
+      router.push('/login');
     } catch (err) {
-      setError(err instanceof Error ? err.message : "فشل التسجيل");
+      setError(err instanceof Error ? err.message : 'فشل التسجيل');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4">
+    <div
+      dir="rtl"
+      lang="ar"
+      className="min-h-screen bg-gradient-to-br from-green-50 to-green-100 dark:from-gray-900 dark:to-gray-950 flex items-center justify-center p-4"
+    >
       <div className="w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
@@ -93,9 +124,7 @@ function RegisterForm() {
           </h2>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm">
-              {error}
-            </div>
+            <div className="bg-red-50 text-red-600 p-4 rounded-lg mb-6 text-sm">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -169,7 +198,7 @@ function RegisterForm() {
               </div>
             </div>
 
-            {/* Phone Field (Optional) */}
+            {/* Phone Field (Optional - Yemeni format) */}
             <div>
               <label
                 htmlFor="phone"
@@ -185,11 +214,22 @@ function RegisterForm() {
                   type="tel"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full pr-10 pl-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
-                  placeholder="+966 5XX XXX XXXX"
+                  className={`w-full pr-10 pl-4 py-3 border rounded-lg focus:ring-2 outline-none transition dark:bg-gray-700 dark:text-gray-100 ${
+                    phoneError
+                      ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+                      : 'border-gray-300 dark:border-gray-600 focus:ring-green-500 focus:border-green-500'
+                  }`}
+                  placeholder="+9677XXXXXXXX"
                   dir="ltr"
+                  aria-invalid={!!phoneError}
+                  aria-describedby={phoneError ? 'phone-error' : undefined}
                 />
               </div>
+              {phoneError && (
+                <p id="phone-error" className="text-red-600 text-xs mt-1.5" role="alert">
+                  {phoneError}
+                </p>
+              )}
             </div>
 
             {/* Password Field */}
@@ -205,7 +245,7 @@ function RegisterForm() {
                 <input
                   id="password"
                   name="password"
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={handleChange}
                   className="w-full pr-10 pl-12 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition"
@@ -219,11 +259,7 @@ function RegisterForm() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="w-5 h-5" />
-                  ) : (
-                    <Eye className="w-5 h-5" />
-                  )}
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -251,7 +287,7 @@ function RegisterForm() {
           {/* Login Link */}
           <div className="mt-6 text-center">
             <p className="text-gray-600 dark:text-gray-400 text-sm">
-              لديك حساب بالفعل؟{" "}
+              لديك حساب بالفعل؟{' '}
               <Link
                 href="/login"
                 className="text-green-600 font-medium hover:text-green-700 hover:underline"

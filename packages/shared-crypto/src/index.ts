@@ -19,13 +19,16 @@ export {
   decryptDeterministic,
   encryptSearchable,
   decryptSearchable,
+  encryptLegacySearchable,
+  migrateSearchableEncryption,
+  isLegacySearchable,
   encryptFields,
   decryptFields,
   generateEncryptionKey,
   isEncrypted,
   rotateEncryption,
   validateEncryptionKey,
-} from "./field-encryption";
+} from './field-encryption';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Hash Utilities
@@ -62,7 +65,7 @@ export {
   generateToken,
   generateSecureRandomString,
   createHashId,
-} from "./hash-utils";
+} from './hash-utils';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PII Handler
@@ -90,7 +93,7 @@ export {
   shouldUseDeterministicEncryption,
   autoEncrypt,
   encryptSensitiveFields,
-} from "./pii-handler";
+} from './pii-handler';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Prisma Encryption Middleware
@@ -101,15 +104,15 @@ export {
   EncryptionConfig,
   FieldEncryptionConfig,
   ModelEncryptionConfig,
-} from "./prisma-encryption";
+} from './prisma-encryption';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Default Export
 // ═══════════════════════════════════════════════════════════════════════════
 
-import * as fieldEncryption from "./field-encryption";
-import * as hashUtils from "./hash-utils";
-import * as piiHandler from "./pii-handler";
+import * as fieldEncryption from './field-encryption';
+import * as hashUtils from './hash-utils';
+import * as piiHandler from './pii-handler';
 
 export default {
   ...fieldEncryption,

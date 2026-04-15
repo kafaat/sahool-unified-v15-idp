@@ -12,16 +12,34 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
 
-from src.main import app
+    from src.main import app
+except ImportError:
+    pytest.skip("edge-orchestrator-service dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture
 def client():
-    """Create test client."""
-    return TestClient(app)
+    """Create test client with mock auth."""
+    try:
+        from shared.auth.dependencies import get_current_user
+        from shared.auth.models import User
+    except ImportError:
+        get_current_user = None
+        User = None
+
+    if get_current_user and User:
+        mock_user = User(
+            id="test-user",
+            tenant_id="00000000-0000-0000-0000-000000000001",
+            email="test@test.com",
+            roles=["admin"],
+        )
+        app.dependency_overrides[get_current_user] = lambda: mock_user
+
+    client = TestClient(app, headers={"X-Tenant-ID": "00000000-0000-0000-0000-000000000001"})
+    yield client
+    app.dependency_overrides.clear()
 
 
 @pytest.fixture

@@ -26,7 +26,6 @@ from shared.ai.auto_fix.frontend_diagnostics import (
 )
 from shared.ai.auto_fix.models import DiagnosticReport
 
-
 # ═══════════════════════════════════════════════════════════════════════════
 # Test FrontendTool Enum
 # ═══════════════════════════════════════════════════════════════════════════

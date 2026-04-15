@@ -7,12 +7,11 @@
 /// - Session initialization
 /// - State management
 /// - Error handling
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sahool_field_app/core/auth/auth_service.dart';
-import 'package:sahool_field_app/core/auth/biometric_service.dart';
-import 'package:sahool_field_app/core/auth/secure_storage_service.dart';
 
 import 'auth_fixtures.dart';
 import 'auth_mocks.dart';
@@ -472,7 +471,7 @@ void main() {
 
     test('should clear token when clearToken is true', () {
       // Arrange
-      final state = AuthState(
+      const state = AuthState(
         status: AuthStatus.authenticated,
         accessToken: AuthFixtures.validAccessToken,
       );

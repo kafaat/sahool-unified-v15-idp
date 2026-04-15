@@ -1,3 +1,5 @@
+library;
+
 /// Field History Domain Entities
 /// كيانات تاريخ الحقل - Domain Layer نظيف (بدون Flutter)
 ///

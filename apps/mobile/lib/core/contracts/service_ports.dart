@@ -2,13 +2,14 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 2.4.0
+/// Contract version: 4.18.0
 library;
 
 /// Single source of truth for all microservice ports.
 abstract final class ServicePorts {
   static const int fieldManagement = 3000;
   static const int userService = 3025;
+  static const int partnerAuth = 3030;
   static const int marketplace = 3010;
   static const int researchCore = 3015;
   static const int disasterAssessment = 3020;
@@ -78,6 +79,7 @@ abstract final class ServicePorts {
   static const int irrigationCycleEngine = 8250;
   static const int digitalTwin = 8253;
   static const int mcpServer = 8201;
+  static const int carbonService = 8195;
   static const int admin = 3001;
   static const int web = 3002;
   static const int kongGateway = 8000;

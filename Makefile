@@ -11,8 +11,11 @@
 .PHONY: mobile-test mobile-build mobile-build-release mobile-build-aab mobile-analyze
 .PHONY: mobile-format mobile-clean mobile-deps mobile-codegen mobile-doctor mobile-ci
 .PHONY: fixops fixops-run fixops-comprehensive fixops-json
+.PHONY: quality-full quality-lint quality-types quality-security quality-deps quality-arch quality-deadcode quality-tests quality-containers
+.PHONY: quality-quick quality-orchestrate quality-report quality-install
 .PHONY: deps-check deps-tree deps-audit deps-outdated deps-security deps-install-tools
-.PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full
+.PHONY: perf-install dead-code complexity unused-deps docstring-coverage secrets-scan licenses benchmark quality-full-legacy quality-quick-legacy
+.PHONY: tenant-isolation
 .PHONY: service-health check-services db-migrate-all db-generate logs-all
 .PHONY: dev-ai dev-agents build-ai test-ai
 .PHONY: pr-merge pr-merge-all pr-status pr-monitor pr-help
@@ -379,6 +382,100 @@ fixops-comprehensive: ## إصلاح شامل لجميع المشاكل - Compreh
 fixops-json: ## مخرجات JSON للتكامل - JSON output for CI/CD integration
 	@$(PYTHON) -m tools.fixops --dry-run --json
 
+# ============================================================================
+# Quality Orchestrator - 8 Layer Enterprise Quality Stack
+# منظومة الجودة المتكاملة - 8 طبقات للفحص الشامل
+# ============================================================================
+
+## Run all 8 quality layers | تشغيل جميع طبقات الجودة
+quality-full: quality-lint quality-types quality-security quality-deps quality-arch quality-deadcode quality-tests quality-containers
+	@echo "✅ All 8 quality layers completed | اكتملت جميع طبقات الجودة الثمانية"
+
+## Layer 1: Lint & Format | الطبقة 1: التنسيق والتدقيق
+quality-lint:
+	@echo "🔍 Layer 1: Lint & Format | الطبقة 1: التنسيق والتدقيق"
+	@mkdir -p reports
+	-ruff check apps/ shared/ --output-format json > reports/ruff.json 2>/dev/null
+	-npx biome check . --reporter json > reports/biome.json 2>/dev/null
+	-npx oxlint . > reports/oxlint.txt 2>/dev/null
+	@echo "  ✅ Lint & Format complete"
+
+## Layer 2: Type Checking | الطبقة 2: فحص الأنواع
+quality-types:
+	@echo "🔍 Layer 2: Type Checking | الطبقة 2: فحص الأنواع"
+	@mkdir -p reports
+	-cd apps/web && npx tsc --noEmit 2> ../../reports/tsc-web.txt
+	-cd apps/admin && npx tsc --noEmit 2> ../../reports/tsc-admin.txt
+	-mypy shared/ai/ --ignore-missing-imports > reports/mypy.txt 2>/dev/null || true
+	@echo "  ✅ Type checking complete"
+
+## Layer 3: Security SAST | الطبقة 3: فحص الأمان
+quality-security:
+	@echo "🔍 Layer 3: Security SAST | الطبقة 3: فحص الأمان"
+	@mkdir -p reports
+	-bandit -r apps/ shared/ -f json -o reports/bandit.json 2>/dev/null
+	-detect-secrets scan --all-files > reports/secrets.json 2>/dev/null || true
+	@echo "  ✅ Security scan complete"
+
+## Layer 4: Dependency Security | الطبقة 4: أمان التبعيات
+quality-deps:
+	@echo "🔍 Layer 4: Dependency Security | الطبقة 4: أمان التبعيات"
+	@mkdir -p reports
+	-npm audit --json > reports/npm-audit.json 2>/dev/null || true
+	-pip-audit --format json -o reports/pip-audit.json 2>/dev/null || true
+	@echo "  ✅ Dependency audit complete"
+
+## Layer 5: Architecture Analysis | الطبقة 5: تحليل الهندسة المعمارية
+quality-arch:
+	@echo "🔍 Layer 5: Architecture | الطبقة 5: الهندسة المعمارية"
+	@mkdir -p reports
+	-npx madge --circular --json apps/web/src > reports/madge-circular.json 2>/dev/null || true
+	-npx knip --reporter json > reports/knip.json 2>/dev/null || true
+	-npx depcheck --json > reports/depcheck.json 2>/dev/null || true
+	@echo "  ✅ Architecture analysis complete"
+
+## Layer 6: Dead Code & Complexity | الطبقة 6: الكود الميت والتعقيد
+quality-deadcode:
+	@echo "🔍 Layer 6: Dead Code & Complexity | الطبقة 6: الكود الميت والتعقيد"
+	@mkdir -p reports
+	-vulture apps/ shared/ --min-confidence 80 > reports/vulture.txt 2>/dev/null || true
+	-radon cc apps/ shared/ -j -n C > reports/radon.json 2>/dev/null || true
+	@echo "  ✅ Dead code & complexity analysis complete"
+
+## Layer 7: Test Suite | الطبقة 7: الاختبارات
+quality-tests:
+	@echo "🔍 Layer 7: Tests | الطبقة 7: الاختبارات"
+	@mkdir -p reports
+	-npx vitest run --reporter json > reports/vitest.json 2>/dev/null || true
+	-python -m pytest tests/unit/ tests/smoke/ --tb=short -q > reports/pytest.txt 2>/dev/null || true
+	@echo "  ✅ Test suite complete"
+
+## Layer 8: Container & Infrastructure | الطبقة 8: الحاويات والبنية التحتية
+quality-containers:
+	@echo "🔍 Layer 8: Containers | الطبقة 8: الحاويات"
+	@mkdir -p reports
+	-trivy config . --format json > reports/trivy-config.json 2>/dev/null || true
+	@echo "  ✅ Container scan complete"
+
+## Quick quality scan (Layers 1-3 only) | فحص جودة سريع
+quality-quick: quality-lint quality-types quality-security
+	@echo "✅ Quick quality scan complete (3 layers) | اكتمل الفحص السريع"
+
+## Quality scan with Python orchestrator | فحص الجودة عبر المنسق
+quality-orchestrate:
+	python -m shared.ai.auto_fix.quality_layers
+
+## Quality report generation | توليد تقرير الجودة
+quality-report:
+	python -m shared.ai.auto_fix.quality_layers --output reports/quality-report.md
+	@echo "📊 Quality report generated at reports/quality-report.md"
+
+## Install all quality tools | تثبيت جميع أدوات الجودة
+quality-install:
+	pip install ruff bandit mypy vulture radon detect-secrets pip-audit pyright
+	npm install
+	@echo "✅ All quality tools installed | تم تثبيت جميع أدوات الجودة"
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Monitoring - المراقبة
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -472,9 +569,29 @@ docstring-coverage: ## تغطية التوثيق - Check docstring coverage
 	@echo "$(BLUE)📝 تغطية التوثيق - Docstring coverage...$(RESET)"
 	@interrogate apps/services/ shared/ -v --fail-under 0 2>/dev/null | tail -30
 
+validate-env: ## التحقق من متغيرات البيئة - Validate .env for placeholder secrets
+	@echo "$(BLUE)🔒 التحقق من بيانات الاعتماد - Validating environment secrets...$(RESET)"
+	@if [ -f .env ]; then \
+		WEAK=$$(grep -cE "change_this_|changeme_|<REPLACE_|<your_" .env 2>/dev/null || echo 0); \
+		if [ "$$WEAK" -gt 0 ]; then \
+			echo "$(RED)❌ Found $$WEAK placeholder secrets in .env!$(RESET)"; \
+			echo "Replace all change_this_* values with: openssl rand -base64 32"; \
+			exit 1; \
+		else \
+			echo "$(GREEN)✅ No placeholder secrets detected$(RESET)"; \
+		fi; \
+	else \
+		echo "$(YELLOW)⚠️ No .env file found. Copy from template: cp .env.development.template .env$(RESET)"; \
+	fi
+
 secrets-scan: ## فحص الأسرار المسربة - Scan for leaked secrets
 	@echo "$(BLUE)🔐 فحص الأسرار - Scanning for secrets...$(RESET)"
 	@detect-secrets scan apps/ shared/ --all-files 2>/dev/null | $(PYTHON) -c "import sys,json; d=json.load(sys.stdin); n=len(d.get('results',{})); print(f'Found {n} potential secrets' if n else '✅ No secrets found')" || echo "$(GREEN)✅ لا توجد أسرار مسربة$(RESET)"
+
+tenant-isolation: ## فحص عزل المستأجرين - Enforce tenant isolation patterns
+	@echo "$(BLUE)🔒 فحص عزل المستأجرين - Tenant isolation check...$(RESET)"
+	@# Advisory mode: || true suppresses exit code so make continues. Remove || true to enforce in CI.
+	@$(PYTHON) scripts/ci/enforce-tenant-isolation.py || true
 
 licenses: ## فحص التراخيص - Check dependency licenses
 	@echo "$(BLUE)📜 فحص التراخيص - License check...$(RESET)"
@@ -484,7 +601,7 @@ benchmark: ## اختبار الأداء - Run benchmarks
 	@echo "$(BLUE)⏱️ اختبار الأداء - Running benchmarks...$(RESET)"
 	@pytest tests/ -v --benchmark-only --benchmark-sort=mean 2>/dev/null | head -40 || echo "No benchmarks found"
 
-quality-full: ## فحص جودة شامل - Full quality scan (all tools)
+quality-full-legacy: ## فحص جودة شامل (قديم) - Legacy full quality scan (all tools)
 	@echo "$(BLUE)🎯 فحص جودة شامل - Full Quality Scan$(RESET)"
 	@echo ""
 	@$(MAKE) --no-print-directory dead-code
@@ -521,7 +638,7 @@ quality: ## حزام الجودة الموحد - Run unified quality belt (all p
 	@echo "$(BLUE)🎯 حزام الجودة الموحد - Quality Belt$(RESET)"
 	@./scripts/quality-belt.sh all
 
-quality-quick: ## فحص سريع - Quick quality check (no tests)
+quality-quick-legacy: ## فحص سريع (قديم) - Legacy quick quality check (no tests)
 	@echo "$(BLUE)⚡ فحص سريع - Quick Quality Check$(RESET)"
 	@./scripts/quality-belt.sh quick
 
@@ -731,12 +848,13 @@ quickstart: ## بدء سريع للمطورين الجدد - Quick start for new
 # Mobile Development - تطوير تطبيق الجوال
 # ═══════════════════════════════════════════════════════════════════════════════
 
-MOBILE_DIR = apps/mobile
+MOBILE_DIR = apps/mobile/sahool_field_app
 
 mobile-test: ## تشغيل اختبارات Flutter - Run Flutter mobile app tests
 	@echo "$(BLUE)📱 تشغيل اختبارات تطبيق الجوال - Running Flutter tests...$(RESET)"
 	@if [ -d "$(MOBILE_DIR)" ]; then \
-		cd $(MOBILE_DIR) && flutter test --coverage --reporter=expanded; \
+		cd $(MOBILE_DIR) && \
+		flutter test --coverage --reporter=expanded && \
 		if [ -f coverage/lcov.info ]; then \
 			echo "$(GREEN)✅ التغطية: $$(lcov --summary coverage/lcov.info 2>&1 | grep 'lines' | sed 's/.*: //')$(RESET)"; \
 		fi; \
@@ -1350,6 +1468,46 @@ deps-sync: ## مزامنة الاعتماديات - Full dependency sync check (
 	@./scripts/check-dependency-compatibility.sh || true
 	@echo ""
 	@echo "$(GREEN)$(BOLD)Sync check complete!$(RESET)"
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Quality Gate - بوابة الجودة المتكاملة
+# ═══════════════════════════════════════════════════════════════════════════════
+
+.PHONY: quality-gate quality-gate-full quality-gate-api quality-gate-security quality-gate-db
+
+quality-gate: ## Quick local quality gate (lint + test)
+	@echo "══════════════════════════════════════"
+	@echo "  Quality Gate — بوابة الجودة"
+	@echo "══════════════════════════════════════"
+	@echo "\n📋 Stage 1: Static Analysis..."
+	@ruff check apps/ shared/ --statistics || true
+	@echo "\n📋 Stage 2: OpenAPI Spec..."
+	@npx @redocly/cli lint api/gateway-openapi.yaml --format=stylish 2>/dev/null || true
+	@echo "\n📋 Stage 3: Tests..."
+	@python -m pytest tests/smoke/ tests/unit/ -q --timeout=60 || true
+	@echo "\n✅ Quality gate complete"
+
+quality-gate-api: ## API quality checks (spec + contract + routes)
+	@echo "🔌 API Quality Check..."
+	@npx @redocly/cli lint api/gateway-openapi.yaml || true
+	@python -m pytest tests/contract/ -v --timeout=60 || true
+	@echo "✅ API quality check complete"
+
+quality-gate-security: ## Security scanning
+	@echo "🔒 Security Scan..."
+	@bandit -r apps/services/ shared/ --severity-level medium -f txt || true
+	@detect-secrets scan --all-files --exclude-files '\.lock$$' || true
+	@echo "✅ Security scan complete"
+
+quality-gate-db: ## Database quality checks (SQL lint + migrations)
+	@echo "🗄️ Database Quality Check..."
+	@sqlfluff lint infrastructure/core/postgres/migrations/ --dialect postgres || true
+	@echo "✅ Database quality check complete"
+
+quality-gate-full: quality-gate quality-gate-api quality-gate-security quality-gate-db ## Full quality gate (all checks)
+	@echo "\n══════════════════════════════════════"
+	@echo "  ✅ Full Quality Gate Complete"
+	@echo "══════════════════════════════════════"
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # End of Makefile - نهاية الملف

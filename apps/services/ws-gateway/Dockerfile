@@ -27,13 +27,13 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Upgrade pip and install build tools with multi-mirror fallback
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Configure pip for network resilience
 RUN mkdir -p /root/.pip && \
@@ -41,6 +41,12 @@ RUN mkdir -p /root/.pip && \
 
 # Install dependencies (using shared requirements)
 COPY constraints.txt .
+# Install build dependencies for cryptography/bcrypt
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
+    build-essential gcc libffi-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY apps/services/ws-gateway/requirements.txt .
 
 # Install dependencies with resilient multi-mirror fallback strategy
@@ -55,11 +61,16 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
     -c constraints.txt -r requirements.txt
 
+# Remove build tools from runtime image (reduce attack surface)
+RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \
+    rm -rf /var/lib/apt/lists/*
+
 # Copy shared libraries
 COPY shared/ ./shared/
 
 # Copy services shared modules (needed for errors_py module)
 COPY apps/services/shared/ ./apps/services/shared/
+
 
 # Create compatibility layer: copy errors_py to shared/errors_py so imports work
 RUN cp -r ./apps/services/shared/errors_py ./shared/errors_py || true
@@ -70,6 +81,15 @@ COPY apps/services/ws-gateway/src/ ./src/
 # Set ownership
 RUN chown -R sahool:sahool /app
 
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Default port (can be overridden via PORT env var)

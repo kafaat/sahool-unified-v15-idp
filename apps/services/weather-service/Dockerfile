@@ -11,7 +11,8 @@ ARG PYTHON_VERSION=3.11
 # ─────────────────────────────────────────────────────────────────────────────
 FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /build
 
@@ -35,12 +36,14 @@ RUN python -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 # Upgrade pip and build tools with multi-mirror fallback
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
+# jaraco.context>=6.1.0 for CVE-2026-23949 (pinned here as constraints.txt is not yet copied)
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" "jaraco.context>=6.1.0" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" "jaraco.context>=6.1.0"
 
 # Configure pip for network resilience with multi-mirror fallback
 # Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
@@ -76,10 +79,10 @@ LABEL org.opencontainers.image.title="SAHOOL ${SERVICE_NAME}" \
       org.opencontainers.image.vendor="KAFAAT" \
       org.opencontainers.image.description="Weather Service - Weather data and forecasts"
 
-# Install minimal runtime dependencies
+# Upgrade system packages and install minimal runtime dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
-    ca-certificates \
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -96,9 +99,35 @@ COPY --from=builder --chown=sahool:sahool /home/sahool/venv /home/sahool/venv
 ENV VIRTUAL_ENV=/home/sahool/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+# Strip build tools from production venv (reduces attack surface and CVE footprint)
+RUN pip uninstall -y pip setuptools wheel 2>/dev/null || true; \
+    rm -rf /home/sahool/venv/lib/python*/site-packages/pip* \
+           /home/sahool/venv/lib/python*/site-packages/setuptools* \
+           /home/sahool/venv/lib/python*/site-packages/wheel* \
+           /home/sahool/venv/lib/python*/site-packages/_distutils_hack* \
+           /home/sahool/venv/lib/python*/site-packages/pkg_resources* \
+           /home/sahool/venv/lib/python*/site-packages/jaraco/context* \
+           /home/sahool/venv/lib/python*/site-packages/jaraco.context-*.dist-info \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/lib/python*/site-packages/jaraco.context-*.dist-info 2>/dev/null || true && \
+    if python -c "import pip" 2>/dev/null; then echo "ERROR: pip still present after stripping" >&2; exit 1; fi && \
+    if python -c "import jaraco.context" 2>/dev/null; then echo "ERROR: jaraco.context still present after stripping" >&2; exit 1; fi
+
 # Copy shared modules
+# Order matters: apps/services/shared/ overlays on top of shared/
+# to provide service-specific implementations (auth, errors_py, middleware).
 COPY --chown=sahool:sahool shared/ /app/shared/
 COPY --chown=sahool:sahool apps/services/shared/ /app/shared/
+
+# Resolve module ambiguity: when both errors_py.py (file) and errors_py/ (package)
+# exist, Python prefers the package but this can cause import confusion.
+# Remove the standalone file since the package version is authoritative.
+RUN rm -f /app/shared/errors_py.py
 
 # Copy application code
 COPY --chown=sahool:sahool apps/services/weather-service/src /app/src
@@ -115,8 +144,9 @@ USER sahool
 # Expose port
 EXPOSE 8092
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=15s --retries=3 \
+# Health check - start_period gives the service enough time to initialize
+# connections (DB, NATS) before health checks count toward failure threshold
+HEALTHCHECK --interval=30s --timeout=10s --start-period=45s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8092/healthz')" || exit 1
 
 # Run the application

@@ -3,26 +3,26 @@
  * طبقة API لميزة خريطة الحقول
  */
 
-import { FIELD_ENDPOINTS, buildUrl } from "@sahool/shared-types/contracts";
-import { createApiClient } from "@/lib/api/factory";
+import { FIELD_ENDPOINTS, buildUrl } from '@sahool/shared-types/contracts';
+import { createApiClient } from '@/lib/api/factory';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
 // GeoJSON Types (simplified for field boundaries)
 export interface GeoJSONPolygon {
-  type: "Polygon";
+  type: 'Polygon';
   coordinates: number[][][];
 }
 
 export interface GeoJSONFeature<T = Record<string, unknown>> {
-  type: "Feature";
+  type: 'Feature';
   geometry: GeoJSONPolygon;
   properties: T;
 }
 
 export interface GeoJSONFeatureCollection<T = Record<string, unknown>> {
-  type: "FeatureCollection";
+  type: 'FeatureCollection';
   features: GeoJSONFeature<T>[];
 }
 
@@ -32,10 +32,10 @@ export interface Field {
   name: string;
   nameAr: string;
   area: number;
-  areaUnit: "hectare" | "dunum" | "acre";
+  areaUnit: 'hectare' | 'dunum' | 'acre';
   geometry: GeoJSONPolygon;
   cropType?: string;
-  status: "active" | "fallow" | "harvested";
+  status: 'active' | 'fallow' | 'harvested';
   governorate: string;
   district: string;
   createdAt: string;
@@ -53,14 +53,14 @@ export interface FieldUpdate {
   name?: string;
   nameAr?: string;
   cropType?: string;
-  status?: Field["status"];
+  status?: Field['status'];
 }
 
 export interface FieldFilters {
   governorate?: string;
   district?: string;
   cropType?: string;
-  status?: Field["status"];
+  status?: Field['status'];
   search?: string;
 }
 
@@ -71,11 +71,11 @@ export const fieldMapApi = {
    */
   getFields: async (filters?: FieldFilters): Promise<Field[]> => {
     const params = new URLSearchParams();
-    if (filters?.governorate) params.set("governorate", filters.governorate);
-    if (filters?.district) params.set("district", filters.district);
-    if (filters?.cropType) params.set("crop_type", filters.cropType);
-    if (filters?.status) params.set("status", filters.status);
-    if (filters?.search) params.set("search", filters.search);
+    if (filters?.governorate) params.set('governorate', filters.governorate);
+    if (filters?.district) params.set('district', filters.district);
+    if (filters?.cropType) params.set('crop_type', filters.cropType);
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.search) params.set('search', filters.search);
 
     const response = await api.get(`${FIELD_ENDPOINTS.LIST}?${params.toString()}`);
     return response.data;
@@ -98,10 +98,14 @@ export const fieldMapApi = {
   },
 
   /**
-   * Update field
+   * Update field.
+   *
+   * Backend route is `@Put(":id")` — not PATCH. Using PATCH here
+   * produced a 404 from the NestJS router.
+   * تم تصحيح أسلوب HTTP ليطابق مسار الخدمة الخلفية (PUT بدل PATCH)
    */
   updateField: async (id: string, data: FieldUpdate): Promise<Field> => {
-    const response = await api.patch(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), data);
+    const response = await api.put(buildUrl(FIELD_ENDPOINTS.UPDATE, { fieldId: id }), data);
     return response.data;
   },
 
@@ -115,16 +119,12 @@ export const fieldMapApi = {
   /**
    * Get field GeoJSON for map display
    */
-  getFieldsGeoJSON: async (
-    filters?: FieldFilters,
-  ): Promise<GeoJSONFeatureCollection<Field>> => {
+  getFieldsGeoJSON: async (filters?: FieldFilters): Promise<GeoJSONFeatureCollection<Field>> => {
     const params = new URLSearchParams();
-    if (filters?.governorate) params.set("governorate", filters.governorate);
-    if (filters?.status) params.set("status", filters.status);
+    if (filters?.governorate) params.set('governorate', filters.governorate);
+    if (filters?.status) params.set('status', filters.status);
 
-    const response = await api.get(
-      `${FIELD_ENDPOINTS.LIST}/geojson?${params.toString()}`,
-    );
+    const response = await api.get(`${FIELD_ENDPOINTS.LIST}/geojson?${params.toString()}`);
     return response.data;
   },
 

@@ -1,3 +1,5 @@
+library;
+
 /// Weather Repository - Offline-First Weather Data Access
 /// مستودع الطقس - وصول البيانات مع دعم العمل بدون اتصال
 ///
@@ -6,7 +8,6 @@
 /// - Local storage for offline support
 /// - Provider fallback for reliable data fetching
 /// - Automatic cache expiration
-library;
 
 import 'dart:async';
 import 'dart:convert';

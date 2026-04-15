@@ -1,3 +1,5 @@
+library;
+
 /// Sync Metrics Demo - Demonstrates how metrics are recorded
 ///
 /// This file shows how sync operations are tracked and can be used for testing.

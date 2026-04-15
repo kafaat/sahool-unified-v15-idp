@@ -3,23 +3,21 @@
  * اختبارات خطافات جلب البيانات والعمليات
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor, act } from "@testing-library/react";
-import { useApiQuery, useApiMutation, invalidateQueries } from "../use-api-query";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { renderHook, waitFor, act } from '@testing-library/react';
+import { useApiQuery, useApiMutation, invalidateQueries } from '../use-api-query';
 
 // Clear cache between tests
 beforeEach(() => {
-  invalidateQueries("");
+  invalidateQueries('');
 });
 
-describe("useApiQuery", () => {
-  it("fetches data successfully", async () => {
+describe('useApiQuery', () => {
+  it('fetches data successfully', async () => {
     const mockData = { totalFarms: 156, activeFarms: 142 };
     const fetchFn = vi.fn().mockResolvedValue(mockData);
 
-    const { result } = renderHook(() =>
-      useApiQuery(["test", "success"], fetchFn),
-    );
+    const { result } = renderHook(() => useApiQuery(['test', 'success'], fetchFn));
 
     expect(result.current.isLoading).toBe(true);
 
@@ -32,26 +30,24 @@ describe("useApiQuery", () => {
     expect(fetchFn).toHaveBeenCalledTimes(1);
   });
 
-  it("handles errors correctly", async () => {
-    const fetchFn = vi.fn().mockRejectedValue(new Error("Network error"));
+  it('handles errors correctly', async () => {
+    const fetchFn = vi.fn().mockRejectedValue(new Error('Network error'));
 
-    const { result } = renderHook(() =>
-      useApiQuery(["test", "error"], fetchFn),
-    );
+    const { result } = renderHook(() => useApiQuery(['test', 'error'], fetchFn));
 
     await waitFor(() => {
       expect(result.current.isError).toBe(true);
     });
 
-    expect(result.current.error?.message).toBe("Network error");
+    expect(result.current.error?.message).toBe('Network error');
     expect(result.current.data).toBeUndefined();
   });
 
-  it("respects enabled option", async () => {
-    const fetchFn = vi.fn().mockResolvedValue({ data: "test" });
+  it('respects enabled option', async () => {
+    const fetchFn = vi.fn().mockResolvedValue({ data: 'test' });
 
     const { result } = renderHook(() =>
-      useApiQuery(["test", "disabled"], fetchFn, { enabled: false }),
+      useApiQuery(['test', 'disabled'], fetchFn, { enabled: false })
     );
 
     // Should not call fetchFn when disabled
@@ -59,47 +55,39 @@ describe("useApiQuery", () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it("uses initialData", () => {
+  it('uses initialData', () => {
     const initialData = { count: 0 };
     const fetchFn = vi.fn().mockResolvedValue({ count: 5 });
 
-    const { result } = renderHook(() =>
-      useApiQuery(["test", "initial"], fetchFn, { initialData }),
-    );
+    const { result } = renderHook(() => useApiQuery(['test', 'initial'], fetchFn, { initialData }));
 
     expect(result.current.data).toEqual(initialData);
   });
 
-  it("calls onSuccess callback", async () => {
+  it('calls onSuccess callback', async () => {
     const mockData = { value: 42 };
     const fetchFn = vi.fn().mockResolvedValue(mockData);
     const onSuccess = vi.fn();
 
-    renderHook(() =>
-      useApiQuery(["test", "onSuccess"], fetchFn, { onSuccess }),
-    );
+    renderHook(() => useApiQuery(['test', 'onSuccess'], fetchFn, { onSuccess }));
 
     await waitFor(() => {
       expect(onSuccess).toHaveBeenCalledWith(mockData);
     });
   });
 
-  it("calls onError callback", async () => {
-    const fetchFn = vi.fn().mockRejectedValue(new Error("Server error"));
+  it('calls onError callback', async () => {
+    const fetchFn = vi.fn().mockRejectedValue(new Error('Server error'));
     const onError = vi.fn();
 
-    renderHook(() =>
-      useApiQuery(["test", "onError"], fetchFn, { onError }),
-    );
+    renderHook(() => useApiQuery(['test', 'onError'], fetchFn, { onError }));
 
     await waitFor(() => {
-      expect(onError).toHaveBeenCalledWith(
-        expect.objectContaining({ message: "Server error" }),
-      );
+      expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: 'Server error' }));
     });
   });
 
-  it("supports refetch", async () => {
+  it('supports refetch', async () => {
     let callCount = 0;
     const fetchFn = vi.fn().mockImplementation(async () => {
       callCount++;
@@ -107,7 +95,7 @@ describe("useApiQuery", () => {
     });
 
     const { result } = renderHook(() =>
-      useApiQuery(["test", "refetch"], fetchFn, { staleTime: 0 }),
+      useApiQuery(['test', 'refetch'], fetchFn, { staleTime: 0 })
     );
 
     await waitFor(() => {
@@ -122,12 +110,12 @@ describe("useApiQuery", () => {
     expect(fetchFn).toHaveBeenCalledTimes(2);
   });
 
-  it("caches data and serves from cache within staleTime", async () => {
+  it('caches data and serves from cache within staleTime', async () => {
     const fetchFn = vi.fn().mockResolvedValue({ cached: true });
 
     // First render - fetches data
     const { result: result1 } = renderHook(() =>
-      useApiQuery(["test", "cache"], fetchFn, { staleTime: 60000 }),
+      useApiQuery(['test', 'cache'], fetchFn, { staleTime: 60000 })
     );
 
     await waitFor(() => {
@@ -136,7 +124,7 @@ describe("useApiQuery", () => {
 
     // Second render with same key - should use cache
     const { result: result2 } = renderHook(() =>
-      useApiQuery(["test", "cache"], fetchFn, { staleTime: 60000 }),
+      useApiQuery(['test', 'cache'], fetchFn, { staleTime: 60000 })
     );
 
     // Should use cached data immediately
@@ -146,9 +134,9 @@ describe("useApiQuery", () => {
   });
 });
 
-describe("useApiMutation", () => {
-  it("executes mutation successfully", async () => {
-    const mockResult = { id: "new-1", name: "Test" };
+describe('useApiMutation', () => {
+  it('executes mutation successfully', async () => {
+    const mockResult = { id: 'new-1', name: 'Test' };
     const mutationFn = vi.fn().mockResolvedValue(mockResult);
 
     const { result } = renderHook(() => useApiMutation(mutationFn));
@@ -157,7 +145,7 @@ describe("useApiMutation", () => {
 
     let mutateResult: unknown;
     await act(async () => {
-      mutateResult = await result.current.mutate({ name: "Test" });
+      mutateResult = await result.current.mutate({ name: 'Test' });
     });
 
     expect(mutateResult).toEqual(mockResult);
@@ -166,29 +154,27 @@ describe("useApiMutation", () => {
     expect(result.current.isError).toBe(false);
   });
 
-  it("handles mutation errors", async () => {
-    const mutationFn = vi.fn().mockRejectedValue(new Error("Create failed"));
+  it('handles mutation errors', async () => {
+    const mutationFn = vi.fn().mockRejectedValue(new Error('Create failed'));
 
     const { result } = renderHook(() => useApiMutation(mutationFn));
 
     await act(async () => {
-      await result.current.mutate({ name: "Bad" });
+      await result.current.mutate({ name: 'Bad' });
     });
 
     expect(result.current.isError).toBe(true);
-    expect(result.current.error?.message).toBe("Create failed");
+    expect(result.current.error?.message).toBe('Create failed');
   });
 
-  it("calls onSuccess callback with data and variables", async () => {
-    const mockResult = { id: "1" };
+  it('calls onSuccess callback with data and variables', async () => {
+    const mockResult = { id: '1' };
     const mutationFn = vi.fn().mockResolvedValue(mockResult);
     const onSuccess = vi.fn();
 
-    const { result } = renderHook(() =>
-      useApiMutation(mutationFn, { onSuccess }),
-    );
+    const { result } = renderHook(() => useApiMutation(mutationFn, { onSuccess }));
 
-    const variables = { name: "Test" };
+    const variables = { name: 'Test' };
     await act(async () => {
       await result.current.mutate(variables);
     });
@@ -196,11 +182,11 @@ describe("useApiMutation", () => {
     expect(onSuccess).toHaveBeenCalledWith(mockResult, variables);
   });
 
-  it("invalidates cache keys on success", async () => {
+  it('invalidates cache keys on success', async () => {
     // Pre-populate cache
     const fetchFn = vi.fn().mockResolvedValue({ old: true });
     const { result: queryResult } = renderHook(() =>
-      useApiQuery(["fields", "list"], fetchFn, { staleTime: 60000 }),
+      useApiQuery(['fields', 'list'], fetchFn, { staleTime: 60000 })
     );
 
     await waitFor(() => {
@@ -208,10 +194,8 @@ describe("useApiMutation", () => {
     });
 
     // Mutation that invalidates "fields" cache
-    const mutationFn = vi.fn().mockResolvedValue({ id: "1" });
-    const { result } = renderHook(() =>
-      useApiMutation(mutationFn, { invalidateKeys: ["fields"] }),
-    );
+    const mutationFn = vi.fn().mockResolvedValue({ id: '1' });
+    const { result } = renderHook(() => useApiMutation(mutationFn, { invalidateKeys: ['fields'] }));
 
     await act(async () => {
       await result.current.mutate(undefined);
@@ -220,7 +204,7 @@ describe("useApiMutation", () => {
     // Next query with same key should re-fetch (cache invalidated)
     const fetchFn2 = vi.fn().mockResolvedValue({ new: true });
     const { result: queryResult2 } = renderHook(() =>
-      useApiQuery(["fields", "list"], fetchFn2, { staleTime: 60000 }),
+      useApiQuery(['fields', 'list'], fetchFn2, { staleTime: 60000 })
     );
 
     await waitFor(() => {
@@ -228,8 +212,8 @@ describe("useApiMutation", () => {
     });
   });
 
-  it("supports reset", async () => {
-    const mutationFn = vi.fn().mockResolvedValue({ id: "1" });
+  it('supports reset', async () => {
+    const mutationFn = vi.fn().mockResolvedValue({ id: '1' });
     const { result } = renderHook(() => useApiMutation(mutationFn));
 
     await act(async () => {
@@ -248,14 +232,14 @@ describe("useApiMutation", () => {
   });
 });
 
-describe("invalidateQueries", () => {
-  it("clears cache entries matching prefix", async () => {
-    const fetchFn1 = vi.fn().mockResolvedValue({ type: "a" });
-    const fetchFn2 = vi.fn().mockResolvedValue({ type: "b" });
+describe('invalidateQueries', () => {
+  it('clears cache entries matching prefix', async () => {
+    const fetchFn1 = vi.fn().mockResolvedValue({ type: 'a' });
+    const fetchFn2 = vi.fn().mockResolvedValue({ type: 'b' });
 
     // Populate cache
-    renderHook(() => useApiQuery(["dashboard", "stats"], fetchFn1, { staleTime: 60000 }));
-    renderHook(() => useApiQuery(["dashboard", "trends"], fetchFn2, { staleTime: 60000 }));
+    renderHook(() => useApiQuery(['dashboard', 'stats'], fetchFn1, { staleTime: 60000 }));
+    renderHook(() => useApiQuery(['dashboard', 'trends'], fetchFn2, { staleTime: 60000 }));
 
     await waitFor(() => {
       expect(fetchFn1).toHaveBeenCalled();
@@ -263,16 +247,16 @@ describe("invalidateQueries", () => {
     });
 
     // Invalidate all dashboard queries
-    invalidateQueries("dashboard");
+    invalidateQueries('dashboard');
 
     // Re-render should trigger fresh fetch
-    const fetchFn3 = vi.fn().mockResolvedValue({ type: "fresh" });
+    const fetchFn3 = vi.fn().mockResolvedValue({ type: 'fresh' });
     const { result } = renderHook(() =>
-      useApiQuery(["dashboard", "stats"], fetchFn3, { staleTime: 60000 }),
+      useApiQuery(['dashboard', 'stats'], fetchFn3, { staleTime: 60000 })
     );
 
     await waitFor(() => {
-      expect(result.current.data).toEqual({ type: "fresh" });
+      expect(result.current.data).toEqual({ type: 'fresh' });
     });
   });
 });

@@ -95,9 +95,9 @@ execute_admin_query() {
     _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
     # Use explicit || return 1 to prevent set -e from exiting the script
     # when psql fails, allowing callers to handle the failure gracefully.
-    # PGCONNECT_TIMEOUT=5: cap TCP connection-establishment time so a
-    # non-responding PgBouncer never blocks the healthcheck longer than 5 s.
-    PGCONNECT_TIMEOUT=5 PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+    # PGCONNECT_TIMEOUT=3: cap TCP connection-establishment time so a
+    # non-responding PgBouncer never blocks the healthcheck longer than 3 s.
+    PGCONNECT_TIMEOUT=3 PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
       -U "$_stats_user" -d pgbouncer -t -A -c "$_query" 2>/dev/null || return 1
     return 0
   else
@@ -108,26 +108,26 @@ execute_admin_query() {
   fi
 }
 
-# Check basic connectivity: try admin console first, then end-to-end through PgBouncer.
+# Check basic connectivity: try admin console, then TCP fallback.
 # This is used only for the initial connectivity probe (Check 1).
+#
+# FIX (2026-04-12): Removed the "SELECT 1" end-to-end check entirely.
+# That query routes through PgBouncer to PostgreSQL, meaning it blocks for
+# up to query_wait_timeout (30 s) when the pool has no server connections yet
+# (cold start, auth_user failure, etc.). Docker's healthcheck timeout (10 s)
+# kills the CMD-SHELL before the "|| nc -z" fallback in docker-compose can
+# run, so the container is marked unhealthy even though PgBouncer is listening.
+#
+# SHOW VERSION executes entirely inside PgBouncer (no PostgreSQL round-trip),
+# so it completes in <1 ms and is a reliable liveness signal.
 check_connectivity() {
   if command -v psql >/dev/null 2>&1; then
-    # Try admin console using SHOW VERSION - a valid PgBouncer admin command that
-    # always returns one row and executes entirely within PgBouncer (no PostgreSQL
-    # server connection needed, so it never blocks waiting for query_wait_timeout).
-    # FIX: "SELECT 1" is not a valid admin console command; it always fails here,
-    # forcing the code to fall through to the end-to-end check below, which CAN
-    # hang for up to query_wait_timeout (30 s) waiting for a server connection.
-    # That exceeds Docker's 15 s healthcheck timeout, killing the CMD-SHELL before
-    # the "|| nc -z localhost 6432" fallback in docker-compose can run.
     _stats_user=$(resolve_admin_user)
     _stats_pass="${PGBOUNCER_ADMIN_PASSWORD:-${POSTGRES_PASSWORD}}"
-    PGCONNECT_TIMEOUT=5 PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
+    # PGCONNECT_TIMEOUT=3: cap TCP handshake so we stay well within Docker's
+    # healthcheck timeout budget (10 s total for all checks).
+    PGCONNECT_TIMEOUT=3 PGPASSWORD="$_stats_pass" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
       -U "$_stats_user" -d pgbouncer -t -A -c "SHOW VERSION;" 2>/dev/null && return 0
-
-    # Try end-to-end: main DB user connecting through PgBouncer to PostgreSQL
-    PGCONNECT_TIMEOUT=5 PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$PGBOUNCER_HOST" -p "$PGBOUNCER_PORT" \
-      -U "$POSTGRES_USER" -d "${DB_NAME:-sahool}" -t -A -c "SELECT 1" 2>/dev/null && return 0
 
     return 1
   else

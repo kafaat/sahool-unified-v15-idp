@@ -6,9 +6,10 @@ Tests for SAHOOL AI Agents
 Tests for the autonomous agricultural agents inspired by Dexter, OpenCode, and Claude Code.
 """
 
-import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 from datetime import datetime
+from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 
 class TestAgentMode:
@@ -318,8 +319,8 @@ class TestFarmAdvisorAgentInit:
 
     def test_agent_initialization(self):
         """Test that agent initializes correctly."""
-        from shared.ai.agents.farm_advisor import FarmAdvisorAgent
         from shared.ai.agents.base import AgentMode
+        from shared.ai.agents.farm_advisor import FarmAdvisorAgent
 
         agent = FarmAdvisorAgent(
             tenant_id="test_tenant",
@@ -354,8 +355,8 @@ class TestPlannerAgentInit:
 
     def test_agent_initialization(self):
         """Test that agent initializes correctly."""
-        from shared.ai.agents.planner import PlannerAgent
         from shared.ai.agents.base import AgentMode
+        from shared.ai.agents.planner import PlannerAgent
 
         agent = PlannerAgent(tenant_id="test_tenant")
 

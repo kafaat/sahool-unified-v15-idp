@@ -15,6 +15,7 @@ import {
   HttpStatus,
   UseGuards,
   BadRequestException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { Request } from "express";
 import {
@@ -110,6 +111,22 @@ class IngestSensorReadingDto {
   timestamp?: string;
 }
 
+// -------- Actuator command DTO (IOT_ENDPOINTS.ACTUATORS POST /{id}/command) --------
+
+class ActuatorCommandDto {
+  @IsString()
+  command: string; // "open" | "close" | "set_position" | "start" | "stop" | custom
+
+  @IsOptional()
+  parameters?: Record<string, unknown>;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  @Max(3600)
+  durationSeconds?: number;
+}
+
 // =============================================================================
 // Controller
 // =============================================================================
@@ -120,11 +137,23 @@ export class IotController {
   constructor(private readonly iotService: IotService) {}
 
   /**
-   * Extract tenantId from authenticated request
-   * استخراج معرف المستأجر من الطلب المصادق عليه
+   * Extract tenantId from authenticated request (JWT `tid` / `tenant_id` claim).
+   * استخراج معرف المستأجر من الرمز المصادق عليه
+   *
+   * SECURITY: Never trust the `x-tenant-id` header. The tenant id must
+   * come from the JWT claim set by JwtAuthGuard; otherwise a client
+   * could impersonate another tenant by setting the header.
    */
   private getTenantId(req: Request): string {
-    return (req as any).user?.tenantId || req.headers['x-tenant-id'] as string || 'default';
+    const tid = (req as any).user?.tenantId || (req as any).user?.tid;
+    if (!tid || typeof tid !== "string") {
+      throw new UnauthorizedException({
+        error: "missing_tenant",
+        message: "JWT missing tenant id (tid)",
+        message_ar: "الرمز لا يحتوي على معرف المستأجر",
+      });
+    }
+    return tid;
   }
 
   // ==========================================================================
@@ -357,5 +386,96 @@ export class IotController {
       sensorType,
       hours ? parseInt(hours, 10) : 24,
     );
+  }
+
+  // ==========================================================================
+  // Actuators (IOT_ENDPOINTS.ACTUATORS)
+  // ==========================================================================
+
+  /**
+   * List actuators for the current tenant.
+   *
+   * Aligned with ``IOT_ENDPOINTS.ACTUATORS`` in the shared contracts
+   * package. Returns actuator devices (pumps, valves, motors) scoped to
+   * the tenant extracted from the JWT.
+   */
+  @Get("actuators")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "List actuators for the current tenant" })
+  @ApiResponse({ status: 200, description: "Actuator list retrieved" })
+  async listActuators(
+    @Req() req: Request,
+    @Query("fieldId") fieldId?: string,
+    @Query("type") type?: string,
+    @Query("limit") limit?: string,
+    @Query("offset") offset?: string,
+  ) {
+    const tenantId = this.getTenantId(req);
+    const parsedLimit = limit ? Math.min(parseInt(limit, 10) || 50, 200) : 50;
+    const parsedOffset = offset ? Math.max(parseInt(offset, 10) || 0, 0) : 0;
+    return this.iotService.listActuators(tenantId, {
+      fieldId,
+      actuatorType: type,
+      limit: parsedLimit,
+      offset: parsedOffset,
+    });
+  }
+
+  /**
+   * Send a command to a specific actuator.
+   *
+   * Returns HTTP 202 Accepted since commands are dispatched to the
+   * device asynchronously via MQTT. The returned ``commandId`` can be
+   * used to poll command status.
+   */
+  @Post("actuators/:id/command")
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({ summary: "Send a command to an actuator" })
+  @ApiParam({ name: "id", description: "Actuator identifier" })
+  @ApiBody({ type: ActuatorCommandDto })
+  @ApiResponse({ status: 202, description: "Command accepted and queued" })
+  async sendActuatorCommand(
+    @Param("id") actuatorId: string,
+    @Body() dto: ActuatorCommandDto,
+    @Req() req: Request,
+  ) {
+    const tenantId = this.getTenantId(req);
+    return this.iotService.dispatchActuatorCommand(tenantId, actuatorId, {
+      command: dto.command,
+      parameters: dto.parameters,
+      durationSeconds: dto.durationSeconds,
+    });
+  }
+
+  // ==========================================================================
+  // Alert Rules (IOT_ENDPOINTS.ALERT_RULES)
+  // ==========================================================================
+
+  /**
+   * List alert rules for the current tenant.
+   *
+   * Aligned with ``IOT_ENDPOINTS.ALERT_RULES`` in the shared contracts
+   * package. Returns threshold-based alerting rules (sensor, metric,
+   * operator, threshold, severity).
+   */
+  @Get("alert-rules")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "List IoT alert rules for the current tenant" })
+  @ApiResponse({ status: 200, description: "Alert rules retrieved" })
+  async listAlertRules(
+    @Req() req: Request,
+    @Query("enabled") enabled?: string,
+    @Query("sensorId") sensorId?: string,
+    @Query("fieldId") fieldId?: string,
+  ) {
+    const tenantId = this.getTenantId(req);
+    const enabledFilter =
+      typeof enabled === "string" ? enabled.toLowerCase() === "true" : undefined;
+    return this.iotService.listAlertRules(tenantId, {
+      enabled: enabledFilter,
+      sensorId,
+      fieldId,
+    });
   }
 }

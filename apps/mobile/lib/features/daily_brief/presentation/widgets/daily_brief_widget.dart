@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/theme/sahool_theme.dart';
 import '../providers/daily_brief_provider.dart';
 
@@ -41,7 +42,7 @@ class _DailyBriefContent extends StatelessWidget {
         gradient: LinearGradient(
           colors: [
             SahoolColors.forestGreen,
-            SahoolColors.forestGreen.withOpacity(0.8),
+            SahoolColors.forestGreen.withValues(alpha: 0.8),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -49,7 +50,7 @@ class _DailyBriefContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: SahoolColors.forestGreen.withOpacity(0.3),
+            color: SahoolColors.forestGreen.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -118,7 +119,7 @@ class _DailyBriefContent extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -147,21 +148,21 @@ class _DailyBriefContent extends StatelessWidget {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.15),
+        color: Colors.white.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
+          const Row(
             children: [
               Icon(
                 Icons.priority_high_rounded,
                 color: SahoolColors.warning,
                 size: 20,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              SizedBox(width: 8),
+              Text(
                 'يحتاج اهتمامك اليوم',
                 style: TextStyle(
                   color: Colors.white,
@@ -208,7 +209,7 @@ class _DailyBriefContent extends StatelessWidget {
               },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                backgroundColor: Colors.white.withOpacity(0.2),
+                backgroundColor: Colors.white.withValues(alpha: 0.2),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -235,7 +236,9 @@ class _DailyBriefContent extends StatelessWidget {
             child: _QuickActionButton(
               icon: Icons.water_drop_rounded,
               label: 'الري',
-              onTap: () {},
+              onTap: () {
+                context.push('/irrigation');
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -244,7 +247,9 @@ class _DailyBriefContent extends StatelessWidget {
               icon: Icons.task_alt_rounded,
               label: 'المهام',
               badge: brief.pendingTasksCount > 0 ? '${brief.pendingTasksCount}' : null,
-              onTap: () {},
+              onTap: () {
+                context.push('/tasks');
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -252,7 +257,9 @@ class _DailyBriefContent extends StatelessWidget {
             child: _QuickActionButton(
               icon: Icons.camera_alt_rounded,
               label: 'فحص',
-              onTap: () {},
+              onTap: () {
+                context.push('/scanner');
+              },
             ),
           ),
         ],
@@ -305,7 +312,7 @@ class _QuickActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withOpacity(0.15),
+      color: Colors.white.withValues(alpha: 0.15),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onTap,

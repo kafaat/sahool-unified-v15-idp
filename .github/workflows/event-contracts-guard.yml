@@ -24,6 +24,22 @@ jobs:
   # ─────────────────────────────────────────────────────────────────────────────
   # Validate Event Schemas
   # ─────────────────────────────────────────────────────────────────────────────
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Enforce `sahool.` prefix on every NATS publish/subscribe. See
+  # apps/services/NATS_AUDIT.md §3 Bug #1 — TypeScript publishers that
+  # omit the prefix silently drop events because no Python consumer
+  # subscribes without it.
+  # ─────────────────────────────────────────────────────────────────────────────
+  subject-prefix:
+    name: Verify NATS subject prefix (sahool.*)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Check NATS subjects are sahool-prefixed
+        run: ./scripts/check-event-subject-prefix.sh
+
   validate-schemas:
     name: Validate Event Schemas
     runs-on: ubuntu-latest
@@ -259,11 +275,30 @@ jobs:
               for change in breaking_changes:
                   print(f'  🚨 {change}')
               print('\\n⚠️  Breaking changes require version bump and migration plan')
-              print('   Add \"BREAKING:\" prefix to commit message if intentional')
 
-              # Check if commit message indicates intentional breaking change
-              # For now, just warn but don't fail
-              print('\\n::warning::Breaking changes detected in event schemas')
+              # Check all commits in the PR branch (not just the last one)
+              result = subprocess.run(
+                  ['git', 'log', f'origin/{base_branch}..HEAD', '--format=%s'],
+                  capture_output=True, text=True
+              )
+              if result.returncode != 0:
+                  # Fallback to last 5 commits
+                  result = subprocess.run(
+                      ['git', 'log', '-5', '--format=%s'],
+                      capture_output=True, text=True
+                  )
+              commit_msgs = result.stdout.strip().split('\\n') if result.stdout.strip() else []
+
+              breaking_prefix_found = any(
+                  msg.startswith('BREAKING:') for msg in commit_msgs
+              )
+
+              if breaking_prefix_found:
+                  print('\\n✅ BREAKING: prefix found — intentional breaking change accepted.')
+              else:
+                  print('\\n❌ Add \"BREAKING:\" prefix to commit message if intentional.')
+                  print('::error::Breaking changes detected in event schemas without BREAKING: commit prefix.')
+                  sys.exit(1)
           else:
               print('\\n✅ No breaking changes detected')
           "

@@ -3,9 +3,9 @@
  * مكون مخطط المقارنة
  */
 
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   DynamicLineChart as LineChart,
   DynamicLine as Line,
@@ -17,9 +17,9 @@ import {
   DynamicTooltip as Tooltip,
   DynamicLegend as Legend,
   DynamicResponsiveContainer as ResponsiveContainer,
-} from "@/components/charts/LazyRecharts.dynamic";
-import { useComparison } from "../hooks/useAnalytics";
-import type { AnalyticsFilters, ComparisonType, MetricType } from "../types";
+} from '@/components/charts/LazyRecharts.dynamic';
+import { useComparison } from '../hooks/useAnalytics';
+import type { AnalyticsFilters, ComparisonType, MetricType } from '../types';
 
 interface ComparisonChartProps {
   type: ComparisonType;
@@ -27,26 +27,19 @@ interface ComparisonChartProps {
   filters?: AnalyticsFilters;
 }
 
-const COLORS = [
-  "#10b981",
-  "#3b82f6",
-  "#f59e0b",
-  "#8b5cf6",
-  "#ec4899",
-  "#06b6d4",
-];
+const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4'];
 
-export const ComparisonChart: React.FC<ComparisonChartProps> = ({
-  type,
-  metric,
-  filters,
-}) => {
-  const [chartType, setChartType] = useState<"line" | "bar">("bar");
+export const ComparisonChart: React.FC<ComparisonChartProps> = ({ type, metric, filters }) => {
+  const [chartType, setChartType] = useState<'line' | 'bar'>('bar');
   const { data: comparison, isLoading } = useComparison(type, metric, filters);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64" role="status" aria-label="جاري التحميل | Loading">
+      <div
+        className="flex items-center justify-center h-64"
+        role="status"
+        aria-label="جاري التحميل | Loading"
+      >
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
       </div>
     );
@@ -56,9 +49,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
     return (
       <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center">
         <p className="text-gray-600">لا توجد بيانات مقارنة متاحة</p>
-        <p className="text-sm text-gray-500 mt-1">
-          No comparison data available
-        </p>
+        <p className="text-sm text-gray-500 mt-1">No comparison data available</p>
       </div>
     );
   }
@@ -86,31 +77,31 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
         <div>
           <h3 className="text-lg font-semibold text-gray-900">المقارنة</h3>
           <p className="text-sm text-gray-600 mt-1">
-            {type === "fields" && "مقارنة بين الحقول"}
-            {type === "seasons" && "مقارنة بين المواسم"}
-            {type === "crops" && "مقارنة بين المحاصيل"}
+            {type === 'fields' && 'مقارنة بين الحقول'}
+            {type === 'seasons' && 'مقارنة بين المواسم'}
+            {type === 'crops' && 'مقارنة بين المحاصيل'}
           </p>
         </div>
 
         <div className="flex gap-2" role="group" aria-label="نوع المخطط | Chart type">
           <button
-            onClick={() => setChartType("bar")}
-            aria-pressed={chartType === "bar"}
+            onClick={() => setChartType('bar')}
+            aria-pressed={chartType === 'bar'}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              chartType === "bar"
-                ? "bg-green-500 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              chartType === 'bar'
+                ? 'bg-green-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             أعمدة
           </button>
           <button
-            onClick={() => setChartType("line")}
-            aria-pressed={chartType === "line"}
+            onClick={() => setChartType('line')}
+            aria-pressed={chartType === 'line'}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-              chartType === "line"
-                ? "bg-green-500 text-white"
-                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              chartType === 'line'
+                ? 'bg-green-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
             خطوط
@@ -119,9 +110,9 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
       </div>
 
       {/* Chart */}
-      <div style={{ height: "400px" }}>
+      <div style={{ height: '400px' }}>
         <ResponsiveContainer width="100%" height="100%">
-          {chartType === "bar" ? (
+          {chartType === 'bar' ? (
             <BarChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="date" />
@@ -129,11 +120,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
               <Tooltip />
               <Legend />
               {comparison.items.map((item, index) => (
-                <Bar
-                  key={item.id}
-                  dataKey={item.nameAr}
-                  fill={COLORS[index % COLORS.length]}
-                />
+                <Bar key={item.id} dataKey={item.nameAr} fill={COLORS[index % COLORS.length]} />
               ))}
             </BarChart>
           ) : (
@@ -167,7 +154,7 @@ export const ComparisonChart: React.FC<ComparisonChartProps> = ({
           >
             <p className="text-sm text-gray-600">{item.nameAr}</p>
             <p className="text-2xl font-bold text-gray-900 mt-1">
-              {item.value.toLocaleString("ar-SA")}
+              {item.value.toLocaleString('ar-SA')}
             </p>
           </div>
         ))}

@@ -160,7 +160,8 @@ class DLQMessageMetadata(BaseModel):
     # Original message info
     original_subject: str = Field(..., description="Original NATS subject")
     original_event_id: str | None = Field(None, description="Original event ID")
-    correlation_id: str | None = Field(None, description="Correlation ID for tracing")
+    tenant_id: str = Field(default="", description="Tenant identifier")
+    correlation_id: str = Field(default="", description="Correlation ID for tracing")
 
     # Failure info
     retry_count: int = Field(default=0, ge=0, description="Number of retry attempts")

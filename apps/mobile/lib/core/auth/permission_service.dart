@@ -81,6 +81,7 @@ class Permission {
 enum UserRole {
   viewer('viewer', 'مشاهد'),
   worker('worker', 'عامل ميداني'),
+  farmer('farmer', 'مزارع'),
   supervisor('supervisor', 'مشرف'),
   manager('manager', 'مدير'),
   admin('admin', 'مسؤول'),
@@ -92,8 +93,9 @@ enum UserRole {
   const UserRole(this.value, this.arabicLabel);
 
   static UserRole fromString(String value) {
+    final normalized = value.toLowerCase().trim();
     return UserRole.values.firstWhere(
-      (r) => r.value == value,
+      (r) => r.value == normalized,
       orElse: () => UserRole.viewer,
     );
   }
@@ -127,6 +129,25 @@ final Map<UserRole, Set<String>> rolePermissions = {
     Permission.reportView,
     Permission.chatRead,
     // Worker-specific
+    Permission.taskEdit,
+    Permission.taskExecute,
+    Permission.taskComplete,
+    Permission.chatWrite,
+    Permission.offlineSync,
+    Permission.offlinePhotoUpload,
+  },
+
+  // Farmer - مزارع (same permissions as worker)
+  UserRole.farmer: {
+    Permission.fieldView,
+    Permission.taskView,
+    Permission.ndviView,
+    Permission.weatherView,
+    Permission.iotView,
+    Permission.sensorView,
+    Permission.irrigationView,
+    Permission.reportView,
+    Permission.chatRead,
     Permission.taskEdit,
     Permission.taskExecute,
     Permission.taskComplete,
@@ -319,11 +340,11 @@ class CapabilityToken {
       userId: json['user_id'] as String,
       tenantId: json['tenant_id'] as String,
       role: UserRole.fromString(json['role'] as String),
-      capabilities: Set<String>.from(json['capabilities'] as List),
-      assignedFieldIds: List<String>.from(json['assigned_field_ids'] ?? []),
-      assignedFarmIds: List<String>.from(json['assigned_farm_ids'] ?? []),
-      expiresAt: DateTime.parse(json['expires_at'] as String),
-      issuedAt: DateTime.parse(json['issued_at'] as String),
+      capabilities: Set<String>.from(json['capabilities'] as List? ?? []),
+      assignedFieldIds: List<String>.from((json['assigned_field_ids'] ?? []) as Iterable),
+      assignedFarmIds: List<String>.from((json['assigned_farm_ids'] ?? []) as Iterable),
+      expiresAt: DateTime.tryParse(json['expires_at'] as String) ?? DateTime.now(),
+      issuedAt: DateTime.tryParse(json['issued_at'] as String) ?? DateTime.now(),
     );
   }
 

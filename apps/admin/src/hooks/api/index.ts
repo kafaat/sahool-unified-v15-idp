@@ -11,7 +11,7 @@ export {
   type ApiError,
   type UseApiQueryResult,
   type UseApiMutationResult,
-} from "./use-api-query";
+} from './use-api-query';
 
 // Dashboard
 export {
@@ -20,7 +20,7 @@ export {
   useCropDistribution,
   useWeeklyActivity,
   usePlatformMetrics,
-} from "./use-dashboard";
+} from './use-dashboard';
 
 // Fields
 export {
@@ -32,7 +32,7 @@ export {
   useCreateField,
   useUpdateField,
   useDeleteField,
-} from "./use-fields";
+} from './use-fields';
 
 // Weather
 export {
@@ -43,16 +43,23 @@ export {
   useWeatherForecastByLocation,
   useWeatherLocations,
   useWeatherAlerts,
-} from "./use-weather";
+} from './use-weather';
 
 // Notifications
-export { useNotifications, useMarkNotificationRead } from "./use-notifications";
+export { useNotifications, useMarkNotificationRead } from './use-notifications';
 
 // Tasks
-export { useTasks, useUpdateTaskStatus, useCreateTask } from "./use-tasks";
+export { useTasks, useUpdateTaskStatus, useCreateTask } from './use-tasks';
 
 // Alerts
-export { useAlerts, useAcknowledgeAlert } from "./use-alerts";
+export {
+  useAlerts,
+  useAlertCount,
+  useAcknowledgeAlert,
+  useResolveAlert,
+  useDismissAlert,
+  useAlertRules,
+} from './use-alerts';
 
 // Realtime
-export { useRealtimeSync } from "./use-realtime";
+export { useRealtimeSync } from './use-realtime';

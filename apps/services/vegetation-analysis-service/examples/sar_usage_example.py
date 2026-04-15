@@ -164,14 +164,14 @@ async def check_field_soil_moisture():
 
 
 if __name__ == "__main__":
-    print("\nNote: Make sure the satellite service is running on port 8090")
+    print("\nNote: Make sure the vegetation analysis service is running on port 8090")
     print("ملاحظة: تأكد من تشغيل خدمة الأقمار الصناعية على المنفذ 8090\n")
 
     try:
         asyncio.run(check_field_soil_moisture())
     except httpx.ConnectError:
-        print("\n❌ Error: Cannot connect to satellite service")
+        print("\n❌ Error: Cannot connect to vegetation analysis service")
         print("❌ خطأ: لا يمكن الاتصال بخدمة الأقمار الصناعية")
         print("\nStart the service with:")
-        print("  cd apps/services/satellite-service")
+        print("  cd apps/services/vegetation-analysis-service")
         print("  uvicorn src.main:app --port 8090")

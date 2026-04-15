@@ -6,14 +6,14 @@
  * Uses cookie-based locale storage (NEXT_LOCALE) since localePrefix is "never"
  */
 
-"use client";
+'use client';
 
-import React, { useTransition } from "react";
-import { useRouter } from "next/navigation";
-import { useLocale } from "next-intl";
-import { Globe } from "lucide-react";
-import { clsx } from "clsx";
-import { locales, getLocaleDisplayName } from "@sahool/i18n";
+import React, { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useLocale } from 'next-intl';
+import { Globe } from 'lucide-react';
+import { clsx } from 'clsx';
+import { locales, getLocaleDisplayName } from '@sahool/i18n';
 
 /**
  * Set the locale cookie and refresh the page
@@ -54,15 +54,15 @@ export function LocaleSwitcher() {
                 onClick={() => handleLocaleChange(locale)}
                 disabled={isPending || isActive}
                 className={clsx(
-                  "px-3 py-1 text-sm font-medium rounded transition-colors",
-                  "focus:outline-none focus:ring-2 focus:ring-sahool-green-500",
+                  'px-3 py-1 text-sm font-medium rounded transition-colors',
+                  'focus:outline-none focus:ring-2 focus:ring-sahool-green-500',
                   isActive
-                    ? "bg-sahool-green-100 text-sahool-green-700"
-                    : "text-gray-600 hover:bg-gray-100",
-                  isPending && "opacity-50 cursor-wait",
+                    ? 'bg-sahool-green-100 text-sahool-green-700'
+                    : 'text-gray-600 hover:bg-gray-100',
+                  isPending && 'opacity-50 cursor-wait'
                 )}
                 aria-label={`Switch to ${getLocaleDisplayName(locale)}`}
-                aria-current={isActive ? "true" : undefined}
+                aria-current={isActive ? 'true' : undefined}
               >
                 {getLocaleDisplayName(locale)}
               </button>

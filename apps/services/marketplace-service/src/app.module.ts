@@ -16,6 +16,7 @@ import { WalletService } from "./fintech/wallet.service";
 import { CreditService } from "./fintech/credit.service";
 import { LoanService } from "./fintech/loan.service";
 import { EscrowService } from "./fintech/escrow.service";
+import { IdempotencyService } from "./fintech/idempotency.service";
 import { JwtAuthGuard, OptionalJwtAuthGuard } from "./auth/jwt-auth.guard";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { ReviewsModule } from "./reviews/reviews.module";
@@ -58,6 +59,7 @@ import { CacheModule } from "./cache/cache.module";
   controllers: [AppController],
   providers: [
     PrismaService,
+    IdempotencyService,
     MarketService,
     WalletService,
     CreditService,
@@ -66,6 +68,11 @@ import { CacheModule } from "./cache/cache.module";
     FintechService,
     JwtAuthGuard,
     OptionalJwtAuthGuard,
+    // Global JWT authentication guard (security fix: all endpoints require auth by default)
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
     // Global rate limiting guard
     {
       provide: APP_GUARD,

@@ -28,7 +28,7 @@ import logging
 import os
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from .contracts import BaseEvent
 
@@ -139,10 +139,9 @@ def _build_nats_headers(event: BaseEvent) -> dict | None:
     if event.event_id:
         headers["X-Event-ID"] = event.event_id
 
-    # Tenant scoping (from JWT tid claim or event field)
-    tenant_id = getattr(event, "tenant_id_header", None) or getattr(event, "tenant_id", None)
-    if tenant_id:
-        headers["X-Tenant-ID"] = str(tenant_id)
+    # Tenant scoping (from event field, populated from JWT tid claim)
+    if event.tenant_id:
+        headers["X-Tenant-ID"] = str(event.tenant_id)
 
     # Schema version for consumer compatibility checks
     if event.version:
@@ -206,6 +205,21 @@ class PublisherConfig(BaseModel):
     max_retry_attempts: int = Field(default=3, description="Maximum retry attempts")
     retry_delay: float = Field(default=0.5, description="Delay between retries in seconds")
 
+    # TLS Configuration
+    tls_enabled: bool = Field(default=False, description="Enable TLS for NATS connection")
+    tls_ca_path: str | None = Field(default=None, description="Path to CA certificate")
+    tls_cert_path: str | None = Field(default=None, description="Path to client certificate")
+    tls_key_path: str | None = Field(default=None, description="Path to client key")
+
+    @model_validator(mode="after")
+    def _load_tls_from_env(self) -> PublisherConfig:
+        if os.getenv("NATS_TLS_ENABLED", "").lower() in ("true", "1", "yes"):
+            self.tls_enabled = True
+            self.tls_ca_path = self.tls_ca_path or os.getenv("NATS_TLS_CA")
+            self.tls_cert_path = self.tls_cert_path or os.getenv("NATS_TLS_CERT")
+            self.tls_key_path = self.tls_key_path or os.getenv("NATS_TLS_KEY")
+        return self
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Publisher
@@ -250,10 +264,26 @@ class EventPublisher:
         self._publish_count = 0
         self._error_count = 0
 
+        # Reconnection message buffer (max 1000 messages)
+        self._pending_buffer: list[tuple[str, bytes, float, bool, dict | None]] = []
+        self._pending_buffer_max_size: int = 1000
+        self._buffered_count = 0
+        self._buffer_overflow_count = 0
+
+        # DLQ buffer for events rejected due to missing tenant_id
+        self._rejected_events: list[dict] = []
+        self._rejected_events_max: int = 100
+        self._rejected_count: int = 0
+
     @property
     def is_connected(self) -> bool:
         """Check if connected to NATS."""
         return self._connected and self._nc is not None
+
+    @property
+    def rejected_events(self) -> list[dict]:
+        """Return a copy of the rejected-events DLQ buffer (missing tenant_id)."""
+        return list(self._rejected_events)
 
     @property
     def stats(self) -> dict[str, Any]:
@@ -262,6 +292,11 @@ class EventPublisher:
             "connected": self._connected,
             "publish_count": self._publish_count,
             "error_count": self._error_count,
+            "buffered_count": self._buffered_count,
+            "pending_buffer_size": len(self._pending_buffer),
+            "buffer_overflow_count": self._buffer_overflow_count,
+            "rejected_count": self._rejected_count,
+            "rejected_buffer_size": len(self._rejected_events),
             "service_name": self.service_name,
             "service_version": self.service_version,
         }
@@ -288,6 +323,17 @@ class EventPublisher:
             _safe_servers = sanitize_urls(self.config.servers)
             logger.info(f"Connecting to NATS: {_safe_servers}")
 
+            connect_opts = {}
+            if self.config.tls_enabled:
+                import ssl
+
+                tls_context = ssl.create_default_context()
+                if self.config.tls_ca_path:
+                    tls_context.load_verify_locations(self.config.tls_ca_path)
+                if self.config.tls_cert_path and self.config.tls_key_path:
+                    tls_context.load_cert_chain(self.config.tls_cert_path, self.config.tls_key_path)
+                connect_opts["tls"] = tls_context
+
             self._nc = await nats.connect(
                 servers=self.config.servers,
                 name=self.config.name,
@@ -297,6 +343,7 @@ class EventPublisher:
                 disconnected_cb=self._disconnected_callback,
                 reconnected_cb=self._reconnected_callback,
                 closed_cb=self._closed_callback,
+                **connect_opts,
             )
 
             # Enable JetStream if configured
@@ -354,11 +401,7 @@ class EventPublisher:
         Returns:
             True if published successfully, False otherwise
         """
-        if not self.is_connected:
-            logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
-            return False
-
-        # ── Metadata enrichment ──────────────────────────────────────────
+        # ── Metadata enrichment (must happen before buffering) ────────────
         if not event.source_service:
             event.source_service = self.service_name
 
@@ -369,10 +412,26 @@ class EventPublisher:
             event.correlation_id = _get_current_correlation_id()
 
         # Tenant propagation: pull from request context if not set on event
-        if not getattr(event, "tenant_id_header", None):
+        if not event.tenant_id:
             ctx_tenant = _get_current_tenant_id()
             if ctx_tenant:
-                event.tenant_id_header = ctx_tenant
+                event.tenant_id = ctx_tenant
+
+        # Reject if tenant_id is still missing (critical for multi-tenant isolation)
+        # This guard runs BEFORE buffering so cross-tenant events are never queued.
+        if not event.tenant_id:
+            logger.error(
+                "event_rejected_missing_tenant_id: subject=%s event_id=%s service=%s",
+                subject,
+                event.event_id,
+                event.source_service,
+            )
+            self._error_count += 1
+            return False
+
+        if not self.is_connected:
+            # Buffer the message for retry when reconnected instead of dropping
+            return self._buffer_message(subject, event, timeout, use_jetstream)
 
         # M1: Inject OTel trace context (trace_id, span_id, tracestate)
         if not event.trace_id:
@@ -465,6 +524,22 @@ class EventPublisher:
         Returns:
             True if published successfully
         """
+        # Normalize camelCase tenantId → tenant_id
+        if isinstance(data, dict) and "tenantId" in data and "tenant_id" not in data:
+            data["tenant_id"] = data["tenantId"]
+
+        # Enforce tenant_id — reject and record in DLQ if missing
+        if isinstance(data, dict) and not data.get("tenant_id"):
+            logger.error("publish_json rejected missing tenant_id: subject=%s service=%s", subject, self.service_name)
+            self._error_count += 1
+            self._rejected_count += 1
+            self._rejected_events.append(
+                {"subject": subject, "reason": "missing_tenant_id", "service": self.service_name}
+            )
+            if len(self._rejected_events) > self._rejected_events_max:
+                self._rejected_events = self._rejected_events[-self._rejected_events_max :]
+            return False
+
         if not self.is_connected:
             logger.warning(f"Not connected to NATS. Cannot publish to {subject}")
             return False
@@ -539,6 +614,87 @@ class EventPublisher:
         return event.model_dump_json().encode("utf-8")
 
     # ─────────────────────────────────────────────────────────────────────────
+    # Reconnection Message Buffer
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _buffer_message(
+        self,
+        subject: str,
+        event: BaseEvent,
+        timeout: float | None,
+        use_jetstream: bool | None,
+    ) -> bool:
+        """
+        Buffer a message for retry when reconnected instead of dropping it.
+        تخزين الرسالة مؤقتا لإعادة المحاولة عند إعادة الاتصال
+
+        Returns:
+            True if buffered successfully, False if buffer is full
+        """
+        if len(self._pending_buffer) >= self._pending_buffer_max_size:
+            self._buffer_overflow_count += 1
+            logger.error(
+                f"Pending buffer full ({self._pending_buffer_max_size}). "
+                f"Dropping message for {subject}. "
+                f"Overflow count: {self._buffer_overflow_count}"
+            )
+            self._error_count += 1
+            return False
+
+        # Serialize eagerly so we fail fast on bad data
+        try:
+            data = self._serialize_event(event)
+        except (json.JSONDecodeError, TypeError, ValueError, AttributeError) as e:
+            logger.error(f"Failed to serialize event for buffering: {e}")
+            self._error_count += 1
+            return False
+
+        headers = _build_nats_headers(event)
+        effective_timeout = timeout or self.config.default_timeout
+        effective_js = use_jetstream if use_jetstream is not None else self.config.enable_jetstream
+
+        self._pending_buffer.append((subject, data, effective_timeout, effective_js, headers))
+        self._buffered_count += 1
+        logger.warning(
+            f"Buffered message for {subject} (buffer size: {len(self._pending_buffer)}). Will flush on reconnection."
+        )
+        return True
+
+    async def _flush_buffer(self) -> int:
+        """
+        Flush all buffered messages after reconnection.
+        إرسال جميع الرسائل المخزنة مؤقتا بعد إعادة الاتصال
+
+        Returns:
+            Number of successfully flushed messages
+        """
+        if not self._pending_buffer:
+            return 0
+
+        buffer_size = len(self._pending_buffer)
+        logger.info(f"Flushing {buffer_size} buffered messages after reconnection")
+
+        flushed = 0
+        failed: list[tuple[str, bytes, float, bool, dict | None]] = []
+
+        for subject, data, timeout, use_jetstream, headers in self._pending_buffer:
+            try:
+                if use_jetstream and self._js:
+                    await self._publish_jetstream(subject, data, timeout, headers=headers)
+                else:
+                    await self._publish_core(subject, data, timeout, headers=headers)
+                flushed += 1
+                self._publish_count += 1
+            except Exception as e:
+                logger.warning(f"Failed to flush buffered message to {subject}: {e}")
+                failed.append((subject, data, timeout, use_jetstream, headers))
+
+        self._pending_buffer = failed
+
+        logger.info(f"Buffer flush complete: {flushed}/{buffer_size} sent, {len(failed)} remaining")
+        return flushed
+
+    # ─────────────────────────────────────────────────────────────────────────
     # Callbacks
     # ─────────────────────────────────────────────────────────────────────────
 
@@ -553,9 +709,24 @@ class EventPublisher:
         self._connected = False
 
     async def _reconnected_callback(self):
-        """Handle reconnection."""
+        """Handle reconnection and flush buffered messages."""
         logger.info("✅ NATS reconnected successfully")
         self._connected = True
+
+        # Re-initialize JetStream context after reconnection
+        if self.config.enable_jetstream and self._nc:
+            try:
+                self._js = self._nc.jetstream(domain=self.config.jetstream_domain)
+            except Exception as e:
+                logger.warning(f"Failed to re-initialize JetStream after reconnection: {e}")
+
+        # Flush buffered messages
+        try:
+            flushed = await self._flush_buffer()
+            if flushed > 0:
+                logger.info(f"Flushed {flushed} buffered messages after reconnection")
+        except Exception as e:
+            logger.error(f"Error flushing buffer after reconnection: {e}")
 
     async def _closed_callback(self):
         """Handle connection closure."""
@@ -581,6 +752,7 @@ class EventPublisher:
 # ─────────────────────────────────────────────────────────────────────────────
 
 _publisher_instance: EventPublisher | None = None
+_publisher_lock: asyncio.Lock | None = None
 
 
 async def get_publisher(
@@ -590,6 +762,7 @@ async def get_publisher(
     """
     Get or create the singleton publisher instance.
     الحصول على أو إنشاء ناشر الأحداث الوحيد
+    Thread-safe with double-check locking.
 
     Args:
         service_name: Service name
@@ -598,25 +771,40 @@ async def get_publisher(
     Returns:
         EventPublisher instance
     """
-    global _publisher_instance
+    global _publisher_instance, _publisher_lock
 
-    if _publisher_instance is None:
-        _publisher_instance = EventPublisher(
-            service_name=service_name,
-            service_version=service_version,
-        )
-        await _publisher_instance.connect()
+    if _publisher_instance is not None:
+        return _publisher_instance
+
+    if _publisher_lock is None:
+        _publisher_lock = asyncio.Lock()
+    async with _publisher_lock:
+        # Double-check after acquiring lock
+        if _publisher_instance is None:
+            instance = EventPublisher(
+                service_name=service_name,
+                service_version=service_version,
+            )
+            await instance.connect()
+            _publisher_instance = instance
 
     return _publisher_instance
 
 
 async def close_publisher():
     """Close the singleton publisher instance."""
-    global _publisher_instance
+    global _publisher_instance, _publisher_lock
 
-    if _publisher_instance:
-        await _publisher_instance.close()
-        _publisher_instance = None
+    # FIX: Guard against calling close_publisher() before get_publisher() has
+    # ever been called. _publisher_lock is None at module level; if we attempt
+    # `async with None:` we get TypeError. Only acquire the lock when it exists.
+    if _publisher_lock is None:
+        return
+
+    async with _publisher_lock:
+        if _publisher_instance is not None:
+            await _publisher_instance.close()
+            _publisher_instance = None
 
 
 # ─────────────────────────────────────────────────────────────────────────────

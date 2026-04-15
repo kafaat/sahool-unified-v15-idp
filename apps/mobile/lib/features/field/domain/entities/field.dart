@@ -52,6 +52,15 @@ class Field {
   /// حالة الحقل (active, fallow, etc.)
   final String? status;
 
+  /// نوع الري (drip, flood, sprinkler, rainfed, pivot)
+  final String? irrigationType;
+
+  /// تاريخ الزراعة
+  final DateTime? plantingDate;
+
+  /// ملاحظات
+  final String? notes;
+
   /// قيمة NDVI الحالية (0.0 - 1.0)
   final double? ndviCurrent;
 
@@ -84,6 +93,9 @@ class Field {
     this.centroid,
     this.areaHectares = 0,
     this.status,
+    this.irrigationType,
+    this.plantingDate,
+    this.notes,
     this.ndviCurrent,
     this.ndviUpdatedAt,
     this.synced = false,
@@ -178,17 +190,22 @@ class Field {
       centroid: centroid,
       areaHectares: (props['area_hectares'] as num?)?.toDouble() ?? 0.0,
       status: props['status'] as String?,
+      irrigationType: props['irrigation_type'] as String?,
+      plantingDate: props['planting_date'] != null
+          ? DateTime.tryParse(props['planting_date'] as String)
+          : null,
+      notes: props['notes'] as String?,
       ndviCurrent: (props['ndvi_current'] as num?)?.toDouble(),
       ndviUpdatedAt: props['ndvi_updated_at'] != null
-          ? DateTime.parse(props['ndvi_updated_at'] as String)
+          ? DateTime.tryParse(props['ndvi_updated_at'] as String) ?? DateTime.now()
           : null,
       synced: props['synced'] as bool? ?? true,
       isDeleted: props['is_deleted'] as bool? ?? false,
       createdAt: props['created_at'] != null
-          ? DateTime.parse(props['created_at'] as String)
+          ? DateTime.tryParse(props['created_at'] as String) ?? DateTime.now()
           : now,
       updatedAt: props['updated_at'] != null
-          ? DateTime.parse(props['updated_at'] as String)
+          ? DateTime.tryParse(props['updated_at'] as String) ?? DateTime.now()
           : now,
       pendingTasks: props['pending_tasks'] as int? ?? 0,
     );
@@ -215,6 +232,9 @@ class Field {
           'crop_type': cropType,
           'area_hectares': areaHectares,
           'status': status,
+          'irrigation_type': irrigationType,
+          'planting_date': plantingDate?.toIso8601String(),
+          'notes': notes,
           'ndvi_current': ndviCurrent,
           'ndvi_updated_at': ndviUpdatedAt?.toIso8601String(),
           'synced': synced,
@@ -237,6 +257,9 @@ class Field {
     LatLng? centroid,
     double? areaHectares,
     String? status,
+    String? irrigationType,
+    DateTime? plantingDate,
+    String? notes,
     double? ndviCurrent,
     DateTime? ndviUpdatedAt,
     bool? synced,
@@ -256,6 +279,9 @@ class Field {
       centroid: centroid ?? this.centroid,
       areaHectares: areaHectares ?? this.areaHectares,
       status: status ?? this.status,
+      irrigationType: irrigationType ?? this.irrigationType,
+      plantingDate: plantingDate ?? this.plantingDate,
+      notes: notes ?? this.notes,
       ndviCurrent: ndviCurrent ?? this.ndviCurrent,
       ndviUpdatedAt: ndviUpdatedAt ?? this.ndviUpdatedAt,
       synced: synced ?? this.synced,

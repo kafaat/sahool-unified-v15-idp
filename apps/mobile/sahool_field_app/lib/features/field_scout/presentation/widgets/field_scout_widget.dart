@@ -266,7 +266,7 @@ class _SessionStats extends StatelessWidget {
           ),
           _StatItem(
             icon: Icons.straighten,
-            value: '${(session.distanceMeters / 1000).toStringAsFixed(1)}',
+            value: (session.distanceMeters / 1000).toStringAsFixed(1),
             label: 'كم',
           ),
           _StatItem(
@@ -416,7 +416,7 @@ class _QuickActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(12),
       child: InkWell(
         onTap: onPressed,
@@ -528,7 +528,7 @@ class _ControlButtons extends ConsumerWidget {
     );
   }
 
-  void _endSession(BuildContext context, WidgetRef ref) async {
+  Future<void> _endSession(BuildContext context, WidgetRef ref) async {
     final session = await ref.read(fieldScoutProvider.notifier).endSession();
     if (context.mounted) {
       _showSessionSummary(context, session);
@@ -729,7 +729,7 @@ class _SessionSummarySheet extends StatelessWidget {
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: _getHealthColor(summary.overallHealthStatus)
-                    .withOpacity(0.1),
+                    .withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Row(

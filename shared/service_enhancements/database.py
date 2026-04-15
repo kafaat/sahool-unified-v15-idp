@@ -33,18 +33,17 @@ import asyncio
 import logging
 import re
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, Callable, Generic, TypeVar
+from typing import Any, Generic, TypeVar
 
 logger = logging.getLogger(__name__)
 
 # Pattern for valid SQL identifiers (table names, column names)
 _VALID_IDENTIFIER = re.compile(r"^[a-zA-Z_][a-zA-Z0-9_]*$")
 # Pattern for qualified identifiers: table.column, column, *
-_VALID_QUALIFIED_IDENTIFIER = re.compile(
-    r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*$|^\*$"
-)
+_VALID_QUALIFIED_IDENTIFIER = re.compile(r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*$|^\*$")
 # Pattern for ORDER BY expressions: column [ASC|DESC] [NULLS FIRST|LAST]
 _VALID_ORDER_EXPR = re.compile(
     r"^(?:[a-zA-Z_][a-zA-Z0-9_]*\.)?[a-zA-Z_][a-zA-Z0-9_]*"
@@ -67,20 +66,47 @@ def _validate_identifier(name: str, kind: str = "identifier") -> str:
     return name
 
 
+def _quote_identifier(name: str) -> str:
+    """Validate and double-quote a SQL identifier to prevent injection.
+
+    Always validates against the allowlist pattern, then wraps in
+    double-quotes so PostgreSQL treats the value as a literal identifier
+    (never as a keyword or SQL fragment).
+    """
+    if not _VALID_IDENTIFIER.match(name):
+        raise ValueError(f"Invalid SQL identifier: {name!r}")
+    return '"' + name.replace('"', "") + '"'
+
+
 def _validate_column(name: str) -> str:
-    """Validate a column name (optionally qualified with table) to prevent SQL injection."""
+    """Validate and quote a column name to prevent SQL injection.
+
+    Supports '*' (unquoted) and optionally qualified names like table.column
+    (each part quoted separately).
+    """
+    if name == "*":
+        return "*"
     if not _VALID_QUALIFIED_IDENTIFIER.match(name):
         raise ValueError(f"Invalid SQL column: {name!r}")
-    return name
+    # Quote each part: table.column -> "table"."column"
+    parts = name.split(".")
+    return ".".join('"' + p.replace('"', "") + '"' for p in parts)
 
 
 def _validate_order_expr(expr: str) -> str:
-    """Validate an ORDER BY expression to prevent SQL injection."""
+    """Validate and quote an ORDER BY expression to prevent SQL injection."""
+    quoted_parts: list[str] = []
     for part in expr.split(","):
         part = part.strip()
         if not _VALID_ORDER_EXPR.match(part):
             raise ValueError(f"Invalid SQL ORDER BY expression: {part!r}")
-    return expr
+        # Quote the column name, preserve ASC/DESC/NULLS suffix
+        tokens = part.split()
+        col = tokens[0]
+        col_parts = col.split(".")
+        quoted_col = ".".join('"' + p.replace('"', "") + '"' for p in col_parts)
+        quoted_parts.append(" ".join([quoted_col] + tokens[1:]))
+    return ", ".join(quoted_parts)
 
 
 def _validate_join_clause(clause: str) -> str:
@@ -349,8 +375,9 @@ class DatabaseOptimizer:
             raise ValueError("Only SELECT queries can be analyzed")
         async with self.pool.acquire() as conn:
             start_time = time.perf_counter()
-            # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli (input validated: only SELECT allowed above)
-            result = await conn.fetch(f"EXPLAIN ANALYZE {stripped}", *params)
+            result = await conn.fetch(
+                f"EXPLAIN ANALYZE {stripped}", *params
+            )  # nosemgrep: asyncpg-sqli -- input validated: only SELECT allowed above
             duration_ms = (time.perf_counter() - start_time) * 1000
 
             return {
@@ -475,19 +502,12 @@ async def batch_insert(
     if not records:
         return 0
 
-    # Validate identifiers to prevent SQL injection
-    _validate_identifier(table, "table name")
-    for col in columns:
-        _validate_identifier(col, "column name")
+    # Validate and quote identifiers to prevent SQL injection
+    quoted_table = _quote_identifier(table)
+    quoted_columns = [_quote_identifier(col) for col in columns]
 
     total_inserted = 0
     num_batches = (len(records) + batch_size - 1) // batch_size
-
-    # Build base SQL
-    ", ".join(
-        f"(${', $'.join(str(i + j * len(columns) + 1) for i in range(len(columns)))})"
-        for j in range(min(batch_size, len(records)))
-    )
 
     for batch_idx in range(num_batches):
         start = batch_idx * batch_size
@@ -497,15 +517,12 @@ async def batch_insert(
         # Flatten batch for parameters
         params = [val for record in batch for val in record]
 
-        # Adjust placeholders for this batch size
+        # Build parameterised placeholders for this batch
         batch_placeholders = ", ".join(
             f"(${', $'.join(str(i + j * len(columns) + 1) for i in range(len(columns)))})" for j in range(len(batch))
         )
 
-        sql = f"""
-            INSERT INTO {table} ({", ".join(columns)})
-            VALUES {batch_placeholders}
-        """
+        sql = f"INSERT INTO {quoted_table} ({', '.join(quoted_columns)}) VALUES {batch_placeholders}"  # nosec B608 - table/columns are quoted via _quote_identifier; values use $N params
 
         if on_conflict:
             # Validate on_conflict to prevent SQL injection via clause manipulation
@@ -519,7 +536,9 @@ async def batch_insert(
             sql += f" ON CONFLICT {_safe_conflict}"
 
         async with pool.acquire() as conn:
-            result = await conn.execute(sql, *params)
+            result = await conn.execute(
+                sql, *params
+            )  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- sql built from validated whitelist columns + parameterized values
             # Parse result like "INSERT 0 5" to get count
             if result.startswith("INSERT"):
                 parts = result.split()

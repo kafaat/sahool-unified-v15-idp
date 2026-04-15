@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
 // IoT Sensors Management Page - Dynamic with Full CRUD
 // صفحة إدارة المستشعرات - ديناميكية مع جميع عمليات CRUD
 
-import { useEffect, useState, useMemo, useCallback } from "react";
-import Header from "@/components/layout/Header";
-import DataTable from "@/components/ui/DataTable";
-import { formatDate, cn } from "@/lib/utils";
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useToast } from '@/components/ui/Toast';
+import Header from '@/components/layout/Header';
+import DataTable from '@/components/ui/DataTable';
+import { formatDate, cn } from '@/lib/utils';
 import {
   Cpu,
   Thermometer,
@@ -22,21 +23,17 @@ import {
   Save,
   Zap,
   AlertTriangle,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
-import { 
-  iotService, 
-  type IoTDevice, 
-  type CreateDeviceData,
-  type SensorReading,
-} from "@/lib/api";
+} from 'lucide-react';
+import { logger } from '../../lib/logger';
+import { iotService, type IoTDevice, type CreateDeviceData, type SensorReading } from '@/lib/api';
 
 export default function SensorsPage() {
+  const { toast } = useToast();
   const [devices, setDevices] = useState<IoTDevice[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [selectedDevice, setSelectedDevice] = useState<IoTDevice | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -62,7 +59,7 @@ export default function SensorsPage() {
       setDevices(response.data);
       setTotalPages(response.meta.totalPages);
     } catch (error) {
-      logger.error("Failed to load IoT devices:", error);
+      logger.error('Failed to load IoT devices:', error);
       setDevices([]);
     } finally {
       setIsLoading(false);
@@ -83,7 +80,7 @@ export default function SensorsPage() {
       });
       setReadings(response.data);
     } catch (error) {
-      logger.error("Failed to load device readings:", error);
+      logger.error('Failed to load device readings:', error);
       setReadings([]);
     } finally {
       setLoadingReadings(false);
@@ -97,26 +94,29 @@ export default function SensorsPage() {
       await iotService.create(data);
       await loadDevices();
       setShowCreateModal(false);
-      logger.info("IoT device registered successfully");
+      logger.info('IoT device registered successfully');
     } catch (error) {
-      logger.error("Failed to register device:", error);
-      alert("فشل تسجيل الجهاز. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to register device:', error);
+      toast.error('Failed to register device', 'فشل تسجيل الجهاز. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  async function handleUpdate(id: string, data: Partial<CreateDeviceData> & { status?: IoTDevice["status"] }) {
+  async function handleUpdate(
+    id: string,
+    data: Partial<CreateDeviceData> & { status?: IoTDevice['status'] }
+  ) {
     setIsSubmitting(true);
     try {
       await iotService.update(id, data);
       await loadDevices();
       setShowEditModal(false);
       setSelectedDevice(null);
-      logger.info("IoT device updated successfully");
+      logger.info('IoT device updated successfully');
     } catch (error) {
-      logger.error("Failed to update device:", error);
-      alert("فشل تحديث الجهاز. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to update device:', error);
+      toast.error('Failed to update device', 'فشل تحديث الجهاز. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
@@ -129,23 +129,26 @@ export default function SensorsPage() {
       await loadDevices();
       setShowDeleteModal(false);
       setSelectedDevice(null);
-      logger.info("IoT device deleted successfully");
+      logger.info('IoT device deleted successfully');
     } catch (error) {
-      logger.error("Failed to delete device:", error);
-      alert("فشل حذف الجهاز. يرجى المحاولة مرة أخرى.");
+      logger.error('Failed to delete device:', error);
+      toast.error('Failed to delete device', 'فشل حذف الجهاز. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  const stats = useMemo(() => ({
-    total: devices.length,
-    online: devices.filter((d) => d.status === "online").length,
-    offline: devices.filter((d) => d.status === "offline").length,
-    error: devices.filter((d) => d.status === "error").length,
-  }), [devices]);
+  const stats = useMemo(
+    () => ({
+      total: devices.length,
+      online: devices.filter((d) => d.status === 'online').length,
+      offline: devices.filter((d) => d.status === 'offline').length,
+      error: devices.filter((d) => d.status === 'error').length,
+    }),
+    [devices]
+  );
 
-  const getDeviceIcon = (type: IoTDevice["type"]) => {
+  const getDeviceIcon = (type: IoTDevice['type']) => {
     const icons = {
       soil_moisture: Droplets,
       weather_station: Activity,
@@ -156,41 +159,41 @@ export default function SensorsPage() {
     return icons[type] || Cpu;
   };
 
-  const getDeviceTypeLabel = (type: IoTDevice["type"]) => {
+  const getDeviceTypeLabel = (type: IoTDevice['type']) => {
     const labels = {
-      soil_moisture: "رطوبة التربة",
-      weather_station: "محطة طقس",
-      camera: "كاميرا",
-      flow_meter: "عداد التدفق",
-      other: "أخرى",
+      soil_moisture: 'رطوبة التربة',
+      weather_station: 'محطة طقس',
+      camera: 'كاميرا',
+      flow_meter: 'عداد التدفق',
+      other: 'أخرى',
     };
     return labels[type] || type;
   };
 
-  const getStatusColor = (status: IoTDevice["status"]) => {
+  const getStatusColor = (status: IoTDevice['status']) => {
     const colors = {
-      online: "bg-green-100 text-green-800",
-      offline: "bg-gray-100 text-gray-800",
-      error: "bg-red-100 text-red-800",
-      maintenance: "bg-yellow-100 text-yellow-800",
+      online: 'bg-green-100 text-green-800',
+      offline: 'bg-gray-100 text-gray-800',
+      error: 'bg-red-100 text-red-800',
+      maintenance: 'bg-yellow-100 text-yellow-800',
     };
     return colors[status];
   };
 
-  const getStatusLabel = (status: IoTDevice["status"]) => {
+  const getStatusLabel = (status: IoTDevice['status']) => {
     const labels = {
-      online: "متصل",
-      offline: "غير متصل",
-      error: "خطأ",
-      maintenance: "صيانة",
+      online: 'متصل',
+      offline: 'غير متصل',
+      error: 'خطأ',
+      maintenance: 'صيانة',
     };
     return labels[status];
   };
 
   const columns = [
     {
-      key: "name",
-      header: "الجهاز",
+      key: 'name',
+      header: 'الجهاز',
       render: (device: IoTDevice) => {
         const Icon = getDeviceIcon(device.type);
         return (
@@ -200,15 +203,17 @@ export default function SensorsPage() {
             </div>
             <div>
               <p className="font-medium text-gray-900 dark:text-gray-100">{device.name}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{getDeviceTypeLabel(device.type)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {getDeviceTypeLabel(device.type)}
+              </p>
             </div>
           </div>
         );
       },
     },
     {
-      key: "serialNumber",
-      header: "الرقم التسلسلي",
+      key: 'serialNumber',
+      header: 'الرقم التسلسلي',
       render: (device: IoTDevice) => (
         <span className="text-gray-700 dark:text-gray-300 text-sm font-mono" dir="ltr">
           {device.serialNumber}
@@ -216,24 +221,29 @@ export default function SensorsPage() {
       ),
     },
     {
-      key: "fieldName",
-      header: "الحقل",
+      key: 'fieldName',
+      header: 'الحقل',
       render: (device: IoTDevice) => (
-        <span className="text-gray-700 dark:text-gray-300">{device.fieldName || "غير محدد"}</span>
+        <span className="text-gray-700 dark:text-gray-300">{device.fieldName || 'غير محدد'}</span>
       ),
     },
     {
-      key: "status",
-      header: "الحالة",
+      key: 'status',
+      header: 'الحالة',
       render: (device: IoTDevice) => (
-        <span className={cn("px-2 py-1 rounded-full text-xs font-medium", getStatusColor(device.status))}>
+        <span
+          className={cn(
+            'px-2 py-1 rounded-full text-xs font-medium',
+            getStatusColor(device.status)
+          )}
+        >
           {getStatusLabel(device.status)}
         </span>
       ),
     },
     {
-      key: "lastReading",
-      header: "آخر قراءة",
+      key: 'lastReading',
+      header: 'آخر قراءة',
       render: (device: IoTDevice) => (
         <div>
           {device.lastReading ? (
@@ -241,7 +251,9 @@ export default function SensorsPage() {
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                 {device.lastReadingValue} {device.unit}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(device.lastReading)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {formatDate(device.lastReading)}
+              </p>
             </>
           ) : (
             <span className="text-gray-400 text-sm">لا توجد قراءات</span>
@@ -250,20 +262,24 @@ export default function SensorsPage() {
       ),
     },
     {
-      key: "battery",
-      header: "البطارية",
+      key: 'battery',
+      header: 'البطارية',
       render: (device: IoTDevice) => (
         <div className="flex items-center gap-2">
           {device.batteryLevel !== undefined ? (
             <>
-              <Zap className={cn(
-                "w-4 h-4",
-                device.batteryLevel > 20 ? "text-green-500" : "text-red-500"
-              )} />
-              <span className={cn(
-                "text-sm",
-                device.batteryLevel > 20 ? "text-gray-700 dark:text-gray-300" : "text-red-600"
-              )}>
+              <Zap
+                className={cn(
+                  'w-4 h-4',
+                  device.batteryLevel > 20 ? 'text-green-500' : 'text-red-500'
+                )}
+              />
+              <span
+                className={cn(
+                  'text-sm',
+                  device.batteryLevel > 20 ? 'text-gray-700 dark:text-gray-300' : 'text-red-600'
+                )}
+              >
                 {device.batteryLevel}%
               </span>
             </>
@@ -274,8 +290,8 @@ export default function SensorsPage() {
       ),
     },
     {
-      key: "actions",
-      header: "",
+      key: 'actions',
+      header: '',
       render: (device: IoTDevice) => (
         <div className="flex items-center gap-1">
           <button
@@ -301,7 +317,7 @@ export default function SensorsPage() {
           >
             <Edit className="w-4 h-4 text-blue-500" />
           </button>
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setSelectedDevice(device);
@@ -314,7 +330,7 @@ export default function SensorsPage() {
           </button>
         </div>
       ),
-      className: "w-32",
+      className: 'w-32',
     },
   ];
 
@@ -414,9 +430,14 @@ export default function SensorsPage() {
             className="p-2 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             title="تحديث"
           >
-            <RefreshCw className={cn("w-5 h-5 text-gray-600 dark:text-gray-400", isLoading && "animate-spin")} />
+            <RefreshCw
+              className={cn(
+                'w-5 h-5 text-gray-600 dark:text-gray-400',
+                isLoading && 'animate-spin'
+              )}
+            />
           </button>
-          <button 
+          <button
             onClick={() => setShowCreateModal(true)}
             className="flex items-center gap-2 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors"
           >
@@ -497,10 +518,15 @@ export default function SensorsPage() {
             ) : readings.length > 0 ? (
               <div className="space-y-3">
                 {readings.map((reading) => (
-                  <div key={reading.id} className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg">
+                  <div
+                    key={reading.id}
+                    className="p-4 border border-gray-200 dark:border-gray-600 rounded-lg"
+                  >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="font-medium text-gray-900 dark:text-gray-100">{reading.metric}</p>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">
+                          {reading.metric}
+                        </p>
                         <p className="text-2xl font-bold text-sahool-600">
                           {reading.value} {reading.unit}
                         </p>
@@ -529,8 +555,8 @@ export default function SensorsPage() {
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-md w-full">
             <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-4">تأكيد الحذف</h3>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              هل أنت متأكد من حذف الجهاز <strong>{selectedDevice.name}</strong>؟
-              هذا الإجراء لا يمكن التراجع عنه.
+              هل أنت متأكد من حذف الجهاز <strong>{selectedDevice.name}</strong>؟ هذا الإجراء لا يمكن
+              التراجع عنه.
             </p>
             <div className="flex gap-3">
               <button
@@ -548,7 +574,7 @@ export default function SensorsPage() {
                 disabled={isSubmitting}
                 className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
               >
-                {isSubmitting ? "جاري الحذف..." : "حذف"}
+                {isSubmitting ? 'جاري الحذف...' : 'حذف'}
               </button>
             </div>
           </div>
@@ -559,7 +585,7 @@ export default function SensorsPage() {
       {totalPages > 1 && (
         <div className="mt-6 flex items-center justify-center gap-2">
           <button
-            onClick={() => setPage(p => Math.max(1, p - 1))}
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -569,7 +595,7 @@ export default function SensorsPage() {
             صفحة {page} من {totalPages}
           </span>
           <button
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
             className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -592,21 +618,23 @@ function DeviceFormModal({
   title: string;
   device?: IoTDevice;
   onClose: () => void;
-  onSubmit: (data: CreateDeviceData | (Partial<CreateDeviceData> & { status?: IoTDevice["status"] })) => void;
+  onSubmit: (
+    data: CreateDeviceData | (Partial<CreateDeviceData> & { status?: IoTDevice['status'] })
+  ) => void;
   isSubmitting: boolean;
 }) {
   const [formData, setFormData] = useState({
-    name: device?.name || "",
-    type: device?.type || ("soil_moisture" as IoTDevice["type"]),
-    fieldId: device?.fieldId || "",
-    serialNumber: device?.serialNumber || "",
-    status: device?.status || ("online" as IoTDevice["status"]),
+    name: device?.name || '',
+    type: device?.type || ('soil_moisture' as IoTDevice['type']),
+    fieldId: device?.fieldId || '',
+    serialNumber: device?.serialNumber || '',
+    status: device?.status || ('online' as IoTDevice['status']),
     config: device?.config || {},
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!device) {
       // Create mode
       const createData: CreateDeviceData = {
@@ -632,7 +660,7 @@ function DeviceFormModal({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div dir="rtl" className="min-h-screen bg-gray-50 fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-6">
           <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{title}</h3>
@@ -664,7 +692,9 @@ function DeviceFormModal({
             </label>
             <select
               value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value as IoTDevice["type"] })}
+              onChange={(e) =>
+                setFormData({ ...formData, type: e.target.value as IoTDevice['type'] })
+              }
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
             >
               <option value="soil_moisture">رطوبة التربة</option>
@@ -709,7 +739,9 @@ function DeviceFormModal({
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as IoTDevice["status"] })}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value as IoTDevice['status'] })
+                }
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-sahool-500 focus:border-transparent"
               >
                 <option value="online">متصل</option>
@@ -735,7 +767,7 @@ function DeviceFormModal({
               className="flex-1 px-4 py-2 bg-sahool-600 text-white rounded-lg hover:bg-sahool-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
-              {isSubmitting ? "جاري الحفظ..." : device ? "تحديث" : "تسجيل"}
+              {isSubmitting ? 'جاري الحفظ...' : device ? 'تحديث' : 'تسجيل'}
             </button>
           </div>
         </form>

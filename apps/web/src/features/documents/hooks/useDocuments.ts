@@ -2,18 +2,18 @@
  * Documents Feature - React Hooks
  */
 
-"use client";
+'use client';
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { documentsApi } from "../api";
-import type { DocumentFilters } from "../types";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { documentsApi } from '../api';
+import type { DocumentFilters } from '../types';
 
 export const documentKeys = {
-  all: ["documents"] as const,
-  lists: () => [...documentKeys.all, "list"] as const,
+  all: ['documents'] as const,
+  lists: () => [...documentKeys.all, 'list'] as const,
   list: (filters?: DocumentFilters) => [...documentKeys.lists(), filters] as const,
-  detail: (id: string) => [...documentKeys.all, "detail", id] as const,
-  stats: () => [...documentKeys.all, "stats"] as const,
+  detail: (id: string) => [...documentKeys.all, 'detail', id] as const,
+  stats: () => [...documentKeys.all, 'stats'] as const,
 };
 
 export function useDocuments(filters?: DocumentFilters) {

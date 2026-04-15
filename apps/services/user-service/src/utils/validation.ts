@@ -55,6 +55,9 @@ export function IsYemeniPhone(validationOptions?: ValidationOptions) {
 
 @ValidatorConstraint({ name: "isStrongPassword", async: false })
 export class IsStrongPasswordConstraint implements ValidatorConstraintInterface {
+  private static readonly isDev =
+    (process.env.ENVIRONMENT || process.env.NODE_ENV || "").toLowerCase() === "development";
+
   validate(value: any, args: ValidationArguments) {
     if (typeof value !== "string") {
       return false;
@@ -64,6 +67,11 @@ export class IsStrongPasswordConstraint implements ValidatorConstraintInterface 
 
     if (value.length < minLength) {
       return false;
+    }
+
+    // In development mode, only enforce minimum length
+    if (IsStrongPasswordConstraint.isDev) {
+      return true;
     }
 
     if (!/[A-Z]/.test(value)) {
@@ -87,6 +95,9 @@ export class IsStrongPasswordConstraint implements ValidatorConstraintInterface 
 
   defaultMessage(args: ValidationArguments) {
     const minLength = args.constraints[0] || 8;
+    if (IsStrongPasswordConstraint.isDev) {
+      return `Password must be at least ${minLength} characters`;
+    }
     return `Password must be at least ${minLength} characters and contain uppercase, lowercase, number, and special character`;
   }
 }

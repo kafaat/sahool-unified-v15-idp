@@ -1,10 +1,11 @@
 """
-📊 SAHOOL Agricultural Indicators Service v15.3
+📊 SAHOOL Agricultural Indicators Service v16.0
 خدمة المؤشرات الزراعية - Dashboard & Analytics
 """
 
 import json
 import os
+import re
 import sys
 import uuid
 from contextlib import asynccontextmanager
@@ -20,7 +21,7 @@ from fastapi import Depends, FastAPI, HTTPException, Query
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
@@ -29,13 +30,14 @@ try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
 except ImportError:
+    from fastapi import HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]
         tenant_id: str | None = None
         roles: list[str] = []
 
     async def get_current_user():
-        return None
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 def _enforce_tenant(user: Any, requested_tenant_id: str) -> None:
@@ -64,80 +66,256 @@ def _enforce_tenant(user: Any, requested_tenant_id: str) -> None:
             )
 
 
+# Prometheus metrics
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
+# Prometheus metric definitions
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "indicators_requests_total",
+        "Total indicators API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "indicators_request_duration_seconds",
+        "Indicators API request latency",
+        ["endpoint"],
+    )
+
+# Prometheus middleware to record metrics per request
+if HAS_PROMETHEUS:
+    from starlette.middleware.base import BaseHTTPMiddleware
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        async def dispatch(self, request, call_next):
+            import time as _time
+
+            endpoint = request.url.path
+            start = _time.time()
+            response = await call_next(request)
+            duration = _time.time() - start
+            REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+            REQUEST_LATENCY.labels(endpoint=endpoint).observe(duration)
+            return response
+
+
 logger = structlog.get_logger()
+
+# Field ID validation: alphanumeric, hyphens, underscores; 1-100 chars
+_FIELD_ID_RE = re.compile(r"^[a-zA-Z0-9_-]{1,100}$")
+
+
+def _validate_field_id(field_id: str) -> None:
+    """Validate field_id format - must be non-empty, max 100 chars, alphanumeric/hyphens/underscores."""
+    if not field_id or not _FIELD_ID_RE.match(field_id):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "invalid_field_id",
+                "message_ar": "معرّف الحقل غير صالح: يجب أن يكون من 1 إلى 100 حرف (أحرف وأرقام وشرطات فقط)",
+                "message_en": "Invalid field_id: must be 1-100 characters (alphanumeric, hyphens, underscores only)",
+            },
+        )
+
+
+def _validate_tenant_id(tenant_id: str | None) -> None:
+    """Validate tenant_id if provided - must be non-empty, max 255 chars."""
+    if tenant_id is not None:
+        if not tenant_id or not tenant_id.strip():
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "invalid_tenant_id",
+                    "message_ar": "معرّف المستأجر لا يمكن أن يكون فارغًا",
+                    "message_en": "Tenant ID cannot be empty",
+                },
+            )
+        if len(tenant_id) > 255:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "invalid_tenant_id",
+                    "message_ar": "معرّف المستأجر طويل جدًا (الحد الأقصى 255 حرفًا)",
+                    "message_en": "Tenant ID too long (max 255 characters)",
+                },
+            )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Manage application lifecycle - startup and shutdown."""
-    # Startup
-    logger.info("Starting indicators-service...")
-
     # Database connection
     db_url = os.getenv("DATABASE_URL")
-    # Enforce sslmode for non-development database connections
-    if db_url and os.getenv("ENVIRONMENT", "development") != "development":
-        if "sslmode" not in db_url:
-            # Use sslmode=disable for PgBouncer (port 6432) which does not support SSL
-            ssl_mode = "disable" if ":6432" in db_url else "require"
-            db_url += f"?sslmode={ssl_mode}" if "?" not in db_url else f"&sslmode={ssl_mode}"
     if db_url:
         try:
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
-            logger.info("Connected to database")
-            # Create table if not exists
-            async with app.state.db_pool.acquire() as conn:
-                await conn.execute("""
-                    CREATE TABLE IF NOT EXISTS field_indicators (
-                        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                        field_id VARCHAR(255) NOT NULL,
-                        indicator_type VARCHAR(100) NOT NULL,
-                        value JSONB NOT NULL,
-                        calculated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-                        tenant_id VARCHAR(255),
-                        UNIQUE(field_id, indicator_type)
-                    )
-                """)
-                # Create index for faster lookups
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_field_indicators_field_id
-                    ON field_indicators(field_id)
-                """)
-                await conn.execute("""
-                    CREATE INDEX IF NOT EXISTS idx_field_indicators_tenant_id
-                    ON field_indicators(tenant_id)
-                """)
-            logger.info("Database tables initialized")
+            import asyncpg
+
+            # Validate SSL mode is present in DATABASE_URL for security
+            ssl_mode = os.getenv("POSTGRES_SSL_MODE", "disable")
+            if ssl_mode != "disable" and "sslmode=" not in db_url:
+                db_url = f"{db_url}{'&' if '?' in db_url else '?'}sslmode={ssl_mode}"
+
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
+            logger.info("database_connected", pool_size=10, ssl_mode=ssl_mode)
         except Exception as e:
-            logger.warning("Failed to connect to database", error=str(e))
+            logger.warning("database_connection_failed", error=str(e))
             app.state.db_pool = None
     else:
         app.state.db_pool = None
-        logger.info("DATABASE_URL not configured, using in-memory storage")
+        logger.info("database_not_configured")
 
     # NATS connection
     nats_url = os.getenv("NATS_URL")
     if nats_url:
         try:
-            app.state.nc = await nats.connect(nats_url)
-            logger.info("Connected to NATS", nats_url=nats_url)
+            import nats as nats_lib
+
+            app.state.nc = await nats_lib.connect(nats_url)
+            logger.info("nats_connected")
         except Exception as e:
-            logger.warning("Failed to connect to NATS", error=str(e))
+            logger.warning("nats_connection_failed", error=str(e))
             app.state.nc = None
     else:
         app.state.nc = None
-        logger.info("NATS_URL not configured, event publishing disabled")
+        logger.error(
+            "NATS_URL not configured — field event subscriptions DISABLED. "
+            "Indicators will NOT be computed for new field data."
+        )
+
+    # Subscribe to NATS events
+    if app.state.nc:
+        # Subscribe to field events
+        async def handle_field_created(msg):
+            try:
+                data = json.loads(msg.data.decode())
+                tenant_id = data.get("tenant_id")
+                field_id = data.get("field_id")
+                logger.info("field_created_event_received", field_id=field_id, tenant_id=tenant_id)
+                # Initialize default indicators for new field
+                # Validate IDs to prevent storing malformed/spoofed values
+                if (
+                    field_id
+                    and tenant_id
+                    and _FIELD_ID_RE.match(field_id)
+                    and len(tenant_id) <= 255
+                    and app.state.db_pool
+                ):
+                    default_indicators = {
+                        "ndvi": 0.0,
+                        "evi": 0.0,
+                        "lai": 0.0,
+                        "ndwi": 0.0,
+                        "soil_moisture": 0.0,
+                        "irrigation_efficiency": 0.0,
+                        "soil_ph": 7.0,
+                        "nitrogen_level": 0.0,
+                    }
+                    for ind_type, default_value in default_indicators.items():
+                        defn = INDICATOR_DEFINITIONS.get(ind_type)
+                        if not defn:
+                            continue
+                        status = determine_status(
+                            default_value,
+                            defn.get("optimal_min", defn["min"]),
+                            defn.get("optimal_max", defn["max"]),
+                            defn["min"],
+                            defn["max"],
+                        )
+                        indicator_data = {
+                            "value": default_value,
+                            "trend": TrendDirection.STABLE.value,
+                            "trend_percent": 0.0,
+                            "status": status,
+                        }
+                        await save_indicator(field_id, ind_type, indicator_data, tenant_id)
+                    logger.info(
+                        "default_indicators_initialized", field_id=field_id, indicator_count=len(default_indicators)
+                    )
+            except Exception as e:
+                logger.error("event_handler_failed", subject="field.created", error=str(e))
+
+        async def handle_ndvi_calculated(msg):
+            try:
+                data = json.loads(msg.data.decode())
+                tenant_id = data.get("tenant_id")
+                field_id = data.get("field_id")
+                logger.info("ndvi_calculated_received", field_id=field_id, tenant_id=tenant_id)
+                # Update NDVI indicator for field
+                ndvi_value = data.get("ndvi_value") or data.get("value") or data.get("mean_ndvi")
+                if (
+                    field_id
+                    and tenant_id
+                    and _FIELD_ID_RE.match(field_id)
+                    and len(tenant_id) <= 255
+                    and ndvi_value is not None
+                    and app.state.db_pool
+                ):
+                    ndvi_value = float(ndvi_value)
+                    defn = INDICATOR_DEFINITIONS["ndvi"]
+                    status = determine_status(
+                        ndvi_value,
+                        defn["optimal_min"],
+                        defn["optimal_max"],
+                        defn["min"],
+                        defn["max"],
+                    )
+                    # Check previous value for trend calculation
+                    previous = await get_indicator(field_id, "ndvi", tenant_id)
+                    trend = TrendDirection.STABLE
+                    trend_percent = 0.0
+                    if previous and previous.get("value") is not None:
+                        prev_val = float(previous["value"])
+                        if prev_val != 0:
+                            trend_percent = round(((ndvi_value - prev_val) / abs(prev_val)) * 100, 2)
+                        if ndvi_value > prev_val:
+                            trend = TrendDirection.UP
+                        elif ndvi_value < prev_val:
+                            trend = TrendDirection.DOWN
+                    indicator_data = {
+                        "value": ndvi_value,
+                        "trend": trend.value,
+                        "trend_percent": trend_percent,
+                        "status": status,
+                    }
+                    await save_indicator(field_id, "ndvi", indicator_data, tenant_id)
+                    logger.info("ndvi_indicator_updated", field_id=field_id, ndvi_value=ndvi_value, status=status)
+            except Exception as e:
+                logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
+
+        await app.state.nc.subscribe("sahool.field.created", cb=handle_field_created)
+        # Legacy (untenanted) subject — kept for backward compatibility with
+        # publishers that have not yet been upgraded to tenant-scoped subjects.
+        await app.state.nc.subscribe("sahool.satellite.ndvi.computed", cb=handle_ndvi_calculated)
+        # Tenant-scoped subject: sahool.tenant.{tenant_id}.satellite.ndvi.computed
+        # This is what vegetation-analysis-service now publishes (H13+H14).
+        # NATS wildcard `*` matches exactly one token, so this catches every
+        # tenant. Tenant isolation is still enforced by the handler via the
+        # `tenant_id` field in the payload.
+        await app.state.nc.subscribe("sahool.tenant.*.satellite.ndvi.computed", cb=handle_ndvi_calculated)
+        logger.info("nats_subscriptions_registered", count=3)
 
     yield
 
-    # Shutdown
-    logger.info("Shutting down indicators-service...")
-    if hasattr(app.state, "db_pool") and app.state.db_pool:
-        await app.state.db_pool.close()
-        logger.info("Database connection closed")
-    if hasattr(app.state, "nc") and app.state.nc:
-        await app.state.nc.close()
-        logger.info("NATS connection closed")
+    # Cleanup
+    logger.info("service_shutting_down", service="indicators-service")
+    for name in ("db_pool", "nc"):
+        resource = getattr(app.state, name, None)
+        if resource:
+            try:
+                await resource.close()
+            except Exception as e:
+                logger.warning("shutdown_close_error", resource=name, error=str(e))
+    logger.info("service_shutdown_complete", service="indicators-service")
 
 
 app = FastAPI(
@@ -152,9 +330,34 @@ setup_exception_handlers(app)
 add_request_id_middleware(app)
 app.add_middleware(TenantContextMiddleware)
 
+# Prometheus request metrics middleware
+if HAS_PROMETHEUS:
+    app.add_middleware(PrometheusMiddleware)
 
-async def publish_event(subject: str, data: dict):
-    """Publish event to NATS if connected."""
+
+async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
+    """Publish event to NATS if connected, using tenant-scoped subject when available.
+
+    Uses tenant-scoped subject when tenant_id is provided for multi-tenant isolation.
+    يستخدم موضوع مخصص للمستأجر عند توفر معرف المستأجر لعزل البيانات.
+
+    Args:
+        subject: Base NATS subject (e.g., "sahool.indicators.computed")
+        data: Event payload dictionary
+        tenant_id: Optional tenant ID; when provided, subject becomes
+                   sahool.tenant.{tenant_id}.indicators.{action}
+    """
+    # Resolve tenant-scoped subject | تحويل الموضوع إلى نطاق المستأجر
+    if tenant_id:
+        from shared.events.subjects import get_tenant_subject
+
+        # Extract domain and action from subject like "sahool.indicators.computed"
+        parts = subject.split(".", 2)  # ["sahool", "indicators", "computed"]
+        if len(parts) >= 3:
+            domain = parts[1]
+            action = parts[2]
+            subject = get_tenant_subject(tenant_id, domain, action)
+
     if hasattr(app.state, "nc") and app.state.nc:
         try:
             await app.state.nc.publish(subject, json.dumps(data).encode())
@@ -187,7 +390,7 @@ async def save_indicator(field_id: str, indicator_type: str, value: dict, tenant
                     """
                     INSERT INTO field_indicators (field_id, indicator_type, value, tenant_id)
                     VALUES ($1, $2, $3, $4)
-                    ON CONFLICT (field_id, indicator_type)
+                    ON CONFLICT (tenant_id, field_id, indicator_type)
                     DO UPDATE SET value = $3, calculated_at = NOW()
                 """,
                     field_id,
@@ -208,12 +411,13 @@ async def save_indicator(field_id: str, indicator_type: str, value: dict, tenant
     return False
 
 
-async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
+async def get_indicator(field_id: str, indicator_type: str, tenant_id: str | None = None) -> dict | None:
     """Retrieve indicator value from database.
 
     Args:
         field_id: The field identifier
         indicator_type: Type of indicator
+        tenant_id: Optional tenant identifier for isolation
 
     Returns:
         Indicator data dictionary or None if not found
@@ -221,16 +425,20 @@ async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                row = await conn.fetchrow(
-                    """
-                    SELECT value, calculated_at FROM field_indicators
-                    WHERE field_id = $1 AND indicator_type = $2
-                """,
-                    field_id,
-                    indicator_type,
-                )
+                if tenant_id:
+                    sql = "SELECT value, calculated_at FROM field_indicators WHERE field_id = $1 AND indicator_type = $2 AND tenant_id = $3"
+                    row = await conn.fetchrow(sql, field_id, indicator_type, tenant_id)
+                else:
+                    sql = (
+                        "SELECT value, calculated_at FROM field_indicators WHERE field_id = $1 AND indicator_type = $2"
+                    )
+                    row = await conn.fetchrow(sql, field_id, indicator_type)
                 if row:
-                    data = json.loads(row["value"])
+                    try:
+                        data = json.loads(row["value"])
+                    except (json.JSONDecodeError, TypeError):
+                        logger.warning("corrupted_indicator_data", row_id=str(row.get("id", "")), field_id=field_id)
+                        return None
                     data["calculated_at"] = row["calculated_at"].isoformat()
                     return data
         except Exception as e:
@@ -243,11 +451,12 @@ async def get_indicator(field_id: str, indicator_type: str) -> dict | None:
     return None
 
 
-async def get_all_field_indicators(field_id: str) -> list[dict]:
+async def get_all_field_indicators(field_id: str, tenant_id: str | None = None) -> list[dict]:
     """Retrieve all indicators for a field from database.
 
     Args:
         field_id: The field identifier
+        tenant_id: Optional tenant identifier for isolation
 
     Returns:
         List of indicator data dictionaries
@@ -255,17 +464,27 @@ async def get_all_field_indicators(field_id: str) -> list[dict]:
     if hasattr(app.state, "db_pool") and app.state.db_pool:
         try:
             async with app.state.db_pool.acquire() as conn:
-                rows = await conn.fetch(
+                if tenant_id:
+                    sql = """
+                        SELECT indicator_type, value, calculated_at FROM field_indicators
+                        WHERE field_id = $1 AND tenant_id = $2
+                        ORDER BY indicator_type
                     """
-                    SELECT indicator_type, value, calculated_at FROM field_indicators
-                    WHERE field_id = $1
-                    ORDER BY indicator_type
-                """,
-                    field_id,
-                )
+                    rows = await conn.fetch(sql, field_id, tenant_id)
+                else:
+                    sql = """
+                        SELECT indicator_type, value, calculated_at FROM field_indicators
+                        WHERE field_id = $1
+                        ORDER BY indicator_type
+                    """
+                    rows = await conn.fetch(sql, field_id)
                 result = []
                 for row in rows:
-                    data = json.loads(row["value"])
+                    try:
+                        data = json.loads(row["value"])
+                    except (json.JSONDecodeError, TypeError):
+                        logger.warning("corrupted_indicator_data", row_id=str(row.get("id", "")), field_id=field_id)
+                        continue
                     data["indicator_type"] = row["indicator_type"]
                     data["calculated_at"] = row["calculated_at"].isoformat()
                     result.append(data)
@@ -301,7 +520,11 @@ async def get_tenant_indicators(tenant_id: str, limit: int = 100) -> list[dict]:
                 )
                 result = []
                 for row in rows:
-                    data = json.loads(row["value"])
+                    try:
+                        data = json.loads(row["value"])
+                    except (json.JSONDecodeError, TypeError):
+                        logger.warning("corrupted_indicator_data", row_id=str(row.get("id", "")))
+                        continue
                     data["field_id"] = row["field_id"]
                     data["indicator_type"] = row["indicator_type"]
                     data["calculated_at"] = row["calculated_at"].isoformat()
@@ -312,11 +535,12 @@ async def get_tenant_indicators(tenant_id: str, limit: int = 100) -> list[dict]:
     return []
 
 
-async def delete_field_indicators(field_id: str) -> bool:
-    """Delete all indicators for a field.
+async def delete_field_indicators(field_id: str, tenant_id: str) -> bool:
+    """Delete all indicators for a field, scoped to tenant.
 
     Args:
         field_id: The field identifier
+        tenant_id: Tenant ID for isolation (required)
 
     Returns:
         True if deleted successfully, False otherwise
@@ -326,14 +550,15 @@ async def delete_field_indicators(field_id: str) -> bool:
             async with app.state.db_pool.acquire() as conn:
                 await conn.execute(
                     """
-                    DELETE FROM field_indicators WHERE field_id = $1
+                    DELETE FROM field_indicators WHERE field_id = $1 AND tenant_id = $2
                 """,
                     field_id,
+                    tenant_id,
                 )
-            logger.info("Deleted field indicators", field_id=field_id)
+            logger.info("Deleted field indicators", field_id=field_id, tenant_id=tenant_id)
             return True
         except Exception as e:
-            logger.warning("Failed to delete field indicators", field_id=field_id, error=str(e))
+            logger.warning("Failed to delete field indicators", field_id=field_id, tenant_id=tenant_id, error=str(e))
             return False
     return False
 
@@ -608,8 +833,8 @@ INDICATOR_DEFINITIONS = {
         "unit": "%",
         "min": 0,
         "max": 100,
-        "optimal_min": None,
-        "optimal_max": None,  # Depends on expected timing
+        "optimal_min": 0.0,
+        "optimal_max": 100.0,  # Depends on expected timing
     },
     # Financial Indicators
     "cost_per_hectare": {
@@ -768,21 +993,43 @@ def health():
 
 
 @app.get("/readyz")
-def readiness():
+async def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    nats_connected = hasattr(app.state, "nc") and app.state.nc is not None
-    db_connected = hasattr(app.state, "db_pool") and app.state.db_pool is not None
+    checks = {}
+    db_pool = getattr(app.state, "db_pool", None)
+    if db_pool:
+        try:
+            async with db_pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            checks["database"] = "connected"
+        except Exception as e:
+            logger.warning("readyz_db_check_failed", error=str(e))
+            checks["database"] = "disconnected"
+    else:
+        checks["database"] = "not_configured"
+
+    nc = getattr(app.state, "nc", None)
+    checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
+
+    all_ready = all(v != "disconnected" for v in checks.values())
     return {
-        "status": "ready",
+        "status": "ready" if all_ready else "degraded",
         "service": "indicators-service",
         "version": "16.0.0",
-        "checks": {
-            "indicators": "loaded" if INDICATOR_DEFINITIONS else "not_loaded",
-            "nats": "connected" if nats_connected else "disconnected",
-            "database": "connected" if db_connected else "disconnected",
-        },
-        "indicators_count": len(INDICATOR_DEFINITIONS),
+        "checks": checks,
     }
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint"""
+    if not HAS_PROMETHEUS:
+        from starlette.responses import Response
+
+        return Response(content="prometheus_client not installed", status_code=501)
+    from starlette.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 @app.get("/v1/indicators/definitions")
@@ -812,17 +1059,19 @@ def get_indicator_definitions():
 async def get_field_indicators(
     field_id: str,
     category: IndicatorCategory | None = None,
-    tenant_id: str | None = None,
     force_refresh: bool = False,
+    user: Any = Depends(get_current_user),
 ):
     """الحصول على مؤشرات حقل معين
 
     Args:
         field_id: Field identifier
         category: Optional category filter
-        tenant_id: Optional tenant identifier for multi-tenancy
         force_refresh: If True, regenerate indicators even if cached
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    _enforce_tenant(user, tenant_id)
     import random
 
     indicators = []
@@ -830,7 +1079,7 @@ async def get_field_indicators(
     timestamp = datetime.now(UTC).isoformat()
 
     # Try to load existing indicators from database
-    stored_indicators = await get_all_field_indicators(field_id) if not force_refresh else []
+    stored_indicators = await get_all_field_indicators(field_id, tenant_id=tenant_id) if not force_refresh else []
     stored_map = {ind["indicator_type"]: ind for ind in stored_indicators}
 
     # Check if we have fresh data (less than 1 hour old)
@@ -881,7 +1130,7 @@ async def get_field_indicators(
             }
             await save_indicator(field_id, ind_id, indicator_data, tenant_id)
 
-            # Publish event for newly computed indicator
+            # Publish event for newly computed indicator | نشر حدث المؤشر المحسوب مع عزل المستأجر
             await publish_event(
                 "sahool.indicators.computed",
                 {
@@ -892,6 +1141,7 @@ async def get_field_indicators(
                     "trend": trend.value,
                     "timestamp": timestamp,
                 },
+                tenant_id=tenant_id,
             )
 
         indicator = Indicator(
@@ -921,7 +1171,7 @@ async def get_field_indicators(
     optimal_count = sum(1 for ind in indicators if ind.status == "optimal")
     overall_score = (optimal_count / len(indicators)) * 100 if indicators else 0
 
-    # Publish field indicators summary event
+    # Publish field indicators summary event | نشر ملخص مؤشرات الحقل مع عزل المستأجر
     await publish_event(
         "sahool.indicators.field_summary",
         {
@@ -931,6 +1181,7 @@ async def get_field_indicators(
             "alerts_count": len(alerts),
             "timestamp": timestamp,
         },
+        tenant_id=tenant_id,
     )
 
     return FieldIndicators(
@@ -951,17 +1202,24 @@ class IndicatorInput(BaseModel):
     value: float
     trend: TrendDirection | None = None
     trend_percent: float | None = None
-    tenant_id: str | None = None
 
 
 @app.post("/v1/field/{field_id}/indicators")
-async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
+async def store_field_indicator(
+    field_id: str,
+    indicator_input: IndicatorInput,
+    user: Any = Depends(get_current_user),
+):
     """تخزين قيمة مؤشر لحقل معين
 
     Store an indicator value for a specific field. This is useful when
     indicator values are computed externally (e.g., from satellite imagery
     processing or IoT sensors).
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    _validate_tenant_id(tenant_id)
+
     # Validate indicator type
     if indicator_input.indicator_type not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=400, detail=f"Invalid indicator type: {indicator_input.indicator_type}")
@@ -993,12 +1251,12 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
     }
 
     # Save to database
-    success = await save_indicator(field_id, indicator_input.indicator_type, indicator_data, indicator_input.tenant_id)
+    success = await save_indicator(field_id, indicator_input.indicator_type, indicator_data, tenant_id)
 
     if not success:
         raise HTTPException(status_code=503, detail="Failed to save indicator. Database may not be available.")
 
-    # Publish event
+    # Publish event with tenant isolation | نشر الحدث مع عزل المستأجر
     timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.stored",
@@ -1009,6 +1267,7 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
             "status": status,
             "timestamp": timestamp,
         },
+        tenant_id=tenant_id,
     )
 
     logger.info(
@@ -1029,15 +1288,22 @@ async def store_field_indicator(field_id: str, indicator_input: IndicatorInput):
 
 
 @app.get("/v1/field/{field_id}/indicator/{indicator_type}")
-async def get_single_indicator(field_id: str, indicator_type: str):
+async def get_single_indicator(
+    field_id: str,
+    indicator_type: str,
+    user: Any = Depends(get_current_user),
+):
     """الحصول على مؤشر واحد لحقل معين
 
     Retrieve a single indicator value from the database.
     """
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    _enforce_tenant(user, tenant_id)
     if indicator_type not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=400, detail=f"Invalid indicator type: {indicator_type}")
 
-    indicator_data = await get_indicator(field_id, indicator_type)
+    indicator_data = await get_indicator(field_id, indicator_type, tenant_id=tenant_id)
 
     if not indicator_data:
         raise HTTPException(
@@ -1065,18 +1331,22 @@ async def get_single_indicator(field_id: str, indicator_type: str):
 
 
 @app.delete("/v1/field/{field_id}/indicators")
-async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_current_user)):
+async def delete_field_indicators_endpoint(field_id: str, user=Depends(get_current_user)):
     """حذف جميع مؤشرات حقل معين
 
     Delete all stored indicators for a specific field.
     Use with caution - this operation cannot be undone.
     """
-    success = await delete_field_indicators(field_id)
+    _validate_field_id(field_id)
+    tenant_id = getattr(user, "tenant_id", None) if user else None
+    if not tenant_id:
+        raise HTTPException(status_code=401, detail="Tenant ID is required for this operation.")
+    success = await delete_field_indicators(field_id, tenant_id)
 
     if not success:
         raise HTTPException(status_code=503, detail="Failed to delete indicators. Database may not be available.")
 
-    # Publish event
+    # Publish event with tenant isolation | نشر الحدث مع عزل المستأجر
     timestamp = datetime.now(UTC).isoformat()
     await publish_event(
         "sahool.indicators.deleted",
@@ -1084,6 +1354,7 @@ async def delete_field_indicators_endpoint(field_id: str, _user=Depends(get_curr
             "field_id": field_id,
             "timestamp": timestamp,
         },
+        tenant_id=tenant_id,
     )
 
     logger.info("Field indicators deleted", field_id=field_id)
@@ -1140,7 +1411,7 @@ async def get_dashboard_summary(
     critical_alerts = sum(1 for a in all_alerts if a.get("severity") == "critical")
     avg_health = round(total_health_score / num_fields, 1)
 
-    # Publish dashboard computed event
+    # Publish dashboard computed event with tenant isolation | نشر حدث لوحة المعلومات مع عزل المستأجر
     await publish_event(
         "sahool.indicators.dashboard_computed",
         {
@@ -1152,6 +1423,7 @@ async def get_dashboard_summary(
             "critical_alerts": critical_alerts,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return DashboardSummary(
@@ -1218,7 +1490,7 @@ async def get_tenant_alerts(
             }
         )
 
-    # Publish alerts retrieved event
+    # Publish alerts retrieved event with tenant isolation | نشر حدث التنبيهات مع عزل المستأجر
     critical_count = sum(1 for a in alerts if a["severity"] == "critical")
     warning_count = sum(1 for a in alerts if a["severity"] == "warning")
     await publish_event(
@@ -1230,15 +1502,25 @@ async def get_tenant_alerts(
             "warning_count": warning_count,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return {"tenant_id": tenant_id, "total_alerts": len(alerts), "alerts": alerts}
 
 
 @app.get("/v1/trends/{field_id}/{indicator_id}")
-async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Query(default=30, ge=7, le=365)):
+async def get_indicator_trends(
+    field_id: str,
+    indicator_id: str,
+    days: int = Query(default=30, ge=7, le=365),
+    user: Any = Depends(get_current_user),
+):
     """الحصول على اتجاهات مؤشر معين"""
+    _validate_field_id(field_id)
     import random
+
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    _enforce_tenant(user, tenant_id)
 
     if indicator_id not in INDICATOR_DEFINITIONS:
         raise HTTPException(status_code=404, detail=f"Indicator {indicator_id} not found")
@@ -1280,7 +1562,7 @@ async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Que
         else (TrendDirection.DOWN.value if values[-1] < values[0] else TrendDirection.STABLE.value)
     )
 
-    # Publish trend analysis event
+    # Publish trend analysis event with tenant isolation | نشر حدث تحليل الاتجاهات مع عزل المستأجر
     await publish_event(
         "sahool.indicators.trend_analyzed",
         {
@@ -1292,6 +1574,7 @@ async def get_indicator_trends(field_id: str, indicator_id: str, days: int = Que
             "overall_trend": overall_trend,
             "timestamp": datetime.now(UTC).isoformat(),
         },
+        tenant_id=tenant_id,
     )
 
     return {
@@ -1318,4 +1601,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8091))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

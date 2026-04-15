@@ -10,6 +10,7 @@
 /// - Sensor readings
 /// - Device control commands
 /// - Offline equipment data caching via outbox
+library;
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;

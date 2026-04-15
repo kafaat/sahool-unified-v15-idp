@@ -55,7 +55,12 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
             app.state.db_connected = True
             logger.info("Database connection pool created")
         except Exception as e:
@@ -289,4 +294,4 @@ def root():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8126")))
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", "8126")))  # nosec B104 - binding to all interfaces required for Docker container

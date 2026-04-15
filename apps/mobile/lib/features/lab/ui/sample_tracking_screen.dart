@@ -1,117 +1,98 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/barcode_scanner_widget.dart';
+import '../data/lab_repository.dart';
+import '../domain/lab_models.dart';
 
-/// شاشة تتبع العينات
-/// Sample Tracking Screen - يعرض رحلة العينة من الحقل للمختبر
-class SampleTrackingScreen extends StatefulWidget {
+/// شاشة تتبع العينات - مربوطة بـ API
+/// Sample Tracking Screen - Connected to soil-analysis-service
+class SampleTrackingScreen extends ConsumerStatefulWidget {
   const SampleTrackingScreen({super.key});
 
   @override
-  State<SampleTrackingScreen> createState() => _SampleTrackingScreenState();
+  ConsumerState<SampleTrackingScreen> createState() => _SampleTrackingScreenState();
 }
 
-class _SampleTrackingScreenState extends State<SampleTrackingScreen> {
+class _SampleTrackingScreenState extends ConsumerState<SampleTrackingScreen> {
   String _selectedFilter = 'all';
 
-  // Demo samples data
-  final List<LabSample> _samples = [
-    LabSample(
-      id: '1',
-      barcode: 'SOIL-0001',
-      type: 'تربة',
-      status: SampleStatus.inTransit,
-      experimentName: 'تجربة القمح',
-      plotCode: 'B-01',
-      collectedAt: DateTime.now().subtract(const Duration(days: 2)),
-      collectedBy: 'أحمد الراشد',
-    ),
-    LabSample(
-      id: '2',
-      barcode: 'SOIL-0002',
-      type: 'تربة',
-      status: SampleStatus.received,
-      experimentName: 'تجربة القمح',
-      plotCode: 'B-02',
-      collectedAt: DateTime.now().subtract(const Duration(days: 3)),
-      collectedBy: 'أحمد الراشد',
-    ),
-    LabSample(
-      id: '3',
-      barcode: 'LEAF-0001',
-      type: 'أوراق',
-      status: SampleStatus.processing,
-      experimentName: 'تجربة الطماطم',
-      plotCode: 'A-05',
-      collectedAt: DateTime.now().subtract(const Duration(days: 5)),
-      collectedBy: 'محمد علي',
-    ),
-    LabSample(
-      id: '4',
-      barcode: 'WATER-0001',
-      type: 'ماء',
-      status: SampleStatus.analyzed,
-      experimentName: 'تجربة الري',
-      plotCode: 'C-01',
-      collectedAt: DateTime.now().subtract(const Duration(days: 7)),
-      collectedBy: 'د. فاطمة حسن',
-      results: {'pH': 7.2, 'EC': 1.5, 'TDS': 980},
-    ),
-    LabSample(
-      id: '5',
-      barcode: 'SOIL-0003',
-      type: 'تربة',
-      status: SampleStatus.pending,
-      experimentName: 'تجربة القمح',
-      plotCode: 'B-03',
-      collectedAt: DateTime.now().subtract(const Duration(hours: 5)),
-      collectedBy: 'أحمد الراشد',
-    ),
-  ];
-
-  List<LabSample> get _filteredSamples {
-    if (_selectedFilter == 'all') return _samples;
-    return _samples.where((s) => s.status.name == _selectedFilter).toList();
+  List<LabSample> _filterSamples(List<LabSample> samples) {
+    if (_selectedFilter == 'all') return samples;
+    return samples.where((s) => s.status.name == _selectedFilter).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final samplesAsync = ref.watch(samplesProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('تتبع العينات 🧪'),
+        title: const Text('تتبع العينات'),
         backgroundColor: Colors.teal,
         foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
-            onPressed: _scanBarcode,
+            onPressed: () => _scanBarcode(
+              samplesAsync.valueOrNull ?? [],
+            ),
           ),
         ],
       ),
-      body: Column(
-        children: [
-          // Stats Summary
-          _buildStatsSummary(),
-
-          // Filter Chips
-          _buildFilterChips(),
-
-          // Samples List
-          Expanded(
-            child: _filteredSamples.isEmpty
-                ? _buildEmptyState()
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _filteredSamples.length,
-                    itemBuilder: (context, index) {
-                      return _SampleCard(
-                        sample: _filteredSamples[index],
-                        onTap: () => _showSampleDetails(_filteredSamples[index]),
-                      );
-                    },
-                  ),
+      body: samplesAsync.when(
+        data: (samples) {
+          final filtered = _filterSamples(samples);
+          return Column(
+            children: [
+              _buildStatsSummary(samples),
+              _buildFilterChips(),
+              Expanded(
+                child: filtered.isEmpty
+                    ? _buildEmptyState()
+                    : RefreshIndicator(
+                        onRefresh: () => ref.refresh(samplesProvider.future),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(16),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            return _SampleCard(
+                              sample: filtered[index],
+                              onTap: () => _showSampleDetails(filtered[index]),
+                            );
+                          },
+                        ),
+                      ),
+              ),
+            ],
+          );
+        },
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: Colors.teal),
+        ),
+        error: (error, _) => Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.cloud_off, size: 64, color: Colors.grey[400]),
+              const SizedBox(height: 16),
+              Text(
+                error.toString(),
+                style: TextStyle(color: Colors.grey[600]),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () => ref.invalidate(samplesProvider),
+                icon: const Icon(Icons.refresh),
+                label: const Text('إعادة المحاولة'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
@@ -130,13 +111,13 @@ class _SampleTrackingScreenState extends State<SampleTrackingScreen> {
     );
   }
 
-  Widget _buildStatsSummary() {
+  Widget _buildStatsSummary(List<LabSample> samples) {
     final stats = {
-      'pending': _samples.where((s) => s.status == SampleStatus.pending).length,
-      'inTransit': _samples.where((s) => s.status == SampleStatus.inTransit).length,
-      'received': _samples.where((s) => s.status == SampleStatus.received).length,
-      'processing': _samples.where((s) => s.status == SampleStatus.processing).length,
-      'analyzed': _samples.where((s) => s.status == SampleStatus.analyzed).length,
+      'pending': samples.where((s) => s.status == SampleStatus.pending).length,
+      'inTransit': samples.where((s) => s.status == SampleStatus.inTransit).length,
+      'received': samples.where((s) => s.status == SampleStatus.received).length,
+      'processing': samples.where((s) => s.status == SampleStatus.processing).length,
+      'analyzed': samples.where((s) => s.status == SampleStatus.analyzed).length,
     };
 
     return Container(
@@ -218,7 +199,7 @@ class _SampleTrackingScreenState extends State<SampleTrackingScreen> {
     );
   }
 
-  Future<void> _scanBarcode() async {
+  Future<void> _scanBarcode(List<LabSample> samples) async {
     final result = await BarcodeScannerScreen.scan(
       context,
       title: 'مسح باركود العينة',
@@ -227,7 +208,7 @@ class _SampleTrackingScreenState extends State<SampleTrackingScreen> {
 
     if (result != null && mounted) {
       // Find sample by barcode
-      final sample = _samples.where((s) => s.barcode == result.value).firstOrNull;
+      final sample = samples.where((s) => s.barcode == result.value).firstOrNull;
 
       if (sample != null) {
         _showSampleDetails(sample);
@@ -273,7 +254,7 @@ class _MiniStat extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -393,7 +374,7 @@ class _SampleCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: statusConfig.color.withOpacity(0.1),
+                      color: statusConfig.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -676,40 +657,6 @@ class _SampleDetailsSheet extends StatelessWidget {
       ),
     );
   }
-}
-
-// ============ Models ============
-
-enum SampleStatus {
-  pending,
-  inTransit,
-  received,
-  processing,
-  analyzed,
-}
-
-class LabSample {
-  final String id;
-  final String barcode;
-  final String type;
-  final SampleStatus status;
-  final String experimentName;
-  final String plotCode;
-  final DateTime collectedAt;
-  final String collectedBy;
-  final Map<String, dynamic>? results;
-
-  LabSample({
-    required this.id,
-    required this.barcode,
-    required this.type,
-    required this.status,
-    required this.experimentName,
-    required this.plotCode,
-    required this.collectedAt,
-    required this.collectedBy,
-    this.results,
-  });
 }
 
 // ============ New Sample Screen ============

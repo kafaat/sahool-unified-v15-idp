@@ -1,3 +1,5 @@
+library;
+
 /// Conversation Model
 /// نموذج المحادثة
 ///

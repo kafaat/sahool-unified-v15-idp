@@ -137,6 +137,7 @@ async def lifespan(app: FastAPI):
                 db_url,
                 min_size=settings.DB_POOL_MIN_SIZE,
                 max_size=settings.DB_POOL_MAX_SIZE,
+                statement_cache_size=0,  # PgBouncer transaction mode
             )
             logger.info("Connected to database")
         except Exception as e:
@@ -453,7 +454,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "src.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=settings.PORT,
         reload=settings.DEBUG,
         log_level=settings.LOG_LEVEL.lower(),

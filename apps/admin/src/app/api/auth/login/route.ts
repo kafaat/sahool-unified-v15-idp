@@ -2,15 +2,27 @@
  * Server-side login API route
  * Sets httpOnly cookies for security
  * Now includes rate limiting to prevent brute-force attacks
- * 
+ *
  * يتضمن الآن حماية ضد هجمات القوة الغاشمة
  */
 
-import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
-import { logger } from "@/lib/logger";
-import { API_URL, API_ENDPOINTS, TIMEOUT_TIERS } from "@/config/api";
-import { checkRateLimit, resetRateLimit } from "@/lib/rate-limiter";
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { logger } from '@/lib/logger';
+import { API_URL, API_ENDPOINTS, TIMEOUT_TIERS } from '@/config/api';
+import { checkRateLimit, resetRateLimit } from '@/lib/rate-limiter';
+
+/** Typed response from the backend authentication endpoint */
+interface LoginResponse {
+  access_token: string;
+  refresh_token?: string;
+  user?: { id: string; email: string; role: string; tenant_id: string };
+  requires_2fa?: boolean;
+  temp_token?: string;
+  message?: string;
+  detail?: string;
+  [key: string]: unknown;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,7 +40,7 @@ export async function POST(request: NextRequest) {
       logger.warn(`Rate limit exceeded for email: ${email}`);
       return NextResponse.json(
         {
-          error: rateLimit.message || "Too many login attempts",
+          error: rateLimit.message || 'Too many login attempts',
           resetTime: rateLimit.resetTime,
         },
         { status: 429 }
@@ -42,9 +54,9 @@ export async function POST(request: NextRequest) {
     let response: Response;
     try {
       response = await fetch(`${API_URL}${API_ENDPOINTS.auth.login}`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email,
@@ -58,32 +70,37 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate response content-type before parsing JSON
-    const contentType = response.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      logger.error(
-        `Login upstream returned non-JSON response: ${response.status} ${contentType}`,
-      );
+    const contentType = response.headers.get('content-type');
+    if (!contentType?.includes('application/json')) {
+      logger.error(`Login upstream returned non-JSON response: ${response.status} ${contentType}`);
       return NextResponse.json(
-        { error: "An invalid response was received from the upstream server" },
-        { status: 502 },
+        { error: 'An invalid response was received from the upstream server' },
+        { status: 502 }
       );
     }
 
-    let data: any;
+    let data: LoginResponse;
     try {
       data = await response.json();
-    } catch {
-      logger.error("Login upstream returned invalid JSON");
+    } catch (parseError) {
+      const statusCode = response.status;
+      const statusText = response.statusText;
+      logger.error(
+        `Failed to parse JSON from auth backend (HTTP ${statusCode} ${statusText}):`,
+        parseError
+      );
       return NextResponse.json(
-        { error: "Invalid response from authentication server" },
-        { status: 502 },
+        {
+          error: `Authentication server returned an unparseable response (HTTP ${statusCode}). Please try again or contact support.`,
+        },
+        { status: 502 }
       );
     }
 
     if (!response.ok) {
       return NextResponse.json(
-        { error: data.message || data.detail || "Login failed" },
-        { status: response.status },
+        { error: data.message || data.detail || 'Login failed' },
+        { status: response.status }
       );
     }
 
@@ -100,48 +117,38 @@ export async function POST(request: NextRequest) {
 
     // Access token - aligned with JWT expiry (default 30 min)
     // SECURITY FIX: Cookie maxAge must match JWT expiry to prevent stale tokens
-    const parsedAccess = parseInt(
-      process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || "1800",
-      10,
-    );
+    const parsedAccess = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || '1800', 10);
     const accessTokenMaxAge =
-      Number.isFinite(parsedAccess) && parsedAccess > 0
-        ? parsedAccess
-        : 1800; // 30 minutes default
-    cookieStore.set("sahool_admin_token", data.access_token, {
+      Number.isFinite(parsedAccess) && parsedAccess > 0 ? parsedAccess : 1800; // 30 minutes default
+    cookieStore.set('sahool_admin_token', data.access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: accessTokenMaxAge,
-      path: "/",
+      path: '/',
     });
 
     // Refresh token if provided - aligned with refresh token expiry (default 7 days)
     if (data.refresh_token) {
-      const parsedRefresh = parseInt(
-        process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || "604800",
-        10,
-      );
+      const parsedRefresh = parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS || '604800', 10);
       const refreshTokenMaxAge =
-        Number.isFinite(parsedRefresh) && parsedRefresh > 0
-          ? parsedRefresh
-          : 604800; // 7 days default
-      cookieStore.set("sahool_admin_refresh_token", data.refresh_token, {
+        Number.isFinite(parsedRefresh) && parsedRefresh > 0 ? parsedRefresh : 604800; // 7 days default
+      cookieStore.set('sahool_admin_refresh_token', data.refresh_token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: refreshTokenMaxAge,
-        path: "/",
+        path: '/',
       });
     }
 
     // Last activity timestamp for idle timeout tracking
-    cookieStore.set("sahool_admin_last_activity", Date.now().toString(), {
+    cookieStore.set('sahool_admin_last_activity', Date.now().toString(), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
       maxAge: accessTokenMaxAge,
-      path: "/",
+      path: '/',
     });
 
     // Reset rate limit on successful login
@@ -152,10 +159,7 @@ export async function POST(request: NextRequest) {
       user: data.user,
     });
   } catch (error) {
-    logger.error("Login error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    logger.error('Login error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

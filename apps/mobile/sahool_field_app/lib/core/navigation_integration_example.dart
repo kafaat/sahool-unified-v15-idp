@@ -1,3 +1,5 @@
+library;
+
 /// NAVIGATION INTEGRATION EXAMPLES
 /// أمثلة على دمج نظام التنقل
 ///
@@ -112,7 +114,7 @@ class HomeScreenExample extends StatelessWidget {
             'لديك 5 مهام اليوم',
             style: TextStyle(
               fontSize: 16,
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
             ),
           ),
         ],
@@ -195,7 +197,7 @@ class NavigationExample extends StatelessWidget {
 
   void _navigateWithParameters(BuildContext context) {
     // Navigate with path parameters
-    final fieldId = '123';
+    const fieldId = '123';
 
     // GDD for specific field
     context.push('/gdd/$fieldId');
@@ -228,7 +230,7 @@ class BadgeExample extends ConsumerWidget {
     // Update notification count from your data source
     Future<void> updateNotificationCount() async {
       // Fetch from API or local database
-      final count = 5; // Example count
+      const count = 5; // Example count
       ref.read(notificationCountProvider.notifier).state = count;
     }
 

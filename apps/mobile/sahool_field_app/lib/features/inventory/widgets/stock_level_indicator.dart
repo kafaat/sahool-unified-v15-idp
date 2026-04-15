@@ -1,5 +1,6 @@
-/// Stock Level Indicator Widget - مؤشر مستوى المخزون
 library;
+
+/// Stock Level Indicator Widget - مؤشر مستوى المخزون
 
 import 'package:flutter/material.dart';
 
@@ -94,13 +95,13 @@ class StockLevelIndicator extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     color,
-                    color.withOpacity(0.7),
+                    color.withValues(alpha: 0.7),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(height / 2),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.3),
+                    color: color.withValues(alpha: 0.3),
                     blurRadius: 4,
                     offset: const Offset(0, 2),
                   ),
@@ -119,7 +120,7 @@ class StockLevelIndicator extends StatelessWidget {
                       fontSize: height * 0.5,
                       shadows: [
                         Shadow(
-                          color: Colors.black.withOpacity(0.5),
+                          color: Colors.black.withValues(alpha: 0.5),
                           blurRadius: 2,
                         ),
                       ],
@@ -210,7 +211,7 @@ class StockStatusIndicator extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: getColor().withOpacity(0.3),
+            color: getColor().withValues(alpha: 0.3),
             blurRadius: 4,
             spreadRadius: 1,
           ),

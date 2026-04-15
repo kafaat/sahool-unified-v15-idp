@@ -220,7 +220,7 @@ void main() {
       );
 
       // Act
-      final params = (alertId: 'alert-001', userId: 'user-001');
+      const params = (alertId: 'alert-001', userId: 'user-001');
       final future = container.read(acknowledgeAlertProvider(params).future);
       final success = await future;
 
@@ -245,7 +245,7 @@ void main() {
       );
 
       // Act
-      final params = (alertId: 'alert-001', userId: 'user-001');
+      const params = (alertId: 'alert-001', userId: 'user-001');
       final future = container.read(acknowledgeAlertProvider(params).future);
       final success = await future;
 
@@ -272,7 +272,7 @@ void main() {
       );
 
       // Act
-      final params = (alertId: 'alert-001', userId: 'user-001');
+      const params = (alertId: 'alert-001', userId: 'user-001');
       final future = container.read(dismissAlertProvider(params).future);
       final success = await future;
 

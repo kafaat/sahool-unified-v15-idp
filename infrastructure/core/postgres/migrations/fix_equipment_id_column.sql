@@ -23,6 +23,9 @@ BEGIN
 END $$;
 
 -- Verify the change
-SELECT column_name, data_type, is_nullable 
-FROM information_schema.columns 
+SELECT
+    column_name,
+    data_type,
+    is_nullable
+FROM information_schema.columns
 WHERE table_name = 'equipment' AND column_name = 'equipment_id';

@@ -43,8 +43,8 @@ concurrency:
 env:
   FLUTTER_VERSION: '3.27.1'
   JAVA_VERSION: '17'
-  ANDROID_COMPILE_SDK: '36'
-  ANDROID_BUILD_TOOLS: '36.0.0'
+  ANDROID_COMPILE_SDK: '35'
+  ANDROID_BUILD_TOOLS: '35.0.0'
   ANDROID_MIN_SDK: '23'
 
 jobs:
@@ -54,6 +54,7 @@ jobs:
   analyze:
     name: Analyze Code
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     defaults:
       run:
         working-directory: apps/mobile/sahool_field_app
@@ -78,7 +79,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.pub-cache
@@ -94,24 +95,59 @@ jobs:
       - name: Verify Flutter setup
         run: flutter doctor -v
 
-      - name: Generate code (Drift, Freezed, etc.)
+      - name: Generate code (Drift, Freezed, Riverpod, etc.)
         run: |
           echo "Running code generation..."
-          dart run build_runner build --delete-conflicting-outputs || {
-            echo "Code generation failed, retrying..."
+          dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen_output.txt
+          CODEGEN_EXIT=${PIPESTATUS[0]}
+
+          if [ $CODEGEN_EXIT -ne 0 ]; then
+            echo "::warning::Code generation failed (exit $CODEGEN_EXIT), retrying with clean state..."
             rm -rf .dart_tool/build
-            dart run build_runner build --delete-conflicting-outputs
-          }
+            dart run build_runner build --delete-conflicting-outputs 2>&1 | tee codegen_output.txt
+            CODEGEN_EXIT=${PIPESTATUS[0]}
+
+            if [ $CODEGEN_EXIT -ne 0 ]; then
+              echo "::error::Code generation failed after retry (exit $CODEGEN_EXIT)"
+              echo "## Code Generation Failed" >> $GITHUB_STEP_SUMMARY
+              echo "build_runner failed with exit code $CODEGEN_EXIT" >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+              tail -50 codegen_output.txt >> $GITHUB_STEP_SUMMARY
+              echo '```' >> $GITHUB_STEP_SUMMARY
+            fi
+          fi
+
+          # Verify critical generated files exist
+          echo "Verifying generated files..."
+          MISSING=0
+          for f in \
+            "lib/core/storage/database.g.dart" \
+            "lib/features/astronomical/models/astronomical_models.freezed.dart" \
+            "lib/features/pivot_irrigation/domain/models/pivot_models.freezed.dart" \
+            "lib/features/pivot_irrigation/domain/models/span_zone_models.freezed.dart" \
+            "lib/features/auth/config/otp_config.g.dart"; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing generated file: $f"
+              MISSING=$((MISSING + 1))
+            else
+              echo "✓ $f exists"
+            fi
+          done
+
+          if [ $MISSING -gt 0 ]; then
+            echo "::error::$MISSING critical generated files are missing. build_runner may have failed silently."
+          fi
 
       - name: Run Flutter Analyze
         run: |
           echo "Running Flutter Analyze..."
-          flutter analyze --no-fatal-infos 2>&1 | tee analyze_output.txt || echo "::warning::Flutter analysis errors found (pre-existing)"
+          flutter analyze --no-fatal-infos --no-fatal-warnings 2>&1 | tee analyze_output.txt
+          ANALYZE_EXIT=${PIPESTATUS[0]}
 
           # Extract warning and error counts
-          ERRORS=$(grep -c "error" analyze_output.txt || echo "0")
-          WARNINGS=$(grep -c "warning" analyze_output.txt || echo "0")
-          INFOS=$(grep -c "info" analyze_output.txt || echo "0")
+          ERRORS=$(grep -c "  error •" analyze_output.txt || echo "0")
+          WARNINGS=$(grep -c "warning •" analyze_output.txt || echo "0")
+          INFOS=$(grep -c "  info •" analyze_output.txt || echo "0")
 
           echo "## Flutter Analysis Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
@@ -120,6 +156,15 @@ jobs:
           echo "| Errors | $ERRORS |" >> $GITHUB_STEP_SUMMARY
           echo "| Warnings | $WARNINGS |" >> $GITHUB_STEP_SUMMARY
           echo "| Infos | $INFOS |" >> $GITHUB_STEP_SUMMARY
+
+          if [ $ERRORS -gt 0 ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Top Errors (first 20)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            grep "  error •" analyze_output.txt | head -20 >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "::warning::Flutter analysis found $ERRORS errors"
+          fi
 
       - name: Check Dart formatting
         run: |
@@ -136,7 +181,7 @@ jobs:
 
       - name: Upload analysis results
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: analysis-results
           path: apps/mobile/sahool_field_app/analyze_output.txt
@@ -148,6 +193,7 @@ jobs:
   test:
     name: Run Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: analyze
     if: ${{ github.event.inputs.skip_tests != 'true' }}
     defaults:
@@ -174,7 +220,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.pub-cache
@@ -234,19 +280,21 @@ jobs:
           fi
 
       - name: Upload coverage to Codecov
-        if: always()
-        uses: codecov/codecov-action@v5
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@v6
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: apps/mobile/sahool_field_app/coverage/lcov.info
           flags: flutter,mobile
           name: sahool-mobile-coverage
           fail_ci_if_error: false
           verbose: true
-        continue-on-error: true
 
       - name: Upload coverage artifacts
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-report
           path: |
@@ -273,6 +321,7 @@ jobs:
   build-debug:
     name: Build Debug APK
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     needs: [analyze, test]
     if: always() && needs.analyze.result == 'success'
     defaults:
@@ -293,7 +342,7 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
       - name: Install required Android SDK components
         run: |
@@ -301,8 +350,13 @@ jobs:
           sdkmanager --install \
             "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
             "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
-            "ndk;28.2.13676358" \
-            "platform-tools" || echo "::warning::Some SDK components failed to install"
+            "ndk;27.0.12077973" \
+            "platform-tools"
+          # Verify the critical platform was installed
+          if [ ! -d "$ANDROID_HOME/platforms/android-${{ env.ANDROID_COMPILE_SDK }}" ]; then
+            echo "::error::Android SDK platform ${{ env.ANDROID_COMPILE_SDK }} not found after install"
+            exit 1
+          fi
           echo "Installed SDK components:"
           sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
 
@@ -316,7 +370,7 @@ jobs:
           cache-path: ${{ runner.tool_cache }}/flutter
 
       - name: Cache pub dependencies
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.pub-cache
@@ -327,7 +381,7 @@ jobs:
             pub-cache-${{ runner.os }}-
 
       - name: Cache Gradle
-        uses: actions/cache@565629816435f6c0b50676926c9b05c254113c0c # v4.2.3
+        uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v4.2.3
         with:
           path: |
             ~/.gradle/caches
@@ -373,7 +427,7 @@ jobs:
           cat > ~/.gradle/gradle.properties << 'GRADLEEOF'
           org.gradle.jvmargs=-Xmx4G -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
           org.gradle.daemon=false
-          org.gradle.parallel=true
+          org.gradle.parallel=false
           org.gradle.caching=true
           GRADLEEOF
           sed 's/^[[:space:]]*//' ~/.gradle/gradle.properties > /tmp/gp.tmp && mv /tmp/gp.tmp ~/.gradle/gradle.properties
@@ -430,7 +484,7 @@ jobs:
           fi
 
       - name: Upload Debug APK
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: sahool-debug-apk-${{ github.run_number }}
           path: |
@@ -441,7 +495,7 @@ jobs:
 
       - name: Upload build logs on failure
         if: failure()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: build-logs-debug-${{ github.run_number }}
           path: |
@@ -467,11 +521,15 @@ jobs:
   integration-test:
     name: Integration Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: build-debug
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     defaults:
       run:
         working-directory: apps/mobile/sahool_field_app
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      ANDROID_SDK_ROOT: /usr/local/lib/android/sdk
 
     steps:
       - name: Checkout repository
@@ -484,7 +542,18 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
+
+      - name: Install required Android SDK components
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager --install \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "ndk;27.0.12077973" \
+            "platform-tools"
+          echo "Installed SDK components:"
+          sdkmanager --list_installed 2>/dev/null | grep -E 'platforms|build-tools|ndk' || true
 
       - name: Setup Flutter ${{ env.FLUTTER_VERSION }}
         uses: subosito/flutter-action@v2
@@ -526,7 +595,7 @@ jobs:
 
       - name: Upload integration test results
         if: always()
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v4.3.5
+        uses: actions/upload-artifact@v7
         with:
           name: integration-test-results
           path: apps/mobile/sahool_field_app/integration_test_output/
@@ -539,6 +608,7 @@ jobs:
   ci-status:
     name: CI Status
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [analyze, test, build-debug]
     if: always()
     steps:

@@ -31,11 +31,14 @@ from src.api.schemas import (
     PestDetectionRequest,
     PestDetectionResponse,
     SeverityLevel,
+    VLMVerification,
+    VLMVerificationStatus,
     WeedDetection,
     WeedDetectionRequest,
     WeedDetectionResponse,
 )
 from src.core.config import settings
+from src.core.vlm_verifier import build_vlm_verifier_from_settings
 from src.events import VisionEventPublisher
 from src.models.yolo26_manager import (
     InferenceResult,
@@ -43,6 +46,20 @@ from src.models.yolo26_manager import (
     YOLO26ModelManager,
     get_model_manager,
 )
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 logger = structlog.get_logger(__name__)
 
@@ -179,6 +196,97 @@ def create_visualization(
     except Exception as e:
         logger.warning("visualization_failed", error=str(e))
         return ""
+
+
+# =============================================================================
+# VLM Secondary Verification Helper
+# =============================================================================
+
+
+async def _run_vlm_pass(
+    image_bytes: bytes,
+    detections: list,
+    detection_class: type,
+) -> tuple[list, dict[str, int] | None]:
+    """
+    Run VLM secondary verification on a list of YOLO detections.
+
+    Builds a :class:`VLMVerifier` from the global settings, then verifies
+    each detection sequentially.  Detections with a ``dismissed`` verdict
+    are filtered out; all others are returned with ``vlm_verification``
+    attached.
+
+    Args:
+        image_bytes: Full-image bytes passed to the VLM verifier.
+        detections: List of Pydantic detection objects (frozen models).
+        detection_class: The concrete Pydantic model class to reconstruct
+            with the VLM result attached (e.g. ``PestDetection``).
+
+    Returns:
+        Tuple of (filtered detections with VLM results, vlm_stats).
+        ``vlm_stats`` is ``None`` when VLM is not configured (provider is
+        ``disabled``), so callers can distinguish "VLM ran but dismissed
+        everything" from "VLM was never invoked".
+    """
+    verifier = build_vlm_verifier_from_settings(settings)
+    if not verifier.is_enabled:
+        logger.warning(
+            "vlm_not_configured",
+            message="use_vlm=True requested but VLM_PROVIDER is 'disabled'; skipping VLM pass",
+        )
+        return detections, None
+
+    vlm_stats: dict[str, int] = {
+        VLMVerificationStatus.CONFIRMED.value: 0,
+        VLMVerificationStatus.SUSPICIOUS.value: 0,
+        VLMVerificationStatus.DISMISSED.value: 0,
+        VLMVerificationStatus.ERROR.value: 0,
+    }
+    verified: list = []
+
+    # Decode the image once so that _crop_region does not re-decode per detection.
+    pil_image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+
+    try:
+        for det in detections:
+            bbox = [det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2]
+            vlm_result = await verifier.verify(pil_image, bbox, det.class_name_en)
+
+            status_key = vlm_result.status.value
+            vlm_stats[status_key] = vlm_stats.get(status_key, 0) + 1
+
+            if vlm_result.status.value == VLMVerificationStatus.DISMISSED.value:
+                continue  # Filter YOLO false positive
+
+            vlm_schema = VLMVerification(
+                status=VLMVerificationStatus(vlm_result.status.value),
+                has_pest=vlm_result.has_pest,
+                confidence=vlm_result.confidence,
+                pest_type=vlm_result.pest_type,
+                pest_type_ar=vlm_result.pest_type_ar,
+                severity=vlm_result.severity,
+                diagnosis_en=vlm_result.diagnosis_en,
+                provider=vlm_result.provider,
+                latency_ms=vlm_result.latency_ms,
+                error=vlm_result.error,
+            )
+
+            # Reconstruct frozen Pydantic model with VLM data attached
+            det_data = det.model_dump()
+            det_data["vlm_verification"] = vlm_schema.model_dump()
+            verified.append(detection_class.model_validate(det_data))
+    finally:
+        await verifier.aclose()
+
+    logger.info(
+        "vlm_pass_complete",
+        provider=verifier.provider,
+        confirmed=vlm_stats[VLMVerificationStatus.CONFIRMED.value],
+        suspicious=vlm_stats[VLMVerificationStatus.SUSPICIOUS.value],
+        dismissed=vlm_stats[VLMVerificationStatus.DISMISSED.value],
+        error=vlm_stats[VLMVerificationStatus.ERROR.value],
+    )
+    return verified, vlm_stats
 
 
 # =============================================================================
@@ -461,6 +569,7 @@ DISEASE_TREATMENTS: dict[int, dict[str, str]] = {
 @router.post(
     "/detect/pest",
     response_model=PestDetectionResponse,
+    response_model_by_alias=True,
     summary="Detect pests in agricultural images",
     description="Detect and classify agricultural pests (20+ species) with bilingual labels and treatment recommendations.",
 )
@@ -474,7 +583,9 @@ async def detect_pests(
     image_size: Annotated[int, Query(ge=320, le=1280)] = 640,
     return_visualization: bool = False,
     include_recommendations: bool = True,
+    use_vlm: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> PestDetectionResponse:
     """
     Detect pests in agricultural images.
@@ -575,6 +686,31 @@ async def detect_pests(
 
         processing_time = (time.perf_counter() - start_time) * 1000
 
+        # --- VLM secondary verification (YOLO + Qwen-VL / vLLM cooperative inspection) ---
+        # Pain Point 3 fix: secondary VLM verification to reduce false positives and false negatives
+        vlm_stats: dict[str, int] | None = None
+        if use_vlm and detections:
+            detections, vlm_stats = await _run_vlm_pass(image_bytes, detections, PestDetection)
+            # Recalculate severity counts after VLM filtering
+            severity_counts = {s.value: 0 for s in SeverityLevel}
+            for det in detections:
+                severity_counts[det.severity.value] += 1
+
+        # Recapture processing time including VLM latency
+        processing_time = (time.perf_counter() - start_time) * 1000
+
+        # Rebuild visualization_data to match only surviving post-VLM detections
+        if use_vlm and vlm_stats:
+            visualization_data = [
+                {
+                    "class_id": d.class_id,
+                    "confidence": d.confidence,
+                    "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    "severity": d.severity,
+                }
+                for d in detections
+            ]
+
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
@@ -605,6 +741,7 @@ async def detect_pests(
                 ],
                 processing_time_ms=processing_time,
                 model_variant=model_variant.value,
+                tenant_id=getattr(current_user, "tenant_id", None),
             )
 
         return PestDetectionResponse(
@@ -616,6 +753,7 @@ async def detect_pests(
             total_count=len(detections),
             severity_summary=severity_counts,
             visualization_base64=visualization_base64,
+            vlm_stats=vlm_stats,
         )
 
     except HTTPException:
@@ -635,6 +773,7 @@ async def detect_pests(
 @router.post(
     "/detect/disease",
     response_model=DiseaseDetectionResponse,
+    response_model_by_alias=True,
     summary="Detect plant diseases in agricultural images",
     description="Detect and classify plant diseases (30+ diseases) with bilingual labels and treatment recommendations.",
 )
@@ -649,7 +788,9 @@ async def detect_diseases(
     return_visualization: bool = False,
     include_treatments: bool = True,
     calculate_affected_area: bool = True,
+    use_vlm: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> DiseaseDetectionResponse:
     """
     Detect plant diseases in agricultural images.
@@ -765,6 +906,18 @@ async def detect_diseases(
                 }
             )
 
+        # --- VLM secondary verification (YOLO + Qwen-VL / vLLM cooperative inspection) ---
+        vlm_stats: dict[str, int] | None = None
+        if use_vlm and detections:
+            detections, vlm_stats = await _run_vlm_pass(image_bytes, detections, DiseaseDetection)
+            # Recalculate severity counts and affected area after VLM filtering
+            severity_counts = {s.value: 0 for s in SeverityLevel}
+            total_affected_area = 0.0
+            for det in detections:
+                severity_counts[det.severity.value] += 1
+                if det.affected_area_percent:
+                    total_affected_area += det.affected_area_percent
+
         processing_time = (time.perf_counter() - start_time) * 1000
 
         # Calculate overall health score (100 = healthy, 0 = severely diseased)
@@ -785,6 +938,18 @@ async def detect_diseases(
                 ]
             ) / len(detections)
             health_score = max(0.0, health_score - (avg_severity * 10))
+
+        # Rebuild visualization_data to match only surviving post-VLM detections
+        if use_vlm and vlm_stats:
+            visualization_data = [
+                {
+                    "class_id": d.class_id,
+                    "confidence": d.confidence,
+                    "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    "severity": d.severity,
+                }
+                for d in detections
+            ]
 
         # Generate visualization if requested
         visualization_base64 = None
@@ -820,6 +985,7 @@ async def detect_diseases(
                 processing_time_ms=processing_time,
                 model_variant=model_variant.value,
                 health_score=health_score,
+                tenant_id=getattr(current_user, "tenant_id", None),
             )
 
         return DiseaseDetectionResponse(
@@ -832,6 +998,7 @@ async def detect_diseases(
             overall_health_score=round(health_score, 1),
             severity_summary=severity_counts,
             visualization_base64=visualization_base64,
+            vlm_stats=vlm_stats,
         )
 
     except HTTPException:
@@ -851,6 +1018,7 @@ async def detect_diseases(
 @router.post(
     "/detect/weed",
     response_model=WeedDetectionResponse,
+    response_model_by_alias=True,
     summary="Detect weeds in agricultural images",
     description="Detect and classify weeds with bilingual labels and coverage estimation.",
 )
@@ -864,7 +1032,9 @@ async def detect_weeds(
     image_size: Annotated[int, Query(ge=320, le=1280)] = 640,
     return_visualization: bool = False,
     calculate_coverage: bool = True,
+    use_vlm: bool = False,
     manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
 ) -> WeedDetectionResponse:
     """
     Detect weeds in agricultural images.
@@ -968,6 +1138,34 @@ async def detect_weeds(
         # Cap total coverage at 100%
         total_coverage = min(total_coverage, 100.0)
 
+        # --- VLM secondary verification (YOLO + Qwen-VL / vLLM cooperative inspection) ---
+        vlm_stats: dict[str, int] | None = None
+        if use_vlm and detections:
+            detections, vlm_stats = await _run_vlm_pass(image_bytes, detections, WeedDetection)
+            # Recalculate species distribution and total coverage after VLM filtering
+            species_distribution = {}
+            total_coverage = 0.0
+            for det in detections:
+                species_distribution[det.class_name_en] = species_distribution.get(det.class_name_en, 0) + 1
+                if det.coverage_percent:
+                    total_coverage += det.coverage_percent
+            total_coverage = min(total_coverage, 100.0)
+
+        # Recapture processing time including VLM latency
+        processing_time = (time.perf_counter() - start_time) * 1000
+
+        # Rebuild visualization_data to match only surviving post-VLM detections
+        if use_vlm and vlm_stats:
+            visualization_data = [
+                {
+                    "class_id": d.class_id,
+                    "confidence": d.confidence,
+                    "bbox": {"x1": d.bbox.x1, "y1": d.bbox.y1, "x2": d.bbox.x2, "y2": d.bbox.y2},
+                    "severity": SeverityLevel.MEDIUM,
+                }
+                for d in detections
+            ]
+
         # Generate visualization if requested
         visualization_base64 = None
         if return_visualization and detections:
@@ -1000,6 +1198,7 @@ async def detect_weeds(
                 processing_time_ms=processing_time,
                 model_variant=model_variant.value,
                 total_coverage_percent=total_coverage,
+                tenant_id=getattr(current_user, "tenant_id", None),
             )
 
         return WeedDetectionResponse(
@@ -1012,6 +1211,7 @@ async def detect_weeds(
             total_coverage_percent=round(total_coverage, 1),
             species_distribution=species_distribution,
             visualization_base64=visualization_base64,
+            vlm_stats=vlm_stats,
         )
 
     except HTTPException:

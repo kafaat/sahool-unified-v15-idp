@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Market Repository
 /// مستودع السوق - Clean Architecture Pattern
 ///

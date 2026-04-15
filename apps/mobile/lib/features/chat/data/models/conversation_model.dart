@@ -2,6 +2,7 @@
 /// نموذج المحادثة
 ///
 /// Represents a chat conversation between users
+library;
 
 import 'message_model.dart';
 
@@ -54,7 +55,7 @@ class ConversationParticipant {
       role: json['role'] as String?,
       isOnline: json['isOnline'] as bool? ?? false,
       lastSeen: json['lastSeen'] != null
-          ? DateTime.parse(json['lastSeen'] as String)
+          ? DateTime.tryParse(json['lastSeen'] as String) ?? DateTime.now()
           : null,
     );
   }
@@ -188,10 +189,10 @@ class Conversation {
       isTyping: json['isTyping'] as bool? ?? false,
       isMuted: json['isMuted'] as bool? ?? false,
       createdAt: json['createdAt'] != null
-          ? DateTime.parse(json['createdAt'] as String)
+          ? DateTime.tryParse(json['createdAt'] as String) ?? DateTime.now()
           : DateTime.now(),
       updatedAt: json['updatedAt'] != null
-          ? DateTime.parse(json['updatedAt'] as String)
+          ? DateTime.tryParse(json['updatedAt'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }
@@ -251,7 +252,7 @@ class Conversation {
   ConversationParticipant? getOtherParticipant(String currentUserId) {
     try {
       return participants.firstWhere((p) => p.userId != currentUserId);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

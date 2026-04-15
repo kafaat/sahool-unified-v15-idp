@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../contracts/api_endpoints.dart';
 import '../http/api_client.dart';
 import '../utils/app_logger.dart';
+import 'jwt_validator.dart';
 import 'secure_storage_service.dart';
 
 /// SAHOOL Token Manager
@@ -129,20 +132,24 @@ class TokenManager {
 
   /// Refresh the access token (re-entrant safe via Completer lock)
   Future<void> refreshToken() async {
-    // If a refresh is already in progress, wait for it to complete
-    if (_refreshLock != null) {
+    // Atomically check and set the lock to prevent race conditions.
+    // Dart is single-threaded, so capturing the existing lock and
+    // assigning a new one in the same synchronous block is safe.
+    final existingLock = _refreshLock;
+    if (existingLock != null) {
       AppLogger.d('Refresh already in progress, waiting', tag: 'TOKEN_MANAGER');
-      return _refreshLock!.future;
+      return existingLock.future;
     }
 
-    _refreshLock = Completer<void>();
+    final lock = Completer<void>();
+    _refreshLock = lock;
     AppLogger.i('Refreshing token', tag: 'TOKEN_MANAGER');
 
     try {
       await _doRefreshToken();
-      _refreshLock?.complete();
+      lock.complete();
     } catch (e) {
-      _refreshLock?.completeError(e);
+      lock.completeError(e);
       rethrow;
     } finally {
       _refreshLock = null;
@@ -183,7 +190,15 @@ class TokenManager {
       if (result.success) {
         await _storeRefreshedTokens(result);
         _lastRefreshTime = DateTime.now();
-        _scheduleBackgroundRefresh(result.expiresIn ?? 3600);
+        // Schedule refresh using JWT exp claim when available (consistent with storeTokens)
+        int effectiveExpiresIn = result.expiresIn ?? 3600;
+        if (result.accessToken != null) {
+          final parsed = JwtValidator.parse(result.accessToken!);
+          if (parsed.isValid && parsed.claims?.timeUntilExpiry != null) {
+            effectiveExpiresIn = parsed.claims!.timeUntilExpiry!.inSeconds;
+          }
+        }
+        _scheduleBackgroundRefresh(effectiveExpiresIn);
         AppLogger.i('Token refresh successful', tag: 'TOKEN_MANAGER');
       } else {
         throw TokenRefreshException(
@@ -201,7 +216,7 @@ class TokenManager {
   Future<TokenRefreshResult> _refreshWithApiClient(String refreshToken) async {
     try {
       final response = await _apiClient!.post(
-        '/api/v1/auth/refresh',
+        AuthEndpoints.refresh,
         {'refresh_token': refreshToken},
       );
 
@@ -209,7 +224,12 @@ class TokenManager {
         return TokenRefreshResult.failure('Invalid response from server');
       }
 
-      final data = response is Map<String, dynamic> ? response : response['data'];
+      final Map<String, dynamic> data;
+      if (response is Map<String, dynamic>) {
+        data = response;
+      } else {
+        data = (response as Map<String, dynamic>)['data'] as Map<String, dynamic>;
+      }
 
       final accessToken = data['access_token'] ?? data['accessToken'];
       final newRefreshToken = data['refresh_token'] ?? data['refreshToken'] ?? refreshToken;
@@ -237,31 +257,58 @@ class TokenManager {
     }
   }
 
-  /// Mock refresh for development
+  /// Mock refresh for development - returns structurally valid JWT
   Future<TokenRefreshResult> _mockRefresh() async {
     await Future.delayed(const Duration(milliseconds: 300));
+    // Build a structurally valid JWT with required claims (header.payload.signature)
+    final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+    final exp = now + 3600;
+    final header = base64Url.encode(utf8.encode('{"alg":"HS256","typ":"JWT"}'));
+    final payload = base64Url.encode(utf8.encode(
+      '{"sub":"mock-user-${now}","email":"dev@sahool.app","roles":["FARMER"],"type":"access","iat":$now,"exp":$exp}',
+    ));
+    final mockJwt = '$header.$payload.mock_signature';
     return TokenRefreshResult.success(
-      accessToken: 'mock_access_token_${DateTime.now().millisecondsSinceEpoch}',
-      refreshToken: 'mock_refresh_token_${DateTime.now().millisecondsSinceEpoch}',
+      accessToken: mockJwt,
+      refreshToken: 'mock_refresh_token_$now',
       expiresIn: 3600,
     );
   }
 
-  /// Store refreshed tokens securely
+  /// Store refreshed tokens securely with validation
   Future<void> _storeRefreshedTokens(TokenRefreshResult result) async {
     if (result.accessToken != null) {
+      // Validate token structure and claims before storing
+      final validation = JwtValidator.validate(result.accessToken!);
+      if (!validation.isValid) {
+        AppLogger.e(
+          'Received invalid access token after refresh: ${validation.error}',
+          tag: 'TOKEN_MANAGER',
+        );
+        throw TokenRefreshException(
+          'Invalid token received: ${validation.error}',
+          code: 'INVALID_TOKEN_RECEIVED',
+        );
+      }
+
       await _secureStorage.setAccessToken(result.accessToken!);
+
+      // Use expiry from JWT claims (more accurate than server-provided expiresIn)
+      if (validation.claims?.expiresAt != null) {
+        await _secureStorage.setTokenExpiry(validation.claims!.expiresAt!);
+        AppLogger.d(
+          'Token expiry set from JWT claims: ${validation.claims!.timeUntilExpiry?.inMinutes} min',
+          tag: 'TOKEN_MANAGER',
+        );
+      } else if (result.expiresIn != null) {
+        final expiry = DateTime.now().add(Duration(seconds: result.expiresIn!));
+        await _secureStorage.setTokenExpiry(expiry);
+      }
     }
 
     // Refresh token rotation: store new refresh token
     if (result.refreshToken != null) {
       await _secureStorage.setRefreshToken(result.refreshToken!);
-    }
-
-    // Set token expiry
-    if (result.expiresIn != null) {
-      final expiry = DateTime.now().add(Duration(seconds: result.expiresIn!));
-      await _secureStorage.setTokenExpiry(expiry);
     }
   }
 
@@ -403,11 +450,29 @@ class TokenManager {
     required String refreshToken,
     required int expiresIn,
   }) async {
+    // Validate access token before storing
+    final validation = JwtValidator.validate(accessToken);
+    if (!validation.isValid) {
+      AppLogger.e(
+        'Received invalid access token after login: ${validation.error}',
+        tag: 'TOKEN_MANAGER',
+      );
+      throw TokenRefreshException(
+        'Invalid token received: ${validation.error}',
+        code: 'INVALID_TOKEN_RECEIVED',
+      );
+    }
+
     await _secureStorage.setAccessToken(accessToken);
     await _secureStorage.setRefreshToken(refreshToken);
 
-    final expiry = DateTime.now().add(Duration(seconds: expiresIn));
-    await _secureStorage.setTokenExpiry(expiry);
+    // Use expiry from JWT claims when available
+    if (validation.claims?.expiresAt != null) {
+      await _secureStorage.setTokenExpiry(validation.claims!.expiresAt!);
+    } else {
+      final expiry = DateTime.now().add(Duration(seconds: expiresIn));
+      await _secureStorage.setTokenExpiry(expiry);
+    }
 
     // Update API client
     if (_apiClient != null) {
@@ -415,7 +480,8 @@ class TokenManager {
     }
 
     // Schedule background refresh
-    _scheduleBackgroundRefresh(expiresIn);
+    final effectiveExpiresIn = validation.claims?.timeUntilExpiry?.inSeconds ?? expiresIn;
+    _scheduleBackgroundRefresh(effectiveExpiresIn);
 
     // Notify listeners
     _authStateController.add(true);

@@ -1,3 +1,5 @@
+library;
+
 /// Weather-Irrigation Integration Service
 /// خدمة تكامل الطقس والري
 ///
@@ -6,7 +8,6 @@
 /// - Rain-adjusted irrigation scheduling
 /// - Weather alerts for irrigation
 /// - Optimal irrigation timing recommendations
-library;
 
 import 'dart:math' as math;
 
@@ -292,7 +293,7 @@ class WeatherIrrigationIntegration {
 
     // Check current rain
     if (currentWeather.precipitation > 10) {
-      return SkipDecision(
+      return const SkipDecision(
         shouldSkip: true,
         reason: 'Current rain event',
         reasonAr: 'هطول أمطار حالي',
@@ -302,7 +303,7 @@ class WeatherIrrigationIntegration {
 
     // Check for extreme cold
     if (currentWeather.temperatureMin < 2) {
-      return SkipDecision(
+      return const SkipDecision(
         shouldSkip: true,
         reason: 'Frost risk - delay irrigation',
         reasonAr: 'خطر الصقيع - تأخير الري',
@@ -312,7 +313,7 @@ class WeatherIrrigationIntegration {
 
     // Check for extreme wind
     if (currentWeather.windSpeed > 40) {
-      return SkipDecision(
+      return const SkipDecision(
         shouldSkip: true,
         reason: 'High wind - poor irrigation efficiency',
         reasonAr: 'رياح قوية - كفاءة ري ضعيفة',
@@ -320,7 +321,7 @@ class WeatherIrrigationIntegration {
       );
     }
 
-    return SkipDecision(
+    return const SkipDecision(
       shouldSkip: false,
       reason: 'Weather conditions suitable for irrigation',
       reasonAr: 'الطقس مناسب للري',
@@ -408,7 +409,7 @@ class WeatherIrrigationIntegration {
     if (weather.temperatureMax > 42 ||
         (forecast.isNotEmpty &&
             forecast.take(3).every((w) => w.temperatureMax > 40))) {
-      alerts.add(IrrigationWeatherAlert(
+      alerts.add(const IrrigationWeatherAlert(
         type: IrrigationAlertType.heatWave,
         severity: AlertSeverity.high,
         message: 'Heat wave conditions - increase irrigation frequency',
@@ -421,7 +422,7 @@ class WeatherIrrigationIntegration {
     // Frost alert
     if (weather.temperatureMin < 3 ||
         forecast.any((w) => w.temperatureMin < 3)) {
-      alerts.add(IrrigationWeatherAlert(
+      alerts.add(const IrrigationWeatherAlert(
         type: IrrigationAlertType.frost,
         severity: AlertSeverity.critical,
         message: 'Frost risk - protect crops and avoid irrigation',
@@ -449,7 +450,7 @@ class WeatherIrrigationIntegration {
 
     // High wind alert
     if (weather.windSpeed > 30) {
-      alerts.add(IrrigationWeatherAlert(
+      alerts.add(const IrrigationWeatherAlert(
         type: IrrigationAlertType.highWind,
         severity: AlertSeverity.medium,
         message: 'High wind reduces irrigation efficiency',
@@ -463,7 +464,7 @@ class WeatherIrrigationIntegration {
     if (forecast.length >= 7 &&
         forecast.every((w) => w.precipitation < 1) &&
         weather.humidity < 30) {
-      alerts.add(IrrigationWeatherAlert(
+      alerts.add(const IrrigationWeatherAlert(
         type: IrrigationAlertType.drought,
         severity: AlertSeverity.high,
         message: 'Drought conditions - monitor soil moisture closely',

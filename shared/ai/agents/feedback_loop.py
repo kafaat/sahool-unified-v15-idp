@@ -58,7 +58,6 @@ class QualityDimension(StrEnum):
     COMPLETENESS = "completeness"  # Nothing important missing
 
 
-
 class EscalationLevel(StrEnum):
     """مستوى التصعيد"""
 

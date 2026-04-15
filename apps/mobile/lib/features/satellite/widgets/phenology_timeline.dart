@@ -26,7 +26,7 @@ class PhenologyTimeline extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -59,12 +59,20 @@ class PhenologyTimeline extends StatelessWidget {
     );
   }
 
+  Color _parseColor(String hex) {
+    try {
+      return Color(int.parse(hex.replaceFirst('#', '0xFF')));
+    } catch (e) {
+      return Colors.grey;
+    }
+  }
+
   Widget _buildTimelineItem({
     required GrowthStageInfo stage,
     required bool isLast,
     required bool isArabic,
   }) {
-    final stageColor = Color(int.parse(stage.stage.colorHex.replaceFirst('#', '0xFF')));
+    final stageColor = _parseColor(stage.stage.colorHex);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +86,7 @@ class PhenologyTimeline extends StatelessWidget {
               decoration: BoxDecoration(
                 color: stage.isCompleted || stage.isCurrent
                     ? stageColor
-                    : Colors.grey.withOpacity(0.3),
+                    : Colors.grey.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
                 border: Border.all(
                   color: stage.isCurrent ? stageColor : Colors.transparent,
@@ -105,7 +113,7 @@ class PhenologyTimeline extends StatelessWidget {
                 height: 50,
                 color: stage.isCompleted
                     ? stageColor
-                    : Colors.grey.withOpacity(0.3),
+                    : Colors.grey.withValues(alpha: 0.3),
               ),
           ],
         ),
@@ -147,7 +155,7 @@ class PhenologyTimeline extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: stageColor.withOpacity(0.1),
+                      color: stageColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Column(

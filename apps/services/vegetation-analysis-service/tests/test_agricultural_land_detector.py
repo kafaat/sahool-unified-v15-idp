@@ -9,42 +9,44 @@ Tests cover:
 """
 
 import math
+import os
+import sys
 from datetime import datetime
 
 import numpy as np
 import pytest
-import sys
-import os
 
 # Add service src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from src.agricultural_land_detector import (
-    AgriculturalLandDetector,
-    AgriculturalParcel,
-    BoundaryDetectionEngine,
-    CropClassificationEngine,
-    CropClassificationResult,
-    CropType,
-    DetectionConfig,
-    DetectionReport,
-    DetectionStrategy,
-    LandCoverClass,
-    ModelPrecision,
-    ParcelEditingTools,
-    ParcelPostProcessor,
-    ParcelShape,
-    QualityInspectionTool,
-    SemanticSegmentationEngine,
-    TopologyPreservingSimplifier,
-    VectorClassificationEngine,
-)
+try:
+    from src.agricultural_land_detector import (
+        AgriculturalLandDetector,
+        AgriculturalParcel,
+        BoundaryDetectionEngine,
+        CropClassificationEngine,
+        CropClassificationResult,
+        CropType,
+        DetectionConfig,
+        DetectionReport,
+        DetectionStrategy,
+        LandCoverClass,
+        ModelPrecision,
+        ParcelEditingTools,
+        ParcelPostProcessor,
+        ParcelShape,
+        QualityInspectionTool,
+        SemanticSegmentationEngine,
+        TopologyPreservingSimplifier,
+        VectorClassificationEngine,
+    )
+except ImportError:
+    pytest.skip("vegetation-analysis-service dependencies not installed", allow_module_level=True)
+
 
 # =============================================================================
 # Test Fixtures
 # =============================================================================
-
-
 def make_parcel(
     parcel_id="test_001",
     coords=None,
@@ -125,8 +127,6 @@ def make_synthetic_image(size=64):
 # =============================================================================
 # Enums & Configuration Tests
 # =============================================================================
-
-
 class TestEnums:
     """Test enum definitions and values."""
 
@@ -202,8 +202,6 @@ class TestDetectionConfig:
 # =============================================================================
 # Data Models Tests
 # =============================================================================
-
-
 class TestAgriculturalParcel:
     """Test AgriculturalParcel data model."""
 
@@ -265,8 +263,6 @@ class TestDetectionReport:
 # =============================================================================
 # Phase 1: Semantic Segmentation Engine Tests
 # =============================================================================
-
-
 class TestSemanticSegmentationEngine:
     """Test SemanticSegmentationEngine."""
 
@@ -342,8 +338,6 @@ class TestSemanticSegmentationEngine:
 # =============================================================================
 # Phase 2: Boundary Detection Engine Tests
 # =============================================================================
-
-
 class TestBoundaryDetectionEngine:
     """Test BoundaryDetectionEngine."""
 
@@ -377,8 +371,6 @@ class TestBoundaryDetectionEngine:
 # =============================================================================
 # Phase 3: Post-Processing Tests
 # =============================================================================
-
-
 class TestParcelPostProcessor:
     """Test ParcelPostProcessor."""
 
@@ -436,8 +428,6 @@ class TestParcelPostProcessor:
 # =============================================================================
 # Phase 4: Vector Classification Tests
 # =============================================================================
-
-
 class TestVectorClassificationEngine:
     """Test VectorClassificationEngine."""
 
@@ -480,8 +470,6 @@ class TestVectorClassificationEngine:
 # =============================================================================
 # GeoLabel 4.0: Crop Classification Engine Tests
 # =============================================================================
-
-
 class TestCropClassificationEngine:
     """Test CropClassificationEngine - ML+DL dual-path ensemble."""
 
@@ -565,8 +553,6 @@ class TestCropClassificationEngine:
 # =============================================================================
 # GeoLabel 4.0: Topology-Preserving Simplifier Tests
 # =============================================================================
-
-
 class TestTopologyPreservingSimplifier:
     """Test TopologyPreservingSimplifier."""
 
@@ -653,8 +639,6 @@ class TestTopologyPreservingSimplifier:
 # =============================================================================
 # GeoLabel 4.0: Parcel Editing Tools Tests
 # =============================================================================
-
-
 class TestParcelEditingTools:
     """Test ParcelEditingTools - merge/split/connect operations."""
 
@@ -789,8 +773,6 @@ class TestParcelEditingTools:
 # =============================================================================
 # GeoLabel 4.0: Quality Inspection Tool Tests
 # =============================================================================
-
-
 class TestQualityInspectionTool:
     """Test QualityInspectionTool - inspection, WKT, batch assign, stats."""
 
@@ -897,8 +879,6 @@ class TestQualityInspectionTool:
 # =============================================================================
 # Main Orchestrator Tests
 # =============================================================================
-
-
 class TestAgriculturalLandDetector:
     """Test the main AgriculturalLandDetector orchestrator."""
 
@@ -1020,8 +1000,6 @@ class TestAgriculturalLandDetector:
 # =============================================================================
 # Integration Tests - Full Pipeline
 # =============================================================================
-
-
 class TestIntegration:
     """Integration tests for end-to-end workflows."""
 

@@ -22,6 +22,7 @@ Updated: January 2026
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import logging
@@ -42,6 +43,7 @@ from .circuit_breaker import (
     get_circuit_breaker,
 )
 from .metrics import get_metrics_collector
+from .validation import ValidationLevel, validate_prompt, validate_response
 
 logger = logging.getLogger(__name__)
 
@@ -70,6 +72,37 @@ class LLMConfig:
     timeout: float = 120.0
     enabled: bool = True
     priority: int = 0  # Lower = higher priority
+
+    def __post_init__(self):
+        """Validate configuration after initialization."""
+        # SECURITY: Validate base_url scheme to prevent SSRF
+        if self.base_url is not None:
+            from urllib.parse import urlparse
+
+            parsed = urlparse(self.base_url)
+            if parsed.scheme not in ("http", "https"):
+                raise ValueError(
+                    f"base_url must use http/https scheme, got '{parsed.scheme}'. "
+                    "Other protocols (file, ftp, gopher, etc.) are blocked to prevent SSRF."
+                )
+
+    @property
+    def masked_api_key(self) -> str | None:
+        """Return masked API key showing only last 4 characters."""
+        if not self.api_key:
+            return None
+        if len(self.api_key) <= 4:
+            return "****"
+        return f"****{self.api_key[-4:]}"
+
+    def __repr__(self) -> str:
+        """Safe repr that masks the api_key field to prevent accidental exposure in logs."""
+        return (
+            f"LLMConfig(provider={self.provider!r}, model={self.model!r}, "
+            f"api_key={self.masked_api_key!r}, base_url={self.base_url!r}, "
+            f"temperature={self.temperature}, max_tokens={self.max_tokens}, "
+            f"timeout={self.timeout}, enabled={self.enabled}, priority={self.priority})"
+        )
 
     @classmethod
     def from_env(cls, provider: LLMProvider) -> LLMConfig:
@@ -164,6 +197,13 @@ class LLMProviderError(Exception):
     def __init__(self, message: str, provider: LLMProvider | None = None):
         super().__init__(message)
         self.provider = provider
+
+
+class PromptValidationError(LLMProviderError):
+    """Exception raised when a prompt fails safety validation."""
+
+    def __init__(self, message: str):
+        super().__init__(message, provider=None)
 
 
 class AllProvidersFailedError(LLMProviderError):
@@ -312,6 +352,24 @@ class LLMProviderManager:
         """
         errors: list[tuple[LLMProvider, str]] = []
 
+        # SECURITY: Validate prompt for injection/jailbreak before sending to any provider
+        input_validation = validate_prompt(prompt, ValidationLevel.MODERATE)
+        if not input_validation.is_valid:
+            issue_summary = "; ".join(
+                f"{i.category.value}: {i.message}"
+                for i in input_validation.issues
+                if i.severity.value in ("critical", "high")
+            )
+            logger.warning(
+                "Prompt validation failed — blocking LLM call",
+                extra={
+                    "issues": [i.to_dict() for i in input_validation.issues],
+                    "score": input_validation.score,
+                    "correlation_id": correlation_id,
+                },
+            )
+            raise PromptValidationError(f"Prompt blocked by safety validation: {issue_summary}")
+
         # Build provider order
         providers = list(self._provider_order)
         if preferred_provider and preferred_provider in providers:
@@ -346,6 +404,19 @@ class LLMProviderManager:
                         from_provider=errors[-1][0].value,
                         to_provider=provider.value,
                         reason=errors[-1][1],
+                    )
+
+                # SECURITY: Validate output for unsafe content
+                output_validation = validate_response(response.text, level=ValidationLevel.LENIENT)
+                if not output_validation.is_valid:
+                    logger.warning(
+                        "LLM response flagged by safety validation",
+                        extra={
+                            "issues": [i.to_dict() for i in output_validation.issues],
+                            "score": output_validation.score,
+                            "provider": provider.value,
+                            "correlation_id": correlation_id,
+                        },
                     )
 
                 return response
@@ -1092,6 +1163,7 @@ class LLMProviderManager:
         fallback: bool = True,
         correlation_id: str | None = None,
         cache_ttl_seconds: float = 300.0,
+        tenant_id: str = "",
     ) -> LLMResponse:
         """
         Generate text with in-memory LRU caching for repeated prompts.
@@ -1125,10 +1197,10 @@ class LLMProviderManager:
         # Build cache key
         provider_key = preferred_provider.value if preferred_provider else "auto"
         temp_key = temperature if temperature is not None else "default"
-        cache_key = _build_cache_key(prompt, system_prompt, provider_key, str(temp_key))
+        cache_key = _build_cache_key(prompt, system_prompt, provider_key, str(temp_key), tenant_id=tenant_id)
 
         # Check cache
-        cached = cache.get(cache_key, cache_ttl_seconds)
+        cached = await cache.get(cache_key, cache_ttl_seconds)
         if cached is not None:
             logger.debug(f"LLM cache hit for key {cache_key[:16]}...")
             if self._metrics:
@@ -1155,7 +1227,7 @@ class LLMProviderManager:
         )
 
         # Store in cache
-        cache.put(cache_key, response)
+        await cache.put(cache_key, response)
         logger.debug(f"LLM response cached with key {cache_key[:16]}...")
 
         return response
@@ -1172,7 +1244,7 @@ class LLMProviderManager:
         cache = _get_response_cache()
         return cache.stats()
 
-    def clear_cache(self) -> int:
+    async def clear_cache(self) -> int:
         """
         Clear the LLM response cache.
 
@@ -1182,7 +1254,7 @@ class LLMProviderManager:
             Number of entries cleared
         """
         cache = _get_response_cache()
-        return cache.clear()
+        return await cache.clear()
 
     # ─────────────────────────────────────────────────────────────────────────
     # G-22: Streaming Support
@@ -1949,19 +2021,21 @@ class LLMProviderManager:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-def _build_cache_key(prompt: str, system_prompt: str | None, provider: str, temperature: str) -> str:
+def _build_cache_key(
+    prompt: str, system_prompt: str | None, provider: str, temperature: str, tenant_id: str = ""
+) -> str:
     """
     Build a deterministic cache key from prompt parameters.
 
     بناء مفتاح تخزين مؤقت حتمي من معاملات الطلب
     """
-    raw = f"{prompt}|{system_prompt or ''}|{provider}|{temperature}"
+    raw = f"{tenant_id}:{prompt}|{system_prompt or ''}|{provider}|{temperature}"
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 class _LRUResponseCache:
     """
-    Thread-safe in-memory LRU cache for LLM responses with TTL support.
+    Async-safe in-memory LRU cache for LLM responses with TTL support.
 
     ذاكرة تخزين مؤقت LRU آمنة للخيوط في الذاكرة لاستجابات LLM مع دعم TTL
 
@@ -1980,49 +2054,53 @@ class _LRUResponseCache:
         self._cache: OrderedDict[str, tuple[LLMResponse, float]] = OrderedDict()
         self._hits = 0
         self._misses = 0
+        self._lock = asyncio.Lock()
 
-    def get(self, key: str, ttl_seconds: float = 300.0) -> LLMResponse | None:
+    async def get(self, key: str, ttl_seconds: float = 300.0) -> LLMResponse | None:
         """
         Get a cached response if it exists and hasn't expired.
 
         الحصول على استجابة مخزنة مؤقتاً إذا كانت موجودة ولم تنتهِ صلاحيتها
         """
-        if key not in self._cache:
-            self._misses += 1
-            return None
+        async with self._lock:
+            if key not in self._cache:
+                self._misses += 1
+                return None
 
-        response, cached_at = self._cache[key]
+            response, cached_at = self._cache[key]
 
-        # Check TTL
-        if (time.time() - cached_at) > ttl_seconds:
-            del self._cache[key]
-            self._misses += 1
-            return None
+            # Check TTL
+            if (time.time() - cached_at) > ttl_seconds:
+                del self._cache[key]
+                self._misses += 1
+                return None
 
-        # Move to end (most recently used)
-        self._cache.move_to_end(key)
-        self._hits += 1
-        return response
+            # Move to end (most recently used)
+            self._cache.move_to_end(key)
+            self._hits += 1
+            return response
 
-    def put(self, key: str, response: LLMResponse) -> None:
+    async def put(self, key: str, response: LLMResponse) -> None:
         """
         Store a response in the cache.
 
         تخزين استجابة في الذاكرة المؤقتة
         """
-        if key in self._cache:
-            self._cache.move_to_end(key)
-            self._cache[key] = (response, time.time())
-        else:
-            if len(self._cache) >= self._max_size:
-                self._cache.popitem(last=False)  # Remove LRU entry
-            self._cache[key] = (response, time.time())
+        async with self._lock:
+            if key in self._cache:
+                self._cache.move_to_end(key)
+                self._cache[key] = (response, time.time())
+            else:
+                if len(self._cache) >= self._max_size:
+                    self._cache.popitem(last=False)  # Remove LRU entry
+                self._cache[key] = (response, time.time())
 
-    def clear(self) -> int:
+    async def clear(self) -> int:
         """Clear all cached entries. Returns number of entries cleared."""
-        count = len(self._cache)
-        self._cache.clear()
-        return count
+        async with self._lock:
+            count = len(self._cache)
+            self._cache.clear()
+            return count
 
     def stats(self) -> dict[str, Any]:
         """

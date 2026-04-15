@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Astronomical Calendar Models
 /// نماذج التقويم الفلكي
 ///

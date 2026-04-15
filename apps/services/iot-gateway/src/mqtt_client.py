@@ -5,7 +5,9 @@ Connects to MQTT broker and forwards messages
 
 import asyncio
 import json
+import logging
 import os
+import ssl
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -17,12 +19,50 @@ except ImportError:
     # Fallback for older package name
     from asyncio_mqtt import Client, MqttError
 
+logger = logging.getLogger(__name__)
 
 MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
 MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
 # Support both MQTT_USER (docker-compose) and MQTT_USERNAME (legacy) env vars
 MQTT_USERNAME = os.getenv("MQTT_USER", os.getenv("MQTT_USERNAME", ""))
 MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
+
+# TLS configuration
+# MQTT_TLS_ENABLED: set to "true" to enable TLS (recommended for production).
+# When unset, TLS is auto-enabled for port 8883 and disabled for port 1883.
+_tls_env = os.getenv("MQTT_TLS_ENABLED", "").lower()
+if _tls_env == "true":
+    MQTT_TLS_ENABLED = True
+elif _tls_env == "false":
+    MQTT_TLS_ENABLED = False
+else:
+    # Auto-detect: enable TLS when the standard TLS port is used
+    MQTT_TLS_ENABLED = MQTT_PORT == 8883
+
+MQTT_TLS_CA_CERTS = os.getenv("MQTT_TLS_CA_CERTS")  # Path to CA bundle (optional)
+MQTT_TLS_CERTFILE = os.getenv("MQTT_TLS_CERTFILE")  # Client certificate (optional)
+MQTT_TLS_KEYFILE = os.getenv("MQTT_TLS_KEYFILE")  # Client private key (optional)
+
+# Warn operators when running without TLS in non-local environments
+_environment = os.getenv("ENVIRONMENT", "development").lower()
+if not MQTT_TLS_ENABLED and _environment not in ("development", "test", "local"):
+    logger.warning(
+        "MQTT TLS is DISABLED (port %s, ENVIRONMENT=%s). "
+        "Set MQTT_PORT=8883 and MQTT_TLS_ENABLED=true for production deployments "
+        "to encrypt IoT sensor data in transit.",
+        MQTT_PORT,
+        _environment,
+    )
+
+
+def _build_tls_params() -> dict[str, Any]:
+    """Build TLS parameters for the aiomqtt Client when TLS is enabled."""
+    if not MQTT_TLS_ENABLED:
+        return {}
+    ctx = ssl.create_default_context(cafile=MQTT_TLS_CA_CERTS)
+    if MQTT_TLS_CERTFILE and MQTT_TLS_KEYFILE:
+        ctx.load_cert_chain(certfile=MQTT_TLS_CERTFILE, keyfile=MQTT_TLS_KEYFILE)
+    return {"tls_context": ctx}
 
 
 @dataclass
@@ -51,6 +91,7 @@ class MqttClient:
         self.port = port or MQTT_PORT
         self.username = username or MQTT_USERNAME
         self.password = password or MQTT_PASSWORD
+        self._tls_params = _build_tls_params()
         self._client: Client | None = None
         self._running = False
         self._reconnect_interval = 5
@@ -63,11 +104,12 @@ class MqttClient:
                 port=self.port,
                 username=self.username if self.username else None,
                 password=self.password if self.password else None,
+                **self._tls_params,
             )
-            print(f"📡 Connected to MQTT broker: {self.broker}:{self.port}")
+            logger.info("Connected to MQTT broker: %s:%s (TLS=%s)", self.broker, self.port, bool(self._tls_params))
             return True
         except Exception as e:
-            print(f"❌ Failed to connect to MQTT: {e}")
+            logger.error("Failed to connect to MQTT: %s", e)
             return False
 
     async def subscribe(self, topic: str, handler: Callable[[MqttMessage], Any]):
@@ -87,9 +129,10 @@ class MqttClient:
                     port=self.port,
                     username=self.username if self.username else None,
                     password=self.password if self.password else None,
+                    **self._tls_params,
                 ) as client:
                     await client.subscribe(topic)
-                    print(f"📥 Subscribed to: {topic}")
+                    logger.info("Subscribed to MQTT topic: %s (TLS=%s)", topic, bool(self._tls_params))
 
                     async for message in client.messages:
                         try:
@@ -101,16 +144,16 @@ class MqttClient:
                             )
                             await handler(msg)
                         except Exception as e:
-                            print(f"❌ Error processing message: {e}")
+                            logger.error("Error processing MQTT message: %s", e)
 
             except MqttError as e:
-                print(f"⚠️ MQTT connection lost: {e}")
+                logger.warning("MQTT connection lost: %s", e)
                 if self._running:
-                    print(f"🔄 Reconnecting in {self._reconnect_interval}s...")
+                    logger.info("Reconnecting in %ss...", self._reconnect_interval)
                     await asyncio.sleep(self._reconnect_interval)
 
             except Exception as e:
-                print(f"❌ MQTT error: {e}")
+                logger.error("MQTT error: %s", e)
                 if self._running:
                     await asyncio.sleep(self._reconnect_interval)
 
@@ -122,18 +165,19 @@ class MqttClient:
                 port=self.port,
                 username=self.username if self.username else None,
                 password=self.password if self.password else None,
+                **self._tls_params,
             ) as client:
                 message = json.dumps(payload)
                 await client.publish(topic, message.encode(), qos=qos, retain=retain)
-                print(f"📤 Published to {topic}")
+                logger.debug("Published to MQTT topic: %s", topic)
         except Exception as e:
-            print(f"❌ Failed to publish: {e}")
+            logger.error("Failed to publish to MQTT: %s", e)
             raise
 
     def stop(self):
         """Stop the client"""
         self._running = False
-        print("🛑 MQTT client stopping")
+        logger.info("MQTT client stopping")
 
 
 class MockMqttClient(MqttClient):
@@ -146,7 +190,7 @@ class MockMqttClient(MqttClient):
         self._messages: list[MqttMessage] = []
 
     async def connect(self) -> bool:
-        print("🧪 Mock MQTT client connected")
+        logger.info("Mock MQTT client connected")
         return True
 
     async def subscribe(self, topic: str, handler: Callable[[MqttMessage], Any]):
@@ -169,4 +213,4 @@ class MockMqttClient(MqttClient):
         )
 
     async def publish(self, topic: str, payload: dict, qos: int = 1, retain: bool = False):
-        print(f"🧪 Mock publish to {topic}: {payload}")
+        logger.debug("Mock publish to %s: %s", topic, payload)

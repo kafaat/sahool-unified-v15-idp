@@ -1,0 +1,46 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: restrict-image-registries
+  annotations:
+    policies.kyverno.io/title: Restrict Image Registries
+    policies.kyverno.io/category: SAHOOL Governance
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+    policies.kyverno.io/description: >-
+      يُسمح فقط بسحب الصور من سجلات معتمدة.
+      Container images must be pulled from approved registries only.
+      This prevents supply chain attacks from untrusted image sources.
+spec:
+  # Audit mode: logs violations without blocking Pods.
+  # TODO: Switch to Enforce once all Helm chart images are fully-qualified
+  #       (e.g., docker.io/busybox:1.36 instead of busybox:1.36).
+  #       Affected images: busybox:1.36 (infra/rocketchat, infra/postgresql),
+  #       curlimages/curl:8.5.0 (sahool-agent rollout).
+  validationFailureAction: Audit
+  background: true
+  rules:
+    - name: restrict-registries
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      validate:
+        message: >-
+          الصورة {{ element.image }} ليست من سجل معتمد.
+          Image {{ element.image }} is not from an approved registry.
+          Approved registries: docker.io, ghcr.io, gcr.io, nvcr.io, nvidia,
+          registry.k8s.io, quay.io.
+          Use a fully-qualified image reference, e.g. docker.io/library/busybox:1.36.
+          Contact the platform team to add a new approved registry.
+        foreach:
+          # Use Kyverno pattern matching (supports * wildcards) instead of
+          # AnyNotIn which performs literal-string comparison and would treat
+          # "docker.io/*" as a verbatim value, never matching real images.
+          - list: "request.object.spec.containers"
+            pattern:
+              image: &approved-registries "docker.io/* | ghcr.io/* | gcr.io/* | gcr.io/* | nvcr.io/* | nvidia/* | registry.k8s.io/* | quay.io/*"
+          - list: "request.object.spec.initContainers || `[]`"
+            pattern:
+              image: *approved-registries

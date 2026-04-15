@@ -235,8 +235,24 @@ jobs:
         id: eslint
         if: needs.changes.outputs.node == 'true' || needs.changes.outputs.packages == 'true'
         run: |
+          # Clear npm cache tmp dir before install — see _cacache/tmp EEXIST
+          # fix comment in reusable-setup.yml.
+          rm -rf ~/.npm/_cacache/tmp/ 2>/dev/null || true
           npm install --legacy-peer-deps --quiet 2>/dev/null || true
           npm run lint 2>&1 || echo "::warning::ESLint found linting errors"
+        continue-on-error: true
+
+      - name: SQL Linting (SQLFluff)
+        run: |
+          pip install sqlfluff --quiet
+          sqlfluff lint infrastructure/core/postgres/migrations/ --dialect postgres || true
+        continue-on-error: true
+
+      - name: Run Newman API collection tests
+        if: needs.changes.outputs.node == 'true' || needs.changes.outputs.python == 'true' || github.ref == 'refs/heads/main'
+        run: |
+          npm install -g newman --quiet
+          newman run docs/api/SAHOOL.postman_collection.json --bail || true
         continue-on-error: true
 
       - name: Set lint result
@@ -283,8 +299,8 @@ jobs:
         run: |
           pip install --upgrade pip wheel
           # Core test framework and dependencies
-          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout --quiet
-          pip install httpx pyjwt fastapi pydantic jsonschema sqlalchemy structlog redis --quiet
+          pip install pytest pytest-asyncio pytest-cov pytest-xdist pytest-timeout schemathesis allure-pytest --quiet
+          pip install httpx "pyjwt[crypto]" cryptography cffi fastapi pydantic pydantic-settings jsonschema "sqlalchemy[asyncio]" structlog redis prometheus-client nats-py --quiet
           # ORM and optional deps (may fail on some platforms)
           pip install tortoise-orm --quiet || echo "::warning::tortoise-orm install failed, some tests may skip"
           pip install langchain-anthropic --quiet || echo "::warning::langchain-anthropic install failed, some tests may skip"
@@ -310,20 +326,22 @@ jobs:
           pytest tests/smoke/ tests/integration/test_health.py -v --tb=short --timeout=60 \
             --cov-append --cov=shared --cov-report=xml --cov-report=term-missing
 
-          # Run all unit tests (MUST pass - no optional deps)
-          # Excluding auth tests with pyo3 compatibility issues
+          # Run all unit tests (MUST pass)
+          # Auth/security tests require: cryptography, cffi, httpx (installed above)
           pytest tests/unit/ -v --tb=short --timeout=60 \
-            --ignore=tests/unit/auth \
-            --ignore=tests/unit/shared/auth \
-            --ignore=tests/unit/shared/test_auth_dependencies.py \
-            --ignore=tests/unit/shared/test_auth_jwt_handler.py \
-            --ignore=tests/unit/shared/test_jwt.py \
-            --ignore=tests/unit/shared/test_rbac.py \
-            --ignore=tests/unit/shared/test_token_revocation.py \
-            --ignore=tests/unit/shared/test_twofa_config.py \
-            --ignore=tests/unit/shared/test_twofa_service.py \
-            --ignore=tests/unit/test_shared_auth.py \
             --cov-append --cov=shared --cov=apps/services --cov-report=xml --cov-report=term-missing
+        env:
+          ENVIRONMENT: test
+          PYTHONPATH: .
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
+          DATABASE_URL: ""
+          NATS_URL: ""
+
+      - name: Run API contract tests
+        run: |
+          pytest tests/contract/ -v --timeout=60
+        continue-on-error: false
         env:
           ENVIRONMENT: test
           PYTHONPATH: .
@@ -344,10 +362,9 @@ jobs:
           # Minimum coverage threshold - enforced to maintain code quality
           # Coverage strategy: Gradually increase threshold as test suite matures
           # SAHOOL Coverage Threshold
-          # Target: 60% (pyproject.toml) - incrementally raising from baseline
-          # Raised from 1% to 5% as baseline enforcement (March 2026)
-          # Previous: 1% after coverage scope expanded from shared/ai to shared+apps/services
-          MIN_COVERAGE=5
+          # Target: 60% (pyproject.toml) — raised from 5% as part of v16.1 hardening
+          # History: 1% → 5% (March 2026) → 30% (April 2026 v16.1)
+          MIN_COVERAGE=30
 
           # Check if coverage meets minimum - FAIL if below threshold
           python -c "
@@ -363,9 +380,13 @@ jobs:
           "
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v5
-        if: always()
-        continue-on-error: true  # Don't fail if token is missing
+        # `secrets` cannot be referenced inside `if:` directly — it must
+        # be wired through `env:` first. Skip the upload entirely when
+        # CODECOV_TOKEN is not configured (forks, local actuators, etc).
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.xml
@@ -576,12 +597,17 @@ jobs:
             ${{ runner.os }}-npm-
 
       - name: Install root dependencies
-        run: npm install --legacy-peer-deps --quiet 2>/dev/null || true
+        # Clear npm cache tmp dir before install — see _cacache/tmp EEXIST
+        # fix comment in reusable-setup.yml.
+        run: |
+          rm -rf ~/.npm/_cacache/tmp/ 2>/dev/null || true
+          npm install --legacy-peer-deps --quiet || echo "::warning::Root npm install had issues — some workspace packages may be missing"
 
       - name: Install service dependencies
         run: |
           if [ -f "${{ matrix.service }}/package.json" ]; then
             cd ${{ matrix.service }}
+            rm -rf ~/.npm/_cacache/tmp/ 2>/dev/null || true
             npm install --legacy-peer-deps --quiet 2>/dev/null || true
           fi
 
@@ -1017,6 +1043,13 @@ jobs:
           echo "VAULT_DEV_TOKEN=ci_vault_dev_token_for_testing" >> .env
           echo "MONGO_PASSWORD=test_mongo_password_ci_32_chars_min" >> .env
           echo "ROCKETCHAT_ADMIN_PASSWORD=test_rocketchat_password_ci_32ch" >> .env
+          # partner-auth-service (docker-compose.yml:1932) uses
+          # `${PARTNER_AUTH_CSRF_SECRET:?...}` which hard-fails
+          # `docker compose up` — even for `postgres nats redis` only —
+          # because compose validates interpolation for every service
+          # in the file. Must be ≥32 chars to match the service's
+          # runtime validation.
+          echo "PARTNER_AUTH_CSRF_SECRET=test_partner_auth_csrf_secret_for_ci_only_32chars" >> .env
           cat .env
           echo "✅ Created .env file"
 

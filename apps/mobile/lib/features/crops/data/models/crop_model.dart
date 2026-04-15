@@ -3,6 +3,7 @@
 ///
 /// Based on SAHOOL Unified Crop Catalog
 /// يطابق كتالوج المحاصيل الموحد في السيرفر
+library;
 
 /// تصنيفات المحاصيل الرئيسية
 enum CropCategory {
@@ -109,6 +110,56 @@ class Crop {
   /// أيقونة المحصول (اختياري - للعرض في التطبيق)
   final String? icon;
 
+  // ═══════════════════════════════════════════════════════════════════
+  // Extended Agricultural Fields - حقول زراعية متقدمة
+  // Matching backend shared/crop_rotation/models.py + FAO standards
+  // ═══════════════════════════════════════════════════════════════════
+
+  /// العائلة النباتية (مهمة لدورة المحاصيل)
+  final CropFamily? family;
+
+  /// معدل البذور (كجم/هكتار) - FAO recommended
+  final double? seedRateKgPerHa;
+
+  /// معدل البذور (كجم/فدان) - للشرق الأوسط
+  final double? seedRateKgPerFeddan;
+
+  /// عمق الزراعة (سم)
+  final double? plantingDepthCm;
+
+  /// مسافة بين الصفوف (سم)
+  final double? rowSpacingCm;
+
+  /// مسافة بين النباتات (سم)
+  final double? plantSpacingCm;
+
+  /// حرارة الأساس لـ GDD (°C)
+  final double? baseTemperature;
+
+  /// GDD للنضج (درجة-يوم)
+  final double? gddToMaturity;
+
+  /// تحمل الملوحة ECe (dS/m) - FAO-29
+  final double? salinityThresholdEC;
+
+  /// نسبة فقدان المحصول بالملوحة (%/dS/m)
+  final double? salinityYieldDeclinePercent;
+
+  /// مراحل النمو الرئيسية (BBCH scale)
+  final List<GrowthStageInfo>? growthStages;
+
+  /// الاحتياج المائي الكلي (مم/موسم)
+  final double? waterRequirementMm;
+
+  /// متطلبات NPK (كجم/هكتار) - N
+  final double? nitrogenRequirementKgHa;
+
+  /// متطلبات NPK (كجم/هكتار) - P2O5
+  final double? phosphorusRequirementKgHa;
+
+  /// متطلبات NPK (كجم/هكتار) - K2O
+  final double? potassiumRequirementKgHa;
+
   const Crop({
     required this.code,
     required this.nameEn,
@@ -129,6 +180,21 @@ class Crop {
     this.kcEnd,
     this.priceUsdPerTon,
     this.icon,
+    this.family,
+    this.seedRateKgPerHa,
+    this.seedRateKgPerFeddan,
+    this.plantingDepthCm,
+    this.rowSpacingCm,
+    this.plantSpacingCm,
+    this.baseTemperature,
+    this.gddToMaturity,
+    this.salinityThresholdEC,
+    this.salinityYieldDeclinePercent,
+    this.growthStages,
+    this.waterRequirementMm,
+    this.nitrogenRequirementKgHa,
+    this.phosphorusRequirementKgHa,
+    this.potassiumRequirementKgHa,
   });
 
   /// إنشاء من JSON
@@ -257,4 +323,239 @@ WaterRequirement _parseWaterRequirement(String value) {
     (e) => e.code == value,
     orElse: () => WaterRequirement.medium,
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// العائلات النباتية - Crop Families
+// Matches backend shared/crop_rotation/models.py CropFamily
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// العائلات النباتية الرئيسية للدورة الزراعية
+enum CropFamily {
+  poaceae('poaceae', 'النجيليات', 'Grasses'), // قمح، شعير، ذرة، أرز
+  fabaceae('fabaceae', 'البقوليات', 'Legumes'), // فول، عدس، برسيم
+  solanaceae('solanaceae', 'الباذنجانيات', 'Nightshades'), // طماطم، فلفل، باذنجان
+  cucurbitaceae('cucurbitaceae', 'القرعيات', 'Cucurbits'), // بطيخ، خيار، قرع
+  brassicaceae('brassicaceae', 'الصليبيات', 'Brassicas'), // ملفوف، قرنبيط
+  apiaceae('apiaceae', 'الخيميات', 'Umbellifers'), // جزر، كرفس
+  liliaceae('liliaceae', 'الزنبقيات', 'Lilies'), // بصل، ثوم
+  chenopodiaceae('chenopodiaceae', 'الرمراميات', 'Goosefoots'), // بنجر، سبانخ
+  arecaceae('arecaceae', 'النخيليات', 'Palms'), // نخيل التمر
+  malvaceae('malvaceae', 'الخبازيات', 'Mallows'), // قطن، بامية
+  other('other', 'أخرى', 'Other');
+
+  final String code;
+  final String nameAr;
+  final String nameEn;
+
+  const CropFamily(this.code, this.nameAr, this.nameEn);
+}
+
+/// مرحلة نمو المحصول (BBCH Scale)
+/// Based on BBCH Monograph: Growth stages of mono- and dicotyledonous plants
+class GrowthStageInfo {
+  /// رمز BBCH (00-99)
+  final int bbchCode;
+
+  /// اسم المرحلة بالعربية
+  final String nameAr;
+
+  /// اسم المرحلة بالإنجليزية
+  final String nameEn;
+
+  /// بداية GDD لهذه المرحلة
+  final double gddStart;
+
+  /// نهاية GDD لهذه المرحلة
+  final double gddEnd;
+
+  /// معامل المحصول (Kc) في هذه المرحلة
+  final double kc;
+
+  /// العمليات الموصى بها في هذه المرحلة
+  final List<String> recommendedActions;
+
+  /// الآفات الشائعة في هذه المرحلة
+  final List<String> commonPests;
+
+  const GrowthStageInfo({
+    required this.bbchCode,
+    required this.nameAr,
+    required this.nameEn,
+    required this.gddStart,
+    required this.gddEnd,
+    required this.kc,
+    this.recommendedActions = const [],
+    this.commonPests = const [],
+  });
+
+  factory GrowthStageInfo.fromJson(Map<String, dynamic> json) {
+    return GrowthStageInfo(
+      bbchCode: json['bbch_code'] as int? ?? 0,
+      nameAr: json['name_ar'] as String? ?? '',
+      nameEn: json['name_en'] as String? ?? '',
+      gddStart: (json['gdd_start'] as num?)?.toDouble() ?? 0,
+      gddEnd: (json['gdd_end'] as num?)?.toDouble() ?? 0,
+      kc: (json['kc'] as num?)?.toDouble() ?? 1.0,
+      recommendedActions: (json['recommended_actions'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+      commonPests: (json['common_pests'] as List?)
+              ?.map((e) => e.toString())
+              .toList() ??
+          [],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'bbch_code': bbchCode,
+        'name_ar': nameAr,
+        'name_en': nameEn,
+        'gdd_start': gddStart,
+        'gdd_end': gddEnd,
+        'kc': kc,
+        'recommended_actions': recommendedActions,
+        'common_pests': commonPests,
+      };
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// كتالوج البذور - Seed Rate Catalog
+// FAO recommendations + regional adaptations for Middle East
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// معدلات البذور القياسية (كجم/هكتار)
+class SeedRateCatalog {
+  static const Map<String, SeedRateInfo> rates = {
+    'wheat': SeedRateInfo(
+      cropCode: 'wheat',
+      rateKgPerHa: 120,
+      rateRangeMin: 100,
+      rateRangeMax: 150,
+      thousandSeedWeightG: 35,
+      germinationPercent: 85,
+      notes: 'Irrigated wheat in Yemen/Saudi',
+      notesAr: 'قمح مروي في اليمن/السعودية',
+    ),
+    'barley': SeedRateInfo(
+      cropCode: 'barley',
+      rateKgPerHa: 100,
+      rateRangeMin: 80,
+      rateRangeMax: 130,
+      thousandSeedWeightG: 40,
+      germinationPercent: 85,
+      notes: 'Rainfed barley in highland areas',
+      notesAr: 'شعير بعلي في المناطق المرتفعة',
+    ),
+    'maize': SeedRateInfo(
+      cropCode: 'maize',
+      rateKgPerHa: 25,
+      rateRangeMin: 20,
+      rateRangeMax: 30,
+      thousandSeedWeightG: 300,
+      germinationPercent: 90,
+      notes: 'Hybrid maize under irrigation',
+      notesAr: 'ذرة هجين تحت الري',
+    ),
+    'tomato': SeedRateInfo(
+      cropCode: 'tomato',
+      rateKgPerHa: 0.3,
+      rateRangeMin: 0.2,
+      rateRangeMax: 0.5,
+      thousandSeedWeightG: 3,
+      germinationPercent: 85,
+      notes: 'Transplanted tomato (seedling)',
+      notesAr: 'طماطم مشتلة (شتلات)',
+    ),
+    'date_palm': SeedRateInfo(
+      cropCode: 'date_palm',
+      rateKgPerHa: 0, // planted as offshoots
+      rateRangeMin: 0,
+      rateRangeMax: 0,
+      thousandSeedWeightG: 0,
+      germinationPercent: 0,
+      notes: '100-150 offshoots/ha, spacing 8-10m',
+      notesAr: '100-150 فسيلة/هكتار، مسافة 8-10م',
+    ),
+    'alfalfa': SeedRateInfo(
+      cropCode: 'alfalfa',
+      rateKgPerHa: 25,
+      rateRangeMin: 20,
+      rateRangeMax: 30,
+      thousandSeedWeightG: 2,
+      germinationPercent: 80,
+      notes: 'Perennial alfalfa under irrigation',
+      notesAr: 'برسيم حجازي معمر تحت الري',
+    ),
+    'onion': SeedRateInfo(
+      cropCode: 'onion',
+      rateKgPerHa: 8,
+      rateRangeMin: 6,
+      rateRangeMax: 10,
+      thousandSeedWeightG: 4,
+      germinationPercent: 75,
+      notes: 'Direct seeding or transplant',
+      notesAr: 'زراعة مباشرة أو شتل',
+    ),
+    'potato': SeedRateInfo(
+      cropCode: 'potato',
+      rateKgPerHa: 2500,
+      rateRangeMin: 2000,
+      rateRangeMax: 3000,
+      thousandSeedWeightG: 0, // tuber-based
+      germinationPercent: 95,
+      notes: 'Seed tubers 30-50g each, spacing 25-30cm',
+      notesAr: 'درنات بذرية 30-50جم، مسافة 25-30سم',
+    ),
+    'cotton': SeedRateInfo(
+      cropCode: 'cotton',
+      rateKgPerHa: 25,
+      rateRangeMin: 20,
+      rateRangeMax: 35,
+      thousandSeedWeightG: 80,
+      germinationPercent: 80,
+      notes: 'Upland cotton, irrigated',
+      notesAr: 'قطن مرتفع، مروي',
+    ),
+    'sorghum': SeedRateInfo(
+      cropCode: 'sorghum',
+      rateKgPerHa: 10,
+      rateRangeMin: 8,
+      rateRangeMax: 15,
+      thousandSeedWeightG: 25,
+      germinationPercent: 85,
+      notes: 'Grain sorghum, traditional variety',
+      notesAr: 'ذرة رفيعة حبوب، صنف محلي',
+    ),
+  };
+}
+
+/// معلومات معدل البذور
+class SeedRateInfo {
+  final String cropCode;
+  final double rateKgPerHa;
+  final double rateRangeMin;
+  final double rateRangeMax;
+  final double thousandSeedWeightG;
+  final double germinationPercent;
+  final String notes;
+  final String notesAr;
+
+  const SeedRateInfo({
+    required this.cropCode,
+    required this.rateKgPerHa,
+    required this.rateRangeMin,
+    required this.rateRangeMax,
+    required this.thousandSeedWeightG,
+    required this.germinationPercent,
+    required this.notes,
+    required this.notesAr,
+  });
+
+  /// حساب كمية البذور المطلوبة لمساحة محددة
+  double calculateSeedQuantity(double areaHa) => rateKgPerHa * areaHa;
+
+  /// حساب كمية البذور بالفدان (4200 م²)
+  double get rateKgPerFeddan => rateKgPerHa * 0.42;
 }

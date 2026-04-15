@@ -22,6 +22,7 @@ import {
 } from "./credit.service";
 import { LoanService } from "./loan.service";
 import { EscrowService } from "./escrow.service";
+import { IdempotencyService } from "./idempotency.service";
 
 // Re-export types for backward compatibility
 export { FarmData, CreditFactors, CreditReport } from "./credit.service";
@@ -60,6 +61,7 @@ export class FintechService {
     private creditService: CreditService,
     private loanService: LoanService,
     private escrowService: EscrowService,
+    private idempotencyService: IdempotencyService,
   ) {}
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -77,15 +79,32 @@ export class FintechService {
     idempotencyKey?: string,
     userId?: string,
     ipAddress?: string,
+    tenantId?: string,
+    currency?: string,
   ) {
-    return this.walletService.deposit(
-      walletId,
-      amount,
-      description,
+    // Wrap in the idempotency cache so a retry with the same
+    // `Idempotency-Key` header returns the exact same response body.
+    // The wallet-level uniqueness constraint on `transactions.idempotency_key`
+    // still provides a second line of defence inside the SQL transaction.
+    const effectiveTenant = tenantId ?? "unassigned";
+    const effectiveUser = userId ?? "system";
+    const result = await this.idempotencyService.executeIdempotent(
       idempotencyKey,
-      userId,
-      ipAddress,
+      effectiveTenant,
+      effectiveUser,
+      "wallet.deposit",
+      { walletId, amount, description, currency },
+      () =>
+        this.walletService.deposit(
+          walletId,
+          amount,
+          description,
+          idempotencyKey,
+          userId,
+          ipAddress,
+        ),
     );
+    return result.value;
   }
 
   async withdraw(
@@ -96,16 +115,29 @@ export class FintechService {
     userId?: string,
     ipAddress?: string,
     pin?: string,
+    tenantId?: string,
+    currency?: string,
   ) {
-    return this.walletService.withdraw(
-      walletId,
-      amount,
-      description,
+    const effectiveTenant = tenantId ?? "unassigned";
+    const effectiveUser = userId ?? "system";
+    const result = await this.idempotencyService.executeIdempotent(
       idempotencyKey,
-      userId,
-      ipAddress,
-      pin,
+      effectiveTenant,
+      effectiveUser,
+      "wallet.withdraw",
+      { walletId, amount, description, currency },
+      () =>
+        this.walletService.withdraw(
+          walletId,
+          amount,
+          description,
+          idempotencyKey,
+          userId,
+          ipAddress,
+          pin,
+        ),
     );
+    return result.value;
   }
 
   async transfer(
@@ -117,17 +149,30 @@ export class FintechService {
     userId?: string,
     ipAddress?: string,
     pin?: string,
+    tenantId?: string,
+    currency?: string,
   ) {
-    return this.walletService.transfer(
-      fromWalletId,
-      toWalletId,
-      amount,
-      description,
+    const effectiveTenant = tenantId ?? "unassigned";
+    const effectiveUser = userId ?? "system";
+    const result = await this.idempotencyService.executeIdempotent(
       idempotencyKey,
-      userId,
-      ipAddress,
-      pin,
+      effectiveTenant,
+      effectiveUser,
+      "wallet.transfer",
+      { fromWalletId, toWalletId, amount, description, currency },
+      () =>
+        this.walletService.transfer(
+          fromWalletId,
+          toWalletId,
+          amount,
+          description,
+          idempotencyKey,
+          userId,
+          ipAddress,
+          pin,
+        ),
     );
+    return result.value;
   }
 
   async getTransactions(walletId: string, limit: number = 20) {
@@ -388,16 +433,19 @@ export class FintechService {
   // الإحصائيات - Statistics
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async getFinanceStats() {
+  async getFinanceStats(tenantId?: string) {
+    const tenantFilter = tenantId ? { tenantId } : {};
+
     const [totalWallets, totalBalance, activeLoans, paidLoans] =
       await Promise.all([
-        this.prisma.wallet.count(),
-        this.prisma.wallet.aggregate({ _sum: { balance: true } }),
-        this.prisma.loan.count({ where: { status: "ACTIVE" } }),
-        this.prisma.loan.count({ where: { status: "PAID" } }),
+        this.prisma.wallet.count({ where: { ...tenantFilter } }),
+        this.prisma.wallet.aggregate({ where: { ...tenantFilter }, _sum: { balance: true } }),
+        this.prisma.loan.count({ where: { status: "ACTIVE", ...tenantFilter } }),
+        this.prisma.loan.count({ where: { status: "PAID", ...tenantFilter } }),
       ]);
 
     const avgCreditScore = await this.prisma.wallet.aggregate({
+      where: { ...tenantFilter },
       _avg: { creditScore: true },
     });
 

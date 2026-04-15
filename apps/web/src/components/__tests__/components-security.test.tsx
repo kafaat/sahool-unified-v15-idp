@@ -7,16 +7,16 @@
  * and core UI primitives (Button, Card, Badge).
  */
 
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import React from "react";
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import React from 'react';
 
 // ---------------------------------------------------------------------------
 // Mocks
 // ---------------------------------------------------------------------------
 
 // Mock logger
-vi.mock("@/lib/logger", () => ({
+vi.mock('@/lib/logger', () => ({
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -27,7 +27,7 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 // Mock next/navigation for LocaleSwitcher
-vi.mock("next/navigation", () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -35,102 +35,99 @@ vi.mock("next/navigation", () => ({
     refresh: vi.fn(),
     prefetch: vi.fn().mockResolvedValue(undefined),
   }),
-  usePathname: () => "/",
+  usePathname: () => '/',
 }));
 
 // Mock next-intl for LocaleSwitcher
-vi.mock("next-intl", () => ({
-  useLocale: () => "ar",
+vi.mock('next-intl', () => ({
+  useLocale: () => 'ar',
   useTranslations: () => (key: string) => key,
 }));
 
 // Mock @sahool/i18n
-vi.mock("@sahool/i18n", () => ({
-  locales: ["ar", "en"],
-  getLocaleDisplayName: (locale: string) =>
-    locale === "ar" ? "العربية" : "English",
+vi.mock('@sahool/i18n', () => ({
+  locales: ['ar', 'en'],
+  getLocaleDisplayName: (locale: string) => (locale === 'ar' ? 'العربية' : 'English'),
 }));
 
 // ---------------------------------------------------------------------------
 // Imports
 // ---------------------------------------------------------------------------
 
-import { ErrorBoundary } from "../common/ErrorBoundary";
-import { LocaleSwitcher } from "../common/LocaleSwitcher";
-import { Button } from "../ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "../ui/card";
-import { Badge } from "../ui/badge";
+import { ErrorBoundary } from '../common/ErrorBoundary';
+import { LocaleSwitcher } from '../common/LocaleSwitcher';
+import { Button } from '../ui/button';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '../ui/card';
+import { Badge } from '../ui/badge';
 
 // ---------------------------------------------------------------------------
 // ErrorBoundary Tests
 // ---------------------------------------------------------------------------
 
-describe("Web ErrorBoundary", () => {
-  it("renders children when no error occurs", () => {
+describe('Web ErrorBoundary', () => {
+  it('renders children when no error occurs', () => {
     render(
       <ErrorBoundary>
         <div data-testid="child">Safe content</div>
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
-    expect(screen.getByTestId("child")).toBeInTheDocument();
-    expect(screen.getByText("Safe content")).toBeInTheDocument();
+    expect(screen.getByTestId('child')).toBeInTheDocument();
+    expect(screen.getByText('Safe content')).toBeInTheDocument();
   });
 
-  it("shows error UI when child component throws", () => {
+  it('shows error UI when child component throws', () => {
     const ThrowingComponent = () => {
-      throw new Error("Test error for boundary");
+      throw new Error('Test error for boundary');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     // Default error UI has Arabic text
-    expect(screen.getByText("حدث خطأ غير متوقع")).toBeInTheDocument();
-    expect(
-      screen.getByText("نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً"),
-    ).toBeInTheDocument();
+    expect(screen.getByText('حدث خطأ غير متوقع')).toBeInTheDocument();
+    expect(screen.getByText('نعتذر عن الإزعاج. سنعمل على حل المشكلة قريباً')).toBeInTheDocument();
 
     // Should have retry and refresh buttons
-    expect(screen.getByText("حاول مرة أخرى")).toBeInTheDocument();
-    expect(screen.getByText("تحديث الصفحة")).toBeInTheDocument();
+    expect(screen.getByText('حاول مرة أخرى')).toBeInTheDocument();
+    expect(screen.getByText('تحديث الصفحة')).toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
 
-  it("renders custom fallback when provided and error occurs", () => {
+  it('renders custom fallback when provided and error occurs', () => {
     const ThrowingComponent = () => {
-      throw new Error("Fallback test");
+      throw new Error('Fallback test');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary fallback={<div>Custom error display</div>}>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
-    expect(screen.getByText("Custom error display")).toBeInTheDocument();
+    expect(screen.getByText('Custom error display')).toBeInTheDocument();
     consoleSpy.mockRestore();
   });
 
-  it("calls onError callback when error is caught", () => {
+  it('calls onError callback when error is caught', () => {
     const onErrorMock = vi.fn();
     const ThrowingComponent = () => {
-      throw new Error("Callback test");
+      throw new Error('Callback test');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary onError={onErrorMock}>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     expect(onErrorMock).toHaveBeenCalledTimes(1);
@@ -138,23 +135,23 @@ describe("Web ErrorBoundary", () => {
       expect.any(Error),
       expect.objectContaining({
         componentStack: expect.any(String),
-      }),
+      })
     );
 
     consoleSpy.mockRestore();
   });
 
-  it("generates and displays an error reference ID", () => {
+  it('generates and displays an error reference ID', () => {
     const ThrowingComponent = () => {
-      throw new Error("ID test");
+      throw new Error('ID test');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
     // Error ID starts with "ERR-"
@@ -163,22 +160,22 @@ describe("Web ErrorBoundary", () => {
     consoleSpy.mockRestore();
   });
 
-  it("shows home link when showHomeLink prop is true", () => {
+  it('shows home link when showHomeLink prop is true', () => {
     const ThrowingComponent = () => {
-      throw new Error("Home link test");
+      throw new Error('Home link test');
     };
 
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     render(
       <ErrorBoundary showHomeLink>
         <ThrowingComponent />
-      </ErrorBoundary>,
+      </ErrorBoundary>
     );
 
-    expect(screen.getByText("الصفحة الرئيسية")).toBeInTheDocument();
+    expect(screen.getByText('الصفحة الرئيسية')).toBeInTheDocument();
     // Should NOT show retry when showHomeLink is true
-    expect(screen.queryByText("حاول مرة أخرى")).not.toBeInTheDocument();
+    expect(screen.queryByText('حاول مرة أخرى')).not.toBeInTheDocument();
 
     consoleSpy.mockRestore();
   });
@@ -188,25 +185,25 @@ describe("Web ErrorBoundary", () => {
 // LocaleSwitcher Tests
 // ---------------------------------------------------------------------------
 
-describe("Web LocaleSwitcher", () => {
-  it("renders without crashing", () => {
+describe('Web LocaleSwitcher', () => {
+  it('renders without crashing', () => {
     render(<LocaleSwitcher />);
     // Should show both locale buttons
-    expect(screen.getByText("العربية")).toBeInTheDocument();
-    expect(screen.getByText("English")).toBeInTheDocument();
+    expect(screen.getByText('العربية')).toBeInTheDocument();
+    expect(screen.getByText('English')).toBeInTheDocument();
   });
 
-  it("marks the current locale as active/disabled", () => {
+  it('marks the current locale as active/disabled', () => {
     render(<LocaleSwitcher />);
     // Current locale is "ar" (from mock), so Arabic button should be disabled
-    const arabicButton = screen.getByText("العربية").closest("button");
+    const arabicButton = screen.getByText('العربية').closest('button');
     expect(arabicButton).toBeDisabled();
   });
 
-  it("has accessible labels for locale switching", () => {
+  it('has accessible labels for locale switching', () => {
     render(<LocaleSwitcher />);
-    const arabicButton = screen.getByLabelText("Switch to العربية");
-    const englishButton = screen.getByLabelText("Switch to English");
+    const arabicButton = screen.getByLabelText('Switch to العربية');
+    const englishButton = screen.getByLabelText('Switch to English');
     expect(arabicButton).toBeInTheDocument();
     expect(englishButton).toBeInTheDocument();
   });
@@ -216,51 +213,51 @@ describe("Web LocaleSwitcher", () => {
 // Button Tests
 // ---------------------------------------------------------------------------
 
-describe("Web Button", () => {
-  it("renders without crashing", () => {
+describe('Web Button', () => {
+  it('renders without crashing', () => {
     render(<Button>Click me</Button>);
-    expect(screen.getByText("Click me")).toBeInTheDocument();
+    expect(screen.getByText('Click me')).toBeInTheDocument();
   });
 
-  it("renders with primary variant by default", () => {
+  it('renders with primary variant by default', () => {
     render(<Button>Primary</Button>);
-    const button = screen.getByRole("button", { name: /Primary/ });
+    const button = screen.getByRole('button', { name: /Primary/ });
     expect(button).toBeInTheDocument();
-    expect(button.className).toContain("bg-sahool-green-600");
+    expect(button.className).toContain('bg-sahool-green-600');
   });
 
-  it("renders with danger variant", () => {
+  it('renders with danger variant', () => {
     render(<Button variant="danger">Delete</Button>);
-    const button = screen.getByRole("button", { name: /Delete/ });
-    expect(button.className).toContain("bg-red-600");
+    const button = screen.getByRole('button', { name: /Delete/ });
+    expect(button.className).toContain('bg-red-600');
   });
 
-  it("renders in loading state with spinner", () => {
+  it('renders in loading state with spinner', () => {
     render(<Button isLoading>Submit</Button>);
-    const button = screen.getByRole("button");
-    expect(button).toHaveAttribute("aria-busy", "true");
+    const button = screen.getByRole('button');
+    expect(button).toHaveAttribute('aria-busy', 'true');
     expect(button).toBeDisabled();
   });
 
-  it("renders full width when fullWidth is true", () => {
+  it('renders full width when fullWidth is true', () => {
     render(<Button fullWidth>Full</Button>);
-    const button = screen.getByRole("button");
-    expect(button.className).toContain("w-full");
+    const button = screen.getByRole('button');
+    expect(button.className).toContain('w-full');
   });
 
-  it("renders with different sizes", () => {
+  it('renders with different sizes', () => {
     const { rerender } = render(<Button size="sm">Small</Button>);
-    let button = screen.getByRole("button");
-    expect(button.className).toContain("text-sm");
+    let button = screen.getByRole('button');
+    expect(button.className).toContain('text-sm');
 
     rerender(<Button size="lg">Large</Button>);
-    button = screen.getByRole("button");
-    expect(button.className).toContain("text-lg");
+    button = screen.getByRole('button');
+    expect(button.className).toContain('text-lg');
   });
 
-  it("defaults to type=button", () => {
+  it('defaults to type=button', () => {
     render(<Button>Default</Button>);
-    expect(screen.getByRole("button")).toHaveAttribute("type", "button");
+    expect(screen.getByRole('button')).toHaveAttribute('type', 'button');
   });
 });
 
@@ -268,19 +265,19 @@ describe("Web Button", () => {
 // Card Tests
 // ---------------------------------------------------------------------------
 
-describe("Web Card", () => {
-  it("renders without crashing", () => {
+describe('Web Card', () => {
+  it('renders without crashing', () => {
     render(<Card>Card content</Card>);
-    expect(screen.getByText("Card content")).toBeInTheDocument();
+    expect(screen.getByText('Card content')).toBeInTheDocument();
   });
 
-  it("renders with elevated variant", () => {
+  it('renders with elevated variant', () => {
     render(<Card variant="elevated">Elevated</Card>);
-    const card = screen.getByText("Elevated");
-    expect(card.className).toContain("shadow-lg");
+    const card = screen.getByText('Elevated');
+    expect(card.className).toContain('shadow-lg');
   });
 
-  it("renders Card sub-components", () => {
+  it('renders Card sub-components', () => {
     render(
       <Card>
         <CardHeader>
@@ -289,34 +286,34 @@ describe("Web Card", () => {
         </CardHeader>
         <CardContent>Body content</CardContent>
         <CardFooter>Footer content</CardFooter>
-      </Card>,
+      </Card>
     );
 
-    expect(screen.getByText("Title")).toBeInTheDocument();
-    expect(screen.getByText("Description text")).toBeInTheDocument();
-    expect(screen.getByText("Body content")).toBeInTheDocument();
-    expect(screen.getByText("Footer content")).toBeInTheDocument();
+    expect(screen.getByText('Title')).toBeInTheDocument();
+    expect(screen.getByText('Description text')).toBeInTheDocument();
+    expect(screen.getByText('Body content')).toBeInTheDocument();
+    expect(screen.getByText('Footer content')).toBeInTheDocument();
   });
 
-  it("renders as article element when specified", () => {
+  it('renders as article element when specified', () => {
     render(
       <Card as="article" data-testid="article-card">
         Article card
-      </Card>,
+      </Card>
     );
-    const card = screen.getByTestId("article-card");
-    expect(card.tagName).toBe("ARTICLE");
+    const card = screen.getByTestId('article-card');
+    expect(card.tagName).toBe('ARTICLE');
   });
 
-  it("is focusable when interactive", () => {
+  it('is focusable when interactive', () => {
     render(
       <Card interactive data-testid="interactive-card">
         Interactive card
-      </Card>,
+      </Card>
     );
-    const card = screen.getByTestId("interactive-card");
-    expect(card).toHaveAttribute("tabindex", "0");
-    expect(card).toHaveAttribute("role", "button");
+    const card = screen.getByTestId('interactive-card');
+    expect(card).toHaveAttribute('tabindex', '0');
+    expect(card).toHaveAttribute('role', 'button');
   });
 });
 
@@ -324,55 +321,55 @@ describe("Web Card", () => {
 // Badge Tests
 // ---------------------------------------------------------------------------
 
-describe("Web Badge", () => {
-  it("renders without crashing", () => {
+describe('Web Badge', () => {
+  it('renders without crashing', () => {
     render(<Badge>Active</Badge>);
-    expect(screen.getByText("Active")).toBeInTheDocument();
+    expect(screen.getByText('Active')).toBeInTheDocument();
   });
 
-  it("renders with default variant", () => {
+  it('renders with default variant', () => {
     render(<Badge>Default</Badge>);
-    const badge = screen.getByText("Default");
-    expect(badge.className).toContain("bg-gray-100");
+    const badge = screen.getByText('Default');
+    expect(badge.className).toContain('bg-gray-100');
   });
 
-  it("renders with success variant", () => {
+  it('renders with success variant', () => {
     render(<Badge variant="success">Success</Badge>);
-    const badge = screen.getByText("Success");
-    expect(badge.className).toContain("bg-sahool-green-100");
+    const badge = screen.getByText('Success');
+    expect(badge.className).toContain('bg-sahool-green-100');
   });
 
-  it("renders with danger variant", () => {
+  it('renders with danger variant', () => {
     render(<Badge variant="danger">Error</Badge>);
-    const badge = screen.getByText("Error");
-    expect(badge.className).toContain("bg-red-100");
+    const badge = screen.getByText('Error');
+    expect(badge.className).toContain('bg-red-100');
   });
 
-  it("renders with warning variant", () => {
+  it('renders with warning variant', () => {
     render(<Badge variant="warning">Warning</Badge>);
-    const badge = screen.getByText("Warning");
-    expect(badge.className).toContain("bg-yellow-100");
+    const badge = screen.getByText('Warning');
+    expect(badge.className).toContain('bg-yellow-100');
   });
 
-  it("renders with info variant", () => {
+  it('renders with info variant', () => {
     render(<Badge variant="info">Info</Badge>);
-    const badge = screen.getByText("Info");
-    expect(badge.className).toContain("bg-blue-100");
+    const badge = screen.getByText('Info');
+    expect(badge.className).toContain('bg-blue-100');
   });
 
-  it("renders with different sizes", () => {
+  it('renders with different sizes', () => {
     const { rerender } = render(<Badge size="sm">Small</Badge>);
-    let badge = screen.getByText("Small");
-    expect(badge.className).toContain("text-xs");
+    let badge = screen.getByText('Small');
+    expect(badge.className).toContain('text-xs');
 
     rerender(<Badge size="lg">Large</Badge>);
-    badge = screen.getByText("Large");
-    expect(badge.className).toContain("text-base");
+    badge = screen.getByText('Large');
+    expect(badge.className).toContain('text-base');
   });
 
-  it("renders as an inline span element", () => {
+  it('renders as an inline span element', () => {
     render(<Badge data-testid="badge-el">Span</Badge>);
-    const badge = screen.getByTestId("badge-el");
-    expect(badge.tagName).toBe("SPAN");
+    const badge = screen.getByTestId('badge-el');
+    expect(badge.tagName).toBe('SPAN');
   });
 });

@@ -10,13 +10,11 @@
 /// - Caching with TTL
 /// - Graceful fallback on failure
 /// - User/tenant-specific flags
+library;
 
 import 'dart:async';
-import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
-import 'feature_flag.dart';
 import 'feature_flags_config.dart';
 import '../utils/app_logger.dart';
 
@@ -178,9 +176,11 @@ class FirebaseRemoteConfigWrapper implements RemoteConfigService {
 
   FirebaseRemoteConfigWrapper({
     required dynamic firebaseRemoteConfig,
-    this.fetchTimeout = const Duration(seconds: 10),
-    this.minimumFetchInterval = const Duration(hours: 1),
-  }) : _firebaseRemoteConfig = firebaseRemoteConfig;
+    Duration fetchTimeout = const Duration(seconds: 10),
+    Duration minimumFetchInterval = const Duration(hours: 1),
+  })  : _firebaseRemoteConfig = firebaseRemoteConfig,
+        _fetchTimeout = fetchTimeout,
+        _minimumFetchInterval = minimumFetchInterval;
 
   @override
   Future<Map<String, bool>> fetchFlags() async {
@@ -442,7 +442,7 @@ class RemoteConfigResponse {
     return RemoteConfigResponse(
       flags: flags,
       fetchedAt: json['fetched_at'] != null
-          ? DateTime.parse(json['fetched_at'] as String)
+          ? DateTime.tryParse(json['fetched_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       version: json['version'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,

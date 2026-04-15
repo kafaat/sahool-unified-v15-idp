@@ -1,0 +1,573 @@
+name: Quality Orchestrator (8-Layer Analysis)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  security-events: write
+  pull-requests: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  NODE_VERSION: "20"
+
+jobs:
+  # ─────────────────────────────────────────────
+  # Layer 1: Lint & Format
+  # ─────────────────────────────────────────────
+  lint-format:
+    name: "Layer 1 – Lint & Format"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-lint-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
+          restore-keys: |
+            pip-lint-${{ runner.os }}-
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          pip install ruff
+          npm ci --ignore-scripts
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run ruff (Python linting)
+        run: ruff check apps/ shared/ --output-format json > reports/ruff.json || true
+
+      - name: Run biome (JS/TS linting)
+        run: npx biome check . --reporter json > reports/biome.json || true
+
+      - name: Run oxlint (JS/TS linting)
+        run: npx oxlint . --format json > reports/oxlint.json || true
+
+      - name: Upload lint reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-lint-format
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Layer 2: Type Checking
+  # ─────────────────────────────────────────────
+  type-check:
+    name: "Layer 2 – Type Check"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-typecheck-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
+          restore-keys: |
+            pip-typecheck-${{ runner.os }}-
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          pip install mypy
+          npm ci --ignore-scripts
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: TypeScript check – apps/web
+        run: npx tsc --noEmit --project apps/web/tsconfig.json || true
+
+      - name: TypeScript check – apps/admin
+        run: npx tsc --noEmit --project apps/admin/tsconfig.json || true
+
+      - name: Mypy – shared/ai and apps/kernel
+        run: mypy shared/ai/ apps/kernel/ --ignore-missing-imports || true
+
+      - name: Pyright – shared/ai
+        run: npx pyright shared/ai/ || true
+
+      - name: Upload type-check reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-type-check
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Layer 3: Security SAST
+  # ─────────────────────────────────────────────
+  security-sast:
+    name: "Layer 3 – Security SAST"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-security-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
+          restore-keys: |
+            pip-security-${{ runner.os }}-
+
+      - name: Install security tools
+        run: pip install bandit detect-secrets
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run bandit (Python security)
+        run: bandit -r apps/ shared/ -f json -o reports/bandit.json || true
+
+      - name: Run detect-secrets
+        run: detect-secrets scan --all-files > reports/secrets.json || true
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: python, javascript-typescript
+
+      - name: Autobuild for CodeQL
+        uses: github/codeql-action/autobuild@v4
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:python"
+
+      - name: Upload security reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-security-sast
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Layer 4: Dependency Security
+  # ─────────────────────────────────────────────
+  dependency-security:
+    name: "Layer 4 – Dependency Security"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-depaudit-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
+          restore-keys: |
+            pip-depaudit-${{ runner.os }}-
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          pip install pip-audit
+          npm ci --ignore-scripts
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: npm audit
+        run: npm audit --json > reports/npm-audit.json || true
+
+      - name: pip-audit
+        run: pip-audit --format json -o reports/pip-audit.json || true
+
+      - name: Upload dependency reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-dependency-security
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Layer 5: Architecture Analysis
+  # ─────────────────────────────────────────────
+  architecture:
+    name: "Layer 5 – Architecture"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Detect circular dependencies (madge)
+        run: npx madge --circular --json apps/web/src > reports/madge.json || true
+
+      - name: Find unused exports (knip)
+        run: npx knip --reporter json > reports/knip.json || true
+
+      - name: Check unused dependencies (depcheck)
+        run: npx depcheck --json > reports/depcheck.json || true
+
+      - name: Upload architecture reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-architecture
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Layer 6: Dead Code & Complexity
+  # ─────────────────────────────────────────────
+  dead-code-complexity:
+    name: "Layer 6 – Dead Code & Complexity"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-complexity-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
+          restore-keys: |
+            pip-complexity-${{ runner.os }}-
+
+      - name: Install analysis tools
+        run: pip install vulture radon
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run vulture (dead code detection)
+        run: vulture apps/ shared/ --min-confidence 80 > reports/vulture.txt || true
+
+      - name: Run radon (cyclomatic complexity)
+        run: radon cc apps/ shared/ -j -n C > reports/radon.json || true
+
+      - name: Upload dead-code/complexity reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-dead-code-complexity
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Layer 7: Tests
+  # ─────────────────────────────────────────────
+  tests:
+    name: "Layer 7 – Tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pip
+          key: pip-tests-${{ runner.os }}-${{ hashFiles('requirements/*.txt', 'pyproject.toml') }}
+          restore-keys: |
+            pip-tests-${{ runner.os }}-
+
+      - name: Set up Node.js ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: |
+          pip install -c constraints.txt -r requirements/testing.txt 2>/dev/null \
+            || pip install pytest pytest-asyncio pydantic pyjwt cryptography cffi httpx
+          npm ci --ignore-scripts
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run vitest (frontend tests)
+        run: npx vitest run --reporter json > reports/vitest.json || true
+
+      - name: Run pytest (unit & smoke tests)
+        run: python -m pytest tests/unit/ tests/smoke/ --tb=short -q || true
+        env:
+          ENVIRONMENT: test
+          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
+          JWT_ALGORITHM: HS256
+          DATABASE_URL: ""
+          NATS_URL: ""
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-tests
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Layer 8: Container & Infrastructure
+  # ─────────────────────────────────────────────
+  container-infra:
+    name: "Layer 8 – Container & Infra"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Install Trivy
+        run: |
+          TRIVY_VERSION="0.69.3"
+          curl -sfL "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            -o trivy.tar.gz && \
+          tar -xzf trivy.tar.gz trivy && \
+          sudo mv trivy /usr/local/bin/trivy && \
+          rm -f trivy.tar.gz && \
+          trivy --version
+        continue-on-error: true
+
+      - name: Trivy – Scan Dockerfiles (config)
+        run: |
+          trivy config --format json --output reports/trivy-config.json \
+            --severity CRITICAL,HIGH,MEDIUM . || true
+        continue-on-error: true
+
+      - name: Trivy – Scan filesystem for vulnerabilities
+        run: |
+          trivy fs --format json --output reports/trivy-fs.json \
+            --severity CRITICAL,HIGH . || true
+        continue-on-error: true
+
+      - name: Upload container/infra reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-container-infra
+          path: reports/
+          retention-days: 14
+
+  # ─────────────────────────────────────────────
+  # Quality Report (aggregates all layers)
+  # ─────────────────────────────────────────────
+  quality-report:
+    name: "Quality Report"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: always()
+    needs:
+      - lint-format
+      - type-check
+      - security-sast
+      - dependency-security
+      - architecture
+      - dead-code-complexity
+      - tests
+      - container-infra
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Download lint-format reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-lint-format
+          path: reports/
+        continue-on-error: true
+
+      - name: Download type-check reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-type-check
+          path: reports/
+        continue-on-error: true
+
+      - name: Download security-sast reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-security-sast
+          path: reports/
+        continue-on-error: true
+
+      - name: Download dependency-security reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-dependency-security
+          path: reports/
+        continue-on-error: true
+
+      - name: Download architecture reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-architecture
+          path: reports/
+        continue-on-error: true
+
+      - name: Download dead-code-complexity reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-dead-code-complexity
+          path: reports/
+        continue-on-error: true
+
+      - name: Download test reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-tests
+          path: reports/
+        continue-on-error: true
+
+      - name: Download container-infra reports
+        uses: actions/download-artifact@v8
+        with:
+          name: reports-container-infra
+          path: reports/
+        continue-on-error: true
+
+      - name: Generate quality report
+        run: |
+          python -m shared.ai.auto_fix.quality_layers \
+            --reports-dir reports/ \
+            --output quality-report.md
+        continue-on-error: true
+
+      - name: Comment PR with quality summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const fs = require('fs');
+            let body = '## Quality Orchestrator Report\n\n';
+            try {
+              body = fs.readFileSync('quality-report.md', 'utf8');
+            } catch {
+              body += 'Quality report generation did not produce output.\n';
+              body += 'Check individual layer artifacts for details.\n\n';
+              body += '| Layer | Job | Status |\n';
+              body += '|-------|-----|--------|\n';
+              const jobs = [
+                ['1 - Lint & Format', 'lint-format', '${{ needs.lint-format.result }}'],
+                ['2 - Type Check', 'type-check', '${{ needs.type-check.result }}'],
+                ['3 - Security SAST', 'security-sast', '${{ needs.security-sast.result }}'],
+                ['4 - Dependency Security', 'dependency-security', '${{ needs.dependency-security.result }}'],
+                ['5 - Architecture', 'architecture', '${{ needs.architecture.result }}'],
+                ['6 - Dead Code & Complexity', 'dead-code-complexity', '${{ needs.dead-code-complexity.result }}'],
+                ['7 - Tests', 'tests', '${{ needs.tests.result }}'],
+                ['8 - Container & Infra', 'container-infra', '${{ needs.container-infra.result }}'],
+              ];
+              for (const [layer, job, status] of jobs) {
+                const icon = status === 'success' ? ':white_check_mark:' : status === 'failure' ? ':x:' : ':warning:';
+                body += `| ${layer} | ${job} | ${icon} ${status} |\n`;
+              }
+            }
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const existing = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('Quality Orchestrator Report')
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: body,
+              });
+            }
+
+      - name: Upload final quality report
+        uses: actions/upload-artifact@v7
+        with:
+          name: quality-report
+          path: quality-report.md
+          retention-days: 30
+          if-no-files-found: ignore

@@ -14,12 +14,13 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
+import json
+import tempfile
+from datetime import UTC
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
-import tempfile
-import json
-from datetime import UTC
+
+import pytest
 
 # Test markers
 pytestmark = [pytest.mark.unit, pytest.mark.integration, pytest.mark.fixops]
@@ -31,9 +32,9 @@ class TestFixOpsAutoFixIntegration:
     def test_fixops_orchestrator_initialization(self):
         """Test orchestrator initializes with Auto-Fix Engine."""
         from tools.fixops.orchestrator import (
-            FixOpsOrchestrator,
-            FixOpsConfig,
             HAS_AUTO_FIX,
+            FixOpsConfig,
+            FixOpsOrchestrator,
         )
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -61,7 +62,7 @@ class TestFixOpsAutoFixIntegration:
     @pytest.mark.asyncio
     async def test_fixops_run_with_engine(self):
         """Test FixOps run uses Auto-Fix Engine when available."""
-        from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+        from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
 
         with tempfile.TemporaryDirectory() as tmpdir:
             # Create a test Python file
@@ -152,9 +153,9 @@ class TestAutoAuditIntegration:
     def test_auto_audit_model_exists(self):
         """Test AutoAudit models are importable."""
         from shared.ai.auto_fix.auto_audit import (
-            AutoAudit,
             AuditAction,
             AuditLogEntry,
+            AutoAudit,
         )
 
         assert AutoAudit is not None
@@ -191,10 +192,10 @@ class TestExperienceLearning:
     def test_experience_learner_exists(self):
         """Test ExperienceLearner is importable."""
         from shared.ai.experience_learning import (
-            ExperienceLearner,
-            TaskExecution,
             SOP,
             ExecutionStatus,
+            ExperienceLearner,
+            TaskExecution,
         )
 
         assert ExperienceLearner is not None
@@ -221,9 +222,9 @@ class TestExperienceLearning:
     async def test_experience_learner_record_execution(self):
         """Test recording task execution."""
         from shared.ai.experience_learning import (
-            ExperienceLearner,
-            ExecutionStep,
             ExecutionStatus,
+            ExecutionStep,
+            ExperienceLearner,
         )
 
         learner = ExperienceLearner()
@@ -279,8 +280,8 @@ class TestBatchProcessor:
     def test_batch_processor_exists(self):
         """Test BatchProcessor is importable."""
         from shared.ai.auto_fix.batch_processor import (
-            BatchProcessor,
             BatchConfig,
+            BatchProcessor,
             BatchResult,
         )
 
@@ -410,7 +411,7 @@ class TestKimiRequestGeneration:
     @pytest.mark.asyncio
     async def test_generate_kimi_request(self):
         """Test generating Kimi-compatible request."""
-        from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+        from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
 
         with tempfile.TemporaryDirectory() as tmpdir:
             config = FixOpsConfig(
@@ -476,7 +477,7 @@ def temp_repo():
 @pytest.fixture
 def mock_orchestrator(temp_repo):
     """Create orchestrator with mock config."""
-    from tools.fixops.orchestrator import FixOpsOrchestrator, FixOpsConfig
+    from tools.fixops.orchestrator import FixOpsConfig, FixOpsOrchestrator
 
     config = FixOpsConfig(
         repo_root=temp_repo,
@@ -492,10 +493,10 @@ def mock_orchestrator(temp_repo):
 def sample_diagnostic():
     """Create sample diagnostic."""
     from shared.ai.auto_fix.models import (
-        Diagnostic,
-        DiagnosticSeverity,
-        DiagnosticCategory,
         CodeLocation,
+        Diagnostic,
+        DiagnosticCategory,
+        DiagnosticSeverity,
         ToolType,
     )
 
@@ -546,7 +547,7 @@ class TestFixOpsScheduler:
 
     def test_scheduled_check_creation(self):
         """Test ScheduledCheck creation."""
-        from tools.fixops.scheduler import ScheduledCheck, CheckType, CheckFrequency
+        from tools.fixops.scheduler import CheckFrequency, CheckType, ScheduledCheck
 
         check = ScheduledCheck(
             id="test-check",
@@ -563,7 +564,7 @@ class TestFixOpsScheduler:
 
     def test_scheduled_check_to_dict(self):
         """Test ScheduledCheck to_dict method."""
-        from tools.fixops.scheduler import ScheduledCheck, CheckType
+        from tools.fixops.scheduler import CheckType, ScheduledCheck
 
         check = ScheduledCheck(
             id="test-check",
@@ -651,8 +652,9 @@ class TestCheckResult:
 
     def test_check_result_creation(self):
         """Test CheckResult creation."""
-        from tools.fixops.scheduler import CheckResult, CheckType
         from datetime import datetime, timezone
+
+        from tools.fixops.scheduler import CheckResult, CheckType
 
         result = CheckResult(
             check_id="test-001",
@@ -669,8 +671,9 @@ class TestCheckResult:
 
     def test_check_result_to_dict(self):
         """Test CheckResult to_dict method."""
-        from tools.fixops.scheduler import CheckResult, CheckType
         from datetime import datetime, timezone
+
+        from tools.fixops.scheduler import CheckResult, CheckType
 
         result = CheckResult(
             check_id="test-001",

@@ -2,6 +2,7 @@
 /// نموذج طلب التوصية من المستشار الذكي
 ///
 /// Represents a request to the AI Advisory system
+library;
 
 import 'package:flutter/foundation.dart';
 import 'advisory.dart';
@@ -208,7 +209,7 @@ class AdvisoryRequest {
           : null,
       additionalContext: json['additional_context'] as Map<String, dynamic>?,
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
   }

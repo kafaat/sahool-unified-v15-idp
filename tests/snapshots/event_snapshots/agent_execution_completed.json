@@ -11,7 +11,6 @@
   "span_id": null,
   "status": "completed",
   "tenant_id": "tenant-snapshot-001",
-  "tenant_id_header": null,
   "timestamp": "<VOLATILE>",
   "total_steps": 0,
   "trace_id": null,

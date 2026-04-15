@@ -2,6 +2,7 @@
 /// الوحدة الأساسية للتطبيق
 ///
 /// تصدير جميع مكونات النواة في مكان واحد
+library;
 
 // Configuration
 export 'config/env_config.dart';
@@ -14,7 +15,7 @@ export 'theme/sahool_theme.dart';
 export 'utils/app_logger.dart';
 
 // Logging (Structured Logging System)
-export 'logging/logging.dart';
+export 'logging/logging.dart' hide LogLevel, LoggerMixin;
 
 // Widgets
 export 'widgets/widgets.dart';
@@ -36,18 +37,18 @@ export 'auth/biometric_service.dart';
 
 // Performance
 export 'performance/performance.dart';
-export 'performance/performance_utils.dart';
+export 'performance/performance_utils.dart' hide MemoryInfo;
 
 // Map
-export 'map/map.dart';
+export 'map/map.dart' hide CacheStats;
 
 // Notifications
 export 'notifications/notifications.dart';
-export 'notifications/notification_ui_components.dart';
+export 'notifications/notification_ui_components.dart' hide NotificationBadge, NotificationAction, NotificationType, NotificationListItem;
 
 // Offline Sync
-export 'offline/offline.dart';
-export 'offline/offline_ui_components.dart';
+export 'offline/offline.dart' hide SyncStatus, SyncResult;
+export 'offline/offline_ui_components.dart' hide SyncStatus;
 
 // Voice Commands
 export 'voice/voice.dart';
@@ -59,10 +60,10 @@ export 'deeplink/deeplink_handler.dart';
 export 'state/state_management.dart';
 
 // UI Components - مكونات الواجهة المحسنة
-export 'ui/enhanced_widgets.dart';
+export 'ui/enhanced_widgets.dart' hide ConnectivityBanner, AnimatedListItem, SahoolRefreshIndicator, ScaleIn, SlideIn, SlideDirection, FadeIn;
 
 // Localization - الترجمة
 export 'l10n/locale_manager.dart';
 
 // Animations - التحريكات
-export 'animations/animations.dart';
+export 'animations/animations.dart' hide SkeletonCard, SkeletonList, SkeletonGrid, StaggeredAnimationList;

@@ -32,11 +32,18 @@ from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from fastapi.responses import PlainTextResponse
+from prometheus_client import (
+    CollectorRegistry,
+    Counter,
+    Histogram,
+    generate_latest,
+)
+from pydantic import BaseModel, Field, field_validator
 
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
 logger = structlog.get_logger(__name__)
 
@@ -51,6 +58,52 @@ except ImportError:
     logger.info("NATS publisher not available")
     publish_analysis_completed_sync = None
 
+# Async NATS client for event publishing
+_nats_client = None
+
+try:
+    import json as _json
+
+    import nats as _nats_module
+except ImportError:
+    _nats_module = None
+
+
+async def _init_nats():
+    """Initialize async NATS connection for event publishing."""
+    global _nats_client
+    nats_url = os.getenv("NATS_URL", "nats://nats:4222")
+    if _nats_module is None:
+        logger.warning("nats-py not installed, async NATS publishing disabled")
+        return
+    try:
+        _nats_client = await _nats_module.connect(nats_url)
+        logger.info("nats_async_connected", url=nats_url)
+    except Exception as e:
+        logger.warning("nats_async_connection_failed", error=str(e))
+
+
+async def _close_nats():
+    """Close async NATS connection."""
+    global _nats_client
+    if _nats_client and not _nats_client.is_closed:
+        await _nats_client.close()
+        _nats_client = None
+
+
+async def publish_event(subject: str, data: dict):
+    """Publish event to NATS. Falls back to logging if NATS is unavailable."""
+    if _nats_client and not _nats_client.is_closed:
+        try:
+            payload = _json.dumps(data, default=str).encode()
+            await _nats_client.publish(subject, payload)
+            logger.info("nats_event_published", subject=subject)
+        except Exception as e:
+            logger.warning("nats_publish_failed", subject=subject, error=str(e))
+    else:
+        logger.info("nats_event_local", subject=subject, data_keys=list(data.keys()))
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -58,6 +111,44 @@ except ImportError:
 SERVICE_NAME = "virtual-sensors"
 SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = int(os.getenv("PORT", "8119"))
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Prometheus Metrics
+# ═══════════════════════════════════════════════════════════════════════════════
+
+PROM_REGISTRY = CollectorRegistry()
+
+REQUEST_COUNT = Counter(
+    "virtual_sensors_requests_total",
+    "Total HTTP requests",
+    ["method", "endpoint", "status"],
+    registry=PROM_REGISTRY,
+)
+
+REQUEST_LATENCY = Histogram(
+    "virtual_sensors_request_duration_seconds",
+    "Request latency in seconds",
+    ["method", "endpoint"],
+    registry=PROM_REGISTRY,
+)
+
+ET0_CALCULATIONS = Counter(
+    "virtual_sensors_et0_calculations_total",
+    "Total ET0 calculations performed",
+    registry=PROM_REGISTRY,
+)
+
+IRRIGATION_RECOMMENDATIONS = Counter(
+    "virtual_sensors_irrigation_recommendations_total",
+    "Total irrigation recommendations generated",
+    registry=PROM_REGISTRY,
+)
+
+SOIL_MOISTURE_ESTIMATES = Counter(
+    "virtual_sensors_soil_moisture_estimates_total",
+    "Total soil moisture estimations performed",
+    registry=PROM_REGISTRY,
+)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -412,18 +503,20 @@ IRRIGATION_EFFICIENCY = {
 # ═══════════════════════════════════════════════════════════════════════════════
 
 SENSOR_VALUE_BOUNDS: dict[str, dict[str, float]] = {
-    "temperature": {"min": -50.0, "max": 65.0, "unit_ar": "°س"},
+    "temperature": {"min": -60.0, "max": 60.0, "unit_ar": "°س"},
     "humidity": {"min": 0.0, "max": 100.0, "unit_ar": "%"},
     "soil_moisture": {"min": 0.0, "max": 1.0, "unit_ar": "م³/م³"},
     "soil_moisture_percent": {"min": 0.0, "max": 100.0, "unit_ar": "%"},
     "et0": {"min": 0.0, "max": 25.0, "unit_ar": "مم/يوم"},
     "etc": {"min": 0.0, "max": 30.0, "unit_ar": "مم/يوم"},
     "kc": {"min": 0.0, "max": 2.0, "unit_ar": "معامل"},
-    "wind_speed": {"min": 0.0, "max": 100.0, "unit_ar": "م/ث"},
-    "solar_radiation": {"min": 0.0, "max": 50.0, "unit_ar": "MJ/م²/يوم"},
+    "wind_speed": {"min": 0.0, "max": 111.12, "unit_ar": "م/ث"},
+    "solar_radiation": {"min": 0.0, "max": 130.0, "unit_ar": "MJ/م²/يوم"},
     "water_amount_mm": {"min": 0.0, "max": 500.0, "unit_ar": "مم"},
     "ph": {"min": 0.0, "max": 14.0, "unit_ar": "pH"},
     "ec": {"min": 0.0, "max": 20.0, "unit_ar": "dS/م"},
+    "latitude": {"min": -90.0, "max": 90.0, "unit_ar": "درجة"},
+    "longitude": {"min": -180.0, "max": 180.0, "unit_ar": "درجة"},
 }
 
 
@@ -451,13 +544,24 @@ def validate_sensor_value(sensor_type: str, value: float) -> tuple[bool, str | N
 class WeatherInput(BaseModel):
     """Weather data input for ET0 calculation"""
 
-    temperature_max: float = Field(..., ge=-50, le=65, description="Maximum temperature (°C)")
-    temperature_min: float = Field(..., ge=-90, le=60, description="Minimum temperature (°C)")
+    temperature_max: float = Field(..., ge=-60, le=60, description="Maximum temperature (°C)")
+    temperature_min: float = Field(..., ge=-60, le=60, description="Minimum temperature (°C)")
     humidity: float = Field(..., ge=0, le=100, description="Relative humidity (%)")
-    wind_speed: float = Field(..., ge=0, le=100, description="Wind speed at 2m height (m/s)")
-    solar_radiation: float | None = Field(None, ge=0, le=50, description="Solar radiation (MJ/m²/day)")
+    wind_speed: float = Field(
+        ...,
+        ge=0,
+        le=111.12,
+        description="Wind speed at 2m height (m/s). Max 400 km/h = 111.12 m/s",
+    )
+    solar_radiation: float | None = Field(
+        None,
+        ge=0,
+        le=130.0,
+        description="Solar radiation (MJ/m²/day). Max 1500 W/m² peak ≈ 130 MJ/m²/day",
+    )
     sunshine_hours: float | None = Field(None, ge=0, le=24, description="Sunshine hours")
     latitude: float = Field(..., ge=-90, le=90, description="Latitude (degrees)")
+    longitude: float | None = Field(None, ge=-180, le=180, description="Longitude (degrees)")
     altitude: float = Field(0, ge=-500, le=5000, description="Altitude above sea level (m)")
     calculation_date: date = Field(default_factory=lambda: date.today(), description="Date for calculation")
 
@@ -479,11 +583,18 @@ class ET0Response(BaseModel):
 class CropWaterRequirement(BaseModel):
     """Crop water requirement calculation input"""
 
-    crop_type: str
+    crop_type: str = Field(..., min_length=1, max_length=50, pattern=r"^[a-z_]+$")
     growth_stage: GrowthStage
     planting_date: date | None = None
     days_after_planting: int | None = None
     field_area_hectares: float = Field(1.0, gt=0)
+
+    @field_validator("crop_type")
+    @classmethod
+    def validate_crop_type(cls, v: str) -> str:
+        if v not in CROP_COEFFICIENTS:
+            raise ValueError(f"Unsupported crop type '{v}'. Supported: {', '.join(sorted(CROP_COEFFICIENTS.keys()))}")
+        return v
 
 
 class CropETcResponse(BaseModel):
@@ -590,7 +701,13 @@ class IrrigationRecommendation(BaseModel):
 class WaterBalanceInput(BaseModel):
     """Input for water balance tracking"""
 
-    field_id: str
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+        description="Field identifier (alphanumeric, hyphens, underscores)",
+    )
     crop_type: str
     soil_type: SoilType
     start_date: date
@@ -998,9 +1115,13 @@ async def lifespan(app: FastAPI):
     else:
         logger.warning("nats_publisher_unavailable", mode="degraded")
 
+    # Initialize async NATS client for event publishing
+    await _init_nats()
+
     yield
 
     # Cleanup
+    await _close_nats()
     app.state.nats_client = None
     logger.info("service_shutting_down", service=SERVICE_NAME)
 
@@ -1053,7 +1174,16 @@ except ImportError:
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -1080,16 +1210,52 @@ async def health_check():
 
 
 @app.get("/readyz")
-def readiness():
+async def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    return {
-        "status": "ready",
-        "service": "virtual-sensors",
-        "version": "16.0.0",
+    nats_ok = _nats_client is not None and not _nats_client.is_closed
+
+    redis_ok = False
+    redis_url = os.getenv("REDIS_URL")
+    if redis_url:
+        try:
+            import redis.asyncio as aioredis
+
+            r = aioredis.from_url(redis_url, socket_connect_timeout=2)
+            await r.ping()
+            redis_ok = True
+            await r.aclose()
+        except Exception:
+            redis_ok = False
+    else:
+        redis_ok = True  # Not configured, not required
+
+    all_ok = nats_ok or not _nats_available  # NATS optional when unavailable
+    status = "ready" if all_ok and redis_ok else "not_ready"
+
+    response = {
+        "status": status,
+        "service": SERVICE_NAME,
+        "version": SERVICE_VERSION,
         "checks": {
             "service": "ready",
+            "nats": "connected" if nats_ok else "disconnected",
+            "redis": "connected" if redis_ok else "disconnected",
         },
     }
+
+    if status != "ready":
+        raise HTTPException(status_code=503, detail=response)
+
+    return response
+
+
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus metrics endpoint"""
+    return PlainTextResponse(
+        content=generate_latest(PROM_REGISTRY),
+        media_type="text/plain; version=0.0.4; charset=utf-8",
+    )
 
 
 @app.get("/v1/info")
@@ -1124,7 +1290,26 @@ async def calculate_et0(weather: WeatherInput, user: User = Depends(get_current_
     Calculate reference evapotranspiration (ET0) using Penman-Monteith.
     حساب التبخر-نتح المرجعي باستخدام بنمان-مونتيث
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    logger.info("et0_calculate", tenant_id=tenant_id, user_id=getattr(user, "id", None))
+
     et0 = calculate_et0_penman_monteith(weather)
+
+    # Publish sensor.calculated event
+    await publish_event(
+        "sahool.sensor.calculated",
+        {
+            "sensor_type": "et0",
+            "method": "FAO-56 Penman-Monteith",
+            "value": round(et0, 2),
+            "unit": "mm/day",
+            "latitude": weather.latitude,
+            "altitude": weather.altitude,
+            "calculation_date": str(weather.calculation_date),
+            "user_id": user.id if hasattr(user, "id") else None,
+            "tenant_id": tenant_id,
+        },
+    )
 
     return ET0Response(
         et0=round(et0, 2),
@@ -1215,6 +1400,9 @@ async def calculate_crop_etc(
     Calculate crop evapotranspiration (ETc = ET0 × Kc).
     حساب التبخر-نتح للمحصول
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    logger.info("etc_calculate", tenant_id=tenant_id, user_id=getattr(user, "id", None))
+
     if crop_type not in CROP_COEFFICIENTS:
         raise HTTPException(status_code=404, detail=f"Crop '{crop_type}' not found")
 
@@ -1283,6 +1471,8 @@ async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput, user: Us
     Estimate soil moisture using water balance method.
     تقدير رطوبة التربة باستخدام ميزان الماء
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+
     result = estimate_soil_moisture(
         soil_type=input_data.soil_type,
         root_depth=input_data.root_depth,
@@ -1292,8 +1482,46 @@ async def estimate_virtual_soil_moisture(input_data: SoilMoistureInput, user: Us
         daily_etc=input_data.daily_etc,
     )
 
+    calculation_id = str(uuid.uuid4())
+
+    # Publish sensor.calculated event for soil moisture estimation
+    await publish_event(
+        "sahool.sensor.calculated",
+        {
+            "calculation_id": calculation_id,
+            "sensor_type": "soil_moisture",
+            "method": "water_balance",
+            "value": round(result["moisture_content"], 3),
+            "unit": "volumetric",
+            "depletion_percent": round(result["depletion_percent"], 1),
+            "soil_type": input_data.soil_type.value,
+            "status": result["status"],
+            "urgency": result["urgency"].value if hasattr(result["urgency"], "value") else str(result["urgency"]),
+            "user_id": user.id if hasattr(user, "id") else None,
+            "tenant_id": tenant_id,
+        },
+    )
+
+    # Publish sensor.anomaly event when critical depletion is detected
+    if result["depletion_percent"] >= 80:
+        await publish_event(
+            "sahool.sensor.anomaly",
+            {
+                "calculation_id": calculation_id,
+                "anomaly_type": "critical_moisture_depletion",
+                "sensor_type": "soil_moisture",
+                "depletion_percent": round(result["depletion_percent"], 1),
+                "soil_type": input_data.soil_type.value,
+                "status": result["status"],
+                "urgency": result["urgency"].value if hasattr(result["urgency"], "value") else str(result["urgency"]),
+                "message": "Soil moisture critically depleted - immediate irrigation recommended",
+                "message_ar": "رطوبة التربة منخفضة بشكل حرج - يوصى بالري فوراً",
+                "tenant_id": tenant_id,
+            },
+        )
+
     return VirtualSoilMoistureResponse(
-        calculation_id=str(uuid.uuid4()),
+        calculation_id=calculation_id,
         estimated_moisture=round(result["moisture_content"], 3),
         moisture_percentage=round(100 - result["depletion_percent"], 1),
         days_since_irrigation=result["days_elapsed"],
@@ -1420,13 +1648,17 @@ async def quick_irrigation_check(
     growth_stage: GrowthStage = Query(..., description="Growth stage"),
     soil_type: SoilType = Query(SoilType.LOAM, description="Soil type"),
     days_since_irrigation: int = Query(..., ge=0, description="Days since last irrigation"),
-    temperature: float = Query(..., ge=-50, le=65, description="Average temperature (°C)"),
+    temperature: float = Query(..., ge=-60, le=60, description="Average temperature (°C)"),
     humidity: float = Query(50, ge=0, le=100, description="Relative humidity (%)"),
+    user: User = Depends(get_current_user),
 ):
     """
     Quick irrigation check without full weather data.
     فحص سريع للري بدون بيانات الطقس الكاملة
     """
+    tenant_id = getattr(user, "tenant_id", None) or ""
+    logger.info("quick_irrigation_check", tenant_id=tenant_id, user_id=getattr(user, "id", None))
+
     if crop_type not in CROP_COEFFICIENTS:
         raise HTTPException(status_code=404, detail=f"Crop '{crop_type}' not found")
 
@@ -1491,10 +1723,36 @@ async def quick_irrigation_check(
 class VirtualSensorActionRequest(BaseModel):
     """Request for virtual sensor analysis with ActionTemplate output"""
 
-    field_id: str = Field(..., description="معرف الحقل")
-    farmer_id: str | None = Field(None, description="معرف المزارع")
-    tenant_id: str | None = Field(None, description="معرف المستأجر")
-    crop_type: str = Field(..., description="نوع المحصول")
+    field_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=100,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+        description="معرف الحقل - Field identifier (alphanumeric, hyphens, underscores)",
+    )
+    farmer_id: str | None = Field(
+        None,
+        min_length=1,
+        max_length=100,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+        description="معرف المزارع",
+    )
+    tenant_id: str | None = Field(
+        None,
+        min_length=1,
+        max_length=100,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+        description="معرف المستأجر",
+    )
+    crop_type: str = Field(..., min_length=1, max_length=50, description="نوع المحصول")
+
+    @field_validator("crop_type")
+    @classmethod
+    def validate_crop_type(cls, v: str) -> str:
+        if v not in CROP_COEFFICIENTS:
+            raise ValueError(f"Unsupported crop type '{v}'. Supported: {', '.join(sorted(CROP_COEFFICIENTS.keys()))}")
+        return v
+
     growth_stage: GrowthStage = Field(..., description="مرحلة النمو")
     soil_type: SoilType = Field(SoilType.LOAM, description="نوع التربة")
     irrigation_method: IrrigationMethod = Field(IrrigationMethod.DRIP, description="طريقة الري")
@@ -1691,20 +1949,38 @@ async def get_irrigation_recommendation_with_action(
 
 @app.get("/v1/quick-check-with-action")
 async def quick_check_with_action(
-    field_id: str = Query(..., description="معرف الحقل"),
-    farmer_id: str | None = Query(None, description="معرف المزارع"),
+    field_id: str = Query(
+        ...,
+        min_length=1,
+        max_length=100,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+        description="معرف الحقل - Field identifier",
+    ),
+    farmer_id: str | None = Query(
+        None,
+        min_length=1,
+        max_length=100,
+        pattern=r"^[a-zA-Z0-9_\-]+$",
+        description="معرف المزارع",
+    ),
     crop_type: str = Query(..., description="نوع المحصول"),
     growth_stage: GrowthStage = Query(..., description="مرحلة النمو"),
     soil_type: SoilType = Query(SoilType.LOAM, description="نوع التربة"),
     days_since_irrigation: int = Query(..., ge=0, description="أيام منذ آخر ري"),
-    temperature: float = Query(..., ge=-50, le=65, description="درجة الحرارة"),
+    temperature: float = Query(..., ge=-60, le=60, description="درجة الحرارة"),
     humidity: float = Query(50, ge=0, le=100, description="الرطوبة النسبية"),
+    tenant_id: str | None = Query(None, description="معرف المستأجر - Tenant identifier"),
+    user: User = Depends(get_current_user),
 ):
     """
     فحص سريع مع ActionTemplate
 
     للبيئات الريفية بدون IoT
     """
+    # Enforce tenant isolation
+    if tenant_id:
+        _enforce_tenant(user, tenant_id)
+
     # Get quick check result
     result = await quick_irrigation_check(
         crop_type=crop_type,
@@ -1763,4 +2039,4 @@ async def quick_check_with_action(
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)
+    uvicorn.run(app, host="0.0.0.0", port=SERVICE_PORT)  # nosec B104 - binding to all interfaces required for Docker container

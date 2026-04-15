@@ -1,0 +1,201 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Dependabot Auto-Merge - Automatically merges safe dependency updates
+# الدمج التلقائي لتحديثات الاعتماديات الآمنة
+#
+# Auto-merges:
+# ✅ patch updates (e.g., 1.0.0 → 1.0.1) - always
+# ✅ minor updates (e.g., 1.0.0 → 1.1.0) - for dev dependencies only
+# ❌ major updates - never (require manual review)
+#
+# Safety:
+# - Only merges after ALL CI checks pass
+# - Only for Dependabot PRs (verified by actor check)
+# - Squash merge to keep history clean
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Dependabot Auto-Merge
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+concurrency:
+  group: dependabot-auto-merge-${{ github.head_ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Auto-Merge Dependabot PR
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # Only run for Dependabot PRs
+    if: github.actor == 'dependabot[bot]'
+
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Determine merge eligibility
+        id: eligibility
+        env:
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          DEP_TYPE: ${{ steps.metadata.outputs.dependency-type }}
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          DEP_NAMES: ${{ steps.metadata.outputs.dependency-names }}
+        run: |
+
+          echo "📦 Dependency: $DEP_NAMES"
+          echo "📊 Update type: $UPDATE_TYPE"
+          echo "🏷️ Dependency type: $DEP_TYPE"
+          echo "🔧 Ecosystem: $ECOSYSTEM"
+
+          ELIGIBLE="false"
+          REASON=""
+
+          # Patch updates: always auto-merge
+          if [ "$UPDATE_TYPE" = "version-update:semver-patch" ]; then
+            ELIGIBLE="true"
+            REASON="Patch update (safe)"
+
+          # Minor updates: auto-merge for dev dependencies
+          elif [ "$UPDATE_TYPE" = "version-update:semver-minor" ]; then
+            if [ "$DEP_TYPE" = "direct:development" ]; then
+              ELIGIBLE="true"
+              REASON="Minor dev dependency update"
+            else
+              # Also auto-merge minor for well-known safe packages
+              case "$DEP_NAMES" in
+                *eslint*|*prettier*|*typescript*|*vitest*|*@types/*|*ruff*|*pytest*|*mypy*)
+                  ELIGIBLE="true"
+                  REASON="Minor update for tooling package"
+                  ;;
+                *)
+                  REASON="Minor production dependency - requires review"
+                  ;;
+              esac
+            fi
+
+          # Major updates: never auto-merge
+          elif [ "$UPDATE_TYPE" = "version-update:semver-major" ]; then
+            REASON="Major update - requires manual review"
+
+          # GitHub Actions updates: auto-merge patches and minors
+          elif [ "$ECOSYSTEM" = "github-actions" ]; then
+            if [ "$UPDATE_TYPE" != "version-update:semver-major" ]; then
+              ELIGIBLE="true"
+              REASON="GitHub Actions non-major update"
+            else
+              REASON="Major GitHub Actions update - requires review"
+            fi
+          fi
+
+          echo "eligible=$ELIGIBLE" >> $GITHUB_OUTPUT
+          echo "reason=$REASON" >> $GITHUB_OUTPUT
+
+          if [ "$ELIGIBLE" = "true" ]; then
+            echo "✅ Eligible for auto-merge: $REASON"
+          else
+            echo "⏸️ Not eligible: $REASON"
+          fi
+
+      - name: Wait for CI checks
+        if: steps.eligibility.outputs.eligible == 'true'
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const maxWait = 10 * 60 * 1000; // 10 minutes
+            const pollInterval = 30 * 1000; // 30 seconds
+            const startTime = Date.now();
+
+            console.log(`Waiting for CI checks on PR #${pr.number}...`);
+
+            while (Date.now() - startTime < maxWait) {
+              const { data: checks } = await github.rest.checks.listForRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: pr.head.sha,
+              });
+
+              const completed = checks.check_runs.filter(c => c.status === 'completed');
+              const pending = checks.check_runs.filter(c => c.status !== 'completed');
+              const failed = completed.filter(c => c.conclusion === 'failure');
+
+              // Skip self (this workflow)
+              const relevantPending = pending.filter(c => c.name !== 'Auto-Merge Dependabot PR');
+
+              if (failed.length > 0) {
+                const failedNames = failed.map(c => c.name).join(', ');
+                core.setFailed(`CI checks failed: ${failedNames}`);
+                return;
+              }
+
+              if (relevantPending.length === 0 && completed.length > 0) {
+                console.log(`All ${completed.length} CI checks passed!`);
+                return;
+              }
+
+              console.log(`Waiting... ${completed.length} completed, ${relevantPending.length} pending`);
+              await new Promise(r => setTimeout(r, pollInterval));
+            }
+
+            core.setFailed('Timed out waiting for CI checks');
+
+      - name: Approve PR
+        if: steps.eligibility.outputs.eligible == 'true'
+        run: |
+          gh pr review "${{ github.event.pull_request.number }}" \
+            --approve \
+            --body "✅ Auto-approved: ${{ steps.eligibility.outputs.reason }}
+
+          الموافقة التلقائية: تحديث آمن للاعتماديات"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable auto-merge (squash)
+        if: steps.eligibility.outputs.eligible == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          gh pr merge "${{ github.event.pull_request.number }}" \
+            --auto \
+            --squash \
+            --subject "chore(deps): $PR_TITLE"
+
+      - name: Add label
+        if: steps.eligibility.outputs.eligible == 'true'
+        run: |
+          gh pr edit "${{ github.event.pull_request.number }}" \
+            --add-label "auto-merged" 2>/dev/null || true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post summary
+        if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          DEP_NAMES: ${{ steps.metadata.outputs.dependency-names }}
+          UPDATE_TYPE: ${{ steps.metadata.outputs.update-type }}
+          ECOSYSTEM: ${{ steps.metadata.outputs.package-ecosystem }}
+          ELIGIBLE: ${{ steps.eligibility.outputs.eligible }}
+          REASON: ${{ steps.eligibility.outputs.reason }}
+        run: |
+          echo "## 🤖 Dependabot Auto-Merge" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| PR | #${PR_NUMBER} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency | ${DEP_NAMES} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Update Type | ${UPDATE_TYPE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Ecosystem | ${ECOSYSTEM} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Eligible | ${ELIGIBLE} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Reason | ${REASON} |" >> $GITHUB_STEP_SUMMARY

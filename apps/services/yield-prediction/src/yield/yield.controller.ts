@@ -158,7 +158,7 @@ export class YieldController {
     @Param("fieldId") fieldId: string,
     @Query() query: ActionQueryDto,
   ): Promise<PreHarvestAlertResponse> {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.yieldService.predictWithAction(fieldId, query.farmerId, tenantId);
   }
 
@@ -177,7 +177,7 @@ export class YieldController {
     @Param("fieldId") fieldId: string,
     @Query() query: ActionQueryDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'] || query.tenantId;
+    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     return this.yieldService.getHarvestReadiness(fieldId, query.farmerId, tenantId);
   }
 

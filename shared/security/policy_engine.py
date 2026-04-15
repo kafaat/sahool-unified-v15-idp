@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
 
-from .rbac import Permission, Role, has_permission
+from .rbac import Role, has_permission
 
 logger = logging.getLogger(__name__)
 
@@ -351,8 +351,9 @@ class PolicyEngine:
         # Check role-based permissions
         for role in context.roles:
             try:
-                role_enum = Role(role) if isinstance(role, str) else role
-                if has_permission([role_enum], Permission(permission)):
+                role_str = role.value if hasattr(role, "value") else str(role)
+                principal = {"roles": [role_str], "scopes": list(context.scopes)}
+                if has_permission(principal, permission):
                     return True
             except (ValueError, KeyError):
                 continue

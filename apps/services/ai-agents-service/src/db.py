@@ -43,9 +43,9 @@ async def init_pool() -> asyncpg.Pool | None:
         _pool = await asyncpg.create_pool(
             DATABASE_URL,
             min_size=2,
+            statement_cache_size=0,  # PgBouncer transaction mode compatibility,
             max_size=10,
             command_timeout=60,
-            ssl=ssl.create_default_context(),  # TLS/SSL encryption
         )
         print("✅ Database connection pool initialized")
         return _pool
@@ -157,23 +157,25 @@ async def create_execution(
 
 
 async def get_execution(execution_id: str, tenant_id: str | None = None) -> dict[str, Any] | None:
-    """Get an execution by ID, scoped to tenant for isolation."""
+    """Get an execution by ID, scoped to tenant for isolation.
+    الحصول على تنفيذ بواسطة المعرف، مع عزل المستأجر.
+    """
     if not _pool:
+        return None
+
+    # Tenant isolation: tenant_id is required to prevent cross-tenant data access
+    # عزل المستأجر: معرف المستأجر مطلوب لمنع الوصول عبر المستأجرين
+    if not tenant_id:
+        print("⚠️ get_execution called without tenant_id - denied for tenant isolation")
         return None
 
     try:
         async with _pool.acquire() as conn:
-            if tenant_id:
-                row = await conn.fetchrow(
-                    "SELECT * FROM agent_executions WHERE id = $1 AND tenant_id = $2",
-                    UUID(execution_id),
-                    tenant_id,
-                )
-            else:
-                row = await conn.fetchrow(
-                    "SELECT * FROM agent_executions WHERE id = $1",
-                    UUID(execution_id),
-                )
+            row = await conn.fetchrow(
+                "SELECT * FROM agent_executions WHERE id = $1 AND tenant_id = $2",
+                UUID(execution_id),
+                tenant_id,
+            )
             return _row_to_dict(row) if row else None
     except Exception as e:
         print(f"⚠️ Failed to get execution: {e}")
@@ -257,7 +259,9 @@ async def update_execution(
         """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
-            row = await conn.fetchrow(query, *params)
+            row = await conn.fetchrow(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return _row_to_dict(row) if row else None
     except Exception as e:
         print(f"⚠️ Failed to update execution: {e}")
@@ -303,31 +307,27 @@ async def list_executions(
         """  # noqa: S608  # nosec B608 - all values use $N parameterized placeholders
 
         async with _pool.acquire() as conn:
-            rows = await conn.fetch(query, *params)
+            rows = await conn.fetch(
+                query, *params
+            )  # nosemgrep: asyncpg-sqli -- query uses $N parameterized placeholders
             return [_row_to_dict(row) for row in rows]
     except Exception as e:
         print(f"⚠️ Failed to list executions: {e}")
         return []
 
 
-async def delete_execution(execution_id: str, tenant_id: str | None = None) -> bool:
-    """Delete an execution record, optionally scoped to tenant for isolation."""
+async def delete_execution(execution_id: str, tenant_id: str) -> bool:
+    """Delete an execution record, scoped to tenant for isolation."""
     if not _pool:
         return False
 
     try:
         async with _pool.acquire() as conn:
-            if tenant_id:
-                result = await conn.execute(
-                    "DELETE FROM agent_executions WHERE id = $1 AND tenant_id = $2",
-                    UUID(execution_id),
-                    tenant_id,
-                )
-            else:
-                result = await conn.execute(
-                    "DELETE FROM agent_executions WHERE id = $1",
-                    UUID(execution_id),
-                )
+            result = await conn.execute(
+                "DELETE FROM agent_executions WHERE id = $1 AND tenant_id = $2",
+                UUID(execution_id),
+                tenant_id,
+            )
             return result == "DELETE 1"
     except Exception as e:
         print(f"⚠️ Failed to delete execution: {e}")

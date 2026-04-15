@@ -21,9 +21,36 @@ import { WalletService } from "../fintech/wallet.service";
 import { CreditService } from "../fintech/credit.service";
 import { LoanService } from "../fintech/loan.service";
 import { EscrowService } from "../fintech/escrow.service";
+import { IdempotencyService } from "../fintech/idempotency.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
 import { CacheService } from "../cache/cache.service";
+
+/**
+ * No-op IdempotencyService stub for unit tests.
+ *
+ * The production service goes to PostgreSQL to cache replayed responses.
+ * For unit tests that only care about downstream logic (stock checks,
+ * price calculations, etc.) we provide a stub that always runs the work
+ * function immediately — identical behaviour to the production path when
+ * no `Idempotency-Key` header is present.
+ */
+const mockIdempotencyService = {
+  executeIdempotent: jest.fn(
+    async (
+      _key: string | undefined,
+      _tenant: string,
+      _user: string,
+      _op: string,
+      _payload: unknown,
+      fn: () => Promise<unknown>,
+    ) => {
+      const value = await fn();
+      return { value, replayed: false, statusCode: 200 };
+    },
+  ),
+  hashRequest: jest.fn(() => "stub-hash"),
+};
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Mock Factories
@@ -153,12 +180,23 @@ describe("Health Endpoints", () => {
     unfreezeWallet: jest.fn(),
   };
 
+  const mockPrismaService = {
+    $queryRaw: jest.fn().mockResolvedValue([{ "?column?": 1 }]),
+  };
+
+  const mockEventsService = {
+    isConnected: jest.fn().mockReturnValue(true),
+    publish: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
       providers: [
         { provide: MarketService, useValue: mockMarketService },
         { provide: FintechService, useValue: mockFintechService },
+        { provide: PrismaService, useValue: mockPrismaService },
+        { provide: EventsService, useValue: mockEventsService },
       ],
     }).compile();
 
@@ -188,19 +226,19 @@ describe("Health Endpoints", () => {
   });
 
   describe("GET /readyz", () => {
-    it("should return readiness status with dependency checks", () => {
-      const result = controller.readinessCheck();
+    it("should return readiness status with dependency checks", async () => {
+      const result = await controller.readinessCheck();
 
       expect(result).toHaveProperty("status", "ready");
       expect(result).toHaveProperty("service", "marketplace-service");
       expect(result).toHaveProperty("version", "16.0.0");
       expect(result).toHaveProperty("checks");
       expect(result.checks).toHaveProperty("database", "connected");
-      expect(result.checks).toHaveProperty("cache", "connected");
+      expect(result.checks).toHaveProperty("nats", "connected");
     });
 
-    it("should include a valid ISO timestamp", () => {
-      const result = controller.readinessCheck();
+    it("should include a valid ISO timestamp", async () => {
+      const result = await controller.readinessCheck();
 
       expect(result).toHaveProperty("timestamp");
       const parsed = Date.parse(result.timestamp);
@@ -225,6 +263,7 @@ describe("Module Initialization", () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: EventsService, useValue: mockEvents },
         { provide: CacheService, useValue: mockCache },
+        { provide: IdempotencyService, useValue: mockIdempotencyService },
         MarketService,
         WalletService,
         CreditService,
@@ -248,6 +287,7 @@ describe("Module Initialization", () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: EventsService, useValue: mockEvents },
         { provide: CacheService, useValue: mockCache },
+        { provide: IdempotencyService, useValue: mockIdempotencyService },
         MarketService,
         WalletService,
         CreditService,
@@ -272,6 +312,7 @@ describe("Module Initialization", () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: EventsService, useValue: mockEvents },
         { provide: CacheService, useValue: mockCache },
+        { provide: IdempotencyService, useValue: mockIdempotencyService },
         MarketService,
       ],
     }).compile();
@@ -302,6 +343,7 @@ describe("Module Initialization", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: IdempotencyService, useValue: mockIdempotencyService },
         WalletService,
         CreditService,
         LoanService,
@@ -334,6 +376,7 @@ describe("Product Listing Validation", () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: EventsService, useValue: mockEvents },
         { provide: CacheService, useValue: mockCache },
+        { provide: IdempotencyService, useValue: mockIdempotencyService },
         MarketService,
       ],
     }).compile();
@@ -554,6 +597,7 @@ describe("Order Creation Validation", () => {
         { provide: PrismaService, useValue: mockPrisma },
         { provide: EventsService, useValue: mockEvents },
         { provide: CacheService, useValue: mockCache },
+        { provide: IdempotencyService, useValue: mockIdempotencyService },
         MarketService,
       ],
     }).compile();
@@ -625,10 +669,13 @@ describe("Order Creation Validation", () => {
 
     const result = await service.createOrder(orderData);
 
-    expect(result.totalAmount).toBe(totalAmount);
-    expect(result.subtotal).toBe(subtotal);
-    expect(result.serviceFee).toBe(serviceFee);
-    expect(result.deliveryFee).toBe(deliveryFee);
+    // Money fields are now serialized as string decimals (e.g. "20900.00")
+    // to avoid JSON float precision loss. We compare using Number() to
+    // make the test agnostic to the exact textual form.
+    expect(Number(result.totalAmount)).toBe(totalAmount);
+    expect(Number(result.subtotal)).toBe(subtotal);
+    expect(Number(result.serviceFee)).toBe(serviceFee);
+    expect(Number(result.deliveryFee)).toBe(deliveryFee);
     expect(result.status).toBe("PENDING");
   });
 
@@ -738,7 +785,7 @@ describe("Order Creation Validation", () => {
 
     const result = await service.createOrder(orderData);
 
-    expect(result.subtotal).toBe(expectedSubtotal);
+    expect(Number(result.subtotal)).toBe(expectedSubtotal);
     expect(result.items).toHaveLength(2);
   });
 

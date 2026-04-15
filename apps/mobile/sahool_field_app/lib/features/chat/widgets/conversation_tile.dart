@@ -1,3 +1,5 @@
+library;
+
 /// Conversation Tile Widget
 /// عنصر قائمة المحادثات
 ///
@@ -93,12 +95,12 @@ class ConversationTile extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: SahoolTheme.primary.withOpacity(0.1),
+                          color: SahoolTheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
                           otherParticipant!.roleAr!,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 10,
                             color: SahoolTheme.primary,
                             fontWeight: FontWeight.bold,
@@ -112,7 +114,7 @@ class ConversationTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: conversation.isTyping
-                            ? Row(
+                            ? const Row(
                                 children: [
                                   Text(
                                     'جاري الكتابة',
@@ -122,7 +124,7 @@ class ConversationTile extends StatelessWidget {
                                       fontStyle: FontStyle.italic,
                                     ),
                                   ),
-                                  const SizedBox(width: 4),
+                                  SizedBox(width: 4),
                                   SizedBox(
                                     width: 12,
                                     height: 12,
@@ -188,10 +190,10 @@ class ConversationTile extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 28,
-          backgroundColor: SahoolTheme.primary.withOpacity(0.1),
+          backgroundColor: SahoolTheme.primary.withValues(alpha: 0.1),
           backgroundImage: avatarUrl != null ? NetworkImage(avatarUrl) : null,
           child: avatarUrl == null
-              ? Icon(
+              ? const Icon(
                   Icons.person,
                   size: 28,
                   color: SahoolTheme.primary,

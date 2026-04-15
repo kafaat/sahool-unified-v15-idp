@@ -236,7 +236,7 @@ void main() {
     test('bypasses security checks in debug mode when enforceSecurityInDebug is false', () {
       // kDebugMode is true in tests, so when enforceSecurityInDebug is false
       // shouldBlockApp should always return false regardless of policy.
-      final config = const SecurityConfig(
+      const config = SecurityConfig(
         deviceIntegrityPolicy: DeviceIntegrityPolicy.block,
         enforceSecurityInDebug: false,
       );

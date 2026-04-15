@@ -1,14 +1,15 @@
 """
-🛰️ SAHOOL Satellite Service - eo-learn Integration
+SAHOOL Satellite Service - eo-learn Integration
 تكامل خدمة الأقمار الصناعية مع eo-learn
 
-This module provides integration between the satellite-service API
+This module provides integration between the vegetation-analysis-service API
 and the sahool-eo package for real satellite data processing.
 
 When sahool-eo and sentinelhub are installed, the service uses
 real satellite data. Otherwise, it falls back to simulated data.
 """
 
+import asyncio
 import logging
 import os
 from datetime import UTC, date, datetime, timezone
@@ -88,6 +89,7 @@ async def fetch_real_satellite_data(
     end_date: date | None,
     max_cloud_cover: float = 30.0,
     buffer_degrees: float = 0.01,  # ~1km buffer
+    timeout_seconds: float = 60.0,
 ) -> dict[str, Any] | None:
     """
     Fetch real satellite data using sahool-eo
@@ -101,6 +103,7 @@ async def fetch_real_satellite_data(
         end_date: End date (None = same as start)
         max_cloud_cover: Maximum cloud coverage %
         buffer_degrees: Buffer around center point
+        timeout_seconds: Maximum seconds to wait for the workflow (default 60)
 
     Returns:
         Analysis results or None if unavailable
@@ -125,20 +128,23 @@ async def fetch_real_satellite_data(
         end_str = (end_date or start_date).isoformat()
         time_interval = (start_str, end_str)
 
-        # Execute field monitoring workflow
+        # Execute field monitoring workflow with a hard timeout so the calling
+        # request never hangs indefinitely waiting for Sentinel Hub.
         workflow = FieldMonitoringWorkflow(
             client=client,
             resolution=10,
             max_cloud_coverage=max_cloud_cover,
         )
 
-        result = workflow.execute(
-            field_id=field_id,
-            tenant_id=tenant_id,
-            bbox=bbox,
-            time_interval=time_interval,
-            generate_events=True,
-        )
+        async with asyncio.timeout(timeout_seconds):
+            result = await asyncio.to_thread(
+                workflow.execute,
+                field_id=field_id,
+                tenant_id=tenant_id,
+                bbox=bbox,
+                time_interval=time_interval,
+                generate_events=True,
+            )
 
         if result.get("status") == "completed":
             logger.info(f"Real satellite data fetched for {field_id}")
@@ -147,6 +153,13 @@ async def fetch_real_satellite_data(
             logger.warning(f"Workflow failed: {result.get('error')}")
             return None
 
+    except TimeoutError:
+        logger.error(
+            "Satellite data fetch timed out after %ss for field %s. Falling back to simulation.",
+            timeout_seconds,
+            field_id,
+        )
+        return None
     except Exception as e:
         logger.error(f"Failed to fetch real data: {e}")
         return None

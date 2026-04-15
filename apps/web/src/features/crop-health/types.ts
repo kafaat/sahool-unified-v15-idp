@@ -4,27 +4,23 @@
  */
 
 // Disease severity levels
-export type DiseaseSeverity = "low" | "medium" | "high" | "critical";
+export type DiseaseSeverity = 'low' | 'medium' | 'high' | 'critical';
 
 // Diagnosis status
-export type DiagnosisStatus = "pending" | "analyzing" | "completed" | "failed";
+export type DiagnosisStatus = 'pending' | 'analyzing' | 'completed' | 'failed';
 
 // Treatment types
-export type TreatmentType =
-  | "chemical"
-  | "biological"
-  | "cultural"
-  | "preventive";
+export type TreatmentType = 'chemical' | 'biological' | 'cultural' | 'preventive';
 
 // Disease category
 export type DiseaseCategory =
-  | "fungal"
-  | "bacterial"
-  | "viral"
-  | "pest"
-  | "nutrient_deficiency"
-  | "environmental"
-  | "other";
+  | 'fungal'
+  | 'bacterial'
+  | 'viral'
+  | 'pest'
+  | 'nutrient_deficiency'
+  | 'environmental'
+  | 'other';
 
 // Disease information
 export interface Disease {
@@ -77,13 +73,7 @@ export interface TreatmentMaterial {
   nameAr: string;
   quantity: string;
   quantityAr: string;
-  type:
-    | "pesticide"
-    | "fungicide"
-    | "herbicide"
-    | "fertilizer"
-    | "biological"
-    | "other";
+  type: 'pesticide' | 'fungicide' | 'herbicide' | 'fertilizer' | 'biological' | 'other';
 }
 
 // Diagnosis request
@@ -127,7 +117,7 @@ export interface DiagnosedDisease {
   confidence: number; // percentage
   affectedArea?: number; // percentage of crop affected
   recommendedTreatments: Treatment[];
-  urgency: "immediate" | "soon" | "monitor";
+  urgency: 'immediate' | 'soon' | 'monitor';
   estimatedSpread?: {
     current: number; // percentage
     projected: number; // percentage in X days
@@ -145,7 +135,7 @@ export interface HealthRecord {
   cropTypeAr: string;
   date: string;
   healthScore: number; // 0-100
-  status: "healthy" | "at_risk" | "diseased" | "critical";
+  status: 'healthy' | 'at_risk' | 'diseased' | 'critical';
   observations?: string;
   observationsAr?: string;
   images?: string[];
@@ -159,7 +149,7 @@ export interface HealthRecord {
   treatments?: {
     treatmentId: string;
     appliedAt: string;
-    status: "planned" | "applied" | "completed";
+    status: 'planned' | 'applied' | 'completed';
   }[];
   nextCheckDate?: string;
 }
@@ -184,7 +174,7 @@ export interface HealthSummary {
 export interface HealthFilters {
   fieldIds?: string[];
   cropTypes?: string[];
-  status?: HealthRecord["status"][];
+  status?: HealthRecord['status'][];
   dateFrom?: string;
   dateTo?: string;
   severity?: DiseaseSeverity[];
@@ -205,7 +195,7 @@ export interface DiseaseAlert {
   recommendationsAr?: string[];
   issuedAt: string;
   expiresAt?: string;
-  source: "ai_detection" | "expert_report" | "government" | "community";
+  source: 'ai_detection' | 'expert_report' | 'government' | 'community';
 }
 
 // Expert consultation
@@ -215,7 +205,7 @@ export interface ExpertConsultation {
   expertId: string;
   expertName: string;
   expertNameAr: string;
-  status: "pending" | "in_review" | "completed" | "cancelled";
+  status: 'pending' | 'in_review' | 'completed' | 'cancelled';
   question?: string;
   questionAr?: string;
   response?: string;

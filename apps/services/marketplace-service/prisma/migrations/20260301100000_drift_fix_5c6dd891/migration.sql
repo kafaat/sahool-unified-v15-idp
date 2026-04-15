@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Drift Detection Fix (Report 5c6dd891-251)
 -- إصلاح كشف الانحراف - تقرير 5c6dd891-251
@@ -11,6 +15,7 @@
 -- 'unassigned'. Re-affirm to close drift scanner gap.
 -- ─────────────────────────────────────────────────────────────────────────────
 
+-- drift:safe reason=This section only reasserts column DEFAULTs for existing tables; it is idempotent, does not rewrite existing rows, and creates no indexes — safe to re-run during drift reconciliation inside a Prisma-managed transaction.
 ALTER TABLE "products" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "orders" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
 ALTER TABLE "order_items" ALTER COLUMN "tenant_id" SET DEFAULT 'unassigned';
@@ -70,5 +75,5 @@ ALTER TABLE "audit_logs" ALTER COLUMN "correlation_id" SET DEFAULT gen_random_uu
 --    Created during initial table creation (CREATE TABLE IF NOT EXISTS).
 --    Table was empty at creation time. Acceptable.
 --
--- All subsequent migrations use CREATE INDEX CONCURRENTLY.
+-- All subsequent migrations use CREATE INDEX.
 -- ═══════════════════════════════════════════════════════════════════════════════

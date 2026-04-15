@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/app_logger.dart';
+import 'jwt_validator.dart';
 import 'secure_storage_service.dart';
 import 'token_manager.dart';
 
@@ -82,7 +82,7 @@ class TokenInterceptor extends Interceptor {
     } catch (e) {
       // Proactive refresh failed - log but continue with existing token
       // The server will return 401 if it's expired, and onError will handle it
-      AppLogger.w('Proactive token refresh failed, continuing with current token', tag: 'TOKEN', error: e);
+      AppLogger.w('Proactive token refresh failed, continuing with current token: $e', tag: 'TOKEN');
     }
 
     // Get current access token
@@ -153,14 +153,37 @@ class TokenInterceptor extends Interceptor {
   }
 
   /// Check if token is about to expire and refresh proactively
+  /// Uses JWT exp claim as primary source, falls back to stored expiry
   Future<void> _checkAndRefreshTokenIfNeeded() async {
+    final accessToken = await _secureStorage.getAccessToken();
+
+    // Check expiry from JWT claims first (more reliable than stored timestamp)
+    if (accessToken != null && accessToken.isNotEmpty) {
+      final result = JwtValidator.parse(accessToken);
+      if (result.isValid && result.claims != null) {
+        final claims = result.claims!;
+        if (claims.isExpired()) {
+          AppLogger.w('Token already expired (JWT exp claim), refreshing', tag: 'TOKEN');
+          await _performTokenRefresh();
+          return;
+        }
+        if (claims.expiresWithin(_refreshBuffer)) {
+          AppLogger.i(
+            'Token expiring soon (${claims.timeUntilExpiry?.inMinutes} min from JWT), refreshing proactively',
+            tag: 'TOKEN',
+          );
+          await _performTokenRefresh();
+          return;
+        }
+        return; // Token still valid
+      }
+    }
+
+    // Fallback to stored expiry
     final expiry = await _secureStorage.getTokenExpiry();
     if (expiry == null) return;
 
-    final now = DateTime.now();
-    final timeUntilExpiry = expiry.difference(now);
-
-    // If token expires within buffer time, refresh proactively
+    final timeUntilExpiry = expiry.difference(DateTime.now());
     if (timeUntilExpiry <= _refreshBuffer && timeUntilExpiry.inSeconds > 0) {
       AppLogger.i(
         'Token expiring soon (${timeUntilExpiry.inMinutes} min), refreshing proactively',
@@ -233,9 +256,8 @@ class TokenInterceptor extends Interceptor {
       } catch (e) {
         retryCount++;
         AppLogger.w(
-          'Token refresh attempt $retryCount failed',
+          'Token refresh attempt $retryCount failed: $e',
           tag: 'TOKEN',
-          error: e,
         );
 
         // Calculate next delay with exponential backoff

@@ -86,7 +86,7 @@ test.describe("Responsive Design Tests", () => {
           await page.waitForTimeout(500);
 
           // Click overlay/backdrop to close
-          const overlay = page.locator('[class*="overlay"], [class*="backdrop"]');
+          const overlay = page.locator('[data-testid="mobile-drawer-backdrop"], [class*="overlay"], [class*="backdrop"]');
           if (await overlay.first().isVisible({ timeout: timeouts.short })) {
             await overlay.first().click();
             await page.waitForTimeout(500);

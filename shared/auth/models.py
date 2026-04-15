@@ -77,6 +77,7 @@ class TokenPayload:
     tenant_id: str | None = None
     jti: str | None = None  # Token ID for revocation
     token_type: str = "access"  # access or refresh
+    email: str = ""  # User email from JWT claims
     permissions: list[str] = field(default_factory=list)
 
     def has_role(self, role: str) -> bool:
@@ -108,6 +109,12 @@ class User:
     permissions: list[str] = field(default_factory=list)
     is_active: bool = True
     is_verified: bool = True
+
+    def __post_init__(self):
+        if not self.email or not isinstance(self.email, str):
+            raise ValueError("User email must be a non-empty string")
+        if not self.id or not isinstance(self.id, str):
+            raise ValueError("User id must be a non-empty string")
 
     def has_role(self, role: str) -> bool:
         """Check if user has a specific role"""

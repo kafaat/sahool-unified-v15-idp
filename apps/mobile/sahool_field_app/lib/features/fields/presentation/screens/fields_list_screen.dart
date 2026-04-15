@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../../../core/di/providers.dart';
 import '../../../../core/config/env_config.dart';
 import '../../../../core/widgets/error_boundary.dart';
 import '../../../../core/widgets/empty_states.dart';
@@ -10,7 +9,6 @@ import '../../../field/domain/mappers/field_mapper.dart';
 import '../../../field/presentation/providers/field_controller.dart';
 import '../../domain/entities/field_entity.dart';
 import '../widgets/enhanced_field_card.dart';
-import 'field_details_screen.dart';
 
 /// شاشة قائمة الحقول
 /// Fields List Screen
@@ -33,7 +31,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
 
   /// Get filtered and sorted fields
   List<FieldEntity> _getFilteredFields(List<FieldEntity> fields) {
-    var filteredFields = fields.where((f) {
+    final filteredFields = fields.where((f) {
       if (_searchQuery.isNotEmpty &&
           !f.name.toLowerCase().contains(_searchQuery.toLowerCase())) {
         return false;
@@ -262,7 +260,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -344,7 +342,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       label: Text(label),
       selected: selected,
       onSelected: onSelected,
-      selectedColor: const Color(0xFF367C2B).withOpacity(0.2),
+      selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.2),
       checkmarkColor: const Color(0xFF367C2B),
     );
   }
@@ -489,10 +487,9 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   }
 
   void _addField() {
-    // Navigate to map screen for drawing field boundary
-    context
-        .push('/map', extra: {'mode': 'draw', 'tenantId': _tenantId}).then((_) {
-      // Refresh fields after returning from map
+    // Navigate to dedicated field creation form
+    context.push('/fields/create', extra: {'tenantId': _tenantId}).then((_) {
+      // Refresh fields after returning from form
       ref.read(fieldControllerProvider(_tenantId).notifier).loadFields();
     });
   }

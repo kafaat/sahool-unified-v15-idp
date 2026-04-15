@@ -1,3 +1,5 @@
+library;
+
 /// Field Task Domain Entity
 /// كيان مهمة الحقل - Domain Layer نظيف (بدون Flutter)
 ///

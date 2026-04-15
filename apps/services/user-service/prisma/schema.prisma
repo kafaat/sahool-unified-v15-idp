@@ -8,8 +8,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   // Direct URL for migrations (bypasses PgBouncer connection pooler)
   directUrl = env("DATABASE_URL_DIRECT")
   // TLS/SSL enforcement for secure connections
@@ -19,11 +19,16 @@ datasource db {
 }
 
 // User Role Enum
+// Synced with legacy SQL user_role enum in 00-init-sahool.sql
+// SQL values: super_admin, admin, manager, agronomist, field_worker, researcher, viewer
 enum UserRole {
+  SUPER_ADMIN
   ADMIN
   MANAGER
+  AGRONOMIST
   FARMER
   WORKER
+  RESEARCHER
   VIEWER
 }
 
@@ -37,23 +42,23 @@ enum UserStatus {
 
 // Main User Model
 model User {
-  id              String        @id @default(uuid())
-  tenantId        String        @map("tenant_id")
-  email           String        @unique
-  phone           String?
-  passwordHash    String        @map("password_hash")
-  firstName       String        @map("first_name")
-  lastName        String        @map("last_name")
-  nameAr          String?       @map("name_ar")
-  firstNameAr     String?       @map("first_name_ar")
-  lastNameAr      String?       @map("last_name_ar")
-  role            UserRole      @default(VIEWER)
-  status          UserStatus    @default(PENDING)
-  emailVerified   Boolean       @default(false) @map("email_verified")
-  phoneVerified   Boolean       @default(false) @map("phone_verified")
-  lastLoginAt     DateTime?     @map("last_login_at")
-  createdAt       DateTime      @default(now()) @map("created_at")
-  updatedAt       DateTime      @updatedAt @map("updated_at")
+  id            String     @id @default(uuid())
+  tenantId      String     @map("tenant_id")
+  email         String     @unique
+  phone         String?
+  passwordHash  String     @map("password_hash")
+  firstName     String     @map("first_name")
+  lastName      String     @map("last_name")
+  nameAr        String?    @map("name_ar")
+  firstNameAr   String?    @map("first_name_ar")
+  lastNameAr    String?    @map("last_name_ar")
+  role          UserRole   @default(VIEWER)
+  status        UserStatus @default(PENDING)
+  emailVerified Boolean    @default(false) @map("email_verified")
+  phoneVerified Boolean    @default(false) @map("phone_verified")
+  lastLoginAt   DateTime?  @map("last_login_at")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
 
   // Account lockout fields for security
   failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
@@ -65,10 +70,10 @@ model User {
   passwordResetExpiry DateTime? @map("password_reset_expiry")
 
   // Relations
-  profile         UserProfile?
-  sessions        UserSession[]
-  refreshTokens   RefreshToken[]
-  assignedRoles   Role[]        @relation("UserAssignedRoles")
+  profile       UserProfile?
+  sessions      UserSession[]
+  refreshTokens RefreshToken[]
+  assignedRoles Role[]         @relation("UserAssignedRoles")
 
   @@index([tenantId])
   @@index([email])
@@ -86,21 +91,21 @@ model User {
 
 // User Profile Model
 model UserProfile {
-  id           String    @id @default(uuid())
-  tenantId     String    @map("tenant_id")
-  userId       String    @unique @map("user_id")
-  nationalId   String?   @map("national_id")
-  dateOfBirth  DateTime? @map("date_of_birth")
-  address      String?
-  city         String?
-  region       String?
-  country      String?   @default("SA")
-  avatarUrl    String?   @map("avatar_url")
-  createdAt    DateTime  @default(now()) @map("created_at")
-  updatedAt    DateTime  @updatedAt @map("updated_at")
+  id          String    @id @default(uuid())
+  tenantId    String    @map("tenant_id")
+  userId      String    @unique @map("user_id")
+  nationalId  String?   @map("national_id")
+  dateOfBirth DateTime? @map("date_of_birth")
+  address     String?
+  city        String?
+  region      String?
+  country     String?   @default("SA")
+  avatarUrl   String?   @map("avatar_url")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
 
   // Relations
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId], name: "idx_profile_tenant")
   @@index([userId])
@@ -120,7 +125,7 @@ model Role {
   updatedAt   DateTime @updatedAt @map("updated_at")
 
   // Relations
-  users       User[]   @relation("UserAssignedRoles")
+  users User[] @relation("UserAssignedRoles")
 
   @@unique([tenantId, name], name: "uq_role_tenant_name")
   @@index([tenantId], name: "idx_role_tenant")
@@ -129,18 +134,18 @@ model Role {
 
 // User Session Model
 model UserSession {
-  id          String   @id @default(uuid())
-  tenantId    String   @map("tenant_id")
-  userId      String   @map("user_id")
-  token       String   @unique
-  ipAddress   String?  @map("ip_address")
-  userAgent   String?  @map("user_agent")
-  expiresAt   DateTime @map("expires_at")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id        String   @id @default(uuid())
+  tenantId  String   @map("tenant_id")
+  userId    String   @map("user_id")
+  token     String   @unique
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId], name: "idx_session_tenant")
   @@index([userId])
@@ -152,21 +157,21 @@ model UserSession {
 
 // Refresh Token Model
 model RefreshToken {
-  id          String   @id @default(uuid())
-  tenantId    String   @map("tenant_id")
-  userId      String   @map("user_id")
-  jti         String   @unique
-  family      String   // Token family for rotation tracking
-  token       String   @unique
-  expiresAt   DateTime @map("expires_at")
-  revoked     Boolean  @default(false)
-  used        Boolean  @default(false)
-  usedAt      DateTime? @map("used_at")
-  replacedBy  String?  @map("replaced_by") // JTI of the token that replaced this one
-  createdAt   DateTime @default(now()) @map("created_at")
+  id         String    @id @default(uuid())
+  tenantId   String    @map("tenant_id")
+  userId     String    @map("user_id")
+  jti        String    @unique
+  family     String // Token family for rotation tracking
+  token      String    @unique
+  expiresAt  DateTime  @map("expires_at")
+  revoked    Boolean   @default(false)
+  used       Boolean   @default(false)
+  usedAt     DateTime? @map("used_at")
+  replacedBy String?   @map("replaced_by") // JTI of the token that replaced this one
+  createdAt  DateTime  @default(now()) @map("created_at")
 
   // Relations
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([tenantId], name: "idx_refresh_token_tenant")
   @@index([userId])

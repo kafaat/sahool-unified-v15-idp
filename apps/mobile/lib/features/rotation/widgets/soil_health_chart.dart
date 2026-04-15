@@ -6,9 +6,9 @@ class SoilHealthChart extends StatelessWidget {
   final List<SoilHealth> soilHealthData;
 
   const SoilHealthChart({
-    Key? key,
+    super.key,
     required this.soilHealthData,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -128,7 +128,9 @@ class SoilHealthChart extends StatelessWidget {
   Widget _buildTrendRow(
       String label, double oldValue, double newValue, Color color) {
     final change = newValue - oldValue;
-    final percentChange = (change / oldValue * 100).toStringAsFixed(1);
+    final percentChange = oldValue != 0
+        ? (change / oldValue * 100).toStringAsFixed(1)
+        : (change != 0 ? 'N/A' : '0.0');
     final isImproving = change > 0;
     final isStable = change.abs() < 2;
 
@@ -213,9 +215,9 @@ class SoilHealthChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: phColor.withOpacity(0.1),
+        color: phColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: phColor.withOpacity(0.3)),
+        border: Border.all(color: phColor.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -294,7 +296,7 @@ class SoilHealthChart extends StatelessWidget {
                 child: Stack(
                   children: [
                     Positioned(
-                      left: ((ph - 4.0) / 6.0 * 100).clamp(0, 100),
+                      left: ((ph.clamp(0, 14) / 14.0) * 100).clamp(0.0, 100.0),
                       top: -2,
                       child: Container(
                         width: 4,
@@ -338,9 +340,9 @@ class RadarChart extends StatelessWidget {
   final SoilHealth data;
 
   const RadarChart({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -487,7 +489,7 @@ class RadarChartPainter extends CustomPainter {
 
     // Fill
     final fillPaint = Paint()
-      ..color = Colors.green.withOpacity(0.2)
+      ..color = Colors.green.withValues(alpha: 0.2)
       ..style = PaintingStyle.fill;
     canvas.drawPath(path, fillPaint);
 

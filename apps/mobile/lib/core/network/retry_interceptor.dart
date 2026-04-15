@@ -7,6 +7,7 @@
 /// - Network quality awareness
 /// - Offline request queueing
 /// - Configurable retry policies per endpoint
+library;
 
 import 'dart:async';
 import 'dart:collection';
@@ -87,7 +88,7 @@ class NetworkQualityMonitor {
     } else if (_averageLatencyMs < 2000) {
       _setQuality(NetworkQuality.slow);
     } else {
-      _setQuality(NetworkQuality.slow);
+      _setQuality(NetworkQuality.verySlow);
     }
   }
 
@@ -413,7 +414,7 @@ class RobustRetryInterceptor extends Interceptor {
           tag: 'RetryInterceptor',
           data: {
             'endpoint': endpoint,
-            'attempt': '${nextRetryCount}/${policy.maxRetries}',
+            'attempt': '$nextRetryCount/${policy.maxRetries}',
             'delay': '${delay.inMilliseconds}ms',
             'errorType': err.type.name,
             'statusCode': statusCode,

@@ -134,12 +134,14 @@ class SecretManager:
         except Exception as e:
             if self.config.allow_env_fallback:
                 logger.error(
-                    f"Failed to initialize Vault: {e}, falling back to environment variables. "
-                    "Set allow_env_fallback=False to make this an error."
+                    "Failed to initialize Vault (%s), falling back to environment variables. "
+                    "Set allow_env_fallback=False to make this an error.",
+                    type(e).__name__,
                 )
+                logger.debug("Vault initialization error details", exc_info=True)
                 self.config.backend = SecretBackend.ENVIRONMENT
             else:
-                raise RuntimeError(f"Failed to initialize Vault: {e}") from e
+                raise RuntimeError(f"Failed to initialize Vault: {type(e).__name__}") from e
 
     def get_secret(
         self,
@@ -216,7 +218,10 @@ class SecretManager:
             return data.get("value")
 
         except Exception as e:
-            logger.warning(f"Failed to read secret '{key}' from Vault: {e}")
+            logger.warning(
+                "Failed to read secret from Vault: %s", type(e).__name__
+            )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
+            logger.debug("Vault read error details", exc_info=True)
             return None
 
     def get_secrets_batch(self, keys: list[str]) -> dict[str, str | None]:
@@ -275,7 +280,10 @@ class SecretManager:
             return True
 
         except Exception as e:
-            logger.error(f"Failed to write secret '{key}' to Vault: {e}")
+            logger.error(
+                "Failed to write secret to Vault: %s", type(e).__name__
+            )  # nosemgrep: python-logger-credential-disclosure -- logs exception type name, not credentials
+            logger.debug("Vault write error details", exc_info=True)
             return False
 
     def clear_cache(self) -> None:

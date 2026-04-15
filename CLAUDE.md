@@ -1,5 +1,75 @@
 # CLAUDE.md - AI Assistant Guidelines for SAHOOL Platform
 
+## Behavioral Guidelines
+
+> Four principles to reduce the most common LLM coding mistakes.
+> Bias toward caution over speed; for trivial tasks, use judgment.
+> Adapted from [forrestchang/andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills).
+> These are orthogonal to — and take precedence over — the more detailed rules in the "Doing tasks" section below.
+
+### 1. Think Before Coding
+
+Don't assume. Don't hide confusion. Surface tradeoffs.
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+### 2. Simplicity First
+
+Minimum code that solves the problem. Nothing speculative.
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Sanity check: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+### 3. Surgical Changes
+
+Touch only what you must. Clean up only your own mess.
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+### 4. Goal-Driven Execution
+
+Define success criteria. Loop until verified.
+
+Transform vague tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
+
+```
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
+
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+---
+
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
 ## Project Overview
 
 SAHOOL is a **National Agricultural Intelligence Platform** - an offline-first agricultural operating system designed for low-connectivity environments in the Middle East. The platform provides real-time advisory, irrigation management, crop health monitoring (NDVI), and field operations management for smallholder farmers.
@@ -28,11 +98,9 @@ sahool-unified-v15-idp/
 │   │   ├── analytics/          # Analytics processing
 │   │   ├── common/             # Shared database, middleware, queue, monitoring
 │   │   └── field_ops/          # Field operations logic
-│   ├── mobile/                 # Flutter mobile apps
-│   │   ├── sahool_field_app/   # Main field app
-│   │   ├── sahol_atmosphere/   # Weather/atmosphere companion app
-│   │   ├── sahool-mobile/      # Secondary mobile variant
-│   │   ├── lib/                # Core Flutter code
+│   ├── mobile/                 # Flutter mobile app
+│   │   ├── sahool_field_app/   # Main field app (standalone Android config)
+│   │   ├── lib/                # Core Flutter code (708 Dart files)
 │   │   └── integration_test/   # Integration tests
 │   ├── services/               # 72 microservices (Python FastAPI & Node.js NestJS)
 │   │   ├── yolo26-vision-service/      # YOLO26 computer vision
@@ -93,7 +161,7 @@ sahool-unified-v15-idp/
 │   │   ├── guardrails/         # AI safety (input/output filtering)
 │   │   ├── models_registry/    # Agricultural AI models registry (50+ models)
 │   │   ├── knowledge/          # Agriculture knowledge base (6-stage ingestion pipeline)
-│   │   ├── ultrarag/           # Advanced RAG system (9 agricultural workflows)
+│   │   ├── ultrarag/           # Advanced RAG system (11 agricultural workflows)
 │   │   ├── diffusion/          # Image generation
 │   │   ├── ollama_client.py    # Local LLM hosting via Ollama
 │   │   ├── llm_provider.py     # Multi-provider LLM (Claude, OpenAI, Gemini, DeepSeek)
@@ -175,7 +243,7 @@ sahool-unified-v15-idp/
 ├── docs/                       # Technical documentation (537 docs)
 ├── gitops/                     # ArgoCD applications
 ├── governance/                 # Security policies & service registry
-├── helm/                       # Kubernetes Helm charts (15 charts)
+├── helm/                       # Kubernetes Helm charts (24 charts)
 ├── idp/                        # Internal Developer Platform (Backstage)
 ├── infrastructure/             # IaC, monitoring, Terraform
 ├── legacy/                     # Legacy code storage
@@ -252,8 +320,8 @@ sahool-unified-v15-idp/
 | Layer            | Technology                                        |
 | ---------------- | ------------------------------------------------- |
 | **Container**    | Docker, Kubernetes (K8s)                          |
-| **IaC**          | Terraform (AWS me-south-1), Helm Charts (15)      |
-| **CI/CD**        | GitHub Actions (54 workflows), Argo CD (18 apps)  |
+| **IaC**          | Terraform (AWS me-south-1), Helm Charts (24)      |
+| **CI/CD**        | GitHub Actions (55 workflows), Argo CD (18 apps)  |
 | **Monitoring**   | Prometheus, Grafana (4 dashboards), OpenTelemetry  |
 | **Tracing**      | Jaeger, OpenTelemetry Collector                    |
 | **Secrets**      | HashiCorp Vault 1.17                               |
@@ -694,7 +762,6 @@ class FieldNotifier extends _$FieldNotifier {
 | App | Location | Description |
 | --- | -------- | ----------- |
 | sahool_field_app | `apps/mobile/sahool_field_app/` | Main field operations app |
-| sahol_atmosphere | `apps/mobile/sahol_atmosphere/` | Companion weather/atmosphere app |
 
 ### Offline-First Pattern
 
@@ -1111,7 +1178,7 @@ chore: update dependencies
 4. **Security**: CodeQL, Trivy, Bandit, Gitleaks
 5. **Deploy**: ArgoCD to staging/production
 
-GitHub Workflows (54):
+GitHub Workflows (55):
 
 - **Core CI/CD**: `ci.yml`, `test.yml`, `release.yml`, `release-candidate.yml`, `reusable-setup.yml`
 - **Specialized CI**: `ci-yolo26-vision.yml`, `ci-terrain-services.yml`, `ci-edge-orchestrator.yml`, `ci-ai-rag-security.yml`, `ci-crop-intelligence.yml`
@@ -1120,7 +1187,7 @@ GitHub Workflows (54):
 - **Security**: `security-checks.yml`, `codeql-analysis.yml`, `security-audit.yml`, `security.yml`, `api-openapi-guard.yml`
 - **Governance**: `event-contracts-guard.yml`, `governance-validation.yml`, `governance-ci.yml`, `governance-structure.yml`, `generator-guard.yml`
 - **Contracts**: `api-contracts-guard.yml`
-- **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `stability-gates.yml`
+- **Quality**: `quality-gates.yml`, `advanced-quality.yml`, `stability-gates.yml`, `dependency-consistency.yml`
 - **Frontend/Mobile**: `frontend-ci.yml`, `flutter-apk.yml`, `mobile-ci.yml`, `mobile-release.yml`
 - **Infrastructure**: `docker-buildx.yml`, `docker-image.yml`, `infra-sync.yml`, `dockerfile-lint.yml`, `drift-detection.yml`
 - **AI/Evaluation**: `agent-evaluation.yml`
@@ -1705,7 +1772,7 @@ shared/ai/
 ├── models_registry/             # Agricultural AI models registry (50+ models)
 ├── knowledge/                   # Agriculture knowledge base module
 │   ├── models.py               # Domain models (FRESH metadata, crop/soil/weather docs)
-│   ├── collections.py          # 9 pre-built knowledge collections
+│   ├── collections.py          # 13 pre-built knowledge collections
 │   ├── collection_populator.py # Bulk population from docs/knowledge-base/
 │   ├── validators.py           # Knowledge validation (freshness, coverage, quality)
 │   ├── ingestion/              # 6-stage pipeline (Extract→Clean→Chunk→Embed→Validate→Store)
@@ -1713,7 +1780,7 @@ shared/ai/
 │   └── verification/           # 4-layer verification gate + AgriRegion filter
 ├── ultrarag/                    # Advanced RAG system
 │   ├── providers/agri_provider.py  # Tri-RAG agricultural agent integration
-│   └── workflows/              # 9 pre-built agricultural advisory workflows
+│   └── workflows/              # 11 pre-built agricultural advisory workflows
 ├── diffusion/                   # Image generation capabilities
 ├── ollama_client.py            # Local LLM integration via Ollama
 ├── model_training.py           # Model fine-tuning & evaluation

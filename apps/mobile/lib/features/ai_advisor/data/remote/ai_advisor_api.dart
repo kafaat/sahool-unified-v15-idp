@@ -2,6 +2,7 @@
 /// خدمة المستشار الذكي - الذكاء الاصطناعي المتعدد الوكلاء
 ///
 /// Provides communication with the AI advisory backend services
+library;
 
 import '../../../../core/http/api_client.dart';
 import '../../domain/models/advisory.dart';
@@ -332,7 +333,7 @@ class AiAdvisorApi {
     }
 
     if (response is Map && response['data'] is List) {
-      return (response['data'] as List)
+      return (response['data'] as List? ?? [])
           .cast<Map<String, dynamic>>()
           .map((json) => Advisory.fromJson(json))
           .toList();
@@ -447,9 +448,9 @@ class ChatResponse {
   factory ChatResponse.fromJson(Map<String, dynamic> json) {
     return ChatResponse(
       id: json['id'] as String? ?? '',
-      answer: json['answer'] ?? json['response'] ?? '',
+      answer: (json['answer'] ?? json['response'] ?? '') as String,
       answerAr: json['answer_ar'] as String?,
-      confidence: (json['confidence'] ?? 0.8).toDouble(),
+      confidence: ((json['confidence'] ?? 0.8) as num).toDouble(),
       sources: (json['sources'] as List?)?.cast<String>() ?? [],
       context: json['context'] != null
           ? AdvisoryContext.fromJson(json['context'] as Map<String, dynamic>)
@@ -487,9 +488,9 @@ class AdvisoryResponse {
   factory AdvisoryResponse.fromJson(Map<String, dynamic> json) {
     return AdvisoryResponse(
       id: json['id'] as String? ?? '',
-      response: json['response'] ?? json['answer'] ?? '',
-      responseAr: json['response_ar'] ?? json['answer_ar'] as String?,
-      confidence: (json['confidence'] ?? 0.8).toDouble(),
+      response: (json['response'] ?? json['answer'] ?? '') as String,
+      responseAr: (json['response_ar'] ?? json['answer_ar']) as String?,
+      confidence: ((json['confidence'] ?? 0.8) as num).toDouble(),
       advisories: (json['advisories'] as List?)
               ?.cast<Map<String, dynamic>>()
               .map((r) => Advisory.fromJson(r))
@@ -541,11 +542,11 @@ class DiagnosisResponse {
   factory DiagnosisResponse.fromJson(Map<String, dynamic> json) {
     return DiagnosisResponse(
       id: json['id'] as String? ?? '',
-      disease: json['disease'] ?? json['diagnosis'] ?? 'Unknown',
-      diseaseAr: json['disease_ar'] ?? json['diagnosis_ar'] ?? 'غير معروف',
-      confidence: (json['confidence'] ?? 0.0).toDouble(),
-      severity: json['severity'] ?? 'moderate',
-      severityAr: json['severity_ar'] ?? 'متوسط',
+      disease: (json['disease'] ?? json['diagnosis'] ?? 'Unknown') as String,
+      diseaseAr: (json['disease_ar'] ?? json['diagnosis_ar'] ?? 'غير معروف') as String,
+      confidence: ((json['confidence'] ?? 0.0) as num).toDouble(),
+      severity: (json['severity'] ?? 'moderate') as String,
+      severityAr: (json['severity_ar'] ?? 'متوسط') as String,
       symptoms: (json['symptoms'] as List?)?.cast<String>() ?? [],
       symptomsAr: (json['symptoms_ar'] as List?)?.cast<String>() ??
                   (json['symptoms'] as List?)?.cast<String>() ?? [],
@@ -641,9 +642,9 @@ class FieldAnalysisResponse {
     final recs = json['recommendations'] as List? ?? [];
     return FieldAnalysisResponse(
       fieldId: json['field_id'] as String? ?? '',
-      healthScore: (json['health_score'] ?? 0.0).toDouble(),
-      healthStatus: json['health_status'] ?? 'unknown',
-      healthStatusAr: json['health_status_ar'] ?? 'غير معروف',
+      healthScore: ((json['health_score'] ?? 0.0) as num).toDouble(),
+      healthStatus: (json['health_status'] ?? 'unknown') as String,
+      healthStatusAr: (json['health_status_ar'] ?? 'غير معروف') as String,
       ndviAnalysis: json['ndvi_analysis'] as Map<String, dynamic>? ?? {},
       weatherImpact: json['weather_impact'] as Map<String, dynamic>? ?? {},
       alerts: (json['alerts'] as List?)?.cast<String>() ?? [],
@@ -689,7 +690,7 @@ class ChatMessage {
       role: json['role'] as String? ?? 'assistant',
       content: json['content'] as String? ?? '',
       contentAr: json['content_ar'] as String?,
-      timestamp: DateTime.tryParse(json['timestamp'] ?? '') ?? DateTime.now(),
+      timestamp: DateTime.tryParse((json['timestamp'] ?? '') as String) ?? DateTime.now(),
       fieldId: json['field_id'] as String?,
       metadata: json['metadata'] as Map<String, dynamic>?,
       recommendations: (json['recommendations'] as List?)

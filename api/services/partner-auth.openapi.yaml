@@ -1,0 +1,1361 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Partner Auth Service — OpenAPI 3.1 Specification
+# مواصفات خدمة مصادقة الشركاء
+#
+# FieldView-compatible OAuth 2.0 + OpenID Connect authorization server.
+# Port: 3030 · CONTRACT_VERSION: 4.12.0
+# Kong routes: /partner/v1/oauth/* + /.well-known/* + /api/v1/admin/partner-auth/*
+#
+# Authored by hand — Wave 1 #5 companion to user-service.openapi.yaml.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+openapi: 3.1.0
+
+info:
+  title: SAHOOL Partner Auth Service API
+  version: "4.12.0"
+  summary: OAuth 2.0 + OIDC authorization server for external partner integrations
+  description: |
+    **EN** — FieldView-compatible partner authorization server for SAHOOL.
+    Implements the full RFC 6749 authorization-code grant + refresh token
+    rotation, plus OIDC 1.0 discovery, JWKS, ID token issuance, RFC 7009
+    token revocation, RFC 7662 token introspection, RFC 7636 PKCE, and a
+    bilingual AR/EN consent screen. External partners (Leaf Agriculture,
+    DroneDeploy, SWAT Maps, ag retailers, soil labs, carbon MRV buyers)
+    integrate via this surface. **X-Sahool-Partner-Key** is a separate
+    metering/throttle key — it does not replace the OAuth access token.
+
+    **AR** — خادم المصادقة للشركاء الخارجيين. يطبّق تدفّق رمز التفويض مع
+    تدوير رموز التحديث (OAuth 2.1)، واكتشاف OIDC 1.0، و JWKS، وإصدار رمز
+    الهوية، وإلغاء الرموز (RFC 7009)، وفحص الرموز (RFC 7662)، و PKCE
+    (RFC 7636)، مع شاشة موافقة ثنائية اللغة (عربي/إنجليزي).
+  contact:
+    name: SAHOOL Developer Relations
+    email: developer@sahool.com
+    url: https://dev.sahool.app
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: https://sahool.com/legal/terms
+  x-service-name: partner-auth-service
+  x-service-port: 3030
+  x-contract-version: "4.12.0"
+
+servers:
+  - url: https://api.sahool.com
+    description: Production
+  - url: https://sandbox.sahool.app
+    description: Sandbox (wiped weekly)
+  - url: http://localhost:8000
+    description: Local development (via Kong)
+
+tags:
+  - name: OAuth
+    description: OAuth 2.0 endpoints — /token, /authorize, /revoke, /introspect, /userinfo
+  - name: OIDC Discovery
+    description: OpenID Connect discovery + JWKS (public, cached)
+  - name: Admin — Partner Clients
+    description: CRUD + secret rotation for partner OAuth apps (ADMIN only)
+  - name: Admin — Consent Grants
+    description: Inspect + revoke user consent grants (ADMIN only)
+  - name: Admin — Tokens
+    description: Token inspection + bulk revocation (breach response, ADMIN only)
+  - name: Admin — Signing Keys
+    description: RSA signing-key rotation for id_token JWS (ADMIN only)
+  - name: Health
+    description: K8s probes + Prometheus
+
+security:
+  # Default — most endpoints declare their own security; health/well-known are public.
+  - {}
+
+paths:
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # /partner/v1/oauth/token — RFC 6749 § 3.2
+  # ─────────────────────────────────────────────────────────────────────────
+  /partner/v1/oauth/token:
+    post:
+      operationId: exchangeToken
+      summary: Exchange an authorization code OR refresh token for a new access token
+      description: |
+        RFC 6749 token endpoint. Supports two grant types:
+
+        1. `authorization_code` — exchange the `code` query-param received
+           at the `redirect_uri` after user consent.
+        2. `refresh_token` — rotate an existing refresh token to obtain a
+           fresh access token + a new refresh token. The submitted refresh
+           token's TTL is re-scoped to **1 hour** (FieldView parity).
+
+        Client authentication via **HTTP Basic** is preferred; `client_id`
+        + `client_secret` in the form body is accepted as a fallback.
+
+        Response TTLs: access_token 14 400 s (4 h) · refresh_token 30 d
+        (fresh) or 1 h (rotated). `id_token` is only issued when `openid`
+        scope was granted.
+      tags: [OAuth]
+      x-rateLimit: { perMinute: 30, perHour: 500, limitBy: ip }
+      security:
+        - clientBasicAuth: []
+          partnerApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/PartnerTokenRequest"
+            examples:
+              authorization_code:
+                summary: Authorization code exchange
+                value:
+                  grant_type: authorization_code
+                  code: sah_ac_8lR2o3nVHfQp5mT0bdXeYjZc6gWaKyPNhLCMi4sBu
+                  redirect_uri: https://leaf.example.com/oauth/callback
+                  code_verifier: abc123-pkce-verifier-raw
+              refresh_token:
+                summary: Refresh token rotation
+                value:
+                  grant_type: refresh_token
+                  refresh_token: sah_rt_8lR2o3nVHfQp5mT0bdXeYjZc6gWaKyPN
+      responses:
+        "200":
+          description: Token issued
+          headers:
+            Cache-Control: { schema: { type: string, example: "no-store" } }
+            Pragma: { schema: { type: string, example: "no-cache" } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerTokenResponse" }
+              example:
+                access_token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImtpZC0xIn0.eyJzdWIi.signature
+                token_type: bearer
+                expires_in: 14400
+                refresh_token: sah_rt_c8wY3nVHfQp5mT0bdXeYjZc6gWaKyPN
+                id_token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImtpZC0xIn0.eyJpc3Mi.signature
+                scope: openid profile fields:read operations:harvest:read
+        "400":
+          description: Grant error (RFC 6749 § 5.2)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OAuthErrorResponse" }
+              example:
+                error: invalid_grant
+                error_description: Refresh token expired
+        "401":
+          description: Client authentication failed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OAuthErrorResponse" }
+              example:
+                error: invalid_client
+                error_description: Unknown or revoked client
+        "429":
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # /partner/v1/oauth/revoke — RFC 7009
+  # ─────────────────────────────────────────────────────────────────────────
+  /partner/v1/oauth/revoke:
+    post:
+      operationId: revokeToken
+      summary: Revoke an access or refresh token (RFC 7009)
+      description: |
+        Client-authenticated revocation of a single token. Per RFC 7009 §
+        2.2, the endpoint returns **200 with empty body** for unknown,
+        wrong-type, or expired tokens as well as successful revocations —
+        this prevents information leakage about which tokens exist.
+
+        Revoking a **refresh token** cascade-revokes the entire rotation
+        family (all access + refresh tokens derived from the same chain)
+        per OAuth 2.1 reuse-detection semantics.
+      tags: [OAuth]
+      x-rateLimit: { perMinute: 60, perHour: 2000, limitBy: ip }
+      security:
+        - clientBasicAuth: []
+          partnerApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { $ref: "#/components/schemas/RevokeTokenRequest" }
+            example:
+              token: sah_rt_c8wY3nVHfQp5mT0bdXeYjZc6gWaKyPN
+              token_type_hint: refresh_token
+      responses:
+        "200":
+          description: Token revoked (or was already unknown / expired — indistinguishable per spec)
+        "400":
+          description: Malformed request
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OAuthErrorResponse" }
+        "401":
+          description: Client authentication failed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OAuthErrorResponse" }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # /partner/v1/oauth/introspect — RFC 7662
+  # ─────────────────────────────────────────────────────────────────────────
+  /partner/v1/oauth/introspect:
+    post:
+      operationId: introspectToken
+      summary: Inspect a token's validity and associated metadata (RFC 7662)
+      description: |
+        Lets a resource server validate a token without decoding/verifying
+        the JWT itself. Returns `{active: true, ...}` with metadata for
+        valid tokens, and `{active: false}` for any of: unknown, expired,
+        revoked, wrong-type, or wrong-client tokens — per RFC 7662 no
+        information is leaked about why a token is inactive.
+      tags: [OAuth]
+      x-rateLimit: { perMinute: 60, perHour: 2000, limitBy: ip }
+      security:
+        - clientBasicAuth: []
+          partnerApiKey: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { $ref: "#/components/schemas/IntrospectRequest" }
+            example:
+              token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImtpZC0xIn0...
+              token_type_hint: access_token
+      responses:
+        "200":
+          description: Introspection result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/IntrospectResponse" }
+              examples:
+                active:
+                  summary: Valid access token
+                  value:
+                    active: true
+                    scope: openid fields:read operations:harvest:read
+                    client_id: partner-leaf-ab12cd34
+                    username: user-8f0e-uuid
+                    token_type: Bearer
+                    exp: 1744920000
+                    iat: 1744905600
+                    sub: user-8f0e-uuid
+                    aud: partner-leaf-ab12cd34
+                    iss: https://api.sahool.com
+                    jti: jti-abc123
+                    tenant_id: tenant-ksa-001
+                inactive:
+                  summary: Unknown / revoked / expired token
+                  value:
+                    active: false
+        "401":
+          description: Client authentication failed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OAuthErrorResponse" }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # /partner/v1/oauth/authorize — user-consent UI + decision processing
+  # ─────────────────────────────────────────────────────────────────────────
+  /partner/v1/oauth/authorize:
+    get:
+      operationId: renderConsentScreen
+      summary: Render the bilingual AR/EN consent screen (or skip + redirect if prior consent covers scope)
+      description: |
+        User-agent entry point for the authorization-code flow. If the
+        user is not signed into SAHOOL, 302s to the SAHOOL login page
+        with `?return_to=` set back to this URL. If the user has
+        previously granted consent covering all requested scopes
+        (unless `prompt=consent`), 302s directly to `redirect_uri` with
+        a freshly-minted `code`. Otherwise returns a server-rendered
+        HTML consent screen with per-scope icons + bilingual labels.
+      tags: [OAuth]
+      x-rateLimit: { perMinute: 60, perHour: 600, limitBy: ip }
+      parameters:
+        - { name: response_type, in: query, required: true, description: "Must be `code`", schema: { type: string, enum: [code] } }
+        - { name: client_id, in: query, required: true, description: "Partner client identifier", schema: { type: string } }
+        - { name: redirect_uri, in: query, required: true, description: "Must exactly match one of the client's registered `redirect_uris`", schema: { type: string, format: uri } }
+        - { name: scope, in: query, required: true, description: "Space-delimited list from the partner-scope catalog", schema: { type: string } }
+        - { name: state, in: query, required: false, description: "Opaque partner-generated CSRF value, echoed back", schema: { type: string } }
+        - { name: nonce, in: query, required: false, description: "OIDC replay-protection value — embedded into the issued `id_token`", schema: { type: string } }
+        - { name: code_challenge, in: query, required: false, description: "PKCE challenge (RFC 7636)", schema: { type: string } }
+        - { name: code_challenge_method, in: query, required: false, description: "PKCE hashing method", schema: { type: string, enum: [S256, plain] } }
+        - { name: prompt, in: query, required: false, description: "`consent` forces the screen even if prior consent exists; `none` errors if interaction would be needed", schema: { type: string, enum: [consent, none] } }
+      responses:
+        "200":
+          description: Consent screen rendered (HTML)
+          content:
+            text/html:
+              schema: { type: string, description: "Bilingual AR/EN consent screen HTML" }
+        "302":
+          description: Redirected to login, or directly to client redirect_uri on skipped-consent path
+          headers:
+            Location:
+              schema: { type: string, format: uri }
+              description: Either the SAHOOL login URL (unauthenticated) or `redirect_uri?code=&state=`
+        "400":
+          description: Invalid request parameters (safe HTML error page — NOT redirected to client)
+          content:
+            text/html:
+              schema: { type: string }
+        "404":
+          description: Unknown client (safe HTML error page — NOT redirected)
+    post:
+      operationId: processConsentDecision
+      summary: Process the user's allow/deny decision from the consent screen
+      description: |
+        CSRF-protected form submission from the consent screen. On `allow`
+        the server upserts a `ConsentGrant` row (union of prior + new
+        scopes), mints a fresh authorization code, and 302s to the
+        client. On `deny` it 302s to the client with
+        `?error=access_denied&state=<echoed>`.
+      tags: [OAuth]
+      x-rateLimit: { perMinute: 60, perHour: 600, limitBy: ip }
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema: { $ref: "#/components/schemas/ConsentDecisionRequest" }
+      responses:
+        "302":
+          description: Redirected to client's redirect_uri (with `code` on allow, `error=access_denied` on deny)
+          headers:
+            Location: { schema: { type: string, format: uri } }
+        "403":
+          description: CSRF token missing / invalid / expired / user-mismatched
+          content:
+            text/html:
+              schema: { type: string }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # /partner/v1/oauth/userinfo — OIDC Core 1.0 § 5.3
+  # ─────────────────────────────────────────────────────────────────────────
+  /partner/v1/oauth/userinfo:
+    get:
+      operationId: getUserInfo
+      summary: OIDC UserInfo — claims about the access-token subject
+      description: |
+        Returns claims about the user identified by the Bearer access
+        token. Requires the `openid` scope to have been granted. Optional
+        claim blocks (email, profile) are only returned when their
+        respective scopes were granted. A future branch will fetch fresh
+        profile data from user-service; this version returns only
+        token-derived claims.
+      tags: [OAuth]
+      x-rateLimit: { perMinute: 120, perHour: 5000, limitBy: ip }
+      security:
+        - bearerAuth: []
+          partnerApiKey: []
+      responses:
+        "200":
+          description: User info claims
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserInfoResponse" }
+              example:
+                sub: user-8f0e-uuid
+                tenant_id: tenant-ksa-001
+                scope: openid profile fields:read operations:harvest:read
+        "401":
+          description: Invalid, expired, or revoked access token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # /.well-known/openid-configuration — OIDC discovery
+  # ─────────────────────────────────────────────────────────────────────────
+  /.well-known/openid-configuration:
+    get:
+      operationId: getOidcDiscovery
+      summary: OpenID Connect discovery document
+      description: |
+        Advertises every OIDC endpoint + capability. Cached 1 hour by
+        Kong. Partners should fetch this at bootstrap and refresh
+        periodically rather than hard-coding endpoint URLs.
+      tags: [OIDC Discovery]
+      security: []
+      responses:
+        "200":
+          description: Full discovery document
+          headers:
+            Cache-Control: { schema: { type: string, example: "public, max-age=3600" } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OidcDiscoveryDocument" }
+              example:
+                issuer: https://api.sahool.com
+                authorization_endpoint: https://api.sahool.com/partner/v1/oauth/authorize
+                token_endpoint: https://api.sahool.com/partner/v1/oauth/token
+                userinfo_endpoint: https://api.sahool.com/partner/v1/oauth/userinfo
+                revocation_endpoint: https://api.sahool.com/partner/v1/oauth/revoke
+                introspection_endpoint: https://api.sahool.com/partner/v1/oauth/introspect
+                jwks_uri: https://api.sahool.com/.well-known/jwks.json
+                response_types_supported: [code]
+                grant_types_supported: [authorization_code, refresh_token]
+                subject_types_supported: [public]
+                id_token_signing_alg_values_supported: [RS256]
+                token_endpoint_auth_methods_supported: [client_secret_basic, client_secret_post]
+                code_challenge_methods_supported: [S256, plain]
+                scopes_supported:
+                  [openid, profile, email, offline_access, "fields:read", "fields:write",
+                   "boundaries:read", "boundaries:write", "operations:planting:read",
+                   "operations:planting:write", "operations:harvest:read",
+                   "operations:harvest:write", "operations:application:read",
+                   "operations:application:write", "operations:scouting:read",
+                   "operations:scouting:write", "imagery:ndvi:read", "imagery:ndvi:write",
+                   "imagery:thermal:read", "imagery:rgb:read", "soil:read", "soil:write",
+                   "weather:read", "advisory:read", "ai:vision:invoke",
+                   "carbon:read", "carbon:mrv:export", "exports:read", partnerapis, platform]
+                claims_supported:
+                  [sub, iss, aud, exp, iat, auth_time, nonce, email, email_verified,
+                   name, roles, tenant_id, locale]
+                ui_locales_supported: [ar, en]
+                service_documentation: https://dev.sahool.app/partner/
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # /.well-known/jwks.json — public key set (RFC 7517)
+  # ─────────────────────────────────────────────────────────────────────────
+  /.well-known/jwks.json:
+    get:
+      operationId: getJwks
+      summary: Public JWKS for id_token signature verification
+      description: |
+        Published RSA public keys (RFC 7517). Cached 15 minutes by Kong —
+        shorter than the 4-hour key-rotation retention window, so
+        verifiers never cache a stale-only set. Retired keys remain here
+        until their retention window lapses so in-flight id_tokens still
+        verify.
+      tags: [OIDC Discovery]
+      security: []
+      responses:
+        "200":
+          description: JWKS
+          headers:
+            Cache-Control: { schema: { type: string, example: "public, max-age=900" } }
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/JWKSResponse" }
+              example:
+                keys:
+                  - kty: RSA
+                    kid: kid-active
+                    use: sig
+                    alg: RS256
+                    n: 0vx7agoebGcQSuuPiLJXZptN9nndrQmbXEps2aiAFbWhM78LhWx4…
+                    e: AQAB
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Admin — Partner Clients (CRUD + rotation)
+  # ─────────────────────────────────────────────────────────────────────────
+  /api/v1/admin/partner-auth/clients:
+    post:
+      operationId: createPartnerClient
+      summary: Register a new partner OAuth client
+      description: |
+        Returns `client_secret` and `partnerApiKey` as plaintext **exactly
+        once**. Capture them immediately — they are hashed at rest and
+        cannot be retrieved later. Generate replacements via the rotate
+        endpoints if lost.
+      tags: [Admin — Partner Clients]
+      x-rateLimit: { perMinute: 100, perHour: 2000 }
+      security: [{ adminBearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CreateClientDto" }
+            example:
+              name: Leaf Agriculture
+              nameAr: ليف للزراعة
+              description: Unified ag-data aggregator platform
+              homepageUrl: https://withleaf.io
+              redirectUris: [https://withleaf.io/oauth/callback]
+              allowedScopes: [openid, profile, "fields:read", "operations:harvest:read"]
+              rateTier: pro
+              contactEmail: security@withleaf.io
+      responses:
+        "201":
+          description: Client created — **one-time** plaintext secrets in body
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+        "401":
+          description: Missing/invalid admin token
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+        "403":
+          description: ADMIN role required
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+    get:
+      operationId: listPartnerClients
+      summary: List partner clients (paginated + filtered)
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      parameters:
+        - { name: status, in: query, description: Filter by lifecycle status, schema: { type: string, enum: [active, suspended, revoked] } }
+        - { name: name, in: query, description: Case-insensitive substring match on client name, schema: { type: string } }
+        - { name: limit, in: query, description: Page size (1-200), schema: { type: integer, default: 50, minimum: 1, maximum: 200 } }
+        - { name: offset, in: query, description: Pagination offset, schema: { type: integer, default: 0, minimum: 0 } }
+      responses:
+        "200":
+          description: Paginated list
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientListResponse" }
+
+  /api/v1/admin/partner-auth/clients/{clientId}:
+    parameters:
+      - { name: clientId, in: path, required: true, description: Partner client_id (e.g. `partner-leaf-ab12cd34`), schema: { type: string } }
+    get:
+      operationId: getPartnerClient
+      summary: Retrieve a partner client (sanitized — no hashes)
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Client details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+        "404":
+          description: Unknown client_id
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+    patch:
+      operationId: updatePartnerClient
+      summary: Partial update of client metadata
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UpdateClientDto" }
+      responses:
+        "200":
+          description: Updated client
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+    delete:
+      operationId: revokePartnerClient
+      summary: Permanently revoke a client (cascades token/consent revocation)
+      description: |
+        Sets `status=revoked` + `revokedAt` + cascade-revokes every
+        outstanding access token, refresh token, and consent grant for
+        this client. Irreversible.
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Client revoked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+
+  /api/v1/admin/partner-auth/clients/{clientId}/rotate-secret:
+    parameters:
+      - { name: clientId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: rotatePartnerClientSecret
+      summary: Rotate the client_secret — returns new plaintext ONCE
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Rotated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+
+  /api/v1/admin/partner-auth/clients/{clientId}/rotate-api-key:
+    parameters:
+      - { name: clientId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: rotatePartnerApiKey
+      summary: Rotate the X-Sahool-Partner-Key — returns new plaintext ONCE
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Rotated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+
+  /api/v1/admin/partner-auth/clients/{clientId}/suspend:
+    parameters:
+      - { name: clientId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: suspendPartnerClient
+      summary: Suspend a client (reversible — blocks all flows)
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Suspended
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+
+  /api/v1/admin/partner-auth/clients/{clientId}/unsuspend:
+    parameters:
+      - { name: clientId, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: unsuspendPartnerClient
+      summary: Unsuspend a previously suspended client
+      tags: [Admin — Partner Clients]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Reactivated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerClientResponse" }
+        "409":
+          description: Attempted to reactivate an already-revoked client
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Admin — Consent Grants
+  # ─────────────────────────────────────────────────────────────────────────
+  /api/v1/admin/partner-auth/consents:
+    get:
+      operationId: listConsentGrants
+      summary: List user consent grants (filter by ?clientId= or ?userId=)
+      tags: [Admin — Consent Grants]
+      security: [{ adminBearerAuth: [] }]
+      parameters:
+        - { name: clientId, in: query, description: Filter to one partner, schema: { type: string } }
+        - { name: userId, in: query, description: Filter to one user, schema: { type: string } }
+        - { name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }
+        - { name: offset, in: query, schema: { type: integer, default: 0 } }
+      responses:
+        "200":
+          description: Consent-grant list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: "#/components/schemas/ConsentGrantAdminResponse" }
+                  total: { type: integer }
+
+  /api/v1/admin/partner-auth/consents/{grantId}:
+    parameters:
+      - { name: grantId, in: path, required: true, description: Consent grant row id (UUID), schema: { type: string, format: uuid } }
+    delete:
+      operationId: revokeConsentGrant
+      summary: Revoke a user's consent for a partner (GDPR Art. 17 "forget me")
+      tags: [Admin — Consent Grants]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: revoked }
+                  grantId: { type: string, format: uuid }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Admin — Tokens (inspection + bulk revocation)
+  # ─────────────────────────────────────────────────────────────────────────
+  /api/v1/admin/partner-auth/tokens/access:
+    get:
+      operationId: listAccessTokens
+      summary: List access tokens (defaults to active-only)
+      tags: [Admin — Tokens]
+      security: [{ adminBearerAuth: [] }]
+      parameters:
+        - { name: clientId, in: query, schema: { type: string } }
+        - { name: userId, in: query, schema: { type: string } }
+        - { name: includeRevoked, in: query, description: "`true` to include revoked rows", schema: { type: string, enum: ["true", "false"] } }
+        - { name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }
+        - { name: offset, in: query, schema: { type: integer, default: 0 } }
+      responses:
+        "200":
+          description: Access-token list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: "#/components/schemas/AccessTokenAdminResponse" }
+                  total: { type: integer }
+
+  /api/v1/admin/partner-auth/tokens/refresh:
+    get:
+      operationId: listRefreshTokens
+      summary: List refresh tokens + rotation chain
+      tags: [Admin — Tokens]
+      security: [{ adminBearerAuth: [] }]
+      parameters:
+        - { name: clientId, in: query, schema: { type: string } }
+        - { name: userId, in: query, schema: { type: string } }
+        - { name: familyId, in: query, description: Filter to one rotation chain, schema: { type: string, format: uuid } }
+        - { name: includeRevoked, in: query, schema: { type: string, enum: ["true", "false"] } }
+        - { name: limit, in: query, schema: { type: integer, default: 100, maximum: 500 } }
+        - { name: offset, in: query, schema: { type: integer, default: 0 } }
+      responses:
+        "200":
+          description: Refresh-token list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: "#/components/schemas/RefreshTokenAdminResponse" }
+                  total: { type: integer }
+
+  /api/v1/admin/partner-auth/tokens/revoke-all/client/{clientIdOrCid}:
+    parameters:
+      - { name: clientIdOrCid, in: path, required: true, description: "Either the partner's `clientId` string or its DB row UUID", schema: { type: string } }
+    post:
+      operationId: revokeAllTokensForClient
+      summary: Emergency bulk-revoke of every token for one partner (breach response)
+      tags: [Admin — Tokens]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Bulk revoke summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: revoked }
+                  clientId: { type: string }
+                  accessTokensRevoked: { type: integer }
+                  refreshTokensRevoked: { type: integer }
+
+  /api/v1/admin/partner-auth/tokens/revoke-all/user/{userId}:
+    parameters:
+      - { name: userId, in: path, required: true, description: SAHOOL user id (UUID), schema: { type: string } }
+    post:
+      operationId: revokeAllTokensForUser
+      summary: Revoke every token + consent for a user across all partners ("forget-me")
+      tags: [Admin — Tokens]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Cross-partner revoke summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: revoked }
+                  userId: { type: string }
+                  accessTokensRevoked: { type: integer }
+                  refreshTokensRevoked: { type: integer }
+                  consentsRevoked: { type: integer }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Admin — Signing Keys (id_token JWS)
+  # ─────────────────────────────────────────────────────────────────────────
+  /api/v1/admin/partner-auth/signing-keys:
+    get:
+      operationId: listSigningKeys
+      summary: List active + retired-but-verifying RSA signing keys
+      tags: [Admin — Signing Keys]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Key list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items: { $ref: "#/components/schemas/SigningKeyAdminResponse" }
+
+  /api/v1/admin/partner-auth/signing-keys/rotate:
+    post:
+      operationId: rotateSigningKey
+      summary: Mint a new RSA keypair, activate it, retire the old key
+      description: |
+        Generates a fresh 2048-bit RSA keypair, marks it active, retires
+        the previously-active key (stays in JWKS until its retention
+        window lapses). JWKS is reloaded immediately so new id_tokens
+        sign with the new key.
+      tags: [Admin — Signing Keys]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "201":
+          description: New active key
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SigningKeyAdminResponse" }
+
+  /api/v1/admin/partner-auth/signing-keys/{kid}:
+    parameters:
+      - { name: kid, in: path, required: true, description: JWKS kid, schema: { type: string } }
+    delete:
+      operationId: deleteRetiredSigningKey
+      summary: Permanently delete a fully-expired retired key
+      description: |
+        Fails with `400 retention_window_active` if the key was retired
+        less than 4 hours ago (current access-token TTL window).
+        Fails with `400 key_still_active` for the active key.
+      tags: [Admin — Signing Keys]
+      security: [{ adminBearerAuth: [] }]
+      responses:
+        "200":
+          description: Deleted (or not_found)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: deleted }
+                  kid: { type: string }
+        "400":
+          description: Retention window active OR key still active
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PartnerErrorEnvelope" }
+
+  # ─────────────────────────────────────────────────────────────────────────
+  # Health
+  # ─────────────────────────────────────────────────────────────────────────
+  /healthz:
+    get:
+      operationId: livenessProbe
+      summary: K8s liveness probe
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Process alive
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+              example: { status: ok, service: partner-auth-service, version: "16.0.0" }
+  /readyz:
+    get:
+      operationId: readinessProbe
+      summary: K8s readiness probe (DB connectivity check)
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Ready to serve traffic
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+              example: { status: ok, service: partner-auth-service, version: "16.0.0", database: true }
+  /health:
+    get:
+      operationId: combinedHealth
+      summary: Combined status (for curl/humans)
+      tags: [Health]
+      security: []
+      responses:
+        "200":
+          description: Status report
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/HealthResponse" }
+
+components:
+
+  securitySchemes:
+    oauth2PartnerAuthorizationCode:
+      type: oauth2
+      description: |
+        Authorization-code flow for partners. Scope values are the SAHOOL
+        partner-scope catalog (30 scopes) — `openid`, `profile`, `email`,
+        `offline_access`, plus SAHOOL-specific scopes like `fields:read`,
+        `operations:harvest:read`, `imagery:ndvi:read`, `carbon:mrv:export`.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.sahool.com/partner/v1/oauth/authorize
+          tokenUrl: https://api.sahool.com/partner/v1/oauth/token
+          refreshUrl: https://api.sahool.com/partner/v1/oauth/token
+          scopes:
+            openid: OIDC — issue id_token and expose /userinfo
+            profile: Name, language, tenant
+            email: Email address
+            offline_access: Refresh token / long-lived access
+            "fields:read": View the farmer's fields + boundaries
+            "fields:write": Create/modify fields
+            "boundaries:read": View boundary polygons
+            "boundaries:write": Upload standalone boundaries
+            "operations:planting:read": View planting layers
+            "operations:planting:write": Upload planting data
+            "operations:harvest:read": View harvest yield maps
+            "operations:harvest:write": Upload harvest data
+            "operations:application:read": View fertilizer/chemical applications
+            "operations:application:write": Upload application data
+            "operations:scouting:read": View scouting observations + photos
+            "operations:scouting:write": Upload scouting observations
+            "imagery:ndvi:read": View NDVI GeoTIFFs for the farmer's fields
+            "imagery:ndvi:write": Upload NDVI imagery
+            "imagery:thermal:read": View thermal GeoTIFFs
+            "imagery:rgb:read": View RGB aerial imagery
+            "soil:read": View soil test results
+            "soil:write": Upload soil-lab results (Modus 1.0 XML)
+            "weather:read": Access weather data for the farmer's locations
+            "advisory:read": Read agronomic advisories
+            "ai:vision:invoke": Invoke SAHOOL computer-vision on images
+            "carbon:read": View carbon footprint data (SAHOOL-unique)
+            "carbon:mrv:export": Export Verra / Gold Standard MRV reports
+            "exports:read": Download data exports on the user's behalf
+            partnerapis: Always granted — marks the token as a partner token
+            platform: Always granted — access the SAHOOL platform
+
+    clientBasicAuth:
+      type: http
+      scheme: basic
+      description: |
+        HTTP Basic authentication using `client_id:client_secret`. Used on
+        `/token`, `/revoke`, `/introspect`. Alternative to body-param
+        `client_id` + `client_secret` (body params are accepted but Basic
+        is preferred per RFC 6749 § 2.3.1).
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Access token JWT (RS256). Required on `/userinfo` and all
+        partner resource endpoints outside this service.
+
+    adminBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Internal SAHOOL admin JWT (HS256, shared secret with user-service).
+        Must carry `role: "ADMIN"` claim (or `roles` array containing
+        `"ADMIN"`). Required on all `/api/v1/admin/partner-auth/*` endpoints.
+
+    partnerApiKey:
+      type: apiKey
+      in: header
+      name: X-Sahool-Partner-Key
+      description: |
+        Opaque per-partner metering + throttling key. SEPARATE from the
+        OAuth client_secret — rotating one never invalidates the other.
+        Kong uses this (not the OAuth token) to determine the partner's
+        rate tier (starter | pro | enterprise).
+
+  schemas:
+
+    # ── OAuth 2.0 wire shapes (RFC 6749 naming: snake_case) ────────────────
+
+    PartnerTokenRequest:
+      type: object
+      required: [grant_type]
+      properties:
+        grant_type:
+          type: string
+          enum: [authorization_code, refresh_token]
+        code:
+          type: string
+          description: Required when grant_type=authorization_code
+        redirect_uri:
+          type: string
+          format: uri
+          description: Required + exact-match required when grant_type=authorization_code
+        refresh_token:
+          type: string
+          description: Required when grant_type=refresh_token
+        scope:
+          type: string
+          description: Space-delimited scope set — only allowed to narrow, never widen
+        code_verifier:
+          type: string
+          description: PKCE verifier (RFC 7636) when the original request used code_challenge
+        client_id:
+          type: string
+          description: Alternative to HTTP Basic client authentication
+        client_secret:
+          type: string
+          description: Alternative to HTTP Basic client authentication
+
+    PartnerTokenResponse:
+      type: object
+      required: [access_token, token_type, expires_in, scope]
+      properties:
+        access_token:
+          type: string
+          description: JWT RS256 access token (`at+jwt` typ header)
+        token_type:
+          type: string
+          enum: [bearer]
+        expires_in:
+          type: integer
+          description: Seconds until access_token expiry
+          example: 14400
+        refresh_token:
+          type: string
+          description: Opaque `sah_rt_...` — persist, rotate, and replace on every refresh call
+        id_token:
+          type: string
+          description: OIDC id_token JWT (RS256) — present only when `openid` scope was granted
+        scope:
+          type: string
+          description: Granted scopes, space-delimited
+
+    RevokeTokenRequest:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string }
+        token_type_hint:
+          type: string
+          enum: [access_token, refresh_token]
+        client_id: { type: string }
+        client_secret: { type: string }
+
+    IntrospectRequest:
+      type: object
+      required: [token]
+      properties:
+        token: { type: string }
+        token_type_hint:
+          type: string
+          enum: [access_token, refresh_token]
+        client_id: { type: string }
+        client_secret: { type: string }
+
+    IntrospectResponse:
+      type: object
+      required: [active]
+      description: |
+        `active=false` is returned for any inactive/unknown token
+        (RFC 7662 § 2.2). When active, the `scope`, `client_id`,
+        `username`, `exp`, `iat`, `sub`, `aud`, `iss`, `jti`, and
+        `tenant_id` claims are all present.
+      properties:
+        active: { type: boolean }
+        scope: { type: string }
+        client_id: { type: string }
+        username: { type: string }
+        token_type: { type: string, example: Bearer }
+        exp: { type: integer, description: Expiration (UNIX seconds) }
+        iat: { type: integer, description: Issued-at (UNIX seconds) }
+        sub: { type: string, description: User id }
+        aud: { type: string, description: Client id }
+        iss: { type: string, example: https://api.sahool.com }
+        jti: { type: string, description: JWT id }
+        tenant_id: { type: string }
+
+    OAuthErrorResponse:
+      type: object
+      description: RFC 6749 § 5.2 / RFC 7009 error shape — passed through raw on /token and /revoke
+      required: [error]
+      properties:
+        error:
+          type: string
+          enum:
+            - invalid_request
+            - invalid_client
+            - invalid_grant
+            - unauthorized_client
+            - unsupported_grant_type
+            - invalid_scope
+            - access_denied
+            - server_error
+            - temporarily_unavailable
+            - unsupported_response_type
+        error_description: { type: string }
+        error_uri: { type: string, format: uri }
+
+    # ── FieldView-style error envelope (everywhere else) ───────────────────
+
+    PartnerErrorEnvelope:
+      type: object
+      description: |
+        Unified error envelope for every non-OAuth endpoint.
+        Matches Climate FieldView's structure so migrating partners
+        can reuse their existing error-handling code.
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, id, message]
+          properties:
+            code:
+              type: string
+              description: Stable machine-readable code (e.g. `invalid_client`, `rate_limited`, `not_found`)
+            id:
+              type: string
+              format: uuid
+              description: Per-request trace id — echoed in X-Request-Id response header
+            message:
+              type: string
+              description: Human-readable detail (may be bilingual in the future)
+            path:
+              type: string
+              description: Request path that produced the error
+
+    # ── Consent decision (POST /authorize body) ────────────────────────────
+
+    ConsentDecisionRequest:
+      type: object
+      required: [csrf_token, decision, client_id, redirect_uri, scope, response_type]
+      properties:
+        csrf_token:
+          type: string
+          description: HMAC CSRF token minted by the GET /authorize render
+        decision:
+          type: string
+          enum: [allow, deny]
+        client_id: { type: string }
+        redirect_uri: { type: string, format: uri }
+        scope: { type: string }
+        state: { type: string }
+        nonce: { type: string }
+        code_challenge: { type: string }
+        code_challenge_method: { type: string, enum: [S256, plain] }
+        response_type: { type: string, enum: [code] }
+
+    # ── OIDC Core 1.0 shapes ───────────────────────────────────────────────
+
+    UserInfoResponse:
+      type: object
+      required: [sub]
+      properties:
+        sub: { type: string, description: Stable SAHOOL user id (UUID) }
+        tenant_id: { type: string }
+        scope: { type: string }
+        email: { type: string, format: email }
+        email_verified: { type: boolean }
+        name: { type: string }
+        name_ar: { type: string }
+        locale: { type: string, enum: [ar, en] }
+
+    OidcDiscoveryDocument:
+      type: object
+      required: [issuer, authorization_endpoint, token_endpoint, jwks_uri, response_types_supported, subject_types_supported, id_token_signing_alg_values_supported]
+      properties:
+        issuer: { type: string, format: uri }
+        authorization_endpoint: { type: string, format: uri }
+        token_endpoint: { type: string, format: uri }
+        userinfo_endpoint: { type: string, format: uri }
+        revocation_endpoint: { type: string, format: uri }
+        introspection_endpoint: { type: string, format: uri }
+        jwks_uri: { type: string, format: uri }
+        scopes_supported: { type: array, items: { type: string } }
+        response_types_supported: { type: array, items: { type: string } }
+        grant_types_supported: { type: array, items: { type: string } }
+        subject_types_supported: { type: array, items: { type: string } }
+        id_token_signing_alg_values_supported: { type: array, items: { type: string } }
+        token_endpoint_auth_methods_supported: { type: array, items: { type: string } }
+        code_challenge_methods_supported: { type: array, items: { type: string } }
+        claims_supported: { type: array, items: { type: string } }
+        ui_locales_supported: { type: array, items: { type: string } }
+        service_documentation: { type: string, format: uri }
+
+    RsaJwk:
+      type: object
+      required: [kty, kid, alg, use, n, e]
+      properties:
+        kty: { type: string, enum: [RSA] }
+        kid: { type: string, description: Key id used in JWT `kid` header }
+        alg: { type: string, enum: [RS256] }
+        use: { type: string, enum: [sig] }
+        n:   { type: string, description: "Modulus (base64url-encoded)" }
+        e:   { type: string, description: "Exponent (base64url-encoded, typically AQAB)" }
+
+    JWKSResponse:
+      type: object
+      required: [keys]
+      properties:
+        keys:
+          type: array
+          items: { $ref: "#/components/schemas/RsaJwk" }
+
+    # ── Admin: client CRUD DTOs ────────────────────────────────────────────
+
+    CreateClientDto:
+      type: object
+      required: [name, redirectUris, allowedScopes]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 255 }
+        nameAr: { type: string, minLength: 2, maxLength: 255 }
+        description: { type: string, maxLength: 2000 }
+        homepageUrl: { type: string, format: uri }
+        logoUrl: { type: string, format: uri }
+        redirectUris:
+          type: array
+          items: { type: string, format: uri }
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+          description: HTTPS only; no URL fragment allowed (RFC 6749 § 3.1.2)
+        allowedScopes:
+          type: array
+          items:
+            type: string
+            pattern: "^[a-z][a-z0-9_:]*$"
+          minItems: 1
+          maxItems: 50
+          uniqueItems: true
+          description: Each entry must be a member of the partner-scope catalog
+        rateTier:
+          type: string
+          enum: [starter, pro, enterprise]
+          default: starter
+        contactEmail: { type: string, format: email }
+
+    UpdateClientDto:
+      description: Partial update — all fields optional; omitted fields preserved
+      type: object
+      properties:
+        name: { type: string, minLength: 2, maxLength: 255 }
+        nameAr: { type: string, minLength: 2, maxLength: 255 }
+        description: { type: string, maxLength: 2000 }
+        homepageUrl: { type: string, format: uri }
+        logoUrl: { type: string, format: uri }
+        redirectUris:
+          type: array
+          items: { type: string, format: uri }
+          minItems: 1
+          maxItems: 20
+          uniqueItems: true
+        allowedScopes:
+          type: array
+          items: { type: string, pattern: "^[a-z][a-z0-9_:]*$" }
+          minItems: 1
+          maxItems: 50
+          uniqueItems: true
+        rateTier: { type: string, enum: [starter, pro, enterprise] }
+        contactEmail: { type: string, format: email }
+
+    PartnerClientResponse:
+      type: object
+      required: [id, clientId, name, redirectUris, allowedScopes, rateTier, status, createdAt, updatedAt]
+      properties:
+        id: { type: string, format: uuid }
+        clientId: { type: string, description: Public partner client identifier }
+        name: { type: string }
+        nameAr: { type: [string, "null"] }
+        description: { type: [string, "null"] }
+        homepageUrl: { type: [string, "null"], format: uri }
+        logoUrl: { type: [string, "null"], format: uri }
+        redirectUris: { type: array, items: { type: string, format: uri } }
+        allowedScopes: { type: array, items: { type: string } }
+        rateTier: { type: string, enum: [starter, pro, enterprise] }
+        status: { type: string, enum: [active, suspended, revoked] }
+        contactEmail: { type: [string, "null"], format: email }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        revokedAt: { type: [string, "null"], format: date-time }
+        clientSecret:
+          type: string
+          description: Plaintext — returned ONCE on create / rotate-secret responses only
+        partnerApiKey:
+          type: string
+          description: Plaintext — returned ONCE on create / rotate-api-key responses only
+
+    PartnerClientListResponse:
+      type: object
+      required: [results, total, limit, offset]
+      properties:
+        results:
+          type: array
+          items: { $ref: "#/components/schemas/PartnerClientResponse" }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+
+    # ── Admin: consent / tokens / signing keys ─────────────────────────────
+
+    ConsentGrantAdminResponse:
+      type: object
+      required: [id, clientId, clientName, userId, tenantId, scopes, acceptedAt]
+      properties:
+        id: { type: string, format: uuid }
+        clientId: { type: string, format: uuid }
+        clientName: { type: string }
+        userId: { type: string }
+        tenantId: { type: string }
+        scopes: { type: array, items: { type: string } }
+        acceptedAt: { type: string, format: date-time }
+        revokedAt: { type: [string, "null"], format: date-time }
+        consentIp: { type: [string, "null"], description: IP captured at consent time (for fraud review) }
+
+    AccessTokenAdminResponse:
+      type: object
+      required: [jti, clientId, userId, tenantId, scopes, expiresAt, createdAt]
+      properties:
+        jti: { type: string }
+        clientId: { type: string, format: uuid }
+        clientName: { type: string }
+        userId: { type: string }
+        tenantId: { type: string }
+        scopes: { type: array, items: { type: string } }
+        expiresAt: { type: string, format: date-time }
+        revokedAt: { type: [string, "null"], format: date-time }
+        revokedReason: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+
+    RefreshTokenAdminResponse:
+      type: object
+      required: [id, clientId, userId, tenantId, scopes, familyId, expiresAt, createdAt]
+      properties:
+        id: { type: string, format: uuid }
+        clientId: { type: string, format: uuid }
+        clientName: { type: string }
+        userId: { type: string }
+        tenantId: { type: string }
+        scopes: { type: array, items: { type: string } }
+        familyId:
+          type: string
+          format: uuid
+          description: Rotation chain id — shared by every token derived from the same original consent
+        rotatedToId: { type: [string, "null"], format: uuid, description: Points to the successor row after rotation }
+        expiresAt: { type: string, format: date-time }
+        revokedAt: { type: [string, "null"], format: date-time }
+        revokedReason: { type: [string, "null"] }
+        createdAt: { type: string, format: date-time }
+
+    SigningKeyAdminResponse:
+      type: object
+      required: [kid, alg, activatedAt, publicPem]
+      properties:
+        kid: { type: string }
+        alg: { type: string, enum: [RS256] }
+        activatedAt: { type: string, format: date-time }
+        retiredAt: { type: [string, "null"], format: date-time }
+        publicPem: { type: string, description: PEM-encoded RSA public key (private PEM never leaves the DB) }
+
+    # ── Health ─────────────────────────────────────────────────────────────
+
+    HealthResponse:
+      type: object
+      required: [status, service, version]
+      properties:
+        status: { type: string, enum: [ok, degraded, not_ready] }
+        service: { type: string, example: partner-auth-service }
+        version: { type: string, example: "16.0.0" }
+        database: { type: boolean, description: Present on /readyz + /health }
+        timestamp: { type: string, format: date-time, description: Present on /health }

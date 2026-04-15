@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Provider
 /// مزود الإشعارات المخصصة - Riverpod State Management
 ///

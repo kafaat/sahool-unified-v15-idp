@@ -56,11 +56,11 @@ class TokenData:
         """Check if user has a specific permission"""
         return permission in self.permissions
 
-    def has_any_role(self, roles: list[str]) -> bool:
+    def has_any_role(self, *roles: str) -> bool:
         """Check if user has any of the specified roles"""
         return any(role in self.roles for role in roles)
 
-    def has_all_roles(self, roles: list[str]) -> bool:
+    def has_all_roles(self, *roles: str) -> bool:
         """Check if user has all specified roles"""
         return all(role in self.roles for role in roles)
 
@@ -238,7 +238,7 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
         return TokenData(
             user_id=payload.get("sub"),
             email=payload.get("email"),
-            tenant_id=payload.get("tenant_id"),
+            tenant_id=payload.get("tenant_id") or payload.get("tid"),
             roles=payload.get("roles", []),
             permissions=payload.get("permissions", []),
             token_type=payload.get("type", "access"),

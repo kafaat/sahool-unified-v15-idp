@@ -10,6 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/config/api_config.dart';
+import '../../../../core/offline/offline_sync_engine.dart';
+import '../../../../core/utils/app_logger.dart';
 import '../remote/irrigation_api.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -109,8 +111,8 @@ class IrrigationRepository {
         _CacheKeys.lastSync(key),
         DateTime.now().toIso8601String(),
       );
-    } catch (_) {
-      // Silently fail on cache errors - caching is best-effort
+    } catch (e) {
+      // ignore: empty_catches - Silently fail on cache errors - caching is best-effort
     }
   }
 
@@ -127,12 +129,13 @@ class IrrigationRepository {
 
       if (cached == null || syncTime == null) return null;
 
-      final lastSync = DateTime.parse(syncTime);
+      final lastSync = DateTime.tryParse(syncTime);
+      if (lastSync == null) return null; // Treat invalid sync time as stale
       if (DateTime.now().difference(lastSync) > maxAge) return null;
 
       final decoded = jsonDecode(cached);
       return fromJson(decoded);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -142,7 +145,7 @@ class IrrigationRepository {
     final prefs = await _getPrefs();
     final syncTime = prefs.getString(_CacheKeys.lastSync(key));
     if (syncTime == null) return true;
-    final lastSync = DateTime.parse(syncTime);
+    final lastSync = DateTime.tryParse(syncTime) ?? DateTime.now();
     return DateTime.now().difference(lastSync) > maxAge;
   }
 
@@ -168,15 +171,23 @@ class IrrigationRepository {
     try {
       final response = await _dio.get('/api/v1/irrigation/crops');
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final crops = (data['data'] as List)
-          .map((c) => IrrigationCrop.fromJson(c as Map<String, dynamic>))
+      final rawList = data['data'];
+      if (rawList == null || rawList is! List) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final crops = rawList
+          .whereType<Map<String, dynamic>>()
+          .map((c) => IrrigationCrop.fromJson(c))
           .toList();
 
       // Cache the response
       await _cacheData(
         _CacheKeys.crops,
-        (data['data'] as List),
+        (data['data'] as List? ?? []),
       );
 
       return ApiResult.success(crops);
@@ -184,7 +195,7 @@ class IrrigationRepository {
       // Try offline cache
       final cached = await _getCachedData<List<IrrigationCrop>>(
         _CacheKeys.crops,
-        (json) => (json as List)
+        (json) => (json as List? ?? [])
             .map((c) => IrrigationCrop.fromJson(c as Map<String, dynamic>))
             .toList(),
         _refDataCacheDuration,
@@ -207,9 +218,17 @@ class IrrigationRepository {
     try {
       final response = await _dio.get('/api/v1/irrigation/methods');
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final methods = (data['data'] as List)
-          .map((m) => IrrigationMethod.fromJson(m as Map<String, dynamic>))
+      final rawList = data['data'];
+      if (rawList == null || rawList is! List) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final methods = rawList
+          .whereType<Map<String, dynamic>>()
+          .map((m) => IrrigationMethod.fromJson(m))
           .toList();
 
       // Cache the response
@@ -220,7 +239,7 @@ class IrrigationRepository {
       // Try offline cache
       final cached = await _getCachedData<List<IrrigationMethod>>(
         _CacheKeys.methods,
-        (json) => (json as List)
+        (json) => (json as List? ?? [])
             .map((m) => IrrigationMethod.fromJson(m as Map<String, dynamic>))
             .toList(),
         _refDataCacheDuration,
@@ -252,10 +271,15 @@ class IrrigationRepository {
         data: request.toJson(),
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final calculation = IrrigationCalculation.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final calculation = IrrigationCalculation.fromJson(rawData);
 
       // Cache calculation with composite key
       final cacheKey =
@@ -293,8 +317,14 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final rawData = data['data'] as Map<String, dynamic>;
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
       final waterBalance = WaterBalanceData.fromJson(rawData);
 
       // Cache water balance
@@ -337,10 +367,15 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final efficiency = IrrigationEfficiencyData.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final efficiency = IrrigationEfficiencyData.fromJson(rawData);
 
       return ApiResult.success(efficiency);
     } on DioException catch (e) {
@@ -366,15 +401,20 @@ class IrrigationRepository {
         queryParameters: {'field_id': fieldId},
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final schedule = IrrigationSchedule.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final schedule = IrrigationSchedule.fromJson(rawData);
 
       // Cache schedule
       await _cacheData(
         _CacheKeys.schedule(fieldId),
-        data['data'],
+        rawData,
       );
 
       return ApiResult.success(schedule);
@@ -416,16 +456,50 @@ class IrrigationRepository {
         },
       );
 
+      if (response.data == null || response.data is! Map<String, dynamic>) {
+        return ApiResult.failure('Invalid response format', 'تنسيق الاستجابة غير صالح');
+      }
       final data = response.data as Map<String, dynamic>;
-      final schedule = IrrigationSchedule.fromJson(
-        data['data'] as Map<String, dynamic>,
-      );
+      final rawData = data['data'];
+      if (rawData == null || rawData is! Map<String, dynamic>) {
+        return ApiResult.failure('Missing data field', 'حقل البيانات مفقود');
+      }
+      final schedule = IrrigationSchedule.fromJson(rawData);
 
       // Cache new schedule
-      await _cacheData(_CacheKeys.schedule(fieldId), data['data']);
+      await _cacheData(_CacheKeys.schedule(fieldId), rawData);
+
+      AppLogger.i('Irrigation schedule generated via API', tag: 'IrrigationRepo', data: {'fieldId': fieldId});
 
       return ApiResult.success(schedule);
     } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'irrigation',
+          data: {
+            'field_id': fieldId,
+            'crop_id': cropId,
+            'method_id': methodId,
+            'days': days,
+            'created_at': DateTime.now().toIso8601String(),
+          },
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Irrigation schedule queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
+        return ApiResult.failure(
+          'Saved offline - will sync when connected',
+          'تم الحفظ محلياً - ستتم المزامنة عند الاتصال',
+        );
+      }
+
       return ApiResult.failure(
         e.message ?? 'Failed to generate irrigation schedule',
         'فشل في إنشاء جدول الري',
@@ -448,36 +522,55 @@ class IrrigationRepository {
     required String unit,
   }) async {
     try {
-      await _dio.post(
-        '/api/v1/irrigation/sensor-reading',
-        data: {
-          'field_id': fieldId,
-          'sensor_type': sensorType,
-          'value': value,
-          'unit': unit,
-          'timestamp': DateTime.now().toIso8601String(),
-        },
-      );
-
-      return ApiResult.success(null);
-    } on DioException catch (e) {
-      // Queue for later sync when offline
-      await _queuePendingOperation({
-        'type': 'sensor_reading',
+      final timestamp = DateTime.now().toIso8601String();
+      final sensorData = {
         'field_id': fieldId,
         'sensor_type': sensorType,
         'value': value,
         'unit': unit,
-        'timestamp': DateTime.now().toIso8601String(),
-      });
+        'timestamp': timestamp,
+      };
 
-      if (e.type == DioExceptionType.connectionTimeout ||
-          e.type == DioExceptionType.connectionError) {
+      await _dio.post(
+        '/api/v1/irrigation/sensor-reading',
+        data: sensorData,
+      );
+
+      AppLogger.i('Sensor reading recorded via API', tag: 'IrrigationRepo', data: {'fieldId': fieldId, 'sensorType': sensorType});
+
+      return ApiResult.success(null);
+    } on DioException catch (e) {
+      // Only enqueue for offline sync on transient/network errors, not 4xx client errors
+      final isTransient = e.type == DioExceptionType.connectionTimeout ||
+          e.type == DioExceptionType.sendTimeout ||
+          e.type == DioExceptionType.receiveTimeout ||
+          e.type == DioExceptionType.connectionError ||
+          (e.response?.statusCode != null && (e.response!.statusCode! >= 500 || e.response!.statusCode! == 429));
+
+      if (isTransient) {
+        final timestamp = DateTime.now().toIso8601String();
+        final sensorData = {
+          'type': 'sensor_reading',
+          'field_id': fieldId,
+          'sensor_type': sensorType,
+          'value': value,
+          'unit': unit,
+          'timestamp': timestamp,
+        };
+
+        await OfflineSyncEngine.instance.enqueueCreate(
+          entityType: 'irrigation',
+          data: sensorData,
+          priority: SyncPriority.medium,
+        );
+
+        AppLogger.w('Sensor reading queued for offline sync (API unavailable)', tag: 'IrrigationRepo');
         return ApiResult.failure(
           'Saved offline, will sync when connected',
           'تم الحفظ محلياً، سيتم المزامنة عند الاتصال',
         );
       }
+
       return ApiResult.failure(
         e.message ?? 'Failed to record sensor reading',
         'فشل في تسجيل قراءة المستشعر',
@@ -490,18 +583,6 @@ class IrrigationRepository {
   // ─────────────────────────────────────────────────────────────────────────────
   // Offline Sync - المزامنة دون اتصال
   // ─────────────────────────────────────────────────────────────────────────────
-
-  /// Queue a pending operation for later sync
-  Future<void> _queuePendingOperation(Map<String, dynamic> operation) async {
-    try {
-      final prefs = await _getPrefs();
-      final pending = prefs.getStringList('irrigation_pending_ops') ?? [];
-      pending.add(jsonEncode(operation));
-      await prefs.setStringList('irrigation_pending_ops', pending);
-    } catch (_) {
-      // Silently fail
-    }
-  }
 
   /// Sync all pending operations
   /// مزامنة جميع العمليات المعلقة
@@ -530,7 +611,7 @@ class IrrigationRepository {
           );
           synced++;
         }
-      } catch (_) {
+      } catch (e) {
         remaining.add(opJson);
       }
     }

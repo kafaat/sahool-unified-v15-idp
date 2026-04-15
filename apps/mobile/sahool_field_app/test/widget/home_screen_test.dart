@@ -14,9 +14,9 @@ void main() {
               textDirection: TextDirection.rtl,
               child: Scaffold(
                 appBar: AppBar(
-                  title: Text('مرحباً، أحمد'),
+                  title: const Text('مرحباً، أحمد'),
                 ),
-                body: Center(
+                body: const Center(
                   child: Text('الشاشة الرئيسية'),
                 ),
               ),
@@ -37,7 +37,7 @@ void main() {
               child: Scaffold(
                 body: GridView.count(
                   crossAxisCount: 2,
-                  children: [
+                  children: const [
                     Card(child: Center(child: Text('الحقول'))),
                     Card(child: Center(child: Text('الطقس'))),
                     Card(child: Center(child: Text('المهام'))),
@@ -63,10 +63,10 @@ void main() {
             home: Directionality(
               textDirection: TextDirection.rtl,
               child: Scaffold(
-                body: Center(child: Text('الرئيسية')),
+                body: const Center(child: Text('الرئيسية')),
                 bottomNavigationBar: BottomNavigationBar(
                   currentIndex: 0,
-                  items: [
+                  items: const [
                     BottomNavigationBarItem(
                       icon: Icon(Icons.home),
                       label: 'الرئيسية',
@@ -100,7 +100,7 @@ void main() {
               textDirection: TextDirection.rtl,
               child: Scaffold(
                 appBar: AppBar(
-                  actions: [
+                  actions: const [
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Row(
@@ -113,7 +113,7 @@ void main() {
                     ),
                   ],
                 ),
-                body: Center(child: Text('الرئيسية')),
+                body: const Center(child: Text('الرئيسية')),
               ),
             ),
           ),
@@ -133,7 +133,7 @@ void main() {
               textDirection: TextDirection.rtl,
               child: Scaffold(
                 appBar: AppBar(
-                  actions: [
+                  actions: const [
                     Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Row(
@@ -146,7 +146,7 @@ void main() {
                     ),
                   ],
                 ),
-                body: Center(child: Text('الرئيسية')),
+                body: const Center(child: Text('الرئيسية')),
               ),
             ),
           ),
@@ -165,7 +165,7 @@ void main() {
               textDirection: TextDirection.rtl,
               child: Scaffold(
                 appBar: AppBar(
-                  title: Column(
+                  title: const Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('مرحباً، أحمد'),
@@ -173,7 +173,7 @@ void main() {
                     ],
                   ),
                 ),
-                body: Center(child: Text('الرئيسية')),
+                body: const Center(child: Text('الرئيسية')),
               ),
             ),
           ),
@@ -186,7 +186,7 @@ void main() {
 
     testWidgets('should scroll dashboard content', (tester) async {
       await tester.pumpWidget(
-        ProviderScope(
+        const ProviderScope(
           child: MaterialApp(
             home: Directionality(
               textDirection: TextDirection.rtl,

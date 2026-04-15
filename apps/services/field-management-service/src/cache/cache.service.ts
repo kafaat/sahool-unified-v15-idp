@@ -23,8 +23,6 @@ export const CACHE_TTL = {
 // Cache key patterns
 export const CACHE_KEYS = {
   FIELD: (id: string) => `field:${id}`,
-  FIELD_LIST: (tenantId: string, page: number, limit: number) =>
-    `fields:${tenantId}:${page}:${limit}`,
   FIELD_STATS: (tenantId: string) => `field-stats:${tenantId}`,
   NDVI: (fieldId: string) => `ndvi:${fieldId}`,
   NDVI_SUMMARY: (tenantId: string) => `ndvi-summary:${tenantId}`,

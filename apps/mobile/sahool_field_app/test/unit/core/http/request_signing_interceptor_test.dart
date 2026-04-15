@@ -14,6 +14,7 @@
 /// - SignatureVerificationResult properties and toString
 /// - HMAC-SHA256 signature consistency and correctness
 /// - Nonce generation (16 random bytes, base64url encoded, unique per request)
+library;
 
 import 'dart:convert';
 
@@ -848,7 +849,7 @@ void main() {
     });
 
     test('error property returns the provided error', () {
-      final innerError = FormatException('bad format');
+      const innerError = FormatException('bad format');
       final exception = RequestSigningException('wrapper', innerError);
       expect(exception.error, innerError);
     });

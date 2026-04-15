@@ -1246,6 +1246,59 @@ services:
     depends_on:
     - postgres
     - redis
+  partner-auth-service:
+    build:
+      context: ../../apps/services/partner-auth-service
+      dockerfile: Dockerfile
+    ports:
+    - 3030:3030
+    environment:
+    - PORT=3030
+    - NODE_ENV=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:3030/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384Mi
+    depends_on:
+    - postgres
+    - redis
+  carbon-service:
+    build:
+      context: ../../apps/services/carbon-service
+      dockerfile: Dockerfile
+    ports:
+    - 8195:8195
+    environment:
+    - PORT=8195
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8195/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.3'
+          memory: 384Mi
+    depends_on:
+    - postgres
   alert-service:
     build:
       context: ../../apps/services/alert-service

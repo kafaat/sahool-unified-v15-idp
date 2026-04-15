@@ -186,20 +186,19 @@ def _validate_table(
     # Use Identifier quoting for defense-in-depth
     quoted_table = f'"{table}"'
 
-    # Count total with geometry
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-    count_result = db.execute(text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;"))  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+    # Count total with geometry; table is validated against _ALLOWED_TABLES allowlist above
+    count_result = db.execute(
+        text(f"SELECT COUNT(*) FROM {quoted_table} WHERE geom IS NOT NULL;")  # nosec B608 - table validated against _ALLOWED_TABLES allowlist  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+    )
     setattr(report, checked_attr, count_result.scalar() or 0)
 
-    # Count invalid
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-    invalid_result = db.execute(
-        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
-            f"""
+    # Count invalid; table is validated against _ALLOWED_TABLES allowlist above
+    invalid_sql = f"""
             SELECT COUNT(*) FROM {quoted_table}
             WHERE geom IS NOT NULL AND ST_IsValid(geom) = false;
-        """
-        )
+        """  # nosec B608 - table validated against _ALLOWED_TABLES allowlist
+    invalid_result = db.execute(
+        text(invalid_sql)  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
     )
     invalid_count = invalid_result.scalar() or 0
     setattr(report, invalid_attr, invalid_count)
@@ -216,10 +215,8 @@ def _validate_table(
     # ST_CollectionExtract(..., 3) extracts polygons (type 3)
     # ST_MakeValid attempts to repair invalid geometries
     # ST_Force2D ensures 2D geometry (removes Z/M)
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-    fix_result = db.execute(
-        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
-            f"""
+    # table is validated against _ALLOWED_TABLES allowlist above
+    fix_sql = f"""
             WITH invalid AS (
                 SELECT id FROM {quoted_table}
                 WHERE geom IS NOT NULL AND ST_IsValid(geom) = false
@@ -228,8 +225,9 @@ def _validate_table(
             SET geom = ST_CollectionExtract(ST_MakeValid(ST_Force2D(geom)), 3)
             WHERE id IN (SELECT id FROM invalid)
             RETURNING id;
-        """
-        )
+        """  # nosec B608 - table validated against _ALLOWED_TABLES allowlist
+    fix_result = db.execute(
+        text(fix_sql)  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
     )
     fixed_ids = list(fix_result)
     setattr(report, fixed_attr, len(fixed_ids))
@@ -250,16 +248,15 @@ def sync_wkt_to_geom(db: Session) -> dict[str, int]:
 
     for table in _ALLOWED_TABLES:
         quoted_table = f'"{table}"'
-        # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-        result = db.execute(
-            text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
-                f"""
+        # table is validated against _ALLOWED_TABLES allowlist above
+        sync_sql = f"""
                 UPDATE {quoted_table}
                 SET geom = ST_GeomFromText(geometry_wkt, 4326)
                 WHERE geom IS NULL AND geometry_wkt IS NOT NULL
                 RETURNING id;
-            """
-            )
+            """  # nosec B608 - table validated against _ALLOWED_TABLES allowlist
+        result = db.execute(
+            text(sync_sql)  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
         )
         results[table] = len(list(result))
 
@@ -290,10 +287,8 @@ def check_geometry_validity(
 
     quoted_table = f'"{table}"'
 
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-    result = db.execute(
-        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
-            f"""
+    # table is validated against _ALLOWED_TABLES allowlist above
+    validity_sql = f"""
             SELECT
                 id,
                 ST_IsValid(geom) AS is_valid,
@@ -303,8 +298,9 @@ def check_geometry_validity(
                 ST_Area(geom::geography) / 10000 AS area_hectares
             FROM {quoted_table}
             WHERE id = :id AND geom IS NOT NULL;
-        """
-        ),
+        """  # nosec B608 - table validated against _ALLOWED_TABLES allowlist
+    result = db.execute(
+        text(validity_sql),  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
         {"id": record_id},
     )
     row = result.fetchone()
@@ -337,10 +333,8 @@ def get_invalid_geometries(
 
     quoted_table = f'"{table}"'
 
-    # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text (table from _ALLOWED_TABLES allowlist)
-    result = db.execute(
-        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
-            f"""
+    # table is validated against _ALLOWED_TABLES allowlist above
+    invalid_list_sql = f"""
             SELECT
                 id,
                 name,
@@ -349,7 +343,10 @@ def get_invalid_geometries(
             FROM {quoted_table}
             WHERE geom IS NOT NULL AND ST_IsValid(geom) = false
             LIMIT :limit;
-        """
+        """  # nosec B608 - table validated against _ALLOWED_TABLES allowlist
+    result = db.execute(
+        text(  # nosemgrep: python.sqlalchemy.security.audit.avoid-sqlalchemy-text.avoid-sqlalchemy-text
+            invalid_list_sql
         ),
         {"limit": limit},
     )

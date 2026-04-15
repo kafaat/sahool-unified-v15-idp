@@ -1,7 +1,8 @@
+library;
+
 /// Spray Advisor Service - خدمة مستشار الرش
 /// يتواصل مع Spray Advisor API Service
 /// Supports offline-first architecture with local caching
-library;
 
 import 'dart:convert';
 import 'package:dio/dio.dart';
@@ -127,8 +128,9 @@ class SprayService {
       if (fieldId != null) queryParams['field_id'] = fieldId;
       if (sprayType != null) queryParams['spray_type'] = sprayType.value;
       if (status != null) queryParams['status'] = status.value;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String();
+      }
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(
@@ -609,8 +611,9 @@ class SprayService {
       };
       if (fieldId != null) queryParams['field_id'] = fieldId;
       if (sprayType != null) queryParams['spray_type'] = sprayType.value;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String();
+      }
       if (endDate != null) queryParams['end_date'] = endDate.toIso8601String();
 
       final response = await _dio.get(

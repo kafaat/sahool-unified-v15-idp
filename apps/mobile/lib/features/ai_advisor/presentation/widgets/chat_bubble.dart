@@ -2,6 +2,7 @@
 /// فقاعة محادثة المستشار الذكي
 ///
 /// Displays chat messages from user and AI assistant
+library;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -77,10 +78,10 @@ class AiChatBubble extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: SahoolTheme.primary.withOpacity(0.1),
+        color: SahoolTheme.primary.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
-      child: Icon(
+      child: const Icon(
         Icons.psychology,
         size: 24,
         color: SahoolTheme.primary,
@@ -144,8 +145,8 @@ class AiChatBubble extends StatelessWidget {
           // Sources (for AI messages)
           if (!isUser && message.metadata != null &&
               message.metadata!['sources'] != null &&
-              (message.metadata!['sources'] as List).isNotEmpty)
-            _buildSources(context, message.metadata!['sources'] as List),
+              (message.metadata!['sources'] as List? ?? []).isNotEmpty)
+            _buildSources(context, message.metadata!['sources'] as List? ?? []),
         ],
       ),
     );
@@ -358,7 +359,7 @@ class SystemMessageBubble extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: (color ?? Colors.grey).withOpacity(0.1),
+          color: (color ?? Colors.grey).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(

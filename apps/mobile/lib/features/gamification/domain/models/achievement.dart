@@ -6,6 +6,7 @@
 /// - Progress tracking
 /// - Streaks and milestones
 /// - Leaderboards
+library;
 
 /// إنجاز
 class Achievement {
@@ -60,7 +61,7 @@ class Achievement {
     pointsValue: json['pointsValue'] as int,
     progress: AchievementProgress.fromJson(json['progress'] as Map<String, dynamic>),
     unlockedAt: json['unlockedAt'] != null
-        ? DateTime.parse(json['unlockedAt'] as String)
+        ? DateTime.tryParse(json['unlockedAt'] as String) ?? DateTime.now()
         : null,
   );
 }
@@ -164,7 +165,7 @@ class Streak {
     currentDays: json['currentDays'] as int,
     bestDays: json['bestDays'] as int,
     lastActivityDate: json['lastActivityDate'] != null
-        ? DateTime.parse(json['lastActivityDate'] as String)
+        ? DateTime.tryParse(json['lastActivityDate'] as String) ?? DateTime.now()
         : null,
     isActive: json['isActive'] as bool,
   );
@@ -222,7 +223,7 @@ class Milestone {
     currentValue: json['currentValue'] as int,
     unit: json['unit'] as String,
     achievedAt: json['achievedAt'] != null
-        ? DateTime.parse(json['achievedAt'] as String)
+        ? DateTime.tryParse(json['achievedAt'] as String) ?? DateTime.now()
         : null,
     rewardPoints: json['rewardPoints'] as int,
   );
@@ -281,16 +282,16 @@ class UserGamificationProfile {
         totalPoints: json['totalPoints'] as int,
         level: json['level'] as int,
         rank: json['rank'] as String,
-        achievements: (json['achievements'] as List)
+        achievements: (json['achievements'] as List? ?? [])
             .map((a) => Achievement.fromJson(a as Map<String, dynamic>))
             .toList(),
-        streaks: (json['streaks'] as List)
+        streaks: (json['streaks'] as List? ?? [])
             .map((s) => Streak.fromJson(s as Map<String, dynamic>))
             .toList(),
-        milestones: (json['milestones'] as List)
+        milestones: (json['milestones'] as List? ?? [])
             .map((m) => Milestone.fromJson(m as Map<String, dynamic>))
             .toList(),
-        lastUpdated: DateTime.parse(json['lastUpdated'] as String),
+        lastUpdated: DateTime.tryParse(json['lastUpdated'] as String) ?? DateTime.now(),
       );
 }
 

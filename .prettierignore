@@ -1,0 +1,42 @@
+# Dependencies
+node_modules/
+.pnp/
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Coverage
+coverage/
+coverage_html/
+
+# Generated files
+*.min.js
+*.bundle.js
+*.generated.dart
+*.g.dart
+*.freezed.dart
+**/*.d.ts
+
+# Archives & legacy
+archive/
+
+# Lock files
+package-lock.json
+pubspec.lock
+
+# Flutter
+apps/mobile/**/build/
+apps/mobile/**/.dart_tool/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Misc
+.git/
+*.svg
+*.ico

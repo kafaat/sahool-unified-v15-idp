@@ -23,8 +23,8 @@ END $$;
 
 -- Add index for efficient querying of users needing migration
 CREATE INDEX IF NOT EXISTS idx_users_password_migration
-    ON users (password_needs_migration)
-    WHERE password_needs_migration = TRUE;
+ON users (password_needs_migration)
+WHERE password_needs_migration = TRUE;
 
 -- Add column to track password algorithm (for monitoring)
 DO $$
@@ -111,34 +111,34 @@ $$ LANGUAGE plpgsql;
 -- Drop trigger if exists and recreate
 DROP TRIGGER IF EXISTS trigger_set_password_algorithm ON users;
 CREATE TRIGGER trigger_set_password_algorithm
-    BEFORE INSERT OR UPDATE OF password_hash ON users
-    FOR EACH ROW
-    EXECUTE FUNCTION set_password_algorithm();
+BEFORE INSERT OR UPDATE OF password_hash ON users
+FOR EACH ROW
+EXECUTE FUNCTION set_password_algorithm();
 
 -- Create view for monitoring migration progress
 CREATE OR REPLACE VIEW password_migration_stats AS
 SELECT
     password_algorithm,
-    COUNT(*) as count,
-    SUM(CASE WHEN password_needs_migration THEN 1 ELSE 0 END) as needs_migration,
-    ROUND(100.0 * SUM(CASE WHEN password_needs_migration THEN 1 ELSE 0 END) / COUNT(*), 2) as migration_percentage
+    COUNT(*) AS count,
+    SUM(CASE WHEN password_needs_migration THEN 1 ELSE 0 END) AS needs_migration,
+    ROUND(100.0 * SUM(CASE WHEN password_needs_migration THEN 1 ELSE 0 END) / COUNT(*), 2) AS migration_percentage
 FROM users
 WHERE password_hash IS NOT NULL
 GROUP BY password_algorithm
 ORDER BY count DESC;
 
 -- Grant permissions
-GRANT SELECT ON password_migration_stats TO PUBLIC;
+GRANT SELECT ON password_migration_stats TO public;
 
 COMMIT;
 
 -- Show migration statistics
 SELECT
-    'Password Migration Statistics' as report,
+    'Password Migration Statistics' AS report,
     password_algorithm,
     count,
     needs_migration,
-    migration_percentage || '%' as percentage
+    migration_percentage || '%' AS percentage
 FROM password_migration_stats;
 
 -- Show summary

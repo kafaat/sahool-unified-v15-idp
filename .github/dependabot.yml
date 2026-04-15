@@ -144,7 +144,7 @@ updates:
       day: "thursday"
       time: "06:00"
       timezone: "Asia/Aden"
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 5
     labels:
       - "dependencies"
       - "github-actions"

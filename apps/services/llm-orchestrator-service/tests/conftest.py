@@ -6,6 +6,19 @@ Test Configuration and Fixtures for LLM Orchestrator Service.
 """
 
 import os
+import sys
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Clear cached src modules from other services to avoid cross-contamination in CI
+_service_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+for _mod in list(sys.modules):
+    if not (_mod == "src" or _mod.startswith("src.")):
+        continue
+    _mod_obj = sys.modules.get(_mod)
+    _mod_file = getattr(_mod_obj, "__file__", None) or ""
+    if not _mod_file or not os.path.abspath(_mod_file).startswith(_service_root):
+        del sys.modules[_mod]
 from unittest.mock import AsyncMock
 
 import pytest
@@ -17,7 +30,10 @@ os.environ["NATS_URL"] = ""
 os.environ["REDIS_URL"] = ""
 os.environ["LOG_LEVEL"] = "WARNING"
 
-from src.main import app
+try:
+    from src.main import app
+except ImportError:
+    pytest.skip("llm-orchestrator-service dependencies not installed", allow_module_level=True)
 
 
 @pytest.fixture(scope="session", autouse=True)

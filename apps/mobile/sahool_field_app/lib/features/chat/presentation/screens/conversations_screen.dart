@@ -1,3 +1,5 @@
+library;
+
 /// Conversations Screen
 /// شاشة قائمة المحادثات
 ///
@@ -10,7 +12,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../core/config/theme.dart';
 import '../../data/models/conversation_model.dart';
 import '../providers/chat_provider.dart';
 import '../../widgets/conversation_tile.dart';

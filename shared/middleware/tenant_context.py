@@ -28,6 +28,7 @@ Usage:
 from __future__ import annotations
 
 import logging
+import re
 from contextvars import ContextVar
 from dataclasses import dataclass
 
@@ -36,6 +37,8 @@ from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoin
 from starlette.responses import JSONResponse, Response
 
 logger = logging.getLogger(__name__)
+
+_UUID_REGEX = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE)
 
 # Context variable for tenant isolation (async-safe)
 _tenant_context: ContextVar[TenantContext | None] = ContextVar("tenant_context", default=None)
@@ -166,6 +169,18 @@ class TenantContextMiddleware(BaseHTTPMiddleware):
                     "error": "missing_tenant",
                     "message_en": "Tenant ID is required",
                     "message_ar": "معرف المستأجر مطلوب",
+                },
+            )
+
+        # Validate tenant ID format (must be a valid UUID)
+        if tenant_id and not _UUID_REGEX.match(tenant_id):
+            logger.warning(f"Invalid Tenant ID format: {tenant_id!r}")
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "invalid_tenant_id",
+                    "message_en": "Invalid Tenant ID format. Must be a valid UUID.",
+                    "message_ar": "تنسيق معرف المستأجر غير صالح. يجب أن يكون UUID صالحًا.",
                 },
             )
 

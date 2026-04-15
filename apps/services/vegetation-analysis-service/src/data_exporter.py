@@ -9,8 +9,13 @@ import json
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
+from xml.etree.ElementTree import (  # nosec B405 # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml  # safe: only building XML, never parsing untrusted input
+    Element,
+    SubElement,
+    tostring,
+)
+
 from defusedxml.minidom import parseString as safe_parseString
-from xml.etree.ElementTree import Element, SubElement, tostring  # nosemgrep: python.lang.security.use-defused-xml.use-defused-xml  # safe: only building XML, never parsing untrusted input
 
 
 class ExportFormat(Enum):

@@ -18,6 +18,21 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Query
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+# Import authentication
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 # Add parent path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
@@ -49,8 +64,29 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1", tags=["NDVI Integration"])
 
 
-async def get_tenant_id(x_tenant_id: str = Header(default="default")) -> str:
-    """Extract tenant ID from request header"""
+async def get_tenant_id(
+    x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
+) -> str:
+    """Extract and validate tenant ID from request header.
+    استخراج والتحقق من معرّف المستأجر من ترويسة الطلب.
+    """
+    if not x_tenant_id or x_tenant_id == "default":
+        raise HTTPException(
+            status_code=400,
+            detail="X-Tenant-Id header is required | ترويسة معرّف المستأجر مطلوبة",
+        )
+
+    # Validate UUID format to prevent injection of arbitrary strings
+    import uuid as _uuid_mod
+
+    try:
+        _uuid_mod.UUID(x_tenant_id)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail="X-Tenant-Id must be a valid UUID",
+        )
+
     return x_tenant_id
 
 
@@ -107,6 +143,7 @@ async def create_task_from_ndvi_alert(
     data: NdviAlertTaskRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create task from NDVI alert
@@ -347,6 +384,7 @@ async def auto_create_tasks(
     data: TaskAutoCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Batch create tasks from recommendations

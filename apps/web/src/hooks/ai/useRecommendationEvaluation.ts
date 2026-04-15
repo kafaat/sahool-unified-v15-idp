@@ -3,29 +3,29 @@
  * تقييم توصيات الذكاء الاصطناعي
  */
 
-"use client";
+'use client';
 
-import { useState, useCallback, useRef, useEffect } from "react";
-import { logger } from "@/lib/logger";
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { logger } from '@/lib/logger';
 
 /**
  * Recommendation evaluation status
  */
 export enum EvaluationStatus {
-  PENDING = "pending",
-  IN_PROGRESS = "in_progress",
-  COMPLETED = "completed",
-  FAILED = "failed",
+  PENDING = 'pending',
+  IN_PROGRESS = 'in_progress',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
 }
 
 /**
  * Recommendation feedback type
  */
 export enum FeedbackType {
-  HELPFUL = "helpful",
-  NOT_HELPFUL = "not_helpful",
-  PARTIALLY_HELPFUL = "partially_helpful",
-  UNCLEAR = "unclear",
+  HELPFUL = 'helpful',
+  NOT_HELPFUL = 'not_helpful',
+  PARTIALLY_HELPFUL = 'partially_helpful',
+  UNCLEAR = 'unclear',
 }
 
 /**
@@ -106,7 +106,7 @@ export function useRecommendationEvaluation() {
       options?: {
         fieldId?: string;
         tenantId?: string;
-      },
+      }
     ): RecommendationEvaluation => {
       const evaluation: RecommendationEvaluation = {
         id: generateEvaluationId(),
@@ -126,7 +126,7 @@ export function useRecommendationEvaluation() {
 
       return evaluation;
     },
-    [],
+    []
   );
 
   /**
@@ -137,7 +137,7 @@ export function useRecommendationEvaluation() {
     (
       evaluationId: string,
       feedback: FeedbackType,
-      notes?: string,
+      notes?: string
     ): RecommendationEvaluation | null => {
       let updated: RecommendationEvaluation | null = null;
 
@@ -153,19 +153,19 @@ export function useRecommendationEvaluation() {
             return updated;
           }
           return evaluation;
-        }),
+        })
       );
 
       if (updated) {
-        logger.debug(
-          `[useRecommendationEvaluation] Submitted feedback:`,
-          { evaluationId, feedback },
-        );
+        logger.debug(`[useRecommendationEvaluation] Submitted feedback:`, {
+          evaluationId,
+          feedback,
+        });
       }
 
       return updated;
     },
-    [],
+    []
   );
 
   /**
@@ -173,10 +173,7 @@ export function useRecommendationEvaluation() {
    * تقديم درجات التقييم المفصلة
    */
   const submitScores = useCallback(
-    (
-      evaluationId: string,
-      scores: Partial<EvaluationScore>,
-    ): RecommendationEvaluation | null => {
+    (evaluationId: string, scores: Partial<EvaluationScore>): RecommendationEvaluation | null => {
       let updated: RecommendationEvaluation | null = null;
 
       setEvaluations((prev) =>
@@ -198,11 +195,7 @@ export function useRecommendationEvaluation() {
             // Calculate overall score if not provided
             if (!scores.overall) {
               merged.overall =
-                (merged.accuracy +
-                  merged.timeliness +
-                  merged.impact +
-                  merged.relevance) /
-                4;
+                (merged.accuracy + merged.timeliness + merged.impact + merged.relevance) / 4;
             }
 
             updated = {
@@ -215,48 +208,45 @@ export function useRecommendationEvaluation() {
             return updated;
           }
           return evaluation;
-        }),
+        })
       );
 
       if (updated != null) {
-        logger.debug(
-          `[useRecommendationEvaluation] Submitted scores:`,
-          { evaluationId, scores: (updated as RecommendationEvaluation).scores },
-        );
+        logger.debug(`[useRecommendationEvaluation] Submitted scores:`, {
+          evaluationId,
+          scores: (updated as RecommendationEvaluation).scores,
+        });
       }
 
       return updated;
     },
-    [],
+    []
   );
 
   /**
    * Mark recommendation as applied
    * وضع علامة على التوصية كمطبقة
    */
-  const markApplied = useCallback(
-    (evaluationId: string): RecommendationEvaluation | null => {
-      let updated: RecommendationEvaluation | null = null;
+  const markApplied = useCallback((evaluationId: string): RecommendationEvaluation | null => {
+    let updated: RecommendationEvaluation | null = null;
 
-      setEvaluations((prev) =>
-        prev.map((evaluation) => {
-          if (evaluation.id === evaluationId) {
-            updated = {
-              ...evaluation,
-              appliedAt: Date.now(),
-              status: EvaluationStatus.IN_PROGRESS,
-              updatedAt: Date.now(),
-            };
-            return updated;
-          }
-          return evaluation;
-        }),
-      );
+    setEvaluations((prev) =>
+      prev.map((evaluation) => {
+        if (evaluation.id === evaluationId) {
+          updated = {
+            ...evaluation,
+            appliedAt: Date.now(),
+            status: EvaluationStatus.IN_PROGRESS,
+            updatedAt: Date.now(),
+          };
+          return updated;
+        }
+        return evaluation;
+      })
+    );
 
-      return updated;
-    },
-    [],
-  );
+    return updated;
+  }, []);
 
   /**
    * Get evaluations by filters
@@ -268,7 +258,7 @@ export function useRecommendationEvaluation() {
 
       if (options?.recommendationId) {
         results = results.filter(
-          (evaluation) => evaluation.recommendationId === options.recommendationId,
+          (evaluation) => evaluation.recommendationId === options.recommendationId
         );
       }
 
@@ -302,7 +292,7 @@ export function useRecommendationEvaluation() {
 
       return results;
     },
-    [],
+    []
   );
 
   /**
@@ -377,12 +367,8 @@ export function useRecommendationEvaluation() {
         };
 
     const helpfulCount =
-      feedbackCounts[FeedbackType.HELPFUL] +
-      feedbackCounts[FeedbackType.PARTIALLY_HELPFUL];
-    const totalFeedback = Object.values(feedbackCounts).reduce(
-      (a, b) => a + b,
-      0,
-    );
+      feedbackCounts[FeedbackType.HELPFUL] + feedbackCounts[FeedbackType.PARTIALLY_HELPFUL];
+    const totalFeedback = Object.values(feedbackCounts).reduce((a, b) => a + b, 0);
     const successRate = totalFeedback > 0 ? helpfulCount / totalFeedback : 0;
 
     return {
@@ -399,30 +385,26 @@ export function useRecommendationEvaluation() {
    * Get trending insights from evaluations
    * الحصول على الرؤى الاتجاهية من التقييمات
    */
-  const getTrendingInsights = useCallback(
-    (timeWindowMs: number = 7 * 24 * 60 * 60 * 1000) => {
-      const now = Date.now();
-      const recentEvals = evaluationsRef.current.filter(
-        (evaluation) => evaluation.createdAt > now - timeWindowMs,
-      );
+  const getTrendingInsights = useCallback((timeWindowMs: number = 7 * 24 * 60 * 60 * 1000) => {
+    const now = Date.now();
+    const recentEvals = evaluationsRef.current.filter(
+      (evaluation) => evaluation.createdAt > now - timeWindowMs
+    );
 
-      const stats = {
-        totalRecent: recentEvals.length,
-        avgOverallScore:
-          recentEvals
-            .filter((evaluation) => evaluation.scores?.overall)
-            .reduce((sum, evaluation) => sum + (evaluation.scores?.overall || 0), 0) /
-            Math.max(recentEvals.filter((evaluation) => evaluation.scores?.overall).length, 1) ||
-          0,
-        mostCommonFeedback:
-          getMostCommon(recentEvals.map((evaluation) => evaluation.feedback)) || "no_data",
-        improvementAreas: getLowestScoringAreas(recentEvals),
-      };
+    const stats = {
+      totalRecent: recentEvals.length,
+      avgOverallScore:
+        recentEvals
+          .filter((evaluation) => evaluation.scores?.overall)
+          .reduce((sum, evaluation) => sum + (evaluation.scores?.overall || 0), 0) /
+          Math.max(recentEvals.filter((evaluation) => evaluation.scores?.overall).length, 1) || 0,
+      mostCommonFeedback:
+        getMostCommon(recentEvals.map((evaluation) => evaluation.feedback)) || 'no_data',
+      improvementAreas: getLowestScoringAreas(recentEvals),
+    };
 
-      return stats;
-    },
-    [],
-  );
+    return stats;
+  }, []);
 
   /**
    * Clear evaluations
@@ -441,10 +423,7 @@ export function useRecommendationEvaluation() {
 
           if (options?.all) {
             shouldDelete = true;
-          } else if (
-            options?.olderThan &&
-            evaluation.createdAt < options.olderThan
-          ) {
+          } else if (options?.olderThan && evaluation.createdAt < options.olderThan) {
             shouldDelete = true;
           }
 
@@ -453,15 +432,13 @@ export function useRecommendationEvaluation() {
           }
 
           return !shouldDelete;
-        }),
+        })
       );
 
-      logger.info(
-        `[useRecommendationEvaluation] Cleared ${deletedCount} evaluations`,
-      );
+      logger.info(`[useRecommendationEvaluation] Cleared ${deletedCount} evaluations`);
       return deletedCount;
     },
-    [],
+    []
   );
 
   return {
@@ -485,7 +462,11 @@ export function useRecommendationEvaluation() {
  * Generate unique ID for evaluation
  */
 function generateEvaluationId(): string {
-  return `eval_${Date.now()}_${globalThis.crypto.randomUUID().substring(0, 9)}`;
+  const rand =
+    typeof globalThis.crypto?.randomUUID === 'function'
+      ? globalThis.crypto.randomUUID().substring(0, 9)
+      : Math.random().toString(36).slice(2, 11);
+  return `eval_${Date.now()}_${rand}`;
 }
 
 /**
@@ -516,9 +497,7 @@ function getMostCommon<T>(arr: (T | undefined)[]): T | null {
 /**
  * Get lowest scoring areas from evaluations
  */
-function getLowestScoringAreas(
-  evaluations: RecommendationEvaluation[],
-): string[] {
+function getLowestScoringAreas(evaluations: RecommendationEvaluation[]): string[] {
   const areas = {
     accuracy: 0,
     timeliness: 0,

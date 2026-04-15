@@ -5,15 +5,66 @@
  * API client for VRA prescription maps and variable rate application features.
  */
 
-import { VRA_ENDPOINTS } from "@sahool/shared-types/contracts";
-import type { ApiResponse } from "@/lib/api/types";
-import { logger } from "@/lib/logger";
+import { VRA_ENDPOINTS } from '@sahool/shared-types/contracts';
+import type { ApiResponse } from '@/lib/api/types';
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch } from '@/lib/api/safe-fetch';
 import type {
   PrescriptionRequest,
   PrescriptionResponse,
   PrescriptionHistoryResponse,
+  PrescriptionSummary,
   ExportFormat,
-} from "../types/vra";
+  ZoneResult,
+  VRAType,
+  ZoneLevel,
+} from '../types/vra';
+
+const api = createApiClient();
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Backend Response Shapes
+// ═══════════════════════════════════════════════════════════════════════════
+
+/** Raw zone object from backend API (snake_case) */
+interface BackendZone {
+  zone_id: number;
+  zone_name: string;
+  zone_name_ar: string;
+  zone_level: string;
+  ndvi_min: number;
+  ndvi_max: number;
+  area_ha: number;
+  percentage: number;
+  centroid: [number, number];
+  recommended_rate: number;
+  unit: string;
+  total_product: number;
+  color: string;
+}
+
+/** Raw prescription summary from backend API (snake_case) */
+interface BackendPrescriptionSummary {
+  id: string;
+  field_id: string;
+  vra_type: string;
+  created_at: string;
+  target_rate: number;
+  unit: string;
+  num_zones: number;
+  total_area_ha: number;
+  savings_percent: number;
+  savings_amount: number;
+  cost_savings?: number;
+}
+
+/** Export result data shape */
+interface ExportData {
+  url?: string;
+  filename?: string;
+  format: string;
+  content?: unknown;
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Error Messages
@@ -21,40 +72,40 @@ import type {
 
 export const VRA_ERROR_MESSAGES = {
   GENERATE_FAILED: {
-    en: "Failed to generate VRA prescription",
-    ar: "فشل في توليد وصفة التطبيق المتغير",
+    en: 'Failed to generate VRA prescription',
+    ar: 'فشل في توليد وصفة التطبيق المتغير',
   },
   HISTORY_FETCH_FAILED: {
-    en: "Failed to fetch prescription history",
-    ar: "فشل في جلب سجل الوصفات",
+    en: 'Failed to fetch prescription history',
+    ar: 'فشل في جلب سجل الوصفات',
   },
   EXPORT_FAILED: {
-    en: "Failed to export prescription",
-    ar: "فشل في تصدير الوصفة",
+    en: 'Failed to export prescription',
+    ar: 'فشل في تصدير الوصفة',
   },
   DETAILS_FETCH_FAILED: {
-    en: "Failed to fetch prescription details",
-    ar: "فشل في جلب تفاصيل الوصفة",
+    en: 'Failed to fetch prescription details',
+    ar: 'فشل في جلب تفاصيل الوصفة',
   },
   DELETE_FAILED: {
-    en: "Failed to delete prescription",
-    ar: "فشل في حذف الوصفة",
+    en: 'Failed to delete prescription',
+    ar: 'فشل في حذف الوصفة',
   },
   INVALID_FIELD_ID: {
-    en: "Invalid field ID provided",
-    ar: "معرف الحقل غير صالح",
+    en: 'Invalid field ID provided',
+    ar: 'معرف الحقل غير صالح',
   },
   INVALID_PRESCRIPTION_ID: {
-    en: "Invalid prescription ID provided",
-    ar: "معرف الوصفة غير صالح",
+    en: 'Invalid prescription ID provided',
+    ar: 'معرف الوصفة غير صالح',
   },
   INVALID_VRA_TYPE: {
-    en: "Invalid VRA type provided",
-    ar: "نوع التطبيق المتغير غير صالح",
+    en: 'Invalid VRA type provided',
+    ar: 'نوع التطبيق المتغير غير صالح',
   },
   INVALID_EXPORT_FORMAT: {
-    en: "Invalid export format",
-    ar: "تنسيق التصدير غير صالح",
+    en: 'Invalid export format',
+    ar: 'تنسيق التصدير غير صالح',
   },
 } as const;
 
@@ -73,12 +124,12 @@ export const VRA_ERROR_MESSAGES = {
  * @returns Generated prescription with zones and recommendations
  */
 export async function generatePrescription(
-  request: PrescriptionRequest,
+  request: PrescriptionRequest
 ): Promise<ApiResponse<PrescriptionResponse>> {
   // Validate required fields
   if (
     !request.fieldId ||
-    typeof request.fieldId !== "string" ||
+    typeof request.fieldId !== 'string' ||
     request.fieldId.trim().length === 0
   ) {
     return {
@@ -96,8 +147,7 @@ export async function generatePrescription(
     };
   }
 
-  try {
-    // Build request payload matching backend API
+  return safeFetch(VRA_ENDPOINTS.MAP_CREATE, async () => {
     const payload = {
       field_id: request.fieldId,
       latitude: request.latitude,
@@ -106,7 +156,7 @@ export async function generatePrescription(
       target_rate: request.targetRate,
       unit: request.unit,
       num_zones: request.numZones || 3,
-      zone_method: request.zoneMethod || "ndvi",
+      zone_method: request.zoneMethod || 'ndvi',
       min_rate: request.minRate,
       max_rate: request.maxRate,
       product_price_per_unit: request.productPricePerUnit,
@@ -114,30 +164,9 @@ export async function generatePrescription(
       notes_ar: request.notesAr,
     };
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.MAP_CREATE}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      },
-    );
+    const response = await api.post(VRA_ENDPOINTS.MAP_CREATE, payload);
+    const data = response.data.data || response.data;
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      logger.error("[generatePrescription] API returned error:", errorData);
-      return {
-        success: false,
-        error: errorData.detail || VRA_ERROR_MESSAGES.GENERATE_FAILED.en,
-        error_ar: VRA_ERROR_MESSAGES.GENERATE_FAILED.ar,
-      };
-    }
-
-    const data = await response.json();
-
-    // Transform response to match frontend types
     const prescription: PrescriptionResponse = {
       id: data.id,
       fieldId: data.field_id,
@@ -149,11 +178,11 @@ export async function generatePrescription(
       unit: data.unit,
       numZones: data.num_zones,
       zoneMethod: data.zone_method,
-      zones: data.zones.map((zone: any) => ({
+      zones: data.zones.map((zone: BackendZone): ZoneResult => ({
         zoneId: zone.zone_id,
         zoneName: zone.zone_name,
         zoneNameAr: zone.zone_name_ar,
-        zoneLevel: zone.zone_level,
+        zoneLevel: zone.zone_level as ZoneResult['zoneLevel'],
         ndviMin: zone.ndvi_min,
         ndviMax: zone.ndvi_max,
         areaHa: zone.area_ha,
@@ -180,18 +209,8 @@ export async function generatePrescription(
     return {
       success: true,
       data: prescription,
-    };
-  } catch (error) {
-    logger.error("[generatePrescription] Request failed:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : VRA_ERROR_MESSAGES.GENERATE_FAILED.en,
-      error_ar: VRA_ERROR_MESSAGES.GENERATE_FAILED.ar,
-    };
-  }
+    } as ApiResponse<PrescriptionResponse>;
+  });
 }
 
 /**
@@ -206,9 +225,9 @@ export async function generatePrescription(
  */
 export async function getPrescriptionHistory(
   fieldId: string,
-  limit: number = 10,
+  limit: number = 10
 ): Promise<ApiResponse<PrescriptionHistoryResponse>> {
-  if (!fieldId || typeof fieldId !== "string" || fieldId.trim().length === 0) {
+  if (!fieldId || typeof fieldId !== 'string' || fieldId.trim().length === 0) {
     return {
       success: false,
       error: VRA_ERROR_MESSAGES.INVALID_FIELD_ID.en,
@@ -216,37 +235,17 @@ export async function getPrescriptionHistory(
     };
   }
 
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${fieldId}?limit=${limit}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+  return safeFetch(`${VRA_ENDPOINTS.PRESCRIPTIONS}/${fieldId}`, async () => {
+    const response = await api.get(`${VRA_ENDPOINTS.PRESCRIPTIONS}/${fieldId}?limit=${limit}`);
+    const data = response.data.data || response.data;
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      logger.error("[getPrescriptionHistory] API returned error:", errorData);
-      return {
-        success: false,
-        error: errorData.detail || VRA_ERROR_MESSAGES.HISTORY_FETCH_FAILED.en,
-        error_ar: VRA_ERROR_MESSAGES.HISTORY_FETCH_FAILED.ar,
-      };
-    }
-
-    const data = await response.json();
-
-    // Transform response
     const history: PrescriptionHistoryResponse = {
       fieldId: data.field_id,
       count: data.count,
-      prescriptions: data.prescriptions.map((p: any) => ({
+      prescriptions: data.prescriptions.map((p: BackendPrescriptionSummary): PrescriptionSummary => ({
         id: p.id,
         fieldId: p.field_id,
-        vraType: p.vra_type,
+        vraType: p.vra_type as VRAType,
         createdAt: p.created_at,
         targetRate: p.target_rate,
         unit: p.unit,
@@ -261,18 +260,8 @@ export async function getPrescriptionHistory(
     return {
       success: true,
       data: history,
-    };
-  } catch (error) {
-    logger.error("[getPrescriptionHistory] Request failed:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : VRA_ERROR_MESSAGES.HISTORY_FETCH_FAILED.en,
-      error_ar: VRA_ERROR_MESSAGES.HISTORY_FETCH_FAILED.ar,
-    };
-  }
+    } as ApiResponse<PrescriptionHistoryResponse>;
+  });
 }
 
 /**
@@ -285,13 +274,9 @@ export async function getPrescriptionHistory(
  * @returns Full prescription details
  */
 export async function getPrescriptionDetails(
-  prescriptionId: string,
+  prescriptionId: string
 ): Promise<ApiResponse<PrescriptionResponse>> {
-  if (
-    !prescriptionId ||
-    typeof prescriptionId !== "string" ||
-    prescriptionId.trim().length === 0
-  ) {
+  if (!prescriptionId || typeof prescriptionId !== 'string' || prescriptionId.trim().length === 0) {
     return {
       success: false,
       error: VRA_ERROR_MESSAGES.INVALID_PRESCRIPTION_ID.en,
@@ -299,30 +284,10 @@ export async function getPrescriptionDetails(
     };
   }
 
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+  return safeFetch(`${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`, async () => {
+    const response = await api.get(`${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`);
+    const data = response.data.data || response.data;
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      logger.error("[getPrescriptionDetails] API returned error:", errorData);
-      return {
-        success: false,
-        error: errorData.detail || VRA_ERROR_MESSAGES.DETAILS_FETCH_FAILED.en,
-        error_ar: VRA_ERROR_MESSAGES.DETAILS_FETCH_FAILED.ar,
-      };
-    }
-
-    const data = await response.json();
-
-    // Transform response (same as generatePrescription)
     const prescription: PrescriptionResponse = {
       id: data.id,
       fieldId: data.field_id,
@@ -334,11 +299,11 @@ export async function getPrescriptionDetails(
       unit: data.unit,
       numZones: data.num_zones,
       zoneMethod: data.zone_method,
-      zones: data.zones.map((zone: any) => ({
+      zones: data.zones.map((zone: BackendZone): ZoneResult => ({
         zoneId: zone.zone_id,
         zoneName: zone.zone_name,
         zoneNameAr: zone.zone_name_ar,
-        zoneLevel: zone.zone_level,
+        zoneLevel: zone.zone_level as ZoneLevel,
         ndviMin: zone.ndvi_min,
         ndviMax: zone.ndvi_max,
         areaHa: zone.area_ha,
@@ -365,18 +330,8 @@ export async function getPrescriptionDetails(
     return {
       success: true,
       data: prescription,
-    };
-  } catch (error) {
-    logger.error("[getPrescriptionDetails] Request failed:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : VRA_ERROR_MESSAGES.DETAILS_FETCH_FAILED.en,
-      error_ar: VRA_ERROR_MESSAGES.DETAILS_FETCH_FAILED.ar,
-    };
-  }
+    } as ApiResponse<PrescriptionResponse>;
+  });
 }
 
 /**
@@ -395,13 +350,9 @@ export async function getPrescriptionDetails(
  */
 export async function exportPrescription(
   prescriptionId: string,
-  format: ExportFormat,
-): Promise<ApiResponse<any>> {
-  if (
-    !prescriptionId ||
-    typeof prescriptionId !== "string" ||
-    prescriptionId.trim().length === 0
-  ) {
+  format: ExportFormat
+): Promise<ApiResponse<ExportData>> {
+  if (!prescriptionId || typeof prescriptionId !== 'string' || prescriptionId.trim().length === 0) {
     return {
       success: false,
       error: VRA_ERROR_MESSAGES.INVALID_PRESCRIPTION_ID.en,
@@ -409,12 +360,7 @@ export async function exportPrescription(
     };
   }
 
-  const validFormats: ExportFormat[] = [
-    "geojson",
-    "csv",
-    "shapefile",
-    "isoxml",
-  ];
+  const validFormats: ExportFormat[] = ['geojson', 'csv', 'shapefile', 'isoxml'];
   if (!validFormats.includes(format)) {
     return {
       success: false,
@@ -423,44 +369,17 @@ export async function exportPrescription(
     };
   }
 
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}/export?format=${format}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
+  return safeFetch(`${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}/export`, async () => {
+    const response = await api.get(
+      `${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}/export?format=${format}`
     );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      logger.error("[exportPrescription] API returned error:", errorData);
-      return {
-        success: false,
-        error: errorData.detail || VRA_ERROR_MESSAGES.EXPORT_FAILED.en,
-        error_ar: VRA_ERROR_MESSAGES.EXPORT_FAILED.ar,
-      };
-    }
-
-    const data = await response.json();
+    const data = response.data.data || response.data;
 
     return {
       success: true,
       data,
-    };
-  } catch (error) {
-    logger.error("[exportPrescription] Request failed:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : VRA_ERROR_MESSAGES.EXPORT_FAILED.en,
-      error_ar: VRA_ERROR_MESSAGES.EXPORT_FAILED.ar,
-    };
-  }
+    } as ApiResponse<ExportData>;
+  });
 }
 
 /**
@@ -473,15 +392,9 @@ export async function exportPrescription(
  * @returns Success status
  */
 export async function deletePrescription(
-  prescriptionId: string,
-): Promise<
-  ApiResponse<{ success: boolean; message: string; messageAr: string }>
-> {
-  if (
-    !prescriptionId ||
-    typeof prescriptionId !== "string" ||
-    prescriptionId.trim().length === 0
-  ) {
+  prescriptionId: string
+): Promise<ApiResponse<{ success: boolean; message: string; messageAr: string }>> {
+  if (!prescriptionId || typeof prescriptionId !== 'string' || prescriptionId.trim().length === 0) {
     return {
       success: false,
       error: VRA_ERROR_MESSAGES.INVALID_PRESCRIPTION_ID.en,
@@ -489,28 +402,9 @@ export async function deletePrescription(
     };
   }
 
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      logger.error("[deletePrescription] API returned error:", errorData);
-      return {
-        success: false,
-        error: errorData.detail || VRA_ERROR_MESSAGES.DELETE_FAILED.en,
-        error_ar: VRA_ERROR_MESSAGES.DELETE_FAILED.ar,
-      };
-    }
-
-    const data = await response.json();
+  return safeFetch(`${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`, async () => {
+    const response = await api.delete(`${VRA_ENDPOINTS.PRESCRIPTIONS}/${prescriptionId}`);
+    const data = response.data.data || response.data;
 
     return {
       success: true,
@@ -519,18 +413,8 @@ export async function deletePrescription(
         message: data.message,
         messageAr: data.message_ar,
       },
-    };
-  } catch (error) {
-    logger.error("[deletePrescription] Request failed:", error);
-    return {
-      success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : VRA_ERROR_MESSAGES.DELETE_FAILED.en,
-      error_ar: VRA_ERROR_MESSAGES.DELETE_FAILED.ar,
-    };
-  }
+    } as ApiResponse<{ success: boolean; message: string; messageAr: string }>;
+  });
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -542,10 +426,10 @@ export async function deletePrescription(
  * Use these keys with TanStack Query for caching and invalidation
  */
 export const vraKeys = {
-  all: ["vra"] as const,
-  prescriptions: () => [...vraKeys.all, "prescriptions"] as const,
+  all: ['vra'] as const,
+  prescriptions: () => [...vraKeys.all, 'prescriptions'] as const,
   prescription: (id: string) => [...vraKeys.prescriptions(), id] as const,
-  history: (fieldId: string) => [...vraKeys.all, "history", fieldId] as const,
+  history: (fieldId: string) => [...vraKeys.all, 'history', fieldId] as const,
   export: (prescriptionId: string, format: ExportFormat) =>
-    [...vraKeys.all, "export", prescriptionId, format] as const,
+    [...vraKeys.all, 'export', prescriptionId, format] as const,
 } as const;

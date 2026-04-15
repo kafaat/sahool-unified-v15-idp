@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Astronomical Calendar Providers
 /// مزودات التقويم الفلكي باستخدام Riverpod
 ///

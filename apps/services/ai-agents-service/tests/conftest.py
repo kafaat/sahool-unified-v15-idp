@@ -9,8 +9,9 @@ Updated: January 2026
 import enum
 import os
 import sys
+from collections.abc import Generator
 from datetime import datetime
-from typing import Any, Generator
+from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest

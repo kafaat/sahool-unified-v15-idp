@@ -1,5 +1,6 @@
 /// SAHOOL Crop Health Domain Entities
 /// نماذج صحة المحاصيل
+library;
 
 /// مؤشرات الغطاء النباتي
 class VegetationIndices {
@@ -248,11 +249,11 @@ class FieldDiagnosis {
     return FieldDiagnosis(
       fieldId: json['field_id'] as String,
       date: json['date'] as String,
-      summary: DiagnosisSummary.fromJson(json['summary']),
-      actions: (json['actions'] as List)
-          .map((a) => DiagnosisAction.fromJson(a))
+      summary: DiagnosisSummary.fromJson(json['summary'] as Map<String, dynamic>),
+      actions: (json['actions'] as List? ?? [])
+          .map((a) => DiagnosisAction.fromJson(a as Map<String, dynamic>))
           .toList(),
-      mapLayers: MapLayers.fromJson(json['map_layers']),
+      mapLayers: MapLayers.fromJson(json['map_layers'] as Map<String, dynamic>),
     );
   }
 
@@ -314,8 +315,8 @@ class ZoneTimeline {
     return ZoneTimeline(
       zoneId: json['zone_id'] as String,
       fieldId: json['field_id'] as String,
-      series: (json['series'] as List)
-          .map((s) => TimelinePoint.fromJson(s))
+      series: (json['series'] as List? ?? [])
+          .map((s) => TimelinePoint.fromJson(s as Map<String, dynamic>))
           .toList(),
     );
   }

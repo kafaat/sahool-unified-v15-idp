@@ -18,10 +18,10 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 # Upgrade pip
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY apps/services/irrigation-smart/requirements.txt .
@@ -60,6 +60,20 @@ COPY --chown=sahool:sahool apps/services/shared ./shared/
 # Copy source code
 COPY --chown=sahool:sahool apps/services/irrigation-smart/src/ ./src/
 
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /home/sahool/.local/lib/python*/site-packages/setuptools* \
+           /home/sahool/.local/lib/python*/site-packages/pip* \
+           /home/sahool/.local/lib/python*/site-packages/wheel* \
+           /home/sahool/.local/lib/python*/site-packages/pkg_resources* \
+           /home/sahool/.local/lib/python*/site-packages/jaraco* \
+           /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Expose port

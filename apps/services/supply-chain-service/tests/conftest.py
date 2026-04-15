@@ -1,6 +1,8 @@
 """Pytest configuration and fixtures for Supply Chain Service tests."""
 
 import os
+import sys
+from unittest.mock import MagicMock
 from uuid import uuid4
 
 import pytest
@@ -12,9 +14,45 @@ os.environ["NATS_URL"] = ""
 os.environ["REDIS_URL"] = ""
 os.environ["JWT_SECRET_KEY"] = "test-secret-key-for-unit-tests-only-32chars"
 
+# Add service root to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+
+# Mock shared.auth module tree to avoid cryptography import issues
+# Provide a real async function for get_current_user
+async def _fake_get_current_user():
+    return {"id": "12345678-1234-1234-1234-123456789abc", "tenant_id": "test-tenant", "token": "fake-token"}
+
+
+_mock_auth = MagicMock()
+_mock_auth.dependencies.get_current_user = _fake_get_current_user
+sys.modules["shared.auth"] = _mock_auth
+sys.modules["shared.auth.dependencies"] = _mock_auth.dependencies
+sys.modules["shared.auth.models"] = _mock_auth.models
+
+# Mock shared.errors_py to avoid import issues
+sys.modules["shared.errors_py"] = MagicMock()
+
+
+# Mock shared.middleware.tenant_context with a proper ASGI middleware
+class _FakeTenantMiddleware:
+    """No-op middleware that just passes through."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        await self.app(scope, receive, send)
+
+
+_mock_tenant_module = MagicMock()
+_mock_tenant_module.TenantContextMiddleware = _FakeTenantMiddleware
+sys.modules["shared.middleware"] = MagicMock()
+sys.modules["shared.middleware.tenant_context"] = _mock_tenant_module
+
 try:
     from src.main import app
-except (ImportError, OSError, RuntimeError):
+except (ImportError, OSError, RuntimeError) as exc:
     app = None
 
 

@@ -22,16 +22,18 @@ pgbouncer_logs.txt
 sahool.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Environment & Secrets (CRITICAL - Never commit!)
+# Environment & Secrets (CRITICAL - Never commit real credentials!)
+# Only templates/examples are tracked. Real .env files with credentials are excluded.
 # ─────────────────────────────────────────────────────────────────────────────
 .env
 .env.*
+.envclear
 !.env.example
 !.env.test
-!.env.development
-!.env.staging
-!.env.production
 !.env.development.template
+!.env.production.template
+# NOTE: .env.development, .env.staging, .env.production are NOT tracked.
+# Use .env.development.template as starting point: cp .env.development.template .env.development
 *.pem
 *.key
 *.crt
@@ -48,6 +50,9 @@ firebase-credentials.json
 # ─────────────────────────────────────────────────────────────────────────────
 .next/
 out/
+# Next.js auto-generated types (do not commit)
+next-env.d.ts
+apps/*/next-env.d.ts
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Node.js
@@ -247,3 +252,12 @@ _codeql_detected_source_root
 # MQTT Credentials (CRITICAL - Never commit!)
 # ─────────────────────────────────────────────────────────────────────────────
 infrastructure/core/mqtt/passwd
+.hypothesis/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Claude Code — personal overrides (never commit)
+# ─────────────────────────────────────────────────────────────────────────────
+CLAUDE_LOCAL.md
+.claude/settings.local.json
+.claude/.cache/
+.claude/logs/

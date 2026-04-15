@@ -90,7 +90,7 @@ class _AlertsList extends StatelessWidget {
                         vertical: 2,
                       ),
                       decoration: BoxDecoration(
-                        color: SahoolColors.danger.withOpacity(0.1),
+                        color: SahoolColors.danger.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -146,7 +146,7 @@ class _AlertCard extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -169,7 +169,7 @@ class _AlertCard extends StatelessWidget {
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color:
-                            _getSeverityColor(alert.severity).withOpacity(0.1),
+                            _getSeverityColor(alert.severity).withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -243,7 +243,7 @@ class _AlertCard extends StatelessWidget {
                             vertical: 8,
                           ),
                           backgroundColor:
-                              SahoolColors.primary.withOpacity(0.1),
+                              SahoolColors.primary.withValues(alpha: 0.1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -326,7 +326,7 @@ class _NoAlertsWidget extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: SahoolColors.success.withOpacity(0.1),
+        color: SahoolColors.success.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -334,7 +334,7 @@ class _NoAlertsWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: SahoolColors.success.withOpacity(0.2),
+              color: SahoolColors.success.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -399,7 +399,7 @@ class _AlertsError extends StatelessWidget {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red.withOpacity(0.1),
+        color: Colors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(

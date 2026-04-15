@@ -1,6 +1,7 @@
+library;
+
 /// Fertilizer Recommendation Models
 /// نماذج توصيات التسميد
-library;
 
 import 'package:freezed_annotation/freezed_annotation.dart';
 

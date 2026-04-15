@@ -24,6 +24,7 @@ References:
 from __future__ import annotations
 
 import json
+import logging
 import os
 import sys
 import uuid
@@ -36,8 +37,10 @@ sys.path.insert(0, "/app")
 sys.path.insert(0, "/app/shared")
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 try:
     from shared.middleware.tenant_context import TenantContextMiddleware
@@ -45,6 +48,20 @@ try:
     _has_tenant_middleware = True
 except ImportError:
     _has_tenant_middleware = False
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 VERSION = "16.0.0"
 SERVICE_NAME = "fertigation-engine"
@@ -668,9 +685,14 @@ fert_engine = FertigationEngine()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    import logging
+    try:
+        import structlog
 
-    logger = logging.getLogger(SERVICE_NAME)
+        logger = structlog.get_logger(SERVICE_NAME)
+    except ImportError:
+        import logging
+
+        logger = logging.getLogger(SERVICE_NAME)
     logger.info(f"Starting {SERVICE_NAME} v{VERSION} on port {PORT}")
 
     nats_url = os.getenv("NATS_URL")
@@ -729,20 +751,23 @@ def readiness():
 
 # Fertigation endpoints
 @app.post("/api/v1/fertigation/plan", response_model=FertigationPlan)
-async def create_fertigation_plan(req: FertigationRequest):
+async def create_fertigation_plan(req: FertigationRequest, current_user: User = Depends(get_current_user)):
     """
     Calculate fertigation plan with NPK requirements, fertilizer selection,
     EC management, and environmental risk assessment.
     """
     try:
         result = fert_engine.calculate_fertigation(req)
-    except Exception as e:
+    except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error("Fertigation calculation failed: %s", e)
+        raise HTTPException(status_code=500, detail="Fertigation calculation failed")
 
     nc = getattr(app.state, "nc", None)
     if nc:
         try:
-            tenant_id = os.getenv("TENANT_ID", "default")
+            tenant_id = getattr(current_user, "tenant_id", None) or os.getenv("TENANT_ID", "default")
             await nc.publish(
                 f"sahool.{tenant_id}.fertigation.plan_created",
                 json.dumps(
@@ -755,14 +780,14 @@ async def create_fertigation_plan(req: FertigationRequest):
                     }
                 ).encode(),
             )
-        except Exception:
-            pass
+        except Exception as e:
+            logger.error("Failed to publish NATS event: %s", e)
 
     return result
 
 
 @app.post("/api/v1/fertigation/nutrient-balance", response_model=NutrientBalance)
-async def calculate_balance(req: NutrientBalanceRequest):
+async def calculate_balance(req: NutrientBalanceRequest, current_user: User = Depends(get_current_user)):
     """Track and analyze nutrient balance for a field."""
     return fert_engine.calculate_nutrient_balance(req)
 
@@ -827,4 +852,4 @@ async def list_growth_phases():
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)  # nosec B104 - binding to all interfaces required for Docker container

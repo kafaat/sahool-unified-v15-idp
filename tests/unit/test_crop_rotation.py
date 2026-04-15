@@ -12,62 +12,60 @@ Author: Test Suite
 Date: January 2026
 """
 
-import pytest
 from datetime import date, datetime, timedelta
 from typing import List
 
+import pytest
+
 # Import all models and classes
 from shared.crop_rotation.models import (
-    # Enums
-    CropFamily,
-    CropType,
-    Season,
-    RotationBenefit,
-    SoilHealthIndicator,
-    RecommendationPriority,
-    PlanStatus,
     # Models
     CropCharacteristics,
-    RotationSlot,
-    RotationSequence,
-    RotationPlan,
-    PestDiseaseRisk,
-    PestBreakRecommendation,
-    SoilHealthMeasurement,
-    SoilHealthTrend,
-    SoilHealthReport,
-    NutrientBalance,
-    RotationRecommendation,
-    MultiYearPlan,
+    # Enums
+    CropFamily,
     CropHistoryRecord,
+    CropType,
     FieldRotationHistory,
+    MultiYearPlan,
+    NutrientBalance,
+    PestBreakRecommendation,
+    PestDiseaseRisk,
+    PlanStatus,
+    RecommendationPriority,
+    RotationBenefit,
+    RotationPlan,
+    RotationRecommendation,
+    RotationSequence,
+    RotationSlot,
+    Season,
+    SoilHealthIndicator,
+    SoilHealthMeasurement,
+    SoilHealthReport,
+    SoilHealthTrend,
 )
-
 from shared.crop_rotation.planner import (
-    CropRotationPlanner,
-    RotationPlannerConfig,
     CROP_DATABASE,
     PEST_DISEASE_DATABASE,
     ROTATION_COMPATIBILITY,
-    get_crop_characteristics,
+    CropRotationPlanner,
+    RotationPlannerConfig,
+    calculate_rotation_score,
     get_crop_arabic_name,
+    get_crop_characteristics,
     get_recommended_break_crops,
     get_rotation_compatibility,
-    calculate_rotation_score,
 )
-
 from shared.crop_rotation.soil_health import (
-    SoilHealthRating,
-    TrendDirection,
-    SoilHealthTrackerConfig,
-    SoilHealthTracker,
-    OPTIMAL_RANGES,
     CROP_SOIL_IMPACT,
+    OPTIMAL_RANGES,
+    SoilHealthRating,
+    SoilHealthTracker,
+    SoilHealthTrackerConfig,
+    TrendDirection,
     assess_soil_health_from_measurement,
     calculate_nitrogen_credit,
     get_organic_matter_trend_summary,
 )
-
 
 # =============================================================================
 # Test Fixtures
@@ -385,12 +383,12 @@ class TestMultiYearPlanning:
             field_name_ar="حقل الاختبار",
             area_ha=5.0,
             starting_crop=CropType.WHEAT,
-            start_year=2026,
+            start_year=date.today().year,
             years=3,
         )
 
         assert plan.field_id == "FIELD-001"
-        assert plan.start_year == 2026
+        assert plan.start_year == date.today().year
         assert plan.total_years == 3
         assert len(plan.yearly_recommendations) > 0
 

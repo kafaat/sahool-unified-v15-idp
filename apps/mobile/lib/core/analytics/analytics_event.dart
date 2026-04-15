@@ -10,6 +10,7 @@
 /// - PII filtering
 /// - Offline-first support
 /// - Arabic/English bilingual events
+library;
 
 import '../utils/pii_filter.dart';
 
@@ -554,7 +555,7 @@ class AnalyticsEvent {
       name: json['name'] as String,
       category: AnalyticsEventCategory.values.byName(json['category'] as String),
       parameters: Map<String, dynamic>.from(json['parameters'] as Map),
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
       sessionId: json['session_id'] as String?,
       isSent: json['is_sent'] as bool? ?? false,
       retryCount: json['retry_count'] as int? ?? 0,

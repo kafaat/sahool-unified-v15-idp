@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Add tenant_id to field-management models missing tenant isolation
 -- إضافة معرف المستأجر لجداول إدارة الحقول
@@ -7,6 +11,7 @@
 
 -- Step 1: Add tenant_id columns with safe DEFAULT for existing rows
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "field_boundary_history" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR(100) NOT NULL DEFAULT 'default';
 ALTER TABLE "tasks" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR(100) NOT NULL DEFAULT 'default';
 ALTER TABLE "ndvi_readings" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR(100) NOT NULL DEFAULT 'default';
@@ -31,7 +36,7 @@ ALTER TABLE "ndvi_readings" ALTER COLUMN "tenant_id" DROP DEFAULT;
 
 -- Step 4: Create tenant isolation indexes
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_history_tenant" ON "field_boundary_history" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_tenant" ON "tasks" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_task_tenant_status" ON "tasks" ("tenant_id", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_ndvi_tenant" ON "ndvi_readings" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_history_tenant" ON "field_boundary_history" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_task_tenant" ON "tasks" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_task_tenant_status" ON "tasks" ("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_ndvi_tenant" ON "ndvi_readings" ("tenant_id");

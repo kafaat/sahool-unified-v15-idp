@@ -26,6 +26,7 @@
 /// // Record network request
 /// breadcrumbs.recordHttpRequest('GET', '/api/fields', statusCode: 200);
 /// ```
+library;
 
 import 'dart:collection';
 import 'package:flutter/foundation.dart';
@@ -122,7 +123,7 @@ class Breadcrumb {
   factory Breadcrumb.fromJson(Map<String, dynamic> json) {
     return Breadcrumb(
       message: json['message'] as String,
-      timestamp: DateTime.parse(json['timestamp'] as String),
+      timestamp: DateTime.tryParse(json['timestamp'] as String) ?? DateTime.now(),
       category: BreadcrumbCategory.values.firstWhere(
         (e) => e.name == json['category'],
         orElse: () => BreadcrumbCategory.custom,
@@ -470,7 +471,7 @@ class BreadcrumbService {
       }
 
       return uri.replace(queryParameters: sanitizedParams.isEmpty ? null : sanitizedParams).toString();
-    } catch (_) {
+    } catch (e) {
       return url;
     }
   }

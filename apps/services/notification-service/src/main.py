@@ -16,27 +16,42 @@ Field-First Architecture:
 """
 
 import asyncio
+import html
 import logging
 import os
-import structlog
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, date, datetime, timezone
+from datetime import UTC, date, datetime
 from enum import Enum, StrEnum
 from typing import Any
 from uuid import UUID
 
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+import structlog
+from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 # Add shared middleware to path
 shared_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 sys.path.insert(0, shared_path)
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+# DLQ support for failed notification delivery
+try:
+    from shared.events.dlq_config import DLQConfig, DLQMessageMetadata
+
+    _dlq_config = DLQConfig.from_env()
+    _dlq_available = True
+except (ImportError, ValueError, TypeError) as _dlq_err:
+    _dlq_available = False
+    _dlq_config = None
+    import logging as _logging
+
+    _logging.getLogger(__name__).warning("DLQ disabled: %s", _dlq_err)
 
 
 def sanitize_log_input(value: str) -> str:
@@ -44,6 +59,40 @@ def sanitize_log_input(value: str) -> str:
     if not isinstance(value, str):
         value = str(value)
     return value.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+
+
+# =============================================================================
+# Prometheus Metrics
+# =============================================================================
+
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
+
+    HAS_PROMETHEUS = True
+except ImportError:
+    HAS_PROMETHEUS = False
+
+if HAS_PROMETHEUS:
+    REQUEST_COUNT = Counter(
+        "notification_requests_total",
+        "Total notification API requests",
+        ["endpoint", "status"],
+    )
+    REQUEST_LATENCY = Histogram(
+        "notification_request_duration_seconds",
+        "Notification API latency",
+        ["endpoint"],
+    )
+    NOTIFICATIONS_SENT = Counter(
+        "notifications_sent_total",
+        "Notifications sent by channel",
+        ["channel", "status"],
+    )
+    NOTIFICATIONS_FAILED = Counter(
+        "notifications_failed_total",
+        "Failed notification deliveries",
+        ["channel", "reason"],
+    )
 
 
 # Security headers middleware
@@ -58,6 +107,15 @@ except ImportError:
         pass
 
 
+# CORS configuration via shared module
+try:
+    from shared.cors_config import setup_cors_middleware
+
+    CORS_SETUP_AVAILABLE = True
+except ImportError:
+    CORS_SETUP_AVAILABLE = False
+
+
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Import authentication dependencies
@@ -70,13 +128,15 @@ except ImportError:
     # Fallback if auth module not available
     AUTH_AVAILABLE = False
 
+    from fastapi import HTTPException as _HTTPException
+
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""
-        tenant_id: str = ""
+        tenant_id: str | None = None
 
     async def get_current_user():
         """Placeholder when auth not available"""
-        return None
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 # Database imports
@@ -137,6 +197,23 @@ class NotificationChannel(StrEnum):
     EMAIL = "email"
     WHATSAPP = "whatsapp"
     IN_APP = "in_app"
+
+
+class DevicePlatform(StrEnum):
+    IOS = "ios"
+    ANDROID = "android"
+    WEB = "web"
+
+
+# Allowed notification channel types for validation
+ALLOWED_CHANNEL_TYPES = {ch.value for ch in NotificationChannel}
+
+
+def sanitize_notification_content(text: str) -> str:
+    """Sanitize notification content to prevent XSS in push notifications."""
+    if not isinstance(text, str):
+        text = str(text)
+    return html.escape(text)
 
 
 class Governorate(StrEnum):
@@ -222,24 +299,30 @@ CROP_AR = {
 class FarmerProfile(BaseModel):
     """ملف المزارع للإشعارات المخصصة"""
 
-    farmer_id: str
-    name: str
-    name_ar: str
+    farmer_id: str = Field(..., min_length=1, max_length=100)
+    name: str = Field(..., min_length=1, max_length=200)
+    name_ar: str = Field(..., min_length=1, max_length=200)
     governorate: Governorate
-    district: str | None = None
+    district: str | None = Field(None, max_length=200)
     crops: list[CropType]
     field_ids: list[str] = []
-    phone: str | None = None
-    email: str | None = None
-    fcm_token: str | None = None  # Firebase Cloud Messaging
+    phone: str | None = Field(None, max_length=20)
+    email: str | None = Field(None, max_length=254)
+    fcm_token: str | None = Field(None, min_length=10, max_length=500)  # Firebase Cloud Messaging
+    device_platform: DevicePlatform | None = None
     notification_channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
-    language: str = "ar"
+    language: str = Field("ar", max_length=10)
+
+    @field_validator("name", "name_ar")
+    @classmethod
+    def sanitize_name(cls, v: str) -> str:
+        return sanitize_notification_content(v)
 
 
 class NotificationPreferences(BaseModel):
     """تفضيلات الإشعارات"""
 
-    farmer_id: str
+    farmer_id: str = Field(..., min_length=1, max_length=100)
     weather_alerts: bool = True
     pest_alerts: bool = True
     irrigation_reminders: bool = True
@@ -255,13 +338,13 @@ class Notification(BaseModel):
 
     id: str
     type: NotificationType
-    type_ar: str
+    type_ar: str = Field(..., max_length=200)
     priority: NotificationPriority
-    priority_ar: str
-    title: str
-    title_ar: str
-    body: str
-    body_ar: str
+    priority_ar: str = Field(..., max_length=200)
+    title: str = Field(..., max_length=200)
+    title_ar: str = Field(..., max_length=200)
+    body: str = Field(..., max_length=2000)
+    body_ar: str = Field(..., max_length=2000)
     data: dict[str, Any] = {}
     target_farmers: list[str] = []  # Empty = broadcast
     target_governorates: list[Governorate] = []
@@ -270,7 +353,7 @@ class Notification(BaseModel):
     created_at: datetime
     expires_at: datetime | None = None
     is_read: bool = False
-    action_url: str | None = None
+    action_url: str | None = Field(None, max_length=2000)
 
 
 class CreateNotificationRequest(BaseModel):
@@ -278,49 +361,83 @@ class CreateNotificationRequest(BaseModel):
 
     type: NotificationType
     priority: NotificationPriority = NotificationPriority.MEDIUM
-    title: str
-    title_ar: str
-    body: str
-    body_ar: str
+    title: str = Field(..., min_length=1, max_length=200)
+    title_ar: str = Field(..., min_length=1, max_length=200)
+    body: str = Field(..., min_length=1, max_length=2000)
+    body_ar: str = Field(..., min_length=1, max_length=2000)
     data: dict[str, Any] = {}
-    target_farmers: list[str] = []
+    target_farmers: list[str] = Field(default=[])
     target_governorates: list[Governorate] = []
     target_crops: list[CropType] = []
     channels: list[NotificationChannel] = [NotificationChannel.IN_APP]
-    expires_in_hours: int | None = 24
+    expires_in_hours: int | None = Field(24, ge=1, le=8760)
+
+    @field_validator("title", "title_ar", "body", "body_ar")
+    @classmethod
+    def sanitize_content(cls, v: str) -> str:
+        """Sanitize notification content to prevent XSS in push notifications."""
+        return sanitize_notification_content(v)
+
+    @field_validator("target_farmers")
+    @classmethod
+    def validate_target_farmers(cls, v: list[str]) -> list[str]:
+        for fid in v:
+            if not fid or len(fid) > 100:
+                raise ValueError("Each farmer_id must be between 1 and 100 characters")
+        return v
 
 
 class WeatherAlertRequest(BaseModel):
     """طلب تنبيه طقس"""
 
-    governorates: list[Governorate]
-    alert_type: str  # frost, heat_wave, storm, flood, drought
+    governorates: list[Governorate] = Field(..., min_length=1)
+    alert_type: str = Field(..., min_length=1, max_length=50)
     severity: NotificationPriority
     expected_date: date
     details: dict[str, Any] = {}
+
+    @field_validator("alert_type")
+    @classmethod
+    def sanitize_alert_type(cls, v: str) -> str:
+        return sanitize_notification_content(v)
 
 
 class PestAlertRequest(BaseModel):
     """طلب تنبيه آفات"""
 
     governorate: Governorate
-    pest_name: str
-    pest_name_ar: str
-    affected_crops: list[CropType]
+    pest_name: str = Field(..., min_length=1, max_length=200)
+    pest_name_ar: str = Field(..., min_length=1, max_length=200)
+    affected_crops: list[CropType] = Field(..., min_length=1)
     severity: NotificationPriority
     recommendations: list[str] = []
     recommendations_ar: list[str] = []
+
+    @field_validator("pest_name", "pest_name_ar")
+    @classmethod
+    def sanitize_pest_names(cls, v: str) -> str:
+        return sanitize_notification_content(v)
+
+    @field_validator("recommendations", "recommendations_ar")
+    @classmethod
+    def sanitize_recommendations(cls, v: list[str]) -> list[str]:
+        return [sanitize_notification_content(r) for r in v]
 
 
 class IrrigationReminderRequest(BaseModel):
     """طلب تذكير ري"""
 
-    farmer_id: str
-    field_id: str
-    field_name: str
+    farmer_id: str = Field(..., min_length=1, max_length=100)
+    field_id: str = Field(..., min_length=1, max_length=100)
+    field_name: str = Field(..., min_length=1, max_length=200)
     crop: CropType
-    water_needed_mm: float
+    water_needed_mm: float = Field(..., gt=0, le=500)
     urgency: NotificationPriority
+
+    @field_validator("field_name")
+    @classmethod
+    def sanitize_field_name(cls, v: str) -> str:
+        return sanitize_notification_content(v)
 
 
 # =============================================================================
@@ -358,6 +475,133 @@ FARMER_PROFILES: dict[str, Any] = {}
 # =============================================================================
 
 
+async def _publish_to_dlq(send_func_name: str, error: Exception, max_retries: int, kwargs: dict[str, Any]):
+    """Publish failed notification to dead-letter queue for manual retry."""
+    import json
+    import traceback
+
+    dlq_subject = "sahool.dlq.sahool.notification.delivery.failed"
+    notification = kwargs.get("notification")
+    channel = kwargs.get("channel")
+    farmer_id = kwargs.get("farmer_id")
+
+    # Build DLQ payload
+    if _dlq_available:
+        metadata = DLQMessageMetadata(
+            original_subject="sahool.notification.send",
+            retry_count=max_retries,
+            failure_reason=str(error),
+            failure_timestamp=datetime.now(UTC).isoformat(),
+            error_type=error.__class__.__name__,
+            error_traceback="".join(traceback.format_exception(type(error), error, error.__traceback__))[:1000],
+            consumer_service="notification-service",
+            consumer_version="16.0.0",
+            handler_function=send_func_name,
+        )
+        dlq_subject = _dlq_config.get_dlq_subject("sahool.notification.delivery.failed")
+        dlq_payload = {
+            "metadata": metadata.model_dump(),
+            "original_message": json.dumps(
+                {
+                    "notification_id": str(getattr(notification, "id", "")),
+                    "channel": str(channel) if channel else None,
+                    "farmer_id": farmer_id,
+                },
+                default=str,
+            ),
+        }
+    else:
+        dlq_payload = {
+            "metadata": {
+                "original_subject": "sahool.notification.send",
+                "retry_count": max_retries,
+                "failure_reason": str(error),
+                "failure_timestamp": datetime.now(UTC).isoformat(),
+                "error_type": error.__class__.__name__,
+                "consumer_service": "notification-service",
+                "handler_function": send_func_name,
+            },
+            "original_message": json.dumps(
+                {
+                    "notification_id": str(getattr(notification, "id", "")),
+                    "channel": str(channel) if channel else None,
+                    "farmer_id": farmer_id,
+                },
+                default=str,
+            ),
+        }
+
+    # Try to publish to NATS DLQ stream
+    published = False
+    if _nats_subscriber and hasattr(_nats_subscriber, "_nc") and _nats_subscriber._nc:
+        try:
+            await _nats_subscriber._nc.publish(
+                dlq_subject,
+                json.dumps(dlq_payload, default=str).encode("utf-8"),
+            )
+            published = True
+            logger.warning(
+                "notification_moved_to_dlq",
+                dlq_subject=dlq_subject,
+                notification_id=sanitize_log_input(str(getattr(notification, "id", ""))),
+                channel=sanitize_log_input(str(channel)) if channel else None,
+                farmer_id=sanitize_log_input(str(farmer_id)) if farmer_id else None,
+                error_type=sanitize_log_input(error.__class__.__name__),
+            )
+        except Exception as dlq_error:
+            logger.error(
+                "notification_dlq_publish_failed",
+                dlq_error=sanitize_log_input(str(dlq_error)),
+                original_error=sanitize_log_input(str(error)),
+            )
+
+    if not published:
+        # Fallback: structured log for manual recovery when NATS is unavailable
+        logger.error(
+            "notification_dlq_fallback",
+            dlq_subject=dlq_subject,
+            notification_id=sanitize_log_input(str(getattr(notification, "id", ""))),
+            channel=sanitize_log_input(str(channel)) if channel else None,
+            farmer_id=sanitize_log_input(str(farmer_id)) if farmer_id else None,
+            error_type=sanitize_log_input(error.__class__.__name__),
+            error=sanitize_log_input(str(error)),
+            retries=max_retries,
+            dlq_payload=json.dumps(dlq_payload, default=str),
+        )
+
+
+async def _send_with_retry(send_func, *args, max_retries=3, **kwargs):
+    """Send notification with retry on failure."""
+    for attempt in range(max_retries):
+        try:
+            result = await send_func(*args, **kwargs)
+            return result
+        except Exception as e:
+            if attempt < max_retries - 1:
+                wait = 2**attempt  # exponential backoff: 1, 2, 4 seconds
+                logger.warning(
+                    "notification_send_retry",
+                    attempt=attempt + 1,
+                    max=max_retries,
+                    wait=wait,
+                    error=str(e),
+                )
+                await asyncio.sleep(wait)
+            else:
+                logger.error(
+                    "notification_send_failed_all_retries",
+                    error=str(e),
+                    retries=max_retries,
+                )
+                await _publish_to_dlq(
+                    send_func_name=getattr(send_func, "__name__", "unknown"),
+                    error=e,
+                    max_retries=max_retries,
+                    kwargs=kwargs,
+                )
+                raise
+
+
 async def create_notification(
     type: NotificationType,
     priority: NotificationPriority,
@@ -374,6 +618,12 @@ async def create_notification(
     tenant_id: str | None = None,
 ):
     """إنشاء إشعار جديد - Database version with preference checking"""
+
+    # Sanitize notification content to prevent XSS (defense in depth)
+    title = sanitize_notification_content(title)
+    title_ar = sanitize_notification_content(title_ar)
+    body = sanitize_notification_content(body)
+    body_ar = sanitize_notification_content(body_ar)
 
     # Determine target farmers based on criteria
     if channels is None:
@@ -436,22 +686,30 @@ async def create_notification(
         )
         notifications.append(notification)
 
-        # Send notifications via appropriate channels (async background task)
+        # Send notifications via appropriate channels (async background task with retry)
         for channel_name in final_channels:
             try:
                 # Convert channel name string to enum
                 channel_enum = NotificationChannel(channel_name)
                 task = asyncio.create_task(
-                    send_notification_via_channel(
+                    _send_with_retry(
+                        send_notification_via_channel,
                         notification=notification,
                         channel=channel_enum,
                         farmer_id=notification.user_id,
                     ),
                     name=f"send_{channel_name}_{notification.id}",
                 )
-                # Prevent unhandled exception warnings on fire-and-forget tasks
+                # Log if all retries exhausted
                 task.add_done_callback(
-                    lambda t: logger.error(f"Background send failed: {t.exception()}") if t.exception() else None
+                    lambda t: (
+                        logger.error(
+                            "notification_delivery_exhausted",
+                            error=str(t.exception()),
+                        )
+                        if t.exception()
+                        else None
+                    )
                 )
             except ValueError:
                 logger.warning(f"Invalid channel type: {channel_name}")
@@ -578,15 +836,36 @@ async def send_email_notification(notification, farmer_id: str):
         # Send Email
         language = farmer_profile.language if hasattr(farmer_profile, "language") else "ar"
 
-        # Create HTML email body
-        html_body = f"""
+        # Build separate HTML bodies for each language.
+        # Notification title/body were sanitised with html.escape() during creation,
+        # so they must be unescape'd before insertion into the HTML template to avoid
+        # double-escaping (e.g. "&amp;" appearing in rendered email).
+        title_en = html.unescape(notification.title)
+        title_ar_text = html.unescape(notification.title_ar or notification.title)
+        body_en = html.unescape(notification.body)
+        body_ar_text = html.unescape(notification.body_ar or notification.body)
+
+        html_body_en = f"""
         <html>
-            <body dir="{"rtl" if language == "ar" else "ltr"}">
-                <h2>{notification.title_ar if language == "ar" else notification.title}</h2>
-                <p>{notification.body_ar if language == "ar" else notification.body}</p>
+            <body dir="ltr">
+                <h2>{html.escape(title_en)}</h2>
+                <p>{html.escape(body_en)}</p>
                 <br>
                 <p style="color: #666; font-size: 12px;">
-                    {"هذه رسالة آلية من منصة SAHOOL الزراعية" if language == "ar" else "This is an automated message from SAHOOL Agriculture Platform"}
+                    This is an automated message from SAHOOL Agriculture Platform
+                </p>
+            </body>
+        </html>
+        """
+
+        html_body_ar = f"""
+        <html>
+            <body dir="rtl">
+                <h2>{html.escape(title_ar_text)}</h2>
+                <p>{html.escape(body_ar_text)}</p>
+                <br>
+                <p style="color: #666; font-size: 12px;">
+                    هذه رسالة آلية من منصة SAHOOL الزراعية
                 </p>
             </body>
         </html>
@@ -596,8 +875,8 @@ async def send_email_notification(notification, farmer_id: str):
             to=farmer_profile.email,
             subject=notification.title,
             subject_ar=notification.title_ar,
-            body=html_body,
-            body_ar=html_body,
+            body=html_body_en,
+            body_ar=html_body_ar,
             language=language,
             is_html=True,
         )
@@ -666,14 +945,17 @@ async def send_push_notification(notification, farmer_id: str):
         }
         priority = priority_map.get(notification.priority, NPriority.MEDIUM)
 
-        # Send push notification
-        message_id = firebase_client.send_notification(
+        # Send push notification — Firebase Admin SDK is synchronous; run in thread pool
+        # to avoid blocking the asyncio event loop.
+        message_id = await asyncio.to_thread(
+            firebase_client.send_notification,
             token=farmer_profile.fcm_token,
             title=notification.title,
             body=notification.body,
             title_ar=notification.title_ar,
             body_ar=notification.body_ar,
-            data=notification.data or {},
+            # FCM data payload only accepts string values (Firebase API requirement)
+            data={k: str(v) for k, v in (notification.data or {}).items()},
             priority=priority,
         )
 
@@ -925,6 +1207,7 @@ async def create_notification_from_nats(notification_data: dict[str, Any]):
             target_farmers=notification_data.get("target_farmers", []),
             channels=channels,
             expires_in_hours=notification_data.get("expires_in_hours", 24),
+            tenant_id=notification_data.get("tenant_id"),
         )
         logger.info("NATS: Created notification from analysis event")
     except Exception as e:
@@ -1087,6 +1370,33 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+# CORS middleware - use centralized config to prevent wildcard in production
+try:
+    from shared.cors_config import setup_cors_middleware
+
+    setup_cors_middleware(app)
+except ImportError:
+    cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+    allow_credentials = "*" not in cors_origins
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=allow_credentials,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+        allow_headers=[
+            "Accept",
+            "Accept-Language",
+            "Authorization",
+            "Content-Type",
+            "Content-Language",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Tenant-ID",
+            "X-API-Key",
+            "X-User-ID",
+        ],
+    )
+
 # Setup security headers
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
@@ -1117,6 +1427,35 @@ except Exception as e:
 app.add_middleware(TenantContextMiddleware)
 
 
+# Prometheus metrics middleware - مقاييس الأداء
+if HAS_PROMETHEUS:
+    import time as _time
+
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from starlette.requests import Request as _Request
+    from starlette.responses import Response as _Response
+
+    class PrometheusMiddleware(BaseHTTPMiddleware):
+        """Middleware to collect request count and latency metrics."""
+
+        async def dispatch(self, request: _Request, call_next) -> _Response:
+            endpoint = request.url.path
+            start = _time.perf_counter()
+            try:
+                response = await call_next(request)
+                REQUEST_COUNT.labels(endpoint=endpoint, status=response.status_code).inc()
+                return response
+            except Exception:
+                REQUEST_COUNT.labels(endpoint=endpoint, status=500).inc()
+                raise
+            finally:
+                elapsed = _time.perf_counter() - start
+                REQUEST_LATENCY.labels(endpoint=endpoint).observe(elapsed)
+
+    app.add_middleware(PrometheusMiddleware)
+    logger.info("Prometheus metrics middleware enabled")
+
+
 # =============================================================================
 # API Endpoints
 # =============================================================================
@@ -1145,39 +1484,44 @@ async def health_check():
 
 
 @app.get("/readyz")
-async def readiness_check():
-    """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    try:
-        db_health = await check_db_health()
-        db_stats = await get_db_stats() if db_health.get("connected") else {}
-    except Exception as e:
-        logger.warning(f"Readiness check - database error: {e}")
-        db_health = {"status": "unavailable", "connected": False, "error": str(e)}
-        db_stats = {}
+async def readiness():
+    checks = {}
 
-    # Determine readiness based on critical dependencies
-    nats_ok = _nats_available and _nats_subscriber is not None
-    db_ok = db_health.get("connected", False)
-    is_ready = nats_ok or db_ok  # At least one critical dependency should work
-
-    # Get farmer count from database
+    # Use Tortoise ORM health check (service uses Tortoise, not a raw asyncpg pool)
     try:
-        farmer_count = await FarmerProfileRepository.get_count() if db_ok else 0
+        db_ok = await check_db_health()
+        checks["database"] = "connected" if db_ok.get("connected") else "disconnected"
     except Exception:
-        farmer_count = 0
+        checks["database"] = "disconnected"
 
-    return {
-        "status": "ready" if is_ready else "not_ready",
+    nc = getattr(app.state, "nc", None)
+    checks["nats"] = "connected" if nc and not nc.is_closed else "not_configured"
+
+    all_ready = all(v != "disconnected" for v in checks.values())
+    response = {
+        "status": "ready" if all_ready else "degraded",
         "service": "notification-service",
         "version": "16.0.0",
-        "mode": "normal" if db_ok else "degraded",
-        "checks": {
-            "nats": "connected" if nats_ok else "disconnected",
-            "database": "connected" if db_ok else "disconnected",
-        },
-        "stats": db_stats,
-        "registered_farmers": farmer_count,
+        "checks": checks,
     }
+    if not all_ready:
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(status_code=503, content=response)
+    return response
+
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint - نقطة نهاية مقاييس بروميثيوس"""
+    if not HAS_PROMETHEUS:
+        return {"error": "prometheus_client not installed"}
+    from starlette.responses import Response as _MetricsResponse
+
+    return _MetricsResponse(
+        content=generate_latest(),
+        media_type=CONTENT_TYPE_LATEST,
+    )
 
 
 @app.post("/")
@@ -1208,9 +1552,9 @@ async def create_custom_notification(
     return {
         "id": str(notification.id),
         "type": notification.type,
-        "type_ar": notification.data.get("type_ar", ""),
+        "type_ar": (notification.data or {}).get("type_ar", ""),
         "priority": notification.priority,
-        "priority_ar": notification.data.get("priority_ar", ""),
+        "priority_ar": (notification.data or {}).get("priority_ar", ""),
         "title": notification.title,
         "title_ar": notification.title_ar,
         "body": notification.body,
@@ -1223,7 +1567,10 @@ async def create_custom_notification(
 
 
 @app.post("/weather")
-async def create_weather_alert(request: WeatherAlertRequest, background_tasks: BackgroundTasks):
+async def create_weather_alert(
+    request: WeatherAlertRequest,
+    user: User | None = Depends(get_current_user),
+):
     """إنشاء تنبيه طقس لمحافظات محددة"""
 
     # Get message for first governorate (can be customized per governorate)
@@ -1246,6 +1593,12 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
         expires_in_hours=48,
     )
 
+    if not notification:
+        raise HTTPException(
+            status_code=400,
+            detail="No matching farmers found for this weather alert | لا يوجد مزارعون مطابقون لهذا التنبيه الجوي",
+        )
+
     logger.info(f"🌤️ Weather alert created for {len(request.governorates)} governorates")
 
     return {
@@ -1260,7 +1613,10 @@ async def create_weather_alert(request: WeatherAlertRequest, background_tasks: B
 
 
 @app.post("/pest")
-async def create_pest_alert(request: PestAlertRequest):
+async def create_pest_alert(
+    request: PestAlertRequest,
+    user: User | None = Depends(get_current_user),
+):
     """إنشاء تنبيه انتشار آفات"""
     gov_ar = GOVERNORATE_AR[request.governorate]
     crops_ar = ", ".join([CROP_AR[c] for c in request.affected_crops])
@@ -1285,6 +1641,12 @@ async def create_pest_alert(request: PestAlertRequest):
         expires_in_hours=72,
     )
 
+    if not notification:
+        raise HTTPException(
+            status_code=400,
+            detail="No matching farmers found for this pest alert | لا يوجد مزارعون مطابقون لتنبيه الآفات هذا",
+        )
+
     logger.info(f"🐛 Pest alert created for {request.governorate.value}")
 
     return {
@@ -1299,7 +1661,10 @@ async def create_pest_alert(request: PestAlertRequest):
 
 
 @app.post("/irrigation")
-async def create_irrigation_reminder(request: IrrigationReminderRequest):
+async def create_irrigation_reminder(
+    request: IrrigationReminderRequest,
+    user: User | None = Depends(get_current_user),
+):
     """إنشاء تذكير ري مخصص"""
     crop_ar = CROP_AR.get(request.crop, request.crop.value)
 
@@ -1321,6 +1686,12 @@ async def create_irrigation_reminder(request: IrrigationReminderRequest):
         expires_in_hours=12,
     )
 
+    if not notification:
+        raise HTTPException(
+            status_code=404,
+            detail="Farmer not found or has no active profile | المزارع غير موجود أو ليس لديه ملف نشط",
+        )
+
     return {
         "id": str(notification.id),
         "type": notification.type,
@@ -1339,17 +1710,16 @@ async def get_farmer_notifications(
     type: NotificationType | None = Query(default=None),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    user: User | None = Depends(get_current_user),
+    user: User = Depends(get_current_user),
 ):
     """الحصول على إشعارات مزارع معين"""
-    # Security: Verify the authenticated user can only access their own notifications
+    # Security: Auth is mandatory — user can only access their own notifications
     # التحقق من أن المستخدم المصادق يصل فقط إلى إشعاراته الخاصة
-    if AUTH_AVAILABLE and user is not None:
-        if str(user.id) != farmer_id:
-            raise HTTPException(
-                status_code=403,
-                detail="Not authorized to access notifications for another user",
-            )
+    if str(user.id) != farmer_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to access notifications for another user | غير مصرح لك بالوصول لإشعارات مستخدم آخر",
+        )
 
     # Get notifications from database
     notifications = await NotificationRepository.get_by_user(
@@ -1369,9 +1739,9 @@ async def get_farmer_notifications(
         {
             "id": str(n.id),
             "type": n.type,
-            "type_ar": n.data.get("type_ar", ""),
+            "type_ar": (n.data or {}).get("type_ar", ""),
             "priority": n.priority,
-            "priority_ar": n.data.get("priority_ar", ""),
+            "priority_ar": (n.data or {}).get("priority_ar", ""),
             "title": n.title,
             "title_ar": n.title_ar,
             "body": n.body,
@@ -1396,16 +1766,19 @@ async def get_farmer_notifications(
 @app.patch("/{notification_id}/read")
 async def mark_notification_read(
     notification_id: str,
-    farmer_id: str = Query(...),
-    user: User | None = Depends(get_current_user),
+    farmer_id: str | None = Query(default=None),
+    user: User = Depends(get_current_user),
 ):
     """تحديد إشعار كمقروء"""
     try:
-        # Security: Use authenticated user ID when auth is available
-        # الأمان: استخدام معرف المستخدم المصادق عندما يكون المصادقة متاحة
-        authorized_farmer_id = farmer_id
-        if AUTH_AVAILABLE and user is not None:
-            authorized_farmer_id = str(user.id)
+        # Security: Always use authenticated user ID.
+        # If farmer_id is provided, it must match user.id (prevent IDOR confusion).
+        authorized_farmer_id = str(user.id)
+        if farmer_id is not None and farmer_id != authorized_farmer_id:
+            raise HTTPException(
+                status_code=403,
+                detail="farmer_id does not match authenticated user | معرف المزارع لا يطابق المستخدم المصادق",
+            )
 
         # Convert string to UUID
         notif_uuid = UUID(notification_id)
@@ -1439,13 +1812,16 @@ async def get_broadcast_notifications(
     governorate: Governorate | None = None,
     crop: CropType | None = None,
     limit: int = Query(default=20, ge=1, le=50),
+    user: User | None = Depends(get_current_user),
 ):
     """الحصول على الإشعارات العامة (البث)"""
     # Get broadcast notifications from database
+    tenant_id = user.tenant_id if user else None
     notifications = await NotificationRepository.get_broadcast_notifications(
         governorate=governorate.value if governorate else None,
         crop=crop.value if crop else None,
         limit=limit,
+        tenant_id=tenant_id,
     )
 
     # Format response
@@ -1453,9 +1829,9 @@ async def get_broadcast_notifications(
         {
             "id": str(n.id),
             "type": n.type,
-            "type_ar": n.data.get("type_ar", ""),
+            "type_ar": (n.data or {}).get("type_ar", ""),
             "priority": n.priority,
-            "priority_ar": n.data.get("priority_ar", ""),
+            "priority_ar": (n.data or {}).get("priority_ar", ""),
             "title": n.title,
             "title_ar": n.title_ar,
             "body": n.body,
@@ -1476,7 +1852,10 @@ async def get_broadcast_notifications(
 
 
 @app.post("/register")
-async def register_farmer(profile: FarmerProfile):
+async def register_farmer(
+    profile: FarmerProfile,
+    user: User | None = Depends(get_current_user),
+):
     """تسجيل مزارع للإشعارات - Database version"""
     try:
         # Convert CropType enums to strings
@@ -1509,12 +1888,23 @@ async def register_farmer(profile: FarmerProfile):
         }
     except Exception as e:
         logger.error(f"Error registering farmer: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to register farmer: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to register farmer")
 
 
 @app.put("/{farmer_id}/preferences")
-async def update_preferences(farmer_id: str, preferences: NotificationPreferences):
+async def update_preferences(
+    farmer_id: str,
+    preferences: NotificationPreferences,
+    user: User = Depends(get_current_user),
+):
     """تحديث تفضيلات الإشعارات"""
+    # Security: Auth is mandatory — user can only update their own preferences
+    if str(user.id) != farmer_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not authorized to update preferences for another user | غير مصرح لك بتحديث تفضيلات مستخدم آخر",
+        )
+
     # Update preferences for each channel
     channels = ["push", "sms", "in_app"]
     updated_prefs = []
@@ -1556,14 +1946,16 @@ async def update_preferences(farmer_id: str, preferences: NotificationPreference
     return {
         "success": True,
         "farmer_id": farmer_id,
-        "preferences": preferences.dict(),
+        "preferences": preferences.model_dump(),
         "message": "تم تحديث التفضيلات",
         "message_en": "Preferences updated successfully",
     }
 
 
 @app.get("/stats")
-async def get_notification_stats():
+async def get_notification_stats(
+    user: User | None = Depends(get_current_user),
+):
     """إحصائيات الإشعارات - Database version"""
     db_stats = await get_db_stats()
 
@@ -1607,5 +1999,6 @@ async def get_notification_stats():
 if __name__ == "__main__":
     import uvicorn
 
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker
     port = int(os.getenv("PORT", 8110))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host=host, port=port)

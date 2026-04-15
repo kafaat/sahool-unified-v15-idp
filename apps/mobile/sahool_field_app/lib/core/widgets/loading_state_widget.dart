@@ -216,7 +216,7 @@ class LoadingOverlay extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!isVisible) return const SizedBox.shrink();
 
-    return Container(
+    return ColoredBox(
       color: Colors.black54,
       child: LoadingStateWidget(
         message: message,

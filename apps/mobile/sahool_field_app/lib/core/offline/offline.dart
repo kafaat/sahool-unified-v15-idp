@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Offline Core
 /// ملفات العمل بدون اتصال
 ///

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(cmd.exe /c \"tasklist /FI \\\\\"PID eq 30396\\\\\"\")",
+      "Bash(cmd.exe /c \"tasklist /FI \\\\\"PID eq 30396\\\\\" && tasklist /FI \\\\\"PID eq 28004\\\\\"\")",
+      "Bash(cmd.exe /c \"wmic process where ProcessId=30396 get ProcessId,Name,CommandLine 2>&1\")",
+      "Bash(powershell -Command \"Get-Process -Id 30396 | Select-Object Id, Name, Path, MainWindowTitle; Get-Process -Id 28004 | Select-Object Id, Name, Path, MainWindowTitle\" 2>&1)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
+    ]
+  }
+}

@@ -94,6 +94,38 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+# Observability middleware (H-25)
+try:
+    from shared.observability.middleware import ObservabilityMiddleware
+
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
+
+# Input sanitization middleware (H-25)
+try:
+    from shared.middleware.input_sanitizer import InputSanitizationMiddleware
+
+    INPUT_SANITIZATION_AVAILABLE = True
+except ImportError:
+    INPUT_SANITIZATION_AVAILABLE = False
+
+# Token revocation middleware (H-25)
+try:
+    from shared.auth.revocation_middleware import TokenRevocationMiddleware
+
+    REVOCATION_AVAILABLE = True
+except ImportError:
+    REVOCATION_AVAILABLE = False
+
+# Rate limiting middleware (H-05)
+try:
+    from shared.middleware.rate_limit import RateLimiter, rate_limit_middleware
+
+    RATE_LIMIT_AVAILABLE = True
+except ImportError:
+    RATE_LIMIT_AVAILABLE = False
+
 
 # Authentication imports
 try:
@@ -103,14 +135,15 @@ try:
     AUTH_AVAILABLE = True
 except ImportError:
     AUTH_AVAILABLE = False
-
-    async def get_current_user():
-        """Placeholder when auth not available"""
-        return None
+    from fastapi import HTTPException as _HTTPException
 
     class User:  # type: ignore[no-redef]
         id: str = ""
-        tenant_id: str = ""
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        """Placeholder when auth not available"""
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 @asynccontextmanager
@@ -172,6 +205,7 @@ async def lifespan(app: FastAPI):
                 settings.database_url,
                 min_size=settings.db_pool_min_size,
                 max_size=settings.db_pool_max_size,
+                statement_cache_size=0,  # PgBouncer transaction mode
             )
             app.state.db_connected = True
             logger.info("database_connected")
@@ -312,9 +346,31 @@ except ImportError:
 if SECURITY_HEADERS_AVAILABLE:
     setup_security_headers(app)
 
+# Observability middleware - distributed tracing (H-25)
+if OBSERVABILITY_AVAILABLE:
+    app.add_middleware(
+        ObservabilityMiddleware,
+        service_name="llm-orchestrator-service",
+    )
+
 # Tenant context middleware - عزل المستأجرين
 if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
+
+# Input sanitization middleware (H-25)
+if INPUT_SANITIZATION_AVAILABLE:
+    app.add_middleware(InputSanitizationMiddleware)
+
+# Rate limiting middleware (H-05)
+if RATE_LIMIT_AVAILABLE:
+    app.add_middleware(rate_limit_middleware)
+
+# Token revocation middleware (H-25)
+if REVOCATION_AVAILABLE:
+    app.add_middleware(
+        TokenRevocationMiddleware,
+        exempt_paths=["/healthz", "/health", "/readyz", "/docs", "/redoc", "/openapi.json"],
+    )
 
 # Include routers
 app.include_router(orchestrator_router)

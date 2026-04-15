@@ -588,9 +588,12 @@ class DeviceManager:
         """Get device by ID."""
         return self._devices.get(device_id)
 
-    async def get_all_devices(self) -> list[EdgeDevice]:
-        """Get all registered devices."""
-        return list(self._devices.values())
+    async def get_all_devices(self, tenant_id: UUID | None = None) -> list[EdgeDevice]:
+        """Get all registered devices, optionally filtered by tenant."""
+        devices = list(self._devices.values())
+        if tenant_id:
+            devices = [d for d in devices if d.tenant_id == tenant_id]
+        return devices
 
     async def update_device_status(
         self,
@@ -638,8 +641,12 @@ class DeviceManager:
                                 device_id,
                                 DeviceStatus.ONLINE,
                             )
-                        except Exception:
-                            pass
+                        except Exception as exc:
+                            logger.warning(
+                                "device_metrics_update_failed",
+                                device_id=str(device_id),
+                                error=str(exc),
+                            )
                     else:
                         # Mark device as offline if heartbeat fails
                         timeout = timedelta(seconds=settings.edge_timeout_threshold)
@@ -682,7 +689,13 @@ class DeviceManager:
                         timeout=httpx.Timeout(10.0),
                     )
                     results[device_id] = response.status_code == 200
-                except Exception:
+                except Exception as exc:
+                    logger.warning(
+                        "broadcast_message_failed",
+                        device_id=str(device_id),
+                        message_type=message_type,
+                        error=str(exc),
+                    )
                     results[device_id] = False
             else:
                 results[device_id] = False

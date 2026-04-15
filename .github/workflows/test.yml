@@ -32,6 +32,7 @@ jobs:
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       python: ${{ steps.filter.outputs.python }}
@@ -72,8 +73,15 @@ jobs:
   frontend-tests:
     name: Frontend Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: changes
-    if: needs.changes.outputs.frontend == 'true' || github.event_name == 'push'
+    # Bypass paths-filter only on push to long-lived branches (main/develop);
+    # on claude/** feature branches, trust the paths-filter so unrelated
+    # jobs don't run on every push.
+    if: >-
+      needs.changes.outputs.frontend == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     steps:
       - uses: actions/checkout@v6
 
@@ -126,8 +134,12 @@ jobs:
   python-tests:
     name: Python Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: changes
-    if: needs.changes.outputs.python == 'true' || github.event_name == 'push'
+    if: >-
+      needs.changes.outputs.python == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     steps:
       - uses: actions/checkout@v6
 
@@ -146,21 +158,21 @@ jobs:
             --trusted-host pypi.org \
             --trusted-host files.pythonhosted.org \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings "pyjwt[crypto]" cryptography jsonschema sqlalchemy nats-py structlog prometheus-client \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.aliyun.com/pypi/simple/ \
             --trusted-host mirrors.aliyun.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings "pyjwt[crypto]" cryptography jsonschema sqlalchemy nats-py structlog prometheus-client \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg || \
           pip install --timeout=300 --retries=5 \
             -i https://mirrors.cloud.tencent.com/pypi/simple \
             --trusted-host mirrors.cloud.tencent.com \
             pytest pytest-cov pytest-asyncio numpy \
-            fastapi httpx uvicorn pydantic pyjwt jsonschema sqlalchemy nats-py structlog \
+            fastapi httpx uvicorn pydantic pydantic-settings "pyjwt[crypto]" cryptography jsonschema sqlalchemy nats-py structlog prometheus-client \
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg
 
@@ -205,8 +217,10 @@ jobs:
             # fail-under threshold is meaningful (not diluted by all 72 services).
             COV_ARGS="--cov=apps/services/$svc"
             if [ "$FIRST" = "false" ]; then COV_ARGS="$COV_ARGS --cov-append"; fi
+            # FIX: Use --import-mode=importlib to prevent src module namespace
+            # collisions between services when running sequentially in the loop
             PYTHONPATH=$PWD python -m pytest "apps/services/$svc/tests/" -v --tb=short \
-              -c pyproject.toml $COV_ARGS --cov-report= --cov-fail-under=5 || {
+              -c pyproject.toml --import-mode=importlib $COV_ARGS --cov-report= --cov-fail-under=5 || {
               rc=$?
               echo "⚠ pytest exited with code $rc for $svc"
               FAILED="$FAILED $svc(rc=$rc)"
@@ -242,8 +256,12 @@ jobs:
   flutter-tests:
     name: Flutter Mobile Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: changes
-    if: needs.changes.outputs.mobile == 'true' || github.event_name == 'push'
+    if: >-
+      needs.changes.outputs.mobile == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     defaults:
       run:
         working-directory: apps/mobile
@@ -310,8 +328,12 @@ jobs:
   schema-validation:
     name: Event Schema Validation
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: changes
-    if: needs.changes.outputs.shared == 'true' || github.event_name == 'push'
+    if: >-
+      needs.changes.outputs.shared == 'true' ||
+      (github.event_name == 'push' &&
+       (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
     steps:
       - uses: actions/checkout@v6
 
@@ -377,6 +399,7 @@ jobs:
   test-summary:
     name: Test Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [frontend-tests, python-tests, flutter-tests, schema-validation]
     if: always()
     steps:

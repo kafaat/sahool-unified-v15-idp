@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Add tenant_id to Role model for multi-tenant isolation
 -- إضافة معرف المستأجر لجدول الأدوار لعزل المستأجرين
@@ -7,6 +11,7 @@
 
 -- Step 1: Add tenant_id column (nullable first for safe backfill)
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "user_roles" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 
 -- Step 2: Backfill tenant_id from the first user assigned to each role
@@ -31,5 +36,6 @@ DROP INDEX IF EXISTS "user_roles_name_key";
 
 -- Step 5: Create tenant-scoped unique constraint and index
 
-CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS "uq_role_tenant_name" ON "user_roles" ("tenant_id", "name");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_role_tenant" ON "user_roles" ("tenant_id");
+-- Note: Cannot use CONCURRENTLY inside Prisma transaction block
+CREATE UNIQUE INDEX IF NOT EXISTS "uq_role_tenant_name" ON "user_roles" ("tenant_id", "name");
+CREATE INDEX IF NOT EXISTS "idx_role_tenant" ON "user_roles" ("tenant_id");

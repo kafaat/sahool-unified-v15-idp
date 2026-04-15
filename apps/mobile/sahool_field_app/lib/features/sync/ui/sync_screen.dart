@@ -5,9 +5,7 @@ import '../../../core/theme/sahool_theme.dart';
 import '../../../core/map/offline_map_manager.dart';
 import '../../../core/map/widgets/map_download_dialog.dart';
 import '../../../core/ui/sync_indicator.dart';
-import '../../../core/sync/queue_manager.dart';
 import '../../../core/storage/database.dart';
-import '../../../main.dart';
 import '../../../core/sync/sync_metrics_providers.dart'
     show queueManagerProvider;
 import '../providers/sync_events_provider.dart';
@@ -40,7 +38,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     }
   }
 
-  void _startSync() async {
+  Future<void> _startSync() async {
     final syncStatus = ref.read(syncStatusProvider.notifier);
     final statusState = ref.read(syncStatusProvider);
 
@@ -69,7 +67,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     }
   }
 
-  void _showConflictDialog(SyncEvent conflict) async {
+  Future<void> _showConflictDialog(SyncEvent conflict) async {
     final choice = await showConflictResolutionDialog(
       context: context,
       conflict: conflict,
@@ -233,7 +231,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: SahoolColors.warning.withOpacity(0.1),
+                  color: SahoolColors.warning.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
@@ -258,7 +256,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.check_circle,
+                  const Icon(Icons.check_circle,
                       size: 48, color: SahoolColors.success),
                   const SizedBox(height: 12),
                   const Text('لا توجد عمليات معلقة'),
@@ -336,7 +334,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 20),
@@ -382,10 +380,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
           _buildStorageItem('بيانات NDVI', '23 MB', Icons.satellite_alt),
           _buildStorageItem('قاعدة البيانات', '12 MB', Icons.table_chart),
           const Divider(height: 24),
-          Row(
+          const Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('الإجمالي'),
+              Text('الإجمالي'),
               Text(
                 '208 MB',
                 style: TextStyle(
@@ -430,16 +428,16 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.info.withOpacity(0.1),
+        color: SahoolColors.info.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SahoolColors.info.withOpacity(0.3)),
+        border: Border.all(color: SahoolColors.info.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: SahoolColors.info.withOpacity(0.2),
+              color: SahoolColors.info.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.sync, color: SahoolColors.info, size: 20),
@@ -467,7 +465,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
     );
   }
 
-  void _showMapDownloadDialog() async {
+  Future<void> _showMapDownloadDialog() async {
     await showMapDownloadDialog(context);
     _loadMapCacheSize();
   }

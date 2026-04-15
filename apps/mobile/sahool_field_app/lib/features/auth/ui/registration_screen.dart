@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/security/screen_security_service.dart';
-import '../../../core/security/security_config.dart';
 import '../data/auth_service.dart';
 
 /// Registration Screen - شاشة التسجيل
@@ -254,7 +253,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: SahoolColors.primary.withOpacity(0.1),
+                            color: SahoolColors.primary.withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -469,7 +468,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
   }
 
   Widget _buildLanguageToggle() {
-    return Container(
+    return DecoratedBox(
       decoration: BoxDecoration(
         color: Colors.grey[200],
         borderRadius: BorderRadius.circular(25),
@@ -621,7 +620,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
           ],
         ),
         const SizedBox(height: 8),
-        Container(
+        DecoratedBox(
           decoration: BoxDecoration(
             color: Colors.grey[100],
             borderRadius: BorderRadius.circular(12),
@@ -688,14 +687,14 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: SahoolColors.info.withOpacity(0.1),
+        color: SahoolColors.info.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: SahoolColors.info.withOpacity(0.3)),
+        border: Border.all(color: SahoolColors.info.withValues(alpha: 0.3)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
+          const Icon(
             Icons.info_outline,
             size: 20,
             color: SahoolColors.info,
@@ -707,7 +706,7 @@ class _RegistrationScreenState extends ConsumerState<RegistrationScreen> {
               children: [
                 Text(
                   _tr('متطلبات كلمة المرور:', 'Password requirements:'),
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: SahoolColors.info,

@@ -3,8 +3,8 @@
 # Single Source of Truth for all domain events
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "1.0.0"
-last_updated: "2025-12-19"
+version: "2.0.0"
+last_updated: "2026-04-13"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Event Versioning Policy
@@ -27,37 +27,37 @@ categories:
   field:
     description: "Field management events"
     description_ar: "أحداث إدارة الحقول"
-    prefix: "field."
+    prefix: "sahool.field."
 
   crop:
     description: "Crop lifecycle events"
     description_ar: "أحداث دورة حياة المحاصيل"
-    prefix: "crop."
+    prefix: "sahool.crop."
 
   weather:
     description: "Weather and climate events"
     description_ar: "أحداث الطقس والمناخ"
-    prefix: "weather."
+    prefix: "sahool.weather."
 
   iot:
     description: "IoT sensor events"
     description_ar: "أحداث مستشعرات IoT"
-    prefix: "iot."
+    prefix: "sahool.iot."
 
   analytics:
     description: "Analytics and prediction events"
     description_ar: "أحداث التحليلات والتنبؤات"
-    prefix: "analytics."
+    prefix: "sahool.analytics."
 
   user:
     description: "User activity events"
     description_ar: "أحداث نشاط المستخدم"
-    prefix: "user."
+    prefix: "sahool.user."
 
   system:
     description: "System and infrastructure events"
     description_ar: "أحداث النظام والبنية التحتية"
-    prefix: "system."
+    prefix: "sahool.system."
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Domain Events
@@ -68,7 +68,7 @@ events:
   # FIELD EVENTS - أحداث الحقول
   # ═══════════════════════════════════════════════════════════════════════════
 
-  field.created:
+  sahool.field.created:
     version: "1.0.0"
     category: field
     description: "A new field has been registered"
@@ -91,7 +91,7 @@ events:
         - irrigation_type
         - owner_id
 
-  field.updated:
+  sahool.field.updated:
     version: "1.0.0"
     category: field
     description: "Field information has been updated"
@@ -108,7 +108,11 @@ events:
       optional:
         - updated_by
 
-  field.boundary_changed:
+  # Canonical dot-tokenised key matching shared/events/subjects.py
+  # SAHOOL_FIELD_BOUNDARY_CHANGED ("sahool.field.boundary.changed").
+  # Previously written `boundary_changed` (single segment) which would
+  # silently miss the upstream publishers.
+  sahool.field.boundary.changed:
     version: "1.0.0"
     category: field
     description: "Field boundary geometry has changed"
@@ -128,7 +132,7 @@ events:
   # CROP EVENTS - أحداث المحاصيل
   # ═══════════════════════════════════════════════════════════════════════════
 
-  crop.planted:
+  sahool.crop.planted:
     version: "1.0.0"
     category: crop
     description: "Crop has been planted in a field"
@@ -151,7 +155,7 @@ events:
         - seed_source
         - planting_density
 
-  crop.growth_stage_changed:
+  sahool.crop.growth_stage_changed:
     version: "1.0.0"
     category: crop
     description: "Crop has entered a new growth stage"
@@ -172,7 +176,7 @@ events:
         - days_in_previous_stage
         - predicted_next_stage_date
 
-  crop.harvested:
+  sahool.crop.harvested:
     version: "1.0.0"
     category: crop
     description: "Crop has been harvested"
@@ -194,7 +198,7 @@ events:
         - moisture_content
         - storage_location
 
-  crop.disease_detected:
+  sahool.crop.disease_detected:
     version: "1.0.0"
     category: crop
     description: "Disease or pest detected in crop"
@@ -221,7 +225,7 @@ events:
   # WEATHER EVENTS - أحداث الطقس
   # ═══════════════════════════════════════════════════════════════════════════
 
-  weather.forecast_updated:
+  sahool.weather.forecast_updated:
     version: "1.0.0"
     category: weather
     description: "Weather forecast has been updated"
@@ -244,7 +248,7 @@ events:
         - uv_index
         - conditions
 
-  weather.alert_issued:
+  sahool.weather.alert_issued:
     version: "1.0.0"
     category: weather
     description: "Weather alert has been issued"
@@ -271,7 +275,7 @@ events:
   # IOT EVENTS - أحداث المستشعرات
   # ═══════════════════════════════════════════════════════════════════════════
 
-  iot.sensor_reading:
+  sahool.iot.sensor_reading:
     version: "1.0.0"
     category: iot
     description: "Sensor has reported a reading"
@@ -293,7 +297,7 @@ events:
         - battery_level
         - signal_strength
 
-  iot.sensor_alert:
+  sahool.iot.sensor_alert:
     version: "1.0.0"
     category: iot
     description: "Sensor has triggered an alert"
@@ -315,7 +319,7 @@ events:
   # ANALYTICS EVENTS - أحداث التحليلات
   # ═══════════════════════════════════════════════════════════════════════════
 
-  analytics.ndvi_calculated:
+  sahool.analytics.ndvi_calculated:
     version: "1.0.0"
     category: analytics
     description: "NDVI index has been calculated for a field"
@@ -336,7 +340,7 @@ events:
         - cloud_cover_percent
         - quality_flag
 
-  analytics.yield_predicted:
+  sahool.analytics.yield_predicted:
     version: "1.0.0"
     category: analytics
     description: "Yield prediction has been generated"
@@ -357,7 +361,7 @@ events:
         - model_version
         - factors_considered
 
-  analytics.irrigation_recommendation:
+  sahool.analytics.irrigation_recommendation:
     version: "1.0.0"
     category: analytics
     description: "Irrigation recommendation generated"
@@ -380,7 +384,7 @@ events:
   # USER EVENTS - أحداث المستخدم
   # ═══════════════════════════════════════════════════════════════════════════
 
-  user.logged_in:
+  sahool.user.logged_in:
     version: "1.0.0"
     category: user
     description: "User has logged in"
@@ -399,7 +403,7 @@ events:
         - ip_address
         - location
 
-  user.action_performed:
+  sahool.user.action_performed:
     version: "1.0.0"
     category: user
     description: "User has performed an action"

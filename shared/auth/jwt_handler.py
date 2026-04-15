@@ -77,7 +77,10 @@ def create_access_token(
         payload["permissions"] = permissions
 
     if extra_claims:
-        payload.update(extra_claims)
+        # Security: prevent extra_claims from overwriting core JWT fields
+        _protected_fields = {"sub", "exp", "iat", "iss", "aud", "jti", "type", "roles", "tid", "permissions"}
+        safe_claims = {k: v for k, v in extra_claims.items() if k not in _protected_fields}
+        payload.update(safe_claims)
 
     return jwt.encode(payload, config.get_signing_key(), algorithm=config.JWT_ALGORITHM)
 
@@ -186,6 +189,7 @@ def verify_token(token: str) -> TokenPayload:
             tenant_id=payload.get("tenant_id") or payload.get("tid"),
             jti=payload.get("jti"),
             token_type=payload.get("type", "access"),
+            email=payload.get("email", ""),
             permissions=payload.get("permissions", []),
         )
 
@@ -231,6 +235,7 @@ def decode_token_unsafe(token: str) -> dict:
     - NEVER use for authorization decisions
     - NEVER trust data from this function for access control
     - Use ONLY for debugging, logging, or extracting non-sensitive metadata
+    - BLOCKED in production/staging to prevent accidental misuse
 
     Args:
         token: JWT token string
@@ -238,11 +243,22 @@ def decode_token_unsafe(token: str) -> dict:
     Returns:
         Decoded token payload as dictionary (UNVERIFIED!)
 
+    Raises:
+        RuntimeError: If called in production or staging environment
+
     Example:
         >>> # For debugging only - data cannot be trusted
         >>> payload = decode_token_unsafe(token)
         >>> print(f"Debug: user_id={payload.get('sub')}")
     """
+    import os
+
+    env = os.getenv("ENVIRONMENT", "development")
+    if env in ("production", "staging"):
+        raise RuntimeError(
+            "decode_token_unsafe() is blocked in production/staging. "
+            "Use decode_token() with proper verification instead."
+        )
     try:
         # nosemgrep: python.jwt.security.unverified-jwt-decode
         return jwt.decode(token, options=_get_debug_decode_options(), algorithms=["HS256", "HS384", "HS512"])

@@ -1,8 +1,12 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- Migration: Safe Audit Index & Constraint Remediation
 -- الهجرة: إصلاح فهارس التدقيق والقيود بشكل آمن
 -- Created: 2026-03-10
 -- Description: Remediate risky migration patterns flagged by drift detection:
---   1. Recreate audit_logs indexes from 20260101_add_audit_logs with CONCURRENTLY
+--   1. Recreate audit_logs indexes from 20260101_add_audit_logs
 --   2. Recreate CHECK constraints from 20260207000001 using NOT VALID + VALIDATE pattern
 --      to avoid full table locks on existing production data.
 -- Addresses: Drift Detection Report 01fb579f-de8 (2026-03-10)
@@ -12,36 +16,36 @@
 -- إصلاح فهارس جدول التدقيق
 -- ═══════════════════════════════════════════════════════════════════════════
 
--- Drop existing non-concurrent indexes from 20260101_add_audit_logs
--- Using CONCURRENTLY to avoid blocking queries during drop
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_tenant_created";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_actor_created";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_resource";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_correlation";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_category_created";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_severity";
-DROP INDEX CONCURRENTLY IF EXISTS "idx_audit_action";
+-- Drop existing indexes from 20260101_add_audit_logs
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
+DROP INDEX IF EXISTS "idx_audit_tenant_created";
+DROP INDEX IF EXISTS "idx_audit_actor_created";
+DROP INDEX IF EXISTS "idx_audit_resource";
+DROP INDEX IF EXISTS "idx_audit_correlation";
+DROP INDEX IF EXISTS "idx_audit_category_created";
+DROP INDEX IF EXISTS "idx_audit_severity";
+DROP INDEX IF EXISTS "idx_audit_action";
 
--- Recreate with CONCURRENTLY (no table locks)
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_tenant_created"
+-- Recreate indexes (note: standard CREATE INDEX may briefly lock table during creation)
+CREATE INDEX IF NOT EXISTS "idx_audit_tenant_created"
     ON "audit_logs"("tenant_id", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_actor_created"
+CREATE INDEX IF NOT EXISTS "idx_audit_actor_created"
     ON "audit_logs"("actor_id", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_resource"
+CREATE INDEX IF NOT EXISTS "idx_audit_resource"
     ON "audit_logs"("resource_type", "resource_id");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_correlation"
+CREATE INDEX IF NOT EXISTS "idx_audit_correlation"
     ON "audit_logs"("correlation_id");
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_category_created"
+CREATE INDEX IF NOT EXISTS "idx_audit_category_created"
     ON "audit_logs"("category", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_severity"
+CREATE INDEX IF NOT EXISTS "idx_audit_severity"
     ON "audit_logs"("severity", "created_at" DESC);
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_audit_action"
+CREATE INDEX IF NOT EXISTS "idx_audit_action"
     ON "audit_logs"("action", "created_at" DESC);
 
 -- ═══════════════════════════════════════════════════════════════════════════

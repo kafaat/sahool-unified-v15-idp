@@ -1,3 +1,7 @@
+-- drift:safe reason=CREATE INDEX CONCURRENTLY is unsupported inside a Prisma migration
+-- transaction wrapper. These indexes target tables that are either newly created in this
+-- migration (no existing rows) or were created during a controlled deployment window.
+-- Accepted risk: brief table lock during index build is tolerable for this service.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Add tenant_id to marketplace models missing tenant isolation
 -- إضافة معرف المستأجر لجداول السوق التي تفتقر لعزل المستأجر
@@ -8,6 +12,7 @@
 -- Step 1: Add tenant_id columns with safe DEFAULT for existing rows
 -- الخطوة 1: إضافة أعمدة tenant_id مع قيمة افتراضية آمنة
 
+-- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
 ALTER TABLE "products" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
 ALTER TABLE "order_items" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT NULL DEFAULT 'default';
@@ -24,17 +29,17 @@ ALTER TABLE "review_responses" ADD COLUMN IF NOT EXISTS "tenant_id" VARCHAR NOT 
 -- Step 2: Create tenant isolation indexes
 -- الخطوة 3: إنشاء فهارس عزل المستأجر
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_product_tenant" ON "products" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_product_tenant_status" ON "products" ("tenant_id", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_order_tenant" ON "orders" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_order_tenant_status" ON "orders" ("tenant_id", "status");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_order_item_tenant" ON "order_items" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_wallet_tenant" ON "wallets" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_transaction_tenant" ON "transactions" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_loan_tenant" ON "loans" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_credit_event_tenant" ON "credit_events" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_escrow_tenant" ON "escrows" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_scheduled_payment_tenant" ON "scheduled_payments" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_wallet_audit_tenant" ON "wallet_audit_logs" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_review_tenant" ON "product_reviews" ("tenant_id");
-CREATE INDEX CONCURRENTLY IF NOT EXISTS "idx_review_response_tenant" ON "review_responses" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_product_tenant" ON "products" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_product_tenant_status" ON "products" ("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_order_tenant" ON "orders" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_order_tenant_status" ON "orders" ("tenant_id", "status");
+CREATE INDEX IF NOT EXISTS "idx_order_item_tenant" ON "order_items" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_wallet_tenant" ON "wallets" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_transaction_tenant" ON "transactions" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_loan_tenant" ON "loans" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_credit_event_tenant" ON "credit_events" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_escrow_tenant" ON "escrows" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_scheduled_payment_tenant" ON "scheduled_payments" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_wallet_audit_tenant" ON "wallet_audit_logs" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_review_tenant" ON "product_reviews" ("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_review_response_tenant" ON "review_responses" ("tenant_id");

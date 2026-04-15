@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Market Notifier
 /// إدارة حالة السوق - Clean Architecture Pattern
 ///

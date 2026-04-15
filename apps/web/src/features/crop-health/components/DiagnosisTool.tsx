@@ -3,39 +3,42 @@
  * أداة تشخيص الأمراض
  */
 
-"use client";
+'use client';
 
-import React, { useState, useCallback } from "react";
-import {
-  Upload,
-  X,
-  Camera,
-  FileImage,
-  AlertCircle,
-  Loader2,
-} from "lucide-react";
-import {
-  useCreateDiagnosis,
-  useUploadDiagnosisImages,
-} from "../hooks/useCropHealth";
-import { logger } from "@/lib/logger";
+import React, { useState, useCallback } from 'react';
+import { Upload, X, Camera, FileImage, AlertCircle, Loader2 } from 'lucide-react';
+import { useCreateDiagnosis, useUploadDiagnosisImages } from '../hooks/useCropHealth';
+import { logger } from '@/lib/logger';
 
 interface DiagnosisToolProps {
   onDiagnosisCreated?: (diagnosisId: string) => void;
 }
 
-export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
-  onDiagnosisCreated,
-}) => {
+// Allowed MIME types for crop images (SVG excluded — XSS risk via embedded scripts)
+const ALLOWED_IMAGE_MIME_TYPES = new Set<string>([
+  'image/jpeg',
+  'image/jpg',
+  'image/png',
+  'image/webp',
+  'image/heic',
+  'image/heif',
+]);
+
+// Max single-image size: 10 MB
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+// Max number of images per diagnosis
+const MAX_IMAGES_PER_DIAGNOSIS = 5;
+
+export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({ onDiagnosisCreated }) => {
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [cropType, setCropType] = useState("");
-  const [fieldId, setFieldId] = useState("");
-  const [description, setDescription] = useState("");
-  const [descriptionAr, setDescriptionAr] = useState("");
+  const [cropType, setCropType] = useState('');
+  const [fieldId, setFieldId] = useState('');
+  const [description, setDescription] = useState('');
+  const [descriptionAr, setDescriptionAr] = useState('');
   const [symptoms, setSymptoms] = useState<string[]>([]);
   const [symptomsAr, setSymptomsAr] = useState<string[]>([]);
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState<string>('');
 
   const uploadImages = useUploadDiagnosisImages();
   const createDiagnosis = useCreateDiagnosis();
@@ -45,33 +48,52 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
       const files = Array.from(e.target.files || []);
       if (files.length === 0) return;
 
-      // Validate file types
-      const validFiles = files.filter((file) => file.type.startsWith("image/"));
-      if (validFiles.length !== files.length) {
-        setError("يرجى تحميل صور فقط");
+      // Validate MIME types (SVG and other exotic formats blocked)
+      const invalidType = files.find((file) => !ALLOWED_IMAGE_MIME_TYPES.has(file.type));
+      if (invalidType) {
+        setError('نوع الصورة غير مدعوم. الأنواع المسموح بها: JPEG, PNG, WebP, HEIC');
+        // Reset the input so selecting the same file again re-triggers onChange
+        e.target.value = '';
         return;
       }
 
-      // Limit to 5 images
-      const totalImages = images.length + validFiles.length;
-      if (totalImages > 5) {
-        setError("الحد الأقصى 5 صور");
+      // Validate size per file (10 MB each)
+      const oversized = files.find((file) => file.size > MAX_IMAGE_SIZE_BYTES);
+      if (oversized) {
+        setError('حجم الصورة يتجاوز الحد الأقصى (10 ميجابايت لكل صورة)');
+        e.target.value = '';
         return;
       }
 
-      setError("");
-      setImages((prev) => [...prev, ...validFiles]);
+      // Limit to MAX_IMAGES_PER_DIAGNOSIS
+      const totalImages = images.length + files.length;
+      if (totalImages > MAX_IMAGES_PER_DIAGNOSIS) {
+        setError(`الحد الأقصى ${MAX_IMAGES_PER_DIAGNOSIS} صور`);
+        e.target.value = '';
+        return;
+      }
 
-      // Create previews
-      validFiles.forEach((file) => {
+      setError('');
+      setImages((prev) => [...prev, ...files]);
+
+      // Create previews (with error handling)
+      files.forEach((file) => {
         const reader = new FileReader();
-        reader.onloadend = () => {
-          setPreviews((prev) => [...prev, reader.result as string]);
+        reader.onload = () => {
+          if (typeof reader.result === 'string') {
+            setPreviews((prev) => [...prev, reader.result as string]);
+          }
+        };
+        reader.onerror = () => {
+          logger.error('FileReader failed to read image preview', reader.error);
         };
         reader.readAsDataURL(file);
       });
+
+      // Reset the input so re-selecting the same file works
+      e.target.value = '';
     },
-    [images.length],
+    [images.length]
   );
 
   const handleRemoveImage = useCallback((index: number) => {
@@ -81,16 +103,16 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     // Validation
     if (images.length === 0) {
-      setError("يرجى تحميل صورة واحدة على الأقل");
+      setError('يرجى تحميل صورة واحدة على الأقل');
       return;
     }
 
     if (!cropType) {
-      setError("يرجى اختيار نوع المحصول");
+      setError('يرجى اختيار نوع المحصول');
       return;
     }
 
@@ -113,10 +135,10 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
       // Reset form
       setImages([]);
       setPreviews([]);
-      setCropType("");
-      setFieldId("");
-      setDescription("");
-      setDescriptionAr("");
+      setCropType('');
+      setFieldId('');
+      setDescription('');
+      setDescriptionAr('');
       setSymptoms([]);
       setSymptomsAr([]);
 
@@ -125,7 +147,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
         onDiagnosisCreated(diagnosis.id);
       }
     } catch (err) {
-      setError("حدث خطأ أثناء إنشاء التشخيص");
+      setError('حدث خطأ أثناء إنشاء التشخيص');
       logger.error(err);
     }
   };
@@ -133,22 +155,20 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
   const isLoading = uploadImages.isPending || createDiagnosis.isPending;
 
   const cropTypes = [
-    { value: "wheat", label: "Wheat", labelAr: "قمح" },
-    { value: "corn", label: "Corn", labelAr: "ذرة" },
-    { value: "rice", label: "Rice", labelAr: "أرز" },
-    { value: "tomato", label: "Tomato", labelAr: "طماطم" },
-    { value: "potato", label: "Potato", labelAr: "بطاطس" },
-    { value: "cucumber", label: "Cucumber", labelAr: "خيار" },
-    { value: "pepper", label: "Pepper", labelAr: "فلفل" },
-    { value: "eggplant", label: "Eggplant", labelAr: "باذنجان" },
-    { value: "dates", label: "Dates", labelAr: "تمور" },
-    { value: "olive", label: "Olive", labelAr: "زيتون" },
+    { value: 'wheat', label: 'Wheat', labelAr: 'قمح' },
+    { value: 'corn', label: 'Corn', labelAr: 'ذرة' },
+    { value: 'rice', label: 'Rice', labelAr: 'أرز' },
+    { value: 'tomato', label: 'Tomato', labelAr: 'طماطم' },
+    { value: 'potato', label: 'Potato', labelAr: 'بطاطس' },
+    { value: 'cucumber', label: 'Cucumber', labelAr: 'خيار' },
+    { value: 'pepper', label: 'Pepper', labelAr: 'فلفل' },
+    { value: 'eggplant', label: 'Eggplant', labelAr: 'باذنجان' },
+    { value: 'dates', label: 'Dates', labelAr: 'تمور' },
+    { value: 'olive', label: 'Olive', labelAr: 'زيتون' },
   ];
 
   return (
-    <div
-      className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-         >
+    <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Camera className="w-6 h-6 text-green-500" />
@@ -211,9 +231,7 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
 
         {/* Crop Type */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            نوع المحصول *
-          </label>
+          <label className="block text-sm font-medium text-gray-700 mb-2">نوع المحصول *</label>
           <select
             value={cropType}
             onChange={(e) => setCropType(e.target.value)}
@@ -252,10 +270,10 @@ export const DiagnosisTool: React.FC<DiagnosisToolProps> = ({
             onClick={() => {
               setImages([]);
               setPreviews([]);
-              setCropType("");
-              setDescription("");
-              setDescriptionAr("");
-              setError("");
+              setCropType('');
+              setDescription('');
+              setDescriptionAr('');
+              setError('');
             }}
             className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
             disabled={isLoading}

@@ -64,13 +64,13 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
     && apt-get clean
 
 # Upgrade pip and install build tools with multi-mirror fallback
-# nats-py 2.9.0 requires setuptools>=68.0 for build dependencies
+# setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build numpy || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build numpy || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build numpy
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build numpy
 
 # Configure pip for better network resilience with fallback mirrors
 RUN mkdir -p /root/.pip && \
@@ -151,6 +151,7 @@ COPY shared/ ./shared/
 
 # Copy services shared modules (needed for errors_py module)
 COPY apps/services/shared/ ./apps/services/shared/
+
 
 # Create compatibility layer: copy errors_py to shared/errors_py so imports work
 RUN cp -r ./apps/services/shared/errors_py ./shared/ || true

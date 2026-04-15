@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Home Controller v16
 /// متحكم الشاشة الرئيسية
 

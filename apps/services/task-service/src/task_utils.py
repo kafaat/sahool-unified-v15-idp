@@ -14,6 +14,7 @@ from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 from typing import Any
 from urllib.parse import quote as url_quote
+from urllib.parse import urlparse
 
 import httpx
 
@@ -37,6 +38,61 @@ NOTIFICATION_SERVICE_URL = os.getenv("NOTIFICATION_SERVICE_URL", "http://notific
 
 # HTTP client timeout
 HTTP_TIMEOUT = 10.0
+
+# ═══════════════════════════════════════════════════════════════════════════
+# SSRF Protection - الحماية من هجمات SSRF
+# ═══════════════════════════════════════════════════════════════════════════
+
+# Allowlist of permitted internal service hosts for outgoing HTTP requests.
+# Only these hosts (with their ports) are valid targets.
+_ALLOWED_INTERNAL_HOSTS: set[str] = {
+    urlparse(ASTRONOMICAL_SERVICE_URL).netloc,
+    urlparse(FIELD_SERVICE_URL).netloc,
+    urlparse(NOTIFICATION_SERVICE_URL).netloc,
+}
+
+# Permitted URL schemes
+_ALLOWED_SCHEMES: set[str] = {"http", "https"}
+
+
+def _validate_internal_url(url: str) -> str:
+    """
+    Validate that a URL targets an allowed internal service host.
+    التحقق من أن عنوان URL يستهدف مضيف خدمة داخلي مسموح به
+
+    Prevents SSRF by enforcing:
+    1. Only http/https schemes are allowed
+    2. The host:port must be in the internal allowlist
+    3. No credentials or fragments in the URL
+
+    Args:
+        url: The fully-constructed URL to validate
+
+    Returns:
+        str: The validated URL (unchanged)
+
+    Raises:
+        ValueError: If the URL targets a disallowed host or uses a bad scheme
+    """
+    parsed = urlparse(url)
+
+    # Reject non-http(s) schemes (e.g. file://, ftp://, gopher://)
+    if parsed.scheme not in _ALLOWED_SCHEMES:
+        raise ValueError(f"Disallowed URL scheme '{parsed.scheme}'. Only {_ALLOWED_SCHEMES} are permitted.")
+
+    # Reject URLs containing embedded credentials
+    if parsed.username or parsed.password:
+        raise ValueError("URLs with embedded credentials are not allowed.")
+
+    # Validate host:port against allowlist
+    if parsed.netloc not in _ALLOWED_INTERNAL_HOSTS:
+        logger.error(
+            "SSRF protection: blocked request to disallowed host %s",
+            sanitize_for_log(parsed.netloc),
+        )
+        raise ValueError(f"Host '{parsed.netloc}' is not in the allowed internal services list.")
+
+    return url
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -224,6 +280,7 @@ def db_task_to_dict(db_task) -> dict[str, Any]:
         "scheduled_time": db_task.scheduled_time,
         "estimated_duration_minutes": db_task.estimated_duration_minutes,
         "actual_duration_minutes": db_task.actual_duration_minutes,
+        "version": getattr(db_task, "version", 1),
         "created_at": db_task.created_at.isoformat() if db_task.created_at else None,
         "updated_at": db_task.updated_at.isoformat() if db_task.updated_at else None,
         "completed_at": db_task.completed_at.isoformat() if db_task.completed_at else None,
@@ -370,9 +427,10 @@ def generate_ndvi_task_content(
 
         title = f"Vegetation Decline Detected - Field {safe_field_id}{zone_text}"
         title_ar = f"تم اكتشاف تراجع نباتي - الحقل {safe_field_id}{zone_text_ar}"
+        prev_str = f"{previous_ndvi:.3f}" if previous_ndvi is not None else "N/A"
         description = (
             f"Vegetation index dropped {drop_pct:.1f}% "
-            f"(from {previous_ndvi:.3f} to {ndvi_value:.3f}). "
+            f"(from {prev_str} to {ndvi_value:.3f}). "
             f"Scout the field to identify:\n"
             f"• Early signs of stress\n"
             f"• Irrigation effectiveness\n"
@@ -381,7 +439,7 @@ def generate_ndvi_task_content(
         )
         description_ar = (
             f"انخفض مؤشر الغطاء النباتي بنسبة {drop_pct:.1f}% "
-            f"(من {previous_ndvi:.3f} إلى {ndvi_value:.3f}). "
+            f"(من {prev_str} إلى {ndvi_value:.3f}). "
             f"افحص الحقل لتحديد:\n"
             f"• علامات الإجهاد المبكرة\n"
             f"• فعالية الري\n"
@@ -459,11 +517,15 @@ async def fetch_field_manager(field_id: str, tenant_id: str) -> str | None:
     log_field_id = sanitize_for_log(field_id)
 
     try:
-        # URL-encode the path segment to prevent SSRF via path traversal
+        # URL-encode the path segment to prevent path traversal
         safe_path = url_quote(validated_field_id, safe="")
+        request_url = f"{FIELD_SERVICE_URL}/fields/{safe_path}"
+        # Validate the constructed URL against the internal service allowlist
+        _validate_internal_url(request_url)
+
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             response = await client.get(
-                f"{FIELD_SERVICE_URL}/fields/{safe_path}",
+                request_url,
                 headers={
                     "X-Tenant-Id": tenant_id,
                     "Content-Type": "application/json",
@@ -598,9 +660,12 @@ async def fetch_astronomical_best_days(activity: str, days: int = 30) -> dict:
         return cached
 
     try:
+        request_url = f"{ASTRONOMICAL_SERVICE_URL}/v1/best-days"
+        _validate_internal_url(request_url)
+
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             response = await client.get(
-                f"{ASTRONOMICAL_SERVICE_URL}/v1/best-days",
+                request_url,
                 params={"activity": activity, "days": days},
             )
 
@@ -650,9 +715,12 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
         return cached
 
     try:
+        request_url = f"{ASTRONOMICAL_SERVICE_URL}/v1/daily"
+        _validate_internal_url(request_url)
+
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
             response = await client.get(
-                f"{ASTRONOMICAL_SERVICE_URL}/v1/daily",
+                request_url,
                 params={"date": date_str},
             )
 
@@ -662,7 +730,11 @@ async def fetch_astronomical_daily_data(date_str: str) -> dict:
                 await astronomical_cache.set_daily_data(date_str, data)
                 return data
             else:
-                logger.error(f"Astronomical service returned {response.status_code}: {response.text}")
+                logger.error(
+                    "Astronomical service returned %s: %s",
+                    response.status_code,
+                    sanitize_for_log(response.text),
+                )
                 raise AstronomicalServiceError(f"Service returned {response.status_code}")
 
     except httpx.TimeoutException:
@@ -688,9 +760,11 @@ async def fetch_astronomical_data(due_date: datetime, task_type: TaskType) -> di
     try:
         activity = get_task_type_activity(task_type)
         date_str = due_date.strftime("%Y-%m-%d")
+        request_url = f"{ASTRONOMICAL_SERVICE_URL}/v1/date/{url_quote(date_str, safe='')}"
+        _validate_internal_url(request_url)
 
         async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
-            response = await client.get(f"{ASTRONOMICAL_SERVICE_URL}/v1/date/{date_str}")
+            response = await client.get(request_url)
             response.raise_for_status()
             astro_data = response.json()
 
@@ -872,9 +946,12 @@ async def send_task_notification(
                 return False
         else:
             # Direct HTTP call
+            notification_url = f"{NOTIFICATION_SERVICE_URL}/api/v1/notifications"
+            _validate_internal_url(notification_url)
+
             async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
                 response = await client.post(
-                    f"{NOTIFICATION_SERVICE_URL}/api/v1/notifications",
+                    notification_url,
                     json=notification_data,
                 )
                 if response.status_code in (200, 201):

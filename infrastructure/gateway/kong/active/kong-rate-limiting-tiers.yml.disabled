@@ -1,0 +1,254 @@
+# ==============================================================================
+# Kong Rate Limiting Tiers Configuration - تكوين مستويات تحديد المعدل
+# SAHOOL Platform - منصة سهول
+# ==============================================================================
+# This file defines route-specific rate limiting for subscription tiers.
+# Uses standard rate-limiting plugin (Kong OSS compatible).
+#
+# Tier Overview:
+# - Starter:      30 req/min,   500 req/hour
+# - Professional: 60 req/min,  2000 req/hour
+# - Enterprise:  120 req/min,  5000 req/hour
+# - Research:    120 req/min, 10000 req/hour
+# - Internal:   1000 req/min, 50000 req/hour
+# ==============================================================================
+
+_format_version: '3.0'
+_transform: true
+plugins:
+- name: rate-limiting
+  enabled: true
+  config:
+    minute: 30
+    hour: 500
+    day: 10000
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    redis_database: 0
+    fault_tolerant: true
+    hide_client_headers: false
+    error_code: 429
+    error_message: Rate limit exceeded. Please upgrade your subscription tier. تم تجاوز حد المعدل. يرجى ترقية مستوى اشتراكك.
+- name: rate-limiting
+  service: yolo26-vision-service
+  config:
+    minute: 60
+    hour: 3000
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: Vision API rate limit exceeded. الحد الأقصى لطلبات خدمة الرؤية. Upgrade to Enterprise for higher limits.
+- name: rate-limiting
+  service: terrain-core-service
+  config:
+    minute: 30
+    hour: 1500
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: Terrain API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التضاريس.
+- name: rate-limiting
+  service: hydrology-service
+  config:
+    minute: 30
+    hour: 1500
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: Hydrology API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الهيدرولوجيا.
+- name: rate-limiting
+  service: leveling-optimizer-service
+  config:
+    minute: 30
+    hour: 1500
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: Leveling API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة التسوية.
+- name: rate-limiting
+  service: edge-orchestrator-service
+  config:
+    minute: 60
+    hour: 3000
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: Edge API rate limit exceeded. تم تجاوز الحد الأقصى لخدمة الحافة.
+- name: rate-limiting
+  service: llm-orchestrator-service
+  config:
+    minute: 60
+    hour: 2000
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: LLM API rate limit exceeded. Consider upgrading for higher AI usage limits. تم تجاوز حد طلبات الذكاء الاصطناعي.
+- name: rate-limiting
+  route: user-service-auth-public
+  config:
+    minute: 10
+    hour: 100
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: Too many authentication attempts. Please wait before trying again. محاولات مصادقة كثيرة جداً.
+- name: rate-limiting
+  service: whatsapp-bot-service
+  config:
+    minute: 120
+    hour: 5000
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: WhatsApp API rate limit exceeded. تم تجاوز حد طلبات واتساب.
+- name: rate-limiting
+  service: billing-core
+  config:
+    minute: 30
+    hour: 500
+    policy: redis
+    redis_host: redis
+    redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+    fault_tolerant: true
+    error_message: Billing API rate limit exceeded. تم تجاوز حد طلبات الفوترة.
+services:
+- name: health-endpoints-bypass
+  url: http://kong:8000
+  routes:
+  - name: health-no-ratelimit
+    paths:
+    - /health
+    - /healthz
+    - /readyz
+    - /ping
+    strip_path: false
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: rate-limiting
+    enabled: false
+- name: starter-package-ratelimit
+  url: http://kong:8000
+  routes:
+  - name: starter-api-routes
+    paths:
+    - /api/v1/starter
+    strip_path: false
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: rate-limiting
+    config:
+      minute: 30
+      hour: 500
+      policy: redis
+      redis_host: redis
+      redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+      fault_tolerant: true
+      error_message: Starter tier rate limit exceeded. Upgrade to Professional for higher limits. تم تجاوز حد الباقة الأساسية.
+- name: professional-package-ratelimit
+  url: http://kong:8000
+  routes:
+  - name: professional-api-routes
+    paths:
+    - /api/v1/professional
+    strip_path: false
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: rate-limiting
+    config:
+      minute: 60
+      hour: 2000
+      policy: redis
+      redis_host: redis
+      redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+      fault_tolerant: true
+      error_message: Professional tier rate limit exceeded. Upgrade to Enterprise for higher limits. تم تجاوز حد الباقة المتوسطة.
+- name: enterprise-package-ratelimit
+  url: http://kong:8000
+  routes:
+  - name: enterprise-api-routes
+    paths:
+    - /api/v1/enterprise
+    strip_path: false
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: rate-limiting
+    config:
+      minute: 120
+      hour: 5000
+      policy: redis
+      redis_host: redis
+      redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+      fault_tolerant: true
+      error_message: Enterprise tier rate limit reached. Contact support for custom limits. تم الوصول لحد الباقة المتقدمة.
+- name: research-package-ratelimit
+  url: http://kong:8000
+  routes:
+  - name: research-api-routes
+    paths:
+    - /api/v1/research
+    strip_path: false
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: rate-limiting
+    config:
+      minute: 120
+      hour: 10000
+      policy: redis
+      redis_host: redis
+      redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+      fault_tolerant: true
+      error_message: Research tier rate limit exceeded. تم تجاوز حد باقة البحث العلمي.
+- name: internal-service-ratelimit
+  url: http://kong:8000
+  routes:
+  - name: internal-api-routes
+    paths:
+    - /api/internal
+    strip_path: false
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: rate-limiting
+    config:
+      minute: 1000
+      hour: 50000
+      policy: redis
+      redis_host: redis
+      redis_port: 6379
+          redis_password: ${REDIS_PASSWORD}
+      fault_tolerant: true
+      error_message: Internal rate limit exceeded. Check service health. تم تجاوز الحد الداخلي.

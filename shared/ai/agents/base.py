@@ -22,17 +22,36 @@ Updated: January 2026
 from __future__ import annotations
 
 import asyncio
+
+# Tool Guard integration — enforce allowlist/blocklist before tool execution
+import os as _os
 from abc import ABC, abstractmethod
+from collections.abc import AsyncIterator, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, AsyncIterator, Callable
+from typing import Any
 
 import structlog
 
 from ..audit import get_audit_logger
 from ..circuit_breaker import get_circuit_breaker
 from ..llm_provider import LLMProviderManager, get_llm_manager
+
+try:
+    from ..guardrails.tool_guard import ToolCallContext, ToolGuard
+
+    _tool_guard = ToolGuard()
+    _HAS_TOOL_GUARD = True
+except ImportError:
+    _HAS_TOOL_GUARD = False
+    _tool_guard = None
+    # Fail-closed in production — tool guard is a security requirement
+    if _os.getenv("ENVIRONMENT", "").lower() == "production":
+        raise RuntimeError(
+            "shared.ai.guardrails.tool_guard is required in production but could not be imported. "
+            "Agent tool execution would be unguarded."
+        )
 
 logger = structlog.get_logger()
 
@@ -752,8 +771,46 @@ class BaseAutonomousAgent(ABC):
         tool: AgentTool,
         inputs: dict[str, Any],
     ) -> ToolResult:
-        """Execute a tool with error handling."""
-        start_time = datetime.now(UTC)
+        """Execute a tool with guard checks and error handling."""
+        import time as _time
+
+        start_mono = _time.perf_counter()
+
+        # SECURITY: Run tool call through ToolGuard before execution
+        if _HAS_TOOL_GUARD and _tool_guard is not None:
+            try:
+                context = ToolCallContext(
+                    tool=tool.name,
+                    args=inputs,
+                    agent_id=getattr(self, "agent_id", None),
+                )
+                decision = _tool_guard.check(context)
+                if not decision.allowed:
+                    logger.warning(
+                        "tool_guard_blocked",
+                        tool=tool.name,
+                        reason=decision.reason,
+                        layer=decision.layer,
+                    )
+                    elapsed = (_time.perf_counter() - start_mono) * 1000
+                    return ToolResult(
+                        tool_name=tool.name,
+                        success=False,
+                        result=None,
+                        error=f"Tool blocked by guard: {decision.reason}",
+                        execution_time_ms=elapsed,
+                    )
+            except Exception as guard_err:
+                elapsed = (_time.perf_counter() - start_mono) * 1000
+                logger.error("tool_guard_error", tool=tool.name, error=str(guard_err))
+                # Fail-closed: block tool execution when guard itself fails
+                return ToolResult(
+                    tool_name=tool.name,
+                    success=False,
+                    result=None,
+                    error=f"Tool guard check failed: {type(guard_err).__name__}",
+                    execution_time_ms=elapsed,
+                )
 
         try:
             # Use circuit breaker for resilience
@@ -762,7 +819,7 @@ class BaseAutonomousAgent(ABC):
             else:
                 result = await self.circuit_breaker.call(asyncio.to_thread, tool.handler, **inputs)
 
-            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
+            execution_time = (_time.perf_counter() - start_mono) * 1000
 
             return ToolResult(
                 tool_name=tool.name,
@@ -772,7 +829,7 @@ class BaseAutonomousAgent(ABC):
             )
 
         except Exception as e:
-            execution_time = (datetime.now(UTC) - start_time).total_seconds() * 1000
+            execution_time = (_time.perf_counter() - start_mono) * 1000
 
             return ToolResult(
                 tool_name=tool.name,

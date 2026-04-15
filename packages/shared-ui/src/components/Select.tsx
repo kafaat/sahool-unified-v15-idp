@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * Select Component
@@ -7,9 +7,9 @@
  * A dropdown select component with search support
  */
 
-import * as React from "react";
-import { ChevronDown, Check, Search, AlertCircle } from "lucide-react";
-import { cn } from "@sahool/shared-utils";
+import * as React from 'react';
+import { ChevronDown, Check, Search, AlertCircle } from 'lucide-react';
+import { cn } from '@sahool/shared-utils';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Types
@@ -43,7 +43,7 @@ export interface SelectProps {
   /** Whether to enable search */
   searchable?: boolean;
   /** Input size */
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   /** Full width */
   fullWidth?: boolean;
   /** Additional class name */
@@ -63,33 +63,33 @@ export function Select({
   label,
   error,
   hint,
-  placeholder = "Select an option",
+  placeholder = 'Select an option',
   disabled = false,
   required = false,
   searchable = false,
-  size = "md",
+  size = 'md',
   fullWidth = true,
   className,
   name,
 }: SelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
-  const [searchTerm, setSearchTerm] = React.useState("");
+  const [searchTerm, setSearchTerm] = React.useState('');
   const selectRef = React.useRef<HTMLDivElement>(null);
   const inputId = React.useId();
   const errorId = `${inputId}-error`;
   const hintId = `${inputId}-hint`;
 
   const sizeClasses = {
-    sm: "px-2.5 py-1.5 text-sm",
-    md: "px-3 py-2 text-base",
-    lg: "px-4 py-3 text-lg",
+    sm: 'px-2.5 py-1.5 text-sm',
+    md: 'px-3 py-2 text-base',
+    lg: 'px-4 py-3 text-lg',
   };
 
   // Filter options based on search
   const filteredOptions = React.useMemo(() => {
     if (!searchTerm) return options;
     return options.filter((option) =>
-      option.label.toLowerCase().includes(searchTerm.toLowerCase()),
+      option.label.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [options, searchTerm]);
 
@@ -99,17 +99,14 @@ export function Select({
   // Handle click outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        selectRef.current &&
-        !selectRef.current.contains(event.target as Node)
-      ) {
+      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
         setIsOpen(false);
-        setSearchTerm("");
+        setSearchTerm('');
       }
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Handle keyboard navigation
@@ -117,14 +114,14 @@ export function Select({
     if (disabled) return;
 
     switch (event.key) {
-      case "Enter":
-      case " ":
+      case 'Enter':
+      case ' ':
         event.preventDefault();
         setIsOpen(!isOpen);
         break;
-      case "Escape":
+      case 'Escape':
         setIsOpen(false);
-        setSearchTerm("");
+        setSearchTerm('');
         break;
     }
   };
@@ -133,20 +130,17 @@ export function Select({
   const handleSelect = (optionValue: string) => {
     onChange?.(optionValue);
     setIsOpen(false);
-    setSearchTerm("");
+    setSearchTerm('');
   };
 
   // Non-searchable: use native select for accessibility
   if (!searchable) {
     return (
-      <div className={cn("flex flex-col gap-1.5", fullWidth && "w-full")}>
+      <div className={cn('flex flex-col gap-1.5', fullWidth && 'w-full')}>
         {label && (
           <label
             htmlFor={inputId}
-            className={cn(
-              "text-sm font-medium text-gray-700",
-              disabled && "text-gray-400",
-            )}
+            className={cn('text-sm font-medium text-gray-700', disabled && 'text-gray-400')}
           >
             {label}
             {required && <span className="text-red-500 ms-1">*</span>}
@@ -164,26 +158,22 @@ export function Select({
             aria-invalid={!!error}
             aria-describedby={error ? errorId : hint ? hintId : undefined}
             className={cn(
-              "block w-full rounded-lg border bg-white text-gray-900 appearance-none",
-              "focus:outline-none focus:ring-2 focus:ring-offset-0",
+              'block w-full rounded-lg border bg-white text-gray-900 appearance-none',
+              'focus:outline-none focus:ring-2 focus:ring-offset-0',
               sizeClasses[size],
-              "pe-10",
+              'pe-10',
               error
-                ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                : "border-gray-300 focus:border-sahool-500 focus:ring-sahool-200",
-              disabled && "bg-gray-100 text-gray-500 cursor-not-allowed",
-              className,
+                ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
+                : 'border-gray-300 focus:border-sahool-500 focus:ring-sahool-200',
+              disabled && 'bg-gray-100 text-gray-500 cursor-not-allowed',
+              className
             )}
           >
             <option value="" disabled>
               {placeholder}
             </option>
             {options.map((option) => (
-              <option
-                key={option.value}
-                value={option.value}
-                disabled={option.disabled}
-              >
+              <option key={option.value} value={option.value} disabled={option.disabled}>
                 {option.label}
               </option>
             ))}
@@ -207,17 +197,11 @@ export function Select({
 
   // Searchable: custom dropdown
   return (
-    <div
-      ref={selectRef}
-      className={cn("flex flex-col gap-1.5", fullWidth && "w-full", className)}
-    >
+    <div ref={selectRef} className={cn('flex flex-col gap-1.5', fullWidth && 'w-full', className)}>
       {label && (
         <label
           htmlFor={inputId}
-          className={cn(
-            "text-sm font-medium text-gray-700",
-            disabled && "text-gray-400",
-          )}
+          className={cn('text-sm font-medium text-gray-700', disabled && 'text-gray-400')}
         >
           {label}
           {required && <span className="text-red-500 ms-1">*</span>}
@@ -253,26 +237,23 @@ export function Select({
           aria-invalid={!!error}
           aria-describedby={error ? errorId : hint ? hintId : undefined}
           className={cn(
-            "flex items-center justify-between w-full rounded-lg border bg-white text-start",
-            "focus:outline-none focus:ring-2 focus:ring-offset-0",
+            'flex items-center justify-between w-full rounded-lg border bg-white text-start',
+            'focus:outline-none focus:ring-2 focus:ring-offset-0',
             sizeClasses[size],
             error
-              ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-              : "border-gray-300 focus:border-sahool-500 focus:ring-sahool-200",
-            disabled && "bg-gray-100 text-gray-500 cursor-not-allowed",
+              ? 'border-red-500 focus:border-red-500 focus:ring-red-200'
+              : 'border-gray-300 focus:border-sahool-500 focus:ring-sahool-200',
+            disabled && 'bg-gray-100 text-gray-500 cursor-not-allowed'
           )}
         >
-          <span className={!selectedOption ? "text-gray-400" : "text-gray-900"}>
+          <span className={!selectedOption ? 'text-gray-400' : 'text-gray-900'}>
             {selectedOption?.label || placeholder}
           </span>
           {error ? (
             <AlertCircle className="w-5 h-5 text-red-500" />
           ) : (
             <ChevronDown
-              className={cn(
-                "w-5 h-5 text-gray-400 transition-transform",
-                isOpen && "rotate-180",
-              )}
+              className={cn('w-5 h-5 text-gray-400 transition-transform', isOpen && 'rotate-180')}
             />
           )}
         </button>
@@ -298,9 +279,7 @@ export function Select({
             {/* Options list */}
             <ul role="listbox" className="max-h-60 overflow-y-auto py-1">
               {filteredOptions.length === 0 ? (
-                <li className="px-3 py-2 text-sm text-gray-500">
-                  No options found
-                </li>
+                <li className="px-3 py-2 text-sm text-gray-500">No options found</li>
               ) : (
                 filteredOptions.map((option) => (
                   <li
@@ -308,21 +287,17 @@ export function Select({
                     role="option"
                     aria-selected={option.value === value}
                     aria-disabled={option.disabled}
-                    onClick={() =>
-                      !option.disabled && handleSelect(option.value)
-                    }
+                    onClick={() => !option.disabled && handleSelect(option.value)}
                     className={cn(
-                      "flex items-center justify-between px-3 py-2 text-sm cursor-pointer",
+                      'flex items-center justify-between px-3 py-2 text-sm cursor-pointer',
                       option.value === value
-                        ? "bg-sahool-50 text-sahool-700"
-                        : "text-gray-900 hover:bg-gray-50",
-                      option.disabled && "opacity-50 cursor-not-allowed",
+                        ? 'bg-sahool-50 text-sahool-700'
+                        : 'text-gray-900 hover:bg-gray-50',
+                      option.disabled && 'opacity-50 cursor-not-allowed'
                     )}
                   >
                     {option.label}
-                    {option.value === value && (
-                      <Check className="w-4 h-4 text-sahool-600" />
-                    )}
+                    {option.value === value && <Check className="w-4 h-4 text-sahool-600" />}
                   </li>
                 ))
               )}

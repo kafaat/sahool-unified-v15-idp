@@ -30,6 +30,21 @@ from src.api.schemas import (
     SyncResponse,
 )
 from src.core.config import settings
+
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
+
 from src.utils.device_manager import (
     DeviceConnectionError,
     DeviceManager,
@@ -60,18 +75,24 @@ _deploy_operations: dict[UUID, DeployResponse] = {}
 def get_tenant_id(request: Request) -> UUID:
     """Extract tenant ID from request."""
     tenant_header = request.headers.get("X-Tenant-ID")
-    if tenant_header:
-        try:
-            return UUID(tenant_header)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail={
-                    "error": "Invalid tenant ID format",
-                    "error_ar": "تنسيق معرف المستأجر غير صالح",
-                },
-            )
-    return UUID("00000000-0000-0000-0000-000000000001")
+    if not tenant_header:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "X-Tenant-ID header is required",
+                "error_ar": "رأس X-Tenant-ID مطلوب",
+            },
+        )
+    try:
+        return UUID(tenant_header)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "Invalid tenant ID format",
+                "error_ar": "تنسيق معرف المستأجر غير صالح",
+            },
+        )
 
 
 # =============================================================================
@@ -279,6 +300,7 @@ async def sync_device_data(
     background_tasks: BackgroundTasks = None,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)] = None,
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)] = None,
+    current_user: User = Depends(get_current_user),
     direction: SyncDirection = Query(
         default=SyncDirection.UPLOAD,
         description="Sync direction | اتجاه المزامنة",
@@ -440,6 +462,7 @@ async def deploy_model(
     background_tasks: BackgroundTasks = None,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)] = None,
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)] = None,
+    current_user: User = Depends(get_current_user),
     model_name: str | None = Query(
         default=None,
         description="Model name to deploy | اسم النموذج للنشر",
@@ -763,6 +786,7 @@ async def cancel_deployment(
     deploy_id: UUID,
     tenant_id: Annotated[UUID, Depends(get_tenant_id)],
     device_manager: Annotated[DeviceManager, Depends(get_device_manager)],
+    current_user: User = Depends(get_current_user),
 ) -> DeployResponse:
     """
     Cancel an ongoing deployment operation.

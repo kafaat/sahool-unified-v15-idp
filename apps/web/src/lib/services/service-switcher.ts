@@ -8,21 +8,21 @@
  * - اختبار الخدمات قبل الترقية
  */
 
-import { logger } from "@/lib/logger";
+import { logger } from '@/lib/logger';
 
 export type ServiceType =
-  | "satellite"
-  | "weather"
-  | "ndvi"
-  | "fertilizer"
-  | "irrigation"
-  | "crop-health"
-  | "community"
-  | "notifications"
-  | "tasks"
-  | "equipment";
+  | 'satellite'
+  | 'weather'
+  | 'ndvi'
+  | 'fertilizer'
+  | 'irrigation'
+  | 'crop-intelligence'
+  | 'community'
+  | 'notifications'
+  | 'tasks'
+  | 'equipment';
 
-export type ServiceVersion = "legacy" | "modern" | "mock";
+export type ServiceVersion = 'legacy' | 'modern' | 'mock';
 
 export interface ServiceConfig {
   name: string;
@@ -30,12 +30,12 @@ export interface ServiceConfig {
   legacy?: {
     port: number;
     endpoint: string;
-    status: "deprecated" | "active";
+    status: 'deprecated' | 'active';
   };
   modern: {
     port: number;
     endpoint: string;
-    status: "active" | "beta" | "development";
+    status: 'active' | 'beta' | 'development';
   };
   mock?: {
     port: number;
@@ -46,189 +46,189 @@ export interface ServiceConfig {
 // تعريف جميع الخدمات مع نسخها المختلفة
 export const SERVICE_REGISTRY: Record<ServiceType, ServiceConfig> = {
   satellite: {
-    name: "Satellite Service",
-    nameAr: "خدمة الأقمار الصناعية",
+    name: 'Satellite Service',
+    nameAr: 'خدمة الأقمار الصناعية',
     legacy: {
       port: 8107,
-      endpoint: "/ndvi",
-      status: "deprecated",
+      endpoint: '/ndvi',
+      status: 'deprecated',
     },
     modern: {
       port: 8090,
-      endpoint: "/v1/satellite/analyze",
-      status: "active",
+      endpoint: '/v1/satellite/analyze',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/ndvi",
+      endpoint: '/api/v1/ndvi',
     },
   },
   weather: {
-    name: "Weather Service",
-    nameAr: "خدمة الطقس",
+    name: 'Weather Service',
+    nameAr: 'خدمة الطقس',
     legacy: {
       port: 8108,
-      endpoint: "/forecast",
-      status: "deprecated",
+      endpoint: '/forecast',
+      status: 'deprecated',
     },
     modern: {
       port: 8092,
-      endpoint: "/v1/weather/forecast",
-      status: "active",
+      endpoint: '/v1/weather/forecast',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/weather",
+      endpoint: '/api/v1/weather',
     },
   },
   ndvi: {
-    name: "NDVI Engine",
-    nameAr: "محرك NDVI",
+    name: 'NDVI Engine',
+    nameAr: 'محرك NDVI',
     legacy: {
       port: 8107,
-      endpoint: "/ndvi/{fieldId}",
-      status: "deprecated",
+      endpoint: '/ndvi/{fieldId}',
+      status: 'deprecated',
     },
     modern: {
       port: 8090,
-      endpoint: "/v1/analyze/{fieldId}",
-      status: "active",
+      endpoint: '/v1/analyze/{fieldId}',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/ndvi/summary",
+      endpoint: '/api/v1/ndvi/summary',
     },
   },
   fertilizer: {
-    name: "Fertilizer Advisor",
-    nameAr: "مستشار التسميد",
+    name: 'Fertilizer Advisor',
+    nameAr: 'مستشار التسميد',
     legacy: {
       port: 8105,
-      endpoint: "/advise",
-      status: "deprecated",
+      endpoint: '/advise',
+      status: 'deprecated',
     },
     modern: {
       port: 8093,
-      endpoint: "/v1/fertilizer/recommend",
-      status: "active",
+      endpoint: '/v1/fertilizer/recommend',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/fertilizer",
+      endpoint: '/api/v1/fertilizer',
     },
   },
   irrigation: {
-    name: "Irrigation Smart",
-    nameAr: "الري الذكي",
+    name: 'Irrigation Smart',
+    nameAr: 'الري الذكي',
     modern: {
       port: 8094,
-      endpoint: "/v1/irrigation/schedule",
-      status: "active",
+      endpoint: '/v1/irrigation/schedule',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/irrigation",
+      endpoint: '/api/v1/irrigation',
     },
   },
-  "crop-health": {
-    name: "Crop Health AI",
-    nameAr: "صحة المحاصيل (AI)",
+  'crop-intelligence': {
+    name: 'Crop Intelligence Service',
+    nameAr: 'خدمة ذكاء المحاصيل',
     legacy: {
       port: 8100,
-      endpoint: "/diagnose",
-      status: "deprecated",
+      endpoint: '/diagnose',
+      status: 'deprecated',
     },
     modern: {
       port: 8095,
-      endpoint: "/v1/diagnose",
-      status: "active",
+      endpoint: '/v1/diagnose',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/crop-health",
+      endpoint: '/api/v1/crop-intelligence',
     },
   },
   community: {
-    name: "Chat Service",
-    nameAr: "خدمة المحادثات",
+    name: 'Chat Service',
+    nameAr: 'خدمة المحادثات',
     legacy: {
       port: 8099,
-      endpoint: "/ws",
-      status: "deprecated",
+      endpoint: '/ws',
+      status: 'deprecated',
     },
     modern: {
       port: 8115,
-      endpoint: "/ws",
-      status: "active",
+      endpoint: '/ws',
+      status: 'active',
     },
     mock: {
       port: 8081,
-      endpoint: "/events",
+      endpoint: '/events',
     },
   },
   notifications: {
-    name: "Notification Service",
-    nameAr: "خدمة الإشعارات",
+    name: 'Notification Service',
+    nameAr: 'خدمة الإشعارات',
     modern: {
       port: 8110,
-      endpoint: "/v1/notify",
-      status: "active",
+      endpoint: '/v1/notify',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/alerts",
+      endpoint: '/api/v1/alerts',
     },
   },
   tasks: {
-    name: "Task Service",
-    nameAr: "خدمة المهام",
+    name: 'Task Service',
+    nameAr: 'خدمة المهام',
     modern: {
       port: 8103,
-      endpoint: "/api/v1/tasks",
-      status: "active",
+      endpoint: '/api/v1/tasks',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/tasks",
+      endpoint: '/api/v1/tasks',
     },
   },
   equipment: {
-    name: "Equipment Service",
-    nameAr: "خدمة المعدات",
+    name: 'Equipment Service',
+    nameAr: 'خدمة المعدات',
     modern: {
       port: 8101,
-      endpoint: "/api/v1/equipment",
-      status: "active",
+      endpoint: '/api/v1/equipment',
+      status: 'active',
     },
     mock: {
       port: 8000,
-      endpoint: "/api/v1/equipment",
+      endpoint: '/api/v1/equipment',
     },
   },
 };
 
 // الحالة الافتراضية للخدمات
 const DEFAULT_SERVICE_VERSIONS: Record<ServiceType, ServiceVersion> = {
-  satellite: "modern",
-  weather: "modern",
-  ndvi: "modern",
-  fertilizer: "modern",
-  irrigation: "modern",
-  "crop-health": "modern",
-  community: "modern",
-  notifications: "modern",
-  tasks: "modern",
-  equipment: "modern",
+  satellite: 'modern',
+  weather: 'modern',
+  ndvi: 'modern',
+  fertilizer: 'modern',
+  irrigation: 'modern',
+  'crop-intelligence': 'modern',
+  community: 'modern',
+  notifications: 'modern',
+  tasks: 'modern',
+  equipment: 'modern',
 };
 
 // مفتاح التخزين المحلي
-const STORAGE_KEY = "sahool_service_versions";
+const STORAGE_KEY = 'sahool_service_versions';
 
 /**
  * الحصول على إعدادات الخدمات المحفوظة
  */
 export function getServiceVersions(): Record<ServiceType, ServiceVersion> {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     return DEFAULT_SERVICE_VERSIONS;
   }
 
@@ -238,7 +238,7 @@ export function getServiceVersions(): Record<ServiceType, ServiceVersion> {
       return { ...DEFAULT_SERVICE_VERSIONS, ...JSON.parse(stored) };
     }
   } catch (e) {
-    logger.error("Failed to load service versions:", e);
+    logger.error('Failed to load service versions:', e);
   }
 
   return DEFAULT_SERVICE_VERSIONS;
@@ -247,10 +247,8 @@ export function getServiceVersions(): Record<ServiceType, ServiceVersion> {
 /**
  * حفظ إعدادات الخدمات
  */
-export function setServiceVersions(
-  versions: Partial<Record<ServiceType, ServiceVersion>>,
-): void {
-  if (typeof window === "undefined") return;
+export function setServiceVersions(versions: Partial<Record<ServiceType, ServiceVersion>>): void {
+  if (typeof window === 'undefined') return;
 
   try {
     const current = getServiceVersions();
@@ -258,11 +256,9 @@ export function setServiceVersions(
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 
     // إرسال حدث للتحديث
-    window.dispatchEvent(
-      new CustomEvent("service-versions-changed", { detail: updated }),
-    );
+    window.dispatchEvent(new CustomEvent('service-versions-changed', { detail: updated }));
   } catch (e) {
-    logger.error("Failed to save service versions:", e);
+    logger.error('Failed to save service versions:', e);
   }
 }
 
@@ -276,32 +272,26 @@ export function getServiceVersion(service: ServiceType): ServiceVersion {
 /**
  * تعيين نسخة خدمة محددة
  */
-export function setServiceVersion(
-  service: ServiceType,
-  version: ServiceVersion,
-): void {
+export function setServiceVersion(service: ServiceType, version: ServiceVersion): void {
   setServiceVersions({ [service]: version });
 }
 
 /**
  * الحصول على URL الخدمة بناءً على النسخة المحددة
  */
-export function getServiceUrl(
-  service: ServiceType,
-  baseHost: string = "localhost",
-): string {
+export function getServiceUrl(service: ServiceType, baseHost: string = 'localhost'): string {
   const config = SERVICE_REGISTRY[service];
   const version = getServiceVersion(service);
 
   let serviceConfig;
   switch (version) {
-    case "legacy":
+    case 'legacy':
       serviceConfig = config.legacy;
       break;
-    case "mock":
+    case 'mock':
       serviceConfig = config.mock;
       break;
-    case "modern":
+    case 'modern':
     default:
       serviceConfig = config.modern;
   }
@@ -328,29 +318,25 @@ interface ServiceHealth {
 /**
  * فحص صحة جميع الخدمات
  */
-export async function checkServicesHealth(): Promise<
-  Record<ServiceType, ServiceHealth>
-> {
+export async function checkServicesHealth(): Promise<Record<ServiceType, ServiceHealth>> {
   const results: Record<string, ServiceHealth> = {};
 
   for (const [serviceType, config] of Object.entries(SERVICE_REGISTRY)) {
     const serviceHealth: ServiceHealth = {
-      modern: await checkEndpointHealth(
-        `http://localhost:${config.modern.port}/healthz`,
-      ),
+      modern: await checkEndpointHealth(`http://localhost:${config.modern.port}/healthz`),
     };
 
     // فحص النسخة القديمة إذا وجدت
     if (config.legacy) {
       serviceHealth.legacy = await checkEndpointHealth(
-        `http://localhost:${config.legacy.port}/healthz`,
+        `http://localhost:${config.legacy.port}/healthz`
       );
     }
 
     // فحص Mock إذا وجد
     if (config.mock) {
       serviceHealth.mock = await checkEndpointHealth(
-        `http://localhost:${config.mock.port}/healthz`,
+        `http://localhost:${config.mock.port}/healthz`
       );
     }
 
@@ -363,14 +349,12 @@ export async function checkServicesHealth(): Promise<
 /**
  * فحص صحة endpoint محدد
  */
-async function checkEndpointHealth(
-  url: string,
-): Promise<{ healthy: boolean; latency: number }> {
+async function checkEndpointHealth(url: string): Promise<{ healthy: boolean; latency: number }> {
   const start = performance.now();
 
   try {
     const response = await fetch(url, {
-      method: "GET",
+      method: 'GET',
       signal: AbortSignal.timeout(5000),
     });
 
@@ -403,7 +387,7 @@ interface ComparisonResults<T> {
  */
 export async function compareServices<T>(
   service: ServiceType,
-  requestFn: (url: string) => Promise<T>,
+  requestFn: (url: string) => Promise<T>
 ): Promise<ComparisonResults<T>> {
   const config = SERVICE_REGISTRY[service];
   const results: ComparisonResults<T> = {
@@ -423,7 +407,7 @@ export async function compareServices<T>(
     results.modern = {
       data: null,
       latency: Math.round(performance.now() - modernStart),
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 
@@ -441,7 +425,7 @@ export async function compareServices<T>(
       results.legacy = {
         data: null,
         latency: Math.round(performance.now() - legacyStart),
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
   }
@@ -453,12 +437,12 @@ export async function compareServices<T>(
  * إعادة تعيين جميع الخدمات للإعدادات الافتراضية
  */
 export function resetToDefaults(): void {
-  if (typeof window === "undefined") return;
+  if (typeof window === 'undefined') return;
   localStorage.removeItem(STORAGE_KEY);
   window.dispatchEvent(
-    new CustomEvent("service-versions-changed", {
+    new CustomEvent('service-versions-changed', {
       detail: DEFAULT_SERVICE_VERSIONS,
-    }),
+    })
   );
 }
 
@@ -472,8 +456,8 @@ export function switchAllServices(version: ServiceVersion): void {
     const config = SERVICE_REGISTRY[service];
 
     // تأكد من وجود النسخة المطلوبة
-    if (version === "legacy" && !config.legacy) continue;
-    if (version === "mock" && !config.mock) continue;
+    if (version === 'legacy' && !config.legacy) continue;
+    if (version === 'mock' && !config.mock) continue;
 
     updates[service] = version;
   }

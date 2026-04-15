@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Credit Tier Model
 /// نموذج التصنيف الائتماني الموحد
 ///

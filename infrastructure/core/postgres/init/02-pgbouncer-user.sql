@@ -18,13 +18,18 @@ BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_user WHERE usename = 'pgbouncer') THEN
         -- Create user with a temporary password
         -- Note: This user is not actively used in the current PgBouncer configuration
-        CREATE USER pgbouncer WITH PASSWORD 'temp_password_not_used';
+        -- Password will be set by 03-set-pgbouncer-password.sh from env var
+        CREATE USER pgbouncer WITH PASSWORD 'init_' || md5(random()::text || clock_timestamp()::text);
         -- Grant necessary permissions (for potential future use)
         GRANT pg_monitor TO pgbouncer;
+        -- pg_read_all_auth needed for reading pg_shadow in PostgreSQL 16+
+        GRANT pg_read_all_auth TO pgbouncer;
         RAISE NOTICE 'Created pgbouncer user (not actively used - auth_user is sahool)';
     ELSE
         -- If user exists, ensure it has the correct permissions
         GRANT pg_monitor TO pgbouncer;
+        -- pg_read_all_auth needed for reading pg_shadow in PostgreSQL 16+
+        GRANT pg_read_all_auth TO pgbouncer;
         RAISE NOTICE 'Pgbouncer user already exists (not actively used - auth_user is sahool)';
     END IF;
 END
@@ -42,7 +47,7 @@ BEGIN
     -- Get the main database user (the user running this script)
     main_user := current_user;
 
-    -- Grant pg_monitor role to main user for auth_query access to pg_shadow
+    -- Grant pg_monitor role for monitoring + pg_read_all_auth for auth_query access to pg_shadow
     -- This allows PgBouncer to authenticate users via auth_query
     IF main_user IS NOT NULL AND main_user != 'postgres' THEN
         EXECUTE format('GRANT pg_monitor TO %I', main_user);

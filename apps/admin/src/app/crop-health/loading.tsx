@@ -52,10 +52,7 @@ export default function CropHealthLoading() {
           </div>
         </div>
         {Array.from({ length: 6 }).map((_, i) => (
-          <div
-            key={i}
-            className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0"
-          >
+          <div key={i} className="p-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
             <div className="grid grid-cols-7 gap-4 items-center">
               <div className="space-y-1">
                 <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded" />

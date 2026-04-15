@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Forecast Chart Component
  * مكون مخطط التنبؤ
  */
 
-import React from "react";
-import { Calendar, TrendingUp } from "lucide-react";
-import { useWeatherForecast } from "../hooks/useWeather";
+import React from 'react';
+import { Calendar, TrendingUp } from 'lucide-react';
+import { useWeatherForecast } from '../hooks/useWeather';
 
 interface ForecastChartProps {
   lat?: number;
@@ -16,12 +16,7 @@ interface ForecastChartProps {
   enabled?: boolean;
 }
 
-export const ForecastChart: React.FC<ForecastChartProps> = ({
-  lat,
-  lon,
-  days = 7,
-  enabled,
-}) => {
+export const ForecastChart: React.FC<ForecastChartProps> = ({ lat, lon, days = 7, enabled }) => {
   const { data: forecast, isLoading } = useWeatherForecast({
     lat,
     lon,
@@ -69,20 +64,18 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
               {/* Date */}
               <div className="w-24 text-sm">
                 <p className="font-medium text-gray-900">
-                  {date.toLocaleDateString("ar-EG", { weekday: "short" })}
+                  {date.toLocaleDateString('ar-EG', { weekday: 'short' })}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {date.toLocaleDateString("ar-EG", {
-                    month: "short",
-                    day: "numeric",
+                  {date.toLocaleDateString('ar-EG', {
+                    month: 'short',
+                    day: 'numeric',
                   })}
                 </p>
               </div>
 
               {/* Condition */}
-              <div className="w-32 text-sm text-gray-600">
-                {day.conditionAr}
-              </div>
+              <div className="w-32 text-sm text-gray-600">{day.conditionAr}</div>
 
               {/* Temperature Bar */}
               <div className="flex-1">
@@ -94,9 +87,7 @@ export const ForecastChart: React.FC<ForecastChartProps> = ({
                     }}
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="text-sm font-semibold text-gray-900">
-                      {maxTemp}°C
-                    </span>
+                    <span className="text-sm font-semibold text-gray-900">{maxTemp}°C</span>
                   </div>
                 </div>
               </div>

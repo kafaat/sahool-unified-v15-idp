@@ -54,7 +54,7 @@ services:
   # موصى به للإنتاج - أداء عالي، بدون حمل قاعدة البيانات
   # ============================================================================
   kong-dbless:
-    image: kong:3.5-alpine
+    image: kong:3.9.0
     container_name: kong-gateway-dbless
     profiles: ["dbless", "full"]
     restart: unless-stopped
@@ -64,6 +64,12 @@ services:
       sahool-net:
     environment:
       # DB-less Configuration - تكوين بدون قاعدة بيانات
+      # NOTE: Currently loads only kong.yml (single file mode). The additional
+      # mounted YAML files (upstreams, consumers, security, packages) must be
+      # merged into kong.yml or included via _format_version references.
+      # TODO(kong-upgrade): When upgrading to Kong >= 3.3, switch to:
+      #   KONG_DECLARATIVE_CONFIG_DIR: /etc/kong/conf.d/
+      # and mount each YAML into /etc/kong/conf.d/ for automatic loading.
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /etc/kong/kong.yml
 
@@ -120,7 +126,7 @@ services:
 
       # Security - الأمان
       KONG_HEADERS: "server_tokens=off,latency_tokens=on"
-      KONG_TRUSTED_IPS: "0.0.0.0/0,::/0"
+      KONG_TRUSTED_IPS: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
 
       # Logging level - مستوى التسجيل
       KONG_LOG_LEVEL: ${KONG_LOG_LEVEL:-notice}
@@ -144,7 +150,7 @@ services:
     ports:
       - "8000:8000"   # Proxy HTTP - بروكسي HTTP
       - "8443:8443"   # Proxy HTTPS - بروكسي HTTPS
-      - "8100:8100"   # Status/Metrics - الحالة/المقاييس
+      - "127.0.0.1:8100:8100"  # Metrics — bound to localhost only   # Status/Metrics - الحالة/المقاييس
       - "127.0.0.1:8001:8001"  # Admin API HTTP - واجهة الإدارة HTTP
       - "127.0.0.1:8444:8444"  # Admin API HTTPS - واجهة الإدارة HTTPS
     healthcheck:
@@ -226,7 +232,7 @@ services:
 
   # Kong Migrations - ترحيلات Kong
   kong-migrations:
-    image: kong:3.5-alpine
+    image: kong:3.9.0
     container_name: kong-migrations
     profiles: ["db", "full"]
     command: kong migrations bootstrap
@@ -246,7 +252,7 @@ services:
 
   # Kong DB Mode Instance - نسخة Kong مع قاعدة البيانات
   kong:
-    image: kong:3.5-alpine
+    image: kong:3.9.0
     container_name: kong-gateway
     profiles: ["db", "full"]
     restart: unless-stopped
@@ -282,7 +288,7 @@ services:
     ports:
       - "8000:8000"
       - "8443:8443"
-      - "8100:8100"
+      - "127.0.0.1:8100:8100"  # Metrics — bound to localhost only
       - "127.0.0.1:8001:8001"
       - "127.0.0.1:8444:8444"
     depends_on:
@@ -372,7 +378,7 @@ services:
     ports:
       - "6380:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "redis-cli -a ${KONG_REDIS_PASSWORD:-redis_secure} ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 5

@@ -1,3 +1,5 @@
+library;
+
 /// Chat Provider
 /// مزود المحادثات - إدارة الحالة باستخدام Riverpod
 ///

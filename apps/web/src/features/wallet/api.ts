@@ -3,9 +3,9 @@
  * واجهة برمجية لميزة المحفظة
  */
 
-import { isAxiosError } from "axios";
-import { createApiClient, logger } from "@/lib/api/factory";
-import { BILLING_ENDPOINTS } from "@sahool/shared-types/contracts";
+import { createApiClient } from '@/lib/api/factory';
+import { safeFetch, ApiError } from '@/lib/api/safe-fetch';
+import { BILLING_ENDPOINTS } from '@sahool/shared-types/contracts';
 import type {
   Wallet,
   Transaction,
@@ -14,90 +14,50 @@ import type {
   DepositFormData,
   WithdrawalFormData,
   WalletStats,
-} from "./types";
+} from './types';
 
 // Use shared API factory (handles auth, CSRF, error standardization)
 const api = createApiClient();
 
-// Mock data for development fallback
-const mockTransactions: Transaction[] = [
-  {
-    id: "1",
-    userId: "current-user",
-    type: "deposit",
-    status: "completed",
-    amount: 1000,
-    currency: "SAR",
-    description: "Initial deposit",
-    descriptionAr: "إيداع أولي",
-    paymentMethod: "bank_transfer",
-    createdAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 7).toISOString(),
-  },
-  {
-    id: "2",
-    userId: "current-user",
-    type: "payment",
-    status: "completed",
-    amount: 350,
-    currency: "SAR",
-    fee: 5,
-    description: "Product purchase - Wheat Seeds",
-    descriptionAr: "شراء منتج - بذور قمح",
-    paymentMethod: "wallet",
-    metadata: {
-      orderId: "ORD-123",
-      productName: "Wheat Seeds",
-    },
-    createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-  },
-  {
-    id: "3",
-    userId: "current-user",
-    type: "transfer_out",
-    status: "completed",
-    amount: 200,
-    currency: "SAR",
-    fee: 2,
-    description: "Transfer to Ahmad",
-    descriptionAr: "تحويل إلى أحمد",
-    metadata: {
-      recipientId: "user-123",
-      recipientName: "Ahmad Ali",
-    },
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-  },
-  {
-    id: "4",
-    userId: "current-user",
-    type: "deposit",
-    status: "completed",
-    amount: 500,
-    currency: "SAR",
-    description: "Bank transfer",
-    descriptionAr: "تحويل بنكي",
-    paymentMethod: "bank_transfer",
-    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-    completedAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-  },
-];
+/**
+ * Generate a unique Idempotency-Key for money-mutating requests.
+ * Prefers the cryptographically-strong `crypto.randomUUID()` when available
+ * (modern browsers, Node 19+, secure contexts); otherwise falls back to a
+ * timestamped random token. This key is sent as the `Idempotency-Key`
+ * header so the server can deduplicate retries of the same logical request
+ * and prevent double-charges on network hiccups.
+ *
+ * توليد مفتاح Idempotency فريد لطلبات تعديل الأموال لمنع التكرار عند إعادة المحاولة.
+ */
+function newIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `idem-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+}
 
-const mockWallet: Wallet = {
-  id: "wallet-1",
-  userId: "current-user",
-  balance: 943,
-  currency: "SAR",
-  availableBalance: 943,
-  pendingBalance: 0,
-  totalDeposits: 1500,
-  totalWithdrawals: 557,
-  totalTransactions: 4,
-  lastTransactionAt: new Date().toISOString(),
-  createdAt: new Date(Date.now() - 86400000 * 30).toISOString(),
-  updatedAt: new Date().toISOString(),
-};
+/**
+ * Validate that a value is a finite, positive, sane monetary amount.
+ * Rejects NaN, Infinity, negatives, zero, and amounts beyond sane bounds.
+ * This is a defense-in-depth check; the server remains authoritative.
+ *
+ * التحقق من أن المبلغ رقم موجب ضمن نطاق معقول (دفاع في العمق).
+ */
+function assertValidAmount(amount: unknown, endpoint: string): asserts amount is number {
+  if (
+    typeof amount !== 'number' ||
+    !Number.isFinite(amount) ||
+    amount <= 0 ||
+    amount > 1_000_000_000
+  ) {
+    throw new ApiError({
+      message: ERROR_MESSAGES.INVALID_AMOUNT.en,
+      messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar,
+      statusCode: 400,
+      endpoint,
+    });
+  }
+}
 
 /**
  * Error messages in Arabic and English
@@ -105,81 +65,38 @@ const mockWallet: Wallet = {
  */
 export const ERROR_MESSAGES = {
   NETWORK_ERROR: {
-    en: "Network error. Using offline data.",
-    ar: "خطأ في الاتصال. استخدام البيانات المحفوظة.",
+    en: 'Network error. Using offline data.',
+    ar: 'خطأ في الاتصال. استخدام البيانات المحفوظة.',
   },
   WALLET_NOT_FOUND: {
-    en: "Wallet not found.",
-    ar: "لم يتم العثور على المحفظة.",
+    en: 'Wallet not found.',
+    ar: 'لم يتم العثور على المحفظة.',
   },
   TRANSACTION_NOT_FOUND: {
-    en: "Transaction not found.",
-    ar: "لم يتم العثور على المعاملة.",
+    en: 'Transaction not found.',
+    ar: 'لم يتم العثور على المعاملة.',
   },
   INSUFFICIENT_BALANCE: {
-    en: "Insufficient balance.",
-    ar: "رصيد غير كاف لإتمام العملية.",
+    en: 'Insufficient balance.',
+    ar: 'رصيد غير كاف لإتمام العملية.',
   },
   INVALID_AMOUNT: {
-    en: "Invalid amount.",
-    ar: "المبلغ المدخل غير صحيح.",
+    en: 'Invalid amount.',
+    ar: 'المبلغ المدخل غير صحيح.',
   },
   SERVER_ERROR: {
-    en: "Server error. Please try again later.",
-    ar: "حدث خطأ في الخادم. يرجى المحاولة لاحقاً.",
+    en: 'Server error. Please try again later.',
+    ar: 'حدث خطأ في الخادم. يرجى المحاولة لاحقاً.',
   },
   UNAUTHORIZED: {
-    en: "Unauthorized access.",
-    ar: "غير مصرح لك بهذه العملية.",
+    en: 'Unauthorized access.',
+    ar: 'غير مصرح لك بهذه العملية.',
   },
   FETCH_FAILED: {
-    en: "Failed to fetch wallet data. Using cached data.",
-    ar: "فشل في جلب بيانات المحفظة. استخدام البيانات المخزنة.",
+    en: 'Wallet data is unavailable. Please try again later.',
+    ar: 'بيانات المحفظة غير متاحة. يرجى المحاولة لاحقاً.',
   },
 };
-
-/**
- * Filter transactions locally (for mock data)
- */
-function filterTransactions(
-  transactions: Transaction[],
-  filters?: TransactionFilters,
-): Transaction[] {
-  let filtered = [...transactions];
-
-  if (filters?.type) {
-    filtered = filtered.filter((t) => t.type === filters.type);
-  }
-
-  if (filters?.status) {
-    filtered = filtered.filter((t) => t.status === filters.status);
-  }
-
-  if (filters?.dateFrom) {
-    const fromDate = new Date(filters.dateFrom);
-    filtered = filtered.filter((t) => new Date(t.createdAt) >= fromDate);
-  }
-
-  if (filters?.dateTo) {
-    const toDate = new Date(filters.dateTo);
-    filtered = filtered.filter((t) => new Date(t.createdAt) <= toDate);
-  }
-
-  if (filters?.minAmount !== undefined) {
-    filtered = filtered.filter((t) => t.amount >= filters.minAmount!);
-  }
-
-  if (filters?.maxAmount !== undefined) {
-    filtered = filtered.filter((t) => t.amount <= filters.maxAmount!);
-  }
-
-  // Sort by date (newest first)
-  filtered.sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
-
-  return filtered;
-}
 
 export const walletApi = {
   /**
@@ -187,23 +104,21 @@ export const walletApi = {
    * الحصول على تفاصيل المحفظة
    */
   async getWallet(): Promise<Wallet> {
-    try {
+    return safeFetch(BILLING_ENDPOINTS.WALLET, async () => {
       const response = await api.get(BILLING_ENDPOINTS.WALLET);
-
-      // Handle different response formats
       const data = response.data.data || response.data;
 
-      // Validate response structure
-      if (data && typeof data === "object" && "balance" in data) {
+      if (data && typeof data === 'object' && 'balance' in data) {
         return data as Wallet;
       }
 
-      logger.warn("API returned unexpected format, using mock data");
-      return mockWallet;
-    } catch (error) {
-      logger.warn("Failed to fetch wallet from API, using mock data:", error);
-      return mockWallet;
-    }
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint: BILLING_ENDPOINTS.WALLET,
+      });
+    });
   },
 
   /**
@@ -211,49 +126,22 @@ export const walletApi = {
    * الحصول على إحصائيات المحفظة
    */
   async getStats(): Promise<WalletStats> {
-    try {
-      const response = await api.get(`${BILLING_ENDPOINTS.WALLET}/stats`);
+    const endpoint = `${BILLING_ENDPOINTS.WALLET}/stats`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       const data = response.data.data || response.data;
 
-      if (data && typeof data === "object" && "currentBalance" in data) {
+      if (data && typeof data === 'object' && 'currentBalance' in data) {
         return data as WalletStats;
       }
 
-      logger.warn("API returned unexpected format for stats, using mock data");
-
-      // Calculate stats from mock wallet
-      const stats: WalletStats = {
-        currentBalance: mockWallet.balance,
-        pendingBalance: mockWallet.pendingBalance,
-        totalIncome: mockWallet.totalDeposits,
-        totalExpenses: mockWallet.totalWithdrawals,
-        monthlyIncome: 1500,
-        monthlyExpenses: 557,
-        transactionCount: mockWallet.totalTransactions,
-        currency: mockWallet.currency,
-      };
-
-      return stats;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch wallet stats from API, using mock data:",
-        error,
-      );
-
-      // Calculate stats from mock wallet
-      const stats: WalletStats = {
-        currentBalance: mockWallet.balance,
-        pendingBalance: mockWallet.pendingBalance,
-        totalIncome: mockWallet.totalDeposits,
-        totalExpenses: mockWallet.totalWithdrawals,
-        monthlyIncome: 1500,
-        monthlyExpenses: 557,
-        transactionCount: mockWallet.totalTransactions,
-        currency: mockWallet.currency,
-      };
-
-      return stats;
-    }
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint,
+      });
+    });
   },
 
   /**
@@ -261,20 +149,19 @@ export const walletApi = {
    * الحصول على قائمة المعاملات
    */
   async getTransactions(filters?: TransactionFilters): Promise<Transaction[]> {
-    try {
-      // Build query parameters
+    return safeFetch(BILLING_ENDPOINTS.TRANSACTIONS, async () => {
       const params = new URLSearchParams();
-      if (filters?.type) params.append("type", filters.type);
-      if (filters?.status) params.append("status", filters.status);
-      if (filters?.dateFrom) params.append("dateFrom", filters.dateFrom);
-      if (filters?.dateTo) params.append("dateTo", filters.dateTo);
+      if (filters?.type) params.append('type', filters.type);
+      if (filters?.status) params.append('status', filters.status);
+      if (filters?.dateFrom) params.append('dateFrom', filters.dateFrom);
+      if (filters?.dateTo) params.append('dateTo', filters.dateTo);
       if (filters?.minAmount !== undefined)
-        params.append("minAmount", filters.minAmount.toString());
+        params.append('minAmount', filters.minAmount.toString());
       if (filters?.maxAmount !== undefined)
-        params.append("maxAmount", filters.maxAmount.toString());
+        params.append('maxAmount', filters.maxAmount.toString());
 
       const queryString = params.toString();
-      const endpoint = `${BILLING_ENDPOINTS.TRANSACTIONS}${queryString ? `?${queryString}` : ""}`;
+      const endpoint = `${BILLING_ENDPOINTS.TRANSACTIONS}${queryString ? `?${queryString}` : ''}`;
 
       const response = await api.get(endpoint);
       const data = response.data.data || response.data;
@@ -283,17 +170,13 @@ export const walletApi = {
         return data;
       }
 
-      logger.warn(
-        "API returned unexpected format for transactions, using mock data",
-      );
-      return filterTransactions(mockTransactions, filters);
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch transactions from API, using mock data:",
-        error,
-      );
-      return filterTransactions(mockTransactions, filters);
-    }
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint: BILLING_ENDPOINTS.TRANSACTIONS,
+      });
+    });
   },
 
   /**
@@ -301,125 +184,127 @@ export const walletApi = {
    * الحصول على معاملة حسب المعرف
    */
   async getTransactionById(id: string): Promise<Transaction> {
-    try {
-      const response = await api.get(`${BILLING_ENDPOINTS.TRANSACTIONS}/${id}`);
+    const endpoint = `${BILLING_ENDPOINTS.TRANSACTIONS}/${id}`;
+    return safeFetch(endpoint, async () => {
+      const response = await api.get(endpoint);
       const data = response.data.data || response.data;
 
-      if (data && typeof data === "object" && "id" in data) {
+      if (data && typeof data === 'object' && 'id' in data) {
         return data as Transaction;
       }
 
-      logger.warn(
-        "API returned unexpected format for transaction, using mock data",
-      );
-
-      const transaction = mockTransactions.find((t) => t.id === id);
-      if (!transaction) {
-        throw new Error(ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar);
-      }
-      return transaction;
-    } catch (error) {
-      logger.warn(
-        "Failed to fetch transaction from API, using mock data:",
-        error,
-      );
-
-      const transaction = mockTransactions.find((t) => t.id === id);
-      if (!transaction) {
-        throw new Error(ERROR_MESSAGES.TRANSACTION_NOT_FOUND.ar);
-      }
-      return transaction;
-    }
+      throw new ApiError({
+        message: ERROR_MESSAGES.FETCH_FAILED.en,
+        messageAr: ERROR_MESSAGES.FETCH_FAILED.ar,
+        statusCode: 500,
+        endpoint,
+      });
+    });
   },
 
   /**
    * Create deposit
    * إنشاء إيداع
+   *
+   * Sends an `Idempotency-Key` header so the server can deduplicate retries
+   * of the same logical deposit (prevents double-credit on network retry).
    */
   async deposit(data: DepositFormData): Promise<Transaction> {
-    try {
-      const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data);
-      const result = response.data.data || response.data;
+    assertValidAmount(data?.amount, BILLING_ENDPOINTS.WALLET_DEPOSIT);
+    const idempotencyKey = newIdempotencyKey();
+    return safeFetch(BILLING_ENDPOINTS.WALLET_DEPOSIT, async () => {
+      try {
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_DEPOSIT, data, {
+          headers: { 'Idempotency-Key': idempotencyKey },
+        });
+        const result = response.data.data || response.data;
 
-      if (result && typeof result === "object" && "id" in result) {
-        return result as Transaction;
-      }
-
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
-    } catch (error) {
-      logger.error("Failed to create deposit:", error);
-
-      if (isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
-        } else if (error.response?.status === 401) {
-          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+        if (result && typeof result === 'object' && 'id' in result) {
+          return result as Transaction;
         }
-      }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
-    }
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
+      } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_DEPOSIT });
+        throw err;
+      }
+    });
   },
 
   /**
    * Create withdrawal
    * إنشاء سحب
+   *
+   * Sends an `Idempotency-Key` header so the server can deduplicate retries
+   * of the same logical withdrawal (prevents double-debit on network retry).
    */
   async withdraw(data: WithdrawalFormData): Promise<Transaction> {
-    try {
-      const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data);
-      const result = response.data.data || response.data;
+    assertValidAmount(data?.amount, BILLING_ENDPOINTS.WALLET_WITHDRAW);
+    const idempotencyKey = newIdempotencyKey();
+    return safeFetch(BILLING_ENDPOINTS.WALLET_WITHDRAW, async () => {
+      try {
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_WITHDRAW, data, {
+          headers: { 'Idempotency-Key': idempotencyKey },
+        });
+        const result = response.data.data || response.data;
 
-      if (result && typeof result === "object" && "id" in result) {
-        return result as Transaction;
-      }
-
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
-    } catch (error) {
-      logger.error("Failed to create withdrawal:", error);
-
-      if (isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
-        } else if (error.response?.status === 402) {
-          throw new Error(ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar);
-        } else if (error.response?.status === 401) {
-          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
+        if (result && typeof result === 'object' && 'id' in result) {
+          return result as Transaction;
         }
-      }
 
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
-    }
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+      } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+        if (status === 402) throw new ApiError({ message: ERROR_MESSAGES.INSUFFICIENT_BALANCE.en, messageAr: ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar, statusCode: 402, endpoint: BILLING_ENDPOINTS.WALLET_WITHDRAW });
+        throw err;
+      }
+    });
   },
 
   /**
    * Transfer money to another user
    * تحويل الأموال إلى مستخدم آخر
+   *
+   * Sends an `Idempotency-Key` header so the server can deduplicate retries
+   * of the same logical transfer (prevents double-transfer on network retry).
    */
   async transfer(data: TransferFormData): Promise<Transaction> {
-    try {
-      const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data);
-      const result = response.data.data || response.data;
-
-      if (result && typeof result === "object" && "id" in result) {
-        return result as Transaction;
-      }
-
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
-    } catch (error) {
-      logger.error("Failed to create transfer:", error);
-
-      if (isAxiosError(error)) {
-        if (error.response?.status === 400) {
-          throw new Error(ERROR_MESSAGES.INVALID_AMOUNT.ar);
-        } else if (error.response?.status === 402) {
-          throw new Error(ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar);
-        } else if (error.response?.status === 401) {
-          throw new Error(ERROR_MESSAGES.UNAUTHORIZED.ar);
-        }
-      }
-
-      throw new Error(ERROR_MESSAGES.SERVER_ERROR.ar);
+    assertValidAmount(data?.amount, BILLING_ENDPOINTS.WALLET_TRANSFER);
+    if (!data?.recipientId || typeof data.recipientId !== 'string' || !data.recipientId.trim()) {
+      throw new ApiError({
+        message: 'Recipient ID is required',
+        messageAr: 'معرف المستلم مطلوب',
+        statusCode: 400,
+        endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER,
+      });
     }
+    const idempotencyKey = newIdempotencyKey();
+    return safeFetch(BILLING_ENDPOINTS.WALLET_TRANSFER, async () => {
+      try {
+        const response = await api.post(BILLING_ENDPOINTS.WALLET_TRANSFER, data, {
+          headers: { 'Idempotency-Key': idempotencyKey },
+        });
+        const result = response.data.data || response.data;
+
+        if (result && typeof result === 'object' && 'id' in result) {
+          return result as Transaction;
+        }
+
+        throw new ApiError({ message: ERROR_MESSAGES.SERVER_ERROR.en, messageAr: ERROR_MESSAGES.SERVER_ERROR.ar, statusCode: 500, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+      } catch (err: unknown) {
+        if (err instanceof ApiError) throw err;
+        const status = (err as { response?: { status?: number } })?.response?.status;
+        if (status === 400) throw new ApiError({ message: ERROR_MESSAGES.INVALID_AMOUNT.en, messageAr: ERROR_MESSAGES.INVALID_AMOUNT.ar, statusCode: 400, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+        if (status === 401) throw new ApiError({ message: ERROR_MESSAGES.UNAUTHORIZED.en, messageAr: ERROR_MESSAGES.UNAUTHORIZED.ar, statusCode: 401, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+        if (status === 402) throw new ApiError({ message: ERROR_MESSAGES.INSUFFICIENT_BALANCE.en, messageAr: ERROR_MESSAGES.INSUFFICIENT_BALANCE.ar, statusCode: 402, endpoint: BILLING_ENDPOINTS.WALLET_TRANSFER });
+        throw err;
+      }
+    });
   },
 };

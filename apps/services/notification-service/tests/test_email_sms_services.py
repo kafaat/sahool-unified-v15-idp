@@ -5,6 +5,7 @@ Coverage: Email sending, SMS sending, bulk operations, error handling, bilingual
 """
 
 import asyncio
+import os
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -89,8 +90,7 @@ class TestSMSClient:
             assert result is False
             assert client._initialized is False
 
-    @pytest.mark.asyncio
-    async def test_send_sms_success(self):
+    def test_send_sms_success(self):
         """Test successful SMS sending"""
         from src.sms_client import SMSClient
 
@@ -105,12 +105,11 @@ class TestSMSClient:
         mock_twilio_client.messages.create = MagicMock(return_value=mock_message)
         client._client = mock_twilio_client
 
-        result = await client.send_sms(to="+967771234567", body="Test message", body_ar="رسالة تجريبية")
+        result = asyncio.run(client.send_sms(to="+967771234567", body="Test message", body_ar="رسالة تجريبية"))
 
         assert result == "SM123456"
 
-    @pytest.mark.asyncio
-    async def test_send_sms_arabic_content(self):
+    def test_send_sms_arabic_content(self):
         """Test SMS sending with Arabic content"""
         from src.sms_client import SMSClient
 
@@ -125,14 +124,13 @@ class TestSMSClient:
         mock_twilio_client.messages.create = MagicMock(return_value=mock_message)
         client._client = mock_twilio_client
 
-        await client.send_sms(to="+967771234567", body="Weather alert", body_ar="تنبيه طقس", language="ar")
+        asyncio.run(client.send_sms(to="+967771234567", body="Weather alert", body_ar="تنبيه طقس", language="ar"))
 
         # Verify Arabic content was sent
         call_args = mock_twilio_client.messages.create.call_args
         assert "تنبيه طقس" in str(call_args)
 
-    @pytest.mark.asyncio
-    async def test_send_sms_phone_number_formatting(self):
+    def test_send_sms_phone_number_formatting(self):
         """Test SMS sending handles phone number formatting"""
         from src.sms_client import SMSClient
 
@@ -148,16 +146,17 @@ class TestSMSClient:
         client._client = mock_twilio_client
 
         # Send without + prefix
-        result = await client.send_sms(
-            to="967771234567",  # No + prefix
-            body="Test",
+        result = asyncio.run(
+            client.send_sms(
+                to="967771234567",  # No + prefix
+                body="Test",
+            )
         )
 
         # Should add + prefix
         assert result == "SM123456"
 
-    @pytest.mark.asyncio
-    async def test_send_sms_truncates_long_messages(self):
+    def test_send_sms_truncates_long_messages(self):
         """Test SMS sending truncates messages exceeding max length"""
         from src.sms_client import SMSClient
 
@@ -174,25 +173,23 @@ class TestSMSClient:
 
         long_message = "A" * 2000  # Exceeds default max_length
 
-        result = await client.send_sms(to="+967771234567", body=long_message, max_length=1600)
+        result = asyncio.run(client.send_sms(to="+967771234567", body=long_message, max_length=1600))
 
         # Should still send (truncated)
         assert result == "SM123456"
 
-    @pytest.mark.asyncio
-    async def test_send_sms_not_initialized(self):
+    def test_send_sms_not_initialized(self):
         """Test SMS sending when client not initialized"""
         from src.sms_client import SMSClient
 
         client = SMSClient()
         client._initialized = False
 
-        result = await client.send_sms(to="+967771234567", body="Test")
+        result = asyncio.run(client.send_sms(to="+967771234567", body="Test"))
 
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_send_sms_with_error(self):
+    def test_send_sms_with_error(self):
         """Test SMS sending handles errors"""
         from src.sms_client import SMSClient
 
@@ -201,17 +198,14 @@ class TestSMSClient:
         client._from_number = "+1234567890"
 
         mock_twilio_client = MagicMock()
-        mock_twilio_client.messages.create = MagicMock(
-            side_effect=Exception("Invalid phone number")
-        )
+        mock_twilio_client.messages.create = MagicMock(side_effect=Exception("Invalid phone number"))
         client._client = mock_twilio_client
 
-        result = await client.send_sms(to="+invalid", body="Test")
+        result = asyncio.run(client.send_sms(to="+invalid", body="Test"))
 
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_send_bulk_sms(self):
+    def test_send_bulk_sms(self):
         """Test sending bulk SMS"""
         from src.sms_client import SMSClient
 
@@ -221,15 +215,14 @@ class TestSMSClient:
         # Mock send_sms to return success for all
         client.send_sms = AsyncMock(side_effect=["SM1", "SM2", "SM3"])
 
-        result = await client.send_bulk_sms(
-            recipients=["+9671", "+9672", "+9673"], body="Bulk message", body_ar="رسالة جماعية"
+        result = asyncio.run(
+            client.send_bulk_sms(recipients=["+9671", "+9672", "+9673"], body="Bulk message", body_ar="رسالة جماعية")
         )
 
         assert result["success_count"] == 3
         assert result["failure_count"] == 0
 
-    @pytest.mark.asyncio
-    async def test_send_sms_with_retry_success(self):
+    def test_send_sms_with_retry_success(self):
         """Test SMS sending with retry succeeds"""
         from src.sms_client import SMSClient
 
@@ -239,11 +232,13 @@ class TestSMSClient:
         # Fail first, succeed second
         client.send_sms = AsyncMock(side_effect=[None, "SM123456"])
 
-        result = await client.send_sms_with_retry(
-            to="+967771234567",
-            body="Test",
-            max_retries=3,
-            retry_delay=0,  # No delay for testing
+        result = asyncio.run(
+            client.send_sms_with_retry(
+                to="+967771234567",
+                body="Test",
+                max_retries=3,
+                retry_delay=0,  # No delay for testing
+            )
         )
 
         assert result == "SM123456"
@@ -326,8 +321,7 @@ class TestEmailClient:
 
             assert result is False
 
-    @pytest.mark.asyncio
-    async def test_send_email_success(self):
+    def test_send_email_success(self):
         """Test successful email sending"""
         from src.email_client import EmailClient
 
@@ -344,18 +338,19 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = await client.send_email(
-            to="farmer@example.com",
-            subject="Weather Alert",
-            body="Frost expected tonight",
-            subject_ar="تنبيه طقس",
-            body_ar="صقيع متوقع الليلة",
+        result = asyncio.run(
+            client.send_email(
+                to="farmer@example.com",
+                subject="Weather Alert",
+                body="Frost expected tonight",
+                subject_ar="تنبيه طقس",
+                body_ar="صقيع متوقع الليلة",
+            )
         )
 
         assert result == "msg-123456"
 
-    @pytest.mark.asyncio
-    async def test_send_email_html_content(self):
+    def test_send_email_html_content(self):
         """Test sending HTML email"""
         from src.email_client import EmailClient
 
@@ -374,12 +369,11 @@ class TestEmailClient:
 
         html_body = "<h1>Alert</h1><p>Important message</p>"
 
-        result = await client.send_email(to="farmer@example.com", subject="Alert", body=html_body, is_html=True)
+        result = asyncio.run(client.send_email(to="farmer@example.com", subject="Alert", body=html_body, is_html=True))
 
         assert result == "msg-123456"
 
-    @pytest.mark.asyncio
-    async def test_send_email_arabic_content(self):
+    def test_send_email_arabic_content(self):
         """Test email sending with Arabic content"""
         from src.email_client import EmailClient
 
@@ -396,19 +390,20 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = await client.send_email(
-            to="farmer@example.com",
-            subject="Weather Alert",
-            body="Frost expected",
-            subject_ar="تنبيه طقس",
-            body_ar="صقيع متوقع",
-            language="ar",
+        result = asyncio.run(
+            client.send_email(
+                to="farmer@example.com",
+                subject="Weather Alert",
+                body="Frost expected",
+                subject_ar="تنبيه طقس",
+                body_ar="صقيع متوقع",
+                language="ar",
+            )
         )
 
         assert result == "msg-123456"
 
-    @pytest.mark.asyncio
-    async def test_send_email_with_cc_bcc(self):
+    def test_send_email_with_cc_bcc(self):
         """Test email sending with CC and BCC"""
         from src.email_client import EmailClient
 
@@ -425,46 +420,47 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = await client.send_email(
-            to="farmer@example.com",
-            subject="Test",
-            body="Test body",
-            cc=["cc1@example.com", "cc2@example.com"],
-            bcc=["bcc@example.com"],
+        result = asyncio.run(
+            client.send_email(
+                to="farmer@example.com",
+                subject="Test",
+                body="Test body",
+                cc=["cc1@example.com", "cc2@example.com"],
+                bcc=["bcc@example.com"],
+            )
         )
 
         assert result == "msg-123456"
 
-    @pytest.mark.asyncio
-    async def test_send_email_invalid_email(self):
+    def test_send_email_invalid_email(self):
         """Test email validation"""
         from src.email_client import EmailClient
 
         client = EmailClient()
         client._initialized = True
 
-        result = await client.send_email(
-            to="invalid-email",  # No @ sign
-            subject="Test",
-            body="Test",
+        result = asyncio.run(
+            client.send_email(
+                to="invalid-email",  # No @ sign
+                subject="Test",
+                body="Test",
+            )
         )
 
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_send_email_not_initialized(self):
+    def test_send_email_not_initialized(self):
         """Test email sending when not initialized"""
         from src.email_client import EmailClient
 
         client = EmailClient()
         client._initialized = False
 
-        result = await client.send_email(to="test@example.com", subject="Test", body="Test")
+        result = asyncio.run(client.send_email(to="test@example.com", subject="Test", body="Test"))
 
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_send_email_with_error(self):
+    def test_send_email_with_error(self):
         """Test email sending handles errors"""
         from src.email_client import EmailClient
 
@@ -477,12 +473,11 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(side_effect=Exception("Invalid API key"))
         client._client = mock_sendgrid_client
 
-        result = await client.send_email(to="test@example.com", subject="Test", body="Test")
+        result = asyncio.run(client.send_email(to="test@example.com", subject="Test", body="Test"))
 
         assert result is None
 
-    @pytest.mark.asyncio
-    async def test_send_bulk_email(self):
+    def test_send_bulk_email(self):
         """Test sending bulk emails"""
         from src.email_client import EmailClient
 
@@ -492,17 +487,18 @@ class TestEmailClient:
         # Mock send_email to return success
         client.send_email = AsyncMock(side_effect=["msg-1", "msg-2", "msg-3"])
 
-        result = await client.send_bulk_email(
-            recipients=["user1@example.com", "user2@example.com", "user3@example.com"],
-            subject="Broadcast",
-            body="Important message",
+        result = asyncio.run(
+            client.send_bulk_email(
+                recipients=["user1@example.com", "user2@example.com", "user3@example.com"],
+                subject="Broadcast",
+                body="Important message",
+            )
         )
 
         assert result["success_count"] == 3
         assert result["failure_count"] == 0
 
-    @pytest.mark.asyncio
-    async def test_send_email_with_retry(self):
+    def test_send_email_with_retry(self):
         """Test email sending with retry logic"""
         from src.email_client import EmailClient
 
@@ -512,15 +508,16 @@ class TestEmailClient:
         # Fail first, succeed second
         client.send_email = AsyncMock(side_effect=[None, "msg-123456"])
 
-        result = await client.send_email_with_retry(
-            to="test@example.com", subject="Test", body="Test", max_retries=3, retry_delay=0
+        result = asyncio.run(
+            client.send_email_with_retry(
+                to="test@example.com", subject="Test", body="Test", max_retries=3, retry_delay=0
+            )
         )
 
         assert result == "msg-123456"
         assert client.send_email.call_count == 2
 
-    @pytest.mark.asyncio
-    async def test_send_template_email(self):
+    def test_send_template_email(self):
         """Test sending email with SendGrid template"""
         from src.email_client import EmailClient
 
@@ -537,11 +534,13 @@ class TestEmailClient:
         mock_sendgrid_client.send = MagicMock(return_value=mock_response)
         client._client = mock_sendgrid_client
 
-        result = await client.send_template_email(
-            to="farmer@example.com",
-            template_id="d-1234567890",
-            template_data={"farmer_name": "Ahmed", "alert_type": "frost", "temperature": -2},
-            language="ar",
+        result = asyncio.run(
+            client.send_template_email(
+                to="farmer@example.com",
+                template_id="d-1234567890",
+                template_data={"farmer_name": "Ahmed", "alert_type": "frost", "temperature": -2},
+                language="ar",
+            )
         )
 
         assert result == "msg-template-123"
@@ -641,8 +640,7 @@ class TestGlobalClientInstances:
 class TestBilingualSupport:
     """Test bilingual (Arabic/English) support across channels"""
 
-    @pytest.mark.asyncio
-    async def test_sms_arabic_english_selection(self):
+    def test_sms_arabic_english_selection(self):
         """Test SMS selects correct language content"""
         from src.sms_client import SMSClient
 
@@ -658,14 +656,15 @@ class TestBilingualSupport:
         client._client = mock_twilio_client
 
         # Test Arabic
-        await client.send_sms(to="+967771234567", body="English version", body_ar="النسخة العربية", language="ar")
+        asyncio.run(
+            client.send_sms(to="+967771234567", body="English version", body_ar="النسخة العربية", language="ar")
+        )
 
         # Verify Arabic was used
         call_args = mock_twilio_client.messages.create.call_args
         assert "النسخة العربية" in str(call_args)
 
-    @pytest.mark.asyncio
-    async def test_email_arabic_english_selection(self):
+    def test_email_arabic_english_selection(self):
         """Test Email selects correct language content"""
         from src.email_client import EmailClient
 
@@ -683,13 +682,15 @@ class TestBilingualSupport:
         client._client = mock_sendgrid_client
 
         # Test Arabic
-        result = await client.send_email(
-            to="test@example.com",
-            subject="English Subject",
-            body="English body",
-            subject_ar="العنوان العربي",
-            body_ar="النص العربي",
-            language="ar",
+        result = asyncio.run(
+            client.send_email(
+                to="test@example.com",
+                subject="English Subject",
+                body="English body",
+                subject_ar="العنوان العربي",
+                body_ar="النص العربي",
+                language="ar",
+            )
         )
 
         assert result == "msg-123"

@@ -7,36 +7,23 @@
  * 2. Environment variable support
  * 3. Development warnings
  * 4. Endpoint path construction
+ *
+ * Note: Feature modules (advisor, field-map, ndvi, reports) use
+ * createApiClient() which returns the unified client's axios instance
+ * (not axios.create). These tests validate the unified client's config
+ * and endpoint path construction.
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import axios from "axios";
-
-// Mock axios to intercept requests
-vi.mock("axios");
-const mockedAxios = vi.mocked(axios, true);
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 // Mock console.warn
 const originalConsoleWarn = console.warn;
 const consoleWarnMock = vi.fn();
 
-describe("API Configuration Tests", () => {
+describe('API Configuration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     console.warn = consoleWarnMock;
-
-    // Setup axios.create mock
-    mockedAxios.create = vi.fn(() => ({
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      patch: vi.fn(),
-      delete: vi.fn(),
-      interceptors: {
-        request: { use: vi.fn() },
-        response: { use: vi.fn() },
-      },
-    })) as any;
   });
 
   afterEach(() => {
@@ -44,189 +31,89 @@ describe("API Configuration Tests", () => {
     vi.resetModules();
   });
 
-  describe("Advisor API Configuration", () => {
-    it("should use empty baseURL when NEXT_PUBLIC_API_URL is not set", async () => {
-      // Ensure env var is not set
-      delete process.env.NEXT_PUBLIC_API_URL;
-
-      // Re-import to get fresh module
-      await import("../advisor/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: "",
-        }),
-      );
+  describe('Feature API modules', () => {
+    it('advisor/api should export without errors', async () => {
+      await expect(import('../advisor/api')).resolves.toBeDefined();
     });
 
-    it("should use NEXT_PUBLIC_API_URL when set", async () => {
-      const testUrl = "https://api.example.com";
-      process.env.NEXT_PUBLIC_API_URL = testUrl;
-
-      await import("../advisor/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: testUrl,
-        }),
-      );
-
-      delete process.env.NEXT_PUBLIC_API_URL;
+    it('field-map/api should export without errors', async () => {
+      await expect(import('../field-map/api')).resolves.toBeDefined();
     });
 
-    it("should use empty baseURL in development when API_BASE_URL is empty", async () => {
-      delete process.env.NEXT_PUBLIC_API_URL;
-
-      // Mock window object to simulate browser environment
-      global.window = {} as any;
-
-      await import("../advisor/api");
-
-      // Factory should create client with empty baseURL
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: "",
-        }),
-      );
-
-      delete (global as any).window;
+    it('ndvi/api should export without errors', async () => {
+      await expect(import('../ndvi/api')).resolves.toBeDefined();
     });
 
-    it("should not throw during server-side build", async () => {
+    it('reports/api should export without errors', async () => {
+      await expect(import('../reports/api')).resolves.toBeDefined();
+    });
+
+    it('should not throw during server-side build', async () => {
       delete process.env.NEXT_PUBLIC_API_URL;
       delete (global as any).window;
 
-      // Should not throw an error
-      await expect(import("../advisor/api")).resolves.toBeDefined();
+      await expect(import('../advisor/api')).resolves.toBeDefined();
     });
   });
 
-  describe("Field Map API Configuration", () => {
-    it("should use empty baseURL when NEXT_PUBLIC_API_URL is not set", async () => {
-      delete process.env.NEXT_PUBLIC_API_URL;
-
-      await import("../field-map/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: "",
-        }),
-      );
+  describe('Unified client configuration', () => {
+    it('should have baseURL from NEXT_PUBLIC_API_URL or empty', async () => {
+      const { unifiedApiClient } = await import('@/lib/api/unified-client');
+      const baseURL = unifiedApiClient.defaults.baseURL ?? '';
+      const envUrl = process.env.NEXT_PUBLIC_API_URL ?? '';
+      expect(baseURL).toBe(envUrl);
     });
 
-    it("should use NEXT_PUBLIC_API_URL when set", async () => {
-      const testUrl = "https://api.example.com";
-      process.env.NEXT_PUBLIC_API_URL = testUrl;
+    it('should have withCredentials enabled', async () => {
+      const { unifiedApiClient } = await import('@/lib/api/unified-client');
+      expect(unifiedApiClient.defaults.withCredentials).toBe(true);
+    });
 
-      await import("../field-map/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: testUrl,
-        }),
-      );
-
-      delete process.env.NEXT_PUBLIC_API_URL;
+    it('should have timeout configured', async () => {
+      const { unifiedApiClient } = await import('@/lib/api/unified-client');
+      expect(unifiedApiClient.defaults.timeout).toBeGreaterThan(0);
     });
   });
 
-  describe("NDVI API Configuration", () => {
-    it("should use empty baseURL when NEXT_PUBLIC_API_URL is not set", async () => {
-      delete process.env.NEXT_PUBLIC_API_URL;
-
-      await import("../ndvi/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: "",
-        }),
-      );
-    });
-
-    it("should use NEXT_PUBLIC_API_URL when set", async () => {
-      const testUrl = "https://api.example.com";
-      process.env.NEXT_PUBLIC_API_URL = testUrl;
-
-      await import("../ndvi/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: testUrl,
-        }),
-      );
-
-      delete process.env.NEXT_PUBLIC_API_URL;
-    });
-  });
-
-  describe("Reports API Configuration", () => {
-    it("should use empty baseURL when NEXT_PUBLIC_API_URL is not set", async () => {
-      delete process.env.NEXT_PUBLIC_API_URL;
-
-      await import("../reports/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: "",
-        }),
-      );
-    });
-
-    it("should use NEXT_PUBLIC_API_URL when set", async () => {
-      const testUrl = "https://api.example.com";
-      process.env.NEXT_PUBLIC_API_URL = testUrl;
-
-      await import("../reports/api");
-
-      expect(mockedAxios.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          baseURL: testUrl,
-        }),
-      );
-
-      delete process.env.NEXT_PUBLIC_API_URL;
-    });
-  });
-
-  describe("Endpoint Path Construction", () => {
-    it("should construct correct paths without /api duplication", () => {
+  describe('Endpoint Path Construction', () => {
+    it('should construct correct paths without /api duplication', () => {
       // Test various endpoint patterns
       const testCases = [
         {
-          endpoint: "/api/v1/advice/recommendations",
-          baseURL: "",
-          expected: "/api/v1/advice/recommendations",
+          endpoint: '/api/v1/advice/recommendations',
+          baseURL: '',
+          expected: '/api/v1/advice/recommendations',
         },
         {
-          endpoint: "/api/v1/advice/recommendations",
-          baseURL: "https://api.example.com",
-          expected: "https://api.example.com/api/v1/advice/recommendations",
+          endpoint: '/api/v1/advice/recommendations',
+          baseURL: 'https://api.example.com',
+          expected: 'https://api.example.com/api/v1/advice/recommendations',
         },
-        { endpoint: "/api/v1/fields", baseURL: "", expected: "/api/v1/fields" },
+        { endpoint: '/api/v1/fields', baseURL: '', expected: '/api/v1/fields' },
         {
-          endpoint: "/api/v1/fields",
-          baseURL: "https://api.example.com",
-          expected: "https://api.example.com/api/v1/fields",
-        },
-        {
-          endpoint: "/api/v1/ndvi/latest",
-          baseURL: "",
-          expected: "/api/v1/ndvi/latest",
+          endpoint: '/api/v1/fields',
+          baseURL: 'https://api.example.com',
+          expected: 'https://api.example.com/api/v1/fields',
         },
         {
-          endpoint: "/api/v1/ndvi/latest",
-          baseURL: "https://api.example.com",
-          expected: "https://api.example.com/api/v1/ndvi/latest",
+          endpoint: '/api/v1/ndvi/latest',
+          baseURL: '',
+          expected: '/api/v1/ndvi/latest',
         },
         {
-          endpoint: "/api/v1/reports",
-          baseURL: "",
-          expected: "/api/v1/reports",
+          endpoint: '/api/v1/ndvi/latest',
+          baseURL: 'https://api.example.com',
+          expected: 'https://api.example.com/api/v1/ndvi/latest',
         },
         {
-          endpoint: "/api/v1/reports",
-          baseURL: "https://api.example.com",
-          expected: "https://api.example.com/api/v1/reports",
+          endpoint: '/api/v1/reports',
+          baseURL: '',
+          expected: '/api/v1/reports',
+        },
+        {
+          endpoint: '/api/v1/reports',
+          baseURL: 'https://api.example.com',
+          expected: 'https://api.example.com/api/v1/reports',
         },
       ];
 
@@ -238,31 +125,29 @@ describe("API Configuration Tests", () => {
       });
     });
 
-    it("should not have /api/api duplication in production URLs", () => {
-      const baseURL = "https://kong-gateway.example.com";
+    it('should not have /api/api duplication in production URLs', () => {
+      const baseURL = 'https://kong-gateway.example.com';
       const endpoints = [
-        "/api/v1/advice/recommendations",
-        "/api/v1/fields",
-        "/api/v1/ndvi/latest",
-        "/api/v1/reports",
+        '/api/v1/advice/recommendations',
+        '/api/v1/fields',
+        '/api/v1/ndvi/latest',
+        '/api/v1/reports',
       ];
 
       endpoints.forEach((endpoint) => {
         const fullUrl = `${baseURL}${endpoint}`;
         expect(fullUrl).not.toMatch(/\/api\/api/);
-        expect(fullUrl).toMatch(
-          /^https:\/\/kong-gateway\.example\.com\/api\/v1\//,
-        );
+        expect(fullUrl).toMatch(/^https:\/\/kong-gateway\.example\.com\/api\/v1\//);
       });
     });
 
-    it("should work correctly with relative paths in development", () => {
-      const baseURL = "";
+    it('should work correctly with relative paths in development', () => {
+      const baseURL = '';
       const endpoints = [
-        "/api/v1/advice/recommendations",
-        "/api/v1/fields",
-        "/api/v1/ndvi/latest",
-        "/api/v1/reports",
+        '/api/v1/advice/recommendations',
+        '/api/v1/fields',
+        '/api/v1/ndvi/latest',
+        '/api/v1/reports',
       ];
 
       endpoints.forEach((endpoint) => {
@@ -270,37 +155,6 @@ describe("API Configuration Tests", () => {
         expect(fullUrl).toBe(endpoint);
         expect(fullUrl).toMatch(/^\/api\/v1\//);
         expect(fullUrl).not.toMatch(/\/api\/api/);
-      });
-    });
-  });
-
-  describe("Common Configuration", () => {
-    it("should have consistent timeout configuration", async () => {
-      await import("../advisor/api");
-      await import("../field-map/api");
-      await import("../ndvi/api");
-      await import("../reports/api");
-
-      const calls = mockedAxios.create.mock.calls;
-      calls.forEach((call) => {
-        // Default factory timeout is 15000ms
-        expect(call[0]).toHaveProperty("timeout", 15000);
-      });
-    });
-
-    it("should have consistent header configuration", async () => {
-      await import("../advisor/api");
-      await import("../field-map/api");
-      await import("../ndvi/api");
-      await import("../reports/api");
-
-      const calls = mockedAxios.create.mock.calls;
-      calls.forEach((call) => {
-        expect(call[0]).toHaveProperty("headers");
-        expect(call[0].headers).toHaveProperty(
-          "Content-Type",
-          "application/json",
-        );
       });
     });
   });

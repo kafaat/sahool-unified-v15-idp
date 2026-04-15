@@ -13,7 +13,7 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # Core Web Framework
 # ─────────────────────────────────────────────────────────────────────────────
-fastapi==0.135.1
+fastapi==0.135.2
 starlette>=0.49.1,<1.0.0
 # Note: uvicorn extras removed for constraints compatibility - install separately
 uvicorn>=0.30.0,<1.0.0
@@ -26,19 +26,21 @@ python-multipart==0.0.22  # CVE-2024-53981 fix
 # LangChain Framework (Security Updates)
 # ─────────────────────────────────────────────────────────────────────────────
 # CVE-2025-68664, CVE-2025-65106 - Fixed in langchain-core 0.3.81
-# CVE-2025-6984 - Fixed in langchain-community 0.3.27
-langchain>=0.3.26,<0.4.0
-langchain-core==0.3.83
-langchain-community==0.3.31  # Must stay on 0.3.x (0.4.x requires langchain-core>=1.0.1)
-langchain-anthropic==0.3.22
-langchain-openai>=0.3.0,<0.4.0
+# CVE-2025-6984   - Fixed in langchain-community 0.3.27
+# Path Traversal in load_prompt  - Fixed in langchain-core 1.2.22 (requires 1.x stack)
+# langchain-community 0.4.x requires langchain-core>=1.0.1; all packages now on 1.x series.
+langchain>=1.2.0,<2.0.0
+langchain-core>=1.2.22,<2.0.0  # Path Traversal fix; min version for all known CVEs
+langchain-community>=0.4.0,<1.0.0  # 0.4.x requires langchain-core>=1.0.1
+langchain-anthropic>=1.4.0,<2.0.0
+langchain-openai>=1.0.0,<2.0.0
 langsmith>=0.3.45,<1.0.0
 
 # ─────────────────────────────────────────────────────────────────────────────
 # LLM Providers (with upper bounds for security)
 # ─────────────────────────────────────────────────────────────────────────────
-anthropic>=0.41.0,<1.0.0
-openai>=1.0.0,<3.0.0
+anthropic>=0.85.0,<1.0.0  # langchain-anthropic>=1.0.0 requires anthropic>=0.85.0
+openai>=2.26.0,<3.0.0  # langchain-openai>=1.0.0 requires openai>=2.26.0
 google-generativeai>=0.3.0,<1.0.0
 ollama>=0.1.0,<1.0.0
 vllm>=0.6.0,<1.0.0
@@ -46,8 +48,8 @@ vllm>=0.6.0,<1.0.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Embeddings and Vector Stores
 # ─────────────────────────────────────────────────────────────────────────────
-sentence-transformers==5.2.3
-qdrant-client==1.17.0
+sentence-transformers==5.3.0
+qdrant-client>=1.12.0,<2.0.0,!=1.17.0,!=1.17.1  # 1.17.x has no manylinux wheel for Python 3.11
 faiss-cpu>=1.7.4,<2.0.0  # For dense vector search
 chromadb>=0.4.0,<2.0.0  # Alternative vector DB
 
@@ -56,11 +58,11 @@ chromadb>=0.4.0,<2.0.0  # Alternative vector DB
 # ─────────────────────────────────────────────────────────────────────────────
 # NOTE: torch/torchvision versions vary per service due to framework compatibility.
 # Each service pins its own version in Dockerfile or requirements.txt:
-#   - yolo26-vision-service: torch==2.2.0, torchvision==0.17.0 (ultralytics 8.x compat)
-#   - copilot-api: torch>=2.2.0,<2.7.0 (sentence-transformers compat)
-#   - Default (new AI services): torch>=2.2.0,<3.0.0
+#   - yolo26-vision-service: torch>=2.6.0,<2.7.0 (ultralytics 8.x compat, CVE-2025-32434)
+#   - copilot-api: torch>=2.6.0,<2.7.0 (sentence-transformers compat, CVE-2025-32434)
+#   - Default (new AI services): torch>=2.6.0,<3.0.0
 # Do NOT use exact pins here — they conflict with per-service needs.
-torch>=2.2.0,<3.0.0
+torch>=2.6.0,<3.0.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
 torchvision>=0.17.0,<1.0.0
 numpy>=1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch (torch, transformers built against 1.x)
 pandas>=2.2.0,<4.0.0
@@ -106,7 +108,7 @@ bcrypt>=4.2.0,<5.0.0  # Required by passlib[bcrypt] for secure password hashing
 # Monitoring and Observability
 # ─────────────────────────────────────────────────────────────────────────────
 prometheus-client>=0.21.1,<1.0.0  # Allow upgrade to 0.24.1 (constraints.txt pin)
-structlog>=24.4.0,<25.0.0
+structlog>=25.5.0,<26.0.0
 opentelemetry-api>=1.20.0,<2.0.0
 opentelemetry-sdk>=1.20.0,<2.0.0
 opentelemetry-instrumentation-fastapi>=0.41b0,<1.0.0

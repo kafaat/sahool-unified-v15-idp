@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Astronomical Task Widget - Usage Example
 /// مثال على استخدام ويدجت المهام الفلكية
 ///

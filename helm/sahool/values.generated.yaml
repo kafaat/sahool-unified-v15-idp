@@ -12,7 +12,7 @@ global:
   storageClass: standard
 services:
   crop-growth-model:
-    enabled: true
+    enabled: false
     name: crop-growth-model
     image:
       repository: ghcr.io/kafaat/sahool-crop-growth-model
@@ -76,7 +76,7 @@ services:
       prometheus.io/port: '3020'
       prometheus.io/path: /metrics
   lai-estimation:
-    enabled: true
+    enabled: false
     name: lai-estimation
     image:
       repository: ghcr.io/kafaat/sahool-lai-estimation
@@ -1034,6 +1034,70 @@ services:
     podAnnotations:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '3025'
+      prometheus.io/path: /metrics
+  partner-auth-service:
+    enabled: true
+    name: partner-auth-service
+    image:
+      repository: ghcr.io/kafaat/sahool-partner-auth-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 2
+    port: 3030
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '3030'
+    serviceAccount:
+      create: true
+      name: sahool-partner-auth-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '3030'
+      prometheus.io/path: /metrics
+  carbon-service:
+    enabled: true
+    name: carbon-service
+    image:
+      repository: ghcr.io/kafaat/sahool-carbon-service
+      tag: latest
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8195
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 300m
+        memory: 384Mi
+      limits:
+        cpu: 300m
+        memory: 384Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8195'
+    serviceAccount:
+      create: true
+      name: sahool-carbon-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8195'
       prometheus.io/path: /metrics
   alert-service:
     enabled: true
@@ -2821,6 +2885,14 @@ ingress:
       pathType: Prefix
       service: user-service
       port: 3025
+    - path: /api/v1/partner/auth/service
+      pathType: Prefix
+      service: partner-auth-service
+      port: 3030
+    - path: /api/v1/carbon/service
+      pathType: Prefix
+      service: carbon-service
+      port: 8195
     - path: /api/v1/alert/service
       pathType: Prefix
       service: alert-service

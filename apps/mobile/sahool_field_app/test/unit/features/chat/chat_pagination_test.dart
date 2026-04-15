@@ -3,6 +3,7 @@
 ///
 /// Tests for chat state management including loading state, unread count,
 /// and state immutability via copyWith
+library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/chat/presentation/providers/chat_provider.dart';

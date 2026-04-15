@@ -3,7 +3,8 @@ Comprehensive Weather Service API Tests
 Tests for weather API endpoints, external provider integration, and error handling
 """
 
-from datetime import datetime
+import asyncio
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import httpx
@@ -11,7 +12,9 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except ImportError:
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 
@@ -27,7 +30,7 @@ def mock_weather_data():
         "cloud_cover_pct": 25.0,
         "pressure_hpa": 1013.0,
         "uv_index": 8.0,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -63,17 +66,23 @@ def mock_daily_forecast():
 @pytest.fixture
 def app():
     """Create FastAPI test app instance with auth dependency overridden"""
-    from shared.auth.dependencies import get_current_user
-    from shared.auth.models import User
     from src.main import app as weather_app
 
+    from shared.auth.dependencies import get_current_user
+
+    # Import User from the same module that src/main.py loaded (apps/services/shared/)
+    # to match the User type expected by get_current_user dependency
+    from shared.auth.models import User
+
     def fake_current_user():
-        return User(
-            id="test-user-001",
-            email="test@sahool.sa",
-            roles=["farmer"],
-            tenant_id="tenant-123",
-        )
+        # Use a MagicMock that quacks like User to avoid constructor mismatch
+        # between root shared/auth/models.py and apps/services/shared/auth/models.py
+        user = MagicMock(spec=User)
+        user.id = "test-user-001"
+        user.email = "test@sahool.sa"
+        user.roles = ["farmer"]
+        user.tenant_id = "00000000-0000-0000-0000-000000000123"
+        return user
 
     weather_app.dependency_overrides[get_current_user] = fake_current_user
     yield weather_app
@@ -84,7 +93,7 @@ def app():
 def client(app):
     """Create test client with tenant context"""
     c = TestClient(app)
-    c.headers["X-Tenant-ID"] = "tenant-123"
+    c.headers["X-Tenant-ID"] = "00000000-0000-0000-0000-000000000123"
     return c
 
 
@@ -113,8 +122,7 @@ class TestHealthEndpoint:
 class TestCurrentWeatherEndpoint:
     """Test current weather endpoint"""
 
-    @pytest.mark.asyncio
-    async def test_get_current_weather_success(self, client):
+    def test_get_current_weather_success(self, client):
         """Test successful current weather retrieval"""
         with patch("src.main.app.state") as mock_state:
             # Mock weather provider
@@ -129,7 +137,7 @@ class TestCurrentWeatherEndpoint:
                     cloud_cover_pct=25.0,
                     pressure_hpa=1013.0,
                     uv_index=8.0,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                 )
             )
             mock_state.weather_provider = mock_provider
@@ -139,7 +147,7 @@ class TestCurrentWeatherEndpoint:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -151,13 +159,12 @@ class TestCurrentWeatherEndpoint:
             assert "current" in data
             assert data["field_id"] == "field-456"
 
-    @pytest.mark.asyncio
-    async def test_get_current_weather_invalid_coordinates(self, client):
+    def test_get_current_weather_invalid_coordinates(self, client):
         """Test current weather with invalid coordinates"""
         response = client.post(
             "/weather/current",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "lat": 95.0,  # Invalid latitude
                 "lon": 44.20,
@@ -165,8 +172,7 @@ class TestCurrentWeatherEndpoint:
         )
         assert response.status_code == 422  # Validation error
 
-    @pytest.mark.asyncio
-    async def test_get_current_weather_multi_provider(self, client):
+    def test_get_current_weather_multi_provider(self, client):
         """Test current weather with multi-provider service"""
         with patch("src.main.app.state") as mock_state:
             # Mock multi-provider
@@ -183,7 +189,7 @@ class TestCurrentWeatherEndpoint:
                 cloud_cover_pct=30.0,
                 pressure_hpa=1012.0,
                 uv_index=7.5,
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(UTC).isoformat(),
             )
             mock_multi.get_current = AsyncMock(return_value=mock_result)
             mock_state.multi_provider = mock_multi
@@ -192,7 +198,7 @@ class TestCurrentWeatherEndpoint:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-789",
                     "lat": 13.58,
                     "lon": 44.02,
@@ -208,7 +214,7 @@ class TestCurrentWeatherEndpoint:
         response = client.post(
             "/weather/current",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 # Missing field_id, lat, lon
             },
         )
@@ -218,8 +224,7 @@ class TestCurrentWeatherEndpoint:
 class TestForecastEndpoint:
     """Test weather forecast endpoint"""
 
-    @pytest.mark.asyncio
-    async def test_get_forecast_success(self, client, mock_daily_forecast):
+    def test_get_forecast_success(self, client, mock_daily_forecast):
         """Test successful forecast retrieval"""
         with patch("src.main.app.state") as mock_state:
             # Mock weather provider
@@ -233,7 +238,7 @@ class TestForecastEndpoint:
             response = client.post(
                 "/weather/forecast?days=7",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -245,8 +250,7 @@ class TestForecastEndpoint:
             assert "forecast" in data
             assert data["days"] >= 1
 
-    @pytest.mark.asyncio
-    async def test_get_forecast_custom_days(self, client):
+    def test_get_forecast_custom_days(self, client):
         """Test forecast with custom number of days"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
@@ -260,7 +264,7 @@ class TestForecastEndpoint:
                 response = client.post(
                     f"/weather/forecast?days={days}",
                     json={
-                        "tenant_id": "tenant-123",
+                        "tenant_id": "00000000-0000-0000-0000-000000000123",
                         "field_id": "field-456",
                         "lat": 15.35,
                         "lon": 44.20,
@@ -268,8 +272,7 @@ class TestForecastEndpoint:
                 )
                 assert response.status_code == 200
 
-    @pytest.mark.asyncio
-    async def test_get_forecast_max_days_limit(self, client):
+    def test_get_forecast_max_days_limit(self, client):
         """Test forecast respects maximum days limit"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
@@ -282,7 +285,7 @@ class TestForecastEndpoint:
             response = client.post(
                 "/weather/forecast?days=30",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,
@@ -301,7 +304,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 "humidity_pct": 55.0,
@@ -322,7 +325,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 42.0,
                 "humidity_pct": 30.0,
@@ -346,7 +349,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 22.0,
                 "humidity_pct": 85.0,
@@ -370,7 +373,7 @@ class TestWeatherAssessEndpoint:
         response = client.post(
             "/weather/assess",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 # Optional fields omitted
@@ -390,7 +393,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 25.0,
                 "humidity_pct": 55.0,
@@ -411,7 +414,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 38.0,
                 "humidity_pct": 25.0,
@@ -430,7 +433,7 @@ class TestIrrigationEndpoint:
         response = client.post(
             "/weather/irrigation",
             json={
-                "tenant_id": "tenant-123",
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
                 "field_id": "field-456",
                 "temp_c": 22.0,
                 "humidity_pct": 75.0,
@@ -531,8 +534,7 @@ class TestHeatStressEndpoint:
 class TestExternalAPIIntegration:
     """Test external weather API integration"""
 
-    @pytest.mark.asyncio
-    async def test_open_meteo_api_call(self):
+    def test_open_meteo_api_call(self):
         """Test Open-Meteo API integration"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -560,16 +562,15 @@ class TestExternalAPIIntegration:
             mock_client_getter.return_value = mock_client
 
             # Test API call
-            weather = await provider.get_current(15.35, 44.20)
+            weather = asyncio.run(provider.get_current(15.35, 44.20))
 
             assert weather.temperature_c == 28.5
             assert weather.humidity_pct == 55
             assert weather.wind_speed_kmh == 12
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_open_meteo_forecast_call(self):
+    def test_open_meteo_forecast_call(self):
         """Test Open-Meteo forecast API integration"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -596,16 +597,15 @@ class TestExternalAPIIntegration:
             mock_client_getter.return_value = mock_client
 
             # Test API call
-            forecast = await provider.get_daily_forecast(15.35, 44.20, 7)
+            forecast = asyncio.run(provider.get_daily_forecast(15.35, 44.20, 7))
 
             assert len(forecast) == 2
             assert forecast[0].temp_max_c == 32.5
             assert forecast[1].temp_max_c == 33.8
 
-        await provider.close()
+        asyncio.run(provider.close())
 
-    @pytest.mark.asyncio
-    async def test_api_error_handling(self):
+    def test_api_error_handling(self):
         """Test API error handling"""
         from src.providers.open_meteo import OpenMeteoProvider
 
@@ -617,17 +617,16 @@ class TestExternalAPIIntegration:
             mock_client_getter.return_value = mock_client
 
             # Should raise exception
-            with pytest.raises(Exception):
-                await provider.get_current(15.35, 44.20)
+            with pytest.raises((ValueError, Exception)):
+                asyncio.run(provider.get_current(15.35, 44.20))
 
-        await provider.close()
+        asyncio.run(provider.close())
 
 
 class TestCorrelationID:
     """Test correlation ID handling"""
 
-    @pytest.mark.asyncio
-    async def test_correlation_id_in_request(self, client):
+    def test_correlation_id_in_request(self, client):
         """Test correlation ID is accepted in requests"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = AsyncMock()
@@ -641,7 +640,7 @@ class TestCorrelationID:
                     cloud_cover_pct=25.0,
                     pressure_hpa=1013.0,
                     uv_index=8.0,
-                    timestamp=datetime.utcnow().isoformat(),
+                    timestamp=datetime.now(UTC).isoformat(),
                 )
             )
             mock_state.weather_provider = mock_provider
@@ -652,7 +651,7 @@ class TestCorrelationID:
             response = client.post(
                 "/weather/current",
                 json={
-                    "tenant_id": "tenant-123",
+                    "tenant_id": "00000000-0000-0000-0000-000000000123",
                     "field_id": "field-456",
                     "lat": 15.35,
                     "lon": 44.20,

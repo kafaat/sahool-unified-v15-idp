@@ -23,8 +23,9 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable, Coroutine
 from datetime import UTC, datetime
-from typing import Any, Callable, Coroutine
+from typing import Any
 from uuid import uuid4
 
 from .circuit_breaker import (

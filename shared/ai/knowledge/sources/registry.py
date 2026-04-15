@@ -21,6 +21,7 @@ from typing import Any
 from urllib.parse import urlparse
 
 import yaml
+
 from shared.ai.knowledge._logging import get_logger
 
 from ..models import KnowledgeDomain, SourceCredibilityLevel

@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Types
 /// أنواع الإشعارات
 ///

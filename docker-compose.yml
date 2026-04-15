@@ -118,6 +118,7 @@ services:
         target: /etc/pgbouncer/runtime
         tmpfs:
           size: 1048576
+          mode: 0777
       # Healthcheck script (comprehensive pool verification)
       - ./infrastructure/core/pgbouncer/healthcheck.sh:/healthcheck.sh:ro
     ports:
@@ -129,11 +130,15 @@ services:
       # Two-tier healthcheck: try deep check via healthcheck.sh, fallback to TCP port check
       # healthcheck.sh uses POSTGRES_USER/POSTGRES_PASSWORD from container environment (set above as DB_USER/DB_PASSWORD)
       # NOTE: Export DB_USER/DB_PASSWORD as POSTGRES_USER/POSTGRES_PASSWORD for healthcheck.sh compatibility
-      test: [ "CMD-SHELL", "export POSTGRES_USER=\"$DB_USER\" POSTGRES_PASSWORD=\"$DB_PASSWORD\" && sh /healthcheck.sh || nc -z localhost 6432" ]
-      interval: 15s
-      timeout: 15s
-      retries: 10
-      start_period: 90s
+      # FIX (2026-04-12): Wrap healthcheck.sh in "timeout 7" so that if any psql
+      # command inside the script hangs (e.g. waiting for query_wait_timeout=30s),
+      # it is killed after 7s — well before Docker's 10s healthcheck timeout —
+      # giving the "|| nc -z" TCP fallback time to run and report PgBouncer as alive.
+      test: [ "CMD-SHELL", "export POSTGRES_USER=\"$DB_USER\" POSTGRES_PASSWORD=\"$DB_PASSWORD\" && timeout 7 sh /healthcheck.sh || nc -z localhost 6432" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -164,30 +169,21 @@ services:
   redis:
     image: redis:7.4-alpine
     container_name: sahool-redis
-    command:
-      [
-        "redis-server",
-        "/usr/local/etc/redis/redis.conf",
-        "--requirepass",
-        "${REDIS_PASSWORD:?REDIS_PASSWORD is required}",
-        "--maxmemory",
-        "512mb"
-          # TLS Configuration (uncomment to enable):
-          # "--port", "0",
-          # "--tls-port", "6379",
-          # "--tls-cert-file", "/etc/redis/certs/server.crt",
-          # "--tls-key-file", "/etc/redis/certs/server.key",
-          # "--tls-ca-cert-file", "/etc/redis/certs/ca.crt",
-          # "--tls-auth-clients", "optional"
-      ]
+    # FIX: Directives remain commented in redis-secure.conf and are instead
+    # appended at runtime by the entrypoint to a temp config (/tmp/redis.conf),
+    # using the REDIS_PASSWORD env var to avoid conflicts with rename-command CONFIG.
+    entrypoint:
+      - sh
+      - -c
+      - |
+        # Inject password and maxmemory into config at runtime
+        cp /usr/local/etc/redis/redis.conf /tmp/redis.conf
+        echo "" >> /tmp/redis.conf
+        echo "requirepass $$REDIS_PASSWORD" >> /tmp/redis.conf
+        echo "maxmemory ${REDIS_MAXMEMORY:-512mb}" >> /tmp/redis.conf
+        exec redis-server /tmp/redis.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
-      - REDIS_MAXMEMORY=512mb
-      # ACL User Passwords (set these for enhanced security)
-      - REDIS_APP_PASSWORD=${REDIS_APP_PASSWORD:-${REDIS_PASSWORD}}
-      - REDIS_ADMIN_PASSWORD=${REDIS_ADMIN_PASSWORD:-${REDIS_PASSWORD}}
-      - REDIS_KONG_PASSWORD=${REDIS_KONG_PASSWORD:-${REDIS_PASSWORD}}
-      - REDIS_READONLY_PASSWORD=${REDIS_READONLY_PASSWORD:-${REDIS_PASSWORD}}
     volumes:
       - redis_data:/data
       # Use secure configuration with TLS and ACL support
@@ -237,6 +233,8 @@ services:
       - "127.0.0.1:8200:8200"
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "${VAULT_DEV_TOKEN:?VAULT_DEV_TOKEN must be set - do not use default tokens}"
+      # FIX: Must bind 0.0.0.0 for other containers to reach Vault via Docker network
+      # 127.0.0.1 = only reachable from inside the Vault container itself
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
       VAULT_LOG_LEVEL: "info"
       VAULT_ADDR: "http://127.0.0.1:8200"
@@ -271,8 +269,9 @@ services:
   nats:
     image: nats:2.10.24-alpine
     container_name: sahool-nats
-    # Use non-TLS config for development (switch to nats-secure.conf when TLS certs are available)
-    command: [ "-c", "/etc/nats/nats.conf" ]
+    # Use nats-secure.conf which reads passwords from env vars directly
+    # (nats.conf uses hardcoded bcrypt hashes that break when .env passwords change)
+    command: [ "-c", "/etc/nats/nats-secure.conf" ]
     environment:
       # NATS Authentication - injected into config file
       NATS_USER: ${NATS_USER:?NATS_USER is required}
@@ -350,7 +349,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 45s
     security_opt:
       - no-new-privileges:true
     deploy:
@@ -362,6 +361,36 @@ services:
           cpus: '0.1'
           memory: 64M
     logging: *default-logging
+    networks:
+      - sahool-network
+
+  # NATS JetStream Stream Initialization (one-shot)
+  # Creates all 11 JetStream streams defined in shared/events/streams.py
+  # Without this, streams don't exist and messages are plain NATS (no persistence)
+  nats-stream-init:
+    build:
+      context: .
+      dockerfile: apps/services/shared/Dockerfile
+    container_name: sahool-nats-stream-init
+    environment:
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+    command: ["python", "-c", "
+import asyncio, os, sys;
+sys.path.insert(0, '/app');
+async def main():
+    import nats;
+    nc = await nats.connect(os.environ['NATS_URL']);
+    js = nc.jetstream();
+    from shared.events.streams import ensure_streams;
+    count = await ensure_streams(js);
+    print(f'Ensured {count} JetStream streams');
+    await nc.close();
+asyncio.run(main())
+      "]
+    depends_on:
+      nats:
+        condition: service_healthy
+    restart: "no"
     networks:
       - sahool-network
 
@@ -379,11 +408,11 @@ services:
     image: ghcr.io/mlflow/mlflow:v2.15.1
     container_name: sahool-mlflow
     hostname: mlflow
-    # FIX: Install psycopg2-binary before starting MLflow (required for PostgreSQL backend)
+    # Install psycopg2-binary at build time (not runtime) for offline environments
     entrypoint: ["/bin/sh", "-c"]
     command:
       - |
-        pip install --quiet --no-cache-dir --root-user-action=ignore psycopg2-binary && \
+        pip install --quiet --no-cache-dir --root-user-action=ignore psycopg2-binary 2>/dev/null || true
         mlflow server --host 0.0.0.0 --port 5000 \
           --backend-store-uri postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/mlflow?sslmode=disable \
           --default-artifact-root /mlflow/artifacts \
@@ -456,7 +485,7 @@ services:
       interval: 60s
       timeout: 10s
       retries: 5
-      start_period: 20s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -474,9 +503,9 @@ services:
 
   # Qdrant Vector Database - RAG & Semantic Search
   qdrant:
-    # Using v1.7.4 - stable release with improved vector search performance
-    # استخدام الإصدار v1.7.4 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
-    image: qdrant/qdrant:v1.7.4
+    # Using v1.10.1 - stable release with improved vector search performance
+    # استخدام الإصدار v1.10.1 - إصدار ثابت مع أداء محسّن للبحث الشعاعي
+    image: qdrant/qdrant:v1.10.1
     container_name: sahool-qdrant
     volumes:
       - qdrant_data:/qdrant/storage
@@ -524,8 +553,6 @@ services:
 
   # MongoDB for Rocket.Chat - قاعدة بيانات MongoDB لمنصة المجتمع
   mongo:
-    profiles:
-      - community
     image: mongo:6.0
     container_name: sahool-mongo
     volumes:
@@ -558,8 +585,6 @@ services:
 
   # MongoDB Replica Set Initializer - تهيئة مجموعة النسخ المتماثل
   mongo-init-replica:
-    profiles:
-      - community
     image: mongo:6.0
     container_name: sahool-mongo-init-replica
     depends_on:
@@ -597,9 +622,7 @@ services:
   # Rocket.Chat - Community Messaging Platform
   # منصة المراسلة المجتمعية للمزارعين
   rocketchat:
-    profiles:
-      - community
-    image: registry.rocket.chat/rocketchat/rocket.chat:7.5
+    image: rocketchat/rocket.chat:7.5.0
     container_name: sahool-rocketchat
     environment:
       # MongoDB connection (replica set required for Rocket.Chat)
@@ -829,6 +852,8 @@ services:
       - MAX_FILE_SIZE=1000000
       - API_HOST=0.0.0.0
       - API_PORT=8102
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8102:8102"
     volumes:
@@ -914,6 +939,10 @@ services:
     # NOTE: Uses HTTP for development. For TLS, use docker-compose.tls.yml overlay.
     # FIX: Use absolute paths because quay.io/coreos/etcd:v3.5.18 is distroless
     # (no /bin/sh, no PATH). Binaries are at /usr/local/bin/.
+    # FIX: listen-client-urls MUST use an IP address (0.0.0.0), not a hostname.
+    # Using http://etcd:2379 here caused etcd to crash at startup because etcd cannot
+    # bind to a hostname. 0.0.0.0:2379 listens on all interfaces (loopback for
+    # healthcheck via 127.0.0.1, and the Docker bridge IP for Milvus via etcd:2379).
     command: >-
       /usr/local/bin/etcd
       --advertise-client-urls=http://etcd:2379
@@ -975,7 +1004,8 @@ services:
   # NOTE: Milvus v2.5+ supports etcd auth. Enable with: docker compose --profile etcd-auth up
   # In production, enable etcd-auth profile for security hardening.
   etcd-init:
-    profiles: ["etcd-auth"]
+    profiles:
+      - etcd-auth
     # FIX: Use alpine-based image with etcdctl because the GCR etcd image is distroless
     # (no /bin/sh) and quay.io may be unavailable in some regions. This ensures the
     # init shell script always has a working shell regardless of etcd image source.
@@ -1130,13 +1160,20 @@ services:
       MINIO_REGION: ${MINIO_REGION:-me-south-1}
       MINIO_ACCESS_KEY_ID: ${MILVUS_MINIO_ACCESS_KEY:-${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}}
       MINIO_SECRET_ACCESS_KEY: ${MILVUS_MINIO_SECRET_KEY:-${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}}
+      # FIX: Increase TSO max lag and session TTL to tolerate WSL2 clock drift (up to 15.5s observed).
+      # Using env vars instead of custom milvus.yaml to avoid overriding built-in port defaults.
+      TSO_MAXLAGDURATION: 30s
+      SESSION_TTL: "60"
+      SESSION_RETRYTIMES: "30"
+      ETCD_LOG_LEVEL: warn
     ports:
       - "127.0.0.1:19530:19530"
       - "127.0.0.1:9091:9091"
     volumes:
       - milvus_data:/var/lib/milvus
-      # FIX: Mount Milvus config to increase TSO max lag tolerance for WSL2 clock drift
-      - ./config/milvus/milvus.yaml:/milvus/configs/milvus.yaml:ro
+      # NOTE: Do NOT mount a custom milvus.yaml here - it replaces the default config and
+      # breaks the built-in component port assignments (rootCoord:53100, dataCoord:13333, etc.)
+      # Use environment variables above to override specific settings instead.
     command: [ "milvus", "run", "standalone" ]
     depends_on:
       etcd:
@@ -1169,11 +1206,13 @@ services:
 
   # API Gateway (Kong)
   kong:
-    image: kong:3.4.2
+    image: kong:3.9.0
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
-      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
+      # Load ALL YAML files from the active/ directory (kong.yml + kong-security.yml + ...)
+      # See infrastructure/gateway/kong/active/ for the list of loaded files
+      KONG_DECLARATIVE_CONFIG_DIR: /kong/declarative
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr
@@ -1188,7 +1227,7 @@ services:
       # KONG_SSL_CERT: /etc/kong/ssl/server.crt
       # KONG_SSL_CERT_KEY: /etc/kong/ssl/server.key
       # Plugins - Optimized execution order for performance
-      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,prometheus"
+      KONG_PLUGINS: "bundled,cors,rate-limiting,jwt,acl,prometheus,bot-detection,ip-restriction,request-size-limiting,response-transformer,request-transformer,pre-function,post-function,http-log,file-log"
       REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD is required}
 
       # DNS Configuration for Docker internal DNS resolution
@@ -1243,7 +1282,7 @@ services:
       # - "8443:8443"
       - "127.0.0.1:8001:8001" # Admin API - localhost only for security
     volumes:
-      - ./infrastructure/gateway/kong/kong.yml:/kong/declarative/kong.yml:ro
+      - ./infrastructure/gateway/kong/active:/kong/declarative:ro
       - ./infrastructure/gateway/kong/ssl:/etc/kong/ssl:ro
       - kong_logs:/var/log/kong
     depends_on:
@@ -1366,7 +1405,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1418,7 +1457,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1469,7 +1508,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1489,8 +1528,6 @@ services:
   # Code is 100% identical. yield-prediction-service adds rate limiting + Prisma ORM.
   # Use --profile deprecated to start this service for migration testing.
   yield-prediction:
-    profiles:
-      - deprecated
     build:
       context: .
       dockerfile: apps/services/yield-prediction/Dockerfile
@@ -1522,7 +1559,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1542,7 +1579,6 @@ services:
   # This service is being consolidated into vegetation-analysis-service (Port 8090)
   # Kept temporarily for backwards compatibility
   lai-estimation:
-    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/lai-estimation/Dockerfile
@@ -1574,7 +1610,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1594,7 +1630,6 @@ services:
   # This service is being consolidated into crop-intelligence-service (Port 8095)
   # Kept temporarily for backwards compatibility
   crop-growth-model:
-    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/crop-growth-model/Dockerfile
@@ -1627,7 +1662,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1676,7 +1711,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1736,7 +1771,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1755,7 +1790,8 @@ services:
   # Ground Vision Service - Tower Camera Agricultural Monitoring
   # Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
   ground-vision-service:
-    profiles: [gpu]
+    profiles:
+      - gpu
     build:
       context: .
       dockerfile: apps/services/ground-vision-service/Dockerfile
@@ -1767,6 +1803,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - SAM_CHECKPOINT_PATH=/models/sam_vit_h.pth
       - YOLO_MODEL_PATH=/models/yolo_agri_ops.pt
       - MLLM_PROVIDER=${MLLM_PROVIDER:-ollama}
@@ -1792,7 +1829,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1827,7 +1864,9 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}  # Set to 'production' in prod for CORS origins
       - PORT=3025
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true
+      # FIX: Added connection_limit=10, pool_timeout=20, connect_timeout=10 to prevent
+      # Prisma pool exhaustion and handle PgBouncer idle connection drops
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true&connection_limit=10&pool_timeout=20&connect_timeout=10
       # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
       - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
@@ -1870,6 +1909,61 @@ services:
       - sahool-network
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Partner Auth Service (OAuth 2.0 / OIDC) — port 3030 — @since contract 4.11.0
+  # FieldView-compatible partner authentication. Exposed externally via Kong
+  # on /partner/v1/oauth/*, /.well-known/*, and /api/v1/admin/partner-auth/*.
+  # ─────────────────────────────────────────────────────────────────────────────
+  partner-auth-service:
+    build:
+      context: .
+      dockerfile: apps/services/partner-auth-service/Dockerfile
+    container_name: sahool-partner-auth-service
+    environment:
+      - NODE_ENV=production
+      - ENVIRONMENT=${ENVIRONMENT:-development}
+      - PORT=3030
+      # PgBouncer transaction mode — see user-service notes for the rationale
+      # on connection_limit / pool_timeout / connect_timeout.
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable&pgbouncer=true&connection_limit=10&pool_timeout=20&connect_timeout=10
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # Shared HS256 session secret with user-service (SahoolSessionGuard + AdminGuard)
+      - SAHOOL_SESSION_SECRET=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      # CSRF HMAC for consent screen; MUST differ from SAHOOL_SESSION_SECRET in prod
+      - CSRF_SECRET=${PARTNER_AUTH_CSRF_SECRET:?PARTNER_AUTH_CSRF_SECRET is required}
+      # OIDC issuer — baked into every id_token and the discovery doc
+      - PARTNER_AUTH_ISSUER=${PARTNER_AUTH_ISSUER:-https://api.sahool.com}
+      # Where /authorize redirects unauthenticated users
+      - SAHOOL_LOGIN_URL=${SAHOOL_LOGIN_URL:-https://app.sahool.com/login}
+      - SAHOOL_SIGNOUT_URL=${SAHOOL_SIGNOUT_URL:-https://app.sahool.com/logout}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com,https://dev.sahool.app,https://sandbox.sahool.app}
+    ports:
+      # localhost-only — all external traffic MUST come through Kong
+      - "127.0.0.1:3030:3030"
+    depends_on:
+      pgbouncer:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3030/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 384M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+    logging: *default-logging
+    networks:
+      - sahool-network
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Python Services (29)
   # ─────────────────────────────────────────────────────────────────────────────
 
@@ -1884,6 +1978,7 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -1900,7 +1995,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1931,6 +2026,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?ssl=disable&prepared_statement_cache_size=0
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - STRIPE_API_KEY=${STRIPE_API_KEY:-}
       - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-}
       - THARWATT_BASE_URL=${THARWATT_BASE_URL:-https://developers-test.tharwatt.com:5253}
@@ -1951,7 +2047,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1988,6 +2084,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8090:8090"
     depends_on:
@@ -2003,7 +2100,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2032,6 +2129,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8091:8091"
     depends_on:
@@ -2045,7 +2143,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2089,7 +2187,10 @@ services:
       # Database and Messaging
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # FIX: Direct connection for Prisma migrations (PgBouncer transaction mode breaks advisory locks)
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8092:8092"
     depends_on:
@@ -2103,7 +2204,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2130,20 +2231,16 @@ services:
       - PORT=8093
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: DATABASE_URL removed — service uses in-memory knowledge base only (kb/diseases.py, kb/nutrients.py, kb/fertilizers.py)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
-      # FIX: Added REDIS_URL — token revocation store needs Redis; without this, shared/auth/config.py
-      # defaults REDIS_HOST to localhost which fails inside Docker containers
+      # REDIS_URL — token revocation store needs Redis
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8093:8093"
     depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
       nats:
         condition: service_healthy
       redis:
@@ -2153,7 +2250,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2179,18 +2276,15 @@ services:
       - PORT=8094
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: DATABASE_URL removed — service is stateless (pure calculation engine, events via NATS)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - IOT_GATEWAY_URL=http://iot-gateway:8106
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8094:8094"
     depends_on:
-      # FIX: Use pgbouncer instead of postgres for proper connection pooling
-      pgbouncer:
-        condition: service_healthy
       nats:
         condition: service_healthy
       iot-gateway:
@@ -2200,7 +2294,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2232,6 +2326,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8095:8095"
@@ -2244,11 +2339,11 @@ services:
       nats:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8095/healthz', timeout=5)" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 90s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2277,6 +2372,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8119:8119"
     depends_on:
@@ -2290,7 +2386,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2333,11 +2429,12 @@ services:
         condition: service_healthy
     healthcheck:
       # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8152/api/v1/yield/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use public /healthz endpoint - /api/v1/yield/health requires JWT auth (TenantGuard)
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8152/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2367,6 +2464,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     ports:
       - "127.0.0.1:8101:8101"
@@ -2381,7 +2479,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2409,6 +2507,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # FIX: Add REDIS_URL — without it the service falls back to in-memory cache, losing sync between instances
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -2428,7 +2527,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2458,6 +2557,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8104:8104"
     depends_on:
@@ -2472,7 +2572,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2512,6 +2612,7 @@ services:
       - MQTT_PASSWORD=${MQTT_PASSWORD:?MQTT_PASSWORD is required}
       - MQTT_TOPIC=sahool/sensors/#
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -2572,8 +2673,11 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - CREATE_DB_SCHEMA=${CREATE_DB_SCHEMA:-true}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
       # SMTP Configuration (Email fallback)
       - SMTP_HOST=${SMTP_HOST:-smtp.gmail.com}
       - SMTP_PORT=${SMTP_PORT:-587}
@@ -2622,7 +2726,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2649,6 +2753,8 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - WEATHER_SERVICE_URL=http://weather-service:8092
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8111:8111"
     depends_on:
@@ -2659,7 +2765,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2688,6 +2794,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - TASK_SERVICE_URL=http://task-service:8103
       - ASTRONOMICAL_SERVICE_URL=http://astronomical-calendar:8111
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
@@ -2709,7 +2816,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2761,9 +2868,14 @@ services:
       - QDRANT_PORT=6333
       - EMBEDDING_MODEL=paraphrase-multilingual-MiniLM-L12-v2
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8112:8112"
     depends_on:
+      redis:
+        condition: service_healthy
       qdrant:
         condition: service_healthy
       nats:
@@ -2777,11 +2889,11 @@ services:
       vegetation-analysis-service:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz')" ]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8112/healthz', timeout=5)" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2810,6 +2922,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (asyncpg only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
     ports:
       - "127.0.0.1:8113:8113"
@@ -2825,7 +2938,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2853,7 +2966,9 @@ services:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      - DATABASE_URL_DIRECT=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8116:8116"
     depends_on:
@@ -2867,7 +2982,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2888,7 +3003,6 @@ services:
   # Kept temporarily for backwards compatibility
   # DEPRECATED: ndvi-processor - Migrated to vegetation-analysis-service (sunset: 2026-02)
   ndvi-processor:
-    profiles: [deprecated]
     build:
       context: .
       dockerfile: apps/services/ndvi-processor/Dockerfile
@@ -2900,6 +3014,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - SATELLITE_SERVICE_URL=http://vegetation-analysis-service:8090
     ports:
       - "127.0.0.1:8118:8118"
@@ -2916,7 +3031,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2940,6 +3055,7 @@ services:
     container_name: sahool-agro-rules
     environment:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # MIGRATION: Updated to use field-management-service instead of field-ops
       - FIELDOPS_URL=http://field-management-service:3000
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -2957,7 +3073,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -2986,6 +3102,8 @@ services:
       - MCP_SERVER_HOST=0.0.0.0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8201:8201"
     depends_on:
@@ -3001,7 +3119,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3030,17 +3148,25 @@ services:
       - PORT=8121
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=${POSTGRES_SSL_MODE:-disable}
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     ports:
       - "127.0.0.1:8121:8121"
     depends_on:
+      pgbouncer:
+        condition: service_healthy
       redis:
+        condition: service_healthy
+      nats:
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8121/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3062,8 +3188,8 @@ services:
   # ─────────────────────────────────────────────────────────────────────────────
   demo-data:
     build:
-      context: ./apps/services/demo-data
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/services/demo-data/Dockerfile
     container_name: sahool-demo-data
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -3084,8 +3210,6 @@ services:
         condition: service_healthy
       nats:
         condition: service_healthy
-    profiles:
-      - demo
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3121,6 +3245,7 @@ services:
       # sslmode=disable: PgBouncer TLS is disabled in dev (use docker-compose.tls.yml for TLS)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - JWT_ALGORITHM=${JWT_ALGORITHM:-HS256}
     ports:
       - "127.0.0.1:8130:8130"
@@ -3137,7 +3262,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3170,6 +3295,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
@@ -3187,7 +3313,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3220,6 +3346,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       # FIX: Use authenticated NATS URL (consistent with other services)
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       # FIX: Use authenticated Redis URL (consistent with other services)
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
@@ -3237,7 +3364,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3267,6 +3394,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - ROCKETCHAT_URL=${ROCKETCHAT_INTERNAL_URL:-http://rocketchat:3000}
       - ROCKETCHAT_ADMIN_USER=${ROCKETCHAT_ADMIN_USER:-rc_admin}
       - ROCKETCHAT_ADMIN_PASSWORD=${ROCKETCHAT_ADMIN_PASSWORD:-}
@@ -3284,7 +3412,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3308,8 +3436,6 @@ services:
       context: .
       dockerfile: archive/deprecated-services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
-    profiles:
-      - deprecated
     environment:
       - PORT=8135
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -3318,6 +3444,7 @@ services:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - WECHAT_APP_ID=${WECHAT_APP_ID:-}
       - WECHAT_APP_SECRET=${WECHAT_APP_SECRET:-}
       - WECHAT_TOKEN=${WECHAT_TOKEN:-}
@@ -3334,7 +3461,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3383,7 +3510,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3413,6 +3540,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
@@ -3431,7 +3559,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3461,6 +3589,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
     ports:
@@ -3479,7 +3608,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3510,9 +3639,13 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AGENT_REGISTRY_URL=http://agent-registry:8160
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_BASE_URL=http://ollama:11434
     ports:
       - "127.0.0.1:8088:8088"
     depends_on:
@@ -3527,23 +3660,24 @@ services:
       # FIX: Add missing dependency - copilot-api references LLM_ORCHESTRATOR_URL
       llm-orchestrator-service:
         condition: service_healthy
+      qdrant:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8088/healthz')" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
     deploy:
       resources:
-        limits:
-          cpus: '1'
-          memory: 512M
         reservations:
-          cpus: '0.25'
-          memory: 128M
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
     logging: *default-logging
     networks:
       - sahool-network
@@ -3562,6 +3696,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       # LLM Provider Configuration
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
@@ -3586,7 +3721,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3617,9 +3752,12 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
+      - OLLAMA_KEEP_ALIVE=24h # Keeps the model in VRAM for OpenClaw
+      - NVIDIA_VISIBLE_DEVICES=all
     ports:
       - "127.0.0.1:8140:8140"
     depends_on:
@@ -3636,7 +3774,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3667,9 +3805,10 @@ services:
       - PORT=8114
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
-      # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
+      # NOTE: sslmode=disable for dev only. Production uses sslmode=require via docker-compose.tls.yml
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=${POSTGRES_SSL_MODE:-disable}
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8114:8114"
@@ -3685,7 +3824,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3715,6 +3854,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8123:8123"
@@ -3730,7 +3870,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3761,6 +3901,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - AUDIT_SERVICE_URL=http://audit-service:8114
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
@@ -3782,7 +3923,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3816,6 +3957,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8134:8134"
@@ -3831,7 +3973,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3861,6 +4003,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - VISION_SERVICE_URL=http://yolo26-vision-service:8150
     ports:
@@ -3877,7 +4020,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3907,6 +4050,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8126:8126"
@@ -3922,7 +4066,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -3956,6 +4100,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8127:8127"
@@ -3971,7 +4116,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4001,6 +4146,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - TRACEABILITY_SERVICE_URL=http://traceability-service:8123
     ports:
@@ -4019,7 +4165,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4049,6 +4195,7 @@ services:
       # FIX: Removed pgbouncer=true — psycopg2 does not support this DSN parameter (Prisma-only)
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - SUPPLY_CHAIN_SERVICE_URL=http://supply-chain-service:8230
     ports:
@@ -4067,7 +4214,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4090,7 +4237,6 @@ services:
   # YOLO26 Vision Service - خدمة الرؤية الحاسوبية
   # Real-time object detection using YOLO26m model with GPU acceleration
   yolo26-vision-service:
-    profiles: [gpu]
     build:
       context: .
       dockerfile: apps/services/yolo26-vision-service/Dockerfile
@@ -4104,6 +4250,8 @@ services:
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - MODEL_PATH=/app/models/yolo26m.engine
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     volumes:
       - yolo26-models:/app/models
     ports:
@@ -4155,6 +4303,8 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
     volumes:
       - terrain-dem-data:/app/data/dem
     ports:
@@ -4200,6 +4350,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
     ports:
       - "127.0.0.1:8165:8165"
@@ -4216,7 +4367,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4246,6 +4397,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - TERRAIN_SERVICE_URL=http://terrain-core-service:8185
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
     ports:
@@ -4263,7 +4415,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4293,6 +4445,7 @@ services:
       # FIX: Removed pgbouncer=true — Python drivers do not support this Prisma-only DSN parameter
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
     ports:
       - "127.0.0.1:8180:8180"
@@ -4309,7 +4462,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4340,6 +4493,7 @@ services:
     environment:
       - PORT=8250
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4355,7 +4509,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4381,6 +4535,7 @@ services:
     environment:
       - PORT=8251
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4396,7 +4551,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4422,6 +4577,7 @@ services:
     environment:
       - PORT=8252
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4437,7 +4593,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4470,6 +4626,7 @@ services:
     environment:
       - PORT=8260
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -4492,7 +4649,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4511,9 +4668,6 @@ services:
   # Code Review Agent - AI code review using Claude Agent SDK
   # وكيل مراجعة الكود - مراجعة كود ذكية باستخدام Claude SDK
   code-review-agent:
-    profiles:
-      - optional
-      - ai-agents
     build:
       context: .
       dockerfile: apps/services/code-review-agent/Dockerfile
@@ -4548,6 +4702,7 @@ services:
     environment:
       - PORT=8183
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
@@ -4566,7 +4721,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4593,6 +4748,7 @@ services:
     environment:
       - PORT=8240
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - DATABASE_URL=postgresql://${POSTGRES_USER:-sahool}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@pgbouncer:6432/${POSTGRES_DB:-sahool}?sslmode=disable
       - LLM_ORCHESTRATOR_URL=http://llm-orchestrator-service:8164
@@ -4615,7 +4771,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -4641,6 +4797,7 @@ services:
     environment:
       - PORT=8253
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
+      - AUTH_SECRET_KEY=${AUTH_SECRET_KEY:-${JWT_SECRET_KEY:?AUTH_SECRET_KEY or JWT_SECRET_KEY is required}}
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - ENVIRONMENT=${ENVIRONMENT:-development}
@@ -4656,7 +4813,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 15s
+      start_period: 45s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

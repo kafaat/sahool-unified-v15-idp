@@ -2,6 +2,7 @@
 /// نموذج ردود الفعل على التوصية
 ///
 /// Represents user feedback on AI advisories
+library;
 
 import 'package:flutter/foundation.dart';
 
@@ -208,7 +209,7 @@ class AdvisoryFeedback {
       outcomeDetailsAr: json['outcome_details_ar'] as String?,
       tags: (json['tags'] as List?)?.cast<String>(),
       createdAt: json['created_at'] != null
-          ? DateTime.parse(json['created_at'] as String)
+          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
           : DateTime.now(),
       metadata: json['metadata'] as Map<String, dynamic>?,
     );
@@ -490,11 +491,11 @@ Map<OutcomeStatus, int> _parseOutcomeCounts(dynamic data) {
   if (data == null || data is! Map) return {};
 
   final result = <OutcomeStatus, int>{};
-  for (final entry in (data as Map).entries) {
+  for (final entry in (data).entries) {
     try {
       final status = _parseOutcomeStatus(entry.key.toString());
       result[status] = entry.value as int? ?? 0;
-    } catch (_) {
+    } catch (e) {
       // Skip invalid entries
     }
   }
@@ -505,11 +506,11 @@ Map<FeedbackType, int> _parseFeedbackByType(dynamic data) {
   if (data == null || data is! Map) return {};
 
   final result = <FeedbackType, int>{};
-  for (final entry in (data as Map).entries) {
+  for (final entry in (data).entries) {
     try {
       final type = _parseFeedbackType(entry.key.toString());
       result[type] = entry.value as int? ?? 0;
-    } catch (_) {
+    } catch (e) {
       // Skip invalid entries
     }
   }

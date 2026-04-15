@@ -4,10 +4,11 @@ File Validation Tests for SAHOOL Platform.
 Tests validate file upload security and validation rules.
 """
 
-import pytest
-from typing import Dict, Any, List
 import io
 import struct
+from typing import Any, Dict, List
+
+import pytest
 
 
 class FileValidator:

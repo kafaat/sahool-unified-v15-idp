@@ -37,7 +37,12 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=2,
+                max_size=10,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
             app.state.db_connected = True
             logger.info("Database connection pool created")
         except Exception as e:
@@ -111,9 +116,15 @@ if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
 
 # Include API routers
+# IMPORTANT: specific sub-routers (bookings, purchase-orders, revenue) must be
+# registered BEFORE the generic cooperatives router so that their paths don't
+# collide with the /api/v1/cooperatives/{coop_id} wildcard.
 try:
-    from src.api.v1 import cooperatives
+    from src.api.v1 import bookings, cooperatives, orders, revenue
 
+    app.include_router(bookings.router)
+    app.include_router(orders.router)
+    app.include_router(revenue.router)
     app.include_router(cooperatives.router)
     logger.info("API routers registered")
 except ImportError as e:

@@ -34,19 +34,15 @@ const HTML_TAGS = /<[^>]*>/g;
  * Apply a replacement iteratively until the string stabilizes
  * This prevents bypass attacks where intermediate transformations create new attack vectors
  */
-function iterativeReplace(
-  input: string,
-  pattern: RegExp,
-  replacement: string
-): string {
+function iterativeReplace(input: string, pattern: RegExp, replacement: string): string {
   let result = input;
-  let previous = "";
+  let previous = '';
   let iterations = 0;
 
   while (result !== previous && iterations < MAX_ITERATIONS) {
     previous = result;
     // Create a new RegExp to reset lastIndex for global patterns
-    const freshPattern = new RegExp(pattern.source, pattern.flags);
+    const freshPattern = new RegExp(pattern.source, pattern.flags); // nosemgrep: detect-non-literal-regexp -- recreating from existing RegExp properties, not user input
     result = result.replace(freshPattern, replacement);
     iterations++;
   }
@@ -64,13 +60,13 @@ function decodeHtmlEntities(input: string): string {
 
   // First pass: decode named entities (except &amp;)
   result = result
-    .replace(/&lt;/gi, "<")
-    .replace(/&gt;/gi, ">")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
     .replace(/&quot;/gi, '"')
     .replace(/&#x27;/gi, "'")
     .replace(/&#39;/gi, "'")
-    .replace(/&#x2F;/gi, "/")
-    .replace(/&#47;/gi, "/");
+    .replace(/&#x2F;/gi, '/')
+    .replace(/&#47;/gi, '/');
 
   // Decode numeric entities
   result = result.replace(/&#(\d+);/g, (_, num) => {
@@ -79,7 +75,7 @@ function decodeHtmlEntities(input: string): string {
     if (code >= 32 && code <= 126 && ![60, 62, 38, 34, 39].includes(code)) {
       return String.fromCharCode(code);
     }
-    return "";
+    return '';
   });
 
   result = result.replace(/&#x([0-9a-f]+);/gi, (_, hex) => {
@@ -88,12 +84,12 @@ function decodeHtmlEntities(input: string): string {
     if (code >= 32 && code <= 126 && ![60, 62, 38, 34, 39].includes(code)) {
       return String.fromCharCode(code);
     }
-    return "";
+    return '';
   });
 
   // LAST: decode &amp; to prevent double-unescaping
   // Only decode &amp; that is NOT followed by another entity pattern
-  result = result.replace(/&amp;(?![a-z]+;|#\d+;|#x[0-9a-f]+;)/gi, "&");
+  result = result.replace(/&amp;(?![a-z]+;|#\d+;|#x[0-9a-f]+;)/gi, '&');
 
   return result;
 }
@@ -104,24 +100,24 @@ function decodeHtmlEntities(input: string): string {
  */
 function removeDangerousPatterns(input: string): string {
   let result = input;
-  let previous = "";
+  let previous = '';
   let iterations = 0;
 
   while (result !== previous && iterations < MAX_ITERATIONS) {
     previous = result;
 
     // Remove dangerous protocols
-    result = result.replace(DANGEROUS_PROTOCOLS, "");
+    result = result.replace(DANGEROUS_PROTOCOLS, '');
 
     // Remove event handlers using all patterns
     for (const pattern of EVENT_HANDLER_PATTERNS) {
       const freshPattern = new RegExp(pattern.source, pattern.flags);
-      result = result.replace(freshPattern, "");
+      result = result.replace(freshPattern, '');
     }
 
     // Remove null bytes and other control characters (intentional security sanitization)
     // eslint-disable-next-line no-control-regex
-    result = result.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, "");
+    result = result.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
 
     iterations++;
   }
@@ -144,8 +140,8 @@ function removePatternCompletely(
   // Use do-while with explicit containment check
   // This pattern is recognized by CodeQL as safe iterative sanitization
   do {
-    const freshPattern = new RegExp(pattern.source, pattern.flags);
-    result = result.replace(freshPattern, "");
+    const freshPattern = new RegExp(pattern.source, pattern.flags); // nosemgrep: detect-non-literal-regexp -- recreating from existing RegExp properties, not user input
+    result = result.replace(freshPattern, '');
     iterations++;
   } while (pattern.test(result) && iterations < maxIter);
 
@@ -163,7 +159,7 @@ function removePatternCompletely(
  */
 function removeDangerousTagContent(input: string): string {
   let result = input;
-  let previous = "";
+  let previous = '';
   let iterations = 0;
 
   // Dangerous tags whose content should be completely removed
@@ -186,7 +182,7 @@ function removeDangerousTagContent(input: string): string {
 
     for (const pattern of DANGEROUS_TAGS) {
       const freshPattern = new RegExp(pattern.source, pattern.flags);
-      result = result.replace(freshPattern, "");
+      result = result.replace(freshPattern, '');
     }
 
     iterations++;
@@ -212,7 +208,7 @@ function removeDangerousTagContent(input: string): string {
  * Implements defense-in-depth with multiple passes
  */
 function regexSanitize(input: string, options?: SanitizeOptions): string {
-  if (!input || typeof input !== "string") return "";
+  if (!input || typeof input !== 'string') return '';
 
   let result = input;
 
@@ -233,15 +229,12 @@ function regexSanitize(input: string, options?: SanitizeOptions): string {
 
   // Step 6: Remove HTML tags iteratively
   if (!options?.ALLOWED_TAGS || options.ALLOWED_TAGS.length === 0) {
-    result = iterativeReplace(result, HTML_TAGS, "");
+    result = iterativeReplace(result, HTML_TAGS, '');
   } else {
     // Remove tags not in allowed list
-    const allowedTagsPattern = options.ALLOWED_TAGS.join("|");
-    const disallowedTagRegex = new RegExp(
-      `<(?!\\/?(${allowedTagsPattern})\\b)[^>]*>`,
-      "gi"
-    );
-    result = iterativeReplace(result, disallowedTagRegex, "");
+    const allowedTagsPattern = options.ALLOWED_TAGS.join('|');
+    const disallowedTagRegex = new RegExp(`<(?!\\/?(${allowedTagsPattern})\\b)[^>]*>`, 'gi'); // nosemgrep: detect-non-literal-regexp -- ALLOWED_TAGS are developer-configured, not user input
+    result = iterativeReplace(result, disallowedTagRegex, '');
   }
 
   // Step 7: Final cleanup pass
@@ -269,7 +262,7 @@ export function sanitize(input: string, options?: SanitizeOptions): string {
  * @returns true if safe, false otherwise
  */
 export function isSafeText(text: string): boolean {
-  if (!text || typeof text !== "string") return false;
+  if (!text || typeof text !== 'string') return false;
 
   const sanitized = sanitize(text, {
     ALLOWED_TAGS: [],
@@ -277,8 +270,7 @@ export function isSafeText(text: string): boolean {
   });
 
   // Check for dangerous patterns in original text
-  let hasDangerousPatterns =
-    DANGEROUS_PROTOCOLS.test(text) || HTML_TAGS.test(text);
+  let hasDangerousPatterns = DANGEROUS_PROTOCOLS.test(text) || HTML_TAGS.test(text);
 
   // Reset regex lastIndex after test
   DANGEROUS_PROTOCOLS.lastIndex = 0;

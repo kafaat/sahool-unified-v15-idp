@@ -3,14 +3,13 @@
 ///
 /// Enhanced Firebase Cloud Messaging integration for SAHOOL platform
 /// Complements the existing push_notification_service.dart with additional features
+library;
 
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../utils/app_logger.dart';
 
@@ -187,8 +186,8 @@ class SAHOOLNotificationPayload {
   }) {
     return SAHOOLNotificationPayload(
       id: message.messageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      type: SAHOOLNotificationType.fromString(message.data['type'] ?? 'system'),
-      priority: NotificationPriority.fromString(message.data['priority']),
+      type: SAHOOLNotificationType.fromString((message.data['type'] as String?) ?? 'system'),
+      priority: NotificationPriority.fromString(message.data['priority'] as String?),
       title: message.notification?.title ?? '',
       body: message.notification?.body ?? '',
       data: message.data,
@@ -298,16 +297,13 @@ class FirebaseMessagingService {
   Future<void> _initializeLocalNotifications() async {
     const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    final iosSettings = DarwinInitializationSettings(
+    const iosSettings = DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
-      onDidReceiveLocalNotification: (id, title, body, payload) async {
-        // Handle iOS foreground notification
-      },
     );
 
-    final settings = InitializationSettings(
+    const settings = InitializationSettings(
       android: androidSettings,
       iOS: iosSettings,
     );
@@ -426,8 +422,8 @@ class FirebaseMessagingService {
     final notification = message.notification;
     if (notification == null) return;
 
-    final type = SAHOOLNotificationType.fromString(message.data['type']);
-    final priority = NotificationPriority.fromString(message.data['priority']);
+    final type = SAHOOLNotificationType.fromString((message.data['type'] as String?) ?? '');
+    final priority = NotificationPriority.fromString(message.data['priority'] as String?);
 
     final androidDetails = AndroidNotificationDetails(
       type.channelId,
@@ -477,8 +473,8 @@ class FirebaseMessagingService {
 
     try {
       final data = jsonDecode(response.payload!) as Map<String, dynamic>;
-      final type = SAHOOLNotificationType.fromString(data['type']);
-      final priority = NotificationPriority.fromString(data['priority']);
+      final type = SAHOOLNotificationType.fromString((data['type'] as String?) ?? '');
+      final priority = NotificationPriority.fromString(data['priority'] as String?);
 
       final payload = SAHOOLNotificationPayload(
         id: response.id?.toString() ?? '',
@@ -500,7 +496,7 @@ class FirebaseMessagingService {
   /// Get FCM token
   Future<String?> getToken() async {
     if (_fcmToken != null) return _fcmToken;
-    return await _getToken();
+    return _getToken();
   }
 
   Future<String?> _getToken() async {

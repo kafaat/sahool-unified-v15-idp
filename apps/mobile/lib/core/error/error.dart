@@ -31,7 +31,7 @@
 /// );
 /// ```
 
-library error;
+library;
 
 // Error boundary widgets
 export 'error_boundary.dart'

@@ -3,16 +3,16 @@
 ///
 /// عرض أفضل الأيام للأنشطة الزراعية بناءً على التقويم الفلكي اليمني
 /// مع إمكانية إنشاء مهام مباشرة من الأيام المقترحة
+library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 import '../../../astronomical/models/astronomical_models.dart';
 import '../../../astronomical/providers/astronomical_providers.dart';
-import '../../domain/entities/task.dart';
 import '../create_task_screen.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -33,15 +33,15 @@ final astronomicalCacheProvider = FutureProvider.family<BestDaysResult?, String>
   try {
     // محاولة جلب من الخادم أولاً
     final result = await ref.watch(
-      bestDaysProvider(BestDaysParams(activity: activity, days: 30)),
-    ).future;
+      bestDaysProvider(BestDaysParams(activity: activity, days: 30)).future,
+    );
 
     // حفظ في التخزين المؤقت
     await _saveToCache(activity, result);
     return result;
   } catch (e) {
     // في حالة الفشل، محاولة القراءة من التخزين المؤقت
-    return await _loadFromCache(activity);
+    return _loadFromCache(activity);
   }
 });
 
@@ -72,7 +72,7 @@ Future<BestDaysResult?> _loadFromCache(String activity) async {
     if (cached == null) return null;
 
     final data = jsonDecode(cached) as Map<String, dynamic>;
-    final timestamp = DateTime.parse(data['timestamp'] as String);
+    final timestamp = DateTime.tryParse(data['timestamp'] as String) ?? DateTime.now();
 
     // التحقق من صلاحية البيانات (7 أيام)
     if (DateTime.now().difference(timestamp).inDays > 7) {
@@ -122,7 +122,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
 
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Container(
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -170,7 +170,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
         gradient: LinearGradient(
           colors: [
             theme.colorScheme.primary,
-            theme.colorScheme.primary.withOpacity(0.8),
+            theme.colorScheme.primary.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -183,7 +183,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
             height: 4,
             margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -194,7 +194,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
@@ -219,7 +219,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
                     Text(
                       'أفضل أيام $activity حسب المنازل القمرية',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
                       ),
                     ),
@@ -361,7 +361,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
             Icon(
               Icons.event_busy,
               size: 80,
-              color: Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -394,7 +394,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
             Icon(
               Icons.cloud_off,
               size: 80,
-              color: Theme.of(context).colorScheme.error.withOpacity(0.5),
+              color: Theme.of(context).colorScheme.error.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -427,7 +427,7 @@ class AstronomicalTaskWidget extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -613,7 +613,7 @@ class _CalendarGrid extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? scoreColor
-                      : scoreColor.withOpacity(0.3),
+                      : scoreColor.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(8),
                   border: isSelected
                       ? Border.all(color: scoreColor, width: 2)
@@ -652,7 +652,7 @@ class _CalendarGrid extends StatelessWidget {
   Widget _buildLegend(BuildContext context) {
     return Card(
       elevation: 0,
-      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -696,7 +696,7 @@ class _CalendarGrid extends StatelessWidget {
     if (days.isEmpty) return [];
 
     final weeks = <List<BestDay?>>[];
-    var currentWeek = <BestDay?>[];
+    final currentWeek = <BestDay?>[];
 
     // البدء من أول يوم في الشهر
     final firstDay = DateFormat('yyyy-MM-dd').parse(days.first.date);
@@ -799,7 +799,7 @@ class _DayDetailsCard extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: scoreColor.withOpacity(0.2),
+                      color: scoreColor.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: scoreColor, width: 2),
                     ),
@@ -970,7 +970,7 @@ class _DayListTile extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: rankColor.withOpacity(0.2),
+                  color: rankColor.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                   border: Border.all(color: rankColor, width: 2),
                 ),
@@ -1045,7 +1045,7 @@ class _DayListTile extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: scoreColor.withOpacity(0.2),
+                  color: scoreColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: scoreColor, width: 1.5),
                 ),

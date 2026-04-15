@@ -4,24 +4,24 @@
  */
 
 export type ProductCategory =
-  | "seeds"
-  | "fertilizers"
-  | "pesticides"
-  | "equipment"
-  | "tools"
-  | "irrigation"
-  | "produce"
-  | "other";
+  | 'seeds'
+  | 'fertilizers'
+  | 'pesticides'
+  | 'equipment'
+  | 'tools'
+  | 'irrigation'
+  | 'produce'
+  | 'other';
 
-export type ProductStatus = "available" | "out_of_stock" | "discontinued";
+export type ProductStatus = 'available' | 'out_of_stock' | 'discontinued';
 export type OrderStatus =
-  | "pending"
-  | "confirmed"
-  | "processing"
-  | "shipped"
-  | "delivered"
-  | "cancelled";
-export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+  | 'pending'
+  | 'confirmed'
+  | 'processing'
+  | 'shipped'
+  | 'delivered'
+  | 'cancelled';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
 export interface Product {
   id: string;
@@ -118,7 +118,7 @@ export interface ProductFilters {
   maxPrice?: number;
   sellerId?: string;
   status?: ProductStatus;
-  sortBy?: "price_asc" | "price_desc" | "name" | "newest" | "rating";
+  sortBy?: 'price_asc' | 'price_desc' | 'name' | 'newest' | 'rating';
 }
 
 export interface OrderFilters {
@@ -126,4 +126,72 @@ export interface OrderFilters {
   paymentStatus?: PaymentStatus;
   dateFrom?: string;
   dateTo?: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Price Tracking - تتبع الأسعار
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PricePoint {
+  date: string;
+  price: number;
+  region: string;
+}
+
+export interface PriceHistory {
+  productId: string;
+  prices: PricePoint[];
+  trend: 'up' | 'down' | 'stable';
+}
+
+export interface PriceAnalytics {
+  averagePrice: number;
+  minPrice: number;
+  maxPrice: number;
+  volatility: number;
+  forecast: {
+    nextWeek: number;
+    nextMonth: number;
+    confidence: number;
+  };
+  category?: ProductCategory;
+  region?: string;
+  currency: string;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Traceability - التتبع من المزرعة إلى المائدة
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface TraceRecord {
+  timestamp: string;
+  location: string;
+  locationAr?: string;
+  handler: string;
+  handlerAr?: string;
+  action: string;
+  actionAr?: string;
+  verified: boolean;
+}
+
+export interface ProductTraceability {
+  productId: string;
+  farmerId: string;
+  farmerName: string;
+  farmerNameAr?: string;
+  harvestDate: string;
+  region: string;
+  regionAr?: string;
+  certifications: string[];
+  chain: TraceRecord[];
+  qualityGrade?: string;
+  batchCode?: string;
+}
+
+export interface QRCodeData {
+  productId: string;
+  traceUrl: string;
+  generatedAt: string;
+  batchCode?: string;
+  qrImageBase64?: string;
 }

@@ -27,9 +27,15 @@ except ImportError:
 
 import logging
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
+from . import store as ndvi_store  # production persistence layer
 from .models import (
     AnomalyResponse,
     ChangeAnalysisRequest,
@@ -61,10 +67,12 @@ from .processing import (
     process_ndvi_mock,
     update_job_status,
 )
-from . import store as ndvi_store  # production persistence layer
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 
 # ============== Application Lifecycle ==============
@@ -88,7 +96,12 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg
 
-            db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+            app.state.db_pool = await asyncpg.create_pool(
+                db_url,
+                min_size=1,
+                max_size=5,
+                statement_cache_size=0,  # PgBouncer transaction mode compatibility
+            )
             await ndvi_store.ensure_tables(db_pool)
             logger.info("NDVI Processor: DB pool connected")
         except Exception:
@@ -181,6 +194,47 @@ except ImportError:
     pass
 
 
+# ──────────────────────────────────────────────────────────────────────────
+# Deprecation headers (RFC 8594)
+# ──────────────────────────────────────────────────────────────────────────
+# ndvi-processor is superseded by vegetation-analysis-service (port 8090).
+# Per CLAUDE.md this service is marked deprecated but continues to serve
+# traffic during the migration window. Every response now carries RFC 8594
+# deprecation metadata so API clients can plan their cutover.
+
+# Sunset date may be overridden via env var for staged rollouts.
+_SUNSET_DATE = os.getenv("NDVI_PROCESSOR_SUNSET", "2026-06-01")
+_SUCCESSOR_URL = os.getenv(
+    "NDVI_PROCESSOR_SUCCESSOR",
+    "https://docs.sahool.app/migrations/NDVI_PROCESSOR_TO_VEGETATION_ANALYSIS",
+)
+
+
+@app.middleware("http")
+async def deprecation_headers_middleware(request, call_next):
+    """Attach RFC 8594 deprecation headers to every response.
+
+    - `Deprecation: true`           — signals the resource is deprecated.
+    - `Sunset: <HTTP-date>`         — scheduled removal date.
+    - `Link: <successor>; rel=…`    — points clients at the replacement.
+    - `X-API-Deprecated: true`      — custom header for internal dashboards
+                                      and governance CI checks.
+    - `Warning: 299 …`              — human-readable explanation.
+    """
+    response = await call_next(request)
+    response.headers["Deprecation"] = "true"
+    response.headers["Sunset"] = _SUNSET_DATE
+    response.headers["Link"] = f'<{_SUCCESSOR_URL}>; rel="successor-version", <{_SUCCESSOR_URL}>; rel="deprecation"'
+    response.headers["X-API-Deprecated"] = "true"
+    response.headers["X-API-Successor"] = "vegetation-analysis-service:8090"
+    response.headers["Warning"] = (
+        f'299 - "ndvi-processor is deprecated and will be removed on '
+        f"{_SUNSET_DATE}. Migrate to vegetation-analysis-service (port 8090). "
+        f'See {_SUCCESSOR_URL}"'
+    )
+    return response
+
+
 # ============== Background Processing ==============
 
 
@@ -249,20 +303,26 @@ async def process_job_background(job_id: str, request: ProcessRequest):
 @app.get("/health")
 def health():
     """فحص الصحة - Health check with metrics"""
-    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
+    from .processing import _jobs
+
+    all_jobs = list(_jobs.values())
+    active_jobs = len([j for j in all_jobs if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
         "version": "16.0.0",
         "timestamp": datetime.now(UTC).isoformat(),
-        "metrics": {"queue_size": active_jobs, "total_jobs": len(list_jobs())},
+        "metrics": {"queue_size": active_jobs, "total_jobs": len(all_jobs)},
     }
 
 
 @app.get("/healthz")
 def healthz():
     """فحص الصحة - Kubernetes liveness probe"""
-    active_jobs = len([j for j in list_jobs() if j["status"] in ["queued", "processing"]])
+    from .processing import _jobs
+
+    all_jobs = list(_jobs.values())
+    active_jobs = len([j for j in all_jobs if j["status"] in ["queued", "processing"]])
     return {
         "status": "healthy",
         "service": "ndvi-processor",
@@ -283,7 +343,16 @@ def readiness():
 
 def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
     """Validate JWT tenant matches the requested tenant."""
-    if user.tenant_id and user.tenant_id != requested_tenant_id:
+    if not user.tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    if user.tenant_id != requested_tenant_id:
         raise HTTPException(
             status_code=403,
             detail={
@@ -323,7 +392,7 @@ async def start_processing(
 
 
 @app.get("/process/{job_id}/status", response_model=JobResponse)
-async def get_job_status(job_id: str):
+async def get_job_status(job_id: str, user: User = Depends(get_current_user)):
     """حالة المعالجة"""
     job = get_job(job_id)
     if not job:
@@ -342,11 +411,12 @@ async def cancel_processing(job_id: str, user: User = Depends(get_current_user))
 
 @app.get("/process", response_model=JobListResponse)
 async def list_processing_jobs(
-    tenant_id: str = Query(None),
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     field_id: str = Query(None),
     status: str | None = Query(None),
+    user: User = Depends(get_current_user),
 ):
-    """قائمة المهام"""
+    """قائمة المهام مع عزل إلزامي للمستأجر"""
     jobs = list_jobs(tenant_id=tenant_id, field_id=field_id, status=status)
     active = len([j for j in jobs if j["status"] in ["queued", "processing"]])
 
@@ -364,6 +434,7 @@ async def list_processing_jobs(
 async def get_ndvi(
     field_id: str,
     date: str | None = Query(None),
+    user: User = Depends(get_current_user),
 ):
     """الحصول على NDVI"""
     result = get_field_ndvi(field_id, date)
@@ -383,7 +454,7 @@ async def get_ndvi(
 
 
 @app.get("/fields/{field_id}/ndvi/latest")
-async def get_latest_ndvi(field_id: str):
+async def get_latest_ndvi(field_id: str, user: User = Depends(get_current_user)):
     """أحدث NDVI متاح"""
     result = get_field_ndvi(field_id)
 
@@ -406,6 +477,7 @@ async def get_timeseries(
     field_id: str,
     start: str = Query(..., description="YYYY-MM-DD"),
     end: str = Query(..., description="YYYY-MM-DD"),
+    user: User = Depends(get_current_user),
 ):
     """السلسلة الزمنية"""
     data = get_ndvi_timeseries(field_id, start, end)
@@ -431,6 +503,7 @@ async def get_change_analysis(
     date1: str = Query(...),
     date2: str = Query(...),
     include_zones: bool = Query(True),
+    user: User = Depends(get_current_user),
 ):
     """تحليل التغير"""
     result = analyze_change(field_id, date1, date2, include_zones)
@@ -457,6 +530,7 @@ async def post_change_analysis(
 async def get_seasonal_analysis(
     field_id: str,
     year: int = Query(..., ge=2000, le=2100),
+    user: User = Depends(get_current_user),
 ):
     """تحليل موسمي"""
     result = analyze_seasonal(field_id, year)
@@ -468,6 +542,7 @@ async def get_anomaly_detection(
     field_id: str,
     date: str = Query(...),
     current_ndvi: float | None = Query(None, ge=-1, le=1),
+    user: User = Depends(get_current_user),
 ):
     """كشف الشذوذ"""
     result = detect_anomaly(field_id, date, current_ndvi)
@@ -484,6 +559,7 @@ async def export_ndvi(
     start: str | None = Query(None),
     end: str | None = Query(None),
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
+    user: User = Depends(get_current_user),
 ):
     """تصدير NDVI"""
     if format == ExportFormat.CSV:
@@ -550,6 +626,7 @@ async def create_monthly_composite(request: CompositeRequest, user: User = Depen
 async def list_composites(
     field_id: str,
     year: int | None = Query(None),
+    user: User = Depends(get_current_user),
 ):
     """قائمة المركبات"""
     composites = get_composites(field_id, year)
@@ -561,7 +638,7 @@ async def list_composites(
 
 
 @app.get("/composites/{composite_id}")
-async def get_composite(composite_id: str):
+async def get_composite(composite_id: str, user: User = Depends(get_current_user)):
     """جلب مركب"""
     from .processing import _composites
 
@@ -575,6 +652,7 @@ async def get_composite(composite_id: str):
 async def download_composite(
     composite_id: str,
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
+    user: User = Depends(get_current_user),
 ):
     """تنزيل مركب"""
     from .processing import _composites
@@ -602,6 +680,6 @@ async def download_composite(
 if __name__ == "__main__":
     import uvicorn
 
-    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- Binding to all interfaces required for Docker
+    host = os.getenv("HOST", "0.0.0.0")  # noqa: S104 -- Binding to all interfaces required for Docker  # nosec B104 - binding to all interfaces required for Docker container
     port = int(os.getenv("PORT", 8118))
     uvicorn.run(app, host=host, port=port)

@@ -15,9 +15,12 @@ import {
   HttpCode,
   HttpStatus,
   ForbiddenException,
+  NotFoundException,
+  BadRequestException,
   UseGuards,
   ParseIntPipe,
   DefaultValuePipe,
+  ParseUUIDPipe,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";
 import {
@@ -51,8 +54,13 @@ export class UsersController {
     currentUser: any,
     resourceUserId: string,
   ): void {
+    // Normalize roles to lowercase for consistent checks
+    const roles = Array.isArray(currentUser?.roles)
+      ? currentUser.roles.map((r: string) => r.toLowerCase())
+      : [];
+
     // Allow admins to access any user
-    if (currentUser?.roles?.includes("admin")) {
+    if (roles.includes("admin")) {
       return;
     }
 
@@ -65,9 +73,12 @@ export class UsersController {
   }
 
   @Post()
+  @UseGuards(RolesGuard)
+  @Roles("ADMIN", "MANAGER")
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @ApiOperation({
-    summary: "Create a new user",
-    description: "إنشاء مستخدم جديد",
+    summary: "Create a new user (Admin/Manager only)",
+    description: "إنشاء مستخدم جديد (للمشرفين والمديرين فقط)",
   })
   @ApiResponse({
     status: 201,
@@ -155,7 +166,7 @@ export class UsersController {
     status: 403,
     description: "Forbidden - You can only access your own data",
   })
-  async findOne(@Param("id") id: string, @CurrentUser() currentUser: any) {
+  async findOne(@Param("id", ParseUUIDPipe) id: string, @CurrentUser() currentUser: any) {
     // Validate resource ownership - users can only access their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
@@ -191,10 +202,7 @@ export class UsersController {
   async findByEmail(@Param("email") email: string) {
     const user = await this.usersService.findByEmail(email);
     if (!user) {
-      return {
-        success: false,
-        message: "User not found",
-      };
+      throw new NotFoundException("User not found");
     }
     const { passwordHash, ...userWithoutPassword } = user;
     return {
@@ -222,12 +230,21 @@ export class UsersController {
     description: "Forbidden - You can only update your own data",
   })
   async update(
-    @Param("id") id: string,
+    @Param("id", ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
     @CurrentUser() currentUser: any,
   ) {
     // Validate resource ownership - users can only update their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
+
+    // Prevent privilege escalation: only admins can change role/status
+    const normalizedRoles = Array.isArray(currentUser?.roles)
+      ? currentUser.roles.map((r: string) => r.toLowerCase())
+      : [];
+    if (!normalizedRoles.includes("admin")) {
+      delete updateUserDto.role;
+      delete updateUserDto.status;
+    }
 
     const user = await this.usersService.update(id, updateUserDto);
     const { passwordHash, ...userWithoutPassword } = user;
@@ -257,7 +274,7 @@ export class UsersController {
     status: 403,
     description: "Forbidden - You can only delete your own data",
   })
-  async remove(@Param("id") id: string, @CurrentUser() currentUser: any) {
+  async remove(@Param("id", ParseUUIDPipe) id: string, @CurrentUser() currentUser: any) {
     // Validate resource ownership - users can only delete their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
@@ -294,7 +311,7 @@ export class UsersController {
     status: 404,
     description: "User not found",
   })
-  async hardDelete(@Param("id") id: string) {
+  async hardDelete(@Param("id", ParseUUIDPipe) id: string) {
     await this.usersService.hardDelete(id);
     return {
       success: true,
@@ -318,7 +335,7 @@ export class UsersController {
     status: 403,
     description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
-  async countByTenant(@Param("tenantId") tenantId: string) {
+  async countByTenant(@Param("tenantId", ParseUUIDPipe) tenantId: string) {
     const count = await this.usersService.countByTenant(tenantId);
     return {
       success: true,
@@ -338,11 +355,20 @@ export class UsersController {
     description: "Active users count retrieved successfully",
   })
   @ApiResponse({
+    status: 400,
+    description: "Bad Request - Authentication context is missing tenant information",
+  })
+  @ApiResponse({
     status: 403,
     description: "Forbidden - User does not have ADMIN or MANAGER role",
   })
-  async countActive() {
-    const count = await this.usersService.countActive();
+  async countActive(@CurrentUser() currentUser: any) {
+    // SECURITY: Filter by tenant to prevent cross-tenant user count leakage
+    const tenantId = currentUser?.tenantId;
+    if (!tenantId) {
+      throw new BadRequestException("Authentication context is invalid");
+    }
+    const count = await this.usersService.countActive(tenantId);
     return {
       success: true,
       data: { count },

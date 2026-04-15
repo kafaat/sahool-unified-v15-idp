@@ -33,6 +33,13 @@ Example Usage:
     ```
 """
 
+from .factory import (
+    create_field_metadata,
+    create_iot_sensor_metadata,
+    create_ndvi_metadata,
+    create_satellite_metadata,
+    create_terrain_metadata,
+)
 from .iso19115 import (
     CI_Citation,
     CI_OnlineResource,
@@ -54,13 +61,15 @@ from .iso19115 import (
     MD_BrowseGraphic,
     MD_Constraints,
     MD_DataIdentification,
+    MD_DigitalTransferOptions,
     MD_Distribution,
     MD_DistributionFormat,
-    MD_DigitalTransferOptions,
     MD_Keywords,
     MD_LegalConstraints,
+    MD_MaintenanceFrequencyCode,
     MD_MaintenanceInformation,
     MD_Metadata,
+    MD_ProgressCode,
     MD_ReferenceSystem,
     MD_Resolution,
     MD_RestrictionCode,
@@ -68,13 +77,6 @@ from .iso19115 import (
     MD_SpatialRepresentationType,
     MD_TopicCategory,
     MD_TransferOptions,
-)
-from .factory import (
-    create_field_metadata,
-    create_ndvi_metadata,
-    create_terrain_metadata,
-    create_satellite_metadata,
-    create_iot_sensor_metadata,
 )
 
 __all__ = [
@@ -121,6 +123,8 @@ __all__ = [
     "MD_ScopeCode",
     "MD_TopicCategory",
     "MD_SpatialRepresentationType",
+    "MD_MaintenanceFrequencyCode",
+    "MD_ProgressCode",
     # Factory functions
     "create_field_metadata",
     "create_ndvi_metadata",

@@ -1,11 +1,12 @@
 /**
- * Health Check Controller
- * متحكم فحص الصحة
+ * Health Check & Metrics Controller
+ * متحكم فحص الصحة ومقاييس Prometheus
  *
  * Provides Kubernetes-compatible health check endpoints:
  * - /health - Basic health check
  * - /healthz - Liveness probe (alias)
  * - /readyz - Readiness probe with dependency checks
+ * - /metrics - Prometheus metrics
  */
 
 import {
@@ -15,11 +16,48 @@ import {
   HttpException,
   Inject,
   Optional,
+  Header,
+  Logger,
 } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 import { PrismaService } from "../prisma/prisma.service";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
+import * as promClient from "prom-client";
+
+// ─── Prometheus registry & default metrics ───────────────────────────────────
+
+const register = new promClient.Registry();
+
+register.setDefaultLabels({ service: "user-service", version: "16.0.0" });
+promClient.collectDefaultMetrics({ register });
+
+// Custom metrics
+export const httpRequestDuration = new promClient.Histogram({
+  name: "http_request_duration_seconds",
+  help: "Duration of HTTP requests in seconds",
+  labelNames: ["method", "route", "status_code"] as const,
+  buckets: [0.01, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+  registers: [register],
+});
+
+export const httpRequestsTotal = new promClient.Counter({
+  name: "http_requests_total",
+  help: "Total number of HTTP requests",
+  labelNames: ["method", "route", "status_code"] as const,
+  registers: [register],
+});
+
+export const dbHealthGauge = new promClient.Gauge({
+  name: "dependency_health",
+  help: "Health status of dependencies (1 = healthy, 0 = unhealthy)",
+  labelNames: ["dependency"] as const,
+  registers: [register],
+});
+
+export const metricsRegistry = register;
+
+// ─── Types ───────────────────────────────────────────────────────────────────
 
 interface HealthResponse {
   success: boolean;
@@ -33,6 +71,74 @@ interface HealthResponse {
     redis: "connected" | "disconnected";
   };
 }
+
+// ─── Shared health-check logic ───────────────────────────────────────────────
+
+class HealthChecker {
+  private static readonly logger = new Logger("HealthChecker");
+
+  static async checkDatabase(
+    prisma: PrismaService,
+  ): Promise<"connected" | "disconnected"> {
+    try {
+      const result = await prisma.getConnectionStatus();
+      const status = result.connected ? "connected" : "disconnected";
+      dbHealthGauge.set({ dependency: "database" }, status === "connected" ? 1 : 0);
+      return status;
+    } catch (error) {
+      this.logger.warn(`Database health check failed: ${error}`);
+      dbHealthGauge.set({ dependency: "database" }, 0);
+      return "disconnected";
+    }
+  }
+
+  static async checkRedis(
+    redisStore?: RedisTokenRevocationStore,
+  ): Promise<"connected" | "disconnected"> {
+    try {
+      if (!redisStore) {
+        dbHealthGauge.set({ dependency: "redis" }, 0);
+        return "disconnected";
+      }
+      const isHealthy = await redisStore.healthCheck();
+      const status = isHealthy ? "connected" : "disconnected";
+      dbHealthGauge.set({ dependency: "redis" }, status === "connected" ? 1 : 0);
+      return status;
+    } catch (error) {
+      this.logger.warn(`Redis health check failed: ${error}`);
+      dbHealthGauge.set({ dependency: "redis" }, 0);
+      return "disconnected";
+    }
+  }
+
+  static buildReadinessResponse(
+    dbStatus: "connected" | "disconnected",
+    redisStatus: "connected" | "disconnected",
+    startTime: number,
+  ): HealthResponse {
+    const isReady = dbStatus === "connected";
+    const status: HealthResponse["status"] = isReady
+      ? redisStatus === "connected"
+        ? "healthy"
+        : "degraded"
+      : "unhealthy";
+
+    return {
+      success: isReady,
+      service: "user-service",
+      version: "16.0.0",
+      status,
+      timestamp: new Date().toISOString(),
+      uptime: Math.floor((Date.now() - startTime) / 1000),
+      dependencies: {
+        database: dbStatus,
+        redis: redisStatus,
+      },
+    };
+  }
+}
+
+// ─── /health/* controller (behind api/v1 prefix) ────────────────────────────
 
 @ApiTags("Health")
 @Controller("health")
@@ -72,7 +178,7 @@ export class HealthController {
   }
 
   /**
-   * Liveness probe - GET /api/v1/health/live or /api/v1/healthz
+   * Liveness probe - GET /api/v1/health/live
    * فحص حيوية الخدمة - للتأكد من أن الخدمة تعمل
    */
   @Get("live")
@@ -94,7 +200,7 @@ export class HealthController {
   }
 
   /**
-   * Readiness probe - GET /api/v1/health/ready or /api/v1/readyz
+   * Readiness probe - GET /api/v1/health/ready
    * فحص جاهزية الخدمة - للتأكد من أن الخدمة جاهزة لاستقبال الطلبات
    */
   @Get("ready")
@@ -107,63 +213,19 @@ export class HealthController {
   @ApiResponse({ status: 200, description: "Service is ready" })
   @ApiResponse({ status: 503, description: "Service not ready" })
   async readiness(): Promise<HealthResponse> {
-    const dbStatus = await this.checkDatabase();
-    const redisStatus = await this.checkRedis();
+    const dbStatus = await HealthChecker.checkDatabase(this.prisma);
+    const redisStatus = await HealthChecker.checkRedis(this.redisStore);
+    const response = HealthChecker.buildReadinessResponse(
+      dbStatus,
+      redisStatus,
+      this.startTime,
+    );
 
-    const isReady = dbStatus === "connected";
-    const status = isReady
-      ? redisStatus === "connected"
-        ? "healthy"
-        : "degraded"
-      : "unhealthy";
-
-    const response: HealthResponse = {
-      success: isReady,
-      service: "user-service",
-      version: "16.0.0",
-      status,
-      timestamp: new Date().toISOString(),
-      uptime: Math.floor((Date.now() - this.startTime) / 1000),
-      dependencies: {
-        database: dbStatus,
-        redis: redisStatus,
-      },
-    };
-
-    if (!isReady) {
+    if (!response.success) {
       throw new HttpException(response, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     return response;
-  }
-
-  /**
-   * Check database connectivity
-   * فحص اتصال قاعدة البيانات
-   */
-  private async checkDatabase(): Promise<"connected" | "disconnected"> {
-    try {
-      const result = await this.prisma.getConnectionStatus();
-      return result.connected ? "connected" : "disconnected";
-    } catch {
-      return "disconnected";
-    }
-  }
-
-  /**
-   * Check Redis connectivity
-   * فحص اتصال Redis
-   */
-  private async checkRedis(): Promise<"connected" | "disconnected"> {
-    try {
-      if (!this.redisStore) {
-        return "disconnected";
-      }
-      const isHealthy = await this.redisStore.healthCheck();
-      return isHealthy ? "connected" : "disconnected";
-    } catch {
-      return "disconnected";
-    }
   }
 }
 
@@ -184,7 +246,7 @@ export class HealthzController {
   ) {}
 
   /**
-   * Kubernetes liveness probe - GET /api/v1/healthz
+   * Kubernetes liveness probe - GET /healthz
    */
   @Get("healthz")
   @Throttle({ default: { ttl: 60000, limit: 30 } })
@@ -204,7 +266,9 @@ export class HealthzController {
   }
 
   /**
-   * Kubernetes readiness probe - GET /api/v1/readyz
+   * Kubernetes readiness probe - GET /readyz
+   * Checks Prisma (database) and Redis connectivity
+   * يفحص اتصال قاعدة البيانات و Redis
    */
   @Get("readyz")
   @Throttle({ default: { ttl: 60000, limit: 30 } })
@@ -213,54 +277,33 @@ export class HealthzController {
     description: "فحص جاهزية Kubernetes مع فحص التبعيات",
   })
   async readyz(): Promise<HealthResponse> {
-    const dbStatus = await this.checkDatabase();
-    const redisStatus = await this.checkRedis();
+    const dbStatus = await HealthChecker.checkDatabase(this.prisma);
+    const redisStatus = await HealthChecker.checkRedis(this.redisStore);
+    const response = HealthChecker.buildReadinessResponse(
+      dbStatus,
+      redisStatus,
+      this.startTime,
+    );
 
-    const isReady = dbStatus === "connected";
-    const status = isReady
-      ? redisStatus === "connected"
-        ? "healthy"
-        : "degraded"
-      : "unhealthy";
-
-    const response: HealthResponse = {
-      success: isReady,
-      service: "user-service",
-      version: "16.0.0",
-      status,
-      timestamp: new Date().toISOString(),
-      uptime: Math.floor((Date.now() - this.startTime) / 1000),
-      dependencies: {
-        database: dbStatus,
-        redis: redisStatus,
-      },
-    };
-
-    if (!isReady) {
+    if (!response.success) {
       throw new HttpException(response, HttpStatus.SERVICE_UNAVAILABLE);
     }
 
     return response;
   }
 
-  private async checkDatabase(): Promise<"connected" | "disconnected"> {
-    try {
-      const result = await this.prisma.getConnectionStatus();
-      return result.connected ? "connected" : "disconnected";
-    } catch {
-      return "disconnected";
-    }
-  }
-
-  private async checkRedis(): Promise<"connected" | "disconnected"> {
-    try {
-      if (!this.redisStore) {
-        return "disconnected";
-      }
-      const isHealthy = await this.redisStore.healthCheck();
-      return isHealthy ? "connected" : "disconnected";
-    } catch {
-      return "disconnected";
-    }
+  /**
+   * Prometheus metrics endpoint - GET /metrics
+   * نقطة نهاية مقاييس Prometheus
+   */
+  @Get("metrics")
+  @ApiOperation({
+    summary: "Prometheus metrics",
+    description: "مقاييس Prometheus لمراقبة الخدمة",
+  })
+  @ApiResponse({ status: 200, description: "Prometheus metrics" })
+  @Header("Content-Type", "text/plain; version=0.0.4; charset=utf-8")
+  async metrics(): Promise<string> {
+    return register.metrics();
   }
 }

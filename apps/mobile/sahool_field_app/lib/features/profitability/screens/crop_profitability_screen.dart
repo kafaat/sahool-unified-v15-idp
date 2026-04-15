@@ -1,6 +1,7 @@
+library;
+
 /// Crop Profitability Screen - شاشة ربحية المحصول
 /// Individual crop analysis with detailed metrics
-library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +27,7 @@ class CropProfitabilityScreen extends ConsumerStatefulWidget {
 
 class _CropProfitabilityScreenState
     extends ConsumerState<CropProfitabilityScreen> {
-  final String locale = 'ar';
+  String get locale => Localizations.localeOf(context).languageCode;
 
   @override
   void initState() {
@@ -164,7 +165,7 @@ class _CropProfitabilityScreenState
 
     return Card(
       elevation: 2,
-      color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+      color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -393,7 +394,7 @@ class _CropProfitabilityScreenState
               child: Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.purple.withOpacity(0.1),
+                  color: Colors.purple.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Column(

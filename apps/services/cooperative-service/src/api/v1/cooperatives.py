@@ -24,18 +24,16 @@ from shared.events.subjects import (
 # Authentication dependency
 try:
     from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
 except ImportError:
-    from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+    from fastapi import HTTPException as _HTTPException
 
-    _bearer_scheme = HTTPBearer(auto_error=False)
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
 
-    async def get_current_user(  # type: ignore[misc]
-        credentials: HTTPAuthorizationCredentials | None = Depends(_bearer_scheme),
-    ):
-        """Fallback auth - validates Authorization header presence."""
-        if not credentials:
-            raise HTTPException(status_code=401, detail="Authentication required")
-        return {"token": credentials.credentials}
+    async def get_current_user():  # type: ignore[misc]
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 logger = structlog.get_logger()
@@ -77,9 +75,13 @@ async def _get_db(request: Request):
     return pool
 
 
-async def _get_coop_or_404(pool, coop_id: str) -> dict:
-    """Get cooperative by ID or raise 404."""
-    row = await pool.fetchrow("SELECT * FROM cooperatives WHERE id = $1", uuid.UUID(coop_id))
+async def _get_coop_or_404(pool, coop_id: str, tenant_id: str) -> dict:
+    """Get cooperative by ID with mandatory tenant isolation or raise 404."""
+    row = await pool.fetchrow(
+        "SELECT * FROM cooperatives WHERE id = $1 AND tenant_id = $2",
+        uuid.UUID(coop_id),
+        uuid.UUID(tenant_id),
+    )
     if not row:
         raise HTTPException(
             status_code=404, detail={"error": "Cooperative not found", "error_ar": "التعاونية غير موجودة"}
@@ -157,7 +159,12 @@ class RevenueDistributionRequest(BaseModel):
 
 
 @router.post("/", status_code=201)
-async def create_cooperative(request: CooperativeCreateRequest, req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def create_cooperative(
+    request: CooperativeCreateRequest,
+    req: Request,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+):
     """Create a new cooperative - إنشاء تعاونية جديدة"""
     pool = await _get_db(req)
 
@@ -189,7 +196,11 @@ async def create_cooperative(request: CooperativeCreateRequest, req: Request, te
 
 
 @router.get("/")
-async def list_cooperatives(req: Request, tenant_id: str = Depends(get_tenant_id)):
+async def list_cooperatives(
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """List cooperatives - قائمة التعاونيات"""
     pool = await _get_db(req)
 
@@ -200,10 +211,10 @@ async def list_cooperatives(req: Request, tenant_id: str = Depends(get_tenant_id
 
 
 @router.get("/{coop_id}")
-async def get_cooperative(coop_id: str, req: Request):
+async def get_cooperative(coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Get cooperative details - تفاصيل التعاونية"""
     pool = await _get_db(req)
-    coop = _row_to_dict(await _get_coop_or_404(pool, coop_id))
+    coop = _row_to_dict(await _get_coop_or_404(pool, coop_id, tenant_id))
 
     members = await pool.fetch(
         "SELECT * FROM cooperative_members WHERE cooperative_id = $1 ORDER BY joined_at", uuid.UUID(coop_id)
@@ -221,11 +232,15 @@ async def get_cooperative(coop_id: str, req: Request):
 
 @router.put("/{coop_id}")
 async def update_cooperative(
-    coop_id: str, request: CooperativeUpdateRequest, req: Request, _user=Depends(get_current_user)
+    coop_id: str,
+    request: CooperativeUpdateRequest,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    _user=Depends(get_current_user),
 ):
     """Update cooperative - تحديث التعاونية"""
     pool = await _get_db(req)
-    await _get_coop_or_404(pool, coop_id)
+    await _get_coop_or_404(pool, coop_id, tenant_id)
 
     ALLOWED_COLUMNS = {"name", "name_ar", "description", "description_ar", "region", "status"}
     updates = {k: v for k, v in request.model_dump(exclude_none=True).items() if k in ALLOWED_COLUMNS}
@@ -240,9 +255,10 @@ async def update_cooperative(
         set_clauses.append(f"{key} = ${i}")
         values.append(val)
     values.append(uuid.UUID(coop_id))
+    values.append(uuid.UUID(tenant_id))
 
     row = await pool.fetchrow(
-        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        f"UPDATE cooperatives SET {', '.join(set_clauses)} WHERE id = ${len(values) - 1} AND tenant_id = ${len(values)} RETURNING *",  # nosec B608 - keys validated against ALLOWED_COLUMNS allowlist  # nosemgrep: python.lang.security.audit.formatted-sql-query
         *values,
     )
     logger.info("cooperative_updated", coop_id=coop_id, fields=list(updates.keys()))
@@ -250,13 +266,17 @@ async def update_cooperative(
 
 
 @router.delete("/{coop_id}", status_code=204)
-async def delete_cooperative(coop_id: str, req: Request, _user=Depends(get_current_user)):
+async def delete_cooperative(
+    coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+):
     """Delete cooperative - حذف التعاونية"""
     pool = await _get_db(req)
-    await _get_coop_or_404(pool, coop_id)
+    await _get_coop_or_404(pool, coop_id, tenant_id)
 
     # CASCADE in DB handles members, resources, bookings
-    await pool.execute("DELETE FROM cooperatives WHERE id = $1", uuid.UUID(coop_id))
+    await pool.execute(
+        "DELETE FROM cooperatives WHERE id = $1 AND tenant_id = $2", uuid.UUID(coop_id), uuid.UUID(tenant_id)
+    )
     logger.info("cooperative_deleted", coop_id=coop_id)
 
 
@@ -264,10 +284,16 @@ async def delete_cooperative(coop_id: str, req: Request, _user=Depends(get_curre
 
 
 @router.post("/{coop_id}/members", status_code=201)
-async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
+async def add_member(
+    coop_id: str,
+    request: MemberCreateRequest,
+    req: Request,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+):
     """Add member to cooperative - إضافة عضو للتعاونية"""
     pool = await _get_db(req)
-    await _get_coop_or_404(pool, coop_id)
+    await _get_coop_or_404(pool, coop_id, tenant_id)
 
     coop_uuid = uuid.UUID(coop_id)
 
@@ -289,8 +315,9 @@ async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
 
     # Update member count
     await pool.execute(
-        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1",
+        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1 AND tenant_id = $2",
         coop_uuid,
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -306,20 +333,32 @@ async def add_member(coop_id: str, request: MemberCreateRequest, req: Request):
 
 
 @router.get("/{coop_id}/members")
-async def list_members(coop_id: str, req: Request):
+async def list_members(
+    coop_id: str,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """List cooperative members - قائمة أعضاء التعاونية"""
     pool = await _get_db(req)
-    await _get_coop_or_404(pool, coop_id)
+    await _get_coop_or_404(pool, coop_id, tenant_id)
 
     rows = await pool.fetch(
-        "SELECT * FROM cooperative_members WHERE cooperative_id = $1 ORDER BY joined_at", uuid.UUID(coop_id)
+        """SELECT cm.* FROM cooperative_members cm
+           JOIN cooperatives c ON cm.cooperative_id = c.id
+           WHERE cm.cooperative_id = $1 AND c.tenant_id = $2
+           ORDER BY cm.joined_at""",
+        uuid.UUID(coop_id),
+        uuid.UUID(tenant_id),
     )
     members = [_row_to_dict(r) for r in rows]
     return {"cooperative_id": coop_id, "members": members, "count": len(members)}
 
 
 @router.delete("/{coop_id}/members/{member_id}", status_code=204)
-async def remove_member(coop_id: str, member_id: str, req: Request, _user=Depends(get_current_user)):
+async def remove_member(
+    coop_id: str, member_id: str, req: Request, tenant_id: str = Depends(get_tenant_id), _user=Depends(get_current_user)
+):
     """Remove member from cooperative - إزالة عضو من التعاونية"""
     pool = await _get_db(req)
     coop_uuid = uuid.UUID(coop_id)
@@ -335,12 +374,15 @@ async def remove_member(coop_id: str, member_id: str, req: Request, _user=Depend
             detail={"error": "Member not found in this cooperative", "error_ar": "العضو غير موجود في هذه التعاونية"},
         )
 
-    await pool.execute("DELETE FROM cooperative_members WHERE id = $1", uuid.UUID(member_id))
+    await pool.execute(
+        "DELETE FROM cooperative_members WHERE id = $1 AND cooperative_id = $2", uuid.UUID(member_id), coop_uuid
+    )
 
     # Update member count
     await pool.execute(
-        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1",
+        "UPDATE cooperatives SET member_count = (SELECT COUNT(*) FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active') WHERE id = $1 AND tenant_id = $2",
         coop_uuid,
+        uuid.UUID(tenant_id),
     )
 
     nc = getattr(req.app.state, "nc", None)
@@ -357,10 +399,16 @@ async def remove_member(coop_id: str, member_id: str, req: Request, _user=Depend
 
 
 @router.post("/{coop_id}/resources", status_code=201)
-async def register_resource(coop_id: str, request: ResourceCreateRequest, req: Request):
+async def register_resource(
+    coop_id: str,
+    request: ResourceCreateRequest,
+    req: Request,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+):
     """Register shared resource - تسجيل مورد مشترك"""
     pool = await _get_db(req)
-    await _get_coop_or_404(pool, coop_id)
+    await _get_coop_or_404(pool, coop_id, tenant_id)
 
     row = await pool.fetchrow(
         """
@@ -382,20 +430,36 @@ async def register_resource(coop_id: str, request: ResourceCreateRequest, req: R
 
 
 @router.get("/{coop_id}/resources")
-async def list_resources(coop_id: str, req: Request):
+async def list_resources(
+    coop_id: str,
+    req: Request,
+    tenant_id: str = Depends(get_tenant_id),
+    current_user: User = Depends(get_current_user),
+):
     """List cooperative resources - قائمة موارد التعاونية"""
     pool = await _get_db(req)
-    await _get_coop_or_404(pool, coop_id)
+    await _get_coop_or_404(pool, coop_id, tenant_id)
 
     rows = await pool.fetch(
-        "SELECT * FROM shared_resources WHERE cooperative_id = $1 ORDER BY created_at", uuid.UUID(coop_id)
+        """SELECT sr.* FROM shared_resources sr
+           JOIN cooperatives c ON sr.cooperative_id = c.id
+           WHERE sr.cooperative_id = $1 AND c.tenant_id = $2
+           ORDER BY sr.created_at""",
+        uuid.UUID(coop_id),
+        uuid.UUID(tenant_id),
     )
     resources = [_row_to_dict(r) for r in rows]
     return {"cooperative_id": coop_id, "resources": resources, "count": len(resources)}
 
 
 @router.post("/{coop_id}/resources/{resource_id}/book", status_code=201)
-async def book_resource(coop_id: str, resource_id: str, request: BookingCreateRequest, req: Request):
+async def book_resource(
+    coop_id: str,
+    resource_id: str,
+    request: BookingCreateRequest,
+    req: Request,
+    current_user: User = Depends(get_current_user),
+):
     """Book a shared resource - حجز مورد مشترك"""
     pool = await _get_db(req)
 
@@ -447,10 +511,16 @@ async def book_resource(coop_id: str, resource_id: str, request: BookingCreateRe
 
 
 @router.post("/{coop_id}/revenue/distribute")
-async def distribute_revenue(coop_id: str, request: RevenueDistributionRequest, req: Request):
+async def distribute_revenue(
+    coop_id: str,
+    request: RevenueDistributionRequest,
+    req: Request,
+    current_user: User = Depends(get_current_user),
+    tenant_id: str = Depends(get_tenant_id),
+):
     """Distribute revenue among members - توزيع الإيرادات بين الأعضاء"""
     pool = await _get_db(req)
-    await _get_coop_or_404(pool, coop_id)
+    await _get_coop_or_404(pool, coop_id, tenant_id)
 
     members = await pool.fetch(
         "SELECT * FROM cooperative_members WHERE cooperative_id = $1 AND status = 'active'",
@@ -517,10 +587,10 @@ async def distribute_revenue(coop_id: str, request: RevenueDistributionRequest, 
 
 
 @router.get("/{coop_id}/stats")
-async def get_cooperative_stats(coop_id: str, req: Request):
+async def get_cooperative_stats(coop_id: str, req: Request, tenant_id: str = Depends(get_tenant_id)):
     """Get cooperative statistics - إحصائيات التعاونية"""
     pool = await _get_db(req)
-    coop = _row_to_dict(await _get_coop_or_404(pool, coop_id))
+    coop = _row_to_dict(await _get_coop_or_404(pool, coop_id, tenant_id))
     coop_uuid = uuid.UUID(coop_id)
 
     stats = await pool.fetchrow(

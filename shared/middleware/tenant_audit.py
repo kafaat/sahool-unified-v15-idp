@@ -15,8 +15,11 @@ Usage:
 
 from __future__ import annotations
 
+import asyncio
+import json
 import logging
 import time
+import uuid as _uuid
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 
@@ -81,11 +84,7 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
         accessed_tenant_id = request.headers.get("X-Tenant-ID")
 
         # If no cross-tenant access, proceed normally
-        if (
-            not user_tenant_id
-            or not accessed_tenant_id
-            or user_tenant_id == accessed_tenant_id
-        ):
+        if not user_tenant_id or not accessed_tenant_id or user_tenant_id == accessed_tenant_id:
             return await call_next(request)
 
         # Cross-tenant access detected - this should only be allowed for admins
@@ -137,4 +136,68 @@ class TenantAuditMiddleware(BaseHTTPMiddleware):
             except Exception as exc:
                 logger.error("Failed to execute audit callback: %s", exc)
 
+        # Persist to tenant_audit_log table if db_pool is available.
+        # Fire-and-forget: do not block the response on audit writes.
+        db_pool = getattr(request.app.state, "db_pool", None)
+        if db_pool is not None:
+            asyncio.create_task(_persist_audit_entry(db_pool, accessed_tenant_id, user_id, request, log_data))
+
         return response
+
+
+async def _persist_audit_entry(
+    db_pool,
+    accessed_tenant_id: str,
+    user_id: str | None,
+    request,
+    log_data: dict,
+) -> None:
+    """Write audit entry to tenant_audit_log in the background."""
+    try:
+        # Validate tenant_id is a valid UUID before inserting
+        try:
+            tenant_uuid = str(_uuid.UUID(accessed_tenant_id))
+        except (ValueError, AttributeError):
+            # Not a valid UUID — store as-is by falling back to NULL tenant
+            tenant_uuid = None
+
+        conn = await db_pool.acquire(timeout=5.0)
+        try:
+            # Set RLS context so FORCE RLS policies allow the INSERT.
+            # Use is_super_admin=true since audit writes are system-level.
+            await conn.execute(
+                """
+                SELECT
+                    set_config('app.current_tenant', COALESCE($1, ''), false),
+                    set_config('app.is_super_admin', 'true', false)
+                """,
+                tenant_uuid or "",
+            )
+            await conn.execute(
+                """
+                INSERT INTO tenant_audit_log
+                    (tenant_id, user_id, service_name, op_type,
+                     ip_address, user_agent, metadata, created_at)
+                VALUES ($1, $2, $3, $4, $5::INET, $6, $7::JSONB, NOW())
+                """,
+                tenant_uuid,
+                user_id or "unknown",
+                request.app.title if hasattr(request.app, "title") else "unknown",
+                "CROSS_TENANT",
+                log_data.get("ip_address"),
+                log_data.get("user_agent"),
+                json.dumps(log_data),
+            )
+        finally:
+            # Reset GUCs before returning connection to pool
+            await conn.execute(
+                """
+                SELECT
+                    set_config('app.current_tenant', '', false),
+                    set_config('app.is_super_admin', 'false', false)
+                """
+            )
+            await db_pool.release(conn)
+    except Exception as exc:
+        # Never fail the request due to audit logging failures
+        logging.getLogger("sahool.tenant_audit").warning("Failed to persist audit entry to DB: %s", exc)

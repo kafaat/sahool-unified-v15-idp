@@ -1,4 +1,4 @@
-/* global self, caches, clients, fetch, Request, Response, URL */
+/* global self, caches, clients */
 /**
  * SAHOOL Service Worker
  * Provides offline-first functionality for the agricultural platform
@@ -10,21 +10,37 @@
  * - Background sync for offline actions
  */
 
-const CACHE_VERSION = "v1.0.0";
+// ─── Cache version ────────────────────────────────────────────────────────
+// BUMP THIS STRING on any change that should invalidate previously-cached
+// assets (new JS bundle hashes, HTML shell changes, etc). The SW install
+// handler activates immediately and the activate handler clears any cache
+// whose name doesn't match the current version, so bumping the version is
+// sufficient to unwedge a user whose Chrome has a stale SW pinned.
+const CACHE_VERSION = "v1.0.2-html-no-precache";
 const STATIC_CACHE = `sahool-static-${CACHE_VERSION}`;
 const DYNAMIC_CACHE = `sahool-dynamic-${CACHE_VERSION}`;
 const API_CACHE = `sahool-api-${CACHE_VERSION}`;
 
-// Static assets to cache on install
+// Static assets to cache on install.
+//
+// IMPORTANT — DO NOT add HTML routes (e.g. "/", "/dashboard") here.
+// Next.js HTML responses embed bundle URLs that contain content hashes
+// (e.g. /_next/static/chunks/main-abc123.js). Pre-caching the HTML pins
+// users to bundle hashes that no longer exist after the next deploy,
+// which manifests in Chrome as a blank page or "Loading chunk failed".
+// The fetch handler below uses **network-first** for navigations so the
+// HTML is always fresh and only falls back to cache when truly offline.
 const STATIC_ASSETS = [
-  "/",
-  "/dashboard",
   "/offline",
   "/manifest.json",
   "/favicon.svg",
   "/icon-192.png",
   "/icon-512.png",
 ];
+
+// How long to wait for the network on a navigation before falling back
+// to the offline page. Kept short so flaky networks don't show stale UI.
+const NAVIGATION_NETWORK_TIMEOUT_MS = 3000;
 
 // API endpoints to cache
 const CACHEABLE_API_PATTERNS = [
@@ -87,6 +103,21 @@ self.addEventListener("activate", (event) => {
         );
       })
       .then(() => {
+        // Defensive: also drop any HTML entries that a previous SW
+        // version may have stored in the current dynamic cache. After
+        // this version we never store HTML, but old installs might
+        // still have `/` and `/dashboard` cached and we want them gone.
+        return caches.open(DYNAMIC_CACHE).then((cache) =>
+          cache.keys().then((requests) =>
+            Promise.all(
+              requests
+                .filter((req) => req.mode === "navigate" || req.destination === "document")
+                .map((req) => cache.delete(req)),
+            ),
+          ),
+        );
+      })
+      .then(() => {
         console.log("[SW] Service worker activated");
         return self.clients.claim();
       }),
@@ -144,7 +175,7 @@ async function networkFirstWithCache(request, cacheName) {
     }
 
     return networkResponse;
-  } catch (_error) {
+  } catch {
     console.log("[SW] Network failed, trying cache:", request.url);
 
     const cachedResponse = await caches.match(request);
@@ -193,7 +224,7 @@ async function cacheFirstWithNetwork(request, cacheName) {
     }
 
     return networkResponse;
-  } catch (_error) {
+  } catch {
     console.log("[SW] Failed to fetch:", request.url);
     return new Response("Offline", { status: 503 });
   }
@@ -208,8 +239,9 @@ async function staleWhileRevalidate(request, cacheName) {
   const fetchPromise = fetch(request)
     .then((networkResponse) => {
       if (networkResponse.ok) {
-        const cache = caches.open(cacheName);
-        cache.then((c) => c.put(request, networkResponse.clone()));
+        // Clone synchronously before the response body is consumed
+        const responseClone = networkResponse.clone();
+        caches.open(cacheName).then((c) => c.put(request, responseClone));
       }
       return networkResponse;
     })
@@ -246,22 +278,37 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Handle navigation requests (HTML pages)
+  // Handle navigation requests (HTML pages).
+  //
+  // Strategy: **network-first with timeout, NO stale-HTML fallback**.
+  //
+  // Why we do NOT serve cached HTML on success-with-stale-cache:
+  // Next.js bakes content-hashed bundle URLs into the HTML
+  // (`/_next/static/chunks/main-<hash>.js`). After a deploy those
+  // hashes change. If we serve yesterday's HTML it will reference
+  // bundle hashes the server no longer has, and the page silently
+  // breaks ("Loading chunk failed", blank dashboard, white screen).
+  // Brave hides this because most users have SW disabled by default.
+  //
+  // We only fall back to the cached `/offline` page when the network
+  // is genuinely unreachable — never when the network responded with
+  // a non-200, and never to the previously-cached version of `/`.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const cache = caches.open(DYNAMIC_CACHE);
-          cache.then((c) => c.put(request, response.clone()));
+      (async () => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(
+          () => controller.abort(),
+          NAVIGATION_NETWORK_TIMEOUT_MS,
+        );
+        try {
+          const response = await fetch(request, { signal: controller.signal });
+          clearTimeout(timeoutId);
+          // Don't cache HTML at all — we never want to serve a stale shell.
           return response;
-        })
-        .catch(async () => {
-          const cachedPage = await caches.match(request);
-          if (cachedPage) {
-            return cachedPage;
-          }
-
-          // Return offline page
+        } catch {
+          clearTimeout(timeoutId);
+          // True network failure: serve the dedicated offline page.
           const offlinePage = await caches.match("/offline");
           if (offlinePage) {
             return offlinePage;
@@ -318,7 +365,8 @@ self.addEventListener("fetch", (event) => {
               headers: { "Content-Type": "text/html; charset=utf-8" },
             },
           );
-        }),
+        }
+      })(),
     );
     return;
   }

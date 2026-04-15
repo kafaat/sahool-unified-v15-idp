@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Trivy CVE Suppressions for field-management-service
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# These CVE IDs are scoped here (not in the repo-wide .trivyignore) so that
+# the exemptions apply ONLY when scanning this service's container image.
+# See .github/workflows/security.yml for how per-service ignore files are
+# merged with the repo-wide .trivyignore at scan time.
+#
+# Last reviewed: 2026-04-11
+# ─────────────────────────────────────────────────────────────────────────────
+
+# minimatch ReDoS / path-traversal (CVE-2026-26996, CVE-2026-27903, CVE-2026-27904)
+# Package: minimatch 9.0.5 and 10.1.1 bundled inside npm@11.7.0's own
+# /usr/local/lib/node_modules/npm/node_modules/minimatch (npm-internal tooling).
+# These are NOT part of the application's runtime dependency tree; they are
+# only reachable when npm/npx itself processes packages (e.g., during the
+# Prisma migration step on container startup).
+# Accepted risk: npm's internal modules are not exposed to untrusted input
+# at application runtime.
+# Revisit: remove once npm ships a release bundling minimatch>=10.2.3.
+CVE-2026-26996
+CVE-2026-27903
+CVE-2026-27904
+
+# tar path-traversal / symlink / permission-modification chain
+# (CVE-2026-23745, CVE-2026-23950, CVE-2026-24842, CVE-2026-26960,
+#  CVE-2026-29786, CVE-2026-31802)
+# Package: tar 7.5.2 bundled inside npm@11.7.0's own
+# /usr/local/lib/node_modules/npm/node_modules/tar (npm-internal tooling).
+# Note: tar does not currently appear in the repo root or this service's
+# package-lock.json as an application dependency, and npm's bundled tar is
+# not affected by package.json "overrides". This ignore is an accepted-risk
+# exception for npm-internal tooling CVEs only.
+# Revisit: remove once npm ships a release bundling tar>=7.5.11.
+CVE-2026-23745
+CVE-2026-23950
+CVE-2026-24842
+CVE-2026-26960
+CVE-2026-29786
+CVE-2026-31802
+
+# tar <6.2.1 — arbitrary file creation via insufficient symlink checks
+CVE-2024-28863
+
+# tar <6.2.1 — denial of service via crafted tar archive headers
+CVE-2024-28176
+
+# @isaacs/brace-expansion@5.0.0 — DoS via unbounded brace range expansion
+# Bundled inside npm@11.7.0 at /usr/local/lib/node_modules/npm/node_modules/
+# Not part of application runtime dependencies. Fixed in 5.0.1.
+# Revisit: remove once npm ships a release bundling @isaacs/brace-expansion>=5.0.1.
+CVE-2026-25547
+
+# picomatch ReDoS via crafted extglob patterns (CVE-2026-33671)
+# Package: picomatch 4.0.3 bundled inside npm@11.7.0's own
+# /usr/local/lib/node_modules/npm/node_modules/tinyglobby/node_modules/picomatch
+# (npm-internal tooling). Not part of the application's runtime dependency
+# tree; only reachable when npm/npx itself processes packages (e.g., during
+# the Prisma migration step on container startup), which does not pass
+# untrusted glob patterns to picomatch.
+# Accepted risk: npm's internal modules are not exposed to untrusted input
+# at application runtime. Fixed in picomatch 4.0.4, 3.0.2, and 2.3.2.
+# Revisit: remove once npm ships a release bundling tinyglobby with
+# picomatch>=4.0.4.
+CVE-2026-33671

@@ -4,9 +4,10 @@ PostgreSQL Operations Tests for SAHOOL Platform.
 Tests validate database connection pooling, transactions, and query execution.
 """
 
-import pytest
-from typing import Optional, Dict, Any, List
 import asyncio
+from typing import Any, Dict, List, Optional
+
+import pytest
 
 
 class MockAsyncConnection:

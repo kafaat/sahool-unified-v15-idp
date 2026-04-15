@@ -31,6 +31,7 @@ from typing import Any
 import structlog
 
 from ..llm_provider import LLMProviderManager
+from ..validation import escape_prompt_input
 from .base import (
     AgentCapability,
     AgentMode,
@@ -602,7 +603,9 @@ Available tools:
 
 Return a JSON array of steps with: description, description_ar, tool_name, tool_input"""
 
-        prompt = f"""Task: {task}
+        safe_task = escape_prompt_input(task)
+
+        prompt = f"""Task: {safe_task}
 Field ID: {field_id}
 Crop Type: {crop_type}
 

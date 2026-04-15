@@ -17,15 +17,15 @@ set -e
 # The docker-compose mounts a tmpfs at /etc/pgbouncer/runtime (writable by any user)
 # Previously used a named volume which caused "Permission denied" for non-root containers
 mkdir -p /etc/pgbouncer/runtime 2>/dev/null || true
-chmod 777 /etc/pgbouncer/runtime 2>/dev/null || true
+chmod 750 /etc/pgbouncer/runtime 2>/dev/null || true
 
 # FIX: Create default PgBouncer directories as fallback
 # The edoburu/pgbouncer image normally creates these in its own entrypoint,
 # but since we override it, these directories may not exist
 mkdir -p /var/run/pgbouncer 2>/dev/null || true
 mkdir -p /var/log/pgbouncer 2>/dev/null || true
-chmod 777 /var/run/pgbouncer 2>/dev/null || true
-chmod 777 /var/log/pgbouncer 2>/dev/null || true
+chmod 750 /var/run/pgbouncer 2>/dev/null || true
+chmod 750 /var/log/pgbouncer 2>/dev/null || true
 
 # Configuration from environment
 DB_HOST="${DB_HOST:-postgres}"
@@ -59,7 +59,7 @@ if command -v psql >/dev/null 2>&1; then
     log_info "psql already available: $(command -v psql)"
 else
     _psql_installed=false
-    for _psql_wait in 2 5 10; do
+    for _psql_wait in 2 4; do
         log_info "Installing postgresql-client (attempt with ${_psql_wait}s timeout)..."
         if command -v timeout >/dev/null 2>&1; then
             timeout "$_psql_wait" apk add --no-cache postgresql-client >/dev/null 2>&1 && _psql_installed=true && break
@@ -149,15 +149,22 @@ generate_scram_hash() {
     # Uses pgbouncer.get_auth() SECURITY DEFINER function (defined in 02-pgbouncer-user.sql)
     # which wraps pg_shadow access, avoiding the need for superuser privileges
     if command -v psql >/dev/null 2>&1 && nc -z "$DB_HOST" "$DB_PORT" 2>/dev/null; then
+        # Sanitize username to prevent SQL injection (alphanumeric + underscore only)
+        _safe_user=$(printf '%s' "$_user" | tr -dc 'a-zA-Z0-9_')
         _hash=$(PGPASSWORD="$_pass" psql -h "$DB_HOST" -p "$DB_PORT" -U "$_user" -d "$DB_NAME" \
-            -t -A -c "SELECT passwd FROM pgbouncer.get_auth('$_user')" 2>/dev/null || echo "")
+            -t -A -c "SELECT passwd FROM pgbouncer.get_auth('${_safe_user}')" 2>/dev/null || echo "")
         if echo "$_hash" | grep -q '^SCRAM-SHA-256\$'; then
             echo "$_hash"
             return 0
         fi
     fi
-    # Fallback: return plaintext (PgBouncer accepts both formats)
-    # SECURITY NOTE: plaintext is less secure but functional
+    # Fallback: use plaintext password (PgBouncer computes SCRAM proof on-the-fly)
+    # FIX (2026-04-12): md5 hashes are INCOMPATIBLE with auth_type=scram-sha-256.
+    # PgBouncer cannot derive SCRAM proofs from a one-way md5 hash, so auth_user
+    # authentication to PostgreSQL fails, breaking auth_query for ALL clients.
+    # Plaintext in auth_file is safe here: the file is chmod 600 on a tmpfs mount
+    # that is never persisted, and PgBouncer hashes it in memory immediately.
+    log_warn "SCRAM hash unavailable for $_user — using plaintext (PgBouncer will hash in memory)"
     echo "$_pass"
     return 0
 }
@@ -186,7 +193,7 @@ generate_userlist() {
     if echo "$_db_user_hash" | grep -q '^SCRAM-SHA-256\$'; then
         log_info "Using SCRAM-SHA-256 hashed password for auth_user"
     else
-        log_warn "Using plaintext password for auth_user (SCRAM hash unavailable)"
+        log_warn "Using plaintext password for auth_user (PgBouncer will compute SCRAM in memory)"
     fi
 
     # Write userlist.txt with SCRAM hashes or plaintext fallback
@@ -269,9 +276,20 @@ main() {
     log_info "Starting PgBouncer..."
     log_info "═══════════════════════════════════════════════════════════════════"
 
-    # Execute pgbouncer with the config file
-    # Use exec to replace the shell process with pgbouncer
-    exec pgbouncer "$PGBOUNCER_CONFIG"
+    # Apply environment variable overrides to pgbouncer.ini
+    # These env vars from docker-compose.yml were previously ignored (dead config)
+    _runtime_ini="/etc/pgbouncer/runtime/pgbouncer.ini"
+    cp "$PGBOUNCER_CONFIG" "$_runtime_ini"
+    [ -n "${MAX_DB_CONNECTIONS:-}" ] && sed -i "s/^max_db_connections.*/max_db_connections = $MAX_DB_CONNECTIONS/" "$_runtime_ini"
+    [ -n "${DEFAULT_POOL_SIZE:-}" ] && sed -i "s/^default_pool_size.*/default_pool_size = $DEFAULT_POOL_SIZE/" "$_runtime_ini"
+    [ -n "${MIN_POOL_SIZE:-}" ] && sed -i "s/^min_pool_size.*/min_pool_size = $MIN_POOL_SIZE/" "$_runtime_ini"
+    [ -n "${RESERVE_POOL_SIZE:-}" ] && sed -i "s/^reserve_pool_size.*/reserve_pool_size = $RESERVE_POOL_SIZE/" "$_runtime_ini"
+    [ -n "${MAX_CLIENT_CONN:-}" ] && sed -i "s/^max_client_conn.*/max_client_conn = $MAX_CLIENT_CONN/" "$_runtime_ini"
+    [ -n "${QUERY_TIMEOUT:-}" ] && sed -i "s/^query_timeout.*/query_timeout = $QUERY_TIMEOUT/" "$_runtime_ini"
+    log_info "Applied environment variable overrides to runtime config"
+
+    # Execute pgbouncer with runtime config (includes env var overrides)
+    exec pgbouncer "$_runtime_ini"
 }
 
 main "$@"

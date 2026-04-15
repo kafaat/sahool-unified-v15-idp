@@ -73,7 +73,7 @@ class CropCard extends StatelessWidget {
                     const SizedBox(width: 4),
                     Text(
                       '${activeCrop.growthStageAr} (${activeCrop.growthStage})',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 12,
                         color: SahoolColors.forestGreen,
                         fontWeight: FontWeight.w500,
@@ -114,7 +114,7 @@ class CropCard extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: healthColor, width: 3),
-        color: healthColor.withOpacity(0.1),
+        color: healthColor.withValues(alpha: 0.1),
       ),
       child: Center(
         child: Text(
@@ -136,9 +136,9 @@ class CropCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: healthColor.withOpacity(0.1),
+        color: healthColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: healthColor.withOpacity(0.3)),
+        border: Border.all(color: healthColor.withValues(alpha: 0.3)),
       ),
       child: Text(
         ndviText,
@@ -156,7 +156,7 @@ class CropCard extends StatelessWidget {
   Widget _buildTimeline() {
     final daysPlanted = activeCrop.daysSincePlanting;
     final totalDays = activeCrop.crop.growingSeasonDays;
-    final progress = (daysPlanted / totalDays).clamp(0.0, 1.0);
+    final progress = totalDays > 0 ? (daysPlanted / totalDays).clamp(0.0, 1.0) : 0.0;
     final daysToHarvest = activeCrop.daysToHarvest;
 
     return Column(
@@ -205,9 +205,9 @@ class CropCard extends StatelessWidget {
   /// الحصول على لون الصحة بناء على قيمة NDVI او حالة الصحة
   Color _getHealthColor() {
     if (activeCrop.ndviValue > 0) {
-      if (activeCrop.ndviValue >= 0.6) return SahoolColors.healthExcellent;
-      if (activeCrop.ndviValue >= 0.4) return SahoolColors.healthModerate;
-      if (activeCrop.ndviValue >= 0.2) return SahoolColors.healthPoor;
+      if (activeCrop.ndviValue >= 0.7) return SahoolColors.healthExcellent;
+      if (activeCrop.ndviValue >= 0.5) return SahoolColors.healthModerate;
+      if (activeCrop.ndviValue >= 0.35) return SahoolColors.healthPoor;
       return SahoolColors.healthCritical;
     }
 

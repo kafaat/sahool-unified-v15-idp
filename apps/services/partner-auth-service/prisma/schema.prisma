@@ -1,0 +1,277 @@
+// SAHOOL Partner OAuth 2.0 / OIDC Authorization Server
+// خادم مصادقة الشركاء
+//
+// Database schema for partner authentication. Tracks OAuth clients (partner
+// apps), authorization codes, access + refresh tokens, user consent grants,
+// and id_token signing keys (for JWKS rotation).
+//
+// Design notes:
+//   • Access tokens are issued as JWT (stateless) but their `jti` is also
+//     recorded in `access_tokens` so we can revoke them via DB lookup with
+//     a short-TTL Redis cache. Trades a small perf cost for the ability to
+//     kill compromised tokens mid-TTL.
+//   • Refresh tokens are DB-backed opaque strings with rotation: on /token
+//     with grant_type=refresh_token, the submitted refresh is re-TTL'd to 1h
+//     (matches FieldView) and a fresh one is issued, creating a rotation
+//     chain. Reusing an already-rotated token triggers a cascade revoke of
+//     the full family (OAuth 2.1 security best practice).
+//   • Signing keys are stored here so we can hot-rotate RSA keys without a
+//     deploy — old keys stay in JWKS until their retired_at + access-token
+//     TTL window passes, so in-flight tokens still verify.
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "./generated/client"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // Direct URL for migrations (bypasses PgBouncer transaction-mode pooler).
+  // Migrations need long-lived sessions for advisory locks, prepared statements,
+  // and DDL — none of which work through PgBouncer in transaction mode.
+  // Falls back to DATABASE_URL when DATABASE_URL_DIRECT is not set so local dev
+  // (where developers point straight at Postgres) keeps working.
+  directUrl = env("DATABASE_URL_DIRECT")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OAuth Client (partner application registration)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model OAuthClient {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Public client id (goes in Authorization: Basic ...)
+  clientId String @unique @map("client_id") @db.VarChar(128)
+
+  /// Bcrypt hash of the client secret; never store plaintext
+  clientSecretHash String @map("client_secret_hash") @db.VarChar(255)
+
+  /// Human-readable partner name (for consent screen)
+  name   String  @db.VarChar(255)
+  nameAr String? @map("name_ar") @db.VarChar(255)
+
+  /// Short description shown on the consent screen
+  description String? @db.Text
+
+  /// Canonical homepage + logo for the consent screen
+  homepageUrl String? @map("homepage_url") @db.VarChar(500)
+  logoUrl     String? @map("logo_url") @db.VarChar(500)
+
+  /// Allowed redirect URIs (authorization code flow). Must be exact match.
+  redirectUris String[] @map("redirect_uris")
+
+  /// Scopes this partner is allowed to request. Enforced at /authorize.
+  allowedScopes String[] @map("allowed_scopes")
+
+  /// Opaque X-Sahool-Partner-Key hash for per-partner metering (throttling).
+  /// Separate from client_secret so we can rotate metering key without
+  /// invalidating active OAuth sessions.
+  apiKeyHash String? @unique @map("api_key_hash") @db.VarChar(255)
+
+  /// Rate tier (maps to Kong rate-limiting plan): starter | pro | enterprise
+  rateTier String @default("starter") @map("rate_tier") @db.VarChar(32)
+
+  /// active | suspended | revoked
+  status String @default("active") @db.VarChar(32)
+
+  /// Contact email for security notifications (token rotation, revocation)
+  contactEmail String? @map("contact_email") @db.VarChar(255)
+
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
+  revokedAt DateTime? @map("revoked_at") @db.Timestamptz
+
+  // Relations
+  authCodes     AuthCode[]
+  accessTokens  AccessToken[]
+  refreshTokens RefreshToken[]
+  consentGrants ConsentGrant[]
+
+  @@index([status], name: "idx_oauth_client_status")
+  @@map("oauth_clients")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Authorization Code (short-lived, single-use)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model AuthCode {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// The opaque code value delivered to the partner's redirect_uri.
+  /// Stored hashed; never the raw code (mitigates DB-dump replay).
+  codeHash String @unique @map("code_hash") @db.VarChar(255)
+
+  clientId String      @map("client_id") @db.Uuid
+  client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  /// The SAHOOL user (farmer/grower) who consented. UUID from user-service.
+  userId String @map("user_id") @db.VarChar(128)
+
+  /// Tenant scope (for data isolation on downstream API calls)
+  tenantId String @map("tenant_id") @db.VarChar(128)
+
+  /// Requested redirect_uri (must match both the client registration AND
+  /// the /token request's redirect_uri — OAuth 2.0 § 4.1.3 requirement).
+  redirectUri String @map("redirect_uri") @db.VarChar(500)
+
+  /// Granted scopes (subset of client.allowedScopes × user consent)
+  scopes String[]
+
+  /// PKCE support (RFC 7636). code_challenge_method: S256 or plain.
+  /// Null when PKCE not used (confidential clients).
+  codeChallenge       String? @map("code_challenge") @db.VarChar(255)
+  codeChallengeMethod String? @map("code_challenge_method") @db.VarChar(16)
+
+  /// Nonce carried through to the id_token (OIDC replay protection)
+  nonce String? @db.VarChar(255)
+
+  /// 10 minutes after creation per OAuth 2.0 § 4.1.2
+  expiresAt DateTime  @map("expires_at") @db.Timestamptz
+  usedAt    DateTime? @map("used_at") @db.Timestamptz
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([clientId, userId], name: "idx_auth_code_client_user")
+  @@index([expiresAt], name: "idx_auth_code_expires")
+  @@map("auth_codes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Access Token (JWT; jti indexed for revocation)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model AccessToken {
+  /// JWT id claim — unique per token. The JWT itself is not stored.
+  jti String @id @db.VarChar(128)
+
+  clientId String      @map("client_id") @db.Uuid
+  client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  userId   String @map("user_id") @db.VarChar(128)
+  tenantId String @map("tenant_id") @db.VarChar(128)
+
+  scopes String[]
+
+  /// 4 hours after issue (FieldView parity)
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+
+  /// Non-null ⇒ revoked (revocation via POST /oauth/revoke)
+  revokedAt     DateTime? @map("revoked_at") @db.Timestamptz
+  revokedReason String?   @map("revoked_reason") @db.VarChar(255)
+
+  /// Refresh-token id that produced this access token (for rotation chain)
+  refreshTokenId String? @map("refresh_token_id") @db.Uuid
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([clientId, userId], name: "idx_access_token_client_user")
+  @@index([expiresAt], name: "idx_access_token_expires")
+  @@index([revokedAt], name: "idx_access_token_revoked")
+  @@map("access_tokens")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Refresh Token (DB-backed opaque string with rotation chain)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model RefreshToken {
+  id String @id @default(uuid()) @db.Uuid
+
+  /// SHA-256 hash of the opaque refresh token value
+  tokenHash String @unique @map("token_hash") @db.VarChar(255)
+
+  clientId String      @map("client_id") @db.Uuid
+  client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  userId   String @map("user_id") @db.VarChar(128)
+  tenantId String @map("tenant_id") @db.VarChar(128)
+
+  scopes String[]
+
+  /// 30 days (matches FieldView); re-TTL'd to 1 hour once used in a rotation.
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+
+  /// When null, token is usable. Set on rotation (points to replacement) or
+  /// explicit revocation.
+  rotatedToId String? @map("rotated_to_id") @db.Uuid
+
+  /// Family id — all tokens in the same rotation chain share this UUID so
+  /// we can cascade-revoke on reuse detection (OAuth 2.1 § 6).
+  familyId String @map("family_id") @db.Uuid
+
+  revokedAt     DateTime? @map("revoked_at") @db.Timestamptz
+  revokedReason String?   @map("revoked_reason") @db.VarChar(255)
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([clientId, userId], name: "idx_refresh_token_client_user")
+  @@index([familyId], name: "idx_refresh_token_family")
+  @@index([expiresAt], name: "idx_refresh_token_expires")
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Consent Grant (long-lived user authorization memory)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ConsentGrant {
+  id String @id @default(uuid()) @db.Uuid
+
+  clientId String      @map("client_id") @db.Uuid
+  client   OAuthClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  userId   String @map("user_id") @db.VarChar(128)
+  tenantId String @map("tenant_id") @db.VarChar(128)
+
+  /// Union of all scopes this user has ever granted this partner.
+  /// /authorize consults this to skip the consent screen when the currently
+  /// requested scope set is a subset.
+  scopes String[]
+
+  /// Audit trail for the consent decision
+  acceptedAt DateTime  @default(now()) @map("accepted_at") @db.Timestamptz
+  revokedAt  DateTime? @map("revoked_at") @db.Timestamptz
+
+  /// User-agent + IP at consent time for fraud detection
+  consentIp        String? @map("consent_ip") @db.VarChar(64)
+  consentUserAgent String? @map("consent_user_agent") @db.VarChar(500)
+
+  @@unique([clientId, userId], name: "uq_consent_client_user")
+  @@map("consent_grants")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Signing Key (RSA keypair for id_token JWS; rotated periodically)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model SigningKey {
+  /// JWKS "kid" claim (short, URL-safe)
+  kid String @id @db.VarChar(32)
+
+  /// "RS256" | "PS256" | "ES256" (RFC 7518)
+  alg String @default("RS256") @db.VarChar(16)
+
+  /// PEM-encoded public key — served verbatim in /.well-known/jwks.json
+  publicPem String @map("public_pem") @db.Text
+
+  /// PEM-encoded private key — encrypted at rest with app-level KEK
+  /// (out of scope for this scaffold; stored plaintext in dev only).
+  privatePemEncrypted String @map("private_pem_encrypted") @db.Text
+
+  /// When this key became the *active* signing key.
+  /// At most one row should have retiredAt = null; clients prefer this key.
+  activatedAt DateTime @default(now()) @map("activated_at") @db.Timestamptz
+
+  /// When this key stopped signing new tokens. It stays in JWKS for
+  /// verification until (retiredAt + access_token TTL) has passed.
+  retiredAt DateTime? @map("retired_at") @db.Timestamptz
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@index([retiredAt], name: "idx_signing_key_retired")
+  @@map("signing_keys")
+}

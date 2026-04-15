@@ -135,41 +135,19 @@
 -- تحسينات مستوى الجلسة (آمنة للتشغيل عبر PgBouncer في وضع المعاملات)
 -- ─────────────────────────────────────────────────────────────────────────────
 
--- Statement timeout: prevent long-running queries from blocking connections
--- مهلة العبارة: منع الاستعلامات طويلة التشغيل من حجب الاتصالات
--- Applied per-transaction; PgBouncer resets between transactions
-SET statement_timeout = '120s';
+-- FIX: Use ALTER DATABASE instead of SET for PgBouncer transaction mode.
+-- SET session-level commands are reset after each transaction in PgBouncer
+-- transaction mode, making them ineffective. ALTER DATABASE persists settings.
+-- تم الإصلاح: استخدام ALTER DATABASE بدلاً من SET لأن PgBouncer يُعيد تعيين
+-- إعدادات الجلسة بعد كل معاملة في وضع transaction mode.
 
--- Lock wait timeout: fail fast if waiting for locks
--- مهلة انتظار القفل: الفشل بسرعة إذا كان ينتظر الأقفال
-SET lock_timeout = '30s';
-
--- Idle-in-transaction timeout: close transactions left idle too long
--- مهلة الخمول في المعاملة: إغلاق المعاملات المتروكة خاملة لفترة طويلة
-SET idle_in_transaction_session_timeout = '60s';
-
--- ─────────────────────────────────────────────────────────────────────────────
--- Query planner optimizations for indexed lookups
--- تحسينات مخطط الاستعلام لعمليات البحث المفهرسة
--- ─────────────────────────────────────────────────────────────────────────────
-
--- Encourage index scans for tenant-scoped queries
--- تشجيع عمليات المسح بالفهرس للاستعلامات المحددة بالمستأجر
-SET random_page_cost = 1.1;
-
--- Effective cache size: hint to planner about available memory
--- حجم ذاكرة التخزين المؤقت الفعال: تلميح للمخطط حول الذاكرة المتاحة
--- Adjust to ~75% of available RAM on database server
--- اضبط إلى ~75% من الذاكرة المتاحة على خادم قاعدة البيانات
-SET effective_cache_size = '2GB';
-
--- Work memory for sorting/hashing operations
--- ذاكرة العمل لعمليات الفرز/التجزئة
-SET work_mem = '64MB';
-
--- Maintenance work memory for index creation and VACUUM
--- ذاكرة عمل الصيانة لإنشاء الفهارس و VACUUM
-SET maintenance_work_mem = '256MB';
+ALTER DATABASE sahool SET statement_timeout = '120s';
+ALTER DATABASE sahool SET lock_timeout = '30s';
+ALTER DATABASE sahool SET idle_in_transaction_session_timeout = '60s';
+ALTER DATABASE sahool SET random_page_cost = 1.1;
+ALTER DATABASE sahool SET effective_cache_size = '2GB';
+ALTER DATABASE sahool SET work_mem = '64MB';
+ALTER DATABASE sahool SET maintenance_work_mem = '256MB';
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- PostgreSQL Server Configuration Recommendations (postgresql.conf)

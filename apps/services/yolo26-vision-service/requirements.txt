@@ -4,15 +4,15 @@
 # =============================================================================
 
 # Core Framework
-fastapi==0.135.1
-uvicorn[standard]==0.41.0
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]==0.42.0
 pydantic>=2.5.0,<3.0.0
 pydantic-settings>=2.1.0,<3.0.0
 
 # Computer Vision & Deep Learning
 # Note: torch and torchvision are also installed in Dockerfile with CUDA support (--extra-index-url)
 # They must be declared here for dependency resolution and non-CUDA environments (CPU-only stage)
-torch>=2.2.0,<2.7.0
+torch>=2.6.0,<2.7.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
 torchvision>=0.17.0,<1.0.0
 ultralytics>=8.1.0,<9.0.0
 opencv-python-headless>=4.8.0,<5.0.0
@@ -27,7 +27,7 @@ scipy>=1.11.0,<1.18.0
 matplotlib>=3.7.0,<4.0.0
 
 # Logging & Monitoring
-structlog>=24.1.0,<25.0.0
+structlog>=24.1.0,<26.0.0
 python-json-logger>=3.2.0,<4.0.0
 
 # Database (Optional - for result storage)

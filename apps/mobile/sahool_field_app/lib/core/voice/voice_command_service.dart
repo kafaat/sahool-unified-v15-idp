@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../utils/app_logger.dart';
 
@@ -31,6 +30,9 @@ class VoiceCommandService {
   VoiceStatus get currentStatus => _currentStatus;
 
   bool get isListening => _isListening;
+
+  /// Current speech recognition language/locale
+  String get currentLanguage => _currentLanguage;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // التهيئة

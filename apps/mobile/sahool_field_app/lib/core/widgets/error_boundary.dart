@@ -31,7 +31,6 @@ class SahoolErrorBoundary extends StatefulWidget {
 
 class _SahoolErrorBoundaryState extends State<SahoolErrorBoundary> {
   Object? _error;
-  StackTrace? _stackTrace;
 
   @override
   void initState() {
@@ -50,7 +49,6 @@ class _SahoolErrorBoundaryState extends State<SahoolErrorBoundary> {
     if (mounted) {
       setState(() {
         _error = error;
-        _stackTrace = stackTrace;
       });
     }
   }
@@ -58,7 +56,6 @@ class _SahoolErrorBoundaryState extends State<SahoolErrorBoundary> {
   void _retry() {
     setState(() {
       _error = null;
-      _stackTrace = null;
     });
   }
 
@@ -147,7 +144,7 @@ class SahoolErrorView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: SahoolColors.danger.withOpacity(0.1),
+                    color: SahoolColors.danger.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -294,10 +291,10 @@ class SahoolInlineError extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.danger.withOpacity(0.1),
+        color: SahoolColors.danger.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolColors.danger.withOpacity(0.3),
+          color: SahoolColors.danger.withValues(alpha: 0.3),
         ),
       ),
       child: Row(

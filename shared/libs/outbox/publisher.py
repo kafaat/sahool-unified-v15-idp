@@ -146,4 +146,8 @@ def retry_failed_events(db: Session, event_ids: list[str]) -> int:
             event.retry_count = 0
             event.last_error = None
             count += 1
+
+    if count > 0:
+        db.commit()
+
     return count

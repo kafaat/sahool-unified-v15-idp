@@ -91,7 +91,7 @@ class ServerConfig:
     name: str = "sahool-mcp-server"
     name_ar: str = "خادم سهول MCP"
     version: str = "1.0.0"
-    host: str = field(default_factory=lambda: os.getenv("MCP_HOST", "0.0.0.0"))
+    host: str = field(default_factory=lambda: os.getenv("MCP_HOST", "0.0.0.0"))  # nosec B104 - default for containerized deployment, overridden by env
     port: int = field(default_factory=lambda: int(os.getenv("MCP_PORT", "8200")))
     transport: TransportType = field(default_factory=lambda: TransportType(os.getenv("MCP_TRANSPORT", "http")))
     debug: bool = field(default_factory=lambda: os.getenv("MCP_DEBUG", "false").lower() == "true")
@@ -176,7 +176,7 @@ class AuthConfig:
 
     jwt_secret_key: str = field(
         default_factory=lambda: os.getenv("JWT_SECRET_KEY", "")
-    )  # Empty = auth rejects all tokens
+    )  # Empty = auth rejects all tokens; MUST be set for production
     jwt_algorithm: str = field(default_factory=lambda: os.getenv("JWT_ALGORITHM", "HS256"))
     jwt_expiry_minutes: int = field(default_factory=lambda: int(os.getenv("JWT_EXPIRY_MINUTES", "60")))
     api_key_header: str = "X-API-Key"
@@ -360,7 +360,10 @@ class MCPConfig:
 
         # Check required settings
         if not self.auth.jwt_secret_key and self.server.transport != TransportType.STDIO:
-            issues.append("WARNING: JWT_SECRET_KEY not set - authentication disabled")
+            issues.append(
+                "CRITICAL: JWT_SECRET_KEY not set — all authenticated endpoints will "
+                "reject requests. Set JWT_SECRET_KEY env var before production use."
+            )
 
         if self.server.port < 1 or self.server.port > 65535:
             issues.append(f"ERROR: Invalid port number: {self.server.port}")

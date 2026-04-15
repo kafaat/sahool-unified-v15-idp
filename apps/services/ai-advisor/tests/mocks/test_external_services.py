@@ -30,7 +30,7 @@ class TestCropHealthToolMock:
         with patch("httpx.AsyncClient.post", new=AsyncMock(return_value=mock_response)):
             tool = CropHealthTool()
 
-            result = await tool.analyze_image(image_path="/tmp/test_crop.jpg", crop_type="wheat")
+            result = await tool.analyze_image(image_path="/tmp/test_crop.jpg", crop_type="wheat")  # nosec B108 - test fixture path
 
             assert result["disease_detected"] is True
             assert result["confidence"] > 0.8
@@ -52,7 +52,7 @@ class TestCropHealthToolMock:
         with patch("httpx.AsyncClient.post", new=AsyncMock(return_value=mock_response)):
             tool = CropHealthTool()
 
-            result = await tool.analyze_image(image_path="/tmp/healthy_crop.jpg", crop_type="tomato")
+            result = await tool.analyze_image(image_path="/tmp/healthy_crop.jpg", crop_type="tomato")  # nosec B108 - test fixture path
 
             assert result["disease_detected"] is False
             assert result["status"] == "healthy"
@@ -69,7 +69,7 @@ class TestCropHealthToolMock:
             tool = CropHealthTool()
 
             with pytest.raises(Exception):
-                await tool.analyze_image(image_path="/tmp/test.jpg", crop_type="corn")
+                await tool.analyze_image(image_path="/tmp/test.jpg", crop_type="corn")  # nosec B108 - test fixture path
 
 
 class TestWeatherToolMock:

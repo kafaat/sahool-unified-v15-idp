@@ -10,9 +10,8 @@ from __future__ import annotations
 
 import json
 import os
-
-from contextlib import asynccontextmanager
 import sys
+from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from enum import Enum, StrEnum
 from typing import TYPE_CHECKING, Any
@@ -883,11 +882,12 @@ async def check_map_provider_health(
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
+        logger.error(f"Satellite provider health check failed: {e}", exc_info=True)
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.now(UTC),
-            error_message=str(e),
+            error_message="Provider health check failed",
         )
 
 
@@ -954,11 +954,12 @@ async def check_weather_provider_health(
                     error_message=f"HTTP {response.status_code}",
                 )
     except Exception as e:
+        logger.error(f"Weather provider health check failed: {e}", exc_info=True)
         return ProviderStatusResponse(
             provider_name=provider_name.value,
             status=ProviderStatus.ERROR,
             last_check=datetime.now(UTC),
-            error_message=str(e),
+            error_message="Provider health check failed",
         )
 
 
@@ -1527,7 +1528,8 @@ async def update_tenant_config(
         return {"success": True, "message": "Configuration updated successfully"}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to update config: {str(e)}")
+        logger.error(f"Failed to update config: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to update config")
 
 
 @app.delete("/config/{tenant_id}")
@@ -1565,7 +1567,8 @@ async def reset_tenant_config(
         return {"success": True, "message": "Configuration reset to defaults"}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to reset config: {str(e)}")
+        logger.error(f"Failed to reset config: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to reset config")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1594,7 +1597,8 @@ async def get_config_history(
             "total": len(history),
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to get history: {str(e)}")
+        logger.error(f"Failed to get history: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to get history")
 
 
 @app.post("/config/{tenant_id}/rollback")
@@ -1610,7 +1614,7 @@ async def rollback_config(
         raise HTTPException(status_code=503, detail="Service not initialized")
 
     try:
-        config = config_service.rollback_to_version(session, config_id, version)
+        config = config_service.rollback_to_version(session, config_id, version, tenant_id=tenant_id)
         if not config:
             raise HTTPException(status_code=404, detail="Configuration or version not found")
 
@@ -1638,7 +1642,8 @@ async def rollback_config(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Failed to rollback: {str(e)}")
+        logger.error(f"Failed to rollback: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail="Failed to rollback")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1743,4 +1748,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8104))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

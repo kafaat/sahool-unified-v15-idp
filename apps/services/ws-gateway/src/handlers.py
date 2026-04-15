@@ -27,7 +27,7 @@ except (ValueError, TypeError):
 
 # When True, field/farm access is granted when field-management-service is
 # unreachable (fail-open).  Set to "false" for fail-closed behaviour.
-WS_FIELD_ACCESS_FAIL_OPEN = os.getenv("WS_FIELD_ACCESS_FAIL_OPEN", "true").lower() in (
+WS_FIELD_ACCESS_FAIL_OPEN = os.getenv("WS_FIELD_ACCESS_FAIL_OPEN", "false").lower() in (
     "true",
     "1",
     "yes",
@@ -373,7 +373,7 @@ class WebSocketMessageHandler:
         parts = topic.split(":")
         topic_type = parts[0]
 
-        # Global topics - always allowed
+        # Global topics - always allowed (irrigation/fertilizer require tenant scoping)
         if topic_type in ["alerts", "weather", RoomType.GLOBAL]:
             return True
 

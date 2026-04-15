@@ -1,3 +1,5 @@
+library;
+
 /// Core UI Components
 /// Barrel file for UI utilities and adapters
 

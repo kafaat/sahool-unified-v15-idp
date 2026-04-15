@@ -5,8 +5,9 @@ This service connects farmers to agricultural suppliers for auto-purchasing.
 """
 
 import os
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any
 
 import structlog
 from fastapi import FastAPI, Request
@@ -80,6 +81,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
                 db_url,
                 min_size=settings.DB_MIN_CONNECTIONS,
                 max_size=settings.DB_MAX_CONNECTIONS,
+                statement_cache_size=0,  # PgBouncer transaction mode
             )
             app.state.db_connected = True
             logger.info("database_connected")
@@ -345,7 +347,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "src.main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=settings.PORT,
         reload=settings.DEBUG,
         log_level=settings.LOG_LEVEL.lower(),

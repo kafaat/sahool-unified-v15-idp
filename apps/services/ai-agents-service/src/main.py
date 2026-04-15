@@ -48,12 +48,12 @@ from shared.ai.agents import (
 )
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
-from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.events.contracts import (
     AgentExecutionCompletedEvent,
     AgentExecutionFailedEvent,
     AgentExecutionStartedEvent,
 )
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Database layer
 from . import db
@@ -598,7 +598,9 @@ async def general_exception_handler(request: Request, exc: Exception) -> JSONRes
 
 
 # Get allowed origins from environment
-cors_origins = [o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")]
+cors_origins = [
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
+]
 
 app.add_middleware(
     CORSMiddleware,
@@ -680,7 +682,7 @@ async def health_detailed():
 @limiter.limit("60/minute")
 async def list_agents(request: Request, user: User = Depends(get_current_user)):
     """List available agent types | قائمة أنواع الوكلاء المتاحة"""
-    cache_key = "ai_agents:agent_list"
+    cache_key = f"ai_agents:{user.tenant_id}:agent_list"
 
     # Try to get from cache
     cached = await cache_get(cache_key)
@@ -974,6 +976,7 @@ async def _execute_agent_task(execution_id: str, request: AgentExecuteRequest):
                 error=response.error,
                 completed_at=response.completed_at,
                 total_duration_ms=response.total_duration_ms,
+                tenant_id=request.tenant_id,
             )
 
         # Publish completion/failure event
@@ -1028,7 +1031,7 @@ async def get_execution(
 
     # Then check database for persisted executions
     if _use_database():
-        db_exec = await db.get_execution(execution_id)
+        db_exec = await db.get_execution(execution_id, tenant_id=user.tenant_id)
         if db_exec:
             # Validate tenant access
             if user.tenant_id != db_exec.get("tenant_id"):
@@ -1065,7 +1068,7 @@ async def get_execution_status(
     user: User = Depends(get_current_user),
 ):
     """Get brief execution status | الحصول على حالة التنفيذ المختصرة"""
-    cache_key = f"ai_agents:execution_status:{execution_id}"
+    cache_key = f"ai_agents:{user.tenant_id}:execution_status:{execution_id}"
 
     # Try to get from cache (only for completed/failed executions)
     cached = await cache_get(cache_key)
@@ -1126,7 +1129,7 @@ async def cancel_execution(
         execution.state = "cancelled"
         execution.completed_at = datetime.now(UTC)
         # Invalidate cache for this execution
-        await cache_delete(f"ai_agents:execution_status:{execution_id}")
+        await cache_delete(f"ai_agents:{user.tenant_id}:execution_status:{execution_id}")
         return {"message": "Execution cancelled", "execution_id": execution_id}
 
     return {"message": "Execution already completed", "execution_id": execution_id}
@@ -1290,5 +1293,5 @@ if __name__ == "__main__":
     import uvicorn
 
     # Use HOST env var for flexibility; 0.0.0.0 for containers, 127.0.0.1 for local dev
-    host = os.getenv("HOST", "0.0.0.0")
+    host = os.getenv("HOST", "0.0.0.0")  # nosec B104 - binding to all interfaces required for Docker container
     uvicorn.run(app, host=host, port=SERVICE_PORT)

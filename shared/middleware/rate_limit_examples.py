@@ -219,14 +219,14 @@ def example_6_custom_key_function():
     def organization_key(request: Request) -> str:
         """Rate limit by organization ID"""
         org_id = request.headers.get("X-Organization-ID", "default")
-        # nosemgrep
+        # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
         return f"org:{org_id}"
 
     def combined_key(request: Request) -> str:
         """Rate limit by combination of user and organization"""
         user_id = getattr(request.state, "user_id", "anonymous")
         org_id = request.headers.get("X-Organization-ID", "default")
-        # nosemgrep
+        # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
         return f"user:{user_id}:org:{org_id}"
 
     @app.get("/org/resources")
@@ -492,7 +492,7 @@ if __name__ == "__main__":
     app = example_10_complete_production_app()
 
     # Run the application
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)  # nosec B104 - example code
 
     print("\n" + "=" * 80)
     print("Rate Limiting Examples - SAHOOL Platform")

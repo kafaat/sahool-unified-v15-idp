@@ -17,7 +17,6 @@ import { login, TEST_USER } from "./helpers/auth.helpers";
 import {
   waitForPageLoad,
   navigateAndWait,
-  waitForToast,
 } from "./helpers/page.helpers";
 import { timeouts } from "./helpers/test-data";
 

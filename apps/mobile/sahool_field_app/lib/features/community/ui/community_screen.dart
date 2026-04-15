@@ -17,7 +17,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: SahoolColors.warmCream,
       appBar: AppBar(
@@ -72,13 +72,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
 
             // 3. المنشورات (Posts Feed)
             _PostCard(
-              authorName: "حسن العمري",
-              authorRole: "مزارع",
-              authorImage: "assets/avatars/farmer1.png",
-              timeAgo: "منذ ساعتين",
-              title: "ظهور بقع صفراء على أوراق الطماطم",
+              authorName: 'حسن العمري',
+              authorRole: 'مزارع',
+              authorImage: 'assets/avatars/farmer1.png',
+              timeAgo: 'منذ ساعتين',
+              title: 'ظهور بقع صفراء على أوراق الطماطم',
               content:
-                  "لاحظت هذه البقع اليوم صباحاً في البيت المحمي رقم 3. هل هذا نقص عناصر أم مرض فطري؟",
+                  'لاحظت هذه البقع اليوم صباحاً في البيت المحمي رقم 3. هل هذا نقص عناصر أم مرض فطري؟',
               hasImage: true,
               commentsCount: 5,
               likesCount: 12,
@@ -90,13 +90,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
             const SizedBox(height: 16),
 
             _PostCard(
-              authorName: "المهندس سالم",
-              authorRole: "خبير زراعي معتمد",
-              authorImage: "assets/avatars/expert1.png",
-              timeAgo: "منذ 5 ساعات",
-              title: "تنبيه هام لمزارعي القمح",
+              authorName: 'المهندس سالم',
+              authorRole: 'خبير زراعي معتمد',
+              authorImage: 'assets/avatars/expert1.png',
+              timeAgo: 'منذ 5 ساعات',
+              title: 'تنبيه هام لمزارعي القمح',
               content:
-                  "بسبب انخفاض درجات الحرارة المتوقع الليلة، يرجى تأخير رية الصباح حتى الساعة 9 لتقليل أثر الصقيع. درجة الحرارة المتوقعة: 2°C",
+                  'بسبب انخفاض درجات الحرارة المتوقع الليلة، يرجى تأخير رية الصباح حتى الساعة 9 لتقليل أثر الصقيع. درجة الحرارة المتوقعة: 2°C',
               isExpertPost: true,
               commentsCount: 24,
               likesCount: 156,
@@ -107,13 +107,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
             const SizedBox(height: 16),
 
             _PostCard(
-              authorName: "محمد الفلاح",
-              authorRole: "مزارع",
-              authorImage: "assets/avatars/farmer2.png",
-              timeAgo: "أمس",
-              title: "أفضل سماد للبطاطس",
+              authorName: 'محمد الفلاح',
+              authorRole: 'مزارع',
+              authorImage: 'assets/avatars/farmer2.png',
+              timeAgo: 'أمس',
+              title: 'أفضل سماد للبطاطس',
               content:
-                  "ما هو أفضل مركب NPK لمرحلة التدرن؟ أريد زيادة حجم الدرنات. المحصول عمره 60 يوم.",
+                  'ما هو أفضل مركب NPK لمرحلة التدرن؟ أريد زيادة حجم الدرنات. المحصول عمره 60 يوم.',
               commentsCount: 8,
               likesCount: 3,
               onTap: () => _showPostDetails(context),
@@ -123,13 +123,13 @@ class _CommunityScreenState extends State<CommunityScreen> {
             const SizedBox(height: 16),
 
             _PostCard(
-              authorName: "فاطمة أحمد",
-              authorRole: "مهندسة زراعية",
-              authorImage: "assets/avatars/expert2.png",
-              timeAgo: "أمس",
-              title: "نصائح للري بالتنقيط في الصيف",
+              authorName: 'فاطمة أحمد',
+              authorRole: 'مهندسة زراعية',
+              authorImage: 'assets/avatars/expert2.png',
+              timeAgo: 'أمس',
+              title: 'نصائح للري بالتنقيط في الصيف',
               content:
-                  "مع ارتفاع درجات الحرارة، إليكم بعض النصائح لتحسين كفاءة الري:\n• زيادة عدد الريات مع تقليل الكمية\n• الري في الصباح الباكر أو المساء\n• فحص الفلاتر أسبوعياً",
+                  'مع ارتفاع درجات الحرارة، إليكم بعض النصائح لتحسين كفاءة الري:\n• زيادة عدد الريات مع تقليل الكمية\n• الري في الصباح الباكر أو المساء\n• فحص الفلاتر أسبوعياً',
               isExpertPost: true,
               commentsCount: 42,
               likesCount: 231,
@@ -162,33 +162,33 @@ class _CommunityScreenState extends State<CommunityScreen> {
         children: [
           _StoryItem(
             isAdd: true,
-            name: "إضافة",
+            name: 'إضافة',
             onTap: () => _showCreateStory(context),
           ),
           _StoryItem(
-            name: "المهندس علي",
+            name: 'المهندس علي',
             hasNewStory: true,
-            onTap: () => _viewStory(context, "المهندس علي"),
+            onTap: () => _viewStory(context, 'المهندس علي'),
           ),
           _StoryItem(
-            name: "مزرعة الوفاء",
+            name: 'مزرعة الوفاء',
             hasNewStory: true,
-            onTap: () => _viewStory(context, "مزرعة الوفاء"),
+            onTap: () => _viewStory(context, 'مزرعة الوفاء'),
           ),
           _StoryItem(
-            name: "سعيد محمد",
+            name: 'سعيد محمد',
             hasNewStory: false,
-            onTap: () => _viewStory(context, "سعيد محمد"),
+            onTap: () => _viewStory(context, 'سعيد محمد'),
           ),
           _StoryItem(
-            name: "تعاونية صعدة",
+            name: 'تعاونية صعدة',
             hasNewStory: true,
-            onTap: () => _viewStory(context, "تعاونية صعدة"),
+            onTap: () => _viewStory(context, 'تعاونية صعدة'),
           ),
           _StoryItem(
-            name: "خبير الآفات",
+            name: 'خبير الآفات',
             hasNewStory: false,
-            onTap: () => _viewStory(context, "خبير الآفات"),
+            onTap: () => _viewStory(context, 'خبير الآفات'),
           ),
         ],
       ),
@@ -201,35 +201,35 @@ class _CommunityScreenState extends State<CommunityScreen> {
       child: Row(
         children: [
           _CategoryChip(
-            label: "الكل",
+            label: 'الكل',
             icon: Icons.apps,
             isSelected: _selectedCategory == 'all',
             onTap: () => setState(() => _selectedCategory = 'all'),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "أمراض النبات",
+            label: 'أمراض النبات',
             icon: Icons.bug_report,
             isSelected: _selectedCategory == 'diseases',
             onTap: () => setState(() => _selectedCategory = 'diseases'),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "الري والتسميد",
+            label: 'الري والتسميد',
             icon: Icons.water_drop,
             isSelected: _selectedCategory == 'irrigation',
             onTap: () => setState(() => _selectedCategory = 'irrigation'),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "تسويق",
+            label: 'تسويق',
             icon: Icons.store,
             isSelected: _selectedCategory == 'marketing',
             onTap: () => setState(() => _selectedCategory = 'marketing'),
           ),
           const SizedBox(width: 8),
           _CategoryChip(
-            label: "معدات",
+            label: 'معدات',
             icon: Icons.agriculture,
             isSelected: _selectedCategory == 'equipment',
             onTap: () => setState(() => _selectedCategory = 'equipment'),
@@ -273,29 +273,29 @@ class _CommunityScreenState extends State<CommunityScreen> {
             ),
             const SizedBox(height: 24),
             const Text(
-              "الإشعارات",
+              'الإشعارات',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _NotificationItem(
+            const _NotificationItem(
               icon: Icons.comment,
-              title: "رد جديد على سؤالك",
-              subtitle: "المهندس سالم رد على سؤال البقع الصفراء",
-              time: "منذ 5 دقائق",
+              title: 'رد جديد على سؤالك',
+              subtitle: 'المهندس سالم رد على سؤال البقع الصفراء',
+              time: 'منذ 5 دقائق',
               isNew: true,
             ),
-            _NotificationItem(
+            const _NotificationItem(
               icon: Icons.thumb_up,
-              title: "إعجاب جديد",
-              subtitle: "15 شخص أعجبوا بمنشورك",
-              time: "منذ ساعة",
+              title: 'إعجاب جديد',
+              subtitle: '15 شخص أعجبوا بمنشورك',
+              time: 'منذ ساعة',
               isNew: true,
             ),
-            _NotificationItem(
+            const _NotificationItem(
               icon: Icons.person_add,
-              title: "متابع جديد",
-              subtitle: "محمد الفلاح بدأ متابعتك",
-              time: "أمس",
+              title: 'متابع جديد',
+              subtitle: 'محمد الفلاح بدأ متابعتك',
+              time: 'أمس',
               isNew: false,
             ),
           ],
@@ -335,7 +335,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   ),
                   const SizedBox(height: 16),
                   const Text(
-                    "التعليقات",
+                    'التعليقات',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ],
@@ -344,21 +344,21 @@ class _CommunityScreenState extends State<CommunityScreen> {
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
+                children: const [
                   _CommentItem(
-                    author: "المهندس سالم",
+                    author: 'المهندس سالم',
                     isExpert: true,
                     content:
-                        "هذه أعراض نقص المغنيسيوم. أنصح برش سماد ورقي يحتوي على 2% مغنيسيوم.",
-                    time: "منذ ساعة",
+                        'هذه أعراض نقص المغنيسيوم. أنصح برش سماد ورقي يحتوي على 2% مغنيسيوم.',
+                    time: 'منذ ساعة',
                     likes: 8,
                   ),
                   _CommentItem(
-                    author: "أحمد محمد",
+                    author: 'أحمد محمد',
                     isExpert: false,
                     content:
-                        "حصل معي نفس الشيء الموسم الماضي. نصيحة المهندس صحيحة.",
-                    time: "منذ 30 دقيقة",
+                        'حصل معي نفس الشيء الموسم الماضي. نصيحة المهندس صحيحة.',
+                    time: 'منذ 30 دقيقة',
                     likes: 2,
                   ),
                 ],
@@ -370,7 +370,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, -5),
                   ),
@@ -381,7 +381,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                   Expanded(
                     child: TextField(
                       decoration: InputDecoration(
-                        hintText: "اكتب تعليقاً...",
+                        hintText: 'اكتب تعليقاً...',
                         filled: true,
                         fillColor: Colors.grey[100],
                         border: OutlineInputBorder(
@@ -433,16 +433,16 @@ class _CommunityScreenState extends State<CommunityScreen> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text("إلغاء"),
+                  child: const Text('إلغاء'),
                 ),
                 const Text(
-                  "سؤال جديد",
+                  'سؤال جديد',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   child: const Text(
-                    "نشر",
+                    'نشر',
                     style: TextStyle(
                       color: SahoolColors.forestGreen,
                       fontWeight: FontWeight.bold,
@@ -454,7 +454,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
             const SizedBox(height: 24),
             TextField(
               decoration: InputDecoration(
-                hintText: "عنوان السؤال",
+                hintText: 'عنوان السؤال',
                 filled: true,
                 fillColor: Colors.grey[100],
                 border: OutlineInputBorder(
@@ -471,7 +471,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
                 expands: true,
                 decoration: InputDecoration(
                   hintText:
-                      "اكتب تفاصيل سؤالك هنا...\n\nمثال: ما هي أعراض نقص البوتاسيوم في الطماطم؟",
+                      'اكتب تفاصيل سؤالك هنا...\n\nمثال: ما هي أعراض نقص البوتاسيوم في الطماطم؟',
                   filled: true,
                   fillColor: Colors.grey[100],
                   border: OutlineInputBorder(
@@ -487,19 +487,19 @@ class _CommunityScreenState extends State<CommunityScreen> {
               children: [
                 _AttachButton(
                   icon: Icons.camera_alt,
-                  label: "صورة",
+                  label: 'صورة',
                   onTap: () {},
                 ),
                 const SizedBox(width: 12),
                 _AttachButton(
                   icon: Icons.location_on,
-                  label: "الحقل",
+                  label: 'الحقل',
                   onTap: () {},
                 ),
                 const SizedBox(width: 12),
                 _AttachButton(
                   icon: Icons.tag,
-                  label: "تصنيف",
+                  label: 'تصنيف',
                   onTap: () {},
                 ),
               ],
@@ -513,7 +513,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   void _showCreateStory(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("سيتم فتح الكاميرا لإضافة قصة"),
+        content: Text('سيتم فتح الكاميرا لإضافة قصة'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -522,7 +522,7 @@ class _CommunityScreenState extends State<CommunityScreen> {
   void _viewStory(BuildContext context, String name) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text("عرض قصة $name"),
+        content: Text('عرض قصة $name'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -551,7 +551,7 @@ class _StoryItem extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.only(left: 16),
+        margin: const EdgeInsetsDirectional.only(end: 16),
         child: Column(
           children: [
             Container(
@@ -574,7 +574,7 @@ class _StoryItem extends StatelessWidget {
                     ? Border.all(color: Colors.grey[300]!, width: 2)
                     : null,
               ),
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: isAdd ? Colors.white : SahoolColors.paleOlive,
@@ -630,7 +630,7 @@ class _CategoryChip extends StatelessWidget {
           border: Border.all(
             color: isSelected
                 ? SahoolColors.forestGreen
-                : Colors.grey.withOpacity(0.3),
+                : Colors.grey.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -693,7 +693,7 @@ class _PostCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: OrganicCard(
-        color: isExpertPost ? SahoolColors.forestGreen.withOpacity(0.05) : null,
+        color: isExpertPost ? SahoolColors.forestGreen.withValues(alpha: 0.05) : null,
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -701,11 +701,11 @@ class _PostCard extends StatelessWidget {
             // Header
             Row(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 22,
                   backgroundColor: SahoolColors.paleOlive,
                   child:
-                      const Icon(Icons.person, color: SahoolColors.forestGreen),
+                      Icon(Icons.person, color: SahoolColors.forestGreen),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -726,7 +726,7 @@ class _PostCard extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        "$authorRole • $timeAgo",
+                        '$authorRole • $timeAgo',
                         style:
                             const TextStyle(fontSize: 11, color: Colors.grey),
                       ),
@@ -738,7 +738,7 @@ class _PostCard extends StatelessWidget {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: SahoolColors.forestGreen.withOpacity(0.1),
+                      color: SahoolColors.forestGreen.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
@@ -751,7 +751,7 @@ class _PostCard extends StatelessWidget {
                         ),
                         SizedBox(width: 4),
                         Text(
-                          "مجاب",
+                          'مجاب',
                           style: TextStyle(
                             fontSize: 10,
                             color: SahoolColors.forestGreen,
@@ -811,22 +811,22 @@ class _PostCard extends StatelessWidget {
               children: [
                 _InteractionButton(
                   icon: Icons.thumb_up_alt_outlined,
-                  label: "$likesCount",
+                  label: '$likesCount',
                   onTap: () {},
                 ),
                 _InteractionButton(
                   icon: Icons.chat_bubble_outline,
-                  label: "$commentsCount",
+                  label: '$commentsCount',
                   onTap: onComment,
                 ),
                 _InteractionButton(
                   icon: Icons.share_outlined,
-                  label: "مشاركة",
+                  label: 'مشاركة',
                   onTap: () {},
                 ),
                 _InteractionButton(
                   icon: Icons.bookmark_border,
-                  label: "حفظ",
+                  label: 'حفظ',
                   onTap: () {},
                 ),
               ],
@@ -898,7 +898,7 @@ class _NotificationItem extends StatelessWidget {
             height: 44,
             decoration: BoxDecoration(
               color: isNew
-                  ? SahoolColors.forestGreen.withOpacity(0.1)
+                  ? SahoolColors.forestGreen.withValues(alpha: 0.1)
                   : Colors.grey[100],
               borderRadius: BorderRadius.circular(12),
             ),
@@ -959,11 +959,11 @@ class _CommentItem extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isExpert
-            ? SahoolColors.forestGreen.withOpacity(0.05)
+            ? SahoolColors.forestGreen.withValues(alpha: 0.05)
             : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: isExpert
-            ? Border.all(color: SahoolColors.forestGreen.withOpacity(0.2))
+            ? Border.all(color: SahoolColors.forestGreen.withValues(alpha: 0.2))
             : null,
       ),
       child: Column(
@@ -971,10 +971,10 @@ class _CommentItem extends StatelessWidget {
         children: [
           Row(
             children: [
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 16,
                 backgroundColor: SahoolColors.paleOlive,
-                child: const Icon(
+                child: Icon(
                   Icons.person,
                   size: 18,
                   color: SahoolColors.forestGreen,
@@ -1009,7 +1009,7 @@ class _CommentItem extends StatelessWidget {
                     const Icon(Icons.thumb_up_alt_outlined,
                         size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text("$likes",
+                    Text('$likes',
                         style:
                             const TextStyle(fontSize: 12, color: Colors.grey)),
                   ],
@@ -1019,7 +1019,7 @@ class _CommentItem extends StatelessWidget {
               GestureDetector(
                 onTap: () {},
                 child: const Text(
-                  "رد",
+                  'رد',
                   style:
                       TextStyle(fontSize: 12, color: SahoolColors.forestGreen),
                 ),

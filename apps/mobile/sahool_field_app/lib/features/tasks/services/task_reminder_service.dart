@@ -1,3 +1,5 @@
+library;
+
 /// Task Reminder Service
 /// خدمة تذكير المهام
 ///

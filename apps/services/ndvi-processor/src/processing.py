@@ -8,6 +8,12 @@ import random
 from datetime import UTC, datetime, timedelta
 from uuid import uuid4
 
+# ============== Persistent Store (DB + in-memory fallback) ================
+# In-memory dicts are owned by store.py and shared here by reference.
+# When a DB pool and/or NATS client have been injected via store.configure(),
+# saves are automatically persisted and events published.
+# For dev/test (no DB_URL configured) the in-memory fallback is used silently.
+from . import store as ndvi_store  # production persistence (DB + NATS)
 from .models import (
     CompositeMethod,
     FileUrls,
@@ -23,15 +29,7 @@ from .models import (
     TrendDirection,
     ZoneChange,
 )
-
-# ============== Persistent Store (DB + in-memory fallback) ================
-# In-memory dicts are owned by store.py and shared here by reference.
-# When a DB pool and/or NATS client have been injected via store.configure(),
-# saves are automatically persisted and events published.
-# For dev/test (no DB_URL configured) the in-memory fallback is used silently.
-
-from . import store as ndvi_store  # production persistence (DB + NATS)
-from .store import _jobs, _results, _composites  # noqa: E402  (re-exported)
+from .store import _composites, _jobs, _results  # noqa: E402  (re-exported)
 
 # ============== Job Management ==============
 
@@ -120,12 +118,11 @@ def cancel_job(job_id: str) -> bool:
     return True
 
 
-def list_jobs(tenant_id: str = None, field_id: str = None, status: str = None) -> list[dict]:
-    """قائمة المهام"""
+def list_jobs(tenant_id: str, field_id: str = None, status: str = None) -> list[dict]:
+    """قائمة المهام مع عزل إلزامي للمستأجر"""
     jobs = list(_jobs.values())
 
-    if tenant_id:
-        jobs = [j for j in jobs if j["tenant_id"] == tenant_id]
+    jobs = [j for j in jobs if j["tenant_id"] == tenant_id]
     if field_id:
         jobs = [j for j in jobs if j["field_id"] == field_id]
     if status:

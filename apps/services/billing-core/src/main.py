@@ -16,7 +16,6 @@ import hashlib
 import hmac
 import logging
 import os
-import structlog
 
 # Authentication imports
 import sys
@@ -25,17 +24,18 @@ from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, timedelta, timezone
 from decimal import Decimal
 from enum import Enum, StrEnum
-from pathlib import Path
+from pathlib import Path as FilePath
 from typing import Any
 
 import httpx
 import nats
+import structlog
 from fastapi import (
     BackgroundTasks,
     Depends,
     FastAPI,
-    Header,
     HTTPException,
+    Path,
     Query,
     Request,
 )
@@ -55,7 +55,7 @@ except ImportError:
     setup_cors = None
     ObservabilityMiddleware = None
 from nats.js.api import RetentionPolicy
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, field_serializer, field_validator
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -65,7 +65,7 @@ from . import models as db_models
 from .database import check_db_connection, close_db, db_health_check, get_db, init_db
 from .repository import BillingRepository
 
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "shared"))
+sys.path.insert(0, str(FilePath(__file__).parent.parent.parent / "shared"))
 
 # Configure logging early so it can be used in imports
 # FIX: Use force=True to reset handlers and prevent double logging with uvicorn's default handlers
@@ -78,10 +78,45 @@ logging.basicConfig(
 logging.getLogger("uvicorn.access").propagate = False
 logger = structlog.get_logger("sahool-billing")
 
+# Python mirror of DEFAULT_FREE_TIER from packages/shared-types/src/contracts/api-responses.ts
+# IMPORTANT: Keep in sync with TypeScript contract. Any changes must update both files.
+# Note: Python uses snake_case keys; TS contract uses camelCase (dailyQueries, imageDetection, etc.)
+# API serialization layer handles the mapping between conventions.
+FREE_TIER_LIMITS = {
+    "daily_queries": 20,
+    "image_detection": 3,
+    "weather_alerts": True,
+    "market_prices": True,
+    "field_count": 1,
+    "advanced_ndvi": False,
+    "ai_advisor_full": False,
+}
+
 
 def _sanitize_log(value: Any) -> str:
     """Sanitize user-provided values before logging to prevent log injection."""
     return str(value).replace("\r\n", " ").replace("\n", " ").replace("\r", " ")
+
+
+def _money_str(value: Any) -> str:
+    """
+    Serialize a monetary ``Decimal`` as a JSON-safe string.
+    تحويل القيمة النقدية (Decimal) إلى نص آمن لـ JSON
+
+    Using ``str(Decimal)`` preserves cents precision which would otherwise
+    be lost when marshalling through ``float`` (e.g. ``0.1 + 0.2``). All
+    billing, invoice, and payment amounts go through this helper before
+    being returned on the wire.
+    """
+    if value is None:
+        return "0"
+    if isinstance(value, Decimal):
+        return format(value, "f")
+    # Normalise other numeric types through Decimal to strip float noise.
+    try:
+        return format(Decimal(str(value)), "f")
+    except (ValueError, TypeError, ArithmeticError):
+        return str(value)
 
 
 try:
@@ -127,7 +162,14 @@ except ImportError:
         if ENVIRONMENT not in ("development", "dev", "test", "testing"):
             raise HTTPException(status_code=503, detail="Authentication service unavailable")
         logger.warning("Auth bypass active - DEVELOPMENT MODE ONLY")
-        return None
+        return {
+            "id": "dev-user-00000000",
+            "username": "dev-billing-user",
+            "email": "dev@sahool.local",
+            "tenant_id": "dev-tenant-00000000",
+            "roles": ["developer"],
+            "is_active": True,
+        }
 
     def require_roles(roles):
         """Fallback - blocks access in production, allows in dev only"""
@@ -136,7 +178,14 @@ except ImportError:
             if ENVIRONMENT not in ("development", "dev", "test", "testing"):
                 raise HTTPException(status_code=503, detail="Authorization service unavailable")
             logger.warning(f"Role check bypassed for {roles} - DEVELOPMENT MODE ONLY")
-            return None
+            return {
+                "id": "dev-user-00000000",
+                "username": "dev-billing-user",
+                "email": "dev@sahool.local",
+                "tenant_id": "dev-tenant-00000000",
+                "roles": list(roles) if roles else ["developer"],
+                "is_active": True,
+            }
 
         return check_roles
 
@@ -177,8 +226,10 @@ async def init_nats():
                 retention=RetentionPolicy.LIMITS,
                 max_age=86400 * 30,  # 30 days
             )
-        except Exception:
-            pass  # Stream already exists
+        except Exception as e:
+            # Stream may already exist (expected), but log to catch
+            # unexpected errors (auth failures, invalid config, etc.)
+            logger.debug("billing_jetstream_stream_setup", error=str(e), stream="BILLING")
 
         logger.info("NATS connected and JetStream initialized")
     except Exception as e:
@@ -254,7 +305,8 @@ async def job_generate_invoices():
                                 "invoice_id": str(invoice.id),
                                 "invoice_number": invoice.invoice_number,
                                 "tenant_id": sub.tenant_id,
-                                "amount": float(invoice.total),
+                                # Use Decimal->str serialization to preserve cents precision.
+                                "amount": _money_str(invoice.total),
                             },
                         )
                 except Exception as e:
@@ -275,6 +327,9 @@ async def job_mark_overdue_invoices():
     Mark overdue invoices as OVERDUE
     تحديث الفواتير المتأخرة
     Runs daily at 03:00 UTC
+
+    NOTE: This is a system-level background job that intentionally operates across
+    all tenants. Global access is required for correct billing enforcement.
     """
     from .database import get_db_context
 
@@ -297,7 +352,8 @@ async def job_mark_overdue_invoices():
                             "invoice_id": str(invoice.id),
                             "invoice_number": invoice.invoice_number,
                             "tenant_id": invoice.tenant_id,
-                            "amount_due": float(invoice.amount_due),
+                            # Use Decimal->str serialization to preserve cents precision.
+                            "amount_due": _money_str(invoice.amount_due),
                             "due_date": invoice.due_date.isoformat(),
                         },
                     )
@@ -328,7 +384,8 @@ async def job_handle_trial_expiry():
                 return
 
             # Find trials that have expired
-            from sqlalchemy import select as sa_select, and_
+            from sqlalchemy import and_
+            from sqlalchemy import select as sa_select
 
             result = await db.execute(
                 sa_select(db_models.Subscription).where(
@@ -370,6 +427,9 @@ async def job_suspend_past_due():
     Suspend subscriptions with invoices overdue > 14 days
     تعليق الاشتراكات ذات الفواتير المتأخرة أكثر من 14 يوم
     Runs daily at 05:00 UTC
+
+    NOTE: This is a system-level background job that intentionally operates across
+    all tenants. Global access is required for correct billing enforcement.
     """
     from .database import get_db_context
 
@@ -465,6 +525,27 @@ def start_scheduler():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """App lifespan events"""
+    # Validate payment gateway configuration at startup
+    # التحقق من إعدادات بوابات الدفع عند بدء التشغيل
+    _env = os.getenv("ENVIRONMENT", "production").lower()
+    _missing: list[str] = []
+    if not STRIPE_API_KEY:
+        _missing.append("STRIPE_API_KEY")
+    if not STRIPE_WEBHOOK_SECRET:
+        _missing.append("STRIPE_WEBHOOK_SECRET")
+    if not THARWATT_API_KEY:
+        _missing.append("THARWATT_API_KEY")
+    if not THARWATT_WEBHOOK_SECRET:
+        _missing.append("THARWATT_WEBHOOK_SECRET")
+    if not THARWATT_MERCHANT_ID:
+        _missing.append("THARWATT_MERCHANT_ID")
+    if _missing:
+        _msg = f"Missing payment gateway configuration: {', '.join(_missing)}"
+        if _env in ("production", "staging"):
+            raise ValueError(f"{_msg}. Service cannot start without payment credentials.")
+        else:
+            logger.warning(f"{_msg}. Payment processing will be unavailable until these are set.")
+
     # Initialize NATS
     await init_nats()
 
@@ -536,6 +617,72 @@ if SECURITY_HEADERS_AVAILABLE:
 if TenantContextMiddleware:
     app.add_middleware(TenantContextMiddleware)
 
+
+# =============================================================================
+# Wallet Deprecation Middleware (RFC 8594)
+# =============================================================================
+# The wallet endpoints previously declared under BILLING_ENDPOINTS.WALLET_*
+# have been moved to marketplace-service:3010 (fintech wallet). This service
+# no longer implements them. Any request hitting the legacy paths receives a
+# 410 Gone with the full RFC 8594 deprecation/sunset header set so clients can
+# migrate without guesswork.
+#
+# وسيط ترحيل مسارات المحفظة (RFC 8594) - تم نقل الواجهة إلى خدمة الأسواق
+
+WALLET_SUNSET_DATE = "2026-09-01"
+WALLET_SUCCESSOR_URL = "marketplace-service:3010/api/v1/fintech/wallet"
+_WALLET_DEPRECATED_PREFIXES: tuple[str, ...] = (
+    "/api/v1/wallet",
+    "/api/v1/billing/wallet",
+)
+
+
+def _is_wallet_deprecated_path(path: str) -> bool:
+    """Check whether a request path targets a deprecated wallet route."""
+    return any(path == prefix or path.startswith(prefix + "/") for prefix in _WALLET_DEPRECATED_PREFIXES)
+
+
+@app.middleware("http")
+async def wallet_deprecation_middleware(request: Request, call_next):
+    """
+    Emit RFC 8594 ``Deprecation`` / ``Sunset`` / ``Link`` headers for legacy
+    wallet routes and short-circuit the request with HTTP 410 Gone.
+    """
+    path = request.url.path
+    if _is_wallet_deprecated_path(path):
+        from fastapi.responses import JSONResponse
+
+        successor_path = path.replace("/api/v1/billing/wallet", "/api/v1/fintech/wallet", 1)
+        successor_path = successor_path.replace("/api/v1/wallet", "/api/v1/fintech/wallet", 1)
+        successor_link = f"</api/v1/fintech/wallet{successor_path.split('/api/v1/fintech/wallet', 1)[-1]}>"
+
+        headers = {
+            # RFC 8594 deprecation signalling.
+            "Deprecation": "true",
+            "Sunset": WALLET_SUNSET_DATE,
+            "Link": f'{successor_link}; rel="successor-version"',
+            # Platform-specific convenience headers (matches other deprecated services).
+            "X-API-Deprecated": "true",
+            "X-API-Successor": WALLET_SUCCESSOR_URL,
+            "Warning": ('299 - "billing-core wallet routes are deprecated; use marketplace-service fintech wallet"'),
+        }
+        return JSONResponse(
+            status_code=410,
+            headers=headers,
+            content={
+                "error": (
+                    "wallet_endpoint_gone: billing-core no longer hosts wallet routes. "
+                    f"Use {WALLET_SUCCESSOR_URL} instead."
+                ),
+                "error_ar": (f"نقاط نهاية المحفظة لم تعد متاحة في billing-core. يرجى استخدام {WALLET_SUCCESSOR_URL}."),
+                "sunset": WALLET_SUNSET_DATE,
+                "successor": WALLET_SUCCESSOR_URL,
+            },
+        )
+
+    return await call_next(request)
+
+
 # Environment configuration
 STRIPE_API_KEY = os.getenv("STRIPE_API_KEY", "")
 STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
@@ -547,6 +694,17 @@ THARWATT_BASE_URL = os.getenv("THARWATT_BASE_URL", "https://developers-test.thar
 THARWATT_API_KEY = os.getenv("THARWATT_API_KEY", "")
 THARWATT_MERCHANT_ID = os.getenv("THARWATT_MERCHANT_ID", "")
 THARWATT_WEBHOOK_SECRET = os.getenv("THARWATT_WEBHOOK_SECRET", "")
+
+# SECURITY: Fail-fast if payment credentials are missing in production
+# التحقق من وجود بيانات بوابة الدفع في بيئة الإنتاج
+if os.getenv("ENVIRONMENT") == "production":
+    _missing_creds = []
+    if not STRIPE_API_KEY:
+        _missing_creds.append("STRIPE_API_KEY")
+    if not STRIPE_WEBHOOK_SECRET:
+        _missing_creds.append("STRIPE_WEBHOOK_SECRET")
+    if _missing_creds:
+        raise RuntimeError("Missing required payment credentials in production: " + ", ".join(_missing_creds))
 
 
 # =============================================================================
@@ -565,7 +723,7 @@ def verify_tenant_access(current_user, tenant_id: str) -> bool:
         return env in ("development", "dev", "test", "testing")
 
     # Super admins can access any tenant
-    if hasattr(current_user, "has_any_role") and current_user.has_any_role(["super_admin"]):
+    if hasattr(current_user, "has_any_role") and current_user.has_any_role("super_admin"):
         return True
 
     # Users can only access their own tenant
@@ -580,6 +738,29 @@ def require_tenant_or_admin(current_user, tenant_id: str):
     """
     if not verify_tenant_access(current_user, tenant_id):
         raise HTTPException(status_code=403, detail="Access denied - cannot access this tenant's data")
+
+
+def _is_super_admin(current_user) -> bool:
+    """Check if user has super_admin role (supports both object and dict user representations)."""
+    if hasattr(current_user, "has_any_role"):
+        return current_user.has_any_role("super_admin")
+    # Dict fallback (dev/test mode)
+    roles = current_user.get("roles", []) if isinstance(current_user, dict) else getattr(current_user, "roles", [])
+    return "super_admin" in roles
+
+
+def _get_tenant_filter(current_user) -> str | None:
+    """
+    Return tenant_id to filter by, or None if the user is super_admin (full access).
+    Non-super_admin users are always scoped to their own tenant.
+    استخراج معرف المستأجر للفلترة - المسؤول العام يرى الكل
+    """
+    if _is_super_admin(current_user):
+        return None
+    # For tenant_admin / regular users, force tenant isolation
+    if isinstance(current_user, dict):
+        return current_user.get("tenant_id")
+    return getattr(current_user, "tenant_id", None)
 
 
 # =============================================================================
@@ -635,8 +816,48 @@ class PaymentStatus(StrEnum):
 
 
 class Currency(StrEnum):
+    """
+    Accepted currencies for billing.
+    العملات المقبولة للفوترة
+
+    Note: The underlying DB enum (models.Currency) currently stores only
+    USD / YER. Other currencies are accepted at the API layer and must be
+    converted to USD before persistence. When a new database-backed
+    currency is required, add it to models.Currency and ship a migration.
+    """
+
     USD = "USD"
     YER = "YER"
+    SAR = "SAR"
+    AED = "AED"
+    EUR = "EUR"
+
+
+# Currency allow-list for inbound API validation (RFC ISO 4217 subset).
+# قائمة العملات المسموح بها على مستوى الواجهة البرمجية
+ALLOWED_CURRENCIES: frozenset[str] = frozenset({"SAR", "YER", "USD", "AED", "EUR"})
+
+
+def _validate_currency_code(value: Any) -> str:
+    """
+    Validate an inbound currency code against the billing allow-list.
+    التحقق من رمز العملة مقابل قائمة العملات المسموح بها
+
+    Raises HTTPException(400) with a bilingual body on rejection so
+    callers get a consistent error shape. Returns the uppercased code
+    on success.
+    """
+    code = str(value or "").strip().upper()
+    if code not in ALLOWED_CURRENCIES:
+        allowed = ", ".join(sorted(ALLOWED_CURRENCIES))
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": f"unsupported_currency: '{code}'. Allowed: {allowed}",
+                "error_ar": f"عملة غير مدعومة: '{code}'. المسموح: {allowed}",
+            },
+        )
+    return code
 
 
 # =============================================================================
@@ -660,6 +881,13 @@ class PlanPricing(BaseModel):
     quarterly_usd: Decimal
     yearly_usd: Decimal
     setup_fee_usd: Decimal = Decimal("0")
+
+    # Serialize Decimal fields as strings to preserve cents precision. Pydantic
+    # would otherwise fall back to Python's JSON encoder (which rejects Decimal)
+    # or — if a float is ever set — leak binary float noise on the wire.
+    @field_serializer("monthly_usd", "quarterly_usd", "yearly_usd", "setup_fee_usd", when_used="always")
+    def _serialize_price(self, value: Decimal) -> str:
+        return _money_str(value)
 
 
 class Plan(BaseModel):
@@ -743,6 +971,11 @@ class InvoiceLineItem(BaseModel):
     amount: Decimal
     is_usage_based: bool = False
 
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("unit_price", "amount", when_used="always")
+    def _serialize_money(self, value: Decimal) -> str:
+        return _money_str(value)
+
 
 class Invoice(BaseModel):
     """الفاتورة"""
@@ -780,6 +1013,20 @@ class Invoice(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
     stripe_invoice_id: str | None = None
 
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer(
+        "subtotal",
+        "tax_rate",
+        "tax_amount",
+        "discount_amount",
+        "total",
+        "amount_paid",
+        "amount_due",
+        when_used="always",
+    )
+    def _serialize_money(self, value: Decimal) -> str:
+        return _money_str(value)
+
 
 class Payment(BaseModel):
     """الدفعة"""
@@ -804,6 +1051,11 @@ class Payment(BaseModel):
     # Metadata
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("amount", when_used="always")
+    def _serialize_money(self, value: Decimal) -> str:
+        return _money_str(value)
+
 
 class UsageRecord(BaseModel):
     """سجل الاستخدام"""
@@ -817,49 +1069,160 @@ class UsageRecord(BaseModel):
 
 
 # =============================================================================
+# Validation Constants - ثوابت التحقق
+# =============================================================================
+
+# Known plan IDs that are accepted by the system
+KNOWN_PLAN_IDS: set[str] = {"free", "starter", "professional", "enterprise"}
+
+# Regex pattern for valid tenant_id (UUID format or dev- prefixed IDs)
+import re
+
+_TENANT_ID_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_\-]{0,99}$")
+_FIELD_ID_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_\-]{0,99}$")
+_METRIC_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,99}$")
+
+
+def validate_tenant_id(tenant_id: str) -> str:
+    """
+    Validate tenant_id format to prevent injection attacks.
+    التحقق من صيغة معرف المستأجر لمنع هجمات الحقن
+    """
+    if not tenant_id or len(tenant_id) < 1 or len(tenant_id) > 100:
+        raise HTTPException(400, "معرف المستأجر غير صالح: يجب أن يكون بين 1 و 100 حرف")
+    if not _TENANT_ID_PATTERN.match(tenant_id):
+        raise HTTPException(400, "معرف المستأجر غير صالح: يحتوي على أحرف غير مسموح بها")
+    return tenant_id
+
+
+def validate_plan_id(plan_id: str) -> str:
+    """
+    Validate plan_id against known plans.
+    التحقق من معرف الخطة مقابل الخطط المعروفة
+    """
+    if plan_id not in KNOWN_PLAN_IDS:
+        raise HTTPException(
+            400,
+            f"خطة غير معروفة: {plan_id}. الخطط المتاحة: {', '.join(sorted(KNOWN_PLAN_IDS))}",
+        )
+    return plan_id
+
+
+# =============================================================================
 # Request/Response Models
 # =============================================================================
 
 
 class CreatePlanRequest(BaseModel):
-    name: str
-    name_ar: str
-    description: str
-    description_ar: str
+    name: str = Field(min_length=1, max_length=200)
+    name_ar: str = Field(min_length=1, max_length=200)
+    description: str = Field(min_length=1, max_length=1000)
+    description_ar: str = Field(min_length=1, max_length=1000)
     tier: PlanTier
-    monthly_price_usd: Decimal
+    monthly_price_usd: Decimal = Field(gt=0, max_digits=10, decimal_places=2)
     features: dict[str, bool]
     limits: dict[str, int]
-    trial_days: int = 14
+    trial_days: int = Field(default=14, ge=0, le=365)
+
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("monthly_price_usd", when_used="always")
+    def _serialize_price(self, value: Decimal) -> str:
+        return _money_str(value)
 
 
 class CreateTenantRequest(BaseModel):
-    name: str
-    name_ar: str
+    name: str = Field(min_length=1, max_length=200)
+    name_ar: str = Field(min_length=1, max_length=200)
     email: EmailStr
-    phone: str
-    plan_id: str
+    phone: str = Field(min_length=1, max_length=20)
+    plan_id: str = Field(min_length=1, max_length=100)
     billing_cycle: BillingCycle = BillingCycle.MONTHLY
+    # Optional currency override. When omitted the platform default is used.
+    # Validated against ALLOWED_CURRENCIES ({SAR, YER, USD, AED, EUR}) to
+    # reject unsupported codes before they reach the billing pipeline.
+    currency: str | None = Field(default=None, min_length=3, max_length=3)
+
+    @field_validator("plan_id")
+    @classmethod
+    def plan_must_be_known(cls, v: str) -> str:
+        if v not in KNOWN_PLAN_IDS:
+            raise ValueError(f"Unknown plan: {v}. Available plans: {', '.join(sorted(KNOWN_PLAN_IDS))}")
+        return v
+
+    @field_validator("phone")
+    @classmethod
+    def phone_must_be_valid(cls, v: str) -> str:
+        cleaned = v.strip().replace(" ", "").replace("-", "")
+        if not re.match(r"^\+?[0-9]{7,15}$", cleaned):
+            raise ValueError("Invalid phone number format")
+        return v
+
+    @field_validator("currency")
+    @classmethod
+    def currency_must_be_allowed(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+        code = v.strip().upper()
+        if code not in ALLOWED_CURRENCIES:
+            allowed = ", ".join(sorted(ALLOWED_CURRENCIES))
+            raise ValueError(
+                f"Unsupported currency: '{code}'. Allowed: {allowed} | عملة غير مدعومة. المسموح: {allowed}"
+            )
+        return code
 
 
 class UpdateSubscriptionRequest(BaseModel):
-    plan_id: str | None = None
+    plan_id: str | None = Field(default=None, min_length=1, max_length=100)
     billing_cycle: BillingCycle | None = None
     payment_method: PaymentMethod | None = None
 
+    @field_validator("plan_id")
+    @classmethod
+    def plan_must_be_known(cls, v: str | None) -> str | None:
+        if v is not None and v not in KNOWN_PLAN_IDS:
+            raise ValueError(f"Unknown plan: {v}. Available plans: {', '.join(sorted(KNOWN_PLAN_IDS))}")
+        return v
+
 
 class RecordUsageRequest(BaseModel):
-    metric: str
-    quantity: int = 1
+    metric: str = Field(min_length=1, max_length=100)
+    quantity: int = Field(default=1, gt=0, le=100000)
     metadata: dict[str, Any] = {}
+
+    @field_validator("metric")
+    @classmethod
+    def metric_must_be_valid(cls, v: str) -> str:
+        if not _METRIC_PATTERN.match(v):
+            raise ValueError("Invalid metric name: must be lowercase alphanumeric with underscores")
+        return v
 
 
 class CreatePaymentRequest(BaseModel):
-    invoice_id: str
-    amount: Decimal
+    invoice_id: str = Field(min_length=1, max_length=100)
+    amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     method: PaymentMethod
-    stripe_token: str | None = None
-    phone_number: str | None = None  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+    stripe_token: str | None = Field(default=None, max_length=500)
+    phone_number: str | None = Field(
+        default=None, max_length=20
+    )  # Required for Tharwatt payments - مطلوب لمدفوعات ثروات
+    # Idempotency key prevents double-charging when the client retries a
+    # failed or timed-out request.  Clients SHOULD supply a stable UUID per
+    # payment attempt; the value is forwarded to Stripe's idempotency header.
+    idempotency_key: str | None = Field(default=None, max_length=100)
+
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("amount", when_used="always")
+    def _serialize_amount(self, value: Decimal) -> str:
+        return _money_str(value)
+
+    @field_validator("invoice_id")
+    @classmethod
+    def invoice_id_must_be_valid_uuid(cls, v: str) -> str:
+        try:
+            uuid.UUID(v)
+        except (ValueError, AttributeError):
+            raise ValueError("invoice_id must be a valid UUID")
+        return v
 
 
 # =============================================================================
@@ -1676,8 +2039,9 @@ async def generate_invoice_for_subscription(
             "description": f"{plan.name} - {subscription.billing_cycle.value.title()}",
             "description_ar": f"{plan.name_ar} - {cycle_label_ar}",
             "quantity": 1,
-            "unit_price": float(price),
-            "amount": float(price),
+            # Decimal->str preserves cents precision on the wire.
+            "unit_price": _money_str(price),
+            "amount": _money_str(price),
             "is_usage_based": False,
         }
     ]
@@ -1694,8 +2058,8 @@ async def generate_invoice_for_subscription(
                 "description": item.description,
                 "description_ar": item.description_ar,
                 "quantity": item.quantity,
-                "unit_price": float(item.unit_price),
-                "amount": float(item.amount),
+                "unit_price": _money_str(item.unit_price),
+                "amount": _money_str(item.amount),
                 "is_usage_based": True,
             }
         )
@@ -1706,6 +2070,10 @@ async def generate_invoice_for_subscription(
 
     # Get next invoice number from database sequence
     invoice_number = await get_next_invoice_number()
+
+    # Validate currency against the billing allow-list before persistence.
+    # التحقق من العملة قبل حفظ الفاتورة
+    _validate_currency_code(subscription.currency.value)
 
     invoice = await repo.invoices.create(
         invoice_number=invoice_number,
@@ -1746,7 +2114,20 @@ async def health_check():
 @app.get("/readyz")
 async def readiness_check(db: AsyncSession = Depends(get_db)):
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
-    db_status = await db_health_check()
+    # Check database connectivity with a real query
+    db_ok = False
+    try:
+        result = await db.execute(text("SELECT 1"))
+        db_ok = result.scalar() == 1
+    except Exception as exc:
+        logger.warning("readyz_db_check_failed", error=str(exc))
+
+    # Check NATS connectivity (verify connection is alive, not just non-None)
+    nats_ok = False
+    try:
+        nats_ok = nats_client is not None and nats_client.is_connected
+    except Exception as exc:
+        logger.warning("readyz_nats_check_failed", error=str(exc))
 
     # Get plans count from database
     plans_count = 0
@@ -1757,19 +2138,89 @@ async def readiness_check(db: AsyncSession = Depends(get_db)):
     except Exception:
         pass
 
-    db_ok = db_status.get("status") == "healthy"
-    nats_ok = nats_client is not None
+    all_ok = db_ok and nats_ok
+    status_code = 200 if all_ok else 503
 
-    return {
-        "status": "ready" if db_ok else "not_ready",
-        "service": "billing-core",
-        "version": "16.0.0",
-        "checks": {
-            "database": "connected" if db_ok else "disconnected",
-            "nats": "connected" if nats_ok else "disconnected",
+    from fastapi.responses import JSONResponse
+
+    return JSONResponse(
+        status_code=status_code,
+        content={
+            "status": "ready" if all_ok else "not_ready",
+            "service": "billing-core",
+            "version": "16.0.0",
+            "checks": {
+                "database": "connected" if db_ok else "disconnected",
+                "nats": "connected" if nats_ok else "disconnected",
+            },
+            "plans_count": plans_count,
         },
-        "plans_count": plans_count,
-    }
+    )
+
+
+# =============================================================================
+# Prometheus Metrics - مقاييس المراقبة
+# =============================================================================
+
+try:
+    from prometheus_client import CONTENT_TYPE_LATEST as PROM_CONTENT_TYPE
+    from prometheus_client import (
+        CollectorRegistry,
+        Counter,
+        Histogram,
+        generate_latest,
+    )
+
+    BILLING_REGISTRY = CollectorRegistry()
+
+    INVOICES_CREATED = Counter(
+        "billing_invoices_created_total",
+        "Total invoices created",
+        ["plan", "currency"],
+        registry=BILLING_REGISTRY,
+    )
+    PAYMENTS_PROCESSED = Counter(
+        "billing_payments_processed_total",
+        "Total payments processed",
+        ["method", "status"],
+        registry=BILLING_REGISTRY,
+    )
+    SUBSCRIPTIONS_CHANGED = Counter(
+        "billing_subscriptions_changed_total",
+        "Subscription lifecycle events",
+        ["action"],  # created, upgraded, downgraded, cancelled, renewed
+        registry=BILLING_REGISTRY,
+    )
+    BILLING_ERRORS = Counter(
+        "billing_errors_total",
+        "Total billing errors",
+        ["operation"],
+        registry=BILLING_REGISTRY,
+    )
+    PAYMENT_AMOUNT = Histogram(
+        "billing_payment_amount_usd",
+        "Payment amounts in USD",
+        buckets=[1, 5, 10, 25, 50, 100, 250, 500, 1000, 5000],
+        registry=BILLING_REGISTRY,
+    )
+
+    _prometheus_available = True
+except ImportError:
+    _prometheus_available = False
+    logger.warning("prometheus_client_not_installed", msg="Install prometheus-client for /metrics support")
+
+
+@app.get("/metrics")
+async def prometheus_metrics():
+    """Prometheus metrics endpoint"""
+    if not _prometheus_available:
+        raise HTTPException(status_code=501, detail="prometheus-client not installed")
+    from fastapi.responses import Response
+
+    return Response(
+        content=generate_latest(BILLING_REGISTRY),
+        media_type=PROM_CONTENT_TYPE,
+    )
 
 
 @app.get("/api/v1/plans")
@@ -1786,10 +2237,11 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
                 "name_ar": p.name_ar,
                 "tier": p.tier.value,
                 "pricing": {
-                    "monthly_usd": float(Decimal(str(p.pricing.get("monthly_usd", "0")))),
-                    "monthly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
-                    "yearly_usd": float(Decimal(str(p.pricing.get("yearly_usd", "0")))),
-                    "yearly_yer": float(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
+                    # Decimal->str preserves cents precision on the wire.
+                    "monthly_usd": _money_str(Decimal(str(p.pricing.get("monthly_usd", "0")))),
+                    "monthly_yer": _money_str(convert_to_yer(Decimal(str(p.pricing.get("monthly_usd", "0"))))),
+                    "yearly_usd": _money_str(Decimal(str(p.pricing.get("yearly_usd", "0")))),
+                    "yearly_yer": _money_str(convert_to_yer(Decimal(str(p.pricing.get("yearly_usd", "0"))))),
                 },
                 "limits": p.limits,
                 "trial_days": p.trial_days,
@@ -1800,8 +2252,10 @@ async def list_plans(active_only: bool = True, db: AsyncSession = Depends(get_db
 
 
 @app.get("/api/v1/plans/{plan_id}")
-async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
-    """تفاصيل خطة محددة"""
+async def get_plan(plan_id: str = Path(min_length=1, max_length=100), db: AsyncSession = Depends(get_db)):
+    """تفاصيل الخطة"""
+    if not plan_id or len(plan_id) > 100:
+        raise HTTPException(400, "معرف الخطة غير صالح")
     repo = BillingRepository(db)
     plan = await repo.plans.get_by_plan_id(plan_id)
 
@@ -1824,9 +2278,10 @@ async def get_plan(plan_id: str, db: AsyncSession = Depends(get_db)):
             "created_at": plan.created_at.isoformat(),
         },
         "pricing_yer": {
-            "monthly": float(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
-            "quarterly": float(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
-            "yearly": float(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
+            # Decimal->str preserves cents precision on the wire.
+            "monthly": _money_str(convert_to_yer(Decimal(str(plan.pricing.get("monthly_usd", "0"))))),
+            "quarterly": _money_str(convert_to_yer(Decimal(str(plan.pricing.get("quarterly_usd", "0"))))),
+            "yearly": _money_str(convert_to_yer(Decimal(str(plan.pricing.get("yearly_usd", "0"))))),
         },
     }
 
@@ -1904,16 +2359,21 @@ async def create_plan(
 @app.post("/api/v1/tenants")
 async def create_tenant(
     request: CreateTenantRequest,
+    current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     """تسجيل مستأجر جديد مع اشتراك"""
     tenant_id = str(uuid.uuid4())
     repo = BillingRepository(db)
 
-    # Validate plan exists in database
+    # Validate plan exists in database (plan_id already validated by Pydantic model)
     plan = await repo.plans.get_by_plan_id(request.plan_id)
     if not plan:
         raise HTTPException(400, "الخطة غير موجودة")
+
+    # Verify plan is active
+    if not plan.is_active:
+        raise HTTPException(400, "الخطة غير نشطة حالياً")
 
     # Create tenant in database
     await repo.tenants.create(
@@ -1944,6 +2404,19 @@ async def create_tenant(
 
     logger.info(f"Tenant created: {tenant_id} with subscription {subscription.id}")
 
+    # Publish subscription created event
+    await publish_event(
+        "sahool.billing.subscription.created",
+        {
+            "subscription_id": str(subscription.id),
+            "tenant_id": tenant_id,
+            "plan_id": request.plan_id,
+            "billing_cycle": request.billing_cycle,
+            "status": subscription.status.value,
+            "trial_end_date": trial_end.isoformat() if trial_end else None,
+        },
+    )
+
     return {
         "success": True,
         "tenant_id": tenant_id,
@@ -1961,6 +2434,7 @@ async def get_tenant(
     db: AsyncSession = Depends(get_db),
 ):
     """معلومات المستأجر"""
+    validate_tenant_id(tenant_id)
     # Verify tenant access
     require_tenant_or_admin(current_user, tenant_id)
 
@@ -2015,6 +2489,7 @@ async def get_subscription(
     db: AsyncSession = Depends(get_db),
 ):
     """تفاصيل الاشتراك"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     # Get subscription from database
@@ -2065,6 +2540,7 @@ async def update_subscription(
     db: AsyncSession = Depends(get_db),
 ):
     """تحديث الاشتراك (ترقية/تخفيض) مع حساب التناسب"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2136,8 +2612,9 @@ async def update_subscription(
                     "description": f"Credit for unused days on {old_plan.name if old_plan else subscription.plan_id}",
                     "description_ar": f"رصيد الأيام المتبقية من {old_plan.name_ar if old_plan else subscription.plan_id}",
                     "quantity": 1,
-                    "unit_price": float(-proration_credit),
-                    "amount": float(-proration_credit),
+                    # Decimal->str preserves cents precision on the wire.
+                    "unit_price": _money_str(-proration_credit),
+                    "amount": _money_str(-proration_credit),
                     "is_usage_based": False,
                 }
             )
@@ -2147,14 +2624,17 @@ async def update_subscription(
                     "description": f"Charge for remaining days on {new_plan.name if new_plan else request.plan_id}",
                     "description_ar": f"رسوم الأيام المتبقية على {new_plan.name_ar if new_plan else request.plan_id}",
                     "quantity": 1,
-                    "unit_price": float(proration_charge),
-                    "amount": float(proration_charge),
+                    # Decimal->str preserves cents precision on the wire.
+                    "unit_price": _money_str(proration_charge),
+                    "amount": _money_str(proration_charge),
                     "is_usage_based": False,
                 }
             )
 
         if net_proration > 0:
             invoice_number = await get_next_invoice_number()
+            # Validate currency against the billing allow-list before persistence.
+            _validate_currency_code(subscription.currency.value)
             proration_invoice = await repo.invoices.create(
                 invoice_number=invoice_number,
                 tenant_id=tenant_id,
@@ -2181,11 +2661,26 @@ async def update_subscription(
                 "tenant_id": tenant_id,
                 "old_plan": old_plan.plan_id if old_plan else None,
                 "new_plan": request.plan_id,
-                "proration_credit": float(proration_credit),
-                "proration_charge": float(proration_charge),
-                "net_proration": float(net_proration),
+                # Decimal->str preserves cents precision on the wire.
+                "proration_credit": _money_str(proration_credit),
+                "proration_charge": _money_str(proration_charge),
+                "net_proration": _money_str(net_proration),
             },
         )
+
+        # Publish subscription upgraded event when upgrading to a higher-tier plan
+        if net_proration > 0:
+            background_tasks.add_task(
+                publish_event,
+                "sahool.billing.subscription.upgraded",
+                {
+                    "subscription_id": str(subscription.id),
+                    "tenant_id": tenant_id,
+                    "old_plan": old_plan.plan_id if old_plan else None,
+                    "new_plan": request.plan_id,
+                    "net_proration": _money_str(net_proration),
+                },
+            )
 
     return {
         "success": True,
@@ -2199,9 +2694,10 @@ async def update_subscription(
         },
         "proration": (
             {
-                "credit": float(proration_credit),
-                "charge": float(proration_charge),
-                "net": float(net_proration),
+                # Decimal->str preserves cents precision on the wire.
+                "credit": _money_str(proration_credit),
+                "charge": _money_str(proration_charge),
+                "net": _money_str(net_proration),
                 "invoice_id": str(proration_invoice.id) if proration_invoice else None,
             }
             if proration_credit or proration_charge
@@ -2219,6 +2715,7 @@ async def cancel_subscription(
     db: AsyncSession = Depends(get_db),
 ):
     """إلغاء الاشتراك"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2261,6 +2758,7 @@ async def record_usage(
     db: AsyncSession = Depends(get_db),
 ):
     """تسجيل استخدام"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2306,6 +2804,7 @@ async def get_quota(
     db: AsyncSession = Depends(get_db),
 ):
     """حالة الحصة والاستخدام"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2347,18 +2846,56 @@ async def get_quota(
 
 @app.get("/api/v1/enforce")
 async def enforce_quota(
-    x_tenant_id: str | None = Header(default=None),
-    metric: str = Query(...),
-    api_key: str = Depends(api_key_auth),  # Service-to-service auth
+    metric: str = Query(..., min_length=1, max_length=100),
+    current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
-    """التحقق من الصلاحيات (للـ Gateway)"""
-    if not x_tenant_id:
-        raise HTTPException(400, "Missing x-tenant-id header")
+    """
+    التحقق من الصلاحيات (للـ Gateway)
+
+    Security: the tenant is resolved exclusively from the verified JWT
+    (``user.tid`` / ``user.tenant_id``) rather than an untrusted
+    ``X-Tenant-Id`` request header. A tenant without a JWT claim cannot
+    impersonate another tenant on this endpoint.
+    """
+    # Extract tenant_id from the verified JWT claim (tid) or user.tenant_id.
+    # استخراج معرف المستأجر من رمز JWT المُتحقق منه
+    if isinstance(current_user, dict):
+        tenant_id = current_user.get("tenant_id") or current_user.get("tid")
+    else:
+        tenant_id = getattr(current_user, "tenant_id", None) or getattr(current_user, "tid", None)
+
+    if not tenant_id:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "missing_tenant_claim: JWT token does not include a tenant (tid) claim",
+                "error_ar": "رمز JWT لا يحتوي على معرّف المستأجر",
+            },
+        )
+
+    tenant_id = validate_tenant_id(str(tenant_id))
+
+    # Validate metric name format
+    if not _METRIC_PATTERN.match(metric):
+        raise HTTPException(400, "Invalid metric name format")
+
+    # Preserve the old response field name (x_tenant_id) for back-compat.
+    x_tenant_id = tenant_id
 
     check = await check_usage_limit_db(db, x_tenant_id, metric)
 
     if not check["allowed"]:
+        # Publish quota exceeded event
+        await publish_event(
+            "sahool.billing.quota.exceeded",
+            {
+                "tenant_id": x_tenant_id,
+                "metric": metric,
+                "limit": check.get("limit"),
+                "used": check.get("used"),
+            },
+        )
         raise HTTPException(
             429,
             detail={
@@ -2386,11 +2923,12 @@ async def enforce_quota(
 async def list_invoices(
     tenant_id: str,
     status: InvoiceStatus | None = None,
-    limit: int = Query(default=20, le=100),
+    limit: int = Query(default=20, ge=1, le=100),
     current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     """قائمة الفواتير"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2416,8 +2954,9 @@ async def list_invoices(
                 "tenant_id": inv.tenant_id,
                 "status": inv.status.value,
                 "currency": inv.currency.value,
-                "total": float(inv.total),
-                "amount_due": float(inv.amount_due),
+                # Decimal->str preserves cents precision on the wire.
+                "total": _money_str(inv.total),
+                "amount_due": _money_str(inv.amount_due),
                 "issue_date": inv.issue_date.isoformat(),
                 "due_date": inv.due_date.isoformat(),
                 "paid_date": inv.paid_date.isoformat() if inv.paid_date else None,
@@ -2435,6 +2974,8 @@ async def get_invoice(
     db: AsyncSession = Depends(get_db),
 ):
     """تفاصيل فاتورة"""
+    if not invoice_id or len(invoice_id) > 100:
+        raise HTTPException(400, "معرف فاتورة غير صالح")
     try:
         invoice_uuid = uuid.UUID(invoice_id)
     except (ValueError, AttributeError):
@@ -2463,12 +3004,13 @@ async def get_invoice(
             "issue_date": invoice.issue_date.isoformat(),
             "due_date": invoice.due_date.isoformat(),
             "paid_date": invoice.paid_date.isoformat() if invoice.paid_date else None,
-            "subtotal": float(invoice.subtotal),
-            "tax_amount": float(invoice.tax_amount),
-            "discount_amount": float(invoice.discount_amount),
-            "total": float(invoice.total),
-            "amount_paid": float(invoice.amount_paid),
-            "amount_due": float(invoice.amount_due),
+            # Decimal->str preserves cents precision on the wire.
+            "subtotal": _money_str(invoice.subtotal),
+            "tax_amount": _money_str(invoice.tax_amount),
+            "discount_amount": _money_str(invoice.discount_amount),
+            "total": _money_str(invoice.total),
+            "amount_paid": _money_str(invoice.amount_paid),
+            "amount_due": _money_str(invoice.amount_due),
             "line_items": invoice.line_items,
             "notes": invoice.notes,
             "notes_ar": invoice.notes_ar,
@@ -2484,7 +3026,9 @@ async def get_invoice(
             else None
         ),
         "amount_yer": (
-            float(convert_to_yer(invoice.total)) if invoice.currency == db_models.Currency.USD else float(invoice.total)
+            _money_str(convert_to_yer(invoice.total))
+            if invoice.currency == db_models.Currency.USD
+            else _money_str(invoice.total)
         ),
     }
 
@@ -2497,6 +3041,7 @@ async def generate_tenant_invoice(
     db: AsyncSession = Depends(get_db),
 ):
     """توليد فاتورة يدوياً"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     # Get subscription from database
@@ -2518,8 +3063,9 @@ async def generate_tenant_invoice(
             "description": f"{plan.name} - {subscription.billing_cycle.value.title()}",
             "description_ar": f"{plan.name_ar} - {'شهري' if subscription.billing_cycle == BillingCycle.MONTHLY else 'ربع سنوي' if subscription.billing_cycle == BillingCycle.QUARTERLY else 'سنوي'}",
             "quantity": 1,
-            "unit_price": float(price),
-            "amount": float(price),
+            # Decimal->str preserves cents precision on the wire.
+            "unit_price": _money_str(price),
+            "amount": _money_str(price),
             "is_usage_based": False,
         }
     ]
@@ -2530,6 +3076,10 @@ async def generate_tenant_invoice(
 
     # Create invoice in database using database sequence for invoice number
     invoice_number = await get_next_invoice_number()
+
+    # Validate currency against the billing allow-list before persistence.
+    _validate_currency_code(subscription.currency.value)
+
     invoice = await repo.invoices.create(
         invoice_number=invoice_number,
         tenant_id=tenant_id,
@@ -2556,8 +3106,9 @@ async def generate_tenant_invoice(
             "subscription_id": str(invoice.subscription_id),
             "status": invoice.status.value,
             "currency": invoice.currency.value,
-            "total": float(invoice.total),
-            "amount_due": float(invoice.amount_due),
+            # Decimal->str preserves cents precision on the wire.
+            "total": _money_str(invoice.total),
+            "amount_due": _money_str(invoice.amount_due),
             "issue_date": invoice.issue_date.isoformat(),
             "due_date": invoice.due_date.isoformat(),
         },
@@ -2597,24 +3148,30 @@ async def call_tharwatt_api(payment: Any, phone_number: str) -> dict:
             raise HTTPException(502, "Payment gateway temporarily unavailable. Please try again.")
 
 
-async def call_stripe_api(payment: Any, token: str) -> dict:
+async def call_stripe_api(payment: Any, token: str, idempotency_key: str | None = None) -> dict:
     """Call Stripe payment API"""
     try:
         import stripe
 
         stripe.api_key = STRIPE_API_KEY
 
-        charge = stripe.Charge.create(
-            amount=int(payment.amount * 100),  # Stripe uses cents
-            currency=payment.currency.value.lower(),
-            source=token,
-            description=f"SAHOOL Invoice Payment - {payment.invoice_id}",
-            metadata={
+        # Build keyword arguments; include idempotency key when provided so
+        # Stripe deduplicates requests on retries and prevents double-charging.
+        charge_kwargs: dict[str, Any] = {
+            "amount": int(payment.amount * 100),  # Stripe uses cents
+            "currency": payment.currency.value.lower(),
+            "source": token,
+            "description": f"SAHOOL Invoice Payment - {payment.invoice_id}",
+            "metadata": {
                 "payment_id": payment.payment_id,
                 "invoice_id": payment.invoice_id,
                 "tenant_id": payment.tenant_id,
             },
-        )
+        }
+        if idempotency_key:
+            charge_kwargs["idempotency_key"] = idempotency_key
+
+        charge = stripe.Charge.create(**charge_kwargs)
         return {"stripe_charge_id": charge.id, "status": charge.status}
     except Exception as e:
         logger.error("Stripe API error: %s", str(e).replace("\n", " ").replace("\r", " "))
@@ -2630,11 +3187,8 @@ async def create_payment(
     db: AsyncSession = Depends(get_db),
 ):
     """تسجيل دفعة"""
-    # Parse invoice_id (could be UUID string)
-    try:
-        invoice_uuid = uuid.UUID(request.invoice_id)
-    except (ValueError, AttributeError):
-        raise HTTPException(400, "معرف فاتورة غير صالح")
+    # invoice_id already validated as UUID by Pydantic model
+    invoice_uuid = uuid.UUID(request.invoice_id)
 
     # Get invoice from database
     repo = BillingRepository(db)
@@ -2643,11 +3197,15 @@ async def create_payment(
     if not invoice:
         raise HTTPException(404, "الفاتورة غير موجودة")
 
-    # Verify user can make payment for this tenant's invoice
+    # Verify user can make payment for this tenant's invoice (tenant isolation)
     require_tenant_or_admin(current_user, invoice.tenant_id)
 
     if invoice.status == db_models.InvoiceStatus.PAID:
         raise HTTPException(400, "الفاتورة مدفوعة بالفعل")
+
+    # Validate payment amount does not exceed amount due
+    if request.amount > invoice.amount_due:
+        raise HTTPException(400, "مبلغ الدفعة أكبر من المبلغ المستحق")
 
     # Create payment in database
     payment = await repo.payments.create(
@@ -2679,7 +3237,7 @@ async def create_payment(
                     "currency": payment.currency,
                 },
             )()
-            stripe_response = await call_stripe_api(temp_payment, token)
+            stripe_response = await call_stripe_api(temp_payment, token, idempotency_key=request.idempotency_key)
             if stripe_response.get("status") == "succeeded":
                 await repo.payments.mark_succeeded(payment.id, external_id=stripe_response.get("stripe_charge_id"))
             else:
@@ -2724,12 +3282,28 @@ async def create_payment(
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
             "tenant_id": payment.tenant_id,
-            "amount": float(payment.amount),
+            # Decimal->str preserves cents precision on the wire.
+            "amount": _money_str(payment.amount),
             "currency": payment.currency.value,
             "method": payment.method.value,
             "status": payment.status.value,
         },
     )
+
+    # Publish payment completed event when payment succeeded
+    if payment.status == db_models.PaymentStatus.SUCCEEDED:
+        background_tasks.add_task(
+            publish_event,
+            "sahool.billing.payment.completed",
+            {
+                "payment_id": str(payment.id),
+                "invoice_id": str(payment.invoice_id),
+                "tenant_id": payment.tenant_id,
+                "amount": _money_str(payment.amount),
+                "currency": payment.currency.value,
+                "method": payment.method.value,
+            },
+        )
 
     # Refresh invoice to get updated status
     invoice = await repo.invoices.get_by_id(invoice.id)
@@ -2740,7 +3314,8 @@ async def create_payment(
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
             "tenant_id": payment.tenant_id,
-            "amount": float(payment.amount),
+            # Decimal->str preserves cents precision on the wire.
+            "amount": _money_str(payment.amount),
             "currency": payment.currency.value,
             "method": payment.method.value,
             "status": payment.status.value,
@@ -2755,11 +3330,12 @@ async def create_payment(
 @app.get("/api/v1/tenants/{tenant_id}/payments")
 async def list_payments(
     tenant_id: str,
-    limit: int = Query(default=20, le=100),
+    limit: int = Query(default=20, ge=1, le=100),
     current_user=Depends(get_current_active_user),
     db: AsyncSession = Depends(get_db),
 ):
     """قائمة المدفوعات"""
+    validate_tenant_id(tenant_id)
     require_tenant_or_admin(current_user, tenant_id)
 
     repo = BillingRepository(db)
@@ -2771,7 +3347,8 @@ async def list_payments(
                 "payment_id": str(p.id),
                 "invoice_id": str(p.invoice_id),
                 "tenant_id": p.tenant_id,
-                "amount": float(p.amount),
+                # Decimal->str preserves cents precision on the wire.
+                "amount": _money_str(p.amount),
                 "currency": p.currency.value,
                 "status": p.status.value,
                 "method": p.method.value,
@@ -2792,10 +3369,26 @@ async def list_payments(
 class RefundRequest(BaseModel):
     """طلب استرداد"""
 
-    payment_id: str
-    amount: Decimal | None = None  # None = full refund
-    reason: str
-    reason_ar: str | None = None
+    payment_id: str = Field(min_length=1, max_length=100)
+    amount: Decimal | None = Field(default=None, gt=0, max_digits=12, decimal_places=2)  # None = full refund
+    reason: str = Field(min_length=1, max_length=1000)
+    reason_ar: str | None = Field(default=None, max_length=1000)
+
+    # Serialize Decimal fields as strings to preserve cents precision.
+    @field_serializer("amount", when_used="always")
+    def _serialize_amount(self, value: Decimal | None) -> str | None:
+        if value is None:
+            return None
+        return _money_str(value)
+
+    @field_validator("payment_id")
+    @classmethod
+    def payment_id_must_be_valid_uuid(cls, v: str) -> str:
+        try:
+            uuid.UUID(v)
+        except (ValueError, AttributeError):
+            raise ValueError("payment_id must be a valid UUID")
+        return v
 
 
 @app.post("/api/v1/refunds")
@@ -2819,6 +3412,9 @@ async def create_refund(
 
     if not payment:
         raise HTTPException(404, "الدفعة غير موجودة")
+
+    # Tenant isolation: tenant_admin can only refund their own tenant's payments
+    require_tenant_or_admin(current_user, payment.tenant_id)
 
     if payment.status != db_models.PaymentStatus.SUCCEEDED:
         raise HTTPException(400, "لا يمكن استرداد دفعة غير ناجحة")
@@ -2922,7 +3518,8 @@ async def create_refund(
             "payment_id": str(payment.id),
             "invoice_id": str(payment.invoice_id),
             "tenant_id": payment.tenant_id,
-            "refund_amount": float(refund_amount),
+            # Decimal->str preserves cents precision on the wire.
+            "refund_amount": _money_str(refund_amount),
             "is_full_refund": is_full_refund,
             "reason": request.reason,
             "external_refund_id": refund_external_id,
@@ -2934,8 +3531,9 @@ async def create_refund(
         "refund": {
             "payment_id": str(payment.id),
             "tenant_id": payment.tenant_id,
-            "original_amount": float(payment.amount),
-            "refund_amount": float(refund_amount),
+            # Decimal->str preserves cents precision on the wire.
+            "original_amount": _money_str(payment.amount),
+            "refund_amount": _money_str(refund_amount),
             "is_full_refund": is_full_refund,
             "reason": request.reason,
             "reason_ar": request.reason_ar or request.reason,
@@ -3065,7 +3663,8 @@ async def tharwatt_webhook(
                 "payment_id": str(payment.id),
                 "invoice_id": str(payment.invoice_id),
                 "tenant_id": payment.tenant_id,
-                "amount": float(payment.amount),
+                # Decimal->str preserves cents precision on the wire.
+                "amount": _money_str(payment.amount),
                 "method": "tharwatt",
                 "transaction_id": payload.transaction_id,
             },
@@ -3206,7 +3805,8 @@ async def stripe_webhook(
                         "payment_id": payment_id,
                         "invoice_id": str(payment.invoice_id),
                         "tenant_id": payment.tenant_id,
-                        "amount": float(payment.amount),
+                        # Decimal->str preserves cents precision on the wire.
+                        "amount": _money_str(payment.amount),
                         "method": "stripe",
                         "stripe_charge_id": data.get("id"),
                     },
@@ -3289,24 +3889,30 @@ async def get_revenue_report(
     if not end_date:
         end_date = date.today()
 
+    # Tenant isolation: tenant_admin sees only their own data, super_admin sees all
+    tenant_filter = _get_tenant_filter(current_user)
+
     repo = BillingRepository(db)
 
     # Calculate revenue from database
     total_usd = await repo.invoices.get_total_revenue(
-        start_date=start_date, end_date=end_date, currency=db_models.Currency.USD
+        start_date=start_date, end_date=end_date, currency=db_models.Currency.USD, tenant_id=tenant_filter
     )
     total_yer = await repo.invoices.get_total_revenue(
-        start_date=start_date, end_date=end_date, currency=db_models.Currency.YER
+        start_date=start_date, end_date=end_date, currency=db_models.Currency.YER, tenant_id=tenant_filter
     )
 
     # Revenue by payment method
     by_method = await repo.payments.get_total_by_method(
         start_date=datetime.combine(start_date, datetime.min.time()).replace(tzinfo=UTC),
         end_date=datetime.combine(end_date, datetime.max.time()).replace(tzinfo=UTC),
+        tenant_id=tenant_filter,
     )
 
     # Count paid invoices in period
-    paid_invoices = await repo.invoices.list_by_tenant(tenant_id=None, status=db_models.InvoiceStatus.PAID, limit=10000)
+    paid_invoices = await repo.invoices.list_by_tenant(
+        tenant_id=tenant_filter, status=db_models.InvoiceStatus.PAID, limit=10000
+    )
     invoices_in_period = [inv for inv in paid_invoices if inv.paid_date and start_date <= inv.paid_date <= end_date]
 
     # Revenue by plan
@@ -3322,12 +3928,13 @@ async def get_revenue_report(
             "end": end_date.isoformat(),
         },
         "total_revenue": {
-            "usd": float(total_usd),
-            "yer": float(total_yer + convert_to_yer(total_usd)),
+            # Decimal->str preserves cents precision on the wire.
+            "usd": _money_str(total_usd),
+            "yer": _money_str(total_yer + convert_to_yer(total_usd)),
         },
         "invoices_count": len(invoices_in_period),
-        "by_plan": {k: float(v) for k, v in by_plan.items()},
-        "by_payment_method": {k: float(v) for k, v in by_method.items()},
+        "by_plan": {k: _money_str(v) for k, v in by_plan.items()},
+        "by_payment_method": {k: _money_str(v) for k, v in by_method.items()},
     }
 
 
@@ -3337,11 +3944,14 @@ async def get_subscriptions_report(
     db: AsyncSession = Depends(get_db),
 ):
     """تقرير الاشتراكات (للمسؤولين)"""
+    # Tenant isolation: tenant_admin sees only their own data, super_admin sees all
+    tenant_filter = _get_tenant_filter(current_user)
+
     repo = BillingRepository(db)
 
     # Get counts from database
-    by_status = await repo.subscriptions.count_by_status()
-    by_plan = await repo.subscriptions.count_by_plan()
+    by_status = await repo.subscriptions.count_by_status(tenant_id=tenant_filter)
+    by_plan = await repo.subscriptions.count_by_plan(tenant_id=tenant_filter)
     total_tenants = await repo.tenants.count_total(active_only=False)
 
     total_subscriptions = sum(by_status.values())
@@ -3362,8 +3972,9 @@ async def get_subscriptions_report(
         "total_subscriptions": total_subscriptions,
         "by_status": by_status,
         "by_plan": by_plan,
-        "mrr_usd": float(mrr),
-        "mrr_yer": float(convert_to_yer(mrr)),
+        # Decimal->str preserves cents precision on the wire.
+        "mrr_usd": _money_str(mrr),
+        "mrr_yer": _money_str(convert_to_yer(mrr)),
         "total_tenants": total_tenants,
     }
 
@@ -3392,4 +4003,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8089))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

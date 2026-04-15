@@ -1,12 +1,14 @@
+library;
+
 /// Equipment Repository - مستودع بيانات المعدات
 /// يتواصل مع FastAPI Equipment Service
 /// Enhanced with offline-first support
-library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/config/api_config.dart';
+import '../../../core/contracts/api_endpoints.dart';
 import 'equipment_models.dart';
 import 'equipment_local_db.dart';
 
@@ -98,7 +100,7 @@ class EquipmentRepository {
       if (search != null && search.isNotEmpty) queryParams['search'] = search;
 
       final response = await _dio.get(
-        '/api/v1/equipment',
+        EquipmentEndpoints.list,
         queryParameters: queryParams,
       );
 
@@ -145,7 +147,7 @@ class EquipmentRepository {
   /// جلب معدة محددة with offline fallback
   Future<ApiResult<Equipment>> getEquipmentById(String equipmentId) async {
     try {
-      final response = await _dio.get('/api/v1/equipment/$equipmentId');
+      final response = await _dio.get(EquipmentEndpoints.get(equipmentId));
       final equipment =
           Equipment.fromJson(response.data as Map<String, dynamic>);
 
@@ -181,7 +183,7 @@ class EquipmentRepository {
   /// جلب معدة عبر QR Code with offline fallback
   Future<ApiResult<Equipment>> getEquipmentByQrCode(String qrCode) async {
     try {
-      final response = await _dio.get('/api/v1/equipment/qr/$qrCode');
+      final response = await _dio.get(EquipmentEndpoints.qrLookup(qrCode));
       final equipment =
           Equipment.fromJson(response.data as Map<String, dynamic>);
 
@@ -234,7 +236,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment',
+        EquipmentEndpoints.list,
         data: {
           'name': name,
           'name_ar': nameAr,
@@ -279,7 +281,7 @@ class EquipmentRepository {
   ) async {
     try {
       final response = await _dio.put(
-        '/api/v1/equipment/$equipmentId',
+        EquipmentEndpoints.get(equipmentId),
         data: updates,
       );
 
@@ -312,7 +314,7 @@ class EquipmentRepository {
   ) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment/$equipmentId/status',
+        EquipmentEndpoints.status(equipmentId),
         queryParameters: {'status': status.value},
       );
 
@@ -343,7 +345,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment/$equipmentId/location',
+        EquipmentEndpoints.location(equipmentId),
         queryParameters: {
           'lat': lat,
           'lon': lon,
@@ -379,7 +381,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment/$equipmentId/telemetry',
+        EquipmentEndpoints.telemetry(equipmentId),
         queryParameters: {
           if (fuelPercent != null) 'fuel_percent': fuelPercent,
           if (hours != null) 'hours': hours,
@@ -409,7 +411,7 @@ class EquipmentRepository {
   /// حذف معدة
   Future<ApiResult<void>> deleteEquipment(String equipmentId) async {
     try {
-      await _dio.delete('/api/v1/equipment/$equipmentId');
+      await _dio.delete(EquipmentEndpoints.get(equipmentId));
 
       // Remove from local cache
       await _localDb.deleteEquipment(equipmentId);
@@ -438,7 +440,7 @@ class EquipmentRepository {
   /// جلب إحصائيات المعدات with offline fallback
   Future<ApiResult<EquipmentStats>> getStats() async {
     try {
-      final response = await _dio.get('/api/v1/equipment/stats');
+      final response = await _dio.get(EquipmentEndpoints.stats);
       final stats =
           EquipmentStats.fromJson(response.data as Map<String, dynamic>);
 
@@ -446,7 +448,7 @@ class EquipmentRepository {
       await _localDb.saveStats(stats);
 
       return ApiResult.success(stats, statusCode: response.statusCode);
-    } on DioException catch (e) {
+    } on DioException {
       // Fallback to local stats
       final cached = await _localDb.getStats();
       if (cached != null) {
@@ -478,7 +480,7 @@ class EquipmentRepository {
       if (priority != null) queryParams['priority'] = priority.value;
 
       final response = await _dio.get(
-        '/api/v1/equipment/alerts',
+        EquipmentEndpoints.alerts,
         queryParameters: queryParams,
       );
 
@@ -511,7 +513,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.get(
-        '/api/v1/equipment/$equipmentId/maintenance',
+        EquipmentEndpoints.maintenance(equipmentId),
         queryParameters: {'limit': limit, 'offset': offset},
       );
 
@@ -559,7 +561,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment/$equipmentId/maintenance',
+        EquipmentEndpoints.maintenance(equipmentId),
         data: {
           'maintenance_type': maintenanceType.value,
           'description': description,
@@ -605,6 +607,10 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
+        // Drift: mobile hits `/equipment/{id}/maintenance/schedule` (nested)
+        // but the shared contract exposes MAINTENANCE_SCHEDULE_BY_ID as
+        // `/equipment/{id}/maintenance-schedule` (hyphenated). Leaving the
+        // literal path here until the backend confirms which is canonical.
         '/api/v1/equipment/$equipmentId/maintenance/schedule',
         data: {
           'maintenance_type': maintenanceType.value,
@@ -655,7 +661,7 @@ class EquipmentRepository {
       if (to != null) queryParams['to'] = to.toIso8601String();
 
       final response = await _dio.get(
-        '/api/v1/equipment/$equipmentId/fuel',
+        EquipmentEndpoints.fuel(equipmentId),
         queryParameters: queryParams,
       );
 
@@ -711,7 +717,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment/$equipmentId/fuel',
+        EquipmentEndpoints.fuel(equipmentId),
         data: {
           'operation_type': operationType.value,
           'fuel_type': fuelType?.value,
@@ -760,7 +766,7 @@ class EquipmentRepository {
       if (to != null) queryParams['to'] = to.toIso8601String();
 
       final response = await _dio.get(
-        '/api/v1/equipment/$equipmentId/fuel/summary',
+        EquipmentEndpoints.fuelSummary(equipmentId),
         queryParameters: queryParams,
       );
 
@@ -802,7 +808,7 @@ class EquipmentRepository {
       if (usageType != null) queryParams['usage_type'] = usageType.value;
 
       final response = await _dio.get(
-        '/api/v1/equipment/$equipmentId/usage',
+        EquipmentEndpoints.usage(equipmentId),
         queryParameters: queryParams,
       );
 
@@ -858,7 +864,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment/$equipmentId/usage/start',
+        EquipmentEndpoints.usageStart(equipmentId),
         data: {
           'usage_type': usageType.value,
           'activity_type': activityType?.value,
@@ -899,7 +905,7 @@ class EquipmentRepository {
   }) async {
     try {
       final response = await _dio.post(
-        '/api/v1/equipment/$equipmentId/usage/$logId/end',
+        EquipmentEndpoints.usageEnd(equipmentId, logId),
         data: {
           'end_hour_reading': endHourReading,
           'fuel_used': fuelUsed,
@@ -938,7 +944,7 @@ class EquipmentRepository {
       if (to != null) queryParams['to'] = to.toIso8601String();
 
       final response = await _dio.get(
-        '/api/v1/equipment/$equipmentId/usage/summary',
+        EquipmentEndpoints.usageSummary(equipmentId),
         queryParameters: queryParams,
       );
 

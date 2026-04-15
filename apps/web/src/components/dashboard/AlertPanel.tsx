@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Alert Panel Component
  * لوحة التنبيهات
  */
 
-import React, { useState } from "react";
-import { Alert as AlertType } from "../../types";
-import { AlertItem } from "./AlertItem";
+import React, { useState } from 'react';
+import { Alert as AlertType } from '../../types';
+import { AlertItem } from './AlertItem';
 
 interface AlertPanelProps {
   alerts: AlertType[];
@@ -24,10 +24,9 @@ export const AlertPanel = React.memo<AlertPanelProps>(function AlertPanel({
   onAction,
   maxVisible = 5,
 }) {
-  const [filter, setFilter] = useState<"all" | "unread">("unread");
+  const [filter, setFilter] = useState<'all' | 'unread'>('unread');
 
-  const filteredAlerts =
-    filter === "unread" ? alerts.filter((a) => !a.read) : alerts;
+  const filteredAlerts = filter === 'unread' ? alerts.filter((a) => !a.read) : alerts;
 
   const visibleAlerts = filteredAlerts.slice(0, maxVisible);
   const unreadCount = alerts.filter((a) => !a.read).length;
@@ -59,12 +58,10 @@ export const AlertPanel = React.memo<AlertPanelProps>(function AlertPanel({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setFilter(filter === "all" ? "unread" : "all")}
+              onClick={() => setFilter(filter === 'all' ? 'unread' : 'all')}
               className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
-              aria-label={
-                filter === "all" ? "عرض غير المقروءة فقط" : "عرض جميع التنبيهات"
-              }
-              title={filter === "all" ? "غير المقروءة فقط" : "عرض الكل"}
+              aria-label={filter === 'all' ? 'عرض غير المقروءة فقط' : 'عرض جميع التنبيهات'}
+              title={filter === 'all' ? 'غير المقروءة فقط' : 'عرض الكل'}
             >
               🔽
             </button>
@@ -99,12 +96,7 @@ export const AlertPanel = React.memo<AlertPanelProps>(function AlertPanel({
           </div>
         ) : (
           visibleAlerts.map((alert) => (
-            <AlertItem
-              key={alert.id}
-              alert={alert}
-              onDismiss={onDismiss}
-              onAction={onAction}
-            />
+            <AlertItem key={alert.id} alert={alert} onDismiss={onDismiss} onAction={onAction} />
           ))
         )}
       </div>

@@ -2,6 +2,7 @@
 /// اختبارات مدير اتصال WebSocket
 ///
 /// Tests for stream subscription lifecycle management
+library;
 
 import 'dart:async';
 
@@ -16,7 +17,7 @@ void main() {
     });
 
     test('ConnectionState enum should have all expected values', () {
-      final values = ConnectionState.values;
+      const values = ConnectionState.values;
       expect(values, contains(ConnectionState.connected));
       expect(values, contains(ConnectionState.disconnected));
       expect(values, contains(ConnectionState.connecting));

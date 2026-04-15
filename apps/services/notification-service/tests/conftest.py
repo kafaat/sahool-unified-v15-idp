@@ -5,6 +5,19 @@ Provides common test fixtures and configurations for all notification service te
 
 import asyncio
 import os
+import sys
+
+# Add service root to path for src imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+# Clear cached src modules from other services to avoid cross-contamination in CI
+_service_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+for _mod in list(sys.modules):
+    if not (_mod == "src" or _mod.startswith("src.")):
+        continue
+    _mod_obj = sys.modules.get(_mod)
+    _mod_file = getattr(_mod_obj, "__file__", None) or ""
+    if not _mod_file or not os.path.abspath(_mod_file).startswith(_service_root):
+        del sys.modules[_mod]
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
@@ -142,7 +155,7 @@ def _mock_user():
     """Create a mock authenticated user for testing"""
     user = MagicMock()
     user.id = "test-user-123"
-    user.tenant_id = "test-tenant-1"
+    user.tenant_id = "11111111-1111-1111-1111-111111111111"
     user.email = "test@sahool.app"
     user.role = "admin"
     user.is_active = True
@@ -156,26 +169,31 @@ async def async_client():
         import httpx
         from src.main import app
 
-        # Override auth dependency to return None (bypasses auth checks in endpoints)
-        # Endpoints use: user: User | None = Depends(get_current_user)
-        # When user is None, auth ownership checks are skipped
+        # Override auth dependency to return a mock user.
+        # Auth is mandatory (User, not User | None) on farmer endpoints.
+        mock_user = _mock_user()
+        mock_user.id = "farmer-123"  # Match test farmer_id values
         try:
             from shared.auth.dependencies import get_current_user
 
-            app.dependency_overrides[get_current_user] = lambda: None
-        except ImportError:
+            app.dependency_overrides[get_current_user] = lambda: mock_user
+        except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+                raise
             pass
 
         transport = httpx.ASGITransport(app=app)
         async with httpx.AsyncClient(
             transport=transport,
             base_url="http://test",
-            headers={"X-Tenant-ID": "test-tenant-1"},
+            headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"},
         ) as client:
             yield client
 
         app.dependency_overrides.clear()
-    except (ImportError, OSError, RuntimeError):
+    except BaseException as e:
+        if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+            raise
         pytest.skip("httpx or src.main not available")
 
 
@@ -186,19 +204,26 @@ def client():
         from fastapi.testclient import TestClient
         from src.main import app
 
-        # Override auth dependency to return None (bypasses auth checks in endpoints)
+        # Override auth dependency to return a mock user.
+        # Auth is mandatory (User, not User | None) on farmer endpoints.
+        mock_user = _mock_user()
+        mock_user.id = "farmer-123"  # Match test farmer_id values
         try:
             from shared.auth.dependencies import get_current_user
 
-            app.dependency_overrides[get_current_user] = lambda: None
-        except ImportError:
+            app.dependency_overrides[get_current_user] = lambda: mock_user
+        except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+                raise
             pass
 
-        client = TestClient(app, headers={"X-Tenant-ID": "test-tenant-1"})
+        client = TestClient(app, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"})
         yield client
 
         app.dependency_overrides.clear()
-    except (ImportError, OSError, RuntimeError):
+    except BaseException as e:
+        if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+            raise
         pytest.skip("fastapi.testclient or src.main not available")
 
 

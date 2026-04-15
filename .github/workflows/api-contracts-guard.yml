@@ -160,9 +160,26 @@ jobs:
 
           if [ "$BREAKING" -eq 1 ]; then
             echo ""
-            echo "::warning::Breaking changes detected in API contracts!"
+            echo "🚨 Breaking changes detected in API contracts!"
             echo "  Ensure CONTRACT_VERSION major version is bumped."
-            echo "  Add 'BREAKING:' prefix to commit message if intentional."
+
+            # Allow intentional breaking changes with BREAKING: commit prefix
+            # Check all commits in the PR branch (not just the last one)
+            BREAKING_FOUND=0
+            while IFS= read -r msg; do
+              if echo "$msg" | grep -q "^BREAKING:"; then
+                BREAKING_FOUND=1
+                break
+              fi
+            done < <(git log "origin/${BASE_BRANCH}..HEAD" --format='%s' 2>/dev/null || git log -5 --format='%s')
+
+            if [ "$BREAKING_FOUND" -eq 1 ]; then
+              echo "  ✅ BREAKING: prefix found in commit message — intentional breaking change accepted."
+            else
+              echo "  ❌ Add 'BREAKING:' prefix to commit message if intentional."
+              echo "::error::Breaking changes detected in API contracts without BREAKING: commit prefix."
+              exit 1
+            fi
           else
             echo "✅ No breaking changes detected"
           fi

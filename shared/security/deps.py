@@ -35,7 +35,7 @@ async def get_principal(
         @app.get("/protected")
         async def protected_route(principal: dict = Depends(get_principal)):
             user_id = principal["sub"]
-            tenant_id = principal["tenant_id"]  # or principal["tid"]
+            tenant_id = principal["tid"]  # canonical claim (also accepts "tenant_id")
             ...
 
     Raises:
@@ -58,7 +58,9 @@ async def get_principal(
         # Attach to request state for audit logging
         request.state.principal = payload
         request.state.user_id = payload.get("sub")
-        request.state.tenant_id = payload.get("tenant_id") or payload.get("tid")
+        # JWT tokens use "tid" as the canonical claim; "tenant_id" is accepted
+        # for compatibility with older tokens or external identity providers.
+        request.state.tenant_id = payload.get("tid") or payload.get("tenant_id")
 
         return payload
 
@@ -91,7 +93,9 @@ async def get_optional_principal(
         payload = verify_token(credentials.credentials)
         request.state.principal = payload
         request.state.user_id = payload.get("sub")
-        request.state.tenant_id = payload.get("tenant_id") or payload.get("tid")
+        # JWT tokens use "tid" as the canonical claim; "tenant_id" is accepted
+        # for compatibility with older tokens or external identity providers.
+        request.state.tenant_id = payload.get("tid") or payload.get("tenant_id")
         return payload
     except AuthError:
         return None
@@ -111,7 +115,7 @@ async def get_tenant_id(principal: dict = Depends(get_principal)) -> str:
         async def get_resource(tenant_id: str = Depends(get_tenant_id)):
             ...
     """
-    return principal.get("tenant_id") or principal.get("tid", "")
+    return principal.get("tid") or principal.get("tenant_id", "")
 
 
 async def get_user_id(principal: dict = Depends(get_principal)) -> str:
@@ -135,7 +139,7 @@ async def get_tenant_from_header(
     JWT takes precedence.
     """
     if principal:
-        return principal.get("tenant_id") or principal.get("tid", "")
+        return principal.get("tid") or principal.get("tenant_id", "")
     if x_tenant_id:
         return x_tenant_id
     raise HTTPException(

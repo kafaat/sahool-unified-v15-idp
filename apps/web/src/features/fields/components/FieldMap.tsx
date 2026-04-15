@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 /**
  * SAHOOL Field Map Component
@@ -8,7 +8,7 @@
  * NDVI coloring, and field details popups.
  */
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -17,9 +17,10 @@ import {
   LayersControl,
   ZoomControl,
   CircleMarker,
-} from "react-leaflet";
-import type { LatLngTuple, LatLngExpression } from "leaflet";
-import type { Field, GeoPolygon } from "../types";
+} from 'react-leaflet';
+import type { LatLngTuple, LatLngExpression } from 'leaflet';
+import type { Field, GeoPolygon } from '../types';
+import { INTERACTION_COLORS } from '@/lib/chart-colors';
 
 interface FieldMapProps {
   field?: Field;
@@ -33,26 +34,27 @@ const YEMEN_CENTER: LatLngTuple = [15.5527, 48.5164];
 
 /**
  * Get NDVI-based color for field display
+ * Uses the same color scale as HealthZonesLayer for cross-component consistency
  */
 export const getNDVIColor = (ndvi?: number): string => {
-  if (ndvi === undefined || ndvi === null) return "#9ca3af"; // Gray for no data
-  if (ndvi >= 0.7) return "#1B5E20"; // Dark green (excellent - ممتاز)
-  if (ndvi >= 0.5) return "#4CAF50"; // Green (good - جيد)
-  if (ndvi >= 0.3) return "#FDD835"; // Yellow (moderate - متوسط)
-  if (ndvi >= 0.15) return "#FF9800"; // Orange (poor - ضعيف)
-  return "#F44336"; // Red (critical - حرج)
+  if (ndvi === undefined || ndvi === null) return '#9ca3af'; // Gray - no data
+  if (ndvi >= 0.7) return '#1B5E20'; // Dark green - excellent
+  if (ndvi >= 0.5) return '#4CAF50'; // Green - good
+  if (ndvi >= 0.3) return '#FDD835'; // Yellow - moderate
+  if (ndvi >= 0.15) return '#FF9800'; // Orange - poor
+  return '#F44336'; // Red - critical
 };
 
 /**
  * Get Arabic health status label
  */
 export const getHealthLabel = (ndvi?: number): string => {
-  if (ndvi === undefined || ndvi === null) return "غير معروف";
-  if (ndvi >= 0.7) return "ممتاز";
-  if (ndvi >= 0.5) return "جيد";
-  if (ndvi >= 0.3) return "متوسط";
-  if (ndvi >= 0.15) return "ضعيف";
-  return "حرج";
+  if (ndvi === undefined || ndvi === null) return 'غير معروف';
+  if (ndvi >= 0.7) return 'ممتاز';
+  if (ndvi >= 0.5) return 'جيد';
+  if (ndvi >= 0.3) return 'متوسط';
+  if (ndvi >= 0.15) return 'ضعيف';
+  return 'حرج';
 };
 
 /**
@@ -60,15 +62,13 @@ export const getHealthLabel = (ndvi?: number): string => {
  * GeoJSON uses [lng, lat], Leaflet uses [lat, lng]
  */
 const geoPolygonToLatLng = (polygon: GeoPolygon): LatLngExpression[][] => {
-  return polygon.coordinates.map((ring) =>
-    ring.map(([lng, lat]) => [lat, lng] as LatLngTuple),
-  );
+  return polygon.coordinates.map((ring) => ring.map(([lng, lat]) => [lat, lng] as LatLngTuple));
 };
 
 export const FieldMap: React.FC<FieldMapProps> = ({
   field,
   fields,
-  height = "400px",
+  height = '400px',
   onFieldClick,
 }) => {
   const [isMounted, setIsMounted] = useState(false);
@@ -133,7 +133,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
         zoom={mapZoom}
         zoomControl={false}
         className="w-full h-full"
-        style={{ height: "100%", width: "100%" }}
+        style={{ height: '100%', width: '100%' }}
       >
         {/* Base Map Layers */}
         <LayersControl position="topright">
@@ -165,7 +165,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 key={fieldItem.id}
                 positions={positions}
                 pathOptions={{
-                  color: isSelected ? "#1565C0" : color,
+                  color: isSelected ? INTERACTION_COLORS.selectedBorder : color,
                   fillColor: color,
                   fillOpacity: isSelected ? 0.55 : 0.35,
                   weight: isSelected ? 4 : 2,
@@ -201,9 +201,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between items-center">
                         <span className="text-gray-600">المساحة:</span>
-                        <span className="font-semibold">
-                          {fieldItem.area} هكتار
-                        </span>
+                        <span className="font-semibold">{fieldItem.area} هكتار</span>
                       </div>
                       {fieldItem.crop && (
                         <div className="flex justify-between items-center">
@@ -217,9 +215,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                         <>
                           <div className="flex justify-between items-center">
                             <span className="text-gray-600">NDVI:</span>
-                            <span className="font-semibold">
-                              {fieldItem.ndviValue.toFixed(2)}
-                            </span>
+                            <span className="font-semibold">{fieldItem.ndviValue.toFixed(2)}</span>
                           </div>
                           {/* NDVI visual bar */}
                           <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -262,7 +258,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                 radius={8}
                 pathOptions={{
                   fillColor: color,
-                  color: "#ffffff",
+                  color: INTERACTION_COLORS.markerBorder,
                   weight: 2,
                   fillOpacity: 0.8,
                 }}
@@ -276,9 +272,7 @@ export const FieldMap: React.FC<FieldMapProps> = ({
                     <h3 className="font-bold text-gray-900 mb-1">
                       {fieldItem.nameAr || fieldItem.name}
                     </h3>
-                    <p className="text-sm text-gray-600">
-                      المساحة: {fieldItem.area} هكتار
-                    </p>
+                    <p className="text-sm text-gray-600">المساحة: {fieldItem.area} هكتار</p>
                     {fieldItem.crop && (
                       <p className="text-sm text-gray-600">
                         المحصول: {fieldItem.cropAr || fieldItem.crop}
@@ -299,20 +293,24 @@ export const FieldMap: React.FC<FieldMapProps> = ({
         <h4 className="text-xs font-bold text-gray-700 mb-2">حالة الحقول</h4>
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-full bg-emerald-500"></span>
-            <span>صحي (NDVI &gt; 0.6)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#1B5E20' }}></span>
+            <span>ممتاز (NDVI &ge; 0.7)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-full bg-amber-500"></span>
-            <span>متوسط (0.4 - 0.6)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#4CAF50' }}></span>
+            <span>جيد (0.5 - 0.7)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-full bg-orange-500"></span>
-            <span>مجهد (0.2 - 0.4)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FDD835' }}></span>
+            <span>متوسط (0.3 - 0.5)</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <span className="w-3 h-3 rounded-full bg-red-500"></span>
-            <span>حرج (&lt; 0.2)</span>
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#FF9800' }}></span>
+            <span>ضعيف (0.15 - 0.3)</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="w-3 h-3 rounded-full" style={{ backgroundColor: '#F44336' }}></span>
+            <span>حرج (&lt; 0.15)</span>
           </div>
         </div>
       </div>

@@ -7,8 +7,8 @@
 /// - Field-level security | أمان على مستوى الحقل
 /// - Tenant isolation | عزل المستأجرين
 /// - Hierarchical permissions | صلاحيات هرمية
+library;
 
-import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
@@ -79,7 +79,7 @@ enum ResourceType {
   static ResourceType? fromCode(String code) {
     try {
       return ResourceType.values.firstWhere((t) => t.code == code);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -139,7 +139,7 @@ enum AccessAction {
   static AccessAction? fromCode(String code) {
     try {
       return AccessAction.values.firstWhere((a) => a.code == code);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }
@@ -249,10 +249,10 @@ class AccessControlEntry {
               .toSet() ??
           {},
       conditions: json['conditions'] as Map<String, dynamic>?,
-      expiresAt: json['expires_at'] != null ? DateTime.parse(json['expires_at'] as String) : null,
+      expiresAt: json['expires_at'] != null ? DateTime.tryParse(json['expires_at'] as String) : null,
       inherited: json['inherited'] as bool? ?? false,
       inheritedFrom: json['inherited_from'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
+      createdAt: DateTime.tryParse(json['created_at'] as String) ?? DateTime.now(),
       createdBy: json['created_by'] as String?,
     );
   }
@@ -374,7 +374,7 @@ class AccessControlList {
           [],
       parentResourceId: json['parent_resource_id'] as String?,
       inheritFromParent: json['inherit_from_parent'] as bool? ?? true,
-      lastModified: DateTime.parse(json['last_modified'] as String),
+      lastModified: DateTime.tryParse(json['last_modified'] as String) ?? DateTime.now(),
     );
   }
 
@@ -539,7 +539,7 @@ class AccessControlService {
     Map<String, dynamic>? context,
   }) {
     if (_user == null) {
-      return AccessDecision(
+      return const AccessDecision(
         allowed: false,
         reason: 'Not authenticated',
         reasonAr: 'غير مصادق',
@@ -549,7 +549,7 @@ class AccessControlService {
     // Super admin has full access
     if (_permissionManager.isSuperAdmin) {
       _audit(resourceType, resourceId, action, true, 'Super admin access');
-      return AccessDecision(
+      return const AccessDecision(
         allowed: true,
         reason: 'Super admin access',
         reasonAr: 'وصول مسؤول النظام',
@@ -559,7 +559,7 @@ class AccessControlService {
     // Check tenant isolation
     if (!_checkTenantAccess(resourceType, resourceId)) {
       _audit(resourceType, resourceId, action, false, 'Tenant isolation');
-      return AccessDecision(
+      return const AccessDecision(
         allowed: false,
         reason: 'Resource belongs to different tenant',
         reasonAr: 'المورد ينتمي لمستأجر مختلف',
@@ -570,9 +570,9 @@ class AccessControlService {
     final acl = _aclCache['${resourceType.code}:$resourceId'];
     if (acl != null) {
       // Owner has full access
-      if (acl.ownerId == _user!.id) {
+      if (acl.ownerId == _user.id) {
         _audit(resourceType, resourceId, action, true, 'Owner access');
-        return AccessDecision(
+        return const AccessDecision(
           allowed: true,
           reason: 'Owner access',
           reasonAr: 'وصول المالك',
@@ -580,9 +580,9 @@ class AccessControlService {
       }
 
       // Check ACL entries
-      if (acl.checkAccess(_user!.id, action)) {
+      if (acl.checkAccess(_user.id, action)) {
         _audit(resourceType, resourceId, action, true, 'ACL granted');
-        return AccessDecision(
+        return const AccessDecision(
           allowed: true,
           reason: 'Access granted by ACL',
           reasonAr: 'تم منح الوصول بواسطة قائمة التحكم',
@@ -591,7 +591,7 @@ class AccessControlService {
 
       // Check role-based entries
       final roleEntry = acl.entries.firstWhere(
-        (e) => e.principalType == PrincipalType.role && e.principalId == _user!.role,
+        (e) => e.principalType == PrincipalType.role && e.principalId == _user.role,
         orElse: () => AccessControlEntry(
           id: '',
           principalId: '',
@@ -604,7 +604,7 @@ class AccessControlService {
 
       if (roleEntry.id.isNotEmpty && roleEntry.allows(action)) {
         _audit(resourceType, resourceId, action, true, 'Role-based access');
-        return AccessDecision(
+        return const AccessDecision(
           allowed: true,
           reason: 'Role-based access',
           reasonAr: 'وصول مبني على الدور',
@@ -616,7 +616,7 @@ class AccessControlService {
     final permissionCode = _getPermissionForAction(resourceType, action);
     if (permissionCode != null && _permissionManager.can(permissionCode)) {
       _audit(resourceType, resourceId, action, true, 'Permission-based access');
-      return AccessDecision(
+      return const AccessDecision(
         allowed: true,
         reason: 'Permission-based access',
         reasonAr: 'وصول مبني على الصلاحية',
@@ -626,7 +626,7 @@ class AccessControlService {
     // Check hierarchical access
     if (_checkHierarchicalAccess(resourceType, resourceId, action)) {
       _audit(resourceType, resourceId, action, true, 'Hierarchical access');
-      return AccessDecision(
+      return const AccessDecision(
         allowed: true,
         reason: 'Inherited from parent resource',
         reasonAr: 'موروث من المورد الأب',
@@ -634,7 +634,7 @@ class AccessControlService {
     }
 
     _audit(resourceType, resourceId, action, false, 'Access denied');
-    return AccessDecision(
+    return const AccessDecision(
       allowed: false,
       reason: 'Access denied',
       reasonAr: 'الوصول مرفوض',
@@ -682,7 +682,7 @@ class AccessControlService {
 
   /// Register field security policy | تسجيل سياسة أمان الحقل
   void registerFieldPolicy(FieldSecurityPolicy policy) {
-    final key = '${policy.resourceType.code}';
+    final key = policy.resourceType.code;
     _fieldPolicies[key] ??= [];
     _fieldPolicies[key]!.add(policy);
     AppLogger.d('Registered field policy for ${policy.fieldName}', tag: 'ACL');
@@ -824,7 +824,7 @@ class AccessControlService {
     final acl = _aclCache['${resourceType.code}:$resourceId'];
     if (acl == null) return true; // No ACL = allow (will be checked elsewhere)
 
-    return acl.tenantId == _user!.tenantId;
+    return acl.tenantId == _user.tenantId;
   }
 
   bool _checkHierarchicalAccess(
@@ -979,27 +979,27 @@ class AccessAuditEntry {
 List<FieldSecurityPolicy> getDefaultFieldSecurityPolicies() {
   return [
     // User sensitive fields
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.user,
       fieldName: 'password_hash',
       alwaysMasked: true,
       isPII: true,
       isEncrypted: true,
     ),
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.user,
       fieldName: 'phone',
       isPII: true,
       minRoleToRead: IAMRole.supervisor,
       maskPattern: '***-***-****',
     ),
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.user,
       fieldName: 'email',
       isPII: true,
       minRoleToRead: IAMRole.supervisor,
     ),
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.user,
       fieldName: 'national_id',
       isPII: true,
@@ -1008,13 +1008,13 @@ List<FieldSecurityPolicy> getDefaultFieldSecurityPolicies() {
     ),
 
     // Farm/Field sensitive fields
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.farm,
       fieldName: 'exact_coordinates',
       minRoleToRead: IAMRole.worker,
       minRoleToWrite: IAMRole.supervisor,
     ),
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.field,
       fieldName: 'soil_analysis_raw',
       minRoleToRead: IAMRole.supervisor,
@@ -1022,13 +1022,13 @@ List<FieldSecurityPolicy> getDefaultFieldSecurityPolicies() {
     ),
 
     // Financial fields
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.report,
       fieldName: 'cost_breakdown',
       minRoleToRead: IAMRole.manager,
       permissionsToRead: {IAMPermission.billingView},
     ),
-    FieldSecurityPolicy(
+    const FieldSecurityPolicy(
       resourceType: ResourceType.marketListing,
       fieldName: 'seller_contact',
       isPII: true,

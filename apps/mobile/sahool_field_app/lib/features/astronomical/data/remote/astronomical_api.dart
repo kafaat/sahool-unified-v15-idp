@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Astronomical Calendar API Service
 /// خدمة واجهة برمجة التطبيقات للتقويم الفلكي
 ///

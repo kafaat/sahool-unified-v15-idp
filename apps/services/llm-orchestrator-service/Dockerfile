@@ -14,7 +14,8 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
 # Install build dependencies
 COPY docker/apt-update.sh /usr/local/bin/
@@ -42,13 +43,13 @@ RUN mkdir -p ~/.pip && \
 # Upgrade pip with multi-mirror fallback (PyPI first)
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0" || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --upgrade "pip>=24.0" "setuptools>=75.0" "wheel>=0.44.0"
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/llm-orchestrator-service/requirements.txt /tmp/requirements.txt
@@ -103,10 +104,20 @@ WORKDIR /app
 COPY --chown=sahool:sahool shared/ ./shared/
 COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 
+
 # Copy source
 COPY --chown=sahool:sahool apps/services/llm-orchestrator-service/src/ ./src/
 
 # Switch to non-root user
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 # Expose port

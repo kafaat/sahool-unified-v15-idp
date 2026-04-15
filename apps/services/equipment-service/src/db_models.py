@@ -202,12 +202,14 @@ class Equipment(Base):
     __table_args__ = (
         # Primary query pattern: tenant + status
         Index("ix_equipment_tenant_status", "tenant_id", "status"),
-        # Equipment type queries
+        # Equipment type queries (tenant-scoped)
+        Index("ix_equipment_tenant_type", "tenant_id", "equipment_type"),
         Index("ix_equipment_type_status", "equipment_type", "status"),
         # Field-based queries
         Index("ix_equipment_field_status", "field_id", "status"),
-        # Maintenance scheduling queries
+        # Maintenance scheduling queries (tenant-scoped)
         Index("ix_equipment_next_maintenance", "next_maintenance_at"),
+        Index("ix_equipment_tenant_maintenance", "tenant_id", "next_maintenance_at"),
     )
 
     def __repr__(self) -> str:

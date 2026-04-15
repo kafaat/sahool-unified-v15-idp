@@ -3,6 +3,7 @@
 ///
 /// Provides semantic version parsing and comparison utilities
 /// for determining if app updates are available.
+library;
 
 /// Represents a semantic version with major.minor.patch format
 /// يمثل إصدار دلالي بصيغة رئيسي.ثانوي.تصحيحي
@@ -70,7 +71,7 @@ class SemanticVersion implements Comparable<SemanticVersion> {
   static SemanticVersion? tryParse(String version) {
     try {
       return SemanticVersion.parse(version);
-    } catch (_) {
+    } catch (e) {
       return null;
     }
   }

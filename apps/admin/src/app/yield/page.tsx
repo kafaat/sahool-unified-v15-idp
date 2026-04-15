@@ -1,19 +1,13 @@
 // Sahool Admin Dashboard - Yield Prediction Calculator
 // حاسبة التنبؤ بالإنتاجية
 
-"use client";
+'use client';
 
-import { useState } from "react";
-import { apiClient, API_URLS } from "@/lib/api";
-import {
-  TrendingUp,
-  Loader2,
-  DollarSign,
-  Scale,
-  Droplets,
-  Thermometer,
-} from "lucide-react";
-import { logger } from "../../lib/logger";
+import { useState } from 'react';
+import { apiClient, API_URLS } from '@/lib/api';
+import { API_PATHS } from '@/config/api';
+import { TrendingUp, Loader2, DollarSign, Scale, Droplets, Thermometer } from 'lucide-react';
+import { logger } from '../../lib/logger';
 
 interface YieldPrediction {
   prediction_id: string;
@@ -29,43 +23,44 @@ interface YieldPrediction {
   confidence_percent: number;
   factors_applied: string[];
   recommendations: string[];
+  data_source?: string;
 }
 
 const CROP_OPTIONS = [
-  { value: "wheat", label: "قمح", icon: "🌾" },
-  { value: "corn", label: "ذرة", icon: "🌽" },
-  { value: "tomato", label: "طماطم", icon: "🍅" },
-  { value: "potato", label: "بطاطس", icon: "🥔" },
-  { value: "coffee", label: "بن يمني", icon: "☕" },
-  { value: "date_palm", label: "نخيل (تمر)", icon: "🌴" },
-  { value: "mango", label: "مانجو", icon: "🥭" },
-  { value: "sorghum", label: "ذرة رفيعة", icon: "🌾" },
-  { value: "banana", label: "موز", icon: "🍌" },
-  { value: "grape", label: "عنب", icon: "🍇" },
+  { value: 'wheat', label: 'قمح', icon: '🌾' },
+  { value: 'corn', label: 'ذرة', icon: '🌽' },
+  { value: 'tomato', label: 'طماطم', icon: '🍅' },
+  { value: 'potato', label: 'بطاطس', icon: '🥔' },
+  { value: 'coffee', label: 'بن يمني', icon: '☕' },
+  { value: 'date_palm', label: 'نخيل (تمر)', icon: '🌴' },
+  { value: 'mango', label: 'مانجو', icon: '🥭' },
+  { value: 'sorghum', label: 'ذرة رفيعة', icon: '🌾' },
+  { value: 'banana', label: 'موز', icon: '🍌' },
+  { value: 'grape', label: 'عنب', icon: '🍇' },
 ];
 
 const SOIL_OPTIONS = [
-  { value: "poor", label: "ضعيفة" },
-  { value: "medium", label: "متوسطة" },
-  { value: "good", label: "ممتازة" },
+  { value: 'poor', label: 'ضعيفة' },
+  { value: 'medium', label: 'متوسطة' },
+  { value: 'good', label: 'ممتازة' },
 ];
 
 const IRRIGATION_OPTIONS = [
-  { value: "rain-fed", label: "اعتماد على الأمطار" },
-  { value: "flood", label: "ري غمر" },
-  { value: "sprinkler", label: "ري رشاش" },
-  { value: "drip", label: "ري بالتنقيط" },
-  { value: "smart", label: "ري ذكي" },
+  { value: 'rain-fed', label: 'اعتماد على الأمطار' },
+  { value: 'flood', label: 'ري غمر' },
+  { value: 'sprinkler', label: 'ري رشاش' },
+  { value: 'drip', label: 'ري بالتنقيط' },
+  { value: 'smart', label: 'ري ذكي' },
 ];
 
 export default function YieldPage() {
   const [formData, setFormData] = useState({
     area_hectares: 10,
-    crop_type: "wheat",
+    crop_type: 'wheat',
     avg_rainfall: 450,
     avg_temperature: 25,
-    soil_quality: "medium",
-    irrigation_type: "rain-fed",
+    soil_quality: 'medium',
+    irrigation_type: 'rain-fed',
   });
 
   const [prediction, setPrediction] = useState<YieldPrediction | null>(null);
@@ -78,34 +73,27 @@ export default function YieldPage() {
     setError(null);
 
     try {
-      const response = await apiClient.post(
-        `${API_URLS.yieldPrediction}/v1/predict`,
-        formData,
-      );
-      setPrediction(response.data);
+      const response = await apiClient.post(`${API_URLS.yieldPrediction}${API_PATHS.yield.predict}`, formData);
+      setPrediction({ ...response.data, data_source: 'real' });
     } catch (err) {
-      logger.error("Prediction failed:", err);
-      // Mock prediction for development
+      logger.error('Prediction failed:', err);
+      // Fallback to estimated prediction when service unavailable
       setPrediction({
-        prediction_id: "mock-1",
+        prediction_id: 'estimated-1',
+        data_source: 'estimated',
         crop_type: formData.crop_type,
-        crop_name_ar:
-          CROP_OPTIONS.find((c) => c.value === formData.crop_type)?.label || "",
+        crop_name_ar: CROP_OPTIONS.find((c) => c.value === formData.crop_type)?.label || '',
         area_hectares: formData.area_hectares,
         predicted_yield_tons:
-          formData.area_hectares *
-          2.5 *
-          (formData.soil_quality === "good" ? 1.2 : 1),
+          formData.area_hectares * 2.5 * (formData.soil_quality === 'good' ? 1.2 : 1),
         predicted_yield_per_hectare: 2.5,
         yield_range_min: formData.area_hectares * 2.1,
         yield_range_max: formData.area_hectares * 2.9,
         estimated_revenue_usd: formData.area_hectares * 2.5 * 350,
         estimated_revenue_yer: formData.area_hectares * 2.5 * 350 * 535,
-        confidence_percent: 85,
-        factors_applied: ["تربة متوسطة", "أمطار مثالية (+10%)"],
-        recommendations: [
-          "فكر في تركيب نظام ري بالتنقيط لزيادة الإنتاج 15-20%",
-        ],
+        confidence_percent: 65,
+        factors_applied: ['⚠️ تقدير محلي — الخدمة غير متاحة', 'تربة متوسطة'],
+        recommendations: ['فكر في تركيب نظام ري بالتنقيط لزيادة الإنتاج 15-20%'],
       });
     } finally {
       setIsLoading(false);
@@ -113,11 +101,11 @@ export default function YieldPage() {
   };
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat("ar-YE").format(Math.round(num));
+    return new Intl.NumberFormat('ar-YE').format(Math.round(num));
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div dir="rtl" className="min-h-screen bg-gray-50 p-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
@@ -145,13 +133,11 @@ export default function YieldPage() {
                   <button
                     key={crop.value}
                     type="button"
-                    onClick={() =>
-                      setFormData({ ...formData, crop_type: crop.value })
-                    }
+                    onClick={() => setFormData({ ...formData, crop_type: crop.value })}
                     className={`p-3 rounded-xl text-center transition-all ${
                       formData.crop_type === crop.value
-                        ? "bg-green-100 border-2 border-green-500"
-                        : "bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700"
+                        ? 'bg-green-100 border-2 border-green-500'
+                        : 'bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
                     }`}
                   >
                     <div className="text-2xl mb-1">{crop.icon}</div>
@@ -228,9 +214,7 @@ export default function YieldPage() {
                 </label>
                 <select
                   value={formData.soil_quality}
-                  onChange={(e) =>
-                    setFormData({ ...formData, soil_quality: e.target.value })
-                  }
+                  onChange={(e) => setFormData({ ...formData, soil_quality: e.target.value })}
                   className="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 >
                   {SOIL_OPTIONS.map((opt) => (
@@ -292,49 +276,36 @@ export default function YieldPage() {
               <div className="bg-gradient-to-br from-green-500 to-green-700 rounded-2xl p-6 text-white">
                 <div className="flex items-center gap-2 mb-4">
                   <span className="text-3xl">
-                    {
-                      CROP_OPTIONS.find((c) => c.value === prediction.crop_type)
-                        ?.icon
-                    }
+                    {CROP_OPTIONS.find((c) => c.value === prediction.crop_type)?.icon}
                   </span>
                   <div>
-                    <h3 className="text-xl font-bold">
-                      {prediction.crop_name_ar}
-                    </h3>
-                    <p className="text-green-100">
-                      {prediction.area_hectares} هكتار
-                    </p>
+                    <h3 className="text-xl font-bold">{prediction.crop_name_ar}</h3>
+                    <p className="text-green-100">{prediction.area_hectares} هكتار</p>
                   </div>
                 </div>
 
                 <div className="bg-white/20 rounded-xl p-4 mb-4">
-                  <div className="text-green-100 text-sm mb-1">
-                    الإنتاج المتوقع
-                  </div>
+                  <div className="text-green-100 text-sm mb-1">الإنتاج المتوقع</div>
                   <div className="text-4xl font-bold">
-                    {formatNumber(prediction.predicted_yield_tons)}{" "}
+                    {formatNumber(prediction.predicted_yield_tons)}{' '}
                     <span className="text-xl">طن</span>
                   </div>
                   <div className="text-green-200 text-sm mt-1">
-                    ({prediction.yield_range_min.toFixed(1)} -{" "}
+                    ({prediction.yield_range_min.toFixed(1)} -{' '}
                     {prediction.yield_range_max.toFixed(1)} طن)
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-white/10 rounded-xl p-3">
-                    <div className="text-green-100 text-xs mb-1">
-                      العائد بالدولار
-                    </div>
+                    <div className="text-green-100 text-xs mb-1">العائد بالدولار</div>
                     <div className="text-xl font-bold flex items-center gap-1">
                       <DollarSign className="w-5 h-5" />
                       {formatNumber(prediction.estimated_revenue_usd)}
                     </div>
                   </div>
                   <div className="bg-white/10 rounded-xl p-3">
-                    <div className="text-green-100 text-xs mb-1">
-                      العائد بالريال
-                    </div>
+                    <div className="text-green-100 text-xs mb-1">العائد بالريال</div>
                     <div className="text-xl font-bold">
                       {formatNumber(prediction.estimated_revenue_yer)} ر.ي
                     </div>
@@ -357,11 +328,11 @@ export default function YieldPage() {
                     <div
                       key={idx}
                       className={`px-3 py-2 rounded-lg text-sm ${
-                        factor.includes("+")
-                          ? "bg-green-50 text-green-700"
-                          : factor.includes("-")
-                            ? "bg-red-50 text-red-700"
-                            : "bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+                        factor.includes('+')
+                          ? 'bg-green-50 text-green-700'
+                          : factor.includes('-')
+                            ? 'bg-red-50 text-red-700'
+                            : 'bg-gray-50 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
                       }`}
                     >
                       {factor}
@@ -375,10 +346,7 @@ export default function YieldPage() {
                 <h3 className="font-semibold text-yellow-800 mb-4">التوصيات</h3>
                 <ul className="space-y-2">
                   {prediction.recommendations.map((rec, idx) => (
-                    <li
-                      key={idx}
-                      className="flex items-start gap-2 text-yellow-700"
-                    >
+                    <li key={idx} className="flex items-start gap-2 text-yellow-700">
                       <span className="text-yellow-500">💡</span>
                       {rec}
                     </li>
@@ -392,9 +360,7 @@ export default function YieldPage() {
               <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400 mb-2">
                 أدخل بيانات الحقل
               </h3>
-              <p className="text-gray-400">
-                ستظهر نتائج التنبؤ هنا بعد إدخال البيانات
-              </p>
+              <p className="text-gray-400">ستظهر نتائج التنبؤ هنا بعد إدخال البيانات</p>
             </div>
           )}
         </div>

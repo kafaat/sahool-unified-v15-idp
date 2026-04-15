@@ -1,5 +1,6 @@
 /// Unit Tests for Marketplace Feature - Models, State, and Cart Logic
 /// اختبارات وحدات ميزة السوق
+library;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sahool_field_app/features/marketplace/marketplace_provider.dart';
 
@@ -8,7 +9,6 @@ import 'package:sahool_field_app/features/marketplace/marketplace_provider.dart'
 /// even from the superclass constructor.
 class _TestableMarketplaceNotifier extends MarketplaceNotifier {
   _TestableMarketplaceNotifier({
-    required super.baseUrl,
     required super.userId,
   });
 
@@ -380,7 +380,7 @@ void main() {
     });
 
     test('copyWith clearCategory clears selectedCategory', () {
-      final state = MarketplaceState(
+      const state = MarketplaceState(
         selectedCategory: ProductCategory.seeds,
       );
 
@@ -408,7 +408,6 @@ void main() {
       // Create notifier - loadProducts will fail (no real server)
       // but we can still test cart operations
       notifier = _TestableMarketplaceNotifier(
-        baseUrl: 'http://localhost:9999',
         userId: 'test-user',
       );
     });

@@ -28,6 +28,10 @@ WORKDIR /workspace/yield-prediction-service
 # package.json may use version string OR file: reference depending on context
 RUN sed -i 's|"@sahool/nestjs-auth": "[^"]*"|"@sahool/nestjs-auth": "file:../nestjs-auth"|' package.json
 
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
+
 # Disable nestjs-auth prepare script to prevent premature tsc build during install
 # (nestjs-auth is built explicitly in a later step with proper peer deps available)
 WORKDIR /workspace/nestjs-auth
@@ -122,6 +126,9 @@ RUN --mount=type=cache,target=/root/.npm \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
 # (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)

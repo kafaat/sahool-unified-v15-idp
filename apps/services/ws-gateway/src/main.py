@@ -11,7 +11,13 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from uuid import uuid4
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import (
+    Depends,
     FastAPI,
     Header,
     HTTPException,
@@ -19,6 +25,7 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
+from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -28,6 +35,20 @@ from pydantic import BaseModel
 from shared.auth.jwt_handler import verify_token
 from shared.auth.models import AuthException, TokenPayload
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+
+# Import authentication dependency
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user():
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
 def sanitize_log_input(value: str) -> str:
@@ -65,7 +86,10 @@ logging.basicConfig(
     level=LOG_LEVEL_MAP.get(LOG_LEVEL, logging.INFO),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger("ws-gateway")
+if structlog is not None:
+    logger = structlog.get_logger("ws-gateway")
+else:
+    logger = logging.getLogger("ws-gateway")
 
 
 async def validate_jwt_token(token: str) -> dict:
@@ -179,6 +203,33 @@ app = FastAPI(
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+# CORS middleware - use centralized config to prevent wildcard in production
+try:
+    from shared.cors_config import setup_cors_middleware
+
+    setup_cors_middleware(app)
+except ImportError:
+    cors_origins = [o.strip() for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+    allow_credentials = "*" not in cors_origins
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins,
+        allow_credentials=allow_credentials,
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+        allow_headers=[
+            "Accept",
+            "Accept-Language",
+            "Authorization",
+            "Content-Type",
+            "Content-Language",
+            "X-Request-ID",
+            "X-Correlation-ID",
+            "X-Tenant-ID",
+            "X-API-Key",
+            "X-User-ID",
+        ],
+    )
 
 # Tenant context middleware
 app.add_middleware(TenantContextMiddleware)
@@ -460,6 +511,7 @@ class BroadcastRequest(BaseModel):
 async def broadcast_message(
     req: BroadcastRequest,
     authorization: str | None = Header(None),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Broadcast a message to specific rooms or users.
@@ -535,4 +587,4 @@ if __name__ == "__main__":
     import uvicorn
 
     port = int(os.getenv("PORT", 8081))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=port)  # nosec B104 - binding to all interfaces required for Docker container

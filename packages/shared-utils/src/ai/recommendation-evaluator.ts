@@ -32,49 +32,49 @@ const MAX_SCORE = 1.0;
 
 export enum EvaluationCriteria {
   /** الدقة - Technical correctness */
-  ACCURACY = "accuracy",
+  ACCURACY = 'accuracy',
   /** قابلية التنفيذ - Can be acted upon */
-  ACTIONABILITY = "actionability",
+  ACTIONABILITY = 'actionability',
   /** السلامة - Safe for implementation */
-  SAFETY = "safety",
+  SAFETY = 'safety',
   /** الصلة - Relevant to context */
-  RELEVANCE = "relevance",
+  RELEVANCE = 'relevance',
   /** الاكتمال - Covers all aspects */
-  COMPLETENESS = "completeness",
+  COMPLETENESS = 'completeness',
   /** الوضوح - Clear and understandable */
-  CLARITY = "clarity",
+  CLARITY = 'clarity',
 }
 
 export enum EvaluationGrade {
   /** ممتاز (>= 0.9) */
-  EXCELLENT = "excellent",
+  EXCELLENT = 'excellent',
   /** جيد (>= 0.75) */
-  GOOD = "good",
+  GOOD = 'good',
   /** مقبول (>= 0.6) */
-  ACCEPTABLE = "acceptable",
+  ACCEPTABLE = 'acceptable',
   /** يحتاج تحسين (>= 0.4) */
-  NEEDS_IMPROVEMENT = "needs_improvement",
+  NEEDS_IMPROVEMENT = 'needs_improvement',
   /** ضعيف (< 0.4) */
-  POOR = "poor",
+  POOR = 'poor',
 }
 
 export enum RecommendationType {
   /** الري */
-  IRRIGATION = "irrigation",
+  IRRIGATION = 'irrigation',
   /** التسميد */
-  FERTILIZATION = "fertilization",
+  FERTILIZATION = 'fertilization',
   /** مكافحة الآفات */
-  PEST_CONTROL = "pest_control",
+  PEST_CONTROL = 'pest_control',
   /** الأمراض */
-  DISEASE = "disease",
+  DISEASE = 'disease',
   /** الحصاد */
-  HARVEST = "harvest",
+  HARVEST = 'harvest',
   /** الزراعة */
-  PLANTING = "planting",
+  PLANTING = 'planting',
   /** الطقس */
-  WEATHER = "weather",
+  WEATHER = 'weather',
   /** عام */
-  GENERAL = "general",
+  GENERAL = 'general',
 }
 
 export interface CriteriaScore {
@@ -132,7 +132,7 @@ export function createCriteriaScore(
   score: number,
   explanation: string,
   explanationAr?: string,
-  evidence?: string[],
+  evidence?: string[]
 ): CriteriaScore {
   // Clamp score to valid range
   const clampedScore = Math.max(MIN_SCORE, Math.min(MAX_SCORE, score));
@@ -174,7 +174,7 @@ export function createEvaluationResult(
   scores: Record<EvaluationCriteria, CriteriaScore>,
   weights?: Record<EvaluationCriteria, number>,
   recommendationId?: string,
-  passingThreshold: number = DEFAULT_PASSING_THRESHOLD,
+  passingThreshold: number = DEFAULT_PASSING_THRESHOLD
 ): EvaluationResult {
   // Default weights for agricultural recommendations
   const defaultWeights: Record<EvaluationCriteria, number> = {
@@ -237,23 +237,23 @@ export function createEvaluationResult(
 export function generateFeedback(
   scores: Record<EvaluationCriteria, CriteriaScore>,
   grade: EvaluationGrade,
-  isApproved: boolean,
+  isApproved: boolean
 ): { feedback: string; feedbackAr: string } {
   if (isApproved) {
     if (grade === EvaluationGrade.EXCELLENT) {
       return {
-        feedback: "Excellent recommendation. Ready for implementation.",
-        feedbackAr: "توصية ممتازة. جاهزة للتنفيذ.",
+        feedback: 'Excellent recommendation. Ready for implementation.',
+        feedbackAr: 'توصية ممتازة. جاهزة للتنفيذ.',
       };
     } else if (grade === EvaluationGrade.GOOD) {
       return {
-        feedback: "Good recommendation with minor areas for improvement.",
-        feedbackAr: "توصية جيدة مع بعض المجالات للتحسين.",
+        feedback: 'Good recommendation with minor areas for improvement.',
+        feedbackAr: 'توصية جيدة مع بعض المجالات للتحسين.',
       };
     } else {
       return {
-        feedback: "Acceptable recommendation. Consider the suggested improvements.",
-        feedbackAr: "توصية مقبولة. يُرجى النظر في التحسينات المقترحة.",
+        feedback: 'Acceptable recommendation. Consider the suggested improvements.',
+        feedbackAr: 'توصية مقبولة. يُرجى النظر في التحسينات المقترحة.',
       };
     }
   } else {
@@ -261,16 +261,15 @@ export function generateFeedback(
     if (safetyScore && safetyScore.score < 0.5) {
       return {
         feedback:
-          "Recommendation not approved due to safety concerns. Please review safety guidelines.",
+          'Recommendation not approved due to safety concerns. Please review safety guidelines.',
         feedbackAr:
-          "لم تتم الموافقة على التوصية بسبب مخاوف تتعلق بالسلامة. يرجى مراجعة إرشادات السلامة.",
+          'لم تتم الموافقة على التوصية بسبب مخاوف تتعلق بالسلامة. يرجى مراجعة إرشادات السلامة.',
       };
     } else {
       return {
         feedback:
-          "Recommendation needs improvement before implementation. Please address the noted concerns.",
-        feedbackAr:
-          "التوصية تحتاج إلى تحسين قبل التنفيذ. يرجى معالجة الملاحظات المذكورة.",
+          'Recommendation needs improvement before implementation. Please address the noted concerns.',
+        feedbackAr: 'التوصية تحتاج إلى تحسين قبل التنفيذ. يرجى معالجة الملاحظات المذكورة.',
       };
     }
   }
@@ -280,18 +279,16 @@ export function generateFeedback(
  * Generate list of suggested improvements
  * إنشاء قائمة بالتحسينات المقترحة
  */
-export function generateImprovements(
-  scores: Record<EvaluationCriteria, CriteriaScore>,
-): string[] {
+export function generateImprovements(scores: Record<EvaluationCriteria, CriteriaScore>): string[] {
   const improvements: string[] = [];
 
   const improvementMap: Record<EvaluationCriteria, string> = {
-    [EvaluationCriteria.ACCURACY]: "Verify technical accuracy with domain experts",
-    [EvaluationCriteria.ACTIONABILITY]: "Provide more specific, actionable steps",
-    [EvaluationCriteria.SAFETY]: "Review safety implications and add precautions",
-    [EvaluationCriteria.RELEVANCE]: "Ensure recommendation addresses the specific context",
-    [EvaluationCriteria.COMPLETENESS]: "Add missing details or considerations",
-    [EvaluationCriteria.CLARITY]: "Simplify language and improve structure",
+    [EvaluationCriteria.ACCURACY]: 'Verify technical accuracy with domain experts',
+    [EvaluationCriteria.ACTIONABILITY]: 'Provide more specific, actionable steps',
+    [EvaluationCriteria.SAFETY]: 'Review safety implications and add precautions',
+    [EvaluationCriteria.RELEVANCE]: 'Ensure recommendation addresses the specific context',
+    [EvaluationCriteria.COMPLETENESS]: 'Add missing details or considerations',
+    [EvaluationCriteria.CLARITY]: 'Simplify language and improve structure',
   };
 
   for (const [criteria, score] of Object.entries(scores)) {
@@ -325,13 +322,18 @@ export function generateImprovements(
 export class RecommendationEvaluator {
   private criteriaWeights: Record<EvaluationCriteria, number>;
   private passingThreshold: number;
-  private useHeuristicsFallback: boolean;
-  private stats: Record<string, number>;
+  readonly useHeuristicsFallback: boolean;
+  private stats: {
+    evaluations: number;
+    approved: number;
+    rejected: number;
+    heuristicEvaluations: number;
+  };
 
   constructor(
     criteriaWeights?: Record<EvaluationCriteria, number>,
     passingThreshold: number = DEFAULT_PASSING_THRESHOLD,
-    useHeuristicsFallback: boolean = true,
+    useHeuristicsFallback: boolean = true
   ) {
     /**
      * Initialize the evaluator.
@@ -379,10 +381,10 @@ export class RecommendationEvaluator {
     context?: Record<string, unknown>,
     query?: string,
     recommendationType?: RecommendationType,
-    recommendationId?: string,
+    recommendationId?: string
   ): EvaluationResult {
     context = context || {};
-    query = query || "";
+    query = query || '';
     recommendationType = recommendationType || this._detectRecommendationType(recommendation);
 
     this.stats.evaluations += 1;
@@ -397,7 +399,7 @@ export class RecommendationEvaluator {
       scores,
       this.criteriaWeights,
       recommendationId,
-      this.passingThreshold,
+      this.passingThreshold
     );
 
     // Update stats
@@ -424,16 +426,10 @@ export class RecommendationEvaluator {
       query?: string;
       type?: RecommendationType;
       id?: string;
-    }>,
+    }>
   ): EvaluationResult[] {
     return recommendations.map((rec) =>
-      this.evaluate(
-        rec.recommendation,
-        rec.context,
-        rec.query,
-        rec.type,
-        rec.id,
-      ),
+      this.evaluate(rec.recommendation, rec.context, rec.query, rec.type, rec.id)
     );
   }
 
@@ -460,24 +456,27 @@ export class RecommendationEvaluator {
     recommendation: string,
     context: Record<string, unknown>,
     query: string,
-    recommendationType: RecommendationType,
+    recommendationType: RecommendationType
   ): Record<EvaluationCriteria, CriteriaScore> {
     const scores: Record<EvaluationCriteria, CriteriaScore> = {
       [EvaluationCriteria.ACCURACY]: this._evaluateAccuracyHeuristic(
         recommendation,
         context,
-        recommendationType,
+        recommendationType
       ),
       [EvaluationCriteria.ACTIONABILITY]: this._evaluateActionabilityHeuristic(recommendation),
-      [EvaluationCriteria.SAFETY]: this._evaluateSafetyHeuristic(recommendation, recommendationType),
+      [EvaluationCriteria.SAFETY]: this._evaluateSafetyHeuristic(
+        recommendation,
+        recommendationType
+      ),
       [EvaluationCriteria.RELEVANCE]: this._evaluateRelevanceHeuristic(
         recommendation,
         query,
-        context,
+        context
       ),
       [EvaluationCriteria.COMPLETENESS]: this._evaluateCompletenessHeuristic(
         recommendation,
-        recommendationType,
+        recommendationType
       ),
       [EvaluationCriteria.CLARITY]: this._evaluateClarityHeuristic(recommendation),
     };
@@ -488,7 +487,7 @@ export class RecommendationEvaluator {
   private _evaluateAccuracyHeuristic(
     recommendation: string,
     context: Record<string, unknown>,
-    recommendationType: RecommendationType,
+    _recommendationType: RecommendationType
   ): CriteriaScore {
     let score = 0.7; // Base score
     const evidence: string[] = [];
@@ -499,20 +498,19 @@ export class RecommendationEvaluator {
     const numbers = recommendation.match(/\d+(?:\.\d+)?/g) || [];
     if (numbers.length > 0) {
       score += 0.1;
-      evidence.push(`Contains specific quantities: ${numbers.slice(0, 3).join(", ")}`);
+      evidence.push(`Contains specific quantities: ${numbers.slice(0, 3).join(', ')}`);
     }
 
     // Check for units
-    const units = recLower.match(
-      /\b(kg|كجم|liter|لتر|mm|مم|hectare|هكتار|m2|متر|hour|ساعة)\b/g,
-    ) || [];
+    const units =
+      recLower.match(/\b(kg|كجم|liter|لتر|mm|مم|hectare|هكتار|m2|متر|hour|ساعة)\b/g) || [];
     if (units.length > 0) {
       score += 0.1;
-      evidence.push(`Contains measurement units: ${Array.from(new Set(units)).join(", ")}`);
+      evidence.push(`Contains measurement units: ${Array.from(new Set(units)).join(', ')}`);
     }
 
     // Check context alignment
-    const crop = ((context.crop as string) || (context.المحصول as string) || "").toLowerCase();
+    const crop = ((context.crop as string) || (context.المحصول as string) || '').toLowerCase();
     if (crop && recLower.includes(crop)) {
       score += 0.1;
       evidence.push(`Mentions relevant crop: ${crop}`);
@@ -521,9 +519,9 @@ export class RecommendationEvaluator {
     return createCriteriaScore(
       EvaluationCriteria.ACCURACY,
       Math.min(score, 1.0),
-      "Accuracy evaluated based on specificity and context alignment",
-      "تم تقييم الدقة بناءً على التحديد والتوافق مع السياق",
-      evidence,
+      'Accuracy evaluated based on specificity and context alignment',
+      'تم تقييم الدقة بناءً على التحديد والتوافق مع السياق',
+      evidence
     );
   }
 
@@ -535,70 +533,71 @@ export class RecommendationEvaluator {
 
     // Check for action verbs
     const actionVerbs = [
-      "apply",
-      "water",
-      "spray",
-      "add",
-      "remove",
-      "harvest",
-      "plant",
-      "irrigate",
-      "fertilize",
-      "prune",
+      'apply',
+      'water',
+      'spray',
+      'add',
+      'remove',
+      'harvest',
+      'plant',
+      'irrigate',
+      'fertilize',
+      'prune',
       // Arabic
-      "ضع",
-      "اسقِ",
-      "رش",
-      "أضف",
-      "أزل",
-      "احصد",
-      "ازرع",
-      "سمّد",
+      'ضع',
+      'اسقِ',
+      'رش',
+      'أضف',
+      'أزل',
+      'احصد',
+      'ازرع',
+      'سمّد',
     ];
     const foundVerbs = actionVerbs.filter((v) => recLower.includes(v));
     if (foundVerbs.length > 0) {
       score += 0.15;
-      evidence.push(`Contains action verbs: ${foundVerbs.slice(0, 3).join(", ")}`);
+      evidence.push(`Contains action verbs: ${foundVerbs.slice(0, 3).join(', ')}`);
     }
 
     // Check for time references
     const timeRefs = [
-      "morning",
-      "evening",
-      "daily",
-      "weekly",
-      "hours",
-      "days",
-      "صباحاً",
-      "مساءً",
-      "يومياً",
-      "أسبوعياً",
+      'morning',
+      'evening',
+      'daily',
+      'weekly',
+      'hours',
+      'days',
+      'صباحاً',
+      'مساءً',
+      'يومياً',
+      'أسبوعياً',
     ];
     const foundTimes = timeRefs.filter((t) => recLower.includes(t));
     if (foundTimes.length > 0) {
       score += 0.15;
-      evidence.push(`Contains timing guidance: ${foundTimes.slice(0, 3).join(", ")}`);
+      evidence.push(`Contains timing guidance: ${foundTimes.slice(0, 3).join(', ')}`);
     }
 
     // Check for step-by-step indicators
-    const stepIndicators = recommendation.match(/(\d+\.\s|\bstep\s+\d|\bأولاً|\bثانياً|\bثالثاً)/gi) || [];
+    const stepIndicators =
+      recommendation.match(/(\d+\.\s|\bstep\s+\d|\bأولاً|\bثانياً|\bثالثاً)/gi) || [];
     if (stepIndicators.length > 0) {
       score += 0.1;
-      evidence.push("Contains step-by-step instructions");
+      evidence.push('Contains step-by-step instructions');
     }
 
     return createCriteriaScore(
       EvaluationCriteria.ACTIONABILITY,
       Math.min(score, 1.0),
-      "Actionability evaluated based on action verbs and timing guidance",
-      "تم تقييم قابلية التنفيذ بناءً على أفعال العمل وإرشادات التوقيت",
-      evidence,
+      'Actionability evaluated based on action verbs and timing guidance',
+      'تم تقييم قابلية التنفيذ بناءً على أفعال العمل وإرشادات التوقيت',
+      evidence
     );
   }
 
   private _evaluateSafetyHeuristic(
     recommendation: string,
-    recommendationType: RecommendationType,
+    _recommendationType: RecommendationType
   ): CriteriaScore {
     let score = 0.8; // Start optimistic
     const evidence: string[] = [];
@@ -607,61 +606,54 @@ export class RecommendationEvaluator {
 
     // Check for safety warnings
     const safetyTerms = [
-      "caution",
-      "warning",
-      "careful",
-      "avoid",
-      "do not",
-      "تحذير",
-      "احذر",
-      "تجنب",
-      "لا تفعل",
+      'caution',
+      'warning',
+      'careful',
+      'avoid',
+      'do not',
+      'تحذير',
+      'احذر',
+      'تجنب',
+      'لا تفعل',
     ];
     const foundWarnings = safetyTerms.filter((t) => recLower.includes(t));
     if (foundWarnings.length > 0) {
       score += 0.1;
-      evidence.push(`Contains safety guidance: ${foundWarnings.slice(0, 3).join(", ")}`);
+      evidence.push(`Contains safety guidance: ${foundWarnings.slice(0, 3).join(', ')}`);
     }
 
     // Check for protective equipment mentions
     const ppeTerms = [
-      "gloves",
-      "mask",
-      "goggles",
-      "protective",
-      "قفازات",
-      "كمامة",
-      "نظارات",
-      "حماية",
+      'gloves',
+      'mask',
+      'goggles',
+      'protective',
+      'قفازات',
+      'كمامة',
+      'نظارات',
+      'حماية',
     ];
     const foundPpe = ppeTerms.filter((t) => recLower.includes(t));
     if (foundPpe.length > 0) {
       score += 0.1;
-      evidence.push(`Mentions protective equipment: ${foundPpe.join(", ")}`);
+      evidence.push(`Mentions protective equipment: ${foundPpe.join(', ')}`);
     }
 
     // Check for dangerous chemicals without warnings
-    const dangerousTerms = [
-      "pesticide",
-      "herbicide",
-      "fungicide",
-      "chemical",
-      "مبيد",
-      "كيميائي",
-    ];
+    const dangerousTerms = ['pesticide', 'herbicide', 'fungicide', 'chemical', 'مبيد', 'كيميائي'];
     const hasChemicals = dangerousTerms.some((t) => recLower.includes(t));
     const hasWarnings = safetyTerms.some((t) => recLower.includes(t));
 
     if (hasChemicals && !hasWarnings) {
       score -= 0.2;
-      evidence.push("Contains chemical references without safety warnings");
+      evidence.push('Contains chemical references without safety warnings');
     }
 
     // Penalize for excessive quantities
     const quantities = recommendation.match(/(\d+)\s*(kg|liter|كجم|لتر)/gi) || [];
     for (const qty of quantities) {
       const match = qty.match(/(\d+)/);
-      if (match && parseInt(match[1]) > 100) {
+      if (match && match[1] && parseInt(match[1]) > 100) {
         score -= 0.1;
         evidence.push(`Large quantity mentioned: ${qty}`);
         break;
@@ -671,16 +663,16 @@ export class RecommendationEvaluator {
     return createCriteriaScore(
       EvaluationCriteria.SAFETY,
       Math.max(score, 0.0),
-      "Safety evaluated based on warnings and chemical handling guidance",
-      "تم تقييم السلامة بناءً على التحذيرات وإرشادات التعامل مع المواد الكيميائية",
-      evidence,
+      'Safety evaluated based on warnings and chemical handling guidance',
+      'تم تقييم السلامة بناءً على التحذيرات وإرشادات التعامل مع المواد الكيميائية',
+      evidence
     );
   }
 
   private _evaluateRelevanceHeuristic(
     recommendation: string,
     query: string,
-    context: Record<string, unknown>,
+    context: Record<string, unknown>
   ): CriteriaScore {
     let score = 0.5; // Base score
     const evidence: string[] = [];
@@ -689,22 +681,14 @@ export class RecommendationEvaluator {
     const queryLower = query.toLowerCase();
 
     // Check keyword overlap with query
-    const queryWords = new Set(
-      queryLower
-        .split(/\s+/)
-        .filter((w) => w.length > 0),
-    );
-    const recWords = new Set(
-      recLower
-        .split(/\s+/)
-        .filter((w) => w.length > 0),
-    );
+    const queryWords = new Set(queryLower.split(/\s+/).filter((w) => w.length > 0));
+    const recWords = new Set(recLower.split(/\s+/).filter((w) => w.length > 0));
     const overlap = Array.from(queryWords).filter((w) => recWords.has(w));
 
     if (overlap.length > 0) {
       const overlapRatio = overlap.length / Math.max(queryWords.size, 1);
       score += overlapRatio * 0.3;
-      evidence.push(`Query keyword overlap: ${overlap.slice(0, 5).join(", ")}`);
+      evidence.push(`Query keyword overlap: ${overlap.slice(0, 5).join(', ')}`);
     }
 
     // Check context field mentions
@@ -720,39 +704,39 @@ export class RecommendationEvaluator {
 
     // Agricultural relevance
     const agriTerms = [
-      "crop",
-      "field",
-      "soil",
-      "water",
-      "irrigation",
-      "fertilizer",
-      "harvest",
-      "محصول",
-      "حقل",
-      "تربة",
-      "ماء",
-      "ري",
-      "سماد",
-      "حصاد",
+      'crop',
+      'field',
+      'soil',
+      'water',
+      'irrigation',
+      'fertilizer',
+      'harvest',
+      'محصول',
+      'حقل',
+      'تربة',
+      'ماء',
+      'ري',
+      'سماد',
+      'حصاد',
     ];
     const foundAgri = agriTerms.filter((t) => recLower.includes(t));
     if (foundAgri.length > 0) {
       score += 0.2;
-      evidence.push(`Agricultural relevance: ${foundAgri.slice(0, 3).join(", ")}`);
+      evidence.push(`Agricultural relevance: ${foundAgri.slice(0, 3).join(', ')}`);
     }
 
     return createCriteriaScore(
       EvaluationCriteria.RELEVANCE,
       Math.min(score, 1.0),
-      "Relevance evaluated based on query and context alignment",
-      "تم تقييم الصلة بناءً على التوافق مع الاستعلام والسياق",
-      evidence,
+      'Relevance evaluated based on query and context alignment',
+      'تم تقييم الصلة بناءً على التوافق مع الاستعلام والسياق',
+      evidence
     );
   }
 
   private _evaluateCompletenessHeuristic(
     recommendation: string,
-    recommendationType: RecommendationType,
+    recommendationType: RecommendationType
   ): CriteriaScore {
     let score = 0.5; // Base score
     const evidence: string[] = [];
@@ -760,19 +744,19 @@ export class RecommendationEvaluator {
     // Check for expected components based on recommendation type
     const expectedComponents: Record<RecommendationType, Array<[string, string[]]>> = {
       [RecommendationType.IRRIGATION]: [
-        ["quantity", ["liter", "mm", "لتر", "مم"]],
-        ["timing", ["morning", "evening", "صباحاً", "مساءً"]],
-        ["frequency", ["daily", "weekly", "يومياً", "أسبوعياً"]],
+        ['quantity', ['liter', 'mm', 'لتر', 'مم']],
+        ['timing', ['morning', 'evening', 'صباحاً', 'مساءً']],
+        ['frequency', ['daily', 'weekly', 'يومياً', 'أسبوعياً']],
       ],
       [RecommendationType.FERTILIZATION]: [
-        ["type", ["nitrogen", "phosphorus", "potassium", "نيتروجين", "فوسفور"]],
-        ["quantity", ["kg", "gram", "كجم", "غرام"]],
-        ["application", ["apply", "spread", "ضع", "انشر"]],
+        ['type', ['nitrogen', 'phosphorus', 'potassium', 'نيتروجين', 'فوسفور']],
+        ['quantity', ['kg', 'gram', 'كجم', 'غرام']],
+        ['application', ['apply', 'spread', 'ضع', 'انشر']],
       ],
       [RecommendationType.PEST_CONTROL]: [
-        ["identification", ["pest", "insect", "آفة", "حشرة"]],
-        ["treatment", ["spray", "apply", "رش", "ضع"]],
-        ["prevention", ["prevent", "avoid", "تجنب", "منع"]],
+        ['identification', ['pest', 'insect', 'آفة', 'حشرة']],
+        ['treatment', ['spray', 'apply', 'رش', 'ضع']],
+        ['prevention', ['prevent', 'avoid', 'تجنب', 'منع']],
       ],
       [RecommendationType.GENERAL]: [],
       [RecommendationType.DISEASE]: [],
@@ -804,9 +788,9 @@ export class RecommendationEvaluator {
     return createCriteriaScore(
       EvaluationCriteria.COMPLETENESS,
       Math.min(Math.max(score, 0.0), 1.0),
-      "Completeness evaluated based on expected components",
-      "تم تقييم الاكتمال بناءً على المكونات المتوقعة",
-      evidence,
+      'Completeness evaluated based on expected components',
+      'تم تقييم الاكتمال بناءً على المكونات المتوقعة',
+      evidence
     );
   }
 
@@ -835,35 +819,35 @@ export class RecommendationEvaluator {
 
     // Check for clear structure markers
     const structureMarkers = [
-      "first",
-      "second",
-      "then",
-      "finally",
-      "أولاً",
-      "ثانياً",
-      "ثم",
-      "أخيراً",
+      'first',
+      'second',
+      'then',
+      'finally',
+      'أولاً',
+      'ثانياً',
+      'ثم',
+      'أخيراً',
     ];
     const foundMarkers = structureMarkers.filter((m) =>
-      recommendation.toLowerCase().includes(m.toLowerCase()),
+      recommendation.toLowerCase().includes(m.toLowerCase())
     );
     if (foundMarkers.length > 0) {
       score += 0.1;
-      evidence.push("Contains structural markers");
+      evidence.push('Contains structural markers');
     }
 
     // Check for bullet points or numbered lists
     if (/[\-\•\*]\s|^\d+\./m.test(recommendation)) {
       score += 0.1;
-      evidence.push("Uses list formatting");
+      evidence.push('Uses list formatting');
     }
 
     return createCriteriaScore(
       EvaluationCriteria.CLARITY,
       Math.min(score, 1.0),
-      "Clarity evaluated based on sentence structure and formatting",
-      "تم تقييم الوضوح بناءً على بنية الجملة والتنسيق",
-      evidence,
+      'Clarity evaluated based on sentence structure and formatting',
+      'تم تقييم الوضوح بناءً على بنية الجملة والتنسيق',
+      evidence
     );
   }
 
@@ -875,63 +859,28 @@ export class RecommendationEvaluator {
     const recLower = recommendation.toLowerCase();
 
     const typeKeywords: Record<RecommendationType, string[]> = {
-      [RecommendationType.IRRIGATION]: [
-        "water",
-        "irrigat",
-        "drip",
-        "ري",
-        "ماء",
-        "رطوبة",
-      ],
+      [RecommendationType.IRRIGATION]: ['water', 'irrigat', 'drip', 'ري', 'ماء', 'رطوبة'],
       [RecommendationType.FERTILIZATION]: [
-        "fertiliz",
-        "nutrient",
-        "nitrogen",
-        "سماد",
-        "تسميد",
-        "نيتروجين",
+        'fertiliz',
+        'nutrient',
+        'nitrogen',
+        'سماد',
+        'تسميد',
+        'نيتروجين',
       ],
-      [RecommendationType.PEST_CONTROL]: [
-        "pest",
-        "insect",
-        "spray",
-        "آفة",
-        "حشرة",
-        "مبيد",
-      ],
+      [RecommendationType.PEST_CONTROL]: ['pest', 'insect', 'spray', 'آفة', 'حشرة', 'مبيد'],
       [RecommendationType.DISEASE]: [
-        "disease",
-        "fungus",
-        "virus",
-        "infection",
-        "مرض",
-        "فطر",
-        "عدوى",
+        'disease',
+        'fungus',
+        'virus',
+        'infection',
+        'مرض',
+        'فطر',
+        'عدوى',
       ],
-      [RecommendationType.HARVEST]: [
-        "harvest",
-        "pick",
-        "collect",
-        "حصاد",
-        "قطف",
-        "جمع",
-      ],
-      [RecommendationType.PLANTING]: [
-        "plant",
-        "seed",
-        "sow",
-        "زراعة",
-        "بذور",
-        "غرس",
-      ],
-      [RecommendationType.WEATHER]: [
-        "weather",
-        "rain",
-        "temperature",
-        "طقس",
-        "مطر",
-        "حرارة",
-      ],
+      [RecommendationType.HARVEST]: ['harvest', 'pick', 'collect', 'حصاد', 'قطف', 'جمع'],
+      [RecommendationType.PLANTING]: ['plant', 'seed', 'sow', 'زراعة', 'بذور', 'غرس'],
+      [RecommendationType.WEATHER]: ['weather', 'rain', 'temperature', 'طقس', 'مطر', 'حرارة'],
       [RecommendationType.GENERAL]: [],
     };
 

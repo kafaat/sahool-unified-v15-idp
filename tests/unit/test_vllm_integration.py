@@ -300,7 +300,7 @@ class TestLLMSubjectRegistry:
         """get_wildcard_subject returns correct wildcard for llm domain."""
         from shared.events.subjects import get_wildcard_subject
 
-        assert get_wildcard_subject("llm") == "sahool.llm.*"
+        assert get_wildcard_subject("llm") == "sahool.llm.>"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

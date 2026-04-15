@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
+import '../../../../core/di/providers.dart';
 import '../../domain/entities/field_entity.dart';
 
 /// شاشة تفاصيل الحقل
@@ -60,7 +63,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       backgroundColor: const Color(0xFF367C2B),
       foregroundColor: Colors.white,
       flexibleSpace: FlexibleSpaceBar(
-        background: Container(
+        background: DecoratedBox(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topCenter,
@@ -81,7 +84,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                         width: 70,
                         height: 70,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Center(
@@ -113,7 +116,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                                     vertical: 2,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withOpacity(0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -132,7 +135,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                                   ),
                                   decoration: BoxDecoration(
                                     color: _getStatusColor(widget.field.status)
-                                        .withOpacity(0.3),
+                                        .withValues(alpha: 0.3),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Text(
@@ -158,7 +161,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                     children: [
                       _buildQuickStat(
                         icon: Icons.square_foot,
-                        value: '${widget.field.areaHectares.toStringAsFixed(1)}',
+                        value: widget.field.areaHectares.toStringAsFixed(1),
                         label: 'هكتار',
                       ),
                       const SizedBox(width: 24),
@@ -229,7 +232,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }) {
     return Column(
       children: [
-        Icon(icon, color: Colors.white.withOpacity(0.8), size: 20),
+        Icon(icon, color: Colors.white.withValues(alpha: 0.8), size: 20),
         const SizedBox(height: 4),
         Text(
           value,
@@ -242,7 +245,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 11,
           ),
         ),
@@ -528,7 +531,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: color, size: 20),
@@ -712,7 +715,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(icon, color: color, size: 20),
@@ -722,7 +725,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.1),
+          color: Colors.orange.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
@@ -746,7 +749,13 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
           ),
           const SizedBox(height: 8),
           ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/task-create',
+                arguments: {'fieldId': widget.field.id, 'fieldName': widget.field.name},
+              );
+            },
             icon: const Icon(Icons.add),
             label: const Text('إضافة مهمة'),
             style: ElevatedButton.styleFrom(
@@ -767,7 +776,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
           margin: const EdgeInsets.only(bottom: 8),
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: const Color(0xFF367C2B).withOpacity(0.1),
+              backgroundColor: const Color(0xFF367C2B).withValues(alpha: 0.1),
               child: const Icon(Icons.history, color: Color(0xFF367C2B)),
             ),
             title: Text('نشاط ${10 - index}'),
@@ -854,18 +863,17 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   void _handleMenuAction(String action) {
     switch (action) {
       case 'edit':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تعديل الحقل - قريباً')),
+        context.push(
+          '/field-form',
+          extra: {'fieldId': widget.field.id},
         );
         break;
       case 'share':
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('مشاركة - قريباً')),
-        );
+        _shareField();
         break;
       case 'export':
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تصدير - قريباً')),
+          const SnackBar(content: Text('تصدير البيانات - قريباً')),
         );
         break;
       case 'delete':
@@ -874,21 +882,53 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     }
   }
 
+  void _shareField() {
+    final field = widget.field;
+    final shareText = StringBuffer()
+      ..writeln('${field.name} - سهول')
+      ..writeln('المحصول: ${field.cropType}')
+      ..writeln('المساحة: ${field.areaHectares.toStringAsFixed(1)} هكتار')
+      ..writeln('الحالة: ${field.status.arabicLabel}');
+    if (field.ndviValue != null) {
+      shareText.writeln('NDVI: ${field.ndviValue!.toStringAsFixed(2)}');
+    }
+    Share.share(shareText.toString(), subject: field.name);
+  }
+
   void _showDeleteConfirmation() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('حذف الحقل'),
         content: Text('هل أنت متأكد من حذف "${widget.field.name}"؟'),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: const Text('إلغاء'),
           ),
           ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              try {
+                final repo = ref.read(fieldsRepoProvider);
+                await repo.deleteField(widget.field.id);
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('تم حذف الحقل بنجاح'),
+                    backgroundColor: Color(0xFF367C2B),
+                  ),
+                );
+                Navigator.pop(context, 'deleted');
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('فشل حذف الحقل: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('حذف'),

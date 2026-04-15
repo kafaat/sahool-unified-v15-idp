@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Marketplace Provider
 /// مزود السوق - إدارة المنتجات والطلبات
 ///

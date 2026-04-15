@@ -3,15 +3,12 @@ SAHOOL Prompt Engine Tests
 Sprint 9: Unit tests for prompt template rendering
 """
 
-import sys
-
 import pytest
-
-sys.path.insert(0, "packages")
 
 from advisor.ai.prompt_engine import get_template, list_templates, render_prompt
 
 
+@pytest.mark.unit
 class TestRenderPrompt:
     """Test prompt rendering"""
 
@@ -63,6 +60,7 @@ class TestRenderPrompt:
         assert "{{retrieved_chunks}}" not in prompt
 
 
+@pytest.mark.unit
 class TestGetTemplate:
     """Test template loading"""
 
@@ -78,6 +76,7 @@ class TestGetTemplate:
             get_template("nonexistent_template_xyz")
 
 
+@pytest.mark.unit
 class TestListTemplates:
     """Test template listing"""
 

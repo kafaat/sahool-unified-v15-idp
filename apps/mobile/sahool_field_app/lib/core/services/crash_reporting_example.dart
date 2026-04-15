@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Crash Reporting Usage Examples
 /// أمثلة استخدام خدمة تتبع الأعطال
 ///

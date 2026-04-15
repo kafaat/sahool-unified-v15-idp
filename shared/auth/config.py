@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import os
+import secrets
 from typing import Dict, List
 
 logger = logging.getLogger(__name__)
@@ -36,6 +37,38 @@ class JWTConfigError(Exception):
     pass
 
 
+def _resolve_jwt_secret() -> str:
+    """Resolve JWT secret from environment with security-safe fallback.
+
+    - production/staging: returns empty string so validate() can report the error
+      via JWTConfigError (not a crash at import time)
+    - development/test: generates a random per-process secret to prevent using
+      a known hardcoded constant that would allow token forgery
+    """
+    value = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or os.getenv("AUTH_SECRET_KEY")
+    if value:
+        return value
+
+    env = os.getenv("ENVIRONMENT", "development")
+    if env in ("production", "staging"):
+        # Return empty string - validate() will catch this and raise JWTConfigError
+        # with actionable details. Crashing at import time prevents diagnostics.
+        logger.error(  # nosemgrep: python-logger-credential-disclosure
+            "SECURITY: Required auth env var is not set in %s environment. "
+            "Service will reject all auth until configured.",
+            env,
+        )
+        return ""
+
+    # Generate a random per-process secret for dev/test - NOT a hardcoded constant
+    fallback = secrets.token_hex(32)
+    logger.warning(
+        "JWT_SECRET_KEY not set - using random per-process fallback. "
+        "Tokens will NOT survive restarts. Set JWT_SECRET_KEY for persistence."
+    )
+    return fallback
+
+
 class JWTConfig:
     """JWT Configuration Settings - HS256 Only"""
 
@@ -43,7 +76,10 @@ class JWTConfig:
     # JWT_SECRET is accepted as a deprecated fallback for backward compatibility.
     # Note: Use get_signing_key()/get_verification_key() methods instead of reading
     # this attribute directly, as they re-read from env at call time.
-    JWT_SECRET: str = os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET") or ""
+    # SECURITY: In production/staging, JWT_SECRET_KEY MUST be set via environment.
+    # In development/test, a per-process random fallback is generated to prevent
+    # using a known hardcoded secret that would allow token forgery.
+    JWT_SECRET: str = _resolve_jwt_secret()
 
     # JWT Algorithm - HS256 only (RS256 deprecated)
     JWT_ALGORITHM: str = "HS256"

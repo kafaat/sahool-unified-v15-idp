@@ -161,7 +161,7 @@ END $$;
 -- Step 5: Drop the stale GPS view (optional cleanup)
 -- ─────────────────────────────────────────────────────────────────────────────
 DROP VIEW IF EXISTS v_stale_gps_data;
-RAISE NOTICE '  🗑️ Dropped v_stale_gps_data view';
+-- Dropped v_stale_gps_data view
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- Step 6: Summary

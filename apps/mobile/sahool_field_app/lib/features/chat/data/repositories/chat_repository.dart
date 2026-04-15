@@ -1,3 +1,5 @@
+library;
+
 /// Chat Repository
 /// مستودع المحادثات
 ///
@@ -34,7 +36,7 @@ class ChatRepository {
 
     // Update cache
     _conversationsCache.clear();
-    for (var conversation in conversations) {
+    for (final conversation in conversations) {
       _conversationsCache[conversation.id] = conversation;
     }
 
@@ -92,7 +94,7 @@ class ChatRepository {
 
   /// Get unread count
   Future<int> getUnreadCount() async {
-    return await _api.getUnreadCount();
+    return _api.getUnreadCount();
   }
 
   /// Block a user
@@ -254,7 +256,7 @@ class ChatRepository {
   /// Update message status in cache
   void updateMessageStatus(String messageId, MessageStatus status) {
     // Find message in cache and update
-    for (var messages in _messagesCache.values) {
+    for (final messages in _messagesCache.values) {
       final index = messages.indexWhere((m) => m.id == messageId);
       if (index != -1) {
         messages[index] = messages[index].copyWith(status: status);
@@ -303,7 +305,7 @@ class ChatRepository {
 
   /// Update participant online status
   void updateOnlineStatus(String userId, bool isOnline) {
-    for (var conversation in _conversationsCache.values) {
+    for (final conversation in _conversationsCache.values) {
       final participantIndex = conversation.participants.indexWhere(
         (p) => p.userId == userId,
       );

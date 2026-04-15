@@ -24,7 +24,6 @@ import pytest
 
 from .conftest import ActionType, TriggerType
 
-
 # ==============================================================================
 # IFTTT Controller Implementation (Test Target Mock)
 # ==============================================================================

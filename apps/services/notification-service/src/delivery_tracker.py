@@ -8,10 +8,11 @@ and comprehensive delivery analytics.
 
 import asyncio
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timezone
 from enum import Enum, StrEnum
-from typing import Any, Callable
+from typing import Any
 from uuid import UUID
 
 import httpx

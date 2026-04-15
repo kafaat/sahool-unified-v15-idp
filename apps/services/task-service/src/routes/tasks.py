@@ -12,11 +12,12 @@ import logging
 import os
 import sys
 import uuid
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, time, timedelta
+from datetime import date as date_type
 from typing import Any
 
-from fastapi import APIRouter, Depends, Header, HTTPException, Query
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, Header, HTTPException, Query, Request
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from sqlalchemy.orm import Session
 
 # Add parent path for imports
@@ -75,12 +76,126 @@ except ImportError:
         tenant_id: str = ""
 
     async def get_current_user():
+        raise HTTPException(
+            status_code=503,
+            detail="Authentication backend unavailable",
+        )
+
+
+def _extract_tenant_from_user(user: Any) -> str | None:
+    """
+    Read a tenant id from a User-like object.
+
+    The shared JWT decoder populates `tenant_id` from the JWT `tid` claim.
+    Some integrations expose it directly as `tid` — check both for safety.
+    """
+    if user is None:
         return None
+    for attr in ("tenant_id", "tid"):
+        value = getattr(user, attr, None)
+        if value:
+            return str(value)
+    # dataclass / dict fallback
+    if isinstance(user, dict):
+        return user.get("tenant_id") or user.get("tid")
+    return None
 
 
-async def get_tenant_id(x_tenant_id: str = Header(default="default")) -> str:
-    """Extract tenant ID from request header"""
-    return x_tenant_id
+def _extract_tenant_from_request_state(request: Request) -> str | None:
+    """
+    Read tenant id from request.state populated by JWT/tenant middleware.
+
+    The shared ``TenantContextMiddleware`` sets ``request.state.tenant_id``
+    (and ``request.state.principal`` with the full JWT claim set) BEFORE the
+    route runs. We prefer these sources because they are authenticated.
+    """
+    # 1. user object attached by shared auth middleware
+    user = getattr(request.state, "user", None)
+    tid = _extract_tenant_from_user(user)
+    if tid:
+        return tid
+
+    # 2. principal dict from TenantContextMiddleware (JWT claims)
+    principal = getattr(request.state, "principal", None)
+    if isinstance(principal, dict):
+        value = principal.get("tid") or principal.get("tenant_id")
+        if value:
+            return str(value)
+
+    # 3. tenant_id already resolved by TenantContextMiddleware
+    value = getattr(request.state, "tenant_id", None)
+    if value:
+        return str(value)
+
+    return None
+
+
+async def get_tenant_id(
+    request: Request,
+    x_tenant_id: str | None = Header(default=None, alias="X-Tenant-Id"),
+) -> str:
+    """
+    Resolve the current tenant ID from the authenticated JWT.
+
+    SECURITY (Wave 2)
+    -----------------
+    The previous implementation trusted the ``X-Tenant-Id`` header, which
+    allowed a client with any valid JWT to request data from *any* tenant
+    simply by setting a different header value. We now:
+
+    1. Pull the tenant exclusively from authenticated sources:
+         * ``request.state.user`` / ``request.state.principal`` set by
+           JWT / TenantContext middleware, **or**
+         * the ``get_current_user()`` dependency if no middleware ran.
+    2. Use the raw ``X-Tenant-Id`` header *only* as a cross-check — a
+       mismatch with the JWT tenant is rejected with **403 Forbidden**.
+    3. Reject the request with **401** if no JWT tenant can be resolved.
+    """
+    # 1. Prefer tenant already attached to request.state by middleware
+    jwt_tenant: str | None = _extract_tenant_from_request_state(request)
+
+    # 2. Fall back to resolving the user via the dependency
+    if not jwt_tenant and AUTH_AVAILABLE:
+        try:
+            user = await get_current_user()
+        except HTTPException:
+            raise
+        except Exception as exc:
+            logger.warning(
+                "get_current_user failed while resolving tenant: %s",
+                type(exc).__name__,
+            )
+            user = None
+        jwt_tenant = _extract_tenant_from_user(user)
+
+    if not jwt_tenant:
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "error": "unauthenticated",
+                "message": "Authenticated tenant (JWT 'tid') is required",
+                "message_ar": "يجب توفر المستأجر الموثّق (JWT 'tid')",
+            },
+        )
+
+    # 3. If the client supplied an X-Tenant-Id header, it MUST match the JWT.
+    #    Silent mismatch is now a 403 Forbidden — we never trust the header.
+    if x_tenant_id and x_tenant_id != jwt_tenant:
+        logger.warning(
+            "Tenant header/JWT mismatch blocked: header=%s jwt=%s",
+            sanitize_for_log(x_tenant_id),
+            sanitize_for_log(jwt_tenant),
+        )
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "tenant_mismatch",
+                "message": "X-Tenant-Id does not match authenticated tenant",
+                "message_ar": "رأس X-Tenant-Id لا يطابق المستأجر الموثّق",
+            },
+        )
+
+    return jwt_tenant
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -88,8 +203,60 @@ async def get_tenant_id(x_tenant_id: str = Header(default="default")) -> str:
 # ═══════════════════════════════════════════════════════════════════════════
 
 
+# Strict UUID v4 format regex used for assigned_to validation.
+_UUID_PATTERN = r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+
+
+def _normalize_due_date(value: Any) -> datetime | None:
+    """
+    Coerce a due-date input into a timezone-aware UTC datetime.
+
+    Accepts:
+      * ``None``                                          → ``None``
+      * ``datetime`` instances                            → made UTC-aware
+      * ISO-8601 strings with an explicit offset          → parsed as-is
+      * ``YYYY-MM-DD`` (date only, no time)               → **end of day UTC**
+        (``23:59:59.999999+00:00``) so "due today" filters behave predictably
+        regardless of the client's local timezone.
+
+    This mirrors how the web/admin UI submits due dates (`<input type="date">`
+    returns ``YYYY-MM-DD``) and fixes the previous off-by-timezone bug where
+    naïve parsing treated them as midnight UTC.
+    """
+    if value is None or isinstance(value, datetime):
+        if isinstance(value, datetime) and value.tzinfo is None:
+            return value.replace(tzinfo=UTC)
+        return value
+    if isinstance(value, date_type):
+        return datetime.combine(value, time(23, 59, 59, 999999), tzinfo=UTC)
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        # Bare YYYY-MM-DD → end of day UTC
+        try:
+            parsed_date = date_type.fromisoformat(text)
+            return datetime.combine(parsed_date, time(23, 59, 59, 999999), tzinfo=UTC)
+        except ValueError:
+            pass
+        # ISO-8601 datetime (with or without 'Z')
+        try:
+            parsed = datetime.fromisoformat(text.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise ValueError("due_date must be ISO-8601 (YYYY-MM-DD or full datetime with timezone)") from exc
+        if parsed.tzinfo is None:
+            parsed = parsed.replace(tzinfo=UTC)
+        return parsed
+    raise ValueError("due_date must be a string or datetime")
+
+
 class TaskCreateRequest(BaseModel):
     """Create a new task - إنشاء مهمة جديدة"""
+
+    # SECURITY (Wave 2): strict mode — unknown fields return 422 instead of
+    # being silently dropped (e.g. camelCase vs snake_case typos such as
+    # ``assignee_id``/``taskType`` which used to corrupt records).
+    model_config = ConfigDict(extra="forbid")
 
     title: str = Field(..., min_length=1, max_length=200)
     title_ar: str | None = None
@@ -99,8 +266,17 @@ class TaskCreateRequest(BaseModel):
     priority: TaskPriority = TaskPriority.MEDIUM
     field_id: str | None = Field(None, max_length=100)
     zone_id: str | None = None
-    assigned_to: str | None = None
-    due_date: datetime | None = None
+    # Validate assigned_to as a UUID to prevent cross-tenant assignment with
+    # arbitrary strings. Full tenant-scoped user existence verification should
+    # be added when a user-lookup service is available.
+    assigned_to: str | None = Field(None, max_length=100, pattern=_UUID_PATTERN)
+    due_date: datetime | None = Field(
+        None,
+        description=(
+            "ISO-8601 datetime with timezone OR bare YYYY-MM-DD. "
+            "Bare dates are interpreted as end-of-day UTC (23:59:59+00:00)."
+        ),
+    )
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
     metadata: dict | None = Field(None, description="Must be < 64KB when serialized")
@@ -113,9 +289,17 @@ class TaskCreateRequest(BaseModel):
     suggested_by_calendar: bool = False
     astronomical_recommendation: dict | None = None
 
+    @field_validator("due_date", mode="before")
+    @classmethod
+    def _parse_due_date(cls, v):
+        return _normalize_due_date(v)
+
 
 class TaskUpdateRequest(BaseModel):
     """Update task properties - تحديث خصائص المهمة"""
+
+    # Strict mode — reject unknown fields (see TaskCreateRequest).
+    model_config = ConfigDict(extra="forbid")
 
     title: str | None = Field(None, min_length=1, max_length=200)
     title_ar: str | None = None
@@ -125,16 +309,39 @@ class TaskUpdateRequest(BaseModel):
     priority: TaskPriority | None = None
     field_id: str | None = Field(None, max_length=100)
     zone_id: str | None = None
-    assigned_to: str | None = None
-    due_date: datetime | None = None
+    assigned_to: str | None = Field(None, max_length=100, pattern=_UUID_PATTERN)
+    due_date: datetime | None = Field(
+        None,
+        description=("ISO-8601 datetime with timezone OR bare YYYY-MM-DD (interpreted as end-of-day UTC)."),
+    )
     scheduled_time: str | None = Field(None, pattern=r"^([01]?[0-9]|2[0-3]):([0-5][0-9])(?::([0-5][0-9]))?$")
     estimated_duration_minutes: int | None = Field(None, ge=1, le=1440)
     status: TaskStatus | None = None
     metadata: dict | None = Field(None, description="Must be < 64KB when serialized")
 
+    # Optimistic concurrency control. When provided, the server rejects
+    # the update with 409 if the stored task's ``version`` no longer
+    # matches, preventing kanban drag-drop / concurrent-edit overwrites.
+    if_match_version: int | None = Field(
+        None,
+        ge=1,
+        description=(
+            "Expected current version of the task. If set and the stored "
+            "version does not match, the update is rejected with HTTP 409."
+        ),
+    )
+
+    @field_validator("due_date", mode="before")
+    @classmethod
+    def _parse_due_date(cls, v):
+        return _normalize_due_date(v)
+
 
 class TaskCompleteRequest(BaseModel):
     """Complete a task with evidence - إكمال مهمة مع الأدلة"""
+
+    # Strict mode — reject unknown fields (see TaskCreateRequest).
+    model_config = ConfigDict(extra="forbid")
 
     notes: str | None = None
     notes_ar: str | None = None
@@ -168,6 +375,14 @@ async def list_tasks(
     assigned_to: str | None = Query(None, description="Filter by assignee"),
     due_before: datetime | None = Query(None, description="Due before date"),
     due_after: datetime | None = Query(None, description="Due after date"),
+    search: str | None = Query(
+        None,
+        max_length=200,
+        description=(
+            "Case-insensitive ILIKE match on title / title_ar / description. "
+            "Empty or whitespace-only values are ignored."
+        ),
+    ),
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
     tenant_id: str = Depends(get_tenant_id),
@@ -179,6 +394,11 @@ async def list_tasks(
     """
     repo = TaskRepository(db)
 
+    # Normalize search: ignore empty/whitespace-only values
+    search_term = search.strip() if search else None
+    if search_term == "":
+        search_term = None
+
     tasks, total = repo.list_tasks(
         tenant_id=tenant_id,
         field_id=field_id,
@@ -188,6 +408,7 @@ async def list_tasks(
         assigned_to=assigned_to,
         due_before=due_before,
         due_after=due_after,
+        search=search_term,
         limit=limit,
         offset=offset,
     )
@@ -315,6 +536,7 @@ async def create_task(
     data: TaskCreateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Create a new task
@@ -324,18 +546,18 @@ async def create_task(
     if data.metadata:
         try:
             validate_metadata_size(data.metadata)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        except (ValidationError, ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid metadata | بيانات وصفية غير صالحة")
 
     # Validate field_id format
     if data.field_id:
         try:
             validate_field_id(data.field_id)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        except (ValidationError, ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid field ID format | صيغة معرف الحقل غير صالحة")
 
     task_id = generate_task_id()
-    created_by = "user_system"  # Would come from auth in production
+    created_by = getattr(current_user, "id", "system")
 
     # Create task data object
     task_data = TaskCreateData(
@@ -384,6 +606,7 @@ async def update_task(
     data: TaskUpdateRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Update a task
@@ -393,11 +616,11 @@ async def update_task(
     if data.metadata:
         try:
             validate_metadata_size(data.metadata)
-        except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        except (ValidationError, ValueError, TypeError):
+            raise HTTPException(status_code=400, detail="Invalid metadata | بيانات وصفية غير صالحة")
 
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
 
     # Prepare update data
     update_data = data.model_dump(exclude_unset=True)
@@ -426,7 +649,7 @@ async def update_task(
             },
         )
 
-    logger.info("Task updated: %s", sanitize_for_log(task_id))
+    logger.info("Task updated: %s by %s", sanitize_for_log(task_id), sanitize_for_log(performed_by))
 
     return db_task_to_dict(task)
 
@@ -436,6 +659,7 @@ async def delete_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Delete a task
@@ -454,7 +678,8 @@ async def delete_task(
             },
         )
 
-    logger.info("Task deleted: %s", sanitize_for_log(task_id))
+    performed_by = current_user.id if current_user and current_user.id else "system"
+    logger.info("Task deleted: %s by %s", sanitize_for_log(task_id), sanitize_for_log(performed_by))
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -467,13 +692,14 @@ async def start_task(
     task_id: str,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark a task as in progress
     وضع علامة على المهمة كقيد التنفيذ
     """
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
 
     try:
         task = repo.start_task(task_id, tenant_id, performed_by)
@@ -488,7 +714,7 @@ async def start_task(
                 },
             )
 
-        logger.info("Task started: %s", sanitize_for_log(task_id))
+        logger.info("Task started: %s by %s", sanitize_for_log(task_id), sanitize_for_log(performed_by))
 
         return db_task_to_dict(task)
 
@@ -508,13 +734,14 @@ async def complete_task(
     data: TaskCompleteRequest,
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Mark a task as completed with evidence
     وضع علامة على المهمة كمكتملة مع الأدلة
     """
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
     now = datetime.now(UTC)
 
     task = repo.complete_task(
@@ -559,13 +786,14 @@ async def cancel_task(
     reason: str | None = Query(None, description="Cancellation reason"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Cancel a task
     إلغاء مهمة
     """
     repo = TaskRepository(db)
-    performed_by = "system"
+    performed_by = current_user.id if current_user and current_user.id else "system"
 
     task = repo.cancel_task(task_id, tenant_id, performed_by, reason)
 
@@ -598,6 +826,7 @@ async def add_evidence(
     lon: float | None = Query(None, description="Longitude"),
     tenant_id: str = Depends(get_tenant_id),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Add evidence to a task
@@ -629,10 +858,12 @@ async def add_evidence(
 
     saved_evidence = repo.add_evidence(db_evidence)
 
+    added_by = current_user.id if current_user and current_user.id else "system"
     logger.info(
-        "Evidence added to task %s: %s",
+        "Evidence added to task %s: %s by %s",
         sanitize_for_log(task_id),
         sanitize_for_log(saved_evidence.evidence_id),
+        sanitize_for_log(added_by),
     )
 
     return EvidenceResponse(

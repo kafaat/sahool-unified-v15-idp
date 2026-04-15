@@ -147,7 +147,7 @@ class SahoolErrorView extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: SahoolColors.danger.withOpacity(0.1),
+                    color: SahoolColors.danger.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -180,7 +180,7 @@ class SahoolErrorView extends StatelessWidget {
               Semantics(
                 liveRegion: true,
                 child: Text(
-                  customMessage ?? _getErrorMessage(error),
+                  customMessage ?? _getErrorMessage(error, isArabic: isArabic),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: SahoolColors.textSecondary,
                       ),
@@ -242,34 +242,48 @@ class SahoolErrorView extends StatelessWidget {
     );
   }
 
-  String _getErrorMessage(Object error) {
+  String _getErrorMessage(Object error, {bool isArabic = true}) {
     final message = error.toString().toLowerCase();
 
     if (message.contains('network') || message.contains('connection')) {
-      return 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.';
+      return isArabic
+          ? 'تعذر الاتصال بالخادم. تحقق من اتصالك بالإنترنت.'
+          : 'Unable to connect to the server. Check your internet connection.';
     }
 
     if (message.contains('timeout')) {
-      return 'انتهت مهلة الاتصال. حاول مرة أخرى.';
+      return isArabic
+          ? 'انتهت مهلة الاتصال. حاول مرة أخرى.'
+          : 'Connection timed out. Please try again.';
     }
 
     if (message.contains('unauthorized') || message.contains('401')) {
-      return 'جلستك منتهية. يرجى تسجيل الدخول مرة أخرى.';
+      return isArabic
+          ? 'جلستك منتهية. يرجى تسجيل الدخول مرة أخرى.'
+          : 'Your session has expired. Please log in again.';
     }
 
     if (message.contains('forbidden') || message.contains('403')) {
-      return 'ليس لديك صلاحية للوصول لهذا المحتوى.';
+      return isArabic
+          ? 'ليس لديك صلاحية للوصول لهذا المحتوى.'
+          : 'You do not have permission to access this content.';
     }
 
     if (message.contains('not found') || message.contains('404')) {
-      return 'المحتوى المطلوب غير موجود.';
+      return isArabic
+          ? 'المحتوى المطلوب غير موجود.'
+          : 'The requested content was not found.';
     }
 
     if (message.contains('server') || message.contains('500')) {
-      return 'حدث خطأ في الخادم. حاول لاحقاً.';
+      return isArabic
+          ? 'حدث خطأ في الخادم. حاول لاحقاً.'
+          : 'A server error occurred. Please try again later.';
     }
 
-    return 'حدث خطأ غير متوقع. حاول مرة أخرى.';
+    return isArabic
+        ? 'حدث خطأ غير متوقع. حاول مرة أخرى.'
+        : 'An unexpected error occurred. Please try again.';
   }
 }
 
@@ -290,10 +304,10 @@ class SahoolInlineError extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: SahoolColors.danger.withOpacity(0.1),
+        color: SahoolColors.danger.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: SahoolColors.danger.withOpacity(0.3),
+          color: SahoolColors.danger.withValues(alpha: 0.3),
         ),
       ),
       child: Row(

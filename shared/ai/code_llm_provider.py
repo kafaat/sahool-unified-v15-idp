@@ -32,6 +32,7 @@ from .llm_provider import (
     LLMProvider,
     LLMProviderManager,
 )
+from .validation import escape_prompt_input
 
 logger = structlog.get_logger(__name__)
 
@@ -304,10 +305,13 @@ Provide explanations in both English and Arabic.
         """
         start_time = datetime.now(UTC)
 
+        safe_prefix = escape_prompt_input(prefix)
+        safe_suffix = escape_prompt_input(suffix)
+
         prompt = f"""Complete the following {language} code:
 
 ```{language}
-{prefix}<CURSOR>{suffix}
+{safe_prefix}<CURSOR>{safe_suffix}
 ```
 
 Provide {num_completions} completion(s). Return ONLY the code to insert at <CURSOR>."""
@@ -362,12 +366,13 @@ Provide {num_completions} completion(s). Return ONLY the code to insert at <CURS
         """
         start_time = datetime.now(UTC)
 
-        context = f"File: {file_path}\n" if file_path else ""
+        safe_code = escape_prompt_input(code)
+        context = f"File: {escape_prompt_input(file_path)}\n" if file_path else ""
 
         prompt = f"""{context}Review the following {language} code:
 
 ```{language}
-{code}
+{safe_code}
 ```
 
 {"Include security vulnerability analysis (OWASP Top 10, CWE)." if check_security else ""}
@@ -426,13 +431,14 @@ Return your analysis as JSON."""
         """
         start_time = datetime.now(UTC)
 
-        context = f"File: {file_path}\n" if file_path else ""
-        error_context = f"\nError: {error_message}" if error_message else ""
+        safe_code = escape_prompt_input(code)
+        context = f"File: {escape_prompt_input(file_path)}\n" if file_path else ""
+        error_context = f"\nError: {escape_prompt_input(error_message)}" if error_message else ""
 
         prompt = f"""{context}Fix the following {language} code:{error_context}
 
 ```{language}
-{code}
+{safe_code}
 ```
 
 Return your fix as JSON with fixed_code, changes, explanation, explanation_ar, and confidence."""
@@ -489,12 +495,13 @@ Return your fix as JSON with fixed_code, changes, explanation, explanation_ar, a
         if test_framework is None:
             test_framework = self._detect_test_framework(language)
 
-        context = f"File: {file_path}\n" if file_path else ""
+        safe_code = escape_prompt_input(code)
+        context = f"File: {escape_prompt_input(file_path)}\n" if file_path else ""
 
         prompt = f"""{context}Generate comprehensive {test_framework} tests for the following {language} code:
 
 ```{language}
-{code}
+{safe_code}
 ```
 
 Include:
@@ -548,10 +555,12 @@ Include Arabic translations in docstrings where appropriate:
             else ""
         )
 
+        safe_code = escape_prompt_input(code)
+
         prompt = f"""Add comprehensive {doc_style}-style documentation to the following {language} code:
 
 ```{language}
-{code}
+{safe_code}
 ```
 
 {arabic_instruction}
@@ -589,10 +598,12 @@ Return the fully documented code."""
         Returns:
             Dictionary with English and Arabic explanations
         """
+        safe_code = escape_prompt_input(code)
+
         prompt = f"""Explain the following {language} code at a {detail_level} level of detail:
 
 ```{language}
-{code}
+{safe_code}
 ```
 
 Provide explanations in both English and Arabic.
@@ -657,12 +668,15 @@ Format your response as:
         """
         focus = ""
         if focus_areas:
-            focus = f"\nFocus on: {', '.join(focus_areas)}"
+            safe_areas = [escape_prompt_input(a) for a in focus_areas]
+            focus = f"\nFocus on: {', '.join(safe_areas)}"
+
+        safe_code = escape_prompt_input(code)
 
         prompt = f"""Analyze and suggest refactoring for the following {language} code:{focus}
 
 ```{language}
-{code}
+{safe_code}
 ```
 
 Return your suggestions as JSON with:

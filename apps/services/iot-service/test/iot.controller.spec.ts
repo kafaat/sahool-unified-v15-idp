@@ -6,6 +6,15 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { IotController } from "../src/iot/iot.controller";
 import { IotService, SensorType, SensorReading } from "../src/iot/iot.service";
+import { Request } from "express";
+
+// Helper to create a mock Request with tenantId
+function mockReq(tenantId = "tenant-1"): Request {
+  return {
+    user: { tenantId },
+    headers: { "x-tenant-id": tenantId },
+  } as unknown as Request;
+}
 
 describe("IotController", () => {
   let controller: IotController;
@@ -55,26 +64,30 @@ describe("IotController", () => {
 
   beforeEach(async () => {
     const mockIotService = {
-      getFieldSensorData: jest.fn().mockReturnValue(mockSensorReadings),
-      getSensorReading: jest.fn().mockImplementation((fieldId, sensorType) => {
-        return (
-          mockSensorReadings.find((r) => r.sensorType === sensorType) || null
+      getFieldSensorData: jest.fn().mockResolvedValue(mockSensorReadings),
+      getSensorReading: jest.fn().mockImplementation((fieldId: string, sensorType: SensorType) => {
+        return Promise.resolve(
+          mockSensorReadings.find((r) => r.sensorType === sensorType) || null,
         );
       }),
       togglePump: jest
         .fn()
-        .mockReturnValue({ success: true, message: "تم تشغيل المضخة" }),
+        .mockResolvedValue({ success: true, message: "تم تشغيل المضخة" }),
       toggleValve: jest
         .fn()
-        .mockReturnValue({ success: true, message: "تم فتح الصمام" }),
+        .mockResolvedValue({ success: true, message: "تم فتح الصمام" }),
       setIrrigationSchedule: jest
         .fn()
         .mockReturnValue({ success: true, message: "تم تفعيل جدولة الري" }),
-      getFieldActuatorStates: jest.fn().mockReturnValue(mockActuatorStates),
-      getConnectedDevices: jest.fn().mockReturnValue(mockDevices),
+      getFieldActuatorStates: jest.fn().mockResolvedValue(mockActuatorStates),
+      getConnectedDevices: jest.fn().mockResolvedValue(mockDevices),
       getDeviceStats: jest
         .fn()
-        .mockReturnValue({ online: 5, offline: 2, error: 1 }),
+        .mockResolvedValue({ online: 5, offline: 2, error: 1 }),
+      ingestReading: jest
+        .fn()
+        .mockResolvedValue({ success: true, quality: "good", message: "Accepted" }),
+      getHistoricalReadings: jest.fn().mockResolvedValue([]),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -106,32 +119,38 @@ describe("IotController", () => {
 
   describe("Sensor Data", () => {
     describe("GET /iot/field/:fieldId/sensors", () => {
-      it("should return all sensor readings for a field", () => {
-        const result = controller.getFieldSensors("field_001");
+      it("should return all sensor readings for a field", async () => {
+        const req = mockReq();
+        const result = await controller.getFieldSensors("field_001", req);
         expect(result).toEqual(mockSensorReadings);
-        expect(service.getFieldSensorData).toHaveBeenCalledWith("field_001");
+        expect(service.getFieldSensorData).toHaveBeenCalledWith("field_001", "tenant-1");
       });
     });
 
     describe("GET /iot/field/:fieldId/sensor/:sensorType", () => {
-      it("should return specific sensor reading", () => {
-        const result = controller.getSensorReading(
+      it("should return specific sensor reading", async () => {
+        const req = mockReq();
+        const result = await controller.getSensorReading(
           "field_001",
           SensorType.SOIL_MOISTURE,
+          req,
         );
         expect(result).toBeDefined();
         expect(result?.sensorType).toBe(SensorType.SOIL_MOISTURE);
         expect(service.getSensorReading).toHaveBeenCalledWith(
           "field_001",
           SensorType.SOIL_MOISTURE,
+          "tenant-1",
         );
       });
 
-      it("should return null for non-existent sensor", () => {
-        jest.spyOn(service, "getSensorReading").mockReturnValue(null);
-        const result = controller.getSensorReading(
+      it("should return null for non-existent sensor", async () => {
+        jest.spyOn(service, "getSensorReading").mockResolvedValue(null);
+        const req = mockReq();
+        const result = await controller.getSensorReading(
           "field_001",
           SensorType.PH_LEVEL,
+          req,
         );
         expect(result).toBeNull();
       });
@@ -140,84 +159,96 @@ describe("IotController", () => {
 
   describe("Actuator Control", () => {
     describe("POST /iot/field/:fieldId/pump", () => {
-      it("should toggle pump ON", () => {
-        const result = controller.togglePump("field_001", { status: "ON" });
+      it("should toggle pump ON", async () => {
+        const req = mockReq();
+        const result = await controller.togglePump("field_001", { status: "ON" } as any, req);
         expect(result.success).toBe(true);
         expect(service.togglePump).toHaveBeenCalledWith("field_001", "ON", {
           duration: undefined,
+          tenantId: "tenant-1",
         });
       });
 
-      it("should toggle pump ON with duration", () => {
-        const result = controller.togglePump("field_001", {
+      it("should toggle pump ON with duration", async () => {
+        const req = mockReq();
+        const result = await controller.togglePump("field_001", {
           status: "ON",
           duration: 30,
-        });
+        } as any, req);
         expect(result.success).toBe(true);
         expect(service.togglePump).toHaveBeenCalledWith("field_001", "ON", {
           duration: 30,
+          tenantId: "tenant-1",
         });
       });
 
-      it("should toggle pump OFF", () => {
-        const result = controller.togglePump("field_001", { status: "OFF" });
+      it("should toggle pump OFF", async () => {
+        const req = mockReq();
+        const result = await controller.togglePump("field_001", { status: "OFF" } as any, req);
         expect(result.success).toBe(true);
         expect(service.togglePump).toHaveBeenCalledWith("field_001", "OFF", {
           duration: undefined,
+          tenantId: "tenant-1",
         });
       });
     });
 
     describe("POST /iot/field/:fieldId/valve/:valveId", () => {
-      it("should toggle valve ON", () => {
-        const result = controller.toggleValve("field_001", "valve_1", {
+      it("should toggle valve ON", async () => {
+        const req = mockReq();
+        const result = await controller.toggleValve("field_001", "valve_1", {
           status: "ON",
-        });
+        } as any, req);
         expect(result.success).toBe(true);
         expect(service.toggleValve).toHaveBeenCalledWith(
           "field_001",
           "valve_1",
           "ON",
+          { tenantId: "tenant-1" },
         );
       });
 
-      it("should toggle valve OFF", () => {
-        const result = controller.toggleValve("field_001", "valve_1", {
+      it("should toggle valve OFF", async () => {
+        const req = mockReq();
+        const result = await controller.toggleValve("field_001", "valve_1", {
           status: "OFF",
-        });
+        } as any, req);
         expect(result.success).toBe(true);
         expect(service.toggleValve).toHaveBeenCalledWith(
           "field_001",
           "valve_1",
           "OFF",
+          { tenantId: "tenant-1" },
         );
       });
     });
 
     describe("POST /iot/field/:fieldId/irrigation/schedule", () => {
       it("should set irrigation schedule", () => {
+        const req = mockReq();
         const schedule = {
           startTime: "06:00",
           duration: 45,
           days: ["sunday", "tuesday", "thursday"],
           enabled: true,
         };
-        const result = controller.setIrrigationSchedule("field_001", schedule);
+        const result = controller.setIrrigationSchedule("field_001", schedule as any, req);
         expect(result.success).toBe(true);
         expect(service.setIrrigationSchedule).toHaveBeenCalledWith(
           "field_001",
-          schedule,
+          { ...schedule, tenantId: "tenant-1" },
         );
       });
 
       it("should disable irrigation schedule", () => {
+        const req = mockReq();
         const schedule = {
           startTime: "06:00",
           duration: 45,
-          days: [],
+          days: [] as string[],
           enabled: false,
         };
-        const result = controller.setIrrigationSchedule("field_001", schedule);
+        const result = controller.setIrrigationSchedule("field_001", schedule as any, req);
         expect(result.success).toBe(true);
       });
     });
@@ -225,11 +256,13 @@ describe("IotController", () => {
 
   describe("Actuator States", () => {
     describe("GET /iot/field/:fieldId/actuators", () => {
-      it("should return actuator states for a field", () => {
-        const result = controller.getFieldActuators("field_001");
+      it("should return actuator states for a field", async () => {
+        const req = mockReq();
+        const result = await controller.getFieldActuators("field_001", req);
         expect(result).toEqual(mockActuatorStates);
         expect(service.getFieldActuatorStates).toHaveBeenCalledWith(
           "field_001",
+          "tenant-1",
         );
       });
     });
@@ -237,28 +270,31 @@ describe("IotController", () => {
 
   describe("Device Management", () => {
     describe("GET /iot/devices", () => {
-      it("should return connected devices and stats", () => {
-        const result = controller.getDevices();
+      it("should return connected devices and stats", async () => {
+        const req = mockReq();
+        const result = await controller.getDevices(req);
         expect(result.devices).toEqual(mockDevices);
         expect(result.stats).toEqual({ online: 5, offline: 2, error: 1 });
-        expect(service.getConnectedDevices).toHaveBeenCalled();
-        expect(service.getDeviceStats).toHaveBeenCalled();
+        expect(service.getConnectedDevices).toHaveBeenCalledWith("tenant-1");
+        expect(service.getDeviceStats).toHaveBeenCalledWith("tenant-1");
       });
     });
   });
 
   describe("Dashboard", () => {
     describe("GET /iot/dashboard/:fieldId", () => {
-      it("should return dashboard data for a field", () => {
-        const result = controller.getDashboard("field_001");
+      it("should return dashboard data for a field", async () => {
+        const req = mockReq();
+        const result = await controller.getDashboard("field_001", req);
         expect(result.fieldId).toBe("field_001");
         expect(result.sensors).toBeDefined();
         expect(result.actuators).toEqual(mockActuatorStates);
         expect(result.timestamp).toBeDefined();
       });
 
-      it("should transform sensor data to dashboard format", () => {
-        const result = controller.getDashboard("field_001");
+      it("should transform sensor data to dashboard format", async () => {
+        const req = mockReq();
+        const result = await controller.getDashboard("field_001", req);
         expect(result.sensors[SensorType.SOIL_MOISTURE]).toBeDefined();
         expect(result.sensors[SensorType.SOIL_MOISTURE].value).toBe(45);
         expect(result.sensors[SensorType.SOIL_MOISTURE].unit).toBe("%");

@@ -51,18 +51,31 @@ class PriceStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
-        # Default to /var/lib/sahool in production, /tmp for development only
+        import tempfile
+
+        # Default to /var/lib/sahool in production, tempdir for development only
         default_path = (
-            "/var/lib/sahool/market_prices" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_market_prices"
-        )  # nosec B108
-        self.storage_path = Path(storage_path or os.getenv("MARKET_PRICES_STORAGE_PATH", default_path))
+            "/var/lib/sahool/market_prices"
+            if os.getenv("ENVIRONMENT") == "production"
+            else os.path.join(tempfile.gettempdir(), "sahool_market_prices")
+        )
+        resolved = Path(storage_path or os.getenv("MARKET_PRICES_STORAGE_PATH", default_path)).resolve()
+        # Validate path is under allowed directories to prevent path traversal
+        _allowed_bases = (Path(tempfile.gettempdir()).resolve(), Path("/var/lib/sahool").resolve())
+        if not any(resolved.is_relative_to(base) for base in _allowed_bases):
+            raise ValueError(f"storage_path must be under {_allowed_bases}, got: {resolved}")
+        self.storage_path = resolved
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
 
     async def save_price(self, price: CropPrice) -> None:
         """Save a price record"""
         async with self._lock:
-            file_path = self.storage_path / f"prices_{price.market_id}.jsonl"
+            import re
+
+            # Sanitize market_id to prevent path traversal
+            safe_id = re.sub(r"[^a-zA-Z0-9_-]", "", price.market_id)
+            file_path = self.storage_path / f"prices_{safe_id}.jsonl"
             with open(file_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(price.to_dict(), ensure_ascii=False) + "\n")
 
@@ -152,10 +165,14 @@ class AlertStorage:
 
     def __init__(self, storage_path: str | None = None):
         """Initialize storage"""
-        # Default to /var/lib/sahool in production, /tmp for development only
+        import tempfile
+
+        # Default to /var/lib/sahool in production, tempdir for development only
         default_path = (
-            "/var/lib/sahool/market_alerts" if os.getenv("ENVIRONMENT") == "production" else "/tmp/sahool_market_alerts"
-        )  # nosec B108
+            "/var/lib/sahool/market_alerts"
+            if os.getenv("ENVIRONMENT") == "production"
+            else os.path.join(tempfile.gettempdir(), "sahool_market_alerts")
+        )
         self.storage_path = Path(storage_path or os.getenv("MARKET_ALERTS_STORAGE_PATH", default_path))
         self.storage_path.mkdir(parents=True, exist_ok=True)
         self._lock = asyncio.Lock()
@@ -1032,10 +1049,15 @@ class MarketPriceTracker:
 
 # Convenience functions
 _trackers: dict[str, MarketPriceTracker] = {}
+MAX_TRACKERS = 100
 
 
 def get_price_tracker(tenant_id: str) -> MarketPriceTracker:
     """Get or create a price tracker for a tenant"""
+    if len(_trackers) >= MAX_TRACKERS:
+        # Remove oldest tracker
+        oldest = next(iter(_trackers))
+        del _trackers[oldest]
     if tenant_id not in _trackers:
         _trackers[tenant_id] = MarketPriceTracker(tenant_id)
     return _trackers[tenant_id]

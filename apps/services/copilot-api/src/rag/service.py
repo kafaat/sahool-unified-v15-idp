@@ -182,6 +182,7 @@ class CopilotRAGService:
         text_ar: str | None = None,
         metadata: dict[str, Any] | None = None,
         doc_id: str | None = None,
+        tenant_id: str | None = None,
     ) -> RAGDocument:
         """
         Add a document to the knowledge base.
@@ -192,6 +193,7 @@ class CopilotRAGService:
             text_ar: Document text (Arabic, optional)
             metadata: Document metadata
             doc_id: Optional document ID
+            tenant_id: Tenant ID for cache isolation
 
         Returns:
             Created RAGDocument
@@ -202,8 +204,14 @@ class CopilotRAGService:
         doc_id = doc_id or str(uuid.uuid4())
         metadata = metadata or {}
 
+        # Resolve tenant_id from parameter or metadata
+        effective_tenant_id = tenant_id or metadata.get("tenant_id", "")
+
+        if effective_tenant_id:
+            metadata["tenant_id"] = effective_tenant_id
+
         # Generate embedding
-        embedding_result = await self.embedding_service.embed(text)
+        embedding_result = await self.embedding_service.embed(text, tenant_id=effective_tenant_id)
 
         document = RAGDocument(
             id=doc_id,
@@ -245,6 +253,7 @@ class CopilotRAGService:
     async def add_documents_batch(
         self,
         documents: list[dict[str, Any]],
+        tenant_id: str | None = None,
     ) -> list[RAGDocument]:
         """
         Add multiple documents in batch.
@@ -257,6 +266,7 @@ class CopilotRAGService:
                 text_ar=doc.get("text_ar"),
                 metadata=doc.get("metadata"),
                 doc_id=doc.get("id"),
+                tenant_id=tenant_id,
             )
             results.append(result)
         return results
@@ -319,7 +329,7 @@ class CopilotRAGService:
         """Semantic search using Qdrant"""
         try:
             # Generate query embedding
-            embedding_result = await self.embedding_service.embed(query)
+            embedding_result = await self.embedding_service.embed(query, tenant_id=tenant_id or "")
 
             # Build filter
             qdrant_filter = None

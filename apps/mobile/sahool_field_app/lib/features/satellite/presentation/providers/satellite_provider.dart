@@ -1,9 +1,9 @@
-/// Satellite Provider - مزود الأقمار الصناعية
-/// State management for satellite monitoring features using Riverpod
 library;
 
+/// Satellite Provider - مزود الأقمار الصناعية
+/// State management for satellite monitoring features using Riverpod
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import '../../../../core/sync/sync_metrics_providers.dart'
     show sharedPreferencesProvider;

@@ -3,7 +3,13 @@
 // عميل API الموحد لمنصة سهول
 // ═══════════════════════════════════════════════════════════════════════════════
 
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosError, type AxiosResponse, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosError,
+  type AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import type {
   ApiClientConfig,
   RetryConfig,
@@ -29,16 +35,16 @@ import type {
   Severity,
   DiagnosisStatus,
   LogLevel,
-} from "./types";
-import { ApiError, parseAxiosError } from "./errors";
+} from './types';
+import { ApiError, parseAxiosError } from './errors';
 
 // Import unified contracts - استيراد العقود الموحدة
-import { SERVICE_PORT_ALIASES, CUSTOM_HEADERS } from "@sahool/shared-types/contracts";
+import { SERVICE_PORT_ALIASES, CUSTOM_HEADERS } from '@sahool/shared-types/contracts';
 
 // Re-export all types
-export * from "./types";
+export * from './types';
 // Re-export all errors
-export * from "./errors";
+export * from './errors';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Default Configuration (from unified contracts)
@@ -59,7 +65,7 @@ export class SahoolApiClient {
   private ports: ServicePorts;
   private isProduction: boolean;
   private logLevel: LogLevel;
-  private errorHandling: "throw" | "silent";
+  private errorHandling: 'throw' | 'silent';
   private retryConfig: Required<RetryConfig>;
   private tokenRefreshConfig: TokenRefreshConfig | null;
   private enforceHttps: boolean;
@@ -82,16 +88,16 @@ export class SahoolApiClient {
   constructor(config: ApiClientConfig, ports: Partial<ServicePorts> = {}) {
     this.config = {
       timeout: 30000,
-      locale: "ar",
+      locale: 'ar',
       enableMockData: false,
-      errorHandling: "throw",
-      logLevel: "error",
+      errorHandling: 'throw',
+      logLevel: 'error',
       ...config,
     };
     this.ports = { ...DEFAULT_PORTS, ...ports };
-    this.isProduction = process.env.NODE_ENV === "production";
-    this.logLevel = this.config.logLevel || "error";
-    this.errorHandling = this.config.errorHandling || "throw";
+    this.isProduction = process.env.NODE_ENV === 'production';
+    this.logLevel = this.config.logLevel || 'error';
+    this.errorHandling = this.config.errorHandling || 'throw';
 
     // Retry configuration - defaults enabled unless explicitly set to false
     if (this.config.retry === false) {
@@ -118,10 +124,11 @@ export class SahoolApiClient {
     // Create axios instance
     this.client = axios.create({
       timeout: this.config.timeout,
+      withCredentials: this.config.withCredentials ?? false,
       headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "Accept-Language": `${this.config.locale},en`,
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Accept-Language': `${this.config.locale},en`,
       },
     });
 
@@ -139,7 +146,11 @@ export class SahoolApiClient {
 
       // Add unique request ID for traceability (preserve caller-provided ID)
       if (!config.headers.has(CUSTOM_HEADERS.REQUEST_ID)) {
-        config.headers.set(CUSTOM_HEADERS.REQUEST_ID, crypto.randomUUID());
+        const requestId =
+          typeof crypto?.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+        config.headers.set(CUSTOM_HEADERS.REQUEST_ID, requestId);
       }
 
       const token = this.config.getToken?.();
@@ -201,7 +212,7 @@ export class SahoolApiClient {
             if (newToken) {
               // Store the new token
               this.config.setToken?.(newToken);
-              this.log("info", "Token refreshed successfully");
+              this.log('info', 'Token refreshed successfully');
 
               // Retry the original request with the new token
               originalRequest.headers.Authorization = `Bearer ${newToken}`;
@@ -216,14 +227,14 @@ export class SahoolApiClient {
             // Refresh failed - notify subscribers and call onUnauthorized
             this.refreshSubscribers.forEach((cb) => cb(null));
             this.refreshSubscribers = [];
-            this.log("warn", "Token refresh failed, calling onUnauthorized");
+            this.log('warn', 'Token refresh failed, calling onUnauthorized');
             this.config.onUnauthorized?.();
             return Promise.reject(error);
           } catch (refreshError) {
             this.refreshSubscribers.forEach((cb) => cb(null));
             this.refreshSubscribers = [];
-            this.log("error", "Token refresh threw an error", {
-              error: refreshError instanceof Error ? refreshError.message : "Unknown",
+            this.log('error', 'Token refresh threw an error', {
+              error: refreshError instanceof Error ? refreshError.message : 'Unknown',
             });
             this.config.onUnauthorized?.();
             return Promise.reject(error);
@@ -239,7 +250,7 @@ export class SahoolApiClient {
         }
 
         return Promise.reject(error);
-      },
+      }
     );
   }
 
@@ -247,11 +258,7 @@ export class SahoolApiClient {
   // Logging Utilities
   // ─────────────────────────────────────────────────────────────────────────
 
-  private log(
-    level: LogLevel,
-    message: string,
-    context?: Record<string, unknown>,
-  ): void {
+  private log(level: LogLevel, message: string, context?: Record<string, unknown>): void {
     const logLevels: Record<LogLevel, number> = {
       none: 0,
       error: 1,
@@ -261,33 +268,31 @@ export class SahoolApiClient {
     };
 
     // Skip logging if level is 'none' or below threshold
-    if (level === "none" || logLevels[this.logLevel] < logLevels[level]) {
+    if (level === 'none' || logLevels[this.logLevel] < logLevels[level]) {
       return;
     }
 
     const logger = this.config.logger;
     const logMessage = `[SAHOOL API Client] ${message}`;
-    const logContext = context
-      ? { ...context, timestamp: new Date().toISOString() }
-      : undefined;
+    const logContext = context ? { ...context, timestamp: new Date().toISOString() } : undefined;
 
     if (logger) {
       // Logger doesn't have 'none', so we check for valid log levels
-      const validLogLevel = level as "error" | "warn" | "info" | "debug";
+      const validLogLevel = level as 'error' | 'warn' | 'info' | 'debug';
       logger[validLogLevel]?.(logMessage, logContext);
     } else {
       // Fallback to console
       switch (level) {
-        case "error":
+        case 'error':
           console.error(logMessage, logContext);
           break;
-        case "warn":
+        case 'warn':
           console.warn(logMessage, logContext);
           break;
-        case "info":
+        case 'info':
           console.info(logMessage, logContext);
           break;
-        case "debug":
+        case 'debug':
           console.debug(logMessage, logContext);
           break;
       }
@@ -295,18 +300,14 @@ export class SahoolApiClient {
   }
 
   private logError(error: ApiError): void {
-    this.log("error", error.message, error.toJSON());
+    this.log('error', error.message, error.toJSON());
   }
 
   // ─────────────────────────────────────────────────────────────────────────
   // Error Handling Utilities
   // ─────────────────────────────────────────────────────────────────────────
 
-  private handleError(
-    error: unknown,
-    endpoint?: string,
-    method?: string,
-  ): never {
+  private handleError(error: unknown, endpoint?: string, method?: string): never {
     let apiError: ApiError;
 
     if (axios.isAxiosError(error)) {
@@ -320,7 +321,7 @@ export class SahoolApiClient {
         method,
       });
     } else {
-      apiError = new ApiError("Unknown error occurred", {
+      apiError = new ApiError('Unknown error occurred', {
         endpoint,
         method,
         context: { error },
@@ -338,28 +339,24 @@ export class SahoolApiClient {
   private async safeExecute<T>(
     operation: () => Promise<T>,
     fallback: T,
-    context?: { endpoint?: string; method?: string },
+    context?: { endpoint?: string; method?: string }
   ): Promise<T> {
     try {
       return await operation();
     } catch (error) {
-      if (this.errorHandling === "silent") {
+      if (this.errorHandling === 'silent') {
         // Log the error even in silent mode
         if (axios.isAxiosError(error)) {
-          const apiError = parseAxiosError(
-            error,
-            context?.endpoint,
-            context?.method,
-          );
+          const apiError = parseAxiosError(error, context?.endpoint, context?.method);
           this.logError(apiError);
         } else {
           this.log(
-            "error",
-            `Silent error: ${error instanceof Error ? error.message : "Unknown error"}`,
+            'error',
+            `Silent error: ${error instanceof Error ? error.message : 'Unknown error'}`,
             {
               error,
               ...context,
-            },
+            }
           );
         }
         return fallback;
@@ -383,11 +380,11 @@ export class SahoolApiClient {
     if (!url) return url;
 
     // Only upgrade URLs that start with http://
-    if (!url.startsWith("http://")) return url;
+    if (!url.startsWith('http://')) return url;
 
     // In production, always upgrade to HTTPS
     if (this.isProduction) {
-      return url.replace(/^http:\/\//, "https://");
+      return url.replace(/^http:\/\//, 'https://');
     }
 
     // In non-production, skip localhost and private IPs
@@ -404,7 +401,7 @@ export class SahoolApiClient {
     if (isExempt) return url;
 
     // Non-production, non-exempt: still upgrade to HTTPS
-    return url.replace(/^http:\/\//, "https://");
+    return url.replace(/^http:\/\//, 'https://');
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -412,9 +409,9 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   private getServiceUrl(port: number): string {
-    return this.isProduction
-      ? `${this.config.baseUrl}/api`
-      : `${this.config.baseUrl}:${port}`;
+    // In production: Kong gateway at baseUrl (domain methods append /api/v1/...)
+    // In development: direct service access at baseUrl:port (same /api/v1/ paths)
+    return this.isProduction ? this.config.baseUrl : `${this.config.baseUrl}:${port}`;
   }
 
   get urls() {
@@ -441,6 +438,16 @@ export class SahoolApiClient {
       drone: this.getServiceUrl(this.ports.drone),
       cooperative: this.getServiceUrl(this.ports.cooperative),
       traceability: this.getServiceUrl(this.ports.traceability),
+      // Extended service URLs
+      advisory: this.getServiceUrl(this.ports.advisory),
+      yieldPrediction: this.getServiceUrl(this.ports.yieldPrediction),
+      fieldIntelligence: this.getServiceUrl(this.ports.fieldIntelligence),
+      billing: this.getServiceUrl(this.ports.billing),
+      astronomicalCalendar: this.getServiceUrl(this.ports.astronomicalCalendar),
+      alerts: this.getServiceUrl(this.ports.alerts),
+      cropIntelligence: this.getServiceUrl(this.ports.cropIntelligence),
+      yoloVision: this.getServiceUrl(this.ports.yoloVision),
+      audit: this.getServiceUrl(this.ports.audit),
     };
   }
 
@@ -476,8 +483,8 @@ export class SahoolApiClient {
    */
   private getRetryDelay(attempt: number, error?: unknown): number {
     // If the server sent a Retry-After header (common for 429), respect it
-    if (axios.isAxiosError(error) && error.response?.headers?.["retry-after"]) {
-      const retryAfter = error.response.headers["retry-after"];
+    if (axios.isAxiosError(error) && error.response?.headers?.['retry-after']) {
+      const retryAfter = error.response.headers['retry-after'];
       const retryAfterSeconds = parseInt(retryAfter as string, 10);
       if (!isNaN(retryAfterSeconds) && retryAfterSeconds > 0) {
         return Math.min(retryAfterSeconds * 1000, this.retryConfig.maxDelay);
@@ -507,23 +514,24 @@ export class SahoolApiClient {
   // Generic Request Method (with retry)
   // ─────────────────────────────────────────────────────────────────────────
 
-  private async request<T>(
-    url: string,
-    options: AxiosRequestConfig = {},
-  ): Promise<T> {
-    const method = options.method?.toUpperCase() || "GET";
+  private async request<T>(url: string, options: AxiosRequestConfig = {}): Promise<T> {
+    const method = options.method?.toUpperCase() || 'GET';
     let lastError: unknown;
 
     // Attempt the request up to (1 + maxRetries) times
     for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
       try {
         if (attempt > 0) {
-          this.log("info", `Retry attempt ${attempt}/${this.retryConfig.maxRetries}: ${method} ${url}`, {
-            attempt,
-            maxRetries: this.retryConfig.maxRetries,
-          });
+          this.log(
+            'info',
+            `Retry attempt ${attempt}/${this.retryConfig.maxRetries}: ${method} ${url}`,
+            {
+              attempt,
+              maxRetries: this.retryConfig.maxRetries,
+            }
+          );
         } else {
-          this.log("debug", `Request: ${method} ${url}`, {
+          this.log('debug', `Request: ${method} ${url}`, {
             params: options.params,
             data: options.data,
           });
@@ -531,7 +539,7 @@ export class SahoolApiClient {
 
         const response = await this.client.request<T>({ url, ...options });
 
-        this.log("debug", `Response: ${method} ${url}`, {
+        this.log('debug', `Response: ${method} ${url}`, {
           status: response.status,
           statusText: response.statusText,
         });
@@ -544,11 +552,11 @@ export class SahoolApiClient {
         const hasMoreAttempts = attempt < this.retryConfig.maxRetries;
         if (hasMoreAttempts && this.isRetryable(error)) {
           const delay = this.getRetryDelay(attempt, error);
-          this.log("warn", `Request failed, retrying in ${delay}ms: ${method} ${url}`, {
+          this.log('warn', `Request failed, retrying in ${delay}ms: ${method} ${url}`, {
             attempt: attempt + 1,
             maxRetries: this.retryConfig.maxRetries,
             delay,
-            error: error instanceof Error ? error.message : "Unknown error",
+            error: error instanceof Error ? error.message : 'Unknown error',
             status: axios.isAxiosError(error) ? error.response?.status : undefined,
           });
           await this.sleep(delay);
@@ -587,11 +595,10 @@ export class SahoolApiClient {
     limit?: number;
   }): Promise<Task[]> {
     const endpoint = `${this.urls.task}/api/v1/tasks`;
-    return this.safeExecute(
-      () => this.request<Task[]>(endpoint, { params }),
-      [],
-      { endpoint, method: "GET" },
-    );
+    return this.safeExecute(() => this.request<Task[]>(endpoint, { params }), [], {
+      endpoint,
+      method: 'GET',
+    });
   }
 
   async getTask(taskId: string): Promise<Task> {
@@ -600,17 +607,14 @@ export class SahoolApiClient {
 
   async createTask(task: CreateTaskRequest): Promise<Task> {
     return this.request<Task>(`${this.urls.task}/api/v1/tasks`, {
-      method: "POST",
+      method: 'POST',
       data: task,
     });
   }
 
-  async updateTask(
-    taskId: string,
-    data: Partial<CreateTaskRequest>,
-  ): Promise<Task> {
+  async updateTask(taskId: string, data: Partial<CreateTaskRequest>): Promise<Task> {
     return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
-      method: "PUT",
+      method: 'PUT',
       data,
     });
   }
@@ -620,30 +624,27 @@ export class SahoolApiClient {
     return this.safeExecute(
       async () => {
         await this.request(endpoint, {
-          method: "PATCH",
+          method: 'PATCH',
           data: { status },
         });
         return true;
       },
       false,
-      { endpoint, method: "PATCH" },
+      { endpoint, method: 'PATCH' }
     );
   }
 
   async deleteTask(taskId: string): Promise<void> {
     await this.request<void>(`${this.urls.task}/api/v1/tasks/${taskId}`, {
-      method: "DELETE",
+      method: 'DELETE',
     });
   }
 
   async completeTask(taskId: string, evidence?: TaskEvidence): Promise<Task> {
-    return this.request<Task>(
-      `${this.urls.task}/api/v1/tasks/${taskId}/complete`,
-      {
-        method: "POST",
-        data: evidence || {},
-      },
-    );
+    return this.request<Task>(`${this.urls.task}/api/v1/tasks/${taskId}/complete`, {
+      method: 'POST',
+      data: evidence || {},
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -652,17 +653,14 @@ export class SahoolApiClient {
 
   async getFields(params?: { farm_id?: string }): Promise<Field[]> {
     const endpoint = `${this.urls.fieldCore}/api/v1/fields`;
-    return this.safeExecute(
-      () => this.request<Field[]>(endpoint, { params }),
-      [],
-      { endpoint, method: "GET" },
-    );
+    return this.safeExecute(() => this.request<Field[]>(endpoint, { params }), [], {
+      endpoint,
+      method: 'GET',
+    });
   }
 
   async getField(fieldId: string): Promise<Field> {
-    return this.request<Field>(
-      `${this.urls.fieldCore}/api/v1/fields/${fieldId}`,
-    );
+    return this.request<Field>(`${this.urls.fieldCore}/api/v1/fields/${fieldId}`);
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -680,20 +678,20 @@ export class SahoolApiClient {
             id: f.id,
             name: f.name,
             nameAr: f.name_ar,
-            ownerId: f.tenant_id || "",
-            governorate: "",
+            ownerId: f.tenant_id || '',
+            governorate: '',
             area: f.area_hectares || f.area || 0,
             coordinates: f.coordinates || { lat: 0, lng: 0 },
-            crops: [f.crop_type || f.crop || ""],
-            status: f.status as "active" | "inactive" | "suspended",
+            crops: [f.crop_type || f.crop || ''],
+            status: f.status as 'active' | 'inactive' | 'suspended',
             healthScore: f.health_score || 0,
             lastUpdated: f.updated_at || new Date().toISOString(),
             createdAt: f.created_at || new Date().toISOString(),
-          }),
+          })
         );
       },
       this.config.enableMockData ? this.generateMockFarms() : [],
-      { endpoint, method: "GET" },
+      { endpoint, method: 'GET' }
     );
   }
 
@@ -706,19 +704,19 @@ export class SahoolApiClient {
           id: field.id,
           name: field.name,
           nameAr: field.name_ar,
-          ownerId: field.tenant_id || "",
-          governorate: "",
+          ownerId: field.tenant_id || '',
+          governorate: '',
           area: field.area_hectares || field.area || 0,
           coordinates: field.coordinates || { lat: 0, lng: 0 },
-          crops: [field.crop_type || field.crop || ""],
-          status: field.status as "active" | "inactive" | "suspended",
+          crops: [field.crop_type || field.crop || ''],
+          status: field.status as 'active' | 'inactive' | 'suspended',
           healthScore: field.health_score || 0,
           lastUpdated: field.updated_at || new Date().toISOString(),
           createdAt: field.created_at || new Date().toISOString(),
         };
       },
       null,
-      { endpoint, method: "GET" },
+      { endpoint, method: 'GET' }
     );
   }
 
@@ -730,27 +728,24 @@ export class SahoolApiClient {
     const endpoint = `${this.urls.weather}/api/v1/weather/current/${locationId}`;
     return this.safeExecute(() => this.request<WeatherData>(endpoint), null, {
       endpoint,
-      method: "GET",
+      method: 'GET',
     });
   }
 
-  async getWeatherForecast(
-    locationId: string,
-    days = 7,
-  ): Promise<WeatherForecast | null> {
+  async getWeatherForecast(locationId: string, days = 7): Promise<WeatherForecast | null> {
     const endpoint = `${this.urls.weather}/api/v1/weather/forecast/${locationId}`;
     return this.safeExecute(
       () => this.request<WeatherForecast>(endpoint, { params: { days } }),
       null,
-      { endpoint, method: "GET" },
+      { endpoint, method: 'GET' }
     );
   }
 
   async getWeatherAlerts(): Promise<WeatherAlert[]> {
-    const endpoint = `${this.urls.weather}/v1/alerts`;
+    const endpoint = `${this.urls.weather}/api/v1/alerts`;
     return this.safeExecute(() => this.request<WeatherAlert[]>(endpoint), [], {
       endpoint,
-      method: "GET",
+      method: 'GET',
     });
   }
 
@@ -766,34 +761,27 @@ export class SahoolApiClient {
     limit?: number;
     offset?: number;
   }): Promise<DiagnosisRecord[]> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses`;
     return this.safeExecute(
       async () => {
-        const response = await this.request<Record<string, unknown>[]>(
-          endpoint,
-          {
-            params: {
-              status: params?.status,
-              severity: params?.severity,
-              governorate: params?.governorate,
-              limit: params?.limit || 50,
-              offset: params?.offset || 0,
-            },
+        const response = await this.request<Record<string, unknown>[]>(endpoint, {
+          params: {
+            status: params?.status,
+            severity: params?.severity,
+            governorate: params?.governorate,
+            limit: params?.limit || 50,
+            offset: params?.offset || 0,
           },
-        );
+        });
 
         return response.map((d) => ({
           id: d.id as string,
-          farmId:
-            (d.field_id as string) ||
-            `farm-${Math.floor(Math.random() * 25) + 1}`,
-          farmName: d.governorate ? `مزرعة في ${d.governorate}` : "مزرعة",
-          imageUrl: (d.image_url as string) || "/api/placeholder/400/300",
+          farmId: (d.field_id as string) || `farm-${Math.floor(Math.random() * 25) + 1}`,
+          farmName: d.governorate ? `مزرعة في ${d.governorate}` : 'مزرعة',
+          imageUrl: (d.image_url as string) || '/api/placeholder/400/300',
           thumbnailUrl:
-            (d.thumbnail_url as string) ||
-            (d.image_url as string) ||
-            "/api/placeholder/100/100",
-          cropType: (d.crop_type as string) || "unknown",
+            (d.thumbnail_url as string) || (d.image_url as string) || '/api/placeholder/100/100',
+          cropType: (d.crop_type as string) || 'unknown',
           diseaseId: d.disease_id as string,
           diseaseName: d.disease_name as string,
           diseaseNameAr: d.disease_name_ar as string,
@@ -805,11 +793,11 @@ export class SahoolApiClient {
             lng: 44.191,
           },
           diagnosedAt: d.timestamp as string,
-          createdBy: (d.farmer_id as string) || "unknown",
+          createdBy: (d.farmer_id as string) || 'unknown',
           expertReview: d.expert_notes
             ? {
-                expertId: "expert-1",
-                expertName: "خبير زراعي",
+                expertId: 'expert-1',
+                expertName: 'خبير زراعي',
                 notes: d.expert_notes as string,
                 reviewedAt: d.updated_at as string,
               }
@@ -817,12 +805,12 @@ export class SahoolApiClient {
         }));
       },
       this.config.enableMockData ? this.generateMockDiagnoses() : [],
-      { endpoint, method: "GET" },
+      { endpoint, method: 'GET' }
     );
   }
 
   async getDiagnosisStats(): Promise<DiagnosisStats> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses/stats`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses/stats`;
     return this.safeExecute(
       async () => {
         const response = await this.request<Record<string, unknown>>(endpoint);
@@ -847,24 +835,24 @@ export class SahoolApiClient {
         byDisease: {},
         byGovernorate: {},
       },
-      { endpoint, method: "GET" },
+      { endpoint, method: 'GET' }
     );
   }
 
   async updateDiagnosisStatus(
     id: string,
     status: DiagnosisStatus,
-    notes?: string,
+    notes?: string
   ): Promise<{ success: boolean; diagnosis_id: string; status: string }> {
-    const endpoint = `${this.urls.cropHealth}/v1/diagnoses/${id}`;
+    const endpoint = `${this.urls.cropHealth}/api/v1/diagnoses/${id}`;
     return this.safeExecute(
       () =>
         this.request(endpoint, {
-          method: "PATCH",
+          method: 'PATCH',
           params: { status, expert_notes: notes },
         }),
       { success: true, diagnosis_id: id, status },
-      { endpoint, method: "PATCH" },
+      { endpoint, method: 'PATCH' }
     );
   }
 
@@ -873,7 +861,7 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getDashboardStats(): Promise<DashboardStats> {
-    const endpoint = `${this.urls.indicators}/v1/dashboard`;
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
     const mockData = {
       totalFarms: 156,
       activeFarms: 142,
@@ -898,7 +886,7 @@ export class SahoolApiClient {
     return this.safeExecute(
       () => this.request<DashboardStats>(endpoint),
       this.config.enableMockData ? mockData : emptyData,
-      { endpoint, method: "GET" },
+      { endpoint, method: 'GET' }
     );
   }
 
@@ -906,17 +894,16 @@ export class SahoolApiClient {
     const endpoint = `${this.urls.indicators}/api/v1/indicators/dashboard/${tenantId}`;
     return this.safeExecute(() => this.request<DashboardData>(endpoint), null, {
       endpoint,
-      method: "GET",
+      method: 'GET',
     });
   }
 
   async getFieldIndicators(fieldId: string): Promise<FieldIndicators | null> {
     const endpoint = `${this.urls.indicators}/api/v1/indicators/field/${fieldId}`;
-    return this.safeExecute(
-      () => this.request<FieldIndicators>(endpoint),
-      null,
-      { endpoint, method: "GET" },
-    );
+    return this.safeExecute(() => this.request<FieldIndicators>(endpoint), null, {
+      endpoint,
+      method: 'GET',
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -924,23 +911,19 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   async getSensorReadings(farmId: string): Promise<SensorReading[]> {
-    const endpoint = `${this.urls.virtualSensors}/v1/readings/${farmId}`;
+    const endpoint = `${this.urls.virtualSensors}/api/v1/readings/${farmId}`;
     return this.safeExecute(() => this.request<SensorReading[]>(endpoint), [], {
       endpoint,
-      method: "GET",
+      method: 'GET',
     });
   }
 
-  async getEquipment(params?: {
-    type?: string;
-    status?: string;
-  }): Promise<Equipment[]> {
+  async getEquipment(params?: { type?: string; status?: string }): Promise<Equipment[]> {
     const endpoint = `${this.urls.equipment}/api/v1/equipment`;
-    return this.safeExecute(
-      () => this.request<Equipment[]>(endpoint, { params }),
-      [],
-      { endpoint, method: "GET" },
-    );
+    return this.safeExecute(() => this.request<Equipment[]>(endpoint, { params }), [], {
+      endpoint,
+      method: 'GET',
+    });
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -952,23 +935,22 @@ export class SahoolApiClient {
     priority?: string;
     limit?: number;
   }): Promise<Notification[]> {
-    const endpoint = `${this.urls.notifications}/v1/notifications`;
-    return this.safeExecute(
-      () => this.request<Notification[]>(endpoint, { params }),
-      [],
-      { endpoint, method: "GET" },
-    );
+    const endpoint = `${this.urls.notifications}/api/v1/notifications`;
+    return this.safeExecute(() => this.request<Notification[]>(endpoint, { params }), [], {
+      endpoint,
+      method: 'GET',
+    });
   }
 
   async markNotificationRead(id: string): Promise<boolean> {
-    const endpoint = `${this.urls.notifications}/v1/notifications/${id}/read`;
+    const endpoint = `${this.urls.notifications}/api/v1/notifications/${id}/read`;
     return this.safeExecute(
       async () => {
-        await this.request(endpoint, { method: "PATCH" });
+        await this.request(endpoint, { method: 'PATCH' });
         return true;
       },
       false,
-      { endpoint, method: "PATCH" },
+      { endpoint, method: 'PATCH' }
     );
   }
 
@@ -981,11 +963,338 @@ export class SahoolApiClient {
     limit?: number;
   }): Promise<CommunityPost[]> {
     const endpoint = `${this.urls.community}/api/v1/posts`;
+    return this.safeExecute(() => this.request<CommunityPost[]>(endpoint, { params }), [], {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Satellite / Vegetation Analysis API
+  // تحليل الأقمار الصناعية
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getSatelliteTimeseries(
+    fieldId: string,
+    options?: { from?: string; to?: string }
+  ): Promise<unknown[]> {
+    const endpoint = `${this.urls.satellite}/api/v1/timeseries/${fieldId}`;
+    return this.safeExecute(() => this.request<unknown[]>(endpoint, { params: options }), [], {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  async requestSatelliteAnalysis(
+    fieldId: string,
+    analysisType: 'ndvi' | 'moisture' | 'thermal'
+  ): Promise<unknown | null> {
+    const endpoint = `${this.urls.satellite}/api/v1/analyze`;
     return this.safeExecute(
-      () => this.request<CommunityPost[]>(endpoint, { params }),
-      [],
-      { endpoint, method: "GET" },
+      () =>
+        this.request(endpoint, {
+          method: 'POST',
+          data: { field_id: fieldId, analysis_type: analysisType },
+        }),
+      null,
+      { endpoint, method: 'POST' }
     );
+  }
+
+  async getSatelliteIndices(fieldId: string): Promise<unknown | null> {
+    const endpoint = `${this.urls.satellite}/api/v1/indices/${fieldId}`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  async getAvailableSatellites(): Promise<{ satellites: unknown[] }> {
+    const endpoint = `${this.urls.satellite}/api/v1/satellites`;
+    return this.safeExecute(
+      () => this.request(endpoint),
+      { satellites: [] },
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Dashboard Analytics API
+  // بيانات تحليلية للرسوم البيانية
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getYieldTrends(
+    period: '7d' | '30d' | '90d' = '30d'
+  ): Promise<Array<{ month: string; yield: number; forecast: number }>> {
+    const endpoint = `${this.urls.indicators}/api/v1/trends`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{ data?: unknown[] }>(endpoint, {
+          params: { metric: 'yield', period },
+        });
+        return (response?.data || []) as Array<{
+          month: string;
+          yield: number;
+          forecast: number;
+        }>;
+      },
+      [],
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  async getCropDistribution(): Promise<Array<{ name: string; value: number }>> {
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{
+          crop_distribution?: Array<{ crop: string; area: number }>;
+        }>(endpoint);
+        return (
+          response?.crop_distribution?.map((c: { crop: string; area: number }) => ({
+            name: c.crop,
+            value: c.area,
+          })) || []
+        );
+      },
+      [],
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  async getWeeklyActivity(): Promise<
+    Array<{
+      day: string;
+      diagnoses: number;
+      irrigations: number;
+      alerts: number;
+    }>
+  > {
+    const endpoint = `${this.urls.indicators}/api/v1/trends`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{ data?: unknown[] }>(endpoint, {
+          params: { metric: 'weekly_activity', period: '7d' },
+        });
+        return (response?.data || []) as Array<{
+          day: string;
+          diagnoses: number;
+          irrigations: number;
+          alerts: number;
+        }>;
+      },
+      [],
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  async getPlatformMetrics(): Promise<{
+    activeFarmers: number;
+    dailySales: number;
+    irrigationOps: number;
+    avgTemperature: number;
+    monthlyGrowthRate: number;
+  }> {
+    const endpoint = `${this.urls.indicators}/api/v1/dashboard`;
+    const fallback = {
+      activeFarmers: 0,
+      dailySales: 0,
+      irrigationOps: 0,
+      avgTemperature: 0,
+      monthlyGrowthRate: 0,
+    };
+    return this.safeExecute(
+      async () => {
+        const data = await this.request<Record<string, unknown>>(endpoint);
+        return {
+          activeFarmers: (data?.active_users as number) || 0,
+          dailySales: (data?.daily_sales as number) || 0,
+          irrigationOps: (data?.pending_tasks as number) || 0,
+          avgTemperature: (data?.avg_temperature as number) || 0,
+          monthlyGrowthRate: (data?.monthly_growth_rate as number) || 0,
+        };
+      },
+      fallback,
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Advisory & Intelligence API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getAdvisoryRecommendations(
+    fieldId: string,
+    cropType?: string
+  ): Promise<{ recommendations: unknown[]; sources: unknown[] }> {
+    const endpoint = `${this.urls.advisory}/api/v1/advisory/recommendations`;
+    return this.safeExecute(
+      () =>
+        this.request(endpoint, {
+          method: 'POST',
+          data: { field_id: fieldId, crop_type: cropType },
+        }),
+      { recommendations: [], sources: [] },
+      { endpoint, method: 'POST' }
+    );
+  }
+
+  async getYieldPrediction(fieldId: string, cropType: string): Promise<unknown | null> {
+    const endpoint = `${this.urls.yieldPrediction}/api/v1/yield/predict`;
+    return this.safeExecute(
+      () =>
+        this.request(endpoint, {
+          method: 'POST',
+          data: { field_id: fieldId, crop_type: cropType },
+        }),
+      null,
+      { endpoint, method: 'POST' }
+    );
+  }
+
+  async getFieldIntelligence(fieldId: string): Promise<unknown | null> {
+    const endpoint = `${this.urls.fieldIntelligence}/api/v1/field-intelligence/${fieldId}`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Alerts API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getAlerts(params?: {
+    severity?: string;
+    type?: string;
+    acknowledged?: boolean;
+    limit?: number;
+  }): Promise<{ data: unknown[]; meta: { total: number; page: number; limit: number } }> {
+    const endpoint = `${this.urls.alerts}/api/v1/alerts`;
+    return this.safeExecute(
+      () => this.request(endpoint, { params }),
+      { data: [], meta: { total: 0, page: 1, limit: 20 } },
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Billing API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getBillingSubscription(): Promise<unknown | null> {
+    const endpoint = `${this.urls.billing}/api/v1/billing/subscription`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Astronomical Calendar API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getAstronomicalToday(lat?: number, lon?: number): Promise<unknown | null> {
+    const endpoint = `${this.urls.astronomicalCalendar}/api/v1/astronomical/today`;
+    return this.safeExecute(() => this.request(endpoint, { params: { lat, lon } }), null, {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Image Upload API (FormData)
+  // رفع الصور عبر FormData
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async uploadImage(url: string, formData: FormData, timeout?: number): Promise<unknown> {
+    return this.client
+      .post(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: timeout || 120000,
+      })
+      .then((r) => r.data);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Vision Detection API
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async detectVision(
+    task: 'pest' | 'disease' | 'weed',
+    formData: FormData,
+    timeout?: number
+  ): Promise<{
+    detections: Array<{
+      class: string;
+      confidence: number;
+      bbox: [number, number, number, number];
+    }>;
+    imageUrl?: string;
+    processingTime?: number;
+  }> {
+    const endpoint = `${this.urls.yoloVision}/api/v1/detect/${task}`;
+    return this.client
+      .post(endpoint, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+        timeout: timeout || 180000,
+      })
+      .then((r) => r.data);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Weather by Location API (direct service access)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  async getWeatherByLocation(locationId: string): Promise<unknown | null> {
+    const endpoint = `${this.urls.weather}/api/v1/current/${locationId}`;
+    return this.safeExecute(() => this.request(endpoint), null, {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  async getWeatherForecastByLocation(locationId: string, days = 7): Promise<unknown | null> {
+    const endpoint = `${this.urls.weather}/api/v1/forecast/${locationId}`;
+    return this.safeExecute(() => this.request(endpoint, { params: { days } }), null, {
+      endpoint,
+      method: 'GET',
+    });
+  }
+
+  async getWeatherLocations(): Promise<{ locations: unknown[] }> {
+    const endpoint = `${this.urls.weather}/api/v1/locations`;
+    return this.safeExecute(
+      () => this.request(endpoint),
+      { locations: [] },
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  async getWeatherAlertsByLocation(locationId: string = 'sanaa'): Promise<WeatherAlert[]> {
+    const endpoint = `${this.urls.weather}/api/v1/alerts/${locationId}`;
+    return this.safeExecute(
+      async () => {
+        const response = await this.request<{ alerts?: WeatherAlert[] }>(endpoint);
+        return response?.alerts || [];
+      },
+      [],
+      { endpoint, method: 'GET' }
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Generic Request Access (for custom endpoints)
+  // وصول عام للطلبات المخصصة
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Expose the underlying axios instance for advanced use cases
+   * (e.g., custom endpoints, FormData uploads).
+   * يتيح الوصول لمثيل axios للحالات المتقدمة
+   */
+  get axiosInstance(): AxiosInstance {
+    return this.client;
   }
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -1005,15 +1314,15 @@ export class SahoolApiClient {
         try {
           await this.client.get(`${url}/healthz`, { timeout: 5000 });
           results[name] = true;
-          this.log("debug", `Service health check passed: ${name}`, { url });
+          this.log('debug', `Service health check passed: ${name}`, { url });
         } catch (error) {
           results[name] = false;
-          this.log("warn", `Service health check failed: ${name}`, {
+          this.log('warn', `Service health check failed: ${name}`, {
             url,
-            error: error instanceof Error ? error.message : "Unknown error",
+            error: error instanceof Error ? error.message : 'Unknown error',
           });
         }
-      }),
+      })
     );
 
     return results;
@@ -1024,105 +1333,76 @@ export class SahoolApiClient {
   // ─────────────────────────────────────────────────────────────────────────
 
   private generateMockFarms(): Farm[] {
-    const governorates = [
-      "sanaa",
-      "taiz",
-      "ibb",
-      "hadramaut",
-      "hodeidah",
-      "dhamar",
-    ] as const;
-    const crops = [
-      "wheat",
-      "coffee",
-      "qat",
-      "date_palm",
-      "mango",
-      "banana",
-      "sorghum",
-    ] as const;
+    const governorates = ['sanaa', 'taiz', 'ibb', 'hadramaut', 'hodeidah', 'dhamar'] as const;
+    const crops = ['wheat', 'coffee', 'qat', 'date_palm', 'mango', 'banana', 'sorghum'] as const;
 
     return Array.from({ length: 25 }, (_, i) => ({
       id: `farm-${i + 1}`,
       name: `Farm ${i + 1}`,
       nameAr: `مزرعة ${i + 1}`,
       ownerId: `user-${Math.floor(Math.random() * 10) + 1}`,
-      governorate:
-        governorates[Math.floor(Math.random() * governorates.length)] ??
-        "sanaa",
-      district: "District",
+      governorate: governorates[Math.floor(Math.random() * governorates.length)] ?? 'sanaa',
+      district: 'District',
       area: Math.random() * 50 + 5,
       coordinates: {
         lat: 13.5 + Math.random() * 3,
         lng: 43.5 + Math.random() * 5,
       },
-      crops: [crops[Math.floor(Math.random() * crops.length)] ?? "wheat"],
-      status: "active" as const,
+      crops: [crops[Math.floor(Math.random() * crops.length)] ?? 'wheat'],
+      status: 'active' as const,
       healthScore: Math.floor(Math.random() * 40) + 60,
       lastUpdated: new Date().toISOString(),
-      createdAt: new Date(
-        Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000,
-      ).toISOString(),
+      createdAt: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
     }));
   }
 
   private generateMockDiagnoses(): DiagnosisRecord[] {
     const diseases = [
       {
-        id: "tomato_late_blight",
-        name: "Late Blight",
-        nameAr: "اللفحة المتأخرة",
+        id: 'tomato_late_blight',
+        name: 'Late Blight',
+        nameAr: 'اللفحة المتأخرة',
       },
       {
-        id: "tomato_early_blight",
-        name: "Early Blight",
-        nameAr: "اللفحة المبكرة",
+        id: 'tomato_early_blight',
+        name: 'Early Blight',
+        nameAr: 'اللفحة المبكرة',
       },
       {
-        id: "powdery_mildew",
-        name: "Powdery Mildew",
-        nameAr: "البياض الدقيقي",
+        id: 'powdery_mildew',
+        name: 'Powdery Mildew',
+        nameAr: 'البياض الدقيقي',
       },
       {
-        id: "bacterial_spot",
-        name: "Bacterial Spot",
-        nameAr: "التبقع البكتيري",
+        id: 'bacterial_spot',
+        name: 'Bacterial Spot',
+        nameAr: 'التبقع البكتيري',
       },
     ] as const;
     const defaultDisease = diseases[0];
-    const severities: Severity[] = ["low", "medium", "high", "critical"];
-    const statuses: DiagnosisStatus[] = [
-      "pending",
-      "confirmed",
-      "rejected",
-      "treated",
-    ];
+    const severities: Severity[] = ['low', 'medium', 'high', 'critical'];
+    const statuses: DiagnosisStatus[] = ['pending', 'confirmed', 'rejected', 'treated'];
 
     return Array.from({ length: 20 }, (_, i) => {
-      const disease =
-        diseases[Math.floor(Math.random() * diseases.length)] ?? defaultDisease;
+      const disease = diseases[Math.floor(Math.random() * diseases.length)] ?? defaultDisease;
       return {
         id: `diag-${i + 1}`,
         farmId: `farm-${Math.floor(Math.random() * 25) + 1}`,
         farmName: `مزرعة ${Math.floor(Math.random() * 25) + 1}`,
         imageUrl: `/api/placeholder/400/300`,
         thumbnailUrl: `/api/placeholder/100/100`,
-        cropType: "tomato",
+        cropType: 'tomato',
         diseaseId: disease.id,
         diseaseName: disease.name,
         diseaseNameAr: disease.nameAr,
         confidence: Math.random() * 30 + 70,
-        severity:
-          severities[Math.floor(Math.random() * severities.length)] ?? "medium",
-        status:
-          statuses[Math.floor(Math.random() * statuses.length)] ?? "pending",
+        severity: severities[Math.floor(Math.random() * severities.length)] ?? 'medium',
+        status: statuses[Math.floor(Math.random() * statuses.length)] ?? 'pending',
         location: {
           lat: 13.5 + Math.random() * 3,
           lng: 43.5 + Math.random() * 5,
         },
-        diagnosedAt: new Date(
-          Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000,
-        ).toISOString(),
+        diagnosedAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
         createdBy: `user-${Math.floor(Math.random() * 10) + 1}`,
       };
     });

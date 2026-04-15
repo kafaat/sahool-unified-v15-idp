@@ -87,7 +87,7 @@ async def get_pool() -> Pool:
             command_timeout=POOL_COMMAND_TIMEOUT,
             max_queries=POOL_MAX_QUERIES,
             max_inactive_connection_lifetime=POOL_MAX_INACTIVE_CONNECTION_LIFETIME,
-            ssl=ssl.create_default_context(),  # TLS/SSL encryption
+            statement_cache_size=0,  # PgBouncer transaction mode
             # Server settings for performance
             server_settings={
                 "application_name": "sahool-globalgap-compliance",
@@ -268,72 +268,100 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, registration_id: UUID) -> dict[str, Any] | None:
+    async def get_by_id(
+        self, registration_id: UUID, tenant_id: UUID | None = None, *, admin: bool = False
+    ) -> dict[str, Any] | None:
         """
-        Get registration by ID
-        الحصول على التسجيل بواسطة المعرف
+        Get registration by ID with tenant isolation
+        الحصول على التسجيل بواسطة المعرف مع عزل المستأجر
         """
-        query = "SELECT * FROM globalgap_registrations WHERE id = $1"
-        row = await self._fetchrow(query, registration_id)
+        if admin and tenant_id is None:
+            query = "SELECT * FROM globalgap_registrations WHERE id = $1"
+            row = await self._fetchrow(query, registration_id)
+        else:
+            if tenant_id is None:
+                raise ValueError("tenant_id is required for non-admin queries")
+            query = "SELECT * FROM globalgap_registrations WHERE id = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, registration_id, tenant_id)
         return dict(row) if row else None
 
-    async def get_by_ggn(self, ggn: str) -> dict[str, Any] | None:
+    async def get_by_ggn(
+        self, ggn: str, tenant_id: UUID | None = None, *, admin: bool = False
+    ) -> dict[str, Any] | None:
         """
-        Get registration by GlobalGAP Number
-        الحصول على التسجيل بواسطة رقم GlobalGAP
+        Get registration by GlobalGAP Number with tenant isolation
+        الحصول على التسجيل بواسطة رقم GlobalGAP مع عزل المستأجر
         """
-        query = "SELECT * FROM globalgap_registrations WHERE ggn = $1"
-        row = await self._fetchrow(query, ggn)
+        if admin and tenant_id is None:
+            query = "SELECT * FROM globalgap_registrations WHERE ggn = $1"
+            row = await self._fetchrow(query, ggn)
+        else:
+            if tenant_id is None:
+                raise ValueError("tenant_id is required for non-admin queries")
+            query = "SELECT * FROM globalgap_registrations WHERE ggn = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, ggn, tenant_id)
         return dict(row) if row else None
 
-    async def get_by_farm_id(self, farm_id: UUID) -> list[dict[str, Any]]:
+    async def get_by_farm_id(self, farm_id: UUID, tenant_id: UUID | None = None) -> list[dict[str, Any]]:
         """
-        Get all registrations for a farm
-        الحصول على جميع التسجيلات لمزرعة
+        Get all registrations for a farm with tenant isolation.
+        الحصول على جميع التسجيلات لمزرعة مع عزل المستأجر.
         """
+        # Tenant isolation required | عزل المستأجر مطلوب
+        if tenant_id is None:
+            raise ValueError("tenant_id is required for get_by_farm_id")
         query = """
             SELECT * FROM globalgap_registrations
-            WHERE farm_id = $1
+            WHERE farm_id = $1 AND tenant_id = $2
             ORDER BY created_at DESC
         """
-        rows = await self._fetch(query, farm_id)
+        rows = await self._fetch(query, farm_id, tenant_id)
         return [dict(row) for row in rows]
 
-    async def get_active_registrations(self, farm_id: UUID | None = None) -> list[dict[str, Any]]:
+    async def get_active_registrations(
+        self, tenant_id: UUID | None = None, farm_id: UUID | None = None
+    ) -> list[dict[str, Any]]:
         """
-        Get active registrations, optionally filtered by farm
-        الحصول على التسجيلات النشطة، اختياريًا مصفاة حسب المزرعة
+        Get active registrations with tenant isolation, optionally filtered by farm.
+        الحصول على التسجيلات النشطة مع عزل المستأجر، اختياريًا مصفاة حسب المزرعة.
         """
+        # Tenant isolation required | عزل المستأجر مطلوب
+        if tenant_id is None:
+            raise ValueError("tenant_id is required for get_active_registrations")
         if farm_id:
             query = """
                 SELECT * FROM globalgap_registrations
-                WHERE farm_id = $1 AND certificate_status = 'ACTIVE'
+                WHERE farm_id = $1 AND tenant_id = $2 AND certificate_status = 'ACTIVE'
                 ORDER BY created_at DESC
             """
-            rows = await self._fetch(query, farm_id)
+            rows = await self._fetch(query, farm_id, tenant_id)
         else:
             query = """
                 SELECT * FROM globalgap_registrations
-                WHERE certificate_status = 'ACTIVE'
+                WHERE tenant_id = $1 AND certificate_status = 'ACTIVE'
                 ORDER BY created_at DESC
             """
-            rows = await self._fetch(query)
+            rows = await self._fetch(query, tenant_id)
 
         return [dict(row) for row in rows]
 
-    async def get_expiring_soon(self, days: int = 30) -> list[dict[str, Any]]:
+    async def get_expiring_soon(self, tenant_id: UUID | None = None, days: int = 30) -> list[dict[str, Any]]:
         """
-        Get certificates expiring within specified days
-        الحصول على الشهادات المنتهية الصلاحية خلال أيام محددة
+        Get certificates expiring within specified days with tenant isolation.
+        الحصول على الشهادات المنتهية الصلاحية خلال أيام محددة مع عزل المستأجر.
         """
+        # Tenant isolation required | عزل المستأجر مطلوب
+        if tenant_id is None:
+            raise ValueError("tenant_id is required for get_expiring_soon")
         query = """
             SELECT * FROM globalgap_registrations
-            WHERE certificate_status = 'ACTIVE'
+            WHERE tenant_id = $1
+              AND certificate_status = 'ACTIVE'
               AND valid_to IS NOT NULL
-              AND valid_to <= CURRENT_DATE + $1::interval
+              AND valid_to <= CURRENT_DATE + $2::interval
             ORDER BY valid_to ASC
         """
-        rows = await self._fetch(query, f"{days} days")
+        rows = await self._fetch(query, tenant_id, f"{days} days")
         return [dict(row) for row in rows]
 
     async def update_status(
@@ -342,29 +370,41 @@ class GlobalGAPRegistrationRepository(BaseRepository):
         status: str,
         valid_from: date | None = None,
         valid_to: date | None = None,
+        tenant_id: UUID | None = None,
     ) -> dict[str, Any] | None:
         """
-        Update registration certificate status
-        تحديث حالة شهادة التسجيل
+        Update registration certificate status with optional tenant isolation
+        تحديث حالة شهادة التسجيل مع عزل المستأجر الاختياري
         """
-        query = """
-            UPDATE globalgap_registrations
-            SET certificate_status = $2,
-                valid_from = COALESCE($3, valid_from),
-                valid_to = COALESCE($4, valid_to)
-            WHERE id = $1
-            RETURNING *
-        """
-        row = await self._fetchrow(query, registration_id, status, valid_from, valid_to)
+        if tenant_id is not None:
+            query = """
+                UPDATE globalgap_registrations
+                SET certificate_status = $2,
+                    valid_from = COALESCE($3, valid_from),
+                    valid_to = COALESCE($4, valid_to)
+                WHERE id = $1 AND tenant_id = $5
+                RETURNING *
+            """
+            row = await self._fetchrow(query, registration_id, status, valid_from, valid_to, tenant_id)
+        else:
+            query = """
+                UPDATE globalgap_registrations
+                SET certificate_status = $2,
+                    valid_from = COALESCE($3, valid_from),
+                    valid_to = COALESCE($4, valid_to)
+                WHERE id = $1
+                RETURNING *
+            """
+            row = await self._fetchrow(query, registration_id, status, valid_from, valid_to)
         return dict(row) if row else None
 
-    async def delete(self, registration_id: UUID) -> bool:
+    async def delete(self, registration_id: UUID, tenant_id: UUID) -> bool:
         """
-        Delete a registration (and cascade to related records)
-        حذف تسجيل (والتتالي إلى السجلات ذات الصلة)
+        Delete a registration (and cascade to related records), scoped to tenant
+        حذف تسجيل (والتتالي إلى السجلات ذات الصلة)، مع عزل المستأجر
         """
-        query = "DELETE FROM globalgap_registrations WHERE id = $1"
-        result = await self._execute(query, registration_id)
+        query = "DELETE FROM globalgap_registrations WHERE id = $1 AND tenant_id = $2"
+        result = await self._execute(query, registration_id, tenant_id)
         return result == "DELETE 1"
 
 
@@ -419,10 +459,14 @@ class ComplianceRecordRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, record_id: UUID) -> dict[str, Any] | None:
-        """Get compliance record by ID"""
-        query = "SELECT * FROM compliance_records WHERE id = $1"
-        row = await self._fetchrow(query, record_id)
+    async def get_by_id(self, record_id: UUID, tenant_id: UUID | None = None) -> dict[str, Any] | None:
+        """Get compliance record by ID with optional tenant isolation"""
+        if tenant_id is not None:
+            query = "SELECT * FROM compliance_records WHERE id = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, record_id, tenant_id)
+        else:
+            query = "SELECT * FROM compliance_records WHERE id = $1"
+            row = await self._fetchrow(query, record_id)
         return dict(row) if row else None
 
     async def get_by_registration(self, registration_id: UUID, limit: int | None = None) -> list[dict[str, Any]]:
@@ -483,26 +527,41 @@ class ComplianceRecordRepository(BaseRepository):
         major_must_score: float | None = None,
         minor_must_score: float | None = None,
         overall_compliance: float | None = None,
+        tenant_id: UUID | None = None,
     ) -> dict[str, Any] | None:
         """
-        Update compliance scores
-        تحديث درجات الامتثال
+        Update compliance scores with optional tenant isolation
+        تحديث درجات الامتثال مع عزل المستأجر الاختياري
         """
-        query = """
-            UPDATE compliance_records
-            SET major_must_score = COALESCE($2, major_must_score),
-                minor_must_score = COALESCE($3, minor_must_score),
-                overall_compliance = COALESCE($4, overall_compliance)
-            WHERE id = $1
-            RETURNING *
-        """
-        row = await self._fetchrow(query, record_id, major_must_score, minor_must_score, overall_compliance)
+        if tenant_id is not None:
+            query = """
+                UPDATE compliance_records
+                SET major_must_score = COALESCE($2, major_must_score),
+                    minor_must_score = COALESCE($3, minor_must_score),
+                    overall_compliance = COALESCE($4, overall_compliance)
+                WHERE id = $1 AND tenant_id = $5
+                RETURNING *
+            """
+            row = await self._fetchrow(
+                query, record_id, major_must_score, minor_must_score, overall_compliance, tenant_id
+            )
+        else:
+            query = """
+                UPDATE compliance_records
+                SET major_must_score = COALESCE($2, major_must_score),
+                    minor_must_score = COALESCE($3, minor_must_score),
+                    overall_compliance = COALESCE($4, overall_compliance)
+                WHERE id = $1
+                RETURNING *
+            """
+            row = await self._fetchrow(query, record_id, major_must_score, minor_must_score, overall_compliance)
         return dict(row) if row else None
 
-    async def delete(self, record_id: UUID) -> bool:
-        """Delete a compliance record"""
-        query = "DELETE FROM compliance_records WHERE id = $1"
-        result = await self._execute(query, record_id)
+    async def delete(self, record_id: UUID, tenant_id: UUID) -> bool:
+        """Delete a compliance record, scoped to tenant for isolation
+        حذف سجل امتثال، مع عزل المستأجر"""
+        query = "DELETE FROM compliance_records WHERE id = $1 AND tenant_id = $2"
+        result = await self._execute(query, record_id, tenant_id)
         return result == "DELETE 1"
 
 
@@ -631,20 +690,33 @@ class ChecklistResponseRepository(BaseRepository):
         response: str | None = None,
         evidence_path: str | None = None,
         notes: str | None = None,
+        tenant_id: UUID | None = None,
     ) -> dict[str, Any] | None:
         """
-        Update a checklist response
-        تحديث استجابة قائمة التحقق
+        Update a checklist response with optional tenant isolation
+        تحديث استجابة قائمة التحقق مع عزل المستأجر الاختياري
         """
-        query = """
-            UPDATE checklist_responses
-            SET response = COALESCE($2, response),
-                evidence_path = COALESCE($3, evidence_path),
-                notes = COALESCE($4, notes)
-            WHERE id = $1
-            RETURNING *
-        """
-        row = await self._fetchrow(query, response_id, response, evidence_path, notes)
+        if tenant_id is not None:
+            query = """
+                UPDATE checklist_responses
+                SET response = COALESCE($2, response),
+                    evidence_path = COALESCE($3, evidence_path),
+                    notes = COALESCE($4, notes)
+                WHERE id = $1
+                  AND compliance_record_id IN (SELECT id FROM compliance_records WHERE tenant_id = $5)
+                RETURNING *
+            """
+            row = await self._fetchrow(query, response_id, response, evidence_path, notes, tenant_id)
+        else:
+            query = """
+                UPDATE checklist_responses
+                SET response = COALESCE($2, response),
+                    evidence_path = COALESCE($3, evidence_path),
+                    notes = COALESCE($4, notes)
+                WHERE id = $1
+                RETURNING *
+            """
+            row = await self._fetchrow(query, response_id, response, evidence_path, notes)
         return dict(row) if row else None
 
 
@@ -698,10 +770,14 @@ class NonConformanceRepository(BaseRepository):
         )
         return dict(row) if row else None
 
-    async def get_by_id(self, nc_id: UUID) -> dict[str, Any] | None:
-        """Get non-conformance by ID"""
-        query = "SELECT * FROM non_conformances WHERE id = $1"
-        row = await self._fetchrow(query, nc_id)
+    async def get_by_id(self, nc_id: UUID, tenant_id: UUID | None = None) -> dict[str, Any] | None:
+        """Get non-conformance by ID with optional tenant isolation"""
+        if tenant_id is not None:
+            query = "SELECT * FROM non_conformances WHERE id = $1 AND tenant_id = $2"
+            row = await self._fetchrow(query, nc_id, tenant_id)
+        else:
+            query = "SELECT * FROM non_conformances WHERE id = $1"
+            row = await self._fetchrow(query, nc_id)
         return dict(row) if row else None
 
     async def get_by_compliance_record(self, compliance_record_id: UUID) -> list[dict[str, Any]]:
@@ -717,47 +793,65 @@ class NonConformanceRepository(BaseRepository):
         rows = await self._fetch(query, compliance_record_id)
         return [dict(row) for row in rows]
 
-    async def get_open_non_conformances(self, severity: str | None = None) -> list[dict[str, Any]]:
+    async def get_open_non_conformances(
+        self, severity: str | None = None, tenant_id: UUID | None = None
+    ) -> list[dict[str, Any]]:
         """
-        Get all open non-conformances, optionally filtered by severity
-        الحصول على جميع عدم المطابقات المفتوحة، اختياريًا مصفاة حسب الخطورة
+        Get all open non-conformances, optionally filtered by severity and tenant
+        الحصول على جميع عدم المطابقات المفتوحة، اختياريًا مصفاة حسب الخطورة والمستأجر
         """
+        conditions = ["nc.status IN ('OPEN', 'IN_PROGRESS')"]
+        params: list[Any] = []
+        idx = 1
+
+        if tenant_id is not None:
+            conditions.append(f"comp.tenant_id = ${idx}")
+            params.append(tenant_id)
+            idx += 1
+
         if severity:
+            conditions.append(f"nc.severity = ${idx}")
+            params.append(severity)
+            idx += 1
+
+        where_clause = " AND ".join(conditions)
+        query = f"""
+            SELECT nc.*, comp.registration_id, comp.audit_date
+            FROM non_conformances nc
+            JOIN compliance_records comp ON nc.compliance_record_id = comp.id
+            WHERE {where_clause}
+            ORDER BY nc.severity DESC, nc.due_date ASC
+        """  # nosec B608 - where_clause is built from hardcoded filter strings with parameterized values
+        rows = await self._fetch(query, *params)
+
+        return [dict(row) for row in rows]
+
+    async def get_overdue_non_conformances(self, tenant_id: UUID | None = None) -> list[dict[str, Any]]:
+        """
+        Get overdue non-conformances with optional tenant isolation
+        الحصول على عدم المطابقات المتأخرة مع عزل المستأجر الاختياري
+        """
+        if tenant_id is not None:
             query = """
                 SELECT nc.*, comp.registration_id, comp.audit_date
                 FROM non_conformances nc
                 JOIN compliance_records comp ON nc.compliance_record_id = comp.id
                 WHERE nc.status IN ('OPEN', 'IN_PROGRESS')
-                  AND nc.severity = $1
+                  AND nc.due_date < CURRENT_DATE
+                  AND comp.tenant_id = $1
                 ORDER BY nc.severity DESC, nc.due_date ASC
             """
-            rows = await self._fetch(query, severity)
+            rows = await self._fetch(query, tenant_id)
         else:
             query = """
                 SELECT nc.*, comp.registration_id, comp.audit_date
                 FROM non_conformances nc
                 JOIN compliance_records comp ON nc.compliance_record_id = comp.id
                 WHERE nc.status IN ('OPEN', 'IN_PROGRESS')
+                  AND nc.due_date < CURRENT_DATE
                 ORDER BY nc.severity DESC, nc.due_date ASC
             """
             rows = await self._fetch(query)
-
-        return [dict(row) for row in rows]
-
-    async def get_overdue_non_conformances(self) -> list[dict[str, Any]]:
-        """
-        Get overdue non-conformances
-        الحصول على عدم المطابقات المتأخرة
-        """
-        query = """
-            SELECT nc.*, comp.registration_id, comp.audit_date
-            FROM non_conformances nc
-            JOIN compliance_records comp ON nc.compliance_record_id = comp.id
-            WHERE nc.status IN ('OPEN', 'IN_PROGRESS')
-              AND nc.due_date < CURRENT_DATE
-            ORDER BY nc.severity DESC, nc.due_date ASC
-        """
-        rows = await self._fetch(query)
         return [dict(row) for row in rows]
 
     async def update_status(
@@ -766,20 +860,33 @@ class NonConformanceRepository(BaseRepository):
         status: str,
         corrective_action: str | None = None,
         resolved_date: date | None = None,
+        tenant_id: UUID | None = None,
     ) -> dict[str, Any] | None:
         """
-        Update non-conformance status
-        تحديث حالة عدم المطابقة
+        Update non-conformance status with optional tenant isolation
+        تحديث حالة عدم المطابقة مع عزل المستأجر الاختياري
         """
-        query = """
-            UPDATE non_conformances
-            SET status = $2,
-                corrective_action = COALESCE($3, corrective_action),
-                resolved_date = COALESCE($4, resolved_date)
-            WHERE id = $1
-            RETURNING *
-        """
-        row = await self._fetchrow(query, nc_id, status, corrective_action, resolved_date)
+        if tenant_id is not None:
+            query = """
+                UPDATE non_conformances
+                SET status = $2,
+                    corrective_action = COALESCE($3, corrective_action),
+                    resolved_date = COALESCE($4, resolved_date)
+                WHERE id = $1
+                  AND compliance_record_id IN (SELECT id FROM compliance_records WHERE tenant_id = $5)
+                RETURNING *
+            """
+            row = await self._fetchrow(query, nc_id, status, corrective_action, resolved_date, tenant_id)
+        else:
+            query = """
+                UPDATE non_conformances
+                SET status = $2,
+                    corrective_action = COALESCE($3, corrective_action),
+                    resolved_date = COALESCE($4, resolved_date)
+                WHERE id = $1
+                RETURNING *
+            """
+            row = await self._fetchrow(query, nc_id, status, corrective_action, resolved_date)
         return dict(row) if row else None
 
     async def resolve(

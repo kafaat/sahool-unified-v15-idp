@@ -1,4 +1,5 @@
 import '../../../../core/http/api_client.dart';
+import '../../../../core/contracts/api_endpoints.dart';
 
 /// Billing API - Payment and subscription management
 /// خدمة الفوترة - إدارة المدفوعات والاشتراكات
@@ -49,7 +50,7 @@ class BillingApi {
     Map<String, String>? metadata,
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/stripe/payment-intents',
+      BillingEndpoints.stripePaymentIntents,
       {
         'tenant_id': _client.tenantId,
         'amount': amount,
@@ -78,7 +79,7 @@ class BillingApi {
     required String paymentIntentId,
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/stripe/payment-intents/$paymentIntentId/confirm',
+      BillingEndpoints.stripePaymentIntentConfirm(paymentIntentId),
       {
         'tenant_id': _client.tenantId,
       },
@@ -103,7 +104,7 @@ class BillingApi {
     Map<String, String>? metadata,
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/stripe/setup-intents',
+      BillingEndpoints.stripeSetupIntents,
       {
         'tenant_id': _client.tenantId,
         if (customerId != null) 'customer_id': customerId,
@@ -127,7 +128,7 @@ class BillingApi {
     required String setupIntentId,
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/stripe/setup-intents/$setupIntentId/confirm',
+      BillingEndpoints.stripeSetupIntentConfirm(setupIntentId),
       {
         'tenant_id': _client.tenantId,
       },
@@ -146,7 +147,7 @@ class BillingApi {
   /// Get Stripe publishable key for SDK initialization
   /// الحصول على مفتاح Stripe العام لتهيئة SDK
   Future<StripeConfig> getStripeConfig() async {
-    final response = await _client.get('/api/v1/billing/stripe/config');
+    final response = await _client.get(BillingEndpoints.stripeConfig);
 
     if (response is Map<String, dynamic>) {
       return StripeConfig.fromJson(response);
@@ -166,7 +167,7 @@ class BillingApi {
   /// الحصول على طرق الدفع المحفوظة
   Future<List<SavedPaymentMethod>> getSavedPaymentMethods() async {
     final response = await _client.get(
-      '/api/v1/billing/payment-methods',
+      BillingEndpoints.paymentMethods,
       queryParameters: {'tenant_id': _client.tenantId},
     );
 
@@ -191,7 +192,7 @@ class BillingApi {
   /// حذف طريقة دفع محفوظة
   Future<void> deletePaymentMethod({required String paymentMethodId}) async {
     await _client.delete(
-      '/api/v1/billing/payment-methods/$paymentMethodId',
+      BillingEndpoints.paymentMethod(paymentMethodId),
     );
   }
 
@@ -200,7 +201,7 @@ class BillingApi {
   Future<void> setDefaultPaymentMethod(
       {required String paymentMethodId}) async {
     await _client.post(
-      '/api/v1/billing/payment-methods/$paymentMethodId/default',
+      BillingEndpoints.paymentMethodDefault(paymentMethodId),
       {
         'tenant_id': _client.tenantId,
       },
@@ -215,7 +216,7 @@ class BillingApi {
   /// الحصول على رصيد المحفظة
   Future<WalletBalance> getWalletBalance() async {
     final response = await _client.get(
-      '/api/v1/billing/wallet',
+      BillingEndpoints.wallet,
       queryParameters: {'tenant_id': _client.tenantId},
     );
 
@@ -265,7 +266,7 @@ class BillingApi {
     }
 
     final response = await _client.post(
-      '/api/v1/billing/deposit',
+      BillingEndpoints.deposit,
       {
         'tenant_id': _client.tenantId,
         'amount': amount,
@@ -293,7 +294,7 @@ class BillingApi {
     required String phoneNumber,
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/withdraw',
+      BillingEndpoints.withdraw,
       {
         'tenant_id': _client.tenantId,
         'amount': amount,
@@ -319,7 +320,7 @@ class BillingApi {
     String? note,
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/transfer',
+      BillingEndpoints.transfer,
       {
         'tenant_id': _client.tenantId,
         'amount': amount,
@@ -345,7 +346,7 @@ class BillingApi {
     int offset = 0,
   }) async {
     final response = await _client.get(
-      '/api/v1/billing/transactions',
+      BillingEndpoints.transactions,
       queryParameters: {
         'tenant_id': _client.tenantId,
         'limit': limit,
@@ -378,7 +379,7 @@ class BillingApi {
   /// الحصول على الاشتراك الحالي
   Future<Subscription?> getCurrentSubscription() async {
     final response = await _client.get(
-      '/api/v1/billing/tenants/${_client.tenantId}/subscription',
+      BillingEndpoints.tenantSubscription(_client.tenantId),
     );
 
     if (response is Map<String, dynamic>) {
@@ -394,7 +395,7 @@ class BillingApi {
   /// Get available plans
   /// الحصول على الخطط المتاحة
   Future<List<Plan>> getAvailablePlans() async {
-    final response = await _client.get('/api/v1/billing/plans');
+    final response = await _client.get(BillingEndpoints.plans);
 
     if (response is Map && response['plans'] is List) {
       return (response['plans'] as List)
@@ -420,7 +421,7 @@ class BillingApi {
     String billingCycle = 'monthly',
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/tenants/${_client.tenantId}/subscription',
+      BillingEndpoints.tenantSubscription(_client.tenantId),
       {
         'plan_id': planId,
         'billing_cycle': billingCycle,
@@ -441,7 +442,7 @@ class BillingApi {
   /// إلغاء الاشتراك
   Future<void> cancelSubscription({String? reason}) async {
     await _client.delete(
-      '/api/v1/billing/tenants/${_client.tenantId}/subscription',
+      BillingEndpoints.tenantSubscription(_client.tenantId),
     );
   }
 
@@ -464,7 +465,7 @@ class BillingApi {
     }
 
     final response = await _client.get(
-      '/api/v1/billing/tenants/${_client.tenantId}/invoices',
+      BillingEndpoints.tenantInvoices(_client.tenantId),
       queryParameters: queryParams,
     );
 
@@ -494,7 +495,7 @@ class BillingApi {
     required String invoiceId,
   }) async {
     final response = await _client.post(
-      '/api/v1/billing/invoices/$invoiceId/payment-intent',
+      BillingEndpoints.invoicePaymentIntent(invoiceId),
       {
         'tenant_id': _client.tenantId,
       },
@@ -546,7 +547,7 @@ class BillingApi {
     }
 
     final response = await _client.post(
-      '/api/v1/billing/payments',
+      BillingEndpoints.payments,
       {
         'invoice_id': invoiceId,
         'method': method.value,
@@ -574,7 +575,7 @@ class BillingApi {
   /// الحصول على إحصائيات الاستخدام
   Future<UsageStats> getUsageStats() async {
     final response = await _client.get(
-      '/api/v1/billing/tenants/${_client.tenantId}/usage',
+      BillingEndpoints.tenantUsage(_client.tenantId),
     );
 
     if (response is Map<String, dynamic>) {

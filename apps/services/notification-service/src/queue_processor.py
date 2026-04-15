@@ -10,10 +10,11 @@ import asyncio
 import json
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
-from typing import Any, Callable
+from typing import Any
 from uuid import uuid4
 
 logger = logging.getLogger("sahool-notifications.queue")
@@ -350,7 +351,7 @@ class NotificationQueueProcessor:
             queue_key = self.PRIORITY_QUEUES[priority]
 
             # Move from queue to processing set atomically
-            notification_json = await self._redis.rpoplpush(queue_key, self.PROCESSING_SET)
+            notification_json = await self._redis.lmove(queue_key, self.PROCESSING_SET, "RIGHT", "LEFT")
 
             if notification_json:
                 try:

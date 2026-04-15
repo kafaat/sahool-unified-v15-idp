@@ -66,6 +66,15 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>SAHOOL uses Face ID for secure authentication to protect your agricultural data.</string>
 
+	<!-- Microphone & Speech Recognition — required by speech_to_text package.
+	     Without these keys, iOS silently rejects the permission request and
+	     the voice service reports "recognition not available" instead of
+	     "permission denied". -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>SAHOOL needs microphone access to receive voice commands and spoken agricultural queries.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>SAHOOL uses speech recognition to convert your spoken questions into text so the agricultural advisor can respond.</string>
+
 	<!-- Background Modes - Required for workmanager background sync -->
 	<key>UIBackgroundModes</key>
 	<array>

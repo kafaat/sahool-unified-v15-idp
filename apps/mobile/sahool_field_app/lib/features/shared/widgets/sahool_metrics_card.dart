@@ -37,7 +37,7 @@ class SahoolMetricsCard extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.08),
+              color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -49,14 +49,14 @@ class SahoolMetricsCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 20, color: color.withOpacity(0.7)),
+                Icon(icon, size: 20, color: color.withValues(alpha: 0.7)),
                 const Spacer(),
                 if (subValue != null)
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -73,7 +73,7 @@ class SahoolMetricsCard extends StatelessWidget {
             const SizedBox(height: 10),
             Text(
               value,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: SahoolProColors.textDark,
@@ -82,7 +82,7 @@ class SahoolMetricsCard extends StatelessWidget {
             const SizedBox(height: 2),
             Text(
               label,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 12,
                 color: SahoolProColors.textMedium,
                 fontWeight: FontWeight.w500,
@@ -115,9 +115,9 @@ class SahoolMiniMetricsCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -140,7 +140,7 @@ class SahoolMiniMetricsCard extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 10,
-                  color: color.withOpacity(0.8),
+                  color: color.withValues(alpha: 0.8),
                 ),
               ),
             ],
@@ -178,7 +178,7 @@ class SahoolFieldStatusCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 8,
-      shadowColor: Colors.black.withOpacity(0.2),
+      shadowColor: Colors.black.withValues(alpha: 0.2),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -213,7 +213,7 @@ class SahoolFieldStatusCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '$cropType • ${areaHa.toStringAsFixed(1)} هكتار',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: SahoolProColors.textMedium,
                             fontSize: 14,
                           ),
@@ -292,8 +292,8 @@ class SahoolFieldStatusCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
         color: isSynced
-            ? SahoolProColors.statusSynced.withOpacity(0.1)
-            : SahoolProColors.statusPending.withOpacity(0.1),
+            ? SahoolProColors.statusSynced.withValues(alpha: 0.1)
+            : SahoolProColors.statusPending.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -342,7 +342,7 @@ class SahoolFieldStatusCard extends StatelessWidget {
         ),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             color: SahoolProColors.textLight,
           ),
@@ -356,13 +356,13 @@ class SahoolFieldStatusCard extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: 22,
-          backgroundColor: color.withOpacity(0.1),
+          backgroundColor: color.withValues(alpha: 0.1),
           child: Icon(icon, color: color, size: 22),
         ),
         const SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 11,
             color: SahoolProColors.textMedium,
           ),

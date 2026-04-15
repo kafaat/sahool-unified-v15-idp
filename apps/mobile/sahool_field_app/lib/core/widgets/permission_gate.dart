@@ -61,7 +61,7 @@ class PermissionGate extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final permissionService = ref.watch(permissionServiceProvider);
 
-    bool hasAccess = _checkAccess(permissionService);
+    final bool hasAccess = _checkAccess(permissionService);
 
     if (hasAccess) {
       return child;

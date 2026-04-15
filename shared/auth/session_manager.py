@@ -746,6 +746,7 @@ class SessionSecurityChecker:
                 logger.info("GeoIP database loaded from %s", db_path)
                 return cls._geoip_reader
             except Exception:
+                logger.warning("Failed to load GeoIP database from %s", db_path, exc_info=True)
                 continue
 
         return None
@@ -776,7 +777,7 @@ class SessionSecurityChecker:
                 return (float(lat), float(lon))
         except Exception:
             # Any lookup failure (invalid IP, missing record, etc.) — skip gracefully
-            pass
+            logger.warning("GeoIP lookup failed for IP %s", ip, exc_info=True)
 
         return None
 
@@ -838,7 +839,7 @@ class SessionSecurityChecker:
         except Exception:
             # If anything goes wrong with GeoIP lookup or distance calculation,
             # just skip the geographic check rather than breaking session validation.
-            logger.debug("Geographic anomaly check skipped due to error", exc_info=True)
+            logger.warning("Geographic anomaly check skipped due to error", exc_info=True)
 
         return False, None
 

@@ -135,9 +135,9 @@ class AuthRateLimiter:
         # Combine IP with identifier if provided (rate limit key, not HTML - not a Flask route)
         # This is NOT a Flask route - it's a rate limit key function
         if identifier:
-            # nosemgrep
+            # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
             return f"auth:{client_ip}:{identifier}"
-        # nosemgrep
+        # nosemgrep: directly-returned-format-string -- rate limit key, not an HTTP response
         return f"auth:{client_ip}"
 
     async def check_login_limit(
@@ -197,7 +197,7 @@ class AuthRateLimiter:
         )
 
         if not allowed:
-            logger.warning(
+            logger.warning(  # nosemgrep: python-logger-credential-disclosure -- logs email and IP for rate limit monitoring, no credentials
                 "Password reset rate limit exceeded for %s from %s",
                 str(email).replace("\n", " ").replace("\r", " "),
                 str(request.client.host if request.client else "unknown").replace("\n", " ").replace("\r", " "),

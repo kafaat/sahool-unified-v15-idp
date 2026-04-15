@@ -30,10 +30,10 @@ RUN groupadd --system sahool && \
 # Upgrade pip and install build tools with multi-mirror fallback
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip "setuptools>=68.0" wheel build || \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
-    --upgrade pip "setuptools>=68.0" wheel build
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Install dependencies
 COPY constraints.txt .
@@ -44,6 +44,7 @@ COPY shared/ ./shared/
 
 # Copy services shared modules overlay (shared.errors_py/, shared.middleware/, etc.)
 COPY apps/services/shared/ ./shared/
+
 
 # Copy source
 COPY apps/services/ussd-gateway/src/ ./src/
@@ -63,6 +64,15 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     chown -R sahool:sahool /app
 
 # Switch to non-root user
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+RUN rm -rf /usr/local/lib/python*/site-packages/setuptools* \
+           /usr/local/lib/python*/site-packages/pip* \
+           /usr/local/lib/python*/site-packages/wheel* \
+           /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/pkg_resources* \
+           /usr/local/lib/python*/site-packages/jaraco* \
+           /usr/local/bin/pip* 2>/dev/null || true
 USER sahool
 
 EXPOSE 8183

@@ -15,26 +15,33 @@ import sys
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timezone
 
+try:
+    import structlog
+except ImportError:
+    structlog = None  # type: ignore[assignment]
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 # Configure logger early
-logger = logging.getLogger(__name__)
+if structlog is not None:
+    logger = structlog.get_logger(__name__)
+else:
+    logger = logging.getLogger(__name__)
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.insert(0, "../../../../shared")
 
 # Import shared middleware
+# Import CORS config from shared module (has its own internal fallback)
+from shared.cors_config import setup_cors_middleware
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
-# Import CORS config from shared module (has its own internal fallback)
-from shared.cors_config import setup_cors_middleware
-from services import EntityService, KnowledgeGraphService, RelationshipService
-
 # Import models and services
-from models import HealthCheckResponse
+from .models import HealthCheckResponse
+from .services import EntityService, KnowledgeGraphService, RelationshipService
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Configuration
@@ -46,7 +53,10 @@ SERVICE_PORT = 8140
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("knowledge-graph")
+if structlog is not None:
+    logger = structlog.get_logger("knowledge-graph")
+else:
+    logger = logging.getLogger("knowledge-graph")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -171,7 +181,7 @@ async def health_combined():
 # ═══════════════════════════════════════════════════════════════════════════════
 
 # Import API routers
-from api.v1 import entities_router, graphs_router, relationships_router
+from .api.v1 import entities_router, graphs_router, relationships_router
 
 app.include_router(graphs_router)
 app.include_router(entities_router)
@@ -253,7 +263,7 @@ if __name__ == "__main__":
 
     uvicorn.run(
         "main:app",
-        host="0.0.0.0",
+        host="0.0.0.0",  # nosec B104 - binding to all interfaces required for Docker container
         port=SERVICE_PORT,
         reload=True,
         log_level="info",

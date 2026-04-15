@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+library;
 
 /// SAHOOL Scout Session Models
 /// نماذج جلسة مسح الحقول

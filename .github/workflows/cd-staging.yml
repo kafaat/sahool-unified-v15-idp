@@ -131,7 +131,7 @@ jobs:
 
       # - name: Upload pre-deployment evaluation report
       #   if: always()
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v7
       #   with:
       #     name: pre-deploy-evaluation-${{ github.sha }}
       #     path: pre-deploy-evaluation.json
@@ -168,7 +168,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v4
+        uses: azure/k8s-set-context@v5
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
@@ -199,22 +199,32 @@ jobs:
         run: |
           echo "Deploying Starter package services..."
 
+          # SECURITY: Use --set-file for secrets in a run-scoped temp directory
+          # to avoid YAML escaping issues and /tmp collisions between runners.
+          SECRETS_DIR=$(mktemp -d "/tmp/helm-secrets-${{ github.run_id }}-XXXXXX")
+          trap "rm -rf '$SECRETS_DIR'" EXIT
+
+          printf '%s' "${{ secrets.JWT_SECRET_STAGING }}" > "$SECRETS_DIR/jwt"
+          printf '%s' "${{ secrets.DATABASE_URL_STAGING }}" > "$SECRETS_DIR/dburl"
+
           # Deploy field-management-service (replaces field-ops)
           helm upgrade --install field-management-service ./helm/services/field-management-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
-            --set secrets.jwtSecret=${{ secrets.JWT_SECRET_STAGING }} \
-            --set database.url=${{ secrets.DATABASE_URL_STAGING }} \
+            --set-file secrets.jwtSecret="$SECRETS_DIR/jwt" \
+            --set-file database.url="$SECRETS_DIR/dburl" \
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
+
+          printf '%s' "${{ secrets.OPENWEATHER_API_KEY }}" > "$SECRETS_DIR/weather"
 
           # Deploy weather-service (replaces deprecated weather-core)
           helm upgrade --install weather-service ./helm/services/weather-service \
             --namespace ${{ env.KUBERNETES_NAMESPACE }} \
             --set image.tag=${{ github.sha }} \
             --set environment=staging \
-            --set secrets.openWeatherApiKey=${{ secrets.OPENWEATHER_API_KEY }} \
+            --set-file secrets.openWeatherApiKey="$SECRETS_DIR/weather" \
             --timeout ${{ env.HELM_TIMEOUT }} \
             --wait
 
@@ -297,7 +307,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v4
+        uses: azure/k8s-set-context@v5
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
@@ -394,7 +404,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v4
+        uses: azure/k8s-set-context@v5
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.KUBE_CONFIG_STAGING }}
@@ -580,7 +590,7 @@ jobs:
 
       # - name: Upload post-deployment evaluation report
       #   if: always()
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@v7
       #   with:
       #     name: post-deploy-evaluation-${{ github.sha }}
       #     path: post-deploy-evaluation.json

@@ -24,11 +24,12 @@ import sqlite3
 import struct
 import uuid
 from abc import ABC, abstractmethod
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -609,7 +610,7 @@ class SQLiteBackend(VectorStoreBackendBase):
             DELETE FROM documents
             WHERE id IN ({placeholders}) AND collection = ?
         """  # nosec B608 - parameterized query with ? placeholders
-        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, python.sqlalchemy.security.sqlalchemy-execute-raw-query -- parameterized query with ? placeholders; ids are UUIDs, collection is internal
             delete_docs_sql,
             (*ids, collection),
         )
@@ -619,7 +620,7 @@ class SQLiteBackend(VectorStoreBackendBase):
             DELETE FROM documents_fts
             WHERE id IN ({placeholders})
         """  # nosec B608 - parameterized query with ? placeholders
-        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query
+        cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, python.sqlalchemy.security.sqlalchemy-execute-raw-query -- parameterized query with ? placeholders; ids are UUIDs
             delete_fts_sql,
             ids,
         )
@@ -666,12 +667,13 @@ class SQLiteBackend(VectorStoreBackendBase):
         """Search for similar vectors"""
         cursor = self._conn.cursor()
 
-        # Get all documents in collection (brute force for FLAT index)
+        # Get documents in collection (brute force for FLAT index, capped at 50000 for safety)
+        max_scan = 50000
         cursor.execute(
             """
-            SELECT * FROM documents WHERE collection = ?
+            SELECT * FROM documents WHERE collection = ? LIMIT ?
         """,
-            (collection,),
+            (collection, max_scan),
         )
 
         results = []
@@ -1358,13 +1360,21 @@ class VectorStore:
         name: str,
         dimension: int | None = None,
         metadata: dict[str, Any] | None = None,
+        tenant_id: str | None = None,
     ) -> CollectionInfo:
         """Create a new collection
 
         إنشاء مجموعة جديدة
+
+        Args:
+            name: Collection name
+            dimension: Vector dimension (uses config default if None)
+            metadata: Optional collection metadata
+            tenant_id: Tenant identifier for namespace isolation
         """
+        collection_name = f"{tenant_id}:{name}" if tenant_id else name
         return await self._backend.create_collection(
-            name=name,
+            name=collection_name,
             dimension=dimension or self.config.dimension,
             distance_metric=self.config.distance_metric,
             metadata=metadata,
@@ -1458,6 +1468,7 @@ class VectorStore:
         top_k: int = 10,
         filter: dict[str, Any] | None = None,
         include_content: bool = True,
+        tenant_id: str | None = None,
     ) -> list[SearchResult]:
         """Search for similar documents
 
@@ -1470,11 +1481,43 @@ class VectorStore:
             top_k: Number of results
             filter: Metadata filter
             include_content: Include document content
+            tenant_id: When provided, scopes the search to this tenant's data
+                by automatically adding it to the metadata filter to ensure
+                results are scoped to the tenant's data only.  All callers
+                that operate on per-tenant data SHOULD supply this parameter
+                to prevent cross-tenant information leakage.
 
         Returns:
             List of SearchResult
         """
         collection = collection or self.config.default_collection
+
+        # SECURITY: Inject tenant_id into filter for multi-tenant isolation.
+        # This ensures one tenant cannot read another tenant's embeddings.
+        if tenant_id:
+            filter = dict(filter) if filter else {}
+            # Detect conflicting tenant_id — caller bug, not silent override
+            if "tenant_id" in filter and filter["tenant_id"] != tenant_id:
+                raise ValueError(
+                    f"Conflicting tenant_id values: parameter tenant_id={tenant_id!r}, "
+                    f"filter['tenant_id']={filter['tenant_id']!r}"
+                )
+            filter["tenant_id"] = tenant_id
+        else:
+            # Check if the caller already scoped by tenant_id in the filter dict.
+            # If so, the search IS tenant-scoped and no warning is needed.
+            filter_has_tenant = filter.get("tenant_id") if filter else None
+            if filter_has_tenant is None:
+                # Warn when neither parameter nor filter provides tenant scope.
+                # This does NOT raise because some collections (e.g. global
+                # knowledge base) are legitimately shared across all tenants.
+                # تحذير عند عدم تمرير tenant_id — قد يعني تسرب بيانات بين المستأجرين
+                logger.warning(
+                    "VectorStore.search called without tenant_id for collection '%s'. "
+                    "Results are UNSCOPED and may include data from all tenants. "
+                    "Ensure this is intentional (e.g. a shared knowledge collection).",
+                    collection,
+                )
 
         # Get query vector
         if vector is None:
@@ -1617,6 +1660,7 @@ async def search_documents(
     collection: str = "default",
     top_k: int = 10,
     filter: dict[str, Any] | None = None,
+    tenant_id: str | None = None,
 ) -> list[SearchResult]:
     """Convenience function to search documents
 
@@ -1628,6 +1672,7 @@ async def search_documents(
         collection=collection,
         top_k=top_k,
         filter=filter,
+        tenant_id=tenant_id,
     )
 
 

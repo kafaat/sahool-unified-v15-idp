@@ -14,28 +14,28 @@ Author: SAHOOL Platform Team
 Created: January 2026
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import pytest
+
 from shared.ai.huggingface_provider import (
-    HuggingfaceProvider,
-    HuggingfaceConfig,
-    HuggingfaceModelType,
+    AGRICULTURAL_MODELS,
+    EMBEDDING_MODELS,
+    BatchEmbeddingResult,
+    EmbeddingCache,
     EmbeddingModelFamily,
     EmbeddingResult,
-    BatchEmbeddingResult,
+    HuggingfaceConfig,
+    HuggingfaceModelType,
+    HuggingfaceProvider,
     ModelInfo,
-    EmbeddingCache,
-    EMBEDDING_MODELS,
-    AGRICULTURAL_MODELS,
-    get_huggingface_provider,
     embed_text,
     embed_texts,
-    text_similarity,
-    list_arabic_models,
     get_best_arabic_model,
+    get_huggingface_provider,
+    list_arabic_models,
+    text_similarity,
 )
-
 
 # ============================================================================
 # Config Tests

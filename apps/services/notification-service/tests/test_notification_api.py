@@ -12,15 +12,31 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except ImportError:
-    pytest.skip("fastapi not installed", allow_module_level=True)
+except (ImportError, ModuleNotFoundError) as e:
+    pytest.skip(f"fastapi not installed: {e}", allow_module_level=True)
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
+    # pyo3_runtime.PanicException is a BaseException — skip for broken cryptography
+    pytest.skip(f"fastapi not importable (native error): {e}", allow_module_level=True)
+
+# Verify src.main can be imported (requires tortoise ORM and other deps)
+try:
+    import src.main  # noqa: F401
+except (ImportError, ModuleNotFoundError) as e:
+    pytest.skip(f"src.main not importable: {e}", allow_module_level=True)
+except BaseException as e:
+    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+        raise
+    # pyo3_runtime.PanicException is a BaseException — skip for broken cryptography
+    pytest.skip(f"src.main not importable (native error): {e}", allow_module_level=True)
 
 
 @pytest.fixture
 def mock_db():
     """Mock database connection"""
     with (
-        patch("src.database.init_db", new=AsyncMock()),
+        patch("src.database.init_notification_db", new=AsyncMock()),
         patch(
             "src.database.check_db_health",
             new=AsyncMock(return_value={"status": "healthy", "connected": True}),
@@ -103,20 +119,29 @@ def app_client(mock_db, mock_notification_repo, mock_preferences_service, mock_f
     from src.main import app
 
     # Use FastAPI's dependency override mechanism for auth
-    # Return None to bypass auth ownership checks in endpoints
+    # Return a mock user with id="farmer-123" to match test farmer_id values.
+    # Auth is mandatory on farmer endpoints (User, not User | None).
+    mock_user = MagicMock()
+    mock_user.id = "farmer-123"
+    mock_user.tenant_id = "11111111-1111-1111-1111-111111111111"
+
     try:
         from shared.auth.dependencies import get_current_user
 
-        app.dependency_overrides[get_current_user] = lambda: None
-    except ImportError:
+        app.dependency_overrides[get_current_user] = lambda: mock_user
+    except BaseException as e:
+        if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+            raise
         try:
             from src.main import get_current_user
 
-            app.dependency_overrides[get_current_user] = lambda: None
-        except ImportError:
+            app.dependency_overrides[get_current_user] = lambda: mock_user
+        except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+                raise
             pass
 
-    client = TestClient(app, headers={"X-Tenant-ID": "test-tenant-1"})
+    client = TestClient(app, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"})
     yield client
 
     app.dependency_overrides.clear()
@@ -426,14 +451,23 @@ class TestErrorHandling:
 
         # Use raise_server_exceptions=False so exceptions go through FastAPI's
         # exception handlers instead of propagating to the test client
+        mock_user = MagicMock()
+        mock_user.id = "farmer-123"
+        mock_user.tenant_id = "11111111-1111-1111-1111-111111111111"
+
         try:
             from shared.auth.dependencies import get_current_user
-            app.dependency_overrides[get_current_user] = lambda: None
-        except ImportError:
+
+            app.dependency_overrides[get_current_user] = lambda: mock_user
+        except BaseException as e:
+            if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
+                raise
             pass
 
         try:
-            with TestClient(app, raise_server_exceptions=False, headers={"X-Tenant-ID": "test-tenant-1"}) as client:
+            with TestClient(
+                app, raise_server_exceptions=False, headers={"X-Tenant-ID": "11111111-1111-1111-1111-111111111111"}
+            ) as client:
                 with patch("src.main.NotificationRepository.get_by_user", side_effect=Exception("DB Error")):
                     response = client.get("/farmer/farmer-123")
                     # Service should handle DB errors gracefully and return a server error

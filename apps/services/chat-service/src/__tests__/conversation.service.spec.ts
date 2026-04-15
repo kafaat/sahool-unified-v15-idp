@@ -13,6 +13,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { NotFoundException, BadRequestException } from "@nestjs/common";
 import { ChatService } from "../chat/chat.service";
 import { PrismaService } from "../prisma/prisma.service";
+import { ChatEventsService } from "../events/chat-events.service";
 import { CreateConversationDto } from "../chat/dto/create-conversation.dto";
 
 describe("ConversationService (Conversation Operations)", () => {
@@ -97,6 +98,14 @@ describe("ConversationService (Conversation Operations)", () => {
         {
           provide: PrismaService,
           useValue: mockPrismaService,
+        },
+        {
+          provide: ChatEventsService,
+          useValue: {
+            publishMessageSent: jest.fn(),
+            publishMessageRead: jest.fn(),
+            isConnected: jest.fn().mockReturnValue(false),
+          },
         },
       ],
     }).compile();

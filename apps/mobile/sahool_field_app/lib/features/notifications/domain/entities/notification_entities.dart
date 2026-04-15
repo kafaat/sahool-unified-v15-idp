@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Notification Domain Entities
 /// نماذج بيانات الإشعارات
 

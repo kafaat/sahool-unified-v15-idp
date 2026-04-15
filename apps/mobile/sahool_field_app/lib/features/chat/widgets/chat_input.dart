@@ -1,3 +1,5 @@
+library;
+
 /// Chat Input Widget
 /// حقل إدخال الرسائل
 ///
@@ -525,7 +527,7 @@ class _ChatInputState extends State<ChatInput> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -547,7 +549,7 @@ class _ChatInputState extends State<ChatInput> {
           onPressed: () {
             _showAttachmentOptions(context);
           },
-          icon: Icon(
+          icon: const Icon(
             Icons.add_circle_outline,
             color: SahoolTheme.primary,
           ),
@@ -556,7 +558,7 @@ class _ChatInputState extends State<ChatInput> {
 
         // Text input
         Expanded(
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               color: Colors.grey[100],
               borderRadius: BorderRadius.circular(24),
@@ -603,7 +605,7 @@ class _ChatInputState extends State<ChatInput> {
                       onPressed: _handleSend,
                       icon: Container(
                         padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: SahoolTheme.primary,
                           shape: BoxShape.circle,
                         ),
@@ -617,7 +619,7 @@ class _ChatInputState extends State<ChatInput> {
                     )
                   : IconButton(
                       onPressed: _startRecording,
-                      icon: Icon(
+                      icon: const Icon(
                         Icons.mic,
                         color: SahoolTheme.primary,
                       ),
@@ -641,7 +643,7 @@ class _ChatInputState extends State<ChatInput> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -658,7 +660,7 @@ class _ChatInputState extends State<ChatInput> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.05),
+              color: Colors.red.withValues(alpha: 0.05),
               borderRadius: BorderRadius.circular(24),
             ),
             child: Row(
@@ -673,7 +675,7 @@ class _ChatInputState extends State<ChatInput> {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(value),
+                        color: Colors.red.withValues(alpha: value),
                         shape: BoxShape.circle,
                       ),
                     );
@@ -716,7 +718,7 @@ class _ChatInputState extends State<ChatInput> {
           onPressed: _stopRecordingAndSend,
           icon: Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: SahoolTheme.primary,
               shape: BoxShape.circle,
             ),
@@ -851,7 +853,7 @@ class _ChatInputState extends State<ChatInput> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -983,7 +985,7 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
       minChildSize: 0.5,
       maxChildSize: 0.95,
       expand: false,
-      builder: (context, scrollController) => Container(
+      builder: (context, scrollController) => DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -1002,13 +1004,13 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
             ),
 
             // Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Icon(Icons.shopping_bag, color: SahoolTheme.primary),
-                  const SizedBox(width: 8),
-                  const Text(
+                  SizedBox(width: 8),
+                  Text(
                     'اختر منتج للمشاركة',
                     style: TextStyle(
                       fontSize: 18,
@@ -1063,7 +1065,7 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
                       label: const Text('الكل'),
                       selected: _selectedCategory == null,
                       onSelected: (_) => _selectCategory(null),
-                      selectedColor: SahoolTheme.primary.withOpacity(0.2),
+                      selectedColor: SahoolTheme.primary.withValues(alpha: 0.2),
                       checkmarkColor: SahoolTheme.primary,
                     ),
                   ),
@@ -1081,7 +1083,7 @@ class _ProductPickerSheetState extends State<_ProductPickerSheet> {
                           label: Text(_getCategoryNameAr(category)),
                           selected: _selectedCategory == category,
                           onSelected: (_) => _selectCategory(category),
-                          selectedColor: SahoolTheme.primary.withOpacity(0.2),
+                          selectedColor: SahoolTheme.primary.withValues(alpha: 0.2),
                           checkmarkColor: SahoolTheme.primary,
                         ),
                       )),
@@ -1207,7 +1209,7 @@ class _ProductListTile extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: categoryColor.withOpacity(0.1),
+                  color: categoryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: product.imageUrl != null
@@ -1260,7 +1262,7 @@ class _ProductListTile extends StatelessWidget {
                       children: [
                         Text(
                           '${product.price.toStringAsFixed(0)} ريال',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 13,
                             color: SahoolTheme.primary,
                             fontWeight: FontWeight.bold,
@@ -1386,7 +1388,7 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
       minChildSize: 0.4,
       maxChildSize: 0.9,
       expand: false,
-      builder: (context, scrollController) => Container(
+      builder: (context, scrollController) => DecoratedBox(
         decoration: const BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -1405,13 +1407,13 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
             ),
 
             // Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Icon(Icons.receipt_long, color: Colors.orange),
-                  const SizedBox(width: 8),
-                  const Text(
+                  SizedBox(width: 8),
+                  Text(
                     'اختر طلب للمشاركة',
                     style: TextStyle(
                       fontSize: 18,
@@ -1436,7 +1438,7 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
                       label: const Text('الكل'),
                       selected: _selectedStatus == null,
                       onSelected: (_) => _filterByStatus(null),
-                      selectedColor: Colors.orange.withOpacity(0.2),
+                      selectedColor: Colors.orange.withValues(alpha: 0.2),
                       checkmarkColor: Colors.orange,
                     ),
                   ),
@@ -1461,7 +1463,7 @@ class _OrderPickerSheetState extends State<_OrderPickerSheet> {
                           selected: _selectedStatus == statusPair.$1,
                           onSelected: (_) => _filterByStatus(statusPair.$1),
                           selectedColor:
-                              _getStatusColor(statusPair.$1).withOpacity(0.2),
+                              _getStatusColor(statusPair.$1).withValues(alpha: 0.2),
                           checkmarkColor: _getStatusColor(statusPair.$1),
                         ),
                       )),
@@ -1570,7 +1572,7 @@ class _OrderListTile extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.1),
+                  color: statusColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -1603,7 +1605,7 @@ class _OrderListTile extends StatelessWidget {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.1),
+                            color: statusColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
@@ -1636,7 +1638,7 @@ class _OrderListTile extends StatelessWidget {
                         const Spacer(),
                         Text(
                           '${order.totalAmount.toStringAsFixed(0)} ريال',
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 14,
                             color: SahoolTheme.primary,
                             fontWeight: FontWeight.bold,

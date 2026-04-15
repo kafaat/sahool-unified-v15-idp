@@ -22,8 +22,9 @@ Updated: January 2026
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
-from typing import Any, Callable
+from typing import Any
 from uuid import NAMESPACE_DNS, UUID, uuid4, uuid5
 
 import structlog

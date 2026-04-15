@@ -7,19 +7,19 @@
  * Uses unified API contracts from @sahool/shared-types/contracts
  */
 
-import { logger } from "../logger";
-import { PaginationParams, PaginatedResponse } from "./services";
+import { logger } from '../logger';
+import { PaginationParams, PaginatedResponse } from './services';
 import {
   TASK_ENDPOINTS,
   INVENTORY_ENDPOINTS,
   MARKETPLACE_ENDPOINTS,
   API_PREFIX,
   buildUrl,
-} from "@sahool/shared-types/contracts";
+} from '@sahool/shared-types/contracts';
 
 // Default fetch options to ensure httpOnly cookies are sent with requests
 const fetchDefaults: RequestInit = {
-  credentials: "same-origin",
+  credentials: 'same-origin',
 };
 
 // =============================================================================
@@ -32,9 +32,9 @@ export interface Task {
   titleAr: string;
   description?: string;
   descriptionAr?: string;
-  type: "irrigation" | "fertilization" | "pest_control" | "harvest" | "maintenance" | "other";
-  priority: "low" | "medium" | "high" | "urgent";
-  status: "pending" | "in_progress" | "completed" | "cancelled";
+  type: 'irrigation' | 'fertilization' | 'pest_control' | 'harvest' | 'maintenance' | 'other';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
   assignedTo?: string;
   assignedToName?: string;
   fieldId?: string;
@@ -56,8 +56,8 @@ export interface CreateTaskData {
   titleAr: string;
   description?: string;
   descriptionAr?: string;
-  type: Task["type"];
-  priority: Task["priority"];
+  type: Task['type'];
+  priority: Task['priority'];
   assignedTo?: string;
   fieldId?: string;
   dueDate?: string;
@@ -71,28 +71,33 @@ export const taskService = {
    * Get all tasks
    * جلب جميع المهام
    */
-  async getAll(params?: PaginationParams & {
-    status?: string;
-    priority?: string;
-    type?: string;
-    assignedTo?: string;
-    fieldId?: string;
-  }) {
+  async getAll(
+    params?: PaginationParams & {
+      status?: string;
+      priority?: string;
+      type?: string;
+      assignedTo?: string;
+      fieldId?: string;
+    }
+  ) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.status) queryParams.set("status", params.status);
-      if (params?.priority) queryParams.set("priority", params.priority);
-      if (params?.type) queryParams.set("type", params.type);
-      if (params?.assignedTo) queryParams.set("assigned_to", params.assignedTo);
-      if (params?.fieldId) queryParams.set("field_id", params.fieldId);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.status) queryParams.set('status', params.status);
+      if (params?.priority) queryParams.set('priority', params.priority);
+      if (params?.type) queryParams.set('type', params.type);
+      if (params?.assignedTo) queryParams.set('assigned_to', params.assignedTo);
+      if (params?.fieldId) queryParams.set('field_id', params.fieldId);
 
-      const response = await fetch(`${TASK_ENDPOINTS.LIST}?${queryParams.toString()}`);
+      const response = await fetch(
+        `${TASK_ENDPOINTS.LIST}?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<Task>;
+      return (await response.json()) as PaginatedResponse<Task>;
     } catch (error) {
-      logger.error("Failed to fetch tasks", { error });
+      logger.error('Failed to fetch tasks', { error });
       throw error;
     }
   },
@@ -105,9 +110,9 @@ export const taskService = {
     try {
       const response = await fetch(buildUrl(TASK_ENDPOINTS.GET, { taskId: id }), fetchDefaults);
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Task;
+      return (await response.json()) as Task;
     } catch (error) {
-      logger.error("Failed to fetch task", { id, error });
+      logger.error('Failed to fetch task', { id, error });
       throw error;
     }
   },
@@ -120,14 +125,14 @@ export const taskService = {
     try {
       const response = await fetch(TASK_ENDPOINTS.CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Task;
+      return (await response.json()) as Task;
     } catch (error) {
-      logger.error("Failed to create task", { error });
+      logger.error('Failed to create task', { error });
       throw error;
     }
   },
@@ -136,18 +141,18 @@ export const taskService = {
    * Update task
    * تحديث مهمة
    */
-  async update(id: string, data: Partial<CreateTaskData> & { status?: Task["status"] }) {
+  async update(id: string, data: Partial<CreateTaskData> & { status?: Task['status'] }) {
     try {
       const response = await fetch(buildUrl(TASK_ENDPOINTS.UPDATE, { taskId: id }), {
         ...fetchDefaults,
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Task;
+      return (await response.json()) as Task;
     } catch (error) {
-      logger.error("Failed to update task", { id, error });
+      logger.error('Failed to update task', { id, error });
       throw error;
     }
   },
@@ -160,14 +165,14 @@ export const taskService = {
     try {
       const response = await fetch(buildUrl(TASK_ENDPOINTS.COMPLETE, { taskId: id }), {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ notes, actualDuration }),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Task;
+      return (await response.json()) as Task;
     } catch (error) {
-      logger.error("Failed to complete task", { id, error });
+      logger.error('Failed to complete task', { id, error });
       throw error;
     }
   },
@@ -180,12 +185,12 @@ export const taskService = {
     try {
       const response = await fetch(buildUrl(TASK_ENDPOINTS.DELETE, { taskId: id }), {
         ...fetchDefaults,
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete task", { id, error });
+      logger.error('Failed to delete task', { id, error });
       throw error;
     }
   },
@@ -199,7 +204,7 @@ export interface InventoryItem {
   id: string;
   name: string;
   nameAr: string;
-  category: "fertilizer" | "pesticide" | "herbicide" | "seed" | "fuel" | "spare_parts" | "other";
+  category: 'fertilizer' | 'pesticide' | 'herbicide' | 'seed' | 'fuel' | 'spare_parts' | 'other';
   sku?: string;
   quantity: number;
   unit: string;
@@ -212,7 +217,7 @@ export interface InventoryItem {
   location?: string;
   expiryDate?: string;
   batchNumber?: string;
-  status: "in_stock" | "low_stock" | "out_of_stock" | "expired";
+  status: 'in_stock' | 'low_stock' | 'out_of_stock' | 'expired';
   lastRestocked?: string;
   createdAt: string;
   updatedAt: string;
@@ -221,7 +226,7 @@ export interface InventoryItem {
 export interface CreateInventoryData {
   name: string;
   nameAr: string;
-  category: InventoryItem["category"];
+  category: InventoryItem['category'];
   sku?: string;
   quantity: number;
   unit: string;
@@ -239,7 +244,7 @@ export interface InventoryTransaction {
   id: string;
   itemId: string;
   itemName: string;
-  type: "purchase" | "usage" | "adjustment" | "return" | "waste";
+  type: 'purchase' | 'usage' | 'adjustment' | 'return' | 'waste';
   quantity: number;
   unit: string;
   reason?: string;
@@ -257,17 +262,20 @@ export const inventoryService = {
   async getAll(params?: PaginationParams & { category?: string; status?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.search) queryParams.set("search", params.search);
-      if (params?.category) queryParams.set("category", params.category);
-      if (params?.status) queryParams.set("status", params.status);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.search) queryParams.set('search', params.search);
+      if (params?.category) queryParams.set('category', params.category);
+      if (params?.status) queryParams.set('status', params.status);
 
-      const response = await fetch(`${INVENTORY_ENDPOINTS.LIST}?${queryParams.toString()}`);
+      const response = await fetch(
+        `${INVENTORY_ENDPOINTS.LIST}?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<InventoryItem>;
+      return (await response.json()) as PaginatedResponse<InventoryItem>;
     } catch (error) {
-      logger.error("Failed to fetch inventory", { error });
+      logger.error('Failed to fetch inventory', { error });
       throw error;
     }
   },
@@ -278,11 +286,14 @@ export const inventoryService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }), fetchDefaults);
+      const response = await fetch(
+        buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id }),
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as InventoryItem;
+      return (await response.json()) as InventoryItem;
     } catch (error) {
-      logger.error("Failed to fetch inventory item", { id, error });
+      logger.error('Failed to fetch inventory item', { id, error });
       throw error;
     }
   },
@@ -294,14 +305,17 @@ export const inventoryService = {
   async getTransactions(itemId: string, params?: PaginationParams) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
 
-      const response = await fetch(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId })}/transactions?${queryParams.toString()}`);
+      const response = await fetch(
+        `${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId })}/transactions?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<InventoryTransaction>;
+      return (await response.json()) as PaginatedResponse<InventoryTransaction>;
     } catch (error) {
-      logger.error("Failed to fetch inventory transactions", { itemId, error });
+      logger.error('Failed to fetch inventory transactions', { itemId, error });
       throw error;
     }
   },
@@ -314,14 +328,14 @@ export const inventoryService = {
     try {
       const response = await fetch(INVENTORY_ENDPOINTS.CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as InventoryItem;
+      return (await response.json()) as InventoryItem;
     } catch (error) {
-      logger.error("Failed to create inventory item", { error });
+      logger.error('Failed to create inventory item', { error });
       throw error;
     }
   },
@@ -334,14 +348,14 @@ export const inventoryService = {
     try {
       const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.UPDATE, { itemId: id }), {
         ...fetchDefaults,
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as InventoryItem;
+      return (await response.json()) as InventoryItem;
     } catch (error) {
-      logger.error("Failed to update inventory item", { id, error });
+      logger.error('Failed to update inventory item', { id, error });
       throw error;
     }
   },
@@ -350,17 +364,23 @@ export const inventoryService = {
    * Adjust inventory quantity
    * تعديل كمية المخزون
    */
-  async adjustQuantity(id: string, quantity: number, type: InventoryTransaction["type"], reason?: string) {
+  async adjustQuantity(
+    id: string,
+    quantity: number,
+    type: InventoryTransaction['type'],
+    reason?: string
+  ) {
     try {
       const response = await fetch(`${buildUrl(INVENTORY_ENDPOINTS.GET, { itemId: id })}/adjust`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        ...fetchDefaults,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quantity, type, reason }),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as InventoryItem;
+      return (await response.json()) as InventoryItem;
     } catch (error) {
-      logger.error("Failed to adjust inventory", { id, error });
+      logger.error('Failed to adjust inventory', { id, error });
       throw error;
     }
   },
@@ -373,12 +393,12 @@ export const inventoryService = {
     try {
       const response = await fetch(buildUrl(INVENTORY_ENDPOINTS.DELETE, { itemId: id }), {
         ...fetchDefaults,
-        method: "DELETE",
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete inventory item", { id, error });
+      logger.error('Failed to delete inventory item', { id, error });
       throw error;
     }
   },
@@ -394,7 +414,7 @@ export interface ResearchProject {
   titleAr: string;
   description?: string;
   descriptionAr?: string;
-  status: "planning" | "active" | "paused" | "completed" | "cancelled";
+  status: 'planning' | 'active' | 'paused' | 'completed' | 'cancelled';
   startDate?: string;
   endDate?: string;
   fieldIds?: string[];
@@ -419,7 +439,7 @@ export interface Experiment {
   fieldName?: string;
   parameters?: Record<string, unknown>;
   results?: Record<string, unknown>;
-  status: "setup" | "running" | "analyzing" | "completed";
+  status: 'setup' | 'running' | 'analyzing' | 'completed';
   startDate?: string;
   endDate?: string;
   createdAt: string;
@@ -456,16 +476,19 @@ export const researchService = {
   async getAllProjects(params?: PaginationParams & { status?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.search) queryParams.set("search", params.search);
-      if (params?.status) queryParams.set("status", params.status);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.search) queryParams.set('search', params.search);
+      if (params?.status) queryParams.set('status', params.status);
 
-      const response = await fetch(`${API_PREFIX}/research/projects?${queryParams.toString()}`);
+      const response = await fetch(
+        `${API_PREFIX}/research/projects?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<ResearchProject>;
+      return (await response.json()) as PaginatedResponse<ResearchProject>;
     } catch (error) {
-      logger.error("Failed to fetch research projects", { error });
+      logger.error('Failed to fetch research projects', { error });
       throw error;
     }
   },
@@ -476,11 +499,14 @@ export const researchService = {
    */
   async getProjectById(id: string) {
     try {
-      const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`);
+      const response = await fetch(
+        `${API_PREFIX}/research/projects/${encodeURIComponent(id)}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as ResearchProject;
+      return (await response.json()) as ResearchProject;
     } catch (error) {
-      logger.error("Failed to fetch research project", { id, error });
+      logger.error('Failed to fetch research project', { id, error });
       throw error;
     }
   },
@@ -492,14 +518,15 @@ export const researchService = {
   async createProject(data: CreateProjectData) {
     try {
       const response = await fetch(`${API_PREFIX}/research/projects`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        ...fetchDefaults,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as ResearchProject;
+      return (await response.json()) as ResearchProject;
     } catch (error) {
-      logger.error("Failed to create research project", { error });
+      logger.error('Failed to create research project', { error });
       throw error;
     }
   },
@@ -508,17 +535,21 @@ export const researchService = {
    * Update research project
    * تحديث مشروع بحث
    */
-  async updateProject(id: string, data: Partial<CreateProjectData> & { status?: ResearchProject["status"]; findings?: string }) {
+  async updateProject(
+    id: string,
+    data: Partial<CreateProjectData> & { status?: ResearchProject['status']; findings?: string }
+  ) {
     try {
       const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        ...fetchDefaults,
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as ResearchProject;
+      return (await response.json()) as ResearchProject;
     } catch (error) {
-      logger.error("Failed to update research project", { id, error });
+      logger.error('Failed to update research project', { id, error });
       throw error;
     }
   },
@@ -530,12 +561,13 @@ export const researchService = {
   async deleteProject(id: string) {
     try {
       const response = await fetch(`${API_PREFIX}/research/projects/${encodeURIComponent(id)}`, {
-        method: "DELETE",
+        ...fetchDefaults,
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete research project", { id, error });
+      logger.error('Failed to delete research project', { id, error });
       throw error;
     }
   },
@@ -547,15 +579,18 @@ export const researchService = {
   async getAllExperiments(params?: PaginationParams & { projectId?: string }) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.projectId) queryParams.set("project_id", params.projectId);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.projectId) queryParams.set('project_id', params.projectId);
 
-      const response = await fetch(`${API_PREFIX}/research/experiments?${queryParams.toString()}`);
+      const response = await fetch(
+        `${API_PREFIX}/research/experiments?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<Experiment>;
+      return (await response.json()) as PaginatedResponse<Experiment>;
     } catch (error) {
-      logger.error("Failed to fetch experiments", { error });
+      logger.error('Failed to fetch experiments', { error });
       throw error;
     }
   },
@@ -567,14 +602,15 @@ export const researchService = {
   async createExperiment(data: CreateExperimentData) {
     try {
       const response = await fetch(`${API_PREFIX}/research/experiments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        ...fetchDefaults,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as Experiment;
+      return (await response.json()) as Experiment;
     } catch (error) {
-      logger.error("Failed to create experiment", { error });
+      logger.error('Failed to create experiment', { error });
       throw error;
     }
   },
@@ -590,12 +626,12 @@ export interface MarketplaceListing {
   titleAr: string;
   description?: string;
   descriptionAr?: string;
-  category: "equipment" | "produce" | "seeds" | "fertilizer" | "service" | "other";
+  category: 'equipment' | 'produce' | 'seeds' | 'fertilizer' | 'service' | 'other';
   price: number;
   currency: string;
   unit?: string;
   quantity?: number;
-  status: "active" | "sold" | "expired" | "inactive";
+  status: 'active' | 'sold' | 'expired' | 'inactive';
   sellerId: string;
   sellerName?: string;
   images?: string[];
@@ -609,7 +645,7 @@ export interface CreateListingData {
   titleAr: string;
   description?: string;
   descriptionAr?: string;
-  category: MarketplaceListing["category"];
+  category: MarketplaceListing['category'];
   price: number;
   currency?: string;
   unit?: string;
@@ -623,27 +659,32 @@ export const marketplaceService = {
    * Get all listings
    * جلب جميع القوائم
    */
-  async getAll(params?: PaginationParams & {
-    category?: string;
-    minPrice?: number;
-    maxPrice?: number;
-    status?: string;
-  }) {
+  async getAll(
+    params?: PaginationParams & {
+      category?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      status?: string;
+    }
+  ) {
     try {
       const queryParams = new URLSearchParams();
-      if (params?.page) queryParams.set("page", params.page.toString());
-      if (params?.limit) queryParams.set("limit", params.limit.toString());
-      if (params?.search) queryParams.set("search", params.search);
-      if (params?.category) queryParams.set("category", params.category);
-      if (params?.minPrice) queryParams.set("min_price", params.minPrice.toString());
-      if (params?.maxPrice) queryParams.set("max_price", params.maxPrice.toString());
-      if (params?.status) queryParams.set("status", params.status);
+      if (params?.page) queryParams.set('page', params.page.toString());
+      if (params?.limit) queryParams.set('limit', params.limit.toString());
+      if (params?.search) queryParams.set('search', params.search);
+      if (params?.category) queryParams.set('category', params.category);
+      if (params?.minPrice) queryParams.set('min_price', params.minPrice.toString());
+      if (params?.maxPrice) queryParams.set('max_price', params.maxPrice.toString());
+      if (params?.status) queryParams.set('status', params.status);
 
-      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}?${queryParams.toString()}`);
+      const response = await fetch(
+        `${MARKETPLACE_ENDPOINTS.LISTINGS}?${queryParams.toString()}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<MarketplaceListing>;
+      return (await response.json()) as PaginatedResponse<MarketplaceListing>;
     } catch (error) {
-      logger.error("Failed to fetch marketplace listings", { error });
+      logger.error('Failed to fetch marketplace listings', { error });
       throw error;
     }
   },
@@ -654,11 +695,14 @@ export const marketplaceService = {
    */
   async getById(id: string) {
     try {
-      const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`);
+      const response = await fetch(
+        `${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`,
+        fetchDefaults
+      );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as MarketplaceListing;
+      return (await response.json()) as MarketplaceListing;
     } catch (error) {
-      logger.error("Failed to fetch marketplace listing", { id, error });
+      logger.error('Failed to fetch marketplace listing', { id, error });
       throw error;
     }
   },
@@ -671,14 +715,14 @@ export const marketplaceService = {
     try {
       const response = await fetch(MARKETPLACE_ENDPOINTS.LISTING_CREATE, {
         ...fetchDefaults,
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as MarketplaceListing;
+      return (await response.json()) as MarketplaceListing;
     } catch (error) {
-      logger.error("Failed to create marketplace listing", { error });
+      logger.error('Failed to create marketplace listing', { error });
       throw error;
     }
   },
@@ -687,17 +731,21 @@ export const marketplaceService = {
    * Update listing
    * تحديث قائمة
    */
-  async update(id: string, data: Partial<CreateListingData> & { status?: MarketplaceListing["status"] }) {
+  async update(
+    id: string,
+    data: Partial<CreateListingData> & { status?: MarketplaceListing['status'] }
+  ) {
     try {
       const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        ...fetchDefaults,
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as MarketplaceListing;
+      return (await response.json()) as MarketplaceListing;
     } catch (error) {
-      logger.error("Failed to update marketplace listing", { id, error });
+      logger.error('Failed to update marketplace listing', { id, error });
       throw error;
     }
   },
@@ -709,12 +757,13 @@ export const marketplaceService = {
   async delete(id: string) {
     try {
       const response = await fetch(`${MARKETPLACE_ENDPOINTS.LISTINGS}/${encodeURIComponent(id)}`, {
-        method: "DELETE",
+        ...fetchDefaults,
+        method: 'DELETE',
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as { success: boolean };
+      return (await response.json()) as { success: boolean };
     } catch (error) {
-      logger.error("Failed to delete marketplace listing", { id, error });
+      logger.error('Failed to delete marketplace listing', { id, error });
       throw error;
     }
   },

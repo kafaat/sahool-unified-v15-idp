@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Market Models
 /// نماذج السوق والمالية - Clean Architecture Pattern
 ///

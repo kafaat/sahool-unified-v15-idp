@@ -1,6 +1,7 @@
+library;
+
 /// Profit Chart Widget - رسوم بيانية للربحية
 /// Bar charts and line charts for profit analysis
-library;
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -102,7 +103,7 @@ class RevenueVsCostsChart extends StatelessWidget {
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
-                  gridData: FlGridData(
+                  gridData: const FlGridData(
                     show: true,
                     drawVerticalLine: false,
                     horizontalInterval: 10000,
@@ -231,7 +232,7 @@ class ProfitTrendChart extends StatelessWidget {
               height: 250,
               child: LineChart(
                 LineChartData(
-                  gridData: FlGridData(
+                  gridData: const FlGridData(
                     show: true,
                     drawVerticalLine: false,
                   ),
@@ -287,7 +288,7 @@ class ProfitTrendChart extends StatelessWidget {
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: Colors.blue.withOpacity(0.1),
+                        color: Colors.blue.withValues(alpha: 0.1),
                       ),
                     ),
                   ],
@@ -426,7 +427,7 @@ class RevenuePerHectareChart extends StatelessWidget {
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
-                  gridData: FlGridData(
+                  gridData: const FlGridData(
                     show: true,
                     drawVerticalLine: false,
                   ),

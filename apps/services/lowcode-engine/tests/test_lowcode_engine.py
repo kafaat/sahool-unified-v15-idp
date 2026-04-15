@@ -17,21 +17,24 @@ project_root = os.path.dirname(
 sys.path.insert(0, project_root)
 
 # Import from shared.lowcode
-from shared.lowcode import (
-    AIComponentSuggester,
-    BlockConfig,
-    ComponentCategory,
-    ComponentMaterial,
-    DataModel,
-    EventDefinition,
-    FieldDefinition,
-    FieldType,
-    LowCodeEngine,
-    PageDefinition,
-    PluginBase,
-    PropDefinition,
-    SlotDefinition,
-)
+try:
+    from shared.lowcode import (
+        AIComponentSuggester,
+        BlockConfig,
+        ComponentCategory,
+        ComponentMaterial,
+        DataModel,
+        EventDefinition,
+        FieldDefinition,
+        FieldType,
+        LowCodeEngine,
+        PageDefinition,
+        PluginBase,
+        PropDefinition,
+        SlotDefinition,
+    )
+except ImportError:
+    pytest.skip("lowcode-engine dependencies not installed", allow_module_level=True)
 
 # ============================================================================
 # Test Component Registration
@@ -526,6 +529,37 @@ class TestDataModelFieldTypes:
         assert field.min_length == 1
         assert field.max_length == 100
         assert field.pattern == r"^[a-zA-Z]+$"
+
+    def test_field_definition_rejects_invalid_regex(self):
+        """Test that FieldDefinition rejects invalid regex syntax."""
+        with pytest.raises(ValueError, match="Invalid regex pattern"):
+            FieldDefinition(
+                name="bad_pattern",
+                name_ar="نمط خاطئ",
+                type=FieldType.STRING,
+                pattern=r"[invalid(",
+            )
+
+    def test_field_definition_rejects_too_long_regex(self):
+        """Test that FieldDefinition rejects regex patterns exceeding max length."""
+        long_pattern = "a" * 501  # Exceeds _MAX_REGEX_LENGTH (500)
+        with pytest.raises(ValueError, match="exceeds maximum length"):
+            FieldDefinition(
+                name="long_pattern",
+                name_ar="نمط طويل",
+                type=FieldType.STRING,
+                pattern=long_pattern,
+            )
+
+    def test_field_definition_accepts_none_pattern(self):
+        """Test that FieldDefinition allows None pattern (no validation)."""
+        field = FieldDefinition(
+            name="no_pattern",
+            name_ar="بدون نمط",
+            type=FieldType.STRING,
+            pattern=None,
+        )
+        assert field.pattern is None
 
     def test_data_model_numeric_field_validation(self):
         """Test numeric field validation properties."""

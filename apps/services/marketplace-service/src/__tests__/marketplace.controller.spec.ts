@@ -13,6 +13,8 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { AppController } from "../app.controller";
 import { MarketService } from "../market/market.service";
 import { FintechService } from "../fintech/fintech.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { EventsService } from "../events/events.service";
 import { ForbiddenException } from "@nestjs/common";
 
 describe("AppController (Marketplace)", () => {
@@ -60,6 +62,15 @@ describe("AppController (Marketplace)", () => {
     getWalletDashboard: jest.fn(),
   };
 
+  const mockPrismaService = {
+    $queryRaw: jest.fn().mockResolvedValue([{ "?column?": 1 }]),
+  };
+
+  const mockEventsService = {
+    isConnected: jest.fn().mockReturnValue(true),
+    publish: jest.fn().mockResolvedValue(undefined),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -71,6 +82,14 @@ describe("AppController (Marketplace)", () => {
         {
           provide: FintechService,
           useValue: mockFintechService,
+        },
+        {
+          provide: PrismaService,
+          useValue: mockPrismaService,
+        },
+        {
+          provide: EventsService,
+          useValue: mockEventsService,
         },
       ],
     }).compile();
@@ -416,13 +435,20 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createOrder.mockResolvedValue(mockOrder);
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       const result = await controller.createOrder(mockReq, createOrderDto);
 
       expect(result).toEqual(mockOrder);
+      // Controller now forwards (body, tenantId, idempotencyKey, userId).
+      // `idempotencyKey` is `undefined` when the header is absent.
       expect(mockMarketService.createOrder).toHaveBeenCalledWith(
         createOrderDto,
-        'tenant-1',
+        "tenant-1",
+        undefined,
+        "user-1",
       );
     });
 
@@ -436,7 +462,10 @@ describe("AppController (Marketplace)", () => {
         new Error("الكمية المطلوبة غير متوفرة للمنتج"),
       );
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       await expect(
         controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("الكمية المطلوبة غير متوفرة للمنتج");
@@ -452,7 +481,10 @@ describe("AppController (Marketplace)", () => {
         new Error("المنتج غير موجود"),
       );
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       await expect(
         controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("المنتج غير موجود");
@@ -639,7 +671,10 @@ describe("AppController (Marketplace)", () => {
 
       mockMarketService.createProduct.mockResolvedValue(mockProduct);
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       const product = await controller.createProduct(mockReq, createProductDto);
       expect(product.id).toBe("product-1");
 
@@ -715,7 +750,10 @@ describe("AppController (Marketplace)", () => {
         new Error("الكمية المطلوبة غير متوفرة للمنتج"),
       );
 
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
+      const mockReq = {
+        user: { id: "user-1", tenantId: "tenant-1" },
+        headers: {},
+      };
       await expect(
         controller.createOrder(mockReq, createOrderDto as any),
       ).rejects.toThrow("الكمية المطلوبة غير متوفرة للمنتج");

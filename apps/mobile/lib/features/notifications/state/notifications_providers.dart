@@ -2,6 +2,7 @@
 /// مزودات الإشعارات
 ///
 /// Riverpod providers for notifications feature
+library;
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -196,7 +197,7 @@ final newNotificationStreamProvider = StreamProvider<AppNotification>((ref) {
 final notificationSettingsProvider =
     FutureProvider<NotificationSettingsModel>((ref) async {
   final controller = ref.watch(notificationsControllerProvider.notifier);
-  return await controller.getSettings();
+  return controller.getSettings();
 });
 
 /// Quiet hours status provider
@@ -221,7 +222,7 @@ final notificationByIdProvider =
   );
   try {
     return notifications.firstWhere((n) => n.id == id);
-  } catch (_) {
+  } catch (e) {
     return null;
   }
 });
@@ -230,5 +231,5 @@ final notificationByIdProvider =
 final fetchNotificationProvider =
     FutureProvider.family<AppNotification?, String>((ref, id) async {
   final controller = ref.watch(notificationsControllerProvider.notifier);
-  return await controller.getNotification(id);
+  return controller.getNotification(id);
 });

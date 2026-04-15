@@ -15,9 +15,10 @@ from __future__ import annotations
 import asyncio
 import heapq
 from collections import defaultdict
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Any, Awaitable, Callable
+from typing import Any
 
 from .models import (
     SYNC_ERRORS,
@@ -142,6 +143,8 @@ class SyncQueue:
         device_id: str = "",
     ):
         """Initialize the sync queue."""
+        if not tenant_id:
+            raise ValueError("tenant_id is required for SyncQueue")
         self.config = config or SyncQueueConfig()
         self.tenant_id = tenant_id
         self.device_id = device_id
@@ -241,6 +244,10 @@ class SyncQueue:
                     else:
                         # Skip duplicate
                         return True, SYNC_MESSAGES["queued_for_sync"]
+
+            # Reject items without tenant_id (H-06: tenant isolation)
+            if not item.tenant_id:
+                raise ValueError("tenant_id is required for sync items")
 
             # Set queue metadata
             item.status = SyncStatus.QUEUED

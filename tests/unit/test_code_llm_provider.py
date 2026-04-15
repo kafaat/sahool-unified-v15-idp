@@ -14,8 +14,9 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
+
+import pytest
 
 # Test markers
 pytestmark = [pytest.mark.unit, pytest.mark.llm]
@@ -299,7 +300,7 @@ class TestCodeLLMProviderAsync:
     async def test_complete_code(self):
         """Test code completion."""
         from shared.ai.code_llm_provider import CodeLLMProvider
-        from shared.ai.llm_provider import LLMResponse, LLMProvider
+        from shared.ai.llm_provider import LLMProvider, LLMResponse
 
         provider = CodeLLMProvider()
 
@@ -327,7 +328,7 @@ class TestCodeLLMProviderAsync:
     async def test_review_code(self):
         """Test code review."""
         from shared.ai.code_llm_provider import CodeLLMProvider
-        from shared.ai.llm_provider import LLMResponse, LLMProvider
+        from shared.ai.llm_provider import LLMProvider, LLMResponse
 
         provider = CodeLLMProvider()
 
@@ -355,7 +356,7 @@ class TestCodeLLMProviderAsync:
     async def test_fix_code(self):
         """Test code fix."""
         from shared.ai.code_llm_provider import CodeLLMProvider
-        from shared.ai.llm_provider import LLMResponse, LLMProvider
+        from shared.ai.llm_provider import LLMProvider, LLMResponse
 
         provider = CodeLLMProvider()
 
@@ -383,7 +384,7 @@ class TestCodeLLMProviderAsync:
     async def test_generate_tests(self):
         """Test test generation."""
         from shared.ai.code_llm_provider import CodeLLMProvider
-        from shared.ai.llm_provider import LLMResponse, LLMProvider
+        from shared.ai.llm_provider import LLMProvider, LLMResponse
 
         provider = CodeLLMProvider()
 
@@ -409,7 +410,7 @@ class TestCodeLLMProviderAsync:
     async def test_explain_code(self):
         """Test code explanation."""
         from shared.ai.code_llm_provider import CodeLLMProvider
-        from shared.ai.llm_provider import LLMResponse, LLMProvider
+        from shared.ai.llm_provider import LLMProvider, LLMResponse
 
         provider = CodeLLMProvider()
 

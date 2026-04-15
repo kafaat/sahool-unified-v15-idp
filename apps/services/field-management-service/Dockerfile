@@ -21,6 +21,9 @@ RUN npm install -g npm@11.7.0 || \
 
 # Copy shared packages first (needed for file: protocol dependencies)
 COPY packages/field-shared ./packages/field-shared
+# Same treatment for @sahool/shared-events — field-management-service now
+# uses the typed EventSubjects constants from it (see field-events.service.ts).
+COPY packages/shared-events ./packages/shared-events
 
 # Build field-shared package first (needed for TypeScript compilation)
 WORKDIR /app/packages/field-shared
@@ -42,12 +45,26 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmjs.org && \
     npm install --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund && npm run build)
 
+# Build shared-events so field-management can link it via file: protocol.
+WORKDIR /app/packages/shared-events
+RUN npm config set registry https://registry.npmjs.org; \
+    if npm install && npm run build; then true; \
+    else npm config set registry https://registry.npmmirror.com && npm install && npm run build; fi
+
 # Return to app directory and install dependencies
 WORKDIR /app
 COPY apps/services/field-management-service/package.json ./
 
 # Fix the file: path reference for Docker build context (../../../packages -> ./packages)
 RUN sed -i 's|file:\.\./\.\./\.\./packages/field-shared|file:./packages/field-shared|g' package.json || true
+
+# Rewrite @sahool/shared-events to the locally-built copy so npm doesn't
+# try to fetch it from the public registry (it isn't published).
+RUN npm pkg set dependencies.'@sahool/shared-events'='file:./packages/shared-events'
+
+# Validate package.json is valid JSON (fail fast if corrupted by merge conflicts)
+RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
+    (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers (<<<<<<< HEAD).' && exit 1)
 
 # Install dependencies with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
@@ -101,13 +118,14 @@ WORKDIR /app
 
 # Create non-root user for security
 RUN groupadd --system sahool && \
-    useradd --system --gid sahool --shell /bin/bash sahool
+    useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Install curl for healthcheck, ca-certificates, and OpenSSL for Prisma native query engine
+# Upgrade system packages and install runtime dependencies
 COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && \
+RUN apt-update.sh && apt-get upgrade -y --no-install-recommends && \
     apt-get install -y --no-install-recommends curl ca-certificates openssl && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get clean
 
 # Upgrade npm to latest version
 RUN npm install -g npm@11.7.0 || \
@@ -140,6 +158,9 @@ RUN --mount=type=cache,target=/root/.npm \
     done || \
     (npm config set registry https://registry.npmjs.org && \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
+
+# Apply security patches to production dependencies (fix known CVEs in transitive deps)
+RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Copy built files
 COPY --from=builder /app/dist ./dist

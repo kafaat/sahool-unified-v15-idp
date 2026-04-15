@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   HelpCircle,
   MessageSquare,
@@ -12,7 +12,11 @@ import {
   Send,
   Clock,
   CheckCircle,
-} from "lucide-react";
+  Loader2,
+  AlertTriangle,
+} from 'lucide-react';
+import { supportApi, type Ticket } from '@/features/support/api';
+import { ApiError } from '@/lib/api/safe-fetch';
 
 interface FAQ {
   id: string;
@@ -23,97 +27,130 @@ interface FAQ {
   category: string;
 }
 
-interface Ticket {
-  id: string;
-  subject: string;
-  subjectAr: string;
-  status: "open" | "in_progress" | "resolved" | "closed";
-  priority: "low" | "medium" | "high";
-  createdAt: string;
-  updatedAt: string;
-}
+// Client-side caps for ticket body (defense-in-depth; backend MUST enforce).
+const TICKET_SUBJECT_MAX = 200;
+const TICKET_MESSAGE_MAX = 5000;
 
 const faqs: FAQ[] = [
   {
-    id: "1",
-    question: "How do I add a new field?",
-    questionAr: "كيف أضيف حقلاً جديداً؟",
-    answer: "Go to Fields page, click 'Add Field' button, draw the field boundaries on the map, and fill in the field details.",
-    answerAr: "اذهب إلى صفحة الحقول، انقر على زر 'إضافة حقل'، ارسم حدود الحقل على الخريطة، واملأ تفاصيل الحقل.",
-    category: "fields",
+    id: '1',
+    question: 'How do I add a new field?',
+    questionAr: 'كيف أضيف حقلاً جديداً؟',
+    answer:
+      "Go to Fields page, click 'Add Field' button, draw the field boundaries on the map, and fill in the field details.",
+    answerAr:
+      "اذهب إلى صفحة الحقول، انقر على زر 'إضافة حقل'، ارسم حدود الحقل على الخريطة، واملأ تفاصيل الحقل.",
+    category: 'fields',
   },
   {
-    id: "2",
-    question: "How does the irrigation scheduling work?",
-    questionAr: "كيف تعمل جدولة الري؟",
-    answer: "The system uses soil moisture sensors, weather data, and crop requirements to automatically suggest optimal irrigation schedules.",
-    answerAr: "يستخدم النظام حساسات رطوبة التربة وبيانات الطقس ومتطلبات المحصول لاقتراح جداول الري المثلى تلقائياً.",
-    category: "irrigation",
+    id: '2',
+    question: 'How does the irrigation scheduling work?',
+    questionAr: 'كيف تعمل جدولة الري؟',
+    answer:
+      'The system uses soil moisture sensors, weather data, and crop requirements to automatically suggest optimal irrigation schedules.',
+    answerAr:
+      'يستخدم النظام حساسات رطوبة التربة وبيانات الطقس ومتطلبات المحصول لاقتراح جداول الري المثلى تلقائياً.',
+    category: 'irrigation',
   },
   {
-    id: "3",
-    question: "What do the NDVI colors mean?",
-    questionAr: "ماذا تعني ألوان مؤشر NDVI؟",
-    answer: "Green indicates healthy vegetation, yellow shows moderate health, and red indicates stressed or unhealthy plants.",
-    answerAr: "اللون الأخضر يشير إلى نباتات صحية، الأصفر يظهر صحة متوسطة، والأحمر يشير إلى نباتات مجهدة أو غير صحية.",
-    category: "satellite",
+    id: '3',
+    question: 'What do the NDVI colors mean?',
+    questionAr: 'ماذا تعني ألوان مؤشر NDVI؟',
+    answer:
+      'Green indicates healthy vegetation, yellow shows moderate health, and red indicates stressed or unhealthy plants.',
+    answerAr:
+      'اللون الأخضر يشير إلى نباتات صحية، الأصفر يظهر صحة متوسطة، والأحمر يشير إلى نباتات مجهدة أو غير صحية.',
+    category: 'satellite',
   },
   {
-    id: "4",
-    question: "How do I connect IoT sensors?",
-    questionAr: "كيف أربط حساسات إنترنت الأشياء؟",
-    answer: "Go to Settings > Devices, click 'Add Sensor', scan the QR code on your sensor, and assign it to a field.",
-    answerAr: "اذهب إلى الإعدادات > الأجهزة، انقر 'إضافة حساس'، امسح رمز QR على الحساس، وقم بتعيينه لحقل.",
-    category: "iot",
+    id: '4',
+    question: 'How do I connect IoT sensors?',
+    questionAr: 'كيف أربط حساسات إنترنت الأشياء؟',
+    answer:
+      "Go to Settings > Devices, click 'Add Sensor', scan the QR code on your sensor, and assign it to a field.",
+    answerAr:
+      "اذهب إلى الإعدادات > الأجهزة، انقر 'إضافة حساس'، امسح رمز QR على الحساس، وقم بتعيينه لحقل.",
+    category: 'iot',
   },
   {
-    id: "5",
-    question: "How can I get crop disease diagnosis?",
-    questionAr: "كيف أحصل على تشخيص أمراض المحاصيل؟",
-    answer: "Take a photo of the affected plant using the mobile app. Our AI will analyze it and provide diagnosis and treatment recommendations.",
-    answerAr: "التقط صورة للنبات المصاب باستخدام تطبيق الجوال. سيقوم الذكاء الاصطناعي بتحليلها وتقديم التشخيص وتوصيات العلاج.",
-    category: "diseases",
-  },
-];
-
-const mockTickets: Ticket[] = [
-  {
-    id: "TKT-001",
-    subject: "Sensor not connecting",
-    subjectAr: "الحساس لا يتصل",
-    status: "in_progress",
-    priority: "high",
-    createdAt: "2025-01-24T10:00:00Z",
-    updatedAt: "2025-01-25T08:00:00Z",
-  },
-  {
-    id: "TKT-002",
-    subject: "Need help with VRA map",
-    subjectAr: "أحتاج مساعدة في خريطة التطبيق المتغير",
-    status: "open",
-    priority: "medium",
-    createdAt: "2025-01-25T06:00:00Z",
-    updatedAt: "2025-01-25T06:00:00Z",
+    id: '5',
+    question: 'How can I get crop disease diagnosis?',
+    questionAr: 'كيف أحصل على تشخيص أمراض المحاصيل؟',
+    answer:
+      'Take a photo of the affected plant using the mobile app. Our AI will analyze it and provide diagnosis and treatment recommendations.',
+    answerAr:
+      'التقط صورة للنبات المصاب باستخدام تطبيق الجوال. سيقوم الذكاء الاصطناعي بتحليلها وتقديم التشخيص وتوصيات العلاج.',
+    category: 'diseases',
   },
 ];
 
 export default function SupportClient() {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [ticketsLoading, setTicketsLoading] = useState(true);
+  const [ticketsError, setTicketsError] = useState<string | null>(null);
   const [expandedFaq, setExpandedFaq] = useState<string | null>(null);
-  const [newTicketSubject, setNewTicketSubject] = useState("");
-  const [newTicketMessage, setNewTicketMessage] = useState("");
+  const [newTicketSubject, setNewTicketSubject] = useState('');
+  const [newTicketMessage, setNewTicketMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const getStatusBadge = (status: Ticket["status"]) => {
+  const fetchTickets = useCallback(async () => {
+    setTicketsLoading(true);
+    setTicketsError(null);
+    try {
+      const data = await supportApi.getTickets();
+      setTickets(data);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في جلب التذاكر';
+      setTicketsError(message);
+    } finally {
+      setTicketsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTickets();
+  }, [fetchTickets]);
+
+  const handleSubmitTicket = async () => {
+    const safeSubject = newTicketSubject.trim().slice(0, TICKET_SUBJECT_MAX);
+    const safeMessage = newTicketMessage.trim().slice(0, TICKET_MESSAGE_MAX);
+    if (!safeSubject || !safeMessage) return;
+
+    setSubmitting(true);
+    setSubmitSuccess(false);
+    setSubmitError(null);
+    try {
+      const newTicket = await supportApi.createTicket({
+        subject: safeSubject,
+        message: safeMessage,
+      });
+      setTickets((prev) => [newTicket, ...prev]);
+      setNewTicketSubject('');
+      setNewTicketMessage('');
+      setSubmitSuccess(true);
+      setTimeout(() => setSubmitSuccess(false), 3000);
+    } catch (err) {
+      const message = err instanceof ApiError ? err.messageAr : 'فشل في إرسال التذكرة';
+      setSubmitError(message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const getStatusBadge = (status: Ticket['status']) => {
     const styles = {
-      open: "bg-blue-100 text-blue-800",
-      in_progress: "bg-yellow-100 text-yellow-800",
-      resolved: "bg-green-100 text-green-800",
-      closed: "bg-gray-100 text-gray-800",
+      open: 'bg-blue-100 text-blue-800',
+      in_progress: 'bg-yellow-100 text-yellow-800',
+      resolved: 'bg-green-100 text-green-800',
+      closed: 'bg-gray-100 text-gray-800',
     };
     const labels = {
-      open: "مفتوح",
-      in_progress: "قيد المعالجة",
-      resolved: "تم الحل",
-      closed: "مغلق",
+      open: 'مفتوح',
+      in_progress: 'قيد المعالجة',
+      resolved: 'تم الحل',
+      closed: 'مغلق',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status]}`}>
@@ -122,16 +159,23 @@ export default function SupportClient() {
     );
   };
 
-  const getPriorityBadge = (priority: Ticket["priority"]) => {
+  const formatSafeDate = (value?: string): string => {
+    if (!value) return '—';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('ar-SA');
+  };
+
+  const getPriorityBadge = (priority: Ticket['priority']) => {
     const styles = {
-      low: "bg-gray-100 text-gray-800",
-      medium: "bg-yellow-100 text-yellow-800",
-      high: "bg-red-100 text-red-800",
+      low: 'bg-gray-100 text-gray-800',
+      medium: 'bg-yellow-100 text-yellow-800',
+      high: 'bg-red-100 text-red-800',
     };
     const labels = {
-      low: "منخفض",
-      medium: "متوسط",
-      high: "عالي",
+      low: 'منخفض',
+      medium: 'متوسط',
+      high: 'عالي',
     };
     return (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[priority]}`}>
@@ -220,12 +264,25 @@ export default function SupportClient() {
             </div>
           </div>
           <div className="p-4 space-y-4">
+            {submitSuccess && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                تم إرسال التذكرة بنجاح
+              </div>
+            )}
+            {submitError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {submitError}
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">الموضوع</label>
               <input
                 type="text"
                 value={newTicketSubject}
-                onChange={(e) => setNewTicketSubject(e.target.value)}
+                maxLength={TICKET_SUBJECT_MAX}
+                onChange={(e) =>
+                  setNewTicketSubject(e.target.value.slice(0, TICKET_SUBJECT_MAX))
+                }
                 placeholder="اكتب موضوع المشكلة..."
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
               />
@@ -234,15 +291,26 @@ export default function SupportClient() {
               <label className="block text-sm font-medium text-gray-700 mb-1">الرسالة</label>
               <textarea
                 value={newTicketMessage}
-                onChange={(e) => setNewTicketMessage(e.target.value)}
+                maxLength={TICKET_MESSAGE_MAX}
+                onChange={(e) =>
+                  setNewTicketMessage(e.target.value.slice(0, TICKET_MESSAGE_MAX))
+                }
                 placeholder="اشرح مشكلتك بالتفصيل..."
                 rows={4}
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
               />
             </div>
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700">
-              <Send className="w-4 h-4" />
-              <span>إرسال التذكرة</span>
+            <button
+              onClick={handleSubmitTicket}
+              disabled={submitting || !newTicketSubject.trim() || !newTicketMessage.trim()}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {submitting ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+              <span>{submitting ? 'جاري الإرسال...' : 'إرسال التذكرة'}</span>
             </button>
           </div>
         </div>
@@ -254,10 +322,26 @@ export default function SupportClient() {
           <h2 className="text-lg font-semibold text-gray-900">تذاكري</h2>
         </div>
         <div className="divide-y">
-          {mockTickets.length === 0 ? (
+          {ticketsLoading ? (
+            <div className="p-8 text-center">
+              <Loader2 className="w-6 h-6 text-sahool-green-600 animate-spin mx-auto mb-2" />
+              <p className="text-gray-500 text-sm">جاري تحميل التذاكر...</p>
+            </div>
+          ) : ticketsError ? (
+            <div className="p-8 text-center">
+              <AlertTriangle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+              <p className="text-gray-500 text-sm mb-2">{ticketsError}</p>
+              <button
+                onClick={fetchTickets}
+                className="text-sahool-green-600 text-sm font-medium hover:underline"
+              >
+                إعادة المحاولة
+              </button>
+            </div>
+          ) : tickets.length === 0 ? (
             <div className="p-8 text-center text-gray-500">لا توجد تذاكر دعم</div>
           ) : (
-            mockTickets.map((ticket) => (
+            tickets.map((ticket) => (
               <div key={ticket.id} className="p-4 hover:bg-gray-50">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -277,11 +361,11 @@ export default function SupportClient() {
                 <div className="mt-2 flex items-center gap-4 text-xs text-gray-400">
                   <span className="flex items-center gap-1">
                     <Clock className="w-3 h-3" />
-                    أُنشئت: {new Date(ticket.createdAt).toLocaleDateString("ar-SA")}
+                    أُنشئت: {formatSafeDate(ticket.createdAt)}
                   </span>
                   <span className="flex items-center gap-1">
                     <CheckCircle className="w-3 h-3" />
-                    آخر تحديث: {new Date(ticket.updatedAt).toLocaleDateString("ar-SA")}
+                    آخر تحديث: {formatSafeDate(ticket.updatedAt)}
                   </span>
                 </div>
               </div>

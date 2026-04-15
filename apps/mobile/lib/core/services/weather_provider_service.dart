@@ -258,8 +258,8 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
-    final current = data['current'];
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final current = data['current'] as Map<String, dynamic>;
 
     return WeatherData(
       temperature: (current['temperature_2m'] as num).toDouble(),
@@ -290,25 +290,33 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
-    final daily = data['daily'];
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final daily = data['daily'] as Map<String, dynamic>;
 
     final forecasts = <ForecastDay>[];
     final dates = daily['time'] as List;
+    final tempMaxList = daily['temperature_2m_max'] as List;
+    final tempMinList = daily['temperature_2m_min'] as List;
+    final precipSumList = daily['precipitation_sum'] as List;
+    final precipProbList = daily['precipitation_probability_max'] as List;
+    final windSpeedList = daily['wind_speed_10m_max'] as List;
+    final weatherCodeList = daily['weather_code'] as List;
+    final sunriseList = daily['sunrise'] as List;
+    final sunsetList = daily['sunset'] as List;
 
     for (var i = 0; i < dates.length; i++) {
       forecasts.add(ForecastDay(
-        date: DateTime.parse(dates[i]),
-        tempMax: (daily['temperature_2m_max'][i] as num).toDouble(),
-        tempMin: (daily['temperature_2m_min'][i] as num).toDouble(),
-        precipitation: (daily['precipitation_sum'][i] as num?)?.toDouble() ?? 0,
-        precipitationProbability: (daily['precipitation_probability_max'][i] as num?)?.toInt() ?? 0,
-        windSpeed: (daily['wind_speed_10m_max'][i] as num).toDouble(),
-        condition: _wmoCodeToCondition(daily['weather_code'][i] as int),
-        conditionAr: _wmoCodeToConditionAr(daily['weather_code'][i] as int),
-        icon: _wmoCodeToIcon(daily['weather_code'][i] as int),
-        sunrise: DateTime.tryParse(daily['sunrise'][i] ?? ''),
-        sunset: DateTime.tryParse(daily['sunset'][i] ?? ''),
+        date: DateTime.tryParse(dates[i] as String) ?? DateTime.now(),
+        tempMax: (tempMaxList[i] as num).toDouble(),
+        tempMin: (tempMinList[i] as num).toDouble(),
+        precipitation: (precipSumList[i] as num?)?.toDouble() ?? 0,
+        precipitationProbability: (precipProbList[i] as num?)?.toInt() ?? 0,
+        windSpeed: (windSpeedList[i] as num).toDouble(),
+        condition: _wmoCodeToCondition(weatherCodeList[i] as int),
+        conditionAr: _wmoCodeToConditionAr(weatherCodeList[i] as int),
+        icon: _wmoCodeToIcon(weatherCodeList[i] as int),
+        sunrise: DateTime.tryParse((sunriseList[i] as String?) ?? ''),
+        sunset: DateTime.tryParse((sunsetList[i] as String?) ?? ''),
       ));
     }
 
@@ -333,19 +341,25 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final main = data['main'] as Map<String, dynamic>;
+    final wind = data['wind'] as Map<String, dynamic>;
+    final rain = data['rain'] as Map<String, dynamic>?;
+    final clouds = data['clouds'] as Map<String, dynamic>;
+    final weatherList = data['weather'] as List;
+    final weather0 = weatherList[0] as Map<String, dynamic>;
 
     return WeatherData(
-      temperature: (data['main']['temp'] as num).toDouble(),
-      humidity: (data['main']['humidity'] as num).toDouble(),
-      windSpeed: (data['wind']['speed'] as num).toDouble() * 3.6, // m/s to km/h
-      windDirection: _degreeToDirection(data['wind']['deg'] as num? ?? 0),
-      precipitation: (data['rain']?['1h'] as num?)?.toDouble() ?? 0,
-      cloudCover: (data['clouds']['all'] as num).toInt(),
+      temperature: (main['temp'] as num).toDouble(),
+      humidity: (main['humidity'] as num).toDouble(),
+      windSpeed: (wind['speed'] as num).toDouble() * 3.6, // m/s to km/h
+      windDirection: _degreeToDirection(wind['deg'] as num? ?? 0),
+      precipitation: (rain?['1h'] as num?)?.toDouble() ?? 0,
+      cloudCover: (clouds['all'] as num).toInt(),
       uvIndex: 0, // Not available in basic API
-      condition: data['weather'][0]['main'],
-      conditionAr: _owmConditionToAr(data['weather'][0]['main']),
-      icon: 'https://openweathermap.org/img/wn/${data['weather'][0]['icon']}@2x.png',
+      condition: weather0['main'] as String,
+      conditionAr: _owmConditionToAr(weather0['main'] as String),
+      icon: 'https://openweathermap.org/img/wn/${weather0['icon']}@2x.png',
       timestamp: DateTime.now(),
       provider: providerName,
     );
@@ -365,31 +379,37 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
+    final data = json.decode(response.body) as Map<String, dynamic>;
     final list = data['list'] as List;
 
     // Group by day
-    final dailyData = <String, List<dynamic>>{};
+    final dailyData = <String, List<Map<String, dynamic>>>{};
     for (final item in list) {
-      final date = (item['dt_txt'] as String).split(' ')[0];
-      dailyData.putIfAbsent(date, () => []).add(item);
+      final itemMap = item as Map<String, dynamic>;
+      final date = (itemMap['dt_txt'] as String).split(' ')[0];
+      dailyData.putIfAbsent(date, () => []).add(itemMap);
     }
 
     return dailyData.entries.take(days).map((entry) {
       final dayItems = entry.value;
-      final temps = dayItems.map((i) => (i['main']['temp'] as num).toDouble()).toList();
-      final precips = dayItems.map((i) => (i['rain']?['3h'] as num?)?.toDouble() ?? 0.0).toList();
+      final temps = dayItems.map((i) => ((i['main'] as Map<String, dynamic>)['temp'] as num).toDouble()).toList();
+      final precips = dayItems.map((i) => ((i['rain'] as Map<String, dynamic>?)?['3h'] as num?)?.toDouble() ?? 0.0).toList();
+
+      final firstItem = dayItems.first;
+      final firstWind = firstItem['wind'] as Map<String, dynamic>;
+      final firstWeatherList = firstItem['weather'] as List;
+      final firstWeather0 = firstWeatherList[0] as Map<String, dynamic>;
 
       return ForecastDay(
-        date: DateTime.parse(entry.key),
+        date: DateTime.tryParse(entry.key) ?? DateTime.now(),
         tempMax: temps.reduce((a, b) => a > b ? a : b),
         tempMin: temps.reduce((a, b) => a < b ? a : b),
         precipitation: precips.reduce((a, b) => a + b),
-        precipitationProbability: ((dayItems.first['pop'] as num?) ?? 0 * 100).toInt(),
-        windSpeed: (dayItems.first['wind']['speed'] as num).toDouble() * 3.6,
-        condition: dayItems.first['weather'][0]['main'],
-        conditionAr: _owmConditionToAr(dayItems.first['weather'][0]['main']),
-        icon: 'https://openweathermap.org/img/wn/${dayItems.first['weather'][0]['icon']}@2x.png',
+        precipitationProbability: ((firstItem['pop'] as num?) ?? 0 * 100).toInt(),
+        windSpeed: (firstWind['speed'] as num).toDouble() * 3.6,
+        condition: firstWeather0['main'] as String,
+        conditionAr: _owmConditionToAr(firstWeather0['main'] as String),
+        icon: 'https://openweathermap.org/img/wn/${firstWeather0['icon']}@2x.png',
       );
     }).toList();
   }
@@ -412,20 +432,21 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
-    final current = data['current'];
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final current = data['current'] as Map<String, dynamic>;
+    final condition = current['condition'] as Map<String, dynamic>;
 
     return WeatherData(
       temperature: (current['temp_c'] as num).toDouble(),
       humidity: (current['humidity'] as num).toDouble(),
       windSpeed: (current['wind_kph'] as num).toDouble(),
-      windDirection: current['wind_dir'],
+      windDirection: current['wind_dir'] as String,
       precipitation: (current['precip_mm'] as num).toDouble(),
       cloudCover: (current['cloud'] as num).toInt(),
       uvIndex: (current['uv'] as num).toDouble(),
-      condition: current['condition']['text'],
-      conditionAr: current['condition']['text'], // Would need translation
-      icon: 'https:${current['condition']['icon']}',
+      condition: condition['text'] as String,
+      conditionAr: condition['text'] as String, // Would need translation
+      icon: 'https:${condition['icon']}',
       timestamp: DateTime.now(),
       provider: providerName,
     );
@@ -445,22 +466,27 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
-    final forecastDays = data['forecast']['forecastday'] as List;
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final forecast = data['forecast'] as Map<String, dynamic>;
+    final forecastDays = forecast['forecastday'] as List;
 
     return forecastDays.map((day) {
+      final dayMap = day as Map<String, dynamic>;
+      final dayData = dayMap['day'] as Map<String, dynamic>;
+      final dayCondition = dayData['condition'] as Map<String, dynamic>;
+      final astro = dayMap['astro'] as Map<String, dynamic>;
       return ForecastDay(
-        date: DateTime.parse(day['date']),
-        tempMax: (day['day']['maxtemp_c'] as num).toDouble(),
-        tempMin: (day['day']['mintemp_c'] as num).toDouble(),
-        precipitation: (day['day']['totalprecip_mm'] as num).toDouble(),
-        precipitationProbability: (day['day']['daily_chance_of_rain'] as num).toInt(),
-        windSpeed: (day['day']['maxwind_kph'] as num).toDouble(),
-        condition: day['day']['condition']['text'],
-        conditionAr: day['day']['condition']['text'],
-        icon: 'https:${day['day']['condition']['icon']}',
-        sunrise: _parseTime(day['astro']['sunrise'], day['date']),
-        sunset: _parseTime(day['astro']['sunset'], day['date']),
+        date: DateTime.tryParse(dayMap['date'] as String) ?? DateTime.now(),
+        tempMax: (dayData['maxtemp_c'] as num).toDouble(),
+        tempMin: (dayData['mintemp_c'] as num).toDouble(),
+        precipitation: (dayData['totalprecip_mm'] as num).toDouble(),
+        precipitationProbability: (dayData['daily_chance_of_rain'] as num).toInt(),
+        windSpeed: (dayData['maxwind_kph'] as num).toDouble(),
+        condition: dayCondition['text'] as String,
+        conditionAr: dayCondition['text'] as String,
+        icon: 'https:${dayCondition['icon']}',
+        sunrise: _parseTime(astro['sunrise'] as String?, dayMap['date'] as String),
+        sunset: _parseTime(astro['sunset'] as String?, dayMap['date'] as String),
       );
     }).toList();
   }
@@ -483,8 +509,8 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
-    final current = data['currentConditions'];
+    final data = json.decode(response.body) as Map<String, dynamic>;
+    final current = data['currentConditions'] as Map<String, dynamic>;
 
     return WeatherData(
       temperature: (current['temp'] as num).toDouble(),
@@ -494,9 +520,9 @@ class WeatherProviderService {
       precipitation: (current['precip'] as num?)?.toDouble() ?? 0,
       cloudCover: (current['cloudcover'] as num).toInt(),
       uvIndex: (current['uvindex'] as num?)?.toDouble() ?? 0,
-      condition: current['conditions'],
-      conditionAr: current['conditions'],
-      icon: current['icon'],
+      condition: current['conditions'] as String,
+      conditionAr: current['conditions'] as String,
+      icon: current['icon'] as String,
       timestamp: DateTime.now(),
       provider: providerName,
     );
@@ -516,22 +542,23 @@ class WeatherProviderService {
     final response = await http.get(url).timeout(timeout);
     if (response.statusCode != 200) return null;
 
-    final data = json.decode(response.body);
+    final data = json.decode(response.body) as Map<String, dynamic>;
     final forecastDays = data['days'] as List;
 
     return forecastDays.map((day) {
+      final dayMap = day as Map<String, dynamic>;
       return ForecastDay(
-        date: DateTime.parse(day['datetime']),
-        tempMax: (day['tempmax'] as num).toDouble(),
-        tempMin: (day['tempmin'] as num).toDouble(),
-        precipitation: (day['precip'] as num?)?.toDouble() ?? 0,
-        precipitationProbability: (day['precipprob'] as num?)?.toInt() ?? 0,
-        windSpeed: (day['windspeed'] as num).toDouble(),
-        condition: day['conditions'],
-        conditionAr: day['conditions'],
-        icon: day['icon'],
-        sunrise: _parseTime(day['sunrise'], day['datetime']),
-        sunset: _parseTime(day['sunset'], day['datetime']),
+        date: DateTime.tryParse(dayMap['datetime'] as String) ?? DateTime.now(),
+        tempMax: (dayMap['tempmax'] as num).toDouble(),
+        tempMin: (dayMap['tempmin'] as num).toDouble(),
+        precipitation: (dayMap['precip'] as num?)?.toDouble() ?? 0,
+        precipitationProbability: (dayMap['precipprob'] as num?)?.toInt() ?? 0,
+        windSpeed: (dayMap['windspeed'] as num).toDouble(),
+        condition: dayMap['conditions'] as String,
+        conditionAr: dayMap['conditions'] as String,
+        icon: dayMap['icon'] as String,
+        sunrise: _parseTime(dayMap['sunrise'] as String?, dayMap['datetime'] as String),
+        sunset: _parseTime(dayMap['sunset'] as String?, dayMap['datetime'] as String),
       );
     }).toList();
   }
@@ -609,7 +636,8 @@ class WeatherProviderService {
       if (isPM && hour != 12) hour += 12;
       if (!isPM && hour == 12) hour = 0;
 
-      final dateTime = DateTime.parse(date);
+      final dateTime = DateTime.tryParse(date);
+      if (dateTime == null) return null;
       return DateTime(dateTime.year, dateTime.month, dateTime.day, hour, minute);
     } catch (e) {
       return null;

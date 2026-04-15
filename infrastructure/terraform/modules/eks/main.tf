@@ -114,14 +114,56 @@ resource "aws_security_group" "cluster" {
   }
 }
 
-resource "aws_security_group_rule" "cluster_egress" {
+# Cluster control-plane egress — restricted to HTTPS (AWS APIs, ECR, S3) and DNS
+resource "aws_security_group_rule" "cluster_egress_https" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.cluster.id
-  description       = "Allow all outbound traffic from cluster"
+  description       = "HTTPS outbound (AWS APIs, ECR, S3, external registries)"
+}
+
+# DNS egress — scoped to VPC CIDR (CoreDNS lives within the VPC; no DNS exfiltration path).
+resource "aws_security_group_rule" "cluster_egress_dns_tcp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "tcp"
+  cidr_blocks       = [var.vpc_cidr_block]
+  security_group_id = aws_security_group.cluster.id
+  description       = "DNS TCP outbound (VPC CIDR only)"
+}
+
+resource "aws_security_group_rule" "cluster_egress_dns_udp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = [var.vpc_cidr_block]
+  security_group_id = aws_security_group.cluster.id
+  description       = "DNS UDP outbound (VPC CIDR only)"
+}
+
+resource "aws_security_group_rule" "cluster_egress_to_nodes_kubelet" {
+  type                     = "egress"
+  from_port                = 10250
+  to_port                  = 10250
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.nodes.id
+  security_group_id        = aws_security_group.cluster.id
+  description              = "Allow control plane to reach worker node kubelets"
+}
+
+resource "aws_security_group_rule" "cluster_egress_to_nodes_https" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.nodes.id
+  security_group_id        = aws_security_group.cluster.id
+  description              = "Allow control plane to reach worker node HTTPS services"
 }
 
 resource "aws_security_group_rule" "cluster_ingress_nodes" {
@@ -155,14 +197,55 @@ resource "aws_security_group" "nodes" {
   }
 }
 
-resource "aws_security_group_rule" "nodes_egress" {
+# Node egress — restricted to HTTPS, DNS, NTP, and cluster control plane
+resource "aws_security_group_rule" "nodes_egress_https" {
   type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.nodes.id
-  description       = "Allow all outbound traffic from nodes"
+  description       = "HTTPS outbound (AWS APIs, ECR, S3, external services)"
+}
+
+resource "aws_security_group_rule" "nodes_egress_dns_tcp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "DNS TCP outbound"
+}
+
+resource "aws_security_group_rule" "nodes_egress_dns_udp" {
+  type              = "egress"
+  from_port         = 53
+  to_port           = 53
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "DNS UDP outbound"
+}
+
+resource "aws_security_group_rule" "nodes_egress_ntp" {
+  type              = "egress"
+  from_port         = 123
+  to_port           = 123
+  protocol          = "udp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.nodes.id
+  description       = "NTP outbound for time sync"
+}
+
+resource "aws_security_group_rule" "nodes_egress_to_cluster" {
+  type                     = "egress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.cluster.id
+  security_group_id        = aws_security_group.nodes.id
+  description              = "Allow nodes to reach EKS API server"
 }
 
 resource "aws_security_group_rule" "nodes_ingress_self" {
@@ -302,6 +385,31 @@ resource "aws_iam_role_policy_attachment" "nodes_ssm_policy" {
 }
 
 # ======================================================================
+# قالب الإطلاق مع IMDSv2 (Launch Template with IMDSv2 enforcement)
+# ======================================================================
+# فرض استخدام IMDSv2 لمنع هجمات SSRF على بيانات الاعتماد
+# Enforce IMDSv2 to prevent SSRF attacks on instance credentials
+resource "aws_launch_template" "eks_nodes" {
+  name_prefix = "${var.cluster_name}-node-"
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = merge(
+      local.common_tags,
+      {
+        Name = "${var.cluster_name}-node"
+      }
+    )
+  }
+}
+
+# ======================================================================
 # مجموعة عقد النظام (System Node Group)
 # ======================================================================
 # عقد النظام لتشغيل الخدمات الأساسية مثل CoreDNS وKong وNATS
@@ -314,6 +422,11 @@ resource "aws_eks_node_group" "system" {
 
   instance_types = var.system_node_instance_types
   capacity_type  = "ON_DEMAND"
+
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest"
+  }
 
   scaling_config {
     desired_size = var.system_node_desired_size
@@ -366,6 +479,11 @@ resource "aws_eks_node_group" "worker" {
   instance_types = var.worker_node_instance_types
   capacity_type  = var.worker_capacity_type
 
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest"
+  }
+
   scaling_config {
     desired_size = var.worker_node_desired_size
     max_size     = var.worker_node_max_size
@@ -414,6 +532,11 @@ resource "aws_eks_node_group" "gpu" {
   capacity_type  = var.gpu_capacity_type
 
   ami_type = "AL2_x86_64_GPU"
+
+  launch_template {
+    id      = aws_launch_template.eks_nodes.id
+    version = "$Latest"
+  }
 
   scaling_config {
     desired_size = var.gpu_node_desired_size

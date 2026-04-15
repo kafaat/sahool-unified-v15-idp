@@ -1,13 +1,13 @@
+library;
+
 /// Equipment Providers - مزودات بيانات المعدات
 /// Riverpod providers للتواصل مع Equipment Service
 /// Enhanced with offline-first support and comprehensive state management
-library;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../data/equipment_models.dart';
 import '../data/equipment_repository.dart';
-import '../data/equipment_local_db.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Equipment List Providers
@@ -363,19 +363,19 @@ class EquipmentFilter {
 final pendingOperationsCountProvider =
     FutureProvider.autoDispose<int>((ref) async {
   final localDb = ref.watch(equipmentLocalDbProvider);
-  return await localDb.getPendingOperationsCount();
+  return localDb.getPendingOperationsCount();
 });
 
 /// مزود وقت آخر مزامنة
 final lastSyncTimeProvider = FutureProvider.autoDispose<DateTime?>((ref) async {
   final localDb = ref.watch(equipmentLocalDbProvider);
-  return await localDb.getLastSyncTime();
+  return localDb.getLastSyncTime();
 });
 
 /// مزود حالة التخزين المؤقت
 final isCacheStaleProvider = FutureProvider.autoDispose<bool>((ref) async {
   final localDb = ref.watch(equipmentLocalDbProvider);
-  return await localDb.isCacheStale();
+  return localDb.isCacheStale();
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

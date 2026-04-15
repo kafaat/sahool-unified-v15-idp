@@ -1,3 +1,5 @@
+library;
+
 /// SAHOOL Astronomical Calendar Providers (Legacy)
 /// مزودات التقويم الفلكي (الإصدار القديم)
 ///

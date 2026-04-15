@@ -1,42 +1,99 @@
-"use client";
+'use client';
 
-import React, { useState, useMemo } from "react";
-import { Users, Plus, Search, Shield, AlertTriangle, CheckCircle, Clock, UserX } from "lucide-react";
-import { useUsers, useUserStats } from "@/features/users";
-import type { UserRole, UserStatus } from "@/features/users";
+import React, { useState, useMemo } from 'react';
+import {
+  Users,
+  Plus,
+  Search,
+  Shield,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  UserX,
+  X,
+} from 'lucide-react';
+import { useUsers, useUserStats, useCreateUser } from '@/features/users';
+import type { UserRole, UserStatus, UserFormData } from '@/features/users';
 
-const roles: Array<{ value: UserRole | "all"; label: string; labelAr: string }> = [
-  { value: "all", label: "All Roles", labelAr: "جميع الأدوار" },
-  { value: "admin", label: "Admin", labelAr: "مدير" },
-  { value: "manager", label: "Manager", labelAr: "مشرف" },
-  { value: "farmer", label: "Farmer", labelAr: "مزارع" },
-  { value: "agronomist", label: "Agronomist", labelAr: "مهندس زراعي" },
-  { value: "viewer", label: "Viewer", labelAr: "مشاهد" },
+const roles: Array<{ value: UserRole | 'all'; label: string; labelAr: string }> = [
+  { value: 'all', label: 'All Roles', labelAr: 'جميع الأدوار' },
+  { value: 'admin', label: 'Admin', labelAr: 'مدير' },
+  { value: 'manager', label: 'Manager', labelAr: 'مشرف' },
+  { value: 'farmer', label: 'Farmer', labelAr: 'مزارع' },
+  { value: 'agronomist', label: 'Agronomist', labelAr: 'مهندس زراعي' },
+  { value: 'viewer', label: 'Viewer', labelAr: 'مشاهد' },
 ];
 
-const statusConfig: Record<UserStatus, { color: string; labelAr: string; icon: React.ElementType }> = {
-  active: { color: "bg-green-100 text-green-800", labelAr: "نشط", icon: CheckCircle },
-  inactive: { color: "bg-gray-100 text-gray-800", labelAr: "غير نشط", icon: UserX },
-  suspended: { color: "bg-red-100 text-red-800", labelAr: "موقوف", icon: AlertTriangle },
-  pending: { color: "bg-yellow-100 text-yellow-800", labelAr: "معلق", icon: Clock },
+const statusConfig: Record<
+  UserStatus,
+  { color: string; labelAr: string; icon: React.ElementType }
+> = {
+  active: { color: 'bg-green-100 text-green-800', labelAr: 'نشط', icon: CheckCircle },
+  inactive: { color: 'bg-gray-100 text-gray-800', labelAr: 'غير نشط', icon: UserX },
+  suspended: { color: 'bg-red-100 text-red-800', labelAr: 'موقوف', icon: AlertTriangle },
+  pending: { color: 'bg-yellow-100 text-yellow-800', labelAr: 'معلق', icon: Clock },
 };
 
 const roleLabelsAr: Record<UserRole, string> = {
-  admin: "مدير النظام",
-  manager: "مشرف",
-  farmer: "مزارع",
-  viewer: "مشاهد",
-  agronomist: "مهندس زراعي",
+  admin: 'مدير النظام',
+  manager: 'مشرف',
+  farmer: 'مزارع',
+  viewer: 'مشاهد',
+  agronomist: 'مهندس زراعي',
 };
 
-export default function UsersClient() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedRole, setSelectedRole] = useState<UserRole | "all">("all");
+// RFC 5322 simplified email check — server enforces the real validation.
+const EMAIL_RX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Accept optional leading + and 8-15 digits (tolerant of international formats).
+const PHONE_RX = /^\+?[0-9]{8,15}$/;
 
-  const { data: users = [], isLoading, error } = useUsers(
-    selectedRole !== "all" ? { role: selectedRole } : undefined
-  );
+export default function UsersClient() {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [newUser, setNewUser] = useState<UserFormData>({ name: '', nameAr: '', email: '', role: 'farmer' as UserRole, phone: '' });
+  const [createErrors, setCreateErrors] = useState<Partial<Record<keyof UserFormData | 'submit', string>>>({});
+
+  const {
+    data: users = [],
+    isLoading,
+    error,
+  } = useUsers(selectedRole !== 'all' ? { role: selectedRole } : undefined);
   const { data: stats } = useUserStats();
+  const createUser = useCreateUser();
+
+  const validateNewUser = (): boolean => {
+    const errs: Partial<Record<keyof UserFormData | 'submit', string>> = {};
+    if (!newUser.name.trim()) errs.name = 'الاسم (EN) مطلوب';
+    if (!newUser.nameAr.trim()) errs.nameAr = 'الاسم (AR) مطلوب';
+    if (!newUser.email.trim()) {
+      errs.email = 'البريد الإلكتروني مطلوب';
+    } else if (!EMAIL_RX.test(newUser.email.trim())) {
+      errs.email = 'البريد الإلكتروني غير صالح';
+    }
+    if (newUser.phone && !PHONE_RX.test(newUser.phone.replace(/\s/g, ''))) {
+      errs.phone = 'رقم الهاتف غير صالح';
+    }
+    setCreateErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleCreateUser = () => {
+    if (!validateNewUser()) return;
+    createUser.mutate(newUser, {
+      onSuccess: () => {
+        setShowCreateDialog(false);
+        setNewUser({ name: '', nameAr: '', email: '', role: 'farmer', phone: '' });
+        setCreateErrors({});
+      },
+      onError: () => {
+        setCreateErrors((prev) => ({
+          ...prev,
+          submit: 'فشل في إنشاء المستخدم. الرجاء المحاولة مرة أخرى.',
+        }));
+      },
+    });
+  };
 
   const filteredUsers = useMemo(() => {
     if (!searchTerm) return users;
@@ -71,6 +128,59 @@ export default function UsersClient() {
 
   return (
     <div className="space-y-6">
+      {/* Create Dialog */}
+      {showCreateDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => { setShowCreateDialog(false); setCreateErrors({}); }} className="absolute top-3 left-3 text-gray-400 hover:text-gray-600">
+              <X className="w-5 h-5" />
+            </button>
+            <h2 className="text-lg font-bold text-gray-900 mb-4">إضافة مستخدم جديد</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (EN)</label>
+                <input value={newUser.name} onChange={(e) => setNewUser({ ...newUser, name: e.target.value })} maxLength={120} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.name ? 'border-red-500' : ''}`} />
+                {createErrors.name && <p className="text-red-500 text-xs mt-1">{createErrors.name}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الاسم (AR)</label>
+                <input value={newUser.nameAr} onChange={(e) => setNewUser({ ...newUser, nameAr: e.target.value })} maxLength={120} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.nameAr ? 'border-red-500' : ''}`} dir="rtl" />
+                {createErrors.nameAr && <p className="text-red-500 text-xs mt-1">{createErrors.nameAr}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+                <input type="email" autoComplete="email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} maxLength={254} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.email ? 'border-red-500' : ''}`} />
+                {createErrors.email && <p className="text-red-500 text-xs mt-1">{createErrors.email}</p>}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">الدور</label>
+                <select value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value as UserRole })} className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500">
+                  {roles.filter((r) => r.value !== 'all').map((r) => (
+                    <option key={r.value} value={r.value}>{r.labelAr}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف (اختياري)</label>
+                <input type="tel" autoComplete="tel" value={newUser.phone ?? ''} onChange={(e) => setNewUser({ ...newUser, phone: e.target.value })} maxLength={20} className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500 ${createErrors.phone ? 'border-red-500' : ''}`} />
+                {createErrors.phone && <p className="text-red-500 text-xs mt-1">{createErrors.phone}</p>}
+              </div>
+            </div>
+            {createErrors.submit && (
+              <div className="mt-4 bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-sm">
+                {createErrors.submit}
+              </div>
+            )}
+            <div className="flex justify-end gap-3 mt-6">
+              <button onClick={() => { setShowCreateDialog(false); setCreateErrors({}); }} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
+              <button onClick={handleCreateUser} disabled={createUser.isPending} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+                {createUser.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -78,9 +188,8 @@ export default function UsersClient() {
           <p className="text-gray-500 mt-1">User Management</p>
         </div>
         <button
-          disabled
-          title="قريباً - Coming soon"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={() => setShowCreateDialog(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-sahool-green-600 text-white rounded-lg hover:bg-sahool-green-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
           <span>إضافة مستخدم</span>
@@ -91,7 +200,9 @@ export default function UsersClient() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">إجمالي المستخدمين</div>
-          <div className="text-2xl font-bold text-gray-900">{stats?.totalUsers ?? users.length}</div>
+          <div className="text-2xl font-bold text-gray-900">
+            {stats?.totalUsers ?? users.length}
+          </div>
         </div>
         <div className="bg-white rounded-lg border p-4">
           <div className="text-sm text-gray-500">نشطون</div>
@@ -125,11 +236,13 @@ export default function UsersClient() {
         </div>
         <select
           value={selectedRole}
-          onChange={(e) => setSelectedRole(e.target.value as UserRole | "all")}
+          onChange={(e) => setSelectedRole(e.target.value as UserRole | 'all')}
           className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-sahool-green-500"
         >
           {roles.map((r) => (
-            <option key={r.value} value={r.value}>{r.labelAr}</option>
+            <option key={r.value} value={r.value}>
+              {r.labelAr}
+            </option>
           ))}
         </select>
       </div>
@@ -146,7 +259,9 @@ export default function UsersClient() {
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">المزارع</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">آخر دخول</th>
                 <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">2FA</th>
-                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">الإجراءات</th>
+                <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">
+                  الإجراءات
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -180,7 +295,9 @@ export default function UsersClient() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${st.color}`}>
+                        <span
+                          className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${st.color}`}
+                        >
                           <StIcon className="w-3 h-3" />
                           {st.labelAr}
                         </span>
@@ -188,8 +305,8 @@ export default function UsersClient() {
                       <td className="px-4 py-3 text-sm text-gray-600">{user.farmIds.length}</td>
                       <td className="px-4 py-3 text-sm text-gray-500">
                         {user.lastLogin
-                          ? new Date(user.lastLogin).toLocaleDateString("ar-SA")
-                          : "—"}
+                          ? new Date(user.lastLogin).toLocaleDateString('ar-SA')
+                          : '—'}
                       </td>
                       <td className="px-4 py-3">
                         {user.twoFactorEnabled ? (

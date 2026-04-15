@@ -14,6 +14,7 @@ import {
   OnModuleInit,
   OnModuleDestroy,
   Logger,
+  BadRequestException,
 } from "@nestjs/common";
 import Redis from "ioredis";
 import { PrismaService } from "../prisma/prisma.service";
@@ -236,7 +237,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.client.on("message", (topic, message) => {
-      this.handleMessage(topic, message.toString());
+      this.handleMessage(topic, message ? message.toString() : "");
     });
 
     this.client.on("error", (error) => {
@@ -284,11 +285,17 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       }
 
       if (parts.includes("sensor")) {
-        this.handleSensorData(parts, payload, tenantId);
+        void this.handleSensorData(parts, payload, tenantId).catch((err: unknown) => {
+          this.logger.error(`Error handling sensor data: ${err instanceof Error ? err.message : String(err)}`);
+        });
       } else if (parts.includes("actuator")) {
-        this.handleActuatorStatus(parts, payload);
+        void this.handleActuatorStatus(parts, payload, tenantId).catch((err: unknown) => {
+          this.logger.error(`Error handling actuator status: ${err instanceof Error ? err.message : String(err)}`);
+        });
       } else if (parts.includes("status")) {
-        this.handleDeviceStatus(parts, payload, tenantId);
+        void this.handleDeviceStatus(parts, payload, tenantId).catch((err: unknown) => {
+          this.logger.error(`Error handling device status: ${err instanceof Error ? err.message : String(err)}`);
+        });
       }
     } catch (error) {
       this.logger.error("Error processing message", { topic: this.sanitizeForLog(topic) }, error);
@@ -339,7 +346,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     };
 
     // Cache latest reading in Redis
-    const key = `sensor:${fieldId}:${sensorType}`;
+    const key = `${tenantId}:sensor:${fieldId}:${sensorType}`;
     await this.cacheSensorReading(key, reading);
 
     // Persist to database for historical queries
@@ -356,12 +363,13 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   private async handleActuatorStatus(
     topicParts: string[],
     payload: string,
+    tenantId: string,
   ): Promise<void> {
     const fieldId = topicParts[5];
     const actuatorType = topicParts[7];
 
     const data = JSON.parse(payload);
-    const key = `actuator:${fieldId}:${actuatorType}`;
+    const key = `${tenantId}:actuator:${fieldId}:${actuatorType}`;
 
     await this.cacheActuatorState(key, data.status === "ON");
 
@@ -387,7 +395,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       batteryLevel: data.battery,
     };
 
-    await this.cacheDeviceStatus(status);
+    await this.cacheDeviceStatus(status, tenantId);
 
     // Persist to database
     await this.persistDeviceStatus(status, tenantId);
@@ -429,7 +437,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
     // Update Redis state
-    await this.cacheActuatorState(`actuator:${fieldId}:pump`, status === "ON");
+    await this.cacheActuatorState(`${tenantId}:actuator:${fieldId}:pump`, status === "ON");
 
     const message =
       status === "ON"
@@ -470,7 +478,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     this.client.publish(topic, JSON.stringify(payload), { qos: 1 });
 
     // Cache valve state in Redis (fixing BUG-002)
-    await this.cacheActuatorState(`actuator:${fieldId}:valve:${valveId}`, status === "ON");
+    await this.cacheActuatorState(`${tenantId}:actuator:${fieldId}:valve:${valveId}`, status === "ON");
 
     return {
       success: true,
@@ -518,10 +526,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get latest sensor readings for a field
    */
-  async getFieldSensorData(fieldId: string, tenantId?: string): Promise<SensorReading[]> {
+  async getFieldSensorData(fieldId: string, tenantId: string): Promise<SensorReading[]> {
     if (!this.redis || !this.redisConnected) return [];
     const readings: SensorReading[] = [];
-    const pattern = `sensor:${fieldId}:*`;
+    const pattern = `${tenantId}:sensor:${fieldId}:*`;
 
     try {
       let cursor = "0";
@@ -555,10 +563,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   async getSensorReading(
     fieldId: string,
     sensorType: SensorType,
-    tenantId?: string,
+    tenantId: string,
   ): Promise<SensorReading | null> {
     if (!this.redis || !this.redisConnected) return null;
-    const key = `sensor:${fieldId}:${sensorType}`;
+    const key = `${tenantId}:sensor:${fieldId}:${sensorType}`;
 
     try {
       const data = await this.redis.get(key);
@@ -574,11 +582,11 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async getFieldActuatorStates(
     fieldId: string,
-    tenantId?: string,
+    tenantId: string,
   ): Promise<Record<string, boolean>> {
     const states: Record<string, boolean> = {};
     if (!this.redis || !this.redisConnected) return states;
-    const pattern = `actuator:${fieldId}:*`;
+    const pattern = `${tenantId}:actuator:${fieldId}:*`;
 
     try {
       let cursor = "0";
@@ -595,7 +603,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
         for (const key of keys) {
           const data = await this.redis.get(key);
           if (data !== null) {
-            const actuatorType = key.split(":")[2];
+            const actuatorType = key.split(":")[3];
             states[actuatorType] = data === "true";
           }
         }
@@ -610,10 +618,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get all connected devices
    */
-  async getConnectedDevices(tenantId?: string): Promise<DeviceStatus[]> {
+  async getConnectedDevices(tenantId: string): Promise<DeviceStatus[]> {
     if (!this.redis || !this.redisConnected) return [];
     const devices: DeviceStatus[] = [];
-    const pattern = "device:*";
+    const pattern = `${tenantId}:device:*`;
 
     try {
       let cursor = "0";
@@ -644,7 +652,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Get device count by status
    */
-  async getDeviceStats(tenantId?: string): Promise<{
+  async getDeviceStats(tenantId: string): Promise<{
     online: number;
     offline: number;
     error: number;
@@ -693,10 +701,10 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
   /**
    * Cache device status in Redis
    */
-  private async cacheDeviceStatus(status: DeviceStatus): Promise<void> {
+  private async cacheDeviceStatus(status: DeviceStatus, tenantId: string): Promise<void> {
     if (!this.redis || !this.redisConnected) return;
     try {
-      const key = `device:${status.deviceId}`;
+      const key = `${tenantId}:device:${status.deviceId}`;
       await this.redis.setex(
         key,
         this.DEVICE_STATUS_TTL,
@@ -873,7 +881,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
    */
   async getHistoricalReadings(
     fieldId: string,
-    tenantId?: string,
+    tenantId: string,
     sensorType?: string,
     hours: number = 24,
   ): Promise<any[]> {
@@ -883,10 +891,8 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       const where: any = {
         timestamp: { gte: since },
         device: { fieldId },
+        tenantId,
       };
-      if (tenantId) {
-        where.tenantId = tenantId;
-      }
       if (sensorType) {
         where.sensor = { sensorType: this.mapSensorType(sensorType as SensorType) };
       }
@@ -973,7 +979,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       quality,
     };
 
-    const key = `sensor:${fieldId}:${data.sensorType}`;
+    const key = `${tenantId}:sensor:${fieldId}:${data.sensorType}`;
     await this.cacheSensorReading(key, reading);
     await this.persistSensorReading(reading, tenantId);
     this.checkSensorAlerts(reading, tenantId);
@@ -1041,7 +1047,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn(
         `⚠️ Low ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
-      this.sendSensorAlertNotification(reading, "low", threshold.low);
+      this.sendSensorAlertNotification(reading, "low", threshold.low, tenantId);
       void this.persistAlert(reading, "low", threshold.low, tenantId);
     }
 
@@ -1049,7 +1055,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn(
         `⚠️ High ${reading.sensorType} alert @ ${reading.fieldId}: ${reading.value}${reading.unit}`,
       );
-      this.sendSensorAlertNotification(reading, "high", threshold.high);
+      this.sendSensorAlertNotification(reading, "high", threshold.high, tenantId);
       void this.persistAlert(reading, "high", threshold.high, tenantId);
     }
   }
@@ -1062,6 +1068,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
     reading: SensorReading,
     alertType: "low" | "high",
     threshold: number,
+    tenantId: string,
   ): void {
     const sensorTypeAr = this.getSensorTypeArabic(reading.sensorType);
 
@@ -1085,6 +1092,7 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       subject,
       message,
       data: {
+        tenantId,
         alertType,
         sensorType: reading.sensorType,
         fieldId: reading.fieldId,
@@ -1119,5 +1127,266 @@ export class IotService implements OnModuleInit, OnModuleDestroy {
       [SensorType.RAIN_GAUGE]: "كمية الأمطار",
     };
     return translations[type] || type;
+  }
+
+  // ==========================================================================
+  // Actuator & Alert Rule Query Methods
+  // (IOT_ENDPOINTS.ACTUATORS / IOT_ENDPOINTS.ALERT_RULES)
+  // ==========================================================================
+
+  /**
+   * List actuators registered for a tenant.
+   *
+   * Uses the Prisma ``Actuator`` model and joins the parent ``Device``
+   * row so the caller can see the device name, current state, last
+   * command, and the field the device is attached to.
+   */
+  async listActuators(
+    tenantId: string,
+    opts?: {
+      fieldId?: string;
+      actuatorType?: string;
+      limit?: number;
+      offset?: number;
+    },
+  ): Promise<{
+    actuators: Array<Record<string, unknown>>;
+    total: number;
+    limit: number;
+    offset: number;
+  }> {
+    const limit = opts?.limit ?? 50;
+    const offset = opts?.offset ?? 0;
+
+    if (!this.dbConnected) {
+      this.logger.warn("listActuators called but database is not connected");
+      return { actuators: [], total: 0, limit, offset };
+    }
+
+    const where: Record<string, unknown> = { tenantId };
+    if (opts?.actuatorType) {
+      where.actuatorType = opts.actuatorType.toUpperCase();
+    }
+    if (opts?.fieldId) {
+      // Filter via parent device relationship
+      where.device = { fieldId: opts.fieldId, tenantId };
+    }
+
+    try {
+      const [rows, total] = await Promise.all([
+        (this.prisma as any).actuator.findMany({
+          where,
+          include: { device: true },
+          orderBy: { createdAt: "desc" },
+          take: limit,
+          skip: offset,
+        }),
+        (this.prisma as any).actuator.count({ where }),
+      ]);
+
+      const actuators = rows.map((row: any) => ({
+        id: row.id,
+        actuatorType: row.actuatorType,
+        name: row.name ?? row.device?.name ?? null,
+        fieldId: row.device?.fieldId ?? null,
+        deviceId: row.deviceId,
+        deviceExternalId: row.device?.deviceId ?? null,
+        currentState: row.currentState ?? null,
+        lastCommand: row.lastCommand ?? null,
+        lastCommandAt: row.lastCommandAt ?? null,
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+      }));
+
+      return { actuators, total, limit, offset };
+    } catch (err) {
+      this.logger.error(
+        `listActuators failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return { actuators: [], total: 0, limit, offset };
+    }
+  }
+
+  /**
+   * Dispatch a command to an actuator.
+   *
+   * Creates an ``ActuatorCommand`` row (status=PENDING) and attempts
+   * to publish it to MQTT. Always returns the newly-created command
+   * id so the caller can poll for status.
+   */
+  async dispatchActuatorCommand(
+    tenantId: string,
+    actuatorId: string,
+    body: {
+      command: string;
+      parameters?: Record<string, unknown>;
+      durationSeconds?: number;
+    },
+  ): Promise<{
+    status: string;
+    commandId: string | null;
+    actuatorId: string;
+    command: string;
+    queuedAt: string;
+  }> {
+    const queuedAt = new Date().toISOString();
+
+    if (!this.dbConnected) {
+      return {
+        status: "accepted",
+        commandId: null,
+        actuatorId,
+        command: body.command,
+        queuedAt,
+      };
+    }
+
+    try {
+      const actuator = await (this.prisma as any).actuator.findFirst({
+        where: { id: actuatorId, tenantId },
+        include: { device: true },
+      });
+
+      if (!actuator) {
+        throw new BadRequestException({
+          error: "actuator_not_found",
+          message: `Actuator ${actuatorId} not found for tenant`,
+          message_ar: "المشغل غير موجود لهذا المستأجر",
+        });
+      }
+
+      const commandRow = await (this.prisma as any).actuatorCommand.create({
+        data: {
+          tenantId,
+          actuatorId,
+          command: body.command,
+          parameters: {
+            ...(body.parameters ?? {}),
+            ...(body.durationSeconds !== undefined
+              ? { durationSeconds: body.durationSeconds }
+              : {}),
+          },
+          status: "PENDING",
+        },
+      });
+
+      // Publish to tenant-scoped MQTT topic (best-effort, non-blocking)
+      try {
+        const fieldId = actuator.device?.fieldId ?? "unknown";
+        const topic = `sahool/${tenantId}/farm/${
+          process.env.DEFAULT_FARM_ID || "farm-1"
+        }/field/${fieldId}/actuator/${actuator.actuatorType.toLowerCase()}/command`;
+        this.client?.publish(
+          topic,
+          JSON.stringify({
+            commandId: commandRow.id,
+            actuatorId,
+            command: body.command,
+            parameters: body.parameters ?? {},
+            durationSeconds: body.durationSeconds,
+            queuedAt,
+          }),
+          { qos: 1 },
+        );
+      } catch (err) {
+        this.logger.warn(
+          `Failed to publish actuator command via MQTT: ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
+
+      return {
+        status: "accepted",
+        commandId: commandRow.id,
+        actuatorId,
+        command: body.command,
+        queuedAt,
+      };
+    } catch (err) {
+      if (err instanceof BadRequestException) throw err;
+      this.logger.error(
+        `dispatchActuatorCommand failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return {
+        status: "error",
+        commandId: null,
+        actuatorId,
+        command: body.command,
+        queuedAt,
+      };
+    }
+  }
+
+  /**
+   * List alert rules for a tenant.
+   *
+   * Uses raw SQL against the new ``iot_alert_rules`` table. The table
+   * is defined in an additive Prisma migration under
+   * ``prisma/migrations/20260411000000_iot_alert_rules/migration.sql``.
+   */
+  async listAlertRules(
+    tenantId: string,
+    opts?: {
+      enabled?: boolean;
+      sensorId?: string;
+      fieldId?: string;
+    },
+  ): Promise<{
+    rules: Array<Record<string, unknown>>;
+    total: number;
+  }> {
+    if (!this.dbConnected) {
+      return { rules: [], total: 0 };
+    }
+
+    // Validate UUIDs to avoid SQL injection on raw query inputs.
+    const uuidRegex = /^[0-9a-fA-F-]{32,36}$/;
+    const sensorId =
+      opts?.sensorId && uuidRegex.test(opts.sensorId) ? opts.sensorId : null;
+    const fieldId =
+      opts?.fieldId && uuidRegex.test(opts.fieldId) ? opts.fieldId : null;
+    const enabledFilter = opts?.enabled;
+
+    try {
+      // All values are bound as $1/$2/… parameters (no string concatenation).
+      const rows: Array<Record<string, unknown>> = await (this.prisma as any)
+        .$queryRawUnsafe(
+          `SELECT id, tenant_id, sensor_id, field_id, metric, operator,
+                  threshold, duration_seconds, severity, enabled,
+                  created_at, version
+             FROM iot_alert_rules
+            WHERE tenant_id = $1::uuid
+              AND ($2::boolean IS NULL OR enabled = $2::boolean)
+              AND ($3::uuid IS NULL OR sensor_id = $3::uuid)
+              AND ($4::uuid IS NULL OR field_id = $4::uuid)
+            ORDER BY created_at DESC
+            LIMIT 200`,
+          tenantId,
+          enabledFilter === undefined ? null : enabledFilter,
+          sensorId,
+          fieldId,
+        );
+
+      const rules = rows.map((r) => ({
+        id: r.id,
+        tenantId: r.tenant_id,
+        sensorId: r.sensor_id,
+        fieldId: r.field_id,
+        metric: r.metric,
+        operator: r.operator,
+        threshold: r.threshold,
+        durationSeconds: r.duration_seconds,
+        severity: r.severity,
+        enabled: r.enabled,
+        createdAt: r.created_at,
+        version: r.version,
+      }));
+
+      return { rules, total: rules.length };
+    } catch (err) {
+      this.logger.error(
+        `listAlertRules failed: ${err instanceof Error ? err.message : String(err)}`,
+      );
+      return { rules: [], total: 0 };
+    }
   }
 }

@@ -90,11 +90,15 @@ export class JwtAuthGuard implements CanActivate {
       }) as jwt.JwtPayload;
 
       // Attach user info to request
+      // Expose both `tid` (raw JWT claim) and `tenantId` for downstream
+      // services; both reference the same tenant identifier.
+      const tid = decoded.tid || decoded.tenant_id;
       request.user = {
         id: decoded.sub || decoded.user_id,
         email: decoded.email,
         roles: decoded.roles || [],
-        tenantId: decoded.tenant_id || decoded.tid,
+        tid,
+        tenantId: tid,
       };
 
       return true;

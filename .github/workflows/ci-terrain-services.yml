@@ -36,7 +36,7 @@ permissions:
 env:
   PYTHON_VERSION: "3.11"
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: sahool
+  IMAGE_PREFIX: ${{ github.repository_owner }}
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
@@ -45,6 +45,7 @@ jobs:
   changes:
     name: Detect Changes
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     outputs:
       terrain-core: ${{ steps.filter.outputs.terrain-core }}
       hydrology: ${{ steps.filter.outputs.hydrology }}
@@ -110,6 +111,7 @@ jobs:
   lint:
     name: Lint - ${{ matrix.service }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: changes
     strategy:
       fail-fast: false
@@ -152,6 +154,7 @@ jobs:
   test:
     name: Test - ${{ matrix.service }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [changes, lint]
     strategy:
       fail-fast: false
@@ -203,11 +206,13 @@ jobs:
           NATS_URL: ""
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v5
-        if: always()
-        continue-on-error: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        if: always() && env.CODECOV_TOKEN != ''
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
           files: ./coverage.xml
           flags: ${{ matrix.service }}
           name: ${{ matrix.service }}-coverage
@@ -218,6 +223,7 @@ jobs:
   security:
     name: Security - ${{ matrix.service }}
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     needs: [changes, lint]
     strategy:
       fail-fast: false
@@ -263,6 +269,7 @@ jobs:
   build:
     name: Build - ${{ matrix.service }}
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     needs: [changes, test, security]
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     strategy:
@@ -419,6 +426,7 @@ jobs:
   container-scan:
     name: Scan - ${{ matrix.service }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: [changes, build]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     strategy:
@@ -500,6 +508,7 @@ jobs:
   summary:
     name: Pipeline Summary
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [changes, lint, test, security, build]
     if: always()
     steps:

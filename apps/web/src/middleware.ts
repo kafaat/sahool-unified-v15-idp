@@ -176,6 +176,7 @@ export async function middleware(request: NextRequest) {
     // httpOnly cookie is invisible to client-side JS, so the middleware must
     // bridge the gap before the rewrite forwards the request to Kong.
     let responseInit: Parameters<typeof NextResponse.next>[0] | undefined;
+    // eslint-disable-next-line no-restricted-syntax -- matching URL prefix in middleware, not calling an API
     if (pathname.startsWith('/api/v1/')) {
       const accessToken = request.cookies.get('access_token')?.value;
       if (accessToken) {

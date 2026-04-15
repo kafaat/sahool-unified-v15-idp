@@ -10,9 +10,9 @@
  * that need field, weather, sensor, irrigation, and other domain API methods.
  */
 
-import { logger } from '../logger';
 import Cookies from 'js-cookie';
 import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
+import { logger } from '../logger';
 
 // ---------------------------------------------------------------------------
 // Types (inline to avoid importing the 510-line types.ts)

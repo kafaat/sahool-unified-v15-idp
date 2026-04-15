@@ -10,6 +10,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Bot, User, Sparkles, Loader2, Trash2, RotateCcw, Leaf } from 'lucide-react';
+import { AI_ENDPOINTS } from '@sahool/shared-types/contracts';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -176,7 +177,7 @@ export default function CopilotPage() {
   // -------------------------------------------------------------------
   const fallbackNonStreaming = useCallback(
     async (allMessages: Array<{ role: string; content: string }>, assistantId: string) => {
-      const response = await fetch(`${COPILOT_API_BASE}/api/v1/chat`, {
+      const response = await fetch(`${COPILOT_API_BASE}${AI_ENDPOINTS.COPILOT_CHAT_DIRECT}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
@@ -252,7 +253,7 @@ export default function CopilotPage() {
       abortControllerRef.current = controller;
 
       try {
-        const response = await fetch(`${COPILOT_API_BASE}/api/v1/chat/stream`, {
+        const response = await fetch(`${COPILOT_API_BASE}${AI_ENDPOINTS.COPILOT_CHAT_STREAM_DIRECT}`, {
           method: 'POST',
           credentials: 'include',
           headers: {

@@ -450,7 +450,7 @@ export const fieldsApi = {
    */
   getLatestKpiSnapshot: async (fieldId: string): Promise<FieldKpiSnapshot | null> => {
     try {
-      const response = await api.get(`/api/v1/fields/${fieldId}/kpi-snapshot`);
+      const response = await api.get(buildUrl(FIELD_ENDPOINTS.KPI_SNAPSHOT, { fieldId }));
       return response.data.data || response.data;
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
@@ -538,7 +538,7 @@ export const fieldsApi = {
       weatherSource: 'openweather',
     };
 
-    const saveRes = await api.post(`/api/v1/fields/${fieldId}/kpi-snapshot`, payload);
+    const saveRes = await api.post(buildUrl(FIELD_ENDPOINTS.KPI_SNAPSHOT, { fieldId }), payload);
     return saveRes.data.data || saveRes.data;
   },
 };

@@ -35,6 +35,9 @@ async function main() {
   const { ERROR_CODES, ERROR_MESSAGES } = await import(
     resolve(TS_CONTRACTS, "error-codes.ts")
   );
+  const endpointsModule = await import(
+    resolve(TS_CONTRACTS, "api-endpoints.ts")
+  );
   const { CONTRACT_VERSION } = await import(resolve(TS_CONTRACTS, "index.ts"));
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -178,6 +181,69 @@ bool isRetryable(String code) => getErrorMessage(code).retryable;
 `;
 
   // ─────────────────────────────────────────────────────────────────────────
+  // Generate api_endpoints.dart
+  // ─────────────────────────────────────────────────────────────────────────
+
+  // Auto-discover all *_ENDPOINTS exports from the TypeScript module so the
+  // generator stays in sync as new endpoint groups are added (no manual list
+  // to keep aligned). HEALTH_ENDPOINTS first for stability.
+  //
+  // Filter out non-object exports (e.g. PUBLIC_ENDPOINTS which is a string[]
+  // of path literals, not a Record<name, path>) — those would produce invalid
+  // Dart class members with numeric names.
+  const isEndpointRecord = (v: unknown): boolean =>
+    typeof v === "object" &&
+    v !== null &&
+    !Array.isArray(v) &&
+    Object.keys(v as object).every((k) => /^[A-Z_][A-Z0-9_]*$/.test(k));
+
+  const allKeys = Object.keys(endpointsModule).filter(
+    (k) => /^[A-Z][A-Z0-9_]*_ENDPOINTS$/.test(k) && isEndpointRecord(endpointsModule[k]),
+  );
+  const orderedKeys = [
+    "HEALTH_ENDPOINTS",
+    "SERVICE_HEALTH_ENDPOINTS",
+    "AUTH_ENDPOINTS",
+    ...allKeys
+      .filter((k) => !["HEALTH_ENDPOINTS", "SERVICE_HEALTH_ENDPOINTS", "AUTH_ENDPOINTS"].includes(k))
+      .sort(),
+  ].filter((k, i, a) => a.indexOf(k) === i && k in endpointsModule);
+
+  const ENDPOINT_GROUPS = orderedKeys.map((tsName) => {
+    // CROP_HEALTH_ENDPOINTS → CropHealthEndpoints
+    // VIRTUAL_SENSOR_ENDPOINTS → VirtualSensorEndpoints
+    const dartClass =
+      tsName
+        .replace(/_ENDPOINTS$/, "")
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+        .join("") + "Endpoints";
+    const label = tsName.replace(/_ENDPOINTS$/, "").toLowerCase().replace(/_/g, " ");
+    return { tsName, dartClass, label };
+  });
+
+  const endpointsClassBlocks: string[] = [];
+  for (const { tsName, dartClass, label } of ENDPOINT_GROUPS) {
+    const obj = endpointsModule[tsName] as Record<string, string> | undefined;
+    if (!obj) continue;
+    endpointsClassBlocks.push(renderDartEndpointClass(label, dartClass, obj));
+  }
+
+  const apiEndpointsDart = `/// SAHOOL Unified API Endpoint Paths (auto-generated)
+/// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
+/// Run: npx tsx scripts/sync-contracts-to-dart.ts
+///
+/// Contract version: ${CONTRACT_VERSION}
+library;
+
+/// API version prefix
+const String apiVersion = 'v1';
+const String apiPrefix = '/api/\$apiVersion';
+
+${endpointsClassBlocks.join("\n\n")}
+`;
+
+  // ─────────────────────────────────────────────────────────────────────────
   // Write or Check
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -191,6 +257,11 @@ bool isRetryable(String code) => getErrorMessage(code).retryable;
       path: resolve(DART_CONTRACTS, "error_codes.dart"),
       content: errorCodesDart,
       name: "error_codes.dart",
+    },
+    {
+      path: resolve(DART_CONTRACTS, "api_endpoints.dart"),
+      content: apiEndpointsDart,
+      name: "api_endpoints.dart",
     },
   ];
 
@@ -236,7 +307,6 @@ bool isRetryable(String code) => getErrorMessage(code).retryable;
     console.log(
       `\n✅ Dart contracts generated (version ${CONTRACT_VERSION}).`,
     );
-    console.log("   Remember to also update api_endpoints.dart manually if endpoints changed.");
   }
 }
 
@@ -248,6 +318,72 @@ function toCamelCase(screaming: string): string {
   return screaming
     .toLowerCase()
     .replace(/_([a-z0-9])/g, (_, c: string) => c.toUpperCase());
+}
+
+/**
+ * Convert a {paramName} template placeholder to Dart string interpolation.
+ * - If no placeholders: emit `static const String name = 'path';`
+ * - If placeholders: emit `static String name(String p1, String p2) => 'path/$p1/$p2';`
+ */
+// Dart reserved words / built-in identifiers that cannot safely be used
+// as static member names. Escape by suffixing the class context.
+const DART_RESERVED_MEMBER_NAMES = new Set([
+  "assert", "break", "case", "catch", "class", "const", "continue", "default",
+  "do", "else", "enum", "extends", "false", "final", "finally", "for", "if",
+  "in", "is", "new", "null", "rethrow", "return", "super", "switch", "this",
+  "throw", "true", "try", "var", "void", "while", "with",
+  // Context-sensitive / built-in identifiers that are problematic as method names
+  "get", "set", "yield", "async", "await", "sync", "operator", "abstract",
+  "dynamic", "export", "extension", "external", "factory", "implements",
+  "import", "interface", "library", "mixin", "of", "on", "part", "show",
+  "static", "typedef", "hide", "as",
+]);
+
+function safeDartMember(name: string, classSuffix: string): string {
+  if (DART_RESERVED_MEMBER_NAMES.has(name)) {
+    return `${name}${classSuffix}`;
+  }
+  return name;
+}
+
+function renderDartEndpointClass(
+  label: string,
+  dartClass: string,
+  entries: Record<string, string>,
+): string {
+  // Derive a suffix from the class name to disambiguate reserved words
+  const suffix = dartClass.replace(/Endpoints$/, "");
+  const lines: string[] = [];
+  for (const [rawKey, template] of Object.entries(entries)) {
+    // Skip empty / non-string values defensively
+    if (typeof template !== "string") continue;
+    const dartName = safeDartMember(toCamelCase(rawKey), suffix);
+    const params = [...template.matchAll(/\{([a-zA-Z][a-zA-Z0-9]*)\}/g)].map(
+      (m) => m[1],
+    );
+    // Replace /api/v1 with $apiPrefix for consistency with existing convention.
+    const pathExpr = template.replace(/^\/api\/v1/, "\\$apiPrefix");
+
+    if (params.length === 0) {
+      // Plain constant
+      lines.push(`  static const String ${dartName} = '${pathExpr}';`);
+    } else {
+      // Function with required params → interpolation
+      const uniqueParams = Array.from(new Set(params));
+      const paramSig = uniqueParams.map((p) => `String ${p}`).join(", ");
+      let interpolated = pathExpr;
+      for (const p of uniqueParams) {
+        interpolated = interpolated.split(`{${p}}`).join(`\$${p}`);
+      }
+      lines.push(
+        `  static String ${dartName}(${paramSig}) => '${interpolated}';`,
+      );
+    }
+  }
+  return `/// ${label}
+abstract final class ${dartClass} {
+${lines.join("\n")}
+}`;
 }
 
 main().catch((err) => {

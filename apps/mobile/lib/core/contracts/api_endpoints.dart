@@ -1,952 +1,1063 @@
-/// SAHOOL Unified API Endpoint Paths (Dart)
-/// مسارات نقاط النهاية الموحدة
+/// SAHOOL Unified API Endpoint Paths (auto-generated)
+/// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
+/// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// SOURCE OF TRUTH: packages/shared-types/src/contracts/api-endpoints.ts
-/// This file is MANUALLY maintained — the current `sync-contracts-to-dart.ts`
-/// generator only auto-emits service_ports.dart and error_codes.dart. When
-/// you add, remove, or rename endpoints / OTP purposes / OTP channels in the
-/// TS source of truth, mirror the change here AND in the vendored copy at
-/// `apps/mobile/sahool_field_app/lib/core/contracts/api_endpoints.dart`.
-///
-/// Used by: Mobile app (Flutter/Dart)
-///
-/// @version 16.0.0
+/// Contract version: 4.18.0
 library;
 
 /// API version prefix
 const String apiVersion = 'v1';
 const String apiPrefix = '/api/$apiVersion';
 
-/// Health & Infrastructure
+/// health
 abstract final class HealthEndpoints {
   static const String liveness = '/healthz';
   static const String readiness = '/readyz';
   static const String health = '/health';
+  static const String metrics = '/metrics';
 }
 
-/// Auth - المصادقة
+/// service health
+abstract final class ServiceHealthEndpoints {
+  static const String fieldManagement = '\$apiPrefix/fields/healthz';
+  static const String weather = '\$apiPrefix/weather/healthz';
+  static const String vegetation = '\$apiPrefix/vegetation/healthz';
+  static const String irrigation = '\$apiPrefix/irrigation/healthz';
+  static const String advisory = '\$apiPrefix/advisory/healthz';
+  static const String tasks = '\$apiPrefix/tasks/healthz';
+  static const String notifications = '\$apiPrefix/notifications/healthz';
+  static const String alerts = '\$apiPrefix/alerts/healthz';
+  static const String cropHealth = '\$apiPrefix/crop-health/healthz';
+  static const String satellite = '\$apiPrefix/satellite/healthz';
+  static const String equipment = '\$apiPrefix/equipment/healthz';
+  static const String iot = '\$apiPrefix/iot/healthz';
+  static const String marketplace = '\$apiPrefix/marketplace/healthz';
+  static const String billing = '\$apiPrefix/billing/healthz';
+  static const String chat = '\$apiPrefix/chat/healthz';
+  static const String yieldServiceHealth = '\$apiPrefix/yield/healthz';
+  static const String disasters = '\$apiPrefix/disasters/healthz';
+  static const String providers = '\$apiPrefix/providers/healthz';
+  static const String agroRules = '\$apiPrefix/agro-rules/healthz';
+  static const String intelligence = '\$apiPrefix/intelligence/healthz';
+}
+
+/// auth
 abstract final class AuthEndpoints {
-  static const String login = '$apiPrefix/auth/login';
-  static const String logout = '$apiPrefix/auth/logout';
-  static const String refresh = '$apiPrefix/auth/refresh';
-  static const String me = '$apiPrefix/auth/me';
-  static const String register = '$apiPrefix/auth/register';
-  static const String forgotPassword = '$apiPrefix/auth/forgot-password';
-  static const String resetPassword = '$apiPrefix/auth/reset-password';
-  static const String verifyOtp = '$apiPrefix/auth/verify-otp';
-  static const String sendOtp = '$apiPrefix/auth/send-otp';
-  static const String resendOtp = '$apiPrefix/auth/resend-otp';
-  static const String activity = '$apiPrefix/auth/activity';
+  static const String login = '\$apiPrefix/auth/login';
+  static const String logout = '\$apiPrefix/auth/logout';
+  static const String refresh = '\$apiPrefix/auth/refresh';
+  static const String me = '\$apiPrefix/auth/me';
+  static const String register = '\$apiPrefix/auth/register';
+  static const String forgotPassword = '\$apiPrefix/auth/forgot-password';
+  static const String resetPassword = '\$apiPrefix/auth/reset-password';
+  static const String verifyOtp = '\$apiPrefix/auth/verify-otp';
+  static const String sendOtp = '\$apiPrefix/auth/send-otp';
+  static const String resendOtp = '\$apiPrefix/auth/resend-otp';
+  static const String activity = '\$apiPrefix/auth/activity';
 }
 
-/// OTP purpose — must match OTP_PURPOSE in shared-types/contracts.
-/// Sent to /auth/send-otp and /auth/verify-otp as the `purpose` field.
-abstract final class OtpPurpose {
-  static const String passwordReset = 'password_reset';
-  static const String verifyPhone = 'verify_phone';
-  static const String login = 'login';
-}
-
-/// OTP delivery channel — must match OTP_CHANNEL in shared-types/contracts.
-abstract final class OtpChannel {
-  static const String sms = 'sms';
-  static const String whatsapp = 'whatsapp';
-  static const String telegram = 'telegram';
-  static const String email = 'email';
-}
-
-/// Field Management - إدارة الحقول
-abstract final class FieldEndpoints {
-  static const String list = '$apiPrefix/fields';
-  static const String create = '$apiPrefix/fields';
-  static String get(String fieldId) => '$apiPrefix/fields/$fieldId';
-  static String update(String fieldId) => '$apiPrefix/fields/$fieldId';
-  static String delete(String fieldId) => '$apiPrefix/fields/$fieldId';
-  static const String nearby = '$apiPrefix/fields/nearby';
-  static const String sync = '$apiPrefix/fields/sync';
-  static const String syncBatch = '$apiPrefix/fields/sync/batch';
-
-  /// @since 4.15.0
-  static String boundary(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/boundary';
-}
-
-/// Weather - الطقس
-abstract final class WeatherEndpoints {
-  static const String current = '$apiPrefix/weather/current';
-  static String currentByLocation(String locationId) =>
-      '$apiPrefix/weather/current/$locationId';
-  static const String forecast = '$apiPrefix/weather/forecast';
-  static String forecastByLocation(String locationId) =>
-      '$apiPrefix/weather/forecast/$locationId';
-  static String forecastByField(String fieldId) =>
-      '$apiPrefix/weather/forecast/field/$fieldId';
-  static const String alerts = '$apiPrefix/weather/alerts';
-  static String alertsByField(String fieldId) =>
-      '$apiPrefix/weather/alerts/field/$fieldId';
-  static const String locations = '$apiPrefix/weather/locations';
-  static const String agriculturalCalendar =
-      '$apiPrefix/weather/agricultural-calendar';
-
-  /// @since 4.7.0 — Generate a signed SVG weather graph URL for a field
-  static String fieldGraphGenerate(String fieldId) =>
-      '$apiPrefix/weather/fields/$fieldId/graph';
-
-  /// @since 4.7.0 — Fetch a previously generated weather graph by signed id
-  static String fieldGraphFetch(String graphId) =>
-      '$apiPrefix/weather/graphs/$graphId';
-}
-
-/// Satellite & NDVI - الأقمار الصناعية
-abstract final class SatelliteEndpoints {
-  static const String analyze = '$apiPrefix/satellite/v1/analyze';
-  static String analyzeField(String fieldId) =>
-      '$apiPrefix/satellite/analyze/$fieldId';
-  static String timeseries(String fieldId) =>
-      '$apiPrefix/satellite/v1/timeseries/$fieldId';
-  static String indices(String fieldId) =>
-      '$apiPrefix/satellite/v1/indices/$fieldId';
-  static const String satellites = '$apiPrefix/satellite/v1/satellites';
-  static String health(String fieldId) =>
-      '$apiPrefix/satellite/health/$fieldId';
-  static String ndviField(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/ndvi';
-  static const String ndviSummary = '$apiPrefix/ndvi/summary';
-}
-
-/// Crop Health - صحة المحاصيل
-abstract final class CropHealthEndpoints {
-  static const String analyze = '$apiPrefix/crop-health/analyze';
-  static const String diagnose = '$apiPrefix/crop-health/diagnose';
-  static const String diagnoseBatch = '$apiPrefix/crop-health/diagnose/batch';
-  static const String crops = '$apiPrefix/crop-health/crops';
-  static const String diseases = '$apiPrefix/crop-health/diseases';
-  static String treatment(String diseaseId) =>
-      '$apiPrefix/crop-health/treatment/$diseaseId';
-  static String history(String fieldId) =>
-      '$apiPrefix/crop-health/fields/$fieldId/history';
-}
-
-/// Irrigation - الري
-abstract final class IrrigationEndpoints {
-  static String recommendation(String fieldId) =>
-      '$apiPrefix/irrigation/fields/$fieldId/recommendation';
-  static const String calculate = '$apiPrefix/irrigation/calculate';
-  static const String et0 = '$apiPrefix/irrigation/et0';
-  static const String schedule = '$apiPrefix/irrigation/schedule';
-  static const String crops = '$apiPrefix/irrigation/crops';
-  static const String methods = '$apiPrefix/irrigation/methods';
-}
-
-/// Advisory & Fertilizer - الاستشارات والتسميد
+/// advisory
 abstract final class AdvisoryEndpoints {
-  static const String recommend = '$apiPrefix/fertilizer/recommend';
-  static const String soilInterpret = '$apiPrefix/fertilizer/soil/interpret';
-  static const String crops = '$apiPrefix/fertilizer/crops';
-  static const String fertilizers = '$apiPrefix/fertilizer/fertilizers';
-  static const String deficiencySymptoms =
-      '$apiPrefix/fertilizer/deficiency/symptoms';
-
-  /// @since 4.7.0 — Jeevn-style unified per-field advisory
-  static String comprehensive(String fieldId) =>
-      '$apiPrefix/advisory/comprehensive/$fieldId';
-
-  /// @since 4.14.0 — Field-scoped advisory actions
-  static String recommendationsByField(String fieldId) =>
-      '$apiPrefix/advisory/recommendations/$fieldId';
-  static String diseaseAssess(String fieldId) =>
-      '$apiPrefix/advisory/disease-assess/$fieldId';
-  static String fertilizerPlan(String fieldId) =>
-      '$apiPrefix/advisory/fertilizer-plan/$fieldId';
-  static String cropAdvice(String fieldId) =>
-      '$apiPrefix/advisory/crop-advice/$fieldId';
+  static const String recommend = '\$apiPrefix/fertilizer/recommend';
+  static const String soilInterpret = '\$apiPrefix/fertilizer/soil/interpret';
+  static const String crops = '\$apiPrefix/fertilizer/crops';
+  static const String fertilizers = '\$apiPrefix/fertilizer/fertilizers';
+  static const String deficiencySymptoms = '\$apiPrefix/fertilizer/deficiency/symptoms';
+  static const String schedule = '\$apiPrefix/fertilizer/schedule';
+  static const String recommendations = '\$apiPrefix/advisory/recommendations';
+  static const String fertilizerAdvisory = '\$apiPrefix/advisory/fertilizer';
+  static const String fertilizerCalculate = '\$apiPrefix/advisory/fertilizer/calculate';
+  static String fertilizerUpdate(String prescriptionId) => '\$apiPrefix/advisory/fertilizer/$prescriptionId';
+  static String fertilizerZoneUpdate(String prescriptionId, String zoneId) => '\$apiPrefix/advisory/fertilizer/$prescriptionId/zones/$zoneId';
+  static const String advice = '\$apiPrefix/advisory/advice';
+  static const String disease = '\$apiPrefix/advisory/disease';
+  static const String nutrients = '\$apiPrefix/advisory/nutrients';
+  static const String agroAdvice = '\$apiPrefix/agro-advisor/advice';
+  static const String agroDisease = '\$apiPrefix/agro-advisor/disease';
+  static const String agroNutrients = '\$apiPrefix/agro-advisor/nutrients';
+  static String comprehensive(String fieldId) => '\$apiPrefix/advisory/comprehensive/$fieldId';
+  static String recommendationsByField(String fieldId) => '\$apiPrefix/advisory/recommendations/$fieldId';
+  static String diseaseAssess(String fieldId) => '\$apiPrefix/advisory/disease-assess/$fieldId';
+  static String fertilizerPlan(String fieldId) => '\$apiPrefix/advisory/fertilizer-plan/$fieldId';
+  static String cropAdvice(String fieldId) => '\$apiPrefix/advisory/crop-advice/$fieldId';
+  static const String sprayWindows = '\$apiPrefix/advisory/spray-windows';
+  static const String sprayHistory = '\$apiPrefix/advisory/spray-history';
 }
 
-/// Pest Management - إدارة الآفات
-/// @since 4.14.0 — separate from CropHealth (diseases only)
-abstract final class PestEndpoints {
-  static const String list = '$apiPrefix/pests';
-  static String byCrop(String cropType) => '$apiPrefix/pests/crop/$cropType';
-  static const String identify = '$apiPrefix/pests/identify';
-  static const String treatmentRecommend = '$apiPrefix/treatments/recommend';
+/// agri calendar
+abstract final class AgriCalendarEndpoints {
+  static const String events = '\$apiPrefix/agri-calendar/events';
+  static const String plantingTimes = '\$apiPrefix/agri-calendar/planting-times';
+  static const String harvestTimes = '\$apiPrefix/agri-calendar/harvest-times';
 }
 
-/// Crop Loan Verification - التحقق من القروض الزراعية
-/// @since 4.7.0 — Satellite-backed crop loan verification for banks / lenders
-abstract final class LoanVerificationEndpoints {
-  static String verify(String fieldId) =>
-      '$apiPrefix/loans/crop-loan-verification/$fieldId';
+/// agro rules
+abstract final class AgroRulesEndpoints {
+  static String fieldRules(String fieldId) => '\$apiPrefix/agro-rules/fields/$fieldId/rules';
+  static const String createRule = '\$apiPrefix/agro-rules/rules';
+  static String triggerRule(String ruleId) => '\$apiPrefix/agro-rules/rules/$ruleId/trigger';
+  static const String gdd = '\$apiPrefix/agro-rules/gdd';
+  static const String sprayWindows = '\$apiPrefix/agro-rules/spray-windows';
 }
 
-/// Tasks - المهام
-abstract final class TaskEndpoints {
-  static const String list = '$apiPrefix/tasks';
-  static const String create = '$apiPrefix/tasks';
-  static String get(String taskId) => '$apiPrefix/tasks/$taskId';
-  static String update(String taskId) => '$apiPrefix/tasks/$taskId';
-  static String delete(String taskId) => '$apiPrefix/tasks/$taskId';
-  static String complete(String taskId) => '$apiPrefix/tasks/$taskId/complete';
-
-  /// @since 4.14.0
-  static String assign(String taskId) => '$apiPrefix/tasks/$taskId/assign';
+/// ai
+abstract final class AiEndpoints {
+  static const String copilotChat = '\$apiPrefix/copilot/chat';
+  static const String copilotChatDirect = '\$apiPrefix/chat';
+  static const String copilotChatStreamDirect = '\$apiPrefix/chat/stream';
+  static const String copilotHistory = '\$apiPrefix/copilot/chat/history';
+  static const String copilotTools = '\$apiPrefix/copilot/tools';
+  static String copilotExecuteTool(String toolName) => '\$apiPrefix/copilot/tools/$toolName/execute';
+  static const String ragDocuments = '\$apiPrefix/copilot/rag/documents';
+  static const String ragSearch = '\$apiPrefix/copilot/rag/search';
+  static const String aiAdvisorQuery = '\$apiPrefix/ai-advisor/query';
+  static const String aiAdvisorChat = '\$apiPrefix/ai-advisor/chat';
+  static const String aiAdvisorDiagnose = '\$apiPrefix/ai-advisor/diagnose';
+  static String aiAdvisorRecommendations(String fieldId) => '\$apiPrefix/ai-advisor/recommendations/$fieldId';
+  static String aiAdvisorAnalyze(String fieldId) => '\$apiPrefix/ai-advisor/analyze/$fieldId';
+  static const String aiAdvisorHistory = '\$apiPrefix/ai-advisor/history';
 }
 
-/// Equipment - المعدات
-abstract final class EquipmentEndpoints {
-  static const String list = '$apiPrefix/equipment';
-  static const String create = '$apiPrefix/equipment';
-  static String get(String equipmentId) => '$apiPrefix/equipment/$equipmentId';
-  static String update(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId';
-  static String maintenance(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/maintenance';
-  static String qrLookup(String qrCode) => '$apiPrefix/equipment/qr/$qrCode';
-  static const String stats = '$apiPrefix/equipment/stats';
-
-  /// @since 4.7.0 — Geofence event ingest (auto-drafts FieldOperation)
-  static const String geofenceEvent = '$apiPrefix/equipment/geofence/event';
-
-  /// @since 4.14.0
-  static const String maintenanceSchedule =
-      '$apiPrefix/equipment/maintenance-schedule';
-  static String maintenanceScheduleById(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/maintenance-schedule';
-  static String issues(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/issues';
-
-  /// @since 4.15.0 — Mobile tracking + telemetry surface
-  static const String alerts = '$apiPrefix/equipment/alerts';
-  static String status(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/status';
-  static String location(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/location';
-  static String telemetry(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/telemetry';
-  static String fuel(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/fuel';
-  static String fuelSummary(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/fuel/summary';
-  static String usage(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/usage';
-  static String usageStart(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/usage/start';
-  static String usageEnd(String equipmentId, String logId) =>
-      '$apiPrefix/equipment/$equipmentId/usage/$logId/end';
-  static String usageSummary(String equipmentId) =>
-      '$apiPrefix/equipment/$equipmentId/usage/summary';
-}
-
-/// Traceability - التتبع
-/// @since 4.7.0 — Blockchain-style anchor endpoints
-abstract final class TraceabilityEndpoints {
-  static const String batches = '$apiPrefix/traceability/batches';
-  static String batchGet(String batchId) =>
-      '$apiPrefix/traceability/batches/$batchId';
-  static String batchEvents(String batchId) =>
-      '$apiPrefix/traceability/batches/$batchId/events';
-  static String qrCode(String batchId) =>
-      '$apiPrefix/traceability/batches/$batchId/qr';
-
-  /// List anchors for a field's chain
-  static String anchorsList(String tenantId, String fieldId) =>
-      '$apiPrefix/traceability/anchors/$tenantId/$fieldId';
-
-  /// Verify the chain integrity for a field
-  static String anchorsVerify(String tenantId, String fieldId) =>
-      '$apiPrefix/traceability/anchors/$tenantId/$fieldId/verify';
-
-  /// Subscriber stats (messages consumed, anchors created)
-  static const String anchorsStats = '$apiPrefix/traceability/anchors/stats';
-}
-
-/// Alerts - التنبيهات
+/// alert
 abstract final class AlertEndpoints {
-  static const String list = '$apiPrefix/alerts';
-  static String get(String alertId) => '$apiPrefix/alerts/$alertId';
-  static String acknowledge(String alertId) =>
-      '$apiPrefix/alerts/$alertId/acknowledge';
-  static String resolve(String alertId) =>
-      '$apiPrefix/alerts/$alertId/resolve';
-  static String dismiss(String alertId) =>
-      '$apiPrefix/alerts/$alertId/dismiss';
-  static const String rules = '$apiPrefix/alerts/rules';
+  static const String list = '\$apiPrefix/alerts';
+  static String getAlert(String alertId) => '\$apiPrefix/alerts/$alertId';
+  static const String create = '\$apiPrefix/alerts';
+  static String delete(String alertId) => '\$apiPrefix/alerts/$alertId';
+  static String acknowledge(String alertId) => '\$apiPrefix/alerts/$alertId/acknowledge';
+  static String resolve(String alertId) => '\$apiPrefix/alerts/$alertId/resolve';
+  static String dismiss(String alertId) => '\$apiPrefix/alerts/$alertId/dismiss';
+  static const String rules = '\$apiPrefix/alerts/rules';
 }
 
-/// Notifications - الإشعارات
-abstract final class NotificationEndpoints {
-  static const String list = '$apiPrefix/notifications';
-  static String markRead(String notificationId) =>
-      '$apiPrefix/notifications/$notificationId/read';
-  static const String markAllRead = '$apiPrefix/notifications/read-all';
-  static const String preferences = '$apiPrefix/notifications/preferences';
-  static const String subscribe = '$apiPrefix/notifications/subscribe';
+/// astronomical
+abstract final class AstronomicalEndpoints {
+  static const String calendar = '\$apiPrefix/astronomy/calendar';
+  static const String prayerTimes = '\$apiPrefix/astronomy/prayer-times';
+  static const String moonPhases = '\$apiPrefix/astronomy/moon-phases';
+  static const String seasons = '\$apiPrefix/astronomy/seasons';
+  static const String events = '\$apiPrefix/astronomy/events';
 }
 
-/// IoT - إنترنت الأشياء
-abstract final class IoTEndpoints {
-  static const String devices = '$apiPrefix/iot/devices';
-  static String deviceGet(String deviceId) =>
-      '$apiPrefix/iot/devices/$deviceId';
-  static String deviceReadings(String deviceId) =>
-      '$apiPrefix/iot/sensors/$deviceId/readings';
-  static String fieldDevices(String fieldId) =>
-      '$apiPrefix/iot/devices/field/$fieldId';
-  static String deviceCommand(String deviceId) =>
-      '$apiPrefix/iot/devices/$deviceId/command';
+/// audit
+abstract final class AuditEndpoints {
+  static const String logs = '\$apiPrefix/audit/logs';
+  static String logGet(String logId) => '\$apiPrefix/audit/logs/$logId';
+  static const String stats = '\$apiPrefix/audit/stats';
+  static const String adminAudit = '\$apiPrefix/admin/audit';
+  static const String adminBatch = '\$apiPrefix/admin/audit/batch';
 }
 
-/// Virtual Sensors - الاستشعار الافتراضي
-abstract final class VirtualSensorEndpoints {
-  static const String et0Calculate =
-      '$apiPrefix/virtual-sensors/et0/calculate';
-  static const String etcCalculate =
-      '$apiPrefix/virtual-sensors/etc/calculate';
-  static const String crops = '$apiPrefix/virtual-sensors/crops';
-  static String cropKc(String cropType) =>
-      '$apiPrefix/virtual-sensors/crops/$cropType/kc';
-  static const String irrigationRecommend =
-      '$apiPrefix/virtual-sensors/irrigation/recommend';
-  static const String irrigationQuickCheck =
-      '$apiPrefix/virtual-sensors/irrigation/quick-check';
-}
-
-/// Marketplace - السوق
-abstract final class MarketplaceEndpoints {
-  static const String listings = '$apiPrefix/marketplace/listings';
-  static const String products = '$apiPrefix/marketplace/products';
-  static String productGet(String productId) =>
-      '$apiPrefix/marketplace/products/$productId';
-  static const String orders = '$apiPrefix/marketplace/orders';
-  static String wallet(String userId) =>
-      '$apiPrefix/marketplace/fintech/wallet/$userId';
-}
-
-/// Billing - الفوترة
+/// billing
 abstract final class BillingEndpoints {
-  static const String subscription = '$apiPrefix/billing/subscription';
-  static const String plans = '$apiPrefix/billing/plans';
-  static const String invoices = '$apiPrefix/billing/invoices';
-  static const String usage = '$apiPrefix/billing/usage';
-  static const String wallet = '$apiPrefix/billing/wallet';
-  static const String transactions = '$apiPrefix/billing/transactions';
-
-  /// @since 4.15.0 — Mobile billing surface (Stripe + wallet + invoices)
-  /// Flat wallet paths used by mobile (billing-core exposes both
-  /// `/billing/deposit` and `/billing/wallet/deposit` in parallel).
-  static const String deposit = '$apiPrefix/billing/deposit';
-  static const String withdraw = '$apiPrefix/billing/withdraw';
-  static const String transfer = '$apiPrefix/billing/transfer';
-  static const String payments = '$apiPrefix/billing/payments';
-  static String invoicePaymentIntent(String invoiceId) =>
-      '$apiPrefix/billing/invoices/$invoiceId/payment-intent';
-  static String tenantSubscription(String tenantId) =>
-      '$apiPrefix/billing/tenants/$tenantId/subscription';
-  static String tenantInvoices(String tenantId) =>
-      '$apiPrefix/billing/tenants/$tenantId/invoices';
-  static String tenantUsage(String tenantId) =>
-      '$apiPrefix/billing/tenants/$tenantId/usage';
-
-  /// Stripe payment / setup intents
-  static const String stripeConfig = '$apiPrefix/billing/stripe/config';
-  static const String stripePaymentIntents =
-      '$apiPrefix/billing/stripe/payment-intents';
-  static String stripePaymentIntentConfirm(String paymentIntentId) =>
-      '$apiPrefix/billing/stripe/payment-intents/$paymentIntentId/confirm';
-  static const String stripeSetupIntents =
-      '$apiPrefix/billing/stripe/setup-intents';
-  static String stripeSetupIntentConfirm(String setupIntentId) =>
-      '$apiPrefix/billing/stripe/setup-intents/$setupIntentId/confirm';
-
-  /// Saved payment methods
-  static const String paymentMethods = '$apiPrefix/billing/payment-methods';
-  static String paymentMethod(String paymentMethodId) =>
-      '$apiPrefix/billing/payment-methods/$paymentMethodId';
-  static String paymentMethodDefault(String paymentMethodId) =>
-      '$apiPrefix/billing/payment-methods/$paymentMethodId/default';
+  static const String subscription = '\$apiPrefix/billing/subscription';
+  static const String subscriptions = '\$apiPrefix/billing/subscriptions';
+  static const String plans = '\$apiPrefix/billing/plans';
+  static const String invoices = '\$apiPrefix/billing/invoices';
+  static String invoiceGet(String invoiceId) => '\$apiPrefix/billing/invoices/$invoiceId';
+  static String invoicePay(String invoiceId) => '\$apiPrefix/billing/invoices/$invoiceId/pay';
+  static const String usage = '\$apiPrefix/billing/usage';
+  static const String wallet = '\$apiPrefix/billing/wallet';
+  static const String walletDeposit = '\$apiPrefix/billing/wallet/deposit';
+  static const String walletWithdraw = '\$apiPrefix/billing/wallet/withdraw';
+  static const String walletTransfer = '\$apiPrefix/billing/wallet/transfer';
+  static const String transactions = '\$apiPrefix/billing/transactions';
+  static String tenantSubscription(String tenantId) => '\$apiPrefix/billing/tenants/$tenantId/subscription';
+  static String tenantInvoices(String tenantId) => '\$apiPrefix/billing/tenants/$tenantId/invoices';
+  static String tenantUsage(String tenantId) => '\$apiPrefix/billing/tenants/$tenantId/usage';
+  static const String deposit = '\$apiPrefix/billing/deposit';
+  static const String withdraw = '\$apiPrefix/billing/withdraw';
+  static const String transfer = '\$apiPrefix/billing/transfer';
+  static const String payments = '\$apiPrefix/billing/payments';
+  static String invoicePaymentIntent(String invoiceId) => '\$apiPrefix/billing/invoices/$invoiceId/payment-intent';
+  static const String stripeConfig = '\$apiPrefix/billing/stripe/config';
+  static const String stripePaymentIntents = '\$apiPrefix/billing/stripe/payment-intents';
+  static String stripePaymentIntentConfirm(String paymentIntentId) => '\$apiPrefix/billing/stripe/payment-intents/$paymentIntentId/confirm';
+  static const String stripeSetupIntents = '\$apiPrefix/billing/stripe/setup-intents';
+  static String stripeSetupIntentConfirm(String setupIntentId) => '\$apiPrefix/billing/stripe/setup-intents/$setupIntentId/confirm';
+  static const String paymentMethods = '\$apiPrefix/billing/payment-methods';
+  static String paymentMethodGet(String paymentMethodId) => '\$apiPrefix/billing/payment-methods/$paymentMethodId';
+  static String paymentMethodDefault(String paymentMethodId) => '\$apiPrefix/billing/payment-methods/$paymentMethodId/default';
 }
 
-/// Chat & Community - الدردشة والمجتمع
-abstract final class ChatEndpoints {
-  static const String conversations = '$apiPrefix/chat/conversations';
-  static String conversationGet(String conversationId) =>
-      '$apiPrefix/chat/conversations/$conversationId';
-  static String messages(String conversationId) =>
-      '$apiPrefix/chat/conversations/$conversationId/messages';
-  static String markRead(String conversationId) =>
-      '$apiPrefix/chat/conversations/$conversationId/read';
-  static const String unreadCount =
-      '$apiPrefix/chat/conversations/unread-count';
-  static String fieldMessages(String fieldId) =>
-      '$apiPrefix/chat/fields/$fieldId/messages';
-
-  /// @since 4.15.0 — Moderation actions
-  static String mute(String conversationId) =>
-      '$apiPrefix/chat/conversations/$conversationId/mute';
-  static String report(String conversationId) =>
-      '$apiPrefix/chat/conversations/$conversationId/report';
-  static String clearMessages(String conversationId) =>
-      '$apiPrefix/chat/conversations/$conversationId/messages';
-}
-
-/// Users - المستخدمون
-/// @since 4.15.0
-abstract final class UserEndpoints {
-  static const String list = '$apiPrefix/users';
-  static String get(String userId) => '$apiPrefix/users/$userId';
-  static String update(String userId) => '$apiPrefix/users/$userId';
-  static String block(String userId) => '$apiPrefix/users/$userId/block';
-}
-
-/// AI Advisor - المستشار الذكي
-abstract final class AiAdvisorEndpoints {
-  static const String query = '$apiPrefix/ai-advisor/query';
-  static const String chat = '$apiPrefix/ai-advisor/chat';
-  static const String diagnose = '$apiPrefix/ai-advisor/diagnose';
-  static String recommendations(String fieldId) =>
-      '$apiPrefix/ai-advisor/recommendations/$fieldId';
-  static String analyze(String fieldId) =>
-      '$apiPrefix/ai-advisor/analyze/$fieldId';
-  static const String history = '$apiPrefix/ai-advisor/history';
-}
-
-/// Vision - الرؤية الحاسوبية
-abstract final class VisionEndpoints {
-  static const String detectPest = '$apiPrefix/vision/detect/pest';
-  static const String detectDisease = '$apiPrefix/vision/detect/disease';
-  static const String detectWeed = '$apiPrefix/vision/detect/weed';
-  static const String countPlants = '$apiPrefix/vision/count/plants';
-  static const String classifyRipeness = '$apiPrefix/vision/classify/ripeness';
-  static const String modelsList = '$apiPrefix/vision/models/versions';
-}
-
-/// Indicators - المؤشرات
-abstract final class IndicatorEndpoints {
-  static const String dashboard = '$apiPrefix/indicators/dashboard';
-  static String field(String fieldId) =>
-      '$apiPrefix/indicators/field/$fieldId';
-  static const String trends = '$apiPrefix/indicators/trends';
-}
-
-/// Crop Seasons - مواسم المحاصيل
-///
-/// First-class archive of per-field crop rotations (replaces the legacy
-/// `field.metadata.cropHistory[]` JSON shim). Served by
-/// field-management-service.
-abstract final class CropSeasonEndpoints {
-  static const String list = '$apiPrefix/crop-seasons';
-  static String get(String cropSeasonId) =>
-      '$apiPrefix/crop-seasons/$cropSeasonId';
-  static String update(String cropSeasonId) =>
-      '$apiPrefix/crop-seasons/$cropSeasonId';
-  static String end(String cropSeasonId) =>
-      '$apiPrefix/crop-seasons/$cropSeasonId/end';
-  static String delete(String cropSeasonId) =>
-      '$apiPrefix/crop-seasons/$cropSeasonId';
-  static String listByField(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/crop-seasons';
-  static String create(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/crop-seasons';
-  static String rollup(String cropSeasonId) =>
-      '$apiPrefix/crop-seasons/$cropSeasonId/rollup';
-}
-
-/// Field Operations - عمليات الحقل
-///
-/// Per-field operation log (plowing, land preparation, fertilization,
-/// spraying, irrigation, harvesting, ...). Each row optionally links
-/// to a CropSeason and an Equipment record for per-season and per-
-/// equipment cost rollups.
-abstract final class FieldOperationEndpoints {
-  static const String list = '$apiPrefix/field-operations';
-  static String get(String operationId) =>
-      '$apiPrefix/field-operations/$operationId';
-  static String update(String operationId) =>
-      '$apiPrefix/field-operations/$operationId';
-  static String delete(String operationId) =>
-      '$apiPrefix/field-operations/$operationId';
-  static String listByField(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/operations';
-  static String create(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/operations';
-  static String approve(String operationId) =>
-      '$apiPrefix/field-operations/$operationId/approve';
-  static String reject(String operationId) =>
-      '$apiPrefix/field-operations/$operationId/reject';
-}
-
-/// ERP Sync - تكامل نظام المحاسبة
-///
-/// Routes for posting field operations to external accounting systems
-/// (QuickBooks, SAP, Odoo, Xero, Oracle NetSuite, ...) via the
-/// pluggable IErpAdapter interface in field-management-service.
-abstract final class ErpSyncEndpoints {
-  static String postFieldOperation(String operationId) =>
-      '$apiPrefix/erp-sync/field-operations/$operationId/post';
-  static const String health = '$apiPrefix/erp-sync/health';
-}
-
-/// Field Sub-Zones - المناطق الفرعية للحقل
-///
-/// Multi-polygon sub-zones within a single Field record. Critical for
-/// terraced Yemeni farms where one "field" is actually many small
-/// terraces with different elevation, slope, aspect, and crop
-/// performance.
-abstract final class FieldSubZoneEndpoints {
-  static String listByField(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/sub-zones';
-  static String create(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/sub-zones';
-  static String get(String subZoneId) =>
-      '$apiPrefix/field-sub-zones/$subZoneId';
-  static String update(String subZoneId) =>
-      '$apiPrefix/field-sub-zones/$subZoneId';
-  static String delete(String subZoneId) =>
-      '$apiPrefix/field-sub-zones/$subZoneId';
-}
-
-/// Field Reports - تقارير الحقل
-///
-/// Async HTML/PDF report generation, Arabic RTL first. Caller POSTs a
-/// request and polls for status until 'ready', then fetches the content
-/// via the signed URL or the /content endpoint.
-abstract final class FieldReportEndpoints {
-  static String create(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/reports';
-  static String listByField(String fieldId) =>
-      '$apiPrefix/fields/$fieldId/reports';
-  static String get(String reportId) =>
-      '$apiPrefix/field-reports/$reportId';
-  static String getContent(String reportId) =>
-      '$apiPrefix/field-reports/$reportId/content';
-}
-
-/// Carbon Footprint - البصمة الكربونية (IPCC Tier 1)
-///
-/// Served by carbon-service (port 8195). Aggregates per-operation CO2e
-/// into per-field and per-season dashboards. See Python engine at
-/// apps/services/carbon-service/src/engine/ipcc_tier1.py for the
-/// factor table.
+/// carbon
 abstract final class CarbonEndpoints {
-  static const String compute = '$apiPrefix/carbon/compute';
-  static String computeOperation(String operationId) =>
-      '$apiPrefix/carbon/operations/$operationId/compute';
-  static String fieldSummary(String fieldId) =>
-      '$apiPrefix/carbon/fields/$fieldId/summary';
-  static String cropSeasonSummary(String cropSeasonId) =>
-      '$apiPrefix/carbon/crop-seasons/$cropSeasonId/summary';
+  static const String compute = '\$apiPrefix/carbon/compute';
+  static String computeOperation(String operationId) => '\$apiPrefix/carbon/operations/$operationId/compute';
+  static String fieldSummary(String fieldId) => '\$apiPrefix/carbon/fields/$fieldId/summary';
+  static String cropSeasonSummary(String cropSeasonId) => '\$apiPrefix/carbon/crop-seasons/$cropSeasonId/summary';
 }
 
-/// Terrain — التضاريس
-/// Served by terrain-core-service (port 8185).
-///
-/// @since 4.8.0 — RUSLE erosion assessment replaces the Phase-1
-/// hardcoded `erosion_risk` stub with a proper multi-factor model.
-/// @since 4.9.0 — RWEQ wind erosion + combined + Yemen presets
-/// for plains (Tihama, Marib, Al-Jawf, Hadramawt) where wind is the
-/// dominant degradation driver.
-abstract final class TerrainEndpoints {
-  /// Full terrain analysis (slope + aspect + flow + TWI + contours)
-  static const String analyze = '$apiPrefix/terrain/analyze';
-
-  /// RUSLE water-erosion assessment (A = R × K × LS × C × P)
-  static const String erosion = '$apiPrefix/terrain/erosion';
-
-  /// RWEQ wind-erosion assessment (for Yemen plains:
-  /// Tihama, Marib, Al-Jawf, Hadramawt)
-  /// @since 4.9.0
-  static const String erosionWind = '$apiPrefix/terrain/erosion/wind';
-
-  /// Combined water + wind erosion; returns whichever process dominates
-  /// @since 4.9.0
-  static const String erosionCombined = '$apiPrefix/terrain/erosion/combined';
-
-  /// Yemen region preset shortcut (fewest inputs, auto-fills
-  /// climate + soil defaults from region profile)
-  /// @since 4.9.0
-  static const String erosionYemen = '$apiPrefix/terrain/erosion/yemen';
-
-  /// @since 4.14.0 — Field-scoped variants surfaced by the web proxy
-  static String demField(String fieldId) =>
-      '$apiPrefix/terrain/dem/$fieldId';
-  static String slopeField(String fieldId) =>
-      '$apiPrefix/terrain/slope/$fieldId';
-  static String twi(String fieldId) => '$apiPrefix/terrain/twi/$fieldId';
-  static String contours(String fieldId) =>
-      '$apiPrefix/terrain/contours/$fieldId';
+/// chat
+abstract final class ChatEndpoints {
+  static const String conversations = '\$apiPrefix/chat/conversations';
+  static String conversationGet(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId';
+  static String messages(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/messages';
+  static String sendMessage(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/messages';
+  static String markRead(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/read';
+  static const String createConversation = '\$apiPrefix/chat/conversations';
+  static const String unreadCount = '\$apiPrefix/chat/conversations/unread-count';
+  static String fieldMessages(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/messages';
+  static String fieldSend(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/messages';
+  static String fieldParticipants(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/participants';
+  static String fieldMessagesV2(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/messages';
+  static String fieldSendV2(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/messages';
+  static String fieldParticipantsV2(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/participants';
+  static const String communityPosts = '\$apiPrefix/posts';
+  static String communityPostGet(String postId) => '\$apiPrefix/posts/$postId';
+  static String communityComments(String postId) => '\$apiPrefix/posts/$postId/comments';
+  static String mute(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/mute';
+  static String report(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/report';
+  static String clearMessages(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/messages';
 }
 
-/// Soil Analysis - تحليل التربة
-/// @since 4.14.0
-abstract final class SoilEndpoints {
-  static const String tests = '$apiPrefix/soil/tests';
-  static String testGet(String testId) => '$apiPrefix/soil/tests/$testId';
-  static String testsByField(String fieldId) =>
-      '$apiPrefix/soil/tests/field/$fieldId';
-  static const String products = '$apiPrefix/soil/products';
-  static String cropRequirements(String crop) =>
-      '$apiPrefix/soil/crops/$crop/requirements';
-  static const String interpret = '$apiPrefix/soil/interpret';
-  static const String amendmentPlan =
-      '$apiPrefix/soil/recommendations/amendment-plan';
-  static const String phStatus = '$apiPrefix/soil/interpretation/ph-status';
-  static const String ecStatus = '$apiPrefix/soil/interpretation/ec-status';
-  static const String recommendations = '$apiPrefix/soil/recommendations';
+/// community
+abstract final class CommunityEndpoints {
+  static const String posts = '\$apiPrefix/community/posts';
+  static String postGet(String postId) => '\$apiPrefix/community/posts/$postId';
+  static const String postCreate = '\$apiPrefix/community/posts';
+  static String postUpdate(String postId) => '\$apiPrefix/community/posts/$postId';
+  static String postDelete(String postId) => '\$apiPrefix/community/posts/$postId';
+  static String postLike(String postId) => '\$apiPrefix/community/posts/$postId/like';
+  static String postSave(String postId) => '\$apiPrefix/community/posts/$postId/save';
+  static String postShare(String postId) => '\$apiPrefix/community/posts/$postId/share';
+  static String postComments(String postId) => '\$apiPrefix/community/posts/$postId/comments';
+  static const String trending = '\$apiPrefix/community/posts/trending';
+  static const String saved = '\$apiPrefix/community/posts/saved';
+  static const String myPosts = '\$apiPrefix/community/posts/my-posts';
+  static const String groups = '\$apiPrefix/community/groups';
+  static String groupGet(String groupId) => '\$apiPrefix/community/groups/$groupId';
+  static String groupJoin(String groupId) => '\$apiPrefix/community/groups/$groupId/join';
+  static String groupLeave(String groupId) => '\$apiPrefix/community/groups/$groupId/leave';
+  static String groupMembers(String groupId) => '\$apiPrefix/community/groups/$groupId/members';
+  static String groupMessages(String groupId) => '\$apiPrefix/community/groups/$groupId/messages';
+  static const String myGroups = '\$apiPrefix/community/groups/my-groups';
+  static const String experts = '\$apiPrefix/community/experts';
+  static const String expertQuestions = '\$apiPrefix/community/expert-questions';
+  static String expertRate(String questionId) => '\$apiPrefix/community/expert-questions/$questionId/rate';
 }
 
-/// Public endpoints (no auth required)
-const List<String> publicEndpoints = [
-  AuthEndpoints.login,
-  AuthEndpoints.register,
-  AuthEndpoints.forgotPassword,
-  AuthEndpoints.resetPassword,
-  AuthEndpoints.verifyOtp,
-  AuthEndpoints.sendOtp,
-  HealthEndpoints.liveness,
-  HealthEndpoints.readiness,
-  HealthEndpoints.health,
-];
-
-// ===========================================================================
-// Wave 0: FieldView-Inspired Partner & Upload Contracts (@since 4.10.0)
-// إضافات الموجة 0 — بنية شركاء مُستلهَمة من FieldView v4.0.11
-// ===========================================================================
-
-/// @since 4.10.0 — Chunked resumable upload API
-abstract final class UploadEndpoints {
-  static const String create = '$apiPrefix/uploads';
-  static String chunk(String uploadId) => '$apiPrefix/uploads/$uploadId';
-  static String status(String uploadId) => '$apiPrefix/uploads/$uploadId/status';
-  static const String batchStatus = '$apiPrefix/uploads/status/query';
-  static String cancel(String uploadId) => '$apiPrefix/uploads/$uploadId';
+/// compliance
+abstract final class ComplianceEndpoints {
+  static const String checklists = '\$apiPrefix/compliance/checklists';
+  static String checklistGet(String checklistId) => '\$apiPrefix/compliance/checklists/$checklistId';
+  static const String audits = '\$apiPrefix/compliance/audits';
+  static const String certificates = '\$apiPrefix/compliance/certificates';
+  static const String standards = '\$apiPrefix/compliance/standards';
 }
 
-/// @since 4.10.0 — Numeric limits on the upload surface
-abstract final class UploadLimits {
-  static const int maxBytes = 524288000; // 500 MiB
-  static const int chunkBytes = 5242880; // 5 MiB
-  static const int photoMaxBytes = 20971520; // 20 MiB
-  static const int batchStatusMaxIds = 100;
+/// cooperative
+abstract final class CooperativeEndpoints {
+  static const String bookings = '\$apiPrefix/cooperatives/bookings';
+  static const String purchaseOrders = '\$apiPrefix/cooperatives/purchase-orders';
+  static const String revenue = '\$apiPrefix/cooperatives/revenue';
+  static const String revenueCalculate = '\$apiPrefix/cooperatives/revenue/calculate';
 }
 
-/// @since 4.10.0 — Async export jobs
+/// crop
+abstract final class CropEndpoints {
+  static const String list = '\$apiPrefix/crops';
+  static String getCrop(String cropId) => '\$apiPrefix/crops/$cropId';
+  static const String create = '\$apiPrefix/crops';
+  static String update(String cropId) => '\$apiPrefix/crops/$cropId';
+  static String delete(String cropId) => '\$apiPrefix/crops/$cropId';
+  static const String stats = '\$apiPrefix/crops/stats';
+}
+
+/// crop health
+abstract final class CropHealthEndpoints {
+  static const String analyze = '\$apiPrefix/crop-health/analyze';
+  static const String diagnose = '\$apiPrefix/crop-health/diagnose';
+  static const String diagnoseBatch = '\$apiPrefix/crop-health/diagnose/batch';
+  static const String decision = '\$apiPrefix/crop-health/decision';
+  static String history(String fieldId) => '\$apiPrefix/crop-health/fields/$fieldId/history';
+  static const String intelligenceAnalyze = '\$apiPrefix/crop-intelligence/analyze';
+  static const String intelligenceDecision = '\$apiPrefix/crop-intelligence/decision';
+  static String intelligenceHistory(String fieldId) => '\$apiPrefix/crop-intelligence/fields/$fieldId/history';
+  static const String crops = '\$apiPrefix/crop-health/crops';
+  static const String diseases = '\$apiPrefix/crop-health/diseases';
+  static String treatment(String diseaseId) => '\$apiPrefix/crop-health/treatment/$diseaseId';
+  static const String expertReview = '\$apiPrefix/crop-health/expert-review';
+  static const String diagnosesList = '\$apiPrefix/crop-health/diagnoses';
+  static const String diagnosesStats = '\$apiPrefix/crop-health/diagnoses/stats';
+  static String diagnosesUpdate(String diagnosisId) => '\$apiPrefix/crop-health/diagnoses/$diagnosisId';
+}
+
+/// crop planning
+abstract final class CropPlanningEndpoints {
+  static const String plans = '\$apiPrefix/crop-planning/plans';
+  static String planById(String planId) => '\$apiPrefix/crop-planning/plans/$planId';
+  static const String recommendations = '\$apiPrefix/crop-planning/recommendations';
+}
+
+/// crop rotation
+abstract final class CropRotationEndpoints {
+  static const String plans = '\$apiPrefix/crop-rotation/plans';
+  static const String recommend = '\$apiPrefix/crop-rotation/recommend';
+  static const String multiYearPlan = '\$apiPrefix/crop-rotation/multi-year-plan';
+  static String history(String fieldId) => '\$apiPrefix/crop-rotation/history/$fieldId';
+  static const String pestBreak = '\$apiPrefix/crop-rotation/pest-break';
+  static const String soilHealth = '\$apiPrefix/crop-rotation/soil-health';
+  static const String stats = '\$apiPrefix/crop-rotation/stats';
+}
+
+/// crop season
+abstract final class CropSeasonEndpoints {
+  static const String list = '\$apiPrefix/crop-seasons';
+  static String getCropSeason(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId';
+  static String update(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId';
+  static String end(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId/end';
+  static String delete(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId';
+  static String listByField(String fieldId) => '\$apiPrefix/fields/$fieldId/crop-seasons';
+  static String create(String fieldId) => '\$apiPrefix/fields/$fieldId/crop-seasons';
+  static String rollup(String cropSeasonId) => '\$apiPrefix/crop-seasons/$cropSeasonId/rollup';
+}
+
+/// dashboard
+abstract final class DashboardEndpoints {
+  static const String summary = '\$apiPrefix/dashboard/summary';
+  static const String stats = '\$apiPrefix/dashboard/stats';
+  static const String recentActivity = '\$apiPrefix/dashboard/recent-activity';
+  static const String weatherWidget = '\$apiPrefix/dashboard/weather';
+  static const String alertsWidget = '\$apiPrefix/dashboard/alerts';
+}
+
+/// disaster
+abstract final class DisasterEndpoints {
+  static const String assess = '\$apiPrefix/disasters/assess';
+  static const String alerts = '\$apiPrefix/disasters/alerts';
+  static const String assessSingular = '\$apiPrefix/disaster/assess';
+  static const String alertsSingular = '\$apiPrefix/disaster/alerts';
+  static const String events = '\$apiPrefix/disasters/events';
+  static String eventById(String eventId) => '\$apiPrefix/disasters/events/$eventId';
+  static const String stats = '\$apiPrefix/disasters/stats/summary';
+  static const String risks = '\$apiPrefix/disasters/risks';
+}
+
+/// document
+abstract final class DocumentEndpoints {
+  static const String list = '\$apiPrefix/documents';
+  static String getDocument(String documentId) => '\$apiPrefix/documents/$documentId';
+  static const String upload = '\$apiPrefix/documents/upload';
+  static String delete(String documentId) => '\$apiPrefix/documents/$documentId';
+  static const String categories = '\$apiPrefix/documents/categories';
+}
+
+/// drone
+abstract final class DroneEndpoints {
+  static const String flights = '\$apiPrefix/drone/flights';
+  static String flightGet(String flightId) => '\$apiPrefix/drone/flights/$flightId';
+  static const String flightCreate = '\$apiPrefix/drone/flights';
+  static String flightUpdate(String flightId) => '\$apiPrefix/drone/flights/$flightId';
+  static String flightDelete(String flightId) => '\$apiPrefix/drone/flights/$flightId';
+  static const String flightPlan = '\$apiPrefix/drone/flights/plan';
+  static String flightStart(String flightId) => '\$apiPrefix/drone/flights/$flightId/start';
+  static String flightPause(String flightId) => '\$apiPrefix/drone/flights/$flightId/pause';
+  static String flightResume(String flightId) => '\$apiPrefix/drone/flights/$flightId/resume';
+  static String flightAbort(String flightId) => '\$apiPrefix/drone/flights/$flightId/abort';
+  static String flightMissions(String flightId) => '\$apiPrefix/drone/flights/$flightId/missions';
+  static String flightTelemetry(String flightId) => '\$apiPrefix/drone/flights/$flightId/telemetry';
+  static const String devices = '\$apiPrefix/drone/devices';
+  static String deviceGet(String deviceId) => '\$apiPrefix/drone/devices/$deviceId';
+  static const String deviceRegister = '\$apiPrefix/drone/devices';
+  static String deviceStatus(String deviceId) => '\$apiPrefix/drone/devices/$deviceId/status';
+  static const String vraApply = '\$apiPrefix/drone/vra/apply';
+}
+
+/// edge
+abstract final class EdgeEndpoints {
+  static const String devices = '\$apiPrefix/edge/devices';
+  static String deviceGet(String deviceId) => '\$apiPrefix/edge/devices/$deviceId';
+  static const String deviceCreate = '\$apiPrefix/edge/devices';
+  static String deviceUpdate(String deviceId) => '\$apiPrefix/edge/devices/$deviceId';
+  static String deviceDelete(String deviceId) => '\$apiPrefix/edge/devices/$deviceId';
+  static String deviceStatus(String deviceId) => '\$apiPrefix/edge/devices/$deviceId/status';
+  static const String deployModel = '\$apiPrefix/edge/deploy';
+  static String deployStatus(String deploymentId) => '\$apiPrefix/edge/deploy/$deploymentId/status';
+  static const String syncEdge = '\$apiPrefix/edge/sync';
+  static String syncStatus(String syncId) => '\$apiPrefix/edge/sync/$syncId/status';
+  static String metrics(String deviceId) => '\$apiPrefix/edge/devices/$deviceId/metrics';
+}
+
+/// epidemic
+abstract final class EpidemicEndpoints {
+  static const String list = '\$apiPrefix/epidemics';
+  static String getEpidemic(String epidemicId) => '\$apiPrefix/epidemics/$epidemicId';
+  static const String report = '\$apiPrefix/epidemics/report';
+}
+
+/// equipment
+abstract final class EquipmentEndpoints {
+  static const String list = '\$apiPrefix/equipment';
+  static String getEquipment(String equipmentId) => '\$apiPrefix/equipment/$equipmentId';
+  static const String create = '\$apiPrefix/equipment';
+  static String update(String equipmentId) => '\$apiPrefix/equipment/$equipmentId';
+  static String delete(String equipmentId) => '\$apiPrefix/equipment/$equipmentId';
+  static String status(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/status';
+  static String maintenance(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/maintenance';
+  static String qrLookup(String qrCode) => '\$apiPrefix/equipment/qr/$qrCode';
+  static const String stats = '\$apiPrefix/equipment/stats';
+  static const String maintenanceAlerts = '\$apiPrefix/equipment/maintenance/alerts';
+  static const String geofenceEvent = '\$apiPrefix/equipment/geofence/event';
+  static const String maintenanceSchedule = '\$apiPrefix/equipment/maintenance-schedule';
+  static String maintenanceScheduleById(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/maintenance-schedule';
+  static String issues(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/issues';
+  static const String alerts = '\$apiPrefix/equipment/alerts';
+  static String location(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/location';
+  static String telemetry(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/telemetry';
+  static String fuel(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/fuel';
+  static String fuelSummary(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/fuel/summary';
+  static String usage(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/usage';
+  static String usageStart(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/usage/start';
+  static String usageEnd(String equipmentId, String logId) => '\$apiPrefix/equipment/$equipmentId/usage/$logId/end';
+  static String usageSummary(String equipmentId) => '\$apiPrefix/equipment/$equipmentId/usage/summary';
+}
+
+/// erp sync
+abstract final class ErpSyncEndpoints {
+  static String postFieldOperation(String operationId) => '\$apiPrefix/erp-sync/field-operations/$operationId/post';
+  static const String health = '\$apiPrefix/erp-sync/health';
+}
+
+/// export
 abstract final class ExportEndpoints {
-  static const String create = '$apiPrefix/exports';
-  static String status(String exportId) => '$apiPrefix/exports/$exportId/status';
-  static String contents(String exportId) => '$apiPrefix/exports/$exportId/contents';
+  static const String create = '\$apiPrefix/exports';
+  static String status(String exportId) => '\$apiPrefix/exports/$exportId/status';
+  static String contents(String exportId) => '\$apiPrefix/exports/$exportId/contents';
 }
 
-/// @since 4.10.0 — Vendor MIME types for /uploads contentType
-abstract final class MediaTypes {
-  static const String ndviGeotiff = 'image/vnd.sahool.ndvi.geotiff';
-  static const String ndreGeotiff = 'image/vnd.sahool.ndre.geotiff';
-  static const String ndwiGeotiff = 'image/vnd.sahool.ndwi.geotiff';
-  static const String saviGeotiff = 'image/vnd.sahool.savi.geotiff';
-  static const String eviGeotiff = 'image/vnd.sahool.evi.geotiff';
-  static const String laiGeotiff = 'image/vnd.sahool.lai.geotiff';
-  static const String sciGeotiff = 'image/vnd.sahool.sci.geotiff';
-  static const String thermalGeotiff = 'image/vnd.sahool.thermal.geotiff';
-  static const String rgbGeotiff = 'image/vnd.sahool.rgb.geotiff';
-  static const String rgbNirGeotiff = 'image/vnd.sahool.rgb-nir.geotiff';
-  static const String rgbCirGeotiff = 'image/vnd.sahool.rgb-cir.geotiff';
-  static const String waterStressGeotiff = 'image/vnd.sahool.waterstress.geotiff';
-  static const String elevationGeotiff = 'image/vnd.sahool.elevation.geotiff';
-  static const String rawGeotiff = 'image/vnd.sahool.raw.geotiff';
-  static const String fieldGeojson = 'application/vnd.sahool.field.geojson';
-  static const String rxPlantingShp = 'application/vnd.sahool.rx.planting.shp';
-  static const String rxZonesShp = 'application/vnd.sahool.prescription.zones.shp';
-  static const String standCountGeojson = 'application/vnd.sahool.stand-count.geojson';
-  static const String weedCountGeojson = 'application/vnd.sahool.weed-count.geojson';
-  static const String asPlantedZip = 'application/vnd.sahool.as-planted.zip';
-  static const String asHarvestedZip = 'application/vnd.sahool.as-harvested.zip';
-  static const String asAppliedZip = 'application/vnd.sahool.as-applied.zip';
-  static const String soilSahoolJson = 'application/vnd.sahool.soil.json';
-  static const String soilModusXml = 'application/vnd.agwg.modus.xml';
-  static const String isoxmlTaskdataZip = 'application/vnd.agwg.isoxml.zip';
-  static const String octetStream = 'application/octet-stream';
+/// farm
+abstract final class FarmEndpoints {
+  static const String list = '\$apiPrefix/farms';
+  static String getFarm(String farmId) => '\$apiPrefix/farms/$farmId';
+  static const String create = '\$apiPrefix/farms';
+  static String update(String farmId) => '\$apiPrefix/farms/$farmId';
+  static String delete(String farmId) => '\$apiPrefix/farms/$farmId';
+  static String stats(String farmId) => '\$apiPrefix/farms/$farmId/stats';
+  static String members(String farmId) => '\$apiPrefix/farms/$farmId/members';
+  static String statsByTenant(String tenantId) => '\$apiPrefix/farms/stats/$tenantId';
 }
 
-/// @since 4.10.0 — Header names for cursor-based pagination
-abstract final class PaginationHeaders {
-  static const String nextToken = 'X-Next-Token';
-  static const String limit = 'X-Limit';
-  static const String requestId = 'X-Request-Id';
-  static const String etag = 'ETag';
-  static const String ifNoneMatch = 'If-None-Match';
+/// field
+abstract final class FieldEndpoints {
+  static const String list = '\$apiPrefix/fields';
+  static String getField(String fieldId) => '\$apiPrefix/fields/$fieldId';
+  static const String create = '\$apiPrefix/fields';
+  static String update(String fieldId) => '\$apiPrefix/fields/$fieldId';
+  static String delete(String fieldId) => '\$apiPrefix/fields/$fieldId';
+  static const String nearby = '\$apiPrefix/fields/nearby';
+  static const String syncField = '\$apiPrefix/fields/sync';
+  static const String syncBatch = '\$apiPrefix/fields/sync/batch';
+  static String boundary(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary';
+  static String boundaryUpdate(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary';
+  static String boundaryHistory(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary-history';
+  static String boundaryRollback(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary-history/rollback';
+  static String kpiSnapshot(String fieldId) => '\$apiPrefix/fields/$fieldId/kpi-snapshot';
 }
 
-/// @since 4.10.0 — Pagination numeric defaults
-abstract final class PaginationDefaults {
-  static const int defaultLimit = 100;
-  static const int maxLimit = 1000;
+/// field operation
+abstract final class FieldOperationEndpoints {
+  static const String list = '\$apiPrefix/field-operations';
+  static String getFieldOperation(String operationId) => '\$apiPrefix/field-operations/$operationId';
+  static String update(String operationId) => '\$apiPrefix/field-operations/$operationId';
+  static String delete(String operationId) => '\$apiPrefix/field-operations/$operationId';
+  static String listByField(String fieldId) => '\$apiPrefix/fields/$fieldId/operations';
+  static String create(String fieldId) => '\$apiPrefix/fields/$fieldId/operations';
+  static String approve(String operationId) => '\$apiPrefix/field-operations/$operationId/approve';
+  static String reject(String operationId) => '\$apiPrefix/field-operations/$operationId/reject';
 }
 
-/// @since 4.10.0 — Canonical HTTP status meanings for list endpoints
-abstract final class PaginationStatus {
-  static const int complete = 200;
-  static const int partial = 206;
-  static const int notModified = 304;
-  static const int nextTokenExpired = 409;
+/// field report
+abstract final class FieldReportEndpoints {
+  static String create(String fieldId) => '\$apiPrefix/fields/$fieldId/reports';
+  static String listByField(String fieldId) => '\$apiPrefix/fields/$fieldId/reports';
+  static String getFieldReport(String reportId) => '\$apiPrefix/field-reports/$reportId';
+  static String getContent(String reportId) => '\$apiPrefix/field-reports/$reportId/content';
 }
 
-/// @since 4.10.0 — Upload lifecycle states (includes INBOX for dealer delegation)
-const List<String> uploadStates = [
-  'UPLOADING',
-  'PENDING',
-  'INBOX',
-  'DECLINED',
-  'IMPORTING',
-  'SUCCESS',
-  'INVALID',
-];
+/// field sub zone
+abstract final class FieldSubZoneEndpoints {
+  static String listByField(String fieldId) => '\$apiPrefix/fields/$fieldId/sub-zones';
+  static String create(String fieldId) => '\$apiPrefix/fields/$fieldId/sub-zones';
+  static String getFieldSubZone(String subZoneId) => '\$apiPrefix/field-sub-zones/$subZoneId';
+  static String update(String subZoneId) => '\$apiPrefix/field-sub-zones/$subZoneId';
+  static String delete(String subZoneId) => '\$apiPrefix/field-sub-zones/$subZoneId';
+}
 
-/// @since 4.10.0 — Export job lifecycle states
-const List<String> exportStates = [
-  'PROCESSING',
-  'COMPLETED',
-  'NO_DATA',
-  'INVALID',
-  'EXPIRED',
-];
+/// gamification
+abstract final class GamificationEndpoints {
+  static String profile(String userId) => '\$apiPrefix/gamification/profile/$userId';
+  static const String leaderboard = '\$apiPrefix/gamification/leaderboard';
+}
 
-// ---------------------------------------------------------------------------
-// Partner API Surface (@since 4.10.0)
-// ---------------------------------------------------------------------------
+/// gdd
+abstract final class GddEndpoints {
+  static String accumulation(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/accumulation';
+  static String records(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/records';
+  static String calculate(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/calculate';
+  static String currentStage(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/current-stage';
+  static String stages(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/stages';
+  static const String crops = '\$apiPrefix/gdd/crops';
+  static String cropRequirements(String cropType) => '\$apiPrefix/gdd/crops/$cropType/requirements';
+  static String forecast(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/forecast';
+  static String settings(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/settings';
+  static String compare(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/compare';
+  static String trend(String fieldId) => '\$apiPrefix/gdd/fields/$fieldId/trend';
+}
 
-const String partnerApiVersion = 'v1';
-const String partnerPrefix = '/partner/$partnerApiVersion';
+/// hydrology
+abstract final class HydrologyEndpoints {
+  static const String drainage = '\$apiPrefix/hydrology/drainage';
+  static String drainageByField(String fieldId) => '\$apiPrefix/hydrology/drainage/$fieldId';
+  static const String watershed = '\$apiPrefix/hydrology/watershed';
+  static const String watershedDelineate = '\$apiPrefix/hydrology/watershed/delineate';
+  static const String flow = '\$apiPrefix/hydrology/flow';
+  static const String flowAccumulation = '\$apiPrefix/hydrology/flow/accumulation';
+  static const String streamNetwork = '\$apiPrefix/hydrology/streams';
+  static const String rainfallRunoff = '\$apiPrefix/hydrology/rainfall-runoff';
+  static const String infiltration = '\$apiPrefix/hydrology/infiltration';
+}
 
-/// @since 4.10.0 — Partner OAuth 2.0 + OIDC endpoints
+/// indicator
+abstract final class IndicatorEndpoints {
+  static const String dashboard = '\$apiPrefix/indicators/dashboard';
+  static String dashboardTenant(String tenantId) => '\$apiPrefix/indicators/dashboard/$tenantId';
+  static const String summary = '\$apiPrefix/indicators/summary';
+  static const String trends = '\$apiPrefix/indicators/trends';
+  static String field(String fieldId) => '\$apiPrefix/indicators/field/$fieldId';
+  static const String definitions = '\$apiPrefix/indicators/definitions';
+  static const String alerts = '\$apiPrefix/indicators/alerts';
+}
+
+/// intelligence
+abstract final class IntelligenceEndpoints {
+  static String fieldScore(String fieldId) => '\$apiPrefix/fields/$fieldId/intelligence/score';
+  static String fieldZones(String fieldId) => '\$apiPrefix/fields/$fieldId/intelligence/zones';
+  static String fieldAlerts(String fieldId) => '\$apiPrefix/fields/$fieldId/intelligence/alerts';
+  static String fieldRecommendations(String fieldId) => '\$apiPrefix/fields/$fieldId/intelligence/recommendations';
+  static String createTask(String alertId) => '\$apiPrefix/intelligence/alerts/$alertId/create-task';
+  static const String bestDays = '\$apiPrefix/intelligence/best-days';
+  static const String validateDate = '\$apiPrefix/intelligence/validate-date';
+  static String fieldData(String fieldId) => '\$apiPrefix/field-intelligence/$fieldId';
+}
+
+/// inventory
+abstract final class InventoryEndpoints {
+  static const String list = '\$apiPrefix/inventory';
+  static String getInventory(String itemId) => '\$apiPrefix/inventory/$itemId';
+  static const String create = '\$apiPrefix/inventory';
+  static String update(String itemId) => '\$apiPrefix/inventory/$itemId';
+  static String delete(String itemId) => '\$apiPrefix/inventory/$itemId';
+  static const String stockLevels = '\$apiPrefix/inventory/stock-levels';
+}
+
+/// iot
+abstract final class IotEndpoints {
+  static const String devices = '\$apiPrefix/iot/devices';
+  static String deviceGet(String deviceId) => '\$apiPrefix/iot/devices/$deviceId';
+  static const String deviceCreate = '\$apiPrefix/iot/devices';
+  static String deviceUpdate(String deviceId) => '\$apiPrefix/iot/devices/$deviceId';
+  static String deviceDelete(String deviceId) => '\$apiPrefix/iot/devices/$deviceId';
+  static String deviceReadings(String deviceId) => '\$apiPrefix/iot/sensors/$deviceId/readings';
+  static String deviceCommand(String deviceId) => '\$apiPrefix/iot/devices/$deviceId/command';
+  static const String deviceTypes = '\$apiPrefix/iot/device-types';
+  static String fieldDevices(String fieldId) => '\$apiPrefix/iot/devices/field/$fieldId';
+  static String fieldSensors(String fieldId) => '\$apiPrefix/iot/fields/$fieldId/sensors';
+  static String sensorHistory(String sensorId) => '\$apiPrefix/iot/sensors/$sensorId/history';
+  static String readingsByFarm(String farmId) => '\$apiPrefix/iot/readings/$farmId';
+  static const String sensors = '\$apiPrefix/iot/sensors';
+  static const String actuators = '\$apiPrefix/iot/actuators';
+  static const String alertRules = '\$apiPrefix/iot/alert-rules';
+  static const String sensorStream = '\$apiPrefix/iot/sensors/stream';
+  static const String sensorStats = '\$apiPrefix/iot/sensors/stats';
+  static String sensorLatest(String sensorId) => '\$apiPrefix/iot/sensors/$sensorId/latest';
+}
+
+/// irrigation
+abstract final class IrrigationEndpoints {
+  static String recommendation(String fieldId) => '\$apiPrefix/irrigation/fields/$fieldId/recommendation';
+  static const String calculate = '\$apiPrefix/irrigation/calculate';
+  static const String et0 = '\$apiPrefix/irrigation/et0';
+  static const String waterBalance = '\$apiPrefix/irrigation/water-balance';
+  static const String sensorReading = '\$apiPrefix/irrigation/sensor-reading';
+  static const String efficiency = '\$apiPrefix/irrigation/efficiency';
+  static const String schedule = '\$apiPrefix/irrigation/schedule';
+  static const String schedulesList = '\$apiPrefix/irrigation/schedules';
+  static String schedulesGet(String scheduleId) => '\$apiPrefix/irrigation/schedules/$scheduleId';
+  static const String schedulesCreate = '\$apiPrefix/irrigation/schedules';
+  static String schedulesUpdate(String scheduleId) => '\$apiPrefix/irrigation/schedules/$scheduleId';
+  static String schedulesDelete(String scheduleId) => '\$apiPrefix/irrigation/schedules/$scheduleId';
+  static String history(String fieldId) => '\$apiPrefix/irrigation/history/$fieldId';
+  static const String recommendations = '\$apiPrefix/irrigation/recommendations';
+  static const String crops = '\$apiPrefix/irrigation/crops';
+  static const String methods = '\$apiPrefix/irrigation/methods';
+  static const String pivotControl = '\$apiPrefix/irrigation/pivot/control';
+  static const String efficiencyReport = '\$apiPrefix/irrigation/efficiency-report';
+  static const String irrigationExecuted = '\$apiPrefix/irrigation/irrigation-executed';
+  static const String calculateWithAction = '\$apiPrefix/irrigation/calculate-with-action';
+  static const String pivotSpeed = '\$apiPrefix/irrigation/pivot/speed';
+}
+
+/// labor
+abstract final class LaborEndpoints {
+  static const String workers = '\$apiPrefix/labor/workers';
+  static String workerById(String workerId) => '\$apiPrefix/labor/workers/$workerId';
+  static const String schedule = '\$apiPrefix/labor/schedule';
+  static const String payroll = '\$apiPrefix/labor/payroll';
+}
+
+/// lab
+abstract final class LabEndpoints {
+  static const String samples = '\$apiPrefix/lab/samples';
+  static String sampleByBarcode(String barcode) => '\$apiPrefix/lab/samples/barcode/$barcode';
+}
+
+/// leveling
+abstract final class LevelingEndpoints {
+  static const String analyze = '\$apiPrefix/leveling/analyze';
+  static String plan(String fieldId) => '\$apiPrefix/leveling/plan/$fieldId';
+  static String cost(String fieldId) => '\$apiPrefix/leveling/cost/$fieldId';
+  static String equipment(String fieldId) => '\$apiPrefix/leveling/equipment/$fieldId';
+  static const String simulate = '\$apiPrefix/leveling/simulate';
+}
+
+/// loan verification
+abstract final class LoanVerificationEndpoints {
+  static String verify(String fieldId) => '\$apiPrefix/loans/crop-loan-verification/$fieldId';
+}
+
+/// logistics
+abstract final class LogisticsEndpoints {
+  static const String shipments = '\$apiPrefix/logistics/shipments';
+  static String shipmentGet(String shipmentId) => '\$apiPrefix/logistics/shipments/$shipmentId';
+  static const String shipmentCreate = '\$apiPrefix/logistics/shipments';
+  static const String vehicles = '\$apiPrefix/logistics/vehicles';
+  static const String routes = '\$apiPrefix/logistics/routes';
+  static String tracking(String shipmentId) => '\$apiPrefix/logistics/tracking/$shipmentId';
+}
+
+/// marketplace
+abstract final class MarketplaceEndpoints {
+  static const String listings = '\$apiPrefix/marketplace/listings';
+  static const String listingCreate = '\$apiPrefix/marketplace/listings';
+  static const String products = '\$apiPrefix/marketplace/products';
+  static String productGet(String productId) => '\$apiPrefix/marketplace/products/$productId';
+  static String productApprove(String productId) => '\$apiPrefix/marketplace/products/$productId/approve';
+  static String productReject(String productId) => '\$apiPrefix/marketplace/products/$productId/reject';
+  static const String orders = '\$apiPrefix/marketplace/orders';
+  static String ordersByUser(String userId) => '\$apiPrefix/marketplace/orders/user/$userId';
+  static const String harvest = '\$apiPrefix/marketplace/harvest';
+  static const String stats = '\$apiPrefix/marketplace/stats';
+  static String wallet(String userId) => '\$apiPrefix/marketplace/fintech/wallet/$userId';
+  static String walletDeposit(String walletId) => '\$apiPrefix/marketplace/fintech/wallet/$walletId/deposit';
+  static String walletWithdraw(String walletId) => '\$apiPrefix/marketplace/fintech/wallet/$walletId/withdraw';
+  static String walletTransactions(String walletId) => '\$apiPrefix/marketplace/fintech/wallet/$walletId/transactions';
+  static const String creditScore = '\$apiPrefix/marketplace/fintech/calculate-score';
+  static const String loans = '\$apiPrefix/marketplace/fintech/loans';
+  static String loansByUser(String walletId) => '\$apiPrefix/marketplace/fintech/loans/$walletId';
+  static String loanRepay(String loanId) => '\$apiPrefix/marketplace/fintech/loans/$loanId/repay';
+}
+
+/// notification
+abstract final class NotificationEndpoints {
+  static const String list = '\$apiPrefix/notifications';
+  static String getNotification(String notificationId) => '\$apiPrefix/notifications/$notificationId';
+  static String markRead(String notificationId) => '\$apiPrefix/notifications/$notificationId/read';
+  static const String markAllRead = '\$apiPrefix/notifications/read-all';
+  static const String preferences = '\$apiPrefix/notifications/preferences';
+  static const String subscribe = '\$apiPrefix/notifications/subscribe';
+  static const String unsubscribe = '\$apiPrefix/notifications/unsubscribe';
+}
+
+/// partner admin client
+abstract final class PartnerAdminClientEndpoints {
+  static const String create = '\$apiPrefix/admin/partner-auth/clients';
+  static const String list = '\$apiPrefix/admin/partner-auth/clients';
+  static String getPartnerAdminClient(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId';
+  static String update(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId';
+  static String rotateSecret(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId/rotate-secret';
+  static String rotateApiKey(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId/rotate-api-key';
+  static String suspend(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId/suspend';
+  static String unsuspend(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId/unsuspend';
+  static String revoke(String clientId) => '\$apiPrefix/admin/partner-auth/clients/$clientId';
+}
+
+/// partner admin consent
+abstract final class PartnerAdminConsentEndpoints {
+  static const String list = '\$apiPrefix/admin/partner-auth/consents';
+  static String revoke(String grantId) => '\$apiPrefix/admin/partner-auth/consents/$grantId';
+}
+
+/// partner admin signing key
+abstract final class PartnerAdminSigningKeyEndpoints {
+  static const String list = '\$apiPrefix/admin/partner-auth/signing-keys';
+  static const String rotate = '\$apiPrefix/admin/partner-auth/signing-keys/rotate';
+  static String delete(String kid) => '\$apiPrefix/admin/partner-auth/signing-keys/$kid';
+}
+
+/// partner admin token
+abstract final class PartnerAdminTokenEndpoints {
+  static const String listAccess = '\$apiPrefix/admin/partner-auth/tokens/access';
+  static const String listRefresh = '\$apiPrefix/admin/partner-auth/tokens/refresh';
+  static String revokeAllForClient(String clientId) => '\$apiPrefix/admin/partner-auth/tokens/revoke-all/client/$clientId';
+  static String revokeAllForUser(String userId) => '\$apiPrefix/admin/partner-auth/tokens/revoke-all/user/$userId';
+}
+
+/// partner boundary
+abstract final class PartnerBoundaryEndpoints {
+  static const String create = '/partner/v1/boundaries';
+  static String getPartnerBoundary(String boundaryId) => '/partner/v1/boundaries/$boundaryId';
+  static const String batchQuery = '/partner/v1/boundaries/query';
+}
+
+/// partner export
+abstract final class PartnerExportEndpoints {
+  static const String create = '/partner/v1/exports';
+  static String status(String exportId) => '/partner/v1/exports/$exportId/status';
+  static String contents(String exportId) => '/partner/v1/exports/$exportId/contents';
+}
+
+/// partner field
+abstract final class PartnerFieldEndpoints {
+  static const String list = '/partner/v1/fields';
+  static const String listAll = '/partner/v1/fields/all';
+  static String getPartnerField(String fieldId) => '/partner/v1/fields/$fieldId';
+}
+
+/// partner layer
+abstract final class PartnerLayerEndpoints {
+  static const String asPlantedList = '/partner/v1/layers/asPlanted';
+  static String asPlantedContents(String activityId) => '/partner/v1/layers/asPlanted/$activityId/contents';
+  static const String asHarvestedList = '/partner/v1/layers/asHarvested';
+  static String asHarvestedContents(String activityId) => '/partner/v1/layers/asHarvested/$activityId/contents';
+  static const String asAppliedList = '/partner/v1/layers/asApplied';
+  static String asAppliedContents(String activityId) => '/partner/v1/layers/asApplied/$activityId/contents';
+  static const String scoutingList = '/partner/v1/layers/scoutingObservations';
+  static String scoutingGet(String observationId) => '/partner/v1/layers/scoutingObservations/$observationId';
+  static String scoutingAttachments(String observationId) => '/partner/v1/layers/scoutingObservations/$observationId/attachments';
+  static String scoutingAttachmentContents(String observationId, String attachmentId) => '/partner/v1/layers/scoutingObservations/$observationId/attachments/$attachmentId/contents';
+}
+
+/// partner oauth
 abstract final class PartnerOauthEndpoints {
-  static const String authorize = '$partnerPrefix/oauth/authorize';
-  static const String token = '$partnerPrefix/oauth/token';
-  static const String revoke = '$partnerPrefix/oauth/revoke';
-  static const String introspect = '$partnerPrefix/oauth/introspect';
-  static const String userinfo = '$partnerPrefix/oauth/userinfo';
+  static const String authorize = '/partner/v1/oauth/authorize';
+  static const String token = '/partner/v1/oauth/token';
+  static const String revoke = '/partner/v1/oauth/revoke';
+  static const String introspect = '/partner/v1/oauth/introspect';
+  static const String userinfo = '/partner/v1/oauth/userinfo';
   static const String discovery = '/.well-known/openid-configuration';
   static const String jwks = '/.well-known/jwks.json';
 }
 
-/// @since 4.10.0 — Partner OAuth scopes (space-delimited when requested)
-const List<String> partnerOauthScopes = [
-  'openid',
-  'profile',
-  'email',
-  'offline_access',
-  'fields:read',
-  'fields:write',
-  'boundaries:read',
-  'boundaries:write',
-  'operations:planting:read',
-  'operations:planting:write',
-  'operations:harvest:read',
-  'operations:harvest:write',
-  'operations:application:read',
-  'operations:application:write',
-  'operations:scouting:read',
-  'operations:scouting:write',
-  'imagery:ndvi:read',
-  'imagery:ndvi:write',
-  'imagery:thermal:read',
-  'imagery:rgb:read',
-  'soil:read',
-  'soil:write',
-  'weather:read',
-  'advisory:read',
-  'ai:vision:invoke',
-  'carbon:read',
-  'carbon:mrv:export',
-  'exports:read',
-  'partnerapis',
-  'platform',
-];
-
-/// @since 4.10.0 — Partner request headers
-abstract final class PartnerHeaders {
-  static const String apiKey = 'X-Sahool-Partner-Key';
-  static const String requestId = 'X-Request-Id';
-  static const String nextToken = 'X-Next-Token';
-  static const String limit = 'X-Limit';
-  static const String recipientEmail = 'X-Recipient-Email';
-  static const String contractVersion = 'X-Sahool-Contract-Version';
-}
-
-/// GDD - Growing Degree Days
-/// @since 4.17.0
-abstract final class GddEndpoints {
-  static String accumulation(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/accumulation';
-  static String records(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/records';
-  static String calculate(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/calculate';
-  static String currentStage(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/current-stage';
-  static String stages(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/stages';
-  static const String crops = '$apiPrefix/gdd/crops';
-  static String cropRequirements(String cropType) =>
-      '$apiPrefix/gdd/crops/$cropType/requirements';
-  static String forecast(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/forecast';
-  static String settings(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/settings';
-  static String compare(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/compare';
-  static String trend(String fieldId) =>
-      '$apiPrefix/gdd/fields/$fieldId/trend';
-}
-
-/// Gamification
-/// @since 4.17.0
-abstract final class GamificationEndpoints {
-  static String profile(String userId) =>
-      '$apiPrefix/gamification/profile/$userId';
-  static const String leaderboard = '$apiPrefix/gamification/leaderboard';
-}
-
-/// Lab Sample Tracking
-/// @since 4.17.0
-abstract final class LabEndpoints {
-  static const String samples = '$apiPrefix/lab/samples';
-  static String sampleByBarcode(String barcode) =>
-      '$apiPrefix/lab/samples/barcode/$barcode';
-}
-
-/// Payment (Tharwatt wallet integration)
-/// @since 4.17.0
-abstract final class PaymentEndpoints {
-  static const String deposit = '$apiPrefix/payment/deposit';
-  static const String withdraw = '$apiPrefix/payment/withdraw';
-  static const String transfer = '$apiPrefix/payment/transfer';
-  static const String topup = '$apiPrefix/payment/topup';
-  static String status(String transactionId) =>
-      '$apiPrefix/payment/status/$transactionId';
-  static const String transactions = '$apiPrefix/payment/transactions';
-  static String balance(String walletId) =>
-      '$apiPrefix/payment/balance/$walletId';
-  static const String validatePhone = '$apiPrefix/payment/validate-phone';
-  static const String operators = '$apiPrefix/payment/operators';
-  static String cancel(String transactionId) =>
-      '$apiPrefix/payment/cancel/$transactionId';
-}
-
-/// @since 4.10.0 — Partner limits & defaults
-abstract final class PartnerLimits {
-  static const int accessTokenTtlSec = 14400; // 4h
-  static const int refreshTokenTtlDays = 30;
-  static const int refreshRotationTtlSec = 3600;
-  static const int batchBoundaryIds = 10;
-  static const int fieldMaxHectares = 50000;
-  static const int fieldMaxVertices = 10000;
-  static const int rxMaxZones = 100;
-}
-
-/// @since 4.10.0 — Partner field directory (lightweight)
-abstract final class PartnerFieldEndpoints {
-  static const String list = '$partnerPrefix/fields';
-  static const String listAll = '$partnerPrefix/fields/all';
-  static String get(String fieldId) => '$partnerPrefix/fields/$fieldId';
-}
-
-/// @since 4.10.0 — Partner boundary endpoints (standalone, immutable)
-abstract final class PartnerBoundaryEndpoints {
-  static const String create = '$partnerPrefix/boundaries';
-  static String get(String boundaryId) => '$partnerPrefix/boundaries/$boundaryId';
-  static const String batchQuery = '$partnerPrefix/boundaries/query';
-}
-
-/// @since 4.10.0 — Partner resource-owner & farm-organization hierarchy
+/// partner org
 abstract final class PartnerOrgEndpoints {
-  static String resourceOwner(String id) => '$partnerPrefix/resourceOwners/$id';
-  static String farmOrg(String type, String id) =>
-      '$partnerPrefix/farmOrganizations/$type/$id';
-  static const String operations = '$partnerPrefix/operations/all';
+  static String resourceOwner(String resourceOwnerId) => '/partner/v1/resourceOwners/$resourceOwnerId';
+  static String farmOrg(String farmOrganizationType, String farmOrganizationId) => '/partner/v1/farmOrganizations/$farmOrganizationType/$farmOrganizationId';
+  static const String operations = '/partner/v1/operations/all';
 }
 
-/// @since 4.10.0 — Activity layer endpoints
-abstract final class PartnerLayerEndpoints {
-  static const String asPlantedList = '$partnerPrefix/layers/asPlanted';
-  static String asPlantedContents(String activityId) =>
-      '$partnerPrefix/layers/asPlanted/$activityId/contents';
-  static const String asHarvestedList = '$partnerPrefix/layers/asHarvested';
-  static String asHarvestedContents(String activityId) =>
-      '$partnerPrefix/layers/asHarvested/$activityId/contents';
-  static const String asAppliedList = '$partnerPrefix/layers/asApplied';
-  static String asAppliedContents(String activityId) =>
-      '$partnerPrefix/layers/asApplied/$activityId/contents';
-  static const String scoutingList = '$partnerPrefix/layers/scoutingObservations';
-  static String scoutingGet(String observationId) =>
-      '$partnerPrefix/layers/scoutingObservations/$observationId';
-  static String scoutingAttachments(String observationId) =>
-      '$partnerPrefix/layers/scoutingObservations/$observationId/attachments';
-  static String scoutingAttachmentContents(
-    String observationId,
-    String attachmentId,
-  ) =>
-      '$partnerPrefix/layers/scoutingObservations/$observationId/attachments/$attachmentId/contents';
-}
-
-/// @since 4.10.0 — Partner upload endpoints (mirror internal UploadEndpoints)
+/// partner upload
 abstract final class PartnerUploadEndpoints {
-  static const String create = '$partnerPrefix/uploads';
-  static String chunk(String uploadId) => '$partnerPrefix/uploads/$uploadId';
-  static String status(String uploadId) => '$partnerPrefix/uploads/$uploadId/status';
-  static const String batchStatus = '$partnerPrefix/uploads/status/query';
-  static String cancel(String uploadId) => '$partnerPrefix/uploads/$uploadId';
+  static const String create = '/partner/v1/uploads';
+  static String chunk(String uploadId) => '/partner/v1/uploads/$uploadId';
+  static String status(String uploadId) => '/partner/v1/uploads/$uploadId/status';
+  static const String batchStatus = '/partner/v1/uploads/status/query';
+  static String cancel(String uploadId) => '/partner/v1/uploads/$uploadId';
 }
 
-/// @since 4.10.0 — Partner export endpoints
-abstract final class PartnerExportEndpoints {
-  static const String create = '$partnerPrefix/exports';
-  static String status(String exportId) => '$partnerPrefix/exports/$exportId/status';
-  static String contents(String exportId) =>
-      '$partnerPrefix/exports/$exportId/contents';
+/// payment
+abstract final class PaymentEndpoints {
+  static const String deposit = '\$apiPrefix/payment/deposit';
+  static const String withdraw = '\$apiPrefix/payment/withdraw';
+  static const String transfer = '\$apiPrefix/payment/transfer';
+  static const String topup = '\$apiPrefix/payment/topup';
+  static String status(String transactionId) => '\$apiPrefix/payment/status/$transactionId';
+  static const String transactions = '\$apiPrefix/payment/transactions';
+  static String balance(String walletId) => '\$apiPrefix/payment/balance/$walletId';
+  static const String validatePhone = '\$apiPrefix/payment/validate-phone';
+  static const String operators = '\$apiPrefix/payment/operators';
+  static String cancel(String transactionId) => '\$apiPrefix/payment/cancel/$transactionId';
 }
 
-// ---------------------------------------------------------------------------
-// Partner Admin Endpoints (@since 4.12.0) — SAHOOL-internal, ADMIN role req.
-// Served by partner-auth-service; routed via Kong.
-// ---------------------------------------------------------------------------
-
-const String _adminPartnerAuthPrefix = '$apiPrefix/admin/partner-auth';
-
-/// @since 4.12.0 — Partner OAuth client management (CRUD + secret rotation)
-abstract final class PartnerAdminClientEndpoints {
-  static const String create = '$_adminPartnerAuthPrefix/clients';
-  static const String list = '$_adminPartnerAuthPrefix/clients';
-  static String get(String clientId) => '$_adminPartnerAuthPrefix/clients/$clientId';
-  static String update(String clientId) => '$_adminPartnerAuthPrefix/clients/$clientId';
-  static String rotateSecret(String clientId) =>
-      '$_adminPartnerAuthPrefix/clients/$clientId/rotate-secret';
-  static String rotateApiKey(String clientId) =>
-      '$_adminPartnerAuthPrefix/clients/$clientId/rotate-api-key';
-  static String suspend(String clientId) =>
-      '$_adminPartnerAuthPrefix/clients/$clientId/suspend';
-  static String unsuspend(String clientId) =>
-      '$_adminPartnerAuthPrefix/clients/$clientId/unsuspend';
-  static String revoke(String clientId) =>
-      '$_adminPartnerAuthPrefix/clients/$clientId';
+/// pest
+abstract final class PestEndpoints {
+  static const String list = '\$apiPrefix/pests';
+  static String byCrop(String cropType) => '\$apiPrefix/pests/crop/$cropType';
+  static const String identify = '\$apiPrefix/pests/identify';
+  static const String treatmentRecommend = '\$apiPrefix/treatments/recommend';
 }
 
-/// @since 4.12.0 — Consent grant admin
-abstract final class PartnerAdminConsentEndpoints {
-  static const String list = '$_adminPartnerAuthPrefix/consents';
-  static String revoke(String grantId) => '$_adminPartnerAuthPrefix/consents/$grantId';
+/// precision
+abstract final class PrecisionEndpoints {
+  static String vra(String fieldId) => '\$apiPrefix/precision-agriculture/vra/$fieldId';
+  static String gdd(String fieldId) => '\$apiPrefix/precision-agriculture/gdd/$fieldId';
+  static const String fertilizerCalculate = '\$apiPrefix/precision-agriculture/fertilizer/calculate';
 }
 
-/// @since 4.12.0 — Token visibility + breach response
-abstract final class PartnerAdminTokenEndpoints {
-  static const String listAccess = '$_adminPartnerAuthPrefix/tokens/access';
-  static const String listRefresh = '$_adminPartnerAuthPrefix/tokens/refresh';
-  static String revokeAllForClient(String clientId) =>
-      '$_adminPartnerAuthPrefix/tokens/revoke-all/client/$clientId';
-  static String revokeAllForUser(String userId) =>
-      '$_adminPartnerAuthPrefix/tokens/revoke-all/user/$userId';
+/// provider
+abstract final class ProviderEndpoints {
+  static const String list = '\$apiPrefix/providers';
+  static String config(String providerId) => '\$apiPrefix/providers/$providerId/config';
+  static String configUpdate(String providerId) => '\$apiPrefix/providers/$providerId/config';
+  static const String providerConfigList = '\$apiPrefix/provider-config';
+  static String providerConfigItem(String providerId) => '\$apiPrefix/provider-config/$providerId';
 }
 
-/// @since 4.12.0 — RSA signing-key rotation (for id_token JWS)
-abstract final class PartnerAdminSigningKeyEndpoints {
-  static const String list = '$_adminPartnerAuthPrefix/signing-keys';
-  static const String rotate = '$_adminPartnerAuthPrefix/signing-keys/rotate';
-  static String delete(String kid) => '$_adminPartnerAuthPrefix/signing-keys/$kid';
+/// research
+abstract final class ResearchEndpoints {
+  static const String trials = '\$apiPrefix/research/trials';
+  static String trialGet(String trialId) => '\$apiPrefix/research/trials/$trialId';
+  static const String trialCreate = '\$apiPrefix/research/trials';
+  static String trialUpdate(String trialId) => '\$apiPrefix/research/trials/$trialId';
+  static String observations(String trialId) => '\$apiPrefix/research/trials/$trialId/observations';
+  static String analysis(String trialId) => '\$apiPrefix/research/trials/$trialId/analysis';
+}
+
+/// satellite
+abstract final class SatelliteEndpoints {
+  static const String analyze = '\$apiPrefix/satellite/v1/analyze';
+  static String analyzeField(String fieldId) => '\$apiPrefix/satellite/analyze/$fieldId';
+  static String timeseries(String fieldId) => '\$apiPrefix/satellite/v1/timeseries/$fieldId';
+  static String indices(String fieldId) => '\$apiPrefix/satellite/v1/indices/$fieldId';
+  static const String satellites = '\$apiPrefix/satellite/v1/satellites';
+  static String health(String fieldId) => '\$apiPrefix/satellite/health/$fieldId';
+  static String phenology(String fieldId) => '\$apiPrefix/satellite/phenology/$fieldId';
+  static String imagery(String fieldId) => '\$apiPrefix/satellite/imagery/$fieldId';
+  static String ndviField(String fieldId) => '\$apiPrefix/fields/$fieldId/ndvi';
+  static const String ndviSummary = '\$apiPrefix/ndvi/summary';
+}
+
+/// satellite monitor
+abstract final class SatelliteMonitorEndpoints {
+  static const String fields = '\$apiPrefix/satellite-monitor/fields';
+  static String fieldGet(String fieldId) => '\$apiPrefix/satellite-monitor/fields/$fieldId';
+  static const String stats = '\$apiPrefix/satellite-monitor/stats';
+  static const String alerts = '\$apiPrefix/satellite-monitor/alerts';
+}
+
+/// scouting
+abstract final class ScoutingEndpoints {
+  static const String list = '\$apiPrefix/scouting/reports';
+  static String getScouting(String reportId) => '\$apiPrefix/scouting/reports/$reportId';
+  static const String create = '\$apiPrefix/scouting/reports';
+  static String update(String reportId) => '\$apiPrefix/scouting/reports/$reportId';
+  static String delete(String reportId) => '\$apiPrefix/scouting/reports/$reportId';
+  static String fieldReports(String fieldId) => '\$apiPrefix/scouting/fields/$fieldId/reports';
+  static const String stats = '\$apiPrefix/scouting/stats';
+}
+
+/// season
+abstract final class SeasonEndpoints {
+  static const String list = '\$apiPrefix/seasons';
+  static String getSeason(String seasonId) => '\$apiPrefix/seasons/$seasonId';
+  static const String create = '\$apiPrefix/seasons';
+  static String update(String seasonId) => '\$apiPrefix/seasons/$seasonId';
+  static String delete(String seasonId) => '\$apiPrefix/seasons/$seasonId';
+  static const String active = '\$apiPrefix/seasons/active';
+}
+
+/// seed
+abstract final class SeedEndpoints {
+  static const String list = '\$apiPrefix/seeds';
+  static String getSeed(String seedId) => '\$apiPrefix/seeds/$seedId';
+  static const String recommendations = '\$apiPrefix/seeds/recommendations';
+}
+
+/// soil
+abstract final class SoilEndpoints {
+  static const String tests = '\$apiPrefix/soil/tests';
+  static String testGet(String testId) => '\$apiPrefix/soil/tests/$testId';
+  static const String testCreate = '\$apiPrefix/soil/tests';
+  static String testUpdate(String testId) => '\$apiPrefix/soil/tests/$testId';
+  static String testDelete(String testId) => '\$apiPrefix/soil/tests/$testId';
+  static String testsByFieldLegacy(String fieldId) => '\$apiPrefix/soil/fields/$fieldId/tests';
+  static const String analysis = '\$apiPrefix/soil/analysis';
+  static const String analysisInterpret = '\$apiPrefix/soil/analysis/interpret';
+  static const String sensors = '\$apiPrefix/soil/sensors';
+  static String sensorReadings(String sensorId) => '\$apiPrefix/soil/sensors/$sensorId/readings';
+  static String moisture(String fieldId) => '\$apiPrefix/soil/moisture/$fieldId';
+  static String salinity(String fieldId) => '\$apiPrefix/soil/salinity/$fieldId';
+  static String ph(String fieldId) => '\$apiPrefix/soil/ph/$fieldId';
+  static String nutrients(String fieldId) => '\$apiPrefix/soil/nutrients/$fieldId';
+  static const String recommendations = '\$apiPrefix/soil/recommendations';
+  static String recommendationsByField(String fieldId) => '\$apiPrefix/soil/recommendations/$fieldId';
+  static String testsByField(String fieldId) => '\$apiPrefix/soil/tests/field/$fieldId';
+  static const String products = '\$apiPrefix/soil/products';
+  static String cropRequirements(String crop) => '\$apiPrefix/soil/crops/$crop/requirements';
+  static const String interpret = '\$apiPrefix/soil/interpret';
+  static const String amendmentPlan = '\$apiPrefix/soil/recommendations/amendment-plan';
+  static const String phStatus = '\$apiPrefix/soil/interpretation/ph-status';
+  static const String ecStatus = '\$apiPrefix/soil/interpretation/ec-status';
+}
+
+/// support
+abstract final class SupportEndpoints {
+  static const String tickets = '\$apiPrefix/support/tickets';
+  static String ticketById(String ticketId) => '\$apiPrefix/support/tickets/$ticketId';
+}
+
+/// task
+abstract final class TaskEndpoints {
+  static const String list = '\$apiPrefix/tasks';
+  static String getTask(String taskId) => '\$apiPrefix/tasks/$taskId';
+  static const String create = '\$apiPrefix/tasks';
+  static String update(String taskId) => '\$apiPrefix/tasks/$taskId';
+  static String delete(String taskId) => '\$apiPrefix/tasks/$taskId';
+  static String status(String taskId) => '\$apiPrefix/tasks/$taskId/status';
+  static String complete(String taskId) => '\$apiPrefix/tasks/$taskId/complete';
+  static String assign(String taskId) => '\$apiPrefix/tasks/$taskId/assign';
+}
+
+/// team
+abstract final class TeamEndpoints {
+  static const String members = '\$apiPrefix/team/members';
+  static String memberGet(String memberId) => '\$apiPrefix/team/members/$memberId';
+  static const String memberInvite = '\$apiPrefix/team/members/invite';
+  static String memberRemove(String memberId) => '\$apiPrefix/team/members/$memberId';
+  static String memberRole(String memberId) => '\$apiPrefix/team/members/$memberId/role';
+  static const String roles = '\$apiPrefix/team/roles';
+}
+
+/// terrain
+abstract final class TerrainEndpoints {
+  static const String dem = '\$apiPrefix/terrain/dem';
+  static const String slope = '\$apiPrefix/terrain/slope';
+  static String aspect(String fieldId) => '\$apiPrefix/terrain/aspect/$fieldId';
+  static String hydrologyDrainage(String fieldId) => '\$apiPrefix/hydrology/drainage/$fieldId';
+  static String hydrologyWatershed(String fieldId) => '\$apiPrefix/hydrology/basins/$fieldId';
+  static String hydrologyFlow(String fieldId) => '\$apiPrefix/terrain/flow/$fieldId';
+  static const String levelingOptimize = '\$apiPrefix/leveling/analyze';
+  static const String levelingCutFill = '\$apiPrefix/leveling/cut-fill';
+  static String levelingCost(String fieldId) => '\$apiPrefix/leveling/cost/$fieldId';
+  static const String erosion = '\$apiPrefix/terrain/erosion';
+  static const String erosionWind = '\$apiPrefix/terrain/erosion/wind';
+  static const String erosionCombined = '\$apiPrefix/terrain/erosion/combined';
+  static const String erosionYemen = '\$apiPrefix/terrain/erosion/yemen';
+  static String demField(String fieldId) => '\$apiPrefix/terrain/dem/$fieldId';
+  static String slopeField(String fieldId) => '\$apiPrefix/terrain/slope/$fieldId';
+  static String twi(String fieldId) => '\$apiPrefix/terrain/twi/$fieldId';
+  static String contours(String fieldId) => '\$apiPrefix/terrain/contours/$fieldId';
+  static const String analyze = '\$apiPrefix/terrain/analyze';
+}
+
+/// traceability
+abstract final class TraceabilityEndpoints {
+  static const String batches = '\$apiPrefix/traceability/batches';
+  static String batchGet(String batchId) => '\$apiPrefix/traceability/batches/$batchId';
+  static const String events = '\$apiPrefix/traceability/events';
+  static String qrCode(String batchId) => '\$apiPrefix/traceability/batches/$batchId/qr';
+  static String batchEvents(String batchId) => '\$apiPrefix/traceability/batches/$batchId/events';
+  static String anchorsList(String tenantId, String fieldId) => '\$apiPrefix/traceability/anchors/$tenantId/$fieldId';
+  static String anchorsVerify(String tenantId, String fieldId) => '\$apiPrefix/traceability/anchors/$tenantId/$fieldId/verify';
+  static const String anchorsStats = '\$apiPrefix/traceability/anchors/stats';
+}
+
+/// upload
+abstract final class UploadEndpoints {
+  static const String create = '\$apiPrefix/uploads';
+  static String chunk(String uploadId) => '\$apiPrefix/uploads/$uploadId';
+  static String status(String uploadId) => '\$apiPrefix/uploads/$uploadId/status';
+  static const String batchStatus = '\$apiPrefix/uploads/status/query';
+  static String cancel(String uploadId) => '\$apiPrefix/uploads/$uploadId';
+}
+
+/// user
+abstract final class UserEndpoints {
+  static const String list = '\$apiPrefix/users';
+  static String getUser(String userId) => '\$apiPrefix/users/$userId';
+  static const String create = '\$apiPrefix/users';
+  static String update(String userId) => '\$apiPrefix/users/$userId';
+  static String delete(String userId) => '\$apiPrefix/users/$userId';
+  static String block(String userId) => '\$apiPrefix/users/$userId/block';
+}
+
+/// vegetation
+abstract final class VegetationEndpoints {
+  static const String analyze = '\$apiPrefix/vegetation/analyze';
+  static String ndvi(String fieldId) => '\$apiPrefix/vegetation/ndvi/$fieldId';
+  static String evi(String fieldId) => '\$apiPrefix/vegetation/evi/$fieldId';
+  static String savi(String fieldId) => '\$apiPrefix/vegetation/savi/$fieldId';
+  static String ndwi(String fieldId) => '\$apiPrefix/vegetation/ndwi/$fieldId';
+  static String lai(String fieldId) => '\$apiPrefix/vegetation/lai/$fieldId';
+  static String chlorophyll(String fieldId) => '\$apiPrefix/vegetation/chlorophyll/$fieldId';
+  static String timeseries(String fieldId) => '\$apiPrefix/vegetation/timeseries/$fieldId';
+  static String stressMap(String fieldId) => '\$apiPrefix/vegetation/stress/$fieldId';
+}
+
+/// virtual sensor
+abstract final class VirtualSensorEndpoints {
+  static const String et0Calculate = '\$apiPrefix/virtual-sensors/et0/calculate';
+  static const String etcCalculate = '\$apiPrefix/virtual-sensors/etc/calculate';
+  static const String crops = '\$apiPrefix/virtual-sensors/crops';
+  static String cropKc(String cropType) => '\$apiPrefix/virtual-sensors/crops/$cropType/kc';
+  static const String soils = '\$apiPrefix/virtual-sensors/soils';
+  static const String soilMoisture = '\$apiPrefix/virtual-sensors/soil-moisture/estimate';
+  static const String irrigationMethods = '\$apiPrefix/virtual-sensors/irrigation-methods';
+  static const String irrigationRecommend = '\$apiPrefix/virtual-sensors/irrigation/recommend';
+  static const String irrigationQuickCheck = '\$apiPrefix/virtual-sensors/irrigation/quick-check';
+}
+
+/// vision
+abstract final class VisionEndpoints {
+  static const String detectPest = '\$apiPrefix/vision/detect/pest';
+  static const String detectDisease = '\$apiPrefix/vision/detect/disease';
+  static const String detectWeed = '\$apiPrefix/vision/detect/weed';
+  static const String countPlants = '\$apiPrefix/vision/count/plants';
+  static const String classifyRipeness = '\$apiPrefix/vision/classify/ripeness';
+  static const String segmentLeaf = '\$apiPrefix/vision/segment/leaf';
+  static const String trackObjects = '\$apiPrefix/vision/track/objects';
+  static String trackClear(String trackerId) => '\$apiPrefix/vision/track/$trackerId';
+  static const String batchPest = '\$apiPrefix/vision/batch/detect/pest';
+  static const String batchDisease = '\$apiPrefix/vision/batch/detect/disease';
+  static const String batchStatus = '\$apiPrefix/vision/batch/status';
+  static const String modelsList = '\$apiPrefix/vision/models/versions';
+  static String modelInfo(String variant) => '\$apiPrefix/vision/models/$variant/info';
+  static const String modelsWarmup = '\$apiPrefix/vision/models/warmup';
+  static const String modelsLoaded = '\$apiPrefix/vision/models/loaded';
+}
+
+/// vra
+abstract final class VraEndpoints {
+  static const String maps = '\$apiPrefix/vra/maps';
+  static String mapGet(String mapId) => '\$apiPrefix/vra/maps/$mapId';
+  static const String mapCreate = '\$apiPrefix/vra/maps';
+  static const String prescriptions = '\$apiPrefix/vra/prescriptions';
+  static String prescriptionGet(String prescriptionId) => '\$apiPrefix/vra/prescriptions/$prescriptionId';
+  static String zones(String fieldId) => '\$apiPrefix/vra/zones/$fieldId';
+}
+
+/// weather
+abstract final class WeatherEndpoints {
+  static const String current = '\$apiPrefix/weather/current';
+  static String currentByLocation(String locationId) => '\$apiPrefix/weather/current/$locationId';
+  static const String forecast = '\$apiPrefix/weather/forecast';
+  static String forecastByLocation(String locationId) => '\$apiPrefix/weather/forecast/$locationId';
+  static String forecastByField(String fieldId) => '\$apiPrefix/weather/forecast/field/$fieldId';
+  static const String alerts = '\$apiPrefix/weather/alerts';
+  static String alertsByLocation(String locationId) => '\$apiPrefix/weather/alerts/$locationId';
+  static String alertsByField(String fieldId) => '\$apiPrefix/weather/alerts/field/$fieldId';
+  static const String locations = '\$apiPrefix/weather/locations';
+  static const String agriculturalCalendar = '\$apiPrefix/weather/agricultural-calendar';
+  static String fieldGraphGenerate(String fieldId) => '\$apiPrefix/weather/fields/$fieldId/graph';
+  static String fieldGraphFetch(String graphId) => '\$apiPrefix/weather/graphs/$graphId';
+  static const String kongCurrent = '\$apiPrefix/weather/weather/current';
+  static const String kongForecast = '\$apiPrefix/weather/weather/forecast';
+  static const String kongAgriculturalReport = '\$apiPrefix/weather/weather/agricultural-report';
+  static String kongCurrentByLocation(String locationId) => '\$apiPrefix/weather/v1/current/$locationId';
+  static String kongForecastByLocation(String locationId) => '\$apiPrefix/weather/v1/forecast/$locationId';
+  static const String kongLocations = '\$apiPrefix/weather/v1/locations';
+  static const String weatherCoreCurrent = '\$apiPrefix/weather-core/weather/current';
+  static const String weatherCoreForecast = '\$apiPrefix/weather-core/weather/forecast';
+  static const String weatherCoreAgReport = '\$apiPrefix/weather-core/weather/agricultural-report';
+  static const String gdd = '\$apiPrefix/weather/gdd';
+  static const String sprayWindows = '\$apiPrefix/weather/spray-windows';
+}
+
+/// yield
+abstract final class YieldEndpoints {
+  static String predict(String fieldId) => '\$apiPrefix/yield/fields/$fieldId/predict';
+  static String history(String fieldId) => '\$apiPrefix/yield/fields/$fieldId/history';
+  static const String predictPost = '\$apiPrefix/yield/predict';
+  static const String predictions = '\$apiPrefix/yield/predictions';
+  static const String profitability = '\$apiPrefix/yield/profitability';
 }

@@ -185,6 +185,65 @@ jobs:
           fi
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # Dart Hardcoded Path Scan
+  # Surfaces mobile files still using `$_baseUrl/...` or literal /api/v1/
+  # strings instead of importing from api_endpoints.dart.
+  # ─────────────────────────────────────────────────────────────────────────────
+  dart-hardcoded-paths:
+    name: Dart Hardcoded Path Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Scan Dart files for hardcoded paths
+        run: |
+          echo "🔍 Scanning Flutter codebase for hardcoded API path literals..."
+          # Non-strict: report but do not fail. The platform is migrating
+          # gradually and we want visibility without blocking unrelated PRs.
+          npx tsx scripts/check-dart-hardcoded-paths.ts || true
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Endpoint Reality Check
+  # Verifies that endpoints declared in the unified contracts are actually
+  # implemented in their corresponding backend services.
+  # ─────────────────────────────────────────────────────────────────────────────
+  endpoint-reality-check:
+    name: Endpoint Reality Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Run endpoint reality check
+        run: |
+          echo "🔍 Verifying contract endpoints are implemented in services..."
+          npx tsx scripts/endpoint-reality-check.ts
+
+      - name: Upload JSON report
+        if: always()
+        run: |
+          npx tsx scripts/endpoint-reality-check.ts --json > endpoint-reality-report.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: endpoint-reality-report
+          path: endpoint-reality-report.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Validate Port Uniqueness & Governance Sync
   # ─────────────────────────────────────────────────────────────────────────────
   governance-sync:

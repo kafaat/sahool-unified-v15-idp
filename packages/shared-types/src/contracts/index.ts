@@ -67,7 +67,26 @@
 //            BALANCE/VALIDATE_PHONE/OPERATORS/CANCEL). Distinct from
 //            BILLING_ENDPOINTS which covers Stripe + platform wallet.
 //          Purely additive.
-export const CONTRACT_VERSION = "4.17.0" as const;
+// 4.18.0 — close governance gaps from the unified-API audit:
+//          * SERVICE_HEALTH_ENDPOINTS (new): per-service Kong-routed
+//            /healthz paths, used by web Service Health Dashboard.
+//          * HYDROLOGY_ENDPOINTS (new): drainage, watershed, flow,
+//            stream-network, rainfall-runoff, infiltration. TERRAIN_ENDPOINTS
+//            HYDROLOGY_* entries marked @deprecated (aliased).
+//          * VEGETATION_ENDPOINTS (new): NDVI, EVI, SAVI, NDWI, LAI,
+//            chlorophyll, timeseries, stress-map. Split out from
+//            SATELLITE_ENDPOINTS for dedicated vegetation-analysis-service.
+//          * DRONE_ENDPOINTS expanded 4 → 17 (flight lifecycle, telemetry,
+//            VRA application, device registration).
+//          * SOIL_ENDPOINTS expanded with per-field moisture/salinity/pH
+//            /nutrients paths and analysis interpretation.
+//          * WIP_SERVICES marker introduced for task/vision/drone services
+//            (consumed by scripts/endpoint-reality-check.ts).
+//          * COMMUNITY_CHAT, NDVI_PROCESSOR, YIELD_PREDICTION_LEGACY ports
+//            tagged @deprecated with explicit removal version (v3.0.0 →
+//            re-baselined to v5.0.0 to honour main's 4.x cadence).
+//          Purely additive.
+export const CONTRACT_VERSION = "4.18.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

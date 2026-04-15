@@ -81,6 +81,34 @@ const eslintConfig = [
           ],
         },
       ],
+
+      // Forbid hardcoded /api/v1/ path literals outside of test files.
+      // All API paths must come from @sahool/shared-types/contracts
+      // (AUTH_ENDPOINTS, FIELD_ENDPOINTS, WEATHER_ENDPOINTS, ...).
+      // Use buildUrl() from contracts for path parameters.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "Literal[value=/^\\/api\\/v1\\//], TemplateElement[value.raw=/^\\/api\\/v1\\//]",
+          message:
+            "Hardcoded /api/v1/ paths are forbidden. Import the endpoint constant from '@sahool/shared-types/contracts' (e.g. FIELD_ENDPOINTS, WEATHER_ENDPOINTS) and use buildUrl() for path parameters.",
+        },
+      ],
+    },
+  },
+  {
+    // Allow hardcoded paths in test files where explicit URL assertions are expected
+    files: [
+      "**/__tests__/**",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "e2e/**",
+    ],
+    rules: {
+      "no-restricted-syntax": "off",
     },
   },
   {

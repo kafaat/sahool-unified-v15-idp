@@ -47,7 +47,10 @@ export const SERVICE_PORTS = {
   IRRIGATION_SMART: 8094,
   /** Crop health AI / disease detection - صحة المحاصيل */
   CROP_INTELLIGENCE: 8095,
-  /** NDVI processing - معالجة NDVI */
+  /**
+   * NDVI processing - معالجة NDVI
+   * @deprecated Use VEGETATION_ANALYSIS (8090) instead. Removal: v3.0.0
+   */
   NDVI_PROCESSOR: 8118,
   /** Virtual sensor computation (ET0, ETC) - أجهزة الاستشعار الافتراضية */
   VIRTUAL_SENSORS: 8119,
@@ -65,7 +68,10 @@ export const SERVICE_PORTS = {
   YIELD_PREDICTION: 8152,
   /** Yield engine (legacy) - محرك الإنتاجية */
   YIELD_ENGINE: 8098,
-  /** Yield prediction (deprecated NestJS service) - تنبؤ الغلة القديمة */
+  /**
+   * Yield prediction (legacy NestJS service) - تنبؤ الغلة القديمة
+   * @deprecated Use YIELD_PREDICTION (8152) instead. Removal: v3.0.0
+   */
   YIELD_PREDICTION_LEGACY: 3021,
 
   // ── Business Layer ───────────────────────────────────────────────────
@@ -93,7 +99,10 @@ export const SERVICE_PORTS = {
   CHAT_SERVICE: 8115,
   /** Field-level chat - دردشة الحقل */
   FIELD_CHAT: 8099,
-  /** Community features (deprecated → chat-service) */
+  /**
+   * Community chat (was community-chat service) - دردشة المجتمع
+   * @deprecated Use CHAT_SERVICE (8115) instead. Removal: v3.0.0
+   */
   COMMUNITY_CHAT: 8097,
 
   // ── IoT & Sensors ───────────────────────────────────────────────────

@@ -32,6 +32,34 @@ export const HEALTH_ENDPOINTS = {
   METRICS: '/metrics',
 } as const;
 
+/**
+ * Service health-check endpoints routed through Kong Gateway.
+ * Pattern: `${API_PREFIX}/{service-slug}/healthz`
+ * Used by the web Service Health Dashboard and platform monitoring.
+ */
+export const SERVICE_HEALTH_ENDPOINTS = {
+  FIELD_MANAGEMENT: `${API_PREFIX}/fields/healthz`,
+  WEATHER: `${API_PREFIX}/weather/healthz`,
+  VEGETATION: `${API_PREFIX}/vegetation/healthz`,
+  IRRIGATION: `${API_PREFIX}/irrigation/healthz`,
+  ADVISORY: `${API_PREFIX}/advisory/healthz`,
+  TASKS: `${API_PREFIX}/tasks/healthz`,
+  NOTIFICATIONS: `${API_PREFIX}/notifications/healthz`,
+  ALERTS: `${API_PREFIX}/alerts/healthz`,
+  CROP_HEALTH: `${API_PREFIX}/crop-health/healthz`,
+  SATELLITE: `${API_PREFIX}/satellite/healthz`,
+  EQUIPMENT: `${API_PREFIX}/equipment/healthz`,
+  IOT: `${API_PREFIX}/iot/healthz`,
+  MARKETPLACE: `${API_PREFIX}/marketplace/healthz`,
+  BILLING: `${API_PREFIX}/billing/healthz`,
+  CHAT: `${API_PREFIX}/chat/healthz`,
+  YIELD: `${API_PREFIX}/yield/healthz`,
+  DISASTERS: `${API_PREFIX}/disasters/healthz`,
+  PROVIDERS: `${API_PREFIX}/providers/healthz`,
+  AGRO_RULES: `${API_PREFIX}/agro-rules/healthz`,
+  INTELLIGENCE: `${API_PREFIX}/intelligence/healthz`,
+} as const;
+
 // ---------------------------------------------------------------------------
 // Auth Endpoints - نقاط المصادقة
 // ---------------------------------------------------------------------------
@@ -64,7 +92,7 @@ export const FIELD_ENDPOINTS = {
   SYNC: `${API_PREFIX}/fields/sync`,
   SYNC_BATCH: `${API_PREFIX}/fields/sync/batch`,
   /**
-   * Field boundary endpoints.
+   * Field boundary endpoints (current external path via Kong).
    *
    * IMPORTANT — paths must NOT include the legacy `field-core/` segment.
    * The owning service is `field-management-service` and its NestJS
@@ -80,6 +108,8 @@ export const FIELD_ENDPOINTS = {
   BOUNDARY_UPDATE: `${API_PREFIX}/fields/{fieldId}/boundary`,
   BOUNDARY_HISTORY: `${API_PREFIX}/fields/{fieldId}/boundary-history`,
   BOUNDARY_ROLLBACK: `${API_PREFIX}/fields/{fieldId}/boundary-history/rollback`,
+  /** @since 4.18.0 — Field KPI snapshot (cached weekly KPI aggregate) */
+  KPI_SNAPSHOT: `${API_PREFIX}/fields/{fieldId}/kpi-snapshot`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -222,12 +252,28 @@ export const WEATHER_ENDPOINTS = {
   FIELD_GRAPH_GENERATE: `${API_PREFIX}/weather/fields/{fieldId}/graph`,
   /** @since 4.7.0 — Fetch a previously generated weather graph by signed id */
   FIELD_GRAPH_FETCH: `${API_PREFIX}/weather/graphs/{graphId}`,
+  /**
+   * Kong-routed actual external paths.
+   * Kong routes /api/v1/weather/* → weather-service which has /weather/* endpoints.
+   * Use these until Kong strip_path is enabled for weather routes.
+   */
+  KONG_CURRENT: `${API_PREFIX}/weather/weather/current`,
+  KONG_FORECAST: `${API_PREFIX}/weather/weather/forecast`,
+  KONG_AGRICULTURAL_REPORT: `${API_PREFIX}/weather/weather/agricultural-report`,
+  /** Yemen/location-scoped endpoints (Kong-routed with v1 prefix) */
+  KONG_CURRENT_BY_LOCATION: `${API_PREFIX}/weather/v1/current/{locationId}`,
+  KONG_FORECAST_BY_LOCATION: `${API_PREFIX}/weather/v1/forecast/{locationId}`,
+  KONG_LOCATIONS: `${API_PREFIX}/weather/v1/locations`,
   /** @deprecated Use WEATHER_ENDPOINTS.CURRENT instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_CURRENT: `${API_PREFIX}/weather-core/weather/current`,
   /** @deprecated Use WEATHER_ENDPOINTS.FORECAST instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_FORECAST: `${API_PREFIX}/weather-core/weather/forecast`,
   /** @deprecated Use WEATHER_ENDPOINTS.AGRICULTURAL_CALENDAR instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_AG_REPORT: `${API_PREFIX}/weather-core/weather/agricultural-report`,
+  /** @since 4.18.0 — Growing Degree Days journal (weather-service) */
+  GDD: `${API_PREFIX}/weather/gdd`,
+  /** @since 4.18.0 — Spray-window candidates (weather-service) */
+  SPRAY_WINDOWS: `${API_PREFIX}/weather/spray-windows`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -257,6 +303,13 @@ export const CROP_HEALTH_ENDPOINTS = {
   DIAGNOSE_BATCH: `${API_PREFIX}/crop-health/diagnose/batch`,
   DECISION: `${API_PREFIX}/crop-health/decision`,
   HISTORY: `${API_PREFIX}/crop-health/fields/{fieldId}/history`,
+  /**
+   * @since 4.18.0 — crop-intelligence-service alias paths (different
+   * Kong route from /crop-health, used by Phase-2 web client).
+   */
+  INTELLIGENCE_ANALYZE: `${API_PREFIX}/crop-intelligence/analyze`,
+  INTELLIGENCE_DECISION: `${API_PREFIX}/crop-intelligence/decision`,
+  INTELLIGENCE_HISTORY: `${API_PREFIX}/crop-intelligence/fields/{fieldId}/history`,
   CROPS: `${API_PREFIX}/crop-health/crops`,
   DISEASES: `${API_PREFIX}/crop-health/diseases`,
   TREATMENT: `${API_PREFIX}/crop-health/treatment/{diseaseId}`,
@@ -311,8 +364,15 @@ export const ADVISORY_ENDPOINTS = {
   FERTILIZER_CALCULATE: `${API_PREFIX}/advisory/fertilizer/calculate`,
   FERTILIZER_UPDATE: `${API_PREFIX}/advisory/fertilizer/{prescriptionId}`,
   FERTILIZER_ZONE_UPDATE: `${API_PREFIX}/advisory/fertilizer/{prescriptionId}/zones/{zoneId}`,
+  /** Current external paths (via Kong) - advisory-service */
+  ADVICE: `${API_PREFIX}/advisory/advice`,
+  DISEASE: `${API_PREFIX}/advisory/disease`,
+  NUTRIENTS: `${API_PREFIX}/advisory/nutrients`,
+  /** @deprecated Use ADVICE instead (agro-advisor service was consolidated into advisory-service) */
   AGRO_ADVICE: `${API_PREFIX}/agro-advisor/advice`,
+  /** @deprecated Use DISEASE instead */
   AGRO_DISEASE: `${API_PREFIX}/agro-advisor/disease`,
+  /** @deprecated Use NUTRIENTS instead */
   AGRO_NUTRIENTS: `${API_PREFIX}/agro-advisor/nutrients`,
   /** @since 4.7.0 — Jeevn-style unified per-field advisory (one call → comprehensive answer) */
   COMPREHENSIVE: `${API_PREFIX}/advisory/comprehensive/{fieldId}`,
@@ -323,6 +383,8 @@ export const ADVISORY_ENDPOINTS = {
   CROP_ADVICE: `${API_PREFIX}/advisory/crop-advice/{fieldId}`,
   /** @since 4.16.0 — Spray-timing windows used by the web crop-protection feature */
   SPRAY_WINDOWS: `${API_PREFIX}/advisory/spray-windows`,
+  /** @since 4.18.0 — Spray-history journal (advisory-service) */
+  SPRAY_HISTORY: `${API_PREFIX}/advisory/spray-history`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -351,6 +413,9 @@ export const LOAN_VERIFICATION_ENDPOINTS = {
 
 // ---------------------------------------------------------------------------
 // Task Endpoints - نقاط المهام
+// WIP: task-service (port 8103) currently implements a subset only.
+// Endpoints marked below are tracked by endpoint-reality-check.
+// See: scripts/endpoint-reality-check.ts
 // ---------------------------------------------------------------------------
 
 export const TASK_ENDPOINTS = {
@@ -364,6 +429,9 @@ export const TASK_ENDPOINTS = {
   /** @since 4.14.0 — Task assignment action surfaced by the web proxy */
   ASSIGN: `${API_PREFIX}/tasks/{taskId}/assign`,
 } as const;
+
+/** WIP services allowed to have partial endpoint implementation. */
+export const WIP_SERVICES = ["task-service", "yolo26-vision-service", "drone-service"] as const;
 
 // ---------------------------------------------------------------------------
 // Equipment Endpoints - نقاط المعدات
@@ -557,9 +625,23 @@ export const CHAT_ENDPOINTS = {
   MARK_READ: `${API_PREFIX}/chat/conversations/{conversationId}/read`,
   CREATE_CONVERSATION: `${API_PREFIX}/chat/conversations`,
   UNREAD_COUNT: `${API_PREFIX}/chat/conversations/unread-count`,
+  /**
+   * Legacy field-chat paths. Preserved for back-compat.
+   * @deprecated Use FIELD_MESSAGES_V2 / FIELD_SEND_V2 / FIELD_PARTICIPANTS_V2
+   * which route through the consolidated chat-service at /api/v1/chat/fields/*.
+   * Removal: v5.0.0
+   */
   FIELD_MESSAGES: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
   FIELD_SEND: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
   FIELD_PARTICIPANTS: `${API_PREFIX}/field-chat/fields/{fieldId}/participants`,
+  /**
+   * @since 4.18.0 - Canonical chat-service paths (post field-chat consolidation).
+   * Use these in new code. The *_V2 suffix is a transitional marker until
+   * the legacy FIELD_* constants are removed in v5.0.0.
+   */
+  FIELD_MESSAGES_V2: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  FIELD_SEND_V2: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  FIELD_PARTICIPANTS_V2: `${API_PREFIX}/chat/fields/{fieldId}/participants`,
   COMMUNITY_POSTS: `${API_PREFIX}/posts`,
   COMMUNITY_POST_GET: `${API_PREFIX}/posts/{postId}`,
   COMMUNITY_COMMENTS: `${API_PREFIX}/posts/{postId}/comments`,
@@ -613,6 +695,15 @@ export const YIELD_ENDPOINTS = {
 
 export const AI_ENDPOINTS = {
   COPILOT_CHAT: `${API_PREFIX}/copilot/chat`,
+  /**
+   * @since 4.18.0 — Copilot service direct paths (not routed via Kong).
+   * The page uses `${COPILOT_API_BASE}/api/v1/chat` style concatenation
+   * where COPILOT_API_BASE is the direct service URL. Keep the `/api/v1`
+   * prefix here so the builder can pair it with `${COPILOT_API_BASE}`
+   * without double-prefixing.
+   */
+  COPILOT_CHAT_DIRECT: `${API_PREFIX}/chat`,
+  COPILOT_CHAT_STREAM_DIRECT: `${API_PREFIX}/chat/stream`,
   COPILOT_HISTORY: `${API_PREFIX}/copilot/chat/history`,
   COPILOT_TOOLS: `${API_PREFIX}/copilot/tools`,
   COPILOT_EXECUTE_TOOL: `${API_PREFIX}/copilot/tools/{toolName}/execute`,
@@ -657,11 +748,20 @@ export const TERRAIN_ENDPOINTS = {
   SLOPE: `${API_PREFIX}/terrain/slope`,
   /** @since 4.3.0 - Corrected to field-scoped path */
   ASPECT: `${API_PREFIX}/terrain/aspect/{fieldId}`,
-  /** @since 4.3.0 - Corrected to field-scoped path under /hydrology/drainage */
+  /**
+   * @since 4.3.0 - Corrected to field-scoped path under /hydrology/drainage
+   * @deprecated Use HYDROLOGY_ENDPOINTS.DRAINAGE_BY_FIELD instead
+   */
   HYDROLOGY_DRAINAGE: `${API_PREFIX}/hydrology/drainage/{fieldId}`,
-  /** @since 4.3.0 - Corrected to field-scoped path under /hydrology/basins */
+  /**
+   * @since 4.3.0 - Corrected to field-scoped path under /hydrology/basins
+   * @deprecated Use HYDROLOGY_ENDPOINTS.WATERSHED_DELINEATE instead
+   */
   HYDROLOGY_WATERSHED: `${API_PREFIX}/hydrology/basins/{fieldId}`,
-  /** @since 4.3.0 - Corrected to field-scoped path under /terrain/flow */
+  /**
+   * @since 4.3.0 - Corrected to field-scoped path under /terrain/flow
+   * @deprecated Use HYDROLOGY_ENDPOINTS.FLOW_ACCUMULATION instead
+   */
   HYDROLOGY_FLOW: `${API_PREFIX}/terrain/flow/{fieldId}`,
   /** @since 4.3.0 - Corrected to /leveling/analyze (cut/fill data included in response) */
   LEVELING_OPTIMIZE: `${API_PREFIX}/leveling/analyze`,
@@ -686,6 +786,38 @@ export const TERRAIN_ENDPOINTS = {
   TWI: `${API_PREFIX}/terrain/twi/{fieldId}`,
   CONTOURS: `${API_PREFIX}/terrain/contours/{fieldId}`,
   ANALYZE: `${API_PREFIX}/terrain/analyze`,
+} as const;
+
+/**
+ * Hydrology Service Endpoints (port 8165)
+ * نقاط خدمة الهيدرولوجيا - watershed, drainage, and flow analysis
+ */
+export const HYDROLOGY_ENDPOINTS = {
+  DRAINAGE: `${API_PREFIX}/hydrology/drainage`,
+  DRAINAGE_BY_FIELD: `${API_PREFIX}/hydrology/drainage/{fieldId}`,
+  WATERSHED: `${API_PREFIX}/hydrology/watershed`,
+  WATERSHED_DELINEATE: `${API_PREFIX}/hydrology/watershed/delineate`,
+  FLOW: `${API_PREFIX}/hydrology/flow`,
+  FLOW_ACCUMULATION: `${API_PREFIX}/hydrology/flow/accumulation`,
+  STREAM_NETWORK: `${API_PREFIX}/hydrology/streams`,
+  RAINFALL_RUNOFF: `${API_PREFIX}/hydrology/rainfall-runoff`,
+  INFILTRATION: `${API_PREFIX}/hydrology/infiltration`,
+} as const;
+
+/**
+ * Vegetation Analysis Service Endpoints (port 8090)
+ * نقاط تحليل الغطاء النباتي - specialized vegetation indices beyond SATELLITE_ENDPOINTS
+ */
+export const VEGETATION_ENDPOINTS = {
+  ANALYZE: `${API_PREFIX}/vegetation/analyze`,
+  NDVI: `${API_PREFIX}/vegetation/ndvi/{fieldId}`,
+  EVI: `${API_PREFIX}/vegetation/evi/{fieldId}`,
+  SAVI: `${API_PREFIX}/vegetation/savi/{fieldId}`,
+  NDWI: `${API_PREFIX}/vegetation/ndwi/{fieldId}`,
+  LAI: `${API_PREFIX}/vegetation/lai/{fieldId}`,
+  CHLOROPHYLL: `${API_PREFIX}/vegetation/chlorophyll/{fieldId}`,
+  TIMESERIES: `${API_PREFIX}/vegetation/timeseries/{fieldId}`,
+  STRESS_MAP: `${API_PREFIX}/vegetation/stress/{fieldId}`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -722,7 +854,20 @@ export const SOIL_ENDPOINTS = {
   TESTS: `${API_PREFIX}/soil/tests`,
   TEST_GET: `${API_PREFIX}/soil/tests/{testId}`,
   TEST_CREATE: `${API_PREFIX}/soil/tests`,
+  TEST_UPDATE: `${API_PREFIX}/soil/tests/{testId}`,
+  TEST_DELETE: `${API_PREFIX}/soil/tests/{testId}`,
+  /** @deprecated Use TESTS_BY_FIELD instead (different path shape from main). */
+  TESTS_BY_FIELD_LEGACY: `${API_PREFIX}/soil/fields/{fieldId}/tests`,
+  ANALYSIS: `${API_PREFIX}/soil/analysis`,
+  ANALYSIS_INTERPRET: `${API_PREFIX}/soil/analysis/interpret`,
+  SENSORS: `${API_PREFIX}/soil/sensors`,
+  SENSOR_READINGS: `${API_PREFIX}/soil/sensors/{sensorId}/readings`,
+  MOISTURE: `${API_PREFIX}/soil/moisture/{fieldId}`,
+  SALINITY: `${API_PREFIX}/soil/salinity/{fieldId}`,
+  PH: `${API_PREFIX}/soil/ph/{fieldId}`,
+  NUTRIENTS: `${API_PREFIX}/soil/nutrients/{fieldId}`,
   RECOMMENDATIONS: `${API_PREFIX}/soil/recommendations`,
+  RECOMMENDATIONS_BY_FIELD: `${API_PREFIX}/soil/recommendations/{fieldId}`,
   /** @since 4.14.0 — Endpoints surfaced by the web `/api/soil-analysis` proxy */
   TESTS_BY_FIELD: `${API_PREFIX}/soil/tests/field/{fieldId}`,
   PRODUCTS: `${API_PREFIX}/soil/products`,
@@ -736,8 +881,21 @@ export const SOIL_ENDPOINTS = {
 export const DRONE_ENDPOINTS = {
   FLIGHTS: `${API_PREFIX}/drone/flights`,
   FLIGHT_GET: `${API_PREFIX}/drone/flights/{flightId}`,
+  FLIGHT_CREATE: `${API_PREFIX}/drone/flights`,
+  FLIGHT_UPDATE: `${API_PREFIX}/drone/flights/{flightId}`,
+  FLIGHT_DELETE: `${API_PREFIX}/drone/flights/{flightId}`,
   FLIGHT_PLAN: `${API_PREFIX}/drone/flights/plan`,
+  FLIGHT_START: `${API_PREFIX}/drone/flights/{flightId}/start`,
+  FLIGHT_PAUSE: `${API_PREFIX}/drone/flights/{flightId}/pause`,
+  FLIGHT_RESUME: `${API_PREFIX}/drone/flights/{flightId}/resume`,
+  FLIGHT_ABORT: `${API_PREFIX}/drone/flights/{flightId}/abort`,
+  FLIGHT_MISSIONS: `${API_PREFIX}/drone/flights/{flightId}/missions`,
+  FLIGHT_TELEMETRY: `${API_PREFIX}/drone/flights/{flightId}/telemetry`,
   DEVICES: `${API_PREFIX}/drone/devices`,
+  DEVICE_GET: `${API_PREFIX}/drone/devices/{deviceId}`,
+  DEVICE_REGISTER: `${API_PREFIX}/drone/devices`,
+  DEVICE_STATUS: `${API_PREFIX}/drone/devices/{deviceId}/status`,
+  VRA_APPLY: `${API_PREFIX}/drone/vra/apply`,
 } as const;
 
 export const INVENTORY_ENDPOINTS = {
@@ -768,11 +926,17 @@ export const PROVIDER_ENDPOINTS = {
   LIST: `${API_PREFIX}/providers`,
   CONFIG: `${API_PREFIX}/providers/{providerId}/config`,
   CONFIG_UPDATE: `${API_PREFIX}/providers/{providerId}/config`,
+  /** @since 4.18.0 — provider-config-service flat URL (web client) */
+  PROVIDER_CONFIG_LIST: `${API_PREFIX}/provider-config`,
+  PROVIDER_CONFIG_ITEM: `${API_PREFIX}/provider-config/{providerId}`,
 } as const;
 
 export const DISASTER_ENDPOINTS = {
   ASSESS: `${API_PREFIX}/disasters/assess`,
   ALERTS: `${API_PREFIX}/disasters/alerts`,
+  /** @since 4.18.0 — singular `/disaster/*` paths used by Phase-2 web client */
+  ASSESS_SINGULAR: `${API_PREFIX}/disaster/assess`,
+  ALERTS_SINGULAR: `${API_PREFIX}/disaster/alerts`,
   /** @since 4.3.0 - Disaster events collection */
   EVENTS: `${API_PREFIX}/disasters/events`,
   /** @since 4.3.0 - Single disaster event by id */

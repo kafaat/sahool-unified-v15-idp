@@ -5,4 +5,4 @@ bcrypt==4.2.1
 python-jose[cryptography]==3.3.0
 pydantic[email]==2.10.6
 pydantic-settings==2.3.4
-python-multipart==0.0.9
+python-multipart==0.0.26

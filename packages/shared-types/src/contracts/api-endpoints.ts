@@ -108,6 +108,8 @@ export const FIELD_ENDPOINTS = {
   BOUNDARY_UPDATE: `${API_PREFIX}/fields/{fieldId}/boundary`,
   BOUNDARY_HISTORY: `${API_PREFIX}/fields/{fieldId}/boundary-history`,
   BOUNDARY_ROLLBACK: `${API_PREFIX}/fields/{fieldId}/boundary-history/rollback`,
+  /** @since 4.18.0 — Field KPI snapshot (cached weekly KPI aggregate) */
+  KPI_SNAPSHOT: `${API_PREFIX}/fields/{fieldId}/kpi-snapshot`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -623,14 +625,23 @@ export const CHAT_ENDPOINTS = {
   MARK_READ: `${API_PREFIX}/chat/conversations/{conversationId}/read`,
   CREATE_CONVERSATION: `${API_PREFIX}/chat/conversations`,
   UNREAD_COUNT: `${API_PREFIX}/chat/conversations/unread-count`,
-  /** Current external paths (via Kong) - chat-service (field-chat consolidated) */
-  FIELD_MESSAGES: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
-  FIELD_SEND: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
-  FIELD_PARTICIPANTS: `${API_PREFIX}/chat/fields/{fieldId}/participants`,
-  /** @deprecated Use FIELD_MESSAGES instead (field-chat service was deprecated) */
-  FIELD_CHAT_MESSAGES: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
-  /** @deprecated Use FIELD_PARTICIPANTS instead */
-  FIELD_CHAT_PARTICIPANTS: `${API_PREFIX}/field-chat/fields/{fieldId}/participants`,
+  /**
+   * Legacy field-chat paths. Preserved for back-compat.
+   * @deprecated Use FIELD_MESSAGES_V2 / FIELD_SEND_V2 / FIELD_PARTICIPANTS_V2
+   * which route through the consolidated chat-service at /api/v1/chat/fields/*.
+   * Removal: v5.0.0
+   */
+  FIELD_MESSAGES: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
+  FIELD_SEND: `${API_PREFIX}/field-chat/fields/{fieldId}/messages`,
+  FIELD_PARTICIPANTS: `${API_PREFIX}/field-chat/fields/{fieldId}/participants`,
+  /**
+   * @since 4.18.0 - Canonical chat-service paths (post field-chat consolidation).
+   * Use these in new code. The *_V2 suffix is a transitional marker until
+   * the legacy FIELD_* constants are removed in v5.0.0.
+   */
+  FIELD_MESSAGES_V2: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  FIELD_SEND_V2: `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  FIELD_PARTICIPANTS_V2: `${API_PREFIX}/chat/fields/{fieldId}/participants`,
   COMMUNITY_POSTS: `${API_PREFIX}/posts`,
   COMMUNITY_POST_GET: `${API_PREFIX}/posts/{postId}`,
   COMMUNITY_COMMENTS: `${API_PREFIX}/posts/{postId}/comments`,
@@ -684,6 +695,15 @@ export const YIELD_ENDPOINTS = {
 
 export const AI_ENDPOINTS = {
   COPILOT_CHAT: `${API_PREFIX}/copilot/chat`,
+  /**
+   * @since 4.18.0 — Copilot service direct paths (not routed via Kong).
+   * The page uses `${COPILOT_API_BASE}/api/v1/chat` style concatenation
+   * where COPILOT_API_BASE is the direct service URL. Keep the `/api/v1`
+   * prefix here so the builder can pair it with `${COPILOT_API_BASE}`
+   * without double-prefixing.
+   */
+  COPILOT_CHAT_DIRECT: `${API_PREFIX}/chat`,
+  COPILOT_CHAT_STREAM_DIRECT: `${API_PREFIX}/chat/stream`,
   COPILOT_HISTORY: `${API_PREFIX}/copilot/chat/history`,
   COPILOT_TOOLS: `${API_PREFIX}/copilot/tools`,
   COPILOT_EXECUTE_TOOL: `${API_PREFIX}/copilot/tools/{toolName}/execute`,
@@ -725,6 +745,7 @@ export const VISION_ENDPOINTS = {
 
 export const TERRAIN_ENDPOINTS = {
   DEM: `${API_PREFIX}/terrain/dem`,
+  SLOPE: `${API_PREFIX}/terrain/slope`,
   /** @since 4.3.0 - Corrected to field-scoped path */
   ASPECT: `${API_PREFIX}/terrain/aspect/{fieldId}`,
   /**

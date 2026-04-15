@@ -562,7 +562,7 @@ class SahoolApiClient {
   // ═══════════════════════════════════════════════════════════════════════════
 
   async getFieldMessages(fieldId: string, options?: { limit?: number; offset?: number }) {
-    return this.request<any[]>(buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES, { fieldId }), {
+    return this.request<any[]>(buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES_V2, { fieldId }), {
       params: {
         limit: String(options?.limit || 50),
         offset: String(options?.offset || 0),
@@ -597,14 +597,14 @@ class SahoolApiClient {
       };
     }
 
-    return this.request<any>(buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES, { fieldId }), {
+    return this.request<any>(buildUrl(CHAT_ENDPOINTS.FIELD_MESSAGES_V2, { fieldId }), {
       method: 'POST',
       body: JSON.stringify({ message: sanitizedMessage }),
     });
   }
 
   async getFieldChatParticipants(fieldId: string) {
-    return this.request<any[]>(buildUrl(CHAT_ENDPOINTS.FIELD_PARTICIPANTS, { fieldId }));
+    return this.request<any[]>(buildUrl(CHAT_ENDPOINTS.FIELD_PARTICIPANTS_V2, { fieldId }));
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

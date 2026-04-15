@@ -103,6 +103,8 @@ abstract final class AgroRulesendpoints {
 /// ai
 abstract final class Aiendpoints {
   static const String copilotChat = '\$apiPrefix/copilot/chat';
+  static const String copilotChatDirect = '\$apiPrefix/chat';
+  static const String copilotChatStreamDirect = '\$apiPrefix/chat/stream';
   static const String copilotHistory = '\$apiPrefix/copilot/chat/history';
   static const String copilotTools = '\$apiPrefix/copilot/tools';
   static String copilotExecuteTool(String toolName) => '\$apiPrefix/copilot/tools/$toolName/execute';
@@ -195,11 +197,12 @@ abstract final class Chatendpoints {
   static String markRead(String conversationId) => '\$apiPrefix/chat/conversations/$conversationId/read';
   static const String createConversation = '\$apiPrefix/chat/conversations';
   static const String unreadCount = '\$apiPrefix/chat/conversations/unread-count';
-  static String fieldMessages(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/messages';
-  static String fieldSend(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/messages';
-  static String fieldParticipants(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/participants';
-  static String fieldChatMessages(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/messages';
-  static String fieldChatParticipants(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/participants';
+  static String fieldMessages(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/messages';
+  static String fieldSend(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/messages';
+  static String fieldParticipants(String fieldId) => '\$apiPrefix/field-chat/fields/$fieldId/participants';
+  static String fieldMessagesV2(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/messages';
+  static String fieldSendV2(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/messages';
+  static String fieldParticipantsV2(String fieldId) => '\$apiPrefix/chat/fields/$fieldId/participants';
   static const String communityPosts = '\$apiPrefix/posts';
   static String communityPostGet(String postId) => '\$apiPrefix/posts/$postId';
   static String communityComments(String postId) => '\$apiPrefix/posts/$postId/comments';
@@ -449,6 +452,7 @@ abstract final class Fieldendpoints {
   static String boundaryUpdate(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary';
   static String boundaryHistory(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary-history';
   static String boundaryRollback(String fieldId) => '\$apiPrefix/fields/$fieldId/boundary-history/rollback';
+  static String kpiSnapshot(String fieldId) => '\$apiPrefix/fields/$fieldId/kpi-snapshot';
 }
 
 /// field operation
@@ -930,6 +934,7 @@ abstract final class Teamendpoints {
 /// terrain
 abstract final class Terrainendpoints {
   static const String dem = '\$apiPrefix/terrain/dem';
+  static const String slope = '\$apiPrefix/terrain/slope';
   static String aspect(String fieldId) => '\$apiPrefix/terrain/aspect/$fieldId';
   static String hydrologyDrainage(String fieldId) => '\$apiPrefix/hydrology/drainage/$fieldId';
   static String hydrologyWatershed(String fieldId) => '\$apiPrefix/hydrology/basins/$fieldId';

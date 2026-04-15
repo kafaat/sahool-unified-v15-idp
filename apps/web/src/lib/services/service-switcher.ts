@@ -2,6 +2,15 @@
  * SAHOOL Service Switcher
  * نظام التبديل بين الخدمات للمقارنة والاختبار
  *
+ * The `endpoint` strings below are legacy/mock comparison targets kept as
+ * string literals intentionally (they describe alternative implementations
+ * of each service, not the canonical contract). Disable the unified-path
+ * rule for this entire file.
+ */
+/* eslint-disable no-restricted-syntax */
+/**
+ * SAHOOL Service Switcher (continued)
+ *
  * يتيح للمستخدم:
  * - التبديل بين الخدمات القديمة والجديدة
  * - مقارنة الأداء والنتائج

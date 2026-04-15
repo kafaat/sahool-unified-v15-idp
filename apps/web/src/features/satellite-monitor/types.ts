@@ -367,6 +367,9 @@ export interface ServiceEndpoint {
   healthCheck: string;
 }
 
+// Service metadata map — `basePath` values are Kong route prefixes, not
+// call sites. Disable the no-restricted-syntax rule for this block.
+/* eslint-disable no-restricted-syntax */
 export const SATELLITE_SERVICE_MAP: Record<string, ServiceEndpoint> = {
   satellite: { service: 'vegetation-analysis-service', serviceAr: 'خدمة تحليل الغطاء النباتي', port: 8090, basePath: '/api/v1/vegetation', healthCheck: '/healthz' },
   weather: { service: 'weather-service', serviceAr: 'خدمة الطقس', port: 8092, basePath: '/api/v1/weather', healthCheck: '/healthz' },
@@ -380,6 +383,7 @@ export const SATELLITE_SERVICE_MAP: Record<string, ServiceEndpoint> = {
   vision: { service: 'yolo26-vision-service', serviceAr: 'خدمة الرؤية الحاسوبية', port: 8150, basePath: '/api/v1/vision', healthCheck: '/healthz' },
   cropIntelligence: { service: 'crop-intelligence-service', serviceAr: 'خدمة ذكاء المحاصيل', port: 8095, basePath: '/api/v1/crop-intelligence', healthCheck: '/healthz' },
 };
+/* eslint-enable no-restricted-syntax */
 
 // ---------------------------------------------------------------------------
 // Data Source & Quality Tracking

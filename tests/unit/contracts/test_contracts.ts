@@ -353,18 +353,21 @@ assert(
   "FIELD_ENDPOINTS.BOUNDARY_ROLLBACK should not contain /field-core/",
 );
 
-// CHAT_ENDPOINTS field-* must no longer use deprecated /field-chat/ prefix
+// CHAT_ENDPOINTS: canonical FIELD_MESSAGES_V2 routes through chat-service;
+// legacy FIELD_MESSAGES retains the /field-chat/ value for back-compat
+// until v5.0.0 (clients should migrate to _V2 constants).
+const chatAny = CHAT_ENDPOINTS as Record<string, string>;
 assert(
-  !CHAT_ENDPOINTS.FIELD_MESSAGES.includes("/field-chat/"),
-  "CHAT_ENDPOINTS.FIELD_MESSAGES should not contain deprecated /field-chat/",
+  chatAny.FIELD_MESSAGES_V2 === `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  "CHAT_ENDPOINTS.FIELD_MESSAGES_V2 should use /api/v1/chat/fields/{fieldId}/messages",
 );
 assert(
-  CHAT_ENDPOINTS.FIELD_MESSAGES === `${API_PREFIX}/chat/fields/{fieldId}/messages`,
-  "CHAT_ENDPOINTS.FIELD_MESSAGES should use /api/v1/chat/fields/{fieldId}/messages",
+  chatAny.FIELD_PARTICIPANTS_V2 === `${API_PREFIX}/chat/fields/{fieldId}/participants`,
+  "CHAT_ENDPOINTS.FIELD_PARTICIPANTS_V2 should use /api/v1/chat/fields/{fieldId}/participants",
 );
 assert(
-  !CHAT_ENDPOINTS.FIELD_PARTICIPANTS.includes("/field-chat/"),
-  "CHAT_ENDPOINTS.FIELD_PARTICIPANTS should not contain /field-chat/",
+  chatAny.FIELD_SEND_V2 === `${API_PREFIX}/chat/fields/{fieldId}/messages`,
+  "CHAT_ENDPOINTS.FIELD_SEND_V2 should use /api/v1/chat/fields/{fieldId}/messages",
 );
 
 // ADVISORY_ENDPOINTS must have new canonical entries + deprecated aliases

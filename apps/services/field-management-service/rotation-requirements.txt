@@ -3,8 +3,8 @@
 # Version: 1.0.0
 
 # Base requirements
-fastapi==0.135.1
-uvicorn[standard]==0.41.0
+fastapi==0.136.0
+uvicorn[standard]==0.44.0
 pydantic==2.13.1
 httpx==0.28.1
 python-dotenv==1.0.1

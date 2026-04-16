@@ -1,0 +1,129 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL IDP – Professional Internal Developer Platform
+# منصّة المطوّر الداخلية الاحترافيّة – سهول
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# Unified dashboard configuration connecting all IDP components:
+#   - Backstage Developer Portal (service catalog, TechDocs, plugins)
+#   - LikeC4 Architecture Diagrams (3 C4 levels)
+#   - EventCatalog (event-driven architecture documentation)
+#   - Kiali (Istio service mesh observability)
+#   - Keycloak (SSO for all IDP tools)
+#   - Jaeger (distributed tracing)
+#   - Grafana (metrics dashboards)
+#
+# All components share Keycloak SSO via the 'sahool' realm.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+version: "16.0.0"
+name: sahool-idp-dashboard
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Component Registry
+# ─────────────────────────────────────────────────────────────────────────────
+components:
+  backstage:
+    name: Backstage Developer Portal
+    url: ${BACKSTAGE_BASE_URL:-http://localhost:7007}
+    description: Service catalog, TechDocs, CI/CD status, Kubernetes pods
+    plugins:
+      - name: GitHub Actions
+        annotation: github.com/project-slug
+        description: CI/CD workflow runs per service
+      - name: Jenkins CI
+        annotation: jenkins.io/job-full-name
+        description: Jenkins build status
+      - name: Kubernetes
+        annotation: backstage.io/kubernetes-id
+        description: Pod status, logs, deployments
+      - name: Jaeger
+        annotation: jaeger.io/service-name
+        description: Distributed trace explorer
+      - name: TechDocs
+        annotation: backstage.io/techdocs-ref
+        description: Service documentation
+    sso: keycloak (client: backstage)
+
+  likec4:
+    name: LikeC4 Architecture
+    path: idp/likec4/model.likec4
+    description: C4 architecture diagrams at 3 levels (Context, Container, Component)
+    sync_script: scripts/sync-c4-from-services.py
+    levels:
+      - level: 1
+        name: System Context
+        view: sahoolContext
+      - level: 2
+        name: Container Diagram
+        view: sahoolContainers
+      - level: 3
+        name: Component Diagrams
+        views:
+          - fieldManagementComponents
+          - vegetationAnalysisComponents
+          - visionComponents
+          - advisoryComponents
+          - irrigationComponents
+
+  eventcatalog:
+    name: EventCatalog
+    path: idp/eventcatalog/
+    description: Event-driven architecture documentation with 20 core flow sequence diagrams
+    sync_script: scripts/sync-eventcatalog-from-governance.py
+    stats:
+      events: 15
+      services: 13
+      flows: 20
+      domains: 1
+
+  kiali:
+    name: Kiali Service Mesh
+    url: ${KIALI_URL:-http://kiali.sahool-production:20001}
+    description: Istio service mesh observability and traffic visualization
+    manifest: infrastructure/kiali/kiali.yaml
+    condition: Istio must be deployed in production
+    sso: keycloak (client: kiali-client)
+
+  keycloak:
+    name: Keycloak Identity Provider
+    url: ${KEYCLOAK_URL:-https://auth.sahool.io}
+    description: Centralized SSO for all IDP components
+    manifest: infrastructure/keycloak/keycloak.yaml
+    realm: sahool
+    clients:
+      - backstage
+      - kiali-client
+      - grafana
+
+  jaeger:
+    name: Jaeger Distributed Tracing
+    url: ${JAEGER_URL:-http://jaeger-query:16686}
+    description: End-to-end distributed tracing across all services
+    audit_script: scripts/otel-propagation-audit.py
+
+  grafana:
+    name: Grafana Dashboards
+    url: ${GRAFANA_URL:-http://grafana:3000}
+    description: Metrics dashboards (platform health, SLO, agricultural insights)
+    sso: keycloak (client: grafana)
+    dashboards:
+      - infrastructure/monitoring/grafana/dashboards/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CI Validation Scripts
+# ─────────────────────────────────────────────────────────────────────────────
+ci_scripts:
+  c4_sync:
+    script: scripts/sync-c4-from-services.py
+    description: Validate LikeC4 model against governance/services.yaml
+    exit_on_drift: true
+
+  eventcatalog_sync:
+    script: scripts/sync-eventcatalog-from-governance.py
+    description: Validate EventCatalog against governance/events/catalog.yaml
+    exit_on_drift: true
+
+  otel_audit:
+    script: scripts/otel-propagation-audit.py --markdown
+    description: Audit OTEL propagation across all services
+    gate: tier-1 services must pass

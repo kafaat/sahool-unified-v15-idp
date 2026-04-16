@@ -27,7 +27,7 @@ python-multipart==0.0.26
 nats-py==2.14.0
 
 # Database dependencies (for future PostgreSQL integration)
-SQLAlchemy==2.0.49
+sqlalchemy==2.0.49
 asyncpg>=0.30.0,<1.0.0
 psycopg2-binary==2.9.11
 

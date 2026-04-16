@@ -1,0 +1,32 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: vegetation-analysis-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: vegetation-analysis-service
+  title: Vegetation Analysis Service
+  description: Vegetation Analysis Service — خدمة تحليل الغطاء النباتي
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/vegetation-analysis-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/vegetation-analysis-service
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8090'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-analytics
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - resource:postgres
+  - resource:redis
+  - resource:nats

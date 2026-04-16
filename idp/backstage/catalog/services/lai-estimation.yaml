@@ -1,0 +1,33 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: lai-estimation
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: lai-estimation
+  title: LAI Estimation
+  description: LAI Estimation — تقدير LAI
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/lai-estimation
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/lai-estimation
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '3022'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - nodejs
+  - nestjs
+  - typescript
+  - category-analytics
+  - layer-intelligence
+  - tier-2
+  - deprecated
+spec:
+  type: service
+  lifecycle: deprecated
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - component:vegetation-analysis-service
+  - resource:redis

@@ -1,0 +1,32 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: user-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: user-service
+  title: User Service
+  description: User Service — خدمة المستخدمين
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/user-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/user-service
+    sahool.io/event-layer: business
+    sahool.io/port: '3025'
+    sahool.io/health-endpoint: /api/v1/health
+  tags:
+  - nodejs
+  - nestjs
+  - typescript
+  - category-core
+  - layer-business
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - resource:postgres
+  - resource:redis

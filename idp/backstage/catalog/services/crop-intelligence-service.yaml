@@ -1,0 +1,30 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: crop-intelligence-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: crop-intelligence-service
+  title: Crop Intelligence Service
+  description: Crop Intelligence Service — خدمة ذكاء المحاصيل
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/crop-intelligence-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/crop-intelligence-service
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8095'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-crop
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:agro-team
+  system: sahool-platform
+  dependsOn:
+  - component:vegetation-analysis-service

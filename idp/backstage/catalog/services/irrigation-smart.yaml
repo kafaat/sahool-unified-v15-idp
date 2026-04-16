@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: irrigation-smart
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: irrigation-smart
+  title: Irrigation Smart
+  description: Irrigation Smart — الري الذكي
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/irrigation-smart
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/irrigation-smart
+    sahool.io/event-layer: decision
+    sahool.io/port: '8094'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-core
+  - layer-decision
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - component:weather-service
+  - component:virtual-sensors

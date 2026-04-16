@@ -1,0 +1,34 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: yield-prediction
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: yield-prediction
+  title: Yield Prediction
+  description: Yield Prediction — تنبؤ الغلة
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/yield-prediction
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/yield-prediction
+    sahool.io/event-layer: decision
+    sahool.io/port: '3021'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - nodejs
+  - nestjs
+  - typescript
+  - category-analytics
+  - layer-decision
+  - tier-1
+  - deprecated
+spec:
+  type: service
+  lifecycle: deprecated
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - component:crop-growth-model
+  - component:weather-service
+  - component:lai-estimation

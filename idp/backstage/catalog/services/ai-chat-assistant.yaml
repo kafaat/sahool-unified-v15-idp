@@ -1,0 +1,30 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: ai-chat-assistant
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ai-chat-assistant
+  title: AI Chat Assistant
+  description: AI-powered chat assistant for farmer queries and advisory
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/ai-chat-assistant
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/ai-chat-assistant
+    sahool.io/event-layer: business
+    sahool.io/port: '8260'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-community
+  - layer-business
+  - tier-3
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - component:llm-orchestrator-service

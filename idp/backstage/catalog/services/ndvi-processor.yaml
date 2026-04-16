@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: ndvi-processor
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ndvi-processor
+  title: NDVI Processor
+  description: NDVI Processor — معالج NDVI
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/ndvi-processor
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/ndvi-processor
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8118'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-analytics
+  - layer-intelligence
+  - tier-2
+  - deprecated
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - component:vegetation-analysis-service

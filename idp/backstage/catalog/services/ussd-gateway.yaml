@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: ussd-gateway
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ussd-gateway
+  title: USSD Gateway
+  description: USSD/SMS gateway for farmers without smartphone access
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/ussd-gateway
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/ussd-gateway
+    sahool.io/event-layer: business
+    sahool.io/port: '8183'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-integration
+  - layer-business
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:iot-team
+  system: sahool-platform
+  dependsOn:
+  - resource:redis
+  - resource:nats

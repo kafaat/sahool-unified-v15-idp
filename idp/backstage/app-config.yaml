@@ -26,6 +26,50 @@ integrations:
     - host: github.com
       token: ${GITHUB_TOKEN}
 
+# ═══════════════════════════════════════════════════════════════════════════
+# TechDocs - Service documentation rendering
+# Consumes `backstage.io/techdocs-ref: dir:./apps/services/<name>` annotations
+# written by scripts/generators/generate_backstage_catalog.py.
+# ═══════════════════════════════════════════════════════════════════════════
+techdocs:
+  builder: 'local'        # Build docs on-demand in-process (dev-friendly).
+  generator:
+    runIn: 'docker'       # Use the upstream techdocs-container for MkDocs + plugins.
+  publisher:
+    type: 'local'         # Serve the built site from local disk.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Proxy - Upstream services reached from the Backstage frontend
+# Activates: GitHub Actions plugin, Jaeger tracing plugin.
+# GitHub Actions uses the `github.com/project-slug` annotation emitted by
+# the catalog generator; Jaeger uses service-name matching.
+# ═══════════════════════════════════════════════════════════════════════════
+proxy:
+  endpoints:
+    # Jaeger UI for distributed traces
+    '/jaeger/api':
+      target: ${JAEGER_QUERY_URL:-http://jaeger-query:16686}
+      changeOrigin: true
+      pathRewrite:
+        '^/api/proxy/jaeger/api': '/api'
+    # GitHub Actions workflow summaries (used by @backstage/plugin-github-actions)
+    '/github-actions/api':
+      target: https://api.github.com
+      changeOrigin: true
+      headers:
+        Authorization: Bearer ${GITHUB_TOKEN}
+        Accept: application/vnd.github.v3+json
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Jaeger plugin configuration
+# ═══════════════════════════════════════════════════════════════════════════
+jaeger:
+  # Service-name pattern used to correlate Backstage components to Jaeger spans.
+  # Matches the OTEL_SERVICE_NAME convention used by shared/observability/.
+  search:
+    service:
+      filter: 'sahool-*'
+
 kubernetes:
   serviceLocatorMethod:
     type: multiTenant

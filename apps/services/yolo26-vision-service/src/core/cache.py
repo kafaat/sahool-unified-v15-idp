@@ -13,6 +13,7 @@ import asyncio
 import hashlib
 import io
 import json
+import secrets
 import time
 from collections import OrderedDict
 from collections.abc import Callable
@@ -444,7 +445,7 @@ class ResultCache:
 
         # Combine with parameters (include tenant_id for isolation)
         params_str = f"{tenant_id or ''}_{task}_{variant}_{confidence:.2f}_{iou:.2f}_{image_size}"
-        params_hash = hashlib.md5(params_str.encode(), usedforsecurity=False).hexdigest()[:8]
+        params_hash = hashlib.sha256(params_str.encode()).hexdigest()[:8]
 
         return f"{image_hash}_{params_hash}"
 
@@ -476,9 +477,9 @@ class ResultCache:
             return format(int(hash_value, 2), "016x")
 
         except Exception as e:
-            # Fallback to random hash
+            # Fallback to random hash using cryptographic randomness
             logger.debug("image_hash_failed", error=str(e))
-            return hashlib.md5(str(time.time()).encode(), usedforsecurity=False).hexdigest()[:16]
+            return secrets.token_hex(8)
 
     async def get(
         self,

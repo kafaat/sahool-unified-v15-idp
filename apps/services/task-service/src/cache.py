@@ -189,7 +189,7 @@ class CacheAdapter:
     def _hash_key(self, *args: Any) -> str:
         """Create a hash key from arguments"""
         key_data = json.dumps(args, sort_keys=True, default=str)
-        return hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()[:12]
+        return hashlib.sha256(key_data.encode()).hexdigest()[:12]
 
     async def get(self, key: str) -> Any | None:
         """

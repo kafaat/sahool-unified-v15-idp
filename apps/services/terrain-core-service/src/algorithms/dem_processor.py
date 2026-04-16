@@ -249,8 +249,7 @@ class DEMProcessor:
     ) -> str:
         """Generate cache key for DEM | إنشاء مفتاح التخزين المؤقت"""
         key_str = f"{source.value}_{bounds.as_tuple}_{resolution_m}"
-        # MD5 used for cache key generation, not security
-        return hashlib.md5(key_str.encode(), usedforsecurity=False).hexdigest()
+        return hashlib.sha256(key_str.encode()).hexdigest()
 
     def _get_cached_dem_path(self, cache_key: str) -> Path | None:
         """Check if DEM is cached | التحقق من وجود تخزين مؤقت"""

@@ -97,8 +97,7 @@ def _generate_cache_key(prefix: str, *, tenant_id: str | None = None, **kwargs) 
     # Sort kwargs for consistent key generation
     sorted_items = sorted(kwargs.items())
     key_data = json.dumps(sorted_items, sort_keys=True, default=str)
-    # MD5 used only for cache key generation, not for security
-    key_hash = hashlib.md5(key_data.encode(), usedforsecurity=False).hexdigest()[:12]
+    key_hash = hashlib.sha256(key_data.encode()).hexdigest()[:12]
     return f"satellite:t:{_ns(tenant_id)}:{prefix}:{key_hash}"
 
 

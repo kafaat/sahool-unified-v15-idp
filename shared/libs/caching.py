@@ -397,8 +397,7 @@ def cached(
             else:
                 # Default key: function name + arguments hash
                 args_str = json.dumps({"args": args, "kwargs": kwargs}, sort_keys=True)
-                # MD5 used for cache key generation, not security
-                args_hash = hashlib.md5(args_str.encode(), usedforsecurity=False).hexdigest()
+                args_hash = hashlib.sha256(args_str.encode()).hexdigest()
                 key = f"{func.__name__}:{args_hash}"
 
             # Add prefix

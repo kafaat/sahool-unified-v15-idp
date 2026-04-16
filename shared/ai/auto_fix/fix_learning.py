@@ -582,7 +582,14 @@ class FixLearningSystem:
     def _compute_pattern_id(self, fix: CodeFix, diagnostic: Diagnostic) -> str:
         """Compute unique pattern ID."""
         content = f"{diagnostic.rule_id}:{diagnostic.tool.value}:{fix.original_code or ''}"
-        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[:16]
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
+
+    @staticmethod
+    def _legacy_pattern_id(content: str) -> str:
+        """Compute legacy MD5-based pattern ID for migration compatibility."""
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[
+            :16
+        ]  # nosemgrep: insecure-hash-algorithm-md5
 
     def _find_similar_patterns(self, fix: CodeFix, diagnostic: Diagnostic) -> list[str]:
         """Find similar patterns."""
@@ -658,7 +665,13 @@ class FixLearningSystem:
         return ". ".join(parts) if parts else "اقتراح إصلاح قياسي"
 
     def _load_data(self) -> None:
-        """Load persisted learning data."""
+        """Load persisted learning data.
+
+        Supports migration from legacy MD5-based pattern IDs to SHA256.
+        Patterns stored with old MD5 IDs are re-keyed under both the
+        original (legacy) ID and the new SHA256 ID so lookups work
+        regardless of which scheme generated the key.
+        """
         if not os.path.exists(self._data_dir):
             return
 
@@ -682,7 +695,15 @@ class FixLearningSystem:
                             total_applications=p.get("total_applications", 0),
                             examples=p.get("examples", []),
                         )
+                        # Store under the persisted ID (works for both old and new)
                         self._patterns[pattern.pattern_id] = pattern
+
+                        # Migrate: also index under the new SHA256 ID so
+                        # _compute_pattern_id lookups match legacy entries.
+                        content = f"{pattern.rule_id}:{pattern.tool.value}:{pattern.original_pattern or ''}"
+                        new_id = hashlib.sha256(content.encode()).hexdigest()[:16]
+                        if new_id != pattern.pattern_id:
+                            self._patterns[new_id] = pattern
             except (json.JSONDecodeError, KeyError) as e:
                 logger.warning("Failed to load patterns", error=str(e))
 

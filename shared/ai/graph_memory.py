@@ -389,7 +389,7 @@ class SimpleEmbedder:
 
     def _hash_token(self, token: str) -> int:
         """Hash token to dimension index (not for security, just distribution)"""
-        return int(hashlib.md5(token.encode(), usedforsecurity=False).hexdigest(), 16) % self.dimension
+        return int(hashlib.sha256(token.encode()).hexdigest(), 16) % self.dimension
 
     async def embed(self, text: str) -> list[float]:
         """Create embedding for text"""

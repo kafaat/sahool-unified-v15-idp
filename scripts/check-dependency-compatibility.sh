@@ -600,8 +600,8 @@ check_security_vulnerabilities() {
         if grep -q 'PyJWT>=2.10.1' "$constraints_file"; then
             log_pass "PyJWT CVE-2024-53861 patched (>= 2.10.1)"
         fi
-        if grep -q 'Pillow==12.1.1' "$constraints_file"; then
-            log_pass "Pillow CVE-2026-25990 patched (== 12.1.1)"
+        if grep -q 'Pillow==12.2.0' "$constraints_file"; then
+            log_pass "Pillow CVE-2026-25990, CVE-2026-40192 patched (== 12.2.0)"
         fi
         if grep -q 'setuptools>=78.1.1' "$constraints_file"; then
             log_pass "setuptools PYSEC-2025-49 patched (>= 78.1.1)"

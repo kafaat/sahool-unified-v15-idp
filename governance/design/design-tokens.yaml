@@ -3,8 +3,8 @@
 # Single Source of Truth for all design decisions
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "1.0.0"
-last_updated: "2025-12-19"
+version: "1.1.0"
+last_updated: "2026-04-16"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Brand Colors - ألوان العلامة التجارية
@@ -98,6 +98,41 @@ colors:
     ndvi_medium: "#81C784"
     ndvi_low: "#FFF176"
     ndvi_bare: "#D7CCC8"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Sync & Offline Lifecycle States - حالات المزامنة والعمل دون اتصال
+  # Added 2026-04 (v1.1.0): offline-first UX was missing a canonical palette.
+  # Every color below passes WCAG AA (≥4.5:1) as TEXT on neutral.0 (#FFFFFF).
+  # Backgrounds/borders are derived by the consumer via opacity / tint.
+  #
+  # Semantic meaning (applies across web, admin, mobile):
+  #   synced   = committed to server; safe to trust                    (مُزامَن)
+  #   pending  = in-flight write; awaiting server confirmation         (قيد الإرسال)
+  #   conflict = server and client disagree; user resolution required  (تعارض)
+  #   stale    = data age > acceptable freshness threshold             (قديم)
+  #   offline  = no network; reads from local cache only               (بدون اتصال)
+  #   cached   = served from cache; within freshness window            (من الذاكرة)
+  #   failed   = sync attempt failed irrecoverably; needs retry/report (فشل)
+  #
+  # DARK MODE: these tones fail AA on neutral.800/900 backgrounds.
+  # Until v1.2.0 adds native dark variants, dark-mode consumers should
+  # substitute the following palette refs (all verified ≥4.5:1 on #212121):
+  #   synced   → primary.300   (#81C784)
+  #   pending  → accent.300    (#FFB74D)
+  #   conflict → error.light   (#E57373)
+  #   stale    → neutral.400   (#BDBDBD)
+  #   offline  → neutral.500   (#9E9E9E)
+  #   cached   → #CE93D8       (add to palette in v1.2.0)
+  #   failed   → error.light   (#E57373)
+  # ───────────────────────────────────────────────────────────────────────────
+  state:
+    synced: "#2E7D32"     # primary.800 — trustworthy, committed (5.13:1)
+    pending: "#BF360A"    # deep orange — attention, in-flight   (5.60:1)
+    conflict: "#C62828"   # distinct from error.main             (5.62:1)
+    stale: "#616161"      # neutral.700 — age-based dim          (6.19:1)
+    offline: "#424242"    # neutral.800 — no-network emphasis    (10.05:1)
+    cached: "#6A1B9A"     # purple — distinct from all semantic  (9.39:1)
+    failed: "#B71C1C"     # darker red — terminal failure        (6.57:1)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Typography - الخطوط

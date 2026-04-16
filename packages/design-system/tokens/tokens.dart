@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT MANUALLY
 // Generated from: governance/design/design-tokens.yaml
-// Generated at: 2025-12-19T13:47:58.610985
+// Generated at: 2026-04-16T15:42:39.255413
 
 import 'package:flutter/material.dart';
 
@@ -75,6 +75,13 @@ class SahoolTokens {
   static const Color domainndvi_medium = Color(0xFF81C784);
   static const Color domainndvi_low = Color(0xFFFFF176);
   static const Color domainndvi_bare = Color(0xFFD7CCC8);
+  static const Color statesynced = Color(0xFF2E7D32);
+  static const Color statepending = Color(0xFFBF360A);
+  static const Color stateconflict = Color(0xFFC62828);
+  static const Color statestale = Color(0xFF616161);
+  static const Color stateoffline = Color(0xFF424242);
+  static const Color statecached = Color(0xFF6A1B9A);
+  static const Color statefailed = Color(0xFFB71C1C);
 
   // ─────────────────────────────────────────────────────────────────────
   // Spacing
@@ -123,7 +130,7 @@ class SahoolTheme {
       primary: SahoolTokens.primary500,
       secondary: SahoolTokens.secondary500,
       surface: SahoolTokens.neutral0,
-      error: SahoolTokens.errormain ?? SahoolTokens.primary500,
+      error: SahoolTokens.errorMain ?? SahoolTokens.primary500,
     ),
     fontFamily: 'IBMPlexSansArabic',
   );

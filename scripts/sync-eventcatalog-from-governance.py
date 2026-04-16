@@ -41,6 +41,7 @@ def find_eventcatalog_entries() -> set[str]:
     entries: set[str] = set()
     events_dir = EVENTCATALOG_DIR / "events"
     if not events_dir.exists():
+        print(f"ℹ  EventCatalog events directory not found: {events_dir}", file=sys.stderr)
         return entries
 
     for index_md in events_dir.rglob("index.md"):

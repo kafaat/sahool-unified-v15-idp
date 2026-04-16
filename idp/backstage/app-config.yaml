@@ -138,7 +138,7 @@ kubernetes:
           url: ${K8S_DEV_CLUSTER_URL:-${K8S_CLUSTER_URL}}
           authProvider: serviceAccount
           serviceAccountToken: ${K8S_SA_TOKEN}
-          skipTLSVerify: ${K8S_SKIP_TLS_VERIFY:false}
+          skipTLSVerify: ${K8S_SKIP_TLS_VERIFY:-false}
           caData: ${K8S_CA_DATA}
         - name: sahool-staging
           url: ${K8S_STAGING_CLUSTER_URL}

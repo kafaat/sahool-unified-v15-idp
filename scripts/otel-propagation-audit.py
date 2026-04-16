@@ -298,7 +298,8 @@ def print_markdown(audits: list[ServiceAudit]) -> None:
     print()
     print("| Service | Type | Layer | Tier | Status | Score | Issues |")
     print("|---------|------|-------|------|--------|-------|--------|")
-    for a in sorted(audits, key=lambda x: (-{"✅ PASS": 3, "⚠ PARTIAL": 2, "❌ MISSING": 1}.get(x.status, 0), x.name)):
+    status_priority = {"✅ PASS": 3, "⚠ PARTIAL": 2, "❌ MISSING": 1}
+    for a in sorted(audits, key=lambda x: (-status_priority.get(x.status, 0), x.name)):
         issues_str = "; ".join(a.issues[:2]) if a.issues else "—"
         print(f"| {a.name} | {a.service_type} | {a.layer} | {a.tier} | {a.status} | {a.score}/5 | {issues_str} |")
 

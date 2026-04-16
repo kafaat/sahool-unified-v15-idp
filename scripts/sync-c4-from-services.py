@@ -62,9 +62,10 @@ def extract_model_containers(model_path: Path) -> set[str]:
     import re
 
     for match in re.finditer(r"container\s+(\w+)\s+'([^']+)'", text):
-        # Map camelCase identifier back to kebab-case service name
         display_name = match.group(2)
-        containers.add(display_name.lower().replace(" ", "-"))
+        # Normalize display name to kebab-case for matching against services.yaml
+        normalized = display_name.lower().replace(" ", "-").replace("(", "").replace(")", "")
+        containers.add(normalized)
 
     return containers
 

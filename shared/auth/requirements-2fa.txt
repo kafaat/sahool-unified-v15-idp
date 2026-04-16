@@ -3,4 +3,4 @@
 
 pyotp>=2.9.0          # TOTP generation and verification
 qrcode[pil]>=7.4.2    # QR code generation with PIL support
-Pillow>=12.1.1,<13.0.0  # CVE-2026-25990 fixed in 12.1.1
+Pillow>=12.2.0,<13.0.0  # CVE-2026-25990, CVE-2026-40192 fixed in 12.2.0

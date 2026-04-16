@@ -51,7 +51,7 @@ testing = [
     "cffi>=1.15.0",
 ]
 ml = [
-    "Pillow==12.1.1",  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
+    "Pillow==12.2.0",  # CVE-2026-25990, CVE-2026-40192 (FITS GZIP decompression bomb) fixed in 12.2.0
     "numpy>=1.26.0,<2.0.0",  # Pinned <2.0.0: torch/transformers compiled against 1.x ABI crash with 2.x
     "tensorflow-cpu==2.21.0",
 ]

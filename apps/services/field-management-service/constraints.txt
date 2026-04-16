@@ -71,9 +71,9 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797 fixed in 44.0.1, CVE-2026-26007 f
 # Observability
 # ─────────────────────────────────────────────────────────────────────────────
 prometheus-client==0.25.0
-opentelemetry-api==1.40.0
-opentelemetry-sdk==1.40.0
-opentelemetry-instrumentation-fastapi==0.61b0
+opentelemetry-api==1.41.0
+opentelemetry-sdk==1.41.0
+opentelemetry-instrumentation-fastapi==0.62b0
 structlog==25.5.0
 
 # ─────────────────────────────────────────────────────────────────────────────

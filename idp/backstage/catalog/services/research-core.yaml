@@ -1,0 +1,29 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: research-core
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: research-core
+  title: Research Core
+  description: Research Core — نواة البحث العلمي
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/research-core
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/research-core
+    sahool.io/event-layer: business
+    sahool.io/port: '3015'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - nodejs
+  - nestjs
+  - typescript
+  - category-core
+  - layer-business
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform

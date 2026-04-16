@@ -1,0 +1,28 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: vllm-deepseek
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: vllm-deepseek
+  title: vLLM DeepSeek Inference Server
+  description: GPU-accelerated LLM inference server serving DeepSeek Coder 6.7B via vLLM with OpenAI-compatible API
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/vllm-deepseek
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/vllm-deepseek
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8270'
+    sahool.io/health-endpoint: /health
+  tags:
+  - python
+  - fastapi
+  - category-infrastructure
+  - layer-intelligence
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:data-team
+  system: sahool-platform

@@ -1,0 +1,36 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: ground-vision-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ground-vision-service
+  title: Ground Vision Service
+  description: 'High-frequency agricultural monitoring using tower-mounted cameras.
+
+    Based on: Qin et al. (2026) - Tower-Based Agricultural Monitoring Framework
+
+    '
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/ground-vision-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/ground-vision-service
+    sahool.io/event-layer: acquisition
+    sahool.io/port: '8182'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-analytics
+  - layer-acquisition
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - component:vegetation-analysis-service
+  - component:weather-service
+  - component:iot-service

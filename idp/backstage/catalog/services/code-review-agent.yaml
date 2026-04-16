@@ -1,0 +1,29 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: code-review-agent
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: code-review-agent
+  title: Code Review Agent
+  description: AI-powered code review agent for pull request analysis
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/code-review-agent
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/code-review-agent
+    sahool.io/event-layer: intelligence
+  tags:
+  - nodejs
+  - typescript
+  - category-analytics
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - resource:redis
+  - resource:nats

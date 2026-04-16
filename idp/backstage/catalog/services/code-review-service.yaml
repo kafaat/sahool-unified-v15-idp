@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: code-review-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: code-review-service
+  title: Code Review Service
+  description: Code review orchestration service for managing review workflows
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/code-review-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/code-review-service
+    sahool.io/event-layer: business
+    sahool.io/port: '8102'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-core
+  - layer-business
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - resource:postgres
+  - resource:redis

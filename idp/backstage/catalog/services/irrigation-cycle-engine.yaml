@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: irrigation-cycle-engine
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: irrigation-cycle-engine
+  title: Irrigation Cycle Engine
+  description: Irrigation cycle optimization and scheduling engine
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/irrigation-cycle-engine
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/irrigation-cycle-engine
+    sahool.io/event-layer: decision
+    sahool.io/port: '8250'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-decision
+  - layer-decision
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - component:irrigation-smart
+  - component:weather-service

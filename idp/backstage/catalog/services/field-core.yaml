@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: field-core
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: field-core
+  title: Field Core
+  description: Field Core — نواة الحقول
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./archive/deprecated-services/field-core
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/archive/deprecated-services/field-core
+    sahool.io/event-layer: business
+    sahool.io/port: '3005'
+    sahool.io/health-endpoint: /healthz
+    sahool.io/replaced-by: field-management-service
+    sahool.io/sunset-date: '2026-01-25'
+  tags:
+  - nodejs
+  - nestjs
+  - typescript
+  - category-core
+  - layer-business
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform

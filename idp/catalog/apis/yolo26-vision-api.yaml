@@ -13,4 +13,4 @@ spec:
   lifecycle: production
   owner: ai-team
   definition:
-    $text: ./docs/api/yolo26-vision-api.yaml
+    $text: ../../../docs/api/openapi/yolo26-vision-api.yaml

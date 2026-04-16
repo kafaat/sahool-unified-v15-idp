@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: soil-analysis-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: soil-analysis-service
+  title: Soil Analysis Service
+  description: Soil testing, interpretation, amendment recommendations, and trend analysis
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/soil-analysis-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/soil-analysis-service
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8134'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-intelligence
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - component:advisory-service
+  - component:notification-service

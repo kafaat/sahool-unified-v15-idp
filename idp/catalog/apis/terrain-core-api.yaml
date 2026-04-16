@@ -13,4 +13,4 @@ spec:
   lifecycle: production
   owner: geospatial-team
   definition:
-    $text: ./docs/api/terrain-core-api.yaml
+    $text: ../../../docs/api/openapi/terrain-api.yaml

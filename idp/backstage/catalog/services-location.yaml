@@ -1,0 +1,91 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: sahool-services-catalog
+  description: Auto-generated Backstage entities for every service in governance/services.yaml. Regenerate with scripts/generators/generate_backstage_catalog.py.
+spec:
+  targets:
+  - ./services/advisory-service.yaml
+  - ./services/agent-registry.yaml
+  - ./services/agro-advisor.yaml
+  - ./services/agro-rules.yaml
+  - ./services/ai-advisor.yaml
+  - ./services/ai-agents-core.yaml
+  - ./services/ai-agents-service.yaml
+  - ./services/ai-chat-assistant.yaml
+  - ./services/alert-service.yaml
+  - ./services/astronomical-calendar.yaml
+  - ./services/audit-service.yaml
+  - ./services/billing-core.yaml
+  - ./services/carbon-service.yaml
+  - ./services/chat-service.yaml
+  - ./services/code-fix-agent.yaml
+  - ./services/code-review-agent.yaml
+  - ./services/code-review-service.yaml
+  - ./services/community-chat.yaml
+  - ./services/community-service.yaml
+  - ./services/cooperative-service.yaml
+  - ./services/copilot-api.yaml
+  - ./services/crm-service.yaml
+  - ./services/crop-growth-model.yaml
+  - ./services/crop-health-ai.yaml
+  - ./services/crop-health.yaml
+  - ./services/crop-intelligence-service.yaml
+  - ./services/demo-data.yaml
+  - ./services/digital-twin-engine.yaml
+  - ./services/disaster-assessment.yaml
+  - ./services/drone-service.yaml
+  - ./services/equipment-service.yaml
+  - ./services/fertigation-engine.yaml
+  - ./services/fertilizer-advisor.yaml
+  - ./services/field-chat.yaml
+  - ./services/field-core.yaml
+  - ./services/field-intelligence.yaml
+  - ./services/field-management-service.yaml
+  - ./services/field-ops.yaml
+  - ./services/field-service.yaml
+  - ./services/globalgap-compliance.yaml
+  - ./services/ground-vision-service.yaml
+  - ./services/indicators-service.yaml
+  - ./services/inventory-service.yaml
+  - ./services/iot-gateway.yaml
+  - ./services/iot-sensor-hub.yaml
+  - ./services/iot-service.yaml
+  - ./services/irrigation-cycle-engine.yaml
+  - ./services/irrigation-smart.yaml
+  - ./services/knowledge-graph.yaml
+  - ./services/lai-estimation.yaml
+  - ./services/llm-orchestrator-service.yaml
+  - ./services/logistics-service.yaml
+  - ./services/lowcode-engine.yaml
+  - ./services/marketplace-service.yaml
+  - ./services/mcp-server.yaml
+  - ./services/ndvi-engine.yaml
+  - ./services/ndvi-processor.yaml
+  - ./services/notification-service.yaml
+  - ./services/partner-auth-service.yaml
+  - ./services/pest-detection-service.yaml
+  - ./services/provider-config.yaml
+  - ./services/research-core.yaml
+  - ./services/satellite-service.yaml
+  - ./services/skills-service.yaml
+  - ./services/soil-analysis-service.yaml
+  - ./services/supply-chain-service.yaml
+  - ./services/task-service.yaml
+  - ./services/traceability-service.yaml
+  - ./services/user-service.yaml
+  - ./services/ussd-gateway.yaml
+  - ./services/vegetation-analysis-service.yaml
+  - ./services/virtual-sensors.yaml
+  - ./services/vllm-deepseek.yaml
+  - ./services/weather-advanced.yaml
+  - ./services/weather-core.yaml
+  - ./services/weather-service.yaml
+  - ./services/wechat-service.yaml
+  - ./services/whatsapp-bot-service.yaml
+  - ./services/ws-gateway.yaml
+  - ./services/yield-engine.yaml
+  - ./services/yield-prediction-service.yaml
+  - ./services/yield-prediction.yaml

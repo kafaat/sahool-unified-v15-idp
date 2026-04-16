@@ -1,0 +1,33 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: crop-health
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: crop-health
+  title: Crop Health
+  description: Basic crop health monitoring and disease detection
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./archive/deprecated-services/crop-health
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/archive/deprecated-services/crop-health
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8100'
+    sahool.io/health-endpoint: /healthz
+    sahool.io/replaced-by: crop-intelligence-service
+    sahool.io/sunset-date: '2026-01-25'
+  tags:
+  - python
+  - fastapi
+  - category-crop
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:agro-team
+  system: sahool-platform
+  dependsOn:
+  - resource:postgres
+  - resource:redis

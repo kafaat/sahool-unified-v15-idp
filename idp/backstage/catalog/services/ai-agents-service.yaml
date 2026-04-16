@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: ai-agents-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ai-agents-service
+  title: AI Agents Service
+  description: Autonomous AI agents for agricultural intelligence with task decomposition and self-validation
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/ai-agents-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/ai-agents-service
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8130'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-analytics
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - resource:redis
+  - resource:nats

@@ -1,0 +1,28 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: agro-rules
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agro-rules
+  title: Agro Rules Worker
+  description: Agro Rules Worker — عامل القواعد الزراعية
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/agro-rules
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/agro-rules
+    sahool.io/event-layer: intelligence
+  tags:
+  - python
+  - fastapi
+  - category-crop
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:agro-team
+  system: sahool-platform
+  dependsOn:
+  - resource:nats

@@ -1,0 +1,30 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: carbon-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: carbon-service
+  title: Carbon Service
+  description: Carbon Service — خدمة تتبع الكربون
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/carbon-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/carbon-service
+    sahool.io/event-layer: business
+    sahool.io/port: '8195'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-analytics
+  - layer-business
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:agro-team
+  system: sahool-platform
+  dependsOn:
+  - resource:postgres

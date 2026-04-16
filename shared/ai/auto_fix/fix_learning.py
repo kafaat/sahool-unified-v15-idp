@@ -587,7 +587,9 @@ class FixLearningSystem:
     @staticmethod
     def _legacy_pattern_id(content: str) -> str:
         """Compute legacy MD5-based pattern ID for migration compatibility."""
-        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[:16]  # nosemgrep: insecure-hash-algorithm-md5
+        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[
+            :16
+        ]  # nosemgrep: insecure-hash-algorithm-md5
 
     def _find_similar_patterns(self, fix: CodeFix, diagnostic: Diagnostic) -> list[str]:
         """Find similar patterns."""

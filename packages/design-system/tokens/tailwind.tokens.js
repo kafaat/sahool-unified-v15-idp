@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT MANUALLY
 // Generated from: governance/design/design-tokens.yaml
-// Generated at: 2026-04-16T15:26:39.093015
+// Generated at: 2026-04-16T15:42:39.254639
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {

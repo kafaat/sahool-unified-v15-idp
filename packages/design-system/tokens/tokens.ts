@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT MANUALLY
 // Generated from: governance/design/design-tokens.yaml
-// Generated at: 2026-04-16T15:26:39.093774
+// Generated at: 2026-04-16T15:42:39.255148
 
 export const tokens = {
   colors: {
@@ -118,15 +118,15 @@ export const tokens = {
       monospace: 'IBM Plex Mono',
     },
     sizes: {
-      xs: '0.75rem',
-      sm: '0.875rem',
-      base: '1rem',
-      lg: '1.125rem',
-      xl: '1.25rem',
-      2xl: '1.5rem',
-      3xl: '1.875rem',
-      4xl: '2.25rem',
-      5xl: '3rem',
+      'xs': '0.75rem',
+      'sm': '0.875rem',
+      'base': '1rem',
+      'lg': '1.125rem',
+      'xl': '1.25rem',
+      '2xl': '1.5rem',
+      '3xl': '1.875rem',
+      '4xl': '2.25rem',
+      '5xl': '3rem',
     },
   },
 } as const;

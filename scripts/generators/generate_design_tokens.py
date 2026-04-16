@@ -174,7 +174,7 @@ def generate_typescript(tokens: dict) -> str:
     lines.append("    },")
     lines.append("    sizes: {")
     for size_name, size_value in typo.get("sizes", {}).items():
-        lines.append(f"      {size_name}: '{size_value}',")
+        lines.append(f"      '{size_name}': '{size_value}',")
     lines.append("    },")
     lines.append("  },")
 

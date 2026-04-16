@@ -1,6 +1,6 @@
 // AUTO-GENERATED - DO NOT EDIT MANUALLY
 // Generated from: governance/design/design-tokens.yaml
-// Generated at: 2026-04-16T15:26:39.094233
+// Generated at: 2026-04-16T15:42:39.255413
 
 import 'package:flutter/material.dart';
 

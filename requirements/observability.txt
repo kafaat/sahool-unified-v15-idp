@@ -5,12 +5,12 @@
 # Synced with constraints.txt
 
 # Prometheus Metrics
-prometheus-client==0.24.1
+prometheus-client==0.25.0
 
 # OpenTelemetry Stack
-opentelemetry-api==1.40.0
-opentelemetry-sdk==1.40.0
-opentelemetry-instrumentation-fastapi==0.61b0
+opentelemetry-api==1.41.0
+opentelemetry-sdk==1.41.0
+opentelemetry-instrumentation-fastapi==0.62b0
 
 # Structured Logging
 structlog==25.5.0

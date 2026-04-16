@@ -665,7 +665,7 @@ See `requirements.txt`:
 fastapi==0.128.5
 starlette>=0.49.1
 uvicorn[standard]>=0.30.0,<1.0.0
-pydantic==2.12.5
+pydantic==2.13.1
 httpx==0.28.1
 python-dotenv==1.2.1
 

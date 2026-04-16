@@ -23,6 +23,7 @@ import hashlib
 import logging
 import os
 import time
+import uuid
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -330,8 +331,8 @@ class SlidingWindowLimiter(RateLimitStrategy):
             pipe.zcard(key)
 
             # إضافة الطلب الحالي
-            # Add current request
-            request_id = f"{now}:{hashlib.sha256(str(now).encode()).hexdigest()[:8]}"
+            # Add current request with unique suffix to avoid collisions
+            request_id = f"{now}:{uuid.uuid4().hex[:8]}"
             pipe.zadd(key, {request_id: now})
 
             # تعيين انتهاء الصلاحية

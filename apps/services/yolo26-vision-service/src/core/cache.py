@@ -13,6 +13,7 @@ import asyncio
 import hashlib
 import io
 import json
+import secrets
 import time
 from collections import OrderedDict
 from collections.abc import Callable
@@ -476,9 +477,9 @@ class ResultCache:
             return format(int(hash_value, 2), "016x")
 
         except Exception as e:
-            # Fallback to random hash
+            # Fallback to random hash using cryptographic randomness
             logger.debug("image_hash_failed", error=str(e))
-            return hashlib.sha256(str(time.time()).encode()).hexdigest()[:16]
+            return secrets.token_hex(8)
 
     async def get(
         self,

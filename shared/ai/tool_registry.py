@@ -1001,7 +1001,7 @@ class ToolRegistry:
         try:
             if os.path.isfile(target):
                 with open(target, "rb") as f:
-                    file_hash = hashlib.md5(f.read(), usedforsecurity=False).hexdigest()[:8]
+                    file_hash = hashlib.sha256(f.read()).hexdigest()[:8]
                 content += f":{file_hash}"
         except Exception:
             pass

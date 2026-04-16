@@ -205,10 +205,9 @@ def get_bounds_from_field_id(field_id: str) -> DEMBounds:
     For demo, generates synthetic bounds in Middle East region.
     """
     # Generate deterministic bounds from field_id hash
-    # MD5 used for deterministic demo data generation, not security
     import hashlib
 
-    hash_bytes = hashlib.md5(field_id.encode(), usedforsecurity=False).digest()
+    hash_bytes = hashlib.sha256(field_id.encode()).digest()
 
     # Middle East region bounds (roughly Saudi Arabia)
     base_lon = 38 + (hash_bytes[0] / 255) * 10  # 38-48

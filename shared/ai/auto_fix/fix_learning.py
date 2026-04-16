@@ -582,7 +582,7 @@ class FixLearningSystem:
     def _compute_pattern_id(self, fix: CodeFix, diagnostic: Diagnostic) -> str:
         """Compute unique pattern ID."""
         content = f"{diagnostic.rule_id}:{diagnostic.tool.value}:{fix.original_code or ''}"
-        return hashlib.md5(content.encode(), usedforsecurity=False).hexdigest()[:16]
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
 
     def _find_similar_patterns(self, fix: CodeFix, diagnostic: Diagnostic) -> list[str]:
         """Find similar patterns."""

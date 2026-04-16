@@ -501,7 +501,7 @@ class DocumentStorageService:
         sha256_hash = None
         if self.config.compute_checksums:
             # MD5 used for backward compatibility, not security
-            md5_hash = hashlib.md5(file_content, usedforsecurity=False).hexdigest()
+            md5_hash = hashlib.md5(file_content, usedforsecurity=False).hexdigest()  # nosemgrep: python.lang.security.audit.insecure-hash-algorithm-md5 -- backward compatibility checksum, not for security
             sha256_hash = hashlib.sha256(file_content).hexdigest()
 
         # Generate document ID and storage path

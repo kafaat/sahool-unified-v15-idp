@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════════════════ */
 /* AUTO-GENERATED - DO NOT EDIT MANUALLY */
 /* Generated from: governance/design/design-tokens.yaml */
-/* Generated at: 2025-12-19T13:47:58.609426 */
+/* Generated at: 2026-04-16T15:26:39.092114 */
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
@@ -69,6 +69,13 @@
   --color-domain-ndvi_medium: #81C784;
   --color-domain-ndvi_low: #FFF176;
   --color-domain-ndvi_bare: #D7CCC8;
+  --color-state-synced: #2E7D32;
+  --color-state-pending: #BF360A;
+  --color-state-conflict: #C62828;
+  --color-state-stale: #616161;
+  --color-state-offline: #424242;
+  --color-state-cached: #6A1B9A;
+  --color-state-failed: #B71C1C;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;

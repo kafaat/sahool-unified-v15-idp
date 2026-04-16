@@ -1,0 +1,307 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Keycloak – Identity & Access Management for SAHOOL IDP
+# إدارة الهوية والوصول – كيكلوك
+#
+# Provides SSO for Backstage, Kiali, Grafana, and other IDP components.
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keycloak
+  labels:
+    app.kubernetes.io/part-of: sahool-idp
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Keycloak Deployment
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: keycloak
+  labels:
+    app: keycloak
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/part-of: sahool-idp
+    app.kubernetes.io/version: "24.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: keycloak
+          image: quay.io/keycloak/keycloak:24.0
+          args:
+            - start
+            - --hostname-strict=false
+            - --http-enabled=true
+            - --import-realm
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            initialDelaySeconds: 45
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          env:
+            - name: KC_DB
+              value: postgres
+            - name: KC_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-db-secret
+                  key: url
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-db-secret
+                  key: username
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-db-secret
+                  key: password
+            - name: KEYCLOAK_ADMIN
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-secret
+                  key: username
+            - name: KEYCLOAK_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: keycloak-admin-secret
+                  key: password
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            - name: KC_PROXY_HEADERS
+              value: xforwarded
+          volumeMounts:
+            - name: realm-config
+              mountPath: /opt/keycloak/data/import
+              readOnly: true
+      volumes:
+        - name: realm-config
+          configMap:
+            name: keycloak-realm-config
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Keycloak Service
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: keycloak
+  labels:
+    app: keycloak
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: keycloak
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Keycloak Realm Configuration – SAHOOL IDP
+#
+# Defines the 'sahool' realm with clients for:
+#   - backstage (Backstage Developer Portal)
+#   - kiali-client (Kiali Service Mesh UI)
+#   - grafana (Grafana Dashboards)
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-realm-config
+  namespace: keycloak
+  labels:
+    app: keycloak
+data:
+  sahool-realm.json: |
+    {
+      "realm": "sahool",
+      "enabled": true,
+      "displayName": "SAHOOL IDP",
+      "displayNameHtml": "<b>SAHOOL</b> Developer Platform",
+      "sslRequired": "external",
+      "registrationAllowed": false,
+      "loginWithEmailAllowed": true,
+      "duplicateEmailsAllowed": false,
+      "resetPasswordAllowed": true,
+      "editUsernameAllowed": false,
+      "bruteForceProtected": true,
+      "permanentLockout": false,
+      "maxFailureWaitSeconds": 900,
+      "minimumQuickLoginWaitSeconds": 60,
+      "waitIncrementSeconds": 60,
+      "quickLoginCheckMilliSeconds": 1000,
+      "maxDeltaTimeSeconds": 43200,
+      "failureFactor": 5,
+      "passwordPolicy": "length(12) and upperCase(1) and lowerCase(1) and digits(1) and specialChars(1)",
+      "roles": {
+        "realm": [
+          {
+            "name": "idp-admin",
+            "description": "IDP platform administrator"
+          },
+          {
+            "name": "idp-developer",
+            "description": "Developer with read access to IDP tools"
+          },
+          {
+            "name": "idp-viewer",
+            "description": "Read-only access to dashboards"
+          }
+        ]
+      },
+      "groups": [
+        {
+          "name": "platform-team",
+          "realmRoles": ["idp-admin"]
+        },
+        {
+          "name": "agro-team",
+          "realmRoles": ["idp-developer"]
+        },
+        {
+          "name": "iot-team",
+          "realmRoles": ["idp-developer"]
+        },
+        {
+          "name": "frontend-team",
+          "realmRoles": ["idp-developer"]
+        }
+      ],
+      "clients": [
+        {
+          "clientId": "backstage",
+          "name": "Backstage Developer Portal",
+          "enabled": true,
+          "publicClient": false,
+          "protocol": "openid-connect",
+          "rootUrl": "https://backstage.sahool.io",
+          "baseUrl": "/",
+          "redirectUris": [
+            "https://backstage.sahool.io/*",
+            "http://localhost:7007/*"
+          ],
+          "webOrigins": [
+            "https://backstage.sahool.io",
+            "http://localhost:7007"
+          ],
+          "standardFlowEnabled": true,
+          "directAccessGrantsEnabled": false,
+          "serviceAccountsEnabled": false,
+          "defaultClientScopes": [
+            "openid",
+            "profile",
+            "email",
+            "roles"
+          ],
+          "protocolMappers": [
+            {
+              "name": "audience-mapper",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-audience-mapper",
+              "config": {
+                "included.client.audience": "backstage",
+                "id.token.claim": "true",
+                "access.token.claim": "true"
+              }
+            },
+            {
+              "name": "group-mapper",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-group-membership-mapper",
+              "config": {
+                "full.path": "false",
+                "id.token.claim": "true",
+                "access.token.claim": "true",
+                "claim.name": "groups",
+                "userinfo.token.claim": "true"
+              }
+            }
+          ]
+        },
+        {
+          "clientId": "kiali-client",
+          "name": "Kiali Service Mesh UI",
+          "enabled": true,
+          "publicClient": true,
+          "protocol": "openid-connect",
+          "rootUrl": "https://kiali.sahool.io",
+          "redirectUris": [
+            "https://kiali.sahool.io/*"
+          ],
+          "webOrigins": [
+            "https://kiali.sahool.io"
+          ],
+          "standardFlowEnabled": true,
+          "directAccessGrantsEnabled": false,
+          "defaultClientScopes": [
+            "openid",
+            "profile",
+            "email"
+          ]
+        },
+        {
+          "clientId": "grafana",
+          "name": "Grafana Dashboards",
+          "enabled": true,
+          "publicClient": false,
+          "protocol": "openid-connect",
+          "rootUrl": "https://grafana.sahool.io",
+          "redirectUris": [
+            "https://grafana.sahool.io/*"
+          ],
+          "webOrigins": [
+            "https://grafana.sahool.io"
+          ],
+          "standardFlowEnabled": true,
+          "directAccessGrantsEnabled": false,
+          "defaultClientScopes": [
+            "openid",
+            "profile",
+            "email",
+            "roles"
+          ]
+        }
+      ],
+      "defaultDefaultClientScopes": [
+        "openid",
+        "profile",
+        "email",
+        "roles"
+      ]
+    }

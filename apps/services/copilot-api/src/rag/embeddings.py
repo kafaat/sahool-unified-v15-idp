@@ -341,9 +341,7 @@ class EmbeddingService:
 
     def _get_cache_key(self, text: str, tenant_id: str = "") -> str:
         """Generate cache key for text, scoped by tenant"""
-        return hashlib.sha256(
-            f"{self.config.provider}:{self.config.model}:{tenant_id}:{text}".encode()
-        ).hexdigest()
+        return hashlib.sha256(f"{self.config.provider}:{self.config.model}:{tenant_id}:{text}".encode()).hexdigest()
 
     @property
     def dimension(self) -> int:

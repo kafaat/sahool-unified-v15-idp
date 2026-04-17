@@ -2,16 +2,24 @@
  * Field Audit History — API Client
  * عميل API لسجل تدقيق الحقل
  *
- * Thin wrapper over audit-service's
- *   GET /api/v1/audit/resources/{resource_type}/{resource_id}/trail
+ * Targets audit-service's general
+ *   GET /api/v1/audit/logs?resource_type=field&resource_id=<id>&...
+ *
+ * The per-resource endpoint `/audit/resources/{type}/{id}/trail` exists
+ * and is surfaced in our contracts as AUDIT_ENDPOINTS.RESOURCE_TRAIL,
+ * but its handler only accepts skip + limit (see
+ * apps/services/audit-service/src/main.py::get_resource_audit_trail).
+ * The Field History page needs category / user / date-range filtering,
+ * so we use the LOGS endpoint — which accepts the full filter set — and
+ * pin the scope via resource_type/resource_id query params.
  *
  * Why a separate module instead of extending advanced-services.ts:
- * The existing `auditService` targets the generic `/audit/logs` list and
- * has a different response shape (snake_case, different pagination meta).
- * Reusing it would require forking its response handling inline; a
- * dedicated module keeps the Field History page's contract obvious and
- * lets us evolve the per-resource endpoint independently (e.g. when the
- * audit-service teaches validate_chain() about retention events).
+ * The existing `auditService.getAll()` targets the same endpoint but
+ * returns a different response shape (snake_case, PaginatedResponse<T>
+ * with `data`/`meta` rather than `items`/`total`/`has_more`). Reusing
+ * it would require forking its response handling inline; a dedicated
+ * module keeps the Field History page's contract obvious and lets us
+ * evolve the per-field surface independently.
  */
 
 import { logger } from '@/lib/logger';
@@ -158,13 +166,34 @@ export function buildTrailQuery(
 // Public API
 // ─────────────────────────────────────────────────────────────────────────
 
+export class FieldAuditHistoryError extends Error {
+  readonly status: number | null;
+  readonly fieldId: string;
+
+  constructor(message: string, opts: { status: number | null; fieldId: string; cause?: unknown }) {
+    super(message);
+    this.name = 'FieldAuditHistoryError';
+    this.status = opts.status;
+    this.fieldId = opts.fieldId;
+    if (opts.cause !== undefined) {
+      // Cause is standard in ES2022 but some bundlers strip it; attach as
+      // a plain property too so logs always get it.
+      (this as Error & { cause?: unknown }).cause = opts.cause;
+    }
+  }
+}
+
 export const fieldAuditHistoryApi = {
   /** Fetch a page of audit events for a specific field.
    *
-   *  Returns an empty page (not an exception) on HTTP failure so the UI
-   *  can render a "no events / connection lost" empty state without a
-   *  top-level error boundary. Real errors land in the logger with the
-   *  HTTP status so operators can still trace what went wrong. */
+   *  Throws `FieldAuditHistoryError` on HTTP failures and network
+   *  errors so `useFieldAuditTrail` can surface a real error banner
+   *  to the operator. Earlier versions of this client swallowed
+   *  failures and returned an empty page — clean for the happy path
+   *  but made the hook's `error` state unreachable, so operators
+   *  couldn't distinguish "connection lost" from "no events recorded".
+   *  Callers that genuinely want the degrade-to-empty behavior should
+   *  wrap the call in a try/catch at their own layer. */
   async getFieldTrail(
     fieldId: string,
     filters: FieldAuditFilters = {},
@@ -181,43 +210,42 @@ export const fieldAuditHistoryApi = {
       pagination,
     ).toString()}`;
 
+    let response: Response;
     try {
-      const response = await fetch(url, fetchDefaults);
-      if (!response.ok) {
-        logger.error('field-audit-history: backend rejected trail request', {
-          fieldId,
-          status: response.status,
-        });
-        return emptyPage(pagination);
-      }
-      const body = (await response.json()) as BackendPaginatedResponse;
-      // Defensive: an older audit-service deploy might respond with a bare
-      // array instead of the PaginatedResponse wrapper. Detect and adapt
-      // so the UI doesn't crash on a version-skew backend.
-      if (Array.isArray(body)) {
-        const items = (body as BackendAuditLogRow[]).map(mapRow);
-        return {
-          items,
-          total: items.length,
-          skip: pagination.skip,
-          limit: pagination.limit,
-          hasMore: false,
-        };
-      }
-      return mapBackendPage(body);
-    } catch (error) {
-      logger.error('field-audit-history: fetch failed', { fieldId, error });
-      return emptyPage(pagination);
+      response = await fetch(url, fetchDefaults);
+    } catch (cause) {
+      logger.error('field-audit-history: fetch failed', { fieldId, cause });
+      throw new FieldAuditHistoryError(
+        'Failed to reach audit-service',
+        { status: null, fieldId, cause },
+      );
     }
+
+    if (!response.ok) {
+      logger.error('field-audit-history: backend rejected trail request', {
+        fieldId,
+        status: response.status,
+      });
+      throw new FieldAuditHistoryError(
+        `audit-service returned ${response.status}`,
+        { status: response.status, fieldId },
+      );
+    }
+
+    const body = (await response.json()) as BackendPaginatedResponse;
+    // Defensive: an older audit-service deploy might respond with a bare
+    // array instead of the PaginatedResponse wrapper. Detect and adapt
+    // so the UI doesn't crash on a version-skew backend.
+    if (Array.isArray(body)) {
+      const items = (body as BackendAuditLogRow[]).map(mapRow);
+      return {
+        items,
+        total: items.length,
+        skip: pagination.skip,
+        limit: pagination.limit,
+        hasMore: false,
+      };
+    }
+    return mapBackendPage(body);
   },
 };
-
-function emptyPage(pagination: PaginationState): FieldAuditTrailPage {
-  return {
-    items: [],
-    total: 0,
-    skip: pagination.skip,
-    limit: pagination.limit,
-    hasMore: false,
-  };
-}

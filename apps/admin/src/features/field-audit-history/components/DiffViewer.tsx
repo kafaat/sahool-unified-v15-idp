@@ -98,8 +98,15 @@ export default function DiffViewer({
   newValue,
   locale = 'en',
 }: DiffViewerProps) {
-  const [showRaw, setShowRaw] = useState(false);
   const rows = computeDiff(oldValue, newValue);
+  // Open raw JSON by default when there are no shallow diff rows —
+  // if both sides are present but nothing visible changed, the reader
+  // probably wants to see raw values for a nested diff. Otherwise
+  // default-closed. Using a single source of truth (the state) so the
+  // toggle button can always flip it, regardless of whether rows exist.
+  // Previously we had `rawOpen = forceRaw || showRaw` which made the
+  // toggle a no-op for no-diff events.
+  const [rawOpen, setRawOpen] = useState<boolean>(rows.length === 0);
 
   // An event with NO old_value AND NO new_value has nothing to render —
   // this happens for reads and pure-effect events (e.g. "field.exported").
@@ -113,12 +120,6 @@ export default function DiffViewer({
       </p>
     );
   }
-
-  // Both sides present but no shallow differences — reader probably wants
-  // to see the raw values anyway (there may be nested changes we didn't
-  // expose). Render the raw disclosure open by default.
-  const forceRaw = rows.length === 0;
-  const rawOpen = forceRaw || showRaw;
 
   return (
     <div className="space-y-2" data-testid="diff-viewer">
@@ -164,7 +165,7 @@ export default function DiffViewer({
       <button
         type="button"
         className="inline-flex items-center gap-1 text-xs text-gray-600 hover:text-gray-900"
-        onClick={() => setShowRaw((v) => !v)}
+        onClick={() => setRawOpen((v) => !v)}
         aria-expanded={rawOpen}
         data-testid="diff-raw-toggle"
       >

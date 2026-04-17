@@ -6,8 +6,9 @@
  *
  * Keeps the filter state local until the operator hits Apply. We avoid
  * debounced live-apply here because the trail query hits audit-service
- * directly (no admin-app cache) and fires on every keystroke would hit
- * the rate-limit fast on a field with many events.
+ * directly (no admin-app cache), and firing one request per keystroke
+ * would exhaust the service's 60/min rate limit on a field with many
+ * events.
  */
 
 import { useState, useEffect } from 'react';

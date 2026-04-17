@@ -3,7 +3,13 @@
  * السطح العام لوحدة سجل تدقيق الحقل
  */
 
-export { fieldAuditHistoryApi, RESOURCE_TYPE_FIELD, mapBackendPage, buildTrailQuery } from './api';
+export {
+  fieldAuditHistoryApi,
+  FieldAuditHistoryError,
+  RESOURCE_TYPE_FIELD,
+  mapBackendPage,
+  buildTrailQuery,
+} from './api';
 export { useFieldAuditTrail, useReplayedState } from './hooks';
 export type { UseFieldAuditTrailResult } from './hooks';
 export { default as Timeline } from './components/Timeline';

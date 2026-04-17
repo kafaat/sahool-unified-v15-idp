@@ -1,0 +1,30 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: ai-agents-core
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ai-agents-core
+  title: AI Agents Core
+  description: Core agent infrastructure with shared utilities, base classes, and patterns
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/ai-agents-core
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/ai-agents-core
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8161'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-core
+  - layer-intelligence
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - resource:redis

@@ -1,0 +1,32 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: satellite-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: satellite-service
+  title: Satellite Service
+  description: Satellite Service — خدمة الأقمار الصناعية
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./archive/deprecated-services/satellite-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/archive/deprecated-services/satellite-service
+    sahool.io/event-layer: acquisition
+    sahool.io/port: '9190'
+    sahool.io/health-endpoint: /healthz
+    sahool.io/replaced-by: vegetation-analysis-service
+    sahool.io/sunset-date: '2026-01-25'
+  tags:
+  - python
+  - fastapi
+  - category-analytics
+  - layer-acquisition
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - component:sahool-eo

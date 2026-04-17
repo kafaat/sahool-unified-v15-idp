@@ -19,20 +19,48 @@
 - **Permission Controls**: Block dangerous commands
   - **التحكم في الأذونات**: حجب الأوامر الخطيرة
 
+## Running as a Docker job | التشغيل كـ Docker job
+
+> **Note:** This agent is a **one-shot CLI job**, not a long-running
+> service. Its Dockerfile CMD (`node dist/production-agent.js`) runs
+> a review, writes output, and exits. Starting it with
+> `docker compose up` would leave a confusing `Exited (0)` container
+> in `docker ps -a`, so it is gated behind the `ai-agents` compose
+> profile — it will not start by default.
+>
+> **ملاحظة:** هذا الوكيل مهمّة CLI تُنفَّذ مرّة واحدة، وليس خدمة
+> طويلة الأمد. لذا مُغلَق خلف الـ profile `ai-agents` ولن يبدأ
+> افتراضيّاً مع بقيّة الخدمات.
+
+```bash
+# One-shot invocation (recommended):
+ANTHROPIC_API_KEY=sk-... \
+  docker compose --profile ai-agents run --rm code-review-agent \
+    --repo /app --output /app/review.md --format markdown
+
+# Emit SARIF for GitHub Code Scanning:
+ANTHROPIC_API_KEY=sk-... \
+  docker compose --profile ai-agents run --rm code-review-agent \
+    --repo /app --output /app/review.sarif --format sarif
+
+# Pre-build the image without running it:
+docker compose --profile ai-agents build code-review-agent
+```
+
 ## Quick Start | البدء السريع
 
 ```bash
 # Install dependencies | تثبيت المتطلبات
 npm install
 
-# Run basic review on current directory | تشغيل المراجعة الأساسية على المجلد الحالي
-npm run review
+# Review current directory, print JSON to stdout | مراجعة المجلد الحالي
+npx tsx src/production-agent.ts --repo .
 
-# Run with structured output | التشغيل مع مخرجات منظمة
-npm run review:structured
+# Review a specific path and save a Markdown report | مراجعة مسار محدد
+npx tsx src/production-agent.ts --repo ./src --output review.md --format markdown
 
-# Run production agent | تشغيل وكيل الإنتاج
-npm run review:production ./src
+# Emit SARIF for CI integration | إخراج SARIF لـ CI
+npx tsx src/production-agent.ts --repo ./src --output review.sarif --format sarif
 ```
 
 ## Usage | الاستخدام
@@ -40,24 +68,49 @@ npm run review:production ./src
 ### CLI
 
 ```bash
-# Review current directory | مراجعة المجلد الحالي
-npx tsx src/review-agent.ts
+# Show help | عرض المساعدة
+npx tsx src/production-agent.ts --help
 
-# Review specific directory | مراجعة مجلد معين
-npx tsx src/review-agent.ts ./src
+# Review current directory (JSON to stdout) | مراجعة المجلد الحالي
+npx tsx src/production-agent.ts --repo .
 
-# Production agent with all features | وكيل الإنتاج مع جميع الميزات
-npx tsx src/production-agent.ts ./src
+# Review a specific directory | مراجعة مجلد معين
+npx tsx src/production-agent.ts --repo ./src
 
-# Disable subagents | تعطيل الوكلاء الفرعيين
-npx tsx src/production-agent.ts ./src --no-subagents
+# Write Markdown report to a file | كتابة تقرير Markdown إلى ملف
+npx tsx src/production-agent.ts --repo ./src --output review.md --format markdown
 
-# Export as Markdown | التصدير كـ Markdown
-npx tsx src/production-agent.ts ./src --export --markdown
+# Emit SARIF for GitHub Code Scanning | إخراج SARIF لمسح كود GitHub
+npx tsx src/production-agent.ts --repo ./src --output review.sarif --format sarif
 
-# Export as SARIF | التصدير كـ SARIF
-npx tsx src/production-agent.ts ./src --export --sarif
+# Disable specialized subagents (faster, shallower review) | تعطيل الوكلاء الفرعيين
+npx tsx src/production-agent.ts --repo ./src --no-subagents
+
+# Pick a cheaper/faster model | اختيار نموذج أسرع/أرخص
+npx tsx src/production-agent.ts --repo ./src --model haiku
+
+# Cap the number of agent turns | تحديد عدد دورات الوكيل
+npx tsx src/production-agent.ts --repo ./src --max-turns 100
 ```
+
+#### Flags | الخيارات
+
+| Flag             | Default  | Description                                 | الوصف                             |
+| ---------------- | -------- | ------------------------------------------- | --------------------------------- |
+| `--repo <path>`  | `.`      | Directory to review                         | المجلد المراد مراجعته             |
+| `--output <file>`| stdout   | Write report to file instead of stdout      | كتابة التقرير إلى ملف              |
+| `--format <fmt>` | `json`   | Output format: `json`, `markdown`, `sarif`  | صيغة المخرجات                      |
+| `--no-subagents` | off      | Skip specialized subagents                  | تخطي الوكلاء المتخصصين             |
+| `--model <name>` | `opus`   | Claude model: `opus`, `sonnet`, `haiku`     | نموذج Claude                       |
+| `--max-turns <n>`| `250`    | Maximum agent turns                         | الحد الأقصى لدورات الوكيل          |
+| `--help`, `-h`   | —        | Show usage and exit                         | عرض الاستخدام                      |
+
+> **Deprecated flags:** `--sarif` and `--markdown` are still accepted as
+> aliases for `--format sarif` / `--format markdown` for backward
+> compatibility, but will be removed in a future release. Prefer `--format`.
+>
+> **الخيارات المهجورة:** لا يزال `--sarif` و `--markdown` مقبولين كأسماء
+> بديلة، لكنهما سيُزالان لاحقاً. يُفضَّل استخدام `--format`.
 
 ### Programmatic | برمجياً
 
@@ -187,12 +240,20 @@ npm run lint
 
 ```bash
 # Build image | بناء الصورة
-docker build -t code-review-agent .
+docker build -t code-review-agent \
+  -f apps/services/code-review-agent/Dockerfile .
 
-# Run container | تشغيل الحاوية
-docker run -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+# Run container (JSON report to stdout) | تشغيل الحاوية
+docker run --rm \
+  -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
   -v $(pwd):/code:ro \
-  code-review-agent /code
+  code-review-agent --repo /code
+
+# Run container (Markdown report to a host file) | تقرير Markdown إلى ملف
+docker run --rm \
+  -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+  -v $(pwd):/code \
+  code-review-agent --repo /code --output /code/review.md --format markdown
 ```
 
 ## Architecture | الهندسة المعمارية

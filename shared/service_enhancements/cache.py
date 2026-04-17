@@ -391,7 +391,7 @@ def _generate_cache_key(*args, **kwargs) -> str:
 
     # Hash for shorter keys
     key_str = json.dumps(key_data, sort_keys=True)
-    return hashlib.md5(key_str.encode(), usedforsecurity=False).hexdigest()
+    return hashlib.sha256(key_str.encode()).hexdigest()
 
 
 def cache(
@@ -497,7 +497,7 @@ def cache_response(
                                 key_parts.append(f"{param}={header_value}")
 
             cache_key = ":".join(key_parts)
-            cache_key_hash = hashlib.md5(cache_key.encode(), usedforsecurity=False).hexdigest()
+            cache_key_hash = hashlib.sha256(cache_key.encode()).hexdigest()
 
             cache_manager = get_cache_manager()
 

@@ -5,7 +5,7 @@
 
 # Core Framework
 fastapi>=0.115.0,<1.0.0
-uvicorn[standard]>=0.30.0,<1.0.0
+uvicorn[standard]==0.44.0
 pydantic>=2.5.0,<3.0.0
 pydantic-settings>=2.1.0,<3.0.0
 
@@ -16,7 +16,7 @@ torch>=2.6.0,<2.7.0  # CVE-2025-32434 (CRITICAL) fixed in 2.6.0
 torchvision>=0.17.0,<1.0.0
 ultralytics>=8.1.0,<9.0.0
 opencv-python-headless>=4.8.0,<5.0.0
-Pillow>=12.1.1,<13.0.0  # CVE-2026-25990
+Pillow>=12.2.0,<13.0.0  # CVE-2026-25990, CVE-2026-40192
 numpy>=1.26.0,<2.5.0
 
 # Image Processing

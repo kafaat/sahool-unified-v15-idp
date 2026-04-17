@@ -4,7 +4,7 @@
 
 # Base requirements
 fastapi>=0.115.0,<1.0.0
-uvicorn[standard]>=0.30.0,<1.0.0
+uvicorn[standard]==0.44.0
 pydantic>=2.10.0,<3.0.0
 python-dotenv>=1.0.0,<2.0.0
 
@@ -12,7 +12,7 @@ python-dotenv>=1.0.0,<2.0.0
 httpx>=0.27.0,<1.0.0
 
 # Required for FastAPI File/UploadFile endpoints
-python-multipart==0.0.22
+python-multipart==0.0.26
 
 # Database
 asyncpg>=0.30.0,<1.0.0
@@ -27,6 +27,6 @@ redis[hiredis]>=7.1.0,<8.0.0
 structlog>=24.1.0,<26.0.0
 
 # Testing
-pytest>=8.0.0,<9.0.0
-pytest-asyncio==0.26.0
+pytest==9.0.3
+pytest-asyncio==1.3.0
 pytest-cov>=6.0.0

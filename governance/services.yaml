@@ -2399,6 +2399,12 @@ services:
   # ═══════════════════════════════════════════════════════════════════════════
   # CODE REVIEW AGENT - وكيل مراجعة الكود
   # ═══════════════════════════════════════════════════════════════════════════
+  # NOTE: This is a one-shot CLI agent (TypeScript + Claude Agent SDK). It runs,
+  # writes an output file, and exits. It has NO HTTP endpoint, NO NATS wiring,
+  # NO Redis/DB client, and NO event publishers. The only external dependency
+  # at runtime is the Claude API (via ANTHROPIC_API_KEY). Do not re-add
+  # `events.produces` or `dependencies: [nats, redis]` without corresponding
+  # code in apps/services/code-review-agent/src/.
   code-review-agent:
     name: "Code Review Agent"
     name_ar: "وكيل مراجعة الكود"
@@ -2418,13 +2424,7 @@ services:
     lifecycle: production
     tier: tier-2
     events:
-      produces:
-        - CodeReviewCompleted.v1
-        - PRAnalyzed.v1
-      consumes: []
-    dependencies:
-      - redis
-      - nats
+      consumes: []  # CLI agent does not subscribe to NATS
     resources:
       cpu: "400m"
       memory: "512Mi"

@@ -1,18 +1,40 @@
 app:
   title: SAHOOL Developer Portal
-  baseUrl: http://localhost:7007
+  baseUrl: ${BACKSTAGE_BASE_URL:-http://localhost:7007}
 
 organization:
   name: SAHOOL
 
 backend:
-  baseUrl: http://localhost:7007
+  baseUrl: ${BACKSTAGE_BASE_URL:-http://localhost:7007}
   listen:
     port: 7007
   cors:
-    origin: http://localhost:7007
+    origin: ${BACKSTAGE_BASE_URL:-http://localhost:7007}
     methods: [GET, POST, PUT, DELETE]
     credentials: true
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Authentication – Keycloak OpenID Connect SSO
+# Plugin: @backstage/plugin-auth-backend-module-oidc-provider
+# Realm import: infrastructure/keycloak/keycloak.yaml (client: backstage)
+# ═══════════════════════════════════════════════════════════════════════════
+auth:
+  environment: ${ENVIRONMENT:-development}
+  providers:
+    oidc:
+      development:
+        metadataUrl: ${KEYCLOAK_ISSUER_URL:-https://auth.sahool.io/realms/sahool}/.well-known/openid-configuration
+        clientId: backstage
+        clientSecret: ${KEYCLOAK_CLIENT_SECRET}
+        prompt: auto
+        scope: 'openid profile email groups'
+      production:
+        metadataUrl: ${KEYCLOAK_ISSUER_URL:-https://auth.sahool.io/realms/sahool}/.well-known/openid-configuration
+        clientId: backstage
+        clientSecret: ${KEYCLOAK_CLIENT_SECRET}
+        prompt: auto
+        scope: 'openid profile email groups'
 
 catalog:
   rules:
@@ -20,12 +42,92 @@ catalog:
   locations:
     - type: file
       target: ./catalog/all.yaml
+  # Auto-discover catalog entities from GitHub org
+  providers:
+    github:
+      sahool:
+        organization: kafaat
+        catalogPath: /catalog-info.yaml
+        filters:
+          repository: sahool-unified-v15-idp
+        schedule:
+          frequency: { minutes: 30 }
+          timeout: { minutes: 3 }
 
 integrations:
   github:
     - host: github.com
       token: ${GITHUB_TOKEN}
 
+# ═══════════════════════════════════════════════════════════════════════════
+# TechDocs - Service documentation rendering
+# Consumes `backstage.io/techdocs-ref: dir:./apps/services/<name>` annotations
+# written by scripts/generators/generate_backstage_catalog.py.
+# ═══════════════════════════════════════════════════════════════════════════
+techdocs:
+  builder: 'local'
+  generator:
+    runIn: 'docker'
+  publisher:
+    type: 'local'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Proxy – Upstream services reached from the Backstage frontend
+# Activates: GitHub Actions, Jenkins CI, Jaeger tracing, Kiali plugins.
+# ═══════════════════════════════════════════════════════════════════════════
+proxy:
+  endpoints:
+    # Jaeger UI for distributed traces
+    '/jaeger/api':
+      target: ${JAEGER_QUERY_URL:-http://jaeger-query:16686}
+      changeOrigin: true
+      pathRewrite:
+        '^/api/proxy/jaeger/api': '/api'
+    # GitHub Actions workflow summaries (@backstage/plugin-github-actions)
+    '/github-actions/api':
+      target: https://api.github.com
+      changeOrigin: true
+      headers:
+        Authorization: Bearer ${GITHUB_TOKEN}
+        Accept: application/vnd.github.v3+json
+    # Jenkins CI proxy (@backstage-community/plugin-jenkins)
+    '/jenkins/api':
+      target: ${JENKINS_URL:-http://jenkins:8080}
+      changeOrigin: true
+      headers:
+        Authorization: Basic ${JENKINS_AUTH_TOKEN}
+    # Kiali service mesh UI
+    '/kiali/api':
+      target: ${KIALI_URL:-http://kiali.sahool-production:20001}
+      changeOrigin: true
+      pathRewrite:
+        '^/api/proxy/kiali/api': '/api'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# GitHub Actions Plugin – @backstage/plugin-github-actions
+# Displays CI/CD workflow runs for each catalog component.
+# Requires annotation: github.com/project-slug on catalog entities.
+# ═══════════════════════════════════════════════════════════════════════════
+githubActions:
+  # No additional config needed; driven by catalog annotations
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Jenkins CI Plugin – @backstage-community/plugin-jenkins
+# Displays Jenkins build status for services with Jenkins jobs.
+# Requires annotation: jenkins.io/job-full-name on catalog entities.
+# ═══════════════════════════════════════════════════════════════════════════
+jenkins:
+  instances:
+    - name: sahool-jenkins
+      baseUrl: ${JENKINS_URL:-http://jenkins:8080}
+      username: ${JENKINS_USERNAME}
+      apiKey: ${JENKINS_API_KEY}
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Kubernetes Plugin – @backstage/plugin-kubernetes
+# Shows pod status, logs, and deployment info for each service.
+# Requires annotation: backstage.io/kubernetes-id on catalog entities.
+# ═══════════════════════════════════════════════════════════════════════════
 kubernetes:
   serviceLocatorMethod:
     type: multiTenant
@@ -33,32 +135,54 @@ kubernetes:
     - type: config
       clusters:
         - name: sahool-dev
-          url: ${K8S_CLUSTER_URL}
+          url: ${K8S_DEV_CLUSTER_URL:-${K8S_CLUSTER_URL}}
           authProvider: serviceAccount
           serviceAccountToken: ${K8S_SA_TOKEN}
-          # SECURITY: Use proper TLS verification with CA certificate
-          # Set skipTLSVerify via environment variable, default to false for security
-          skipTLSVerify: ${K8S_SKIP_TLS_VERIFY:false}
-          # For production: provide CA certificate data or file path
+          skipTLSVerify: ${K8S_SKIP_TLS_VERIFY:-false}
           caData: ${K8S_CA_DATA}
-          # Alternative: use caFile for file-based CA certificate
-          # caFile: /etc/backstage/certs/k8s-ca.crt
+        - name: sahool-staging
+          url: ${K8S_STAGING_CLUSTER_URL}
+          authProvider: serviceAccount
+          serviceAccountToken: ${K8S_STAGING_SA_TOKEN}
+          skipTLSVerify: false
+          caData: ${K8S_STAGING_CA_DATA}
+        - name: sahool-production
+          url: ${K8S_PROD_CLUSTER_URL}
+          authProvider: serviceAccount
+          serviceAccountToken: ${K8S_PROD_SA_TOKEN}
+          skipTLSVerify: false
+          caData: ${K8S_PROD_CA_DATA}
+  # Custom resource types to display in Kubernetes tab
+  customResources:
+    - group: networking.istio.io
+      apiVersion: v1beta1
+      plural: virtualservices
+    - group: networking.istio.io
+      apiVersion: v1beta1
+      plural: destinationrules
+    - group: argoproj.io
+      apiVersion: v1alpha1
+      plural: rollouts
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Audit Configuration - تكوين التدقيق
+# Jaeger Plugin Configuration
+# ═══════════════════════════════════════════════════════════════════════════
+jaeger:
+  search:
+    service:
+      filter: 'sahool-*'
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Audit Configuration – تكوين التدقيق
 # ═══════════════════════════════════════════════════════════════════════════
 audit:
-  # Enable audit logging for all admin actions
   enabled: true
-  # Retention period for audit logs (in days)
   retentionDays: 90
-  # Alert channels for security events
   alertChannels:
     - type: webhook
       url: ${AUDIT_WEBHOOK_URL}
     - type: log
       level: warn
-  # Categories to audit
   categories:
     - authentication
     - authorization
@@ -67,16 +191,12 @@ audit:
     - kubernetes
 
 # ═══════════════════════════════════════════════════════════════════════════
-# Security Configuration - تكوين الأمان
+# Security Configuration – تكوين الأمان
 # ═══════════════════════════════════════════════════════════════════════════
 security:
-  # Session timeout in minutes
   sessionTimeoutMinutes: 30
-  # Require MFA for admin actions (when supported)
   mfaRequired: ${SECURITY_MFA_REQUIRED:false}
-  # Audit all admin actions
   auditAdminActions: true
-  # Rate limiting for API requests
   rateLimit:
     enabled: true
     maxRequestsPerMinute: 100

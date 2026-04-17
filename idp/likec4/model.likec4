@@ -1,0 +1,552 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+// SAHOOL Platform – LikeC4 Architecture Model
+// نموذج العمارة – منصّة سهول
+//
+// Three C4 levels:
+//   Level 1 – System Context
+//   Level 2 – Container (services grouped by event-architecture layer)
+//   Level 3 – Component (internal structure of key services)
+//
+// Synced from governance/services.yaml via scripts/sync-c4-from-services.py
+// ═══════════════════════════════════════════════════════════════════════════════
+
+specification {
+  element actor {
+    style {
+      shape person
+      color green
+    }
+  }
+  element system {
+    style {
+      shape rectangle
+      color indigo
+    }
+  }
+  element container {
+    style {
+      shape rectangle
+    }
+  }
+  element component {
+    style {
+      shape rectangle
+    }
+  }
+  element database {
+    style {
+      shape cylinder
+      color amber
+    }
+  }
+  element queue {
+    style {
+      shape queue
+      color secondary
+    }
+  }
+  element external {
+    style {
+      shape rectangle
+      color muted
+    }
+  }
+
+  relationship async {
+    style {
+      line dashed
+      color secondary
+    }
+  }
+  relationship sync {
+    style {
+      line solid
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Level 1 – System Context
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model {
+
+  // ── Actors ──────────────────────────────────────────────────────────────────
+  actor farmer 'Farmer / المزارع' {
+    description 'Smallholder farmer using SAHOOL mobile app for field management'
+  }
+  actor agronomist 'Agronomist / المهندس الزراعي' {
+    description 'Extension officer reviewing analytics on the web dashboard'
+  }
+  actor admin 'Admin / المسؤول' {
+    description 'Platform administrator managing tenants and services'
+  }
+
+  // ── External Systems ───────────────────────────────────────────────────────
+  external sentinelHub 'Sentinel Hub' {
+    description 'ESA Copernicus satellite imagery (NDVI, LAI)'
+  }
+  external openWeather 'Weather APIs' {
+    description 'OpenWeatherMap / Visual Crossing for forecasts'
+  }
+  external smsGateway 'SMS / WhatsApp Gateway' {
+    description 'Notification delivery (Twilio, USSD)'
+  }
+  external paymentGateway 'Payment Gateway' {
+    description 'Billing and subscription management'
+  }
+  external iotDevices 'IoT Sensors' {
+    description 'Field sensors (soil moisture, temperature, EC) via MQTT'
+  }
+  external droneFleet 'Drone Fleet' {
+    description 'Agricultural drones for VRA and imaging'
+  }
+
+  // ── SAHOOL Platform (system boundary) ──────────────────────────────────────
+  system sahool 'SAHOOL Platform / منصّة سهول' {
+    description 'National Agricultural Intelligence Platform – offline-first, event-driven, AI-powered'
+
+    // ── Level 2 – Containers (by event-architecture layer) ───────────────────
+
+    // ── Client Applications ──────────────────────────────────────────────────
+    container mobileApp 'Mobile App (Flutter)' {
+      description 'Offline-first field app – Riverpod + Drift + SQLCipher'
+      technology 'Flutter 3.27, Dart 3.6'
+    }
+    container webDashboard 'Web Dashboard (Next.js)' {
+      description 'Analytics dashboard and management console'
+      technology 'Next.js 15, React 19, TypeScript 5.9'
+    }
+    container adminPortal 'Admin Portal (React)' {
+      description 'Tenant and platform administration'
+      technology 'React 19, TypeScript 5.9'
+    }
+
+    // ── API Gateway ──────────────────────────────────────────────────────────
+    container kongGateway 'Kong API Gateway' {
+      description 'Authentication, rate limiting, routing – 105 routes'
+      technology 'Kong 3.x'
+    }
+
+    // ── ACQUISITION Layer ────────────────────────────────────────────────────
+    container iotService 'IoT Service' {
+      description 'IoT device management and data ingestion'
+      technology 'NestJS 10, port 8117'
+    }
+    container iotGateway 'IoT Gateway' {
+      description 'MQTT protocol gateway for sensor data'
+      technology 'FastAPI, port 8106'
+    }
+    container weatherService 'Weather Service' {
+      description 'Weather data ingestion and forecast normalization'
+      technology 'FastAPI, port 8092'
+    }
+    container virtualSensors 'Virtual Sensors' {
+      description 'Derived sensor computation from raw data'
+      technology 'FastAPI, port 8119'
+    }
+    container edgeOrchestrator 'Edge Orchestrator' {
+      description 'Jetson Orin edge device management and model deployment'
+      technology 'FastAPI, port 8180'
+    }
+
+    // ── INTELLIGENCE Layer ───────────────────────────────────────────────────
+    container vegetationAnalysis 'Vegetation Analysis Service' {
+      description 'Satellite imagery NDVI/LAI processing'
+      technology 'FastAPI, port 8090'
+    }
+    container cropIntelligence 'Crop Intelligence Service' {
+      description 'Crop health AI – disease detection, pest classification'
+      technology 'FastAPI, port 8095'
+    }
+    container indicatorsService 'Indicators Service' {
+      description 'Field indicator computation and feature extraction'
+      technology 'FastAPI, port 8091'
+    }
+    container yolo26Vision 'YOLO26 Vision Service' {
+      description 'Computer vision – pest, disease, weed detection (GPU)'
+      technology 'FastAPI + PyTorch, port 8150'
+    }
+    container terrainCore 'Terrain Core Service' {
+      description 'DEM processing, slope, aspect, terrain analysis'
+      technology 'FastAPI, port 8185'
+    }
+    container hydrologyService 'Hydrology Service' {
+      description 'Drainage analysis, watershed delineation, flow accumulation'
+      technology 'FastAPI, port 8165'
+    }
+    container fieldIntelligence 'Field Intelligence' {
+      description 'Field analytics and computed insights'
+      technology 'FastAPI, port 8120'
+    }
+    container knowledgeGraph 'Knowledge Graph' {
+      description 'Agricultural knowledge graph and semantic search'
+      technology 'FastAPI, port 8140'
+    }
+
+    // ── DECISION Layer ───────────────────────────────────────────────────────
+    container advisoryService 'Advisory Service' {
+      description 'Crop management advisory and recommendations'
+      technology 'FastAPI, port 8093'
+    }
+    container irrigationSmart 'Irrigation Smart' {
+      description 'Smart irrigation scheduling and optimization'
+      technology 'FastAPI, port 8094'
+    }
+    container yieldPrediction 'Yield Prediction Service' {
+      description 'ML-based yield prediction and forecasting'
+      technology 'NestJS, port 8152'
+    }
+    container cropGrowthModel 'Crop Growth Model' {
+      description 'Crop phenology, biomass, and growth simulation'
+      technology 'NestJS, port 3023'
+    }
+    container aiAdvisor 'AI Advisor' {
+      description 'Multi-LLM AI advisory – Claude, OpenAI, Gemini, DeepSeek'
+      technology 'FastAPI, port 8112'
+    }
+    container levelingOptimizer 'Leveling Optimizer Service' {
+      description 'Field leveling optimization and cut/fill calculation'
+      technology 'FastAPI, port 8170'
+    }
+    container llmOrchestrator 'LLM Orchestrator Service' {
+      description 'LLM routing, integration orchestration'
+      technology 'FastAPI, port 8164'
+    }
+
+    // ── BUSINESS Layer ───────────────────────────────────────────────────────
+    container fieldManagement 'Field Management Service' {
+      description 'Core field CRUD, boundary, crop operations'
+      technology 'NestJS + Prisma, port 3000'
+    }
+    container userService 'User Service' {
+      description 'Authentication, authorization, user management'
+      technology 'NestJS, port 3025'
+    }
+    container notificationService 'Notification Service' {
+      description 'Push, SMS, email, WhatsApp notifications'
+      technology 'FastAPI, port 8110'
+    }
+    container marketplaceService 'Marketplace Service' {
+      description 'Agricultural marketplace – listings, orders'
+      technology 'NestJS, port 3010'
+    }
+    container chatService 'Chat Service' {
+      description 'Real-time field messaging'
+      technology 'NestJS, port 8115'
+    }
+    container taskService 'Task Service' {
+      description 'Field task management and scheduling'
+      technology 'FastAPI, port 8103'
+    }
+    container billingCore 'Billing Core' {
+      description 'Subscription billing and invoicing'
+      technology 'FastAPI, port 8089'
+    }
+    container wsGateway 'WebSocket Gateway' {
+      description 'Real-time event push to clients'
+      technology 'FastAPI, port 8081'
+    }
+    container auditService 'Audit Service' {
+      description 'Compliance audit logging'
+      technology 'FastAPI, port 8114'
+    }
+    container copilotApi 'Copilot API' {
+      description 'AI copilot – multi-LLM, RAG, context engineering'
+      technology 'FastAPI, port 8088'
+    }
+
+    // ── Infrastructure ───────────────────────────────────────────────────────
+    database postgres 'PostgreSQL + PostGIS' {
+      description 'Primary database – geospatial, multi-tenant'
+      technology 'PostgreSQL 16, PostGIS 3.4'
+    }
+    database redis 'Redis' {
+      description 'Caching, sessions, rate limiting'
+      technology 'Redis 7.2'
+    }
+    queue nats 'NATS JetStream' {
+      description 'Event bus – 4-layer architecture, DLQ, encryption'
+      technology 'NATS 2.10'
+    }
+    database vault 'HashiCorp Vault' {
+      description 'Secrets management'
+      technology 'Vault 1.17'
+    }
+
+    // ── Level 3 – Components (field-management-service) ──────────────────────
+    container fieldManagement {
+      component fieldCrud 'Field CRUD' {
+        description 'Create, read, update, delete field entities'
+      }
+      component boundaryEngine 'Boundary Engine' {
+        description 'Geospatial boundary processing with PostGIS'
+      }
+      component cropManager 'Crop Manager' {
+        description 'Crop lifecycle and rotation tracking'
+      }
+      component eventPublisher 'Event Publisher' {
+        description 'NATS event emission for field changes'
+      }
+      component prismaClient 'Prisma Client' {
+        description 'Database ORM layer'
+      }
+    }
+
+    // ── Level 3 – Components (vegetation-analysis-service) ───────────────────
+    container vegetationAnalysis {
+      component ndviProcessor 'NDVI Processor' {
+        description 'Sentinel-2 band math for NDVI calculation'
+      }
+      component laiEstimator 'LAI Estimator' {
+        description 'Leaf Area Index estimation from spectral data'
+      }
+      component anomalyDetector 'Anomaly Detector' {
+        description 'Statistical anomaly detection in vegetation indices'
+      }
+      component sentinelClient 'Sentinel Hub Client' {
+        description 'HTTP client for Sentinel Hub API'
+      }
+    }
+
+    // ── Level 3 – Components (yolo26-vision-service) ─────────────────────────
+    container yolo26Vision {
+      component modelManager 'Model Manager' {
+        description 'YOLO26 model loading, LRU cache, GPU memory'
+      }
+      component pestDetector 'Pest Detector' {
+        description '22-species pest detection pipeline'
+      }
+      component diseaseDetector 'Disease Detector' {
+        description '34-disease classification pipeline'
+      }
+      component weedDetector 'Weed Detector' {
+        description '12-species weed detection pipeline'
+      }
+      component batchProcessor 'Batch Processor' {
+        description 'Async multi-image batch processing'
+      }
+      component objectTracker 'Object Tracker' {
+        description 'ByteTrack/BoT-SORT persistent tracking'
+      }
+    }
+
+    // ── Level 3 – Components (advisory-service) ──────────────────────────────
+    container advisoryService {
+      component ruleEngine 'Rule Engine' {
+        description 'Agronomic rules and decision trees'
+      }
+      component nlpProcessor 'NLP Processor' {
+        description 'Arabic NLP for farmer queries (AraBERT)'
+      }
+      component recommendationEngine 'Recommendation Engine' {
+        description 'Contextual advisory generation'
+      }
+      component explainability 'Explainability' {
+        description 'Factor-based bilingual advisory explanations'
+      }
+    }
+
+    // ── Level 3 – Components (irrigation-smart) ──────────────────────────────
+    container irrigationSmart {
+      component etCalculator 'ET Calculator' {
+        description 'Evapotranspiration calculation (Penman-Monteith)'
+      }
+      component scheduler 'Irrigation Scheduler' {
+        description 'Optimal timing and volume scheduling'
+      }
+      component salinityManager 'Salinity Manager' {
+        description 'Soil salinity monitoring and leaching'
+      }
+      component pivotControl 'Pivot Control' {
+        description 'Center pivot irrigation management'
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Relationships – Level 1 (System Context)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  farmer -> sahool 'Uses mobile app for field management'
+  agronomist -> sahool 'Reviews analytics and advisory on web dashboard'
+  admin -> sahool 'Administers tenants and platform configuration'
+
+  sahool -> sentinelHub 'Fetches satellite imagery (NDVI, LAI)' sync
+  sahool -> openWeather 'Fetches weather forecasts' sync
+  sahool -> smsGateway 'Sends notifications (SMS, WhatsApp)' sync
+  sahool -> paymentGateway 'Processes billing transactions' sync
+  iotDevices -> sahool 'Streams sensor data (MQTT)' async
+  droneFleet -> sahool 'Uploads aerial imagery' sync
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Relationships – Level 2 (Container)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  // Client → Gateway
+  farmer -> sahool.mobileApp 'Manages fields, views advisory'
+  agronomist -> sahool.webDashboard 'Reviews dashboards and analytics'
+  admin -> sahool.adminPortal 'Configures tenants, monitors services'
+
+  sahool.mobileApp -> sahool.kongGateway 'REST API + WebSocket' sync
+  sahool.webDashboard -> sahool.kongGateway 'REST API + SSE' sync
+  sahool.adminPortal -> sahool.kongGateway 'REST API' sync
+
+  // Gateway → Services
+  sahool.kongGateway -> sahool.userService 'Auth endpoints' sync
+  sahool.kongGateway -> sahool.fieldManagement 'Field CRUD' sync
+  sahool.kongGateway -> sahool.advisoryService 'Advisory queries' sync
+  sahool.kongGateway -> sahool.aiAdvisor 'AI chat' sync
+  sahool.kongGateway -> sahool.irrigationSmart 'Irrigation scheduling' sync
+  sahool.kongGateway -> sahool.weatherService 'Weather data' sync
+  sahool.kongGateway -> sahool.marketplaceService 'Marketplace' sync
+  sahool.kongGateway -> sahool.wsGateway 'WebSocket upgrade' sync
+
+  // Acquisition Layer → NATS
+  sahool.iotService -> sahool.nats 'Publishes sensor data' async
+  sahool.iotGateway -> sahool.nats 'Publishes normalized readings' async
+  sahool.weatherService -> sahool.nats 'Publishes weather updates' async
+  sahool.virtualSensors -> sahool.nats 'Publishes derived metrics' async
+  sahool.edgeOrchestrator -> sahool.nats 'Publishes edge sync events' async
+
+  // Intelligence Layer ↔ NATS
+  sahool.nats -> sahool.vegetationAnalysis 'Consumes field events' async
+  sahool.vegetationAnalysis -> sahool.nats 'Publishes NDVI results' async
+  sahool.nats -> sahool.cropIntelligence 'Consumes health events' async
+  sahool.cropIntelligence -> sahool.nats 'Publishes disease detection' async
+  sahool.nats -> sahool.indicatorsService 'Consumes raw data' async
+  sahool.indicatorsService -> sahool.nats 'Publishes field indicators' async
+  sahool.nats -> sahool.yolo26Vision 'Consumes image events' async
+  sahool.yolo26Vision -> sahool.nats 'Publishes vision detections' async
+  sahool.nats -> sahool.terrainCore 'Consumes DEM data' async
+  sahool.nats -> sahool.hydrologyService 'Consumes terrain data' async
+
+  // Decision Layer ↔ NATS
+  sahool.nats -> sahool.advisoryService 'Consumes intelligence events' async
+  sahool.advisoryService -> sahool.nats 'Publishes recommendations' async
+  sahool.nats -> sahool.irrigationSmart 'Consumes weather + soil data' async
+  sahool.irrigationSmart -> sahool.nats 'Publishes schedules' async
+  sahool.nats -> sahool.yieldPrediction 'Consumes growth data' async
+  sahool.yieldPrediction -> sahool.nats 'Publishes yield forecasts' async
+  sahool.nats -> sahool.cropGrowthModel 'Consumes indicators' async
+
+  // Business Layer ↔ NATS
+  sahool.nats -> sahool.notificationService 'Consumes alert events' async
+  sahool.nats -> sahool.fieldManagement 'Consumes irrigation events' async
+  sahool.nats -> sahool.auditService 'Consumes all audit events' async
+  sahool.fieldManagement -> sahool.nats 'Publishes field events' async
+
+  // External integrations
+  sahool.vegetationAnalysis -> sentinelHub 'Fetches Sentinel-2 imagery' sync
+  sahool.weatherService -> openWeather 'Fetches forecasts' sync
+  sahool.notificationService -> smsGateway 'Sends SMS/WhatsApp' sync
+  sahool.billingCore -> paymentGateway 'Processes payments' sync
+  sahool.iotGateway -> iotDevices 'Receives MQTT data' async
+
+  // Database connections
+  sahool.fieldManagement -> sahool.postgres 'Reads/writes field data' sync
+  sahool.userService -> sahool.postgres 'Reads/writes user data' sync
+  sahool.vegetationAnalysis -> sahool.postgres 'Stores NDVI results' sync
+  sahool.irrigationSmart -> sahool.postgres 'Stores schedules' sync
+  sahool.advisoryService -> sahool.redis 'Caches recommendations' sync
+  sahool.userService -> sahool.redis 'Session management' sync
+  sahool.kongGateway -> sahool.redis 'Rate limiting counters' sync
+  sahool.userService -> sahool.vault 'Reads JWT secrets' sync
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Views
+// ═══════════════════════════════════════════════════════════════════════════════
+
+views {
+
+  // ── Level 1: System Context ────────────────────────────────────────────────
+  view sahoolContext of sahool {
+    title 'SAHOOL Platform – System Context (Level 1)'
+    description 'High-level view of actors and external systems interacting with SAHOOL'
+
+    include
+      farmer,
+      agronomist,
+      admin,
+      sahool,
+      sentinelHub,
+      openWeather,
+      smsGateway,
+      paymentGateway,
+      iotDevices,
+      droneFleet
+  }
+
+  // ── Level 2: Container – Full Platform ─────────────────────────────────────
+  view sahoolContainers of sahool {
+    title 'SAHOOL Platform – Container Diagram (Level 2)'
+    description 'All containers grouped by event-architecture layer'
+
+    include *
+    exclude
+      sahool.fieldManagement.fieldCrud,
+      sahool.fieldManagement.boundaryEngine,
+      sahool.fieldManagement.cropManager,
+      sahool.fieldManagement.eventPublisher,
+      sahool.fieldManagement.prismaClient,
+      sahool.vegetationAnalysis.ndviProcessor,
+      sahool.vegetationAnalysis.laiEstimator,
+      sahool.vegetationAnalysis.anomalyDetector,
+      sahool.vegetationAnalysis.sentinelClient,
+      sahool.yolo26Vision.modelManager,
+      sahool.yolo26Vision.pestDetector,
+      sahool.yolo26Vision.diseaseDetector,
+      sahool.yolo26Vision.weedDetector,
+      sahool.yolo26Vision.batchProcessor,
+      sahool.yolo26Vision.objectTracker,
+      sahool.advisoryService.ruleEngine,
+      sahool.advisoryService.nlpProcessor,
+      sahool.advisoryService.recommendationEngine,
+      sahool.advisoryService.explainability,
+      sahool.irrigationSmart.etCalculator,
+      sahool.irrigationSmart.scheduler,
+      sahool.irrigationSmart.salinityManager,
+      sahool.irrigationSmart.pivotControl
+  }
+
+  // ── Level 3: Component – Field Management Service ──────────────────────────
+  view fieldManagementComponents of sahool.fieldManagement {
+    title 'Field Management Service – Components (Level 3)'
+    description 'Internal components of the field management service'
+
+    include *
+  }
+
+  // ── Level 3: Component – Vegetation Analysis Service ───────────────────────
+  view vegetationAnalysisComponents of sahool.vegetationAnalysis {
+    title 'Vegetation Analysis Service – Components (Level 3)'
+    description 'Internal components of the vegetation analysis service'
+
+    include *
+  }
+
+  // ── Level 3: Component – YOLO26 Vision Service ─────────────────────────────
+  view visionComponents of sahool.yolo26Vision {
+    title 'YOLO26 Vision Service – Components (Level 3)'
+    description 'Computer vision pipeline components'
+
+    include *
+  }
+
+  // ── Level 3: Component – Advisory Service ──────────────────────────────────
+  view advisoryComponents of sahool.advisoryService {
+    title 'Advisory Service – Components (Level 3)'
+    description 'Agricultural advisory generation components'
+
+    include *
+  }
+
+  // ── Level 3: Component – Irrigation Smart ──────────────────────────────────
+  view irrigationComponents of sahool.irrigationSmart {
+    title 'Irrigation Smart – Components (Level 3)'
+    description 'Smart irrigation scheduling and optimization components'
+
+    include *
+  }
+}

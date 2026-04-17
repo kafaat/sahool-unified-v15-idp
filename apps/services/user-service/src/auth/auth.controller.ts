@@ -334,7 +334,26 @@ export class AuthController {
     // Use a hash or masked email for correlation if needed in production logging system
     this.logger.log(`Login attempt from IP: ${ip}`);
 
-    return this.authService.login(loginDto);
+    // Carry request context into the auth event stream. audit-service
+    // persists ipAddress + userAgent on every row so the /audit/logs
+    // detail view and the /audit/failed-logins panel can show them
+    // per event. (Note: /audit/security-events filters strictly on
+    // category == "security"; auth events are category ==
+    // "authentication" and are surfaced by /audit/failed-logins
+    // instead — this context is useful to both.)
+    // Node's IncomingHttpHeaders type widens some headers to
+    // `string | string[] | undefined` (e.g. set-cookie, or when a proxy
+    // duplicates a header). Normalize to a single string so the audit
+    // event stream never receives an array it can't index.
+    const firstHeader = (
+      value: string | string[] | undefined,
+    ): string | undefined => (Array.isArray(value) ? value[0] : value);
+
+    return this.authService.login(loginDto, {
+      ipAddress: ip,
+      userAgent: firstHeader(request.headers["user-agent"]),
+      correlationId: firstHeader(request.headers["x-request-id"]),
+    });
   }
 
   /**
@@ -658,7 +677,7 @@ export class AuthController {
       throw new UnauthorizedException("User not found in request");
     }
 
-    await this.authService.logoutAll(user.id);
+    await this.authService.logoutAll(user.id, user.tenantId);
 
     return {
       success: true,

@@ -687,10 +687,17 @@ asyncio.run(main())
 
   # Ollama with DeepSeek Coder - Local LLM for Docker Log Analysis
   # Supports 20+ concurrent agents for parallel analysis
-  # NOTE: Requires NVIDIA GPU. Use: docker compose --profile gpu up -d
+  #
+  # PROFILES:
+  #   gpu         — enables Ollama with GPU acceleration (fastest, recommended for prod)
+  #   code-intel  — enables Ollama without forcing GPU (CPU fallback, dev-friendly);
+  #                 Ollama auto-detects the available hardware at runtime
+  # Use either:   docker compose --profile gpu        up -d
+  #          or:  docker compose --profile code-intel up -d
   ollama:
     profiles:
       - gpu
+      - code-intel
     image: ollama/ollama:0.5.4
     container_name: sahool-ollama
     volumes:
@@ -739,10 +746,11 @@ asyncio.run(main())
 
   # Ollama Model Loader - Downloads deepseek model on startup
   # تحميل نموذج DeepSeek عند بدء التشغيل
-  # NOTE: Only runs when gpu profile is active
+  # NOTE: Runs when either `gpu` or `code-intel` profile is active
   ollama-model-loader:
     profiles:
       - gpu
+      - code-intel
     image: curlimages/curl:8.11.1
     container_name: sahool-ollama-model-loader
     depends_on:
@@ -834,10 +842,19 @@ asyncio.run(main())
 
   # Real-time Code Review Service - Monitors codebase and reviews with DeepSeek
   # خدمة مراجعة الكود في الوقت الفعلي باستخدام DeepSeek
-  # NOTE: Requires Ollama with GPU. Use: docker compose --profile gpu up -d
+  #
+  # PROFILES:
+  #   gpu         — full GPU-accelerated review (production performance)
+  #   code-intel  — CPU-only review (dev/staging — slower but functional)
+  #
+  # Use the `code-intel` profile when you need to exercise the admin portal's
+  # /code-review page without allocating GPU resources. The default model is
+  # overridable via OLLAMA_MODEL; pick a smaller one (e.g. deepseek-coder:1.3b)
+  # when running on CPU.
   code-review-service:
     profiles:
       - gpu
+      - code-intel
     build:
       context: .
       dockerfile: apps/services/code-review-service/Dockerfile
@@ -845,7 +862,7 @@ asyncio.run(main())
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - OLLAMA_URL=http://ollama:11434
-      - OLLAMA_MODEL=deepseek
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-deepseek}
       - WATCH_PATHS=infrastructure:docker-compose.yml:docker
       - LOG_LEVEL=INFO
       - REVIEW_ON_CHANGE=true
@@ -4667,7 +4684,18 @@ asyncio.run(main())
 
   # Code Review Agent - AI code review using Claude Agent SDK
   # وكيل مراجعة الكود - مراجعة كود ذكية باستخدام Claude SDK
+  #
+  # This is a CLI job, not a long-running service. Its Dockerfile's CMD
+  # (node dist/production-agent.js) runs once and exits — which looked
+  # like a crash under `docker compose ps` when started by default.
+  # Gated behind `ai-agents` profile so it only starts when explicitly
+  # requested:
+  #   docker compose --profile ai-agents run --rm code-review-agent \
+  #     -- --repo <path> --output review.md
+  # Requires ANTHROPIC_API_KEY in the environment.
   code-review-agent:
+    profiles:
+      - ai-agents
     build:
       context: .
       dockerfile: apps/services/code-review-agent/Dockerfile
@@ -4676,6 +4704,10 @@ asyncio.run(main())
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      # Fail-fast when the caller enables the `ai-agents` profile without
+      # configuring the API key — an empty string would silently fail
+      # inside the agent with a confusing 401, way later in the run.
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required when running the code-review-agent}
     restart: "no"
     security_opt:
       - no-new-privileges:true

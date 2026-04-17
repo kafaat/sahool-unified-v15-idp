@@ -1,0 +1,30 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: code-fix-agent
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: code-fix-agent
+  title: Code Fix Agent
+  description: Autonomous AI agent for code diagnostics and automated fixing
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/code-fix-agent
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/code-fix-agent
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8162'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-analytics
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:data-team
+  system: sahool-platform
+  dependsOn:
+  - resource:redis

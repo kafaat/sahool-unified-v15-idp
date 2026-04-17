@@ -3,7 +3,7 @@
 
 # Web Framework
 fastapi>=0.115.0,<1.0.0
-uvicorn[standard]>=0.30.0,<1.0.0
+uvicorn[standard]==0.44.0
 pydantic>=2.10.0,<3.0.0
 pydantic-settings>=2.1.0,<3.0.0
 # Database (PostgreSQL async)
@@ -34,7 +34,7 @@ python-dotenv>=1.0.0
 python-multipart>=0.0.6
 # Testing (dev)
 pytest>=7.4.0
-pytest-asyncio==0.26.0
+pytest-asyncio==1.3.0
 pytest-cov>=4.1.0
 # Type checking (dev)
 mypy>=1.8.0

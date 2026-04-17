@@ -111,13 +111,36 @@ def test_get_audit_logs_with_tenant(auth_client):
 
 
 def test_get_audit_stats(auth_client):
-    """Test audit statistics endpoint"""
+    """Test audit statistics endpoint.
+
+    AuditStatsResponse declares ``populate_by_name=True`` with camelCase
+    aliases. FastAPI serialises using the aliases by default but the
+    model is rebindable to snake_case, so we pick a casing once from
+    the first key found and assert *all three* keys use the same
+    casing. This catches inconsistent serialisation (one key
+    camelCase, another snake_case) that would otherwise slip through
+    an ``a or b`` assertion.
+    """
     response = auth_client.get("/api/v1/audit/stats", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
-    assert "total_events" in data
-    assert "events_by_category" in data
-    assert "events_by_severity" in data
+
+    # Detect casing from the first expected key.
+    camel_keys = ("totalEvents", "eventsByCategory", "eventsBySeverity")
+    snake_keys = ("total_events", "events_by_category", "events_by_severity")
+    if camel_keys[0] in data:
+        expected_keys = camel_keys
+    elif snake_keys[0] in data:
+        expected_keys = snake_keys
+    else:
+        raise AssertionError(f"Stats response missing both 'totalEvents' and 'total_events': {list(data.keys())}")
+
+    # All three keys must use the detected casing — no mixing.
+    for key in expected_keys:
+        assert key in data, (
+            f"Inconsistent stats casing: expected {expected_keys!r} but "
+            f"{key!r} is missing from response keys {list(data.keys())!r}"
+        )
 
 
 def test_validate_hash_chain(auth_client):

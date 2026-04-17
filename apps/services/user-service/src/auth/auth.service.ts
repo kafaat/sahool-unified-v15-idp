@@ -136,11 +136,45 @@ export class AuthService {
   }
 
   /**
+   * Attach a swallowing .catch() to a fire-and-forget audit publish.
+   *
+   * Every audit publish in this service is intentionally unawaited so
+   * that a failing NATS transport never blocks authentication. Using
+   * bare `void publisher(...)` leaves the promise unattached — if the
+   * publisher rejects (e.g. a mocked publisher in tests, or a bug
+   * inside UserEventsService that escapes its own try/catch) Node
+   * emits `unhandledRejection`, which can kill the process under
+   * strict run-modes.
+   *
+   * Pass the *result* of the publish call to this helper instead of
+   * using `void`:
+   *
+   *     this.fireAndForget(
+   *       this.userEvents?.publishUserAuthenticated({ ... }),
+   *     );
+   */
+  private fireAndForget(p: Promise<unknown> | undefined, context?: string): void {
+    if (!p) return;
+    p.catch((err) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      const stack = err instanceof Error ? err.stack : undefined;
+      // Include a context tag so operators can see which publisher
+      // rejected without reading the stack (e.g. "publishUserAuthenticated").
+      const prefix = context ? `audit_publish_failed[${context}]` : "audit_publish_failed";
+      this.logger.warn(`${prefix}: ${msg}`, stack);
+    });
+  }
+
+  /**
    * User login with account lockout protection
    * تسجيل دخول المستخدم مع حماية قفل الحساب
    */
-  async login(loginDto: LoginDto): Promise<TokenResponse> {
+  async login(
+    loginDto: LoginDto,
+    context?: { ipAddress?: string; userAgent?: string; correlationId?: string },
+  ): Promise<TokenResponse> {
     const { password } = loginDto;
+    const ctx = context ?? {};
 
     // Find user by email or phone
     let user;
@@ -152,16 +186,24 @@ export class AuthService {
       user = await this.prisma.user.findFirst({ where: { phone } });
     }
 
+    const rawIdentifier = loginDto.email || loginDto.phone || (user?.email ?? "unknown");
+
     if (!user) {
-      const identifier = loginDto.email || loginDto.phone || 'unknown';
       this.logger.warn(
         `Login attempt failed: User not found`,
-        { identifier: this.sanitizeForLog(identifier) },
+        { identifier: this.sanitizeForLog(rawIdentifier) },
       );
+      // Emit failed login — downstream audit still records the probe.
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
+        identifier: this.sanitizeForLog(rawIdentifier),
+        reason: "user_not_found",
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      }));
       throw new UnauthorizedException("Invalid email or password");
     }
 
-    const identifier = loginDto.email || loginDto.phone || user.email;
+    const identifier = rawIdentifier;
 
     // Check if account is locked
     const lockoutStatus = await this.checkAccountLockout(user.id);
@@ -170,6 +212,14 @@ export class AuthService {
         `Login attempt blocked: Account is locked`,
         { identifier: this.sanitizeForLog(identifier), remainingMinutes: lockoutStatus.remainingMinutes },
       );
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
+        tenantId: user.tenantId,
+        userId: user.id,
+        identifier: this.sanitizeForLog(identifier),
+        reason: "account_locked",
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      }));
       throw new UnauthorizedException(
         `Account is temporarily locked due to too many failed login attempts. Please try again in ${lockoutStatus.remainingMinutes} minutes.`,
       );
@@ -196,7 +246,26 @@ export class AuthService {
         },
       );
 
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
+        tenantId: user.tenantId,
+        userId: user.id,
+        identifier: this.sanitizeForLog(identifier),
+        reason: "invalid_password",
+        attemptsRemaining: lockResult.attemptsRemaining,
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      }));
+
       if (lockResult.isNowLocked) {
+        // Emit the state-transition event so dashboards can alert.
+        this.fireAndForget(this.userEvents?.publishUserAccountLocked({
+          tenantId: user.tenantId,
+          userId: user.id,
+          identifier: this.sanitizeForLog(identifier),
+          reason: "max_failed_attempts",
+          lockoutMinutes: LOCKOUT_CONFIG.LOCKOUT_DURATION_MINUTES,
+          ipAddress: ctx.ipAddress,
+        }));
         throw new UnauthorizedException(
           `Account has been locked due to too many failed login attempts. Please try again in ${LOCKOUT_CONFIG.LOCKOUT_DURATION_MINUTES} minutes or reset your password.`,
         );
@@ -215,6 +284,14 @@ export class AuthService {
         `Login attempt failed: User status is ${user.status}`,
         { identifier: this.sanitizeForLog(identifier) },
       );
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
+        tenantId: user.tenantId,
+        userId: user.id,
+        identifier: this.sanitizeForLog(identifier),
+        reason: "account_inactive",
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      }));
       throw new UnauthorizedException(
         'Account is not available. Please contact support.',
       );
@@ -246,6 +323,16 @@ export class AuthService {
       userId: user.id,
       identifier: this.sanitizeForLog(identifier),
     });
+
+    // Fire-and-forget audit event — downstream audit-service persists it.
+    this.fireAndForget(this.userEvents?.publishUserAuthenticated({
+      tenantId: user.tenantId,
+      userId: user.id,
+      identifier: this.sanitizeForLog(identifier),
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      correlationId: ctx.correlationId,
+    }));
 
     return {
       ...tokens,
@@ -380,6 +467,20 @@ export class AuthService {
         this.logger.log(
           `User logged out successfully: ${userId} (jti: ${payload.jti.substring(0, 8)}...)`,
         );
+        if (payload.tid) {
+          this.fireAndForget(this.userEvents?.publishUserLoggedOut({
+            tenantId: payload.tid,
+            userId,
+            jti: payload.jti.substring(0, 8),
+          }), "publishUserLoggedOut");
+        } else {
+          // tid is always present on valid JWTs; a missing tid means the
+          // caller decoded a malformed or legacy token. Surface this as a
+          // warning so the audit gap is discoverable instead of silent.
+          this.logger.warn(
+            `audit_skipped[publishUserLoggedOut]: missing tid on token for user=${userId}`,
+          );
+        }
       } else {
         this.logger.error(`Failed to revoke token for user: ${userId}`);
         throw new Error("Failed to revoke token");
@@ -401,7 +502,7 @@ export class AuthService {
    *
    * @param userId - The user ID
    */
-  async logoutAll(userId: string): Promise<void> {
+  async logoutAll(userId: string, tenantId?: string): Promise<void> {
     try {
       const success = await this.revocationStore.revokeAllUserTokens(
         userId,
@@ -410,6 +511,20 @@ export class AuthService {
 
       if (success) {
         this.logger.log(`User logged out from all devices: ${userId}`);
+        if (tenantId) {
+          this.fireAndForget(this.userEvents?.publishUserLoggedOutAll({
+            tenantId,
+            userId,
+          }), "publishUserLoggedOutAll");
+        } else {
+          // Callers are expected to resolve tenantId from the JWT before
+          // invoking; if they don't, the revoke still succeeds but the
+          // audit trail loses an event. Warn so the gap is visible in
+          // logs rather than disappearing silently.
+          this.logger.warn(
+            `audit_skipped[publishUserLoggedOutAll]: tenantId missing for user=${userId}`,
+          );
+        }
       } else {
         this.logger.error(`Failed to revoke all tokens for user: ${userId}`);
         throw new Error("Failed to revoke all tokens");
@@ -688,7 +803,7 @@ export class AuthService {
     // bypassing the event bus entirely (the R-1a fix only covered the
     // admin path via UsersService.create) — this completes that work.
     // Fire-and-forget; degraded NATS does not block account creation.
-    void this.userEvents?.publishUserCreated({
+    this.fireAndForget(this.userEvents?.publishUserCreated({
       tenantId: user.tenantId,
       userId: user.id,
       email: user.email,
@@ -696,7 +811,7 @@ export class AuthService {
       lastName: user.lastName ?? undefined,
       role: String(user.role),
       createdAt: user.createdAt,
-    });
+    }));
 
     // Generate tokens for immediate login
     const tokens = await this.generateTokens(user);

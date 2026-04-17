@@ -1,0 +1,253 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kiali – Service Mesh Observability for Istio
+# مراقبة شبكة الخدمات – كيالي
+#
+# Deploy only when Istio service mesh is active in production.
+# Prerequisites: Istio + Prometheus + Grafana
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kiali-operator
+  labels:
+    app.kubernetes.io/part-of: sahool-idp
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kiali ConfigMap
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kiali-config
+  namespace: sahool-production
+  labels:
+    app: kiali
+    app.kubernetes.io/part-of: sahool-idp
+    app.kubernetes.io/version: "16.0.0"
+data:
+  config.yaml: |
+    server:
+      port: 20001
+      web_root: /kiali
+      web_fqdn: kiali.sahool.io
+
+    auth:
+      # Uses OpenID Connect via Keycloak for SSO
+      strategy: openid
+      openid:
+        client_id: kiali-client
+        issuer_uri: ${KEYCLOAK_ISSUER_URL:-https://auth.sahool.io/realms/sahool}
+        disable_rbac: false
+        scopes:
+          - openid
+          - profile
+          - email
+        username_claim: preferred_username
+
+    external_services:
+      prometheus:
+        url: http://prometheus-server.monitoring:9090
+      grafana:
+        enabled: true
+        in_cluster_url: http://grafana.monitoring:3000
+        url: https://grafana.sahool.io
+      tracing:
+        enabled: true
+        in_cluster_url: http://jaeger-query.observability:16686
+        url: https://jaeger.sahool.io
+        use_grpc: true
+      istio:
+        root_namespace: istio-system
+        component_status:
+          components:
+            - app_label: istiod
+              is_core: true
+            - app_label: istio-ingressgateway
+              is_core: true
+
+    deployment:
+      accessible_namespaces:
+        - sahool-production
+        - sahool-staging
+      view_only_mode: false
+      # Security: run as non-root
+      security_context:
+        run_as_non_root: true
+        run_as_user: 1000
+
+    # Istio namespace configuration
+    istio_namespace: istio-system
+
+    # Graph configuration for service mesh visualization
+    kiali_feature_flags:
+      clustering:
+        autodetect_secrets:
+          enabled: true
+          label: kiali.io/multiCluster
+      ui_defaults:
+        graph:
+          traffic:
+            grpc: requests
+            http: requests
+            tcp: sent
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kiali Deployment
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kiali
+  namespace: sahool-production
+  labels:
+    app: kiali
+    app.kubernetes.io/name: kiali
+    app.kubernetes.io/part-of: sahool-idp
+    app.kubernetes.io/version: "1.82.0"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kiali
+  template:
+    metadata:
+      labels:
+        app: kiali
+        sidecar.istio.io/inject: "false"
+    spec:
+      serviceAccountName: kiali
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+        - name: kiali
+          image: quay.io/kiali/kiali:v1.82.0
+          ports:
+            - containerPort: 20001
+              name: http
+              protocol: TCP
+            - containerPort: 9090
+              name: metrics
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /kiali/healthz
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          livenessProbe:
+            httpGet:
+              path: /kiali/healthz
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          volumeMounts:
+            - name: kiali-config
+              mountPath: /kiali-configuration
+          env:
+            - name: KEYCLOAK_ISSUER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: sahool-idp-config
+                  key: keycloak-issuer-url
+                  optional: true
+      volumes:
+        - name: kiali-config
+          configMap:
+            name: kiali-config
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kiali Service
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: Service
+metadata:
+  name: kiali
+  namespace: sahool-production
+  labels:
+    app: kiali
+spec:
+  type: ClusterIP
+  ports:
+    - port: 20001
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: kiali
+---
+# ═══════════════════════════════════════════════════════════════════════════════
+# Kiali ServiceAccount + RBAC
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kiali
+  namespace: sahool-production
+  labels:
+    app: kiali
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kiali-viewer
+  labels:
+    app: kiali
+rules:
+  - apiGroups: [""]
+    resources:
+      - configmaps
+      - endpoints
+      - pods
+      - pods/log
+      - pods/proxy
+      - services
+      - namespaces
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - replicasets
+      - statefulsets
+      - daemonsets
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.istio.io"]
+    resources:
+      - virtualservices
+      - destinationrules
+      - gateways
+      - serviceentries
+      - envoyfilters
+      - sidecars
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["security.istio.io"]
+    resources:
+      - peerauthentications
+      - authorizationpolicies
+      - requestauthentications
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kiali-viewer-binding
+  labels:
+    app: kiali
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kiali-viewer
+subjects:
+  - kind: ServiceAccount
+    name: kiali
+    namespace: sahool-production

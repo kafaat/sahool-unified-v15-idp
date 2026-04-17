@@ -455,7 +455,7 @@ def generate_cache_key(
     params_str = json.dumps(sorted_params, sort_keys=True)
 
     # Create hash of params
-    params_hash = hashlib.md5(params_str.encode(), usedforsecurity=False).hexdigest()[:8]
+    params_hash = hashlib.sha256(params_str.encode()).hexdigest()[:8]
 
     return f"{field_id}:{operation}:{params_hash}"
 
@@ -472,7 +472,7 @@ def generate_geometry_hash(geometry: dict[str, Any]) -> str:
         Hash string
     """
     geom_str = json.dumps(geometry, sort_keys=True)
-    return hashlib.md5(geom_str.encode(), usedforsecurity=False).hexdigest()
+    return hashlib.sha256(geom_str.encode()).hexdigest()
 
 
 # =============================================================================

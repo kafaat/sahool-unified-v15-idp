@@ -1,0 +1,30 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: weather-advanced
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: weather-advanced
+  title: Weather Advanced
+  description: Weather Advanced — خدمة الطقس المتقدمة
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./archive/deprecated-services/weather-advanced
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/archive/deprecated-services/weather-advanced
+    sahool.io/event-layer: acquisition
+    sahool.io/port: '9092'
+    sahool.io/health-endpoint: /healthz
+    sahool.io/replaced-by: weather-service
+    sahool.io/sunset-date: '2026-01-25'
+  tags:
+  - python
+  - fastapi
+  - category-integration
+  - layer-acquisition
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:iot-team
+  system: sahool-platform

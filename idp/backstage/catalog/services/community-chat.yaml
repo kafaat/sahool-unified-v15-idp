@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: community-chat
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: community-chat
+  title: Community Chat
+  description: Community Chat — دردشة المجتمع
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./archive/deprecated-services/community-chat
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/archive/deprecated-services/community-chat
+    sahool.io/event-layer: business
+    sahool.io/port: '8097'
+    sahool.io/health-endpoint: /healthz
+    sahool.io/replaced-by: chat-service
+    sahool.io/sunset-date: '2026-02-28'
+  tags:
+  - nodejs
+  - typescript
+  - category-community
+  - layer-business
+  - tier-1
+  - deprecated
+spec:
+  type: service
+  lifecycle: deprecated
+  owner: group:frontend-team
+  system: sahool-platform

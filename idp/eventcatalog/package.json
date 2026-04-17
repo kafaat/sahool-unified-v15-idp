@@ -1,0 +1,15 @@
+{
+  "name": "@sahool/eventcatalog",
+  "version": "16.0.0",
+  "private": true,
+  "description": "SAHOOL Platform Event Catalog – event-driven architecture documentation",
+  "scripts": {
+    "dev": "eventcatalog dev",
+    "build": "eventcatalog build",
+    "preview": "eventcatalog preview",
+    "generate": "eventcatalog generate"
+  },
+  "dependencies": {
+    "@eventcatalog/core": "^2.0.0"
+  }
+}

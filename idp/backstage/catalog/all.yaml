@@ -6,5 +6,8 @@ spec:
   targets:
     - ./systems/sahool-system.yaml
     - ./templates/templates.yaml
-    # New services catalog (YOLO26 Vision, Terrain, Hydrology, Leveling, Edge)
+    # Hand-written entities for vision/terrain/edge services + skills library
     - ../../catalog/all.yaml
+    # Auto-generated entities for the remaining 82 services in governance/services.yaml.
+    # Regenerate with: python3 scripts/generators/generate_backstage_catalog.py
+    - ./services-location.yaml

@@ -1,0 +1,32 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: crop-growth-model
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: crop-growth-model
+  title: Crop Growth Model
+  description: Crop Growth Model — نموذج نمو المحاصيل
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/crop-growth-model
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/crop-growth-model
+    sahool.io/event-layer: decision
+    sahool.io/port: '3023'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - nodejs
+  - nestjs
+  - typescript
+  - category-crop
+  - layer-decision
+  - tier-1
+  - deprecated
+spec:
+  type: service
+  lifecycle: deprecated
+  owner: group:agro-team
+  system: sahool-platform
+  dependsOn:
+  - resource:redis

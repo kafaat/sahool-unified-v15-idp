@@ -23,6 +23,7 @@ import hashlib
 import logging
 import os
 import time
+import uuid
 from abc import ABC, abstractmethod
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -330,8 +331,12 @@ class SlidingWindowLimiter(RateLimitStrategy):
             pipe.zcard(key)
 
             # إضافة الطلب الحالي
-            # Add current request
-            request_id = f"{now}:{hashlib.md5(str(now).encode(), usedforsecurity=False).hexdigest()[:8]}"
+            # Add current request with full UUID4 suffix to avoid
+            # ZSET member collisions under high request rates.
+            # Truncating to 8 hex chars (32 bits) is vulnerable to
+            # birthday collisions at ~65k req/window, which would
+            # overwrite members and undercount — weakening the limiter.
+            request_id = f"{now}:{uuid.uuid4().hex}"
             pipe.zadd(key, {request_id: now})
 
             # تعيين انتهاء الصلاحية

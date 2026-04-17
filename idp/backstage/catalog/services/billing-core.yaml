@@ -1,0 +1,28 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: billing-core
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: billing-core
+  title: Billing Core
+  description: Billing Core — خدمة الفوترة
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/billing-core
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/billing-core
+    sahool.io/event-layer: business
+    sahool.io/port: '8089'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-core
+  - layer-business
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform

@@ -1,0 +1,31 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: astronomical-calendar
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: astronomical-calendar
+  title: Astronomical Calendar
+  description: Astronomical Calendar — التقويم الفلكي
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/astronomical-calendar
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/astronomical-calendar
+    sahool.io/event-layer: acquisition
+    sahool.io/port: '8111'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-integration
+  - layer-acquisition
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:iot-team
+  system: sahool-platform
+  dependsOn:
+  - resource:postgres
+  - resource:redis

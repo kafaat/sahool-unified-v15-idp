@@ -13,4 +13,4 @@ spec:
   lifecycle: production
   owner: platform-team
   definition:
-    $text: ./docs/api/edge-orchestrator-api.yaml
+    $text: ../../../docs/api/openapi/edge-api.yaml

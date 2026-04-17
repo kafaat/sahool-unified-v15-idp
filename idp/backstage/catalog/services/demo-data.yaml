@@ -1,0 +1,26 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: demo-data
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: demo-data
+  title: Demo Data
+  description: Demo data generator for development and testing environments
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/demo-data
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/demo-data
+    sahool.io/event-layer: business
+  tags:
+  - python
+  - fastapi
+  - category-core
+  - layer-business
+  - tier-3
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform

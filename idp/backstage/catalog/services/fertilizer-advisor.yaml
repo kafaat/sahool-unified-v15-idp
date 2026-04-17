@@ -1,0 +1,33 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: fertilizer-advisor
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: fertilizer-advisor
+  title: Fertilizer Advisor
+  description: Fertilizer Advisor — مستشار التسميد
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./archive/deprecated-services/fertilizer-advisor
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/archive/deprecated-services/fertilizer-advisor
+    sahool.io/event-layer: decision
+    sahool.io/port: '9093'
+    sahool.io/health-endpoint: /healthz
+    sahool.io/replaced-by: advisory-service
+    sahool.io/sunset-date: '2026-01-25'
+  tags:
+  - python
+  - fastapi
+  - category-core
+  - layer-decision
+  - tier-1
+spec:
+  type: service
+  lifecycle: production
+  owner: group:platform-team
+  system: sahool-platform
+  dependsOn:
+  - component:crop-growth-model
+  - component:vegetation-analysis-service

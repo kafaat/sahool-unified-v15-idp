@@ -1,0 +1,32 @@
+# AUTO-GENERATED - DO NOT EDIT MANUALLY
+# Generated from: governance/services.yaml
+# Generator: scripts/generators/generate_backstage_catalog.py
+# Service key: skills-service
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: skills-service
+  title: Skills Service
+  description: AI-powered farmer skills assessment and adaptive learning recommendations
+  annotations:
+    github.com/project-slug: kafaat/sahool-unified-v15-idp
+    backstage.io/techdocs-ref: dir:./apps/services/skills-service
+    backstage.io/source-location: url:https://github.com/kafaat/sahool-unified-v15-idp/tree/main/apps/services/skills-service
+    sahool.io/event-layer: intelligence
+    sahool.io/port: '8121'
+    sahool.io/health-endpoint: /healthz
+  tags:
+  - python
+  - fastapi
+  - category-crop
+  - layer-intelligence
+  - tier-2
+spec:
+  type: service
+  lifecycle: production
+  owner: group:agro-team
+  system: sahool-platform
+  dependsOn:
+  - resource:postgres
+  - resource:redis
+  - resource:nats

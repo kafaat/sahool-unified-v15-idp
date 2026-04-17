@@ -486,11 +486,7 @@ class PostgresAuditStore:
         boundaries: list[RetentionBoundary] = []
         for r in rows:
             executed_at = r["executed_at"]
-            created_at_iso = (
-                executed_at.isoformat()
-                if hasattr(executed_at, "isoformat")
-                else str(executed_at)
-            )
+            created_at_iso = executed_at.isoformat() if hasattr(executed_at, "isoformat") else str(executed_at)
             last_seq = int(r["last_deleted_seq_num"])
             # Prefer the full array when populated; fall back to the
             # single last-deleted hash when the array is empty (older
@@ -674,9 +670,7 @@ def _validate_chain_inmem(
     # diagnostics when a match succeeds. Multiple retention events
     # producing the same hash is cryptographically impossible, so the
     # dict never collides in practice.
-    boundary_by_hash: dict[str, RetentionBoundary] = {
-        b.entry_hash: b for b in (retention_boundaries or [])
-    }
+    boundary_by_hash: dict[str, RetentionBoundary] = {b.entry_hash: b for b in (retention_boundaries or [])}
 
     errors: list[str] = []
     gaps_crossed = 0

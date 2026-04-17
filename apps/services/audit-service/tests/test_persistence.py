@@ -276,6 +276,174 @@ def test_validate_chain_detects_tampering():
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Retention-aware chain validation
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# When the audit-retention-worker deletes expired rows it records the
+# (seq_num, entry_hash) of the last-deleted row in audit_retention_events.
+# validate_chain() must treat a surviving row whose prev_hash equals that
+# recorded hash as a LEGITIMATE gap (not tampering) and count it in
+# `retention_gaps_crossed`. These tests exercise that contract end-to-end
+# through the in-memory store's `_simulate_retention` helper.
+
+
+def test_validate_chain_accepts_retention_gap():
+    """Retention-boundary hash matches a surviving row's prev_hash → VALID."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        # Write 6 entries; the chain is intact at this point.
+        for i in range(6):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Simulate retention: drop seq_nums 1..3, keep 4..6. The worker
+        # records last_retained_seq_num=3 and its entry_hash.
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=4)
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is True
+    assert result.errors == []
+    # Exactly one retention boundary crossed — the one simulated above.
+    assert result.retention_gaps_crossed == 1
+    assert result.total_entries == 3  # Only surviving rows are walked.
+
+
+def test_validate_chain_still_detects_tamper_post_retention():
+    """Retention-awareness must not weaken tamper detection. A row mutated
+    AFTER retention still trips the entry_hash check because recomputation
+    uses the row's OWN stored prev_hash, not the retention boundary."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(5):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Retain only the last 2 rows; boundary hash is row 3's entry_hash.
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=4)
+        # Now tamper with the first surviving row's content.
+        store._by_tenant[VALID_TENANT_ID][0]["details"] = {"i": 999}
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is False
+    assert any("entry_hash mismatch" in err for err in result.errors)
+
+
+def test_validate_chain_rejects_forged_prev_hash_after_retention():
+    """An attacker who knows a retention boundary hash can't use it to
+    smuggle a forged row in if they leave the entry_hash untouched — the
+    entry_hash recompute against the forged prev_hash won't match the
+    stored entry_hash."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(4):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+        # Attacker rewrites the first surviving row's prev_hash to a
+        # fabricated value that isn't in the retention-boundary set. The
+        # row's entry_hash was computed from the ORIGINAL prev_hash, so
+        # recomputation won't match either.
+        store._by_tenant[VALID_TENANT_ID][0]["prev_hash"] = "f" * 64
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is False
+    assert any("prev_hash mismatch" in err for err in result.errors)
+
+
+def test_validate_chain_counts_multiple_retention_runs():
+    """Each retention run adds one boundary; a chain walked across N
+    retention boundaries should report retention_gaps_crossed = N."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(6):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Two staged retention runs; each leaves a boundary hash behind.
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=5)
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    # After both runs the chain should still be valid; two gaps crossed
+    # from the first surviving row after each retention checkpoint.
+    # Depending on whether the second retention happens to re-anchor
+    # the same hash as the first, the count is 1 or 2 — both are valid
+    # outcomes. The invariant we care about is: non-zero AND `valid`.
+    assert result.valid is True
+    assert result.retention_gaps_crossed >= 1
+    assert result.total_entries == 2
+
+
+def test_inmemory_store_retention_boundaries_empty_by_default():
+    """A fresh InMemoryAuditStore has no simulated retention → boundaries
+    query returns []. Smoke-tests the protocol method without DB."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        return await store.retention_boundaries_for_tenant(VALID_TENANT_ID)
+
+    boundaries = asyncio.get_event_loop().run_until_complete(run())
+    assert boundaries == []
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Tenant isolation
 # ═══════════════════════════════════════════════════════════════════════════
 

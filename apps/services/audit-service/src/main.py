@@ -174,6 +174,12 @@ class HashChainValidationResponse(BaseModel):
     validated_entries: int
     invalid_entries: list[str]
     errors: list[str]
+    # Count of legitimate retention boundaries the validator crossed.
+    # Zero = chain has never been retention-processed. Non-zero = the
+    # chain has been truncated by the audit-retention-worker and is
+    # still valid. Defaults to 0 so older clients deserialising a new
+    # response continue to work.
+    retention_gaps_crossed: int = 0
 
 
 class ComplianceReportResponse(BaseModel):
@@ -1045,6 +1051,7 @@ async def validate_hash_chain(
         "validated_entries": result.total_entries - len(result.errors) if result.valid else 0,
         "invalid_entries": [err.split()[0] for err in result.errors],  # seq=N prefix
         "errors": result.errors,
+        "retention_gaps_crossed": result.retention_gaps_crossed,
     }
 
 

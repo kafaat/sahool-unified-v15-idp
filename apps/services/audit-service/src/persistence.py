@@ -248,26 +248,28 @@ class PostgresAuditStore:
         if not filters:
             return "", values
 
-        mapping = {
-            "user_id": "user_id = $%d",
-            "action": "action = $%d",
-            "category": "category = $%d",
-            "resource_type": "resource_type = $%d",
-            "resource_id": "resource_id = $%d",
-            "success": "success = $%d",
-            "severity": "severity = $%d",
-        }
-        for key, template in mapping.items():
-            if filters.get(key) is not None:
-                values.append(filters[key])
-                clauses.append(template % (len(values) + 1))  # +1 because $1 is tenant
+        # Column names are hard-coded; the placeholder index is derived
+        # from the parameter list length so WHERE can grow safely.
+        columns = (
+            "user_id",
+            "action",
+            "category",
+            "resource_type",
+            "resource_id",
+            "success",
+            "severity",
+        )
+        for column in columns:
+            if filters.get(column) is not None:
+                values.append(filters[column])
+                clauses.append(f"{column} = ${len(values) + 1}")  # +1: $1 is tenant
 
         if filters.get("start_date"):
             values.append(filters["start_date"])
-            clauses.append("created_at >= $%d" % (len(values) + 1))
+            clauses.append(f"created_at >= ${len(values) + 1}")
         if filters.get("end_date"):
             values.append(filters["end_date"])
-            clauses.append("created_at <= $%d" % (len(values) + 1))
+            clauses.append(f"created_at <= ${len(values) + 1}")
 
         where = " AND " + " AND ".join(clauses) if clauses else ""
         return where, values

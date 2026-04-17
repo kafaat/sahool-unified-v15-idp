@@ -595,9 +595,7 @@ class FixLearningSystem:
 
     def _compute_pattern_id(self, fix: CodeFix, diagnostic: Diagnostic) -> str:
         """Compute unique pattern ID."""
-        return self._derive_pattern_id(
-            diagnostic.rule_id, diagnostic.tool.value, fix.original_code
-        )
+        return self._derive_pattern_id(diagnostic.rule_id, diagnostic.tool.value, fix.original_code)
 
     @staticmethod
     def _legacy_pattern_id(content: str) -> str:

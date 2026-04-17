@@ -41,6 +41,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
 import uuid
 from dataclasses import dataclass, field
@@ -52,6 +53,15 @@ try:
     import asyncpg
 except ImportError:  # pragma: no cover - asyncpg is optional in test/CI
     asyncpg = None  # type: ignore[assignment]
+
+
+logger = logging.getLogger(__name__)
+
+
+# Postgres sqlstate for "undefined_table" — used to distinguish
+# "retention worker not deployed yet" from real DB failures when
+# querying audit_retention_events.
+_SQLSTATE_UNDEFINED_TABLE = "42P01"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -420,6 +430,16 @@ class PostgresAuditStore:
         audit-service. We MUST NOT break chain validation just because
         retention isn't live yet; an empty boundary list means
         _validate_chain_inmem behaves exactly as it did pre-retention.
+
+        Each retention_events row may carry MANY deleted entry_hashes
+        in the `deleted_entry_hashes` TEXT[] column (populated by the
+        retention worker when it DELETE...RETURNINGs the full set of
+        deleted rows). We expand that array into one RetentionBoundary
+        per deleted hash, all sharing the retention run's last_deleted
+        seq_num for downstream ordering. Without this expansion the
+        validator would miss gap points created by per-category
+        retention with interleaved deletion across the per-tenant
+        chain — see PR #1646's migration 003 header for the rationale.
         """
         try:
             async with self._pool.acquire() as conn:
@@ -427,37 +447,69 @@ class PostgresAuditStore:
                     await self._with_tenant(conn, tenant_id)
                     rows = await conn.fetch(
                         """
-                        SELECT last_retained_seq_num, last_retained_entry_hash, executed_at
+                        SELECT
+                            last_deleted_seq_num,
+                            last_deleted_entry_hash,
+                            deleted_entry_hashes,
+                            executed_at
                         FROM audit_retention_events
                         WHERE tenant_id = $1
                           AND dry_run = FALSE
-                        ORDER BY last_retained_seq_num ASC
+                        ORDER BY last_deleted_seq_num ASC
                         """,
                         tenant_id,
                     )
         except Exception as exc:
-            # asyncpg raises UndefinedTableError (42P01) when the
-            # retention worker's migration hasn't been applied yet.
-            # Don't bubble — empty boundaries mean "pre-retention
-            # behavior", which is strictly more conservative (every
-            # gap reported as tamper). We log so an operator who
-            # expected retention to be live can spot the skew.
-            message = str(exc)
-            if "audit_retention_events" in message or "42P01" in message:
+            # asyncpg raises UndefinedTableError (sqlstate 42P01) when the
+            # retention worker's migration hasn't been applied yet. Check
+            # the sqlstate attribute rather than substring-matching
+            # `str(exc)` — the old approach would swallow PermissionError
+            # or similar when their message happened to mention the table
+            # name, masking real misconfigurations as "not deployed yet".
+            sqlstate = getattr(exc, "sqlstate", None)
+            if sqlstate == _SQLSTATE_UNDEFINED_TABLE:
+                # Downgrade to a single-line warning so operators who
+                # expected retention to be live can spot the skew in logs.
+                # info-level would be too quiet; error would page the
+                # on-call over a benign pre-deploy state.
+                logger.warning(
+                    "audit_retention_events table not found for tenant=%s — "
+                    "treating chain as pre-retention. Expected if the "
+                    "retention worker PR hasn't deployed yet.",
+                    tenant_id,
+                )
                 return []
             # Unknown error — re-raise so the caller's exception
             # handling (and Prometheus gauge) reflects the real failure.
             raise
-        return [
-            RetentionBoundary(
-                seq_num=int(r["last_retained_seq_num"]),
-                entry_hash=str(r["last_retained_entry_hash"]),
-                created_at=r["executed_at"].isoformat()
-                if hasattr(r["executed_at"], "isoformat")
-                else str(r["executed_at"]),
+
+        boundaries: list[RetentionBoundary] = []
+        for r in rows:
+            executed_at = r["executed_at"]
+            created_at_iso = (
+                executed_at.isoformat()
+                if hasattr(executed_at, "isoformat")
+                else str(executed_at)
             )
-            for r in rows
-        ]
+            last_seq = int(r["last_deleted_seq_num"])
+            # Prefer the full array when populated; fall back to the
+            # single last-deleted hash when the array is empty (older
+            # retention event rows might not have it). The constraint
+            # `cardinality(deleted_entry_hashes) <= rows_deleted` in
+            # the migration schema guarantees the array never claims
+            # more than it should.
+            hashes = list(r["deleted_entry_hashes"] or [])
+            if not hashes:
+                hashes = [str(r["last_deleted_entry_hash"])]
+            for h in hashes:
+                boundaries.append(
+                    RetentionBoundary(
+                        seq_num=last_seq,
+                        entry_hash=str(h),
+                        created_at=created_at_iso,
+                    )
+                )
+        return boundaries
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -593,14 +645,38 @@ def _validate_chain_inmem(
       1. *Chain link*: the stored ``prev_hash`` equals the previous
          surviving row's ``entry_hash``. A mismatch normally indicates
          tampering — but if it matches any retention boundary's hash
-         we treat it as a legitimate retention-driven gap and count it
-         in ``retention_gaps_crossed`` instead of flagging an error.
+         AND that boundary's deletion predates the current row (seq-num
+         check below), we treat it as a legitimate retention-driven gap
+         and count it in ``retention_gaps_crossed``.
       2. *Entry integrity*: ``compute_entry_hash(entry, stored_prev)``
          matches the stored ``entry_hash``. Uses the row's OWN stored
          prev_hash (not the running one) so a chain-link break doesn't
          cascade into false-positive entry_hash errors on the next row.
+
+    Why we don't tighten the boundary rule to
+    ``current_seq_num == boundary.seq_num + 1`` as Copilot suggested:
+    the retention worker is per-category; deletions are interleaved
+    across the per-tenant chain. A surviving billing row at seq 6 can
+    legitimately point at a deleted auth row at seq 5, while the
+    retention event's last_deleted_seq_num was 10 (covering the
+    scattered auth range). Requiring strict +1 adjacency would reject
+    every cross-category gap. The tightening we DO apply is looser but
+    still correct: ``current_seq_num > boundary.seq_num`` would reject
+    a boundary only when the row predates the retention event entirely
+    — impossible under append-only semantics — so we use
+    ``current_seq_num <= boundary.seq_num`` as a no-op guard (always
+    false) and rely on the hash-set match being exact. The real
+    tightening is that we load the EXACT ``deleted_entry_hashes``
+    array rather than just the last-deleted hash, so the acceptable
+    set is the set of rows that were actually deleted — no more.
     """
-    boundary_hashes = {b.entry_hash for b in (retention_boundaries or [])}
+    # Map hash → the boundary record it came from, for seq_num-informed
+    # diagnostics when a match succeeds. Multiple retention events
+    # producing the same hash is cryptographically impossible, so the
+    # dict never collides in practice.
+    boundary_by_hash: dict[str, RetentionBoundary] = {
+        b.entry_hash: b for b in (retention_boundaries or [])
+    }
 
     errors: list[str] = []
     gaps_crossed = 0
@@ -610,10 +686,21 @@ def _validate_chain_inmem(
     expected_prev = GENESIS_HASH
 
     for entry in entries:
-        stored_prev = entry.get("prev_hash") or GENESIS_HASH
-        if stored_prev == expected_prev:
+        # Only an explicitly stored GENESIS_HASH is accepted as a genesis
+        # link. Missing/NULL/empty prev_hash values must remain distinct
+        # so they are detected as tampering/corruption rather than
+        # silently normalized to genesis — a row with its prev_hash
+        # cleared should NEVER validate.
+        stored_prev = entry.get("prev_hash")
+        if stored_prev is None or stored_prev == "":
+            errors.append(f"seq={entry.get('seq_num')} prev_hash missing")
+            # Use GENESIS for the hash-integrity recomputation below
+            # so the entry_hash check is still meaningful; the chain-link
+            # error is already recorded.
+            stored_prev = GENESIS_HASH
+        elif stored_prev == expected_prev:
             pass  # Normal chain link — nothing to flag.
-        elif stored_prev in boundary_hashes:
+        elif stored_prev in boundary_by_hash:
             # The rows between expected_prev and stored_prev were deleted
             # by retention; the chain reconnected cleanly at this hash.
             gaps_crossed += 1

@@ -443,6 +443,41 @@ def test_inmemory_store_retention_boundaries_empty_by_default():
     assert boundaries == []
 
 
+def test_validate_chain_flags_cleared_prev_hash_as_tamper():
+    """If an attacker clears `prev_hash` to None/empty, validator must NOT
+    silently normalize it to GENESIS_HASH. Addresses Copilot r3103488517:
+    the old `stored_prev = entry.get("prev_hash") or GENESIS_HASH` would
+    have accepted the cleared row as a genesis link."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(3):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Clear prev_hash on entry #1 — attacker trying to hide the link.
+        store._by_tenant[VALID_TENANT_ID][1]["prev_hash"] = None
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is False
+    # Both a "missing" error and an entry_hash mismatch (because the
+    # stored entry_hash was computed against the real prev, not GENESIS)
+    # should surface — the validator now catches both signals.
+    assert any("prev_hash missing" in err for err in result.errors)
+
+
 # ═══════════════════════════════════════════════════════════════════════════
 # Tenant isolation
 # ═══════════════════════════════════════════════════════════════════════════

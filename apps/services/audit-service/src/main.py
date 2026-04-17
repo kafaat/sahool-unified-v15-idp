@@ -459,11 +459,30 @@ async def lifespan(app: FastAPI):
                     str(e),
                 )
 
+        # NATS subjects the audit-service captures. Adding a subject
+        # here requires the producer to respect the envelope shape
+        # expected by handle_event (top-level or nested tenant_id /
+        # tenantId). See apps/services/field-management-service/src/
+        # events/field-events.service.ts for the typed publisher.
         audit_subjects = [
+            # User lifecycle
             "sahool.user.authenticated",
+            # Field CRUD + boundary (GlobalGAP-critical change events)
             "sahool.field.created",
             "sahool.field.updated",
             "sahool.field.deleted",
+            "sahool.field.boundary.changed",
+            # Crop seasons — traceability mandate under IFA v6
+            "sahool.field.crop_season.started",
+            "sahool.field.crop_season.updated",
+            "sahool.field.crop_season.ended",
+            "sahool.field.crop_season.deleted",
+            # Field operations (spraying / irrigation / harvest etc.)
+            # — directly regulated by pesticide compliance (PHI/REI)
+            "sahool.field.operation.recorded",
+            "sahool.field.operation.updated",
+            "sahool.field.operation.deleted",
+            # Alerts + tasks
             "sahool.alert.triggered",
             "sahool.task.created",
             "sahool.task.completed",

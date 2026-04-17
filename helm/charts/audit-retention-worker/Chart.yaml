@@ -1,0 +1,15 @@
+apiVersion: v2
+name: audit-retention-worker
+description: SAHOOL Audit Retention Worker — CronJob that deletes expired audit_log rows under the audit_retention role and records the deletion in audit_retention_events for compliance reconstruction.
+type: application
+version: 1.0.0
+appVersion: "16.0.0"
+keywords:
+  - sahool
+  - audit
+  - retention
+  - compliance
+  - cronjob
+maintainers:
+  - name: KAFAAT
+    email: platform@kafaat.sa

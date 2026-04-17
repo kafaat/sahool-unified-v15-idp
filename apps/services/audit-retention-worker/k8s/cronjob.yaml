@@ -1,0 +1,101 @@
+# SAHOOL Audit Retention Worker — plain Kubernetes manifest.
+#
+# This is a ready-to-apply alternative to the Helm chart in
+# helm/charts/audit-retention-worker/. Prefer the Helm chart for
+# multi-environment deployments; use this file for quick testing or
+# one-off runs.
+#
+# Prerequisites:
+#   * Migration 002 (audit-retention role) applied to the target DB.
+#   * Secret `audit-retention-database-url` with key `dsn` containing the
+#     asyncpg DSN that authenticates as the `audit_retention` role.
+#     Example: `postgresql://audit_retention:<pw>@pgbouncer:6432/sahool`
+#   * Image pushed to ghcr.io/kafaat/sahool/audit-retention-worker:16.0.0.
+#
+# Apply: `kubectl apply -f apps/services/audit-retention-worker/k8s/cronjob.yaml`
+# Trigger ad-hoc run:
+#   `kubectl create job --from=cronjob/audit-retention-worker adhoc-$(date +%s)`
+
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: audit-retention-worker
+  labels:
+    app.kubernetes.io/name: audit-retention-worker
+    app.kubernetes.io/part-of: sahool
+    app.kubernetes.io/component: cronjob-worker
+spec:
+  schedule: "0 3 * * *"
+  timeZone: "Asia/Riyadh"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 7
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      activeDeadlineSeconds: 3600
+      backoffLimit: 1
+      template:
+        spec:
+          restartPolicy: Never
+          automountServiceAccountToken: false
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            runAsGroup: 1000
+            fsGroup: 1000
+          # Writable scratch dirs. readOnlyRootFilesystem: true below
+          # makes /tmp and /.cache writes fail without these emptyDir
+          # mounts (asyncpg + Python's tempfile both need tmp; pip/TLS
+          # caches need /.cache).
+          volumes:
+            - name: tmp
+              emptyDir: {}
+            - name: cache
+              emptyDir: {}
+          containers:
+            - name: worker
+              image: ghcr.io/kafaat/sahool/audit-retention-worker:16.0.0
+              imagePullPolicy: IfNotPresent
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: true
+                capabilities:
+                  drop: ["ALL"]
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+                - name: cache
+                  mountPath: /.cache
+              env:
+                - name: AUDIT_RETENTION_DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: audit-retention-database-url
+                      key: dsn
+                # Platform-wide fallback for any category not individually
+                # overridden below.
+                - name: AUDIT_RETENTION_DEFAULT_DAYS
+                  value: "365"
+                # Per-category overrides — keep in sync with the compliance
+                # matrix in the Helm chart's values.yaml.
+                - name: AUDIT_RETENTION_AUTHENTICATION_DAYS
+                  value: "90"
+                - name: AUDIT_RETENTION_USER_MANAGEMENT_DAYS
+                  value: "90"
+                - name: AUDIT_RETENTION_SYSTEM_DAYS
+                  value: "90"
+                - name: AUDIT_RETENTION_FIELD_OPS_DAYS
+                  value: "1825"
+                - name: AUDIT_RETENTION_BILLING_DAYS
+                  value: "1825"
+                - name: AUDIT_RETENTION_COMPLIANCE_DAYS
+                  value: "1825"
+                - name: LOG_LEVEL
+                  value: "INFO"
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 256Mi

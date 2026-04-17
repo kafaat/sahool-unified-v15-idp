@@ -1,0 +1,101 @@
+# SAHOOL Audit Retention Worker — default values.
+# One-shot CronJob; no Service, no HPA, no PDB — those don't apply to
+# short-lived Jobs.
+
+image:
+  repository: ghcr.io/kafaat/sahool/audit-retention-worker
+  tag: "16.0.0"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Environment labels — kept consistent with audit-service's helm chart.
+environment: development
+deploymentSlot: primary
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Schedule — nightly at 03:00. Kubernetes evaluates cron in the CLUSTER's
+# timezone unless CronJob.spec.timeZone is set. The timeZone field is
+# only supported on Kubernetes 1.27+; older API servers reject the
+# field with an "unknown field" validation error. Default it to empty
+# so this chart installs cleanly on older clusters, and let operators
+# opt in by overriding .Values.timeZone to e.g. "Asia/Riyadh" on 1.27+.
+# ─────────────────────────────────────────────────────────────────────────────
+schedule: "0 3 * * *"
+timeZone: ""
+
+# Don't stack runs. If the worker is still running when the next trigger
+# fires, skip the new run rather than queuing or running concurrently —
+# two concurrent DELETEs against audit_log would just fight over rows.
+concurrencyPolicy: Forbid
+
+# Retention of the CronJob's own Job/Pod history (distinct from the
+# audit-row retention the worker itself enforces).
+successfulJobsHistoryLimit: 7
+failedJobsHistoryLimit: 3
+
+# The worker occasionally hits long-tail DELETE latency on big tables.
+# An hour is generous; tune down once steady-state deletion sizes settle.
+activeDeadlineSeconds: 3600
+backoffLimit: 1
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Retention policies — sensible defaults aligned to the compliance matrix:
+#   GDPR personal data       → 90 days   (authentication, user_management)
+#   SOC 2 / ISO 27001        → 365 days  (authorization, security, configuration)
+#   GlobalGAP / agricultural → 1825 days (field_ops, billing, compliance)
+#   Platform operational     → 365 days  (catalog, data, kubernetes, code_change)
+#   Housekeeping             → 90 days   (system)
+# Operators override per deployment via .Values.retention.*.
+# ─────────────────────────────────────────────────────────────────────────────
+retention:
+  defaultDays: 365
+  perCategoryDays:
+    authentication: 90
+    user_management: 90
+    system: 90
+    field_ops: 1825
+    billing: 1825
+    compliance: 1825
+  dryRun: false
+
+# Worker connects as a dedicated role (see migration 002). The DSN is
+# expected to be provisioned via an external-secrets ExternalSecret →
+# Secret named .Values.secrets.databaseUrlSecretName whose
+# .Values.secrets.databaseUrlSecretKey key holds the asyncpg DSN.
+secrets:
+  databaseUrlSecretName: audit-retention-database-url
+  databaseUrlSecretKey: dsn
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# Resource asks are tiny: the worker spends its time waiting on Postgres.
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 256Mi
+
+# Pod-level hardening — match audit-service's posture.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+nodeSelector: {}
+tolerations: []
+affinity: {}

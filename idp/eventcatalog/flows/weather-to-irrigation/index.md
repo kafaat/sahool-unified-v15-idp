@@ -7,7 +7,7 @@ steps:
   - id: sahool.weather.updated
     title: Weather Data Updated
     service: weather-service
-  - id: sahool.irrigation.schedule_recalculated
+  - id: sahool.irrigation.schedule_updated
     title: Irrigation Schedule Recalculated
     service: irrigation-smart
   - id: sahool.notification.sent

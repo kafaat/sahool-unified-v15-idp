@@ -4,7 +4,7 @@ name: Field Boundary Update to NDVI Refresh
 version: 1.0.0
 summary: When a field boundary is modified, the vegetation analysis pipeline re-runs to produce an updated NDVI for the new geometry.
 steps:
-  - id: sahool.field.boundary_updated
+  - id: sahool.field.boundary.changed
     title: Boundary Updated
     service: field-management-service
   - id: sahool.vegetation.analysis_requested
@@ -26,8 +26,8 @@ sequenceDiagram
     participant SH as Sentinel Hub
 
     FMS->>PG: UPDATE field boundary (new geometry)
-    FMS->>NATS: publish sahool.field.boundary_updated
-    NATS->>VAS: deliver sahool.field.boundary_updated
+    FMS->>NATS: publish sahool.field.boundary.changed
+    NATS->>VAS: deliver sahool.field.boundary.changed
     VAS->>SH: request imagery (new polygon)
     SH-->>VAS: Sentinel-2 bands
     VAS->>VAS: recompute NDVI for new area

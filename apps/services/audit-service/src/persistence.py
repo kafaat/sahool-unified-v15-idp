@@ -264,10 +264,13 @@ class PostgresAuditStore:
                 values.append(filters[column])
                 clauses.append(f"{column} = ${len(values) + 1}")  # +1: $1 is tenant
 
-        if filters.get("start_date"):
+        # Explicit None-check to match the column loop above — a caller
+        # who passes a falsy but non-None value (e.g. coerced 0) should
+        # still exercise the branch.
+        if filters.get("start_date") is not None:
             values.append(filters["start_date"])
             clauses.append(f"created_at >= ${len(values) + 1}")
-        if filters.get("end_date"):
+        if filters.get("end_date") is not None:
             values.append(filters["end_date"])
             clauses.append(f"created_at <= ${len(values) + 1}")
 

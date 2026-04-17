@@ -482,43 +482,84 @@ async def lifespan(app: FastAPI):
     chain_job_enabled = os.getenv("AUDIT_CHAIN_VALIDATION_ENABLED", "true").lower() != "false"
     app.state.chain_validation_task = None
     if chain_job_enabled and _PROM_OK:
-        interval = int(os.getenv("AUDIT_CHAIN_VALIDATION_INTERVAL_SECONDS", "300"))
-        lookback_hours = int(os.getenv("AUDIT_CHAIN_VALIDATION_LOOKBACK_HOURS", "24"))
+        def _get_int_env(name: str, default: int, *, minimum: int | None = None) -> int:
+            """Parse an int env var, falling back to default on invalid input
+            and clamping to ``minimum`` so a misconfigured 0/-1 can't spin
+            the loop. Keeps the service bootable under every config shape."""
+            raw = os.getenv(name, str(default))
+            try:
+                value = int(raw)
+            except (TypeError, ValueError):
+                logger.warning("Invalid %s=%r; using default %s", name, raw, default)
+                return default
+            if minimum is not None and value < minimum:
+                logger.warning(
+                    "%s=%s below minimum %s; clamping", name, value, minimum,
+                )
+                return minimum
+            return value
+
+        interval = _get_int_env(
+            "AUDIT_CHAIN_VALIDATION_INTERVAL_SECONDS", 300, minimum=1,
+        )
+        lookback_hours = _get_int_env(
+            "AUDIT_CHAIN_VALIDATION_LOOKBACK_HOURS", 24, minimum=0,
+        )
+        max_concurrency = _get_int_env(
+            "AUDIT_CHAIN_VALIDATION_MAX_CONCURRENCY", 5, minimum=1,
+        )
 
         async def _chain_validation_loop():
-            """Refresh audit_chain_valid{tenant_id=...} on every cycle."""
+            """Refresh audit_chain_valid{tenant_id=...} on every cycle.
+
+            Validates tenants concurrently (bounded by a semaphore) so
+            a few slow tenants don't push the cycle past ``interval``
+            and cause the gauge to go stale. If a cycle takes longer
+            than ``interval``, the next one fires immediately without
+            sleeping — we never skip cycles.
+            """
+            semaphore = asyncio.Semaphore(max_concurrency)
+
+            async def _validate_one(tenant_id: str) -> None:
+                async with semaphore:
+                    try:
+                        result = await app.state.store.validate_chain(tenant_id)
+                        AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(
+                            1 if result.valid else 0
+                        )
+                        if not result.valid:
+                            logger.error(
+                                "audit_chain_broken tenant=%s errors=%s",
+                                sanitize_log_input(tenant_id),
+                                result.errors[:3],  # truncate — full list in the entry
+                            )
+                    except Exception as e:
+                        # Never let one tenant's failure stop the sweep.
+                        logger.warning(
+                            "chain_validation_failed tenant=%s error=%s",
+                            sanitize_log_input(tenant_id), str(e),
+                        )
+
             while True:
+                loop = asyncio.get_running_loop()
+                cycle_started = loop.time()
                 try:
                     since = datetime.now(UTC) - timedelta(hours=lookback_hours)
                     tenants = await app.state.store.tenants_with_activity_since(since)
-                    for tenant_id in tenants:
-                        try:
-                            result = await app.state.store.validate_chain(tenant_id)
-                            AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(
-                                1 if result.valid else 0
-                            )
-                            if not result.valid:
-                                logger.error(
-                                    "audit_chain_broken tenant=%s errors=%s",
-                                    sanitize_log_input(tenant_id),
-                                    result.errors[:3],  # truncate — full list in the entry
-                                )
-                        except Exception as e:
-                            # Never let one tenant's failure stop the sweep.
-                            logger.warning(
-                                "chain_validation_failed tenant=%s error=%s",
-                                sanitize_log_input(tenant_id), str(e),
-                            )
+                    if tenants:
+                        await asyncio.gather(*(_validate_one(t) for t in tenants))
                 except asyncio.CancelledError:
                     raise
                 except Exception as e:
                     logger.error("chain_validation_loop_error error=%s", str(e))
-                await asyncio.sleep(interval)
+                # Sleep only for the remainder of the cycle budget.
+                sleep_for = max(0.0, interval - (loop.time() - cycle_started))
+                await asyncio.sleep(sleep_for)
 
         app.state.chain_validation_task = asyncio.create_task(_chain_validation_loop())
         logger.info(
-            "Chain validation sweep scheduled: every %ss, lookback %sh",
-            interval, lookback_hours,
+            "Chain validation sweep scheduled: every %ss, lookback %sh, max_concurrency=%s",
+            interval, lookback_hours, max_concurrency,
         )
 
     logger.info("Audit Service ready on port 8114")

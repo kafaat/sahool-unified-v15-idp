@@ -4687,7 +4687,10 @@ asyncio.run(main())
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-info}
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      # Fail-fast when the caller enables the `ai-agents` profile without
+      # configuring the API key — an empty string would silently fail
+      # inside the agent with a confusing 401, way later in the run.
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY is required when running the code-review-agent}
     restart: "no"
     security_opt:
       - no-new-privileges:true

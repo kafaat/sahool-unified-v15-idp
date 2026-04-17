@@ -39,7 +39,30 @@ GRANT SELECT, DELETE ON audit_log TO audit_retention;
 
 -- Retention role is also exempt from RLS (it enforces platform-wide
 -- retention, not per-tenant); without this it would only see zero rows.
-ALTER ROLE audit_retention BYPASSRLS;
+--
+-- BYPASSRLS is a superuser-only operation. Guard the ALTER so migrations
+-- run by a non-superuser role (common in managed-Postgres environments)
+-- don't crash the entire deployment — they just emit a WARNING and the
+-- platform operator is expected to set BYPASSRLS out-of-band as part of
+-- DB bootstrap automation.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM pg_roles
+        WHERE rolname = current_user AND rolsuper
+    ) THEN
+        ALTER ROLE audit_retention BYPASSRLS;
+    ELSE
+        RAISE WARNING
+            'Skipping ALTER ROLE audit_retention BYPASSRLS: current user '
+            '"%" is not a superuser. The retention worker will be unable '
+            'to read rows outside its current tenant context until an '
+            'operator runs `ALTER ROLE audit_retention BYPASSRLS;` '
+            'as a superuser.',
+            current_user;
+    END IF;
+END
+$$;
 
 -- The chain-validation sweep (see main.py _chain_validation_loop) needs a
 -- cross-tenant read too. Same reasoning — grant BYPASSRLS to the service

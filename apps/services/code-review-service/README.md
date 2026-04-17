@@ -87,9 +87,22 @@ By default, the service monitors:
 
 ### Start the Service
 
+The service is gated behind a Docker Compose profile so it isn't started by
+`docker compose up` alone — Ollama is a heavy dependency and most developers
+don't need it active. Pick one profile:
+
 ```bash
-docker compose up -d code-review-service
+# GPU-accelerated (recommended for production-like review latency)
+docker compose --profile gpu up -d code-review-service
+
+# CPU-only (dev / staging — slower but no GPU required)
+docker compose --profile code-intel up -d code-review-service
 ```
+
+Either profile also brings up `ollama` + `ollama-model-loader` as
+transitive dependencies. On CPU, override `OLLAMA_MODEL` with a lighter
+model (e.g. `OLLAMA_MODEL=deepseek-coder:1.3b`) in your `.env` to keep
+review latency reasonable.
 
 The service will:
 

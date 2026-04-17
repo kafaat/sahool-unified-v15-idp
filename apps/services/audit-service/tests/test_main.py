@@ -113,10 +113,11 @@ def test_get_audit_logs_with_tenant(auth_client):
 def test_get_audit_stats(auth_client):
     """Test audit statistics endpoint.
 
-    The response model declares snake_case fields with camelCase aliases
-    (``populate_by_name=True, by_alias=True``) so FastAPI actually
-    serialises camelCase (``totalEvents``) by default. Accept either
-    casing so the assertion is robust to future alias changes.
+    AuditStatsResponse is declared with ``populate_by_name=True`` and
+    camelCase aliases (totalEvents, eventsByCategory, eventsBySeverity),
+    so FastAPI serializes the response using the aliases. Accept both
+    casings so the test stays valid whether the model is later switched
+    to snake_case or kept as-is.
     """
     response = auth_client.get("/api/v1/audit/stats", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200

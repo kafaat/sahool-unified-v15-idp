@@ -133,6 +133,15 @@ class AuditStore(Protocol):
         """Recompute the chain and flag any divergence."""
         ...
 
+    async def tenants_with_activity_since(self, since: datetime) -> list[str]:
+        """Tenant IDs that have written any audit entry since ``since``.
+
+        Feeds the periodic chain-validation job so the
+        ``audit_chain_valid`` gauge only refreshes for tenants that
+        actually matter, avoiding wasted work on dormant tenants.
+        """
+        ...
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Postgres backend
@@ -255,10 +264,13 @@ class PostgresAuditStore:
                 values.append(filters[column])
                 clauses.append(f"{column} = ${len(values) + 1}")  # +1: $1 is tenant
 
-        if filters.get("start_date"):
+        # Explicit None-check to match the column loop above — a caller
+        # who passes a falsy but non-None value (e.g. coerced 0) should
+        # still exercise the branch.
+        if filters.get("start_date") is not None:
             values.append(filters["start_date"])
             clauses.append(f"created_at >= ${len(values) + 1}")
-        if filters.get("end_date"):
+        if filters.get("end_date") is not None:
             values.append(filters["end_date"])
             clauses.append(f"created_at <= ${len(values) + 1}")
 
@@ -336,6 +348,20 @@ class PostgresAuditStore:
         entries = await self.all_for_tenant(tenant_id)
         return _validate_chain_inmem(entries, self._secret)
 
+    async def tenants_with_activity_since(self, since: datetime) -> list[str]:
+        """Cross-tenant query; RLS is bypassed on purpose because the
+        periodic chain-validation job is a platform-level operator,
+        not a per-tenant caller. In practice the Postgres role this
+        pool connects as must hold BYPASSRLS or the query returns
+        zero rows.
+        """
+        async with self._pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT DISTINCT tenant_id FROM audit_log WHERE created_at >= $1",
+                since,
+            )
+        return [r["tenant_id"] for r in rows]
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # In-memory backend (CI/test)
@@ -411,6 +437,14 @@ class InMemoryAuditStore:
 
     async def validate_chain(self, tenant_id: str) -> ChainValidation:
         return _validate_chain_inmem(self._by_tenant.get(tenant_id, []), self._secret)
+
+    async def tenants_with_activity_since(self, since: datetime) -> list[str]:
+        cutoff = since.isoformat()
+        return [
+            tenant_id
+            for tenant_id, bucket in self._by_tenant.items()
+            if any(e.get("created_at", "") >= cutoff for e in bucket)
+        ]
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -77,7 +77,10 @@
       "Bash(for file:*)",
       "Bash(do echo:*)",
       "Read(//d/projects/v91/sahoo-adel-full/**)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(grep -l \"@sahool/shared-types\" D:/projects/v91/sahoo-adel-full/apps/services/*/package.json)",
+      "Bash(grep -rl \"extra-index-url.*tsinghua\\\\|extra-index-url.*tuna\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
+      "Bash(grep -rl \"tsinghua\\\\|tuna.tsinghua\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)"
     ]
   }
 }

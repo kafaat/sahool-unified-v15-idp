@@ -7,19 +7,19 @@
 # FastAPI Framework
 fastapi>=0.115.0,<1.0.0
 starlette>=0.49.1,<1.0.0
-uvicorn[standard]==0.42.0
+uvicorn[standard]>=0.30.0,<1.0.0
 
 # Async HTTP Client
 httpx==0.28.1
 aiohttp>=3.13.3  # Security fix for CVE-2025-53643, CVE-2025-69223
 
 # Database & ORM
-tortoise-orm==1.1.7
+tortoise-orm>=0.20.0
 asyncpg==0.31.0
 # aerich removed: requires tortoise-orm<1.0.0, incompatible with 1.1.7
 
 # NATS Messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Redis
 redis>=7.1.0,<8.0.0

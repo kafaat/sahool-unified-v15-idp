@@ -3,7 +3,7 @@
 
 # FastAPI Framework
 fastapi>=0.115.0,<1.0.0
-uvicorn[standard]==0.42.0
+uvicorn[standard]>=0.30.0,<1.0.0
 pydantic>=2.10.0,<3.0.0
 pydantic-settings>=2.6.0,<3.0.0
 # HTTP Client (also used for TestClient in tests)
@@ -11,7 +11,7 @@ httpx>=0.27.0,<1.0.0
 # Database (PostgreSQL)
 asyncpg>=0.30.0,<1.0.0
 # Message Queue (NATS)
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 # Caching (Redis)
 redis>=7.1.0,<8.0.0
 # Structured Logging

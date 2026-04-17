@@ -3,7 +3,7 @@
 
 # Core Framework
 fastapi>=0.115.0,<1.0.0
-uvicorn[standard]==0.42.0
+uvicorn[standard]>=0.30.0,<1.0.0
 pydantic>=2.10.0,<3.0.0
 
 # Async Support
@@ -30,7 +30,7 @@ structlog>=24.4.0
 python-json-logger>=3.2.0,<4.0.0
 
 # NATS Messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Authentication
 PyJWT>=2.9.0,<3.0.0

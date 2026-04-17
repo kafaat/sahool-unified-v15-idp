@@ -1,11 +1,11 @@
 fastapi>=0.115.0,<1.0.0
-uvicorn[standard]==0.42.0
+uvicorn[standard]>=0.30.0,<1.0.0
 python-dotenv==1.2.2
 pydantic>=2.10.6,<3.0.0
 pydantic-settings==2.13.1
 
 # NATS
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Redis
 redis[hiredis]>=7.1.0,<8.0.0

@@ -12,7 +12,7 @@ pydantic==2.13.1
 httpx==0.28.1
 
 # Messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Utilities
 python-dotenv==1.2.2

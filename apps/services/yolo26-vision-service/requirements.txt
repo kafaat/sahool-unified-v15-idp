@@ -35,7 +35,7 @@ asyncpg>=0.31.0,<1.0.0
 psycopg2-binary>=2.9.9,<3.0.0
 
 # Message Queue (Optional - for event publishing)
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Caching (Optional)
 redis>=7.1.0,<8.0.0

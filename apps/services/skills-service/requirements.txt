@@ -30,4 +30,4 @@ redis[hiredis]>=7.1.0,<8.0.0
 cachetools>=5.3.0
 
 # NATS messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0

@@ -34,9 +34,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends tini build-esse
 RUN mkdir -p /root/.pip && \
     printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
-# Upgrade pip with fallback to Aliyun mirror
-RUN pip install --no-cache-dir -i https://mirrors.aliyun.com/pypi/simple/ --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --index-url https://pypi.org/simple --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
+# Upgrade pip. --isolated ignores pip.conf (set above) so extra-index-url does
+# not cause hash mismatches between mirrors serving different pip 26.x copies.
+RUN pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
+    pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
+    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
 
 # Install dependencies with resilient multi-mirror fallback strategy
 # Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent

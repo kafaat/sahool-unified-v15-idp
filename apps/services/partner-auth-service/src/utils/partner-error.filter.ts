@@ -75,7 +75,7 @@ export class PartnerErrorFilter implements ExceptionFilter {
         if (typeof b.error === "string" && OAUTH_ERROR_CODES.has(b.error)) {
           // RFC 6749 § 5.2 — pass through OAuth error body unchanged on /token
           if (req.path.endsWith("/oauth/token") || req.path.endsWith("/oauth/revoke")) {
-            res.status(status).json(b as OAuthErrorBody);
+            res.status(status).json(b as unknown as OAuthErrorBody);
             return;
           }
           code = b.error;

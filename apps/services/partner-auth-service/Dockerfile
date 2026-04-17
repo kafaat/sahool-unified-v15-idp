@@ -14,7 +14,21 @@ LABEL version="16.0.0"
 
 WORKDIR /workspace
 
-# Copy shared modules first if present (relative imports from ../../shared/)
+# Copy shared packages needed by this service
+COPY packages/typescript-config ./packages/typescript-config/
+COPY packages/shared-types ./packages/shared-types/
+
+# Build @sahool/shared-types so it can be referenced via file: protocol
+WORKDIR /workspace/packages/shared-types
+RUN --mount=type=cache,target=/root/.npm \
+    npm config set registry https://registry.npmmirror.com && \
+    npm install --legacy-peer-deps --no-audit --no-fund && \
+    npm run build || \
+    (npm config set registry https://registry.npmjs.org && \
+     npm install --legacy-peer-deps --no-audit --no-fund && npm run build)
+
+# Copy service sources
+WORKDIR /workspace
 COPY apps/services/shared ./shared/
 COPY apps/services/partner-auth-service ./partner-auth-service/
 
@@ -22,6 +36,12 @@ WORKDIR /workspace/partner-auth-service
 
 RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
     (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers.' && exit 1)
+
+# Point @sahool/shared-types at the local build instead of the public registry,
+# then drop the lock file so npm generates a fresh one (avoids registry hang
+# caused by lock file mismatch with the patched package.json).
+RUN sed -i 's|"@sahool/shared-types": "\*"|"@sahool/shared-types": "file:../packages/shared-types"|g' package.json && \
+    rm -f package-lock.json
 
 # Resilient install (multi-mirror fallback)
 RUN --mount=type=cache,target=/root/.npm \
@@ -33,7 +53,7 @@ RUN --mount=type=cache,target=/root/.npm \
             --fetch-retry-mintimeout=30000 \
             --fetch-retry-maxtimeout=300000 \
             --fetch-timeout=600000 \
-            --prefer-offline --no-audit --no-fund; then break; fi; \
+            --no-audit --no-fund; then break; fi; \
         if [ "$i" != "3" ]; then sleep $((i * 10)); else false; fi; \
     done || \
     (npm config set registry https://registry.npmjs.org && \
@@ -66,8 +86,14 @@ RUN apt-update.sh && \
     apt-get install -y --no-install-recommends curl openssl && \
     rm -rf /var/lib/apt/lists/*
 
+# Bring in the pre-built @sahool/shared-types so the file: reference resolves
+COPY --from=builder /workspace/packages/shared-types ./packages/shared-types/
+
 COPY --from=builder /workspace/partner-auth-service/package.json ./
 COPY --from=builder /workspace/partner-auth-service/package-lock.json ./
+
+# Re-point file: path to match /app layout (builder used ../packages, we have ./packages)
+RUN sed -i 's|"@sahool/shared-types": "file:\.\./packages/shared-types"|"@sahool/shared-types": "file:./packages/shared-types"|g' package.json
 
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \

@@ -29,12 +29,16 @@ RUN groupadd --system sahool && \
 RUN mkdir -p /root/.pip && \
     printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
-# Upgrade pip with multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+# Upgrade pip with multi-mirror fallback.
+# --isolated ignores pip.conf (written above) so extra-index-url from that
+# file does not interfere — mismatched hashes between mirrors caused failures.
+RUN pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
     -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
     --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
+    pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
+    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
     --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with resilient multi-mirror fallback strategy

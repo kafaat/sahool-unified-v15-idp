@@ -15,7 +15,7 @@ asyncpg>=0.30.0
 greenlet>=3.0.0
 
 # NATS messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Scheduling (for alert checks)
 apscheduler>=3.10.0

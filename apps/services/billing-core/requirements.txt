@@ -24,7 +24,7 @@ python-dateutil==2.9.0.post0
 httpx==0.28.1
 
 # NATS Messaging (for event-driven architecture)
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Utilities
 python-dotenv==1.2.2

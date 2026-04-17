@@ -67,6 +67,22 @@
             "types": "./dist/schemas/index.d.ts"
         }
     },
+    "typesVersions": {
+        "*": {
+            ".": ["./dist/index.d.ts"],
+            "auth": ["./dist/auth.d.ts"],
+            "api": ["./dist/api.d.ts"],
+            "express": ["./dist/express.d.ts"],
+            "websocket": ["./dist/websocket.d.ts"],
+            "monitoring": ["./dist/monitoring.d.ts"],
+            "field": ["./dist/field.d.ts"],
+            "vision": ["./dist/vision.d.ts"],
+            "terrain": ["./dist/terrain.d.ts"],
+            "edge": ["./dist/edge.d.ts"],
+            "contracts": ["./dist/contracts/index.d.ts"],
+            "schemas": ["./dist/schemas/index.d.ts"]
+        }
+    },
     "scripts": {
         "build": "rm -f tsconfig.tsbuildinfo && tsc",
         "typecheck": "tsc --noEmit",

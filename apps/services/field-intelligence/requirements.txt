@@ -23,7 +23,7 @@ asyncpg>=0.30.0
 
 # NATS Messaging (للتكامل مع الخدمات الأخرى)
 # NATS for inter-service communication
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Redis (للتخزين المؤقت وإدارة الحالة)
 # Redis for caching and state management

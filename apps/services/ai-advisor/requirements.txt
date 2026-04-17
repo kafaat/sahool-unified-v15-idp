@@ -44,7 +44,7 @@ a2a>=0.1.0
 
 # NATS Messaging
 # نظام الرسائل NATS
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Utilities
 # أدوات مساعدة

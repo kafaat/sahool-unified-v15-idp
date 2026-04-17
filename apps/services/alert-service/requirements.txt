@@ -18,7 +18,7 @@ alembic==1.18.4
 psycopg2-binary==2.9.11
 
 # NATS Messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Redis for caching and pub/sub
 redis>=7.1.0,<8.0.0

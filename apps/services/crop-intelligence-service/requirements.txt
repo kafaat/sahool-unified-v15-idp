@@ -16,7 +16,7 @@ python-dateutil==2.9.0.post0
 structlog>=24.1.0
 
 # NATS messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Database
 asyncpg>=0.30.0,<1.0.0

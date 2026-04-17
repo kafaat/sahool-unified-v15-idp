@@ -35,4 +35,4 @@ bcrypt>=4.0.0,<6.0.0
 pyotp>=2.8.0,<3.0.0
 
 # NATS messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0

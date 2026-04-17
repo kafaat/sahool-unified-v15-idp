@@ -16,7 +16,7 @@ cryptography>=44.0.1,<47.0.0  # CVE-2024-12797, CVE-2026-26007  # CVE-2024-225, 
 # Redis for Session Management
 redis>=7.1.0,<8.0.0
 # NATS for Events
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 # Logging
 structlog>=24.0.0,<26.0.0
 # Testing

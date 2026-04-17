@@ -5,7 +5,7 @@ pydantic>=2.10.6,<3.0.0
 pydantic-settings==2.13.1
 
 # NATS
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Redis
 redis[hiredis]>=7.1.0,<8.0.0

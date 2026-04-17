@@ -24,7 +24,7 @@ redis>=7.1.0,<8.0.0
 python-multipart==0.0.26
 
 # NATS messaging
-nats-py==2.14.0
+nats-py>=2.6.0,<3.0.0
 
 # Database dependencies (for future PostgreSQL integration)
 sqlalchemy==2.0.49

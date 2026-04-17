@@ -10,7 +10,7 @@ python-multipart==0.0.26
 
 # Database
 asyncpg>=0.30.0,<1.0.0
-tortoise-orm==1.1.7
+tortoise-orm>=0.20.0
 
 # Data Validation
 pydantic==2.13.1
@@ -25,7 +25,7 @@ networkx==3.6.1
 httpx==0.28.1
 
 # Logging
-structlog==25.5.0
+structlog>=24.1.0,<26.0.0
 
 # Utilities
 python-dotenv==1.2.2

@@ -240,7 +240,7 @@ model ConsentGrant {
   consentIp        String? @map("consent_ip") @db.VarChar(64)
   consentUserAgent String? @map("consent_user_agent") @db.VarChar(500)
 
-  @@unique([clientId, userId], name: "uq_consent_client_user")
+  @@unique([clientId, userId])
   @@map("consent_grants")
 }
 

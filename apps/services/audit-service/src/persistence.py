@@ -286,13 +286,19 @@ class PostgresAuditStore:
         async with self._pool.acquire() as conn:
             async with conn.transaction():
                 await self._with_tenant(conn, tenant_id)
+                # SQL is safe: `where` is composed only from an allowlisted
+                # column-name tuple (see _build_where columns) and $N
+                # placeholders. No user-controlled string is interpolated
+                # into the query; all filter values flow through asyncpg
+                # parameters in `*extra`. Bandit B608 cannot see through
+                # the helper so we silence it explicitly.
                 total_row = await conn.fetchrow(
-                    f"SELECT COUNT(*) AS c FROM audit_log WHERE tenant_id = $1{where}",
+                    f"SELECT COUNT(*) AS c FROM audit_log WHERE tenant_id = $1{where}",  # nosec B608
                     tenant_id,
                     *extra,
                 )
                 rows = await conn.fetch(
-                    f"SELECT * FROM audit_log WHERE tenant_id = $1{where} "
+                    f"SELECT * FROM audit_log WHERE tenant_id = $1{where} "  # nosec B608
                     f"ORDER BY created_at DESC, seq_num DESC "
                     f"OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}",
                     tenant_id,

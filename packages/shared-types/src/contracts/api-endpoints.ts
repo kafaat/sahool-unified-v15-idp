@@ -844,6 +844,14 @@ export const AUDIT_ENDPOINTS = {
   STATS: `${API_PREFIX}/audit/stats`,
   ADMIN_AUDIT: `${API_PREFIX}/admin/audit`,
   ADMIN_BATCH: `${API_PREFIX}/admin/audit/batch`,
+  /** Per-resource audit trail (reverse chronological). Primary endpoint for the
+   *  admin Field History panel; audit-service exposes this in main.py as
+   *  `GET /api/v1/audit/resources/{resource_type}/{resource_id}/trail`. */
+  RESOURCE_TRAIL: `${API_PREFIX}/audit/resources/{resourceType}/{resourceId}/trail`,
+  /** Per-user audit trail — mirror of RESOURCE_TRAIL keyed by user_id. */
+  USER_TRAIL: `${API_PREFIX}/audit/users/{userId}/trail`,
+  /** Chain-integrity validation. Returns { valid, total_entries, errors[] }. */
+  CHAIN_VALIDATE: `${API_PREFIX}/audit/chain/validate`,
 } as const;
 
 // ---------------------------------------------------------------------------

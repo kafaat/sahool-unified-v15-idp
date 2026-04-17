@@ -176,13 +176,16 @@ export class FieldAuditHistoryError extends Error {
   readonly fieldId: string;
 
   constructor(message: string, opts: { status: number | null; fieldId: string; cause?: unknown }) {
-    super(message);
+    // Use the ES2022 error-cause options bag so devtools that walk
+    // `err.cause` (Chrome DevTools, Node --stack-trace-limit, Sentry
+    // chain rendering) pick it up natively. Fall back to an explicit
+    // property assignment for bundlers that strip the second arg —
+    // the belt-and-suspenders costs nothing at runtime.
+    super(message, opts.cause !== undefined ? { cause: opts.cause } : undefined);
     this.name = 'FieldAuditHistoryError';
     this.status = opts.status;
     this.fieldId = opts.fieldId;
-    if (opts.cause !== undefined) {
-      // Cause is standard in ES2022 but some bundlers strip it; attach as
-      // a plain property too so logs always get it.
+    if (opts.cause !== undefined && (this as Error & { cause?: unknown }).cause === undefined) {
       (this as Error & { cause?: unknown }).cause = opts.cause;
     }
   }

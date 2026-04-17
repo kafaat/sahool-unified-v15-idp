@@ -368,12 +368,22 @@ function renderDartEndpointClass(
       // Plain constant
       lines.push(`  static const String ${dartName} = '${pathExpr}';`);
     } else {
-      // Function with required params → interpolation
+      // Function with required params. Wrap each parameter in
+      // Uri.encodeComponent so path IDs with reserved characters
+      // (e.g. a field named "FLD/A" or "user?admin") produce a
+      // valid URL — matches the TypeScript `buildUrl()` helper
+      // which passes every substitution through encodeURIComponent.
+      // Without this, the Dart client would silently issue
+      // malformed URLs and audit-service would 404.
       const uniqueParams = Array.from(new Set(params));
       const paramSig = uniqueParams.map((p) => `String ${p}`).join(", ");
       let interpolated = pathExpr;
       for (const p of uniqueParams) {
-        interpolated = interpolated.split(`{${p}}`).join(`\$${p}`);
+        // Use `${Uri.encodeComponent(param)}` so the encoded value
+        // interpolates cleanly into a single-quoted Dart string.
+        interpolated = interpolated
+          .split(`{${p}}`)
+          .join(`\${Uri.encodeComponent(${p})}`);
       }
       lines.push(
         `  static String ${dartName}(${paramSig}) => '${interpolated}';`,

@@ -87,14 +87,28 @@ export interface AuditStats {
 // shape (data/meta) so callers and DataTable keep working. Without this
 // mapping the page silently renders empty because `response.data` is
 // undefined on the real backend shape.
+//
+// Request-side note:
+//   We send ONLY the audit-service-native parameter names
+//   (skip/limit/start_date/end_date). No admin-side BFF wraps this
+//   endpoint today; `API_URLS.auditEndpoints.logs` resolves directly
+//   to port 8114 (audit-service). If someone later inserts a BFF,
+//   update the param set HERE — don't double-send page+skip or
+//   from+start_date, because different receivers would interpret
+//   them inconsistently.
+//
+// Response-side fallback:
+//   The `data?: T[]` + `meta?: {...}` branch below is purely
+//   DEFENSIVE against a hypothetical future BFF wrapper that might
+//   rewrap the response. It does NOT imply such a BFF exists today.
 interface AuditServicePaginated<T> {
   items?: T[];
   total?: number;
   skip?: number;
   limit?: number;
   has_more?: boolean;
-  // Legacy BFF shape — kept as a fallback so an environment that later
-  // introduces a BFF with the old {data, meta} wrapper still works.
+  // Hypothetical-BFF fallback — see note above. Never set in
+  // production today; kept so a future wrap doesn't break the UI.
   data?: T[];
   meta?: { total: number; page: number; limit: number; totalPages: number };
 }

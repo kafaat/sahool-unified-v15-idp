@@ -116,15 +116,31 @@ export function useFieldAuditTrail(
     [fieldId, filters, pageSize],
   );
 
-  useEffect(() => {
-    // Full reset whenever fieldId or filters change. Clear the synchronous
-    // lock too — a filter change while an append fetch is in flight should
-    // unblock the next append once the new initial-load completes.
+  // Clear every piece of state that describes a PREVIOUS query's outcome
+  // before firing a new one. React's batches state updates and the
+  // render that follows sees all three setters applied, so the UI
+  // doesn't flicker with stale `hasMore`/`total`/`error` values
+  // between reset and fetchPage's own `setIsLoading(true)`.
+  const resetQueryState = useCallback(() => {
     setEvents([]);
     setSkip(0);
+    setHasMore(false);
+    setTotal(0);
+    setError(null);
+    setIsLoadingMore(false);
+    // Note: isLoading stays true — fetchPage's first action is
+    // setIsLoading(true) anyway, and keeping it true through the
+    // reset prevents a false "no events" empty state from flashing
+    // between reset and the next commit.
+    setIsLoading(true);
     inFlightMoreRef.current = false;
+  }, []);
+
+  useEffect(() => {
+    // Full reset whenever fieldId or filters change.
+    resetQueryState();
     fetchPage(0, false);
-  }, [fetchPage]);
+  }, [fetchPage, resetQueryState]);
 
   const loadMore = useCallback(() => {
     // Synchronous lock check FIRST — before reading any React state. Two
@@ -138,10 +154,9 @@ export function useFieldAuditTrail(
   }, [fetchPage, hasMore, isLoading, isLoadingMore, skip]);
 
   const refresh = useCallback(() => {
-    setEvents([]);
-    setSkip(0);
+    resetQueryState();
     fetchPage(0, false);
-  }, [fetchPage]);
+  }, [fetchPage, resetQueryState]);
 
   return {
     events,

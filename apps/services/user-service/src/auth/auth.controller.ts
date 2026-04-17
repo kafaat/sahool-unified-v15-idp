@@ -341,10 +341,18 @@ export class AuthController {
     // category == "security"; auth events are category ==
     // "authentication" and are surfaced by /audit/failed-logins
     // instead — this context is useful to both.)
+    // Node's IncomingHttpHeaders type widens some headers to
+    // `string | string[] | undefined` (e.g. set-cookie, or when a proxy
+    // duplicates a header). Normalize to a single string so the audit
+    // event stream never receives an array it can't index.
+    const firstHeader = (
+      value: string | string[] | undefined,
+    ): string | undefined => (Array.isArray(value) ? value[0] : value);
+
     return this.authService.login(loginDto, {
       ipAddress: ip,
-      userAgent: request.headers["user-agent"],
-      correlationId: (request.headers["x-request-id"] as string | undefined) ?? undefined,
+      userAgent: firstHeader(request.headers["user-agent"]),
+      correlationId: firstHeader(request.headers["x-request-id"]),
     });
   }
 

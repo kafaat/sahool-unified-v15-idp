@@ -452,16 +452,16 @@ async def lifespan(app: FastAPI):
             # Phase 2a — subject → canonical action for endpoint filters
             # (e.g. /audit/failed-logins searches action="auth.login.failed").
             # Fallback: last dot-segment, backwards-compatible with legacy
-            # events that predate SUBJECT_ACTION_MAP.
+            # events that predate SUBJECT_ACTION_MAP. Subject is split once
+            # here; both the action fallback and the category lookup reuse
+            # the cached segments.
             subject = msg.subject
-            action = SUBJECT_ACTION_MAP.get(
-                subject,
-                subject.split(".")[-1] if "." in subject else subject,
-            )
+            parts = subject.split(".")
+            action = SUBJECT_ACTION_MAP.get(subject, parts[-1] if len(parts) > 1 else subject)
             # Map the domain slice of the subject onto the canonical audit
             # category enforced by Phase 1's DB check constraint. Unknown
             # subjects fall back to 'system'.
-            raw_category = subject.split(".")[1] if len(subject.split(".")) > 1 else "system"
+            raw_category = parts[1] if len(parts) > 1 else "system"
             category_map = {
                 "user": "authentication",
                 "field": "field_ops",
@@ -474,6 +474,15 @@ async def lifespan(app: FastAPI):
             # Accept payload fields in both Node (camelCase, nested under
             # ``payload``) and Python (snake_case, flat at root) envelope
             # flavours so producers on either runtime are captured.
+            # When the envelope is a Node-style one (payload is nested),
+            # preserve the outer envelope metadata (eventId/eventType/
+            # timestamp) inside ``details`` so downstream debuggers can
+            # correlate the stored row back to the original NATS message.
+            details: dict = dict(payload)
+            if payload is not data:
+                for key in ("eventId", "eventType", "timestamp"):
+                    if key in data and key not in details:
+                        details[key] = data[key]
             entry = {
                 "tenant_id": tenant_id,
                 "user_id": payload.get("userId") or payload.get("user_id") or data.get("user_id") or "system",
@@ -484,7 +493,7 @@ async def lifespan(app: FastAPI):
                 "resource_id": payload.get("resource_id") or payload.get("resourceId"),
                 "success": bool(payload.get("success", data.get("success", True))),
                 "ip_address": payload.get("ipAddress") or payload.get("ip_address"),
-                "details": payload,
+                "details": details,
             }
             try:
                 await app.state.store.write(entry)

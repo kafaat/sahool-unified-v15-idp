@@ -124,8 +124,9 @@ describe("AuthService", () => {
 
     // Audit event publisher — records every publish call so tests can
     // assert the compliance trail is being emitted. Each method is a
-    // mocked async no-op so the fire-and-forget `void …publish…(…)`
-    // pattern resolves cleanly.
+    // mocked async no-op so calls through ``AuthService.fireAndForget``
+    // (which attaches a swallowing .catch) resolve cleanly without
+    // escaping as unhandled rejections.
     const mockUserEvents: jest.Mocked<Partial<UserEventsService>> = {
       publishUserCreated: jest.fn().mockResolvedValue(undefined),
       publishUserUpdated: jest.fn().mockResolvedValue(undefined),
@@ -451,6 +452,80 @@ describe("AuthService", () => {
           tenantId: mockTenantId,
         }),
       );
+    });
+
+    it("publishes UserLoginFailed with reason=account_locked when the account is in cooldown", async () => {
+      // findUnique is called twice: once by login(where:email), once by
+      // checkAccountLockout(where:id). Both return a user whose
+      // lockoutUntil is in the future so the login hits the locked path.
+      const lockedUser = {
+        ...mockUser,
+        failedLoginAttempts: 5,
+        lockoutUntil: new Date(Date.now() + 15 * 60 * 1000),
+      };
+      prismaService.user.findUnique.mockResolvedValue(lockedUser);
+
+      await expect(
+        service.login({ email: mockEmail, password: mockPassword }, ctx),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(userEvents.publishUserLoginFailed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: "account_locked",
+          userId: mockUserId,
+          tenantId: mockTenantId,
+        }),
+      );
+      // Must not reach password verification or lockout state-transition.
+      expect(userEvents.publishUserAccountLocked).not.toHaveBeenCalled();
+      expect(userEvents.publishUserAuthenticated).not.toHaveBeenCalled();
+    });
+
+    it("publishes UserAccountLocked when invalid_password trips the final retry", async () => {
+      jest.spyOn(bcrypt, "compare").mockResolvedValue(false as never);
+      // First findUnique (login): user exists and not locked.
+      // Second findUnique (checkAccountLockout): same user, not locked.
+      // Third findUnique (recordFailedLoginAttempt): attempts = MAX-1 so
+      // the new attempt (+1) crosses the threshold and triggers lockout.
+      prismaService.user.findUnique
+        .mockResolvedValueOnce({ ...mockUser, failedLoginAttempts: 4, lockoutUntil: null })
+        .mockResolvedValueOnce({ ...mockUser, failedLoginAttempts: 4, lockoutUntil: null })
+        .mockResolvedValueOnce({ failedLoginAttempts: 4 });
+
+      await expect(
+        service.login({ email: mockEmail, password: "bad" }, ctx),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(userEvents.publishUserLoginFailed).toHaveBeenCalledWith(
+        expect.objectContaining({ reason: "invalid_password", userId: mockUserId }),
+      );
+      expect(userEvents.publishUserAccountLocked).toHaveBeenCalledTimes(1);
+      expect(userEvents.publishUserAccountLocked).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: "max_failed_attempts",
+          tenantId: mockTenantId,
+          userId: mockUserId,
+        }),
+      );
+    });
+
+    it("publishes UserLoginFailed with reason=account_inactive for non-ACTIVE status", async () => {
+      jest.spyOn(bcrypt, "compare").mockResolvedValue(true as never);
+      const inactiveUser = { ...mockUser, status: UserStatus.INACTIVE };
+      prismaService.user.findUnique.mockResolvedValue(inactiveUser);
+
+      await expect(
+        service.login({ email: mockEmail, password: mockPassword }, ctx),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(userEvents.publishUserLoginFailed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: "account_inactive",
+          userId: mockUserId,
+          tenantId: mockTenantId,
+        }),
+      );
+      expect(userEvents.publishUserAuthenticated).not.toHaveBeenCalled();
     });
 
     it("publishes UserLoggedOut when the single-session logout revokes successfully", async () => {

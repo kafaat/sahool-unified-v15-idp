@@ -153,11 +153,15 @@ export class AuthService {
    *       this.userEvents?.publishUserAuthenticated({ ... }),
    *     );
    */
-  private fireAndForget(p: Promise<unknown> | undefined): void {
+  private fireAndForget(p: Promise<unknown> | undefined, context?: string): void {
     if (!p) return;
     p.catch((err) => {
       const msg = err instanceof Error ? err.message : String(err);
-      this.logger.warn(`audit_publish_failed: ${msg}`);
+      const stack = err instanceof Error ? err.stack : undefined;
+      // Include a context tag so operators can see which publisher
+      // rejected without reading the stack (e.g. "publishUserAuthenticated").
+      const prefix = context ? `audit_publish_failed[${context}]` : "audit_publish_failed";
+      this.logger.warn(`${prefix}: ${msg}`, stack);
     });
   }
 
@@ -468,7 +472,14 @@ export class AuthService {
             tenantId: payload.tid,
             userId,
             jti: payload.jti.substring(0, 8),
-          }));
+          }), "publishUserLoggedOut");
+        } else {
+          // tid is always present on valid JWTs; a missing tid means the
+          // caller decoded a malformed or legacy token. Surface this as a
+          // warning so the audit gap is discoverable instead of silent.
+          this.logger.warn(
+            `audit_skipped[publishUserLoggedOut]: missing tid on token for user=${userId}`,
+          );
         }
       } else {
         this.logger.error(`Failed to revoke token for user: ${userId}`);
@@ -504,7 +515,15 @@ export class AuthService {
           this.fireAndForget(this.userEvents?.publishUserLoggedOutAll({
             tenantId,
             userId,
-          }));
+          }), "publishUserLoggedOutAll");
+        } else {
+          // Callers are expected to resolve tenantId from the JWT before
+          // invoking; if they don't, the revoke still succeeds but the
+          // audit trail loses an event. Warn so the gap is visible in
+          // logs rather than disappearing silently.
+          this.logger.warn(
+            `audit_skipped[publishUserLoggedOutAll]: tenantId missing for user=${userId}`,
+          );
         }
       } else {
         this.logger.error(`Failed to revoke all tokens for user: ${userId}`);

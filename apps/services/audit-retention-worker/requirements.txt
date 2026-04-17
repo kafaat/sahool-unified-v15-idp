@@ -1,0 +1,13 @@
+# SAHOOL Audit Retention Worker — runtime dependencies
+# Keep this list deliberately small; the worker is a one-shot CLI, not a
+# long-running service, so every transitive dep is a liability.
+
+# Postgres driver (same version family as audit-service).
+asyncpg>=0.29.0,<0.32.0
+
+# Structured JSON logs so the worker's output is queryable in Loki/CloudWatch.
+structlog>=24.0.0,<26.0.0
+
+# Prometheus exposition — the worker emits a small set of metrics via the
+# pushgateway so short-lived CronJob runs can still populate dashboards.
+prometheus-client>=0.19.0,<0.22.0

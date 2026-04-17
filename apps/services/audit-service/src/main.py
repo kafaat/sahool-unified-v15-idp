@@ -8,6 +8,7 @@ Centralized audit logging service for security compliance and operational tracea
 Provides hash chain integrity validation, field-level change tracking, and compliance reporting.
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -472,10 +473,64 @@ async def lifespan(app: FastAPI):
             await app.state.nc.subscribe(subject, cb=handle_event)
             logger.info(f"Subscribed to NATS subject: {subject}")
 
+    # Background chain-validation sweep — refreshes the
+    # ``audit_chain_valid`` Prometheus gauge every CHAIN_VALIDATION_INTERVAL
+    # seconds (default 5 minutes) for every tenant with recent activity.
+    # Without this the AuditHashChainBroken alert would only fire when a
+    # user manually hits /chain/validate, defeating the purpose of having
+    # it. Controlled by AUDIT_CHAIN_VALIDATION_ENABLED=false for tests.
+    chain_job_enabled = os.getenv("AUDIT_CHAIN_VALIDATION_ENABLED", "true").lower() != "false"
+    app.state.chain_validation_task = None
+    if chain_job_enabled and _PROM_OK:
+        interval = int(os.getenv("AUDIT_CHAIN_VALIDATION_INTERVAL_SECONDS", "300"))
+        lookback_hours = int(os.getenv("AUDIT_CHAIN_VALIDATION_LOOKBACK_HOURS", "24"))
+
+        async def _chain_validation_loop():
+            """Refresh audit_chain_valid{tenant_id=...} on every cycle."""
+            while True:
+                try:
+                    since = datetime.now(UTC) - timedelta(hours=lookback_hours)
+                    tenants = await app.state.store.tenants_with_activity_since(since)
+                    for tenant_id in tenants:
+                        try:
+                            result = await app.state.store.validate_chain(tenant_id)
+                            AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(
+                                1 if result.valid else 0
+                            )
+                            if not result.valid:
+                                logger.error(
+                                    "audit_chain_broken tenant=%s errors=%s",
+                                    sanitize_log_input(tenant_id),
+                                    result.errors[:3],  # truncate — full list in the entry
+                                )
+                        except Exception as e:
+                            # Never let one tenant's failure stop the sweep.
+                            logger.warning(
+                                "chain_validation_failed tenant=%s error=%s",
+                                sanitize_log_input(tenant_id), str(e),
+                            )
+                except asyncio.CancelledError:
+                    raise
+                except Exception as e:
+                    logger.error("chain_validation_loop_error error=%s", str(e))
+                await asyncio.sleep(interval)
+
+        app.state.chain_validation_task = asyncio.create_task(_chain_validation_loop())
+        logger.info(
+            "Chain validation sweep scheduled: every %ss, lookback %sh",
+            interval, lookback_hours,
+        )
+
     logger.info("Audit Service ready on port 8114")
     yield
 
     # Cleanup
+    if getattr(app.state, "chain_validation_task", None):
+        app.state.chain_validation_task.cancel()
+        try:
+            await app.state.chain_validation_task
+        except (asyncio.CancelledError, Exception):
+            pass
     if getattr(app.state, "nc", None):
         await app.state.nc.close()
     if getattr(app.state, "db_pool", None):

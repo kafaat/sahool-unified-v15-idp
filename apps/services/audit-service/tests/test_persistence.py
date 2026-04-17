@@ -305,3 +305,57 @@ def test_header_tenant_must_match_jwt_tenant(client):
         headers={"X-Tenant-Id": OTHER_TENANT_ID},
     )
     assert r.status_code == 403
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# tenants_with_activity_since — feeds the periodic chain-validation sweep
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_tenants_with_activity_returns_writers_only():
+    """Only tenants that actually wrote should show up; dormant tenants
+    with historical entries older than the cutoff are excluded."""
+    import asyncio
+    from datetime import UTC, datetime, timedelta
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        await store.write({
+            "tenant_id": "tenant-active-1",
+            "user_id": "u1",
+            "action": "x",
+            "category": "authentication",
+            "severity": "info",
+            "details": {},
+        })
+        await store.write({
+            "tenant_id": "tenant-active-2",
+            "user_id": "u2",
+            "action": "y",
+            "category": "authentication",
+            "severity": "info",
+            "details": {},
+        })
+        # Tenant with a synthetic old entry — backdate its created_at.
+        await store.write({
+            "tenant_id": "tenant-dormant",
+            "user_id": "u3",
+            "action": "z",
+            "category": "authentication",
+            "severity": "info",
+            "details": {},
+        })
+        store._by_tenant["tenant-dormant"][0]["created_at"] = (
+            datetime.now(UTC) - timedelta(days=30)
+        ).isoformat()
+
+        since = datetime.now(UTC) - timedelta(hours=1)
+        return await store.tenants_with_activity_since(since)
+
+    tenants = asyncio.get_event_loop().run_until_complete(run())
+    assert "tenant-active-1" in tenants
+    assert "tenant-active-2" in tenants
+    assert "tenant-dormant" not in tenants

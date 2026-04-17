@@ -331,8 +331,12 @@ class SlidingWindowLimiter(RateLimitStrategy):
             pipe.zcard(key)
 
             # إضافة الطلب الحالي
-            # Add current request with unique suffix to avoid collisions
-            request_id = f"{now}:{uuid.uuid4().hex[:8]}"
+            # Add current request with full UUID4 suffix to avoid
+            # ZSET member collisions under high request rates.
+            # Truncating to 8 hex chars (32 bits) is vulnerable to
+            # birthday collisions at ~65k req/window, which would
+            # overwrite members and undercount — weakening the limiter.
+            request_id = f"{now}:{uuid.uuid4().hex}"
             pipe.zadd(key, {request_id: now})
 
             # تعيين انتهاء الصلاحية

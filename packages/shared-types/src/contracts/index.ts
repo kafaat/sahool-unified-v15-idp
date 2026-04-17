@@ -86,11 +86,19 @@
 //            tagged @deprecated with explicit removal version (v3.0.0 →
 //            re-baselined to v5.0.0 to honour main's 4.x cadence).
 //          Purely additive.
-// 4.19.0 - AUDIT_ENDPOINTS extended with the three endpoints audit-service
-//          has been serving since the audit-service consolidation PR:
+// 4.19.0 - AUDIT_ENDPOINTS extended with three endpoints audit-service
+//          has been serving since the audit-service consolidation PR
+//          but had no typed representation:
 //          * RESOURCE_TRAIL (/audit/resources/{resourceType}/{resourceId}/trail)
-//            — drives the admin Field Audit History panel.
+//            — reverse-chronological trail with skip+limit-only
+//            pagination. NOT used by the admin Field Audit History
+//            panel because it can't honour the page's category /
+//            user / date-range filters; that panel hits LOGS with
+//            `resource_type` + `resource_id` pinned in the query
+//            string instead. Exported for future callers that
+//            genuinely want the unfiltered trail.
 //          * USER_TRAIL     (/audit/users/{userId}/trail)
+//            — same skip+limit-only constraint, user-scoped.
 //          * CHAIN_VALIDATE (/audit/chain/validate)
 //          Purely additive; no existing exports removed.
 export const CONTRACT_VERSION = "4.19.0" as const;

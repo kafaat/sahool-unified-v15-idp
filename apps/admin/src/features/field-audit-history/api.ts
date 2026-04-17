@@ -152,11 +152,16 @@ export function buildTrailQuery(
   if (filters.userId && filters.userId.length) {
     qp.set('user_id', filters.userId);
   }
-  if (filters.startDate) {
+  // Mirror the category/userId `.length` check below. JavaScript
+  // truthiness would skip '' anyway, but a future refactor that
+  // switches to explicit `!== undefined` comparisons would otherwise
+  // start shipping `start_date=T00:00:00Z` (malformed) on empty input
+  // and audit-service would reject the request. Cheap defence in depth.
+  if (filters.startDate && filters.startDate.length) {
     // Start-of-day UTC; audit-service compares against TIMESTAMPTZ.
     qp.set('start_date', `${filters.startDate}T00:00:00Z`);
   }
-  if (filters.endDate) {
+  if (filters.endDate && filters.endDate.length) {
     qp.set('end_date', `${filters.endDate}T23:59:59.999Z`);
   }
   return qp;

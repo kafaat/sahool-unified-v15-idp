@@ -51,7 +51,12 @@ export interface FieldAuditFilters {
   endDate?: string;
 }
 
-/** Result of a single /resources/{type}/{id}/trail call. */
+/** Paginated page returned by `fieldAuditHistoryApi.getFieldTrail()`.
+ *  Sourced from audit-service's `/audit/logs?resource_type=field&resource_id=<id>`
+ *  endpoint (NOT the dedicated `/resources/{type}/{id}/trail`, which only
+ *  supports skip+limit — see comments in api.ts). Keeping the interface
+ *  named "TrailPage" because the UX semantics are the same even though
+ *  the wire endpoint differs. */
 export interface FieldAuditTrailPage {
   items: FieldAuditEvent[];
   total: number;

@@ -24,8 +24,16 @@ interface TimelineEntryProps {
 }
 
 function formatTimestamp(iso: string, locale: 'ar' | 'en'): string {
+  // `new Date(garbage)` never throws — it silently returns an Invalid
+  // Date whose getTime() is NaN. toLocaleString() on that yields the
+  // literal string "Invalid Date", which would show up untranslated
+  // in the timeline. Check NaN explicitly and fall back to the raw
+  // ISO string so operators at least see the original value. A
+  // try/catch is kept around toLocaleString for the rare
+  // RangeError that a pathological locale option can raise.
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
   try {
-    const d = new Date(iso);
     return d.toLocaleString(locale === 'ar' ? 'ar-SA' : 'en-GB', {
       year: 'numeric',
       month: 'short',

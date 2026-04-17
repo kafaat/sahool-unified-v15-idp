@@ -26,8 +26,8 @@ trivial and keeps the runtime one-shot.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 # Must stay in sync with chk_category in migrations/001_create_audit_log.sql.
 # Any new category added there must be added here too, or the worker will

@@ -16,10 +16,8 @@ from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pytest
-
 from src.policies import RetentionPolicy
 from src.retention import _parse_delete_tag, run_policy_for_tenant, run_sweep
-
 
 # ═════════════════════════════════════════════════════════════════════════
 # Minimal asyncpg fake — enough surface for the worker to run against.

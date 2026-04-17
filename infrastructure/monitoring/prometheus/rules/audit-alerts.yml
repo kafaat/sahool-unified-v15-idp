@@ -1,0 +1,126 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform — Audit Service Alert Rules
+# قواعد تنبيهات خدمة التدقيق
+# ═══════════════════════════════════════════════════════════════════════════════
+# Purpose:
+#   Catch the worst-case scenario for an audit pipeline — working plumbing
+#   that nobody feeds. A compliance audit trail with zero writes is worse
+#   than no audit trail at all because it masks the gap.
+#
+# Prerequisites — audit-service must expose:
+#   * audit_writes_total{tenant_id="..."} counter
+#     Incremented on every successful write through AuditStore.write().
+#   * audit_chain_valid{tenant_id="..."} gauge (0/1)
+#     Set by a periodic validate_chain() job; 0 means tampering detected.
+#   * audit_store_backend{kind="postgres"|"in_memory"} gauge (1)
+#     Labels the backend currently serving the store.
+#
+# Version: 1.0.0
+# Added:   2026-04-17 (P0 from audit-service audit report)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+groups:
+  # ───────────────────────────────────────────────────────────────────────────
+  # Pipeline health — detect "Potemkin audit" (wired but not fed).
+  # ───────────────────────────────────────────────────────────────────────────
+  - name: sahool_audit_pipeline
+    interval: 60s
+    rules:
+      - alert: AuditServiceNotReceivingWrites
+        expr: |
+          sum(rate(audit_writes_total[5m])) == 0
+          and
+          max(up{job="audit-service"}) == 1
+        for: 10m
+        labels:
+          severity: warning
+          category: compliance
+          platform: sahool
+          runbook: docs/operations/audit-runbook.md
+        annotations:
+          summary: "Audit service is running but receiving zero writes for 10m"
+          summary_ar: "خدمة التدقيق تعمل لكن لا تستقبل كتابات لمدة 10 دقائق"
+          description: |
+            audit-service is alive (up == 1) but audit_writes_total is flat.
+            This usually means one of:
+              * A caller service was recently rewritten without calling
+                shared/audit_trail.log_action().
+              * A regression silenced audit-emitting middleware.
+              * NATS subscribers disconnected without a retry loop.
+            Compliance frameworks (GDPR, SOC 2, GlobalGAP) require an
+            unbroken log — reaching this alert means the log has a gap.
+          runbook_url: https://sahool.io/runbooks/audit-no-writes
+
+      - alert: AuditServiceWriteRateBelowBaseline
+        # Tenants vary; we compare against the rolling 1-hour average.
+        # If the 5-minute rate drops below 20% of the last hour, a caller
+        # has likely stopped emitting.
+        expr: |
+          (
+            sum(rate(audit_writes_total[5m]))
+            /
+            sum(rate(audit_writes_total[1h]))
+          ) < 0.2
+          and
+          sum(rate(audit_writes_total[1h])) > 0.01
+        for: 15m
+        labels:
+          severity: info
+          category: compliance
+          platform: sahool
+        annotations:
+          summary: "Audit write rate dropped below 20% of 1h baseline"
+          summary_ar: "معدل كتابة التدقيق انخفض تحت 20% من الخط الأساس لساعة"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Data integrity — hash chain must stay valid.
+  # ───────────────────────────────────────────────────────────────────────────
+  - name: sahool_audit_integrity
+    interval: 5m
+    rules:
+      - alert: AuditHashChainBroken
+        expr: min(audit_chain_valid) == 0
+        for: 2m
+        labels:
+          severity: critical
+          category: security
+          platform: sahool
+          runbook: docs/operations/audit-runbook.md
+        annotations:
+          summary: "Audit hash chain validation failed for tenant {{ $labels.tenant_id }}"
+          summary_ar: "فشل التحقق من سلسلة التجزئة للمستأجر {{ $labels.tenant_id }}"
+          description: |
+            A scheduled validate_chain() run recomputed the SHA-256 chain
+            for tenant {{ $labels.tenant_id }} and found a mismatch.
+            Possible causes:
+              * Row-level tampering (row UPDATE'd outside the service).
+              * A bug in the hash computation (e.g. HMAC secret rotated
+                without re-hashing).
+              * Data loss / corruption (truncated rows).
+            This is a compliance-grade incident; page the on-call
+            immediately and freeze new writes until the chain is re-anchored.
+          runbook_url: https://sahool.io/runbooks/audit-chain-broken
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Backend posture — in-memory mode in prod is always a bug.
+  # ───────────────────────────────────────────────────────────────────────────
+  - name: sahool_audit_backend
+    interval: 5m
+    rules:
+      - alert: AuditServiceRunningOnInMemoryBackend
+        expr: |
+          max(audit_store_backend{kind="in_memory"}) == 1
+          and on() (env{env="production"} == 1 or env{env="staging"} == 1)
+        for: 5m
+        labels:
+          severity: critical
+          category: compliance
+          platform: sahool
+        annotations:
+          summary: "audit-service is using the in-memory backend in non-dev"
+          summary_ar: "خدمة التدقيق تعمل على التخزين المؤقت في بيئة غير التطوير"
+          description: |
+            The in-memory backend is a fallback for CI and unit tests only.
+            Writes are lost on restart; compliance requirements are not
+            satisfied. Check DATABASE_URL, network reachability to
+            PgBouncer, and the audit_service_schema_migrations table.

@@ -108,10 +108,17 @@ export function mapBackendPage(
 // Query-param assembly
 // ─────────────────────────────────────────────────────────────────────────
 
-/** Build the query string for `/resources/.../trail`.
+/** Build the query string sent to `/audit/logs`.
  *
- *  Handles two UX conventions that have to translate to the audit-service's
- *  wire format:
+ *  Targets the general LOGS endpoint with the field id pinned via
+ *  resource_type + resource_id, NOT the per-resource RESOURCE_TRAIL
+ *  endpoint. Reasoning: the trail endpoint only accepts skip + limit
+ *  (see audit-service main.py::get_resource_audit_trail). The LOGS
+ *  endpoint accepts the full filter set we promise the operator on
+ *  the page (category, user, date range), so we use it and pin the
+ *  field-scope via the path-equivalent query params.
+ *
+ *  Wire-format quirks worth preserving:
  *    * Date inputs are date-only (YYYY-MM-DD); we widen `endDate` to
  *      23:59:59.999Z so "today" actually covers today.
  *    * Empty strings from uncontrolled form fields are treated the same
@@ -119,10 +126,15 @@ export function mapBackendPage(
  *      user IDs which is never what the operator wants.
  */
 export function buildTrailQuery(
+  fieldId: string,
   filters: FieldAuditFilters,
   pagination: PaginationState,
 ): URLSearchParams {
   const qp = new URLSearchParams();
+  // Pin the scope. resource_type/resource_id replace the path params we
+  // would have used on the RESOURCE_TRAIL endpoint.
+  qp.set('resource_type', RESOURCE_TYPE_FIELD);
+  qp.set('resource_id', fieldId);
   qp.set('skip', String(pagination.skip));
   qp.set('limit', String(pagination.limit));
 
@@ -158,10 +170,16 @@ export const fieldAuditHistoryApi = {
     filters: FieldAuditFilters = {},
     pagination: PaginationState = { skip: 0, limit: 50 },
   ): Promise<FieldAuditTrailPage> {
-    const url = `${API_URLS.auditEndpoints.resourceTrail(
-      RESOURCE_TYPE_FIELD,
+    // Use the general LOGS endpoint with the field id pinned via
+    // resource_type/resource_id. The dedicated RESOURCE_TRAIL endpoint
+    // (still in our contracts surface) only accepts skip/limit, so it
+    // can't honour the page's category/user/date filters — see
+    // audit-service main.py::get_resource_audit_trail.
+    const url = `${API_URLS.auditEndpoints.logs}?${buildTrailQuery(
       fieldId,
-    )}?${buildTrailQuery(filters, pagination).toString()}`;
+      filters,
+      pagination,
+    ).toString()}`;
 
     try {
       const response = await fetch(url, fetchDefaults);

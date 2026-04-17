@@ -11,14 +11,24 @@ import { describe, it, expect } from 'vitest';
 import { buildTrailQuery, mapBackendPage } from '../api';
 
 describe('buildTrailQuery', () => {
+  const FIELD = 'fld-test';
+
+  it('pins the scope via resource_type=field + resource_id', () => {
+    // The whole feature pivots on this; without resource_type/resource_id
+    // the LOGS endpoint would return every audit row in the tenant.
+    const qp = buildTrailQuery(FIELD, {}, { skip: 0, limit: 10 });
+    expect(qp.get('resource_type')).toBe('field');
+    expect(qp.get('resource_id')).toBe(FIELD);
+  });
+
   it('serialises pagination into skip + limit', () => {
-    const qp = buildTrailQuery({}, { skip: 100, limit: 50 });
+    const qp = buildTrailQuery(FIELD, {}, { skip: 100, limit: 50 });
     expect(qp.get('skip')).toBe('100');
     expect(qp.get('limit')).toBe('50');
   });
 
   it('omits category when not set (empty filter = no WHERE clause)', () => {
-    const qp = buildTrailQuery({}, { skip: 0, limit: 10 });
+    const qp = buildTrailQuery(FIELD, {}, { skip: 0, limit: 10 });
     expect(qp.has('category')).toBe(false);
   });
 
@@ -27,6 +37,7 @@ describe('buildTrailQuery', () => {
     // the wire — audit-service would otherwise try to match the empty
     // user_id which is always zero rows.
     const qp = buildTrailQuery(
+      FIELD,
       { userId: '', category: '' },
       { skip: 0, limit: 10 },
     );
@@ -36,6 +47,7 @@ describe('buildTrailQuery', () => {
 
   it('widens endDate to end-of-day UTC so "today" covers the whole day', () => {
     const qp = buildTrailQuery(
+      FIELD,
       { startDate: '2026-04-01', endDate: '2026-04-17' },
       { skip: 0, limit: 10 },
     );
@@ -45,6 +57,7 @@ describe('buildTrailQuery', () => {
 
   it('forwards category + userId verbatim', () => {
     const qp = buildTrailQuery(
+      FIELD,
       { category: 'field_ops', userId: 'usr_abc' },
       { skip: 0, limit: 10 },
     );

@@ -21,19 +21,27 @@ interface HistoryFiltersProps {
   locale: 'ar' | 'en';
 }
 
-/** The canonical categories from audit_log's chk_category CHECK constraint.
- *  Kept in sync with apps/services/audit-service/migrations/001_create_audit_log.sql
- *  and apps/services/audit-retention-worker/src/policies.py KNOWN_CATEGORIES. */
+/** The full canonical category set from audit_log's chk_category CHECK
+ *  constraint. Kept in sync with:
+ *    * apps/services/audit-service/migrations/001_create_audit_log.sql
+ *    * apps/services/audit-retention-worker/src/policies.py KNOWN_CATEGORIES
+ *  Filtering by an unlisted category would silently match zero rows
+ *  (audit-service does an exact equality check), so any new category in
+ *  the DB constraint MUST be added here too — and vice-versa. */
 const CATEGORIES: readonly string[] = [
   'authentication',
   'authorization',
   'configuration',
+  'catalog',
+  'kubernetes',
   'field_ops',
-  'data',
-  'security',
+  'billing',
   'compliance',
+  'security',
+  'data',
   'system',
   'user_management',
+  'code_change',
 ] as const;
 
 export default function HistoryFilters({

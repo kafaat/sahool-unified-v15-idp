@@ -165,12 +165,10 @@ export function useReplayedState(
 
     const state: Record<string, unknown> = {};
     let applied = 0;
-    let earliestApplied: number | null = null;
 
     for (const event of sorted) {
       const t = Date.parse(event.createdAt);
       if (t > cutoff) break;
-      if (earliestApplied === null) earliestApplied = t;
 
       if (event.newValue && typeof event.newValue === 'object') {
         for (const [key, value] of Object.entries(event.newValue)) {

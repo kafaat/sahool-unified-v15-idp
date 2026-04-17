@@ -69,14 +69,15 @@ const FIXTURE_PAGE = {
 
 test.describe('Field Audit History — static rendering with mocked backend', () => {
   test.beforeEach(async ({ page }) => {
-    // Intercept both direct-service and Kong-proxied shapes of the URL.
-    // The admin app's config points at SERVICE_URLS.audit + the contract
-    // path; in CI that resolves to something like
-    //   http://localhost:8114/api/v1/audit/resources/field/<id>/trail
-    // but the same page also works behind Kong at /api/v1/audit/... —
-    // intercept both so neither environment breaks the test.
+    // The page now hits `/audit/logs?resource_type=field&resource_id=…`
+    // (the LOGS endpoint supports the page's filters; the dedicated
+    // RESOURCE_TRAIL endpoint only supports skip/limit). We match on the
+    // pathname AND the resource_id query param so a future test that
+    // mocks a DIFFERENT field id can coexist without route collision.
     await page.route(
-      (url) => url.pathname.endsWith(`/audit/resources/field/${FIELD_ID}/trail`),
+      (url) =>
+        url.pathname.endsWith('/audit/logs') &&
+        url.searchParams.get('resource_id') === FIELD_ID,
       (route) =>
         route.fulfill({
           status: 200,

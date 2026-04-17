@@ -67,7 +67,10 @@ export default function FieldAuditHistoryPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header
+        title={isAr ? 'سجل تدقيق الحقل' : 'Field Audit History'}
+        subtitle={isAr ? 'الجدول الزمني لأحداث التدقيق' : 'Audit events timeline'}
+      />
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between gap-3">
           <div className="flex min-w-0 flex-1 items-center gap-3">

@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.18.0
+/// Contract version: 4.19.0
 library;
 
 /// API version prefix
@@ -146,6 +146,9 @@ abstract final class AuditEndpoints {
   static const String stats = '\$apiPrefix/audit/stats';
   static const String adminAudit = '\$apiPrefix/admin/audit';
   static const String adminBatch = '\$apiPrefix/admin/audit/batch';
+  static String resourceTrail(String resourceType, String resourceId) => '\$apiPrefix/audit/resources/$resourceType/$resourceId/trail';
+  static String userTrail(String userId) => '\$apiPrefix/audit/users/$userId/trail';
+  static const String chainValidate = '\$apiPrefix/audit/chain/validate';
 }
 
 /// billing

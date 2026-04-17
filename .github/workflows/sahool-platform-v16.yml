@@ -288,7 +288,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          # Falls back to SAHOOL's canonical deployment region (CLAUDE.md: AWS me-south-1)
+          # when the AWS_REGION secret/var is unset, preventing
+          # "Input required and not supplied: aws-region" failures.
+          aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'me-south-1' }}
 
       - name: Update kubeconfig
         run: aws eks update-kubeconfig --name sahool-staging
@@ -322,7 +325,10 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          # Falls back to SAHOOL's canonical deployment region (CLAUDE.md: AWS me-south-1)
+          # when the AWS_REGION secret/var is unset, preventing
+          # "Input required and not supplied: aws-region" failures.
+          aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'me-south-1' }}
 
       - name: Deploy to Production EKS
         run: |

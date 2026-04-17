@@ -30,6 +30,7 @@ import {
   CLI_USAGE,
   parseArgs,
   type OutputFormat,
+  type ParsedCli,
 } from "./cli.js";
 import {
   reviewSchema,
@@ -457,7 +458,7 @@ async function writeOrPrint(
 }
 
 async function main(): Promise<void> {
-  let parsed;
+  let parsed: ParsedCli;
   try {
     parsed = parseArgs(process.argv.slice(2));
   } catch (err) {

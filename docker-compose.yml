@@ -4667,7 +4667,18 @@ asyncio.run(main())
 
   # Code Review Agent - AI code review using Claude Agent SDK
   # وكيل مراجعة الكود - مراجعة كود ذكية باستخدام Claude SDK
+  #
+  # This is a CLI job, not a long-running service. Its Dockerfile's CMD
+  # (node dist/production-agent.js) runs once and exits — which looked
+  # like a crash under `docker compose ps` when started by default.
+  # Gated behind `ai-agents` profile so it only starts when explicitly
+  # requested:
+  #   docker compose --profile ai-agents run --rm code-review-agent \
+  #     -- --repo <path> --output review.md
+  # Requires ANTHROPIC_API_KEY in the environment.
   code-review-agent:
+    profiles:
+      - ai-agents
     build:
       context: .
       dockerfile: apps/services/code-review-agent/Dockerfile
@@ -4676,6 +4687,7 @@ asyncio.run(main())
       - NODE_ENV=production
       - ENVIRONMENT=${ENVIRONMENT:-development}
       - LOG_LEVEL=${LOG_LEVEL:-info}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
     restart: "no"
     security_opt:
       - no-new-privileges:true

@@ -73,6 +73,12 @@ spec:
                 - name: AUDIT_RETENTION_{{ $category | upper }}_DAYS
                   value: {{ $days | quote }}
                 {{- end }}
+                # Empty string → worker skips the pushgateway batch entirely.
+                # Set .Values.pushgatewayUrl to a reachable URL (e.g.
+                # http://prometheus-pushgateway.monitoring.svc.cluster.local:9091)
+                # to enable Prometheus metrics for this CronJob.
+                - name: AUDIT_RETENTION_PUSHGATEWAY_URL
+                  value: {{ .Values.pushgatewayUrl | quote }}
                 - name: LOG_LEVEL
                   value: "INFO"
               resources:

@@ -90,6 +90,13 @@ spec:
                   value: "1825"
                 - name: AUDIT_RETENTION_COMPLIANCE_DAYS
                   value: "1825"
+                # Prometheus pushgateway — opt-in. Short-lived CronJob pods
+                # can't be scraped, so the worker pushes its metric batch at
+                # end-of-run. Uncomment + set to your cluster's pushgateway
+                # URL to turn on metrics; leave commented to preserve the
+                # pre-observability log-only behaviour.
+                # - name: AUDIT_RETENTION_PUSHGATEWAY_URL
+                #   value: "http://prometheus-pushgateway.monitoring.svc.cluster.local:9091"
                 - name: LOG_LEVEL
                   value: "INFO"
               resources:

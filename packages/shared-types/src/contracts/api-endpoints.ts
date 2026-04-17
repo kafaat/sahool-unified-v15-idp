@@ -844,13 +844,26 @@ export const AUDIT_ENDPOINTS = {
   STATS: `${API_PREFIX}/audit/stats`,
   ADMIN_AUDIT: `${API_PREFIX}/admin/audit`,
   ADMIN_BATCH: `${API_PREFIX}/admin/audit/batch`,
-  /** Per-resource audit trail (reverse chronological). Primary endpoint for the
-   *  admin Field History panel; audit-service exposes this in main.py as
-   *  `GET /api/v1/audit/resources/{resource_type}/{resource_id}/trail`. */
+  /** Per-resource audit trail (reverse chronological). Exposed by
+   *  audit-service as
+   *    `GET /api/v1/audit/resources/{resource_type}/{resource_id}/trail`
+   *  The handler accepts ONLY `skip` and `limit` — no category / user /
+   *  date-range filtering. The admin Field History panel therefore uses
+   *  LOGS (above) with resource_type + resource_id pinned in the query
+   *  string instead of this endpoint. Kept for use cases that truly
+   *  want an unfiltered reverse-chronological stream. */
   RESOURCE_TRAIL: `${API_PREFIX}/audit/resources/{resourceType}/{resourceId}/trail`,
-  /** Per-user audit trail — mirror of RESOURCE_TRAIL keyed by user_id. */
+  /** Per-user audit trail. Same skip+limit-only constraint as
+   *  RESOURCE_TRAIL; callers that need filtering should use LOGS with
+   *  `user_id` in the query string. */
   USER_TRAIL: `${API_PREFIX}/audit/users/{userId}/trail`,
-  /** Chain-integrity validation. Returns { valid, total_entries, errors[] }. */
+  /** Chain-integrity validation. Response shape matches
+   *  audit-service's `HashChainValidationResponse`:
+   *    { valid, total_entries, validated_entries, invalid_entries,
+   *      errors, retention_gaps_crossed }
+   *  `retention_gaps_crossed` is non-zero once the audit-retention-worker
+   *  has run for the tenant — a chain is still `valid: true` across
+   *  legitimate retention-driven gaps. */
   CHAIN_VALIDATE: `${API_PREFIX}/audit/chain/validate`,
 } as const;
 

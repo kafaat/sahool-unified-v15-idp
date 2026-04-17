@@ -155,8 +155,12 @@ test.describe('Field Audit History — static rendering with mocked backend', ()
 const FIELD_ROW_ID = 'fld-deeplink-0001';
 const NON_FIELD_ROW_ID = 'usr-42';
 
+// Match the real audit-service response shape (items/total/skip/limit/has_more),
+// NOT the admin client's legacy {data, meta} wrapper. auditService.getAll()
+// maps between the two at the client layer (see advanced-services.ts); the
+// test goes through that mapper so a regression on either side is caught.
 const GENERAL_AUDIT_FIXTURE = {
-  data: [
+  items: [
     {
       id: 'log-1',
       timestamp: '2026-04-17T10:05:00Z',
@@ -182,7 +186,10 @@ const GENERAL_AUDIT_FIXTURE = {
       status: 'success' as const,
     },
   ],
-  meta: { total: 2, page: 1, limit: 20, totalPages: 1 },
+  total: 2,
+  skip: 0,
+  limit: 20,
+  has_more: false,
 };
 
 test.describe('General /audit page → deep-link to per-field history', () => {

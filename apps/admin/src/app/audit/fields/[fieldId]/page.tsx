@@ -17,12 +17,14 @@
  *           └─  <ReplayView>    uses useReplayedState(events, cutoff)
  *                                to fold newValue forward to any timestamp
  *
- * Why the page owns filter state: the hook needs a stable filter reference
- * to avoid refetch loops (see hooks.ts). We useMemo the filter object so
- * mutating a single field only triggers ONE refetch, not two.
+ * Why the page owns filter state: the hook already handles refetch on
+ * filter changes (see hooks.ts useEffect on fetchPage). Because React's
+ * useState always returns a new object reference when setState runs, we
+ * pass `filters` directly to the hook — no memoisation buys us anything
+ * here (a useMemo(() => filters, [filters]) is a no-op wrapper).
  */
 
-import { useMemo, useState, use } from 'react';
+import { useState, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, RefreshCw } from 'lucide-react';
 
@@ -50,9 +52,6 @@ export default function FieldAuditHistoryPage({ params }: PageProps) {
   const isAr = locale === 'ar';
 
   const [filters, setFilters] = useState<FieldAuditFilters>({});
-  // Memoise so the hook sees the same object reference across renders
-  // until the operator actually applies a new filter.
-  const stableFilters = useMemo(() => filters, [filters]);
 
   const {
     events,
@@ -63,7 +62,7 @@ export default function FieldAuditHistoryPage({ params }: PageProps) {
     error,
     loadMore,
     refresh,
-  } = useFieldAuditTrail(fieldId, stableFilters);
+  } = useFieldAuditTrail(fieldId, filters);
 
   return (
     <div className="min-h-screen bg-gray-50">

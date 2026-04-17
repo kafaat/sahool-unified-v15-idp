@@ -32,7 +32,8 @@
     "vitest": "3.2.4"
   },
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
   },
   "keywords": [
     "code-review",
@@ -45,7 +46,7 @@
   "license": "UNLICENSED",
   "private": true,
   "overrides": {
-    "lodash": ">=4.18.1",
+    "lodash": ">=4.17.21",
     "picomatch": "^4.0.4"
   }
 }

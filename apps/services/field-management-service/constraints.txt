@@ -83,7 +83,7 @@ structlog>=24.1.0
 numpy>=1.26.0,<2.0.0
 scipy>=1.11.0,<1.18.0
 optuna>=3.6.0,<5.0.0
-Pillow==12.1.1  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
+Pillow==12.2.0  # CVE-2026-25990 (OOB write in PSD handler) fixed in 12.1.1
 shapely==2.1.2
 rasterio==1.4.4
 pyproj==3.7.2
@@ -96,7 +96,7 @@ tensorflow-cpu==2.21.0
 # ─────────────────────────────────────────────────────────────────────────────
 # Testing
 # ─────────────────────────────────────────────────────────────────────────────
-pytest==8.4.2
+pytest==9.0.3
 pytest-asyncio==0.26.0
 pytest-cov>=6.0.0
 pytest-mock==3.15.1
@@ -114,14 +114,14 @@ jaraco.context>=6.1.0  # CVE-2026-23949 (Zip Slip path traversal in tarball())
 # ─────────────────────────────────────────────────────────────────────────────
 ruff==0.15.8
 pre-commit==4.5.1
-black==24.10.0
+black==26.3.1
 isort==5.13.2
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Utilities
 # ─────────────────────────────────────────────────────────────────────────────
 python-dotenv==1.2.2
-python-multipart==0.0.22
+python-multipart==0.0.26
 python-dateutil==2.9.0.post0
 jsonschema==4.26.0
 tenacity==8.5.0

@@ -133,6 +133,15 @@ class AuditStore(Protocol):
         """Recompute the chain and flag any divergence."""
         ...
 
+    async def tenants_with_activity_since(self, since: datetime) -> list[str]:
+        """Tenant IDs that have written any audit entry since ``since``.
+
+        Feeds the periodic chain-validation job so the
+        ``audit_chain_valid`` gauge only refreshes for tenants that
+        actually matter, avoiding wasted work on dormant tenants.
+        """
+        ...
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Postgres backend
@@ -239,26 +248,31 @@ class PostgresAuditStore:
         if not filters:
             return "", values
 
-        mapping = {
-            "user_id": "user_id = $%d",
-            "action": "action = $%d",
-            "category": "category = $%d",
-            "resource_type": "resource_type = $%d",
-            "resource_id": "resource_id = $%d",
-            "success": "success = $%d",
-            "severity": "severity = $%d",
-        }
-        for key, template in mapping.items():
-            if filters.get(key) is not None:
-                values.append(filters[key])
-                clauses.append(template % (len(values) + 1))  # +1 because $1 is tenant
+        # Column names are hard-coded; the placeholder index is derived
+        # from the parameter list length so WHERE can grow safely.
+        columns = (
+            "user_id",
+            "action",
+            "category",
+            "resource_type",
+            "resource_id",
+            "success",
+            "severity",
+        )
+        for column in columns:
+            if filters.get(column) is not None:
+                values.append(filters[column])
+                clauses.append(f"{column} = ${len(values) + 1}")  # +1: $1 is tenant
 
-        if filters.get("start_date"):
+        # Explicit None-check to match the column loop above — a caller
+        # who passes a falsy but non-None value (e.g. coerced 0) should
+        # still exercise the branch.
+        if filters.get("start_date") is not None:
             values.append(filters["start_date"])
-            clauses.append("created_at >= $%d" % (len(values) + 1))
-        if filters.get("end_date"):
+            clauses.append(f"created_at >= ${len(values) + 1}")
+        if filters.get("end_date") is not None:
             values.append(filters["end_date"])
-            clauses.append("created_at <= $%d" % (len(values) + 1))
+            clauses.append(f"created_at <= ${len(values) + 1}")
 
         where = " AND " + " AND ".join(clauses) if clauses else ""
         return where, values
@@ -275,13 +289,19 @@ class PostgresAuditStore:
         async with self._pool.acquire() as conn:
             async with conn.transaction():
                 await self._with_tenant(conn, tenant_id)
+                # SQL is safe: `where` is composed only from an allowlisted
+                # column-name tuple (see _build_where columns) and $N
+                # placeholders. No user-controlled string is interpolated
+                # into the query; all filter values flow through asyncpg
+                # parameters in `*extra`. Bandit B608 cannot see through
+                # the helper so we silence it explicitly.
                 total_row = await conn.fetchrow(
-                    f"SELECT COUNT(*) AS c FROM audit_log WHERE tenant_id = $1{where}",
+                    f"SELECT COUNT(*) AS c FROM audit_log WHERE tenant_id = $1{where}",  # nosec B608
                     tenant_id,
                     *extra,
                 )
                 rows = await conn.fetch(
-                    f"SELECT * FROM audit_log WHERE tenant_id = $1{where} "
+                    f"SELECT * FROM audit_log WHERE tenant_id = $1{where} "  # nosec B608
                     f"ORDER BY created_at DESC, seq_num DESC "
                     f"OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}",
                     tenant_id,
@@ -327,6 +347,20 @@ class PostgresAuditStore:
     async def validate_chain(self, tenant_id: str) -> ChainValidation:
         entries = await self.all_for_tenant(tenant_id)
         return _validate_chain_inmem(entries, self._secret)
+
+    async def tenants_with_activity_since(self, since: datetime) -> list[str]:
+        """Cross-tenant query; RLS is bypassed on purpose because the
+        periodic chain-validation job is a platform-level operator,
+        not a per-tenant caller. In practice the Postgres role this
+        pool connects as must hold BYPASSRLS or the query returns
+        zero rows.
+        """
+        async with self._pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT DISTINCT tenant_id FROM audit_log WHERE created_at >= $1",
+                since,
+            )
+        return [r["tenant_id"] for r in rows]
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -403,6 +437,14 @@ class InMemoryAuditStore:
 
     async def validate_chain(self, tenant_id: str) -> ChainValidation:
         return _validate_chain_inmem(self._by_tenant.get(tenant_id, []), self._secret)
+
+    async def tenants_with_activity_since(self, since: datetime) -> list[str]:
+        cutoff = since.isoformat()
+        return [
+            tenant_id
+            for tenant_id, bucket in self._by_tenant.items()
+            if any(e.get("created_at", "") >= cutoff for e in bucket)
+        ]
 
 
 # ═══════════════════════════════════════════════════════════════════════════

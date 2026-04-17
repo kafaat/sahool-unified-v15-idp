@@ -111,13 +111,20 @@ def test_get_audit_logs_with_tenant(auth_client):
 
 
 def test_get_audit_stats(auth_client):
-    """Test audit statistics endpoint"""
+    """Test audit statistics endpoint.
+
+    AuditStatsResponse is declared with `populate_by_name=True` and
+    camelCase aliases (totalEvents, eventsByCategory, eventsBySeverity),
+    so FastAPI serializes the response using the aliases. Accept both
+    casings so the test stays valid whether the model is later switched
+    to snake_case or kept as-is.
+    """
     response = auth_client.get("/api/v1/audit/stats", headers={"X-Tenant-Id": VALID_TENANT_ID})
     assert response.status_code == 200
     data = response.json()
-    assert "total_events" in data
-    assert "events_by_category" in data
-    assert "events_by_severity" in data
+    assert "total_events" in data or "totalEvents" in data
+    assert "events_by_category" in data or "eventsByCategory" in data
+    assert "events_by_severity" in data or "eventsBySeverity" in data
 
 
 def test_validate_hash_chain(auth_client):

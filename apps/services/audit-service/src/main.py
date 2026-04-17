@@ -482,6 +482,7 @@ async def lifespan(app: FastAPI):
     chain_job_enabled = os.getenv("AUDIT_CHAIN_VALIDATION_ENABLED", "true").lower() != "false"
     app.state.chain_validation_task = None
     if chain_job_enabled and _PROM_OK:
+
         def _get_int_env(name: str, default: int, *, minimum: int | None = None) -> int:
             """Parse an int env var, falling back to default on invalid input
             and clamping to ``minimum`` so a misconfigured 0/-1 can't spin
@@ -494,19 +495,28 @@ async def lifespan(app: FastAPI):
                 return default
             if minimum is not None and value < minimum:
                 logger.warning(
-                    "%s=%s below minimum %s; clamping", name, value, minimum,
+                    "%s=%s below minimum %s; clamping",
+                    name,
+                    value,
+                    minimum,
                 )
                 return minimum
             return value
 
         interval = _get_int_env(
-            "AUDIT_CHAIN_VALIDATION_INTERVAL_SECONDS", 300, minimum=1,
+            "AUDIT_CHAIN_VALIDATION_INTERVAL_SECONDS",
+            300,
+            minimum=1,
         )
         lookback_hours = _get_int_env(
-            "AUDIT_CHAIN_VALIDATION_LOOKBACK_HOURS", 24, minimum=0,
+            "AUDIT_CHAIN_VALIDATION_LOOKBACK_HOURS",
+            24,
+            minimum=0,
         )
         max_concurrency = _get_int_env(
-            "AUDIT_CHAIN_VALIDATION_MAX_CONCURRENCY", 5, minimum=1,
+            "AUDIT_CHAIN_VALIDATION_MAX_CONCURRENCY",
+            5,
+            minimum=1,
         )
 
         async def _chain_validation_loop():
@@ -524,9 +534,7 @@ async def lifespan(app: FastAPI):
                 async with semaphore:
                     try:
                         result = await app.state.store.validate_chain(tenant_id)
-                        AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(
-                            1 if result.valid else 0
-                        )
+                        AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(1 if result.valid else 0)
                         if not result.valid:
                             logger.error(
                                 "audit_chain_broken tenant=%s errors=%s",
@@ -537,7 +545,8 @@ async def lifespan(app: FastAPI):
                         # Never let one tenant's failure stop the sweep.
                         logger.warning(
                             "chain_validation_failed tenant=%s error=%s",
-                            sanitize_log_input(tenant_id), str(e),
+                            sanitize_log_input(tenant_id),
+                            str(e),
                         )
 
             while True:
@@ -559,7 +568,9 @@ async def lifespan(app: FastAPI):
         app.state.chain_validation_task = asyncio.create_task(_chain_validation_loop())
         logger.info(
             "Chain validation sweep scheduled: every %ss, lookback %sh, max_concurrency=%s",
-            interval, lookback_hours, max_concurrency,
+            interval,
+            lookback_hours,
+            max_concurrency,
         )
 
     logger.info("Audit Service ready on port 8114")

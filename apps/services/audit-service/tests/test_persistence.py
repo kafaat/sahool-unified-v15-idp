@@ -331,34 +331,40 @@ def test_tenants_with_activity_returns_writers_only():
         store = InMemoryAuditStore()
         now = datetime.now(UTC)
 
-        await store.write({
-            "tenant_id": "tenant-active-1",
-            "user_id": "u1",
-            "action": "x",
-            "category": "authentication",
-            "severity": "info",
-            "details": {},
-            "created_at": now.isoformat(),
-        })
-        await store.write({
-            "tenant_id": "tenant-active-2",
-            "user_id": "u2",
-            "action": "y",
-            "category": "authentication",
-            "severity": "info",
-            "details": {},
-            "created_at": now.isoformat(),
-        })
+        await store.write(
+            {
+                "tenant_id": "tenant-active-1",
+                "user_id": "u1",
+                "action": "x",
+                "category": "authentication",
+                "severity": "info",
+                "details": {},
+                "created_at": now.isoformat(),
+            }
+        )
+        await store.write(
+            {
+                "tenant_id": "tenant-active-2",
+                "user_id": "u2",
+                "action": "y",
+                "category": "authentication",
+                "severity": "info",
+                "details": {},
+                "created_at": now.isoformat(),
+            }
+        )
         # Dormant tenant: backdated via the public API, no private access.
-        await store.write({
-            "tenant_id": "tenant-dormant",
-            "user_id": "u3",
-            "action": "z",
-            "category": "authentication",
-            "severity": "info",
-            "details": {},
-            "created_at": (now - timedelta(days=30)).isoformat(),
-        })
+        await store.write(
+            {
+                "tenant_id": "tenant-dormant",
+                "user_id": "u3",
+                "action": "z",
+                "category": "authentication",
+                "severity": "info",
+                "details": {},
+                "created_at": (now - timedelta(days=30)).isoformat(),
+            }
+        )
 
         since = now - timedelta(hours=1)
         return await store.tenants_with_activity_since(since)

@@ -7,12 +7,31 @@ name: Code Review Agent (on label)
 # and is gated behind the `ai-agents` compose profile (not auto-started
 # with `docker compose up`).
 #
-# Trigger model: label-gated pull request. Requires ANTHROPIC_API_KEY repo
-# secret. If the secret is missing, the run exits early with a clear log
-# rather than burning Action minutes or producing a cryptic 401.
+# ─────────────────────────────────────────────────────────────────────────
+# SECURITY MODEL (why pull_request_target + split checkouts)
+# ─────────────────────────────────────────────────────────────────────────
+# `pull_request` would give a malicious PR author arbitrary code execution
+# with ANTHROPIC_API_KEY in scope — modify apps/services/code-review-agent/
+# in the PR, open the PR, and the agent runs their code with the secret.
+# That's CWE-829 in spirit.
+#
+# `pull_request_target` runs workflow code from the BASE ref (trusted),
+# not the PR head. We exploit that by:
+#   1. Installing + building the agent from the base ref (trusted code).
+#   2. Checking out the PR content into a DIFFERENT directory (./pr-tree/)
+#      without running any of its scripts.
+#   3. Pointing the agent at ./pr-tree/ as the review target — the agent
+#      only reads that tree through its Read/Grep/Glob tools; it never
+#      executes it.
+# The secret only crosses trust boundaries in step 1, which uses the
+# base ref's vetted agent code.
+#
+# Still gated by label + explicit author-association check so drive-by
+# forks can't trigger runs. Only org members / collaborators can label a
+# PR to invoke this workflow.
 
 on:
-  pull_request:
+  pull_request_target:
     types: [labeled, synchronize]
 
 permissions:
@@ -29,9 +48,11 @@ concurrency:
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────
-  # Gate: run only when the `agent-review` label is present on the PR.
-  # Checking this in a separate job keeps the expensive review job from
-  # spinning up runners for every commit/label event on every PR.
+  # Gate: run only when the `agent-review` label is present AND the
+  # labelling actor has write access (so a fork author can't self-label
+  # to abuse the ANTHROPIC_API_KEY secret). `pull_request_target`
+  # already restricts to base-ref workflow code, but the label itself
+  # is attacker-controllable on forks so we double-gate.
   # ─────────────────────────────────────────────────────────────────────
   should-run:
     runs-on: ubuntu-latest
@@ -39,21 +60,34 @@ jobs:
     outputs:
       labelled: ${{ steps.check.outputs.labelled }}
     steps:
-      - name: Check for agent-review label
+      - name: Check for agent-review label + actor permissions
         id: check
         env:
           LABELS_JSON: ${{ toJSON(github.event.pull_request.labels) }}
+          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
         run: |
-          # `labels` is a list of {name, ...} objects; we only care about
-          # the names. jq is preinstalled on ubuntu-latest.
           set -euo pipefail
-          if echo "$LABELS_JSON" | jq -e 'map(.name) | index("agent-review")' >/dev/null; then
-            echo "labelled=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::PR is labelled agent-review — code-review-agent will run"
-          else
+          # Label present?
+          if ! echo "$LABELS_JSON" | jq -e 'map(.name) | index("agent-review")' >/dev/null; then
             echo "labelled=false" >> "$GITHUB_OUTPUT"
             echo "::notice::PR is not labelled agent-review — skipping"
+            exit 0
           fi
+
+          # Author association (OWNER / MEMBER / COLLABORATOR means trusted).
+          # CONTRIBUTOR / NONE means external fork — refuse, since
+          # pull_request_target would still hand them access via any
+          # workflow step that references PR-head content.
+          case "$AUTHOR_ASSOCIATION" in
+            OWNER|MEMBER|COLLABORATOR)
+              echo "labelled=true" >> "$GITHUB_OUTPUT"
+              echo "::notice::Trusted PR — code-review-agent will run"
+              ;;
+            *)
+              echo "labelled=false" >> "$GITHUB_OUTPUT"
+              echo "::warning::PR author_association=$AUTHOR_ASSOCIATION is not trusted; refusing to run with ANTHROPIC_API_KEY"
+              ;;
+          esac
 
   review:
     needs: should-run
@@ -63,9 +97,6 @@ jobs:
 
     steps:
       - name: Fail fast if ANTHROPIC_API_KEY is not configured
-        # Don't consume SDK minutes (or produce a confusing 401) if the
-        # repo secret was never provisioned. Exit the job with a clear
-        # message the maintainer can action.
         env:
           KEY_SET: ${{ secrets.ANTHROPIC_API_KEY != '' }}
         run: |
@@ -76,11 +107,34 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout PR head (with full history for diff context)
+      # ─────────────────────────────────────────────────────────────────
+      # Step 1 (TRUSTED): check out the BASE ref's agent code. This is
+      # the code that will be executed with ANTHROPIC_API_KEY in scope.
+      # `ref: github.event.pull_request.base.sha` pins to the exact base
+      # commit so a concurrent force-push to main can't substitute code.
+      # We use the default workspace (`.`) so the agent's node_modules /
+      # dist / src all live at GITHUB_WORKSPACE.
+      # ─────────────────────────────────────────────────────────────────
+      - name: Checkout base-ref agent code (trusted)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 1
+          # Default path (".") — this is the TRUSTED checkout.
+
+      # ─────────────────────────────────────────────────────────────────
+      # Step 2 (UNTRUSTED): check out the PR head into a sandbox dir.
+      # No build, no npm install, no workflow hooks — just files on disk.
+      # The agent is only going to Read/Grep/Glob this tree, never
+      # execute anything from it.
+      # ─────────────────────────────────────────────────────────────────
+      - name: Checkout PR content (untrusted — review target only)
         uses: actions/checkout@v6
         with:
           ref: ${{ github.event.pull_request.head.sha }}
-          fetch-depth: 0   # agent needs history to compare against base
+          fetch-depth: 1
+          path: pr-tree
+          # clean: false is fine — the dir didn't exist before this step.
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -89,23 +143,21 @@ jobs:
           cache: 'npm'
           cache-dependency-path: apps/services/code-review-agent/package-lock.json
 
-      - name: Install code-review-agent dependencies
+      - name: Install code-review-agent dependencies (from trusted ref)
         working-directory: apps/services/code-review-agent
         run: |
           set -euo pipefail
-          # --ignore-scripts: we don't run node-gyp here; mirrors Dockerfile intent.
+          # --ignore-scripts: no node-gyp; mirrors Dockerfile intent.
           # --no-audit / --no-fund: CI quietness.
+          # This runs against the BASE ref's package-lock.json only.
           npm ci --ignore-scripts --no-audit --no-fund
 
-      - name: Build TypeScript
+      - name: Build TypeScript (from trusted ref)
         working-directory: apps/services/code-review-agent
         run: npx tsc
 
-      - name: Run code-review-agent on the PR tree
+      - name: Run code-review-agent against the PR tree (untrusted input)
         id: run_review
-        # continue-on-error lets us still post a comment even if the agent
-        # exits non-zero (timeout, partial review, etc) — the next step
-        # handles the failure surface.
         continue-on-error: true
         working-directory: apps/services/code-review-agent
         env:
@@ -117,11 +169,11 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p /tmp/review-output
-          # The CLI was added in PR #1636: supports --repo, --output,
-          # --format, --model, --max-turns. See apps/services/
-          # code-review-agent/src/cli.ts.
+          # --repo points at the UNTRUSTED pr-tree/ checkout so the agent
+          # reviews the PR content, while the agent binary itself comes
+          # from the TRUSTED base-ref node_modules + dist.
           node dist/production-agent.js \
-            --repo "$GITHUB_WORKSPACE" \
+            --repo "$GITHUB_WORKSPACE/pr-tree" \
             --output /tmp/review-output/review.md \
             --format markdown \
             --model opus
@@ -153,21 +205,19 @@ jobs:
               const header = outcome === 'success'
                 ? '## 🤖 Code Review Agent — Automated Review'
                 : `## 🤖 Code Review Agent — Partial Review (outcome: ${outcome})`;
-              // Cap body at 60 KiB; GitHub comment limit is ~65 KiB and
-              // we need room for the header + footer.
               const MAX = 60 * 1024;
               const truncated = review.length > MAX
                 ? review.slice(0, MAX) + '\n\n…*(truncated — see full report in the `code-review-agent-report` artifact on this workflow run)*'
                 : review;
-              body = `${header}\n\n${truncated}\n\n---\n*Triggered by \`agent-review\` label on commit \`${context.sha.slice(0, 7)}\`. Remove the label to stop re-running on new commits.*`;
+              body = `${header}\n\n${truncated}\n\n---\n*Triggered by \`agent-review\` label on commit \`${context.payload.pull_request.head.sha.slice(0, 7)}\`. Agent built from base ref \`${context.payload.pull_request.base.sha.slice(0, 7)}\` — see workflow security model in \`.github/workflows/code-review-agent.yml\`. Remove the label to stop re-running on new commits.*`;
             } else {
-              body = `## 🤖 Code Review Agent — Run Failed\n\nThe agent exited with outcome \`${outcome}\` and produced no report file.\n\nCheck the [workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}) for details.\n\n---\n*Triggered by \`agent-review\` label on commit \`${context.sha.slice(0, 7)}\`.*`;
+              body = `## 🤖 Code Review Agent — Run Failed\n\nThe agent exited with outcome \`${outcome}\` and produced no report file.\n\nCheck the [workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}) for details.\n\n---\n*Triggered by \`agent-review\` label on commit \`${context.payload.pull_request.head.sha.slice(0, 7)}\`.*`;
             }
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
+              issue_number: context.payload.pull_request.number,
               body,
             });
 
@@ -178,7 +228,8 @@ jobs:
             echo "## Code Review Agent Run"
             echo ""
             echo "- **PR:** #${{ github.event.pull_request.number }}"
-            echo "- **Commit:** ${{ github.event.pull_request.head.sha }}"
+            echo "- **Trusted ref (agent code):** ${{ github.event.pull_request.base.sha }}"
+            echo "- **Review target (PR head):** ${{ github.event.pull_request.head.sha }}"
             echo "- **Outcome:** ${{ steps.run_review.outcome }}"
             echo "- **Model:** opus"
             echo "- **Timeout:** 600s"
@@ -188,7 +239,5 @@ jobs:
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Fail job if agent errored
-        # Surface failure in the check status without blocking the
-        # comment-post step above.
         if: steps.run_review.outcome == 'failure'
         run: exit 1

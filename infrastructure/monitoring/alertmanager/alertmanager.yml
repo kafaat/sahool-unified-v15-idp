@@ -56,6 +56,11 @@ route:
         - category =~ "compliance|security"
         - alertname =~ "Audit.*"
       receiver: 'audit-compliance-team'
+      # Override the top-level group_by so tenant_id and category aren't
+      # averaged across tenants in notifications. The AuditHashChainBroken
+      # rule is per-tenant; grouping across tenants would merge unrelated
+      # tamper events into one alert and hide which tenant is affected.
+      group_by: ['alertname', 'tenant_id', 'category', 'severity']
       group_wait: 30s
       repeat_interval: 1h
       continue: true

@@ -107,25 +107,46 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "sum(audit_chain_valid == 0)",
+          "expr": "sum(audit_chain_valid == bool 0)",
           "legendFormat": "Broken chains",
           "refId": "A"
         }
       ],
       "title": "Broken Chains (must be 0) | سلاسل مكسورة",
+      "description": "Count of tenants whose chain is currently BROKEN. `== bool 0` returns 1-per-matching-series so `sum(...)` is the tenant count. Without the `bool` modifier PromQL would keep the original 0 sample value and always sum to zero.",
       "type": "stat"
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "audit_store_backend current mode. in_memory in prod/staging is a critical misconfiguration — writes are lost on restart.",
+      "description": "audit_store_backend current mode. in_memory in prod/staging is a critical misconfiguration — writes are lost on restart. Colour is driven by which series is firing: the in_memory gauge going to 1 turns the panel red, postgres staying at 1 keeps it green.",
       "fieldConfig": {
         "defaults": {
-          "mappings": [
-            { "options": { "postgres": { "color": "green", "index": 0, "text": "postgres (OK)" } }, "type": "value" },
-            { "options": { "in_memory": { "color": "red", "index": 1, "text": "in_memory (LOSS RISK)" } }, "type": "value" }
-          ],
-          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] }
-        }
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byFrameRefID", "options": "A" },
+            "properties": [
+              { "id": "displayName", "value": "postgres (OK)" },
+              { "id": "color", "value": { "fixedColor": "green", "mode": "fixed" } },
+              { "id": "thresholds", "value": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }
+            ]
+          },
+          {
+            "matcher": { "id": "byFrameRefID", "options": "B" },
+            "properties": [
+              { "id": "displayName", "value": "in_memory (LOSS RISK)" }
+            ]
+          }
+        ]
       },
       "gridPos": { "h": 8, "w": 6, "x": 18, "y": 1 },
       "id": 4,
@@ -135,15 +156,21 @@
         "justifyMode": "center",
         "orientation": "auto",
         "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "textMode": "name"
+        "textMode": "value_and_name"
       },
       "pluginVersion": "10.4.0",
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "audit_store_backend == 1",
-          "legendFormat": "{{kind}}",
+          "expr": "audit_store_backend{kind=\"postgres\"}",
+          "legendFormat": "postgres",
           "refId": "A"
+        },
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "audit_store_backend{kind=\"in_memory\"}",
+          "legendFormat": "in_memory",
+          "refId": "B"
         }
       ],
       "title": "Active Backend | الـ backend النشط",

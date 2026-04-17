@@ -82,8 +82,43 @@ export interface AuditStats {
   top_actions: Array<{ action: string; count: number }>;
 }
 
+// Raw shape returned by audit-service's /audit/logs (snake_case,
+// skip/limit/has_more). We map this to the admin's PaginatedResponse<T>
+// shape (data/meta) so callers and DataTable keep working. Without this
+// mapping the page silently renders empty because `response.data` is
+// undefined on the real backend shape.
+//
+// Request-side note:
+//   We send ONLY the audit-service-native parameter names
+//   (skip/limit/start_date/end_date). No admin-side BFF wraps this
+//   endpoint today; `API_URLS.auditEndpoints.logs` resolves directly
+//   to port 8114 (audit-service). If someone later inserts a BFF,
+//   update the param set HERE — don't double-send page+skip or
+//   from+start_date, because different receivers would interpret
+//   them inconsistently.
+//
+// Response-side fallback:
+//   The `data?: T[]` + `meta?: {...}` branch below is purely
+//   DEFENSIVE against a hypothetical future BFF wrapper that might
+//   rewrap the response. It does NOT imply such a BFF exists today.
+interface AuditServicePaginated<T> {
+  items?: T[];
+  total?: number;
+  skip?: number;
+  limit?: number;
+  has_more?: boolean;
+  // Hypothetical-BFF fallback — see note above. Never set in
+  // production today; kept so a future wrap doesn't break the UI.
+  data?: T[];
+  meta?: { total: number; page: number; limit: number; totalPages: number };
+}
+
 export const auditService = {
-  /** جلب سجلات التدقيق — Fetch audit logs */
+  /** جلب سجلات التدقيق — Fetch audit logs.
+   *  Maps audit-service's {items, total, skip, limit, has_more} shape to
+   *  the admin's {data, meta} shape. audit-service uses skip-based
+   *  pagination, so we translate page→skip for the request and
+   *  total→totalPages for the response. */
   async getAll(
     params?: PaginationParams & {
       action?: string;
@@ -94,26 +129,38 @@ export const auditService = {
       to?: string;
     }
   ): Promise<PaginatedResponse<AuditLog>> {
+    const page = params?.page ?? 1;
+    const limit = params?.limit ?? 20;
     try {
       const qp = new URLSearchParams();
-      if (params?.page) qp.set('page', params.page.toString());
-      if (params?.limit) qp.set('limit', params.limit.toString());
+      // Translate 1-based page → 0-based skip for audit-service.
+      qp.set('skip', String(Math.max(0, (page - 1) * limit)));
+      qp.set('limit', String(limit));
       if (params?.search) qp.set('search', params.search);
       if (params?.action) qp.set('action', params.action);
       if (params?.resource_type) qp.set('resource_type', params.resource_type);
       if (params?.user_id) qp.set('user_id', params.user_id);
       if (params?.status) qp.set('status', params.status);
-      if (params?.from) qp.set('from', params.from);
-      if (params?.to) qp.set('to', params.to);
+      if (params?.from) qp.set('start_date', params.from);
+      if (params?.to) qp.set('end_date', params.to);
       const response = await fetch(
         `${API_URLS.auditEndpoints.logs}?${qp}`,
         fetchDefaults
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json() as PaginatedResponse<AuditLog>;
+      const body = await response.json() as AuditServicePaginated<AuditLog>;
+      // Prefer the real audit-service shape (items/total/has_more); fall
+      // back to the legacy {data, meta} if a future BFF uses it.
+      const data: AuditLog[] = body.items ?? body.data ?? [];
+      const total = body.total ?? body.meta?.total ?? data.length;
+      const totalPages = limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
+      return {
+        data,
+        meta: { total, page, limit, totalPages },
+      };
     } catch (error) {
       logger.error('Failed to load audit logs:', error);
-      return { data: [], meta: { total: 0, page: 1, limit: 20, totalPages: 1 } };
+      return { data: [], meta: { total: 0, page, limit, totalPages: 1 } };
     }
   },
 

@@ -6,11 +6,21 @@
  */
 
 import { useEffect, useState, useCallback } from 'react';
+import Link from 'next/link';
 import { useToast } from '@/components/ui/Toast';
 import Header from '@/components/layout/Header';
 import DataTable from '@/components/ui/DataTable';
 import { formatDate } from '@/lib/utils';
-import { FileText, ClipboardList, AlertTriangle, Users, Search, Download, RefreshCw } from 'lucide-react';
+import {
+  FileText,
+  ClipboardList,
+  AlertTriangle,
+  Users,
+  Search,
+  Download,
+  RefreshCw,
+  History,
+} from 'lucide-react';
 import { logger } from '@/lib/logger';
 import { auditService, downloadCSV, type AuditLog, type AuditStats } from '@/lib/api';
 
@@ -81,6 +91,32 @@ export default function AuditPage() {
       ),
     },
     { key: 'ip_address', header: 'عنوان IP' },
+    {
+      // Per-row deep-link to the Field Audit History timeline.
+      // Rendered only when the row is a field event (resource_type === 'field')
+      // AND we have a resource_id to route to — we never want an empty link
+      // that takes the operator to /audit/fields/undefined.
+      key: 'actions',
+      header: '',
+      className: 'w-24',
+      render: (item: AuditLog) => {
+        if (item.resource_type !== 'field' || !item.resource_id) return null;
+        return (
+          <Link
+            href={`/audit/fields/${encodeURIComponent(item.resource_id)}`}
+            className="inline-flex items-center gap-1 rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300 dark:hover:bg-blue-900/50"
+            title="عرض سجل الحقل — View field history"
+            data-testid={`view-field-history-${item.resource_id}`}
+            // stopPropagation protects against a future onRowClick handler
+            // swallowing the navigation — the link itself still works now.
+            onClick={(e) => e.stopPropagation()}
+          >
+            <History className="w-3 h-3" />
+            السجل
+          </Link>
+        );
+      },
+    },
   ];
 
   return (

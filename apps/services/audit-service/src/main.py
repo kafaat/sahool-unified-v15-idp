@@ -39,6 +39,12 @@ if not SHARED_PATH.exists():
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
 
+# Ensure sibling modules (persistence.py) import cleanly whether we run
+# inside the container (WORKDIR=/app/src) or from a pytest root.
+_SRC_DIR = str(PathLib(__file__).resolve().parent)
+if _SRC_DIR not in sys.path:
+    sys.path.insert(0, _SRC_DIR)
+
 try:
     from config.cors_config import setup_cors_middleware
 except ImportError:
@@ -50,6 +56,51 @@ except ImportError:
 from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
+
+# Local persistence abstraction — decides at boot whether to run against
+# PostgreSQL or fall back to in-memory (tests/CI). See persistence.py.
+from persistence import (
+    AuditStore,
+    apply_migrations,
+    build_store,
+    get_secret,
+)
+
+try:
+    from prometheus_client import (
+        CONTENT_TYPE_LATEST,
+        Counter,
+        Gauge,
+        generate_latest,
+    )
+
+    AUDIT_WRITES_TOTAL = Counter(
+        "audit_writes_total",
+        "Successful audit log writes, by tenant and category.",
+        ["tenant_id", "category"],
+    )
+    AUDIT_WRITE_FAILURES_TOTAL = Counter(
+        "audit_write_failures_total",
+        "Failed audit log writes (exceptions in store.write).",
+        ["tenant_id"],
+    )
+    AUDIT_CHAIN_VALID = Gauge(
+        "audit_chain_valid",
+        "1 when the per-tenant hash chain validates end-to-end; 0 otherwise.",
+        ["tenant_id"],
+    )
+    AUDIT_STORE_BACKEND = Gauge(
+        "audit_store_backend",
+        "1 for the currently active backend; 0 for the inactive one.",
+        ["kind"],
+    )
+    _PROM_OK = True
+except ImportError:  # pragma: no cover - keeps the service importable in minimal envs
+    AUDIT_WRITES_TOTAL = None
+    AUDIT_WRITE_FAILURES_TOTAL = None
+    AUDIT_CHAIN_VALID = None
+    AUDIT_STORE_BACKEND = None
+    _PROM_OK = False
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Logging Configuration
@@ -184,18 +235,20 @@ class PaginatedAuditLogsResponse(BaseModel):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# In-Memory Storage (for CI/testing - production uses shared audit module)
+# Persistent storage
+# Delegates to apps/services/audit-service/src/persistence.py. The service
+# exposes a store on ``app.state.store`` which is either a
+# ``PostgresAuditStore`` (real DB-backed, production) or an
+# ``InMemoryAuditStore`` (test/CI). Every handler reads/writes through it.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Simple in-memory storage for when database is not available
-_audit_logs: dict[str, list[dict]] = {}
 
-
-def _get_logs_for_tenant(tenant_id: str) -> list[dict]:
-    """Get or create log list for tenant."""
-    if tenant_id not in _audit_logs:
-        _audit_logs[tenant_id] = []
-    return _audit_logs[tenant_id]
+async def _get_logs_for_tenant(tenant_id: str) -> list[dict]:
+    """Compat shim — reads the full per-tenant audit history from the
+    currently configured store. Used by endpoints that need to iterate.
+    Performance-sensitive endpoints should call ``app.state.store.query``
+    directly to push filtering down to SQL."""
+    return await app.state.store.all_for_tenant(tenant_id)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -309,6 +362,36 @@ async def lifespan(app: FastAPI):
             logger.error(f"Database connection error: {e}")
             raise
 
+    # Apply migrations + build the persistence store.
+    if app.state.db_pool is not None:
+        try:
+            applied = await apply_migrations(app.state.db_pool)
+            if applied:
+                logger.info(f"Applied audit-service migrations: {applied}")
+            else:
+                logger.info("Audit schema up to date (no pending migrations)")
+        except Exception as e:
+            # Migrations are critical — refuse to serve writes into an
+            # inconsistent schema. In CI/test we tolerate failure because
+            # the DB is optional there.
+            if is_ci_or_test:
+                logger.warning(f"Migration failed in CI/test, falling back to in-memory: {e}")
+                app.state.db_pool = None
+                app.state.db_available = False
+            else:
+                logger.error(f"Audit schema migration failed: {e}")
+                raise
+
+    app.state.store: AuditStore = build_store(app.state.db_pool, secret=get_secret())
+    logger.info(
+        "Audit store ready: backend=%s",
+        type(app.state.store).__name__,
+    )
+    if _PROM_OK:
+        backend_kind = "postgres" if app.state.db_pool is not None else "in_memory"
+        AUDIT_STORE_BACKEND.labels(kind="postgres").set(1 if backend_kind == "postgres" else 0)
+        AUDIT_STORE_BACKEND.labels(kind="in_memory").set(1 if backend_kind == "in_memory" else 0)
+
     # Initialize NATS for event subscription
     try:
         nats_url = os.getenv("NATS_URL")
@@ -338,27 +421,43 @@ async def lifespan(app: FastAPI):
             if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
                 logger.warning("missing_or_invalid_tenant_in_event", subject=getattr(msg, "subject", "unknown"))
                 return
-            if tenant_id not in _audit_logs:
-                _audit_logs[tenant_id] = []
-            _audit_logs[tenant_id].append(
-                {
-                    "id": str(uuid.uuid4()),
-                    "subject": msg.subject,
-                    "action": msg.subject.split(".")[-1] if "." in msg.subject else msg.subject,
-                    "category": msg.subject.split(".")[1] if len(msg.subject.split(".")) > 1 else "system",
-                    "severity": data.get("severity", "info"),
-                    "user_id": data.get("user_id", "system"),
-                    "resource_type": data.get("resource_type"),
-                    "resource_id": data.get("resource_id"),
-                    "tenant_id": tenant_id,
-                    "success": data.get("success", True),
-                    "details": data,
-                    "data": data,
-                    "timestamp": datetime.now(UTC).isoformat(),
-                    "created_at": datetime.now(UTC).isoformat(),
-                }
-            )
-            logger.info(f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}")
+            # Map the NATS subject onto the category check constraint the
+            # DB enforces; unknown subjects fall back to 'system'.
+            parts = msg.subject.split(".")
+            raw_category = parts[1] if len(parts) > 1 else "system"
+            category_map = {
+                "user": "authentication",
+                "field": "field_ops",
+                "alert": "security",
+                "task": "field_ops",
+            }
+            category = category_map.get(raw_category, "system")
+
+            entry = {
+                "tenant_id": tenant_id,
+                "user_id": data.get("user_id", "system"),
+                "action": parts[-1] if len(parts) > 1 else msg.subject,
+                "category": category,
+                "severity": data.get("severity", "info"),
+                "resource_type": data.get("resource_type"),
+                "resource_id": data.get("resource_id"),
+                "success": bool(data.get("success", True)),
+                "details": data,
+            }
+            try:
+                await app.state.store.write(entry)
+                if _PROM_OK:
+                    AUDIT_WRITES_TOTAL.labels(tenant_id=tenant_id, category=category).inc()
+                logger.info(
+                    f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}"
+                )
+            except Exception as e:
+                if _PROM_OK:
+                    AUDIT_WRITE_FAILURES_TOTAL.labels(tenant_id=tenant_id).inc()
+                logger.error(
+                    "audit_write_failed subject=%s tenant=%s error=%s",
+                    msg.subject, sanitize_log_input(tenant_id), str(e),
+                )
 
         audit_subjects = [
             "sahool.user.authenticated",
@@ -410,6 +509,12 @@ app = FastAPI(
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+# Always provide an in-memory store at module import time so tests that
+# construct ``TestClient(app)`` without entering its context (i.e. without
+# triggering the lifespan) can still read/write. The lifespan overrides
+# this with a PostgresAuditStore when DATABASE_URL is configured.
+app.state.store = build_store(None, secret=get_secret())
+
 # CORS
 setup_cors_middleware(app)
 
@@ -460,6 +565,17 @@ def readiness():
     }
 
 
+@app.get("/metrics", tags=["Health"], include_in_schema=False)
+def metrics():
+    """Prometheus scrape endpoint. Consumed by
+    infrastructure/monitoring/prometheus/rules/audit-alerts.yml."""
+    if not _PROM_OK:
+        return {"error": "prometheus_client not installed"}
+    from fastapi.responses import Response
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Audit Log Endpoints
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -486,29 +602,24 @@ async def get_audit_logs(
     جلب سجلات التدقيق مع الفلاتر
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
 
-    # Apply filters
-    filtered = logs
-    if user_id:
-        filtered = [entry for entry in filtered if entry.get("user_id") == user_id]
-    if action:
-        filtered = [entry for entry in filtered if entry.get("action") == action]
-    if category:
-        filtered = [entry for entry in filtered if entry.get("category") == category]
-    if resource_type:
-        filtered = [entry for entry in filtered if entry.get("resource_type") == resource_type]
-    if resource_id:
-        filtered = [entry for entry in filtered if entry.get("resource_id") == resource_id]
-    if success is not None:
-        filtered = [entry for entry in filtered if entry.get("success") == success]
-    if start_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()]
-    if end_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()]
-
-    total = len(filtered)
-    items = filtered[skip : skip + limit]
+    # Push filters + pagination down to the store (SQL in prod, list-comp
+    # in tests). Dramatically faster than pulling every historical row.
+    items, total = await app.state.store.query(
+        tenant_id,
+        filters={
+            "user_id": user_id,
+            "action": action,
+            "category": category,
+            "resource_type": resource_type,
+            "resource_id": resource_id,
+            "success": success,
+            "start_date": start_date.isoformat() if start_date else None,
+            "end_date": end_date.isoformat() if end_date else None,
+        },
+        skip=skip,
+        limit=limit,
+    )
 
     return {
         "items": items,
@@ -539,7 +650,6 @@ async def create_audit_log(
         user_id = user.get("id") or user.get("sub") or "unknown"
 
     log_entry = {
-        "id": str(uuid.uuid4()),
         "tenant_id": tenant_id,
         "user_id": user_id,
         "action": body.action,
@@ -547,25 +657,27 @@ async def create_audit_log(
         "severity": body.severity,
         "resource_type": body.resource_type,
         "resource_id": body.resource_id,
-        "correlation_id": None,
         "ip_address": request.client.host if request.client else None,
         "success": True,
-        "error_code": None,
-        "error_message": None,
-        "details": body.details,
-        "old_value": None,
-        "new_value": None,
-        "created_at": datetime.now(UTC).isoformat(),
+        "details": body.details or {},
     }
 
-    logs = _get_logs_for_tenant(tenant_id)
-    logs.append(log_entry)
+    try:
+        persisted = await app.state.store.write(log_entry)
+    except Exception:
+        if _PROM_OK:
+            AUDIT_WRITE_FAILURES_TOTAL.labels(tenant_id=tenant_id).inc()
+        raise
+
+    if _PROM_OK:
+        AUDIT_WRITES_TOTAL.labels(tenant_id=tenant_id, category=persisted["category"]).inc()
 
     logger.info(
-        f"Audit log created: action={sanitize_log_input(log_entry['action'])} tenant={sanitize_log_input(tenant_id)}"
+        f"Audit log created: action={sanitize_log_input(persisted['action'])} "
+        f"tenant={sanitize_log_input(tenant_id)} seq={persisted.get('seq_num')}"
     )
 
-    return log_entry
+    return persisted
 
 
 @app.get("/api/v1/audit/logs/{log_id}", response_model=AuditLogResponse, tags=["Audit Logs"])
@@ -580,7 +692,7 @@ async def get_audit_log(
     جلب سجل تدقيق محدد
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
     for log in logs:
         if log.get("id") == log_id:
             return log
@@ -602,7 +714,7 @@ async def get_user_audit_trail(
     جلب مسار التدقيق لمستخدم محدد
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
     filtered = [entry for entry in logs if entry.get("user_id") == user_id]
 
     if category:
@@ -642,7 +754,7 @@ async def get_resource_audit_trail(
     جلب مسار التدقيق لمورد محدد
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
     filtered = [
         entry
         for entry in logs
@@ -682,42 +794,37 @@ async def validate_hash_chain(
     التحقق من سلامة سلسلة التجزئة لسجلات التدقيق
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
 
-    # Filter by date range
-    filtered = logs
-    if start_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") >= start_date.isoformat()]
-    if end_date:
-        filtered = [entry for entry in filtered if entry.get("created_at", "") <= end_date.isoformat()]
+    # Delegate to the store's chain validator, which recomputes the
+    # SHA-256 chain (or HMAC when AUDIT_HASH_SECRET is set). Using the
+    # store keeps validation and write logic symmetric — the same code
+    # path that generated the hashes is now used to verify them.
+    result = await app.state.store.validate_chain(tenant_id)
 
-    # Sort by created_at
-    filtered.sort(key=lambda x: x.get("created_at", ""))
+    # Expose the outcome to Prometheus so AuditHashChainBroken can fire.
+    if _PROM_OK:
+        AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(1 if result.valid else 0)
 
-    # Validate chain (simplified for in-memory storage)
-    invalid_entries = []
-    errors = []
-    validated = 0
-    prev_hash = None
-
-    for entry in filtered:
-        entry_hash = entry.get("entry_hash")
-        entry_prev_hash = entry.get("prev_hash")
-
-        if entry_hash:
-            if entry_prev_hash != prev_hash:
-                invalid_entries.append(entry.get("id", "unknown"))
-                errors.append(f"Entry {entry.get('id')}: prev_hash mismatch")
-            else:
-                validated += 1
-            prev_hash = entry_hash
+    # Optional time window — the store currently returns the full chain;
+    # apply the client-supplied window over the raw entries if specified,
+    # but never accept a window that would let the caller "validate" a
+    # tampered section by hiding the break.
+    total_entries = result.total_entries
+    if start_date or end_date:
+        logs = await app.state.store.all_for_tenant(tenant_id)
+        window = [
+            entry for entry in logs
+            if (not start_date or entry.get("created_at", "") >= start_date.isoformat())
+            and (not end_date or entry.get("created_at", "") <= end_date.isoformat())
+        ]
+        total_entries = len(window)
 
     return {
-        "valid": len(invalid_entries) == 0,
-        "total_entries": len(filtered),
-        "validated_entries": validated,
-        "invalid_entries": invalid_entries,
-        "errors": errors,
+        "valid": result.valid,
+        "total_entries": total_entries,
+        "validated_entries": result.total_entries - len(result.errors) if result.valid else 0,
+        "invalid_entries": [err.split()[0] for err in result.errors],  # seq=N prefix
+        "errors": result.errors,
     }
 
 
@@ -729,7 +836,7 @@ async def get_chain_summary(tenant_id: str = Depends(get_tenant_id), _current_us
     جلب ملخص سلسلة التجزئة للمستأجر
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
     entries_with_hash = [entry for entry in logs if entry.get("entry_hash")]
 
     first_entry = min(logs, key=lambda x: x.get("created_at", "")) if logs else None
@@ -765,7 +872,7 @@ async def get_compliance_report(
     إنشاء تقرير الامتثال
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
 
     # Filter by date range
     filtered = [
@@ -841,7 +948,7 @@ async def get_audit_stats(
             status_code=400, detail="Invalid period. Allowed values: 7d, 14d, 30d, 60d, 90d, 180d, 365d"
         )
 
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
 
     # Parse period
     days = int(period.replace("d", ""))
@@ -895,7 +1002,7 @@ async def get_security_events(
     جلب أحداث الأمان الأخيرة
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
     filtered = [entry for entry in logs if entry.get("category") == "security"]
 
     # Sort by created_at descending
@@ -927,7 +1034,7 @@ async def get_failed_logins(
     جلب محاولات تسجيل الدخول الفاشلة
     """
     enforce_tenant_match(tenant_id, _current_user)
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
     cutoff = (datetime.now(UTC) - timedelta(hours=hours)).isoformat()
 
     filtered = [
@@ -969,7 +1076,7 @@ async def export_audit_logs(
     """
     enforce_tenant_match(tenant_id, _current_user)
 
-    logs = _get_logs_for_tenant(tenant_id)
+    logs = await _get_logs_for_tenant(tenant_id)
 
     # Filter by date range
     filtered = [

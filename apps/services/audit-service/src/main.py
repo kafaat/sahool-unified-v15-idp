@@ -53,10 +53,6 @@ except ImportError:
         pass
 
 
-from shared.auth.dependencies import get_current_user
-from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-from shared.middleware.tenant_context import TenantContextMiddleware
-
 # Local persistence abstraction — decides at boot whether to run against
 # PostgreSQL or fall back to in-memory (tests/CI). See persistence.py.
 from persistence import (
@@ -65,6 +61,10 @@ from persistence import (
     build_store,
     get_secret,
 )
+
+from shared.auth.dependencies import get_current_user
+from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.middleware.tenant_context import TenantContextMiddleware
 
 try:
     from prometheus_client import (
@@ -448,15 +448,15 @@ async def lifespan(app: FastAPI):
                 await app.state.store.write(entry)
                 if _PROM_OK:
                     AUDIT_WRITES_TOTAL.labels(tenant_id=tenant_id, category=category).inc()
-                logger.info(
-                    f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}"
-                )
+                logger.info(f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}")
             except Exception as e:
                 if _PROM_OK:
                     AUDIT_WRITE_FAILURES_TOTAL.labels(tenant_id=tenant_id).inc()
                 logger.error(
                     "audit_write_failed subject=%s tenant=%s error=%s",
-                    msg.subject, sanitize_log_input(tenant_id), str(e),
+                    msg.subject,
+                    sanitize_log_input(tenant_id),
+                    str(e),
                 )
 
         audit_subjects = [
@@ -813,7 +813,8 @@ async def validate_hash_chain(
     if start_date or end_date:
         logs = await app.state.store.all_for_tenant(tenant_id)
         window = [
-            entry for entry in logs
+            entry
+            for entry in logs
             if (not start_date or entry.get("created_at", "") >= start_date.isoformat())
             and (not end_date or entry.get("created_at", "") <= end_date.isoformat())
         ]

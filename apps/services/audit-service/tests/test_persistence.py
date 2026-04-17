@@ -12,6 +12,7 @@ same hash-chain and query logic. Both backends share the
 ``compute_entry_hash`` helper, so a passing in-memory test demonstrates
 the hashing is symmetric with validation.
 """
+
 from __future__ import annotations
 
 import os
@@ -246,9 +247,10 @@ def test_validate_chain_detects_tampering():
     that serves CI) to simulate tampering — a legitimate attacker would
     have bypassed the DB triggers that prevent UPDATE in production.
     """
+    import asyncio
+
     from src.main import app
     from src.persistence import InMemoryAuditStore
-    import asyncio
 
     store = InMemoryAuditStore()
 

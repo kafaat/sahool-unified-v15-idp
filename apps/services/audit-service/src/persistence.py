@@ -22,6 +22,7 @@ The store is deliberately async-first, transaction-safe, and has no
 business logic of its own — ``main.py`` is still the single place
 that decides *what* to log.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -185,9 +186,7 @@ class PostgresAuditStore:
                 await self._with_tenant(conn, tenant_id)
 
                 prev_hash_row = await conn.fetchrow(
-                    "SELECT entry_hash FROM audit_log "
-                    "WHERE tenant_id = $1 "
-                    "ORDER BY seq_num DESC LIMIT 1",
+                    "SELECT entry_hash FROM audit_log WHERE tenant_id = $1 ORDER BY seq_num DESC LIMIT 1",
                     tenant_id,
                 )
                 prev_hash = prev_hash_row["entry_hash"] if prev_hash_row else GENESIS_HASH
@@ -197,8 +196,7 @@ class PostgresAuditStore:
                 # we look it up in the same transaction with pg_advisory locks
                 # disabled — a simple sequence peek is sufficient for hashing.
                 next_seq_row = await conn.fetchrow(
-                    "SELECT COALESCE(MAX(seq_num), 0) + 1 AS next_seq "
-                    "FROM audit_log WHERE tenant_id = $1",
+                    "SELECT COALESCE(MAX(seq_num), 0) + 1 AS next_seq FROM audit_log WHERE tenant_id = $1",
                     tenant_id,
                 )
                 entry["seq_num"] = int(next_seq_row["next_seq"])
@@ -279,13 +277,17 @@ class PostgresAuditStore:
                 await self._with_tenant(conn, tenant_id)
                 total_row = await conn.fetchrow(
                     f"SELECT COUNT(*) AS c FROM audit_log WHERE tenant_id = $1{where}",
-                    tenant_id, *extra,
+                    tenant_id,
+                    *extra,
                 )
                 rows = await conn.fetch(
                     f"SELECT * FROM audit_log WHERE tenant_id = $1{where} "
                     f"ORDER BY created_at DESC, seq_num DESC "
                     f"OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}",
-                    tenant_id, *extra, skip, limit,
+                    tenant_id,
+                    *extra,
+                    skip,
+                    limit,
                 )
         return [_row_to_dict(r) for r in rows], int(total_row["c"])
 
@@ -306,9 +308,9 @@ class PostgresAuditStore:
                     await self._with_tenant(conn, tenant_id)
                     return int(
                         await conn.fetchval(
-                            "SELECT COUNT(*) FROM audit_log "
-                            "WHERE tenant_id = $1 AND created_at >= $2",
-                            tenant_id, since,
+                            "SELECT COUNT(*) FROM audit_log WHERE tenant_id = $1 AND created_at >= $2",
+                            tenant_id,
+                            since,
                         )
                     )
             # Tenant-less (platform-wide metric) — bypass RLS with a superuser
@@ -397,12 +399,7 @@ class InMemoryAuditStore:
         cutoff = since.isoformat()
         if tenant_id is not None:
             return sum(1 for e in self._by_tenant.get(tenant_id, []) if e.get("created_at", "") >= cutoff)
-        return sum(
-            1
-            for bucket in self._by_tenant.values()
-            for e in bucket
-            if e.get("created_at", "") >= cutoff
-        )
+        return sum(1 for bucket in self._by_tenant.values() for e in bucket if e.get("created_at", "") >= cutoff)
 
     async def validate_chain(self, tenant_id: str) -> ChainValidation:
         return _validate_chain_inmem(self._by_tenant.get(tenant_id, []), self._secret)
@@ -479,10 +476,7 @@ async def apply_migrations(pool: Any, migrations_dir: str | Path | None = None) 
             "version VARCHAR(64) PRIMARY KEY, "
             "applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW())"
         )
-        already = {
-            r["version"]
-            for r in await conn.fetch("SELECT version FROM audit_service_schema_migrations")
-        }
+        already = {r["version"] for r in await conn.fetch("SELECT version FROM audit_service_schema_migrations")}
         for path in files:
             version = path.stem
             if version in already:

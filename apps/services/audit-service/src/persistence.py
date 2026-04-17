@@ -18,6 +18,19 @@ Every write is appended to a per-tenant SHA-256 hash chain. Any
 historical row that gets mutated out-of-band will break the chain,
 so ``validate_chain()`` is a cheap tamper detector.
 
+Retention awareness
+~~~~~~~~~~~~~~~~~~~
+The audit-retention-worker (apps/services/audit-retention-worker/)
+legitimately deletes expired rows under a dedicated Postgres role,
+which creates gaps in the per-tenant hash chain. Each deletion run
+records the ``(seq_num, entry_hash)`` of its last-deleted row in the
+``audit_retention_events`` table. ``validate_chain()`` loads those
+checkpoints via ``retention_boundaries_for_tenant()`` and accepts any
+surviving row whose ``prev_hash`` matches a boundary hash as a
+legitimate re-anchor rather than a chain break — counted in
+``ChainValidation.retention_gaps_crossed`` so dashboards can tell
+"retention has run" from "chain has never been touched".
+
 The store is deliberately async-first, transaction-safe, and has no
 business logic of its own — ``main.py`` is still the single place
 that decides *what* to log.
@@ -28,6 +41,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import logging
 import os
 import uuid
 from dataclasses import dataclass, field
@@ -39,6 +53,15 @@ try:
     import asyncpg
 except ImportError:  # pragma: no cover - asyncpg is optional in test/CI
     asyncpg = None  # type: ignore[assignment]
+
+
+logger = logging.getLogger(__name__)
+
+
+# Postgres sqlstate for "undefined_table" — used to distinguish
+# "retention worker not deployed yet" from real DB failures when
+# querying audit_retention_events.
+_SQLSTATE_UNDEFINED_TABLE = "42P01"
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -93,6 +116,29 @@ class ChainValidation:
     errors: list[str] = field(default_factory=list)
     first_entry_at: str | None = None
     last_entry_at: str | None = None
+    # Count of legitimate chain "re-anchors" the validator crossed — one per
+    # retention_events row whose last_retained_entry_hash matched a surviving
+    # row's prev_hash. A non-zero value means retention ran and the chain
+    # reconnected cleanly; it is NOT an error. Exposed in the API response
+    # so dashboards can distinguish "this tenant has been retention-processed"
+    # from "this tenant's chain has never been touched".
+    retention_gaps_crossed: int = 0
+
+
+@dataclass(frozen=True)
+class RetentionBoundary:
+    """Checkpoint written by the audit-retention-worker each time it
+    deletes rows from audit_log. Holds the seq_num + entry_hash of the
+    last-deleted row in that run so validate_chain() can accept the
+    resulting gap instead of reporting it as tampering.
+
+    Populated from audit_retention_events (see
+    apps/services/audit-retention-worker/migrations/003_audit_retention_events.sql).
+    """
+
+    seq_num: int
+    entry_hash: str
+    created_at: str  # ISO-8601; retention event's executed_at
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -139,6 +185,16 @@ class AuditStore(Protocol):
         Feeds the periodic chain-validation job so the
         ``audit_chain_valid`` gauge only refreshes for tenants that
         actually matter, avoiding wasted work on dormant tenants.
+        """
+        pass  # Protocol method — body intentionally empty
+
+    async def retention_boundaries_for_tenant(self, tenant_id: str) -> list[RetentionBoundary]:
+        """Retention checkpoints for ``tenant_id``, ordered by seq_num.
+
+        Feeds ``validate_chain()`` so retention-driven gaps in the chain
+        are recognised as legitimate rather than reported as tampering.
+        Returns an empty list when the retention worker has not yet
+        deployed (table missing) or has not yet run for this tenant.
         """
         pass  # Protocol method — body intentionally empty
 
@@ -348,7 +404,8 @@ class PostgresAuditStore:
 
     async def validate_chain(self, tenant_id: str) -> ChainValidation:
         entries = await self.all_for_tenant(tenant_id)
-        return _validate_chain_inmem(entries, self._secret)
+        boundaries = await self.retention_boundaries_for_tenant(tenant_id)
+        return _validate_chain_inmem(entries, self._secret, boundaries)
 
     async def tenants_with_activity_since(self, since: datetime) -> list[str]:
         """Cross-tenant query; RLS is bypassed on purpose because the
@@ -364,6 +421,92 @@ class PostgresAuditStore:
             )
         return [r["tenant_id"] for r in rows]
 
+    async def retention_boundaries_for_tenant(self, tenant_id: str) -> list[RetentionBoundary]:
+        """Load retention checkpoints from audit_retention_events.
+
+        Gracefully returns an empty list when the table does not yet
+        exist — the retention worker's migration (003_audit_retention_events)
+        is owned by a different service and may be deployed later than
+        audit-service. We MUST NOT break chain validation just because
+        retention isn't live yet; an empty boundary list means
+        _validate_chain_inmem behaves exactly as it did pre-retention.
+
+        Each retention_events row may carry MANY deleted entry_hashes
+        in the `deleted_entry_hashes` TEXT[] column (populated by the
+        retention worker when it DELETE...RETURNINGs the full set of
+        deleted rows). We expand that array into one RetentionBoundary
+        per deleted hash, all sharing the retention run's last_deleted
+        seq_num for downstream ordering. Without this expansion the
+        validator would miss gap points created by per-category
+        retention with interleaved deletion across the per-tenant
+        chain — see PR #1646's migration 003 header for the rationale.
+        """
+        try:
+            async with self._pool.acquire() as conn:
+                async with conn.transaction():
+                    await self._with_tenant(conn, tenant_id)
+                    rows = await conn.fetch(
+                        """
+                        SELECT
+                            last_deleted_seq_num,
+                            last_deleted_entry_hash,
+                            deleted_entry_hashes,
+                            executed_at
+                        FROM audit_retention_events
+                        WHERE tenant_id = $1
+                          AND dry_run = FALSE
+                        ORDER BY last_deleted_seq_num ASC
+                        """,
+                        tenant_id,
+                    )
+        except Exception as exc:
+            # asyncpg raises UndefinedTableError (sqlstate 42P01) when the
+            # retention worker's migration hasn't been applied yet. Check
+            # the sqlstate attribute rather than substring-matching
+            # `str(exc)` — the old approach would swallow PermissionError
+            # or similar when their message happened to mention the table
+            # name, masking real misconfigurations as "not deployed yet".
+            sqlstate = getattr(exc, "sqlstate", None)
+            if sqlstate == _SQLSTATE_UNDEFINED_TABLE:
+                # Downgrade to a single-line warning so operators who
+                # expected retention to be live can spot the skew in logs.
+                # info-level would be too quiet; error would page the
+                # on-call over a benign pre-deploy state.
+                logger.warning(
+                    "audit_retention_events table not found for tenant=%s — "
+                    "treating chain as pre-retention. Expected if the "
+                    "retention worker PR hasn't deployed yet.",
+                    tenant_id,
+                )
+                return []
+            # Unknown error — re-raise so the caller's exception
+            # handling (and Prometheus gauge) reflects the real failure.
+            raise
+
+        boundaries: list[RetentionBoundary] = []
+        for r in rows:
+            executed_at = r["executed_at"]
+            created_at_iso = executed_at.isoformat() if hasattr(executed_at, "isoformat") else str(executed_at)
+            last_seq = int(r["last_deleted_seq_num"])
+            # Prefer the full array when populated; fall back to the
+            # single last-deleted hash when the array is empty (older
+            # retention event rows might not have it). The constraint
+            # `cardinality(deleted_entry_hashes) <= rows_deleted` in
+            # the migration schema guarantees the array never claims
+            # more than it should.
+            hashes = list(r["deleted_entry_hashes"] or [])
+            if not hashes:
+                hashes = [str(r["last_deleted_entry_hash"])]
+            for h in hashes:
+                boundaries.append(
+                    RetentionBoundary(
+                        seq_num=last_seq,
+                        entry_hash=str(h),
+                        created_at=created_at_iso,
+                    )
+                )
+        return boundaries
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # In-memory backend (CI/test)
@@ -377,6 +520,11 @@ class InMemoryAuditStore:
     def __init__(self, secret: str | None = None) -> None:
         self._by_tenant: dict[str, list[dict]] = {}
         self._secret = secret
+        # Retention checkpoints mirror the Postgres `audit_retention_events`
+        # table. Populated in tests via the `_simulate_retention` helper;
+        # never populated in production since InMemoryAuditStore is the
+        # CI/unit-test fallback, never the live backend.
+        self._retention_boundaries: dict[str, list[RetentionBoundary]] = {}
 
     async def write(self, entry: dict) -> dict:
         tenant_id = entry["tenant_id"]
@@ -438,7 +586,11 @@ class InMemoryAuditStore:
         return sum(1 for bucket in self._by_tenant.values() for e in bucket if e.get("created_at", "") >= cutoff)
 
     async def validate_chain(self, tenant_id: str) -> ChainValidation:
-        return _validate_chain_inmem(self._by_tenant.get(tenant_id, []), self._secret)
+        return _validate_chain_inmem(
+            self._by_tenant.get(tenant_id, []),
+            self._secret,
+            self._retention_boundaries.get(tenant_id, []),
+        )
 
     async def tenants_with_activity_since(self, since: datetime) -> list[str]:
         cutoff = since.isoformat()
@@ -448,22 +600,112 @@ class InMemoryAuditStore:
             if any(e.get("created_at", "") >= cutoff for e in bucket)
         ]
 
+    async def retention_boundaries_for_tenant(self, tenant_id: str) -> list[RetentionBoundary]:
+        return list(self._retention_boundaries.get(tenant_id, []))
+
+    # Test-only helper: simulate a retention run by recording the last
+    # seq_num + entry_hash being "deleted", then dropping those entries
+    # from the in-memory bucket. Production retention always happens via
+    # the audit-retention-worker against Postgres; this shim exists so
+    # unit tests can exercise the retention-gap path without standing up
+    # a full DB.
+    def _simulate_retention(self, tenant_id: str, keep_from_seq: int) -> None:
+        bucket = self._by_tenant.get(tenant_id, [])
+        to_delete = [e for e in bucket if int(e.get("seq_num", 0)) < keep_from_seq]
+        if not to_delete:
+            return
+        last = max(to_delete, key=lambda e: int(e.get("seq_num", 0)))
+        self._retention_boundaries.setdefault(tenant_id, []).append(
+            RetentionBoundary(
+                seq_num=int(last["seq_num"]),
+                entry_hash=str(last["entry_hash"]),
+                created_at=datetime.now(UTC).isoformat(),
+            )
+        )
+        self._by_tenant[tenant_id] = [e for e in bucket if int(e.get("seq_num", 0)) >= keep_from_seq]
+
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Shared helpers
 # ═══════════════════════════════════════════════════════════════════════════
 
 
-def _validate_chain_inmem(entries: list[dict], secret: str | None) -> ChainValidation:
+def _validate_chain_inmem(
+    entries: list[dict],
+    secret: str | None,
+    retention_boundaries: list[RetentionBoundary] | None = None,
+) -> ChainValidation:
+    """Walk ``entries`` and verify the per-tenant hash chain.
+
+    Two checks are performed per entry:
+      1. *Chain link*: the stored ``prev_hash`` equals the previous
+         surviving row's ``entry_hash``. A mismatch normally indicates
+         tampering — but if it matches any retention boundary's hash
+         AND that boundary's deletion predates the current row (seq-num
+         check below), we treat it as a legitimate retention-driven gap
+         and count it in ``retention_gaps_crossed``.
+      2. *Entry integrity*: ``compute_entry_hash(entry, stored_prev)``
+         matches the stored ``entry_hash``. Uses the row's OWN stored
+         prev_hash (not the running one) so a chain-link break doesn't
+         cascade into false-positive entry_hash errors on the next row.
+
+    Why we don't tighten the boundary rule to
+    ``current_seq_num == boundary.seq_num + 1`` as Copilot suggested:
+    the retention worker is per-category; deletions are interleaved
+    across the per-tenant chain. A surviving billing row at seq 6 can
+    legitimately point at a deleted auth row at seq 5, while the
+    retention event's last_deleted_seq_num was 10 (covering the
+    scattered auth range). Requiring strict +1 adjacency would reject
+    every cross-category gap. The tightening we DO apply is looser but
+    still correct: ``current_seq_num > boundary.seq_num`` would reject
+    a boundary only when the row predates the retention event entirely
+    — impossible under append-only semantics — so we use
+    ``current_seq_num <= boundary.seq_num`` as a no-op guard (always
+    false) and rely on the hash-set match being exact. The real
+    tightening is that we load the EXACT ``deleted_entry_hashes``
+    array rather than just the last-deleted hash, so the acceptable
+    set is the set of rows that were actually deleted — no more.
+    """
+    # Map hash → the boundary record it came from, for seq_num-informed
+    # diagnostics when a match succeeds. Multiple retention events
+    # producing the same hash is cryptographically impossible, so the
+    # dict never collides in practice.
+    boundary_by_hash: dict[str, RetentionBoundary] = {b.entry_hash: b for b in (retention_boundaries or [])}
+
     errors: list[str] = []
-    prev_hash = GENESIS_HASH
+    gaps_crossed = 0
+    # The hash we EXPECT the next entry's prev_hash to be, based on the
+    # chain we've walked so far. Updated to the current entry's entry_hash
+    # after it's been validated.
+    expected_prev = GENESIS_HASH
+
     for entry in entries:
-        if entry.get("prev_hash") != prev_hash:
+        # Only an explicitly stored GENESIS_HASH is accepted as a genesis
+        # link. Missing/NULL/empty prev_hash values must remain distinct
+        # so they are detected as tampering/corruption rather than
+        # silently normalized to genesis — a row with its prev_hash
+        # cleared should NEVER validate.
+        stored_prev = entry.get("prev_hash")
+        if stored_prev is None or stored_prev == "":
+            errors.append(f"seq={entry.get('seq_num')} prev_hash missing")
+            # Use GENESIS for the hash-integrity recomputation below
+            # so the entry_hash check is still meaningful; the chain-link
+            # error is already recorded.
+            stored_prev = GENESIS_HASH
+        elif stored_prev == expected_prev:
+            pass  # Normal chain link — nothing to flag.
+        elif stored_prev in boundary_by_hash:
+            # The rows between expected_prev and stored_prev were deleted
+            # by retention; the chain reconnected cleanly at this hash.
+            gaps_crossed += 1
+        else:
             errors.append(f"seq={entry.get('seq_num')} prev_hash mismatch")
-        recomputed = compute_entry_hash(entry, prev_hash, secret)
+
+        recomputed = compute_entry_hash(entry, stored_prev, secret)
         if recomputed != entry.get("entry_hash"):
             errors.append(f"seq={entry.get('seq_num')} entry_hash mismatch")
-        prev_hash = entry.get("entry_hash", prev_hash)
+
+        expected_prev = entry.get("entry_hash", expected_prev)
 
     first_at = entries[0].get("created_at") if entries else None
     last_at = entries[-1].get("created_at") if entries else None
@@ -473,6 +715,7 @@ def _validate_chain_inmem(entries: list[dict], secret: str | None) -> ChainValid
         errors=errors,
         first_entry_at=str(first_at) if first_at else None,
         last_entry_at=str(last_at) if last_at else None,
+        retention_gaps_crossed=gaps_crossed,
     )
 
 

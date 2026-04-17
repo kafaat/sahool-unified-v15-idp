@@ -54,11 +54,23 @@ export function useFieldAuditTrail(
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Guards against race conditions: when a filter change triggers a reload
-  // while a previous page request is still in flight, we must ignore the
-  // stale response. Incrementing the counter on every (re)fetch-trigger
-  // tags in-flight requests; only the latest tag is allowed to commit.
+  // Two-layer race protection:
+  //   1. requestCounter: filter-change supersedes in-flight responses
+  //      (cross-fetch race). Tagging by counter and committing only the
+  //      latest tag prevents stale responses from clobbering newer state.
+  //   2. inFlightMoreRef: a synchronous lock for the *append* path. React
+  //      state updates are deferred to commit, so two `loadMore()` calls
+  //      that arrive within the same tick (e.g. IntersectionObserver
+  //      firing rapidly during fast scroll) both pass the
+  //      `if (isLoadingMore) return` guard and fire duplicate fetches.
+  //      A useRef set/cleared synchronously closes that window — the
+  //      second call sees the ref already true and bails before it
+  //      can hit the network.
+  //   The initial-load path is one-shot per filter change so a state
+  //   guard there is sufficient — only the append/loadMore path needs
+  //   the synchronous lock.
   const requestCounter = useRef(0);
+  const inFlightMoreRef = useRef(false);
 
   const fetchPage = useCallback(
     async (nextSkip: number, append: boolean) => {
@@ -83,11 +95,13 @@ export function useFieldAuditTrail(
           setIsLoading(false);
           setIsLoadingMore(false);
         }
+        if (append) inFlightMoreRef.current = false;
         return;
       }
 
       if (myTag !== requestCounter.current) {
         // A newer request superseded this one; discard.
+        if (append) inFlightMoreRef.current = false;
         return;
       }
 
@@ -97,19 +111,29 @@ export function useFieldAuditTrail(
       setSkip(nextSkip + page.items.length);
       setIsLoading(false);
       setIsLoadingMore(false);
+      if (append) inFlightMoreRef.current = false;
     },
     [fieldId, filters, pageSize],
   );
 
   useEffect(() => {
-    // Full reset whenever fieldId or filters change.
+    // Full reset whenever fieldId or filters change. Clear the synchronous
+    // lock too — a filter change while an append fetch is in flight should
+    // unblock the next append once the new initial-load completes.
     setEvents([]);
     setSkip(0);
+    inFlightMoreRef.current = false;
     fetchPage(0, false);
   }, [fetchPage]);
 
   const loadMore = useCallback(() => {
+    // Synchronous lock check FIRST — before reading any React state. Two
+    // calls arriving in the same tick will see the same `isLoadingMore`
+    // value (both false) but only one will see `inFlightMoreRef.current`
+    // as false because we set it to true synchronously before fetchPage.
+    if (inFlightMoreRef.current) return;
     if (isLoadingMore || isLoading || !hasMore) return;
+    inFlightMoreRef.current = true;
     fetchPage(skip, true);
   }, [fetchPage, hasMore, isLoading, isLoadingMore, skip]);
 

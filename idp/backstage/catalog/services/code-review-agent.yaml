@@ -24,6 +24,3 @@ spec:
   lifecycle: production
   owner: group:data-team
   system: sahool-platform
-  dependsOn:
-  - resource:redis
-  - resource:nats

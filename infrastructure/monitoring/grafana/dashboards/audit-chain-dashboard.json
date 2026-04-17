@@ -79,7 +79,7 @@
     },
     {
       "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "description": "Tenants whose chain is currently BROKEN. Should always be 0. Non-zero triggers the AuditHashChainBroken critical alert after 2 minutes.",
+      "description": "Count of tenants whose chain is currently BROKEN. Should always be 0. Non-zero triggers the AuditHashChainBroken critical alert after 2 minutes. `== bool 0` returns 1-per-matching-series so `sum(...)` is the tenant count; without the `bool` modifier PromQL would keep the original 0 sample value and always sum to zero.",
       "fieldConfig": {
         "defaults": {
           "color": { "mode": "thresholds" },
@@ -113,7 +113,6 @@
         }
       ],
       "title": "Broken Chains (must be 0) | سلاسل مكسورة",
-      "description": "Count of tenants whose chain is currently BROKEN. `== bool 0` returns 1-per-matching-series so `sum(...)` is the tenant count. Without the `bool` modifier PromQL would keep the original 0 sample value and always sum to zero.",
       "type": "stat"
     },
     {

@@ -49,10 +49,15 @@ concurrency:
 jobs:
   # ─────────────────────────────────────────────────────────────────────
   # Gate: run only when the `agent-review` label is present AND the
-  # labelling actor has write access (so a fork author can't self-label
-  # to abuse the ANTHROPIC_API_KEY secret). `pull_request_target`
-  # already restricts to base-ref workflow code, but the label itself
-  # is attacker-controllable on forks so we double-gate.
+  # ACTOR who triggered this event (applied the label or pushed the
+  # commit) is a repo collaborator. Checking the PR author's
+  # association isn't sufficient — a maintainer might legitimately
+  # label an external contributor's PR, and conversely an internal
+  # author's account could be compromised.
+  #
+  # `pull_request_target` already restricts to base-ref workflow code,
+  # but the label itself is attacker-controllable on forks so we
+  # double-gate on the actor's repo permission (write or higher).
   # ─────────────────────────────────────────────────────────────────────
   should-run:
     runs-on: ubuntu-latest
@@ -60,34 +65,41 @@ jobs:
     outputs:
       labelled: ${{ steps.check.outputs.labelled }}
     steps:
-      - name: Check for agent-review label + actor permissions
+      - name: Check for agent-review label + actor permission
         id: check
-        env:
-          LABELS_JSON: ${{ toJSON(github.event.pull_request.labels) }}
-          AUTHOR_ASSOCIATION: ${{ github.event.pull_request.author_association }}
-        run: |
-          set -euo pipefail
-          # Label present?
-          if ! echo "$LABELS_JSON" | jq -e 'map(.name) | index("agent-review")' >/dev/null; then
-            echo "labelled=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::PR is not labelled agent-review — skipping"
-            exit 0
-          fi
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            // 1. Label must be present.
+            const labels = (context.payload.pull_request.labels || []).map(l => l.name);
+            if (!labels.includes('agent-review')) {
+              core.setOutput('labelled', 'false');
+              core.notice('PR is not labelled agent-review — skipping');
+              return;
+            }
 
-          # Author association (OWNER / MEMBER / COLLABORATOR means trusted).
-          # CONTRIBUTOR / NONE means external fork — refuse, since
-          # pull_request_target would still hand them access via any
-          # workflow step that references PR-head content.
-          case "$AUTHOR_ASSOCIATION" in
-            OWNER|MEMBER|COLLABORATOR)
-              echo "labelled=true" >> "$GITHUB_OUTPUT"
-              echo "::notice::Trusted PR — code-review-agent will run"
-              ;;
-            *)
-              echo "labelled=false" >> "$GITHUB_OUTPUT"
-              echo "::warning::PR author_association=$AUTHOR_ASSOCIATION is not trusted; refusing to run with ANTHROPIC_API_KEY"
-              ;;
-          esac
+            // 2. Actor (who triggered this event) must have write+ permission.
+            //    For `labeled`, context.actor is the person who applied the label.
+            //    For `synchronize`, context.actor is the person who pushed the commit.
+            //    `write` or higher means collaborator / maintainer / admin — roles
+            //    known to the org with a legitimate reason to invoke an AI reviewer.
+            //    Checking author_association instead would block external PRs a
+            //    maintainer legitimately labelled, and doesn't validate the
+            //    person who actually triggered the current run.
+            const actor = context.actor;
+            const { data: perm } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: actor,
+            });
+            const trusted = ['admin', 'maintain', 'write'].includes(perm.permission);
+            core.setOutput('labelled', String(trusted));
+            if (trusted) {
+              core.notice(`Actor ${actor} has permission=${perm.permission}; code-review-agent will run`);
+            } else {
+              core.warning(`Actor ${actor} has permission=${perm.permission}; refusing to run with ANTHROPIC_API_KEY`);
+            }
 
   review:
     needs: should-run
@@ -120,6 +132,10 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           fetch-depth: 1
+          # Don't leave a .git/config credential helper behind — the agent
+          # shouldn't need to push, and a stored token inside the workspace
+          # widens the blast radius if the PR tree ever gets executed.
+          persist-credentials: false
           # Default path (".") — this is the TRUSTED checkout.
 
       # ─────────────────────────────────────────────────────────────────
@@ -134,6 +150,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
           path: pr-tree
+          # Especially important for the untrusted tree — we do NOT want a
+          # write-scoped token sitting inside pr-tree/.git/config where the
+          # PR author could read it if anything in the agent later shells
+          # out into that tree.
+          persist-credentials: false
           # clean: false is fine — the dir didn't exist before this step.
 
       - name: Set up Node.js
@@ -182,7 +203,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: code-review-agent-report-${{ github.event.pull_request.head.sha }}
+          # Stable name so the PR comment's reference to
+          # `code-review-agent-report` resolves against the latest run. The
+          # concurrency group already cancels superseded runs per PR, so
+          # there's no risk of two artifacts from the same PR colliding.
+          name: code-review-agent-report
           path: /tmp/review-output/
           retention-days: 30
           if-no-files-found: warn

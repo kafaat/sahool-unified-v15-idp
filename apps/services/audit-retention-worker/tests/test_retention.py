@@ -229,9 +229,7 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        result = await run_policy_for_tenant(
-            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
-        )
+        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
 
         # Rows older than 90 days: 120, 100 → 2 deletions.
         assert result.rows_deleted == 2
@@ -245,9 +243,7 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="billing", retention_days=1825)
 
-        result = await run_policy_for_tenant(
-            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
-        )
+        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
 
         assert len(conn.events) == 1
         event = conn.events[0]
@@ -278,9 +274,7 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        await run_policy_for_tenant(
-            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
-        )
+        await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
 
         # Billing row aged 120 should still be there.
         billing = [r for r in conn.rows if r.category == "billing"]
@@ -292,9 +286,7 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        result = await run_policy_for_tenant(
-            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
-        )
+        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
 
         assert result.rows_deleted == 0
         assert result.was_noop is True
@@ -311,9 +303,7 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="system", retention_days=90)
 
-        result = await run_policy_for_tenant(
-            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=True
-        )
+        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=True)
 
         assert result.dry_run is True
         assert result.rows_deleted == 2
@@ -331,9 +321,7 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        await run_policy_for_tenant(
-            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
-        )
+        await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
 
         assert conn.session_vars.get("sahool.audit_retention_job") == "on"
 

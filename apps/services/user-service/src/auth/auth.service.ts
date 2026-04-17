@@ -1206,9 +1206,13 @@ SAHOOL - National Agricultural Intelligence Platform
       },
     });
 
-    // Revoke all existing refresh tokens for security
+    // Revoke all existing *active* refresh tokens for security.
+    // Filter on `revoked: false` so the returned count reflects tokens
+    // this call actually flipped — without the filter, already-revoked
+    // rows inflate `sessionsRevoked` in the audit payload and make the
+    // metric misleading for compliance dashboards.
     const revokeResult = await this.prisma.refreshToken.updateMany({
-      where: { userId: user.id },
+      where: { userId: user.id, revoked: false },
       data: { revoked: true },
     });
 

@@ -574,9 +574,7 @@ class InMemoryAuditStore:
                 created_at=datetime.now(UTC).isoformat(),
             )
         )
-        self._by_tenant[tenant_id] = [
-            e for e in bucket if int(e.get("seq_num", 0)) >= keep_from_seq
-        ]
+        self._by_tenant[tenant_id] = [e for e in bucket if int(e.get("seq_num", 0)) >= keep_from_seq]
 
 
 # ═══════════════════════════════════════════════════════════════════════════

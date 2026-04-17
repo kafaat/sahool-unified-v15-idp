@@ -2,8 +2,6 @@
 # Code Review Agent Dockerfile
 # Multi-stage build for optimized production image
 
-# hadolint global ignore=DL3008
-
 # ============================================================================
 # Build Stage
 # ============================================================================
@@ -13,11 +11,10 @@ FROM node:${NODE_VERSION}-bookworm-slim AS builder
 
 WORKDIR /app
 
-# Install build dependencies
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && \
-    apt-get install -y --no-install-recommends python3 make g++ && \
-    rm -rf /var/lib/apt/lists/*
+# No apt packages needed: npm ci runs with --ignore-scripts (no native builds),
+# and no dependency in package-lock.json requires node-gyp at install time
+# (esbuild/fsevents ship prebuilt binaries). If a future dep requires C/C++
+# compilation, re-add python3/make/g++ here with pinned versions.
 
 # Copy package files
 COPY apps/services/code-review-agent/package*.json ./

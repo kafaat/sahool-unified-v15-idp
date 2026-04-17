@@ -1931,28 +1931,16 @@ services:
 
   code-review-agent:
     tier: low
-    slos:
-      availability:
-        target: 99.0%
-        sli: |
-          sum(rate(http_requests_total{service="code-review-agent",code!~"5.."}[5m])) /
-          sum(rate(http_requests_total{service="code-review-agent"}[5m]))
-
-      latency:
-        p50: 1000ms
-        p95: 5000ms
-        p99: 15000ms
-        description: "PR review involves multiple LLM calls"
-        sli: |
-          histogram_quantile(0.95,
-            sum(rate(http_request_duration_seconds_bucket{service="code-review-agent"}[5m])) by (le)
-          )
-
-      error_rate:
-        target: 2.0%
-        sli: |
-          sum(rate(http_requests_total{service="code-review-agent",code=~"5.."}[5m])) /
-          sum(rate(http_requests_total{service="code-review-agent"}[5m]))
+    # NOTE: code-review-agent is a one-shot CLI job (no HTTP server, no
+    # http_requests_total / http_request_duration_seconds emitted). The
+    # previous HTTP-based SLOs always evaluated to NaN and triggered false
+    # "no data" alerts. CLI agents are intentionally NOT covered by the
+    # standard request-rate SLO model — they either succeed (exit 0 + output
+    # file) or fail (non-zero exit). If per-run SLIs are needed in future,
+    # push a `code_review_agent_runs_total{status="success|failure"}` counter
+    # via Prometheus Pushgateway from the agent's final step and add a
+    # run-completion SLO here.
+    slos: {}  # not SLO-monitored; see note above
 
   ai-chat-assistant:
     tier: low

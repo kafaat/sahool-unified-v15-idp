@@ -581,8 +581,16 @@ async def lifespan(app: FastAPI):
         app.state.chain_validation_task.cancel()
         try:
             await app.state.chain_validation_task
-        except (asyncio.CancelledError, Exception):
+        except asyncio.CancelledError:
+            # Expected — we just cancelled it; awaiting the task re-raises
+            # CancelledError so the task transitions to Done cleanly.
             pass
+        except Exception as exc:
+            # The sweep's per-tenant loop already isolates per-tenant
+            # errors; anything escaping to this point is a bug in the
+            # loop body itself. Log but do not re-raise — shutdown must
+            # proceed or the service hangs with a zombie pool.
+            logger.warning("chain_validation_shutdown_error error=%s", str(exc))
     if getattr(app.state, "nc", None):
         await app.state.nc.close()
     if getattr(app.state, "db_pool", None):

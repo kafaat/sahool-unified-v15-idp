@@ -255,10 +255,13 @@ class PostgresAuditStore:
                 values.append(filters[column])
                 clauses.append(f"{column} = ${len(values) + 1}")  # +1: $1 is tenant
 
-        if filters.get("start_date"):
+        # Use `is not None` (parity with the column loop above) — otherwise
+        # a valid ``datetime(1970, 1, 1)`` or an empty-string range bound
+        # could be silently dropped by Python truthiness.
+        if filters.get("start_date") is not None:
             values.append(filters["start_date"])
             clauses.append(f"created_at >= ${len(values) + 1}")
-        if filters.get("end_date"):
+        if filters.get("end_date") is not None:
             values.append(filters["end_date"])
             clauses.append(f"created_at <= ${len(values) + 1}")
 

@@ -992,17 +992,31 @@ class ToolRegistry:
         for cb in self._circuit_breakers.values():
             cb.reset()
 
+    # 64 KiB: big enough to amortise syscall overhead on NVMe, small
+    # enough to keep peak RSS bounded even when many tool runs queue
+    # large inputs (YOLO weights, full repo trees, etc).
+    _HASH_CHUNK_SIZE = 64 * 1024
+
     def _get_cache_key(self, tool_id: str, target: str, extra_args: list[str] | None) -> str:
-        """Generate cache key - توليد مفتاح التخزين المؤقت"""
+        """Generate cache key - توليد مفتاح التخزين المؤقت.
+
+        For file targets, we fingerprint contents incrementally rather
+        than ``f.read()`` — the registry is used by code-review / vision
+        tools that can point at multi-gigabyte files (models, datasets,
+        packed repos), and loading the whole file just to keep an 8-char
+        suffix of the digest would spike RSS unnecessarily.
+        """
         args_str = ":".join(extra_args) if extra_args else ""
         content = f"{tool_id}:{target}:{args_str}"
 
-        # Add file hash if it's a file
+        # Add file hash if it's a file — use chunked reads to bound memory.
         try:
             if os.path.isfile(target):
+                digest = hashlib.sha256()
                 with open(target, "rb") as f:
-                    file_hash = hashlib.sha256(f.read()).hexdigest()[:8]
-                content += f":{file_hash}"
+                    for chunk in iter(lambda: f.read(self._HASH_CHUNK_SIZE), b""):
+                        digest.update(chunk)
+                content += f":{digest.hexdigest()[:8]}"
         except Exception:
             pass
 

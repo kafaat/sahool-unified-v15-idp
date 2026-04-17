@@ -19,6 +19,29 @@
 - **Permission Controls**: Block dangerous commands
   - **التحكم في الأذونات**: حجب الأوامر الخطيرة
 
+## Running as a Docker job | التشغيل كـ Docker job
+
+> **Note:** This agent is a **one-shot CLI job**, not a long-running
+> service. Its Dockerfile CMD (`node dist/production-agent.js`) runs
+> a review, writes output, and exits. Starting it with
+> `docker compose up` would leave a confusing `Exited (0)` container
+> in `docker ps -a`, so it is gated behind the `ai-agents` compose
+> profile — it will not start by default.
+>
+> **ملاحظة:** هذا الوكيل مهمّة CLI تُنفَّذ مرّة واحدة، وليس خدمة
+> طويلة الأمد. لذا مُغلَق خلف الـ profile `ai-agents` ولن يبدأ
+> افتراضيّاً مع بقيّة الخدمات.
+
+```bash
+# One-shot invocation (recommended):
+ANTHROPIC_API_KEY=sk-... \
+  docker compose --profile ai-agents run --rm code-review-agent \
+    -- --repo /app --output /app/review.md
+
+# Pre-build the image without running it:
+docker compose --profile ai-agents build code-review-agent
+```
+
 ## Quick Start | البدء السريع
 
 ```bash

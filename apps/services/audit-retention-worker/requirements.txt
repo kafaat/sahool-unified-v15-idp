@@ -5,9 +5,12 @@
 # Postgres driver (same version family as audit-service).
 asyncpg>=0.29.0,<0.32.0
 
-# Structured JSON logs so the worker's output is queryable in Loki/CloudWatch.
-structlog>=24.0.0,<26.0.0
-
-# Prometheus exposition — the worker emits a small set of metrics via the
-# pushgateway so short-lived CronJob runs can still populate dashboards.
-prometheus-client>=0.19.0,<0.22.0
+# Note on what's intentionally NOT here
+# -------------------------------------
+# structlog — the worker uses stdlib `logging` with a small custom
+#   JSON formatter in main.py. structlog would add transitive deps
+#   for marginal ergonomic gain on a ~300-LOC service.
+# prometheus-client — no Prometheus integration today. A future PR
+#   will add pushgateway support for short-lived CronJob runs;
+#   when that lands, this line gets added in the SAME PR that
+#   imports prometheus_client, not earlier.

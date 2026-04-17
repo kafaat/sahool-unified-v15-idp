@@ -13,10 +13,16 @@
 --   * The retention worker deletes rows from audit_log with the
 --     `audit_retention` role under `SET LOCAL sahool.audit_retention_job=on`
 --     (see migrations 001 + 002).
---   * For each contiguous deletion (per tenant × per category × per run) we
---     insert one row here capturing the seq_num + entry_hash of the last
---     deleted row. A future audit-service PR will teach validate_chain()
---     to consult this table and accept gaps at those exact seq_nums.
+--   * For each (tenant × category × run) we insert one row here that
+--     captures the FULL set of deleted entry_hashes (not just the last
+--     one) so a subsequent chain-validation sweep can recognise every
+--     surviving row whose prev_hash points at a deleted predecessor as
+--     a legitimate retention gap — not tampering. Recording only the
+--     newest deleted hash would be insufficient: per-category retention
+--     with DIFFERENT retention_days (the realistic config — auth 90d,
+--     billing 1825d) produces non-contiguous deletions interleaved
+--     within the per-tenant chain, so multiple surviving rows can
+--     point at separate deleted predecessors from the same run.
 --   * This table is itself append-only; an attacker that can forge
 --     retention events could hide a DELETE — so we apply the same
 --     append-only triggers as audit_log and require SELECT-only access
@@ -24,44 +30,67 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 
 CREATE TABLE IF NOT EXISTS audit_retention_events (
-    id                        UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
-    tenant_id                 VARCHAR(100) NOT NULL,
+    id                         UUID         PRIMARY KEY DEFAULT uuid_generate_v4(),
+    tenant_id                  VARCHAR(100) NOT NULL,
 
     -- What was deleted
-    -- last_retained_seq_num is the highest seq_num within this tenant that
-    -- was removed by this run. After retention, the first surviving row has
-    -- seq_num > last_retained_seq_num (typically +1, or +N across a gap if
-    -- the category filter excluded interleaved rows).
-    last_retained_seq_num     BIGINT       NOT NULL,
-    last_retained_entry_hash  VARCHAR(64)  NOT NULL,
-    rows_deleted              BIGINT       NOT NULL,
+    -- last_deleted_seq_num is the highest seq_num within this tenant that
+    -- was REMOVED by this run (semantic: the last row NOT retained, i.e.
+    -- the newest of the deleted rows). After retention, the first
+    -- surviving row has seq_num > last_deleted_seq_num.
+    last_deleted_seq_num       BIGINT       NOT NULL,
+    last_deleted_entry_hash    VARCHAR(64)  NOT NULL,
+    rows_deleted               BIGINT       NOT NULL,
+    -- Every deleted row's entry_hash, in seq_num ascending order.
+    -- validate_chain()'s retention-awareness walks this union across all
+    -- retention events for the tenant and treats any surviving
+    -- prev_hash match as a legitimate gap. Stored as TEXT[] rather than
+    -- a child table to keep a single-row transaction contract — one
+    -- retention event = one atomic write. See README for storage
+    -- sizing; SHA-256 hexes at ~10k rows/day amount to ~230MB/year
+    -- per busy tenant before any compaction.
+    deleted_entry_hashes       TEXT[]       NOT NULL DEFAULT ARRAY[]::TEXT[],
 
     -- Policy context
-    category_filter           VARCHAR(50),  -- NULL = all categories
-    retention_days            INT          NOT NULL,
-    cutoff_timestamp          TIMESTAMPTZ  NOT NULL,
+    category_filter            VARCHAR(50),  -- NULL = all categories
+    retention_days             INT          NOT NULL,
+    cutoff_timestamp           TIMESTAMPTZ  NOT NULL,
 
     -- Optional archive reference; set iff the deleted rows were written to
     -- object storage before DELETE. NULL means the rows were hard-deleted
     -- with no archive.
-    archive_location          TEXT,
-    archive_sha256            VARCHAR(64),
+    archive_location           TEXT,
+    archive_sha256             VARCHAR(64),
 
     -- Operational metadata
-    executed_at               TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
-    executed_by               VARCHAR(100) NOT NULL DEFAULT 'audit-retention-worker',
-    dry_run                   BOOLEAN      NOT NULL DEFAULT FALSE,
+    executed_at                TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    executed_by                VARCHAR(100) NOT NULL DEFAULT 'audit-retention-worker',
+    dry_run                    BOOLEAN      NOT NULL DEFAULT FALSE,
 
     CONSTRAINT chk_retention_days_positive CHECK (retention_days > 0),
     CONSTRAINT chk_rows_deleted_nonneg      CHECK (rows_deleted >= 0),
-    CONSTRAINT chk_retention_hash_length    CHECK (char_length(last_retained_entry_hash) = 64)
+    CONSTRAINT chk_deleted_hash_length      CHECK (char_length(last_deleted_entry_hash) = 64),
+    -- The hash array must be consistent with the row count. We can't
+    -- exactly enforce equality (rare cases where a hash is unavailable)
+    -- but we can at least enforce "no more than we claim we deleted".
+    CONSTRAINT chk_hash_array_bounds        CHECK (
+        cardinality(deleted_entry_hashes) <= rows_deleted
+    )
 );
 
 CREATE INDEX IF NOT EXISTS idx_retention_events_tenant_seq
-    ON audit_retention_events (tenant_id, last_retained_seq_num);
+    ON audit_retention_events (tenant_id, last_deleted_seq_num);
 
 CREATE INDEX IF NOT EXISTS idx_retention_events_executed_at
     ON audit_retention_events (executed_at DESC);
+
+-- GIN index on the hash array — lets validate_chain lookup a candidate
+-- prev_hash in O(log n) across every retention event for the tenant
+-- rather than scanning every array linearly. Optional: costs ~extra
+-- 1x the array size to maintain; worth it on any tenant with > ~10k
+-- accumulated retention events.
+CREATE INDEX IF NOT EXISTS idx_retention_events_deleted_hashes
+    ON audit_retention_events USING GIN (deleted_entry_hashes);
 
 -- ───────────────────────────────────────────────────────────────────────────
 -- Append-only enforcement — same pattern as audit_log.

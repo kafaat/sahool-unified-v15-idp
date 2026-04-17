@@ -23,9 +23,11 @@ Exit codes:
 * 2 — runtime error (DB unreachable, trigger not bypassed, etc.).
 
 Designed for a Kubernetes CronJob: one process per scheduled run,
-exits when the sweep finishes. Metrics are pushed to the platform's
-Prometheus pushgateway if ``PUSHGATEWAY_URL`` is set, otherwise the
-run's summary is only visible in logs.
+exits when the sweep finishes. Output is structured JSON to stderr —
+Kubernetes' log collector (Loki / CloudWatch / Stackdriver) picks up
+the fields as searchable labels. A Prometheus-pushgateway integration
+for short-lived CronJob metrics is a documented follow-up (see README
+§ "Follow-ups"); today the sweep summary is only visible in logs.
 """
 
 from __future__ import annotations

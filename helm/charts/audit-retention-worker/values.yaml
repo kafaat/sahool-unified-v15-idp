@@ -16,13 +16,15 @@ environment: development
 deploymentSlot: primary
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Schedule — nightly at 03:00 Asia/Riyadh. Kubernetes evaluates cron in
-# the cluster timezone, so the actual trigger depends on cluster config;
-# a timeZone field (K8s 1.27+) is provided below so the schedule is
-# locale-stable across clusters.
+# Schedule — nightly at 03:00. Kubernetes evaluates cron in the CLUSTER's
+# timezone unless CronJob.spec.timeZone is set. The timeZone field is
+# only supported on Kubernetes 1.27+; older API servers reject the
+# field with an "unknown field" validation error. Default it to empty
+# so this chart installs cleanly on older clusters, and let operators
+# opt in by overriding .Values.timeZone to e.g. "Asia/Riyadh" on 1.27+.
 # ─────────────────────────────────────────────────────────────────────────────
 schedule: "0 3 * * *"
-timeZone: "Asia/Riyadh"
+timeZone: ""
 
 # Don't stack runs. If the worker is still running when the next trigger
 # fires, skip the new run rather than queuing or running concurrently —

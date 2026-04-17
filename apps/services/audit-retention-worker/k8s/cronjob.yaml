@@ -43,6 +43,15 @@ spec:
             runAsUser: 1000
             runAsGroup: 1000
             fsGroup: 1000
+          # Writable scratch dirs. readOnlyRootFilesystem: true below
+          # makes /tmp and /.cache writes fail without these emptyDir
+          # mounts (asyncpg + Python's tempfile both need tmp; pip/TLS
+          # caches need /.cache).
+          volumes:
+            - name: tmp
+              emptyDir: {}
+            - name: cache
+              emptyDir: {}
           containers:
             - name: worker
               image: ghcr.io/kafaat/sahool/audit-retention-worker:16.0.0
@@ -52,6 +61,11 @@ spec:
                 readOnlyRootFilesystem: true
                 capabilities:
                   drop: ["ALL"]
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+                - name: cache
+                  mountPath: /.cache
               env:
                 - name: AUDIT_RETENTION_DATABASE_URL
                   valueFrom:

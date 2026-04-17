@@ -17,7 +17,7 @@ from typing import Any
 
 import pytest
 from src.policies import RetentionPolicy
-from src.retention import _parse_delete_tag, run_policy_for_tenant, run_sweep
+from src.retention import run_policy_for_tenant, run_sweep
 
 # ═════════════════════════════════════════════════════════════════════════
 # Minimal asyncpg fake — enough surface for the worker to run against.
@@ -66,13 +66,14 @@ class FakeConn:
     real DB would reject.
     """
 
-    def __init__(self, rows: list[FakeRow]) -> None:
+    def __init__(self, rows: list[FakeRow], bypassrls: bool | None = True) -> None:
         self.rows = rows
         self.events: list[dict[str, Any]] = []
         self.executed: list[str] = []
         self.tx_depth = 0
         self.rolled_back = False
         self.session_vars: dict[str, Any] = {}
+        self._bypassrls = bypassrls
 
     def transaction(self) -> FakeTransaction:
         return FakeTransaction(self)
@@ -86,20 +87,8 @@ class FakeConn:
             return "SET"
 
         if normalised.startswith("SELECT set_config"):
-            # set_config when called via execute (no result expected).
             self.session_vars["app.current_tenant_id"] = args[0]
             return "SELECT 1"
-
-        if normalised.startswith("DELETE FROM audit_log"):
-            tenant_id, category, cutoff = args
-            before = len(self.rows)
-            self.rows = [
-                r
-                for r in self.rows
-                if not (r.tenant_id == tenant_id and r.category == category and r.created_at < cutoff)
-            ]
-            deleted = before - len(self.rows)
-            return f"DELETE {deleted}"
 
         if normalised.startswith("INSERT INTO audit_retention_events"):
             (
@@ -107,6 +96,7 @@ class FakeConn:
                 last_seq_num,
                 last_hash,
                 rows_deleted,
+                deleted_hashes,
                 category,
                 retention_days,
                 cutoff,
@@ -115,9 +105,10 @@ class FakeConn:
             self.events.append(
                 {
                     "tenant_id": tenant_id,
-                    "last_retained_seq_num": last_seq_num,
-                    "last_retained_entry_hash": last_hash,
+                    "last_deleted_seq_num": last_seq_num,
+                    "last_deleted_entry_hash": last_hash,
                     "rows_deleted": rows_deleted,
+                    "deleted_entry_hashes": list(deleted_hashes),
                     "category_filter": category,
                     "retention_days": retention_days,
                     "cutoff_timestamp": cutoff,
@@ -133,18 +124,7 @@ class FakeConn:
         normalised = " ".join(query.split())
 
         if normalised.startswith("SELECT set_config"):
-            # set_config is a scalar expression; fake returns empty row.
             return _Row({"set_config": str(args[0])})
-
-        if normalised.startswith("SELECT seq_num, entry_hash FROM audit_log"):
-            tenant_id, category, cutoff = args
-            candidates = [
-                r for r in self.rows if r.tenant_id == tenant_id and r.category == category and r.created_at < cutoff
-            ]
-            if not candidates:
-                return None
-            newest = max(candidates, key=lambda r: r.seq_num)
-            return _Row({"seq_num": newest.seq_num, "entry_hash": newest.entry_hash})
 
         if normalised.startswith("SELECT COUNT(*) AS n FROM audit_log"):
             tenant_id, category, cutoff = args
@@ -153,14 +133,39 @@ class FakeConn:
             )
             return _Row({"n": n})
 
+        if normalised.startswith("SELECT rolbypassrls"):
+            if self._bypassrls is None:
+                return None
+            return _Row({"rolbypassrls": self._bypassrls})
+
         raise AssertionError(f"Unexpected fetchrow(): {normalised!r}")
 
     async def fetch(self, query: str, *args: Any) -> list[_Row]:
         self.executed.append(query)
         normalised = " ".join(query.split())
+
         if normalised == "SELECT DISTINCT tenant_id FROM audit_log":
             uniq = sorted({r.tenant_id for r in self.rows})
             return [_Row({"tenant_id": t}) for t in uniq]
+
+        if normalised.startswith("DELETE FROM audit_log"):
+            # DELETE ... RETURNING seq_num, entry_hash — emulate by
+            # partitioning out the matching rows and returning them.
+            tenant_id, category, cutoff = args
+            kept: list[FakeRow] = []
+            deleted: list[FakeRow] = []
+            for r in self.rows:
+                if r.tenant_id == tenant_id and r.category == category and r.created_at < cutoff:
+                    deleted.append(r)
+                else:
+                    kept.append(r)
+            self.rows = kept
+            # Real Postgres returns rows in the order they were deleted —
+            # for our purposes any order works since the worker sorts
+            # them by seq_num. Keep it stable for test assertions.
+            deleted.sort(key=lambda r: r.seq_num)
+            return [_Row({"seq_num": r.seq_num, "entry_hash": r.entry_hash}) for r in deleted]
+
         raise AssertionError(f"Unexpected fetch(): {normalised!r}")
 
 
@@ -224,7 +229,9 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
+        result = await run_policy_for_tenant(
+            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
+        )
 
         # Rows older than 90 days: 120, 100 → 2 deletions.
         assert result.rows_deleted == 2
@@ -233,25 +240,34 @@ class TestRunPolicyForTenant:
         assert remaining_ages == [5, 30, 80]
 
     @pytest.mark.asyncio
-    async def test_records_retention_event_for_deletions(self) -> None:
+    async def test_records_event_with_all_deleted_hashes(self) -> None:
         rows = _rows_for("t1", "billing", ages_days=[2000, 1900, 500])
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="billing", retention_days=1825)
 
-        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
+        result = await run_policy_for_tenant(
+            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
+        )
 
         assert len(conn.events) == 1
         event = conn.events[0]
-        # Oldest-first seq_nums were 1,2,3. The ones OLDER than cutoff are
-        # 1 and 2 (ages 2000 and 1900). The highest seq_num being deleted
-        # is 2, so that's the last_retained checkpoint.
-        assert event["last_retained_seq_num"] == 2
-        assert event["last_retained_entry_hash"].startswith("hash-t1-0002")
+        # Rows aged 2000 and 1900 deleted (seq 1 and 2).
+        assert event["last_deleted_seq_num"] == 2
+        assert event["last_deleted_entry_hash"].startswith("hash-t1-0002")
         assert event["rows_deleted"] == 2
+        # The critical invariant for retention-aware chain validation:
+        # every deleted hash must appear in deleted_entry_hashes so
+        # validate_chain() can recognise any prev_hash match as legitimate.
+        assert len(event["deleted_entry_hashes"]) == 2
+        assert all(h.startswith("hash-t1-") for h in event["deleted_entry_hashes"])
+        # Order matches the DELETE ... RETURNING sort (seq_num ascending).
+        assert event["deleted_entry_hashes"][0].startswith("hash-t1-0001")
+        assert event["deleted_entry_hashes"][1].startswith("hash-t1-0002")
         assert event["category_filter"] == "billing"
         assert event["retention_days"] == 1825
         assert event["dry_run"] is False
-        assert result.rows_deleted == 2
+        # Result surfaces the full hash list too.
+        assert result.deleted_entry_hashes == event["deleted_entry_hashes"]
 
     @pytest.mark.asyncio
     async def test_category_filter_leaves_other_categories_untouched(self) -> None:
@@ -262,7 +278,9 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
+        await run_policy_for_tenant(
+            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
+        )
 
         # Billing row aged 120 should still be there.
         billing = [r for r in conn.rows if r.category == "billing"]
@@ -274,13 +292,16 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
+        result = await run_policy_for_tenant(
+            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
+        )
 
         assert result.rows_deleted == 0
         assert result.was_noop is True
         # No-ops must NOT create retention_events rows.
         assert conn.events == []
-        assert result.last_retained_seq_num is None
+        assert result.last_deleted_seq_num is None
+        assert result.deleted_entry_hashes == []
 
     @pytest.mark.asyncio
     async def test_dry_run_deletes_nothing_but_reports_what_would_be_deleted(
@@ -290,13 +311,16 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="system", retention_days=90)
 
-        result = await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=True)
+        result = await run_policy_for_tenant(
+            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=True
+        )
 
         assert result.dry_run is True
         assert result.rows_deleted == 2
-        # Crucially: rows + events unchanged.
+        # Crucially: rows + events unchanged, no hashes recorded.
         assert len(conn.rows) == 3
         assert conn.events == []
+        assert result.deleted_entry_hashes == []
 
     @pytest.mark.asyncio
     async def test_sets_retention_session_variable(self) -> None:
@@ -307,7 +331,9 @@ class TestRunPolicyForTenant:
         conn = FakeConn(rows)
         policy = RetentionPolicy(category="authentication", retention_days=90)
 
-        await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
+        await run_policy_for_tenant(
+            conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False
+        )
 
         assert conn.session_vars.get("sahool.audit_retention_job") == "on"
 
@@ -330,18 +356,30 @@ class TestRunSweep:
         # Each (tenant × policy) produces one RetentionRunResult.
         assert len(summary.runs) == 2
 
+    @pytest.mark.asyncio
+    async def test_raises_on_zero_tenants_without_bypassrls(self) -> None:
+        """If policies are configured but list_tenants returns empty AND
+        the current role lacks BYPASSRLS, we've almost certainly got an
+        RLS misconfiguration and the sweep would silently delete nothing.
+        Fail loud instead."""
+        conn = FakeConn(rows=[], bypassrls=False)
+        pool = FakePool(conn)
+        policies = [RetentionPolicy(category="authentication", retention_days=90)]
 
-class TestParseDeleteTag:
-    def test_parses_well_formed_tag(self) -> None:
-        assert _parse_delete_tag("DELETE 42") == 42
+        with pytest.raises(RuntimeError, match="BYPASSRLS"):
+            await run_sweep(pool, policies, now=NOW)
 
-    def test_zero_rows(self) -> None:
-        assert _parse_delete_tag("DELETE 0") == 0
+    @pytest.mark.asyncio
+    async def test_empty_tenants_with_bypassrls_is_ok(self) -> None:
+        """Legitimate empty audit_log — BYPASSRLS is set, no rows exist.
+        Logs a warning but doesn't raise."""
+        conn = FakeConn(rows=[], bypassrls=True)
+        pool = FakePool(conn)
+        policies = [RetentionPolicy(category="authentication", retention_days=90)]
 
-    def test_unrecognised_returns_zero_not_crash(self) -> None:
-        """We'd rather under-report than crash the CronJob on an oddity."""
-        assert _parse_delete_tag("weird") == 0
-        assert _parse_delete_tag("") == 0
+        summary = await run_sweep(pool, policies, now=NOW)
+        assert summary.total_deleted == 0
+        assert summary.runs == []
 
 
 # pytest-asyncio hook: treat all coroutine tests as asyncio-driven without

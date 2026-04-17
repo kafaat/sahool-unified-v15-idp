@@ -25,6 +25,11 @@ spec:
             {{- include "audit-retention-worker.selectorLabels" . | nindent 12 }}
         spec:
           serviceAccountName: {{ include "audit-retention-worker.serviceAccountName" . }}
+          # Defence in depth: even if `serviceAccount.create=false` is
+          # overridden and a pre-existing SA is used that DOES mount its
+          # token, the pod spec wins. The worker never needs the in-pod
+          # kube API token — all its I/O is Postgres.
+          automountServiceAccountToken: false
           restartPolicy: Never
           {{- with .Values.imagePullSecrets }}
           imagePullSecrets:
@@ -32,12 +37,27 @@ spec:
           {{- end }}
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          # Writable scratch dirs. With `readOnlyRootFilesystem: true`
+          # below, libraries that write to /tmp (asyncpg's tempfile
+          # usage, Python's tempfile module) or /.cache (pip-vendored
+          # wheels, TLS ca cache) fail without these emptyDir mounts.
+          # Matches the pattern used by audit-service's helm chart.
+          volumes:
+            - name: tmp
+              emptyDir: {}
+            - name: cache
+              emptyDir: {}
           containers:
             - name: worker
               image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
               imagePullPolicy: {{ .Values.image.pullPolicy }}
               securityContext:
                 {{- toYaml .Values.securityContext | nindent 16 }}
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+                - name: cache
+                  mountPath: /.cache
               {{- if .Values.retention.dryRun }}
               args: ["--dry-run"]
               {{- end }}

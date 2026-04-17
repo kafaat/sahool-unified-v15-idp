@@ -144,3 +144,100 @@ test.describe('Field Audit History — static rendering with mocked backend', ()
     await expect(page.getByTestId('replay-view')).toBeVisible();
   });
 });
+
+// ─────────────────────────────────────────────────────────────────────────
+// Deep-link from the general audit page.
+// Separate describe block so it can intercept a different backend URL
+// (the LOGS list) without interfering with the trail-mocking setup above.
+// ─────────────────────────────────────────────────────────────────────────
+
+const FIELD_ROW_ID = 'fld-deeplink-0001';
+const NON_FIELD_ROW_ID = 'usr-42';
+
+const GENERAL_AUDIT_FIXTURE = {
+  data: [
+    {
+      id: 'log-1',
+      timestamp: '2026-04-17T10:05:00Z',
+      user_id: 'usr_admin',
+      user_email: 'admin@sahool.io',
+      action: 'update',
+      resource_type: 'field',
+      resource_id: FIELD_ROW_ID,
+      ip_address: '10.0.0.1',
+      details: {},
+      status: 'success' as const,
+    },
+    {
+      id: 'log-2',
+      timestamp: '2026-04-17T10:00:00Z',
+      user_id: 'usr_admin',
+      user_email: 'admin@sahool.io',
+      action: 'update',
+      resource_type: 'user',
+      resource_id: NON_FIELD_ROW_ID,
+      ip_address: '10.0.0.1',
+      details: {},
+      status: 'success' as const,
+    },
+  ],
+  meta: { total: 2, page: 1, limit: 20, totalPages: 1 },
+};
+
+test.describe('General /audit page → deep-link to per-field history', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.route(
+      (url) => url.pathname.endsWith('/audit/logs'),
+      (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify(GENERAL_AUDIT_FIXTURE),
+        }),
+    );
+    await page.route(
+      (url) => url.pathname.endsWith('/audit/stats'),
+      (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({
+            total_logs: 2,
+            actions_today: 2,
+            unique_users: 1,
+            failure_rate: 0,
+            top_actions: [],
+          }),
+        }),
+    );
+  });
+
+  test('renders View-history link only for field rows', async ({ page }) => {
+    await page.goto('/audit', { waitUntil: 'networkidle' });
+    if (page.url().includes('/login')) {
+      test.skip(true, 'admin requires auth in this environment');
+    }
+
+    // Field row has the link.
+    await expect(
+      page.getByTestId(`view-field-history-${FIELD_ROW_ID}`),
+    ).toBeVisible();
+    // User row does NOT (the render returns null for non-field rows).
+    await expect(
+      page.getByTestId(`view-field-history-${NON_FIELD_ROW_ID}`),
+    ).toHaveCount(0);
+  });
+
+  test('clicking the link navigates to /audit/fields/[id]', async ({ page }) => {
+    await page.goto('/audit', { waitUntil: 'networkidle' });
+    if (page.url().includes('/login')) {
+      test.skip(true, 'admin requires auth in this environment');
+    }
+
+    const link = page.getByTestId(`view-field-history-${FIELD_ROW_ID}`);
+    await expect(link).toHaveAttribute(
+      'href',
+      `/audit/fields/${FIELD_ROW_ID}`,
+    );
+  });
+});

@@ -460,14 +460,41 @@ async def lifespan(app: FastAPI):
                     str(e),
                 )
 
+        # NATS subjects the audit-service captures. Every producer on
+        # the platform that represents a compliance-relevant action
+        # should emit one of these. Adding a subject here requires the
+        # producer to respect the envelope shape expected by
+        # handle_event (top-level or nested tenant_id/tenantId).
         audit_subjects = [
+            # User lifecycle
             "sahool.user.authenticated",
+            # Field CRUD
             "sahool.field.created",
             "sahool.field.updated",
             "sahool.field.deleted",
+            # Alerts + tasks
             "sahool.alert.triggered",
             "sahool.task.created",
             "sahool.task.completed",
+            # Billing — billing-core publishes these already
+            # (see apps/services/billing-core/src/main.py publish_event
+            # call sites). Without the subscription below, every
+            # invoice/payment/subscription event bypassed the audit
+            # trail entirely.
+            "sahool.billing.invoice_generated",
+            "sahool.billing.invoice_overdue",
+            "sahool.billing.subscription.created",
+            "sahool.billing.subscription.updated",
+            "sahool.billing.subscription.plan_changed",
+            "sahool.billing.subscription.upgraded",
+            "sahool.billing.subscription.past_due",
+            "sahool.billing.subscription.trial_expired",
+            "sahool.billing.payment.created",
+            "sahool.billing.payment.completed",
+            "sahool.billing.payment.succeeded",
+            "sahool.billing.payment.failed",
+            "sahool.billing.payment.refunded",
+            "sahool.billing.quota.exceeded",
         ]
         for subject in audit_subjects:
             await app.state.nc.subscribe(subject, cb=handle_event)

@@ -411,20 +411,58 @@ async def lifespan(app: FastAPI):
     # Subscribe to platform events for audit logging
     if app.state.nc:
 
+        # Subject → canonical action name expected by downstream query
+        # endpoints (e.g. /audit/failed-logins filters by action="auth.login.failed").
+        # When a subject has no entry here, the action defaults to the
+        # trailing dot-segment (backwards-compatible with legacy events).
+        SUBJECT_ACTION_MAP = {
+            "sahool.user.authenticated": "auth.login.success",
+            "sahool.user.login_failed": "auth.login.failed",
+            "sahool.user.logged_out": "auth.logout",
+            "sahool.user.logged_out_all": "auth.logout_all",
+            "sahool.user.account_locked": "auth.account_locked",
+            "sahool.user.password_changed": "auth.password_changed",
+        }
+
         async def handle_event(msg):
             try:
                 data = json.loads(msg.data.decode())
             except (json.JSONDecodeError, UnicodeDecodeError):
                 logger.warning("invalid_nats_message", subject=getattr(msg, "subject", "unknown"))
                 return
-            tenant_id = data.get("tenant_id")
+
+            # Envelopes come in two flavours across the platform:
+            #   * Node.js typed publishers (@sahool/shared-events): tenantId at
+            #     root, payload nested under ``payload``.
+            #   * Legacy Python publishers: tenant_id flat at root.
+            # Accept both so a single handler covers every producer.
+            payload = data.get("payload") if isinstance(data.get("payload"), dict) else data
+            tenant_id = (
+                data.get("tenant_id")
+                or data.get("tenantId")
+                or payload.get("tenant_id")
+                or payload.get("tenantId")
+            )
             if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
-                logger.warning("missing_or_invalid_tenant_in_event", subject=getattr(msg, "subject", "unknown"))
+                logger.warning(
+                    "missing_or_invalid_tenant_in_event subject=%s",
+                    getattr(msg, "subject", "unknown"),
+                )
                 return
-            # Map the NATS subject onto the category check constraint the
-            # DB enforces; unknown subjects fall back to 'system'.
-            parts = msg.subject.split(".")
-            raw_category = parts[1] if len(parts) > 1 else "system"
+
+            # Phase 2a — subject → canonical action for endpoint filters
+            # (e.g. /audit/failed-logins searches action="auth.login.failed").
+            # Fallback: last dot-segment, backwards-compatible with legacy
+            # events that predate SUBJECT_ACTION_MAP.
+            subject = msg.subject
+            action = SUBJECT_ACTION_MAP.get(
+                subject,
+                subject.split(".")[-1] if "." in subject else subject,
+            )
+            # Map the domain slice of the subject onto the canonical audit
+            # category enforced by Phase 1's DB check constraint. Unknown
+            # subjects fall back to 'system'.
+            raw_category = subject.split(".")[1] if len(subject.split(".")) > 1 else "system"
             category_map = {
                 "user": "authentication",
                 "field": "field_ops",
@@ -433,37 +471,53 @@ async def lifespan(app: FastAPI):
             }
             category = category_map.get(raw_category, "system")
 
+            # Build the entry and persist via the store (Phase 1).
+            # Accept payload fields in both Node (camelCase, nested under
+            # ``payload``) and Python (snake_case, flat at root) envelope
+            # flavours so producers on either runtime are captured.
             entry = {
                 "tenant_id": tenant_id,
-                "user_id": data.get("user_id", "system"),
-                "action": parts[-1] if len(parts) > 1 else msg.subject,
+                "user_id": payload.get("userId") or payload.get("user_id") or data.get("user_id") or "system",
+                "action": action,
                 "category": category,
-                "severity": data.get("severity", "info"),
-                "resource_type": data.get("resource_type"),
-                "resource_id": data.get("resource_id"),
-                "success": bool(data.get("success", True)),
-                "details": data,
+                "severity": payload.get("severity") or data.get("severity") or "info",
+                "resource_type": payload.get("resource_type") or payload.get("resourceType"),
+                "resource_id": payload.get("resource_id") or payload.get("resourceId"),
+                "success": bool(payload.get("success", data.get("success", True))),
+                "ip_address": payload.get("ipAddress") or payload.get("ip_address"),
+                "details": payload,
             }
             try:
                 await app.state.store.write(entry)
                 if _PROM_OK:
                     AUDIT_WRITES_TOTAL.labels(tenant_id=tenant_id, category=category).inc()
-                logger.info(f"Audit event captured: {msg.subject} for tenant {sanitize_log_input(tenant_id)}")
+                logger.info(
+                    "audit_event_captured subject=%s action=%s tenant=%s",
+                    subject, action, sanitize_log_input(tenant_id),
+                )
             except Exception as e:
                 if _PROM_OK:
                     AUDIT_WRITE_FAILURES_TOTAL.labels(tenant_id=tenant_id).inc()
                 logger.error(
                     "audit_write_failed subject=%s tenant=%s error=%s",
-                    msg.subject,
+                    subject,
                     sanitize_log_input(tenant_id),
                     str(e),
                 )
 
         audit_subjects = [
+            # User lifecycle
             "sahool.user.authenticated",
+            "sahool.user.login_failed",
+            "sahool.user.logged_out",
+            "sahool.user.logged_out_all",
+            "sahool.user.account_locked",
+            "sahool.user.password_changed",
+            # Field CRUD
             "sahool.field.created",
             "sahool.field.updated",
             "sahool.field.deleted",
+            # Alerts + tasks
             "sahool.alert.triggered",
             "sahool.task.created",
             "sahool.task.completed",

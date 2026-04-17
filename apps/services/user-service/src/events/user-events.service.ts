@@ -32,6 +32,17 @@ const SAHOOL_USER_ROLE_CHANGED = "sahool.user.role_changed" as const;
 const SAHOOL_USER_DELETED = "sahool.user.deleted" as const;
 const SAHOOL_USER_STATUS_CHANGED = "sahool.user.status_changed" as const;
 
+// Auth lifecycle subjects — consumed by audit-service for compliance trail.
+// Kept in lockstep with apps/services/audit-service/src/main.py NATS
+// subscriptions. Adding a new subject here requires adding it to the
+// audit-service handler's subject→action map, or failed-logins /
+// security-events endpoints will miss the events.
+const SAHOOL_USER_AUTHENTICATED = "sahool.user.authenticated" as const;
+const SAHOOL_USER_LOGIN_FAILED = "sahool.user.login_failed" as const;
+const SAHOOL_USER_LOGGED_OUT = "sahool.user.logged_out" as const;
+const SAHOOL_USER_LOGGED_OUT_ALL = "sahool.user.logged_out_all" as const;
+const SAHOOL_USER_ACCOUNT_LOCKED = "sahool.user.account_locked" as const;
+
 @Injectable()
 export class UserEventsService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(UserEventsService.name);
@@ -184,6 +195,124 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
       userId: params.userId,
       hardDelete: params.hardDelete,
       deletedAt: new Date().toISOString(),
+    });
+  }
+
+  // ── Auth lifecycle (compliance audit trail) ───────────────────────
+
+  /**
+   * Publish a successful login. audit-service maps this to
+   * action="auth.login.success", category="authentication".
+   */
+  async publishUserAuthenticated(params: {
+    tenantId: string;
+    userId: string;
+    identifier: string; // email or phone, already sanitised
+    ipAddress?: string;
+    userAgent?: string;
+    correlationId?: string;
+  }): Promise<void> {
+    await this.rawPublish(SAHOOL_USER_AUTHENTICATED, params.tenantId, {
+      userId: params.userId,
+      identifier: params.identifier,
+      ipAddress: params.ipAddress,
+      userAgent: params.userAgent,
+      correlationId: params.correlationId,
+      success: true,
+      authenticatedAt: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Publish a failed login. Carries `reason` so downstream can distinguish
+   * "wrong password" from "account locked" from "user not found" without
+   * leaking whether the account exists (audit-service stores the reason
+   * but never echoes it back to an unauthenticated caller).
+   */
+  async publishUserLoginFailed(params: {
+    tenantId?: string; // unknown when the user doesn't exist
+    userId?: string; // unknown when the user doesn't exist
+    identifier: string;
+    reason:
+      | "user_not_found"
+      | "invalid_password"
+      | "account_locked"
+      | "account_inactive"
+      | "email_unverified";
+    attemptsRemaining?: number;
+    ipAddress?: string;
+    userAgent?: string;
+  }): Promise<void> {
+    // For "user_not_found" we still publish, but under the catch-all
+    // tenant 'unknown' so the event is never silently dropped —
+    // compliance teams want visibility on probe attacks.
+    const tenantId = params.tenantId || "00000000-0000-0000-0000-000000000000";
+    await this.rawPublish(SAHOOL_USER_LOGIN_FAILED, tenantId, {
+      userId: params.userId,
+      identifier: params.identifier,
+      reason: params.reason,
+      attemptsRemaining: params.attemptsRemaining,
+      ipAddress: params.ipAddress,
+      userAgent: params.userAgent,
+      success: false,
+      severity: params.reason === "account_locked" ? "warning" : "info",
+      failedAt: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Publish a logout event (single session).
+   */
+  async publishUserLoggedOut(params: {
+    tenantId: string;
+    userId: string;
+    jti?: string; // truncated JWT id for correlation
+    ipAddress?: string;
+  }): Promise<void> {
+    await this.rawPublish(SAHOOL_USER_LOGGED_OUT, params.tenantId, {
+      userId: params.userId,
+      jti: params.jti,
+      ipAddress: params.ipAddress,
+      loggedOutAt: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Publish a "logout from all devices" event — elevated severity
+   * because it usually follows a credential-compromise suspicion.
+   */
+  async publishUserLoggedOutAll(params: {
+    tenantId: string;
+    userId: string;
+  }): Promise<void> {
+    await this.rawPublish(SAHOOL_USER_LOGGED_OUT_ALL, params.tenantId, {
+      userId: params.userId,
+      severity: "warning",
+      loggedOutAt: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Publish an account-locked event triggered by repeated failed logins.
+   * Separate from ``login_failed`` so admin dashboards can surface the
+   * state transition without scanning the whole failure history.
+   */
+  async publishUserAccountLocked(params: {
+    tenantId: string;
+    userId: string;
+    reason: "max_failed_attempts";
+    lockoutMinutes: number;
+    identifier?: string;
+    ipAddress?: string;
+  }): Promise<void> {
+    await this.rawPublish(SAHOOL_USER_ACCOUNT_LOCKED, params.tenantId, {
+      userId: params.userId,
+      identifier: params.identifier,
+      reason: params.reason,
+      lockoutMinutes: params.lockoutMinutes,
+      ipAddress: params.ipAddress,
+      severity: "warning",
+      lockedAt: new Date().toISOString(),
     });
   }
 

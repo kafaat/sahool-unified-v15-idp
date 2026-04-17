@@ -334,7 +334,14 @@ export class AuthController {
     // Use a hash or masked email for correlation if needed in production logging system
     this.logger.log(`Login attempt from IP: ${ip}`);
 
-    return this.authService.login(loginDto);
+    // Carry request context into the auth event stream. audit-service
+    // uses ipAddress + userAgent for its failed-logins + security-events
+    // endpoints; without them those panels show blanks.
+    return this.authService.login(loginDto, {
+      ipAddress: ip,
+      userAgent: request.headers["user-agent"],
+      correlationId: (request.headers["x-request-id"] as string | undefined) ?? undefined,
+    });
   }
 
   /**
@@ -658,7 +665,7 @@ export class AuthController {
       throw new UnauthorizedException("User not found in request");
     }
 
-    await this.authService.logoutAll(user.id);
+    await this.authService.logoutAll(user.id, user.tenantId);
 
     return {
       success: true,

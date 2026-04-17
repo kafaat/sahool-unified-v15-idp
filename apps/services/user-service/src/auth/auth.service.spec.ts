@@ -16,6 +16,7 @@ import * as bcrypt from "bcryptjs";
 import { AuthService, LoginDto, JwtPayload } from "./auth.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { RedisTokenRevocationStore } from "../utils/token-revocation";
+import { UserEventsService } from "../events/user-events.service";
 import { UserStatus } from "../utils/validation";
 
 describe("AuthService", () => {
@@ -23,6 +24,7 @@ describe("AuthService", () => {
   let prismaService: any;
   let jwtService: jest.Mocked<JwtService>;
   let revocationStore: jest.Mocked<RedisTokenRevocationStore>;
+  let userEvents: jest.Mocked<UserEventsService>;
 
   // Mock data
   const mockUserId = "user-123";
@@ -120,6 +122,20 @@ describe("AuthService", () => {
       isTokenRevoked: jest.fn(),
     };
 
+    // Audit event publisher — records every publish call so tests can
+    // assert the compliance trail is being emitted. Each method is a
+    // mocked async no-op so the fire-and-forget `void …publish…(…)`
+    // pattern resolves cleanly.
+    const mockUserEvents: jest.Mocked<Partial<UserEventsService>> = {
+      publishUserCreated: jest.fn().mockResolvedValue(undefined),
+      publishUserUpdated: jest.fn().mockResolvedValue(undefined),
+      publishUserAuthenticated: jest.fn().mockResolvedValue(undefined),
+      publishUserLoginFailed: jest.fn().mockResolvedValue(undefined),
+      publishUserLoggedOut: jest.fn().mockResolvedValue(undefined),
+      publishUserLoggedOutAll: jest.fn().mockResolvedValue(undefined),
+      publishUserAccountLocked: jest.fn().mockResolvedValue(undefined),
+    } as any;
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -135,6 +151,10 @@ describe("AuthService", () => {
           provide: RedisTokenRevocationStore,
           useValue: mockRevocationStore,
         },
+        {
+          provide: UserEventsService,
+          useValue: mockUserEvents,
+        },
       ],
     }).compile();
 
@@ -142,6 +162,7 @@ describe("AuthService", () => {
     prismaService = module.get(PrismaService);
     jwtService = module.get(JwtService);
     revocationStore = module.get(RedisTokenRevocationStore);
+    userEvents = module.get(UserEventsService) as jest.Mocked<UserEventsService>;
   });
 
   afterEach(() => {
@@ -356,6 +377,122 @@ describe("AuthService", () => {
       await expect(service.logoutAll(mockUserId)).rejects.toThrow(
         "Logout from all devices failed",
       );
+    });
+  });
+
+  // ── Audit events (Phase 2a — compliance trail) ─────────────────────
+  //
+  // These tests guarantee that every auth-related code path publishes
+  // exactly one audit NATS event with the right shape. The events land
+  // in audit-service which persists them to the audit_log table
+  // (see apps/services/audit-service/src/persistence.py). A regression
+  // here means compliance data stops flowing.
+  describe("audit events", () => {
+    const ctx = { ipAddress: "10.0.0.1", userAgent: "unit-test/1.0" };
+
+    beforeEach(() => {
+      jwtService.sign
+        .mockReturnValue(mockAccessToken);
+      prismaService.user.update.mockResolvedValue(mockUser);
+      prismaService.refreshToken.create.mockResolvedValue(mockRefreshTokenRecord);
+    });
+
+    it("publishes UserAuthenticated on successful login", async () => {
+      jest.spyOn(bcrypt, "compare").mockResolvedValue(true as never);
+      prismaService.user.findUnique.mockResolvedValue(mockUser);
+
+      await service.login({ email: mockEmail, password: mockPassword }, ctx);
+
+      expect(userEvents.publishUserAuthenticated).toHaveBeenCalledTimes(1);
+      expect(userEvents.publishUserAuthenticated).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId: mockTenantId,
+          userId: mockUserId,
+          ipAddress: ctx.ipAddress,
+          userAgent: ctx.userAgent,
+        }),
+      );
+      expect(userEvents.publishUserLoginFailed).not.toHaveBeenCalled();
+    });
+
+    it("publishes UserLoginFailed with reason=user_not_found when user does not exist", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.login({ email: "ghost@example.com", password: "x" }, ctx),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(userEvents.publishUserLoginFailed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: "user_not_found",
+          identifier: "ghost@example.com",
+          ipAddress: ctx.ipAddress,
+        }),
+      );
+      expect(userEvents.publishUserAuthenticated).not.toHaveBeenCalled();
+    });
+
+    it("publishes UserLoginFailed with reason=invalid_password on wrong password", async () => {
+      jest.spyOn(bcrypt, "compare").mockResolvedValue(false as never);
+      prismaService.user.findUnique.mockResolvedValue({
+        ...mockUser,
+        failedLoginAttempts: 0,
+        lockedUntil: null,
+      });
+
+      await expect(
+        service.login({ email: mockEmail, password: "bad" }, ctx),
+      ).rejects.toThrow(UnauthorizedException);
+
+      expect(userEvents.publishUserLoginFailed).toHaveBeenCalledWith(
+        expect.objectContaining({
+          reason: "invalid_password",
+          userId: mockUserId,
+          tenantId: mockTenantId,
+        }),
+      );
+    });
+
+    it("publishes UserLoggedOut when the single-session logout revokes successfully", async () => {
+      const payload: JwtPayload = {
+        sub: mockUserId,
+        email: mockEmail,
+        roles: ["VIEWER"],
+        tid: mockTenantId,
+        jti: mockJti,
+        type: "access",
+        exp: Math.floor(Date.now() / 1000) + 3600,
+      };
+      jwtService.decode.mockReturnValue(payload as any);
+      revocationStore.revokeToken.mockResolvedValue(true);
+
+      await service.logout("mock.jwt.token", mockUserId);
+
+      expect(userEvents.publishUserLoggedOut).toHaveBeenCalledWith(
+        expect.objectContaining({ tenantId: mockTenantId, userId: mockUserId }),
+      );
+    });
+
+    it("publishes UserLoggedOutAll when the revoke-all path succeeds with a tenantId", async () => {
+      revocationStore.revokeAllUserTokens.mockResolvedValue(true);
+
+      await service.logoutAll(mockUserId, mockTenantId);
+
+      expect(userEvents.publishUserLoggedOutAll).toHaveBeenCalledWith(
+        expect.objectContaining({ userId: mockUserId, tenantId: mockTenantId }),
+      );
+    });
+
+    it("does not fail the login flow if an audit publish rejects", async () => {
+      jest.spyOn(bcrypt, "compare").mockResolvedValue(true as never);
+      prismaService.user.findUnique.mockResolvedValue(mockUser);
+      (userEvents.publishUserAuthenticated as jest.Mock).mockRejectedValueOnce(
+        new Error("NATS down"),
+      );
+
+      await expect(
+        service.login({ email: mockEmail, password: mockPassword }, ctx),
+      ).resolves.toMatchObject({ access_token: mockAccessToken });
     });
   });
 

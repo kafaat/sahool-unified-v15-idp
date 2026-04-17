@@ -139,8 +139,12 @@ export class AuthService {
    * User login with account lockout protection
    * تسجيل دخول المستخدم مع حماية قفل الحساب
    */
-  async login(loginDto: LoginDto): Promise<TokenResponse> {
+  async login(
+    loginDto: LoginDto,
+    context?: { ipAddress?: string; userAgent?: string; correlationId?: string },
+  ): Promise<TokenResponse> {
     const { password } = loginDto;
+    const ctx = context ?? {};
 
     // Find user by email or phone
     let user;
@@ -152,16 +156,24 @@ export class AuthService {
       user = await this.prisma.user.findFirst({ where: { phone } });
     }
 
+    const rawIdentifier = loginDto.email || loginDto.phone || (user?.email ?? "unknown");
+
     if (!user) {
-      const identifier = loginDto.email || loginDto.phone || 'unknown';
       this.logger.warn(
         `Login attempt failed: User not found`,
-        { identifier: this.sanitizeForLog(identifier) },
+        { identifier: this.sanitizeForLog(rawIdentifier) },
       );
+      // Emit failed login — downstream audit still records the probe.
+      void this.userEvents?.publishUserLoginFailed({
+        identifier: this.sanitizeForLog(rawIdentifier),
+        reason: "user_not_found",
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      });
       throw new UnauthorizedException("Invalid email or password");
     }
 
-    const identifier = loginDto.email || loginDto.phone || user.email;
+    const identifier = rawIdentifier;
 
     // Check if account is locked
     const lockoutStatus = await this.checkAccountLockout(user.id);
@@ -170,6 +182,14 @@ export class AuthService {
         `Login attempt blocked: Account is locked`,
         { identifier: this.sanitizeForLog(identifier), remainingMinutes: lockoutStatus.remainingMinutes },
       );
+      void this.userEvents?.publishUserLoginFailed({
+        tenantId: user.tenantId,
+        userId: user.id,
+        identifier: this.sanitizeForLog(identifier),
+        reason: "account_locked",
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      });
       throw new UnauthorizedException(
         `Account is temporarily locked due to too many failed login attempts. Please try again in ${lockoutStatus.remainingMinutes} minutes.`,
       );
@@ -196,7 +216,26 @@ export class AuthService {
         },
       );
 
+      void this.userEvents?.publishUserLoginFailed({
+        tenantId: user.tenantId,
+        userId: user.id,
+        identifier: this.sanitizeForLog(identifier),
+        reason: "invalid_password",
+        attemptsRemaining: lockResult.attemptsRemaining,
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      });
+
       if (lockResult.isNowLocked) {
+        // Emit the state-transition event so dashboards can alert.
+        void this.userEvents?.publishUserAccountLocked({
+          tenantId: user.tenantId,
+          userId: user.id,
+          identifier: this.sanitizeForLog(identifier),
+          reason: "max_failed_attempts",
+          lockoutMinutes: LOCKOUT_CONFIG.LOCKOUT_DURATION_MINUTES,
+          ipAddress: ctx.ipAddress,
+        });
         throw new UnauthorizedException(
           `Account has been locked due to too many failed login attempts. Please try again in ${LOCKOUT_CONFIG.LOCKOUT_DURATION_MINUTES} minutes or reset your password.`,
         );
@@ -215,6 +254,14 @@ export class AuthService {
         `Login attempt failed: User status is ${user.status}`,
         { identifier: this.sanitizeForLog(identifier) },
       );
+      void this.userEvents?.publishUserLoginFailed({
+        tenantId: user.tenantId,
+        userId: user.id,
+        identifier: this.sanitizeForLog(identifier),
+        reason: "account_inactive",
+        ipAddress: ctx.ipAddress,
+        userAgent: ctx.userAgent,
+      });
       throw new UnauthorizedException(
         'Account is not available. Please contact support.',
       );
@@ -245,6 +292,16 @@ export class AuthService {
     this.logger.log(`User logged in successfully`, {
       userId: user.id,
       identifier: this.sanitizeForLog(identifier),
+    });
+
+    // Fire-and-forget audit event — downstream audit-service persists it.
+    void this.userEvents?.publishUserAuthenticated({
+      tenantId: user.tenantId,
+      userId: user.id,
+      identifier: this.sanitizeForLog(identifier),
+      ipAddress: ctx.ipAddress,
+      userAgent: ctx.userAgent,
+      correlationId: ctx.correlationId,
     });
 
     return {
@@ -380,6 +437,13 @@ export class AuthService {
         this.logger.log(
           `User logged out successfully: ${userId} (jti: ${payload.jti.substring(0, 8)}...)`,
         );
+        if (payload.tid) {
+          void this.userEvents?.publishUserLoggedOut({
+            tenantId: payload.tid,
+            userId,
+            jti: payload.jti.substring(0, 8),
+          });
+        }
       } else {
         this.logger.error(`Failed to revoke token for user: ${userId}`);
         throw new Error("Failed to revoke token");
@@ -401,7 +465,7 @@ export class AuthService {
    *
    * @param userId - The user ID
    */
-  async logoutAll(userId: string): Promise<void> {
+  async logoutAll(userId: string, tenantId?: string): Promise<void> {
     try {
       const success = await this.revocationStore.revokeAllUserTokens(
         userId,
@@ -410,6 +474,12 @@ export class AuthService {
 
       if (success) {
         this.logger.log(`User logged out from all devices: ${userId}`);
+        if (tenantId) {
+          void this.userEvents?.publishUserLoggedOutAll({
+            tenantId,
+            userId,
+          });
+        }
       } else {
         this.logger.error(`Failed to revoke all tokens for user: ${userId}`);
         throw new Error("Failed to revoke all tokens");

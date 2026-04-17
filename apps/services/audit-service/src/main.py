@@ -522,7 +522,10 @@ async def lifespan(app: FastAPI):
         # the platform that represents a compliance-relevant action
         # should emit one of these. Adding a subject here requires the
         # producer to respect the envelope shape expected by
-        # handle_event (top-level or nested tenant_id/tenantId).
+        # handle_event (top-level or nested tenant_id/tenantId). See
+        # apps/services/field-management-service/src/events/
+        # field-events.service.ts for the typed publisher on the Node
+        # side and apps/services/billing-core/src/main.py for Python.
         audit_subjects = [
             # User lifecycle
             "sahool.user.authenticated",
@@ -531,10 +534,21 @@ async def lifespan(app: FastAPI):
             "sahool.user.logged_out_all",
             "sahool.user.account_locked",
             "sahool.user.password_changed",
-            # Field CRUD
+            # Field CRUD + boundary (GlobalGAP-critical change events)
             "sahool.field.created",
             "sahool.field.updated",
             "sahool.field.deleted",
+            "sahool.field.boundary.changed",
+            # Crop seasons — traceability mandate under IFA v6
+            "sahool.field.crop_season.started",
+            "sahool.field.crop_season.updated",
+            "sahool.field.crop_season.ended",
+            "sahool.field.crop_season.deleted",
+            # Field operations (spraying / irrigation / harvest etc.)
+            # — directly regulated by pesticide compliance (PHI/REI)
+            "sahool.field.operation.recorded",
+            "sahool.field.operation.updated",
+            "sahool.field.operation.deleted",
             # Alerts + tasks
             "sahool.alert.triggered",
             "sahool.task.created",

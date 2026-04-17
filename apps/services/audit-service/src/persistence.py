@@ -105,7 +105,7 @@ class AuditStore(Protocol):
 
     async def write(self, entry: dict) -> dict:
         """Persist ``entry``; return it with id/seq_num/hashes filled in."""
-        ...
+        pass  # Protocol method — body intentionally empty
 
     async def query(
         self,
@@ -116,22 +116,22 @@ class AuditStore(Protocol):
         limit: int = 50,
     ) -> tuple[list[dict], int]:
         """Return ``(items, total_matching_filters)``."""
-        ...
+        pass  # Protocol method — body intentionally empty
 
     async def all_for_tenant(self, tenant_id: str) -> list[dict]:
         """Return every entry for a tenant, oldest first. Used by chain
         validation and aggregates. Bounded by retention, not user pagination.
         """
-        ...
+        pass  # Protocol method — body intentionally empty
 
     async def count_since(self, tenant_id: str | None, since: datetime) -> int:
         """Global or per-tenant write count since ``since``. Feeds the
         ``audit_writes_total`` Prometheus gauge."""
-        ...
+        pass  # Protocol method — body intentionally empty
 
     async def validate_chain(self, tenant_id: str) -> ChainValidation:
         """Recompute the chain and flag any divergence."""
-        ...
+        pass  # Protocol method — body intentionally empty
 
     async def tenants_with_activity_since(self, since: datetime) -> list[str]:
         """Tenant IDs that have written any audit entry since ``since``.
@@ -140,7 +140,7 @@ class AuditStore(Protocol):
         ``audit_chain_valid`` gauge only refreshes for tenants that
         actually matter, avoiding wasted work on dormant tenants.
         """
-        ...
+        pass  # Protocol method — body intentionally empty
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -295,11 +295,13 @@ class PostgresAuditStore:
                 # into the query; all filter values flow through asyncpg
                 # parameters in `*extra`. Bandit B608 cannot see through
                 # the helper so we silence it explicitly.
+                # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
                 total_row = await conn.fetchrow(
                     f"SELECT COUNT(*) AS c FROM audit_log WHERE tenant_id = $1{where}",  # nosec B608
                     tenant_id,
                     *extra,
                 )
+                # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
                 rows = await conn.fetch(
                     f"SELECT * FROM audit_log WHERE tenant_id = $1{where} "  # nosec B608
                     f"ORDER BY created_at DESC, seq_num DESC "

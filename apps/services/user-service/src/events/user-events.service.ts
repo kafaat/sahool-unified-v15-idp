@@ -42,6 +42,7 @@ const SAHOOL_USER_LOGIN_FAILED = "sahool.user.login_failed" as const;
 const SAHOOL_USER_LOGGED_OUT = "sahool.user.logged_out" as const;
 const SAHOOL_USER_LOGGED_OUT_ALL = "sahool.user.logged_out_all" as const;
 const SAHOOL_USER_ACCOUNT_LOCKED = "sahool.user.account_locked" as const;
+const SAHOOL_USER_PASSWORD_CHANGED = "sahool.user.password_changed" as const;
 
 @Injectable()
 export class UserEventsService implements OnModuleInit, OnModuleDestroy {
@@ -313,6 +314,35 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
       ipAddress: params.ipAddress,
       severity: "warning",
       lockedAt: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Publish a password-changed event — closes the auth audit trail.
+   *
+   * Covers both reset flows (token-based reset + OTP-verified reset) and
+   * self-service change from an authenticated session. `method` distinguishes
+   * them so audit dashboards can separate compromise-recovery resets from
+   * routine password rotations. The active `sessionsRevoked` count is
+   * included so compliance can verify that the side-effect (revoking all
+   * refresh tokens) actually fired.
+   */
+  async publishUserPasswordChanged(params: {
+    tenantId: string;
+    userId: string;
+    method: "reset_token" | "reset_otp" | "self_service";
+    identifier?: string;
+    ipAddress?: string;
+    sessionsRevoked?: number;
+  }): Promise<void> {
+    await this.rawPublish(SAHOOL_USER_PASSWORD_CHANGED, params.tenantId, {
+      userId: params.userId,
+      identifier: params.identifier,
+      method: params.method,
+      ipAddress: params.ipAddress,
+      sessionsRevoked: params.sessionsRevoked,
+      severity: "warning",
+      changedAt: new Date().toISOString(),
     });
   }
 

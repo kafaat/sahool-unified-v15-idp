@@ -1207,7 +1207,7 @@ SAHOOL - National Agricultural Intelligence Platform
     });
 
     // Revoke all existing refresh tokens for security
-    await this.prisma.refreshToken.updateMany({
+    const revokeResult = await this.prisma.refreshToken.updateMany({
       where: { userId: user.id },
       data: { revoked: true },
     });
@@ -1216,6 +1216,21 @@ SAHOOL - National Agricultural Intelligence Platform
       userId: user.id,
       email: this.sanitizeForLog(user.email),
     });
+
+    // Fire-and-forget audit event — compliance requires a trail of every
+    // password change regardless of which flow (reset-token vs OTP vs
+    // authenticated self-service) was used. audit-service maps the subject
+    // to action="auth.password_changed", category="authentication".
+    this.fireAndForget(
+      this.userEvents?.publishUserPasswordChanged({
+        tenantId: user.tenantId,
+        userId: user.id,
+        method: "reset_token",
+        identifier: this.sanitizeForLog(user.email),
+        sessionsRevoked: revokeResult.count,
+      }),
+      "publishUserPasswordChanged",
+    );
 
     return {
       success: true,

@@ -27,10 +27,13 @@ groups:
     interval: 60s
     rules:
       - alert: AuditServiceNotReceivingWrites
+        # Aggregate by tenant_id so the alert fires per-tenant (and the
+        # tenant label survives into notifications / Alertmanager routing).
+        # Stripping tenant_id with a bare `sum(...)` would mask a single
+        # tenant going dark behind the aggregate of everyone else.
         expr: |
-          sum(rate(audit_writes_total[5m])) == 0
-          and
-          max(up{job="audit-service"}) == 1
+          sum by (tenant_id) (rate(audit_writes_total[5m])) == 0
+          and on() max(up{job="audit-service"}) == 1
         for: 10m
         labels:
           severity: warning
@@ -52,17 +55,21 @@ groups:
           runbook_url: https://sahool.io/runbooks/audit-no-writes
 
       - alert: AuditServiceWriteRateBelowBaseline
-        # Tenants vary; we compare against the rolling 1-hour average.
-        # If the 5-minute rate drops below 20% of the last hour, a caller
-        # has likely stopped emitting.
+        # Per-tenant baseline comparison. Each tenant's 5-minute rate is
+        # compared to its own 1-hour rolling average so a quiet tenant
+        # doesn't look anomalous next to a busy one. The `> 0.01` guard
+        # excludes tenants with essentially no traffic (would divide by
+        # near-zero). Preserving `tenant_id` on the output series is
+        # required for the notification template and for Alertmanager to
+        # group / route per tenant.
         expr: |
           (
-            sum(rate(audit_writes_total[5m]))
+            sum by (tenant_id) (rate(audit_writes_total[5m]))
             /
-            sum(rate(audit_writes_total[1h]))
+            sum by (tenant_id) (rate(audit_writes_total[1h]))
           ) < 0.2
           and
-          sum(rate(audit_writes_total[1h])) > 0.01
+          sum by (tenant_id) (rate(audit_writes_total[1h])) > 0.01
         for: 15m
         labels:
           severity: info
@@ -79,7 +86,11 @@ groups:
     interval: 5m
     rules:
       - alert: AuditHashChainBroken
-        expr: min(audit_chain_valid) == 0
+        # `by (tenant_id)` keeps the tenant label on the output series so
+        # {{ $labels.tenant_id }} in the summary/description below actually
+        # resolves. A bare `min(audit_chain_valid)` would drop all labels
+        # and the notification would say "tenant "" has a broken chain".
+        expr: min by (tenant_id) (audit_chain_valid) == 0
         for: 2m
         labels:
           severity: critical

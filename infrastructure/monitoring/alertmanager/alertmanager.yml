@@ -42,6 +42,30 @@ route:
   # Child routes - المسارات الفرعية
   routes:
     # ─────────────────────────────────────────────────────────────────────────
+    # Audit / Compliance Alerts - تنبيهات التدقيق والامتثال
+    # High-priority route: audit pipeline incidents are compliance-grade
+    # (GDPR, SOC 2, GlobalGAP) — page the dedicated rotation rather than
+    # the generic SRE queue so Legal/Compliance can be looped in quickly.
+    # Matches rules in infrastructure/monitoring/prometheus/rules/audit-alerts.yml:
+    #   * AuditHashChainBroken               (critical, security)
+    #   * AuditServiceNotReceivingWrites     (warning, compliance)
+    #   * AuditServiceWriteRateBelowBaseline (info, compliance)
+    #   * AuditServiceRunningOnInMemoryBackend (critical, compliance)
+    # ─────────────────────────────────────────────────────────────────────────
+    - matchers:
+        - category =~ "compliance|security"
+        - alertname =~ "Audit.*"
+      receiver: 'audit-compliance-team'
+      # Override the top-level group_by so tenant_id and category aren't
+      # averaged across tenants in notifications. The AuditHashChainBroken
+      # rule is per-tenant; grouping across tenants would merge unrelated
+      # tamper events into one alert and hide which tenant is affected.
+      group_by: ['alertname', 'tenant_id', 'category', 'severity']
+      group_wait: 30s
+      repeat_interval: 1h
+      continue: true
+
+    # ─────────────────────────────────────────────────────────────────────────
     # Critical Infrastructure Alerts - تنبيهات البنية التحتية الحرجة
     # ─────────────────────────────────────────────────────────────────────────
     - match:
@@ -128,6 +152,49 @@ inhibit_rules:
 
 # Receivers - المستقبلات
 receivers:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Audit / Compliance Team - فريق التدقيق والامتثال
+  # Dedicated receiver for compliance-grade incidents (audit pipeline,
+  # hash-chain integrity). Loops in Legal/Compliance alongside SRE so the
+  # response isn't bottlenecked on engineers for regulatory triage.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'audit-compliance-team'
+    email_configs:
+      - to: '${ALERT_EMAIL_AUDIT:-compliance@sahool.io,sre@sahool.io}'
+        send_resolved: true
+        headers:
+          Subject: '🛡️ [AUDIT] SAHOOL Compliance Alert - {{ .GroupLabels.alertname }}'
+          Priority: 'urgent'
+        html: |
+          <h2>SAHOOL Audit / Compliance Alert | تنبيه التدقيق والامتثال</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Tenant:</strong> {{ .GroupLabels.tenant_id }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Category:</strong> {{ .GroupLabels.category }}</p>
+          <p><strong>Summary:</strong> {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}</p>
+          <p><strong>العربية:</strong> {{ range .Alerts }}{{ .Annotations.summary_ar }}{{ end }}</p>
+          <hr>
+          <p><strong>Description:</strong></p>
+          <pre>{{ range .Alerts }}{{ .Annotations.description }}{{ end }}</pre>
+          <p><strong>Runbook:</strong> <a href="{{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}">{{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}</a></p>
+
+    slack_configs:
+      - channel: '${SLACK_CHANNEL_AUDIT:-#sahool-audit-compliance}'
+        send_resolved: true
+        color: 'danger'
+        title: '🛡️ AUDIT: {{ .GroupLabels.alertname }}'
+        text: |
+          *Tenant:* {{ .GroupLabels.tenant_id }}
+          *Severity:* {{ .GroupLabels.severity }}
+          *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+
+    # PagerDuty for critical audit alerts (hash-chain tamper, in-memory backend)
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_AUDIT_KEY:-${PAGERDUTY_SERVICE_KEY:-}}'
+        severity: '{{ if eq .GroupLabels.severity "critical" }}critical{{ else }}warning{{ end }}'
+        description: 'SAHOOL audit: {{ .GroupLabels.alertname }} — {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Default Notifications - الإشعارات الافتراضية
   # ─────────────────────────────────────────────────────────────────────────────

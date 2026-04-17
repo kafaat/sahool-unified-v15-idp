@@ -239,9 +239,11 @@ Be thorough but focus on actionable issues. Provide specific file paths and line
       options: {
         model,
         allowedTools: tools,
-        // "auto" is the SDK default; subagents inherit `allowedTools` instead
-        // of silently bypassing permissions as "bypassPermissions" used to.
-        permissionMode: "auto",
+        // "default" is the SDK's "auto-approve within allowedTools" mode
+        // (the union is 'default' | 'acceptEdits' | 'bypassPermissions' |
+        //  'plan' | 'dontAsk' in @anthropic-ai/claude-agent-sdk@0.2.51).
+        // Subagents inherit `allowedTools` rather than bypassing permissions.
+        permissionMode: "default",
         maxTurns,
         outputFormat: {
           type: "json_schema",

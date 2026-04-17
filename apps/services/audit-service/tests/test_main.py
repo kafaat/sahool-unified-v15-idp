@@ -133,9 +133,7 @@ def test_get_audit_stats(auth_client):
     elif snake_keys[0] in data:
         expected_keys = snake_keys
     else:
-        raise AssertionError(
-            f"Stats response missing both 'totalEvents' and 'total_events': {list(data.keys())}"
-        )
+        raise AssertionError(f"Stats response missing both 'totalEvents' and 'total_events': {list(data.keys())}")
 
     # All three keys must use the detected casing — no mixing.
     for key in expected_keys:

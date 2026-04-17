@@ -410,7 +410,6 @@ async def lifespan(app: FastAPI):
 
     # Subscribe to platform events for audit logging
     if app.state.nc:
-
         # Subject → canonical action name expected by downstream query
         # endpoints (e.g. /audit/failed-logins filters by action="auth.login.failed").
         # When a subject has no entry here, the action defaults to the
@@ -438,10 +437,7 @@ async def lifespan(app: FastAPI):
             # Accept both so a single handler covers every producer.
             payload = data.get("payload") if isinstance(data.get("payload"), dict) else data
             tenant_id = (
-                data.get("tenant_id")
-                or data.get("tenantId")
-                or payload.get("tenant_id")
-                or payload.get("tenantId")
+                data.get("tenant_id") or data.get("tenantId") or payload.get("tenant_id") or payload.get("tenantId")
             )
             if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
                 # Use structured kwargs (structlog) rather than printf-style

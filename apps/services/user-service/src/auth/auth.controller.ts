@@ -335,8 +335,12 @@ export class AuthController {
     this.logger.log(`Login attempt from IP: ${ip}`);
 
     // Carry request context into the auth event stream. audit-service
-    // uses ipAddress + userAgent for its failed-logins + security-events
-    // endpoints; without them those panels show blanks.
+    // persists ipAddress + userAgent on every row so the /audit/logs
+    // detail view and the /audit/failed-logins panel can show them
+    // per event. (Note: /audit/security-events filters strictly on
+    // category == "security"; auth events are category ==
+    // "authentication" and are surfaced by /audit/failed-logins
+    // instead — this context is useful to both.)
     return this.authService.login(loginDto, {
       ipAddress: ip,
       userAgent: request.headers["user-agent"],

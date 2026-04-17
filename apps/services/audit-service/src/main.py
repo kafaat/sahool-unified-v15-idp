@@ -444,9 +444,12 @@ async def lifespan(app: FastAPI):
                 or payload.get("tenantId")
             )
             if not tenant_id or not isinstance(tenant_id, str) or len(tenant_id) < 5:
+                # Use structured kwargs (structlog) rather than printf-style
+                # so downstream log processors can filter by `subject` as a
+                # first-class field.
                 logger.warning(
-                    "missing_or_invalid_tenant_in_event subject=%s",
-                    getattr(msg, "subject", "unknown"),
+                    "missing_or_invalid_tenant_in_event",
+                    subject=getattr(msg, "subject", "unknown"),
                 )
                 return
 
@@ -491,18 +494,22 @@ async def lifespan(app: FastAPI):
                 await app.state.store.write(entry)
                 if _PROM_OK:
                     AUDIT_WRITES_TOTAL.labels(tenant_id=tenant_id, category=category).inc()
+                # Structured event — keeps subject/action/tenant queryable
+                # in production log aggregators.
                 logger.info(
-                    "audit_event_captured subject=%s action=%s tenant=%s",
-                    subject, action, sanitize_log_input(tenant_id),
+                    "audit_event_captured",
+                    subject=subject,
+                    action=action,
+                    tenant=sanitize_log_input(tenant_id),
                 )
             except Exception as e:
                 if _PROM_OK:
                     AUDIT_WRITE_FAILURES_TOTAL.labels(tenant_id=tenant_id).inc()
                 logger.error(
-                    "audit_write_failed subject=%s tenant=%s error=%s",
-                    subject,
-                    sanitize_log_input(tenant_id),
-                    str(e),
+                    "audit_write_failed",
+                    subject=subject,
+                    tenant=sanitize_log_input(tenant_id),
+                    error=str(e),
                 )
 
         audit_subjects = [

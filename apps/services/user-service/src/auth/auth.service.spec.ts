@@ -490,9 +490,24 @@ describe("AuthService", () => {
         new Error("NATS down"),
       );
 
-      await expect(
-        service.login({ email: mockEmail, password: mockPassword }, ctx),
-      ).resolves.toMatchObject({ access_token: mockAccessToken });
+      // Capture any unhandledRejection emitted during the login flow.
+      // AuthService.fireAndForget is the contract that guarantees these
+      // never escape; if a future refactor drops the `.catch()`, this
+      // listener promotes the silent escape into a hard test failure.
+      const unhandled: unknown[] = [];
+      const listener = (reason: unknown) => { unhandled.push(reason); };
+      process.on("unhandledRejection", listener);
+      try {
+        await expect(
+          service.login({ email: mockEmail, password: mockPassword }, ctx),
+        ).resolves.toMatchObject({ access_token: mockAccessToken });
+        // Flush microtasks so the rejected publish promise settles before
+        // we inspect the listener.
+        await new Promise((resolve) => setImmediate(resolve));
+        expect(unhandled).toEqual([]);
+      } finally {
+        process.off("unhandledRejection", listener);
+      }
     });
   });
 

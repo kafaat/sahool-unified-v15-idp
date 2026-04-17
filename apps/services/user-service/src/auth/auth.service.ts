@@ -136,6 +136,32 @@ export class AuthService {
   }
 
   /**
+   * Attach a swallowing .catch() to a fire-and-forget audit publish.
+   *
+   * Every audit publish in this service is intentionally unawaited so
+   * that a failing NATS transport never blocks authentication. Using
+   * bare `void publisher(...)` leaves the promise unattached — if the
+   * publisher rejects (e.g. a mocked publisher in tests, or a bug
+   * inside UserEventsService that escapes its own try/catch) Node
+   * emits `unhandledRejection`, which can kill the process under
+   * strict run-modes.
+   *
+   * Pass the *result* of the publish call to this helper instead of
+   * using `void`:
+   *
+   *     this.fireAndForget(
+   *       this.userEvents?.publishUserAuthenticated({ ... }),
+   *     );
+   */
+  private fireAndForget(p: Promise<unknown> | undefined): void {
+    if (!p) return;
+    p.catch((err) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      this.logger.warn(`audit_publish_failed: ${msg}`);
+    });
+  }
+
+  /**
    * User login with account lockout protection
    * تسجيل دخول المستخدم مع حماية قفل الحساب
    */
@@ -164,12 +190,12 @@ export class AuthService {
         { identifier: this.sanitizeForLog(rawIdentifier) },
       );
       // Emit failed login — downstream audit still records the probe.
-      void this.userEvents?.publishUserLoginFailed({
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
         identifier: this.sanitizeForLog(rawIdentifier),
         reason: "user_not_found",
         ipAddress: ctx.ipAddress,
         userAgent: ctx.userAgent,
-      });
+      }));
       throw new UnauthorizedException("Invalid email or password");
     }
 
@@ -182,14 +208,14 @@ export class AuthService {
         `Login attempt blocked: Account is locked`,
         { identifier: this.sanitizeForLog(identifier), remainingMinutes: lockoutStatus.remainingMinutes },
       );
-      void this.userEvents?.publishUserLoginFailed({
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
         tenantId: user.tenantId,
         userId: user.id,
         identifier: this.sanitizeForLog(identifier),
         reason: "account_locked",
         ipAddress: ctx.ipAddress,
         userAgent: ctx.userAgent,
-      });
+      }));
       throw new UnauthorizedException(
         `Account is temporarily locked due to too many failed login attempts. Please try again in ${lockoutStatus.remainingMinutes} minutes.`,
       );
@@ -216,7 +242,7 @@ export class AuthService {
         },
       );
 
-      void this.userEvents?.publishUserLoginFailed({
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
         tenantId: user.tenantId,
         userId: user.id,
         identifier: this.sanitizeForLog(identifier),
@@ -224,18 +250,18 @@ export class AuthService {
         attemptsRemaining: lockResult.attemptsRemaining,
         ipAddress: ctx.ipAddress,
         userAgent: ctx.userAgent,
-      });
+      }));
 
       if (lockResult.isNowLocked) {
         // Emit the state-transition event so dashboards can alert.
-        void this.userEvents?.publishUserAccountLocked({
+        this.fireAndForget(this.userEvents?.publishUserAccountLocked({
           tenantId: user.tenantId,
           userId: user.id,
           identifier: this.sanitizeForLog(identifier),
           reason: "max_failed_attempts",
           lockoutMinutes: LOCKOUT_CONFIG.LOCKOUT_DURATION_MINUTES,
           ipAddress: ctx.ipAddress,
-        });
+        }));
         throw new UnauthorizedException(
           `Account has been locked due to too many failed login attempts. Please try again in ${LOCKOUT_CONFIG.LOCKOUT_DURATION_MINUTES} minutes or reset your password.`,
         );
@@ -254,14 +280,14 @@ export class AuthService {
         `Login attempt failed: User status is ${user.status}`,
         { identifier: this.sanitizeForLog(identifier) },
       );
-      void this.userEvents?.publishUserLoginFailed({
+      this.fireAndForget(this.userEvents?.publishUserLoginFailed({
         tenantId: user.tenantId,
         userId: user.id,
         identifier: this.sanitizeForLog(identifier),
         reason: "account_inactive",
         ipAddress: ctx.ipAddress,
         userAgent: ctx.userAgent,
-      });
+      }));
       throw new UnauthorizedException(
         'Account is not available. Please contact support.',
       );
@@ -295,14 +321,14 @@ export class AuthService {
     });
 
     // Fire-and-forget audit event — downstream audit-service persists it.
-    void this.userEvents?.publishUserAuthenticated({
+    this.fireAndForget(this.userEvents?.publishUserAuthenticated({
       tenantId: user.tenantId,
       userId: user.id,
       identifier: this.sanitizeForLog(identifier),
       ipAddress: ctx.ipAddress,
       userAgent: ctx.userAgent,
       correlationId: ctx.correlationId,
-    });
+    }));
 
     return {
       ...tokens,
@@ -438,11 +464,11 @@ export class AuthService {
           `User logged out successfully: ${userId} (jti: ${payload.jti.substring(0, 8)}...)`,
         );
         if (payload.tid) {
-          void this.userEvents?.publishUserLoggedOut({
+          this.fireAndForget(this.userEvents?.publishUserLoggedOut({
             tenantId: payload.tid,
             userId,
             jti: payload.jti.substring(0, 8),
-          });
+          }));
         }
       } else {
         this.logger.error(`Failed to revoke token for user: ${userId}`);
@@ -475,10 +501,10 @@ export class AuthService {
       if (success) {
         this.logger.log(`User logged out from all devices: ${userId}`);
         if (tenantId) {
-          void this.userEvents?.publishUserLoggedOutAll({
+          this.fireAndForget(this.userEvents?.publishUserLoggedOutAll({
             tenantId,
             userId,
-          });
+          }));
         }
       } else {
         this.logger.error(`Failed to revoke all tokens for user: ${userId}`);
@@ -758,7 +784,7 @@ export class AuthService {
     // bypassing the event bus entirely (the R-1a fix only covered the
     // admin path via UsersService.create) — this completes that work.
     // Fire-and-forget; degraded NATS does not block account creation.
-    void this.userEvents?.publishUserCreated({
+    this.fireAndForget(this.userEvents?.publishUserCreated({
       tenantId: user.tenantId,
       userId: user.id,
       email: user.email,
@@ -766,7 +792,7 @@ export class AuthService {
       lastName: user.lastName ?? undefined,
       role: String(user.role),
       createdAt: user.createdAt,
-    });
+    }));
 
     // Generate tokens for immediate login
     const tokens = await this.generateTokens(user);

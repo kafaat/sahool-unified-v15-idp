@@ -1,0 +1,194 @@
+name: Code Review Agent (on label)
+# تشغيل وكيل مراجعة الكود عند إضافة الـ label
+
+# Follow-up from PR #1633 / #1636 — wire the one-shot CLI agent into GitHub
+# Actions so reviewers can opt-in to an AI review by adding the
+# `agent-review` label. The agent lives at apps/services/code-review-agent/
+# and is gated behind the `ai-agents` compose profile (not auto-started
+# with `docker compose up`).
+#
+# Trigger model: label-gated pull request. Requires ANTHROPIC_API_KEY repo
+# secret. If the secret is missing, the run exits early with a clear log
+# rather than burning Action minutes or producing a cryptic 401.
+
+on:
+  pull_request:
+    types: [labeled, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write    # post the review report as a PR comment
+  actions: read
+
+concurrency:
+  # One run per PR at a time; a new push cancels the previous run so we
+  # don't review stale SHAs. Label additions and commit pushes both
+  # funnel through the same group.
+  group: code-review-agent-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────
+  # Gate: run only when the `agent-review` label is present on the PR.
+  # Checking this in a separate job keeps the expensive review job from
+  # spinning up runners for every commit/label event on every PR.
+  # ─────────────────────────────────────────────────────────────────────
+  should-run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      labelled: ${{ steps.check.outputs.labelled }}
+    steps:
+      - name: Check for agent-review label
+        id: check
+        env:
+          LABELS_JSON: ${{ toJSON(github.event.pull_request.labels) }}
+        run: |
+          # `labels` is a list of {name, ...} objects; we only care about
+          # the names. jq is preinstalled on ubuntu-latest.
+          set -euo pipefail
+          if echo "$LABELS_JSON" | jq -e 'map(.name) | index("agent-review")' >/dev/null; then
+            echo "labelled=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::PR is labelled agent-review — code-review-agent will run"
+          else
+            echo "labelled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::PR is not labelled agent-review — skipping"
+          fi
+
+  review:
+    needs: should-run
+    if: needs.should-run.outputs.labelled == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Fail fast if ANTHROPIC_API_KEY is not configured
+        # Don't consume SDK minutes (or produce a confusing 401) if the
+        # repo secret was never provisioned. Exit the job with a clear
+        # message the maintainer can action.
+        env:
+          KEY_SET: ${{ secrets.ANTHROPIC_API_KEY != '' }}
+        run: |
+          if [ "$KEY_SET" != "true" ]; then
+            echo "::error::ANTHROPIC_API_KEY repo secret is not configured."
+            echo "::error::Go to Settings → Secrets and variables → Actions → New repository secret"
+            echo "::error::and add ANTHROPIC_API_KEY with a valid key from https://console.anthropic.com/settings/keys"
+            exit 1
+          fi
+
+      - name: Checkout PR head (with full history for diff context)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0   # agent needs history to compare against base
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: apps/services/code-review-agent/package-lock.json
+
+      - name: Install code-review-agent dependencies
+        working-directory: apps/services/code-review-agent
+        run: |
+          set -euo pipefail
+          # --ignore-scripts: we don't run node-gyp here; mirrors Dockerfile intent.
+          # --no-audit / --no-fund: CI quietness.
+          npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Build TypeScript
+        working-directory: apps/services/code-review-agent
+        run: npx tsc
+
+      - name: Run code-review-agent on the PR tree
+        id: run_review
+        # continue-on-error lets us still post a comment even if the agent
+        # exits non-zero (timeout, partial review, etc) — the next step
+        # handles the failure surface.
+        continue-on-error: true
+        working-directory: apps/services/code-review-agent
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LOG_FORMAT: json
+          # 10-minute timeout keeps us inside the 20m job limit with
+          # headroom for install + comment post.
+          AUDIT_REVIEW_TIMEOUT_MS: '600000'
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/review-output
+          # The CLI was added in PR #1636: supports --repo, --output,
+          # --format, --model, --max-turns. See apps/services/
+          # code-review-agent/src/cli.ts.
+          node dist/production-agent.js \
+            --repo "$GITHUB_WORKSPACE" \
+            --output /tmp/review-output/review.md \
+            --format markdown \
+            --model opus
+
+      - name: Upload review artifact
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: code-review-agent-report-${{ github.event.pull_request.head.sha }}
+          path: /tmp/review-output/
+          retention-days: 30
+          if-no-files-found: warn
+
+      - name: Post review as PR comment
+        if: always() && steps.run_review.outcome != 'cancelled'
+        uses: actions/github-script@v8
+        env:
+          REVIEW_OUTCOME: ${{ steps.run_review.outcome }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = '/tmp/review-output/review.md';
+            const outcome = process.env.REVIEW_OUTCOME;
+
+            let body;
+            if (fs.existsSync(path)) {
+              const review = fs.readFileSync(path, 'utf8');
+              const header = outcome === 'success'
+                ? '## 🤖 Code Review Agent — Automated Review'
+                : `## 🤖 Code Review Agent — Partial Review (outcome: ${outcome})`;
+              // Cap body at 60 KiB; GitHub comment limit is ~65 KiB and
+              // we need room for the header + footer.
+              const MAX = 60 * 1024;
+              const truncated = review.length > MAX
+                ? review.slice(0, MAX) + '\n\n…*(truncated — see full report in the `code-review-agent-report` artifact on this workflow run)*'
+                : review;
+              body = `${header}\n\n${truncated}\n\n---\n*Triggered by \`agent-review\` label on commit \`${context.sha.slice(0, 7)}\`. Remove the label to stop re-running on new commits.*`;
+            } else {
+              body = `## 🤖 Code Review Agent — Run Failed\n\nThe agent exited with outcome \`${outcome}\` and produced no report file.\n\nCheck the [workflow run](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}) for details.\n\n---\n*Triggered by \`agent-review\` label on commit \`${context.sha.slice(0, 7)}\`.*`;
+            }
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Summarise in GitHub Actions job summary
+        if: always()
+        run: |
+          {
+            echo "## Code Review Agent Run"
+            echo ""
+            echo "- **PR:** #${{ github.event.pull_request.number }}"
+            echo "- **Commit:** ${{ github.event.pull_request.head.sha }}"
+            echo "- **Outcome:** ${{ steps.run_review.outcome }}"
+            echo "- **Model:** opus"
+            echo "- **Timeout:** 600s"
+            if [ -f /tmp/review-output/review.md ]; then
+              echo "- **Report size:** $(wc -c < /tmp/review-output/review.md) bytes"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Fail job if agent errored
+        # Surface failure in the check status without blocking the
+        # comment-post step above.
+        if: steps.run_review.outcome == 'failure'
+        run: exit 1

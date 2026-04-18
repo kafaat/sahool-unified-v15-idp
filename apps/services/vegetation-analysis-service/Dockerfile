@@ -39,11 +39,11 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 COPY apps/services/vegetation-analysis-service/requirements.txt .
 COPY constraints.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
     --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --index-url https://pypi.org/simple \
     --prefix=/install \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \

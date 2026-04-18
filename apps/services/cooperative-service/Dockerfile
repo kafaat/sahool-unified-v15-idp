@@ -10,27 +10,28 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 WORKDIR /build
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install build dependencies (use apt-update.sh for mirror fallback)
+COPY docker/apt-update.sh /usr/local/bin/
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and install build tools
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
     --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --index-url https://pypi.org/simple \
     --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
-# Install dependencies with multi-mirror fallback (Pattern A)
+# Install dependencies with multi-mirror fallback (Aliyun-first)
 COPY apps/services/cooperative-service/requirements.txt .
 COPY constraints.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
     --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --index-url https://pypi.org/simple \
     --user -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \

@@ -24,8 +24,8 @@ WORKDIR /app
 # fallback-induced non-determinism.
 COPY apps/services/skill-router-service/requirements.txt .
 RUN pip install --no-cache-dir \
-    --index-url https://pypi.org/simple \
-    --extra-index-url https://mirrors.aliyun.com/pypi/simple/ \
+    --index-url https://mirrors.aliyun.com/pypi/simple/ \
+    --extra-index-url https://pypi.org/simple \
     --trusted-host pypi.org \
     --trusted-host files.pythonhosted.org \
     --trusted-host mirrors.aliyun.com \

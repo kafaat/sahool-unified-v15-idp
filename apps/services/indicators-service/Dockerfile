@@ -32,12 +32,12 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 COPY apps/services/indicators-service/requirements.txt .
 COPY constraints.txt .
 # Install dependencies with resilient multi-mirror fallback strategy
-# Try PyPI first, then fallback to Aliyun, finally Tencent
+# Try Aliyun first, then fallback to PyPI, finally Tencent
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --index-url https://pypi.org/simple \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \

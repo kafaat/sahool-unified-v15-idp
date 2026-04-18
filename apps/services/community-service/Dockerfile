@@ -30,9 +30,13 @@ RUN groupadd --system sahool && \
 # Install tini for proper PID 1 signal handling
 RUN apt-get update && apt-get install -y --no-install-recommends tini build-essential gcc libffi-dev && rm -rf /var/lib/apt/lists/*
 
-# Configure pip for network resilience with fallback mirrors
+# Configure pip for network resilience
+# Do NOT set index-url or extra-index-url here — the Dockerfile pip install commands
+# each specify their own -i flag for the mirror fallback chain to work correctly.
+# Having extra-index-url in pip.conf causes pip to query ALL mirrors simultaneously,
+# and a truncated response from any one of them causes JSONDecodeError / IncompleteRead.
 RUN mkdir -p /root/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
+    printf '[global]\ntimeout = 300\nretries = 10\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
 
 # Upgrade pip. --isolated ignores pip.conf (set above) so extra-index-url does
 # not cause hash mismatches between mirrors serving different pip 26.x copies.
@@ -46,14 +50,14 @@ RUN pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
     --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
 
 # Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
+# Try Aliyun first (fastest in this network), fallback to PyPI, then Tencent
 COPY apps/services/community-service/requirements.txt .
 COPY constraints.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --index-url https://pypi.org/simple \
     -c constraints.txt -r requirements.txt || \
     pip install --no-cache-dir --timeout=600 --retries=5 \
     -i https://mirrors.cloud.tencent.com/pypi/simple \

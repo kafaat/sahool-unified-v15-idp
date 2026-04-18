@@ -9,7 +9,7 @@ ARG PYTHON_VERSION=3.11
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 1: Builder
 # ─────────────────────────────────────────────────────────────────────────────
-FROM python:${PYTHON_VERSION}-slim AS builder
+FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 
 # Build arguments
 ARG SERVICE_NAME=agro-rules
@@ -23,10 +23,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Configure apt to use HTTPS and install build dependencies (needed for nats-py)
+# Install build dependencies (needed for nats-py)
 COPY docker/apt-update.sh /usr/local/bin/
-RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/*.list /etc/apt/sources.list 2>/dev/null || true && \
-    apt-update.sh && apt-get install -y --no-install-recommends \
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     apt-transport-https \
     build-essential \
     ca-certificates \
@@ -66,7 +65,7 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production
 # ─────────────────────────────────────────────────────────────────────────────
-FROM python:${PYTHON_VERSION}-slim AS production
+FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
 ARG SERVICE_NAME=agro-rules
 ARG SERVICE_VERSION=16.0.0

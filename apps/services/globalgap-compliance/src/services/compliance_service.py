@@ -348,7 +348,7 @@ class ComplianceService:
         #   * Open CRITICAL or MAJOR non-conformity rows, OR
         #   * ComplianceRecord with `major_must_fails > 0`
         #     or overall_status == NON_COMPLIANT
-        major_blocker = critical_open > 0 or major_open > 0
+        severity_blocker = critical_open > 0 or major_open > 0
         record_blocker = current is not None and (
             current.major_must_fails > 0 or current.overall_status == ComplianceStatus.NON_COMPLIANT
         )
@@ -361,7 +361,7 @@ class ComplianceService:
             verdict = "not_assessed"
             verdict_en = "Compliance record exists but no assessment has been performed yet."
             verdict_ar = "يوجد سجل امتثال لكن لم يتم إجراء أي تقييم بعد."
-        elif major_blocker or record_blocker:
+        elif severity_blocker or record_blocker:
             verdict = "blocked"
             # Build the reason text from ONLY the active signals. Stringing
             # together zero-counts would read as misleading noise ("0 open
@@ -399,19 +399,37 @@ class ComplianceService:
 
         # Summary paragraph — bilingual, narrative form so the report's
         # first page reads like a human-written executive summary rather
-        # than a struct dump.
-        pct = current.compliance_percentage if current else 0.0
+        # than a struct dump. Branch on assessment state: a farm with no
+        # record (or NOT_ASSESSED) has NO compliance score — emitting
+        # "0.0%" there would read as an actual 0% result, misleading
+        # auditors who rely on the summary as the first line of truth.
         total_ncs = len(all_ncs)
-        summary_en = (
-            f"Farm {farm_id} currently scores {pct:.1f}% against GlobalGAP IFA v6. "
-            f"{total_ncs} non-conformity(ies) on record: {len(open_ncs)} open, "
-            f"{len(resolved_ncs)} resolved. {len(trend)}-month trend included."
-        )
-        summary_ar = (
-            f"تحقق المزرعة {farm_id} حاليًا نسبة {pct:.1f}% وفقًا لمعيار GlobalGAP IFA v6. "
-            f"{total_ncs} حالة عدم مطابقة مسجلة: {len(open_ncs)} مفتوحة، "
-            f"{len(resolved_ncs)} تم حلها. اتجاه {len(trend)} أشهر مُدرج."
-        )
+        no_score = current is None or current.overall_status == ComplianceStatus.NOT_ASSESSED
+        if no_score:
+            summary_en = (
+                f"Farm {farm_id} has not yet been assessed against GlobalGAP IFA v6, "
+                f"so no compliance score is currently available. "
+                f"{total_ncs} non-conformity(ies) on record: {len(open_ncs)} open, "
+                f"{len(resolved_ncs)} resolved. {len(trend)}-month trend included."
+            )
+            summary_ar = (
+                f"لم يتم تقييم المزرعة {farm_id} بعد وفقًا لمعيار GlobalGAP IFA v6، "
+                f"ولذلك لا تتوفر حاليًا درجة امتثال. "
+                f"{total_ncs} حالة عدم مطابقة مسجلة: {len(open_ncs)} مفتوحة، "
+                f"{len(resolved_ncs)} تم حلها. اتجاه {len(trend)} أشهر مُدرج."
+            )
+        else:
+            pct = current.compliance_percentage
+            summary_en = (
+                f"Farm {farm_id} currently scores {pct:.1f}% against GlobalGAP IFA v6. "
+                f"{total_ncs} non-conformity(ies) on record: {len(open_ncs)} open, "
+                f"{len(resolved_ncs)} resolved. {len(trend)}-month trend included."
+            )
+            summary_ar = (
+                f"تحقق المزرعة {farm_id} حاليًا نسبة {pct:.1f}% وفقًا لمعيار GlobalGAP IFA v6. "
+                f"{total_ncs} حالة عدم مطابقة مسجلة: {len(open_ncs)} مفتوحة، "
+                f"{len(resolved_ncs)} تم حلها. اتجاه {len(trend)} أشهر مُدرج."
+            )
 
         # Resolved severity rollup — so consumers can also tell at a
         # glance how deep the resolved pile is without iterating.

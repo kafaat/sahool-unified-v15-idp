@@ -1118,6 +1118,69 @@ class TestMainEndpoints:
         assert body["trend"]["months"] == 3
         assert len(body["trend"]["data_points"]) == 3
 
+    def test_compliance_report_conditional_verdict(self, client):
+        """A PARTIALLY_COMPLIANT record with only open MINOR
+        non-conformities (no majors, no criticals, no record-side
+        major-must fails) must verdict as `conditional`, not
+        `blocked` or `eligible`. This is the branch that sits
+        between the two hard gates — historically under-tested."""
+        from src.main import app
+        from src.models.compliance import NonConformity, SeverityLevel
+
+        client.post(
+            "/farms/farm_cond/compliance",
+            json={
+                "farm_id": "farm_cond",
+                "tenant_id": self._UUID,
+                "overall_status": "partially_compliant",
+                "compliance_percentage": 92.5,
+                "total_control_points": 100,
+                "compliant_points": 92,
+                "non_compliant_points": 8,
+                "major_must_fails": 0,  # critical: no record-side blocker
+                "minor_must_fails": 2,
+            },
+            headers=self._HEADERS,
+        )
+        # Inject two open MINOR non-conformities (no majors / criticals).
+        app.state.compliance_service.non_conformities[f"{self._UUID}:farm_cond"] = [
+            NonConformity(
+                compliance_record_id=f"{self._UUID}:farm_cond",
+                control_point_id="AF.2.1.3",
+                control_point_number="AF.2.1.3",
+                severity=SeverityLevel.MINOR,
+                description_en="Record retention minor gap",
+                description_ar="ثغرة ثانوية في الاحتفاظ بالسجلات",
+                corrective_action_completed=False,
+            ),
+            NonConformity(
+                compliance_record_id=f"{self._UUID}:farm_cond",
+                control_point_id="AF.5.2.1",
+                control_point_number="AF.5.2.1",
+                severity=SeverityLevel.MINOR,
+                description_en="Training log incomplete",
+                description_ar="سجل التدريب غير مكتمل",
+                corrective_action_completed=False,
+            ),
+        ]
+
+        r = client.get("/farms/farm_cond/compliance/report", headers=self._HEADERS)
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["verdict"] == "conditional"
+        # Verdict text must surface both the percentage AND the minor
+        # count — that's how an auditor tells at a glance how far from
+        # eligible the farm is.
+        assert "92.5%" in body["verdict_en"]
+        assert "2 minor non-conformity" in body["verdict_en"]
+        assert "92.5" in body["verdict_ar"]
+        # Regression guards: this branch must NOT produce a blocked
+        # verdict or a BLOCKED text (IFA v6 rule — minors alone don't
+        # gate certification).
+        assert "BLOCKED" not in body["verdict_en"]
+        assert body["non_conformities"]["open_by_severity"]["major"] == 0
+        assert body["non_conformities"]["open_by_severity"]["minor"] == 2
+
     def test_compliance_report_blocked_by_record_major_must_fails(self, client):
         """Major-must failures on the ComplianceRecord alone (without
         matching open NonConformity rows) must still produce a

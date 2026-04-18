@@ -153,13 +153,17 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
         }
     ).encode()
 
+    # Resolve tenant-scoped subject outside the publish try/except so a
+    # helper-level error (e.g. tenant_id not UUID) falls back to the inline
+    # pattern rather than silently swallowing the publish altogether.
     try:
-        try:
-            from shared.events.subjects import get_tenant_subject
+        from shared.events.subjects import get_tenant_subject
 
-            _subject = get_tenant_subject(tenant_id, "satellite", "ndvi.computed")
-        except ImportError:
-            _subject = f"sahool.tenant.{tenant_id}.satellite.ndvi.computed"
+        _subject = get_tenant_subject(tenant_id, "satellite", "ndvi.computed")
+    except (ImportError, ValueError):
+        _subject = f"sahool.tenant.{tenant_id}.satellite.ndvi.computed"
+
+    try:
         await _cfg.nats_client.publish(_subject, computed_payload)
     except Exception:
         logger.warning("NDVIStore: failed to publish ndvi.computed event")
@@ -186,12 +190,12 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
     ).encode()
 
     try:
-        try:
-            from shared.events.subjects import get_tenant_subject
+        from shared.events.subjects import get_tenant_subject
 
-            _obs_subject = get_tenant_subject(tenant_id, "field", "observation.ingested.v1")
-        except ImportError:
-            _obs_subject = f"sahool.tenant.{tenant_id}.field.observation.ingested.v1"
+        _obs_subject = get_tenant_subject(tenant_id, "field", "observation.ingested.v1")
+    except (ImportError, ValueError):
+        _obs_subject = f"sahool.tenant.{tenant_id}.field.observation.ingested.v1"
+    try:
         await _cfg.nats_client.publish(_obs_subject, obs_payload)
     except Exception:
         logger.warning("NDVIStore: failed to publish observation.ingested event")

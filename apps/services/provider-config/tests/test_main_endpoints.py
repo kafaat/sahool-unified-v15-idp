@@ -313,14 +313,20 @@ class TestPublishConfigUpdated:
 
     @pytest.mark.asyncio
     async def test_publish_success(self):
-        """Test successful NATS publish"""
+        """Test successful NATS publish — subject is tenant-scoped.
+
+        Non-UUID tenant_id ("t1") triggers the fallback-inline pattern
+        (`sahool.tenant.<tid>.config.updated`) because the strict UUID
+        validator in shared.events.subjects.get_tenant_subject rejects it.
+        """
         mock_nc = AsyncMock()
         with patch("src.main.nc", mock_nc):
             await publish_config_updated("t1", "map", "osm", key="priority")
 
         mock_nc.publish.assert_awaited_once()
         call_args = mock_nc.publish.call_args
-        assert call_args[0][0] == "sahool.config.updated"
+        assert call_args[0][0].startswith("sahool.tenant.t1.config.updated") or \
+            call_args[0][0] == "sahool.tenant.t1.config.updated"
         payload = json.loads(call_args[0][1].decode())
         assert payload["tenant_id"] == "t1"
         assert payload["provider"] == "osm"
@@ -346,13 +352,14 @@ class TestPublishProviderStatusChanged:
 
     @pytest.mark.asyncio
     async def test_publish_success(self):
+        """Test publish — subject is tenant-scoped inline fallback."""
         mock_nc = AsyncMock()
         with patch("src.main.nc", mock_nc):
             await publish_provider_status_changed("t1", "map", "osm", False)
 
         mock_nc.publish.assert_awaited_once()
         call_args = mock_nc.publish.call_args
-        assert call_args[0][0] == "sahool.config.provider_status_changed"
+        assert call_args[0][0] == "sahool.tenant.t1.config.provider_status_changed"
         payload = json.loads(call_args[0][1].decode())
         assert payload["enabled"] is False
 

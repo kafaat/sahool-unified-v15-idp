@@ -203,36 +203,40 @@ class TestSaveResultWithNATS:
     def setup_method(self):
         _clear_stores()
 
+    # UUID-shaped tenant_id so the new tenant-scoped subject helper accepts it.
+    # `get_tenant_subject` validates tenant_id against a UUID regex.
+    _TENANT = "a1b2c3d4-e5f6-4789-abcd-0123456789ab"
+
     @pytest.mark.asyncio
     async def test_save_result_publishes_ndvi_computed_event(self):
-        """save_result() publishes sahool.satellite.ndvi.computed event."""
+        """save_result() publishes the tenant-scoped ndvi.computed event."""
         mock_nc = AsyncMock()
         configure(nats_client=mock_nc)
 
         result_dict = _make_result_dict("r1", "field-1", "2025-06-01")
-        await save_result("field-1", "tenant-1", result_dict)
+        await save_result("field-1", self._TENANT, result_dict)
 
         # Should have published two events
         assert mock_nc.publish.await_count == 2
         first_call = mock_nc.publish.call_args_list[0]
-        assert first_call[0][0] == "sahool.satellite.ndvi.computed"
+        assert first_call[0][0] == f"sahool.tenant.{self._TENANT}.satellite.ndvi.computed"
 
         payload = json.loads(first_call[0][1].decode())
         assert payload["event_type"] == "ndvi.computed"
         assert payload["field_id"] == "field-1"
-        assert payload["tenant_id"] == "tenant-1"
+        assert payload["tenant_id"] == self._TENANT
 
     @pytest.mark.asyncio
     async def test_save_result_publishes_observation_event(self):
-        """save_result() publishes sahool.field.observation.ingested.v1 event."""
+        """save_result() publishes the tenant-scoped field.observation.ingested.v1 event."""
         mock_nc = AsyncMock()
         configure(nats_client=mock_nc)
 
         result_dict = _make_result_dict("r1", "field-1", "2025-06-01")
-        await save_result("field-1", "tenant-1", result_dict)
+        await save_result("field-1", self._TENANT, result_dict)
 
         second_call = mock_nc.publish.call_args_list[1]
-        assert second_call[0][0] == "sahool.field.observation.ingested.v1"
+        assert second_call[0][0] == f"sahool.tenant.{self._TENANT}.field.observation.ingested.v1"
 
         payload = json.loads(second_call[0][1].decode())
         assert payload["event_type"] == "field.observation.ingested"

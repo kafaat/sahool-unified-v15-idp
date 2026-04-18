@@ -171,6 +171,16 @@ async def readiness_check():
     """
     Readiness probe - checks if the service is ready to serve requests.
     مسبار الجاهزية - يتحقق من جاهزية الخدمة لخدمة الطلبات.
+
+    Semantics:
+    * production / staging  — fail closed. Any missing dependency
+      (Redis / NATS / LLM orchestrator) returns 503 so K8s removes
+      this pod from the service endpoints until every backend is up.
+    * development / test    — fail open with diagnostic body. The
+      process is up and able to answer HTTP; returning 200 lets local
+      smoke tests (and the module-import-only unit test) pass without
+      standing up the full Redis/NATS/LLM stack. The body still
+      reports each dependency's state for visibility.
     """
     # Check connections
     redis_connected = cache_manager.redis_client is not None
@@ -179,13 +189,16 @@ async def readiness_check():
 
     is_ready = redis_connected and nats_connected and llm_healthy
 
-    status_code = 200 if is_ready else 503
+    env = (settings.ENVIRONMENT or "development").lower()
+    strict = env in ("production", "prod", "staging")
+    status_code = 200 if (is_ready or not strict) else 503
 
     return JSONResponse(
         status_code=status_code,
         content={
-            "status": "ready" if is_ready else "not_ready",
+            "status": "ready" if is_ready else ("not_ready" if strict else "degraded"),
             "service": settings.SERVICE_NAME,
+            "environment": env,
             "checks": {
                 "redis": "connected" if redis_connected else "disconnected",
                 "nats": "connected" if nats_connected else "disconnected",

@@ -119,8 +119,7 @@ async def list_soil_tests(
         rows = [
             t
             for t in _soil_tests.values()
-            if t.get("tenant_id") == tenant_id
-            and (field_id is None or t.get("field_id") == field_id)
+            if t.get("tenant_id") == tenant_id and (field_id is None or t.get("field_id") == field_id)
         ]
         rows.sort(key=lambda t: t.get("created_at", ""), reverse=True)
         items = [

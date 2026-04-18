@@ -32,13 +32,12 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
-from src.core.config import settings
-from src.core.errors import VisionError, vision_error_handler
-from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
-
 # Configure structured logging and tracing
 from shared.logging_config import setup_logging
 from shared.observability.tracing import setup_tracing
+from src.core.config import settings
+from src.core.errors import VisionError, vision_error_handler
+from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
 
 setup_logging("yolo26-vision-service")
 logger = structlog.get_logger(__name__)

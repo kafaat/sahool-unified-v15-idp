@@ -528,9 +528,7 @@ async def analyze_field_leveling(
                 ).encode()
                 subject = get_tenant_subject(tenant_id or "unknown", "terrain", "leveling_recommended")
                 await nc.publish(subject, event_payload)
-                logger.info(
-                    "nats_event_published", subject=subject, field_id=request.field_id
-                )
+                logger.info("nats_event_published", subject=subject, field_id=request.field_id)
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))
 

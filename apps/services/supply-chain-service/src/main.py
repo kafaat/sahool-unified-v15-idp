@@ -21,6 +21,10 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
 from .api.endpoints import (
     auto_purchase_router,
     orders_router,
@@ -28,10 +32,6 @@ from .api.endpoints import (
     suppliers_router,
 )
 from .core.config import settings
-
-# Configure structured logging and tracing
-from shared.logging_config import setup_logging
-from shared.observability.tracing import setup_tracing
 
 setup_logging("supply-chain-service")
 logger = structlog.get_logger()

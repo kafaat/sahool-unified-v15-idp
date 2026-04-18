@@ -34,6 +34,7 @@ except ImportError:
 try:
     from shared.events.subjects import get_tenant_subject
 except ImportError:
+
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
         return f"sahool.tenant.{tenant_id}.{domain}.{action}"
 

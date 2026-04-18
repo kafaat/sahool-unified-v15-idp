@@ -30,8 +30,10 @@ import structlog
 try:
     from shared.events.subjects import get_tenant_subject
 except ImportError:
+
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
         return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
 
 logger = structlog.get_logger(__name__)
 
@@ -46,6 +48,7 @@ def _scoped(global_subject: str, tenant_id: str | None, domain: str, action: str
         note="falling back to global subject; TODO plumb tenant_id through caller",
     )
     return global_subject
+
 
 # Critical pest class IDs that trigger critical alerts
 CRITICAL_PEST_IDS = {

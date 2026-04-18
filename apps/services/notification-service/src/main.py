@@ -142,6 +142,9 @@ except ImportError:
 # Database imports
 # Multi-channel support
 # New enhanced components (v16.0)
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
 from .analytics_controller import router as analytics_router
 from .channels_controller import router as channels_router
 from .database import check_db_health, close_db, get_db_stats, init_notification_db
@@ -164,9 +167,6 @@ from .sms_client import get_sms_client
 from .sms_providers import get_multi_sms_client
 from .telegram_client import get_telegram_client
 from .whatsapp_client import get_whatsapp_client
-
-# Configure structured logging (replaces stdlib logging init)
-from shared.logging_config import setup_logging
 
 setup_logging("notification-service")
 logger = structlog.get_logger("sahool-notifications")

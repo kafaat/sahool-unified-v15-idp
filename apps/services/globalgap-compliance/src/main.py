@@ -43,6 +43,10 @@ except ImportError:
         )
 
 
+# Initialize structured logging and tracing | تهيئة السجلات والتتبع المنظم
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
 from .config import settings
 from .models.certificate import (
     CertificateStatus,
@@ -62,10 +66,6 @@ from .models.compliance import (
 )
 from .services.audit_service import AuditService
 from .services.compliance_service import ComplianceService
-
-# Initialize structured logging and tracing | تهيئة السجلات والتتبع المنظم
-from shared.logging_config import setup_logging
-from shared.observability.tracing import setup_tracing
 
 setup_logging("globalgap-compliance")
 logger = structlog.get_logger(__name__)

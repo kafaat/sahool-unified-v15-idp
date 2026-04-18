@@ -60,6 +60,12 @@ except ImportError:
         )
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Logging Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
 from .database import SessionLocal, check_db_connection, get_db
 from .db_models import Alert as DBAlert
 from .db_models import AlertRule as DBAlertRule
@@ -87,14 +93,6 @@ from .repository import (
     get_alerts_by_field,
     update_alert_status,
 )
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Logging Configuration
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-# Configure structured logging (replaces stdlib logging init)
-from shared.logging_config import setup_logging
 
 setup_logging("alert-service")
 logger = structlog.get_logger(__name__)

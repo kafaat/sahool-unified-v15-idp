@@ -23,13 +23,12 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
 from src.cache import cache_manager
 from src.config import settings
 from src.events import event_handler
 from src.llm_client import llm_client
-
-# Configure structured logging (replaces stdlib logging init)
-from shared.logging_config import setup_logging
 
 setup_logging("ai-chat-assistant", log_level=settings.LOG_LEVEL)
 if structlog is not None:

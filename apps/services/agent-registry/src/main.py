@@ -27,10 +27,10 @@ from registry.agent_card import AgentCard
 from registry.registry import AgentRegistry, RegistryConfig
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
-from shared.middleware.tenant_context import TenantContextMiddleware
 
 # Configure structured logging and tracing
 from shared.logging_config import setup_logging
+from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.tracing import setup_tracing
 
 setup_logging("agent-registry")

@@ -56,6 +56,12 @@ except ImportError:
         pass
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Logging Configuration
+# إعداد السجلات
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .decision_engine import (
@@ -94,14 +100,6 @@ from .yield_prediction import (
     get_crop_parameters,
     predict_yield,
 )
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# Logging Configuration
-# إعداد السجلات
-# ═══════════════════════════════════════════════════════════════════════════════
-
-# Configure structured logging (replaces stdlib logging init)
-from shared.logging_config import setup_logging
 
 setup_logging("crop-intelligence-service")
 try:

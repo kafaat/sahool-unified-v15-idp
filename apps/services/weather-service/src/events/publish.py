@@ -21,6 +21,7 @@ from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED
 try:
     from shared.events.subjects import get_tenant_subject
 except ImportError:
+
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
         return f"sahool.tenant.{tenant_id}.{domain}.{action}"
 
@@ -30,13 +31,16 @@ def _weather_scoped(event_type: str, tenant_id: str | None) -> str:
     global_subject = get_subject(event_type)
     if tenant_id:
         # Preserve the "alert" / "forecast.issued" / "irrigation.adjustment" action suffix.
-        action = global_subject[len("sahool.weather.") :] if global_subject.startswith("sahool.weather.") else event_type
+        action = (
+            global_subject[len("sahool.weather.") :] if global_subject.startswith("sahool.weather.") else event_type
+        )
         return get_tenant_subject(tenant_id, "weather", action)
     logger.warning(
         "nats_publish_missing_tenant_id subject=%s (falling back to global; TODO plumb tenant_id)",
         global_subject,
     )
     return global_subject
+
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 

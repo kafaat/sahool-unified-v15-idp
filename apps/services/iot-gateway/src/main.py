@@ -56,6 +56,9 @@ except ImportError:
 # Configure structured logging
 import structlog
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
@@ -67,9 +70,6 @@ from .registry import (
     get_registry,
     set_registry,
 )
-
-# Configure structured logging (replaces stdlib logging init)
-from shared.logging_config import setup_logging
 
 setup_logging("iot-gateway")
 logger = structlog.get_logger("iot-gateway")

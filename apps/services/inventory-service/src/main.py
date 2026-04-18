@@ -85,12 +85,12 @@ from .models import inventory_v2 as _inventory_v2  # noqa: F401
 
 _ = _inventory_v2  # keep side-effect import alive without an assert
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging  # noqa: E402
+
 from .models.inventory import (  # noqa: E402
     ItemCategory,
 )
-
-# Configure structured logging (replaces stdlib logging init)
-from shared.logging_config import setup_logging  # noqa: E402
 
 setup_logging("inventory-service")
 if structlog is not None:

@@ -26,6 +26,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
 from .agents.executor import AgentExecutor
 from .api.endpoints import integrations as integrations_module
 from .api.endpoints import router as orchestrator_router
@@ -35,9 +38,6 @@ from .api.endpoints.training import router as training_router
 from .core.config import settings
 from .integrations import CrewService, MLService, NLPService, SatelliteService
 from .training import AGLTrainer, FeedbackCollector
-
-# Configure structured logging (replaces stdlib logging init)
-from shared.logging_config import setup_logging
 
 setup_logging("llm-orchestrator-service")
 logger = structlog.get_logger(__name__)

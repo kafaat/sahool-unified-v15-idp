@@ -15,12 +15,11 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from shared.middleware.tenant_context import TenantContextMiddleware
-from src.api.v1 import pests, scouts, thresholds, treatments
-
 # Configure structured logging and tracing
 from shared.logging_config import setup_logging
+from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.tracing import setup_tracing
+from src.api.v1 import pests, scouts, thresholds, treatments
 
 setup_logging("pest-detection-service")
 logger = structlog.get_logger(__name__)

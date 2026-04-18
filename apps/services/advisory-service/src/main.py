@@ -451,11 +451,7 @@ async def lifespan(app: FastAPI):
 
                 # Apply outbox DDL (idempotent)
                 migration_path = (
-                    Path(__file__).parent.parent.parent.parent
-                    / "shared"
-                    / "libs"
-                    / "outbox"
-                    / "migration.sql"
+                    Path(__file__).parent.parent.parent.parent / "shared" / "libs" / "outbox" / "migration.sql"
                 )
                 if migration_path.exists():
                     migration_sql = migration_path.read_text(encoding="utf-8")

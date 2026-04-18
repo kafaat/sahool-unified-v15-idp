@@ -6,8 +6,8 @@
 # Version: 16.0.0
 
 # FastAPI Framework Stack
-fastapi==0.136.0
-uvicorn[standard]==0.44.0
+fastapi==0.135.1
+uvicorn[standard]>=0.34.0,<1.0.0
 pydantic==2.13.1
 
 # Async HTTP Client

@@ -18,9 +18,6 @@ import structlog
 from fastapi import Depends, FastAPI, Request
 from pydantic import BaseModel, Field
 
-# Initialize structured logger
-logger = structlog.get_logger()
-
 # Add shared modules to path
 # In Docker, shared is at /app/shared
 SHARED_PATH = Path("/app/shared")
@@ -29,6 +26,14 @@ if not SHARED_PATH.exists():
     SHARED_PATH = Path(__file__).parent.parent.parent / "shared"
 if str(SHARED_PATH) not in sys.path:
     sys.path.insert(0, str(SHARED_PATH))
+
+# Initialize structured logger and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("skills-service")
+logger = structlog.get_logger()
+_tracer = setup_tracing("skills-service")
 
 # Import unified error handling
 from shared.errors_py import (

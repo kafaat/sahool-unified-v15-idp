@@ -63,14 +63,13 @@ from .models.compliance import (
 from .services.audit_service import AuditService
 from .services.compliance_service import ComplianceService
 
-# Initialize structured logging | تهيئة السجلات المنظمة
-structlog.configure(
-    processors=[
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer(),
-    ]
-)
+# Initialize structured logging and tracing | تهيئة السجلات والتتبع المنظم
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("globalgap-compliance")
 logger = structlog.get_logger(__name__)
+_tracer = setup_tracing("globalgap-compliance")
 
 
 # ============== Authentication ==============
@@ -168,6 +167,7 @@ app = FastAPI(
     version=settings.service_version,
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

@@ -730,6 +730,7 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 setup_exception_handlers(app)
 add_request_id_middleware(app)

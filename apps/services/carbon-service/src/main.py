@@ -22,7 +22,12 @@ import structlog
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("carbon-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("carbon-service")
 
 PORT = int(os.getenv("PORT", "8195"))
 SERVICE_NAME = "carbon-service"
@@ -117,6 +122,7 @@ app = FastAPI(
     version=SERVICE_VERSION,
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # ── CORS ──────────────────────────────────────────────────────────────
 cors_origins = os.getenv(

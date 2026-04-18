@@ -16,7 +16,12 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("soil-analysis-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("soil-analysis-service")
 
 
 @asynccontextmanager
@@ -88,6 +93,7 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup CORS
 cors_origins = os.getenv(

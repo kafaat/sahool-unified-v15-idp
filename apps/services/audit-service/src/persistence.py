@@ -434,8 +434,10 @@ class PostgresAuditStore:
                         f"SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}"  # nosec B608  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
                     )  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
                     # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                    total_row = await conn.fetchrow(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                        _count_sql, tenant_id, *extra
+                    total_row = (
+                        await conn.fetchrow(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                            _count_sql, tenant_id, *extra
+                        )
                     )  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
                     _list_sql = (  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
                         f"SELECT * FROM audit_log_archive WHERE tenant_id = $1{where} ORDER BY created_at DESC, seq_num DESC OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}"  # nosec B608  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli

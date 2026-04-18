@@ -132,6 +132,7 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

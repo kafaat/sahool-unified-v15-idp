@@ -183,7 +183,9 @@ async def _run(*, dry_run: bool) -> int:
 
     logger.info("policies.resolved", extra={"text": describe(policies)})
 
-    dsn = _resolve_dsn()
+    from shared.db.ssl import enforce_ssl_mode
+
+    dsn = enforce_ssl_mode(_resolve_dsn())
     if not dsn:
         logger.error(
             "dsn.missing",

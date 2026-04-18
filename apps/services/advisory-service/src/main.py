@@ -443,7 +443,9 @@ async def lifespan(app: FastAPI):
 
             from shared.libs.outbox import OutboxPublisher, OutboxRelay
 
-            db_url = os.getenv("DATABASE_URL")
+            from shared.db.ssl import enforce_ssl_mode
+
+            db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
             if not db_url:
                 logger.warning("outbox_disabled_no_database_url")
             else:

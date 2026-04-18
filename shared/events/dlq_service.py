@@ -49,6 +49,23 @@ from .publisher import EventPublisher
 
 logger = logging.getLogger(__name__)
 
+
+def _sanitize_for_log(value: str, max_len: int = 256) -> str:
+    """Strip CR/LF/tab from user-influenced strings before logging.
+
+    The DLQ replay path reads subjects/errors that originated from remote
+    publishers. Forwarding those into the logger without sanitisation lets
+    an attacker forge additional log lines by embedding ``\\n`` in a
+    subject or payload (CodeQL log-injection rule). Keep this cheap — we
+    only escape the three characters that break one-line-per-event logs.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    if len(value) > max_len:
+        value = value[:max_len] + "…"
+    return value.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
+
+
 # NATS client - lazy import
 _nats_available = False
 
@@ -348,7 +365,12 @@ class DLQManager:
                 original_payload.encode("utf-8"),
             )
 
-            logger.info(f"✅ Replayed message seq={seq} to {metadata.original_subject}")
+            # original_subject is read back from the DLQ row payload — treat
+            # it as user-influenced data. Strip CR/LF/tabs before logging so
+            # an attacker who managed to write a DLQ entry cannot forge
+            # additional log lines (CodeQL log-injection rule).
+            safe_subject = _sanitize_for_log(metadata.original_subject)
+            logger.info("Replayed message seq=%d to %s", seq, safe_subject)
 
             # Delete the DLQ row if requested (stream-level delete, not ack).
             # Only reached after js.publish() above returned a PubAck, so the
@@ -357,7 +379,11 @@ class DLQManager:
                 try:
                     await self._js.delete_msg(stream_name, seq)
                 except Exception as del_err:  # best-effort; replay already succeeded
-                    logger.warning(f"Failed to delete DLQ msg seq={seq}: {del_err}")
+                    logger.warning(
+                        "Failed to delete DLQ msg seq=%d: %s",
+                        seq,
+                        _sanitize_for_log(str(del_err)),
+                    )
 
             return True
 
@@ -366,7 +392,7 @@ class DLQManager:
             # otherwise the generic except below would downgrade it to 500.
             raise
         except Exception as e:
-            logger.error(f"Failed to replay message: {e}")
+            logger.error("Failed to replay message: %s", _sanitize_for_log(str(e)))
             raise HTTPException(status_code=500, detail=str(e))
 
     async def replay_bulk(self, request: ReplayRequest) -> ReplayResponse:

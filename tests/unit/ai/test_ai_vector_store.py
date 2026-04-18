@@ -576,14 +576,18 @@ class TestVectorStore:
         """Test searching with a vector"""
         await memory_store.initialize()
 
+        # Tag the test corpus with tenant_id="__GLOBAL__" so the
+        # fail-closed search guard in VectorStore lets it through.
         await memory_store.add(
             vectors=[[1.0, 0.0], [0.0, 1.0], [0.9, 0.1]],
             texts=["X", "Y", "Near X"],
+            metadatas=[{"tenant_id": "__GLOBAL__"}] * 3,
         )
 
         results = await memory_store.search(
             vector=[1.0, 0.0],
             top_k=2,
+            tenant_id="__GLOBAL__",
         )
 
         assert len(results) == 2
@@ -694,14 +698,15 @@ class TestIntegration:
         # Create collection
         await store.create_collection("products", dimension=3)
 
-        # Add documents
+        # Add documents; tag tenant_id="__GLOBAL__" so the fail-closed
+        # search path lets this cross-tenant integration test through.
         await store.add(
             vectors=[[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]],
             texts=["Product A", "Product B", "Product C"],
             metadatas=[
-                {"category": "electronics"},
-                {"category": "clothing"},
-                {"category": "electronics"},
+                {"category": "electronics", "tenant_id": "__GLOBAL__"},
+                {"category": "clothing", "tenant_id": "__GLOBAL__"},
+                {"category": "electronics", "tenant_id": "__GLOBAL__"},
             ],
             collection="products",
         )
@@ -711,6 +716,7 @@ class TestIntegration:
             vector=[1.0, 0.0, 0.0],
             collection="products",
             top_k=2,
+            tenant_id="__GLOBAL__",
         )
 
         assert len(results) == 2
@@ -721,6 +727,7 @@ class TestIntegration:
             vector=[0.5, 0.5, 0.0],
             collection="products",
             filter={"category": "electronics"},
+            tenant_id="__GLOBAL__",
         )
 
         assert all(r.metadata["category"] == "electronics" for r in results)
@@ -772,7 +779,7 @@ class TestEdgeCases:
         store = VectorStore(config)
         await store.initialize()
 
-        results = await store.search(vector=[0.1, 0.2])
+        results = await store.search(vector=[0.1, 0.2], tenant_id="__GLOBAL__")
 
         assert len(results) == 0
 
@@ -821,9 +828,10 @@ class TestEdgeCases:
 
         await store.add(
             vectors=[[0.1, 0.2], [0.3, 0.4]],
+            metadatas=[{"tenant_id": "__GLOBAL__"}, {"tenant_id": "__GLOBAL__"}],
         )
 
-        results = await store.search(vector=[0.1, 0.2], top_k=100)
+        results = await store.search(vector=[0.1, 0.2], top_k=100, tenant_id="__GLOBAL__")
 
         assert len(results) == 2  # Should return all documents
 

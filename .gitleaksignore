@@ -84,3 +84,4 @@ c030a74e950b66436b38593f6f1ead9c4a3a40e2:apps/services/partner-auth-service/pris
 # payload, not as a secret value. The Gitleaks generic-secret rule
 # false-positives on any string containing "token" near an assignment.
 976c73d08b1abab25c94ac7b46cc288a91502b07:apps/services/user-service/src/auth/auth.service.ts:generic-secret:1227
+574d0fe009abda2e960207c70007d0ca71d2a005:apps/services/user-service/src/auth/auth.service.ts:generic-secret:1261

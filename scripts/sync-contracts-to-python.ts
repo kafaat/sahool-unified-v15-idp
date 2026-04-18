@@ -55,32 +55,82 @@ function stripComments(src: string): string {
 
 /** Extract the SERVICE_PORTS object body using balanced-brace scanning. */
 function extractObjectBody(src: string, identifier: string): string {
-  // Validate identifier shape up-front so the regex body is effectively
-  // a trusted literal. `identifier` only ever comes from internal callers
-  // in this script but the check guards against future misuse.
+  // Validate identifier shape so no regex metachars can sneak in.
   if (!/^[A-Z][A-Z0-9_]*$/.test(identifier)) {
     throw new Error(`Invalid identifier (must be UPPER_SNAKE_CASE): ${identifier}`);
   }
-  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-  const re = new RegExp(
-    `export\\s+const\\s+${identifier}\\s*=\\s*\\{`,
-    "m",
-  );
-  const match = re.exec(src);
-  if (!match) {
-    throw new Error(`Could not locate "export const ${identifier} = {" in TS source`);
-  }
-  const openIdx = src.indexOf("{", match.index);
-  let depth = 0;
-  for (let i = openIdx; i < src.length; i++) {
-    const ch = src[i];
-    if (ch === "{") depth++;
-    else if (ch === "}") {
-      depth--;
-      if (depth === 0) return src.slice(openIdx + 1, i);
+  // Locate `export const <IDENTIFIER>` via plain indexOf, then verify the
+  // surrounding context with literal regexes. Avoids `new RegExp(dynamic)`
+  // so Semgrep's detect-non-literal-regexp rule is satisfied and there is
+  // no ReDoS surface even if `identifier` were ever attacker-controlled.
+  const needle = `export const ${identifier}`;
+  let searchFrom = 0;
+  while (searchFrom < src.length) {
+    const found = src.indexOf(needle, searchFrom);
+    if (found === -1) break;
+    // Require a word-boundary after the identifier so `SERVICE_PORTS`
+    // doesn't match `SERVICE_PORTS_ALIASES`.
+    const afterIdent = src.charCodeAt(found + needle.length);
+    const isWordChar =
+      (afterIdent >= 48 && afterIdent <= 57) || // 0-9
+      (afterIdent >= 65 && afterIdent <= 90) || // A-Z
+      (afterIdent >= 97 && afterIdent <= 122) || // a-z
+      afterIdent === 95; // _
+    if (isWordChar) {
+      searchFrom = found + 1;
+      continue;
     }
+    // After the identifier we expect `<whitespace>=<whitespace>{`.
+    const tail = src.slice(found + needle.length);
+    const tailMatch = /^\s*=\s*\{/.exec(tail);
+    if (!tailMatch) {
+      searchFrom = found + 1;
+      continue;
+    }
+    const openIdx = found + needle.length + tailMatch[0].length - 1;
+    let depth = 0;
+    for (let i = openIdx; i < src.length; i++) {
+      const ch = src[i];
+      if (ch === "{") depth++;
+      else if (ch === "}") {
+        depth--;
+        if (depth === 0) return src.slice(openIdx + 1, i);
+      }
+    }
+    throw new Error(`Unbalanced braces while parsing ${identifier}`);
   }
-  throw new Error(`Unbalanced braces while parsing ${identifier}`);
+  throw new Error(`Could not locate "export const ${identifier} = {" in TS source`);
+}
+
+/** Return the index of `<KEY>: <digit>` in `src`, or -1.
+ *
+ * Word boundary: preceding char must NOT be an identifier character.
+ * Uses literal regexes + indexOf walking so no dynamic RegExp is built
+ * from the caller-supplied key (Semgrep detect-non-literal-regexp).
+ */
+function _findKeyDeclaration(src: string, key: string): number {
+  let searchFrom = 0;
+  while (searchFrom < src.length) {
+    const found = src.indexOf(key, searchFrom);
+    if (found === -1) return -1;
+    // Preceding char must not be an identifier continuation.
+    if (found > 0) {
+      const prev = src.charCodeAt(found - 1);
+      const isIdentChar =
+        (prev >= 48 && prev <= 57) || // 0-9
+        (prev >= 65 && prev <= 90) || // A-Z
+        (prev >= 97 && prev <= 122) || // a-z
+        prev === 95; // _
+      if (isIdentChar) {
+        searchFrom = found + 1;
+        continue;
+      }
+    }
+    const tail = src.slice(found + key.length);
+    if (/^\s*:\s*\d/.test(tail)) return found;
+    searchFrom = found + 1;
+  }
+  return -1;
 }
 
 function parseEntries(body: string, originalSrc: string): ParsedEntry[] {
@@ -106,12 +156,14 @@ function parseEntries(body: string, originalSrc: string): ParsedEntry[] {
     if (!/^[A-Z][A-Z0-9_]*$/.test(key)) {
       throw new Error(`Malformed key: ${key}`);
     }
-    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
-    const keyDeclRe = new RegExp(`\\b${key}\\s*:\\s*\\d+`);
-    const declMatch = keyDeclRe.exec(originalSrc);
+    // Locate `<KEY>: <digit>` in the original source without building a
+    // dynamic RegExp. Walk indexOf matches and verify the boundary +
+    // suffix with literal regexes — avoids Semgrep's
+    // detect-non-literal-regexp finding and removes the ReDoS surface.
+    const declMatch = _findKeyDeclaration(originalSrc, key);
     let deprecated = false;
-    if (declMatch) {
-      const before = originalSrc.slice(0, declMatch.index);
+    if (declMatch !== -1) {
+      const before = originalSrc.slice(0, declMatch);
       const lastClose = before.lastIndexOf("*/");
       if (lastClose !== -1) {
         const afterClose = before.slice(lastClose + 2);

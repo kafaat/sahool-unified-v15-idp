@@ -197,10 +197,15 @@ class BuiltinTools:
             }
 
         try:
+            # Built-in knowledge tools search shared agricultural corpora
+            # that are intentionally cross-tenant. Pass the explicit
+            # "__GLOBAL__" sentinel so VectorStore.search doesn't reject
+            # the call under its fail-closed tenant-scoping guard.
             results = await self._vector_store.search(
                 query=query,
                 top_k=top_k,
                 collection=collection,
+                tenant_id="__GLOBAL__",
             )
             return {
                 "success": True,

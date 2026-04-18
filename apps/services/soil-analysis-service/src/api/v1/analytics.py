@@ -160,22 +160,21 @@ async def list_soil_tests(
         params.extend([cur_ts, cur_id])
 
     where_sql = " AND ".join(where)
-    # SQL injection (Bandit B608): `where_sql` is composed solely from
-    # hard-coded column-name fragments built above (no user input is
-    # interpolated into the SQL text). Every user-supplied value is bound
-    # via asyncpg's positional `$N` placeholders. The `{len(params)+1}`
-    # at the end is a placeholder INDEX, not a value — it just numbers the
-    # next bind param for the LIMIT clause.
-    # Building a single-line query string here keeps Bandit's `# nosec`
-    # comment attached to the exact line the checker flags.
+    # SQL injection (Bandit B608 / Semgrep asyncpg-sqli): `where_sql` is
+    # composed solely from hard-coded column-name fragments built above
+    # (no user input is interpolated into the SQL text). Every
+    # user-supplied value is bound via asyncpg's positional `$N`
+    # placeholders. The `{len(params)+1}` at the end is a placeholder
+    # INDEX, not a value — it just numbers the next bind param for the
+    # LIMIT clause.
     _select = "SELECT id, tenant_id, field_id, sample_date, ph, ec, organic_matter, nitrogen_nitrate_ppm, phosphorus_ppm, potassium_ppm, calcium_ppm, magnesium_ppm, created_at FROM soil_tests"
     _order = "ORDER BY created_at DESC, id DESC"
-    # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
     query = f"{_select} WHERE {where_sql} {_order} LIMIT ${len(params) + 1}"  # nosec B608 — values parameterized via asyncpg
     params.append(limit + 1)
 
     try:
         async with pool.acquire() as conn:
+            # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
             rows = await conn.fetch(query, *params)
     except Exception as exc:  # noqa: BLE001
         logger.error("soil_tests_query_failed", error=str(exc))

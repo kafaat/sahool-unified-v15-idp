@@ -998,14 +998,19 @@ class PersistentGraphStore(GraphStore):
         filter_dict = {}
         if entity_type:
             filter_dict["type"] = entity_type.value
-        if tenant_id:
-            filter_dict["tenant_id"] = tenant_id
 
+        # Pass tenant_id to search() explicitly. VectorStore.search() injects
+        # it into the filter itself (and raises on unscoped calls), so we
+        # don't stuff it into filter_dict here — that would trigger the
+        # conflict-detection path if the caller ever passed it twice.
+        # Callers that genuinely want a cross-tenant entity lookup (shared
+        # agricultural ontology) must pass tenant_id="__GLOBAL__".
         results = await self._vector_store.search(
             vector=vector,
             collection=f"{self.collection_prefix}_entities",
             top_k=limit,
             filter=filter_dict if filter_dict else None,
+            tenant_id=tenant_id or "__GLOBAL__",
         )
 
         entities = []

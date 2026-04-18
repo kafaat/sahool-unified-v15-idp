@@ -337,23 +337,42 @@ class ComplianceService:
         # Verdict derivation. Certification bodies read the "can certify"
         # signal before anything else; surface it explicitly rather than
         # forcing them to interpret raw percentages + NC counts.
-        # Criteria mirror GlobalGAP IFA v6: any open MAJOR-must or
-        # CRITICAL non-conformity blocks certification regardless of
-        # overall percentage. 100% of MAJOR-musts + ≥95% of MINOR-musts
-        # = pass with no findings.
-        if current is None or current.overall_status == ComplianceStatus.NOT_ASSESSED:
+        #
+        # Criteria mirror GlobalGAP IFA v6. Two independent "blocker"
+        # signals both map to `blocked` — we check BOTH so a farm can't
+        # slip through just because its major-must failures were captured
+        # on the ComplianceRecord but never materialised as standalone
+        # NonConformity items in the in-memory store (this is possible
+        # because `calculate_compliance_status` counts major_must_fails
+        # from assessments directly, separate from the NC store):
+        #   * Open CRITICAL or MAJOR non-conformity rows, OR
+        #   * ComplianceRecord with `major_must_fails > 0`
+        #     or overall_status == NON_COMPLIANT
+        major_blocker = critical_open > 0 or major_open > 0
+        record_blocker = current is not None and (
+            current.major_must_fails > 0
+            or current.overall_status == ComplianceStatus.NON_COMPLIANT
+        )
+
+        if current is None:
             verdict = "not_assessed"
             verdict_en = "Not yet assessed — no compliance record on file."
             verdict_ar = "لم يتم التقييم بعد — لا يوجد سجل امتثال."
-        elif critical_open > 0 or major_open > 0:
+        elif current.overall_status == ComplianceStatus.NOT_ASSESSED:
+            verdict = "not_assessed"
+            verdict_en = "Compliance record exists but no assessment has been performed yet."
+            verdict_ar = "يوجد سجل امتثال لكن لم يتم إجراء أي تقييم بعد."
+        elif major_blocker or record_blocker:
             verdict = "blocked"
             verdict_en = (
                 f"Certification BLOCKED: {major_open} open major non-conformity(ies), "
-                f"{critical_open} critical. Must be resolved before audit."
+                f"{critical_open} critical; {current.major_must_fails} major-must failure(s) "
+                f"on the compliance record. Must be resolved before audit."
             )
             verdict_ar = (
                 f"الشهادة محجوبة: {major_open} حالة عدم مطابقة رئيسية مفتوحة، "
-                f"{critical_open} حرجة. يجب حلها قبل التدقيق."
+                f"{critical_open} حرجة؛ {current.major_must_fails} إخفاق في المتطلبات الرئيسية "
+                f"على سجل الامتثال. يجب حلها قبل التدقيق."
             )
         elif current.overall_status == ComplianceStatus.COMPLIANT:
             verdict = "eligible"

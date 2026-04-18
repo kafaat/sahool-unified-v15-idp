@@ -1118,6 +1118,77 @@ class TestMainEndpoints:
         assert body["trend"]["months"] == 3
         assert len(body["trend"]["data_points"]) == 3
 
+    def test_compliance_report_blocked_by_record_major_must_fails(self, client):
+        """Major-must failures on the ComplianceRecord alone (without
+        matching open NonConformity rows) must still produce a
+        `blocked` verdict.
+
+        ComplianceRecord.major_must_fails is populated by
+        ``calculate_compliance_status`` directly from assessments,
+        independent from the separate NC tracking in
+        ``ComplianceService.non_conformities``. A farm with
+        major-must failures counted on its record but zero matching
+        NC entries would (incorrectly) verdict as `conditional` if
+        we only looked at open NCs — the IFA v6 rule is that ANY
+        major-must failure signal blocks certification.
+        """
+        client.post(
+            "/farms/farm_record_blk/compliance",
+            json={
+                "farm_id": "farm_record_blk",
+                "tenant_id": self._UUID,
+                "overall_status": "non_compliant",
+                "compliance_percentage": 88.0,
+                "total_control_points": 100,
+                "compliant_points": 88,
+                "non_compliant_points": 12,
+                # The signal this test exercises: the record carries
+                # major-must failures, but `non_conformities` is empty.
+                "major_must_fails": 2,
+                "minor_must_fails": 3,
+            },
+            headers=self._HEADERS,
+        )
+
+        r = client.get("/farms/farm_record_blk/compliance/report", headers=self._HEADERS)
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["verdict"] == "blocked"
+        # Verdict text should reference the record-side failure count,
+        # not just NC counts (which are zero here).
+        assert "2 major-must failure" in body["verdict_en"]
+        # NC rollup should still be zero — the blocker came from the record.
+        assert body["non_conformities"]["by_severity"]["major_open"] == 0
+
+    def test_compliance_report_not_assessed_record_exists(self, client):
+        """A ComplianceRecord with status NOT_ASSESSED (exists on file
+        but no assessment performed) must still map to verdict=
+        `not_assessed` — with verdict text that acknowledges the
+        record exists rather than claiming there's no record."""
+        client.post(
+            "/farms/farm_stub/compliance",
+            json={
+                "farm_id": "farm_stub",
+                "tenant_id": self._UUID,
+                "overall_status": "not_assessed",
+                "compliance_percentage": 0.0,
+                "total_control_points": 0,
+                "compliant_points": 0,
+                "non_compliant_points": 0,
+            },
+            headers=self._HEADERS,
+        )
+
+        r = client.get("/farms/farm_stub/compliance/report", headers=self._HEADERS)
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["verdict"] == "not_assessed"
+        # Distinct from the "no record on file" message used when
+        # current is None — Copilot called this out on re-review.
+        assert "no assessment has been performed" in body["verdict_en"]
+        assert body["current"] is not None
+        assert body["current"]["overall_status"] == "not_assessed"
+
     def test_get_farm_certificates(self, client):
         r = client.get("/farms/farm_1/certificates", headers=self._HEADERS)
         assert r.status_code == 200

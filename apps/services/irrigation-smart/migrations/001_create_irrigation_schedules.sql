@@ -44,10 +44,11 @@ COMMENT ON TABLE irrigation_schedules IS
     'Per-event irrigation schedule rows managed by /api/v1/irrigation/schedules CRUD.';
 
 -- Migration bookkeeping
-CREATE TABLE IF NOT EXISTS public._migrations (
-    name        VARCHAR(255) PRIMARY KEY,
-    applied_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+-- The platform already owns `public._migrations` with schema
+-- (id SERIAL PRIMARY KEY, name VARCHAR UNIQUE, applied_at TIMESTAMP),
+-- created by infrastructure/core/postgres/migrations/001_init_extensions.sql.
+-- We only INSERT here; defining a different schema would shadow the
+-- platform tracker and break tooling that reads it.
 INSERT INTO public._migrations (name)
 VALUES ('001_create_irrigation_schedules')
 ON CONFLICT (name) DO NOTHING;

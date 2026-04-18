@@ -22,12 +22,12 @@ changing any route signature or response shape.
 from __future__ import annotations
 
 import hashlib
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 # Authentication imports — mirror the fail-secure fallback already used by
 # the sibling routes.py so the router rejects unauthenticated requests
@@ -157,10 +157,12 @@ class CreateTaskFromAlertRequest(BaseModel):
 class ValidateDateRequest(BaseModel):
     """POST /api/v1/intelligence/validate-date payload.
 
-    `target_date` is a plain `date` (YYYY-MM-DD). Clients that had been
-    sending an ISO datetime string should truncate to the date portion
-    before calling — the strict type here catches the mismatch at the
-    boundary with a 422 instead of swallowing it.
+    The web client posts an ISO datetime string (via
+    `new Date(date).toISOString()` in
+    apps/web/src/lib/api/client.ts:973), not a pure date. Accept both
+    flavours — `date` objects, `YYYY-MM-DD` strings, and full ISO
+    datetimes — and coerce to a plain `date` before the handler sees it.
+    Strict typing would otherwise 422 every single web call.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -168,6 +170,18 @@ class ValidateDateRequest(BaseModel):
     date: date
     activity: str = Field(..., min_length=1, max_length=80)
     field_id: str | None = Field(default=None, max_length=100)
+
+    @field_validator("date", mode="before")
+    @classmethod
+    def _accept_iso_datetime(cls, v: Any) -> Any:
+        """Turn an ISO datetime string into a `date`."""
+        if isinstance(v, str) and "T" in v:
+            try:
+                return datetime.fromisoformat(v.replace("Z", "+00:00")).date()
+            except ValueError:
+                # Let Pydantic's default str→date parser handle / reject it.
+                return v
+        return v
 
 
 # ─────────────────────────────────────────────────────────────────────────────

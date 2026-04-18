@@ -420,11 +420,17 @@ services:
   routes:
   - name: advisory-service-route
     paths:
+    # Backend declares @app.post("/api/v1/advisory/..."), /api/v1/disease/...,
+    # /api/v1/fertilizer/..., /api/v1/crops, /api/v1/loans/..., /api/v1/actions
+    # and /api/v1/nutrient — all with the /api/v1 prefix already. Route every
+    # top-level namespace it owns through the same upstream.
     - /api/v1/advisory
+    - /api/v1/disease
     - /api/v1/fertilizer
-    - /advisory
-    - /fertilizer
-    strip_path: true
+    - /api/v1/nutrient
+    - /api/v1/loans/crop-loan-verification
+    - /api/v1/crop-catalog
+    strip_path: false  # backend routes already carry /api/v1 — don't strip
     protocols:
     - http
     - https

@@ -385,6 +385,27 @@ services:
   # @app.post("/weather/current") in the backend.
   path: /weather
   routes:
+  # Legacy "double weather" prefix used by the current web contract
+  # WEATHER_ENDPOINTS.KONG_CURRENT / KONG_FORECAST / KONG_AGRICULTURAL_REPORT
+  # in packages/shared-types/src/contracts/api-endpoints.ts. With the
+  # service.path prepend above, a naive single prefix would produce
+  # "/weather/weather/current" upstream (404). This more-specific route
+  # strips the full /api/v1/weather/weather so the remainder ("/current")
+  # gets "/weather" prepended once → /weather/current ✓. Kong picks this
+  # route over the single-prefix one below via longest-prefix match.
+  - name: weather-service-legacy-route
+    paths:
+    - /api/v1/weather/weather
+    strip_path: true
+    protocols:
+    - http
+    - https
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
   - name: weather-service-route
     paths:
     - /api/v1/weather

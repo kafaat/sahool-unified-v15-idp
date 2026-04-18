@@ -333,14 +333,34 @@ async def _http_exception_envelope(_req, exc: HTTPException):
         body["error"] = detail
         body["errorAr"] = detail
     elif isinstance(detail, dict):
-        body["error"] = detail.get("error") or detail.get("message") or str(detail)
-        body["errorAr"] = detail.get("error_ar") or detail.get("errorAr") or detail.get("message_ar") or body["error"]
+        # Named-error shape: {"error": "...", "error_ar": "...", ...}
+        if detail.get("error") or detail.get("message"):
+            body["error"] = detail.get("error") or detail.get("message")
+            body["errorAr"] = (
+                detail.get("error_ar") or detail.get("errorAr") or detail.get("message_ar") or body["error"]
+            )
+        # Validation-list shape: {"errors": [...], "error_ar": "..."} —
+        # used by _validate_sensor_ranges() and a handful of older call
+        # sites. We map it to a stable English message plus the same
+        # Arabic/errors payload the client already expects.
+        elif "errors" in detail:
+            body["error"] = "Validation error"
+            body["errorAr"] = detail.get("error_ar") or detail.get("errorAr") or "خطأ في التحقق من الصحة"
+        # Anything else: stringify as a last resort but tag it so clients
+        # can detect unexpected shapes.
+        else:
+            body["error"] = "Request failed"
+            body["errorAr"] = "فشل الطلب"
+            body["detail"] = detail
         if detail.get("error_code") or detail.get("errorCode"):
             body["errorCode"] = detail.get("error_code") or detail.get("errorCode")
-        # forward any additional keys the caller attached (e.g. validActivities)
+        # Forward any additional keys the caller attached (validActivities,
+        # errors list, field names, ...) at the top level so clients can
+        # surface them directly.
+        reserved = {"error", "error_ar", "errorAr", "message", "message_ar", "error_code", "errorCode"}
         for key, value in detail.items():
-            if key not in {"error", "error_ar", "errorAr", "message", "message_ar", "error_code", "errorCode"}:
-                body[key] = value
+            if key not in reserved:
+                body.setdefault(key, value)
     else:
         body["error"] = str(detail)
         body["errorAr"] = str(detail)
@@ -1696,9 +1716,15 @@ def record_sensor_reading_with_action(
 # Literal types pinned to the DB CHECK constraints so Pydantic rejects
 # invalid values with 422 at the API boundary instead of Postgres 500.
 IrrigationScheduleType = Literal["manual", "automatic", "scheduled"]
-IrrigationFrequency = Literal["daily", "weekly", "custom", "once"]
-# Matches `valid_schedule_status` CHECK in migrations/001.
-IrrigationStatusLit = Literal["pending", "active", "completed", "cancelled", "skipped"]
+# Matches the web IrrigationFrequency union
+# (apps/web/src/lib/api/types.ts:318 → 'daily' | 'weekly' | 'custom').
+# 'once' is not in the contract, so /row_to_schedule synthesises 'custom'
+# for the per-event DB rows instead.
+IrrigationFrequency = Literal["daily", "weekly", "custom"]
+# Matches the web IrrigationStatus union
+# (apps/web/src/lib/api/types.ts:312 → 'active' | 'paused' | 'completed')
+# AND the CHECK in migrations/001_create_irrigation_schedules.sql.
+IrrigationStatusLit = Literal["active", "paused", "completed"]
 
 
 class ScheduleCreateRequest(BaseModel):
@@ -1753,20 +1779,37 @@ class ScheduleCreateRequest(BaseModel):
 class ScheduleUpdateRequest(BaseModel):
     """Payload for PUT/PATCH /api/v1/irrigation/schedules/{id}.
 
-    All fields are optional *in the sense that omission means "don't
-    touch this column"* — `model_dump(exclude_unset=True)` at the use
-    site filters them out. An EXPLICIT ``null`` for any of
-    `irrigation_date`, `duration_minutes`, `water_amount_liters` would
-    try to write NULL into a NOT-NULL column (see
-    migrations/001_create_irrigation_schedules.sql) and fail on the DB
-    side with a misleading 500. The field validators below reject that
-    case at the API boundary so clients get a clean 422 with a clear
-    error instead.
+    Accepts the full web `IrrigationSchedule` edit surface so a client
+    can round-trip a row it got from GET straight back into an UPDATE.
+    The `fieldId`/`name`/`type`/`startDate`/`frequency` inputs are
+    mapped into the DB columns: `name` → `notes` (same column the
+    creation flow uses), `startDate` → `irrigation_date` + `start_time`,
+    and `fieldId`/`type`/`frequency` are accepted-but-ignored (the
+    per-event DB model has no recurrence / type column).
+
+    All fields optional in the "omit to skip" sense — `model_dump(
+    exclude_unset=True)` at the use site filters unset fields so only
+    the columns the client actually sent get touched. An EXPLICIT
+    ``null`` for any of `irrigation_date`, `duration_minutes`,
+    `water_amount_liters` would try to write NULL into a NOT-NULL
+    column (see migrations/001_create_irrigation_schedules.sql) and
+    fail on the DB side with a misleading 500. The validator below
+    rejects that case at the API boundary so clients get a clean 422
+    with a clear error instead.
     """
 
     model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
-    # CamelCase + snake_case aliases (populate_by_name=True accepts both).
+    # Web-facing camelCase fields — some translate into DB columns, some
+    # are accepted for round-trip compatibility and ignored on UPDATE.
+    field_id: str | None = Field(default=None, max_length=100, alias="fieldId")
+    name: str | None = Field(default=None, max_length=200)
+    type: IrrigationScheduleType | None = Field(default=None)
+    frequency: IrrigationFrequency | None = Field(default=None)
+    start_date: datetime | None = Field(default=None, alias="startDate")
+
+    # DB-column fields (snake_case primary, camelCase alias where the web
+    # contract uses a shorter name like duration / waterAmount).
     irrigation_date: date | None = None
     start_time: time | None = None
     duration_minutes: int | None = Field(default=None, ge=1, le=24 * 60, alias="duration")
@@ -1778,15 +1821,40 @@ class ScheduleUpdateRequest(BaseModel):
     notes: str | None = Field(default=None, max_length=2000)
 
     @model_validator(mode="after")
-    def _reject_explicit_null_for_notnull_columns(self) -> "ScheduleUpdateRequest":
-        """Reject explicit null on columns that the DB declares NOT NULL.
+    def _normalise_and_reject_nulls(self) -> "ScheduleUpdateRequest":
+        """Rewrite camelCase → DB column names, and reject explicit null
+        on NOT NULL columns.
 
-        Uses `model_fields_set` (which reflects what the client actually
-        sent in the JSON payload) rather than attribute values — a value
-        of `None` is ambiguous otherwise (is it the default, or did the
-        client send `null` on purpose?). Only the three columns declared
-        NOT NULL in the migration are guarded.
+        Rewrites (all applied in-place so the UPDATE downstream sees only
+        DB columns):
+          - `startDate` (ISO datetime) → `irrigation_date` + `start_time`
+          - `name` → `notes` (unless `notes` was also sent — explicit wins)
+        The `fieldId` / `type` / `frequency` fields are intentionally
+        accepted but NOT written — the DB model doesn't carry them.
+
+        Uses `model_fields_set` (what the JSON payload actually
+        contained) to distinguish "field omitted" (default `None` →
+        skip) from "field sent as null" (explicit `None` → reject for
+        NOT NULL columns). Only the three columns declared NOT NULL in
+        the migration are guarded; nullable ones (notes / urgency /
+        method / status) accept explicit null.
         """
+        # Rewrite startDate → DB columns if the client used the contract shape.
+        if "start_date" in self.model_fields_set and self.start_date is not None:
+            dt = self.start_date
+            if dt.tzinfo is not None:
+                dt = dt.astimezone(UTC).replace(tzinfo=None)
+            if "irrigation_date" not in self.model_fields_set:
+                self.irrigation_date = dt.date()
+                self.model_fields_set.add("irrigation_date")
+            if "start_time" not in self.model_fields_set:
+                self.start_time = dt.time().replace(microsecond=0)
+                self.model_fields_set.add("start_time")
+        # name → notes when the client didn't also send notes explicitly.
+        if "name" in self.model_fields_set and "notes" not in self.model_fields_set and self.name is not None:
+            self.notes = self.name
+            self.model_fields_set.add("notes")
+
         notnull_cols = ("irrigation_date", "duration_minutes", "water_amount_liters")
         sent_as_null = [col for col in notnull_cols if col in self.model_fields_set and getattr(self, col) is None]
         if sent_as_null:
@@ -1843,10 +1911,13 @@ def _row_to_schedule(row) -> dict:
         "planId": str(row["plan_id"]) if row["plan_id"] is not None else None,
         "name": notes if notes else (f"Irrigation {irrigation_date_iso}" if irrigation_date_iso else "Irrigation"),
         # The per-event DB model doesn't have a `type`/`frequency`; the
-        # web expects both. Synthesize sensible defaults that match how
-        # a single-row entry renders: one-off scheduled irrigation.
+        # web IrrigationSchedule type requires both and both are unions:
+        # type ∈ {manual, automatic, scheduled}, frequency ∈ {daily,
+        # weekly, custom}. A single-event row has no recurrence, so
+        # `custom` is the closest honest value — 'once' would break the
+        # client's union check.
         "type": "scheduled",
-        "frequency": "once",
+        "frequency": "custom",
         "status": row["status"],
         "startDate": start_date_iso,
         "scheduledAt": start_date_iso,  # legacy alias some UI components read
@@ -2012,37 +2083,58 @@ async def update_irrigation_schedule(
     payload: ScheduleUpdateRequest,
     user: dict = Depends(get_current_user),
 ):
-    """Partial update; only columns that were explicitly sent get touched."""
+    """Partial update; only columns that were explicitly sent get touched.
+
+    Empty payload is treated as a NO-OP: we return the current row so
+    the client's optimistic UI can retry or dry-run without erroring.
+    """
     pool = _require_db_pool()
     tenant_id = _validate_tenant_id(user)
 
     # Build SET clause from only the fields the client actually sent,
-    # cross-checked against the allowlist. Any key that isn't in the
-    # allowlist is a bug on the server side (Pydantic should have
-    # already rejected it) and we fail-closed with a 400 rather than
-    # trust the key into the SQL.
-    updates = payload.model_dump(exclude_unset=True)
-    if not updates:
-        raise HTTPException(status_code=400, detail="No updates provided")
+    # intersected with the allowlist. The request model accepts several
+    # write-only fields (`fieldId`, `type`, `frequency`, `start_date`,
+    # `name`) for round-trip compatibility with the web contract — those
+    # are NOT DB columns, so we filter them out here rather than rejecting
+    # the request. Anything else unexpected IS a bug and we fail closed.
+    raw_updates = payload.model_dump(exclude_unset=True)
+    write_only = {"field_id", "type", "frequency", "start_date", "name"}
+    updates = {k: v for k, v in raw_updates.items() if k not in write_only}
 
-    set_parts: list[str] = []
-    params: list[Any] = []
-    for key, value in updates.items():
-        if key not in _SCHEDULE_UPDATABLE_COLUMNS:
-            raise HTTPException(status_code=400, detail=f"Field '{key}' is not updatable")
-        set_parts.append(f"{key} = ${len(params) + 1}")
-        params.append(value)
-    set_parts.append("updated_at = NOW()")
-    params.extend([schedule_id, tenant_id])
-
-    # `set_parts` is composed exclusively from allowlisted column names
-    # above; user-supplied VALUES are bound via asyncpg's $N placeholders.
-    sql = (
-        f"UPDATE irrigation_schedules SET {', '.join(set_parts)} "  # nosec B608 — allowlisted identifiers
-        f"WHERE id = ${len(params) - 1} AND tenant_id = ${len(params)} "
-        f"RETURNING *"
-    )
     async with pool.acquire() as conn:
+        if not updates:
+            # No DB-column fields actually changed → return the current row
+            # unchanged so the client's optimistic update still gets a
+            # response (not a 400). This also keeps idempotent retries
+            # cheap: the UI can re-send the same PUT payload after a
+            # network hiccup and see the exact same body.
+            row = await conn.fetchrow(
+                "SELECT * FROM irrigation_schedules WHERE id = $1 AND tenant_id = $2",
+                schedule_id,
+                tenant_id,
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Schedule not found")
+            return {"success": True, "data": _row_to_schedule(row)}
+
+        set_parts: list[str] = []
+        params: list[Any] = []
+        for key, value in updates.items():
+            if key not in _SCHEDULE_UPDATABLE_COLUMNS:
+                # Server bug: Pydantic let a non-allowlisted key through.
+                raise HTTPException(status_code=400, detail=f"Field '{key}' is not updatable")
+            set_parts.append(f"{key} = ${len(params) + 1}")
+            params.append(value)
+        set_parts.append("updated_at = NOW()")
+        params.extend([schedule_id, tenant_id])
+
+        # `set_parts` is composed exclusively from allowlisted column names
+        # above; user-supplied VALUES are bound via asyncpg's $N placeholders.
+        sql = (
+            f"UPDATE irrigation_schedules SET {', '.join(set_parts)} "  # nosec B608 — allowlisted identifiers
+            f"WHERE id = ${len(params) - 1} AND tenant_id = ${len(params)} "
+            f"RETURNING *"
+        )
         row = await conn.fetchrow(sql, *params)
     if not row:
         raise HTTPException(status_code=404, detail="Schedule not found")

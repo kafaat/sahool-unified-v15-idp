@@ -28,9 +28,23 @@ def override_auth(client: TestClient):
     from src.main import app
 
     async def _fake_user() -> User:  # type: ignore[override]
-        u = User()
-        u.id = "test-user"  # type: ignore[attr-defined]
-        u.tenant_id = "tenant-test"  # type: ignore[attr-defined]
+        # The real `shared.auth.models.User` is a dataclass with required
+        # `id` / `email` / `roles` fields (and several optional ones); a
+        # bare `User()` call would `TypeError`. Build via the dataclass
+        # constructor when the shared model is available, fall back to
+        # the permissive stub attributes otherwise (for the ImportError
+        # branch in intelligence_endpoints.py).
+        try:
+            u = User(
+                id="test-user",
+                email="test-user@example.com",
+                roles=[],
+                tenant_id="tenant-test",
+            )  # type: ignore[call-arg]
+        except TypeError:
+            u = User()
+            u.id = "test-user"  # type: ignore[attr-defined]
+            u.tenant_id = "tenant-test"  # type: ignore[attr-defined]
         return u
 
     app.dependency_overrides[get_current_user] = _fake_user

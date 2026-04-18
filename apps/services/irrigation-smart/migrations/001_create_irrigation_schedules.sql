@@ -25,14 +25,40 @@ CREATE TABLE IF NOT EXISTS irrigation_schedules (
     water_amount_liters   DECIMAL(12, 2) NOT NULL,
     urgency               VARCHAR(20),
     method                VARCHAR(50),
-    status                VARCHAR(30)  NOT NULL DEFAULT 'pending',
+    status                VARCHAR(30)  NOT NULL DEFAULT 'active',
     notes                 TEXT,
     created_at            TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
     updated_at            TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    -- Values aligned with the web IrrigationStatus union
+    -- (apps/web/src/lib/api/types.ts:312 → 'active' | 'paused' | 'completed').
+    -- Legacy pending/cancelled/skipped dropped from the CHECK so the DB
+    -- rejects them explicitly (they were never emitted by the contract).
     CONSTRAINT valid_schedule_status CHECK (
-        status IN ('pending', 'active', 'completed', 'cancelled', 'skipped')
+        status IN ('active', 'paused', 'completed')
     )
 );
+
+-- Defensive migration for deployments that already ran an earlier revision
+-- of this file (when the CHECK accepted pending/cancelled/skipped): re-map
+-- those rows to the closest contract value before the stricter CHECK
+-- replaces the old one. No-op on a fresh DB because the table was just
+-- created with the right CHECK.
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.table_constraints
+        WHERE table_name = 'irrigation_schedules'
+          AND constraint_name = 'valid_schedule_status'
+    ) THEN
+        UPDATE irrigation_schedules
+           SET status = CASE
+                            WHEN status = 'pending'   THEN 'active'
+                            WHEN status IN ('cancelled', 'skipped') THEN 'paused'
+                            ELSE status
+                        END
+         WHERE status IN ('pending', 'cancelled', 'skipped');
+    END IF;
+END $$;
 
 -- Primary list query: WHERE tenant_id=$1 [AND field_id=$2] ORDER BY irrigation_date
 CREATE INDEX IF NOT EXISTS idx_irrigation_schedules_tenant_field_date

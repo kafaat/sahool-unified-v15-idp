@@ -366,8 +366,7 @@ class ComplianceService:
                 f"{minor_open} minor non-conformity(ies) open."
             )
             verdict_ar = (
-                f"أهلية مشروطة بنسبة {current.compliance_percentage:.1f}%. "
-                f"{minor_open} حالة عدم مطابقة ثانوية مفتوحة."
+                f"أهلية مشروطة بنسبة {current.compliance_percentage:.1f}%. {minor_open} حالة عدم مطابقة ثانوية مفتوحة."
             )
 
         # Summary paragraph — bilingual, narrative form so the report's

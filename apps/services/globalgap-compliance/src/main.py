@@ -363,9 +363,7 @@ async def get_compliance_report(
     be certified in its current state regardless of percentage.
     """
     compliance_service = app.state.compliance_service
-    return await compliance_service.generate_compliance_report(
-        farm_id=farm_id, tenant_id=tenant_id, months=months
-    )
+    return await compliance_service.generate_compliance_report(farm_id=farm_id, tenant_id=tenant_id, months=months)
 
 
 # ============== Checklist Endpoints ==============

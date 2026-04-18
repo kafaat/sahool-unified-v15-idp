@@ -11,7 +11,7 @@
       }
     ]
   },
-  "description": "SAHOOL Audit Service — tamper-evident hash chain integrity + write-pipeline health. Feeds the AuditHashChainBroken and AuditServiceNotReceivingWrites alerts defined in infrastructure/monitoring/prometheus/rules/audit-alerts.yml. Backed by audit_chain_valid{tenant_id} gauge (refreshed by _chain_validation_loop in apps/services/audit-service/src/main.py), audit_writes_total{tenant_id,category} counter, and audit_store_backend{kind} gauge. | لوحة معلومات سلامة سلسلة التجزئة لخدمة التدقيق.",
+  "description": "SAHOOL Audit Service — tamper-evident hash chain integrity + write-pipeline health. Feeds the AuditHashChainBroken and AuditServiceNotReceivingWrites alerts defined in infrastructure/monitoring/prometheus/rules/audit-alerts.yml. Backed by audit_chain_valid{tenant_id} gauge (refreshed by _chain_validation_loop in apps/services/audit-service/src/main.py), audit_writes_total{tenant_id,category} counter, and audit_store_backend{kind} gauge. Also surfaces retention-pipeline observability via audit_retention_* metrics (pushgateway) and audit_chain_retention_gaps_crossed{tenant_id} so operators can distinguish a legitimate chain re-anchor from tampering. | لوحة معلومات سلامة سلسلة التجزئة لخدمة التدقيق.",
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
@@ -300,11 +300,184 @@
       ],
       "title": "Write Failures Rate | معدل فشل الكتابات",
       "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "id": 9,
+      "panels": [],
+      "title": "Retention Activity | نشاط الاحتفاظ",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Total successful retention runs in the last 24 hours across all tenants. Zero after >25h triggers AuditRetentionJobStalled.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "yellow", "value": 0 },
+              { "color": "green", "value": 1 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 28 },
+      "id": 10,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "value"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum(increase(audit_retention_runs_total{status=\"success\"}[24h]))",
+          "legendFormat": "Successful runs (24h)",
+          "refId": "A"
+        }
+      ],
+      "title": "Retention Runs (last 24h) | تشغيلات الاحتفاظ",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Per-category retention deletion rate. Should only be non-zero during the nightly run window.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "rows/sec",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 28 },
+      "id": 11,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "sum by (category) (rate(audit_retention_rows_deleted_total[5m]))",
+          "legendFormat": "{{category}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Rows Deleted (5m rate) | معدل الحذف",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Elapsed seconds since the worker last completed. Expected: <25h. Beyond 25h triggers AuditRetentionJobStalled.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 86400 },
+              { "color": "red", "value": 90000 }
+            ]
+          },
+          "unit": "s"
+        }
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 28 },
+      "id": 12,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "textMode": "value"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "time() - audit_retention_last_run_timestamp_seconds",
+          "legendFormat": "Since last run",
+          "refId": "A"
+        }
+      ],
+      "title": "Time Since Last Run (seconds) | منذ آخر تشغيل",
+      "type": "stat"
+    },
+    {
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "description": "Non-zero means the tenant's hash chain has been legitimately re-anchored by retention. NOT an error — distinguishes 'retention has run' from 'chain untouched'.",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "blue", "value": null }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 28 },
+      "id": 13,
+      "options": {
+        "colorMode": "none",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "auto",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "showPercentChange": false,
+        "textMode": "value_and_name"
+      },
+      "pluginVersion": "10.4.0",
+      "targets": [
+        {
+          "datasource": { "type": "prometheus", "uid": "prometheus" },
+          "expr": "audit_chain_retention_gaps_crossed",
+          "legendFormat": "{{tenant_id}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Retention Gaps Crossed Per Tenant | فجوات الاحتفاظ المُقبولة",
+      "type": "stat"
     }
   ],
   "refresh": "1m",
   "schemaVersion": 39,
-  "tags": ["sahool", "audit", "compliance", "security"],
+  "tags": ["sahool", "audit", "compliance", "security", "retention"],
   "templating": { "list": [] },
   "time": { "from": "now-6h", "to": "now" },
   "timepicker": {},

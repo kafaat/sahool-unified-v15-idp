@@ -443,6 +443,42 @@ def test_inmemory_store_retention_boundaries_empty_by_default():
     assert boundaries == []
 
 
+def test_chain_validate_endpoint_exposes_retention_gaps_crossed(client):
+    """The /chain/validate response must surface retention_gaps_crossed
+    so dashboards (and the AUDIT_CHAIN_RETENTION_GAPS_CROSSED gauge it
+    mirrors) can distinguish "retention has run" from "never touched".
+
+    We drive the endpoint end-to-end: POST a handful of entries, reach
+    into the in-memory store to simulate a retention run, then GET the
+    endpoint and assert the field is present and non-zero.
+    """
+    # Seed a few entries so there's a chain to retention-process.
+    for i in range(5):
+        r = client.post(
+            "/api/v1/audit/logs",
+            headers=HDR,
+            json={
+                "action": f"e{i}",
+                "category": "authentication",
+                "severity": "info",
+                "details": {"i": i},
+            },
+        )
+        assert r.status_code == 200
+
+    # Simulate retention: drop the first 2 rows, keeping seq_nums >= 3.
+    from src.main import app
+
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+
+    r = client.get("/api/v1/audit/chain/validate", headers=HDR)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["valid"] is True
+    assert body["retention_gaps_crossed"] is not None
+    assert body["retention_gaps_crossed"] > 0
+
+
 def test_validate_chain_flags_cleared_prev_hash_as_tamper():
     """If an attacker clears `prev_hash` to None/empty, validator must NOT
     silently normalize it to GENESIS_HASH. Addresses Copilot r3103488517:

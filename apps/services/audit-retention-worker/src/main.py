@@ -15,6 +15,12 @@ Environment variables (see README for the full list):
 * ``AUDIT_RETENTION_<CATEGORY>_DAYS`` — per-category override.
 * ``AUDIT_RETENTION_DRY_RUN=true`` — skip DELETE + event insert;
   equivalent to ``--dry-run``.
+* ``AUDIT_RETENTION_PUSHGATEWAY_URL`` — optional. When set, the worker
+  pushes a batch of Prometheus metrics to the given pushgateway URL
+  at end-of-run (e.g.
+  ``http://prometheus-pushgateway.monitoring.svc.cluster.local:9091``).
+  Unset → metrics push is skipped entirely, sweep still runs normally.
+  See ``src/metrics.py`` for the metric names and label contract.
 
 Exit codes:
 
@@ -25,9 +31,9 @@ Exit codes:
 Designed for a Kubernetes CronJob: one process per scheduled run,
 exits when the sweep finishes. Output is structured JSON to stderr —
 Kubernetes' log collector (Loki / CloudWatch / Stackdriver) picks up
-the fields as searchable labels. A Prometheus-pushgateway integration
-for short-lived CronJob metrics is a documented follow-up (see README
-§ "Follow-ups"); today the sweep summary is only visible in logs.
+the fields as searchable labels. Short-lived CronJob pods can't be
+scraped by Prometheus, so metrics go out via the pushgateway at
+end-of-run (opt-in, see AUDIT_RETENTION_PUSHGATEWAY_URL above).
 """
 
 from __future__ import annotations
@@ -41,6 +47,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from .metrics import PushgatewayMetrics
 from .policies import describe, resolve_policies
 from .retention import SweepSummary, run_sweep
 
@@ -208,7 +215,34 @@ async def _run(*, dry_run: bool) -> int:
         await pool.close()
 
     logger.info("sweep.complete", extra=_summarise(summary, dry_run=dry_run))
+
+    # Push metrics to the pushgateway if configured. Intentionally runs
+    # AFTER the summary log + BEFORE the exit: push failures must not
+    # affect the exit code (deletions already succeeded) and the summary
+    # log stays useful even when metrics are disabled.
+    _push_metrics(summary)
+
     return 0
+
+
+def _push_metrics(summary: SweepSummary) -> None:
+    """Emit the sweep's metrics to the pushgateway, if configured.
+
+    No-op (with a debug log) when AUDIT_RETENTION_PUSHGATEWAY_URL is
+    unset — that's the default in dev and on clusters without a
+    pushgateway. Any failure inside PushgatewayMetrics is swallowed
+    there; this wrapper re-catches anything that slips through so the
+    metrics emitter can never break a successful retention run.
+    """
+    url = os.getenv("AUDIT_RETENTION_PUSHGATEWAY_URL") or None
+    try:
+        metrics = PushgatewayMetrics()
+        for run in summary.runs:
+            metrics.record_run(run)
+        metrics.finalize(summary)
+        metrics.push(url)
+    except Exception as exc:  # noqa: BLE001 — belt-and-braces; push() already swallows
+        logger.warning("metrics.emit_failed", extra={"error": str(exc)})
 
 
 def main(argv: list[str] | None = None) -> int:

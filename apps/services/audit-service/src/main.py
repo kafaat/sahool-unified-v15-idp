@@ -90,6 +90,13 @@ try:
         "1 when the per-tenant hash chain validates end-to-end; 0 otherwise.",
         ["tenant_id"],
     )
+    AUDIT_CHAIN_RETENTION_GAPS_CROSSED = Gauge(
+        "audit_chain_retention_gaps_crossed",
+        "Count of legitimate retention boundaries the validator crossed "
+        "on the last validate_chain call for this tenant. Non-zero means "
+        "the audit-retention-worker has run for this tenant; NOT an error.",
+        ["tenant_id"],
+    )
     AUDIT_STORE_BACKEND = Gauge(
         "audit_store_backend",
         "1 for the currently active backend; 0 for the inactive one.",
@@ -100,6 +107,7 @@ except ImportError:  # pragma: no cover - keeps the service importable in minima
     AUDIT_WRITES_TOTAL = None
     AUDIT_WRITE_FAILURES_TOTAL = None
     AUDIT_CHAIN_VALID = None
+    AUDIT_CHAIN_RETENTION_GAPS_CROSSED = None
     AUDIT_STORE_BACKEND = None
     _PROM_OK = False
 
@@ -645,6 +653,10 @@ async def lifespan(app: FastAPI):
                     try:
                         result = await app.state.store.validate_chain(tenant_id)
                         AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(1 if result.valid else 0)
+                        if _PROM_OK:
+                            AUDIT_CHAIN_RETENTION_GAPS_CROSSED.labels(tenant_id=tenant_id).set(
+                                result.retention_gaps_crossed
+                            )
                         if not result.valid:
                             logger.error(
                                 "audit_chain_broken tenant=%s errors=%s",
@@ -1029,6 +1041,7 @@ async def validate_hash_chain(
     # Expose the outcome to Prometheus so AuditHashChainBroken can fire.
     if _PROM_OK:
         AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(1 if result.valid else 0)
+        AUDIT_CHAIN_RETENTION_GAPS_CROSSED.labels(tenant_id=tenant_id).set(result.retention_gaps_crossed)
 
     # Optional time window — the store currently returns the full chain;
     # apply the client-supplied window over the raw entries if specified,

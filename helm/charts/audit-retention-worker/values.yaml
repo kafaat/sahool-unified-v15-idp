@@ -96,6 +96,17 @@ securityContext:
   capabilities:
     drop: ["ALL"]
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Prometheus pushgateway — short-lived CronJob pods can't be scraped, so
+# the worker pushes its metrics batch at end-of-run. Leave empty to skip
+# the push entirely (dev default; behaviour identical to pre-observability
+# worker versions). On clusters with the kube-prometheus-stack pushgateway
+# deployed, set to:
+#   http://prometheus-pushgateway.monitoring.svc.cluster.local:9091
+# Metric contract is defined in apps/services/audit-retention-worker/src/metrics.py.
+# ─────────────────────────────────────────────────────────────────────────────
+pushgatewayUrl: ""
+
 nodeSelector: {}
 tolerations: []
 affinity: {}

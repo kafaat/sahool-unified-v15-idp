@@ -363,15 +363,33 @@ class ComplianceService:
             verdict_ar = "يوجد سجل امتثال لكن لم يتم إجراء أي تقييم بعد."
         elif major_blocker or record_blocker:
             verdict = "blocked"
+            # Build the reason text from ONLY the active signals. Stringing
+            # together zero-counts would read as misleading noise ("0 open
+            # major, 0 critical, 0 major-must failure") when a farm is
+            # blocked solely on `overall_status == NON_COMPLIANT`.
+            reasons_en: list[str] = []
+            reasons_ar: list[str] = []
+            if major_open > 0:
+                reasons_en.append(f"{major_open} open major non-conformity(ies)")
+                reasons_ar.append(f"{major_open} حالة عدم مطابقة رئيسية مفتوحة")
+            if critical_open > 0:
+                reasons_en.append(f"{critical_open} critical non-conformity(ies)")
+                reasons_ar.append(f"{critical_open} حالة عدم مطابقة حرجة مفتوحة")
+            if current.major_must_fails > 0:
+                reasons_en.append(
+                    f"{current.major_must_fails} major-must failure(s) on the compliance record"
+                )
+                reasons_ar.append(
+                    f"{current.major_must_fails} إخفاق في المتطلبات الرئيسية على سجل الامتثال"
+                )
+            if current.overall_status == ComplianceStatus.NON_COMPLIANT:
+                reasons_en.append("overall compliance status is NON_COMPLIANT")
+                reasons_ar.append("حالة الامتثال العامة هي غير متوافق")
             verdict_en = (
-                f"Certification BLOCKED: {major_open} open major non-conformity(ies), "
-                f"{critical_open} critical; {current.major_must_fails} major-must failure(s) "
-                f"on the compliance record. Must be resolved before audit."
+                f"Certification BLOCKED: {'; '.join(reasons_en)}. Must be resolved before audit."
             )
             verdict_ar = (
-                f"الشهادة محجوبة: {major_open} حالة عدم مطابقة رئيسية مفتوحة، "
-                f"{critical_open} حرجة؛ {current.major_must_fails} إخفاق في المتطلبات الرئيسية "
-                f"على سجل الامتثال. يجب حلها قبل التدقيق."
+                f"الشهادة محجوبة: {'؛ '.join(reasons_ar)}. يجب حلها قبل التدقيق."
             )
         elif current.overall_status == ComplianceStatus.COMPLIANT:
             verdict = "eligible"
@@ -403,6 +421,12 @@ class ComplianceService:
             f"{len(resolved_ncs)} تم حلها. اتجاه {len(trend)} أشهر مُدرج."
         )
 
+        # Resolved severity rollup — so consumers can also tell at a
+        # glance how deep the resolved pile is without iterating.
+        major_resolved = sum(1 for nc in resolved_ncs if nc.severity == SeverityLevel.MAJOR)
+        minor_resolved = sum(1 for nc in resolved_ncs if nc.severity == SeverityLevel.MINOR)
+        critical_resolved = sum(1 for nc in resolved_ncs if nc.severity == SeverityLevel.CRITICAL)
+
         return {
             "report_type": "globalgap_compliance_report",
             "ifa_version": "6.0",
@@ -415,15 +439,27 @@ class ComplianceService:
             "verdict_en": verdict_en,
             "verdict_ar": verdict_ar,
             "current": current.model_dump() if current else None,
+            # Field names follow the "name = exactly what's in it" rule
+            # so a consumer that sees `open_by_severity` doesn't have to
+            # read the code to know it excludes resolved items.
             "non_conformities": {
                 "total": total_ncs,
-                "open": len(open_ncs),
-                "resolved": len(resolved_ncs),
-                "by_severity": {
-                    "critical_open": critical_open,
-                    "major_open": major_open,
-                    "minor_open": minor_open,
+                "open_count": len(open_ncs),
+                "resolved_count": len(resolved_ncs),
+                "open_by_severity": {
+                    "critical": critical_open,
+                    "major": major_open,
+                    "minor": minor_open,
                 },
+                "resolved_by_severity": {
+                    "critical": critical_resolved,
+                    "major": major_resolved,
+                    "minor": minor_resolved,
+                },
+                # Full payload only for open items; resolved items can be
+                # retrieved via /farms/{id}/non-conformities?resolved=true.
+                # Including them here would double the report size without
+                # helping the primary audit use-case (act on open items).
                 "open_items": [nc.model_dump() for nc in open_ncs],
             },
             "trend": {

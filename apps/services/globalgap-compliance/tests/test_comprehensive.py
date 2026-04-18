@@ -1058,7 +1058,7 @@ class TestMainEndpoints:
         body = r.json()
         assert body["verdict"] == "eligible"
         assert body["current"]["compliance_percentage"] == 98.5
-        assert body["non_conformities"]["open"] == 0
+        assert body["non_conformities"]["open_count"] == 0
         # Bilingual payload is required — certification bodies in
         # MENA need the Arabic verdict text verbatim.
         assert "مؤهل" in body["verdict_ar"]
@@ -1100,7 +1100,7 @@ class TestMainEndpoints:
         assert r.status_code == 200, r.text
         body = r.json()
         assert body["verdict"] == "blocked"
-        assert body["non_conformities"]["by_severity"]["major_open"] == 1
+        assert body["non_conformities"]["open_by_severity"]["major"] == 1
         # Bilingual block reason must name the count.
         assert "BLOCKED" in body["verdict_en"]
         assert "محجوبة" in body["verdict_ar"]
@@ -1158,7 +1158,10 @@ class TestMainEndpoints:
         # not just NC counts (which are zero here).
         assert "2 major-must failure" in body["verdict_en"]
         # NC rollup should still be zero — the blocker came from the record.
-        assert body["non_conformities"]["by_severity"]["major_open"] == 0
+        assert body["non_conformities"]["open_by_severity"]["major"] == 0
+        # Verdict text should NOT include a "0 open major" noise clause
+        # since the blocker came from the record, not from NC items.
+        assert "0 open major" not in body["verdict_en"]
 
     def test_compliance_report_not_assessed_record_exists(self, client):
         """A ComplianceRecord with status NOT_ASSESSED (exists on file

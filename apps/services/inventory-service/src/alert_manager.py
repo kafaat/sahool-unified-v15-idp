@@ -681,6 +681,7 @@ class AlertManager:
                 encoded_payload = json.dumps(notification_data, default=str).encode()
                 try:
                     from shared.events.subjects import get_tenant_subject
+
                     _subject = get_tenant_subject(alert.tenant_id or "unknown", "inventory", "alert")
                 except ImportError:
                     _subject = f"sahool.tenant.{alert.tenant_id or 'unknown'}.inventory.alert"

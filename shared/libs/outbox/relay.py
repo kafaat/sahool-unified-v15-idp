@@ -52,16 +52,12 @@ WHERE o.id = claimable.id
 RETURNING o.id, o.tenant_id, o.subject, o.payload, o.headers, o.retry_count
 """
 
-_MARK_SENT_SQL = (
-    "UPDATE outbox_messages SET published_at = NOW(), "
-    "claimed_at = NULL, claimed_by = NULL WHERE id = $1"
-)
+_MARK_SENT_SQL = "UPDATE outbox_messages SET published_at = NOW(), claimed_at = NULL, claimed_by = NULL WHERE id = $1"
 
 # On failure: bump retry_count AND release the claim so another worker
 # (or the same one on the next tick) can retry.
 _MARK_FAILED_SQL = (
-    "UPDATE outbox_messages SET retry_count = retry_count + 1, "
-    "claimed_at = NULL, claimed_by = NULL WHERE id = $1"
+    "UPDATE outbox_messages SET retry_count = retry_count + 1, claimed_at = NULL, claimed_by = NULL WHERE id = $1"
 )
 
 
@@ -93,6 +89,7 @@ class OutboxRelay:
         if worker_id is None:
             import os as _os
             import socket as _socket
+
             worker_id = f"{_socket.gethostname()}:{_os.getpid()}"
         self._worker_id = worker_id
 
@@ -195,9 +192,7 @@ class OutboxRelay:
         # double-publish across replicas.
         async with db_pool.acquire() as conn:
             async with conn.transaction():
-                rows = await conn.fetch(
-                    _FETCH_SQL, batch_size, _CLAIM_STALE_SECONDS, self._worker_id
-                )
+                rows = await conn.fetch(_FETCH_SQL, batch_size, _CLAIM_STALE_SECONDS, self._worker_id)
                 if not rows:
                     return 0
         # Lock released here; rows stay visibly "claimed" in the table.

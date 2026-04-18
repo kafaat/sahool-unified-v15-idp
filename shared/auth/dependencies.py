@@ -97,10 +97,18 @@ async def get_current_user(
         except HTTPException:
             raise
         except Exception as revocation_err:  # noqa: BLE001 - fail-open on infra errors
+            # Log a static event name with structured fields so the
+            # revocation-store's exception text (which may contain infra
+            # details like Redis hostnames or connection strings) never
+            # lands in the free-form log message body. We still keep the
+            # error class name for triage — it's a known-safe identifier,
+            # unlike str(revocation_err).
             logger.warning(
-                "Revocation check unavailable for user %s: %s",
-                user_id,
-                revocation_err,
+                "auth_revocation_check_unavailable",
+                extra={
+                    "user_id": user_id,
+                    "error_class": type(revocation_err).__name__,
+                },
             )
 
         # Check cache first for user status

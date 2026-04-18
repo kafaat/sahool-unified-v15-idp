@@ -26,6 +26,10 @@ metadata:
     app.kubernetes.io/component: cronjob-worker
 spec:
   schedule: "0 3 * * *"
+  # `timeZone` requires Kubernetes >= 1.27 (beta 1.24, GA 1.27). Older
+  # clusters reject the field with "unknown field spec.timeZone". The
+  # matching Helm chart leaves it empty by default for the same reason.
+  # Comment out or delete the line below if your cluster is < 1.27.
   timeZone: "Asia/Riyadh"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 7

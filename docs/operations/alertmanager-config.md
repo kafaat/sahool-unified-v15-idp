@@ -16,6 +16,14 @@
 
 ## Which env vars override what
 
+> **Important — these env vars do nothing on their own.** Setting `SMTP_*`,
+> `SLACK_WEBHOOK_URL`, `PAGERDUTY_SERVICE_KEY`, etc. in `.env` or the
+> Alertmanager container environment does **not** change alert delivery by
+> itself. Alertmanager does not read these names automatically, and this stack
+> does not run `envsubst` over `alertmanager.yml`. To apply any override
+> below, render it into the final config via one of the workflows in this
+> document (envsubst wrapper, init container, or Helm/kustomize).
+
 All names are conventions — not auto-consumed by Alertmanager.
 
 | Env var | Default | Used by receiver(s) |
@@ -44,6 +52,14 @@ All names are conventions — not auto-consumed by Alertmanager.
 | `ALERT_EMAIL_INFO` | `monitoring@sahool.io` | info-notifications |
 | `SLACK_CHANNEL_INFO` | `#sahool-info` | info-notifications |
 
+> **PagerDuty blocks are commented out in the committed default**. Alertmanager
+> rejects `service_key: ''` at config-check time, so the two `pagerduty_configs`
+> stanzas (`audit-compliance-team`, `critical-infrastructure`) are shipped as
+> YAML comments. Your templating layer must uncomment and inject the real key
+> (`PAGERDUTY_AUDIT_KEY`, `PAGERDUTY_SERVICE_KEY`) before the final file is
+> mounted — `grep -n pagerduty_configs alertmanager.yml` should return two
+> uncommented lines in a working render.
+
 ---
 
 ## Workflow A — envsubst wrapper (docker-compose)
@@ -57,7 +73,13 @@ Simplest pre-deploy step; keeps the file template-free in git.
 
 ```bash
 # render-alertmanager.sh
-export $(grep -v '^#' .env.alerting | xargs)    # load overrides
+# Load KEY=value overrides from .env.alerting safely — `set -a` auto-exports
+# every variable assigned by the sourced file, and the shell's own parser
+# handles quoting, spaces, and `#` comments correctly (unlike the brittle
+# `export $(grep ... | xargs)` idiom).
+set -a
+. ./.env.alerting
+set +a
 envsubst < infrastructure/monitoring/alertmanager/alertmanager.yml.tmpl \
   > infrastructure/monitoring/alertmanager/alertmanager.yml
 docker compose -f infrastructure/monitoring/docker-compose.monitoring.yml up -d alertmanager

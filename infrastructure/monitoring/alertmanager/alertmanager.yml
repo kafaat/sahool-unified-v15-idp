@@ -201,11 +201,16 @@ receivers:
           *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
           *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
 
-    # PagerDuty for critical audit alerts (hash-chain tamper, in-memory backend)
-    pagerduty_configs:
-      - service_key: ''
-        severity: '{{ if eq .GroupLabels.severity "critical" }}critical{{ else }}warning{{ end }}'
-        description: 'SAHOOL audit: {{ .GroupLabels.alertname }} — {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+    # PagerDuty for critical audit alerts (hash-chain tamper, in-memory backend).
+    # Intentionally omitted from the committed defaults: Alertmanager rejects
+    # `service_key: ''` at config-check time, so a placeholder block here would
+    # break startup. Render this block back in via your templating layer
+    # (see docs/operations/alertmanager-config.md) when PAGERDUTY_AUDIT_KEY /
+    # PAGERDUTY_SERVICE_KEY are known for the environment.
+    # pagerduty_configs:
+    #   - service_key: '<PAGERDUTY_AUDIT_KEY>'
+    #     severity: '{{ if eq .GroupLabels.severity "critical" }}critical{{ else }}warning{{ end }}'
+    #     description: 'SAHOOL audit: {{ .GroupLabels.alertname }} — {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Default Notifications - الإشعارات الافتراضية
@@ -257,11 +262,14 @@ receivers:
           *التأثير:* {{ range .Alerts }}{{ .Annotations.impact_ar }}{{ end }}
           *الإجراء:* {{ range .Alerts }}{{ .Annotations.action_ar }}{{ end }}
 
-    # PagerDuty for on-call engineers
-    pagerduty_configs:
-      - service_key: ''
-        severity: 'critical'
-        description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+    # PagerDuty for on-call engineers. Commented out for the same reason as
+    # the audit receiver above — empty service_key fails alertmanager config
+    # validation. Render this block back in via your templating layer once
+    # PAGERDUTY_SERVICE_KEY is available.
+    # pagerduty_configs:
+    #   - service_key: '<PAGERDUTY_SERVICE_KEY>'
+    #     severity: 'critical'
+    #     description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Critical Service Alerts - تنبيهات الخدمات الحرجة

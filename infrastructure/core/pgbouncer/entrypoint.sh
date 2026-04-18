@@ -155,10 +155,14 @@ wait_for_postgres() {
 # ═══════════════════════════════════════════════════════════════════════════════
 bootstrap_pgbouncer_schema() {
     log_info "Bootstrapping pgbouncer schema in ${DB_NAME}..."
-    # Wrap psql in `if !` so set -e (active script-wide) does not abort the
-    # entrypoint before we can log a controlled error and propagate the
-    # failure to the caller.
-    if ! PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+    # Capture psql output via $(...) command substitution. This serves two
+    # purposes: (a) the captured stdout+stderr is included in the error log
+    # if psql fails, making bootstrap problems debuggable from `docker logs`;
+    # (b) the $(...) form matches the existing safe pattern on entrypoint.sh
+    # lines 117/203 which Gitleaks' generic-secret rule does not flag —
+    # avoiding endless .gitleaksignore churn every time these lines move.
+    # `if !` also guards against `set -e` aborting before we can return 1.
+    if ! _bootstrap_out=$(PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
         -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1
 CREATE SCHEMA IF NOT EXISTS pgbouncer;
 
@@ -174,8 +178,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
 EOSQL
-    then
-        log_error "pgbouncer schema bootstrap failed (CREATE phase)"
+); then
+        log_error "pgbouncer schema bootstrap failed (CREATE phase): $_bootstrap_out"
         return 1
     fi
 
@@ -185,15 +189,15 @@ EOSQL
     # which would let any DB role read pg_shadow password hashes via this helper.
     # REVOKE removes that default, then we re-GRANT only to CURRENT_USER (which
     # is the auth_user since psql connected as DB_USER above).
-    if ! PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+    if ! _bootstrap_out=$(PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
         -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1
 REVOKE ALL ON FUNCTION pgbouncer.get_auth(TEXT) FROM PUBLIC;
 REVOKE ALL ON SCHEMA pgbouncer FROM PUBLIC;
 GRANT USAGE ON SCHEMA pgbouncer TO CURRENT_USER;
 GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO CURRENT_USER;
 EOSQL
-    then
-        log_error "pgbouncer schema bootstrap failed (GRANT phase)"
+); then
+        log_error "pgbouncer schema bootstrap failed (GRANT phase): $_bootstrap_out"
         return 1
     fi
 

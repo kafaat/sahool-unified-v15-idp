@@ -154,7 +154,12 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
     ).encode()
 
     try:
-        await _cfg.nats_client.publish("sahool.satellite.ndvi.computed", computed_payload)
+        try:
+            from shared.events.subjects import get_tenant_subject
+            _subject = get_tenant_subject(tenant_id, "satellite", "ndvi.computed")
+        except ImportError:
+            _subject = f"sahool.tenant.{tenant_id}.satellite.ndvi.computed"
+        await _cfg.nats_client.publish(_subject, computed_payload)
     except Exception:
         logger.warning("NDVIStore: failed to publish ndvi.computed event")
 
@@ -180,7 +185,12 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
     ).encode()
 
     try:
-        await _cfg.nats_client.publish("sahool.field.observation.ingested.v1", obs_payload)
+        try:
+            from shared.events.subjects import get_tenant_subject
+            _obs_subject = get_tenant_subject(tenant_id, "field", "observation.ingested.v1")
+        except ImportError:
+            _obs_subject = f"sahool.tenant.{tenant_id}.field.observation.ingested.v1"
+        await _cfg.nats_client.publish(_obs_subject, obs_payload)
     except Exception:
         logger.warning("NDVIStore: failed to publish observation.ingested event")
 

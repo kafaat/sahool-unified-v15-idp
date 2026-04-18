@@ -43,6 +43,27 @@ _DEFAULT_MAX_ENTRIES: int = 10_000
 # set-cookie in particular can be multi-valued (dict collapses it) and
 # re-emitting it could hand a session cookie to a different caller.
 _HEADER_BLOCKLIST: frozenset[str] = frozenset({"set-cookie", "content-length", "transfer-encoding", "connection"})
+# Only cache known-idempotent successful responses. 4xx/5xx are deliberately
+# NOT cached so a transient validation/auth failure doesn't stick for the
+# TTL window and a stale client can't replay a 401/403 into another caller.
+_CACHEABLE_STATUS_CODES: frozenset[int] = frozenset({200, 201, 202, 204, 409})
+
+
+def _default_scope(request: Request) -> str:
+    """Compute a stable caller-scope string from an incoming request.
+
+    Reads ``X-Tenant-Id`` and ``Authorization`` (hashed) so two callers
+    with the same ``Idempotency-Key`` but different identities cannot
+    collide. Authorization is hashed (not stored) so cached keys don't
+    retain token material.
+    """
+    import hashlib
+
+    tenant = request.headers.get("x-tenant-id", "")
+    auth = request.headers.get("authorization", "")
+    if auth:
+        auth = hashlib.sha256(auth.encode()).hexdigest()[:16]
+    return f"{tenant}:{auth}"
 
 
 class _CacheEntry:
@@ -78,11 +99,19 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
         ttl_seconds: int = _DEFAULT_TTL_SECONDS,
         header_name: str = "Idempotency-Key",
         max_entries: int = _DEFAULT_MAX_ENTRIES,
+        scope_from_request: Any = None,
     ) -> None:
         super().__init__(app)
         self._ttl = ttl_seconds
         self._header = header_name
         self._max_entries = max_entries
+        # Caller-supplied function that returns a stable scoping string
+        # (typically tenant_id + user_id) from the request. Required for
+        # any multi-tenant deployment; without it, two callers that
+        # accidentally reuse the same Idempotency-Key could read each
+        # other's cached response. The built-in default extracts the
+        # authenticated JWT's subject + tenant from common header names.
+        self._scope_from_request = scope_from_request or _default_scope
         # TODO(prod): replace with Redis-backed store (shared across pods).
         self._store: dict[str, _CacheEntry] = {}
 
@@ -113,9 +142,11 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
 
         # Include query string so two POSTs to the same path with different
         # query params (e.g. tenant routing) don't collide on the same key.
-        # Tenant/user scoping should layer on top — see module docstring.
+        # ALSO include tenant/user scope so two callers who accidentally
+        # reuse the same Idempotency-Key cannot read each other's response.
         query = request.url.query or ""
-        cache_key = f"{request.method}:{request.url.path}?{query}:{key}"
+        scope = self._scope_from_request(request) or "anon"
+        cache_key = f"{scope}|{request.method}:{request.url.path}?{query}:{key}"
         now = time.time()
 
         cached = self._store.get(cache_key)
@@ -130,8 +161,11 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
 
         response = await call_next(request)
 
-        # Only cache successful / expected client-visible responses.
-        if 200 <= response.status_code < 500:
+        # Only cache explicitly-safe success codes. 4xx (validation,
+        # auth) and 5xx are NOT cached — a transient failure shouldn't
+        # stick for the TTL and a stale client can't replay a 401/403
+        # belonging to one caller into another.
+        if response.status_code in _CACHEABLE_STATUS_CODES:
             body_chunks: list[bytes] = []
             async for chunk in response.body_iterator:
                 body_chunks.append(chunk)

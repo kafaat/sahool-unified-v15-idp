@@ -37,9 +37,20 @@ def _repo_root() -> Path:
 
 
 def _is_publish_call(node: ast.Call) -> bool:
-    """Return True for ``<x>.publish(...)`` calls where ``<x>`` is a Name
-    ending in ``nc``/``nats`` (attribute resolution kept loose on purpose so
-    we catch ``self.nc.publish(...)``, ``app.state.nc.publish(...)`` etc)."""
+    """Return True for NATS-looking ``<x>.publish(...)`` calls.
+
+    Matches either:
+    * receiver chain's LAST identifier equals one of the canonical NATS
+      handle names (``nc``/``nats``/``js``), OR
+    * receiver chain's LAST identifier CONTAINS ``nats`` as a substring
+      (``nats_client``, ``_nc``, ``jetstream_client``, etc.), OR
+    * receiver chain's LAST identifier ends with ``_nc`` (``self._nc``,
+      ``app_nc``).
+
+    This catches patterns like ``self.nats_client.publish(...)``,
+    ``_cfg.nats_client.publish(...)``, ``app.state.nc.publish(...)``.
+    A strict whitelist was too narrow per prior Copilot feedback.
+    """
     func = node.func
     if not isinstance(func, ast.Attribute) or func.attr != "publish":
         return False
@@ -54,7 +65,13 @@ def _is_publish_call(node: ast.Call) -> bool:
         parts.append(cur.id)
     parts.reverse()
     last = parts[-1] if parts else ""
-    return last in {"nc", "nats", "client", "js"}
+    if last in {"nc", "nats", "js", "jetstream"}:
+        return True
+    if "nats" in last.lower():
+        return True
+    if last.endswith("_nc") or last.endswith("_js"):
+        return True
+    return False
 
 
 def _string_value(

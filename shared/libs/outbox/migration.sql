@@ -14,10 +14,25 @@ CREATE TABLE IF NOT EXISTS outbox_messages (
     payload BYTEA NOT NULL,
     headers JSONB DEFAULT '{}'::jsonb,
     published_at TIMESTAMPTZ,
-    retry_count INT NOT NULL DEFAULT 0
+    retry_count INT NOT NULL DEFAULT 0,
+    -- Claim state for multi-replica relay. When a relay worker picks a
+    -- batch, it stamps claimed_at+claimed_by atomically inside the fetch
+    -- transaction. Other relays filter `claimed_at IS NULL OR claim is
+    -- expired` in their SELECT so the same row cannot be published twice
+    -- by two workers. A TTL on claimed_at protects against a worker that
+    -- crashed mid-publish.
+    claimed_at TIMESTAMPTZ,
+    claimed_by TEXT
 );
 
--- Hot path: relay polls unpublished rows in insertion order.
+-- Idempotent migrations for existing deployments that pre-date the claim
+-- columns: ADD COLUMN IF NOT EXISTS is a no-op when the column already
+-- exists, so this file can be re-applied safely.
+ALTER TABLE outbox_messages ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMPTZ;
+ALTER TABLE outbox_messages ADD COLUMN IF NOT EXISTS claimed_by TEXT;
+
+-- Hot path: relay polls unpublished rows in insertion order, filtering
+-- out rows currently claimed by a running worker.
 CREATE INDEX IF NOT EXISTS idx_outbox_unpublished
     ON outbox_messages (created_at)
     WHERE published_at IS NULL;

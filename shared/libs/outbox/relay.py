@@ -21,31 +21,48 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# Claim a batch and mark it "in-progress" atomically using published_at = epoch.
-# We set published_at to a marker timestamp that we recognise via the
-# `claimed_at IS NOT NULL` semantic (not used here) — simpler: use a dedicated
-# column-less claim by adding a `-1` retry_count bump. To avoid DDL, we instead
-# re-query for rows we just fetched using their ids in a separate short txn.
+# Two-step claim+publish protocol (see README):
+#   Step 1  SELECT ... FOR UPDATE SKIP LOCKED; UPDATE claimed_at/claimed_by
+#           INSIDE the fetch transaction. Commit releases the row lock but
+#           leaves the claim columns set, so a second relay's SELECT (which
+#           filters out claimed rows) will skip this batch until the claim
+#           expires (on worker crash).
+#   Step 2  Publish each row to NATS WITHOUT holding any DB lock/connection.
+#   Step 3  Per row, in its own short txn, mark sent or clear the claim so
+#           it can be retried by any worker on the next tick.
 #
-# Two-step pattern below:
-#   1. Short txn: SELECT...FOR UPDATE SKIP LOCKED, then UPDATE retry_count to
-#      flag "claimed by this worker" (retry_count >= 0 semantics preserved).
-#   2. Outside any txn: publish each row to NATS.
-#   3. Short txn per row: UPDATE published_at on success, or UPDATE
-#      retry_count += 1 on failure (the claim bump already counts as +0 so
-#      failures appear as a single +1 after this step).
+# Claim TTL (_CLAIM_STALE_SECONDS) means a crashed worker's rows become
+# eligible again automatically; no janitor needed.
+_CLAIM_STALE_SECONDS = 120
+
 _FETCH_SQL = """
-SELECT id, tenant_id, subject, payload, headers, retry_count
-FROM outbox_messages
-WHERE published_at IS NULL
-ORDER BY created_at
-LIMIT $1
-FOR UPDATE SKIP LOCKED
+WITH claimable AS (
+    SELECT id
+    FROM outbox_messages
+    WHERE published_at IS NULL
+      AND (claimed_at IS NULL OR claimed_at < NOW() - ($2 || ' seconds')::INTERVAL)
+    ORDER BY created_at
+    LIMIT $1
+    FOR UPDATE SKIP LOCKED
+)
+UPDATE outbox_messages AS o
+SET claimed_at = NOW(), claimed_by = $3
+FROM claimable
+WHERE o.id = claimable.id
+RETURNING o.id, o.tenant_id, o.subject, o.payload, o.headers, o.retry_count
 """
 
-_MARK_SENT_SQL = "UPDATE outbox_messages SET published_at = NOW() WHERE id = $1"
+_MARK_SENT_SQL = (
+    "UPDATE outbox_messages SET published_at = NOW(), "
+    "claimed_at = NULL, claimed_by = NULL WHERE id = $1"
+)
 
-_MARK_FAILED_SQL = "UPDATE outbox_messages SET retry_count = retry_count + 1 WHERE id = $1"
+# On failure: bump retry_count AND release the claim so another worker
+# (or the same one on the next tick) can retry.
+_MARK_FAILED_SQL = (
+    "UPDATE outbox_messages SET retry_count = retry_count + 1, "
+    "claimed_at = NULL, claimed_by = NULL WHERE id = $1"
+)
 
 
 class OutboxRelay:
@@ -57,15 +74,27 @@ class OutboxRelay:
         nats_client: Connected NATS client exposing ``publish(subject, payload, headers=...)``.
         poll_interval_seconds: Base polling interval when there are no rows.
         batch_size: Max rows fetched per tick.
+        worker_id: Identifier stored in ``claimed_by`` so a multi-replica
+            deployment can attribute claims. Defaults to hostname+pid.
 
     The relay uses exponential backoff on empty batches (doubling up to 30s)
     so it doesn't hammer the database when the outbox is quiet.
+
+    Multi-replica safety: claims are persisted atomically with the SELECT
+    (see ``_FETCH_SQL``). A claim older than ``_CLAIM_STALE_SECONDS`` is
+    treated as expired — so a crashed worker's rows become eligible again.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, worker_id: str | None = None) -> None:
         self._task: asyncio.Task | None = None
         self._running = False
         self._stop_event: asyncio.Event | None = None
+        # Default worker_id is host:pid so logs can attribute the claim.
+        if worker_id is None:
+            import os as _os
+            import socket as _socket
+            worker_id = f"{_socket.gethostname()}:{_os.getpid()}"
+        self._worker_id = worker_id
 
     async def start(
         self,
@@ -158,19 +187,20 @@ class OutboxRelay:
         is taken, publishes happen without any lock held, and each mark is
         applied in its own short UPDATE.
         """
-        # --- Step 1: claim batch, release txn immediately ---
+        # --- Step 1: claim batch atomically, release txn immediately ---
+        # The SELECT ... FOR UPDATE SKIP LOCKED CTE + UPDATE writes
+        # claimed_at/claimed_by so that after the transaction commits, a
+        # second relay replica filtering `claimed_at IS NULL OR stale`
+        # will skip these rows until the claim expires. This prevents
+        # double-publish across replicas.
         async with db_pool.acquire() as conn:
             async with conn.transaction():
-                rows = await conn.fetch(_FETCH_SQL, batch_size)
+                rows = await conn.fetch(
+                    _FETCH_SQL, batch_size, _CLAIM_STALE_SECONDS, self._worker_id
+                )
                 if not rows:
                     return 0
-                # The SELECT ... FOR UPDATE SKIP LOCKED above has already taken
-                # row-level locks for this batch within the current transaction.
-                # Exiting this `async with` block commits the txn and releases
-                # those locks without any extra statement, so we can move
-                # straight to publishing outside the transaction. SKIP LOCKED
-                # guarantees a second replica won't double-claim the same rows.
-        # Lock released here.
+        # Lock released here; rows stay visibly "claimed" in the table.
 
         # --- Step 2: publish each row WITHOUT any DB lock held ---
         published_count = 0

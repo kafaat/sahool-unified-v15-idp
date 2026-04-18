@@ -116,7 +116,7 @@ _tracer = setup_tracing("irrigation-smart")
 
 import re
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 sys.path.insert(0, "/app")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
@@ -1654,7 +1654,18 @@ class ScheduleCreateRequest(BaseModel):
 
 
 class ScheduleUpdateRequest(BaseModel):
-    """Payload for PUT /api/v1/irrigation/schedules/{id}. All fields optional."""
+    """Payload for PUT /api/v1/irrigation/schedules/{id}.
+
+    All fields are optional *in the sense that omission means "don't
+    touch this column"* — `model_dump(exclude_unset=True)` at the use
+    site filters them out. An EXPLICIT ``null`` for any of
+    `irrigation_date`, `duration_minutes`, `water_amount_liters` would
+    try to write NULL into a NOT-NULL column (see
+    migrations/001_create_irrigation_schedules.sql) and fail on the DB
+    side with a misleading 500. The field validators below reject that
+    case at the API boundary so clients get a clean 422 with a clear
+    error instead.
+    """
 
     model_config = ConfigDict(extra="forbid")
 
@@ -1666,6 +1677,26 @@ class ScheduleUpdateRequest(BaseModel):
     method: str | None = Field(default=None, max_length=50)
     status: str | None = Field(default=None, max_length=30)
     notes: str | None = Field(default=None, max_length=2000)
+
+    @model_validator(mode="after")
+    def _reject_explicit_null_for_notnull_columns(self) -> "ScheduleUpdateRequest":
+        """Reject explicit null on columns that the DB declares NOT NULL.
+
+        Uses `model_fields_set` (which reflects what the client actually
+        sent in the JSON payload) rather than attribute values — a value
+        of `None` is ambiguous otherwise (is it the default, or did the
+        client send `null` on purpose?). Only the three columns declared
+        NOT NULL in the migration are guarded.
+        """
+        notnull_cols = ("irrigation_date", "duration_minutes", "water_amount_liters")
+        sent_as_null = [
+            col for col in notnull_cols if col in self.model_fields_set and getattr(self, col) is None
+        ]
+        if sent_as_null:
+            raise ValueError(
+                f"Columns {sent_as_null} are NOT NULL; omit the field to skip, do not send null."
+            )
+        return self
 
 
 def _require_db_pool():
@@ -1732,11 +1763,19 @@ async def list_irrigation_schedules(
 
     async with pool.acquire() as conn:
         rows = await conn.fetch(sql, *params)
+    items = [_row_to_schedule(r) for r in rows]
+    # Wrap in the canonical ApiResponse envelope so the web client's
+    # `response.data.data` unwrap works without the fallback path.
     return {
-        "items": [_row_to_schedule(r) for r in rows],
-        "limit": limit,
-        "offset": offset,
-        "count": len(rows),
+        "success": True,
+        "data": items,
+        "pagination": {
+            "total": len(items),
+            "page": (offset // limit) + 1 if limit else 1,
+            "limit": limit,
+            "offset": offset,
+            "hasMore": len(items) == limit,
+        },
     }
 
 
@@ -1772,7 +1811,7 @@ async def create_irrigation_schedule(
             payload.method,
             payload.notes,
         )
-    return _row_to_schedule(row)
+    return {"success": True, "data": _row_to_schedule(row)}
 
 
 @app.get("/api/v1/irrigation/schedules/{schedule_id}")
@@ -1792,7 +1831,7 @@ async def get_irrigation_schedule(
         )
     if not row:
         raise HTTPException(status_code=404, detail="Schedule not found")
-    return _row_to_schedule(row)
+    return {"success": True, "data": _row_to_schedule(row)}
 
 
 # Allowlist of columns the PUT endpoint is permitted to update. Built
@@ -1854,7 +1893,7 @@ async def update_irrigation_schedule(
         row = await conn.fetchrow(sql, *params)
     if not row:
         raise HTTPException(status_code=404, detail="Schedule not found")
-    return _row_to_schedule(row)
+    return {"success": True, "data": _row_to_schedule(row)}
 
 
 @app.delete("/api/v1/irrigation/schedules/{schedule_id}", status_code=204)

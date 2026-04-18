@@ -26,7 +26,23 @@
 
 set -e
 
+# Validate a SAHOOL_APT_* env override is a non-negative integer. Catches
+# typos like SAHOOL_APT_MAX_RETRIES=foo (or empty) before they reach `[`/
+# `timeout` and abort the build under set -e with a confusing parse error.
+_validate_int() {
+    _name=$1
+    _value=$2
+    case "$_value" in
+        ''|*[!0-9]*)
+            echo "ERROR: ${_name}='${_value}' is not a non-negative integer." >&2
+            echo "       Set ${_name} to a whole number (e.g. ${_name}=120)." >&2
+            exit 1
+            ;;
+    esac
+}
+
 MAX_RETRIES="${SAHOOL_APT_MAX_RETRIES:-3}"
+_validate_int SAHOOL_APT_MAX_RETRIES "$MAX_RETRIES"
 RETRY_DELAY=5
 # Hard wall-clock limit per apt-get update attempt. Mirrors delivering at
 # 863 B/s can hold the build for 10+ minutes; 120 seconds abandons them fast
@@ -34,6 +50,7 @@ RETRY_DELAY=5
 # from 90s to 120s because deb.debian.org metadata fetch in APAC can legitimately
 # take 100+ seconds on a cold connection.
 UPDATE_TIMEOUT="${SAHOOL_APT_UPDATE_TIMEOUT:-120}"
+_validate_int SAHOOL_APT_UPDATE_TIMEOUT "$UPDATE_TIMEOUT"
 
 # Hard overall wall-clock cap across ALL mirrors and retries. Without this,
 # the worst case (all mirrors slow + all retries backing off) is
@@ -43,7 +60,12 @@ UPDATE_TIMEOUT="${SAHOOL_APT_UPDATE_TIMEOUT:-120}"
 # even when each individual apt-get call is eventually going to succeed on a
 # later mirror. 600 s lets the default chain try every mirror at least once
 # at its full 120s timeout, then fail the build fast so operators can triage.
+#
+# Enforcement is "true hard cap": each per-attempt `timeout` and inter-retry
+# `sleep` is bounded to MIN(configured, remaining-budget) so the script never
+# overshoots by more than ~1 second of overhead per check.
 TOTAL_BUDGET="${SAHOOL_APT_TOTAL_BUDGET:-600}"
+_validate_int SAHOOL_APT_TOTAL_BUDGET "$TOTAL_BUDGET"
 START_TS=$(date +%s)
 
 # Mirrors attempted in order. Each entry is an apt mirror host that serves
@@ -69,13 +91,27 @@ mkdir -p /etc/apt/apt.conf.d
 printf 'Acquire::http::Timeout "120";\nAcquire::https::Timeout "120";\nAcquire::Retries "10";\nAPT::Get::Assume-Yes "true";\n' \
     > /etc/apt/apt.conf.d/99sahool-resilience
 
+# Seconds remaining in TOTAL_BUDGET. Returns a very large number when the
+# budget is disabled (TOTAL_BUDGET=0) so callers can use MIN() unconditionally
+# and let the configured value win in the unbounded case.
+remaining_budget() {
+    if [ "$TOTAL_BUDGET" -le 0 ]; then
+        echo 2147483647
+        return
+    fi
+    _elapsed=$(( $(date +%s) - START_TS ))
+    _remain=$(( TOTAL_BUDGET - _elapsed ))
+    [ "$_remain" -lt 0 ] && _remain=0
+    echo "$_remain"
+}
+
 # Exit immediately if the total wall-clock budget has been exceeded. Called
-# between mirror attempts so a pathological network can't hold the build
-# longer than the operator wants.
+# between mirror attempts and before each retry so a pathological network
+# can't hold the build longer than the operator wants.
 check_total_budget() {
     [ "$TOTAL_BUDGET" -le 0 ] && return 0
-    _elapsed=$(( $(date +%s) - START_TS ))
-    if [ "$_elapsed" -ge "$TOTAL_BUDGET" ]; then
+    if [ "$(remaining_budget)" -le 0 ]; then
+        _elapsed=$(( $(date +%s) - START_TS ))
         echo "ERROR: apt-update total budget (${TOTAL_BUDGET}s) exhausted after ${_elapsed}s; failing fast." >&2
         echo "       Override with SAHOOL_APT_TOTAL_BUDGET=<seconds> or 0 to disable." >&2
         exit 1
@@ -114,13 +150,19 @@ switch_to_mirror() {
 
 # try_apt_update runs apt-get update with retries and validates the result.
 # Returns 0 only if apt-get update succeeds WITHOUT partial fetch warnings.
+# Each per-attempt `timeout` and inter-retry `sleep` is bounded by the
+# remaining TOTAL_BUDGET so the cap is a true hard wall-clock limit.
 try_apt_update() {
     attempt=1
     delay="$RETRY_DELAY"
     while [ "$attempt" -le "$MAX_RETRIES" ]; do
         check_total_budget
-        echo "apt-get update attempt ${attempt}/${MAX_RETRIES} (timeout ${UPDATE_TIMEOUT}s)..."
-        update_output=$(timeout "${UPDATE_TIMEOUT}" apt-get update -o Acquire::Retries=1 2>&1) && rc=0 || rc=$?
+        # Bound this attempt's timeout to MIN(UPDATE_TIMEOUT, remaining-budget)
+        # so a near-exhausted budget can't be overshot by a fresh 120s timer.
+        _attempt_timeout=$(remaining_budget)
+        [ "$_attempt_timeout" -gt "$UPDATE_TIMEOUT" ] && _attempt_timeout=$UPDATE_TIMEOUT
+        echo "apt-get update attempt ${attempt}/${MAX_RETRIES} (timeout ${_attempt_timeout}s)..."
+        update_output=$(timeout "${_attempt_timeout}" apt-get update -o Acquire::Retries=1 2>&1) && rc=0 || rc=$?
         echo "$update_output"
 
         if [ "$rc" -eq 0 ]; then
@@ -135,8 +177,16 @@ try_apt_update() {
         fi
 
         if [ "$attempt" -lt "$MAX_RETRIES" ]; then
-            echo "Retrying in ${delay}s..."
-            sleep "$delay"
+            # Bound the backoff sleep to remaining budget too — sleeping past
+            # the cap would just waste time before the next check_total_budget
+            # exits anyway.
+            _sleep=$delay
+            _remain=$(remaining_budget)
+            [ "$_sleep" -gt "$_remain" ] && _sleep=$_remain
+            if [ "$_sleep" -gt 0 ]; then
+                echo "Retrying in ${_sleep}s..."
+                sleep "$_sleep"
+            fi
             delay=$((delay * 2))
         fi
         attempt=$((attempt + 1))

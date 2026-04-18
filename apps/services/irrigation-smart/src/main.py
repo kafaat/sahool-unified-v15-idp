@@ -346,6 +346,7 @@ async def _http_exception_envelope(_req, exc: HTTPException):
         body["errorAr"] = str(detail)
     return _JR(status_code=exc.status_code, content=body, headers=exc.headers)
 
+
 # CORS middleware - use centralized config to prevent wildcard in production
 try:
     from shared.cors_config import setup_cors_middleware

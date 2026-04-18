@@ -170,6 +170,25 @@ class AuditStore(Protocol):
         """
         pass  # Protocol method — body intentionally empty
 
+    async def query_archived(
+        self,
+        tenant_id: str,
+        *,
+        filters: dict[str, Any] | None = None,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[dict], int]:
+        """Return ``(items, total)`` from the cold-storage archive table.
+
+        Replay path for compliance queries that span a retention boundary.
+        Rows in ``audit_log_archive`` are the verbatim content the
+        retention worker copied before DELETE — same entry_hash /
+        prev_hash, plus archived_at / archived_by metadata. Returns an
+        empty result when the archive table doesn't exist yet (retention
+        worker migration 004 not deployed).
+        """
+        pass  # Protocol method — body intentionally empty
+
     async def count_since(self, tenant_id: str | None, since: datetime) -> int:
         """Global or per-tenant write count since ``since``. Feeds the
         ``audit_writes_total`` Prometheus gauge."""
@@ -379,6 +398,55 @@ class PostgresAuditStore:
                 )
         return [_row_to_dict(r) for r in rows]
 
+    async def query_archived(
+        self,
+        tenant_id: str,
+        *,
+        filters: dict[str, Any] | None = None,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[dict], int]:
+        """Read from audit_log_archive (retention worker's migration 004).
+
+        Gracefully returns ``([], 0)`` when the table does not exist yet —
+        the retention worker's migration is deployed separately, so the
+        replay endpoint MUST NOT 500 just because the archive schema
+        hasn't landed in this environment. Same pattern as
+        ``retention_boundaries_for_tenant``.
+        """
+        where, extra = self._build_where(filters)
+        try:
+            async with self._pool.acquire() as conn:
+                async with conn.transaction():
+                    await self._with_tenant(conn, tenant_id)
+                    # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                    total_row = await conn.fetchrow(
+                        f"SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}",  # nosec B608
+                        tenant_id,
+                        *extra,
+                    )
+                    # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                    rows = await conn.fetch(
+                        f"SELECT * FROM audit_log_archive WHERE tenant_id = $1{where} "  # nosec B608
+                        f"ORDER BY created_at DESC, seq_num DESC "
+                        f"OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}",
+                        tenant_id,
+                        *extra,
+                        skip,
+                        limit,
+                    )
+        except Exception as exc:
+            sqlstate = getattr(exc, "sqlstate", None)
+            if sqlstate == _SQLSTATE_UNDEFINED_TABLE:
+                logger.warning(
+                    "audit_log_archive table not found for tenant=%s — "
+                    "archive migration (004) not deployed. Returning empty.",
+                    tenant_id,
+                )
+                return [], 0
+            raise
+        return [_row_to_dict(r) for r in rows], int(total_row["c"])
+
     async def count_since(self, tenant_id: str | None, since: datetime) -> int:
         async with self._pool.acquire() as conn:
             if tenant_id is not None:
@@ -525,6 +593,11 @@ class InMemoryAuditStore:
         # never populated in production since InMemoryAuditStore is the
         # CI/unit-test fallback, never the live backend.
         self._retention_boundaries: dict[str, list[RetentionBoundary]] = {}
+        # Cold-storage archive — mirrors `audit_log_archive` (retention
+        # worker migration 004). Populated by `_simulate_retention` when
+        # rows are moved out of `_by_tenant`, so tests of the replay
+        # endpoint have realistic data to query.
+        self._archived_by_tenant: dict[str, list[dict]] = {}
 
     async def write(self, entry: dict) -> dict:
         tenant_id = entry["tenant_id"]
@@ -579,6 +652,37 @@ class InMemoryAuditStore:
     async def all_for_tenant(self, tenant_id: str) -> list[dict]:
         return list(self._by_tenant.get(tenant_id, []))
 
+    async def query_archived(
+        self,
+        tenant_id: str,
+        *,
+        filters: dict[str, Any] | None = None,
+        skip: int = 0,
+        limit: int = 50,
+    ) -> tuple[list[dict], int]:
+        """Same filter semantics as ``query()`` but reads the in-memory
+        archive bucket. Populated by ``_simulate_retention`` which moves
+        expired rows into ``_archived_by_tenant``.
+        """
+        entries = list(self._archived_by_tenant.get(tenant_id, []))
+        filters = filters or {}
+
+        def keep(e: dict) -> bool:
+            for key in ("user_id", "action", "category", "resource_type", "resource_id", "severity"):
+                if filters.get(key) is not None and e.get(key) != filters[key]:
+                    return False
+            if filters.get("success") is not None and bool(e.get("success")) != bool(filters["success"]):
+                return False
+            if filters.get("start_date") and e.get("created_at", "") < str(filters["start_date"]):
+                return False
+            if filters.get("end_date") and e.get("created_at", "") > str(filters["end_date"]):
+                return False
+            return True
+
+        filtered = [e for e in entries if keep(e)]
+        filtered.sort(key=lambda e: e.get("created_at", ""), reverse=True)
+        return filtered[skip : skip + limit], len(filtered)
+
     async def count_since(self, tenant_id: str | None, since: datetime) -> int:
         cutoff = since.isoformat()
         if tenant_id is not None:
@@ -622,6 +726,10 @@ class InMemoryAuditStore:
                 created_at=datetime.now(UTC).isoformat(),
             )
         )
+        # Move deleted rows into the archive bucket (mirrors the
+        # retention worker's INSERT-into-audit_log_archive before DELETE).
+        archive_bucket = self._archived_by_tenant.setdefault(tenant_id, [])
+        archive_bucket.extend(to_delete)
         self._by_tenant[tenant_id] = [e for e in bucket if int(e.get("seq_num", 0)) >= keep_from_seq]
 
 

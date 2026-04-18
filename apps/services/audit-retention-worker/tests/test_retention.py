@@ -69,6 +69,7 @@ class FakeConn:
     def __init__(self, rows: list[FakeRow], bypassrls: bool | None = True) -> None:
         self.rows = rows
         self.events: list[dict[str, Any]] = []
+        self.archived: list[FakeRow] = []
         self.executed: list[str] = []
         self.tx_depth = 0
         self.rolled_back = False
@@ -100,6 +101,7 @@ class FakeConn:
                 category,
                 retention_days,
                 cutoff,
+                archive_location,
                 dry_run,
             ) = args
             self.events.append(
@@ -112,6 +114,7 @@ class FakeConn:
                     "category_filter": category,
                     "retention_days": retention_days,
                     "cutoff_timestamp": cutoff,
+                    "archive_location": archive_location,
                     "dry_run": dry_run,
                 }
             )
@@ -147,6 +150,25 @@ class FakeConn:
         if normalised == "SELECT DISTINCT tenant_id FROM audit_log":
             uniq = sorted({r.tenant_id for r in self.rows})
             return [_Row({"tenant_id": t}) for t in uniq]
+
+        if normalised.startswith("INSERT INTO audit_log_archive"):
+            # INSERT ... SELECT ... FROM audit_log WHERE ... RETURNING seq_num
+            # Emulate by finding the matching rows and appending them to
+            # `self.archived`. ON CONFLICT DO NOTHING means rows already
+            # in archive (by (tenant_id, seq_num)) don't get duplicated.
+            tenant_id, category, cutoff = args
+            matches = [
+                r for r in self.rows
+                if r.tenant_id == tenant_id and r.category == category and r.created_at < cutoff
+            ]
+            archived_keys = {(a.tenant_id, a.seq_num) for a in self.archived}
+            inserted: list[FakeRow] = []
+            for r in matches:
+                if (r.tenant_id, r.seq_num) in archived_keys:
+                    continue
+                self.archived.append(r)
+                inserted.append(r)
+            return [_Row({"seq_num": r.seq_num}) for r in inserted]
 
         if normalised.startswith("DELETE FROM audit_log"):
             # DELETE ... RETURNING seq_num, entry_hash — emulate by
@@ -324,6 +346,55 @@ class TestRunPolicyForTenant:
         await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
 
         assert conn.session_vars.get("sahool.audit_retention_job") == "on"
+
+    @pytest.mark.asyncio
+    async def test_archives_every_expired_row_before_delete(self) -> None:
+        """Every deleted row must be present in audit_log_archive. Without
+        this, the replay endpoint (/api/v1/audit/logs/archived) returns
+        404 for compliance queries spanning the retention boundary — the
+        exact gap this migration was introduced to close."""
+        rows = _rows_for("t1", "authentication", ages_days=[200, 150, 120, 5])
+        conn = FakeConn(rows)
+        policy = RetentionPolicy(category="authentication", retention_days=90)
+
+        await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
+
+        # Three rows older than 90 days (200, 150, 120) should have been
+        # archived AND deleted. Archive retains them; audit_log does not.
+        assert len(conn.archived) == 3
+        archived_seq_nums = sorted(a.seq_num for a in conn.archived)
+        assert archived_seq_nums == [1, 2, 3]
+        # Audit log has just the surviving row (age 5, seq 4).
+        assert len(conn.rows) == 1
+        assert conn.rows[0].seq_num == 4
+
+    @pytest.mark.asyncio
+    async def test_records_archive_location_uri(self) -> None:
+        """The retention_events row must carry the archive URI so
+        compliance tooling can locate where the content went. Without
+        this, auditors know rows were deleted but can't find them."""
+        rows = _rows_for("t1", "billing", ages_days=[2000])
+        conn = FakeConn(rows)
+        policy = RetentionPolicy(category="billing", retention_days=1825)
+
+        await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=False)
+
+        assert len(conn.events) == 1
+        assert conn.events[0]["archive_location"] == "pg://audit_log_archive"
+
+    @pytest.mark.asyncio
+    async def test_dry_run_does_not_archive(self) -> None:
+        """Dry-run must leave both audit_log AND audit_log_archive
+        untouched. An archive write during dry-run would turn "preview"
+        into "irreversible side-effect"."""
+        rows = _rows_for("t1", "system", ages_days=[200, 100])
+        conn = FakeConn(rows)
+        policy = RetentionPolicy(category="system", retention_days=90)
+
+        await run_policy_for_tenant(conn, tenant_id="t1", policy=policy, now=NOW, dry_run=True)
+
+        assert len(conn.rows) == 2  # nothing deleted
+        assert conn.archived == []  # nothing archived
 
 
 class TestRunSweep:

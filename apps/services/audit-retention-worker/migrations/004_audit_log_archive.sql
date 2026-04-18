@@ -16,10 +16,31 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 --
 -- Design notes:
---   * Schema mirrors audit_log exactly so the CTE-copy is a `SELECT *` with
---     two extra columns tacked on (archived_at, archived_by). Any migration
---     that widens audit_log must also widen this table — flagged in the
---     audit-service README.
+--   * Column schema mirrors audit_log's column list so the archive
+--     INSERT-FROM-SELECT is positional and trivially stays in sync.
+--     Intentional deviations from audit_log's DDL (don't paste its
+--     constraints blindly when widening):
+--       - No DEFAULTs on columns that audit_log defaults (user_id='system',
+--         severity='info', success=TRUE, details='{}'). The retention
+--         worker always populates these from the source row, so a
+--         default here would only matter if someone bypassed the
+--         worker and INSERTed manually — a scenario we DON'T want to
+--         silently accept since it would produce archive rows without
+--         matching audit_log lineage.
+--       - No chk_category CHECK constraint. audit_log's enum is the
+--         single source of truth for valid categories and historical
+--         archive rows would reject future enum extensions with no
+--         upside: audit_log's own constraint already validated the
+--         category at write-time, so by the time a row lands in this
+--         table it has already passed the gate. Keeping the archive
+--         constraint-free means adding categories to audit_log never
+--         requires a coordinated migration here.
+--       - archived_at / archived_by: the two columns tacked on at the
+--         end. Populated by the worker via column defaults.
+--     Any migration that adds a COLUMN to audit_log must also add it
+--     here (and extend the INSERT list in retention.py's SQL). Adding
+--     a CONSTRAINT to audit_log does NOT automatically require one
+--     here — see the chk_category rationale above.
 --   * Append-only: INSERT allowed under the same retention session variable
 --     that gates audit_log DELETE; UPDATE / DELETE blocked unconditionally.
 --     An archive that can be rewritten is not an archive.

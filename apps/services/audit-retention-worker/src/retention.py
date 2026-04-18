@@ -153,7 +153,7 @@ WHERE tenant_id = $1
   AND category = $2
   AND created_at < $3
 ON CONFLICT (tenant_id, seq_num) DO NOTHING
-RETURNING seq_num
+RETURNING 1
 """
 
 # archive_location is set to a pg:// URI pointing at the archive table
@@ -340,14 +340,19 @@ async def run_policy_for_tenant(
                 },
             )
 
-        # Parity check: every row we deleted should have been archived
-        # (either by this run or a previous aborted attempt). A shortfall
-        # means the archive is missing content the replay endpoint would
-        # otherwise serve — surface it loud in the logs but don't abort
-        # retention, because rollback would re-admit expired rows.
-        # archived_count < deleted is possible when ON CONFLICT swallowed
-        # re-archives of rows from a prior partial run; that's benign and
-        # doesn't need to be flagged.
+        # Parity between the archive INSERT and the DELETE. Two regimes:
+        #   * archived_count < deleted  is BENIGN. ON CONFLICT DO NOTHING
+        #     swallows re-archives of rows the previous partial run
+        #     already copied, so a delta here just means some rows were
+        #     already in the archive. No warning needed.
+        #   * archived_count > deleted  is SUSPICIOUS. The archive picked
+        #     up rows that the DELETE didn't — typically a race with a
+        #     concurrent writer inserting audit_log rows whose
+        #     created_at matched the cutoff between our archive and
+        #     DELETE statements. It's not fatal (the orphans in the
+        #     archive are genuine audit rows that still exist in
+        #     audit_log, so replay is still accurate), but worth a
+        #     warning so ops can investigate the concurrent writer.
         if archived_count > deleted:
             logger.warning(
                 "retention.archive_count_mismatch",

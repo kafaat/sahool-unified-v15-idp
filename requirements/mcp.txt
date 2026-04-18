@@ -10,7 +10,7 @@
 
 # Observability (for MCP server)
 prometheus-client==0.25.0
-structlog==25.5.0
+structlog>=25.0.0,<26.0.0
 
 # Note: MCP protocol is implemented directly using FastAPI and Pydantic
 # No additional MCP-specific packages required

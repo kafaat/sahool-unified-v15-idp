@@ -42,6 +42,9 @@ for _mod in [
     "shared.auth.models",
     "shared.events",
     "shared.events.subjects",
+    "shared.logging_config",
+    "shared.observability",
+    "shared.observability.tracing",
     "nats",
     "asyncpg",
     "structlog",
@@ -55,6 +58,10 @@ sys.modules["shared.middleware.tenant_context"].TenantContextMiddleware = _NoopM
 sys.modules["shared.events.subjects"].get_tenant_subject = lambda tenant_id, domain, action: (
     f"sahool.tenant.{tenant_id}.{domain}.{action}"
 )
+# Wave-3 platform helpers: structured logging + OTel tracing
+sys.modules["shared.logging_config"].setup_logging = lambda *a, **k: MagicMock()
+sys.modules["shared.logging_config"].get_logger = lambda *a, **k: MagicMock()
+sys.modules["shared.observability.tracing"].setup_tracing = lambda *a, **k: MagicMock()
 
 # Provide a mock User class and get_current_user callable
 _mock_user = MagicMock()

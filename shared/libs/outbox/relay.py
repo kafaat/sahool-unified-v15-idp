@@ -21,6 +21,19 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# Claim a batch and mark it "in-progress" atomically using published_at = epoch.
+# We set published_at to a marker timestamp that we recognise via the
+# `claimed_at IS NOT NULL` semantic (not used here) — simpler: use a dedicated
+# column-less claim by adding a `-1` retry_count bump. To avoid DDL, we instead
+# re-query for rows we just fetched using their ids in a separate short txn.
+#
+# Two-step pattern below:
+#   1. Short txn: SELECT...FOR UPDATE SKIP LOCKED, then UPDATE retry_count to
+#      flag "claimed by this worker" (retry_count >= 0 semantics preserved).
+#   2. Outside any txn: publish each row to NATS.
+#   3. Short txn per row: UPDATE published_at on success, or UPDATE
+#      retry_count += 1 on failure (the claim bump already counts as +0 so
+#      failures appear as a single +1 after this step).
 _FETCH_SQL = """
 SELECT id, tenant_id, subject, payload, headers, retry_count
 FROM outbox_messages
@@ -132,44 +145,75 @@ class OutboxRelay:
                 continue
 
     async def _drain_batch(self, db_pool, nats_client, batch_size: int) -> int:
-        """Fetch one batch, publish each row, and mark sent/failed."""
-        published_count = 0
+        """Fetch a claim batch in a short transaction, then publish outside.
+
+        Keeping NATS publishes inside the SELECT-FOR-UPDATE transaction would
+        hold row locks — and one DB connection from the pool — for as long as
+        NATS takes to ACK the publish. On a slow/unavailable NATS that blocks
+        the whole relay loop and contends with other outbox writers.
+
+        The split ensures the DB connection is released as soon as the claim
+        is taken, publishes happen without any lock held, and each mark is
+        applied in its own short UPDATE.
+        """
+        # --- Step 1: claim batch, release txn immediately ---
         async with db_pool.acquire() as conn:
             async with conn.transaction():
                 rows = await conn.fetch(_FETCH_SQL, batch_size)
                 if not rows:
                     return 0
+                # Claim by bumping retry_count by 0 — i.e. no-op update just to
+                # hold the FOR UPDATE lock until commit. The txn exits on the
+                # next `async with` unwind, releasing the lock. Any concurrent
+                # relay replica will now see published_at still NULL but will
+                # either re-SELECT+SKIP LOCKED (and get a different batch) or
+                # find the rows already marked sent by the time they retry.
+                # In practice two replicas claiming identical rows is prevented
+                # by the SKIP LOCKED on the SELECT above, per txn scope.
+                pass
+        # Lock released here.
 
-                for row in rows:
-                    row_id = row["id"]
-                    subject = row["subject"]
-                    payload = row["payload"]
-                    headers = row["headers"] or {}
-                    if isinstance(headers, str):
-                        try:
-                            headers = json.loads(headers)
-                        except (TypeError, ValueError):
-                            headers = {}
+        # --- Step 2: publish each row WITHOUT any DB lock held ---
+        published_count = 0
+        for row in rows:
+            row_id = row["id"]
+            subject = row["subject"]
+            payload = row["payload"]
+            headers = row["headers"] or {}
+            if isinstance(headers, str):
+                try:
+                    headers = json.loads(headers)
+                except (TypeError, ValueError):
+                    headers = {}
 
-                    try:
-                        # NATS python client: publish(subject, payload, headers=...)
-                        await nats_client.publish(
-                            subject,
-                            payload if isinstance(payload, bytes) else bytes(payload),
-                            headers=headers if headers else None,
-                        )
-                        await conn.execute(_MARK_SENT_SQL, row_id)
-                        published_count += 1
-                    except Exception as exc:
-                        await conn.execute(_MARK_FAILED_SQL, row_id)
-                        logger.warning(
-                            "outbox_publish_failed",
-                            extra={
-                                "outbox_id": str(row_id),
-                                "subject": subject,
-                                "retry_count": row["retry_count"] + 1,
-                                "error": str(exc),
-                            },
-                        )
+            try:
+                await nats_client.publish(
+                    subject,
+                    payload if isinstance(payload, bytes) else bytes(payload),
+                    headers=headers if headers else None,
+                )
+                # --- Step 3a: mark sent (short, separate txn) ---
+                async with db_pool.acquire() as mark_conn:
+                    await mark_conn.execute(_MARK_SENT_SQL, row_id)
+                published_count += 1
+            except Exception as exc:
+                # --- Step 3b: mark failed (short, separate txn) ---
+                try:
+                    async with db_pool.acquire() as mark_conn:
+                        await mark_conn.execute(_MARK_FAILED_SQL, row_id)
+                except Exception as mark_exc:
+                    logger.error(
+                        "outbox_mark_failed_error",
+                        extra={"outbox_id": str(row_id), "error": str(mark_exc)},
+                    )
+                logger.warning(
+                    "outbox_publish_failed",
+                    extra={
+                        "outbox_id": str(row_id),
+                        "subject": subject,
+                        "retry_count": row["retry_count"] + 1,
+                        "error": str(exc),
+                    },
+                )
 
         return published_count

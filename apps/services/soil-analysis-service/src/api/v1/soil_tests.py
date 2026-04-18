@@ -11,6 +11,14 @@ import structlog
 from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
+try:
+    from shared.events.subjects import get_tenant_subject
+except ImportError:
+    # Fallback for environments where shared.events is not yet importable
+    # (local dev shell, early boot). Preserves legacy inline pattern.
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
 logger = structlog.get_logger()
 
 # Authentication dependency
@@ -170,7 +178,7 @@ async def create_soil_test(
         nc = getattr(req.app.state, "nc", None)
         if nc:
             await nc.publish(
-                "sahool.soil.test_created",
+                get_tenant_subject(tenant_id, "soil", "test_created"),
                 json.dumps({"test_id": test_id, "field_id": request.field_id, "tenant_id": tenant_id}).encode(),
             )
 
@@ -270,20 +278,21 @@ async def interpret_soil_test(request: InterpretRequest, req: Request, current_u
         nc = getattr(req.app.state, "nc", None)
         if nc:
             try:
+                _tenant = test_data.get("tenant_id") or "unknown"
                 await nc.publish(
-                    "sahool.soil.test_interpreted",
+                    get_tenant_subject(_tenant, "soil", "test_interpreted"),
                     json.dumps(
                         {
                             "test_id": request.test_id,
                             "crop": request.crop,
                             "overall_health": report.overall_health,
                             "field_id": test_data.get("field_id"),
-                            "tenant_id": test_data.get("tenant_id"),
+                            "tenant_id": _tenant,
                         }
                     ).encode(),
                 )
             except Exception:
-                logger.warning("nats_publish_failed", subject="sahool.soil.test_interpreted")
+                logger.warning("nats_publish_failed", subject="soil.test_interpreted")
 
         return result
     except ImportError:
@@ -342,8 +351,9 @@ async def generate_amendment_plan(
         nc = getattr(req.app.state, "nc", None)
         if nc:
             try:
+                _tenant = test_data.get("tenant_id") or "unknown"
                 await nc.publish(
-                    "sahool.soil.amendment_plan_generated",
+                    get_tenant_subject(_tenant, "soil", "amendment_plan_generated"),
                     json.dumps(
                         {
                             "test_id": request.test_id,
@@ -351,12 +361,12 @@ async def generate_amendment_plan(
                             "area_ha": request.area_ha,
                             "total_cost": plan.total_cost,
                             "field_id": test_data.get("field_id"),
-                            "tenant_id": test_data.get("tenant_id"),
+                            "tenant_id": _tenant,
                         }
                     ).encode(),
                 )
             except Exception:
-                logger.warning("nats_publish_failed", subject="sahool.soil.amendment_plan_generated")
+                logger.warning("nats_publish_failed", subject="soil.amendment_plan_generated")
 
         return result
     except ImportError:
@@ -415,7 +425,7 @@ async def analyze_soil_trends(
         if nc:
             try:
                 await nc.publish(
-                    "sahool.soil.trends_analyzed",
+                    get_tenant_subject(tenant_id, "soil", "trends_analyzed"),
                     json.dumps(
                         {
                             "field_id": request.field_id,
@@ -425,7 +435,7 @@ async def analyze_soil_trends(
                     ).encode(),
                 )
             except Exception:
-                logger.warning("nats_publish_failed", subject="sahool.soil.trends_analyzed")
+                logger.warning("nats_publish_failed", subject="soil.trends_analyzed")
 
         return result
     except ImportError:

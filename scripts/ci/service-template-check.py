@@ -20,6 +20,7 @@ import re
 import sys
 from pathlib import Path
 
+FASTAPI_APP = re.compile(r"\bFastAPI\s*\(|\bapp\s*=\s*FastAPI\b|APIRouter\s*\(")
 LOGGING_IMPORT = re.compile(
     r"from\s+shared\.logging_config\s+import\s+[^\n]*\bsetup_logging\b"
 )
@@ -51,6 +52,12 @@ def check(path: Path) -> list[str]:
         return [f"{path}: file not found"]
     text = path.read_text(encoding="utf-8")
     errors: list[str] = []
+
+    # Skip non-FastAPI files (CronJobs / CLI workers like audit-retention-worker).
+    # The HTTP-service template rules (healthz/readyz/setup_logging/auth) don't
+    # apply to batch jobs that have no HTTP surface.
+    if not FASTAPI_APP.search(text):
+        return []
 
     if not OPT_OUT_LOGGING.search(text) and not LOGGING_IMPORT.search(text):
         errors.append(

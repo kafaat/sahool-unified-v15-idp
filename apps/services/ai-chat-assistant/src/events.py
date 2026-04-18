@@ -105,8 +105,8 @@ class NATSEventHandler:
             # Process query
             response = await self._process_query(query)
 
-            # Publish response
-            await self._publish_response(response)
+            # Publish response (tenant-scoped)
+            await self._publish_response(response, tenant_id=query.tenant_id)
 
             # Log processing time
             total_time_ms = int((datetime.now(UTC) - start_time).total_seconds() * 1000)
@@ -142,7 +142,7 @@ class NATSEventHandler:
                         escalation_reason=f"Processing error: {type(e).__name__}",
                     ),
                 )
-                await self._publish_response(error_response)
+                await self._publish_response(error_response, tenant_id=query.tenant_id)
             except Exception as publish_err:
                 logger.error(f"Failed to publish error response: {publish_err}")
 
@@ -200,12 +200,15 @@ class NATSEventHandler:
             metadata=result["metadata"],
         )
 
-    async def _publish_response(self, response: AIResponse):
+    async def _publish_response(self, response: AIResponse, tenant_id: str | None = None):
         """
         Publish AI response back to chat service.
 
         Args:
             response: AI response to publish
+            tenant_id: Tenant that owns the conversation. Required for tenant-
+                scoped NATS subjects; falls back to "unknown" if missing so
+                the publish doesn't silently leak across tenants.
         """
         if not self.nc:
             raise RuntimeError("NATS not connected")
@@ -214,9 +217,15 @@ class NATSEventHandler:
             # Serialize response
             response_data = response.model_dump_json()
 
-            # Publish to response subject
+            try:
+                from shared.events.subjects import get_tenant_subject
+                _subject = get_tenant_subject(tenant_id or "unknown", "chat", "ai_response")
+            except ImportError:
+                _subject = f"sahool.tenant.{tenant_id or 'unknown'}.chat.ai_response"
+
+            # Publish to response subject (tenant-scoped)
             await self.nc.publish(
-                "sahool.chat.ai_response",
+                _subject,
                 response_data.encode(),
             )
 

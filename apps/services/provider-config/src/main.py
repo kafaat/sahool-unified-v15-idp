@@ -32,6 +32,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+try:
+    from shared.events.subjects import get_tenant_subject
+except ImportError:
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
 from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
@@ -780,13 +786,14 @@ async def publish_config_updated(
             "tenant_id": tenant_id,
             "timestamp": datetime.now(UTC).isoformat(),
         }
+        _subject = get_tenant_subject(tenant_id, "config", "updated")
         await nc.publish(
-            "sahool.config.updated",
+            _subject,
             json.dumps(event_data).encode(),
         )
         logger.info(
             "Published config updated event",
-            subject="sahool.config.updated",
+            subject=_subject,
             tenant_id=tenant_id,
             provider=provider_name,
         )
@@ -815,13 +822,14 @@ async def publish_provider_status_changed(
             "tenant_id": tenant_id,
             "timestamp": datetime.now(UTC).isoformat(),
         }
+        _subject = get_tenant_subject(tenant_id, "config", "provider_status_changed")
         await nc.publish(
-            "sahool.config.provider_status_changed",
+            _subject,
             json.dumps(event_data).encode(),
         )
         logger.info(
             "Published provider status changed event",
-            subject="sahool.config.provider_status_changed",
+            subject=_subject,
             tenant_id=tenant_id,
             provider=provider_name,
             enabled=enabled,

@@ -331,14 +331,17 @@ async def get_current_user(
             detail="JWT not configured",
         )
 
-    # Lock to platform algorithm (HS256). Accepting HS384/HS512 opens an
-    # algorithm-confusion surface and diverges from shared/auth config.
-    jwt_algorithm = os.getenv("JWT_ALGORITHM", "HS256")
+    # Hard-lock to platform algorithm (HS256). The whitelist is intentionally
+    # hard-coded — accepting HS384/HS512 (or a mis-copied JWT_ALGORITHM env
+    # var) opens an algorithm-confusion surface and diverges from
+    # shared/auth/config.py::ALLOWED_ALGORITHMS. If a future key-rotation
+    # plan needs a different alg, update it here and in shared/auth.
+    _ALLOWED_JWT_ALGORITHMS = ("HS256",)
     try:
         payload = jwt.decode(
             token,
             jwt_secret,
-            algorithms=[jwt_algorithm],
+            algorithms=list(_ALLOWED_JWT_ALGORITHMS),
             options={"require": ["exp", "sub"]},
         )
         logger.debug("JWT validated successfully", user_id=payload.get("sub"))

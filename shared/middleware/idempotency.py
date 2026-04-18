@@ -38,6 +38,13 @@ from starlette.types import ASGIApp
 
 _MUTATING_METHODS: frozenset[str] = frozenset({"POST", "PATCH", "DELETE"})
 _DEFAULT_TTL_SECONDS: int = 600  # 10 minutes
+_DEFAULT_MAX_ENTRIES: int = 10_000
+# Headers that are unsafe or incorrect to replay from a cached response.
+# set-cookie in particular can be multi-valued (dict collapses it) and
+# re-emitting it could hand a session cookie to a different caller.
+_HEADER_BLOCKLIST: frozenset[str] = frozenset(
+    {"set-cookie", "content-length", "transfer-encoding", "connection"}
+)
 
 
 class _CacheEntry:
@@ -72,12 +79,31 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
         app: ASGIApp,
         ttl_seconds: int = _DEFAULT_TTL_SECONDS,
         header_name: str = "Idempotency-Key",
+        max_entries: int = _DEFAULT_MAX_ENTRIES,
     ) -> None:
         super().__init__(app)
         self._ttl = ttl_seconds
         self._header = header_name
+        self._max_entries = max_entries
         # TODO(prod): replace with Redis-backed store (shared across pods).
         self._store: dict[str, _CacheEntry] = {}
+
+    def _purge_expired(self, now: float) -> None:
+        """Opportunistic eviction of expired entries.
+
+        Called on read/write hits; also hard-caps store size at
+        ``_max_entries`` by dropping the oldest entries (by expires_at).
+        Runs only when the store is non-empty, so hot path stays cheap.
+        """
+        expired = [k for k, v in self._store.items() if v.expires_at <= now]
+        for k in expired:
+            self._store.pop(k, None)
+        overflow = len(self._store) - self._max_entries
+        if overflow > 0:
+            # Evict oldest (smallest expires_at) first
+            stale = sorted(self._store.items(), key=lambda kv: kv[1].expires_at)[:overflow]
+            for k, _ in stale:
+                self._store.pop(k, None)
 
     async def dispatch(self, request: Request, call_next: Any) -> Response:
         if request.method not in _MUTATING_METHODS:
@@ -87,11 +113,16 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
         if not key:
             return await call_next(request)
 
-        cache_key = f"{request.method}:{request.url.path}:{key}"
+        # Include query string so two POSTs to the same path with different
+        # query params (e.g. tenant routing) don't collide on the same key.
+        # Tenant/user scoping should layer on top — see module docstring.
+        query = request.url.query or ""
+        cache_key = f"{request.method}:{request.url.path}?{query}:{key}"
         now = time.time()
 
         cached = self._store.get(cache_key)
         if cached is not None and cached.expires_at > now:
+            self._purge_expired(now)
             return Response(
                 content=cached.body,
                 status_code=cached.status_code,
@@ -107,7 +138,12 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
             async for chunk in response.body_iterator:
                 body_chunks.append(chunk)
             body = b"".join(body_chunks)
-            headers = {k: v for k, v in response.headers.items() if k.lower() != "content-length"}
+            headers = {
+                k: v
+                for k, v in response.headers.items()
+                if k.lower() not in _HEADER_BLOCKLIST
+            }
+            self._purge_expired(now)
             self._store[cache_key] = _CacheEntry(
                 status_code=response.status_code,
                 body=body,

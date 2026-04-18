@@ -12,18 +12,39 @@
 # mirror going down mid-build (e.g. cases where local apt-update.sh drifts out
 # of git and picks an unreliable mirror like mirrors.huaweicloud.com).
 #
-# Supports: Debian (bookworm+, DEB822 & legacy), Ubuntu (archive.ubuntu.com)
+# Supports: Debian bookworm (DEB822 and legacy sources.list). The fallback
+# chain — including `deb.debian.org` — is Debian-specific. If the Dockerfile
+# base image is Ubuntu, override SAHOOL_APT_MIRRORS with a chain ending in
+# `archive.ubuntu.com` (see env-override section below).
+#
+# Environment overrides (all optional):
+#   SAHOOL_APT_MIRRORS        space-separated list; defaults to the chain above
+#   SAHOOL_APT_MAX_RETRIES    per-mirror retry count; default 3
+#   SAHOOL_APT_UPDATE_TIMEOUT per-attempt wall clock (seconds); default 120
+#   SAHOOL_APT_TOTAL_BUDGET   hard overall wall clock (seconds); default 600
+#                             (exit 1 once exceeded; set to 0 to disable)
 
 set -e
 
-MAX_RETRIES=3
+MAX_RETRIES="${SAHOOL_APT_MAX_RETRIES:-3}"
 RETRY_DELAY=5
 # Hard wall-clock limit per apt-get update attempt. Mirrors delivering at
 # 863 B/s can hold the build for 10+ minutes; 120 seconds abandons them fast
 # enough to try the next mirror without unacceptable total build time. Bumped
 # from 90s to 120s because deb.debian.org metadata fetch in APAC can legitimately
 # take 100+ seconds on a cold connection.
-UPDATE_TIMEOUT=120
+UPDATE_TIMEOUT="${SAHOOL_APT_UPDATE_TIMEOUT:-120}"
+
+# Hard overall wall-clock cap across ALL mirrors and retries. Without this,
+# the worst case (all mirrors slow + all retries backing off) is
+#   MIRRORS × (MAX_RETRIES × UPDATE_TIMEOUT + exponential-backoff sleeps)
+# which at defaults (5, 3, 120) works out to roughly 5 × (360 + 15) ≈ 1875 s
+# ≈ 31 minutes — long enough to stall a parallel Compose build of 70 services
+# even when each individual apt-get call is eventually going to succeed on a
+# later mirror. 600 s lets the default chain try every mirror at least once
+# at its full 120s timeout, then fail the build fast so operators can triage.
+TOTAL_BUDGET="${SAHOOL_APT_TOTAL_BUDGET:-600}"
+START_TS=$(date +%s)
 
 # Mirrors attempted in order. Each entry is an apt mirror host that serves
 # /debian and /debian-security. Aliyun first because it has the broadest
@@ -31,16 +52,35 @@ UPDATE_TIMEOUT=120
 # and USTC are academic mirrors with excellent availability inside China;
 # deb.debian.org is the final fallback (always works, but can be slow).
 #
-# To add or reorder mirrors, edit this list — no other change needed.
-MIRRORS="mirrors.aliyun.com mirrors.cloud.tencent.com mirrors.tuna.tsinghua.edu.cn mirrors.ustc.edu.cn deb.debian.org"
+# To add or reorder mirrors, set SAHOOL_APT_MIRRORS at build time — no code
+# change needed.
+MIRRORS="${SAHOOL_APT_MIRRORS:-mirrors.aliyun.com mirrors.cloud.tencent.com mirrors.tuna.tsinghua.edu.cn mirrors.ustc.edu.cn deb.debian.org}"
 
-# Write apt resilience config early so both apt-get update AND apt-get install
-# benefit from higher retries and longer per-connection timeouts.
-# This is critical when mirrors serve metadata (small files) fine but time out
-# on large .deb downloads (e.g. openssl 1.4 MB from mirrors.aliyun.com/debian-security).
+# Write apt resilience config early so subsequent `apt-get install` calls in
+# the Dockerfile benefit from higher per-connection retries (10) and longer
+# timeouts — critical when mirrors serve metadata fine but time out on large
+# .deb downloads (e.g. openssl 1.4 MB from mirrors.aliyun.com/debian-security).
+#
+# NOTE: `apt-get update` below intentionally overrides Retries=1 via `-o` so
+# it fails fast and hands off to the next mirror in our fallback chain. Letting
+# apt's own 10x retry kick in would multiply the per-mirror wall clock by 10
+# and defeat the whole point of the chain.
 mkdir -p /etc/apt/apt.conf.d
 printf 'Acquire::http::Timeout "120";\nAcquire::https::Timeout "120";\nAcquire::Retries "10";\nAPT::Get::Assume-Yes "true";\n' \
     > /etc/apt/apt.conf.d/99sahool-resilience
+
+# Exit immediately if the total wall-clock budget has been exceeded. Called
+# between mirror attempts so a pathological network can't hold the build
+# longer than the operator wants.
+check_total_budget() {
+    [ "$TOTAL_BUDGET" -le 0 ] && return 0
+    _elapsed=$(( $(date +%s) - START_TS ))
+    if [ "$_elapsed" -ge "$TOTAL_BUDGET" ]; then
+        echo "ERROR: apt-update total budget (${TOTAL_BUDGET}s) exhausted after ${_elapsed}s; failing fast." >&2
+        echo "       Override with SAHOOL_APT_TOTAL_BUDGET=<seconds> or 0 to disable." >&2
+        exit 1
+    fi
+}
 
 switch_to_mirror() {
     mirror_host="${1:-mirrors.aliyun.com}"
@@ -78,6 +118,7 @@ try_apt_update() {
     attempt=1
     delay="$RETRY_DELAY"
     while [ "$attempt" -le "$MAX_RETRIES" ]; do
+        check_total_budget
         echo "apt-get update attempt ${attempt}/${MAX_RETRIES} (timeout ${UPDATE_TIMEOUT}s)..."
         update_output=$(timeout "${UPDATE_TIMEOUT}" apt-get update -o Acquire::Retries=1 2>&1) && rc=0 || rc=$?
         echo "$update_output"
@@ -104,10 +145,12 @@ try_apt_update() {
 }
 
 # Mirror-first strategy: iterate through the mirror list until one succeeds.
-# Each mirror gets its own retry loop (MAX_RETRIES attempts with backoff).
-# Total worst-case budget: len(MIRRORS) × MAX_RETRIES × UPDATE_TIMEOUT
-# = 5 × 3 × 120s = 1800s, but typical success is under 15s on the first mirror.
+# Each mirror gets its own retry loop (MAX_RETRIES attempts with exponential
+# backoff), and the outer loop short-circuits if the total wall-clock budget
+# is blown. Typical success is under 15s on the first mirror; worst case is
+# bounded by TOTAL_BUDGET rather than by mirror × retries × timeout math.
 for _mirror in $MIRRORS; do
+    check_total_budget
     switch_to_mirror "$_mirror"
     if try_apt_update; then
         exit 0

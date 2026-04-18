@@ -58,7 +58,7 @@ export default function CropHealthClient() {
             >
               ← العودة
             </button>
-            <DiagnosisResultView requestId={diagnosisId} />
+            {diagnosisId && <DiagnosisResultView requestId={diagnosisId} />}
           </div>
         ) : activeView === 'dashboard' ? (
           <HealthDashboard />

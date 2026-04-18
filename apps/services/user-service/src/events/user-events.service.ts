@@ -43,6 +43,7 @@ const SAHOOL_USER_LOGGED_OUT = "sahool.user.logged_out" as const;
 const SAHOOL_USER_LOGGED_OUT_ALL = "sahool.user.logged_out_all" as const;
 const SAHOOL_USER_ACCOUNT_LOCKED = "sahool.user.account_locked" as const;
 const SAHOOL_USER_PASSWORD_CHANGED = "sahool.user.password_changed" as const;
+const SAHOOL_USER_PASSWORD_RESET = "sahool.user.password_reset" as const;
 
 @Injectable()
 export class UserEventsService implements OnModuleInit, OnModuleDestroy {
@@ -343,6 +344,34 @@ export class UserEventsService implements OnModuleInit, OnModuleDestroy {
       sessionsRevoked: params.sessionsRevoked,
       severity: "warning",
       changedAt: new Date().toISOString(),
+    });
+  }
+
+  /**
+   * Publish a password-reset attempt event — fired on BOTH the success and
+   * failure branches of the reset flow so compliance can correlate probe
+   * attempts with successful takeovers. ``status`` disambiguates the two.
+   *
+   * Subject: ``sahool.user.password_reset`` (distinct from
+   * ``sahool.user.password_changed`` which is emitted on the success path
+   * only, from higher-level self-service and OTP flows).
+   */
+  async publishPasswordReset(params: {
+    tenantId: string;
+    userId?: string;
+    status: "success" | "failed";
+    identifier?: string;
+    ipAddress?: string;
+    reason?: string;
+  }): Promise<void> {
+    await this.rawPublish(SAHOOL_USER_PASSWORD_RESET, params.tenantId, {
+      userId: params.userId,
+      identifier: params.identifier,
+      ipAddress: params.ipAddress,
+      status: params.status,
+      reason: params.reason,
+      severity: params.status === "failed" ? "warning" : "info",
+      timestamp: new Date().toISOString(),
     });
   }
 

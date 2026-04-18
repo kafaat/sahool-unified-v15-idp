@@ -996,7 +996,12 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    """Kubernetes readiness probe - is the service ready to accept traffic?
+
+    In production/staging, returns HTTP 503 when a configured critical
+    dependency (DB, NATS) is disconnected. Dev preserves 200 behavior.
+    """
+    env = os.getenv("ENVIRONMENT", "development").lower()
     nats_connected = getattr(app.state, "nats_connected", False)
     db_connected = getattr(app.state, "db_connected", False)
 
@@ -1016,15 +1021,32 @@ def readiness():
     else:
         db_status = "not_configured"
 
+    checks = {
+        "service": "ready",
+        "nats": nats_status,
+        "database": db_status,
+    }
+
+    if env in ("production", "prod", "staging"):
+        critical_down = nats_status == "disconnected" or db_status == "disconnected"
+        if critical_down:
+            from fastapi.responses import JSONResponse
+
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "not_ready",
+                    "service": "crop-intelligence-service",
+                    "version": "16.0.0",
+                    "checks": checks,
+                },
+            )
+
     return {
         "status": "ready",
         "service": "crop-intelligence-service",
         "version": "16.0.0",
-        "checks": {
-            "service": "ready",
-            "nats": nats_status,
-            "database": db_status,
-        },
+        "checks": checks,
     }
 
 

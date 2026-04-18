@@ -879,3 +879,85 @@ scrape_configs:
           description_ar: 'خادم استدلال النماذج اللغوية الكبيرة مسرّع بالمعالج الرسومي'
     metrics_path: /metrics
     scrape_interval: 15s
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Additional Services - خدمات إضافية
+  # ─────────────────────────────────────────────────────────────────────────────
+
+  # Audit Service - خدمة التدقيق
+  - job_name: 'audit-service'
+    static_configs:
+      - targets: ['audit-service:8114']
+        labels:
+          tier: 'core'
+          component: 'audit-logging'
+          service: 'audit-service'
+          language: 'python'
+          description: 'Audit Logging Service'
+          description_ar: 'خدمة سجل التدقيق'
+    metrics_path: /metrics
+
+  # Chat Service - خدمة المحادثات
+  - job_name: 'chat-service'
+    static_configs:
+      - targets: ['chat-service:8115']
+        labels:
+          tier: 'communication'
+          component: 'messaging'
+          service: 'chat-service'
+          language: 'nodejs'
+          description: 'Real-time Chat Service'
+          description_ar: 'خدمة المحادثات الفورية'
+    metrics_path: /metrics
+
+  # Copilot API - خدمة المساعد الذكي
+  - job_name: 'copilot-api'
+    static_configs:
+      - targets: ['copilot-api:8088']
+        labels:
+          tier: 'ai-ml'
+          component: 'ai-copilot'
+          service: 'copilot-api'
+          language: 'python'
+          description: 'AI Copilot API (Multi-LLM, RAG)'
+          description_ar: 'واجهة المساعد الذكي'
+    metrics_path: /metrics
+
+  # Yield Prediction Service (NestJS) - خدمة التنبؤ بالإنتاجية
+  - job_name: 'yield-prediction-service'
+    static_configs:
+      - targets: ['yield-prediction-service:8152']
+        labels:
+          tier: 'ai-ml'
+          component: 'yield-prediction'
+          service: 'yield-prediction-service'
+          language: 'nodejs'
+          description: 'Yield Prediction ML Service (NestJS)'
+          description_ar: 'خدمة التنبؤ بالإنتاجية بالتعلم الآلي'
+    metrics_path: /api/v1/metrics
+
+  # Traceability Service - خدمة التتبع
+  - job_name: 'traceability-service'
+    static_configs:
+      - targets: ['traceability-service:8123']
+        labels:
+          tier: 'business'
+          component: 'traceability'
+          service: 'traceability-service'
+          language: 'python'
+          description: 'Supply Chain Traceability'
+          description_ar: 'خدمة التتبع في سلسلة التوريد'
+    metrics_path: /metrics
+
+  # LLM Orchestrator Service - خدمة تنسيق النماذج اللغوية
+  - job_name: 'llm-orchestrator-service'
+    static_configs:
+      - targets: ['llm-orchestrator-service:8164']
+        labels:
+          tier: 'ai-ml'
+          component: 'llm-orchestration'
+          service: 'llm-orchestrator-service'
+          language: 'python'
+          description: 'LLM Orchestration & Routing'
+          description_ar: 'تنسيق وتوجيه النماذج اللغوية'
+    metrics_path: /metrics

@@ -24,11 +24,6 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
-try:
-    import structlog
-except ImportError:
-    structlog = None  # type: ignore[assignment]
-
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -41,25 +36,19 @@ SERVICE_NAME = "sahool-task-service"
 SERVICE_PORT = int(os.getenv("PORT", "8103"))
 SERVICE_VERSION = "16.0.0"
 
-# Configure logging
-# FIX: Use force=True to reset handlers and prevent double logging with uvicorn's default handlers
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    force=True,
-)
-# Suppress duplicate uvicorn access/error logs
-logging.getLogger("uvicorn.access").propagate = False
-if structlog is not None:
-    logger = structlog.get_logger(__name__)
-else:
-    logger = logging.getLogger(__name__)
-
 # ═══════════════════════════════════════════════════════════════════════════
 # Shared Middleware Imports - استيراد البرامج الوسيطة المشتركة
 # ═══════════════════════════════════════════════════════════════════════════
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Structured logging via shared.logging_config
+from shared.logging_config import get_logger, setup_logging  # noqa: E402
+
+setup_logging(service_name=SERVICE_NAME)
+# Suppress duplicate uvicorn access/error logs
+logging.getLogger("uvicorn.access").propagate = False
+logger = get_logger(__name__)
 
 try:
     from shared.middleware import (

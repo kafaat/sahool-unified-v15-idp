@@ -33,6 +33,7 @@ from src.api.schemas import (
     TrackedObject,
 )
 from src.core.config import settings
+from src.core.image_security import validate_image_upload
 from src.events import VisionEventPublisher
 from src.models.yolo26_manager import (
     InferenceResult,
@@ -81,30 +82,8 @@ async def get_manager() -> YOLO26ModelManager:
 
 
 async def validate_image(file: UploadFile) -> bytes:
-    """Validate and read uploaded image."""
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={
-                "error": "Invalid file type",
-                "message": "File must be an image (JPEG, PNG, WebP, etc.)",
-                "message_ar": "يجب أن يكون الملف صورة (JPEG، PNG، WebP، إلخ)",
-            },
-        )
-
-    content = await file.read()
-
-    if len(content) > settings.max_upload_size_bytes:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail={
-                "error": "File too large",
-                "message": f"Maximum file size is {settings.max_upload_size_mb}MB",
-                "message_ar": f"الحد الأقصى لحجم الملف هو {settings.max_upload_size_mb} ميجابايت",
-            },
-        )
-
-    return content
+    """Validate and read uploaded image (DoS-hardened)."""
+    return await validate_image_upload(file)
 
 
 def get_image_metadata(image_bytes: bytes) -> ImageMetadata:

@@ -24,6 +24,7 @@ from .api_versioning import (
     version_router,
 )
 from .cors import DEFAULT_ORIGINS, get_cors_config, get_cors_origins, setup_cors
+from .idempotency import IdempotencyMiddleware
 from .input_sanitizer import (
     InputSanitizationMiddleware,
     sanitize_string,
@@ -102,4 +103,6 @@ __all__ = [
     "setup_input_sanitization",
     "sanitize_string",
     "sanitize_value",
+    # Idempotency
+    "IdempotencyMiddleware",
 ]

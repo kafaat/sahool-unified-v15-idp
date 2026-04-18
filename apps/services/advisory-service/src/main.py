@@ -35,7 +35,9 @@ if str(SHARED_PATH) not in sys.path:
 
 # Import unified error handling
 # Import shared crop catalogs
-import structlog
+from shared.logging_config import get_logger, setup_logging
+
+setup_logging(service_name="advisory-service")
 from crops import (
     ALL_CROPS,
     CATEGORIES_COUNT,
@@ -50,7 +52,7 @@ from yemen_varieties import (
     get_varieties_by_crop,
 )
 
-logger = structlog.get_logger()
+logger = get_logger(__name__)
 
 # Import authentication dependencies
 from shared.auth.dependencies import get_current_user

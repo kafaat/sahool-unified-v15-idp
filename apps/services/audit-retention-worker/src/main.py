@@ -200,7 +200,12 @@ async def _run(*, dry_run: bool) -> int:
         return 2
 
     try:
-        pool = await asyncpg.create_pool(dsn, min_size=1, max_size=2)
+        pool = await asyncpg.create_pool(
+            dsn,
+            min_size=1,
+            max_size=2,
+            statement_cache_size=0,  # PgBouncer transaction mode compatibility
+        )
     except Exception as exc:  # noqa: BLE001 — surface the root cause then exit
         logger.error("dsn.connect_failed", extra={"error": str(exc)})
         return 2

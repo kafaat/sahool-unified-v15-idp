@@ -77,8 +77,15 @@ export default function SoilAnalyticsPage() {
   // with a visual indicator that it's sample data, not live.
   const fetchData = useCallback(async () => {
     setLoading(true);
-    setApiSoilData(null); // Will use fallback soilData
-    setLoading(false);
+    // Placeholder for future fetch. Only clear apiSoilData on error so the
+    // fallback logic does not fire eagerly on success.
+    Promise.resolve()
+      .catch(() => {
+        setApiSoilData(null);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   useEffect(() => {

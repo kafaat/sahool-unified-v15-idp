@@ -81,6 +81,7 @@ export function useCreateOrder() {
       items: Array<{ productId: string; quantity: number }>;
       shippingAddress: Order['shippingAddress'];
       notes?: string;
+      idempotencyKey?: string;
     }) => marketplaceApi.createOrder(data),
     onSuccess: () => {
       queryClient.invalidateQueries({

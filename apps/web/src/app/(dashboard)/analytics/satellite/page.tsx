@@ -14,6 +14,7 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
+import DemoBanner from '@/components/common/DemoBanner';
 
 const statsCards = [
   {
@@ -70,13 +71,19 @@ export default function SatelliteAnalyticsPage() {
   const [dateRange, setDateRange] = useState('month');
   const [indexType, setIndexType] = useState('ndvi');
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [apiSatelliteData] = useState<typeof satelliteData | null>(null);
 
   const fetchData = useCallback(async () => {
     // NOTE: No dedicated analytics API for satellite data yet.
     // Using local sample data until backend endpoint is available.
-    setLoading(false);
+    try {
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      setError(String(err));
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -113,6 +120,7 @@ export default function SatelliteAnalyticsPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      <DemoBanner />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -214,7 +222,7 @@ export default function SatelliteAnalyticsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-12 rounded-full bg-gray-200">
-                        <div className="h-2 rounded-full bg-green-500" style={{ width: `${row.ndvi * 100}%` }} />
+                        <div className="h-2 rounded-full bg-green-500" style={{ width: `${Math.min(Math.max(row.ndvi ?? 0, 0), 1) * 100}%` }} />
                       </div>
                       <span className="text-gray-700 font-medium">{row.ndvi}</span>
                     </div>

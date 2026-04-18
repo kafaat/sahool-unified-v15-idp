@@ -69,9 +69,9 @@ const STAT_COLORS: Record<string, { bg: string; icon: string }> = {
 export default function ScoutingClient() {
   const [activeTab, setActiveTab] = useState<TabId>('active');
 
-  const { data: statistics, isLoading: statsLoading, error: statsError } = useScoutingStatistics();
-  const { data: activeSessions, isLoading: activeLoading, error: activeError } = useScoutingHistory({ status: 'active' });
-  const { data: completedSessions, isLoading: historyLoading, error: historyError } = useScoutingHistory({ status: 'completed' });
+  const { data: statistics, isLoading: statsLoading, error: statsError, refetch: refetchStats } = useScoutingStatistics();
+  const { data: activeSessions, isLoading: activeLoading, error: activeError, refetch: refetchActive } = useScoutingHistory({ status: 'active' });
+  const { data: completedSessions, isLoading: historyLoading, error: historyError, refetch: refetchHistory } = useScoutingHistory({ status: 'completed' });
 
   // Derive issues from all sessions' observations with high severity
   const recentIssues = useMemo(() => {
@@ -100,12 +100,25 @@ export default function ScoutingClient() {
   const error = statsError || activeError || historyError;
 
   if (error) {
+    const handleRetry = () => {
+      refetchStats();
+      refetchActive();
+      refetchHistory();
+    };
     return (
       <div dir="rtl" className="min-h-screen bg-gray-50 p-6">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <AlertTriangle className="w-8 h-8 text-red-500 mx-auto mb-2" />
           <p className="text-red-700 font-medium">فشل في تحميل بيانات الاستكشاف</p>
           <p className="text-red-500 text-sm mt-1">Failed to load scouting data</p>
+          <button
+            type="button"
+            onClick={handleRetry}
+            className="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <span>إعادة المحاولة</span>
+            <span className="text-xs opacity-80">| Retry</span>
+          </button>
         </div>
       </div>
     );

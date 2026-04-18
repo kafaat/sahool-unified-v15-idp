@@ -445,12 +445,25 @@ async def health():
 @app.get("/readyz")
 @app.get("/health/ready")
 async def readiness():
-    """Readiness probe"""
-    return {
-        "status": "ok",
-        "database": getattr(app.state, "db_connected", False),
-        "nats": getattr(app.state, "nats_connected", False),
-    }
+    """Readiness probe.
+
+    In production/staging, returns HTTP 503 when a critical dependency
+    (DB, NATS) is down, so K8s will stop routing traffic. Dev keeps 200
+    behavior so local runs without real infra still succeed.
+    """
+    env = os.getenv("ENVIRONMENT", "development").lower()
+    db_up = bool(getattr(app.state, "db_pool", None)) or bool(getattr(app.state, "db_connected", False))
+    nats_up = bool(getattr(app.state, "nc", None)) or bool(getattr(app.state, "nats_connected", False))
+
+    if env in ("production", "prod", "staging") and not (db_up and nats_up):
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "database": db_up, "nats": nats_up},
+        )
+
+    return {"status": "ok", "database": db_up, "nats": nats_up}
 
 
 # ============================================================

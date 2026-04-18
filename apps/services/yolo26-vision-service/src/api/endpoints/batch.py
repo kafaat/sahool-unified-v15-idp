@@ -45,6 +45,7 @@ from src.core.batch_processor import BatchJob, BatchProcessor, BatchStatus, get_
 from src.core.cache import ResultCache, get_result_cache
 from src.core.config import settings
 from src.core.errors import ErrorCode, ValidationError
+from src.core.image_security import validate_image_upload
 from src.models.yolo26_manager import (
     InferenceResult,
     ModelTask,
@@ -164,24 +165,30 @@ async def get_processor() -> BatchProcessor:
 
 
 async def validate_and_read_images(files: list[UploadFile]) -> list[tuple[str, bytes]]:
-    """Validate and read uploaded images."""
-    images = []
+    """
+    Validate and read uploaded images.
 
+    Delegates per-file checks to ``validate_image_upload`` (magic-byte +
+    decompression-bomb + integrity). Wraps its HTTPException into the
+    ``ValidationError`` type that batch endpoints already expect so that
+    callers keep receiving the structured batch error payload.
+    """
+    images: list[tuple[str, bytes]] = []
     for file in files:
-        if not file.content_type or not file.content_type.startswith("image/"):
+        try:
+            content = await validate_image_upload(file)
+        except HTTPException as exc:
+            detail = exc.detail if isinstance(exc.detail, dict) else {"message": str(exc.detail)}
+            if exc.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE:
+                raise ValidationError(
+                    code=ErrorCode.IMAGE_TOO_LARGE,
+                    message_params={"max_size": settings.max_upload_size_mb},
+                    details=f"File '{file.filename}' exceeds size limit",
+                ) from exc
             raise ValidationError(
                 code=ErrorCode.INVALID_IMAGE_FORMAT,
-                details=f"File '{file.filename}' is not an image",
-            )
-
-        content = await file.read()
-
-        if len(content) > settings.max_upload_size_bytes:
-            raise ValidationError(
-                code=ErrorCode.IMAGE_TOO_LARGE,
-                message_params={"max_size": settings.max_upload_size_mb},
-                details=f"File '{file.filename}' exceeds size limit",
-            )
+                details=f"File '{file.filename}': {detail.get('message', 'invalid image')}",
+            ) from exc
 
         images.append((file.filename or f"image_{len(images)}", content))
 

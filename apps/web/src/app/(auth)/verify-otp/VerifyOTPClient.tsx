@@ -224,6 +224,14 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
     }
   }, [otp, isLoading, isSuccess, handleVerify]);
 
+  // Auto-clear OTP input when the expiration timer hits zero so the user
+  // doesn't submit (or re-submit) a stale code.
+  useEffect(() => {
+    if (expirationTime === 0) {
+      setOtp('');
+    }
+  }, [expirationTime]);
+
   const handleResend = async () => {
     if (resendCooldown > 0 || isResending) return;
 

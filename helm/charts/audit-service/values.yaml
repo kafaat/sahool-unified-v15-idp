@@ -113,3 +113,7 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: true
+
+# Network policy - restrict ingress to same-namespace sahool pods
+networkPolicy:
+  enabled: true

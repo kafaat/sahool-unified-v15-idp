@@ -124,22 +124,29 @@ export function getCSPDirectives(nonce?: string): CSPDirectives {
       'https://maps.googleapis.com',
     ],
 
-    // Style elements (<style> and <link rel="stylesheet">) — do NOT include
-    // nonce here. In CSP Level 3 a nonce causes browsers to ignore
-    // 'unsafe-inline', but Next.js / Tailwind inject inline <style> tags that
-    // cannot carry a nonce — creating the same catch-22 as style-src-attr.
+    // Style elements (<style> and <link rel="stylesheet"> / <link rel="preload">).
+    // We include the nonce *in addition to* 'unsafe-inline' so that:
+    //   - Next.js/Tailwind injected <style> tags (which currently cannot carry
+    //     a nonce reliably) continue to work via 'unsafe-inline' on CSP2 browsers.
+    //   - Code that does carry the nonce gets stricter enforcement on
+    //     CSP3 browsers (in CSP3, a matching nonce is authoritative and
+    //     'unsafe-inline' is only consulted for un-nonced inline content).
+    // This is the safest tightening available until Next.js exposes the
+    // nonce to every injected <style> tag.
     'style-src-elem': [
       "'self'",
+      ...(nonce ? [`'nonce-${nonce}'`] : []),
       "'unsafe-inline'",
       'https://fonts.googleapis.com',
       'https://unpkg.com',
       'https://maps.googleapis.com',
     ],
 
-    // Style attributes (inline style="...") - needed by UI component libraries
-    // NOTE: Do NOT include nonce here. In CSP Level 3, a nonce causes browsers
-    // to ignore 'unsafe-inline', but nonces cannot be applied to style=""
-    // attributes — creating a catch-22 that blocks all inline styles.
+    // Style attributes (inline style="..."). Browsers do not support nonces
+    // on the ``style=""`` attribute, so we cannot tighten further without
+    // auditing every UI component that emits inline style attributes.
+    // TODO: audit component libraries and remove 'unsafe-inline' once the
+    // remaining callers are migrated to className-based styling.
     'style-src-attr': ["'unsafe-inline'"],
 
     // Image sources

@@ -16,6 +16,7 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
+import DemoBanner from '@/components/common/DemoBanner';
 
 const statsCards = [
   {
@@ -77,13 +78,19 @@ export default function YieldForecastingPage() {
   const [dateRange, setDateRange] = useState('season');
   const [modelFilter, setModelFilter] = useState('all');
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [apiForecastData] = useState<typeof forecastData | null>(null);
 
   const fetchData = useCallback(async () => {
     // NOTE: No dedicated analytics API for yield forecasting yet.
     // Using local sample data until backend endpoint is available.
-    setLoading(false);
+    try {
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      setError(String(err));
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -120,6 +127,7 @@ export default function YieldForecastingPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      <DemoBanner />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

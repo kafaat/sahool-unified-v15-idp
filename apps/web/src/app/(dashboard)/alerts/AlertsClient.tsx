@@ -102,6 +102,30 @@ export default function AlertsClient() {
 
   const { isConnected } = useAlertStream(handleStreamAlert);
 
+  // Track the moment the alerts list last changed, so we can show a "stale"
+  // banner when the live stream drops and data goes unrefreshed for a while.
+  const [lastUpdateTime, setLastUpdateTime] = useState<number>(() => Date.now());
+  const [now, setNow] = useState<number>(() => Date.now());
+  useEffect(() => {
+    setLastUpdateTime(Date.now());
+  }, [alerts]);
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  const timeAgo = (timestamp: number): string => {
+    const diffMs = Math.max(0, now - timestamp);
+    const secs = Math.floor(diffMs / 1000);
+    if (secs < 60) return `${secs}s`;
+    const mins = Math.floor(secs / 60);
+    if (mins < 60) return `${mins}m`;
+    const hrs = Math.floor(mins / 60);
+    return `${hrs}h`;
+  };
+
+  const isStale = !isConnected && now - lastUpdateTime > 15000;
+
   // Action handlers
   const handleAcknowledge = async (id: string) => {
     try {
@@ -374,6 +398,25 @@ export default function AlertsClient() {
           >
             إعادة المحاولة
           </button>
+        </div>
+      )}
+
+      {/* Stale-data banner (stream lost and data not refreshed recently) */}
+      {isStale && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-amber-800 text-sm flex items-center gap-2">
+          <WifiOff className="w-4 h-4" />
+          <span>انقطاع الاتصال — قد تكون البيانات قديمة</span>
+          <span className="mx-1">•</span>
+          <span>Connection lost — data may be stale</span>
+        </div>
+      )}
+
+      {/* Last updated caption */}
+      {!isLoading && !isError && (
+        <div className="text-xs text-gray-500">
+          آخر تحديث منذ {timeAgo(lastUpdateTime)}
+          <span className="mx-1">•</span>
+          Last updated {timeAgo(lastUpdateTime)} ago
         </div>
       )}
 

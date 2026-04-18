@@ -53,6 +53,22 @@ services:
     - /api/v1/fields
     - /api/v1/field
     - /field
+    # /api/v1/crops — CROP_ENDPOINTS (web contract). Backend's
+    # CropSeasonsController accepts this spelling as an alias alongside
+    # /crop-seasons; MUST be listed here (not on crop-intelligence) so
+    # the longest-prefix match doesn't route /api/v1/crops → /api/v1/crop
+    # on crop-intelligence-service.
+    - /api/v1/crops
+    # /api/v1/crop-seasons — canonical spelling used by mobile builds
+    # and the field-management crop rotation module.
+    - /api/v1/crop-seasons
+    # /api/v1/seasons — shorter alias kept in sync with the controller.
+    - /api/v1/seasons
+    # /api/v1/dashboard — DASHBOARD_ENDPOINTS (web home screen). Four
+    # sub-paths (summary/stats/recent-activity/weather/alerts) are
+    # served by DashboardController in this service; aggregates Field
+    # + Task counts from Prisma so the UI gets real numbers.
+    - /api/v1/dashboard
     methods:
     - GET
     - POST
@@ -1948,67 +1964,23 @@ services:
   write_timeout: 120000
   read_timeout: 120000
   routes:
-  - name: vision-detect-pest-route
-    paths:
-    - /api/v1/vision/detect/pest
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-detect-disease-route
-    paths:
-    - /api/v1/vision/detect/disease
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-detect-weed-route
-    paths:
-    - /api/v1/vision/detect/weed
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-count-plants-route
-    paths:
-    - /api/v1/vision/count/plants
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-classify-ripeness-route
-    paths:
-    - /api/v1/vision/classify/ripeness
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-segment-leaf-route
-    paths:
-    - /api/v1/vision/segment/leaf
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-base-route
+  # All yolo26 routers (detection, analysis, batch, models) now mount
+  # under /api/v1/vision on the backend (commit alignment with
+  # VISION_ENDPOINTS contract). One Kong route with strip_path:false
+  # forwards every vision path untouched — backend does the matching.
+  - name: yolo26-vision-service-route
     paths:
     - /api/v1/vision
-    strip_path: true
+    strip_path: false
     protocols:
     - http
     - https
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
   plugins:
   - name: jwt
     config:

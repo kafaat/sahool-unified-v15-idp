@@ -27,10 +27,13 @@ groups:
     interval: 60s
     rules:
       - alert: AuditServiceNotReceivingWrites
+        # Aggregate by tenant_id so the alert fires per-tenant (and the
+        # tenant label survives into notifications / Alertmanager routing).
+        # Stripping tenant_id with a bare `sum(...)` would mask a single
+        # tenant going dark behind the aggregate of everyone else.
         expr: |
-          sum(rate(audit_writes_total[5m])) == 0
-          and
-          max(up{job="audit-service"}) == 1
+          sum by (tenant_id) (rate(audit_writes_total[5m])) == 0
+          and on() max(up{job="audit-service"}) == 1
         for: 10m
         labels:
           severity: warning
@@ -52,17 +55,21 @@ groups:
           runbook_url: https://sahool.io/runbooks/audit-no-writes
 
       - alert: AuditServiceWriteRateBelowBaseline
-        # Tenants vary; we compare against the rolling 1-hour average.
-        # If the 5-minute rate drops below 20% of the last hour, a caller
-        # has likely stopped emitting.
+        # Per-tenant baseline comparison. Each tenant's 5-minute rate is
+        # compared to its own 1-hour rolling average so a quiet tenant
+        # doesn't look anomalous next to a busy one. The `> 0.01` guard
+        # excludes tenants with essentially no traffic (would divide by
+        # near-zero). Preserving `tenant_id` on the output series is
+        # required for the notification template and for Alertmanager to
+        # group / route per tenant.
         expr: |
           (
-            sum(rate(audit_writes_total[5m]))
+            sum by (tenant_id) (rate(audit_writes_total[5m]))
             /
-            sum(rate(audit_writes_total[1h]))
+            sum by (tenant_id) (rate(audit_writes_total[1h]))
           ) < 0.2
           and
-          sum(rate(audit_writes_total[1h])) > 0.01
+          sum by (tenant_id) (rate(audit_writes_total[1h])) > 0.01
         for: 15m
         labels:
           severity: info
@@ -79,7 +86,11 @@ groups:
     interval: 5m
     rules:
       - alert: AuditHashChainBroken
-        expr: min(audit_chain_valid) == 0
+        # `by (tenant_id)` keeps the tenant label on the output series so
+        # {{ $labels.tenant_id }} in the summary/description below actually
+        # resolves. A bare `min(audit_chain_valid)` would drop all labels
+        # and the notification would say "tenant "" has a broken chain".
+        expr: min by (tenant_id) (audit_chain_valid) == 0
         for: 2m
         labels:
           severity: critical
@@ -124,3 +135,53 @@ groups:
             Writes are lost on restart; compliance requirements are not
             satisfied. Check DATABASE_URL, network reachability to
             PgBouncer, and the audit_service_schema_migrations table.
+
+  # ───────────────────────────────────────────────────────────────────────────
+  # Retention pipeline — worker must run on schedule; chain re-anchors are
+  # legitimate but operators should be notified on first occurrence per tenant.
+  # ───────────────────────────────────────────────────────────────────────────
+  - name: sahool_audit_retention
+    interval: 5m
+    rules:
+      - alert: AuditRetentionJobStalled
+        # audit_retention_last_run_timestamp_seconds is pushed by the
+        # nightly CronJob on every successful completion. If the delta
+        # against `time()` exceeds 25h the worker has missed a run —
+        # audit_log will grow unbounded until the job is restored.
+        expr: time() - audit_retention_last_run_timestamp_seconds > 25 * 3600
+        for: 5m
+        labels:
+          severity: warning
+          category: compliance
+          platform: sahool
+          runbook: docs/operations/audit-runbook.md
+        annotations:
+          summary: "Audit retention worker hasn't completed in > 25 hours"
+          summary_ar: "عامل الاحتفاظ لم يُكمل التشغيل منذ أكثر من 25 ساعة"
+          description: |
+            The audit-retention-worker CronJob has not pushed a completion
+            timestamp in over 25 hours. Expected cadence is nightly (<24h
+            between runs). Without retention the audit_log table will grow
+            unbounded and breach storage budgets.
+            Check:
+              * kubectl get cronjob audit-retention-worker -n audit
+              * kubectl logs -l job-name=audit-retention-worker --tail=200
+              * The audit_retention DB role + DSN secret in Vault.
+              * Pushgateway reachability from the worker pod.
+          runbook_url: https://sahool.io/runbooks/audit-retention-stalled
+
+      - alert: AuditRetentionFirstRunDetected
+        # audit_chain_retention_gaps_crossed is a per-tenant gauge that
+        # becomes non-zero the first time retention truncates a tenant's
+        # chain. This is expected behaviour — the alert exists so operators
+        # confirm validate_chain() still returns valid:true afterwards.
+        # Routes to a low-noise informational channel, never pages.
+        expr: audit_chain_retention_gaps_crossed > 0
+        for: 5m
+        labels:
+          severity: info
+          category: compliance
+          platform: sahool
+        annotations:
+          summary: "Retention has truncated chain for tenant {{ $labels.tenant_id }} (gaps={{ $value }})"
+          summary_ar: "تمّ تقطيع السلسلة بواسطة الاحتفاظ للمستأجر {{ $labels.tenant_id }}"

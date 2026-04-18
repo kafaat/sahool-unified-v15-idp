@@ -11,7 +11,6 @@ Port: 8185
 """
 
 import json
-import logging
 import os
 import sys
 from contextlib import asynccontextmanager
@@ -35,7 +34,10 @@ try:
 except ImportError:
     SHARED_ERRORS_AVAILABLE = False
 
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
+from shared.observability.tracing import setup_tracing
 
 # Local imports
 from .algorithms.dem_processor import DEMProcessor, DEMSource
@@ -43,32 +45,9 @@ from .algorithms.terrain_indicators import TerrainIndicatorCalculator
 from .api.endpoints.terrain import router as terrain_router
 from .core.config import settings
 
-# Configure standard library logging (required for structlog.stdlib processors)
-logging.basicConfig(
-    format="%(message)s",
-    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper(), logging.INFO),
-)
-
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer(),
-    ],
-    wrapper_class=structlog.stdlib.BoundLogger,
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
-
+setup_logging("terrain-core-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("terrain-core-service")
 
 
 @asynccontextmanager
@@ -237,6 +216,7 @@ Provides comprehensive terrain analysis from Digital Elevation Models (DEMs):
         },
     ],
 )
+_tracer.instrument_fastapi(app)
 
 # =============================================================================
 # Middleware

@@ -208,17 +208,19 @@ export const marketplaceApi = {
     items: Array<{ productId: string; quantity: number }>;
     shippingAddress: Order['shippingAddress'];
     notes?: string;
+    idempotencyKey?: string;
   }): Promise<Order> {
-    // Generate an Idempotency-Key per order submission so retries caused by
-    // transient network failures or double-clicks do not create duplicate
-    // orders. The key is stable across the single createOrder() call only;
-    // a fresh key is generated on each new attempt.
+    // Prefer caller-supplied Idempotency-Key so retries (from React Query
+    // retries or double-click handlers) remain stable. Fall back to a local
+    // key generator when none is provided.
     const idempotencyKey =
-      typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+      data.idempotencyKey ||
+      (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
         ? crypto.randomUUID()
-        : `order-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+        : `order-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`);
+    const { idempotencyKey: _ignored, ...payload } = data;
     return safeFetch(MARKETPLACE_ENDPOINTS.ORDERS, async () => {
-      const response = await api.post(MARKETPLACE_ENDPOINTS.ORDERS, data, {
+      const response = await api.post(MARKETPLACE_ENDPOINTS.ORDERS, payload, {
         headers: { 'Idempotency-Key': idempotencyKey },
       });
       return response.data.data || response.data;

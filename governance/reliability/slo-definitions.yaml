@@ -93,39 +93,10 @@ services:
           sum(rate(simulation_predictions_total[24h]))
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # Crop Health AI - كشف الأمراض
+  # NOTE: `crop-health-ai` has been deprecated and replaced by
+  # `crop-intelligence-service` (see governance/DEDUP_MATRIX.md).
+  # SLO definitions for the consolidated service are defined below.
   # ═══════════════════════════════════════════════════════════════════════════
-  crop-health-ai:
-    tier: high
-    slos:
-      availability:
-        target: 99.9%
-        sli: |
-          sum(rate(http_requests_total{service="crop-health-ai",code!~"5.."}[5m])) /
-          sum(rate(http_requests_total{service="crop-health-ai"}[5m]))
-
-      latency:
-        p50: 200ms
-        p95: 1000ms
-        p99: 2000ms
-        description: "Image processing latency"
-        sli: |
-          histogram_quantile(0.95,
-            sum(rate(inference_duration_seconds_bucket[5m])) by (le)
-          )
-
-      detection_accuracy:
-        target: 90%
-        description: "Disease detection accuracy (F1 score)"
-        sli: |
-          sum(disease_detection_true_positives) /
-          (sum(disease_detection_true_positives) + 0.5 * sum(disease_detection_false_positives) + 0.5 * sum(disease_detection_false_negatives))
-
-      processing_throughput:
-        target: 10
-        unit: "images/second"
-        sli: |
-          rate(images_processed_total[5m])
 
   # ═══════════════════════════════════════════════════════════════════════════
   # Weather Advanced - خدمة الطقس

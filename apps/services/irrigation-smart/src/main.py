@@ -103,10 +103,16 @@ if HAS_PROMETHEUS:
             return response
 
 
-logger = structlog.get_logger()
-
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("irrigation-smart")
+logger = structlog.get_logger()
+_tracer = setup_tracing("irrigation-smart")
 
 import re
 
@@ -114,6 +120,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 sys.path.insert(0, "/app")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.events.subjects import get_tenant_subject
 
 # Security headers middleware
 try:
@@ -255,6 +262,7 @@ app = FastAPI(
     description="AI-powered irrigation scheduling, water conservation, and smart recommendations",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -323,11 +331,18 @@ async def get_current_user(
             detail="JWT not configured",
         )
 
+    # Hard-lock to platform algorithm (HS256). The whitelist is intentionally
+    # hard-coded — accepting HS384/HS512 (or a mis-copied JWT_ALGORITHM env
+    # var) opens an algorithm-confusion surface and diverges from
+    # shared/auth/config.py::ALLOWED_ALGORITHMS. If a future key-rotation
+    # plan needs a different alg, update it here and in shared/auth.
+    _ALLOWED_JWT_ALGORITHMS = ("HS256",)
     try:
         payload = jwt.decode(
             token,
             jwt_secret,
-            algorithms=["HS256", "HS384", "HS512"],
+            algorithms=list(_ALLOWED_JWT_ALGORITHMS),
+            options={"require": ["exp", "sub"]},
         )
         logger.debug("JWT validated successfully", user_id=payload.get("sub"))
         return payload
@@ -336,6 +351,13 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.MissingRequiredClaimError as e:
+        logger.warning("JWT missing required claim", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.InvalidTokenError as e:
@@ -1194,7 +1216,8 @@ async def calculate_irrigation(
                 "method": request.irrigation_method.value,
                 "timestamp": datetime.now(UTC).isoformat(),
             }
-            await app.state.nc.publish("sahool.irrigation.calculated", json.dumps(event).encode())
+            subject = get_tenant_subject(tenant_id, "irrigation", "calculated")
+            await app.state.nc.publish(subject, json.dumps(event).encode())
         except Exception as e:
             logger.error("nats_publish_failed", error=str(e))
 

@@ -85,16 +85,23 @@ from .models import inventory_v2 as _inventory_v2  # noqa: F401
 
 _ = _inventory_v2  # keep side-effect import alive without an assert
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging  # noqa: E402
+
 from .models.inventory import (  # noqa: E402
     ItemCategory,
 )
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+setup_logging("inventory-service")
 if structlog is not None:
     logger = structlog.get_logger(__name__)
 else:
     logger = logging.getLogger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing  # noqa: E402
+
+_tracer = setup_tracing("inventory-service")
 
 # Security: Require DATABASE_URL from environment, no hardcoded defaults
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -181,6 +188,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
+
 # Include alert router
 app.include_router(alert_router)
 
@@ -231,22 +241,14 @@ if TENANT_MIDDLEWARE_AVAILABLE:
 
 
 @app.get("/health")
-async def health(db: AsyncSession = Depends(get_db)):
-    """Health check with dependency verification"""
-    # Check database connection
-    db_healthy = False
-    try:
-        await db.execute(select(1))
-        db_healthy = True
-    except Exception as e:
-        print(f"Database health check failed: {e}")
+def health():
+    """Liveness probe.
 
-    return {
-        "status": "healthy",
-        "service": "inventory-service",
-        "version": "16.0.0",
-        "dependencies": {"postgres": "connected" if db_healthy else "disconnected"},
-    }
+    Liveness must not probe dependencies — that belongs to /readyz.
+    A failing DB here would cause K8s to kill the pod instead of simply
+    removing it from rotation.
+    """
+    return {"status": "healthy", "service": "inventory-service", "version": "16.0.0"}
 
 
 @app.get("/healthz")
@@ -257,17 +259,35 @@ def healthz():
 
 @app.get("/readyz")
 async def readiness(db: AsyncSession = Depends(get_db)):
-    """Readiness check for Kubernetes readiness probe"""
-    ready = True
+    """Readiness check for Kubernetes readiness probe.
+
+    In production/staging, returns HTTP 503 when the database is
+    unreachable so traffic is removed from rotation. Dev preserves a 200
+    response.
+    """
+    env = os.getenv("ENVIRONMENT", "development").lower()
+    db_up = True
     try:
         await db.execute(select(1))
     except Exception:
-        ready = False
+        db_up = False
+
+    if env in ("production", "prod", "staging") and not db_up:
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "not_ready",
+                "service": "inventory-service",
+                "database": db_up,
+            },
+        )
 
     return {
-        "status": "ready" if ready else "not_ready",
+        "status": "ready" if db_up else "not_ready",
         "service": "inventory-service",
-        "database": ready,
+        "database": db_up,
     }
 
 

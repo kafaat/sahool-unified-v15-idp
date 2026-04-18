@@ -42,9 +42,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "..", "..
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
+from shared.observability.tracing import setup_tracing
 
+setup_logging("digital-twin-engine")
 logger = logging.getLogger(__name__)
+_tracer = setup_tracing("digital-twin-engine")
 
 # ---------------------------------------------------------------------------
 # Authentication dependency
@@ -747,6 +751,7 @@ app = FastAPI(
     version=VERSION,
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers

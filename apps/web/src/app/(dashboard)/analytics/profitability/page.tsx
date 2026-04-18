@@ -14,6 +14,14 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
+import DemoBanner from '@/components/common/DemoBanner';
+
+/** Parse a percentage string like "25%" and clamp to [0, 100]. */
+function clampPct(value: string): string {
+  const n = parseFloat(value);
+  if (!Number.isFinite(n)) return '0%';
+  return `${Math.min(Math.max(n, 0), 100)}%`;
+}
 
 const statsCards = [
   {
@@ -71,13 +79,19 @@ export default function ProfitabilityPage() {
   const [dateRange, setDateRange] = useState('season');
   const [viewMode, setViewMode] = useState<'fields' | 'costs'>('fields');
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [apiProfitData] = useState<typeof profitData | null>(null);
 
   const fetchData = useCallback(async () => {
     // NOTE: No dedicated analytics API for profitability data yet.
     // Using local sample data until backend endpoint is available.
-    setLoading(false);
+    try {
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      setError(String(err));
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -114,6 +128,7 @@ export default function ProfitabilityPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      <DemoBanner />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -250,7 +265,7 @@ export default function ProfitabilityPage() {
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-2">
                           <div className="h-2 w-24 rounded-full bg-gray-200">
-                            <div className="h-2 rounded-full bg-green-500" style={{ width: row.percentage }} />
+                            <div className="h-2 rounded-full bg-green-500" style={{ width: clampPct(row.percentage) }} />
                           </div>
                           <span className="text-gray-600">{row.percentage}</span>
                         </div>

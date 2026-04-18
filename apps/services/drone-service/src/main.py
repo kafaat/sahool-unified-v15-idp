@@ -25,7 +25,12 @@ try:
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
 
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("drone-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("drone-service")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Prometheus metrics counters (simple in-process)
@@ -122,6 +127,7 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # CORS
 cors_origins = os.getenv(
@@ -202,17 +208,27 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """Readiness probe - فحص الجاهزية"""
+    """Readiness probe - فحص الجاهزية.
+
+    In production/staging, ALL critical dependencies must be up for the
+    service to accept traffic. Dev only requires at least one so local
+    runs without real infra still succeed.
+    """
     from fastapi.responses import JSONResponse
 
+    env = os.getenv("ENVIRONMENT", "development").lower()
     db_ok = getattr(app.state, "db_connected", False)
     nats_ok = getattr(app.state, "nats_connected", False)
-    is_ready = db_ok or nats_ok  # At least one connection required
 
     checks = {
         "database": "connected" if db_ok else "disconnected",
         "nats": "connected" if nats_ok else "disconnected",
     }
+
+    if env in ("production", "prod", "staging"):
+        is_ready = db_ok and nats_ok
+    else:
+        is_ready = db_ok or nats_ok
 
     if not is_ready:
         return JSONResponse(

@@ -60,6 +60,12 @@ except ImportError:
         )
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Logging Configuration
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
 from .database import SessionLocal, check_db_connection, get_db
 from .db_models import Alert as DBAlert
 from .db_models import AlertRule as DBAlertRule
@@ -88,13 +94,13 @@ from .repository import (
     update_alert_status,
 )
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Logging Configuration
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+setup_logging("alert-service")
 logger = structlog.get_logger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("alert-service")
 
 
 def sanitize_log_input(value: str) -> str:
@@ -366,6 +372,9 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

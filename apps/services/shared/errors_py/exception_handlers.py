@@ -40,9 +40,15 @@ def should_include_stack() -> bool:
     """
     Should include stack trace in response
     هل يجب تضمين تتبع المكدس في الاستجابة
+
+    Production always returns False to prevent stack-trace leakage to clients,
+    regardless of INCLUDE_STACK_TRACE env var (defense in depth against mis-copied
+    dev config reaching prod).
     """
     env = os.getenv("ENVIRONMENT", os.getenv("NODE_ENV", "production")).lower()
-    return env in ("development", "dev", "local") or os.getenv("INCLUDE_STACK_TRACE", "false").lower() == "true"
+    if env in ("production", "prod", "staging"):
+        return False
+    return env in ("development", "dev", "local", "test") or os.getenv("INCLUDE_STACK_TRACE", "false").lower() == "true"
 
 
 def sanitize_error_message(message: str) -> str:

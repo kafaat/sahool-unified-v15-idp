@@ -190,6 +190,7 @@ function LoadingSkeleton() {
 export default function VisionClient() {
   const [filter, setFilter] = useState<'all' | 'pest' | 'disease' | 'weed'>('all');
   const [results, setResults] = useState<DetectionResult[]>([]);
+  const [partialFailure, setPartialFailure] = useState<string | null>(null);
 
   // Mutation hooks for detection
   const pestMutation = useDetectPest();
@@ -210,12 +211,15 @@ export default function VisionClient() {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
+      setPartialFailure(null);
+
       // Run all 3 detections in parallel
-      const [pestResult, diseaseResult, weedResult] = await Promise.allSettled([
+      const settled = await Promise.allSettled([
         pestMutation.mutateAsync({ image: file }),
         diseaseMutation.mutateAsync({ image: file }),
         weedMutation.mutateAsync({ image: file }),
       ]);
+      const [pestResult, diseaseResult, weedResult] = settled;
 
       const newResults: DetectionResult[] = [];
       if (pestResult.status === 'fulfilled') {
@@ -226,6 +230,15 @@ export default function VisionClient() {
       }
       if (weedResult.status === 'fulfilled') {
         newResults.push(...mapWeedDetection(weedResult.value));
+      }
+
+      const failed = settled.filter((r) => r.status === 'rejected').length;
+      if (failed > 0 && failed < settled.length) {
+        // Partial failure — surface it so the user knows some detections were
+        // skipped. The standard error banner (`hasError`) handles full failure.
+        setPartialFailure(
+          `تعذر إتمام ${failed} من ${settled.length} كشوفات. | ${failed} of ${settled.length} detections failed.`,
+        );
       }
 
       setResults((prev) => [...newResults, ...prev]);
@@ -283,12 +296,20 @@ export default function VisionClient() {
       </div>
 
       {/* Error Banner */}
-      {hasError && (
+      {hasError && !partialFailure && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
           <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
           <p className="text-red-700 text-sm">
             فشل في معالجة بعض الصور. يرجى المحاولة مرة أخرى.
           </p>
+        </div>
+      )}
+
+      {/* Partial Failure Banner (bilingual) */}
+      {partialFailure && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
+          <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+          <p className="text-amber-800 text-sm">{partialFailure}</p>
         </div>
       )}
 

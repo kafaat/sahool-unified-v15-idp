@@ -2,22 +2,34 @@
 # SAHOOL Platform - Alertmanager Configuration
 # إعدادات مدير التنبيهات
 # ═══════════════════════════════════════════════════════════════════════════════
-# Version: 1.0.0
-# Date: 2025-12-25
+# Version: 1.1.0
+# Last change: 2026-04-18 — removed non-functional `${VAR:-default}`
+#              placeholder syntax. Alertmanager does not perform shell-style
+#              env substitution, and this compose stack mounts the file
+#              read-only with no envsubst preprocessing. The literal
+#              placeholder strings were being sent to SMTP / Slack /
+#              PagerDuty, silently failing delivery for every alert routed
+#              here. Values below are now the documented defaults; per-env
+#              overrides should be applied by a templating layer upstream
+#              of the container mount — see docs/operations/alertmanager-config.md
+#              for the Helm / kustomize / envsubst-wrapper workflows.
+# ═══════════════════════════════════════════════════════════════════════════════
 
 global:
   # Global settings - الإعدادات العامة
   resolve_timeout: 5m
 
   # SMTP settings for email notifications - إعدادات البريد الإلكتروني
+  # Override via your templating layer (see ops doc): SMTP_HOST, SMTP_PORT,
+  # SMTP_USERNAME, SMTP_PASSWORD.
   smtp_from: 'alerts@sahool.io'
-  smtp_smarthost: '${SMTP_HOST:-smtp.gmail.com}:${SMTP_PORT:-587}'
-  smtp_auth_username: '${SMTP_USERNAME:-}'
-  smtp_auth_password: '${SMTP_PASSWORD:-}'
+  smtp_smarthost: 'smtp.gmail.com:587'
+  smtp_auth_username: ''
+  smtp_auth_password: ''
   smtp_require_tls: true
 
-  # Slack webhook URL - رابط Slack
-  slack_api_url: '${SLACK_WEBHOOK_URL:-}'
+  # Slack webhook URL - override via SLACK_WEBHOOK_URL at the templating layer.
+  slack_api_url: ''
 
   # PagerDuty - خدمة التنبيهات الطارئة
   pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
@@ -41,6 +53,30 @@ route:
 
   # Child routes - المسارات الفرعية
   routes:
+    # ─────────────────────────────────────────────────────────────────────────
+    # Audit / Compliance Alerts - تنبيهات التدقيق والامتثال
+    # High-priority route: audit pipeline incidents are compliance-grade
+    # (GDPR, SOC 2, GlobalGAP) — page the dedicated rotation rather than
+    # the generic SRE queue so Legal/Compliance can be looped in quickly.
+    # Matches rules in infrastructure/monitoring/prometheus/rules/audit-alerts.yml:
+    #   * AuditHashChainBroken               (critical, security)
+    #   * AuditServiceNotReceivingWrites     (warning, compliance)
+    #   * AuditServiceWriteRateBelowBaseline (info, compliance)
+    #   * AuditServiceRunningOnInMemoryBackend (critical, compliance)
+    # ─────────────────────────────────────────────────────────────────────────
+    - matchers:
+        - category =~ "compliance|security"
+        - alertname =~ "Audit.*"
+      receiver: 'audit-compliance-team'
+      # Override the top-level group_by so tenant_id and category aren't
+      # averaged across tenants in notifications. The AuditHashChainBroken
+      # rule is per-tenant; grouping across tenants would merge unrelated
+      # tamper events into one alert and hide which tenant is affected.
+      group_by: ['alertname', 'tenant_id', 'category', 'severity']
+      group_wait: 30s
+      repeat_interval: 1h
+      continue: true
+
     # ─────────────────────────────────────────────────────────────────────────
     # Critical Infrastructure Alerts - تنبيهات البنية التحتية الحرجة
     # ─────────────────────────────────────────────────────────────────────────
@@ -129,11 +165,59 @@ inhibit_rules:
 # Receivers - المستقبلات
 receivers:
   # ─────────────────────────────────────────────────────────────────────────────
+  # Audit / Compliance Team - فريق التدقيق والامتثال
+  # Dedicated receiver for compliance-grade incidents (audit pipeline,
+  # hash-chain integrity). Loops in Legal/Compliance alongside SRE so the
+  # response isn't bottlenecked on engineers for regulatory triage.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: 'audit-compliance-team'
+    email_configs:
+      - to: 'compliance@sahool.io,sre@sahool.io'
+        send_resolved: true
+        headers:
+          Subject: '🛡️ [AUDIT] SAHOOL Compliance Alert - {{ .GroupLabels.alertname }}'
+          Priority: 'urgent'
+        html: |
+          <h2>SAHOOL Audit / Compliance Alert | تنبيه التدقيق والامتثال</h2>
+          <p><strong>Alert:</strong> {{ .GroupLabels.alertname }}</p>
+          <p><strong>Tenant:</strong> {{ .GroupLabels.tenant_id }}</p>
+          <p><strong>Severity:</strong> {{ .GroupLabels.severity }}</p>
+          <p><strong>Category:</strong> {{ .GroupLabels.category }}</p>
+          <p><strong>Summary:</strong> {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}</p>
+          <p><strong>العربية:</strong> {{ range .Alerts }}{{ .Annotations.summary_ar }}{{ end }}</p>
+          <hr>
+          <p><strong>Description:</strong></p>
+          <pre>{{ range .Alerts }}{{ .Annotations.description }}{{ end }}</pre>
+          <p><strong>Runbook:</strong> <a href="{{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}">{{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}</a></p>
+
+    slack_configs:
+      - channel: '#sahool-audit-compliance'
+        send_resolved: true
+        color: 'danger'
+        title: '🛡️ AUDIT: {{ .GroupLabels.alertname }}'
+        text: |
+          *Tenant:* {{ .GroupLabels.tenant_id }}
+          *Severity:* {{ .GroupLabels.severity }}
+          *Summary:* {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}
+          *Runbook:* {{ range .Alerts }}{{ .Annotations.runbook_url }}{{ end }}
+
+    # PagerDuty for critical audit alerts (hash-chain tamper, in-memory backend).
+    # Intentionally omitted from the committed defaults: Alertmanager rejects
+    # `service_key: ''` at config-check time, so a placeholder block here would
+    # break startup. Render this block back in via your templating layer
+    # (see docs/operations/alertmanager-config.md) when PAGERDUTY_AUDIT_KEY /
+    # PAGERDUTY_SERVICE_KEY are known for the environment.
+    # pagerduty_configs:
+    #   - service_key: '<PAGERDUTY_AUDIT_KEY>'
+    #     severity: '{{ if eq .GroupLabels.severity "critical" }}critical{{ else }}warning{{ end }}'
+    #     description: 'SAHOOL audit: {{ .GroupLabels.alertname }} — {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # Default Notifications - الإشعارات الافتراضية
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'default-notifications'
     email_configs:
-      - to: '${ALERT_EMAIL_DEFAULT:-devops@sahool.io}'
+      - to: 'devops@sahool.io'
         send_resolved: true
         headers:
           Subject: '[SAHOOL Alert] {{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}'
@@ -146,7 +230,7 @@ receivers:
           <p><strong>Description:</strong> {{ range .Alerts }}{{ .Annotations.description }}{{ end }}</p>
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_DEFAULT:-#sahool-alerts}'
+      - channel: '#sahool-alerts'
         send_resolved: true
         title: 'SAHOOL Alert: {{ .GroupLabels.alertname }}'
         text: |
@@ -159,14 +243,14 @@ receivers:
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'critical-infrastructure'
     email_configs:
-      - to: '${ALERT_EMAIL_CRITICAL:-sre@sahool.io,devops@sahool.io}'
+      - to: 'sre@sahool.io,devops@sahool.io'
         send_resolved: true
         headers:
           Subject: '🚨 [CRITICAL] SAHOOL Infrastructure Alert - {{ .GroupLabels.service }}'
           Priority: 'urgent'
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_CRITICAL:-#sahool-critical}'
+      - channel: '#sahool-critical'
         send_resolved: true
         color: 'danger'
         title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
@@ -178,24 +262,27 @@ receivers:
           *التأثير:* {{ range .Alerts }}{{ .Annotations.impact_ar }}{{ end }}
           *الإجراء:* {{ range .Alerts }}{{ .Annotations.action_ar }}{{ end }}
 
-    # PagerDuty for on-call engineers
-    pagerduty_configs:
-      - service_key: '${PAGERDUTY_SERVICE_KEY:-}'
-        severity: 'critical'
-        description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+    # PagerDuty for on-call engineers. Commented out for the same reason as
+    # the audit receiver above — empty service_key fails alertmanager config
+    # validation. Render this block back in via your templating layer once
+    # PAGERDUTY_SERVICE_KEY is available.
+    # pagerduty_configs:
+    #   - service_key: '<PAGERDUTY_SERVICE_KEY>'
+    #     severity: 'critical'
+    #     description: '{{ .GroupLabels.alertname }}: {{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Critical Service Alerts - تنبيهات الخدمات الحرجة
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'critical-alerts'
     email_configs:
-      - to: '${ALERT_EMAIL_CRITICAL:-sre@sahool.io}'
+      - to: 'sre@sahool.io'
         send_resolved: true
         headers:
           Subject: '⚠️ [CRITICAL] SAHOOL Alert - {{ .GroupLabels.service }}'
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_CRITICAL:-#sahool-critical}'
+      - channel: '#sahool-critical'
         send_resolved: true
         color: 'danger'
         title: '⚠️ CRITICAL: {{ .GroupLabels.alertname }}'
@@ -205,13 +292,13 @@ receivers:
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'database-team'
     email_configs:
-      - to: '${ALERT_EMAIL_DATABASE:-dba@sahool.io,devops@sahool.io}'
+      - to: 'dba@sahool.io,devops@sahool.io'
         send_resolved: true
         headers:
           Subject: '[Database Alert] {{ .GroupLabels.alertname }}'
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_DATABASE:-#sahool-database}'
+      - channel: '#sahool-database'
         send_resolved: true
         title: 'Database Alert: {{ .GroupLabels.alertname }}'
 
@@ -220,13 +307,13 @@ receivers:
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'performance-team'
     email_configs:
-      - to: '${ALERT_EMAIL_PERFORMANCE:-performance@sahool.io}'
+      - to: 'performance@sahool.io'
         send_resolved: true
         headers:
           Subject: '[Performance Alert] {{ .GroupLabels.alertname }}'
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_PERFORMANCE:-#sahool-performance}'
+      - channel: '#sahool-performance'
         send_resolved: true
         color: 'warning'
         title: 'Performance Alert: {{ .GroupLabels.alertname }}'
@@ -236,13 +323,13 @@ receivers:
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'ai-ml-team'
     email_configs:
-      - to: '${ALERT_EMAIL_AI_ML:-ai-team@sahool.io}'
+      - to: 'ai-team@sahool.io'
         send_resolved: true
         headers:
           Subject: '[AI/ML Alert] {{ .GroupLabels.alertname }}'
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_AI_ML:-#sahool-ai-ml}'
+      - channel: '#sahool-ai-ml'
         send_resolved: true
         title: 'AI/ML Alert: {{ .GroupLabels.alertname }}'
 
@@ -251,13 +338,13 @@ receivers:
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'warning-notifications'
     email_configs:
-      - to: '${ALERT_EMAIL_WARNINGS:-devops@sahool.io}'
+      - to: 'devops@sahool.io'
         send_resolved: true
         headers:
           Subject: '[WARNING] SAHOOL Alert - {{ .GroupLabels.alertname }}'
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_WARNINGS:-#sahool-warnings}'
+      - channel: '#sahool-warnings'
         send_resolved: true
         color: 'warning'
         title: 'Warning: {{ .GroupLabels.alertname }}'
@@ -267,13 +354,13 @@ receivers:
   # ─────────────────────────────────────────────────────────────────────────────
   - name: 'info-notifications'
     email_configs:
-      - to: '${ALERT_EMAIL_INFO:-monitoring@sahool.io}'
+      - to: 'monitoring@sahool.io'
         send_resolved: true
         headers:
           Subject: '[INFO] SAHOOL Alert - {{ .GroupLabels.alertname }}'
 
     slack_configs:
-      - channel: '${SLACK_CHANNEL_INFO:-#sahool-info}'
+      - channel: '#sahool-info'
         send_resolved: true
         color: 'good'
         title: 'Info: {{ .GroupLabels.alertname }}'

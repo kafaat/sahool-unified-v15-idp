@@ -94,6 +94,9 @@ export default function SatelliteMonitorClient() {
 
   const activeLayer = MAP_LAYERS.find((l) => l.type === selectedLayer) ?? MAP_LAYERS[0]!;
 
+  // Single source of truth for the aggregate NDVI display across tabs
+  const displayNdvi = stats?.averageNdvi ?? 0;
+
   const unresolvedAlerts = useMemo(() => alerts.filter((a: SatelliteAlert) => !a.isResolved), [alerts]);
 
   // Search-filtered fields
@@ -192,7 +195,7 @@ export default function SatelliteMonitorClient() {
           iconBg="bg-green-100"
           label="متوسط NDVI"
           labelEn="Average NDVI"
-          value={stats?.averageNdvi?.toFixed(2) ?? '0.00'}
+          value={displayNdvi.toFixed(2)}
           sub={
             stats?.ndviTrend === 'up'
               ? '↑ اتجاه تصاعدي'
@@ -749,12 +752,12 @@ export default function SatelliteMonitorClient() {
       </div>
 
       {/* SAR Radar Fallback Indicator */}
-      {fields.some((f) => f.cloudCoverage > 30) && (
+      {fields.some((f) => (f.cloudCoverage ?? 0) > 30) && (
         <div className="bg-blue-50 rounded-lg border border-blue-200 p-4 flex items-center gap-3">
           <Radar className="w-5 h-5 text-blue-600 shrink-0" />
           <div>
             <p className="font-medium text-blue-900 text-sm">
-              تحول تلقائي للرادار (SAR) — {fields.filter((f) => f.cloudCoverage > 30).length} حقول بغطاء سحابي &gt;30%
+              تحول تلقائي للرادار (SAR) — {fields.filter((f) => (f.cloudCoverage ?? 0) > 30).length} حقول بغطاء سحابي &gt;30%
             </p>
             <p className="text-xs text-blue-600">يتم استخدام RVI/RSM تلقائياً | Automatic SAR fallback for cloudy fields</p>
           </div>

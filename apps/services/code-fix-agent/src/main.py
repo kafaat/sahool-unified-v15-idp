@@ -31,22 +31,13 @@ SERVICE_NAME = "code-fix-agent"
 SERVICE_VERSION = "16.0.0"
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer(),
-    ],
-    wrapper_class=structlog.stdlib.BoundLogger,
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
 
+setup_logging("code-fix-agent")
 logger = structlog.get_logger(__name__)
+_tracer = setup_tracing("code-fix-agent")
 
 
 # ============================================================================
@@ -168,6 +159,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 try:

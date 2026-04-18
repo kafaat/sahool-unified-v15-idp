@@ -16,7 +16,7 @@ services:
     name: crop-growth-model
     image:
       repository: ghcr.io/kafaat/sahool-crop-growth-model
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 3023
@@ -48,7 +48,7 @@ services:
     name: disaster-assessment
     image:
       repository: ghcr.io/kafaat/sahool-disaster-assessment
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 3020
@@ -80,7 +80,7 @@ services:
     name: lai-estimation
     image:
       repository: ghcr.io/kafaat/sahool-lai-estimation
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 3022
@@ -112,7 +112,7 @@ services:
     name: yield-prediction
     image:
       repository: ghcr.io/kafaat/sahool-yield-prediction
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 3021
@@ -144,7 +144,7 @@ services:
     name: marketplace-service
     image:
       repository: ghcr.io/kafaat/sahool-marketplace-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 3010
@@ -176,7 +176,7 @@ services:
     name: community-chat
     image:
       repository: ghcr.io/kafaat/sahool-community-chat
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8097
@@ -208,7 +208,7 @@ services:
     name: iot-service
     image:
       repository: ghcr.io/kafaat/sahool-iot-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8117
@@ -240,7 +240,7 @@ services:
     name: ground-vision-service
     image:
       repository: ghcr.io/kafaat/sahool-ground-vision-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8182
@@ -272,7 +272,7 @@ services:
     name: research-core
     image:
       repository: ghcr.io/kafaat/sahool-research-core
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 3015
@@ -304,7 +304,7 @@ services:
     name: billing-core
     image:
       repository: ghcr.io/kafaat/sahool-billing-core
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8089
@@ -336,7 +336,7 @@ services:
     name: satellite-service
     image:
       repository: ghcr.io/kafaat/sahool-satellite-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 9190
@@ -368,7 +368,7 @@ services:
     name: weather-advanced
     image:
       repository: ghcr.io/kafaat/sahool-weather-advanced
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 9092
@@ -400,7 +400,7 @@ services:
     name: indicators-service
     image:
       repository: ghcr.io/kafaat/sahool-indicators-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8091
@@ -432,7 +432,7 @@ services:
     name: crop-health-ai
     image:
       repository: ghcr.io/kafaat/sahool-crop-health-ai
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 9095
@@ -464,7 +464,7 @@ services:
     name: virtual-sensors
     image:
       repository: ghcr.io/kafaat/sahool-virtual-sensors
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8119
@@ -496,7 +496,7 @@ services:
     name: yield-engine
     image:
       repository: ghcr.io/kafaat/sahool-yield-engine
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8098
@@ -528,7 +528,7 @@ services:
     name: fertilizer-advisor
     image:
       repository: ghcr.io/kafaat/sahool-fertilizer-advisor
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 9093
@@ -560,7 +560,7 @@ services:
     name: irrigation-smart
     image:
       repository: ghcr.io/kafaat/sahool-irrigation-smart
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8094
@@ -592,7 +592,7 @@ services:
     name: notification-service
     image:
       repository: ghcr.io/kafaat/sahool-notification-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8110
@@ -624,7 +624,7 @@ services:
     name: mcp-server
     image:
       repository: ghcr.io/kafaat/sahool-mcp-server
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8201
@@ -656,7 +656,7 @@ services:
     name: crop-intelligence-service
     image:
       repository: ghcr.io/kafaat/sahool-crop-intelligence-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8095
@@ -688,7 +688,7 @@ services:
     name: equipment-service
     image:
       repository: ghcr.io/kafaat/sahool-equipment-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8101
@@ -720,7 +720,7 @@ services:
     name: task-service
     image:
       repository: ghcr.io/kafaat/sahool-task-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8103
@@ -752,7 +752,7 @@ services:
     name: ws-gateway
     image:
       repository: ghcr.io/kafaat/sahool-ws-gateway
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8081
@@ -784,7 +784,7 @@ services:
     name: ndvi-processor
     image:
       repository: ghcr.io/kafaat/sahool-ndvi-processor
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8118
@@ -816,7 +816,7 @@ services:
     name: field-intelligence
     image:
       repository: ghcr.io/kafaat/sahool-field-intelligence
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8120
@@ -848,7 +848,7 @@ services:
     name: vegetation-analysis-service
     image:
       repository: ghcr.io/kafaat/sahool-vegetation-analysis-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8090
@@ -880,7 +880,7 @@ services:
     name: weather-service
     image:
       repository: ghcr.io/kafaat/sahool-weather-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8092
@@ -912,7 +912,7 @@ services:
     name: skills-service
     image:
       repository: ghcr.io/kafaat/sahool-skills-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8121
@@ -944,7 +944,7 @@ services:
     name: advisory-service
     image:
       repository: ghcr.io/kafaat/sahool-advisory-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8093
@@ -976,7 +976,7 @@ services:
     name: field-management-service
     image:
       repository: ghcr.io/kafaat/sahool-field-management-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 3000
@@ -1008,7 +1008,7 @@ services:
     name: user-service
     image:
       repository: ghcr.io/kafaat/sahool-user-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 3025
@@ -1040,7 +1040,7 @@ services:
     name: partner-auth-service
     image:
       repository: ghcr.io/kafaat/sahool-partner-auth-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 3030
@@ -1072,7 +1072,7 @@ services:
     name: carbon-service
     image:
       repository: ghcr.io/kafaat/sahool-carbon-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8195
@@ -1104,7 +1104,7 @@ services:
     name: alert-service
     image:
       repository: ghcr.io/kafaat/sahool-alert-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8113
@@ -1136,7 +1136,7 @@ services:
     name: audit-service
     image:
       repository: ghcr.io/kafaat/sahool-audit-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8114
@@ -1168,7 +1168,7 @@ services:
     name: agro-advisor
     image:
       repository: ghcr.io/kafaat/sahool-agro-advisor
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8105
@@ -1200,7 +1200,7 @@ services:
     name: astronomical-calendar
     image:
       repository: ghcr.io/kafaat/sahool-astronomical-calendar
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8111
@@ -1232,7 +1232,7 @@ services:
     name: iot-gateway
     image:
       repository: ghcr.io/kafaat/sahool-iot-gateway
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8106
@@ -1264,7 +1264,7 @@ services:
     name: inventory-service
     image:
       repository: ghcr.io/kafaat/sahool-inventory-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8116
@@ -1296,7 +1296,7 @@ services:
     name: field-chat
     image:
       repository: ghcr.io/kafaat/sahool-field-chat
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8099
@@ -1328,7 +1328,7 @@ services:
     name: provider-config
     image:
       repository: ghcr.io/kafaat/sahool-provider-config
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8104
@@ -1360,7 +1360,7 @@ services:
     name: ai-agents-service
     image:
       repository: ghcr.io/kafaat/sahool-ai-agents-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8130
@@ -1392,7 +1392,7 @@ services:
     name: crm-service
     image:
       repository: ghcr.io/kafaat/sahool-crm-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8131
@@ -1424,7 +1424,7 @@ services:
     name: lowcode-engine
     image:
       repository: ghcr.io/kafaat/sahool-lowcode-engine
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8132
@@ -1456,7 +1456,7 @@ services:
     name: community-service
     image:
       repository: ghcr.io/kafaat/sahool-community-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8133
@@ -1488,7 +1488,7 @@ services:
     name: wechat-service
     image:
       repository: ghcr.io/kafaat/sahool-wechat-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8135
@@ -1520,7 +1520,7 @@ services:
     name: agent-registry
     image:
       repository: ghcr.io/kafaat/sahool-agent-registry
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8160
@@ -1552,7 +1552,7 @@ services:
     name: ai-advisor
     image:
       repository: ghcr.io/kafaat/sahool-ai-advisor
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8112
@@ -1584,7 +1584,7 @@ services:
     name: ai-agents-core
     image:
       repository: ghcr.io/kafaat/sahool-ai-agents-core
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8161
@@ -1616,7 +1616,7 @@ services:
     name: chat-service
     image:
       repository: ghcr.io/kafaat/sahool-chat-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8115
@@ -1648,7 +1648,7 @@ services:
     name: code-fix-agent
     image:
       repository: ghcr.io/kafaat/sahool-code-fix-agent
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8162
@@ -1680,7 +1680,7 @@ services:
     name: code-review-service
     image:
       repository: ghcr.io/kafaat/sahool-code-review-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8102
@@ -1712,7 +1712,7 @@ services:
     name: crop-health
     image:
       repository: ghcr.io/kafaat/sahool-crop-health
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8100
@@ -1744,7 +1744,7 @@ services:
     name: globalgap-compliance
     image:
       repository: ghcr.io/kafaat/sahool-globalgap-compliance
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8128
@@ -1776,7 +1776,7 @@ services:
     name: knowledge-graph
     image:
       repository: ghcr.io/kafaat/sahool-knowledge-graph
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8140
@@ -1808,7 +1808,7 @@ services:
     name: logistics-service
     image:
       repository: ghcr.io/kafaat/sahool-logistics-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8167
@@ -1840,7 +1840,7 @@ services:
     name: ndvi-engine
     image:
       repository: ghcr.io/kafaat/sahool-ndvi-engine
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8107
@@ -1872,7 +1872,7 @@ services:
     name: ussd-gateway
     image:
       repository: ghcr.io/kafaat/sahool-ussd-gateway
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8183
@@ -1904,7 +1904,7 @@ services:
     name: weather-core
     image:
       repository: ghcr.io/kafaat/sahool-weather-core
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8108
@@ -1936,7 +1936,7 @@ services:
     name: field-core
     image:
       repository: ghcr.io/kafaat/sahool-field-core
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 3005
@@ -1968,7 +1968,7 @@ services:
     name: field-ops
     image:
       repository: ghcr.io/kafaat/sahool-field-ops
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8155
@@ -2000,7 +2000,7 @@ services:
     name: field-service
     image:
       repository: ghcr.io/kafaat/sahool-field-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8156
@@ -2032,7 +2032,7 @@ services:
     name: yolo26-vision-service
     image:
       repository: ghcr.io/kafaat/sahool-yolo26-vision-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8150
@@ -2064,7 +2064,7 @@ services:
     name: terrain-core-service
     image:
       repository: ghcr.io/kafaat/sahool-terrain-core-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8185
@@ -2096,7 +2096,7 @@ services:
     name: hydrology-service
     image:
       repository: ghcr.io/kafaat/sahool-hydrology-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8165
@@ -2128,7 +2128,7 @@ services:
     name: leveling-optimizer-service
     image:
       repository: ghcr.io/kafaat/sahool-leveling-optimizer-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8170
@@ -2160,7 +2160,7 @@ services:
     name: edge-orchestrator-service
     image:
       repository: ghcr.io/kafaat/sahool-edge-orchestrator-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8180
@@ -2192,7 +2192,7 @@ services:
     name: llm-orchestrator-service
     image:
       repository: ghcr.io/kafaat/sahool-llm-orchestrator-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8164
@@ -2224,7 +2224,7 @@ services:
     name: vllm-deepseek
     image:
       repository: ghcr.io/kafaat/sahool-vllm-deepseek
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8270
@@ -2256,7 +2256,7 @@ services:
     name: supply-chain-service
     image:
       repository: ghcr.io/kafaat/sahool-supply-chain-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8230
@@ -2288,7 +2288,7 @@ services:
     name: whatsapp-bot-service
     image:
       repository: ghcr.io/kafaat/sahool-whatsapp-bot-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8240
@@ -2320,7 +2320,7 @@ services:
     name: soil-analysis-service
     image:
       repository: ghcr.io/kafaat/sahool-soil-analysis-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8134
@@ -2352,7 +2352,7 @@ services:
     name: drone-service
     image:
       repository: ghcr.io/kafaat/sahool-drone-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8126
@@ -2384,7 +2384,7 @@ services:
     name: cooperative-service
     image:
       repository: ghcr.io/kafaat/sahool-cooperative-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8127
@@ -2416,7 +2416,7 @@ services:
     name: traceability-service
     image:
       repository: ghcr.io/kafaat/sahool-traceability-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8123
@@ -2448,7 +2448,7 @@ services:
     name: copilot-api
     image:
       repository: ghcr.io/kafaat/sahool-copilot-api
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8088
@@ -2480,7 +2480,7 @@ services:
     name: ai-chat-assistant
     image:
       repository: ghcr.io/kafaat/sahool-ai-chat-assistant
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8260
@@ -2512,7 +2512,7 @@ services:
     name: pest-detection-service
     image:
       repository: ghcr.io/kafaat/sahool-pest-detection-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8125
@@ -2544,7 +2544,7 @@ services:
     name: yield-prediction-service
     image:
       repository: ghcr.io/kafaat/sahool-yield-prediction-service
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8152
@@ -2576,7 +2576,7 @@ services:
     name: digital-twin-engine
     image:
       repository: ghcr.io/kafaat/sahool-digital-twin-engine
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 1
     port: 8253
@@ -2608,7 +2608,7 @@ services:
     name: fertigation-engine
     image:
       repository: ghcr.io/kafaat/sahool-fertigation-engine
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8252
@@ -2640,7 +2640,7 @@ services:
     name: irrigation-cycle-engine
     image:
       repository: ghcr.io/kafaat/sahool-irrigation-cycle-engine
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8250
@@ -2672,7 +2672,7 @@ services:
     name: iot-sensor-hub
     image:
       repository: ghcr.io/kafaat/sahool-iot-sensor-hub
-      tag: latest
+      tag: 16.0.0
       pullPolicy: IfNotPresent
     replicaCount: 2
     port: 8251
@@ -2705,7 +2705,7 @@ applications:
     name: web
     image:
       repository: ghcr.io/kafaat/sahool-web
-      tag: latest
+      tag: 16.0.0
     replicaCount: 2
     port: 3002
   admin:
@@ -2713,7 +2713,7 @@ applications:
     name: admin
     image:
       repository: ghcr.io/kafaat/sahool-admin
-      tag: latest
+      tag: 16.0.0
     replicaCount: 2
     port: 3001
   mobile:
@@ -2721,7 +2721,7 @@ applications:
     name: mobile
     image:
       repository: ghcr.io/kafaat/sahool-mobile
-      tag: latest
+      tag: 16.0.0
     replicaCount: 2
     port: 3000
 infrastructure:

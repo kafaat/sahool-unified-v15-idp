@@ -20,6 +20,7 @@ Usage:
 """
 
 import argparse
+import os
 import sys
 from pathlib import Path
 from typing import Any
@@ -28,6 +29,12 @@ import yaml
 
 # Paths
 ROOT_DIR = Path(__file__).parent.parent.parent
+
+# Default image tag for generated Helm/Compose files. Pinned to the platform
+# version instead of `:latest` so rollbacks have a known target and nightly
+# builds don't silently reach production on the next HPA scale.
+# Override via DEFAULT_IMAGE_TAG env var for e.g. release-candidate pipelines.
+DEFAULT_IMAGE_TAG = os.getenv("DEFAULT_IMAGE_TAG", "16.0.0")
 SERVICES_YAML = ROOT_DIR / "governance" / "services.yaml"
 COMPOSE_OUTPUT = ROOT_DIR / "docker" / "compose.generated.yml"
 HELM_OUTPUT = ROOT_DIR / "helm" / "sahool" / "values.generated.yaml"
@@ -229,7 +236,7 @@ def generate_helm_service(name: str, service: dict[str, Any]) -> dict[str, Any]:
         "name": name,
         "image": {
             "repository": f"ghcr.io/kafaat/sahool-{name}",
-            "tag": "latest",
+            "tag": DEFAULT_IMAGE_TAG,
             "pullPolicy": "IfNotPresent",
         },
         "replicaCount": resources.get("replicas", 1),
@@ -350,7 +357,7 @@ def generate_helm_values(data: dict[str, Any]) -> dict[str, Any]:
         values["applications"][name] = {
             "enabled": app.get("status") == "active",
             "name": name,
-            "image": {"repository": f"ghcr.io/kafaat/sahool-{name}", "tag": "latest"},
+            "image": {"repository": f"ghcr.io/kafaat/sahool-{name}", "tag": DEFAULT_IMAGE_TAG},
             "replicaCount": 2,
             "port": app.get("port", 3000),
         }

@@ -26,10 +26,14 @@ from pydantic import BaseModel, Field, field_validator
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
 from shared.observability.logging import get_logger
+from shared.observability.tracing import setup_tracing
 
+setup_logging("ussd-gateway")
 logger = get_logger(__name__)
+_tracer = setup_tracing("ussd-gateway")
 
 # Service info
 SERVICE_NAME = "ussd-gateway"
@@ -235,6 +239,7 @@ app = FastAPI(
     version=SERVICE_VERSION,
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup error handling
 setup_exception_handlers(app)
@@ -445,12 +450,25 @@ async def health():
 @app.get("/readyz")
 @app.get("/health/ready")
 async def readiness():
-    """Readiness probe"""
-    return {
-        "status": "ok",
-        "database": getattr(app.state, "db_connected", False),
-        "nats": getattr(app.state, "nats_connected", False),
-    }
+    """Readiness probe.
+
+    In production/staging, returns HTTP 503 when a critical dependency
+    (DB, NATS) is down, so K8s will stop routing traffic. Dev keeps 200
+    behavior so local runs without real infra still succeed.
+    """
+    env = os.getenv("ENVIRONMENT", "development").lower()
+    db_up = bool(getattr(app.state, "db_pool", None)) or bool(getattr(app.state, "db_connected", False))
+    nats_up = bool(getattr(app.state, "nc", None)) or bool(getattr(app.state, "nats_connected", False))
+
+    if env in ("production", "prod", "staging") and not (db_up and nats_up):
+        from fastapi.responses import JSONResponse
+
+        return JSONResponse(
+            status_code=503,
+            content={"status": "not_ready", "database": db_up, "nats": nats_up},
+        )
+
+    return {"status": "ok", "database": db_up, "nats": nats_up}
 
 
 # ============================================================

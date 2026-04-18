@@ -579,10 +579,23 @@ class FixLearningSystem:
             ],
         )
 
+    @staticmethod
+    def _derive_pattern_id(rule_id: str, tool_value: str, original: str | None) -> str:
+        """Canonical pattern-ID derivation.
+
+        Single source of truth for the hashing format used by both
+        ``_compute_pattern_id`` (the live path) and the migration
+        branch in ``_load_data`` (which rebuilds IDs for legacy
+        records). Keeping one helper prevents silent drift if the
+        content format is ever changed — both callers must update
+        the signature here explicitly.
+        """
+        content = f"{rule_id}:{tool_value}:{original or ''}"
+        return hashlib.sha256(content.encode()).hexdigest()[:16]
+
     def _compute_pattern_id(self, fix: CodeFix, diagnostic: Diagnostic) -> str:
         """Compute unique pattern ID."""
-        content = f"{diagnostic.rule_id}:{diagnostic.tool.value}:{fix.original_code or ''}"
-        return hashlib.sha256(content.encode()).hexdigest()[:16]
+        return self._derive_pattern_id(diagnostic.rule_id, diagnostic.tool.value, fix.original_code)
 
     @staticmethod
     def _legacy_pattern_id(content: str) -> str:
@@ -700,8 +713,14 @@ class FixLearningSystem:
 
                         # Migrate: also index under the new SHA256 ID so
                         # _compute_pattern_id lookups match legacy entries.
-                        content = f"{pattern.rule_id}:{pattern.tool.value}:{pattern.original_pattern or ''}"
-                        new_id = hashlib.sha256(content.encode()).hexdigest()[:16]
+                        # Use the shared derivation helper to keep the
+                        # migration hash format in lock-step with the
+                        # live-path `_compute_pattern_id`.
+                        new_id = self._derive_pattern_id(
+                            pattern.rule_id,
+                            pattern.tool.value,
+                            pattern.original_pattern,
+                        )
                         if new_id != pattern.pattern_id:
                             self._patterns[new_id] = pattern
             except (json.JSONDecodeError, KeyError) as e:

@@ -13,6 +13,7 @@ import {
   Search,
   Loader2,
 } from 'lucide-react';
+import DemoBanner from '@/components/common/DemoBanner';
 
 const defaultStatsCards = [
   {
@@ -69,13 +70,19 @@ export default function GapAnalysisPage() {
   const [severityFilter, setSeverityFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [apiGapData] = useState<typeof gapData | null>(null);
 
   const fetchData = useCallback(async () => {
     // NOTE: No dedicated analytics API for gap analysis yet.
     // Using local sample data until backend endpoint is available.
-    setLoading(false);
+    try {
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      setError(String(err));
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -118,6 +125,7 @@ export default function GapAnalysisPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      <DemoBanner />
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

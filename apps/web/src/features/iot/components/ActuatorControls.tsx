@@ -53,6 +53,15 @@ export function ActuatorControls() {
 
   const handleToggle = async (actuatorId: string, currentStatus: ActuatorStatus) => {
     const action = currentStatus === 'on' ? 'off' : 'on';
+    // Confirm before toggling physical equipment (irrigation valves, pumps, etc.)
+    // to prevent accidental activation.
+    const confirmMessage =
+      action === 'on'
+        ? 'Turn ON actuator? — تشغيل المشغل؟'
+        : 'Turn OFF actuator? — إيقاف المشغل؟';
+    if (typeof window !== 'undefined' && !window.confirm(confirmMessage)) {
+      return;
+    }
     try {
       await controlMutation.mutateAsync({
         actuatorId,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Satellite,
   Leaf,
@@ -14,6 +14,8 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
+import DemoBanner from '@/components/common/DemoBanner';
+import { useNdviHistory } from '@/features/analytics/hooks/useSatelliteAnalytics';
 
 const statsCards = [
   {
@@ -69,21 +71,15 @@ const healthColor: Record<string, string> = {
 export default function SatelliteAnalyticsPage() {
   const [dateRange, setDateRange] = useState('month');
   const [indexType, setIndexType] = useState('ndvi');
-  const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
-  const [apiSatelliteData] = useState<typeof satelliteData | null>(null);
 
-  const fetchData = useCallback(async () => {
-    // NOTE: No dedicated analytics API for satellite data yet.
-    // Using local sample data until backend endpoint is available.
-    setLoading(false);
-  }, []);
+  // Wired to field-management-service via SATELLITE_ENDPOINTS.NDVI_SUMMARY.
+  // The backend only returns tenant-level aggregates (not per-field rows),
+  // so the table keeps its sample data until a per-field endpoint lands.
+  const { data: ndviSummary, isLoading, error, refetch } = useNdviHistory();
+  const loading = isLoading;
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const displayData = apiSatelliteData ?? satelliteData;
+  const hasLiveData = !!ndviSummary && (ndviSummary.totalFields ?? 0) > 0;
+  const displayData = satelliteData;
 
   if (loading) {
     return (
@@ -102,8 +98,8 @@ export default function SatelliteAnalyticsPage() {
         <div className="text-center max-w-md">
           <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
-          <p className="text-gray-500 mb-4">{error}</p>
-          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          <p className="text-gray-500 mb-4">{error instanceof Error ? error.message : String(error)}</p>
+          <button onClick={() => refetch()} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
             إعادة المحاولة
           </button>
         </div>
@@ -113,6 +109,7 @@ export default function SatelliteAnalyticsPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      {!hasLiveData && <DemoBanner />}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -214,7 +211,7 @@ export default function SatelliteAnalyticsPage() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="h-2 w-12 rounded-full bg-gray-200">
-                        <div className="h-2 rounded-full bg-green-500" style={{ width: `${row.ndvi * 100}%` }} />
+                        <div className="h-2 rounded-full bg-green-500" style={{ width: `${Math.min(Math.max(row.ndvi ?? 0, 0), 1) * 100}%` }} />
                       </div>
                       <span className="text-gray-700 font-medium">{row.ndvi}</span>
                     </div>

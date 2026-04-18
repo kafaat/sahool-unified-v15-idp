@@ -61,17 +61,23 @@ export default function SeasonsClient() {
   const { data: stats } = useSeasonStats();
   const createSeason = useCreateSeason();
 
-  const handleCreateSeason = () => {
-    // Guard: start/end dates must be valid and ordered correctly
+  // Single source of truth for form validation — used by both the
+  // submit button's disabled state and the mutate() guard below.
+  const validation = useMemo<{ valid: boolean; errors: string[] }>(() => {
+    const errors: string[] = [];
     if (!formData.name.trim() || !formData.nameAr.trim() || !formData.farmId.trim()) {
-      return;
+      errors.push('required_fields');
     }
     if (!formData.startDate || !formData.endDate) {
-      return;
+      errors.push('missing_dates');
+    } else if (new Date(formData.endDate) < new Date(formData.startDate)) {
+      errors.push('date_order');
     }
-    if (new Date(formData.endDate) < new Date(formData.startDate)) {
-      return;
-    }
+    return { valid: errors.length === 0, errors };
+  }, [formData]);
+
+  const handleCreateSeason = () => {
+    if (!validation.valid) return;
     createSeason.mutate(formData, {
       onSuccess: () => {
         setShowCreateDialog(false);
@@ -176,15 +182,7 @@ export default function SeasonsClient() {
               <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
               <button
                 onClick={handleCreateSeason}
-                disabled={
-                  createSeason.isPending ||
-                  !formData.name.trim() ||
-                  !formData.nameAr.trim() ||
-                  !formData.farmId.trim() ||
-                  !formData.startDate ||
-                  !formData.endDate ||
-                  new Date(formData.endDate) < new Date(formData.startDate)
-                }
+                disabled={createSeason.isPending || !validation.valid}
                 className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50"
               >
                 {createSeason.isPending ? 'جاري الإنشاء...' : 'إنشاء الموسم'}

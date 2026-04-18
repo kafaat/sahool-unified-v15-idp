@@ -17,13 +17,18 @@ from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta, timezone
 from enum import Enum, StrEnum
 
-import structlog
 from fastapi import Body, Depends, FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.orm import Session
 
-logger = structlog.get_logger()
+# Structured logging via shared.logging_config (sys.path set up below, but shared
+# is expected to be importable from /app in container and via sibling dir locally)
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+from shared.logging_config import get_logger, setup_logging  # noqa: E402
+
+setup_logging(service_name="equipment-service")
+logger = get_logger(__name__)
 
 from . import repository
 from .api_models import (

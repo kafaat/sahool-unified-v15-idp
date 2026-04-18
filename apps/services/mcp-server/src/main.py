@@ -134,15 +134,19 @@ CORS_ALLOWED_ORIGINS = os.getenv(
     "http://localhost:3000,http://localhost:8080,https://sahool.com,https://app.sahool.com",
 ).split(",")
 
-# Logging
-logging.basicConfig(
-    level=getattr(logging, LOG_LEVEL.upper()),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("mcp-server", log_level=LOG_LEVEL.upper())
 if structlog is not None:
     logger = structlog.get_logger(__name__)
 else:
     logger = logging.getLogger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("mcp-server")
 
 # Metrics
 mcp_requests_total = Counter(
@@ -198,6 +202,9 @@ app = FastAPI(
     description="Model Context Protocol server for SAHOOL agricultural platform",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

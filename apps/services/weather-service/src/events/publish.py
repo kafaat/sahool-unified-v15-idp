@@ -18,6 +18,30 @@ logger = logging.getLogger(__name__)
 
 from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
 
+try:
+    from shared.events.subjects import get_tenant_subject
+except ImportError:
+
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
+
+def _weather_scoped(event_type: str, tenant_id: str | None) -> str:
+    """Return tenant-scoped weather subject or fall back to global with warning."""
+    global_subject = get_subject(event_type)
+    if tenant_id:
+        # Preserve the "alert" / "forecast.issued" / "irrigation.adjustment" action suffix.
+        action = (
+            global_subject[len("sahool.weather.") :] if global_subject.startswith("sahool.weather.") else event_type
+        )
+        return get_tenant_subject(tenant_id, "weather", action)
+    logger.warning(
+        "nats_publish_missing_tenant_id subject=%s (falling back to global; TODO plumb tenant_id)",
+        global_subject,
+    )
+    return global_subject
+
+
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 
 
@@ -167,7 +191,7 @@ class WeatherPublisher:
             payload=payload,
         )
 
-        subject = get_subject(WEATHER_ALERT)
+        subject = _weather_scoped(WEATHER_ALERT, tenant_id)
         try:
             await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
         except Exception as e:
@@ -213,7 +237,7 @@ class WeatherPublisher:
             payload=payload,
         )
 
-        subject = get_subject(WEATHER_FORECAST_ISSUED)
+        subject = _weather_scoped(WEATHER_FORECAST_ISSUED, tenant_id)
         try:
             await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
         except Exception as e:
@@ -261,7 +285,7 @@ class WeatherPublisher:
             payload=payload,
         )
 
-        subject = get_subject(IRRIGATION_ADJUSTMENT)
+        subject = _weather_scoped(IRRIGATION_ADJUSTMENT, tenant_id)
         try:
             await self.nc.publish(subject, json.dumps(env.to_dict(), default=str).encode())
         except Exception as e:

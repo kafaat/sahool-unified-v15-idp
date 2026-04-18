@@ -90,6 +90,13 @@ try:
         "1 when the per-tenant hash chain validates end-to-end; 0 otherwise.",
         ["tenant_id"],
     )
+    AUDIT_CHAIN_RETENTION_GAPS_CROSSED = Gauge(
+        "audit_chain_retention_gaps_crossed",
+        "Count of legitimate retention boundaries the validator crossed "
+        "on the last validate_chain call for this tenant. Non-zero means "
+        "the audit-retention-worker has run for this tenant; NOT an error.",
+        ["tenant_id"],
+    )
     AUDIT_STORE_BACKEND = Gauge(
         "audit_store_backend",
         "1 for the currently active backend; 0 for the inactive one.",
@@ -100,6 +107,7 @@ except ImportError:  # pragma: no cover - keeps the service importable in minima
     AUDIT_WRITES_TOTAL = None
     AUDIT_WRITE_FAILURES_TOTAL = None
     AUDIT_CHAIN_VALID = None
+    AUDIT_CHAIN_RETENTION_GAPS_CROSSED = None
     AUDIT_STORE_BACKEND = None
     _PROM_OK = False
 
@@ -107,11 +115,19 @@ except ImportError:  # pragma: no cover - keeps the service importable in minima
 # Logging Configuration
 # ═══════════════════════════════════════════════════════════════════════════════
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("audit-service")
 if structlog is not None:
     logger = structlog.get_logger(__name__)
 else:
     logger = logging.getLogger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("audit-service")
 
 
 def sanitize_log_input(value: str) -> str:
@@ -174,6 +190,12 @@ class HashChainValidationResponse(BaseModel):
     validated_entries: int
     invalid_entries: list[str]
     errors: list[str]
+    # Count of legitimate retention boundaries the validator crossed.
+    # Zero = chain has never been retention-processed. Non-zero = the
+    # chain has been truncated by the audit-retention-worker and is
+    # still valid. Defaults to 0 so older clients deserialising a new
+    # response continue to work.
+    retention_gaps_crossed: int = 0
 
 
 class ComplianceReportResponse(BaseModel):
@@ -639,6 +661,10 @@ async def lifespan(app: FastAPI):
                     try:
                         result = await app.state.store.validate_chain(tenant_id)
                         AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(1 if result.valid else 0)
+                        if _PROM_OK:
+                            AUDIT_CHAIN_RETENTION_GAPS_CROSSED.labels(tenant_id=tenant_id).set(
+                                result.retention_gaps_crossed
+                            )
                         if not result.valid:
                             logger.error(
                                 "audit_chain_broken tenant=%s errors=%s",
@@ -723,6 +749,9 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -899,6 +928,60 @@ async def create_audit_log(
     return persisted
 
 
+@app.get("/api/v1/audit/logs/archived", response_model=PaginatedResponse, tags=["Audit Logs"])
+async def get_archived_audit_logs(
+    user_id: str | None = Query(None, description="Filter by user ID"),
+    action: str | None = Query(None, description="Filter by action"),
+    category: str | None = Query(None, description="Filter by category"),
+    resource_type: str | None = Query(None, description="Filter by resource type"),
+    resource_id: str | None = Query(None, description="Filter by resource ID"),
+    success: bool | None = Query(None, description="Filter by success status"),
+    start_date: datetime | None = Query(None, description="Start date filter"),
+    end_date: datetime | None = Query(None, description="End date filter"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=500),
+    tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
+):
+    """
+    Replay archived audit logs (rows removed from audit_log by the
+    retention worker). Schema and filter semantics match the live
+    ``GET /audit/logs`` endpoint; rows here carry two extra fields —
+    ``archived_at`` and ``archived_by`` — that identify when retention
+    moved them out of the hot table.
+
+    إعادة تشغيل السجلات المؤرشفة (السجلات التي أزالها عامل الاحتفاظ).
+    """
+    enforce_tenant_match(tenant_id, _current_user)
+
+    # NOTE: must be registered BEFORE /logs/{log_id} so the literal path
+    # ``archived`` is not captured as a log_id.
+
+    items, total = await app.state.store.query_archived(
+        tenant_id,
+        filters={
+            "user_id": user_id,
+            "action": action,
+            "category": category,
+            "resource_type": resource_type,
+            "resource_id": resource_id,
+            "success": success,
+            "start_date": start_date.isoformat() if start_date else None,
+            "end_date": end_date.isoformat() if end_date else None,
+        },
+        skip=skip,
+        limit=limit,
+    )
+
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "has_more": skip + limit < total,
+    }
+
+
 @app.get("/api/v1/audit/logs/{log_id}", response_model=AuditLogResponse, tags=["Audit Logs"])
 async def get_audit_log(
     log_id: str = Path(..., description="Audit log ID"),
@@ -1023,6 +1106,7 @@ async def validate_hash_chain(
     # Expose the outcome to Prometheus so AuditHashChainBroken can fire.
     if _PROM_OK:
         AUDIT_CHAIN_VALID.labels(tenant_id=tenant_id).set(1 if result.valid else 0)
+        AUDIT_CHAIN_RETENTION_GAPS_CROSSED.labels(tenant_id=tenant_id).set(result.retention_gaps_crossed)
 
     # Optional time window — the store currently returns the full chain;
     # apply the client-supplied window over the raw entries if specified,
@@ -1045,6 +1129,7 @@ async def validate_hash_chain(
         "validated_entries": result.total_entries - len(result.errors) if result.valid else 0,
         "invalid_entries": [err.split()[0] for err in result.errors],  # seq=N prefix
         "errors": result.errors,
+        "retention_gaps_crossed": result.retention_gaps_crossed,
     }
 
 

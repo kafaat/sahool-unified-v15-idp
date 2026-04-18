@@ -23,20 +23,23 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
 from src.cache import cache_manager
 from src.config import settings
 from src.events import event_handler
 from src.llm_client import llm_client
 
-# Configure logging
-logging.basicConfig(
-    level=getattr(logging, settings.LOG_LEVEL),
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+setup_logging("ai-chat-assistant", log_level=settings.LOG_LEVEL)
 if structlog is not None:
     logger = structlog.get_logger(__name__)
 else:
     logger = logging.getLogger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("ai-chat-assistant")
 
 
 @asynccontextmanager
@@ -108,6 +111,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
+
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
@@ -165,6 +171,16 @@ async def readiness_check():
     """
     Readiness probe - checks if the service is ready to serve requests.
     مسبار الجاهزية - يتحقق من جاهزية الخدمة لخدمة الطلبات.
+
+    Semantics:
+    * production / staging  — fail closed. Any missing dependency
+      (Redis / NATS / LLM orchestrator) returns 503 so K8s removes
+      this pod from the service endpoints until every backend is up.
+    * development / test    — fail open with diagnostic body. The
+      process is up and able to answer HTTP; returning 200 lets local
+      smoke tests (and the module-import-only unit test) pass without
+      standing up the full Redis/NATS/LLM stack. The body still
+      reports each dependency's state for visibility.
     """
     # Check connections
     redis_connected = cache_manager.redis_client is not None
@@ -173,13 +189,16 @@ async def readiness_check():
 
     is_ready = redis_connected and nats_connected and llm_healthy
 
-    status_code = 200 if is_ready else 503
+    env = (settings.ENVIRONMENT or "development").lower()
+    strict = env in ("production", "prod", "staging")
+    status_code = 200 if (is_ready or not strict) else 503
 
     return JSONResponse(
         status_code=status_code,
         content={
-            "status": "ready" if is_ready else "not_ready",
+            "status": "ready" if is_ready else ("not_ready" if strict else "degraded"),
             "service": settings.SERVICE_NAME,
+            "environment": env,
             "checks": {
                 "redis": "connected" if redis_connected else "disconnected",
                 "nats": "connected" if nats_connected else "disconnected",

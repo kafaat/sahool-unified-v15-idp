@@ -55,17 +55,24 @@ export default function CropsClient() {
   const { data: stats } = useCropStats();
   const createCrop = useCreateCrop();
 
-  const handleCreateCrop = () => {
-    // Basic required-field guard — backend CropFormData expects these populated
-    if (
-      !newCrop.name.trim() ||
-      !newCrop.nameAr.trim() ||
-      !newCrop.fieldId.trim() ||
-      !newCrop.plantingDate ||
-      newCrop.areaHa <= 0
-    ) {
-      return;
+  // Single source of truth for form validation — used by both the submit
+  // button's disabled state and the mutate() guard below.
+  const validation = useMemo<{ valid: boolean; errors: string[] }>(() => {
+    const errors: string[] = [];
+    if (!newCrop.name.trim() || !newCrop.nameAr.trim() || !newCrop.fieldId.trim()) {
+      errors.push('required_fields');
     }
+    if (!newCrop.plantingDate) {
+      errors.push('missing_planting_date');
+    }
+    if (newCrop.areaHa <= 0) {
+      errors.push('invalid_area');
+    }
+    return { valid: errors.length === 0, errors };
+  }, [newCrop]);
+
+  const handleCreateCrop = () => {
+    if (!validation.valid) return;
     createCrop.mutate(
       { ...newCrop, expectedHarvestDate: '', irrigationType: '', irrigationTypeAr: '' },
       {
@@ -158,7 +165,7 @@ export default function CropsClient() {
             </div>
             <div className="flex justify-end gap-3 mt-6">
               <button onClick={() => setShowCreateDialog(false)} className="px-4 py-2 text-sm text-gray-600 border rounded-lg hover:bg-gray-50">إلغاء</button>
-              <button onClick={handleCreateCrop} disabled={createCrop.isPending || !newCrop.name.trim() || !newCrop.nameAr.trim() || !newCrop.fieldId.trim() || !newCrop.plantingDate || newCrop.areaHa <= 0} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
+              <button onClick={handleCreateCrop} disabled={createCrop.isPending || !validation.valid} className="px-4 py-2 text-sm text-white bg-sahool-green-600 rounded-lg hover:bg-sahool-green-700 disabled:opacity-50">
                 {createCrop.isPending ? 'جاري الإنشاء...' : 'إنشاء'}
               </button>
             </div>

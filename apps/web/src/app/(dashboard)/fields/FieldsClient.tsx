@@ -18,6 +18,7 @@ import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 import { useToast } from '@/components/ui/toast';
 import { fieldsApi } from '@/features/fields/api';
 import { useAuth } from '@/stores/auth.store';
+import { logger } from '@/lib/logger';
 
 export default function FieldsClient() {
   const router = useRouter();
@@ -64,10 +65,12 @@ export default function FieldsClient() {
       });
       setShowCreateModal(false);
 
-      // Fire-and-forget KPI fetch — non-blocking
+      // Fire-and-forget KPI fetch — non-blocking; surface failures via logger.warn
       if (createdField?.centroid?.coordinates) {
         const [lng, lat] = createdField.centroid.coordinates;
-        fieldsApi.triggerKpiRefresh(createdField.id, lat, lng, user?.tenant_id).catch(() => {/* silent */});
+        fieldsApi.triggerKpiRefresh(createdField.id, lat, lng, user?.tenant_id).catch((error) => {
+          logger.warn('KPI refresh failed', { error, fieldId: createdField.id });
+        });
       }
 
       router.push(`/fields/${createdField.id}`);

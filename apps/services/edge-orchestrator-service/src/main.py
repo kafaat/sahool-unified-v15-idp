@@ -38,26 +38,13 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer(),
-    ],
-    wrapper_class=structlog.stdlib.BoundLogger,
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
 
+setup_logging("edge-orchestrator-service")
 logger = structlog.get_logger(__name__)
+_tracer = setup_tracing("edge-orchestrator-service")
 
 
 # =============================================================================
@@ -290,6 +277,7 @@ app = FastAPI(
     redoc_url="/redoc" if settings.is_development else None,
     openapi_url="/openapi.json" if settings.is_development else None,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 try:

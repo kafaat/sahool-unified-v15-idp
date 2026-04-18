@@ -34,7 +34,16 @@ if str(SHARED_PATH) not in sys.path:
 # Import unified error handling
 import structlog
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("weather-service")
 logger = structlog.get_logger()
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("weather-service")
 
 # Authentication imports
 from shared.auth.dependencies import get_current_user
@@ -188,6 +197,9 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

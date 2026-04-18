@@ -211,25 +211,34 @@ jobs:
       - name: Run Trivy filesystem scan
         id: trivy
         if: steps.install_trivy.outputs.installed == 'true'
-        continue-on-error: true  # Informational scan - don't block pipeline
+        continue-on-error: true  # SARIF upload step enforces gating via GitHub code scanning
         run: |
           echo "🔍 Running Trivy filesystem scan..."
           mkdir -p trivy-results
+          # Gate on CRITICAL CVEs: exit-code 1 fails the scan step,
+          # but continue-on-error lets SARIF still upload to Security tab.
           trivy fs \
             --skip-check-update \
             --scanners vuln \
             --severity CRITICAL \
-            --exit-code 0 \
+            --exit-code 1 \
             --format sarif \
             --output trivy-results.sarif \
-            . || true
+            . || echo "::error::Trivy found CRITICAL vulnerabilities - see Security tab"
 
       - name: Create empty SARIF if Trivy failed
         if: always()
+        id: synthesize_sarif
         run: |
+          # Track whether Trivy actually produced a report. A synthesized
+          # empty SARIF allows the upload step below to run without a file
+          # error, but the gating step must know not to trust it.
           if [ ! -f "trivy-results.sarif" ]; then
-            echo "Creating empty SARIF file..."
+            echo "::warning::Trivy did not produce a SARIF report — synthesizing empty file so upload doesn't fail. Gate will treat this as scan-failure."
             echo '{"version":"2.1.0","$schema":"https://json.schemastore.org/sarif-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.62.1"}},"results":[]}]}' > trivy-results.sarif
+            echo "synthesized=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "synthesized=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Upload Trivy results to GitHub Security
@@ -252,6 +261,56 @@ jobs:
               echo "Trivy detected $RESULTS potential issues. Please review the Security tab." >> $GITHUB_STEP_SUMMARY
             else
               echo "✅ No critical vulnerabilities found by Trivy"
+            fi
+          fi
+
+      - name: Gate on CRITICAL vulnerabilities
+        if: steps.install_trivy.outputs.installed == 'true'
+        # CVE gate semantics:
+        #   * On pushes to main/develop/release branches, fail the job
+        #     on any CRITICAL CVE or on a synthesized (empty) SARIF.
+        #   * On pull requests, surface the findings but don't block —
+        #     we can't reasonably require a PR to also fix every
+        #     pre-existing CVE on main (283+ on main per Dependabot).
+        #     PRs that INTRODUCE new CVEs should be caught by the
+        #     dependency-review bot separately.
+        # Runs AFTER SARIF upload so GitHub Security tab is always populated.
+        run: |
+          IS_PR="${{ github.event_name == 'pull_request' }}"
+          if [ "${{ steps.synthesize_sarif.outputs.synthesized }}" = "true" ]; then
+            if [ "$IS_PR" = "true" ]; then
+              echo "::warning::Trivy scan did not complete — gate skipped on PR (enforced on push to main)."
+              exit 0
+            fi
+            echo "::error::Trivy scan did not complete — refusing to approve based on synthesized empty report"
+            exit 1
+          fi
+          if [ -f "trivy-results.sarif" ]; then
+            CRITICAL_COUNT=$(python3 -c "
+          import json, sys
+          with open('trivy-results.sarif') as f:
+              d = json.load(f)
+          count = 0
+          for run in d.get('runs', []):
+              for res in run.get('results', []):
+                  level = res.get('level', '')
+                  # SARIF uses 'error' for CRITICAL
+                  if level == 'error':
+                      count += 1
+          print(count)
+          " 2>/dev/null || echo "0")
+            if [ "$CRITICAL_COUNT" -gt 0 ]; then
+              if [ "$IS_PR" = "true" ]; then
+                echo "::warning::Trivy found $CRITICAL_COUNT CRITICAL CVEs (informational on PRs; see Security tab)"
+                echo "## ⚠️ CRITICAL Vulnerabilities Detected" >> $GITHUB_STEP_SUMMARY
+                echo "$CRITICAL_COUNT CRITICAL CVEs detected. Review the Security tab." >> $GITHUB_STEP_SUMMARY
+                echo "The gate fails closed on pushes to main/develop — clean them up before release." >> $GITHUB_STEP_SUMMARY
+                exit 0
+              fi
+              echo "::error::Trivy found $CRITICAL_COUNT CRITICAL vulnerabilities - blocking push to main"
+              echo "## ❌ CRITICAL Vulnerabilities Found" >> $GITHUB_STEP_SUMMARY
+              echo "$CRITICAL_COUNT CRITICAL CVEs detected. Review the Security tab and patch before merging." >> $GITHUB_STEP_SUMMARY
+              exit 1
             fi
           fi
 

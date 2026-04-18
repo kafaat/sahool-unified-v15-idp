@@ -37,7 +37,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared")
 from fastapi import Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("irrigation-cycle-engine")
 logger = logging.getLogger(__name__)
+_tracer = setup_tracing("irrigation-cycle-engine")
 
 try:
     from shared.auth.dependencies import get_current_user
@@ -604,6 +609,7 @@ app = FastAPI(
     version=VERSION,
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup error handling
 try:

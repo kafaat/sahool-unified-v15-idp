@@ -1,0 +1,20 @@
+# SAHOOL Audit Retention Worker — runtime dependencies
+# Keep this list deliberately small; the worker is a one-shot CLI, not a
+# long-running service, so every transitive dep is a liability.
+
+# Postgres driver (same version family as audit-service).
+asyncpg>=0.29.0,<0.32.0
+
+# Prometheus pushgateway client — short-lived CronJob runs can't be scraped
+# the usual way, so we PUSH a batch of metrics to the cluster pushgateway
+# (http://prometheus-pushgateway.monitoring.svc.cluster.local:9091) at the
+# end of each sweep. The push is opt-in via AUDIT_RETENTION_PUSHGATEWAY_URL;
+# when that env var is unset the worker skips the push entirely and the
+# dependency only costs its import. See src/metrics.py for the emitters.
+prometheus-client>=0.19.0,<0.22.0
+
+# Note on what's intentionally NOT here
+# -------------------------------------
+# structlog — the worker uses stdlib `logging` with a small custom
+#   JSON formatter in main.py. structlog would add transitive deps
+#   for marginal ergonomic gain on a ~300-LOC service.

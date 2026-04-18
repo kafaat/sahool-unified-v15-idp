@@ -172,6 +172,14 @@ export default function CopilotPage() {
     inputRef.current?.focus();
   }, []);
 
+  // Abort in-flight SSE streams on unmount to avoid leaking controllers/readers.
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+    };
+  }, []);
+
   // -------------------------------------------------------------------
   // Non-streaming fallback
   // -------------------------------------------------------------------
@@ -265,6 +273,11 @@ export default function CopilotPage() {
         });
 
         if (!response.ok) {
+          if (response.status === 429) {
+            throw new Error(
+              'طلبات كثيرة جداً، يرجى الانتظار | Too many requests, please wait'
+            );
+          }
           const errorData = await response.json().catch(() => null);
           throw new Error(
             errorData?.detail?.error_ar ||
@@ -280,26 +293,38 @@ export default function CopilotPage() {
         const decoder = new TextDecoder();
         let accumulated = '';
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+        try {
+          while (true) {
+            if (controller.signal.aborted) break;
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
 
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') break;
-              accumulated += data;
-              // Update the assistant message content
-              setMessages((prev) =>
-                prev.map((m) =>
-                  m.id === assistantId ? { ...m, content: accumulated, timestamp: new Date() } : m
-                )
-              );
+            for (const line of lines) {
+              if (line.startsWith('data: ')) {
+                const data = line.slice(6);
+                if (data === '[DONE]') break;
+                accumulated += data;
+                // Update the assistant message content
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === assistantId ? { ...m, content: accumulated, timestamp: new Date() } : m
+                  )
+                );
+              }
             }
           }
+        } finally {
+          // Always release the reader, including on unmount/abort.
+          await reader.cancel().catch(() => {});
+        }
+
+        // If aborted mid-stream, exit silently — component is unmounting or
+        // the user cleared the chat.
+        if (controller.signal.aborted) {
+          return;
         }
 
         // If we received no content, fall back to non-streaming

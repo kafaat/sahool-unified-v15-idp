@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useExportPrescription } from '../hooks/useVRA';
 import type { PrescriptionResponse, ExportFormat } from '../types/vra';
+import { sanitizeCsvCell } from '@/lib/csv';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Component Props
@@ -92,15 +93,27 @@ export const PrescriptionTable: React.FC<PrescriptionTableProps> = React.memo(
         zone.totalProduct.toFixed(2),
       ]);
 
+      const toCsvRow = (cells: unknown[]): string =>
+        cells.map(sanitizeCsvCell).join(',');
+
       const csvContent = [
-        headers.join(','),
-        ...rows.map((row) => row.join(',')),
+        toCsvRow(headers),
+        ...rows.map((row) => toCsvRow(row)),
         '',
-        `Total Area,${prescription.totalAreaHa.toFixed(2)} ha`,
-        `Total Product,${prescription.totalProductNeeded.toFixed(2)} ${prescription.unit}`,
-        `Flat Rate Product,${prescription.flatRateProduct.toFixed(2)} ${prescription.unit}`,
-        `Savings,${prescription.savingsPercent.toFixed(1)}%`,
-        `Savings Amount,${prescription.savingsAmount.toFixed(2)} ${prescription.unit}`,
+        toCsvRow(['Total Area', `${prescription.totalAreaHa.toFixed(2)} ha`]),
+        toCsvRow([
+          'Total Product',
+          `${prescription.totalProductNeeded.toFixed(2)} ${prescription.unit}`,
+        ]),
+        toCsvRow([
+          'Flat Rate Product',
+          `${prescription.flatRateProduct.toFixed(2)} ${prescription.unit}`,
+        ]),
+        toCsvRow(['Savings', `${prescription.savingsPercent.toFixed(1)}%`]),
+        toCsvRow([
+          'Savings Amount',
+          `${prescription.savingsAmount.toFixed(2)} ${prescription.unit}`,
+        ]),
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv' });

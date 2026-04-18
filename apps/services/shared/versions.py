@@ -34,7 +34,10 @@ VERSIONS = {
     "nats-py": "2.13.1",
     # Authentication & Security
     "passlib": "1.7.4",
-    "python-jose": "3.5.0",  # CVE-2024-33663, CVE-2024-33664 fixed
+    # NOTE: python-jose was removed — no active code in apps/services/ or
+    # shared/ imports ``jose``. Services standardize on PyJWT. If a new
+    # service needs JWT support, add PyJWT here rather than reintroducing
+    # python-jose (deprecated upstream, CVE history).
     # Image Processing
     "pillow": "11.3.0",
     # AI/ML
@@ -177,10 +180,14 @@ def generate_database_requirements() -> str:
 
 
 def generate_auth_requirements() -> str:
-    """Generate authentication requirements"""
+    """Generate authentication requirements.
+
+    python-jose was removed from VERSIONS — services should use PyJWT.
+    This helper now only emits passlib; callers that previously depended
+    on python-jose need to migrate to PyJWT explicitly.
+    """
     lines = [
         "# Authentication Requirements",
-        f"python-jose=={VERSIONS['python-jose']}",
         f"passlib[bcrypt]=={VERSIONS['passlib']}",
     ]
     return "\n".join(lines)

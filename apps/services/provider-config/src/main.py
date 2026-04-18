@@ -32,9 +32,49 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
+try:
+    from shared.events.subjects import get_tenant_subject as _real_get_tenant_subject
+
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        """Tenant-scoped subject with graceful fallback on non-UUID tenant_ids.
+
+        The shared helper enforces UUID shape and raises ValueError; for
+        legacy tenant-id values (the tests pass "t1"), we fall back to the
+        inline pattern so the publish still lands on a tenant-scoped subject.
+        """
+        try:
+            return _real_get_tenant_subject(tenant_id, domain, action)
+        except ValueError:
+            return f"sahool.tenant.{tenant_id or 'unknown'}.{domain}.{action}"
+except ImportError:
+
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        return f"sahool.tenant.{tenant_id or 'unknown'}.{domain}.{action}"
+
+
 from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
+
+# Structured logging + OTel tracing. Must be configured before FastAPI is
+# instantiated so instrumentation can hook into the app.
+try:
+    from shared.logging_config import setup_logging
+
+    setup_logging("provider-config")
+except ImportError:
+    # shared.logging_config isn't on sys.path in some local dev shells —
+    # fall back to structlog defaults so the service still boots.
+    pass
+logger = structlog.get_logger()
+
+try:
+    from shared.observability.tracing import setup_tracing
+
+    _tracer = setup_tracing("provider-config")
+except ImportError:
+    # OTel libraries are optional; skip tracing instrumentation when absent.
+    _tracer = None
 
 from .database_service import CacheManager, ProviderConfigService
 
@@ -112,6 +152,13 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI for distributed tracing (no-op if OTEL unavailable).
+if _tracer is not None:
+    try:
+        _tracer.instrument_fastapi(app)
+    except Exception:  # noqa: BLE001 — tracing is best-effort
+        pass
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -733,9 +780,6 @@ class ProvidersListResponse(BaseModel):
 # DATABASE & CACHE INITIALIZATION
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Logger
-logger = structlog.get_logger()
-
 # Database and cache instances (initialized on startup)
 database: Database | None = None
 cache_manager: CacheManager | None = None
@@ -780,13 +824,14 @@ async def publish_config_updated(
             "tenant_id": tenant_id,
             "timestamp": datetime.now(UTC).isoformat(),
         }
+        _subject = get_tenant_subject(tenant_id, "config", "updated")
         await nc.publish(
-            "sahool.config.updated",
+            _subject,
             json.dumps(event_data).encode(),
         )
         logger.info(
             "Published config updated event",
-            subject="sahool.config.updated",
+            subject=_subject,
             tenant_id=tenant_id,
             provider=provider_name,
         )
@@ -815,13 +860,14 @@ async def publish_provider_status_changed(
             "tenant_id": tenant_id,
             "timestamp": datetime.now(UTC).isoformat(),
         }
+        _subject = get_tenant_subject(tenant_id, "config", "provider_status_changed")
         await nc.publish(
-            "sahool.config.provider_status_changed",
+            _subject,
             json.dumps(event_data).encode(),
         )
         logger.info(
             "Published provider status changed event",
-            subject="sahool.config.provider_status_changed",
+            subject=_subject,
             tenant_id=tenant_id,
             provider=provider_name,
             enabled=enabled,

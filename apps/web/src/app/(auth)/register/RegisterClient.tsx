@@ -443,7 +443,7 @@ export default function RegisterClient() {
               onChange={handleChange('password')}
               leftIcon={<Lock className="w-4 h-4" />}
               error={errors.password}
-              helperText="At least 8 characters with uppercase, lowercase, and number"
+              helperText="At least 8 characters with uppercase, lowercase, and a number • 8 أحرف على الأقل مع حرف كبير وحرف صغير ورقم"
               required
               autoComplete="new-password"
             />

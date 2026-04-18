@@ -36,7 +36,16 @@ from pydantic import BaseModel, Field, field_validator
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("vegetation-analysis-service")
 logger = structlog.get_logger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("vegetation-analysis-service")
 
 
 def _validate_field_id(field_id: str) -> None:
@@ -449,6 +458,9 @@ app = FastAPI(
     description="Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

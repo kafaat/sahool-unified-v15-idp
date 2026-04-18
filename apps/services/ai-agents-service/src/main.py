@@ -31,14 +31,19 @@ from slowapi import Limiter
 from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 
-# Initialize structured logger
-logger = structlog.get_logger()
-
 # Add project root to path
 sys.path.insert(
     0,
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))),
 )
+
+# Initialize structured logger and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("ai-agents-service")
+logger = structlog.get_logger()
+_tracer = setup_tracing("ai-agents-service")
 
 from shared.ai.agents import (
     AgentMode,
@@ -379,6 +384,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 try:

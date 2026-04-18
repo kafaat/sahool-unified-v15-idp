@@ -7,7 +7,11 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notificationsApi } from '../api';
-import type { NotificationFilters, NotificationPreferences } from '../types';
+import type {
+  Notification,
+  NotificationFilters,
+  NotificationPreferences,
+} from '../types';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Query Keys
@@ -92,7 +96,48 @@ export function useMarkRead() {
 
   return useMutation({
     mutationFn: (id: string) => notificationsApi.markRead(id),
-    onSuccess: (_: void, id: string) => {
+    // Optimistic update: flip `read` locally before awaiting the server, and
+    // roll back on error so the UI stays consistent.
+    onMutate: async (id: string) => {
+      await queryClient.cancelQueries({ queryKey: notificationKeys.lists() });
+      await queryClient.cancelQueries({ queryKey: notificationKeys.unreadCount() });
+
+      const previousLists = queryClient.getQueriesData<Notification[]>({
+        queryKey: notificationKeys.lists(),
+      });
+      const previousUnread = queryClient.getQueryData<number>(
+        notificationKeys.unreadCount()
+      );
+
+      queryClient.setQueriesData<Notification[]>(
+        { queryKey: notificationKeys.lists() },
+        (old) =>
+          old
+            ? old.map((n) =>
+                n.id === id ? { ...n, read: true, readAt: new Date().toISOString() } : n
+              )
+            : old
+      );
+      if (typeof previousUnread === 'number') {
+        queryClient.setQueryData(
+          notificationKeys.unreadCount(),
+          Math.max(0, previousUnread - 1)
+        );
+      }
+
+      return { previousLists, previousUnread };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previousLists) {
+        for (const [key, data] of context.previousLists) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+      if (typeof context?.previousUnread === 'number') {
+        queryClient.setQueryData(notificationKeys.unreadCount(), context.previousUnread);
+      }
+    },
+    onSettled: (_data, _err, id) => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.lists() });
       queryClient.invalidateQueries({
         queryKey: notificationKeys.unreadCount(),

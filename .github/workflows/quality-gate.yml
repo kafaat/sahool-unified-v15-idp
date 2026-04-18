@@ -38,7 +38,25 @@ jobs:
       - name: Install tools
         run: |
           pip install ruff sqlfluff --quiet
-          npm install -g @redocly/cli @stoplight/spectral-cli
+          # npm install has repeatedly hit ECONNRESET against registry.npmjs.org
+          # on this Stage-1 job (e.g. run 24603037315). Configure built-in
+          # retry + longer timeouts, then wrap in an outer retry loop for
+          # the cases where npm gives up before its own retries kick in.
+          npm config set fetch-retries 5
+          npm config set fetch-retry-mintimeout 10000
+          npm config set fetch-retry-maxtimeout 60000
+          for attempt in 1 2 3; do
+            if npm install -g @redocly/cli @stoplight/spectral-cli; then
+              echo "✅ npm install succeeded on attempt $attempt"
+              break
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "❌ npm install failed 3 times"
+              exit 1
+            fi
+            echo "⚠️  npm install failed (attempt $attempt) — retrying in 15s"
+            sleep 15
+          done
 
       # Python lint
       - name: Ruff lint

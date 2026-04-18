@@ -158,8 +158,7 @@ class FakeConn:
             # in archive (by (tenant_id, seq_num)) don't get duplicated.
             tenant_id, category, cutoff = args
             matches = [
-                r for r in self.rows
-                if r.tenant_id == tenant_id and r.category == category and r.created_at < cutoff
+                r for r in self.rows if r.tenant_id == tenant_id and r.category == category and r.created_at < cutoff
             ]
             archived_keys = {(a.tenant_id, a.seq_num) for a in self.archived}
             inserted: list[FakeRow] = []

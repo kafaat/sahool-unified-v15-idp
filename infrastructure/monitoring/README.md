@@ -103,10 +103,12 @@ docker-compose -f docker-compose.monitoring.yml logs -f
 ### Environment Variables | متغيرات البيئة
 
 > **⚠ Alertmanager env vars don't take effect automatically.** Putting
-> `SMTP_*`, `SLACK_*`, or `PAGERDUTY_SERVICE_KEY` in this `.env` does NOT
-> change Alertmanager's behavior by itself — Alertmanager does not read
-> these names, and the compose stack here does not run `envsubst` over
-> `alertmanager.yml` before mounting it. To actually apply any of the
+> `SMTP_*`, `SLACK_*`, `ALERT_EMAIL_*`, or `PAGERDUTY_SERVICE_KEY` in this
+> `.env` does NOT change Alertmanager's behavior by itself. Alertmanager
+> only uses environment variables when they are referenced from
+> `alertmanager.yml` and env expansion is enabled; this compose stack does
+> neither `envsubst` rendering nor Alertmanager `--config.expand-env`
+> before mounting the config. To actually apply any of the
 > alert-notification overrides below, route them through one of the
 > supported rendering workflows documented in
 > [`docs/operations/alertmanager-config.md`](../../docs/operations/alertmanager-config.md)

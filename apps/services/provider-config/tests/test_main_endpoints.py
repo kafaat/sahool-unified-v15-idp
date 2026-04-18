@@ -325,8 +325,10 @@ class TestPublishConfigUpdated:
 
         mock_nc.publish.assert_awaited_once()
         call_args = mock_nc.publish.call_args
-        assert call_args[0][0].startswith("sahool.tenant.t1.config.updated") or \
-            call_args[0][0] == "sahool.tenant.t1.config.updated"
+        assert (
+            call_args[0][0].startswith("sahool.tenant.t1.config.updated")
+            or call_args[0][0] == "sahool.tenant.t1.config.updated"
+        )
         payload = json.loads(call_args[0][1].decode())
         assert payload["tenant_id"] == "t1"
         assert payload["provider"] == "osm"

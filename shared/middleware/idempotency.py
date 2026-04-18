@@ -42,9 +42,7 @@ _DEFAULT_MAX_ENTRIES: int = 10_000
 # Headers that are unsafe or incorrect to replay from a cached response.
 # set-cookie in particular can be multi-valued (dict collapses it) and
 # re-emitting it could hand a session cookie to a different caller.
-_HEADER_BLOCKLIST: frozenset[str] = frozenset(
-    {"set-cookie", "content-length", "transfer-encoding", "connection"}
-)
+_HEADER_BLOCKLIST: frozenset[str] = frozenset({"set-cookie", "content-length", "transfer-encoding", "connection"})
 
 
 class _CacheEntry:
@@ -138,11 +136,7 @@ class IdempotencyMiddleware(BaseHTTPMiddleware):
             async for chunk in response.body_iterator:
                 body_chunks.append(chunk)
             body = b"".join(body_chunks)
-            headers = {
-                k: v
-                for k, v in response.headers.items()
-                if k.lower() not in _HEADER_BLOCKLIST
-            }
+            headers = {k: v for k, v in response.headers.items() if k.lower() not in _HEADER_BLOCKLIST}
             self._purge_expired(now)
             self._store[cache_key] = _CacheEntry(
                 status_code=response.status_code,

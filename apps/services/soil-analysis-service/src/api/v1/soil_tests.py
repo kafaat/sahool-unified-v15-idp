@@ -19,6 +19,7 @@ except ImportError:
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
         return f"sahool.tenant.{tenant_id}.{domain}.{action}"
 
+
 logger = structlog.get_logger()
 
 # Authentication dependency

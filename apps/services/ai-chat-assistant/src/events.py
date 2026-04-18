@@ -219,6 +219,7 @@ class NATSEventHandler:
 
             try:
                 from shared.events.subjects import get_tenant_subject
+
                 _subject = get_tenant_subject(tenant_id or "unknown", "chat", "ai_response")
             except ImportError:
                 _subject = f"sahool.tenant.{tenant_id or 'unknown'}.chat.ai_response"

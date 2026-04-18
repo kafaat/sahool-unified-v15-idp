@@ -35,8 +35,10 @@ from sqlalchemy.orm import Session
 try:
     from shared.events.subjects import get_tenant_subject
 except ImportError:
+
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
         return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
 
 from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers

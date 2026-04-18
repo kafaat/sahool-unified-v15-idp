@@ -107,8 +107,8 @@ docker-compose -f docker-compose.monitoring.yml logs -f
 > `.env` does NOT change Alertmanager's behavior by itself. Alertmanager
 > only uses environment variables when they are referenced from
 > `alertmanager.yml` and env expansion is enabled; this compose stack does
-> neither `envsubst` rendering nor Alertmanager `--config.expand-env`
-> before mounting the config. To actually apply any of the
+> not pre-render via `envsubst` and does not start Alertmanager with
+> `--config.expand-env`. To actually apply any of the
 > alert-notification overrides below, route them through one of the
 > supported rendering workflows documented in
 > [`docs/operations/alertmanager-config.md`](../../docs/operations/alertmanager-config.md)

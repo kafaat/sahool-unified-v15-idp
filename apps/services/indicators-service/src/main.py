@@ -104,7 +104,12 @@ if HAS_PROMETHEUS:
             return response
 
 
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("indicators-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("indicators-service")
 
 # Field ID validation: alphanumeric, hyphens, underscores; 1-100 chars
 _FIELD_ID_RE = re.compile(r"^[a-zA-Z0-9_-]{1,100}$")
@@ -324,6 +329,7 @@ app = FastAPI(
     description="Comprehensive agricultural indicators dashboard - KPIs, trends, alerts",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

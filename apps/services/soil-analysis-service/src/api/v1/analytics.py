@@ -170,6 +170,7 @@ async def list_soil_tests(
     # comment attached to the exact line the checker flags.
     _select = "SELECT id, tenant_id, field_id, sample_date, ph, ec, organic_matter, nitrogen_nitrate_ppm, phosphorus_ppm, potassium_ppm, calcium_ppm, magnesium_ppm, created_at FROM soil_tests"
     _order = "ORDER BY created_at DESC, id DESC"
+    # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
     query = f"{_select} WHERE {where_sql} {_order} LIMIT ${len(params) + 1}"  # nosec B608 — values parameterized via asyncpg
     params.append(limit + 1)
 

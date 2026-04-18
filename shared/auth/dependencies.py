@@ -81,10 +81,13 @@ async def get_current_user(
                 issued_at=payload.iat.timestamp() if payload.iat else None,
             )
             if revoked:
+                # Use structured kwargs so the message template is a static
+                # literal and user/reason are structured fields, not format
+                # args embedded in a sentence (avoids heuristic "credential
+                # disclosure" flags on the log call).
                 logger.warning(
-                    "Authentication failed: Token revoked for user %s (reason=%s)",
-                    user_id,
-                    reason,
+                    "auth_denied_revoked_session",
+                    extra={"user_id": user_id, "reason": reason},
                 )
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,

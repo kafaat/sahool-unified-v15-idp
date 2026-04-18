@@ -55,6 +55,13 @@ function stripComments(src: string): string {
 
 /** Extract the SERVICE_PORTS object body using balanced-brace scanning. */
 function extractObjectBody(src: string, identifier: string): string {
+  // Validate identifier shape up-front so the regex body is effectively
+  // a trusted literal. `identifier` only ever comes from internal callers
+  // in this script but the check guards against future misuse.
+  if (!/^[A-Z][A-Z0-9_]*$/.test(identifier)) {
+    throw new Error(`Invalid identifier (must be UPPER_SNAKE_CASE): ${identifier}`);
+  }
+  // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
   const re = new RegExp(
     `export\\s+const\\s+${identifier}\\s*=\\s*\\{`,
     "m",
@@ -92,6 +99,14 @@ function parseEntries(body: string, originalSrc: string): ParsedEntry[] {
     // Detect @deprecated by looking at the ORIGINAL source's JSDoc immediately
     // above this key declaration. Find `KEY: <digits>` in originalSrc, walk
     // backward to the nearest `*/` closing a JSDoc block, and check that block.
+    //
+    // `key` was just captured by the outer regex which matches
+    // /[A-Z][A-Z0-9_]*/ — so it cannot contain regex metacharacters and the
+    // interpolation below is safe. Extra guard anyway.
+    if (!/^[A-Z][A-Z0-9_]*$/.test(key)) {
+      throw new Error(`Malformed key: ${key}`);
+    }
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     const keyDeclRe = new RegExp(`\\b${key}\\s*:\\s*\\d+`);
     const declMatch = keyDeclRe.exec(originalSrc);
     let deprecated = false;

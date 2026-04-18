@@ -554,8 +554,31 @@ jobs:
 
       - name: Run Hadolint
         run: |
-          # Install hadolint
-          curl -sL https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64 -o /usr/local/bin/hadolint
+          # Install hadolint — robust download.
+          #
+          # `curl -sL` silently followed GitHub's rate-limit / 5xx HTML
+          # error pages straight into /usr/local/bin/hadolint on several
+          # runs. chmod +x made that HTML "executable"; bash then died
+          # with "syntax error near unexpected token `newline`" at
+          # `<!DOCTYPE html>` once per Dockerfile. Two hardening steps
+          # below:
+          #   1. `--fail --retry 3 --retry-delay 5 --retry-all-errors`
+          #      makes curl exit non-zero on any HTTP >= 400 (so we
+          #      never write HTML to disk) AND retries transient
+          #      GitHub CDN errors with backoff.
+          #   2. A `file` probe rejects anything that isn't an ELF
+          #      executable — belt-and-suspenders against a future
+          #      HTTP-200 soft error page from a mirror.
+          HADOLINT_URL="https://github.com/hadolint/hadolint/releases/download/v2.12.0/hadolint-Linux-x86_64"
+          curl --fail --silent --show-error --location \
+               --retry 3 --retry-delay 5 --retry-all-errors \
+               --output /usr/local/bin/hadolint \
+               "$HADOLINT_URL"
+          if ! file /usr/local/bin/hadolint | grep -q 'ELF.*executable'; then
+            echo "❌ hadolint download is not an ELF binary — GitHub returned an error page."
+            head -c 200 /usr/local/bin/hadolint
+            exit 1
+          fi
           chmod +x /usr/local/bin/hadolint
 
           echo "🔍 Running Hadolint on Dockerfiles..."

@@ -306,6 +306,41 @@ class SlidingWindowLimiter(RateLimitStrategy):
     Cons: Higher memory usage, slightly slower
     """
 
+    def __init__(self, redis_client=None):
+        super().__init__(redis_client)
+        # SECURITY: in-memory fallback so Redis outages don't bypass the limiter
+        # (previously this strategy returned `(True, requests, period)` whenever
+        # Redis was unavailable, silently allowing unlimited requests).
+        self._memory_store: dict[str, tuple[int, float]] = {}
+
+    def _in_memory_check(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
+        """Fail-closed in-memory rate limiting when Redis is unavailable.
+
+        Uses a fixed-window approximation of the sliding window because sorted
+        sets are impractical to keep in every process. Slightly less accurate
+        than the Redis-backed path at window boundaries, but still enforces a
+        cap — which matters when Redis is the thing that just went down.
+        """
+        if config.requests == 0:
+            return True, -1, 0
+
+        now = time.time()
+        window_start = int(now / config.period) * config.period
+        key = f"mem:sliding:{client_id}:{endpoint}:{window_start}"
+
+        stale_keys = [k for k, (_, ws) in self._memory_store.items() if now - ws > config.period * 2]
+        for k in stale_keys:
+            del self._memory_store[k]
+
+        current_count, _ = self._memory_store.get(key, (0, window_start))
+        current_count += 1
+        self._memory_store[key] = (current_count, window_start)
+
+        remaining = max(0, config.requests - current_count)
+        reset_time = int(window_start + config.period - now)
+        allowed = current_count <= config.requests
+        return allowed, remaining, reset_time
+
     async def check_rate_limit(self, client_id: str, endpoint: str, config: EndpointConfig) -> tuple[bool, int, int]:
         """التحقق من حد المعدل باستخدام نافذة منزلقة"""
         # إذا كان الحد صفر، السماح بجميع الطلبات
@@ -317,7 +352,8 @@ class SlidingWindowLimiter(RateLimitStrategy):
         key = f"ratelimit:sliding:{client_id}:{endpoint}"
 
         if not self.redis:
-            return True, config.requests, config.period
+            # SECURITY: Fail-closed - use in-memory rate limiting when Redis is unavailable
+            return self._in_memory_check(client_id, endpoint, config)
 
         try:
             pipe = self.redis.pipeline()
@@ -366,10 +402,12 @@ class SlidingWindowLimiter(RateLimitStrategy):
 
         except (ConnectionError, TimeoutError, OSError) as e:
             logger.warning(f"خطأ في الاتصال بـ Redis - Redis connection error: {e}")
-            return True, config.requests, config.period
+            # SECURITY: Fail-closed - use in-memory rate limiting when Redis is unavailable
+            return self._in_memory_check(client_id, endpoint, config)
         except ValueError as e:
             logger.error(f"خطأ في قيم حد المعدل - Rate limit value error: {e}")
-            return True, config.requests, config.period
+            # SECURITY: Fail-closed - use in-memory rate limiting on value errors
+            return self._in_memory_check(client_id, endpoint, config)
 
     async def reset_limits(self, client_id: str, endpoint: str) -> bool:
         """إعادة تعيين حدود المعدل"""

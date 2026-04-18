@@ -284,8 +284,12 @@ def readiness():
 
 
 @app.get("/stats")
-def get_stats():
-    """Get gateway statistics including room and NATS information"""
+def get_stats(_user: User = Depends(get_current_user)):
+    """Get gateway statistics including room and NATS information.
+
+    SECURITY: requires authentication — connection counts and NATS
+    subscription topology are operational data, not public.
+    """
     return {
         "connections": room_manager.get_stats(),
         "nats": nats_bridge.get_stats(),

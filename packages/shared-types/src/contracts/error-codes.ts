@@ -1345,6 +1345,38 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     ar: 'إحداثيات المربع المحيط غير صالحة',
     retryable: false,
   },
+  // These four VISION_* codes were defined in ERROR_CODES since the vision
+  // service shipped but never had ERROR_MESSAGES entries, so `getErrorMessage(code)`
+  // returned the UNKNOWN fallback for them — callers saw generic errors
+  // instead of the specific bilingual message.
+  [ERROR_CODES.VISION_INVALID_DIMENSIONS]: {
+    code: ERROR_CODES.VISION_INVALID_DIMENSIONS,
+    httpStatus: 400,
+    en: 'Image dimensions are invalid or outside supported range',
+    ar: 'أبعاد الصورة غير صالحة أو خارج النطاق المدعوم',
+    retryable: false,
+  },
+  [ERROR_CODES.VISION_UNSUPPORTED_TYPE]: {
+    code: ERROR_CODES.VISION_UNSUPPORTED_TYPE,
+    httpStatus: 400,
+    en: 'Unsupported image type. Supported: JPEG, PNG, WebP, BMP, TIFF',
+    ar: 'نوع الصورة غير مدعوم. المدعوم: JPEG، PNG، WebP، BMP، TIFF',
+    retryable: false,
+  },
+  [ERROR_CODES.VISION_EMPTY_IMAGE]: {
+    code: ERROR_CODES.VISION_EMPTY_IMAGE,
+    httpStatus: 400,
+    en: 'Uploaded image is empty or zero bytes',
+    ar: 'الصورة المرفوعة فارغة أو صفر بايت',
+    retryable: false,
+  },
+  [ERROR_CODES.VISION_CORRUPT_FILE]: {
+    code: ERROR_CODES.VISION_CORRUPT_FILE,
+    httpStatus: 400,
+    en: 'Uploaded file is corrupt and cannot be processed',
+    ar: 'الملف المرفوع تالف ولا يمكن معالجته',
+    retryable: false,
+  },
   [ERROR_CODES.VISION_MODEL_NOT_FOUND]: {
     code: ERROR_CODES.VISION_MODEL_NOT_FOUND,
     httpStatus: 503,
@@ -1364,6 +1396,20 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 503,
     en: 'Vision inference failed - please try again',
     ar: 'فشل استدلال الرؤية - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  },
+  [ERROR_CODES.VISION_MODEL_INCOMPATIBLE]: {
+    code: ERROR_CODES.VISION_MODEL_INCOMPATIBLE,
+    httpStatus: 503,
+    en: 'Vision model is incompatible with the requested task or runtime',
+    ar: 'نموذج الرؤية غير متوافق مع المهمة أو وقت التشغيل المطلوب',
+    retryable: false,
+  },
+  [ERROR_CODES.VISION_WARMUP_FAILED]: {
+    code: ERROR_CODES.VISION_WARMUP_FAILED,
+    httpStatus: 503,
+    en: 'Vision model warm-up failed - service may be degraded',
+    ar: 'فشل تسخين نموذج الرؤية - قد تكون الخدمة متدهورة',
     retryable: true,
   },
   [ERROR_CODES.VISION_MODEL_VERSION_NOT_FOUND]: {
@@ -1399,6 +1445,13 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 500,
     en: 'Result postprocessing failed - please try again',
     ar: 'فشلت معالجة النتائج اللاحقة - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  },
+  [ERROR_CODES.VISION_BATCH_FAILED]: {
+    code: ERROR_CODES.VISION_BATCH_FAILED,
+    httpStatus: 500,
+    en: 'Batch processing failed during vision inference',
+    ar: 'فشلت معالجة الدفعة أثناء استدلال الرؤية',
     retryable: true,
   },
   [ERROR_CODES.VISION_BATCH_PROCESSING_FAILED]: {

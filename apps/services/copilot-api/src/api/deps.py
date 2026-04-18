@@ -61,11 +61,20 @@ async def get_current_user(
 
     token = credentials.credentials
     try:
-        # Validate algorithm against whitelist to prevent algorithm confusion attacks
+        # Validate the CONFIGURED algorithm against the whitelist, then pass
+        # only that algorithm to jwt.decode — not the whole whitelist.
+        # Previously this passed `algorithms=ALLOWED_ALGORITHMS` which let
+        # callers sign tokens with any of HS256/HS384/HS512 regardless of
+        # what the service was configured for, weakening defense-in-depth.
         if JWT_ALGORITHM not in ALLOWED_ALGORITHMS:
             raise jwt.InvalidTokenError(f"Algorithm {JWT_ALGORITHM} not allowed")
 
-        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=ALLOWED_ALGORITHMS, options={"require": ["exp", "sub"]})
+        payload = jwt.decode(
+            token,
+            JWT_SECRET_KEY,
+            algorithms=[JWT_ALGORITHM],
+            options={"require": ["exp", "sub"]},
+        )
 
         user_id = payload.get("sub") or payload.get("user_id")
         if not user_id:

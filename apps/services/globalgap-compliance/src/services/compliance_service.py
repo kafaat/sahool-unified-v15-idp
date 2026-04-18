@@ -376,21 +376,13 @@ class ComplianceService:
                 reasons_en.append(f"{critical_open} critical non-conformity(ies)")
                 reasons_ar.append(f"{critical_open} حالة عدم مطابقة حرجة مفتوحة")
             if current.major_must_fails > 0:
-                reasons_en.append(
-                    f"{current.major_must_fails} major-must failure(s) on the compliance record"
-                )
-                reasons_ar.append(
-                    f"{current.major_must_fails} إخفاق في المتطلبات الرئيسية على سجل الامتثال"
-                )
+                reasons_en.append(f"{current.major_must_fails} major-must failure(s) on the compliance record")
+                reasons_ar.append(f"{current.major_must_fails} إخفاق في المتطلبات الرئيسية على سجل الامتثال")
             if current.overall_status == ComplianceStatus.NON_COMPLIANT:
                 reasons_en.append("overall compliance status is NON_COMPLIANT")
                 reasons_ar.append("حالة الامتثال العامة هي غير متوافق")
-            verdict_en = (
-                f"Certification BLOCKED: {'; '.join(reasons_en)}. Must be resolved before audit."
-            )
-            verdict_ar = (
-                f"الشهادة محجوبة: {'؛ '.join(reasons_ar)}. يجب حلها قبل التدقيق."
-            )
+            verdict_en = f"Certification BLOCKED: {'; '.join(reasons_en)}. Must be resolved before audit."
+            verdict_ar = f"الشهادة محجوبة: {'؛ '.join(reasons_ar)}. يجب حلها قبل التدقيق."
         elif current.overall_status == ComplianceStatus.COMPLIANT:
             verdict = "eligible"
             verdict_en = "Eligible for certification — all major-musts satisfied."

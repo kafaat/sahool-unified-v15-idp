@@ -123,11 +123,21 @@ CMD ["sh", "-c", \
     "if [ -z \"$VLLM_API_KEY\" ] && echo \"${ENVIRONMENT:-development}\" | grep -Eq '^(production|staging|prod)$'; then \
         echo 'FATAL: VLLM_API_KEY must be set in production/staging' >&2; exit 1; \
      fi; \
-     vllm serve ${VLLM_MODEL} \
-        ${VLLM_API_KEY:+--api-key ${VLLM_API_KEY}} \
-        --host ${VLLM_HOST} \
-        --port ${VLLM_PORT} \
-        --max-model-len ${VLLM_MAX_MODEL_LEN} \
-        --dtype auto \
-        --gpu-memory-utilization 0.90 \
-        --download-dir /models"]
+     if [ -n \"$VLLM_API_KEY\" ]; then \
+        exec vllm serve \"$VLLM_MODEL\" \
+            --api-key \"$VLLM_API_KEY\" \
+            --host \"$VLLM_HOST\" \
+            --port \"$VLLM_PORT\" \
+            --max-model-len \"$VLLM_MAX_MODEL_LEN\" \
+            --dtype auto \
+            --gpu-memory-utilization 0.90 \
+            --download-dir /models; \
+     else \
+        exec vllm serve \"$VLLM_MODEL\" \
+            --host \"$VLLM_HOST\" \
+            --port \"$VLLM_PORT\" \
+            --max-model-len \"$VLLM_MAX_MODEL_LEN\" \
+            --dtype auto \
+            --gpu-memory-utilization 0.90 \
+            --download-dir /models; \
+     fi"]

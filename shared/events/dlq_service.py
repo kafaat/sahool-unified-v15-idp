@@ -337,10 +337,13 @@ class DLQManager:
             data = json.loads(raw_msg.data.decode("utf-8"))
             metadata = DLQMessageMetadata(**data.get("metadata", {}))
 
-            # Publish to original subject
+            # Publish via JetStream so we get a PubAck before deleting the DLQ
+            # row. Using core NATS publish here (fire-and-forget) would risk
+            # deleting the DLQ copy while the replay never landed on the
+            # destination stream — replay would look successful but the
+            # event would be lost.
             original_payload = data.get("original_message", "")
-
-            await self._publisher._nc.publish(
+            await self._js.publish(
                 metadata.original_subject,
                 original_payload.encode("utf-8"),
             )
@@ -348,6 +351,8 @@ class DLQManager:
             logger.info(f"✅ Replayed message seq={seq} to {metadata.original_subject}")
 
             # Delete the DLQ row if requested (stream-level delete, not ack).
+            # Only reached after js.publish() above returned a PubAck, so the
+            # destination stream has durably persisted the replayed message.
             if delete_after:
                 try:
                     await self._js.delete_msg(stream_name, seq)
@@ -356,6 +361,10 @@ class DLQManager:
 
             return True
 
+        except HTTPException:
+            # Re-raise HTTPException (e.g. 404 for missing seq) unchanged —
+            # otherwise the generic except below would downgrade it to 500.
+            raise
         except Exception as e:
             logger.error(f"Failed to replay message: {e}")
             raise HTTPException(status_code=500, detail=str(e))

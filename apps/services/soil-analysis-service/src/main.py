@@ -119,8 +119,12 @@ if TENANT_MIDDLEWARE_AVAILABLE:
 
 # Include API routers
 try:
-    from src.api.v1 import soil_tests
+    from src.api.v1 import analytics, soil_tests
 
+    # Register analytics first so GET /api/v1/soil/tests resolves to the
+    # cross-field tenant-scoped listing (the soil_tests router only exposes
+    # POST/GET-by-id/DELETE on the same path).
+    app.include_router(analytics.router)
     app.include_router(soil_tests.router)
     logger.info("API routers registered")
 except ImportError as e:

@@ -24,7 +24,7 @@ from pathlib import Path
 # Count of known pre-existing violations after the initial migration batch.
 # Decrease this number every time a publisher is migrated. Do NOT increase it
 # without explicit reviewer sign-off.
-BASELINE_MAX = 2
+BASELINE_MAX = 0
 
 _PUBLISH_CALL = re.compile(r"\b(?:nc|nats)\.publish\(")
 _GLOBAL_SUBJECT = re.compile(r"""['"]sahool\.""")

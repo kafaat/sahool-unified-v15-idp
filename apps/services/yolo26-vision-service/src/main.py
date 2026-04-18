@@ -36,26 +36,13 @@ from src.core.config import settings
 from src.core.errors import VisionError, vision_error_handler
 from src.models.yolo26_manager import ModelTask, YOLO26ModelManager, get_model_manager
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer() if settings.is_production else structlog.dev.ConsoleRenderer(),
-    ],
-    wrapper_class=structlog.stdlib.BoundLogger,
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
 
+setup_logging("yolo26-vision-service")
 logger = structlog.get_logger(__name__)
+_tracer = setup_tracing("yolo26-vision-service")
 
 
 # =============================================================================
@@ -211,6 +198,7 @@ Current API version: v1
     redoc_url="/redoc" if not settings.is_production else None,
     openapi_url="/openapi.json" if not settings.is_production else None,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 try:

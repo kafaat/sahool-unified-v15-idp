@@ -35,26 +35,13 @@ from .api.endpoints import leveling
 from .api.schemas import ErrorResponse, HealthResponse, ReadinessResponse
 from .core.config import settings
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer(),
-    ],
-    wrapper_class=structlog.stdlib.BoundLogger,
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
 
+setup_logging("leveling-optimizer-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("leveling-optimizer-service")
 
 
 @asynccontextmanager
@@ -180,6 +167,7 @@ Agricultural field leveling optimization service for the SAHOOL platform.
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 try:

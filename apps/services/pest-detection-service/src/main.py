@@ -18,21 +18,13 @@ from fastapi.responses import JSONResponse
 from shared.middleware.tenant_context import TenantContextMiddleware
 from src.api.v1 import pests, scouts, thresholds, treatments
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.JSONRenderer(),
-    ],
-    wrapper_class=structlog.stdlib.BoundLogger,
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-)
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
 
+setup_logging("pest-detection-service")
 logger = structlog.get_logger(__name__)
+_tracer = setup_tracing("pest-detection-service")
 
 # Service configuration
 SERVICE_NAME = "pest-detection-service"
@@ -152,6 +144,7 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 try:

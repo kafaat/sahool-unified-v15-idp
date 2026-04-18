@@ -16,7 +16,7 @@ from datetime import datetime
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
 
-from shared.events.subjects import SAHOOL_TERRAIN_SIMULATION_COMPLETED
+from shared.events.subjects import SAHOOL_TERRAIN_SIMULATION_COMPLETED, get_tenant_subject
 
 from ...core.config import settings
 from ...utils.leveling_algorithms import (
@@ -526,9 +526,10 @@ async def analyze_field_leveling(
                     },
                     default=str,
                 ).encode()
-                await nc.publish("sahool.terrain.leveling_recommended", event_payload)
+                subject = get_tenant_subject(tenant_id or "unknown", "terrain", "leveling_recommended")
+                await nc.publish(subject, event_payload)
                 logger.info(
-                    "nats_event_published", subject="sahool.terrain.leveling_recommended", field_id=request.field_id
+                    "nats_event_published", subject=subject, field_id=request.field_id
                 )
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))

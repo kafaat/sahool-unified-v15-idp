@@ -56,18 +56,16 @@ except OSError:
     Path("logs").mkdir(parents=True, exist_ok=True)
     Path("cache").mkdir(parents=True, exist_ok=True)
 
-# Configure logging
-# Setup logging - use StreamHandler only to avoid permission issues
-# The logs directory may not be writable by the non-root user
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()],
-)
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("code-review-service")
 if structlog is not None:
     logger = structlog.get_logger(__name__)
 else:
     logger = logging.getLogger(__name__)
+_tracer = setup_tracing("code-review-service")
 
 
 # ═══════════════════════════════════════════════════════════════════════════

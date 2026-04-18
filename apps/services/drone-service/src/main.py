@@ -25,7 +25,12 @@ try:
 except ImportError:
     SECURITY_HEADERS_AVAILABLE = False
 
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("drone-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("drone-service")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Prometheus metrics counters (simple in-process)
@@ -122,6 +127,7 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # CORS
 cors_origins = os.getenv(

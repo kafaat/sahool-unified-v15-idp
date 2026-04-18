@@ -103,10 +103,16 @@ if HAS_PROMETHEUS:
             return response
 
 
-logger = structlog.get_logger()
-
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("irrigation-smart")
+logger = structlog.get_logger()
+_tracer = setup_tracing("irrigation-smart")
 
 import re
 
@@ -114,6 +120,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 sys.path.insert(0, "/app")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.events.subjects import get_tenant_subject
 
 # Security headers middleware
 try:
@@ -255,6 +262,7 @@ app = FastAPI(
     description="AI-powered irrigation scheduling, water conservation, and smart recommendations",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -1205,7 +1213,8 @@ async def calculate_irrigation(
                 "method": request.irrigation_method.value,
                 "timestamp": datetime.now(UTC).isoformat(),
             }
-            await app.state.nc.publish("sahool.irrigation.calculated", json.dumps(event).encode())
+            subject = get_tenant_subject(tenant_id, "irrigation", "calculated")
+            await app.state.nc.publish(subject, json.dumps(event).encode())
         except Exception as e:
             logger.error("nats_publish_failed", error=str(e))
 

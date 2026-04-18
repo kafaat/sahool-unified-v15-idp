@@ -302,8 +302,7 @@ class CopilotRAGService:
         # pass the explicit sentinel `"__GLOBAL__"`.
         if not tenant_id:
             raise ValueError(
-                "RAGService.search requires an explicit tenant_id. "
-                'Pass "__GLOBAL__" for shared knowledge collections.'
+                'RAGService.search requires an explicit tenant_id. Pass "__GLOBAL__" for shared knowledge collections.'
             )
 
         top_k = top_k or self.config.default_top_k

@@ -425,10 +425,12 @@ class PostgresAuditStore:
                     # asyncpg parameters in `*extra`. Matches the
                     # injection-safety rationale in query() above.
                     # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                    total_row = await conn.fetchrow(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                        f"SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}",  # nosec B608
-                        tenant_id,
-                        *extra,
+                    total_row = (
+                        await conn.fetchrow(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                            f"SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}",  # nosec B608
+                            tenant_id,
+                            *extra,
+                        )
                     )
                     # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
                     rows = await conn.fetch(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli

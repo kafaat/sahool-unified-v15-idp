@@ -223,11 +223,23 @@ async def lifespan(app: FastAPI):
     # does not require a database, but the /api/v1/irrigation/schedules
     # CRUD does. We fail-soft so the service still boots if DATABASE_URL
     # is absent in dev/CI; the schedules endpoints then return 503.
+    #
+    # TLS: pass the DSN through shared.db.ssl.enforce_ssl_mode so prod /
+    # staging connections default to sslmode=require. The helper is a
+    # no-op when the DSN already specifies any sslmode, so explicit
+    # verify-full stays verify-full.
     app.state.db_pool = None
     database_url = os.getenv("DATABASE_URL")
     if database_url:
         try:
             import asyncpg  # type: ignore[import-untyped]
+
+            try:
+                from shared.db.ssl import enforce_ssl_mode
+
+                database_url = enforce_ssl_mode(database_url)
+            except ImportError:
+                logger.warning("shared.db.ssl unavailable; DSN used as-is")
 
             app.state.db_pool = await asyncpg.create_pool(
                 database_url,

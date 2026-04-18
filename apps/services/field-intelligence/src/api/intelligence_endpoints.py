@@ -21,8 +21,25 @@ import hashlib
 from datetime import UTC, date, datetime, timedelta
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, HTTPException, Path, Query
 from pydantic import BaseModel, ConfigDict, Field
+
+# Authentication imports — mirror the fail-secure fallback already used by
+# the sibling routes.py so the router rejects unauthenticated requests
+# instead of happily returning scores / zones / alerts to anyone.
+try:
+    from shared.auth.dependencies import get_current_user
+    from shared.auth.models import User
+except ImportError:
+    from fastapi import HTTPException as _HTTPException
+
+    class User:  # type: ignore[no-redef]
+        id: str = "anonymous"
+        tenant_id: str | None = None
+
+    async def get_current_user() -> User:  # type: ignore[no-redef]
+        raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
+
 
 router = APIRouter(tags=["Field Intelligence"])
 
@@ -85,7 +102,10 @@ class ValidateDateRequest(BaseModel):
 
 
 @router.get("/fields/{field_id}/intelligence/score")
-def get_living_field_score(field_id: str = Path(..., max_length=100)):
+def get_living_field_score(
+    field_id: str = Path(..., max_length=100),
+    user: User = Depends(get_current_user),
+):
     """Composite health score for a field (0-100) with category breakdown."""
     seed = _field_seed(field_id)
     overall = 45 + (seed % 46)  # 45-90
@@ -116,7 +136,10 @@ def get_living_field_score(field_id: str = Path(..., max_length=100)):
 
 
 @router.get("/fields/{field_id}/intelligence/zones")
-def get_field_zones(field_id: str = Path(..., max_length=100)):
+def get_field_zones(
+    field_id: str = Path(..., max_length=100),
+    user: User = Depends(get_current_user),
+):
     """Productivity zones for variable-rate application. Empty until wired."""
     return {"field_id": field_id, "zones": [], "generated_at": datetime.now(UTC).isoformat()}
 
@@ -131,6 +154,7 @@ def get_field_zones(field_id: str = Path(..., max_length=100)):
 def get_field_alerts(
     field_id: str = Path(..., max_length=100),
     status: str = Query(default="active", max_length=20),
+    user: User = Depends(get_current_user),
 ):
     """Active alerts for the field. Empty list until the rules engine is wired."""
     return {
@@ -147,7 +171,10 @@ def get_field_alerts(
 
 
 @router.get("/fields/{field_id}/intelligence/recommendations")
-def get_field_recommendations(field_id: str = Path(..., max_length=100)):
+def get_field_recommendations(
+    field_id: str = Path(..., max_length=100),
+    user: User = Depends(get_current_user),
+):
     """Advisory recommendations for the field."""
     return {"field_id": field_id, "recommendations": []}
 
@@ -163,6 +190,7 @@ def get_field_recommendations(field_id: str = Path(..., max_length=100)):
 def create_task_from_alert(
     payload: CreateTaskFromAlertRequest,
     alert_id: str = Path(..., max_length=100),
+    user: User = Depends(get_current_user),
 ):
     """Accept a "create task from alert" request. Returns 202 + correlation id."""
     # Correlation id is deterministic from alert_id so retries are idempotent
@@ -205,6 +233,7 @@ def get_best_days(
     activity: str = Query(..., max_length=40),
     days: int = Query(default=14, ge=1, le=60),
     field_id: str | None = Query(default=None, max_length=100),
+    user: User = Depends(get_current_user),
 ):
     """Return up to `days` suggested dates ranked best-first for `activity`."""
     act = activity.strip().lower()
@@ -244,7 +273,10 @@ def get_best_days(
 
 
 @router.post("/intelligence/validate-date")
-def validate_activity_date(payload: ValidateDateRequest):
+def validate_activity_date(
+    payload: ValidateDateRequest,
+    user: User = Depends(get_current_user),
+):
     """Return a score + verdict for doing `activity` on `date`."""
     act = payload.activity.strip().lower()
     if act not in _ACTIVITY_ALIASES:
@@ -272,12 +304,18 @@ def validate_activity_date(payload: ValidateDateRequest):
 
 
 @router.get("/field-intelligence/{field_id}")
-def get_field_intelligence_summary(field_id: str = Path(..., max_length=100)):
+def get_field_intelligence_summary(
+    field_id: str = Path(..., max_length=100),
+    user: User = Depends(get_current_user),
+):
     """Aggregate endpoint combining score, zones, alerts, recommendations."""
-    score = get_living_field_score(field_id)
-    zones = get_field_zones(field_id)
-    alerts = get_field_alerts(field_id, status="active")
-    recs = get_field_recommendations(field_id)
+    # The sibling handlers are already authenticated; we forward the same
+    # `user` to satisfy their Depends() so we don't re-execute the auth
+    # dependency multiple times.
+    score = get_living_field_score(field_id, user=user)
+    zones = get_field_zones(field_id, user=user)
+    alerts = get_field_alerts(field_id, status="active", user=user)
+    recs = get_field_recommendations(field_id, user=user)
     return {
         "field_id": field_id,
         "score": score,

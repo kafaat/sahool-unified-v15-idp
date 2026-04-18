@@ -3,13 +3,15 @@
 # Complete platform deployment with all core, optional, and infrastructure services (v3.1: +4 optional profile services)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Pin the Compose project name so named volumes (sahool-postgres-data, sahool-redis-data, ...)
-# keep the same owner regardless of the directory Compose is invoked from. Without this,
+# Default the Compose project name so named volumes (sahool-postgres-data, sahool-redis-data, ...)
+# keep the same names/project association regardless of the directory Compose is invoked from. Without this,
 # Compose derives the project name from the current directory, which causes
 # "volume already exists but was created for project X" warnings and can leave
 # PostgreSQL reusing an old data directory whose init scripts (e.g. pgbouncer schema)
 # never ran — producing an unhealthy pgbouncer and cascading dependency failures.
-name: sahool
+# If you need to run multiple SAHOOL instances on the same Docker host, set
+# COMPOSE_PROJECT_NAME to a unique value for each environment/checkout.
+name: ${COMPOSE_PROJECT_NAME:-sahool}
 
 # Default logging configuration to prevent unbounded log growth
 x-logging: &default-logging

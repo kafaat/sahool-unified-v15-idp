@@ -143,7 +143,7 @@ class CreateTaskFromAlertRequest(BaseModel):
     apps/web/src/features/fields/api/field-intelligence-api.ts.
     """
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
 
     title: str = Field(..., min_length=1, max_length=200)
     titleAr: str = Field(..., min_length=1, max_length=200)
@@ -152,6 +152,11 @@ class CreateTaskFromAlertRequest(BaseModel):
     priority: str = Field(..., pattern=r"^(urgent|high|medium|low)$")
     dueDate: str | None = None
     assigneeId: str | None = Field(default=None, max_length=100)
+    # `fieldId` is not in the current web TaskFromAlertData, but the
+    # CreatedTask response requires it. Accept it optionally so a
+    # future web change can send it through cleanly, and so the
+    # stub response can echo a non-empty value back.
+    field_id: str | None = Field(default=None, max_length=100, alias="fieldId")
 
 
 class ValidateDateRequest(BaseModel):
@@ -329,9 +334,15 @@ def create_task_from_alert(
     # Deterministic task id so a second submission doesn't show up as a
     # different row in the UI optimistic state.
     task_id = hashlib.sha256(f"alert:{alert_id}".encode()).hexdigest()[:24]
+    # `CreatedTask.fieldId` is required by the web contract. Prefer a
+    # client-supplied value (future-proof — web may start sending it),
+    # otherwise echo the alert_id as a deterministic non-empty sentinel
+    # so the UI's required-field checks don't break. Task-service will
+    # overwrite with the real field when it consumes the NATS event.
+    resolved_field_id = payload.field_id or alert_id
     created_task: dict[str, Any] = {
         "id": task_id,
-        "fieldId": "",  # unknown at this layer; task-service fills it in
+        "fieldId": resolved_field_id,
         "alertId": alert_id,
         "title": payload.title,
         "titleAr": payload.titleAr,

@@ -169,6 +169,20 @@ class TestCreateTaskFromAlert:
         assert task["title"] == "Inspect field"
         assert task["titleAr"] == "تفقد الحقل"
         assert task["priority"] == "high"
+        # CreatedTask.fieldId is required-non-empty by the web TS interface.
+        assert isinstance(task["fieldId"], str) and task["fieldId"], "fieldId must be non-empty"
+
+    def test_client_supplied_field_id_echoed(self, client: TestClient):
+        """When the client sends fieldId it MUST be echoed back on the task."""
+        payload = {
+            "title": "t",
+            "titleAr": "ع",
+            "priority": "low",
+            "fieldId": "field-explicit-42",
+        }
+        r = client.post("/api/v1/intelligence/alerts/alert-xy/create-task", json=payload)
+        assert r.status_code == 202
+        assert r.json()["data"]["fieldId"] == "field-explicit-42"
 
     def test_idempotent_task_id(self, client: TestClient):
         """Same alert_id must produce the same task id (for optimistic UI retries)."""

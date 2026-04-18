@@ -70,6 +70,11 @@ ENV PATH=/home/sahool/.local/bin:$PATH
 
 COPY --chown=sahool:sahool apps/services/audit-retention-worker/src/        ./src/
 COPY --chown=sahool:sahool apps/services/audit-retention-worker/migrations/ ./migrations/
+# The worker imports `shared.db.ssl.enforce_ssl_mode` at runtime (main.py:186)
+# so we need those two files. Copying only shared/db/ (not all of shared/)
+# keeps the image small — the worker has no other shared.* imports.
+COPY --chown=sahool:sahool shared/__init__.py                                ./shared/__init__.py
+COPY --chown=sahool:sahool shared/db/                                        ./shared/db/
 
 # Strip build tools from the runtime image (same pattern as audit-service).
 RUN rm -rf /home/sahool/.local/lib/python*/site-packages/setuptools* \

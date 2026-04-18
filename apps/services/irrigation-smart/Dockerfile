@@ -60,6 +60,12 @@ COPY --chown=sahool:sahool apps/services/shared ./shared/
 # Copy source code
 COPY --chown=sahool:sahool apps/services/irrigation-smart/src/ ./src/
 
+# Ship migrations alongside the service so operators can apply them from the
+# image (e.g. via an init-container). The service queries irrigation_plans,
+# irrigation_schedules, irrigation_executions, soil_moisture_readings and
+# water_balance — these tables are created by 001_create_irrigation_tables.sql.
+COPY --chown=sahool:sahool apps/services/irrigation-smart/migrations/ ./migrations/
+
 
 # Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
 RUN rm -rf /home/sahool/.local/lib/python*/site-packages/setuptools* \

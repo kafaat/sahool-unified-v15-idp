@@ -52,10 +52,12 @@ fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthche
 fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthcheck.sh:generic-secret:129
 
 # PgBouncer entrypoint.sh bootstrap_pgbouncer_schema() — PGPASSWORD="$DB_PASSWORD"
-# is a shell variable reference that matches the pre-existing PGPASSWORD usages on
-# lines 117/203 already whitelisted upstream. Same pattern, new call sites added by
-# the self-heal bootstrap that applies the pgbouncer schema when postgres init
-# scripts never ran (stale volume case).
+# is a shell variable reference, not a hardcoded secret. These allowlist entries
+# cover the new self-heal bootstrap call sites that use the same non-secret
+# pattern while applying the pgbouncer schema when postgres init scripts never
+# ran (stale volume case). Earlier PGPASSWORD usages on lines 117/203 escape
+# Gitleaks' generic-secret rule because they are wrapped in $(...) command
+# substitution, which is not what the bootstrap helper does.
 c4d0e2877eafddde06329f46ce0f42855045f26e:infrastructure/core/pgbouncer/entrypoint.sh:generic-secret:158
 c4d0e2877eafddde06329f46ce0f42855045f26e:infrastructure/core/pgbouncer/entrypoint.sh:generic-secret:177
 

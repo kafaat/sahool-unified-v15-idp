@@ -155,7 +155,10 @@ wait_for_postgres() {
 # ═══════════════════════════════════════════════════════════════════════════════
 bootstrap_pgbouncer_schema() {
     log_info "Bootstrapping pgbouncer schema in ${DB_NAME}..."
-    PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+    # Wrap psql in `if !` so set -e (active script-wide) does not abort the
+    # entrypoint before we can log a controlled error and propagate the
+    # failure to the caller.
+    if ! PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
         -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1
 CREATE SCHEMA IF NOT EXISTS pgbouncer;
 
@@ -171,20 +174,31 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
 EOSQL
-    _rc=$?
-    if [ "$_rc" -eq 0 ]; then
-        log_info "Bootstrap applied — granting USAGE/EXECUTE to auth_user ${DB_USER}"
-        PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
-            -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
-            -v user_name="$DB_USER" <<'EOSQL' 2>&1 || return 1
+    then
+        log_error "pgbouncer schema bootstrap failed (CREATE phase)"
+        return 1
+    fi
+
+    log_info "Bootstrap applied — locking down privileges for auth_user ${DB_USER}"
+    # SECURITY: Lock down the SECURITY DEFINER function before granting it back to
+    # the auth_user. PostgreSQL's default for new functions is EXECUTE TO PUBLIC,
+    # which would let any DB role read pg_shadow password hashes via this helper.
+    # REVOKE removes that default, then we re-GRANT only to CURRENT_USER (which
+    # is the auth_user since psql connected as DB_USER above).
+    if ! PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1
+REVOKE ALL ON FUNCTION pgbouncer.get_auth(TEXT) FROM PUBLIC;
+REVOKE ALL ON SCHEMA pgbouncer FROM PUBLIC;
 GRANT USAGE ON SCHEMA pgbouncer TO CURRENT_USER;
 GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO CURRENT_USER;
 EOSQL
-        log_info "pgbouncer schema bootstrap complete"
-        return 0
+    then
+        log_error "pgbouncer schema bootstrap failed (GRANT phase)"
+        return 1
     fi
-    log_error "pgbouncer schema bootstrap failed (rc=$_rc)"
-    return 1
+
+    log_info "pgbouncer schema bootstrap complete"
+    return 0
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

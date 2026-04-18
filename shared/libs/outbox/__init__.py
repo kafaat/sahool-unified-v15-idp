@@ -31,7 +31,13 @@ try:
     from .worker import OutboxWorker, OutboxWorkerConfig
 
     _LEGACY_AVAILABLE = True
-except ImportError:
+except ModuleNotFoundError as exc:
+    # Only swallow the expected "sqlalchemy missing" case. Any other
+    # ImportError inside a legacy submodule (typo, broken dep, refactor
+    # regression) should propagate so packaging bugs don't hide behind
+    # a silent _LEGACY_AVAILABLE = False.
+    if (exc.name or "").split(".")[0] != "sqlalchemy":
+        raise
     _LEGACY_AVAILABLE = False
 
 __all__ = [

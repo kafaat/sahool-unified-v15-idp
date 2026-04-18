@@ -46,7 +46,6 @@ from __future__ import annotations
 
 import logging
 import socket
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 from prometheus_client import CollectorRegistry, Counter, Gauge, push_to_gateway

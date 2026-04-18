@@ -526,7 +526,13 @@ async def analyze_field_leveling(
                     },
                     default=str,
                 ).encode()
-                subject = get_tenant_subject(tenant_id or "unknown", "terrain", "leveling_recommended")
+                # get_tenant_subject enforces UUID shape; fall back to the
+                # inline pattern when tenant_id is missing/non-UUID so the
+                # publish still lands on a tenant-scoped subject.
+                try:
+                    subject = get_tenant_subject(tenant_id or "unknown", "terrain", "leveling_recommended")
+                except ValueError:
+                    subject = f"sahool.tenant.{tenant_id or 'unknown'}.terrain.leveling_recommended"
                 await nc.publish(subject, event_payload)
                 logger.info("nats_event_published", subject=subject, field_id=request.field_id)
             except Exception as pub_err:

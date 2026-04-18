@@ -217,11 +217,15 @@ class NATSEventHandler:
             # Serialize response
             response_data = response.model_dump_json()
 
+            # get_tenant_subject enforces UUID shape and raises ValueError
+            # for missing/non-UUID tenant_ids (including "unknown"). Fall
+            # back to the inline pattern so a bad tenant_id never kills
+            # the response publish.
             try:
                 from shared.events.subjects import get_tenant_subject
 
                 _subject = get_tenant_subject(tenant_id or "unknown", "chat", "ai_response")
-            except ImportError:
+            except (ImportError, ValueError):
                 _subject = f"sahool.tenant.{tenant_id or 'unknown'}.chat.ai_response"
 
             # Publish to response subject (tenant-scoped)

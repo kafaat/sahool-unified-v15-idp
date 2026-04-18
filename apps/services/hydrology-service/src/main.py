@@ -357,14 +357,18 @@ async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
     absent (TODO: plumb tenant_id through all callers).
     """
     if tenant_id:
+        # get_tenant_subject enforces UUID shape and raises ValueError on
+        # non-UUID tenant_ids; ImportError fires when the shared helper isn't
+        # on sys.path (local dev). Both degrade to the inline pattern so the
+        # publish still lands on a tenant-scoped subject.
         try:
             from shared.events.subjects import get_tenant_subject
 
             parts = subject.split(".", 2)
             if len(parts) >= 3 and parts[0] == "sahool":
                 subject = get_tenant_subject(tenant_id, parts[1], parts[2])
-        except ImportError:
-            subject = f"sahool.tenant.{tenant_id}." + subject.removeprefix("sahool.")
+        except (ImportError, ValueError):
+            subject = f"sahool.tenant.{tenant_id or 'unknown'}." + subject.removeprefix("sahool.")
     elif subject.startswith("sahool.") and not subject.startswith("sahool.tenant."):
         logger.warning(
             "nats_publish_missing_tenant_id",

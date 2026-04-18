@@ -12,12 +12,25 @@ from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel, Field
 
 try:
-    from shared.events.subjects import get_tenant_subject
+    from shared.events.subjects import get_tenant_subject as _real_get_tenant_subject
+
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        """Tenant-scoped NATS subject with graceful fallback.
+
+        The shared helper enforces UUID-shaped tenant_ids; when data is
+        legacy/missing/non-UUID we fall back to the inline pattern so the
+        publish still happens scoped to the tenant we DO have, instead of
+        the whole publish being swallowed by a generic Exception handler.
+        """
+        try:
+            return _real_get_tenant_subject(tenant_id, domain, action)
+        except ValueError:
+            return f"sahool.tenant.{tenant_id or 'unknown'}.{domain}.{action}"
 except ImportError:
     # Fallback for environments where shared.events is not yet importable
     # (local dev shell, early boot). Preserves legacy inline pattern.
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
-        return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+        return f"sahool.tenant.{tenant_id or 'unknown'}.{domain}.{action}"
 
 
 logger = structlog.get_logger()

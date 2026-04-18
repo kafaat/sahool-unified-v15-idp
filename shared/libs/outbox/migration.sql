@@ -6,6 +6,13 @@
 -- the separate `outbox_events` table defined in `models.py`.
 --
 -- See: shared/libs/outbox/README.md
+
+-- The gen_random_uuid() default below ships with PostgreSQL 13+ core
+-- (via pgcrypto), but older clusters or custom images may omit the
+-- extension. Enable it idempotently so a fresh database applying this
+-- migration doesn't fail with "function gen_random_uuid() does not exist".
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 CREATE TABLE IF NOT EXISTS outbox_messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),

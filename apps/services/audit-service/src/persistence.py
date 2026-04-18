@@ -425,12 +425,12 @@ class PostgresAuditStore:
                     # asyncpg parameters in `*extra`. Matches the
                     # injection-safety rationale in query() above.
                     _count_sql = f"SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}"  # nosec B608  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                    total_row = await conn.fetchrow(_count_sql, tenant_id, *extra)
                     # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                    rows = await conn.fetch(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                        f"SELECT * FROM audit_log_archive WHERE tenant_id = $1{where} "  # nosec B608
-                        f"ORDER BY created_at DESC, seq_num DESC "
-                        f"OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}",
+                    total_row = await conn.fetchrow(_count_sql, tenant_id, *extra)
+                    _list_sql = f"SELECT * FROM audit_log_archive WHERE tenant_id = $1{where} ORDER BY created_at DESC, seq_num DESC OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}"  # nosec B608  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                    # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                    rows = await conn.fetch(
+                        _list_sql,
                         tenant_id,
                         *extra,
                         skip,

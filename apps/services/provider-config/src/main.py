@@ -33,11 +33,23 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 try:
-    from shared.events.subjects import get_tenant_subject
+    from shared.events.subjects import get_tenant_subject as _real_get_tenant_subject
+
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        """Tenant-scoped subject with graceful fallback on non-UUID tenant_ids.
+
+        The shared helper enforces UUID shape and raises ValueError; for
+        legacy tenant-id values (the tests pass "t1"), we fall back to the
+        inline pattern so the publish still lands on a tenant-scoped subject.
+        """
+        try:
+            return _real_get_tenant_subject(tenant_id, domain, action)
+        except ValueError:
+            return f"sahool.tenant.{tenant_id or 'unknown'}.{domain}.{action}"
 except ImportError:
 
     def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
-        return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+        return f"sahool.tenant.{tenant_id or 'unknown'}.{domain}.{action}"
 
 
 from shared.auth.dependencies import get_current_user

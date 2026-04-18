@@ -136,22 +136,69 @@ export const auditService = {
       // Translate 1-based page → 0-based skip for audit-service.
       qp.set('skip', String(Math.max(0, (page - 1) * limit)));
       qp.set('limit', String(limit));
-      if (params?.search) qp.set('search', params.search);
       if (params?.action) qp.set('action', params.action);
       if (params?.resource_type) qp.set('resource_type', params.resource_type);
       if (params?.user_id) qp.set('user_id', params.user_id);
-      if (params?.status) qp.set('status', params.status);
+      // audit-service exposes `success` (bool), not a free-form `status`.
+      // Translate both directions so admin users can filter by the human
+      // word `success|failure` even though the backend wants a boolean.
+      if (params?.status) {
+        const normalizedStatus = params.status.trim().toLowerCase();
+        if (['success', 'succeeded', 'ok', 'true'].includes(normalizedStatus)) {
+          qp.set('success', 'true');
+        } else if (['failure', 'failed', 'error', 'false'].includes(normalizedStatus)) {
+          qp.set('success', 'false');
+        }
+      }
       if (params?.from) qp.set('start_date', params.from);
       if (params?.to) qp.set('end_date', params.to);
+      // Note: `params.search` is intentionally dropped — audit-service has
+      // no free-text search endpoint. Callers should use action/user_id/
+      // resource_type filters instead. A future ticket may add this to
+      // audit-service if demand justifies the indexing cost.
       const response = await fetch(
         `${API_URLS.auditEndpoints.logs}?${qp}`,
         fetchDefaults
       );
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const body = await response.json() as AuditServicePaginated<AuditLog>;
-      // Prefer the real audit-service shape (items/total/has_more); fall
-      // back to the legacy {data, meta} if a future BFF uses it.
-      const data: AuditLog[] = body.items ?? body.data ?? [];
+      // audit-service response shape uses camelCase + createdAt + success.
+      // We translate to the admin UI's snake_case AuditLog contract here
+      // so the table/export components don't see undefined fields.
+      type AuditServiceItem = {
+        id: string;
+        createdAt?: string;
+        created_at?: string;
+        userId?: string | null;
+        user_id?: string | null;
+        userEmail?: string | null;
+        user_email?: string | null;
+        action: string;
+        resourceType?: string | null;
+        resource_type?: string | null;
+        resourceId?: string | null;
+        resource_id?: string | null;
+        ipAddress?: string | null;
+        ip_address?: string | null;
+        details?: Record<string, unknown>;
+        success?: boolean;
+        status?: 'success' | 'failure';
+      };
+      const body = await response.json() as AuditServicePaginated<AuditServiceItem>;
+      const rawItems: AuditServiceItem[] = body.items ?? (body.data as unknown as AuditServiceItem[]) ?? [];
+      const data: AuditLog[] = rawItems.map((item) => ({
+        id: item.id,
+        timestamp: item.createdAt ?? item.created_at ?? '',
+        user_id: item.userId ?? item.user_id ?? '',
+        user_email: item.userEmail ?? item.user_email ?? '',
+        action: item.action,
+        resource_type: item.resourceType ?? item.resource_type ?? '',
+        resource_id: item.resourceId ?? item.resource_id ?? '',
+        ip_address: item.ipAddress ?? item.ip_address ?? '',
+        details: item.details ?? {},
+        status:
+          item.status ??
+          (typeof item.success === 'boolean' ? (item.success ? 'success' : 'failure') : 'success'),
+      }));
       const total = body.total ?? body.meta?.total ?? data.length;
       const totalPages = limit > 0 ? Math.max(1, Math.ceil(total / limit)) : 1;
       return {

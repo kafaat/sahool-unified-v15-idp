@@ -350,8 +350,7 @@ class ComplianceService:
         #     or overall_status == NON_COMPLIANT
         major_blocker = critical_open > 0 or major_open > 0
         record_blocker = current is not None and (
-            current.major_must_fails > 0
-            or current.overall_status == ComplianceStatus.NON_COMPLIANT
+            current.major_must_fails > 0 or current.overall_status == ComplianceStatus.NON_COMPLIANT
         )
 
         if current is None:

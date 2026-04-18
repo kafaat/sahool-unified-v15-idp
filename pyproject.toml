@@ -38,7 +38,7 @@ observability = [
     "opentelemetry-api==1.41.0",
     "opentelemetry-sdk==1.41.0",
     "opentelemetry-instrumentation-fastapi==0.62b0",
-    "structlog==25.5.0",
+    "structlog>=25.0.0,<26.0.0",
 ]
 testing = [
     "pytest==9.0.3",

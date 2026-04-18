@@ -51,6 +51,11 @@ de5c180409374d5ad4c7021b6d56aa9f3990bfff:tests/e2e/test_e2e_mock.py:generic-secr
 fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthcheck.sh:generic-secret:100
 fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthcheck.sh:generic-secret:129
 
+# PgBouncer entrypoint.sh bootstrap helper — refactored to capture psql output
+# via $(...) command substitution, which matches the existing safe pattern on
+# lines 117/203 and no longer triggers Gitleaks' generic-secret rule. No
+# fingerprints needed.
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Wave 1 — partner-auth-service (PR #1576) — FieldView-inspired OAuth server
 # ─────────────────────────────────────────────────────────────────────────────

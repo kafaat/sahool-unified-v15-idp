@@ -1890,26 +1890,6 @@ async def mark_notification_read(
         raise HTTPException(status_code=400, detail="Invalid notification ID format")
 
 
-# NOTIFICATION_ENDPOINTS.GET — single-notification fetch. Declared AFTER the
-# literal-path routes (/broadcast, /register, /read-all, /stats, /farmer/*)
-# so Starlette's declaration-order matching never catches those here.
-@app.get("/{notification_id}", response_model=None)
-async def get_single_notification(
-    notification_id: str,
-    user: User = Depends(get_current_user),
-):
-    """Return a single notification; 404 if it doesn't belong to the caller."""
-    try:
-        notif_uuid = UUID(notification_id)
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid notification ID format")
-    tenant_id = getattr(user, "tenant_id", None)
-    notification = await NotificationRepository.get_by_id(notif_uuid, tenant_id=tenant_id)
-    if not notification or notification.user_id != str(user.id):
-        raise HTTPException(status_code=404, detail="Notification not found")
-    return {"success": True, "data": _serialize_notification(notification)}
-
-
 @app.get("/broadcast")
 async def get_broadcast_notifications(
     governorate: Governorate | None = None,
@@ -2097,6 +2077,27 @@ async def get_notification_stats(
         "active_weather_alerts": active_weather,
         "active_pest_alerts": active_pest,
     }
+
+
+# NOTIFICATION_ENDPOINTS.GET — single-notification fetch. MUST be the last
+# registered GET to avoid Starlette's declaration-order routing catching
+# literal paths like /broadcast or /stats as notification ids (which would
+# 400 on the UUID parse).
+@app.get("/{notification_id}", response_model=None)
+async def get_single_notification(
+    notification_id: str,
+    user: User = Depends(get_current_user),
+):
+    """Return a single notification; 404 if it doesn't belong to the caller."""
+    try:
+        notif_uuid = UUID(notification_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid notification ID format")
+    tenant_id = getattr(user, "tenant_id", None)
+    notification = await NotificationRepository.get_by_id(notif_uuid, tenant_id=tenant_id)
+    if not notification or notification.user_id != str(user.id):
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"success": True, "data": _serialize_notification(notification)}
 
 
 if __name__ == "__main__":

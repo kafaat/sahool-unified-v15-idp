@@ -38,3 +38,10 @@ RUN ALPINE_VER=$(cut -d. -f1,2 /etc/alpine-release) \
 # numeric UID (70 is the conventional Alpine `postgres` user) keeps this
 # working even if upstream renames the account.
 USER 70
+
+# Image-level HEALTHCHECK — satisfies Checkov CKV_DOCKER_2 and gives a default
+# for users who run this image outside docker-compose. Compose overrides it
+# with the deeper healthcheck.sh-based probe (timeout + TCP fallback); this
+# fallback just confirms PgBouncer is listening on its TCP port.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=45s --retries=3 \
+    CMD nc -z 127.0.0.1 6432 || exit 1

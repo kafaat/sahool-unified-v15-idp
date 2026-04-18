@@ -20,7 +20,6 @@ from __future__ import annotations
 import pytest
 from fastapi.testclient import TestClient
 
-
 # ---------------------------------------------------------------------------
 # ScheduleUpdateRequest — NOT NULL column guard
 # ---------------------------------------------------------------------------
@@ -103,8 +102,8 @@ class TestHTTPExceptionEnvelope:
         # default 404 handler — but HTTPException 404 for wrong paths is
         # handled by Starlette's router, not our @exception_handler, so
         # instead we invoke the handler directly.
-        from src.main import _http_exception_envelope
         from fastapi import HTTPException
+        from src.main import _http_exception_envelope
 
         async def _run():
             from starlette.requests import Request
@@ -137,11 +136,12 @@ class TestHTTPExceptionEnvelope:
 
     def test_string_detail_mirrors_to_both_langs(self):
         """Plain string detail → errorAr falls back to same value."""
-        from src.main import _http_exception_envelope
-        from fastapi import HTTPException
-        from starlette.requests import Request
         import asyncio
         import json
+
+        from fastapi import HTTPException
+        from src.main import _http_exception_envelope
+        from starlette.requests import Request
 
         async def _run():
             scope = {"type": "http", "method": "GET", "headers": []}
@@ -157,11 +157,12 @@ class TestHTTPExceptionEnvelope:
     def test_extra_dict_keys_forwarded(self):
         """Custom keys on the detail (e.g. validActivities) are preserved
         at the top level of the envelope."""
-        from src.main import _http_exception_envelope
-        from fastapi import HTTPException
-        from starlette.requests import Request
         import asyncio
         import json
+
+        from fastapi import HTTPException
+        from src.main import _http_exception_envelope
+        from starlette.requests import Request
 
         async def _run():
             scope = {"type": "http", "method": "GET", "headers": []}

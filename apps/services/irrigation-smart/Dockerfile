@@ -54,11 +54,20 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
 
-# Copy shared modules
+# Copy shared modules.
+# The service imports both apps/services/shared.* (errors_py, logging_config,
+# middleware, observability — all overlaid via the COPY below) AND
+# shared.events.subjects (only in the top-level shared/events tree).
 COPY --chown=sahool:sahool apps/services/shared ./shared/
+COPY --chown=sahool:sahool shared/events/       ./shared/events/
 
 # Copy source code
 COPY --chown=sahool:sahool apps/services/irrigation-smart/src/ ./src/
+
+# Ship migrations so operators can apply them from the image (psql or init
+# container). /api/v1/irrigation/schedules reads/writes the table created
+# by migrations/001_create_irrigation_schedules.sql.
+COPY --chown=sahool:sahool apps/services/irrigation-smart/migrations/ ./migrations/
 
 
 # Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)

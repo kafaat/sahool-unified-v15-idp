@@ -219,6 +219,30 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown"""
     logger.info("Starting irrigation-smart service...")
 
+    # Optional DB pool — the core /v1/calculate endpoint is stateless and
+    # does not require a database, but the /api/v1/irrigation/schedules
+    # CRUD does. We fail-soft so the service still boots if DATABASE_URL
+    # is absent in dev/CI; the schedules endpoints then return 503.
+    app.state.db_pool = None
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        try:
+            import asyncpg  # type: ignore[import-untyped]
+
+            app.state.db_pool = await asyncpg.create_pool(
+                database_url,
+                min_size=2,
+                max_size=10,
+                command_timeout=30,
+                statement_cache_size=0,  # PgBouncer transaction-mode safe
+            )
+            logger.info("db_pool_ready")
+        except Exception as e:
+            logger.warning("db_pool_init_failed", error=str(e))
+            app.state.db_pool = None
+    else:
+        logger.info("DATABASE_URL not configured, schedule CRUD disabled")
+
     # Initialize NATS connection
     app.state.nc = None
     if NATS_AVAILABLE:
@@ -252,6 +276,10 @@ async def lifespan(app: FastAPI):
     if hasattr(app.state, "nc") and app.state.nc:
         await app.state.nc.close()
         logger.info("Closed NATS connection")
+
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        await app.state.db_pool.close()
+        logger.info("Closed DB pool")
 
     logger.info("Shutdown irrigation-smart service complete")
 
@@ -1584,6 +1612,228 @@ def record_sensor_reading_with_action(
         "action_template": action.model_dump(),
         "task_card": action.to_task_card(),
     }
+
+
+# =============================================================================
+# Irrigation Schedule CRUD — /api/v1/irrigation/schedules
+#
+# Wires the existing `irrigation_schedules` table (see migrations/001) to the
+# HTTP surface that the web + mobile clients already expect (contracts at
+# packages/shared-types/src/contracts/api-endpoints.ts → IRRIGATION_ENDPOINTS).
+# All queries are tenant-scoped via the JWT; clients that want cross-field
+# listing pass no field_id, otherwise the list narrows to one field.
+# =============================================================================
+
+
+class ScheduleCreateRequest(BaseModel):
+    """Payload for POST /api/v1/irrigation/schedules."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    field_id: str = Field(..., min_length=1, max_length=100)
+    plan_id: str | None = Field(default=None, description="Parent plan UUID, if any")
+    irrigation_date: date
+    start_time: time | None = None
+    duration_minutes: int = Field(..., ge=1, le=24 * 60)
+    water_amount_liters: float = Field(..., ge=0)
+    urgency: str | None = Field(default=None, max_length=20)
+    method: str | None = Field(default=None, max_length=50)
+    notes: str | None = Field(default=None, max_length=2000)
+
+
+class ScheduleUpdateRequest(BaseModel):
+    """Payload for PUT /api/v1/irrigation/schedules/{id}. All fields optional."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    irrigation_date: date | None = None
+    start_time: time | None = None
+    duration_minutes: int | None = Field(default=None, ge=1, le=24 * 60)
+    water_amount_liters: float | None = Field(default=None, ge=0)
+    urgency: str | None = Field(default=None, max_length=20)
+    method: str | None = Field(default=None, max_length=50)
+    status: str | None = Field(default=None, max_length=30)
+    notes: str | None = Field(default=None, max_length=2000)
+
+
+def _require_db_pool():
+    """Raise 503 when the service was booted without a DATABASE_URL."""
+    pool = getattr(app.state, "db_pool", None)
+    if pool is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "Database not configured",
+                "error_ar": "قاعدة البيانات غير مُهيّأة",
+            },
+        )
+    return pool
+
+
+def _row_to_schedule(row) -> dict:
+    """Map an asyncpg Record to the JSON shape the web/mobile clients use."""
+    return {
+        "id": str(row["id"]),
+        "tenant_id": str(row["tenant_id"]),
+        "field_id": str(row["field_id"]),
+        "plan_id": str(row["plan_id"]) if row["plan_id"] is not None else None,
+        "irrigation_date": row["irrigation_date"].isoformat() if row["irrigation_date"] else None,
+        "start_time": row["start_time"].isoformat() if row["start_time"] else None,
+        "duration_minutes": row["duration_minutes"],
+        "water_amount_liters": float(row["water_amount_liters"]),
+        "urgency": row["urgency"],
+        "method": row["method"],
+        "status": row["status"],
+        "notes": row["notes"],
+        "created_at": row["created_at"].isoformat() if row["created_at"] else None,
+        "updated_at": row["updated_at"].isoformat() if row["updated_at"] else None,
+    }
+
+
+@app.get("/api/v1/irrigation/schedules")
+async def list_irrigation_schedules(
+    field_id: str | None = Query(default=None, max_length=100),
+    status_filter: str | None = Query(default=None, alias="status", max_length=30),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    user: dict = Depends(get_current_user),
+):
+    """List irrigation schedules for the caller's tenant."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+    if field_id is not None:
+        _validate_field_id(field_id)
+
+    sql_parts = ["SELECT * FROM irrigation_schedules WHERE tenant_id = $1"]
+    params: list[Any] = [tenant_id]
+    if field_id:
+        sql_parts.append(f"AND field_id = ${len(params) + 1}")
+        params.append(field_id)
+    if status_filter:
+        sql_parts.append(f"AND status = ${len(params) + 1}")
+        params.append(status_filter)
+    sql_parts.append(f"ORDER BY irrigation_date DESC, created_at DESC LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}")
+    params.extend([limit, offset])
+    sql = " ".join(sql_parts)
+
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(sql, *params)
+    return {
+        "items": [_row_to_schedule(r) for r in rows],
+        "limit": limit,
+        "offset": offset,
+        "count": len(rows),
+    }
+
+
+@app.post("/api/v1/irrigation/schedules", status_code=201)
+async def create_irrigation_schedule(
+    payload: ScheduleCreateRequest,
+    user: dict = Depends(get_current_user),
+):
+    """Create an irrigation schedule row."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+    _validate_field_id(payload.field_id)
+
+    schedule_id = uuid.uuid4()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """
+            INSERT INTO irrigation_schedules (
+                id, tenant_id, field_id, plan_id, irrigation_date, start_time,
+                duration_minutes, water_amount_liters, urgency, method, notes
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            RETURNING *
+            """,
+            schedule_id,
+            tenant_id,
+            payload.field_id,
+            uuid.UUID(payload.plan_id) if payload.plan_id else None,
+            payload.irrigation_date,
+            payload.start_time,
+            payload.duration_minutes,
+            payload.water_amount_liters,
+            payload.urgency,
+            payload.method,
+            payload.notes,
+        )
+    return _row_to_schedule(row)
+
+
+@app.get("/api/v1/irrigation/schedules/{schedule_id}")
+async def get_irrigation_schedule(
+    schedule_id: uuid.UUID,
+    user: dict = Depends(get_current_user),
+):
+    """Fetch a single schedule; tenant-scoped so cross-tenant IDs 404."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM irrigation_schedules WHERE id = $1 AND tenant_id = $2",
+            schedule_id,
+            tenant_id,
+        )
+    if not row:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return _row_to_schedule(row)
+
+
+@app.put("/api/v1/irrigation/schedules/{schedule_id}")
+async def update_irrigation_schedule(
+    schedule_id: uuid.UUID,
+    payload: ScheduleUpdateRequest,
+    user: dict = Depends(get_current_user),
+):
+    """Partial update; only columns that were explicitly sent get touched."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+
+    # Build SET clause from only the fields the client actually sent.
+    updates = payload.model_dump(exclude_unset=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail="No updates provided")
+
+    set_parts = []
+    params: list[Any] = []
+    for key, value in updates.items():
+        set_parts.append(f"{key} = ${len(params) + 1}")
+        params.append(value)
+    set_parts.append("updated_at = NOW()")
+    params.extend([schedule_id, tenant_id])
+
+    sql = (
+        f"UPDATE irrigation_schedules SET {', '.join(set_parts)} "
+        f"WHERE id = ${len(params) - 1} AND tenant_id = ${len(params)} "
+        f"RETURNING *"
+    )
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(sql, *params)
+    if not row:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return _row_to_schedule(row)
+
+
+@app.delete("/api/v1/irrigation/schedules/{schedule_id}", status_code=204)
+async def delete_irrigation_schedule(
+    schedule_id: uuid.UUID,
+    user: dict = Depends(get_current_user),
+):
+    """Hard-delete a schedule row."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            "DELETE FROM irrigation_schedules WHERE id = $1 AND tenant_id = $2",
+            schedule_id,
+            tenant_id,
+        )
+    if result == "DELETE 0":
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return None
 
 
 if __name__ == "__main__":

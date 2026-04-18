@@ -586,10 +586,18 @@ def test_archived_endpoint_respects_filters(client):
 
 def test_archived_endpoint_enforces_tenant_isolation(client, cross_tenant_client):
     """The archive is just as sensitive as the live log — RLS tenant
-    isolation must apply to archived rows as well."""
+    isolation must apply to archived rows as well.
+
+    We deliberately seed an archived row for BOTH tenants so the
+    assertions aren't vacuous: if OTHER_TENANT_ID had zero archived
+    rows, the loop would be empty and the test would pass even on a
+    broken isolation policy. By giving OTHER_TENANT_ID its own
+    distinguishable row we confirm the endpoint returns exactly that
+    row and nothing from VALID_TENANT_ID.
+    """
     from src.main import app
 
-    # VALID_TENANT_ID writes and gets retention-swept.
+    # VALID_TENANT_ID writes a secret and gets retention-swept.
     client.post(
         "/api/v1/audit/logs",
         headers={"X-Tenant-Id": VALID_TENANT_ID},
@@ -597,15 +605,27 @@ def test_archived_endpoint_enforces_tenant_isolation(client, cross_tenant_client
     )
     app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=99)
 
-    # OTHER_TENANT_ID must not see those archived rows.
+    # OTHER_TENANT_ID writes its own audit row and also gets swept.
+    cross_tenant_client.post(
+        "/api/v1/audit/logs",
+        headers={"X-Tenant-Id": OTHER_TENANT_ID},
+        json={"action": "other.archive", "category": "security", "severity": "info", "details": {}},
+    )
+    app.state.store._simulate_retention(OTHER_TENANT_ID, keep_from_seq=99)
+
+    # OTHER_TENANT_ID queries archive — must see ONLY its own row,
+    # never VALID_TENANT_ID's "secret.archive".
     r = cross_tenant_client.get(
         "/api/v1/audit/logs/archived",
         headers={"X-Tenant-Id": OTHER_TENANT_ID},
     )
     assert r.status_code == 200
-    for entry in r.json()["items"]:
-        assert entry["tenant_id"] == OTHER_TENANT_ID
-        assert entry["action"] != "secret.archive"
+    items = r.json()["items"]
+    assert len(items) == 1, f"expected exactly 1 archived row, got {len(items)}: {items}"
+    assert items[0]["tenant_id"] == OTHER_TENANT_ID
+    assert items[0]["action"] == "other.archive"
+    # Explicit negative assertion: the secret must NOT have crossed tenants.
+    assert not any(entry["action"] == "secret.archive" for entry in items)
 
 
 def test_archived_endpoint_does_not_shadow_log_id_route(client):

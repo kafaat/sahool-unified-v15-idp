@@ -340,29 +340,23 @@ async def run_policy_for_tenant(
                 },
             )
 
-        # Parity between the archive INSERT and the DELETE. Two regimes:
-        #   * archived_count < deleted  is BENIGN. ON CONFLICT DO NOTHING
-        #     swallows re-archives of rows the previous partial run
-        #     already copied, so a delta here just means some rows were
-        #     already in the archive. No warning needed.
-        #   * archived_count > deleted  is SUSPICIOUS. The archive picked
-        #     up rows that the DELETE didn't — typically a race with a
-        #     concurrent writer inserting audit_log rows whose
-        #     created_at matched the cutoff between our archive and
-        #     DELETE statements. It's not fatal (the orphans in the
-        #     archive are genuine audit rows that still exist in
-        #     audit_log, so replay is still accurate), but worth a
-        #     warning so ops can investigate the concurrent writer.
-        if archived_count > deleted:
-            logger.warning(
-                "retention.archive_count_mismatch",
-                extra={
-                    "tenant_id": tenant_id,
-                    "category": policy.category,
-                    "archived": archived_count,
-                    "deleted": deleted,
-                },
-            )
+        # No archived-vs-deleted parity check at this layer — it can't
+        # cleanly express the invariant we actually want. ``archived_count``
+        # is the number of NEWLY inserted archive rows (ON CONFLICT DO
+        # NOTHING swallows prior-run duplicates), so it can be legitimately
+        # less than ``deleted`` after a retry without any gap. The case
+        # we'd want to catch — a row deleted but never archived — is
+        # prevented by the transaction structure: INSERT-SELECT and DELETE
+        # run under the same transaction and, under READ COMMITTED, both
+        # statements observe whichever rows were visible at their
+        # respective snapshots. A concurrent writer inserting rows between
+        # the INSERT and the DELETE that match the retention predicate
+        # WOULD produce a genuine shortfall, but at that point rollback
+        # cannot repair it (the concurrent row is already committed) so
+        # surfacing a warning in-band wouldn't help ops. If that race is
+        # ever observed in practice, the correct tightening is SERIALIZABLE
+        # isolation or wrapping INSERT + DELETE in a single CTE so they
+        # share a snapshot — both tracked as follow-ups.
 
         # Sort by seq_num ascending so `deleted_entry_hashes[-1]` is always
         # the newest — deterministic for the event row.

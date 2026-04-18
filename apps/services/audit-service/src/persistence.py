@@ -414,26 +414,25 @@ class PostgresAuditStore:
         hasn't landed in this environment. Same pattern as
         ``retention_boundaries_for_tenant``.
         """
-        # SQL-injection safety (same as query() above): `where` is composed
-        # only from the allowlisted column tuple in _build_where. All filter
-        # VALUES flow through asyncpg parameters in `*extra`. nosemgrep +
-        # nosec directives are placed on the f-string lines themselves so
-        # the pragma colocates with the offending expression — keeping
-        # Semgrep OSS's default ignore-attribution happy.
         where, extra = self._build_where(filters)
         try:
             async with self._pool.acquire() as conn:
                 async with conn.transaction():
                     await self._with_tenant(conn, tenant_id)
-                    total_row = await conn.fetchrow(
-                        # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                        f"SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}",  # noqa: S608  # nosec B608
+                    # SQL is safe: `where` is composed only from an
+                    # allowlisted column-name tuple (see _build_where) and
+                    # $N placeholders; all filter values flow through
+                    # asyncpg parameters in `*extra`. Matches the
+                    # injection-safety rationale in query() above.
+                    # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                    total_row = await conn.fetchrow(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                        f"SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}",  # nosec B608
                         tenant_id,
                         *extra,
                     )
-                    rows = await conn.fetch(
-                        # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
-                        f"SELECT * FROM audit_log_archive WHERE tenant_id = $1{where} "  # noqa: S608  # nosec B608
+                    # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                    rows = await conn.fetch(  # nosemgrep: python.lang.security.audit.sqli.asyncpg-sqli.asyncpg-sqli
+                        f"SELECT * FROM audit_log_archive WHERE tenant_id = $1{where} "  # nosec B608
                         f"ORDER BY created_at DESC, seq_num DESC "
                         f"OFFSET ${len(extra) + 2} LIMIT ${len(extra) + 3}",
                         tenant_id,

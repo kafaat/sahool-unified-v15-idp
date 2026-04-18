@@ -78,3 +78,9 @@ fee202c9af4f1b9a4d92b728a00e1f95c8575fd4:infrastructure/core/pgbouncer/healthche
 # secret value. The column stores bcrypt(client_secret); the actual
 # plaintext never touches the DB (see OAuthService.authenticateClient).
 c030a74e950b66436b38593f6f1ead9c4a3a40e2:apps/services/partner-auth-service/prisma/schema.prisma:generic-secret:44
+
+# Password-reset audit event (wave-2 PR #1652) — the word "reset_token"
+# appears as a METHOD IDENTIFIER in a publishUserPasswordChanged event
+# payload, not as a secret value. The Gitleaks generic-secret rule
+# false-positives on any string containing "token" near an assignment.
+976c73d08b1abab25c94ac7b46cc288a91502b07:apps/services/user-service/src/auth/auth.service.ts:generic-secret:1227

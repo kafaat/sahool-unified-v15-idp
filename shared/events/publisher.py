@@ -135,9 +135,14 @@ def _build_nats_headers(event: BaseEvent) -> dict | None:
     if event.causation_id:
         headers["X-Causation-ID"] = event.causation_id
 
-    # Event identity
+    # Event identity — both a SAHOOL-native header and the JetStream-native
+    # `Nats-Msg-Id` so the stream's `duplicate_window` actually deduplicates
+    # redelivery / at-least-once retries. Without `Nats-Msg-Id`, JetStream
+    # treats every publish as a new message even when the same logical event
+    # is retried, which is incompatible with the outbox-relay pattern below.
     if event.event_id:
         headers["X-Event-ID"] = event.event_id
+        headers["Nats-Msg-Id"] = event.event_id
 
     # Tenant scoping (from event field, populated from JWT tid claim)
     if event.tenant_id:

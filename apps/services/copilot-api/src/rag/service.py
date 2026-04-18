@@ -294,6 +294,18 @@ class CopilotRAGService:
         if not self._initialized:
             await self.initialize()
 
+        # Fail-closed tenant scoping: RAG leaks cross-tenant if tenant_id
+        # is falsy (None, "", 0) because downstream Qdrant/keyword filters
+        # skip the tenant predicate. A JWT without a `tid` claim must not
+        # silently return every tenant's documents. Callers that want a
+        # cross-tenant lookup for shared agricultural knowledge should
+        # pass the explicit sentinel `"__GLOBAL__"`.
+        if not tenant_id:
+            raise ValueError(
+                "RAGService.search requires an explicit tenant_id. "
+                'Pass "__GLOBAL__" for shared knowledge collections.'
+            )
+
         top_k = top_k or self.config.default_top_k
         start_time = time.time()
 

@@ -1,57 +1,27 @@
 # ═══════════════════════════════════════════════════════════════════════════════
-# SAHOOL JetStream Streams Configuration
+# SAHOOL JetStream Streams — OBSOLETE STATIC CONFIG
 # ═══════════════════════════════════════════════════════════════════════════════
 #
-# Defines the core JetStream streams for SAHOOL's event-driven architecture.
-# This file contains multiple stream definitions under `streams:`.
-# Apply individually using the NATS CLI or with the setup-event-bus script.
+# ⚠️  DO NOT APPLY THIS FILE.
+#
+# The subjects and stream names in the previous revision of this YAML
+# (`sahool.events.>`, `sahool.health.>`, `sahool.audit.>`) do NOT match the
+# subjects that services actually publish in production. Services now
+# publish on tenant-scoped subjects (`sahool.tenant.<tenant_id>.<domain>.
+# <action>`) and the real stream definitions live in Python:
+#
+#     shared/events/streams.py
+#         STREAMS = [BUSINESS, TENANT, SYSTEM, HEALTH, AUDIT, ...]
+#
+# Applying the previous YAML would bind streams to the wrong subject
+# filters and break delivery. The file is kept as a tombstone rather than
+# deleted so that anyone searching the repo for `SAHOOL_EVENTS` lands here
+# with a pointer to the real source.
+#
+# To deploy the real streams: run the setup script that reads
+# shared/events/streams.py, or apply each STREAM's `StreamConfig` via
+# `nats str add --config=-` in CI.
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
-streams:
-  # Domain events - primary event bus for all service-to-service communication
-  SAHOOL_EVENTS:
-    subjects: ["sahool.events.>"]
-    retention: limits
-    max_msgs: 10000000
-    max_bytes: 10GB
-    max_age: 30d
-    storage: file
-    replicas: 1
-
-  # Command execution - work queue pattern for async commands
-  SAHOOL_COMMANDS:
-    subjects: ["sahool.commands.>"]
-    retention: workqueue
-    max_msgs: 1000000
-    max_bytes: 1GB
-    max_age: 7d
-    storage: file
-
-  # Service discovery - ephemeral registry for service health
-  SAHOOL_REGISTRY:
-    subjects: ["sahool.registry.>"]
-    retention: limits
-    max_msgs: 100000
-    max_bytes: 100MB
-    max_age: 1h
-    storage: memory
-
-  # Health & metrics - short-lived monitoring data
-  SAHOOL_HEALTH:
-    subjects: ["sahool.health.>", "sahool.metrics.>"]
-    retention: limits
-    max_msgs: 500000
-    max_bytes: 500MB
-    max_age: 24h
-    storage: memory
-
-  # Audit trail - long-term compliance records (immutable)
-  SAHOOL_AUDIT:
-    subjects: ["sahool.audit.>"]
-    retention: limits
-    max_msgs: 50000000
-    max_bytes: 50GB
-    max_age: 7y
-    storage: file
-    deny_delete: true
+streams: []

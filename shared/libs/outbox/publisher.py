@@ -110,6 +110,12 @@ def publish_pending(
             event.last_error = str(e)
             logger.error(f"Failed to publish event {event.id}: {e} (attempt {event.retry_count}/{max_retries})")
 
+    # CRITICAL: commit the published/retry_count updates. Without this, the
+    # session rolls back on close and every iteration republishes the same
+    # rows forever. The async worker in worker.py already commits; this sync
+    # path was missing it — callers lost all acks between restarts.
+    db.commit()
+
     return published_count
 
 

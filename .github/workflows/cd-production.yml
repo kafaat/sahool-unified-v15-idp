@@ -5,8 +5,9 @@
 # Strategy: Blue-Green Deployment with automatic rollback on failure
 # Requires: Manual approval before deployment
 #
-# NOTE: Deployment is skipped when KUBE_CONFIG_PRODUCTION secret is not configured.
-#       The workflow will show as successful when intentionally skipped.
+# NOTE: The job FAILS (not skips silently) when KUBE_CONFIG_PRODUCTION is
+#       missing, unless `dry_run=true` is passed via workflow_dispatch.
+#       A green "Deploy to Production" run must mean the deploy ran.
 # ═══════════════════════════════════════════════════════════════════════════════
 
 name: Deploy to Production
@@ -20,6 +21,14 @@ on:
         description: 'Version tag to deploy (e.g., v1.2.3)'
         required: true
         type: string
+      dry_run:
+        # When true AND KUBE_CONFIG_PRODUCTION is missing, the job completes
+        # without deploying and reports success. This is the ONLY sanctioned
+        # path to get a green CD run without an actual deployment.
+        description: 'Dry run — allow a green run without kubeconfig'
+        required: false
+        type: boolean
+        default: false
       skip_approval:
         # Approval is mandatory for all production deployments.
         # This input must remain default: false. Only CODEOWNER-reviewed hotfixes
@@ -70,10 +79,19 @@ jobs:
       - name: Check required secrets
         id: secrets
         run: |
+          # Fail-fast: a production deployment job that "succeeded" because
+          # the kubeconfig was missing is a silent non-deploy. The only path
+          # that may tolerate a missing secret is an explicit dry-run.
           if [ -z "${{ secrets.KUBE_CONFIG_PRODUCTION }}" ]; then
-            echo "⚠️ KUBE_CONFIG_PRODUCTION secret is not configured"
-            echo "Deployment will be skipped - configure the secret to enable deployments"
-            echo "kubeconfig_available=false" >> $GITHUB_OUTPUT
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              echo "ℹ️ Dry run requested and KUBE_CONFIG_PRODUCTION is absent — continuing without deploy."
+              echo "kubeconfig_available=false" >> $GITHUB_OUTPUT
+            else
+              echo "::error::KUBE_CONFIG_PRODUCTION secret is not configured."
+              echo "::error::Refusing to report success for a non-deployment."
+              echo "::error::Either configure the secret, or re-run with dry_run=true."
+              exit 1
+            fi
           else
             echo "✅ KUBE_CONFIG_PRODUCTION secret is available"
             echo "kubeconfig_available=true" >> $GITHUB_OUTPUT

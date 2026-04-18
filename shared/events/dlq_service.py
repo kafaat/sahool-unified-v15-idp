@@ -305,29 +305,36 @@ class DLQManager:
         Replay a message from DLQ to its original subject.
 
         Args:
-            seq: Message sequence number
+            seq: Stream sequence number of the DLQ message to replay.
+                 This is the JetStream `stream_seq`, not a consumer offset.
             delete_after: Delete from DLQ after successful replay
 
         Returns:
             True if replayed successfully
+
+        Note: the previous implementation ignored `seq` and instead pulled
+        whichever message the `dlq_replayer` consumer cursor returned next,
+        which silently replayed the WRONG message. We now address the
+        message directly by stream sequence via `js.get_msg(stream, seq)`.
         """
         if not self._connected:
             await self.connect()
 
         try:
-            # Fetch the specific message
-            consumer = await self._js.pull_subscribe(
-                f"{self.config.dlq_subject_prefix}.>",
-                durable="dlq_replayer",
-            )
+            # Address the message by stream sequence — this is the whole
+            # point of the `seq` parameter. `get_msg` returns a RawStreamMsg
+            # (not a consumer message) so `ack()` is not applicable; we use
+            # the stream's `delete_msg` API for the delete_after path.
+            stream_name = self.config.dlq_stream_name
+            try:
+                raw_msg = await self._js.get_msg(stream_name, seq)
+            except Exception as fetch_err:  # nats raises on not-found
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"DLQ message seq={seq} not found: {fetch_err}",
+                ) from fetch_err
 
-            messages = await consumer.fetch(batch=1, timeout=5)
-
-            if not messages:
-                raise HTTPException(status_code=404, detail="Message not found")
-
-            msg = messages[0]
-            data = json.loads(msg.data.decode("utf-8"))
+            data = json.loads(raw_msg.data.decode("utf-8"))
             metadata = DLQMessageMetadata(**data.get("metadata", {}))
 
             # Publish to original subject
@@ -340,9 +347,12 @@ class DLQManager:
 
             logger.info(f"✅ Replayed message seq={seq} to {metadata.original_subject}")
 
-            # Delete if requested
+            # Delete the DLQ row if requested (stream-level delete, not ack).
             if delete_after:
-                await msg.ack()
+                try:
+                    await self._js.delete_msg(stream_name, seq)
+                except Exception as del_err:  # best-effort; replay already succeeded
+                    logger.warning(f"Failed to delete DLQ msg seq={seq}: {del_err}")
 
             return True
 

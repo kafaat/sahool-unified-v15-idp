@@ -85,7 +85,12 @@ class AgentCard(BaseModel):
 
     # Authentication
     # المصادقة
-    authentication_required: bool = Field(default=False, description="Requires authentication")
+    # Default TRUE: on the SAHOOL A2A mesh every agent is treated as
+    # authenticated-by-default. Opt-out (`authentication_required=False`)
+    # is only for public capability-card discovery endpoints that expose
+    # no mutating or tenant-scoped surface. The old default was False,
+    # which let any registered agent accept tasks from any caller.
+    authentication_required: bool = Field(default=True, description="Requires authentication")
     authentication_methods: list[str] = Field(
         default_factory=list,
         description="Supported auth methods (api_key, oauth2, etc.)",

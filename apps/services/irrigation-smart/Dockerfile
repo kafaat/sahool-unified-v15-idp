@@ -55,7 +55,13 @@ COPY --from=builder /root/.local /home/sahool/.local
 ENV PATH=/home/sahool/.local/bin:$PATH
 
 # Copy shared modules
+# NOTE: the service imports BOTH `apps/services/shared/*` (errors_py,
+# logging_config, middleware, observability, etc. — available at /app/shared/
+# via the COPY below) AND `shared.events.subjects` from the top-level
+# `shared/events/` tree. The latter is NOT in apps/services/shared/, so we
+# layer it on top without shadowing the apps/services/shared/ contents.
 COPY --chown=sahool:sahool apps/services/shared ./shared/
+COPY --chown=sahool:sahool shared/events/       ./shared/events/
 
 # Copy source code
 COPY --chown=sahool:sahool apps/services/irrigation-smart/src/ ./src/

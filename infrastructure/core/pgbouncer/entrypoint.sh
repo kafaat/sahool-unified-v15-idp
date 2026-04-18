@@ -126,8 +126,15 @@ wait_for_postgres() {
             _attempt=$((_attempt + 1))
         done
 
-        log_error "Timed out waiting for init scripts (pgbouncer schema not found)"
-        return 1
+        # Self-heal: init scripts in /docker-entrypoint-initdb.d/ only run on
+        # a fresh data directory, so pre-existing postgres volumes (common when
+        # switching compose project names or upgrading) never gain the
+        # pgbouncer schema. Rather than requiring operators to `docker compose
+        # down -v` and lose their data, apply the minimal schema ourselves.
+        # This is idempotent (CREATE SCHEMA IF NOT EXISTS + CREATE OR REPLACE).
+        log_warn "pgbouncer schema not found after waiting — applying bootstrap"
+        bootstrap_pgbouncer_schema
+        return $?
     else
         # Fallback: psql not available, use a fixed delay after port is open
         # to allow init scripts time to complete
@@ -136,6 +143,68 @@ wait_for_postgres() {
         log_info "Proceeding without schema verification (psql unavailable)"
         return 0
     fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Bootstrap pgbouncer schema + get_auth() function when init scripts never ran.
+# Mirrors infrastructure/core/postgres/init/02-pgbouncer-user.sql but kept
+# minimal: only the pieces PgBouncer strictly needs at runtime for auth_query.
+# Runs as the main DB user (typically a superuser in the postgres docker image)
+# so SECURITY DEFINER on get_auth() lets us read pg_shadow without granting
+# pg_read_all_auth to every caller.
+# ═══════════════════════════════════════════════════════════════════════════════
+bootstrap_pgbouncer_schema() {
+    log_info "Bootstrapping pgbouncer schema in ${DB_NAME}..."
+    # Capture psql output via $(...) so failures are debuggable from `docker
+    # logs sahool-pgbouncer`. `if !` guards against `set -e` aborting before
+    # we can return a controlled status.
+    #
+    # `gitleaks:allow` markers below: PGPASSWORD="$DB_PASSWORD" is a shell
+    # variable reference (not a hardcoded secret). The same pattern exists
+    # on lines 117/203 of this file but is only scanned for new diffs, so we
+    # mark these new occurrences inline. The marker is durable across line
+    # moves, unlike .gitleaksignore fingerprints which include the line number.
+    if ! _bootstrap_out=$(PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1 # gitleaks:allow
+CREATE SCHEMA IF NOT EXISTS pgbouncer;
+
+CREATE OR REPLACE FUNCTION pgbouncer.get_auth(p_usename TEXT)
+RETURNS TABLE(usename NAME, passwd TEXT) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT u.usename::NAME, u.passwd::TEXT
+    FROM pg_catalog.pg_shadow u
+    WHERE u.usename = p_usename;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
+EOSQL
+); then
+        log_error "pgbouncer schema bootstrap failed (CREATE phase): $_bootstrap_out"
+        return 1
+    fi
+
+    log_info "Bootstrap applied — locking down privileges for auth_user ${DB_USER}"
+    # SECURITY: Lock down the SECURITY DEFINER function before granting it back to
+    # the auth_user. PostgreSQL's default for new functions is EXECUTE TO PUBLIC,
+    # which would let any DB role read pg_shadow password hashes via this helper.
+    # REVOKE removes that default, then we re-GRANT only to CURRENT_USER (which
+    # is the auth_user since psql connected as DB_USER above).
+    if ! _bootstrap_out=$(PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1 # gitleaks:allow
+REVOKE ALL ON FUNCTION pgbouncer.get_auth(TEXT) FROM PUBLIC;
+REVOKE ALL ON SCHEMA pgbouncer FROM PUBLIC;
+GRANT USAGE ON SCHEMA pgbouncer TO CURRENT_USER;
+GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO CURRENT_USER;
+EOSQL
+); then
+        log_error "pgbouncer schema bootstrap failed (GRANT phase): $_bootstrap_out"
+        return 1
+    fi
+
+    log_info "pgbouncer schema bootstrap complete"
+    return 0
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -280,12 +349,22 @@ main() {
     # These env vars from docker-compose.yml were previously ignored (dead config)
     _runtime_ini="/etc/pgbouncer/runtime/pgbouncer.ini"
     cp "$PGBOUNCER_CONFIG" "$_runtime_ini"
+    # CRITICAL: auth_user must match the PostgreSQL user we generated hashes for
+    # in userlist.txt. pgbouncer.ini ships with a hardcoded default ('sahool');
+    # override it so changing POSTGRES_USER in .env does not silently break auth.
+    sed -i "s/^auth_user.*/auth_user = $DB_USER/" "$_runtime_ini"
     [ -n "${MAX_DB_CONNECTIONS:-}" ] && sed -i "s/^max_db_connections.*/max_db_connections = $MAX_DB_CONNECTIONS/" "$_runtime_ini"
     [ -n "${DEFAULT_POOL_SIZE:-}" ] && sed -i "s/^default_pool_size.*/default_pool_size = $DEFAULT_POOL_SIZE/" "$_runtime_ini"
     [ -n "${MIN_POOL_SIZE:-}" ] && sed -i "s/^min_pool_size.*/min_pool_size = $MIN_POOL_SIZE/" "$_runtime_ini"
     [ -n "${RESERVE_POOL_SIZE:-}" ] && sed -i "s/^reserve_pool_size.*/reserve_pool_size = $RESERVE_POOL_SIZE/" "$_runtime_ini"
     [ -n "${MAX_CLIENT_CONN:-}" ] && sed -i "s/^max_client_conn.*/max_client_conn = $MAX_CLIENT_CONN/" "$_runtime_ini"
     [ -n "${QUERY_TIMEOUT:-}" ] && sed -i "s/^query_timeout.*/query_timeout = $QUERY_TIMEOUT/" "$_runtime_ini"
+    [ -n "${QUERY_WAIT_TIMEOUT:-}" ] && sed -i "s/^query_wait_timeout.*/query_wait_timeout = $QUERY_WAIT_TIMEOUT/" "$_runtime_ini"
+    [ -n "${SERVER_IDLE_TIMEOUT:-}" ] && sed -i "s/^server_idle_timeout.*/server_idle_timeout = $SERVER_IDLE_TIMEOUT/" "$_runtime_ini"
+    [ -n "${CLIENT_IDLE_TIMEOUT:-}" ] && sed -i "s/^client_idle_timeout.*/client_idle_timeout = $CLIENT_IDLE_TIMEOUT/" "$_runtime_ini"
+    [ -n "${POOL_MODE:-}" ] && sed -i "s/^pool_mode.*/pool_mode = $POOL_MODE/" "$_runtime_ini"
+    [ -n "${ADMIN_USERS:-}" ] && sed -i "s/^admin_users.*/admin_users = $ADMIN_USERS/" "$_runtime_ini"
+    [ -n "${STATS_USERS:-}" ] && sed -i "s/^stats_users.*/stats_users = $STATS_USERS/" "$_runtime_ini"
     log_info "Applied environment variable overrides to runtime config"
 
     # Execute pgbouncer with runtime config (includes env var overrides)

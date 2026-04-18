@@ -56,7 +56,7 @@ tenacity==8.5.0
 # Monitoring and Logging
 # المراقبة والتسجيل
 prometheus-client==0.25.0
-structlog==25.5.0
+structlog>=25.0.0,<26.0.0
 
 # Data Processing
 # معالجة البيانات

@@ -3,21 +3,36 @@
 # Usage: COPY docker/apt-update.sh /usr/local/bin/
 #        RUN apt-update.sh && apt-get install -y --no-install-recommends <packages>
 #
-# Strategy: mirror-first (Tencent → Aliyun → official deb.debian.org)
+# Strategy: mirror-first fallback chain
+#   Aliyun → Tencent → Tsinghua → USTC → official deb.debian.org
 # Reason: in restricted/slow-network environments the official repo is often
 # reachable for the small metadata fetch in apt-get update but then drops during
 # the larger .deb downloads in apt-get install. Always using a mirror avoids this.
+# Running against several mirrors in sequence also protects against a single
+# mirror going down mid-build (e.g. cases where local apt-update.sh drifts out
+# of git and picks an unreliable mirror like mirrors.huaweicloud.com).
 #
 # Supports: Debian (bookworm+, DEB822 & legacy), Ubuntu (archive.ubuntu.com)
 
 set -e
 
-MAX_RETRIES=2
+MAX_RETRIES=3
 RETRY_DELAY=5
-# Hard wall-clock limit per apt-get update attempt. A mirror delivering at 863 B/s
-# can hold the build for 10+ minutes; 90 seconds abandons it fast enough to try the
-# next mirror without unacceptable total build time.
-UPDATE_TIMEOUT=90
+# Hard wall-clock limit per apt-get update attempt. Mirrors delivering at
+# 863 B/s can hold the build for 10+ minutes; 120 seconds abandons them fast
+# enough to try the next mirror without unacceptable total build time. Bumped
+# from 90s to 120s because deb.debian.org metadata fetch in APAC can legitimately
+# take 100+ seconds on a cold connection.
+UPDATE_TIMEOUT=120
+
+# Mirrors attempted in order. Each entry is an apt mirror host that serves
+# /debian and /debian-security. Aliyun first because it has the broadest
+# geographic coverage; Tencent second as a strong APAC fallback; Tsinghua
+# and USTC are academic mirrors with excellent availability inside China;
+# deb.debian.org is the final fallback (always works, but can be slow).
+#
+# To add or reorder mirrors, edit this list — no other change needed.
+MIRRORS="mirrors.aliyun.com mirrors.cloud.tencent.com mirrors.tuna.tsinghua.edu.cn mirrors.ustc.edu.cn deb.debian.org"
 
 # Write apt resilience config early so both apt-get update AND apt-get install
 # benefit from higher retries and longer per-connection timeouts.
@@ -30,34 +45,38 @@ printf 'Acquire::http::Timeout "120";\nAcquire::https::Timeout "120";\nAcquire::
 switch_to_mirror() {
     mirror_host="${1:-mirrors.aliyun.com}"
     echo "Switching apt sources to ${mirror_host}..."
-    # Debian DEB822 format (bookworm+)
+
+    # Pick the first file that exists and rewrite every known mirror host in
+    # it to the chosen one. Listing all candidate hosts — including ones that
+    # may sneak in via locally modified apt-update.sh drift, like
+    # mirrors.huaweicloud.com — keeps each fallback attempt deterministic.
+    _target=""
     if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-        sed -i "s|deb.debian.org|${mirror_host}|g; \
-                s|mirrors.aliyun.com|${mirror_host}|g; \
-                s|mirrors.cloud.tencent.com|${mirror_host}|g" \
-            /etc/apt/sources.list.d/debian.sources
-    # Ubuntu DEB822 format (noble+)
+        _target=/etc/apt/sources.list.d/debian.sources
     elif [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
-        sed -i "s|archive.ubuntu.com|${mirror_host}|g; \
-                s|security.ubuntu.com|${mirror_host}|g; \
-                s|mirrors.aliyun.com|${mirror_host}|g; \
-                s|mirrors.cloud.tencent.com|${mirror_host}|g" \
-            /etc/apt/sources.list.d/ubuntu.sources
-    # Legacy sources.list (Debian or Ubuntu)
+        _target=/etc/apt/sources.list.d/ubuntu.sources
     elif [ -f /etc/apt/sources.list ]; then
-        sed -i "s|deb.debian.org|${mirror_host}|g; \
-                s|archive.ubuntu.com|${mirror_host}|g; \
-                s|security.ubuntu.com|${mirror_host}|g; \
-                s|mirrors.aliyun.com|${mirror_host}|g; \
-                s|mirrors.cloud.tencent.com|${mirror_host}|g" \
-            /etc/apt/sources.list
+        _target=/etc/apt/sources.list
     fi
+    [ -z "$_target" ] && return 0
+
+    sed -i \
+        -e "s|deb.debian.org|${mirror_host}|g" \
+        -e "s|archive.ubuntu.com|${mirror_host}|g" \
+        -e "s|security.ubuntu.com|${mirror_host}|g" \
+        -e "s|mirrors.aliyun.com|${mirror_host}|g" \
+        -e "s|mirrors.cloud.tencent.com|${mirror_host}|g" \
+        -e "s|mirrors.tuna.tsinghua.edu.cn|${mirror_host}|g" \
+        -e "s|mirrors.ustc.edu.cn|${mirror_host}|g" \
+        -e "s|mirrors.huaweicloud.com|${mirror_host}|g" \
+        "$_target"
 }
 
 # try_apt_update runs apt-get update with retries and validates the result.
 # Returns 0 only if apt-get update succeeds WITHOUT partial fetch warnings.
 try_apt_update() {
     attempt=1
+    delay="$RETRY_DELAY"
     while [ "$attempt" -le "$MAX_RETRIES" ]; do
         echo "apt-get update attempt ${attempt}/${MAX_RETRIES} (timeout ${UPDATE_TIMEOUT}s)..."
         update_output=$(timeout "${UPDATE_TIMEOUT}" apt-get update -o Acquire::Retries=1 2>&1) && rc=0 || rc=$?
@@ -75,40 +94,26 @@ try_apt_update() {
         fi
 
         if [ "$attempt" -lt "$MAX_RETRIES" ]; then
-            echo "Retrying in ${RETRY_DELAY}s..."
-            sleep "$RETRY_DELAY"
-            RETRY_DELAY=$((RETRY_DELAY * 2))
+            echo "Retrying in ${delay}s..."
+            sleep "$delay"
+            delay=$((delay * 2))
         fi
         attempt=$((attempt + 1))
     done
     return 1
 }
 
-# Mirror-first strategy: always switch to a fast/reliable mirror before apt-get update.
-# This ensures both apt-get update AND apt-get install use the same mirror — avoiding
-# the failure mode where update succeeds (small files) but install fails (large .deb).
-#
-# Mirror order: Tencent → Aliyun → official deb.debian.org
-# Tencent is tried first because Aliyun's debian-security endpoint (155.102.167.215)
-# has been observed to time out on large package downloads (e.g. openssl 1.4 MB)
-# even when apt-get update succeeds on the same mirror.
+# Mirror-first strategy: iterate through the mirror list until one succeeds.
+# Each mirror gets its own retry loop (MAX_RETRIES attempts with backoff).
+# Total worst-case budget: len(MIRRORS) × MAX_RETRIES × UPDATE_TIMEOUT
+# = 5 × 3 × 120s = 1800s, but typical success is under 15s on the first mirror.
+for _mirror in $MIRRORS; do
+    switch_to_mirror "$_mirror"
+    if try_apt_update; then
+        exit 0
+    fi
+    echo "${_mirror} failed, trying next mirror..."
+done
 
-# Attempt 1: Tencent mirror (reliable for security packages)
-switch_to_mirror "mirrors.cloud.tencent.com"
-if try_apt_update; then
-    exit 0
-fi
-
-echo "Tencent mirror failed, attempting Aliyun mirror..."
-
-# Attempt 2: Aliyun mirror
-switch_to_mirror "mirrors.aliyun.com"
-if try_apt_update; then
-    exit 0
-fi
-
-echo "Aliyun mirror failed, attempting official deb.debian.org..."
-
-# Attempt 3: official repos as last resort
-switch_to_mirror "deb.debian.org"
-try_apt_update
+echo "ERROR: all mirrors (${MIRRORS}) failed to respond to apt-get update." >&2
+exit 1

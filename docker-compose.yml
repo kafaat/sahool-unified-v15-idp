@@ -81,8 +81,16 @@ services:
   # OPTIMIZED: Enhanced pool settings based on PgBouncer audit (score 7/10 -> 9/10)
   # FIXED: Added custom entrypoint to generate userlist.txt dynamically
   pgbouncer:
-    # Pinned to v1.23.1-p3 - stable and well-tested version
-    image: edoburu/pgbouncer:v1.23.1-p3
+    # Custom image extends edoburu/pgbouncer:v1.23.1-p3 with postgresql-client
+    # baked in. entrypoint.sh needs psql to verify PostgreSQL init scripts
+    # finished (pgbouncer schema exists) before starting — previous runtime
+    # `apk add` attempts failed silently as non-root and caused flaky startups.
+    build:
+      context: ./infrastructure/core/pgbouncer
+      dockerfile: Dockerfile
+      args:
+        PGBOUNCER_VERSION: v1.23.1-p3
+    image: sahool/pgbouncer:v1.23.1-p3
     container_name: sahool-pgbouncer
     # Custom entrypoint generates userlist.txt from environment variables
     # FIX: Use "sh" explicitly to avoid Windows bind-mount execute permission issues

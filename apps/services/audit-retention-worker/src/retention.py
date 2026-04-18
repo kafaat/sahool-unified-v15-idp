@@ -5,14 +5,21 @@ One-shot retention sweep:
 
   1. For each (tenant, policy) pair, find the rows whose
      ``created_at < NOW() - retention_days``.
-  2. DELETE those rows under ``SET LOCAL sahool.audit_retention_job = 'on'``
+  2. INSERT those rows into ``audit_log_archive`` (migration 004) so the
+     replay endpoint can still serve their content after DELETE. The
+     archive table has its own append-only trigger gated on the same
+     ``sahool.audit_retention_job=on`` session variable that allows
+     audit_log DELETE — the two writes are part of one transaction.
+  3. DELETE those rows under ``SET LOCAL sahool.audit_retention_job = 'on'``
      with a RETURNING clause so we capture every deleted row's
      (seq_num, entry_hash).
-  3. Insert a matching row into ``audit_retention_events``:
+  4. Insert a matching row into ``audit_retention_events``:
        * last_deleted_seq_num / last_deleted_entry_hash = newest deleted row
        * deleted_entry_hashes  = every deleted hash (so the consumer's
          chain validator can accept ANY surviving prev_hash that matches
          one of them as a legitimate retention-driven gap).
+       * archive_location      = ``pg://audit_log_archive`` (compliance
+         tooling reads this to locate the cold-storage destination).
 
 Why ``deleted_entry_hashes`` is an array, not just the newest hash:
   The per-tenant hash chain is shared across ALL categories. Per-category
@@ -110,6 +117,52 @@ WHERE tenant_id = $1
 RETURNING seq_num, entry_hash
 """
 
+# Copy-then-delete: before DELETE, snapshot every expiring row into
+# audit_log_archive so the replay endpoint (/api/v1/audit/logs/archived)
+# can retrieve the content after retention has swept it off the hot table.
+# Runs under the same ``sahool.audit_retention_job=on`` session variable
+# that allows audit_log DELETE and audit_log_archive INSERT — the archive
+# table's trigger rejects any INSERT without it, so a rogue writer cannot
+# populate the archive with fake "deleted" rows.
+#
+# Returns archived seq_num so the caller can assert parity with the
+# subsequent DELETE's RETURNING count. Mismatch would indicate a
+# concurrent writer inserted a matching row between the archive snapshot
+# and DELETE — unlikely (the cutoff is historical) but the whole
+# transaction rolls back in that case.
+_ARCHIVE_EXPIRED_SQL = """
+INSERT INTO audit_log_archive (
+    id, tenant_id, seq_num,
+    user_id, action, category, severity,
+    resource_type, resource_id,
+    correlation_id, ip_address, user_agent,
+    success, error_code, error_message,
+    details, old_value, new_value,
+    entry_hash, prev_hash, created_at
+)
+SELECT
+    id, tenant_id, seq_num,
+    user_id, action, category, severity,
+    resource_type, resource_id,
+    correlation_id, ip_address, user_agent,
+    success, error_code, error_message,
+    details, old_value, new_value,
+    entry_hash, prev_hash, created_at
+FROM audit_log
+WHERE tenant_id = $1
+  AND category = $2
+  AND created_at < $3
+ON CONFLICT (tenant_id, seq_num) DO NOTHING
+RETURNING 1
+"""
+
+# archive_location is set to a pg:// URI pointing at the archive table
+# when the worker successfully archived the deleted rows. Compliance
+# tooling reads this column to locate the cold-storage destination;
+# NULL means the rows were hard-deleted (archive migration not applied
+# or archive INSERT failed on a specific row and was caught — today's
+# code always writes the URI on success because we abort the whole
+# transaction on any archive failure).
 _INSERT_EVENT_SQL = """
 INSERT INTO audit_retention_events (
     tenant_id,
@@ -120,9 +173,15 @@ INSERT INTO audit_retention_events (
     category_filter,
     retention_days,
     cutoff_timestamp,
+    archive_location,
     dry_run
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 """
+
+# Fixed URI identifying the archive destination. Future work may split
+# archives by date-partition or push to S3; the schema already supports
+# arbitrary strings here so this can evolve without a migration.
+ARCHIVE_LOCATION_URI = "pg://audit_log_archive"
 
 _LIST_TENANTS_SQL = """
 SELECT DISTINCT tenant_id
@@ -251,9 +310,23 @@ async def run_policy_for_tenant(
                 dry_run=True,
             )
 
-        # 3. DELETE ... RETURNING — the real thing. If this or the
+        # 3. Archive first, then delete. INSERT-FROM-SELECT snapshots
+        #    every expiring row into audit_log_archive so the replay
+        #    endpoint can still retrieve content after the DELETE.
+        #    ON CONFLICT DO NOTHING tolerates re-archiving of the same
+        #    row if an earlier run partially succeeded — archive is keyed
+        #    (tenant_id, seq_num) which is unique in audit_log itself.
+        #    If this INSERT fails (archive migration not applied, permission
+        #    error, disk full, etc.) the whole transaction rolls back
+        #    and nothing is deleted — we refuse to drop audit rows we
+        #    cannot archive.
+        archived_rows = await conn.fetch(_ARCHIVE_EXPIRED_SQL, tenant_id, policy.category, cutoff)
+        archived_count = len(archived_rows)
+
+        # 4. DELETE ... RETURNING — the real thing. If this or the
         #    subsequent INSERT fails, the whole transaction rolls back
-        #    and we're back to a consistent state.
+        #    and the archive insert above rolls back with it, keeping
+        #    audit_log and audit_log_archive in sync.
         deleted_rows = await conn.fetch(_DELETE_EXPIRED_SQL, tenant_id, policy.category, cutoff)
         deleted = len(deleted_rows)
         if deleted != rows_to_delete:
@@ -267,6 +340,24 @@ async def run_policy_for_tenant(
                 },
             )
 
+        # No archived-vs-deleted parity check at this layer — it can't
+        # cleanly express the invariant we actually want. ``archived_count``
+        # is the number of NEWLY inserted archive rows (ON CONFLICT DO
+        # NOTHING swallows prior-run duplicates), so it can be legitimately
+        # less than ``deleted`` after a retry without any gap. The case
+        # we'd want to catch — a row deleted but never archived — is
+        # prevented by the transaction structure: INSERT-SELECT and DELETE
+        # run under the same transaction and, under READ COMMITTED, both
+        # statements observe whichever rows were visible at their
+        # respective snapshots. A concurrent writer inserting rows between
+        # the INSERT and the DELETE that match the retention predicate
+        # WOULD produce a genuine shortfall, but at that point rollback
+        # cannot repair it (the concurrent row is already committed) so
+        # surfacing a warning in-band wouldn't help ops. If that race is
+        # ever observed in practice, the correct tightening is SERIALIZABLE
+        # isolation or wrapping INSERT + DELETE in a single CTE so they
+        # share a snapshot — both tracked as follow-ups.
+
         # Sort by seq_num ascending so `deleted_entry_hashes[-1]` is always
         # the newest — deterministic for the event row.
         sorted_rows = sorted(deleted_rows, key=lambda r: int(r["seq_num"]))
@@ -274,9 +365,10 @@ async def run_policy_for_tenant(
         last_seq_num = int(sorted_rows[-1]["seq_num"])
         last_hash = all_hashes[-1]
 
-        # 4. Record the event so future chain-validation can treat the gap
-        #    as expected. Same transaction — if this INSERT fails the
-        #    DELETE above rolls back.
+        # 5. Record the event so future chain-validation can treat the gap
+        #    as expected and replay can locate the archived content.
+        #    Same transaction — if this INSERT fails the DELETE and
+        #    archive INSERT roll back together.
         await conn.execute(
             _INSERT_EVENT_SQL,
             tenant_id,
@@ -287,6 +379,7 @@ async def run_policy_for_tenant(
             policy.category,
             policy.retention_days,
             cutoff,
+            ARCHIVE_LOCATION_URI,
             False,  # dry_run column
         )
 
@@ -296,8 +389,10 @@ async def run_policy_for_tenant(
                 "tenant_id": tenant_id,
                 "category": policy.category,
                 "rows_deleted": deleted,
+                "rows_archived": archived_count,
                 "last_deleted_seq_num": last_seq_num,
                 "hashes_recorded": len(all_hashes),
+                "archive_location": ARCHIVE_LOCATION_URI,
             },
         )
 

@@ -479,6 +479,166 @@ def test_chain_validate_endpoint_exposes_retention_gaps_crossed(client):
     assert body["retention_gaps_crossed"] > 0
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# Replay endpoint — GET /api/v1/audit/logs/archived
+# Compliance path for retrieving rows the retention worker moved off
+# audit_log into audit_log_archive (retention worker migration 004).
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_archived_endpoint_empty_when_no_retention_has_run(client):
+    """Baseline: with no retention sweep, the archive bucket is empty and
+    the endpoint returns a clean paginated empty result — not a 500."""
+    # Seed a few rows so audit_log isn't empty either.
+    for i in range(3):
+        r = client.post(
+            "/api/v1/audit/logs",
+            headers=HDR,
+            json={
+                "action": f"e{i}",
+                "category": "authentication",
+                "severity": "info",
+                "details": {"i": i},
+            },
+        )
+        assert r.status_code == 200
+
+    r = client.get("/api/v1/audit/logs/archived", headers=HDR)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["items"] == []
+    assert body["total"] == 0
+    assert body["has_more"] is False
+
+
+def test_archived_endpoint_returns_retention_swept_rows(client):
+    """After a retention run, the rows that got swept out of audit_log
+    must still be retrievable from the archive endpoint. This is the
+    core compliance contract — 5-year GlobalGAP retention means the
+    auditor can still read 4-year-old auth events even though they're
+    no longer in the hot table."""
+    from src.main import app
+
+    # Seed 5 rows with distinctive actions so we can tell which came back.
+    for i in range(5):
+        r = client.post(
+            "/api/v1/audit/logs",
+            headers=HDR,
+            json={
+                "action": f"event_{i}",
+                "category": "authentication",
+                "severity": "info",
+                "details": {"i": i},
+            },
+        )
+        assert r.status_code == 200
+
+    # Simulate retention: seq_nums 1 and 2 swept → archived; 3-5 stay live.
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+
+    # Live endpoint should show only the surviving rows.
+    r_live = client.get("/api/v1/audit/logs", headers=HDR)
+    assert r_live.status_code == 200
+    live_actions = sorted(item["action"] for item in r_live.json()["items"])
+    assert live_actions == ["event_2", "event_3", "event_4"]
+
+    # Archived endpoint surfaces exactly the swept rows.
+    r_arc = client.get("/api/v1/audit/logs/archived", headers=HDR)
+    assert r_arc.status_code == 200, r_arc.text
+    body = r_arc.json()
+    assert body["total"] == 2
+    archived_actions = sorted(item["action"] for item in body["items"])
+    assert archived_actions == ["event_0", "event_1"]
+
+
+def test_archived_endpoint_respects_filters(client):
+    """Filter semantics on the archive endpoint must match the live
+    endpoint — a compliance query for a specific user over a date range
+    should work the same way whether the rows are live or archived."""
+    from src.main import app
+
+    client.post(
+        "/api/v1/audit/logs",
+        headers=HDR,
+        json={"action": "login", "category": "authentication", "severity": "info", "details": {}},
+    )
+    client.post(
+        "/api/v1/audit/logs",
+        headers=HDR,
+        json={"action": "password_change", "category": "authentication", "severity": "info", "details": {}},
+    )
+    client.post(
+        "/api/v1/audit/logs",
+        headers=HDR,
+        json={"action": "logout", "category": "authentication", "severity": "info", "details": {}},
+    )
+
+    # Sweep everything into the archive.
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=99)
+
+    # Filter for a single action — only the matching archived row should come back.
+    r = client.get("/api/v1/audit/logs/archived?action=password_change", headers=HDR)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["total"] == 1
+    assert body["items"][0]["action"] == "password_change"
+
+
+def test_archived_endpoint_enforces_tenant_isolation(client, cross_tenant_client):
+    """The archive is just as sensitive as the live log — RLS tenant
+    isolation must apply to archived rows as well.
+
+    We deliberately seed an archived row for BOTH tenants so the
+    assertions aren't vacuous: if OTHER_TENANT_ID had zero archived
+    rows, the loop would be empty and the test would pass even on a
+    broken isolation policy. By giving OTHER_TENANT_ID its own
+    distinguishable row we confirm the endpoint returns exactly that
+    row and nothing from VALID_TENANT_ID.
+    """
+    from src.main import app
+
+    # VALID_TENANT_ID writes a secret and gets retention-swept.
+    client.post(
+        "/api/v1/audit/logs",
+        headers={"X-Tenant-Id": VALID_TENANT_ID},
+        json={"action": "secret.archive", "category": "security", "severity": "info", "details": {}},
+    )
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=99)
+
+    # OTHER_TENANT_ID writes its own audit row and also gets swept.
+    cross_tenant_client.post(
+        "/api/v1/audit/logs",
+        headers={"X-Tenant-Id": OTHER_TENANT_ID},
+        json={"action": "other.archive", "category": "security", "severity": "info", "details": {}},
+    )
+    app.state.store._simulate_retention(OTHER_TENANT_ID, keep_from_seq=99)
+
+    # OTHER_TENANT_ID queries archive — must see ONLY its own row,
+    # never VALID_TENANT_ID's "secret.archive".
+    r = cross_tenant_client.get(
+        "/api/v1/audit/logs/archived",
+        headers={"X-Tenant-Id": OTHER_TENANT_ID},
+    )
+    assert r.status_code == 200
+    items = r.json()["items"]
+    assert len(items) == 1, f"expected exactly 1 archived row, got {len(items)}: {items}"
+    assert items[0]["tenant_id"] == OTHER_TENANT_ID
+    assert items[0]["action"] == "other.archive"
+    # Explicit negative assertion: the secret must NOT have crossed tenants.
+    assert not any(entry["action"] == "secret.archive" for entry in items)
+
+
+def test_archived_endpoint_does_not_shadow_log_id_route(client):
+    """Regression: /api/v1/audit/logs/archived must route to the replay
+    endpoint, NOT be captured by /api/v1/audit/logs/{log_id}. If the
+    route ordering regresses, FastAPI would treat "archived" as a
+    log_id and 404."""
+    r = client.get("/api/v1/audit/logs/archived", headers=HDR)
+    # Expect 200 (empty page), never a 404 saying "Audit log not found".
+    assert r.status_code == 200
+    assert "items" in r.json()
+
+
 def test_validate_chain_flags_cleared_prev_hash_as_tamper():
     """If an attacker clears `prev_hash` to None/empty, validator must NOT
     silently normalize it to GENESIS_HASH. Addresses Copilot r3103488517:

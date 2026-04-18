@@ -917,6 +917,60 @@ async def create_audit_log(
     return persisted
 
 
+@app.get("/api/v1/audit/logs/archived", response_model=PaginatedResponse, tags=["Audit Logs"])
+async def get_archived_audit_logs(
+    user_id: str | None = Query(None, description="Filter by user ID"),
+    action: str | None = Query(None, description="Filter by action"),
+    category: str | None = Query(None, description="Filter by category"),
+    resource_type: str | None = Query(None, description="Filter by resource type"),
+    resource_id: str | None = Query(None, description="Filter by resource ID"),
+    success: bool | None = Query(None, description="Filter by success status"),
+    start_date: datetime | None = Query(None, description="Start date filter"),
+    end_date: datetime | None = Query(None, description="End date filter"),
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=500),
+    tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
+):
+    """
+    Replay archived audit logs (rows removed from audit_log by the
+    retention worker). Schema and filter semantics match the live
+    ``GET /audit/logs`` endpoint; rows here carry two extra fields —
+    ``archived_at`` and ``archived_by`` — that identify when retention
+    moved them out of the hot table.
+
+    إعادة تشغيل السجلات المؤرشفة (السجلات التي أزالها عامل الاحتفاظ).
+    """
+    enforce_tenant_match(tenant_id, _current_user)
+
+    # NOTE: must be registered BEFORE /logs/{log_id} so the literal path
+    # ``archived`` is not captured as a log_id.
+
+    items, total = await app.state.store.query_archived(
+        tenant_id,
+        filters={
+            "user_id": user_id,
+            "action": action,
+            "category": category,
+            "resource_type": resource_type,
+            "resource_id": resource_id,
+            "success": success,
+            "start_date": start_date.isoformat() if start_date else None,
+            "end_date": end_date.isoformat() if end_date else None,
+        },
+        skip=skip,
+        limit=limit,
+    )
+
+    return {
+        "items": items,
+        "total": total,
+        "skip": skip,
+        "limit": limit,
+        "has_more": skip + limit < total,
+    }
+
+
 @app.get("/api/v1/audit/logs/{log_id}", response_model=AuditLogResponse, tags=["Audit Logs"])
 async def get_audit_log(
     log_id: str = Path(..., description="Audit log ID"),

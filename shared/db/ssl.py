@@ -58,9 +58,7 @@ def enforce_ssl_mode(dsn: str | None, *, environment: str | None = None) -> str 
         query_params["sslmode"] = "require"
         new_query = urlencode(query_params)
         rewritten = urlunparse(parsed._replace(query=new_query))
-        logger.info(
-            "enforce_ssl_mode: injected sslmode=require into DSN (env=%s)", env
-        )
+        logger.info("enforce_ssl_mode: injected sslmode=require into DSN (env=%s)", env)
         return rewritten
 
     logger.debug(

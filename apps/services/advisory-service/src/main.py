@@ -441,9 +441,8 @@ async def lifespan(app: FastAPI):
         try:
             import asyncpg  # local import: only needed when outbox is enabled
 
-            from shared.libs.outbox import OutboxPublisher, OutboxRelay
-
             from shared.db.ssl import enforce_ssl_mode
+            from shared.libs.outbox import OutboxPublisher, OutboxRelay
 
             db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
             if not db_url:

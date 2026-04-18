@@ -71,9 +71,7 @@ _SQLSTATE_UNDEFINED_TABLE = "42P01"
 # an allowlisted column-name tuple built by `_build_where`, and (b) integer
 # placeholder indices. No user-controlled value is ever substituted into
 # these templates; asyncpg binds them via `$N`.
-_COUNT_SQL_TEMPLATE = (
-    "SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}"
-)
+_COUNT_SQL_TEMPLATE = "SELECT COUNT(*) AS c FROM audit_log_archive WHERE tenant_id = $1{where}"
 _LIST_SQL_TEMPLATE = (
     "SELECT * FROM audit_log_archive WHERE tenant_id = $1{where} "
     "ORDER BY created_at DESC, seq_num DESC "

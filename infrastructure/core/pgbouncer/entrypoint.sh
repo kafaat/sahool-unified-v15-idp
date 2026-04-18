@@ -280,12 +280,22 @@ main() {
     # These env vars from docker-compose.yml were previously ignored (dead config)
     _runtime_ini="/etc/pgbouncer/runtime/pgbouncer.ini"
     cp "$PGBOUNCER_CONFIG" "$_runtime_ini"
+    # CRITICAL: auth_user must match the PostgreSQL user we generated hashes for
+    # in userlist.txt. pgbouncer.ini ships with a hardcoded default ('sahool');
+    # override it so changing POSTGRES_USER in .env does not silently break auth.
+    sed -i "s/^auth_user.*/auth_user = $DB_USER/" "$_runtime_ini"
     [ -n "${MAX_DB_CONNECTIONS:-}" ] && sed -i "s/^max_db_connections.*/max_db_connections = $MAX_DB_CONNECTIONS/" "$_runtime_ini"
     [ -n "${DEFAULT_POOL_SIZE:-}" ] && sed -i "s/^default_pool_size.*/default_pool_size = $DEFAULT_POOL_SIZE/" "$_runtime_ini"
     [ -n "${MIN_POOL_SIZE:-}" ] && sed -i "s/^min_pool_size.*/min_pool_size = $MIN_POOL_SIZE/" "$_runtime_ini"
     [ -n "${RESERVE_POOL_SIZE:-}" ] && sed -i "s/^reserve_pool_size.*/reserve_pool_size = $RESERVE_POOL_SIZE/" "$_runtime_ini"
     [ -n "${MAX_CLIENT_CONN:-}" ] && sed -i "s/^max_client_conn.*/max_client_conn = $MAX_CLIENT_CONN/" "$_runtime_ini"
     [ -n "${QUERY_TIMEOUT:-}" ] && sed -i "s/^query_timeout.*/query_timeout = $QUERY_TIMEOUT/" "$_runtime_ini"
+    [ -n "${QUERY_WAIT_TIMEOUT:-}" ] && sed -i "s/^query_wait_timeout.*/query_wait_timeout = $QUERY_WAIT_TIMEOUT/" "$_runtime_ini"
+    [ -n "${SERVER_IDLE_TIMEOUT:-}" ] && sed -i "s/^server_idle_timeout.*/server_idle_timeout = $SERVER_IDLE_TIMEOUT/" "$_runtime_ini"
+    [ -n "${CLIENT_IDLE_TIMEOUT:-}" ] && sed -i "s/^client_idle_timeout.*/client_idle_timeout = $CLIENT_IDLE_TIMEOUT/" "$_runtime_ini"
+    [ -n "${POOL_MODE:-}" ] && sed -i "s/^pool_mode.*/pool_mode = $POOL_MODE/" "$_runtime_ini"
+    [ -n "${ADMIN_USERS:-}" ] && sed -i "s/^admin_users.*/admin_users = $ADMIN_USERS/" "$_runtime_ini"
+    [ -n "${STATS_USERS:-}" ] && sed -i "s/^stats_users.*/stats_users = $STATS_USERS/" "$_runtime_ini"
     log_info "Applied environment variable overrides to runtime config"
 
     # Execute pgbouncer with runtime config (includes env var overrides)

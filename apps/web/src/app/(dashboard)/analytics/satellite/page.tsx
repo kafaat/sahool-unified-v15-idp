@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Satellite,
   Leaf,
@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import DemoBanner from '@/components/common/DemoBanner';
+import { useNdviHistory } from '@/features/analytics/hooks/useSatelliteAnalytics';
 
 const statsCards = [
   {
@@ -70,27 +71,15 @@ const healthColor: Record<string, string> = {
 export default function SatelliteAnalyticsPage() {
   const [dateRange, setDateRange] = useState('month');
   const [indexType, setIndexType] = useState('ndvi');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiSatelliteData] = useState<typeof satelliteData | null>(null);
 
-  const fetchData = useCallback(async () => {
-    // NOTE: No dedicated analytics API for satellite data yet.
-    // Using local sample data until backend endpoint is available.
-    try {
-      setError(null);
-      setLoading(false);
-    } catch (err) {
-      setError(String(err));
-      setLoading(false);
-    }
-  }, []);
+  // Wired to field-management-service via SATELLITE_ENDPOINTS.NDVI_SUMMARY.
+  // The backend only returns tenant-level aggregates (not per-field rows),
+  // so the table keeps its sample data until a per-field endpoint lands.
+  const { data: ndviSummary, isLoading, error, refetch } = useNdviHistory();
+  const loading = isLoading;
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const displayData = apiSatelliteData ?? satelliteData;
+  const hasLiveData = !!ndviSummary && (ndviSummary.totalFields ?? 0) > 0;
+  const displayData = satelliteData;
 
   if (loading) {
     return (

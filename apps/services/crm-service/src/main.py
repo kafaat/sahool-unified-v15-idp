@@ -61,8 +61,16 @@ SERVICE_NAME_AR = "خدمة إدارة علاقات المزارعين"
 SERVICE_VERSION = "16.0.0"
 SERVICE_PORT = 8131
 
-# Logger
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("crm-service")
 logger = structlog.get_logger()
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("crm-service")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -574,6 +582,9 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 try:

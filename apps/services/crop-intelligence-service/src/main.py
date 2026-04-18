@@ -100,13 +100,21 @@ from .yield_prediction import (
 # إعداد السجلات
 # ═══════════════════════════════════════════════════════════════════════════════
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("crop-intelligence-service")
 try:
     import structlog
 
     logger = structlog.get_logger(__name__)
 except ImportError:
-    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("crop-intelligence-service")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Database Migrations
@@ -902,6 +910,9 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

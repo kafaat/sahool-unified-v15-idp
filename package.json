@@ -42,6 +42,8 @@
     "docs": "./scripts/generate-docs.sh",
     "docs:web": "npm run docs --workspace=apps/web",
     "docs:admin": "npm run docs --workspace=apps/admin",
+    "contracts:sync-python": "tsx scripts/sync-contracts-to-python.ts",
+    "contracts:check-python-drift": "tsx scripts/check-contracts-drift.ts",
     "diagnose": "node scripts/diagnose.js",
     "diagnose:py": "ruff check apps/ shared/ && pyright shared/ai/",
     "diagnose:js": "npx oxlint . && npx knip",

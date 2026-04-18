@@ -89,12 +89,19 @@ from .models.inventory import (  # noqa: E402
     ItemCategory,
 )
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging  # noqa: E402
+
+setup_logging("inventory-service")
 if structlog is not None:
     logger = structlog.get_logger(__name__)
 else:
     logger = logging.getLogger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing  # noqa: E402
+
+_tracer = setup_tracing("inventory-service")
 
 # Security: Require DATABASE_URL from environment, no hardcoded defaults
 DATABASE_URL = os.getenv("DATABASE_URL")
@@ -180,6 +187,9 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Include alert router
 app.include_router(alert_router)

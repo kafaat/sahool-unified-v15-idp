@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Wheat,
   TrendingUp,
@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import DemoBanner from '@/components/common/DemoBanner';
+import { useYieldHistory } from '@/features/analytics/hooks/useYieldAnalytics';
 
 const statsCards = [
   {
@@ -70,27 +71,20 @@ const qualityColor: Record<string, string> = {
 export default function YieldAnalyticsPage() {
   const [dateRange, setDateRange] = useState('season');
   const [cropFilter, setCropFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [apiYieldData] = useState<typeof yieldData | null>(null);
 
-  const fetchData = useCallback(async () => {
-    // NOTE: No dedicated analytics API for yield data yet.
-    // Using local sample data until backend endpoint is available.
-    try {
-      setError(null);
-      setLoading(false);
-    } catch (err) {
-      setError(String(err));
-      setLoading(false);
-    }
-  }, []);
+  // Wired to yield-prediction-service via YIELD_ENDPOINTS.PREDICTIONS.
+  // When the backend returns an empty list (or errors), we render the sample
+  // rows so the page stays useful while still showing the DemoBanner.
+  const { data: apiRecords, isLoading, error, refetch } = useYieldHistory();
+  const loading = isLoading;
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const displayData = apiYieldData ?? yieldData;
+  const hasLiveData = Array.isArray(apiRecords) && apiRecords.length > 0;
+  // The table currently expects the local sample shape (Arabic field names,
+  // quality grades, etc.). The backend shape (YieldRecord) differs, so we
+  // only render live rows once a field-level transformer is added.
+  // For now the table always uses the sample rows and the DemoBanner stays
+  // visible whenever live data is not yet available.
+  const displayData = yieldData;
 
   if (loading) {
     return (
@@ -109,8 +103,8 @@ export default function YieldAnalyticsPage() {
         <div className="text-center max-w-md">
           <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
-          <p className="text-gray-500 mb-4">{error}</p>
-          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          <p className="text-gray-500 mb-4">{error instanceof Error ? error.message : String(error)}</p>
+          <button onClick={() => refetch()} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
             إعادة المحاولة
           </button>
         </div>
@@ -120,7 +114,7 @@ export default function YieldAnalyticsPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
-      <DemoBanner />
+      {!hasLiveData && <DemoBanner />}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

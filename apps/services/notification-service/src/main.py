@@ -165,9 +165,16 @@ from .sms_providers import get_multi_sms_client
 from .telegram_client import get_telegram_client
 from .whatsapp_client import get_whatsapp_client
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("notification-service")
 logger = structlog.get_logger("sahool-notifications")
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("notification-service")
 
 # =============================================================================
 # Enums & Models
@@ -1365,6 +1372,9 @@ app = FastAPI(
     description="Enhanced personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration, Redis queue, and comprehensive analytics.",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

@@ -358,11 +358,32 @@ hydrology_config_wetness_threshold {settings.wetness_index_high_threshold}
 # ==============================================================================
 
 
-async def publish_event(subject: str, data: dict):
+async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
     """
     Publish event to NATS if connected.
     نشر حدث إلى NATS إذا كان متصلاً
+
+    When ``tenant_id`` is provided, rewrites a global ``sahool.<domain>.<action>``
+    subject to the tenant-scoped ``sahool.tenant.<tenant_id>.<domain>.<action>``
+    form. Falls back to the original subject with a warning when tenant_id is
+    absent (TODO: plumb tenant_id through all callers).
     """
+    if tenant_id:
+        try:
+            from shared.events.subjects import get_tenant_subject
+
+            parts = subject.split(".", 2)
+            if len(parts) >= 3 and parts[0] == "sahool":
+                subject = get_tenant_subject(tenant_id, parts[1], parts[2])
+        except ImportError:
+            subject = f"sahool.tenant.{tenant_id}." + subject.removeprefix("sahool.")
+    elif subject.startswith("sahool.") and not subject.startswith("sahool.tenant."):
+        logger.warning(
+            "nats_publish_missing_tenant_id",
+            subject=subject,
+            note="falling back to global subject; TODO plumb tenant_id",
+        )
+
     if hasattr(app.state, "nc") and app.state.nc:
         try:
             await app.state.nc.publish(subject, json.dumps(data).encode())

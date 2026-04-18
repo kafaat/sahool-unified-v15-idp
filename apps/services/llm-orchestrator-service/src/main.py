@@ -36,18 +36,16 @@ from .core.config import settings
 from .integrations import CrewService, MLService, NLPService, SatelliteService
 from .training import AGLTrainer, FeedbackCollector
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer(),
-    ]
-)
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
 
+setup_logging("llm-orchestrator-service")
 logger = structlog.get_logger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("llm-orchestrator-service")
 
 
 # Optional imports
@@ -319,6 +317,9 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

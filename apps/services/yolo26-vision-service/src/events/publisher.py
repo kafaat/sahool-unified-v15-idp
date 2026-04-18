@@ -27,7 +27,25 @@ from uuid import UUID, uuid4
 
 import structlog
 
+try:
+    from shared.events.subjects import get_tenant_subject
+except ImportError:
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
 logger = structlog.get_logger(__name__)
+
+
+def _scoped(global_subject: str, tenant_id: str | None, domain: str, action: str) -> str:
+    """Return tenant-scoped subject when tenant_id is available; fall back with warning."""
+    if tenant_id:
+        return get_tenant_subject(tenant_id, domain, action)
+    logger.warning(
+        "nats_publish_missing_tenant_id",
+        subject=global_subject,
+        note="falling back to global subject; TODO plumb tenant_id through caller",
+    )
+    return global_subject
 
 # Critical pest class IDs that trigger critical alerts
 CRITICAL_PEST_IDS = {
@@ -529,6 +547,7 @@ async def publish_pest_detection(
     request: Any,
     detections: list[dict],
     model_variant: str = "m",
+    tenant_id: str | None = None,
 ) -> None:
     """Publish pest detection event(s) using request-based NATS client."""
     nc = _get_nats_client(request)
@@ -549,7 +568,7 @@ async def publish_pest_detection(
         envelope["bbox"] = d.get("bbox")
 
     data = json.dumps(envelope, default=str).encode()
-    await nc.publish(SUBJECT_PEST_DETECTED, data)
+    await nc.publish(_scoped(SUBJECT_PEST_DETECTED, tenant_id, "vision", "pest_detected"), data)
 
     # Check for critical pests by name
     for d in detections:
@@ -564,7 +583,10 @@ async def publish_pest_detection(
                 "class_name_en": name,
                 "confidence": d.get("confidence"),
             }
-            await nc.publish(SUBJECT_CRITICAL_ALERT, json.dumps(alert, default=str).encode())
+            await nc.publish(
+                _scoped(SUBJECT_CRITICAL_ALERT, tenant_id, "vision", "critical.alert"),
+                json.dumps(alert, default=str).encode(),
+            )
             break  # One critical alert per batch
 
 
@@ -572,6 +594,7 @@ async def publish_disease_detection(
     request: Any,
     detections: list[dict],
     model_variant: str = "m",
+    tenant_id: str | None = None,
 ) -> None:
     """Publish disease detection event using request-based NATS client."""
     nc = _get_nats_client(request)
@@ -591,12 +614,13 @@ async def publish_disease_detection(
             "bbox": d.get("bbox"),
         }
         data = json.dumps(envelope, default=str).encode()
-        await nc.publish(SUBJECT_DISEASE_DETECTED, data)
+        await nc.publish(_scoped(SUBJECT_DISEASE_DETECTED, tenant_id, "vision", "disease_detected"), data)
 
 
 async def publish_analysis_event(
     request: Any,
     event_type: str,
+    tenant_id: str | None = None,
     **kwargs: Any,
 ) -> None:
     """Publish analysis lifecycle event using request-based NATS client."""
@@ -615,4 +639,4 @@ async def publish_analysis_event(
         **kwargs,
     }
     data = json.dumps(envelope, default=str).encode()
-    await nc.publish(subject, data)
+    await nc.publish(_scoped(subject, tenant_id, "vision", event_type), data)

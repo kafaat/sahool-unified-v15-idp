@@ -1,0 +1,29 @@
+name: Contracts Drift Guard
+
+on:
+  pull_request:
+    paths:
+      - "packages/shared-types/src/contracts/**"
+      - "shared/contracts_py/**"
+      - "scripts/sync-contracts-to-python.ts"
+      - "scripts/check-contracts-drift.ts"
+
+jobs:
+  check:
+    name: Verify Python contracts mirror TS source of truth
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install tsx
+        run: npm install --no-save --no-audit --no-fund tsx
+
+      - name: Run drift check
+        run: npx tsx scripts/check-contracts-drift.ts

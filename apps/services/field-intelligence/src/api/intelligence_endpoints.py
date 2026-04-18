@@ -25,7 +25,8 @@ import hashlib
 from datetime import date, timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Query
+from fastapi import APIRouter, Depends, Path, Query
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 # Authentication imports — mirror the fail-secure fallback already used by
@@ -63,6 +64,10 @@ def _ok(data: Any) -> dict[str, Any]:
 def _err(
     error: str, error_ar: str, *, error_code: str | None = None, extra: dict[str, Any] | None = None
 ) -> dict[str, Any]:
+    """Build an ApiResponse error body. Pair with `_err_response()` for the
+    HTTP wrapper — raising HTTPException(detail=this) would get wrapped
+    by FastAPI into `{detail: {...}}`, losing the envelope shape.
+    """
     body: dict[str, Any] = {
         "success": False,
         "error": error,
@@ -73,6 +78,20 @@ def _err(
     if extra:
         body.update(extra)
     return body
+
+
+def _err_response(
+    status_code: int, error: str, error_ar: str, *, error_code: str | None = None, extra: dict[str, Any] | None = None
+) -> JSONResponse:
+    """Return a JSONResponse that matches the canonical ApiResponse error
+    envelope. Used in place of `raise HTTPException(detail=...)` because
+    FastAPI wraps HTTPException detail into `{detail: ...}`, which breaks
+    the flat `{success, error, errorAr, errorCode}` shape the web expects.
+    """
+    return JSONResponse(
+        status_code=status_code,
+        content=_err(error, error_ar, error_code=error_code, extra=extra),
+    )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -358,14 +377,12 @@ def get_best_days(
     """
     act = activity.strip().lower()
     if act not in _ACTIVITY_ALIASES:
-        raise HTTPException(
-            status_code=400,
-            detail=_err(
-                f"Unknown activity '{activity}'",
-                f"نشاط غير معروف: {activity}",
-                error_code="INVALID_ACTIVITY",
-                extra={"validActivities": sorted(_ACTIVITY_ALIASES.keys())},
-            ),
+        return _err_response(
+            400,
+            f"Unknown activity '{activity}'",
+            f"نشاط غير معروف: {activity}",
+            error_code="INVALID_ACTIVITY",
+            extra={"validActivities": sorted(_ACTIVITY_ALIASES.keys())},
         )
 
     base = _field_seed(f"{field_id or ''}:{act}")
@@ -435,14 +452,12 @@ def validate_activity_date(
     """
     act = payload.activity.strip().lower()
     if act not in _ACTIVITY_ALIASES:
-        raise HTTPException(
-            status_code=400,
-            detail=_err(
-                f"Unknown activity '{payload.activity}'",
-                f"نشاط غير معروف: {payload.activity}",
-                error_code="INVALID_ACTIVITY",
-                extra={"validActivities": sorted(_ACTIVITY_ALIASES.keys())},
-            ),
+        return _err_response(
+            400,
+            f"Unknown activity '{payload.activity}'",
+            f"نشاط غير معروف: {payload.activity}",
+            error_code="INVALID_ACTIVITY",
+            extra={"validActivities": sorted(_ACTIVITY_ALIASES.keys())},
         )
 
     base = _field_seed(f"{payload.field_id or ''}:{act}")

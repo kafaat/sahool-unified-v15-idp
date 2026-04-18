@@ -308,6 +308,44 @@ _tracer.instrument_fastapi(app)
 setup_exception_handlers(app)
 add_request_id_middleware(app)
 
+
+# ApiResponse envelope for HTTPException
+# -----------------------------------------------------------------------------
+# FastAPI's default HTTPException handler wraps the detail as
+# `{"detail": <value>}`, which breaks the canonical envelope expected by the
+# web client (`{success, error, errorAr, errorCode}` — see
+# packages/shared-types/src/contracts/api-responses.ts). Every HTTPException
+# raised anywhere in this service (including the legacy /v1/* routes and the
+# new /api/v1/irrigation/schedules CRUD) now goes through this handler so
+# clients get a consistent error shape.
+#
+# The detail is normalised in three shapes:
+#   - plain string       → `error` + `errorAr` (Ar falls back to En)
+#   - {error, error_ar}  → snake_case preserved as camelCase
+#   - other dict/list    → serialised into `error=str(detail)`
+@app.exception_handler(HTTPException)
+async def _http_exception_envelope(_req, exc: HTTPException):
+    from fastapi.responses import JSONResponse as _JR
+
+    detail = exc.detail
+    body: dict[str, Any] = {"success": False}
+    if isinstance(detail, str):
+        body["error"] = detail
+        body["errorAr"] = detail
+    elif isinstance(detail, dict):
+        body["error"] = detail.get("error") or detail.get("message") or str(detail)
+        body["errorAr"] = detail.get("error_ar") or detail.get("errorAr") or detail.get("message_ar") or body["error"]
+        if detail.get("error_code") or detail.get("errorCode"):
+            body["errorCode"] = detail.get("error_code") or detail.get("errorCode")
+        # forward any additional keys the caller attached (e.g. validActivities)
+        for key, value in detail.items():
+            if key not in {"error", "error_ar", "errorAr", "message", "message_ar", "error_code", "errorCode"}:
+                body[key] = value
+    else:
+        body["error"] = str(detail)
+        body["errorAr"] = str(detail)
+    return _JR(status_code=exc.status_code, content=body, headers=exc.headers)
+
 # CORS middleware - use centralized config to prevent wildcard in production
 try:
     from shared.cors_config import setup_cors_middleware

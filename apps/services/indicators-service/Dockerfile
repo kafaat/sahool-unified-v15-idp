@@ -57,6 +57,11 @@ COPY apps/services/shared/ ./shared/
 # Copy source code
 COPY apps/services/indicators-service/src/ ./src/
 
+# Ship migrations alongside the service so operators can apply them from the
+# image (e.g. via an init-container or psql). The service reads/writes the
+# field_indicators table; it is created by 001_create_field_indicators.sql.
+COPY apps/services/indicators-service/migrations/ ./migrations/
+
 # Set ownership and switch to non-root user
 RUN chown -R sahool:sahool /app
 

@@ -86,6 +86,11 @@ COPY apps/services/shared/ ./shared/
 COPY apps/services/ground-vision-service/requirements.txt .
 COPY apps/services/ground-vision-service/src/ ./src/
 
+# Ship migrations alongside the service (cameras, frame_results,
+# timeline_analyses, detections, anomalies). Applied by operators via init
+# container or psql at deploy time.
+COPY apps/services/ground-vision-service/migrations/ ./migrations/
+
 # Set ownership
 RUN chown -R sahool:sahool /app
 

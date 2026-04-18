@@ -51,6 +51,8 @@ try:
 
     setup_logging("provider-config")
 except ImportError:
+    # shared.logging_config isn't on sys.path in some local dev shells —
+    # fall back to structlog defaults so the service still boots.
     pass
 logger = structlog.get_logger()
 
@@ -59,6 +61,7 @@ try:
 
     _tracer = setup_tracing("provider-config")
 except ImportError:
+    # OTel libraries are optional; skip tracing instrumentation when absent.
     _tracer = None
 
 from .database_service import CacheManager, ProviderConfigService

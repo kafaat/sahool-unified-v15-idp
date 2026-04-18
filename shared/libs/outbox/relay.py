@@ -103,6 +103,8 @@ class OutboxRelay:
             try:
                 await self._task
             except asyncio.CancelledError:
+                # Expected — .cancel() above just propagated; the awaited
+                # task re-raises CancelledError to signal clean teardown.
                 pass
         logger.info("outbox_relay_stopped")
 
@@ -162,15 +164,12 @@ class OutboxRelay:
                 rows = await conn.fetch(_FETCH_SQL, batch_size)
                 if not rows:
                     return 0
-                # Claim by bumping retry_count by 0 — i.e. no-op update just to
-                # hold the FOR UPDATE lock until commit. The txn exits on the
-                # next `async with` unwind, releasing the lock. Any concurrent
-                # relay replica will now see published_at still NULL but will
-                # either re-SELECT+SKIP LOCKED (and get a different batch) or
-                # find the rows already marked sent by the time they retry.
-                # In practice two replicas claiming identical rows is prevented
-                # by the SKIP LOCKED on the SELECT above, per txn scope.
-                pass
+                # The SELECT ... FOR UPDATE SKIP LOCKED above has already taken
+                # row-level locks for this batch within the current transaction.
+                # Exiting this `async with` block commits the txn and releases
+                # those locks without any extra statement, so we can move
+                # straight to publishing outside the transaction. SKIP LOCKED
+                # guarantees a second replica won't double-claim the same rows.
         # Lock released here.
 
         # --- Step 2: publish each row WITHOUT any DB lock held ---

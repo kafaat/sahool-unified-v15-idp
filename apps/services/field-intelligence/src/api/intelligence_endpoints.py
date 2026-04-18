@@ -60,7 +60,9 @@ def _ok(data: Any) -> dict[str, Any]:
     return {"success": True, "data": data}
 
 
-def _err(error: str, error_ar: str, *, error_code: str | None = None, extra: dict[str, Any] | None = None) -> dict[str, Any]:
+def _err(
+    error: str, error_ar: str, *, error_code: str | None = None, extra: dict[str, Any] | None = None
+) -> dict[str, Any]:
     body: dict[str, Any] = {
         "success": False,
         "error": error,

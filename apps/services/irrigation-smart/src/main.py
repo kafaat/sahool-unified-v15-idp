@@ -1689,13 +1689,9 @@ class ScheduleUpdateRequest(BaseModel):
         NOT NULL in the migration are guarded.
         """
         notnull_cols = ("irrigation_date", "duration_minutes", "water_amount_liters")
-        sent_as_null = [
-            col for col in notnull_cols if col in self.model_fields_set and getattr(self, col) is None
-        ]
+        sent_as_null = [col for col in notnull_cols if col in self.model_fields_set and getattr(self, col) is None]
         if sent_as_null:
-            raise ValueError(
-                f"Columns {sent_as_null} are NOT NULL; omit the field to skip, do not send null."
-            )
+            raise ValueError(f"Columns {sent_as_null} are NOT NULL; omit the field to skip, do not send null.")
         return self
 
 

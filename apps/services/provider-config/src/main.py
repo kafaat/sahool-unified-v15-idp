@@ -44,6 +44,23 @@ from shared.auth.dependencies import get_current_user
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 from shared.middleware.tenant_context import TenantContextMiddleware
 
+# Structured logging + OTel tracing. Must be configured before FastAPI is
+# instantiated so instrumentation can hook into the app.
+try:
+    from shared.logging_config import setup_logging
+
+    setup_logging("provider-config")
+except ImportError:
+    pass
+logger = structlog.get_logger()
+
+try:
+    from shared.observability.tracing import setup_tracing
+
+    _tracer = setup_tracing("provider-config")
+except ImportError:
+    _tracer = None
+
 from .database_service import CacheManager, ProviderConfigService
 
 # Import database models and services
@@ -120,6 +137,13 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI for distributed tracing (no-op if OTEL unavailable).
+if _tracer is not None:
+    try:
+        _tracer.instrument_fastapi(app)
+    except Exception:  # noqa: BLE001 — tracing is best-effort
+        pass
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -740,9 +764,6 @@ class ProvidersListResponse(BaseModel):
 # ═══════════════════════════════════════════════════════════════════════════════
 # DATABASE & CACHE INITIALIZATION
 # ═══════════════════════════════════════════════════════════════════════════════
-
-# Logger
-logger = structlog.get_logger()
 
 # Database and cache instances (initialized on startup)
 database: Database | None = None

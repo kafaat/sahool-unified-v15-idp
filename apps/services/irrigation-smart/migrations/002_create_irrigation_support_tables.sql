@@ -1,11 +1,13 @@
--- Migration: 001_create_irrigation_tables
--- Description: Create tables consumed by src/database_utils.py (IrrigationDB)
+-- Migration: 002_create_irrigation_support_tables
+-- Description: Support tables queried by src/database_utils.py (IrrigationDB).
 -- Service: irrigation-smart
 -- Date: 2026-04-18
 --
--- Schema derived directly from the SQL statements in
--- apps/services/irrigation-smart/src/database_utils.py. Column order and
--- types match the INSERT/SELECT bindings there.
+-- NOTE: `irrigation_schedules` lives in 001_create_irrigation_schedules.sql
+-- because the HTTP CRUD at /api/v1/irrigation/schedules needs it at boot.
+-- This migration adds the four orphan-use tables that database_utils.py
+-- references but that the lifespan does NOT yet wire a pool for. Schema
+-- derived directly from the INSERT/SELECT bindings in database_utils.py.
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -29,29 +31,9 @@ CREATE INDEX IF NOT EXISTS idx_irrigation_plans_tenant_field
     ON irrigation_plans(tenant_id, field_id, created_at DESC);
 
 -- ─────────────────────────────────────────────────────────────────────────────
--- irrigation_schedules — per-event schedule under a plan
--- Matches INSERT at database_utils.py:146.
--- ─────────────────────────────────────────────────────────────────────────────
-CREATE TABLE IF NOT EXISTS irrigation_schedules (
-    id                    UUID PRIMARY KEY,
-    plan_id               UUID NOT NULL REFERENCES irrigation_plans(id) ON DELETE CASCADE,
-    field_id              VARCHAR(100) NOT NULL,
-    irrigation_date       DATE         NOT NULL,
-    start_time            TIME,
-    duration_minutes      INTEGER      NOT NULL,
-    water_amount_liters   DECIMAL(12, 2) NOT NULL,
-    urgency               VARCHAR(20),
-    method                VARCHAR(50),
-    created_at            TIMESTAMPTZ  NOT NULL DEFAULT NOW()
-);
-CREATE INDEX IF NOT EXISTS idx_irrigation_schedules_plan
-    ON irrigation_schedules(plan_id);
-CREATE INDEX IF NOT EXISTS idx_irrigation_schedules_field_date
-    ON irrigation_schedules(field_id, irrigation_date);
-
--- ─────────────────────────────────────────────────────────────────────────────
 -- irrigation_executions — actual irrigation events for history/analytics
 -- Matches SELECT at database_utils.py:67 and INSERT at 207.
+-- References irrigation_schedules (created by migration 001).
 -- ─────────────────────────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS irrigation_executions (
     id                UUID PRIMARY KEY,
@@ -115,5 +97,5 @@ CREATE TABLE IF NOT EXISTS public._migrations (
     applied_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 INSERT INTO public._migrations (name)
-VALUES ('001_create_irrigation_tables')
+VALUES ('002_create_irrigation_support_tables')
 ON CONFLICT (name) DO NOTHING;

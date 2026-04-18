@@ -61,9 +61,10 @@ COPY --chown=sahool:sahool apps/services/shared ./shared/
 COPY --chown=sahool:sahool apps/services/irrigation-smart/src/ ./src/
 
 # Ship migrations alongside the service so operators can apply them from the
-# image (e.g. via an init-container). The service queries irrigation_plans,
-# irrigation_schedules, irrigation_executions, soil_moisture_readings and
-# water_balance — these tables are created by 001_create_irrigation_tables.sql.
+# image (e.g. via an init-container). 002_ creates the orphan-use tables
+# (irrigation_plans, irrigation_executions, soil_moisture_readings,
+# water_balance) referenced by src/database_utils.py; irrigation_schedules
+# itself is created by 001_ (bundled separately with the CRUD endpoints).
 COPY --chown=sahool:sahool apps/services/irrigation-smart/migrations/ ./migrations/
 
 

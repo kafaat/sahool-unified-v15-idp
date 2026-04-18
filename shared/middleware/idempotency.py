@@ -63,6 +63,11 @@ def _default_scope(request: Request) -> str:
     auth = request.headers.get("authorization", "")
     if auth:
         auth = hashlib.sha256(auth.encode()).hexdigest()[:16]
+    # nosemgrep: python.flask.security.audit.directly-returned-format-string.directly-returned-format-string
+    # This is an ASGI middleware helper (Starlette), not a Flask route handler.
+    # The returned string is an internal cache-key scope, never rendered as
+    # HTML. Inputs are a tenant header (coarse) and a SHA-256 digest, neither
+    # of which can carry user markup.
     return f"{tenant}:{auth}"
 
 

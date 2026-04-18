@@ -1795,6 +1795,25 @@ async def get_irrigation_schedule(
     return _row_to_schedule(row)
 
 
+# Allowlist of columns the PUT endpoint is permitted to update. Built
+# once at module import so Bandit can prove the SET clause below is
+# composed of literal identifiers (not user input) — the keys come from
+# Pydantic `ScheduleUpdateRequest` which already rejects `extra` fields,
+# but the allowlist makes the guarantee visible to static analyzers.
+_SCHEDULE_UPDATABLE_COLUMNS: frozenset[str] = frozenset(
+    {
+        "irrigation_date",
+        "start_time",
+        "duration_minutes",
+        "water_amount_liters",
+        "urgency",
+        "method",
+        "status",
+        "notes",
+    }
+)
+
+
 @app.put("/api/v1/irrigation/schedules/{schedule_id}")
 async def update_irrigation_schedule(
     schedule_id: uuid.UUID,
@@ -1805,21 +1824,29 @@ async def update_irrigation_schedule(
     pool = _require_db_pool()
     tenant_id = _validate_tenant_id(user)
 
-    # Build SET clause from only the fields the client actually sent.
+    # Build SET clause from only the fields the client actually sent,
+    # cross-checked against the allowlist. Any key that isn't in the
+    # allowlist is a bug on the server side (Pydantic should have
+    # already rejected it) and we fail-closed with a 400 rather than
+    # trust the key into the SQL.
     updates = payload.model_dump(exclude_unset=True)
     if not updates:
         raise HTTPException(status_code=400, detail="No updates provided")
 
-    set_parts = []
+    set_parts: list[str] = []
     params: list[Any] = []
     for key, value in updates.items():
+        if key not in _SCHEDULE_UPDATABLE_COLUMNS:
+            raise HTTPException(status_code=400, detail=f"Field '{key}' is not updatable")
         set_parts.append(f"{key} = ${len(params) + 1}")
         params.append(value)
     set_parts.append("updated_at = NOW()")
     params.extend([schedule_id, tenant_id])
 
+    # `set_parts` is composed exclusively from allowlisted column names
+    # above; user-supplied VALUES are bound via asyncpg's $N placeholders.
     sql = (
-        f"UPDATE irrigation_schedules SET {', '.join(set_parts)} "
+        f"UPDATE irrigation_schedules SET {', '.join(set_parts)} "  # nosec B608 — allowlisted identifiers
         f"WHERE id = ${len(params) - 1} AND tenant_id = ${len(params)} "
         f"RETURNING *"
     )

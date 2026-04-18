@@ -222,9 +222,16 @@ while read -r cl_active cl_waiting sv_active sv_idle maxwait; do
 done < /tmp/pgbouncer_pool_data.$$
 rm -f /tmp/pgbouncer_pool_data.$$
 
-# Calculate utilization (matching max_db_connections in pgbouncer.ini)
-# UPDATED: Changed from 150 to 250 to match pgbouncer.ini configuration
-MAX_CONNECTIONS=250
+# Read max_db_connections from the live PgBouncer config so utilization stays
+# accurate when operators tune MAX_DB_CONNECTIONS via docker-compose env.
+# Falls back to the historical default (250) only if SHOW CONFIG is unreachable,
+# which should never happen at this point — SHOW POOLS already succeeded above.
+MAX_CONNECTIONS=$(execute_admin_query "SHOW CONFIG;" 2>/dev/null \
+  | awk -F'|' '/^[[:space:]]*max_db_connections[[:space:]]*\|/ {gsub(/ /, "", $2); print $2; exit}')
+case "$MAX_CONNECTIONS" in
+  ''|*[!0-9]*) MAX_CONNECTIONS=250 ;;
+  *) [ "$MAX_CONNECTIONS" -le 0 ] && MAX_CONNECTIONS=250 ;;
+esac
 TOTAL_SV_CONNECTIONS=$((TOTAL_SV_ACTIVE + TOTAL_SV_IDLE))
 UTILIZATION=0
 if [ "$MAX_CONNECTIONS" -gt 0 ]; then

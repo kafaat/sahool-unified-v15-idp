@@ -155,15 +155,17 @@ wait_for_postgres() {
 # ═══════════════════════════════════════════════════════════════════════════════
 bootstrap_pgbouncer_schema() {
     log_info "Bootstrapping pgbouncer schema in ${DB_NAME}..."
-    # Capture psql output via $(...) command substitution. This serves two
-    # purposes: (a) the captured stdout+stderr is included in the error log
-    # if psql fails, making bootstrap problems debuggable from `docker logs`;
-    # (b) the $(...) form matches the existing safe pattern on entrypoint.sh
-    # lines 117/203 which Gitleaks' generic-secret rule does not flag —
-    # avoiding endless .gitleaksignore churn every time these lines move.
-    # `if !` also guards against `set -e` aborting before we can return 1.
+    # Capture psql output via $(...) so failures are debuggable from `docker
+    # logs sahool-pgbouncer`. `if !` guards against `set -e` aborting before
+    # we can return a controlled status.
+    #
+    # `gitleaks:allow` markers below: PGPASSWORD="$DB_PASSWORD" is a shell
+    # variable reference (not a hardcoded secret). The same pattern exists
+    # on lines 117/203 of this file but is only scanned for new diffs, so we
+    # mark these new occurrences inline. The marker is durable across line
+    # moves, unlike .gitleaksignore fingerprints which include the line number.
     if ! _bootstrap_out=$(PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
-        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1
+        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1 # gitleaks:allow
 CREATE SCHEMA IF NOT EXISTS pgbouncer;
 
 CREATE OR REPLACE FUNCTION pgbouncer.get_auth(p_usename TEXT)
@@ -190,7 +192,7 @@ EOSQL
     # REVOKE removes that default, then we re-GRANT only to CURRENT_USER (which
     # is the auth_user since psql connected as DB_USER above).
     if ! _bootstrap_out=$(PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
-        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1
+        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1 # gitleaks:allow
 REVOKE ALL ON FUNCTION pgbouncer.get_auth(TEXT) FROM PUBLIC;
 REVOKE ALL ON SCHEMA pgbouncer FROM PUBLIC;
 GRANT USAGE ON SCHEMA pgbouncer TO CURRENT_USER;

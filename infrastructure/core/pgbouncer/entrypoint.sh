@@ -126,8 +126,15 @@ wait_for_postgres() {
             _attempt=$((_attempt + 1))
         done
 
-        log_error "Timed out waiting for init scripts (pgbouncer schema not found)"
-        return 1
+        # Self-heal: init scripts in /docker-entrypoint-initdb.d/ only run on
+        # a fresh data directory, so pre-existing postgres volumes (common when
+        # switching compose project names or upgrading) never gain the
+        # pgbouncer schema. Rather than requiring operators to `docker compose
+        # down -v` and lose their data, apply the minimal schema ourselves.
+        # This is idempotent (CREATE SCHEMA IF NOT EXISTS + CREATE OR REPLACE).
+        log_warn "pgbouncer schema not found after waiting — applying bootstrap"
+        bootstrap_pgbouncer_schema
+        return $?
     else
         # Fallback: psql not available, use a fixed delay after port is open
         # to allow init scripts time to complete
@@ -136,6 +143,48 @@ wait_for_postgres() {
         log_info "Proceeding without schema verification (psql unavailable)"
         return 0
     fi
+}
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Bootstrap pgbouncer schema + get_auth() function when init scripts never ran.
+# Mirrors infrastructure/core/postgres/init/02-pgbouncer-user.sql but kept
+# minimal: only the pieces PgBouncer strictly needs at runtime for auth_query.
+# Runs as the main DB user (typically a superuser in the postgres docker image)
+# so SECURITY DEFINER on get_auth() lets us read pg_shadow without granting
+# pg_read_all_auth to every caller.
+# ═══════════════════════════════════════════════════════════════════════════════
+bootstrap_pgbouncer_schema() {
+    log_info "Bootstrapping pgbouncer schema in ${DB_NAME}..."
+    PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+        -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" <<'EOSQL' 2>&1
+CREATE SCHEMA IF NOT EXISTS pgbouncer;
+
+CREATE OR REPLACE FUNCTION pgbouncer.get_auth(p_usename TEXT)
+RETURNS TABLE(usename NAME, passwd TEXT) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT u.usename::NAME, u.passwd::TEXT
+    FROM pg_catalog.pg_shadow u
+    WHERE u.usename = p_usename;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+ALTER FUNCTION pgbouncer.get_auth(TEXT) SET search_path = pg_catalog;
+EOSQL
+    _rc=$?
+    if [ "$_rc" -eq 0 ]; then
+        log_info "Bootstrap applied — granting USAGE/EXECUTE to auth_user ${DB_USER}"
+        PGPASSWORD="$DB_PASSWORD" psql -v ON_ERROR_STOP=1 \
+            -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
+            -v user_name="$DB_USER" <<'EOSQL' 2>&1 || return 1
+GRANT USAGE ON SCHEMA pgbouncer TO CURRENT_USER;
+GRANT EXECUTE ON FUNCTION pgbouncer.get_auth(TEXT) TO CURRENT_USER;
+EOSQL
+        log_info "pgbouncer schema bootstrap complete"
+        return 0
+    fi
+    log_error "pgbouncer schema bootstrap failed (rc=$_rc)"
+    return 1
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

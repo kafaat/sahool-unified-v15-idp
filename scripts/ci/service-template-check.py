@@ -27,7 +27,15 @@ AUTH_IMPORT = re.compile(
     r"from\s+shared\.auth\.dependencies\s+import\s+[^\n]*\bget_current_user\b"
 )
 DEPENDS_GET_CURRENT_USER = re.compile(r"Depends\s*\(\s*get_current_user\s*\)")
+# A service can satisfy the auth rule by either importing the shared dep
+# OR defining its own `get_current_user` locally (legacy services). The
+# latter emits a DEPRECATION note rather than a hard failure so existing
+# services aren't broken but new ones are nudged toward the shared dep.
+LOCAL_GET_CURRENT_USER = re.compile(
+    r"^\s*(?:async\s+)?def\s+get_current_user\s*\(", re.MULTILINE
+)
 OPT_OUT_LOGGING = re.compile(r"#\s*LINT-OPT-OUT:\s*logging", re.IGNORECASE)
+OPT_OUT_AUTH = re.compile(r"#\s*LINT-OPT-OUT:\s*auth", re.IGNORECASE)
 HEALTHZ_ROUTE = re.compile(r"""@(?:app|router)\.get\(\s*['"]/healthz['"]""")
 READYZ_ROUTE = re.compile(r"""@(?:app|router)\.get\(\s*['"]/readyz['"]""")
 
@@ -51,11 +59,16 @@ def check(path: Path) -> list[str]:
         )
 
     uses_depends_auth = DEPENDS_GET_CURRENT_USER.search(text)
-    if uses_depends_auth and not AUTH_IMPORT.search(text):
-        errors.append(
-            f"{path}:{line_no(text, uses_depends_auth)}: uses `Depends(get_current_user)` "
-            "but does not import it from `shared.auth.dependencies`"
-        )
+    if uses_depends_auth and not OPT_OUT_AUTH.search(text):
+        has_shared_import = AUTH_IMPORT.search(text)
+        has_local_def = LOCAL_GET_CURRENT_USER.search(text)
+        if not has_shared_import and not has_local_def:
+            errors.append(
+                f"{path}:{line_no(text, uses_depends_auth)}: uses "
+                "`Depends(get_current_user)` but does not import it from "
+                "`shared.auth.dependencies` and does not define it locally. "
+                "Prefer the shared dependency."
+            )
 
     if not HEALTHZ_ROUTE.search(text):
         errors.append(

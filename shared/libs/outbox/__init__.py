@@ -15,29 +15,41 @@ Two APIs are exposed from this package:
 See ``README.md`` for usage and migration guidance.
 """
 
-# Canonical asyncpg API — preferred for new services
+# Canonical asyncpg API — preferred for new services. Always importable.
 from .asyncpg_publisher import OutboxPublisher
 from .message import OutboxMessage
 from .relay import OutboxRelay
 
-# Legacy SQLAlchemy API — preserved for existing services & tests
-from .models import Base, OutboxEvent
-from .nats_client import NATSOutboxAsyncClient, NATSOutboxClient
-from .publisher import EventBusClient, publish_pending
-from .worker import OutboxWorker, OutboxWorkerConfig
+# Legacy SQLAlchemy API — preserved for existing services & tests. Importable
+# only when sqlalchemy is installed in the runtime; new asyncpg services
+# don't need sqlalchemy, so the legacy imports are made optional to avoid
+# forcing an extra dependency on them.
+try:
+    from .models import Base, OutboxEvent
+    from .nats_client import NATSOutboxAsyncClient, NATSOutboxClient
+    from .publisher import EventBusClient, publish_pending
+    from .worker import OutboxWorker, OutboxWorkerConfig
+
+    _LEGACY_AVAILABLE = True
+except ImportError:
+    _LEGACY_AVAILABLE = False
 
 __all__ = [
     # Canonical asyncpg API
     "OutboxMessage",
     "OutboxPublisher",
     "OutboxRelay",
-    # Legacy SQLAlchemy API
-    "OutboxEvent",
-    "Base",
-    "EventBusClient",
-    "NATSOutboxClient",
-    "NATSOutboxAsyncClient",
-    "OutboxWorker",
-    "OutboxWorkerConfig",
-    "publish_pending",
 ]
+
+if _LEGACY_AVAILABLE:
+    __all__ += [
+        # Legacy SQLAlchemy API
+        "OutboxEvent",
+        "Base",
+        "EventBusClient",
+        "NATSOutboxClient",
+        "NATSOutboxAsyncClient",
+        "OutboxWorker",
+        "OutboxWorkerConfig",
+        "publish_pending",
+    ]

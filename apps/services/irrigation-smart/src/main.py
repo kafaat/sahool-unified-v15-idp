@@ -1712,7 +1712,9 @@ async def list_irrigation_schedules(
     if status_filter:
         sql_parts.append(f"AND status = ${len(params) + 1}")
         params.append(status_filter)
-    sql_parts.append(f"ORDER BY irrigation_date DESC, created_at DESC LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}")
+    sql_parts.append(
+        f"ORDER BY irrigation_date DESC, created_at DESC LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}"
+    )
     params.extend([limit, offset])
     sql = " ".join(sql_parts)
 

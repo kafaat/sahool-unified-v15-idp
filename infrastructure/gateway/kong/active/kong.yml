@@ -378,11 +378,16 @@ services:
   host: weather-service
   port: 8092
   protocol: http
+  # Kong upstream path: backend routes live at /weather/X (no /api/v1 prefix).
+  # With `path: /weather` and `strip_path: true`, a request to
+  # /api/v1/weather/current becomes: strip "/api/v1/weather" → "/current",
+  # prepend service.path "/weather" → "/weather/current", which matches
+  # @app.post("/weather/current") in the backend.
+  path: /weather
   routes:
   - name: weather-service-route
     paths:
     - /api/v1/weather
-    - /weather
     strip_path: true
     protocols:
     - http
@@ -747,6 +752,15 @@ services:
   host: alert-service
   port: 8113
   protocol: http
+  # Web calls /api/v1/alerts/* (ALERT_ENDPOINTS in packages/shared-types/
+  # src/contracts/api-endpoints.ts); backend declares @app.get("/alerts/...")
+  # with no /api/v1 prefix. Kong strips /api/v1/alerts and prepends
+  # service.path "/alerts" so /api/v1/alerts/{id}/resolve becomes
+  # "/alerts/{id}/resolve" on the backend — matches exactly.
+  #
+  # Legacy /api/v1/alert-management alias kept so in-flight clients don't
+  # break; new callers should use /api/v1/alerts.
+  path: /alerts
   plugins:
   - name: jwt
     config:
@@ -755,8 +769,8 @@ services:
   routes:
   - name: alert-service-route
     paths:
+    - /api/v1/alerts
     - /api/v1/alert-management
-    - /alert-management
     strip_path: true
     protocols:
     - http

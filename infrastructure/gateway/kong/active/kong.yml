@@ -153,15 +153,49 @@ services:
     protocols:
     - http
     - https
+# Marketplace contract mismatch fix — web uses /api/v1/marketplace/*
+# (MARKETPLACE_ENDPOINTS) but the NestJS backend mounts at /api/v1/market/*
+# (products/orders/harvest/stats) and /api/v1/fintech/* (wallet/loans/
+# credit-score/escrow). Kong services can only declare ONE service.path
+# rewrite each, so we register TWO Kong services sharing the same
+# upstream host, differing only in service.path. Kong's longest-prefix
+# match picks the fintech-route for /api/v1/marketplace/fintech/... and
+# the market-route for everything else under /api/v1/marketplace.
+- name: marketplace-service-fintech
+  host: marketplace-service
+  port: 3010
+  protocol: http
+  path: /api/v1
+  routes:
+  - name: marketplace-service-fintech-route
+    paths:
+    - /api/v1/marketplace/fintech
+    strip_path: true
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: jwt
+    config:
+      run_on_preflight: false
+      claims_to_verify:
+      - exp
+  - name: rate-limiting
+    config:
+      minute: 60
+      hour: 1000
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
 - name: marketplace-service
   host: marketplace-service
   port: 3010
   protocol: http
+  path: /api/v1/market
   routes:
   - name: marketplace-service-route
     paths:
     - /api/v1/marketplace
-    - /marketplace
     strip_path: true
     protocols:
     - http
@@ -946,8 +980,8 @@ services:
   - name: logistics-service-route
     paths:
     - /api/v1/logistics
-    - /logistics
-    strip_path: true
+    strip_path: false  # backend already serves /api/v1/logistics/{shipments,drivers,stats}
+                       # and /api/v1/routes/optimize — preserve the full path
     protocols:
     - http
     - https

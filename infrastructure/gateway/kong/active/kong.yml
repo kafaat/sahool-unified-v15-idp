@@ -688,10 +688,21 @@ services:
     protocols:
     - http
     - https
-  - name: notification-alerts-route
+  # Notification-service's alert SEND endpoints (POST /weather, POST /pest).
+  # Narrow from the generic /api/v1/alerts (which the web contract
+  # ALERT_ENDPOINTS owns for alert-service) to only the two paths this
+  # service actually implements. Longest-prefix match ensures these
+  # specific paths win over alert-service's /api/v1/alerts below.
+  - name: notification-alerts-weather-route
     paths:
-    - /api/v1/alerts
-    - /alerts
+    - /api/v1/alerts/weather
+    strip_path: true
+    protocols:
+    - http
+    - https
+  - name: notification-alerts-pest-route
+    paths:
+    - /api/v1/alerts/pest
     strip_path: true
     protocols:
     - http
@@ -769,6 +780,12 @@ services:
   host: alert-service
   port: 8113
   protocol: http
+  # Backend routes (apps/services/alert-service/src/main.py) live at
+  # `/alerts`, `/alerts/rules`, `/alerts/{id}/resolve`, etc — no /api/v1
+  # prefix. With strip_path: true AND service path `/alerts`, Kong
+  # converts /api/v1/alerts/{id}/resolve → strip → /{id}/resolve →
+  # prepend /alerts → /alerts/{id}/resolve (matches backend).
+  path: /alerts
   plugins:
   - name: jwt
     config:
@@ -777,8 +794,12 @@ services:
   routes:
   - name: alert-service-route
     paths:
+    # Primary path used by the web contract (ALERT_ENDPOINTS).
+    - /api/v1/alerts
+    # Legacy alias kept so callers of /api/v1/alert-management still
+    # reach this service during the rollout. Remove in v17 once all
+    # consumers switch to /api/v1/alerts.
     - /api/v1/alert-management
-    - /alert-management
     strip_path: true
     protocols:
     - http
@@ -818,6 +839,31 @@ services:
     - /api/v1/field-intelligence
     - /field-intelligence
     strip_path: true
+    protocols:
+    - http
+    - https
+  # INTELLIGENCE_ENDPOINTS (packages/shared-types/src/contracts/api-endpoints.ts)
+  # mounts the field-scoped score/zones/alerts/recommendations under
+  # /api/v1/fields/{fieldId}/intelligence/*. Without this regex route
+  # those requests match the broader /api/v1/fields prefix on
+  # field-management-service and 404 there. Backend's FastAPI router is
+  # already prefixed /api/v1 (see src/main.py include_router), so
+  # strip_path: false forwards the full path.
+  - name: field-intelligence-fields-route
+    paths:
+    - ~/^/api/v1/fields/[^/]+/intelligence(/.*)?$
+    strip_path: false
+    # Beat the field-management-service-route (implicit regex_priority 0).
+    regex_priority: 100
+    protocols:
+    - http
+    - https
+  # Non-field-scoped intelligence endpoints: create-task, best-days,
+  # validate-date. Backend routes are mounted under /api/v1/intelligence.
+  - name: field-intelligence-root-route
+    paths:
+    - /api/v1/intelligence
+    strip_path: false
     protocols:
     - http
     - https

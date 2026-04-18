@@ -1,0 +1,1452 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Alertmanager Config Overrides (SAHOOL Platform) - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#alertmanager-config-overrides-sahool-platform" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Alertmanager Config Overrides (SAHOOL Platform)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="alertmanager-config-overrides-sahool-platform">Alertmanager Config Overrides (SAHOOL Platform)<a class="headerlink" href="#alertmanager-config-overrides-sahool-platform" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Context</strong>: <code>infrastructure/monitoring/alertmanager/alertmanager.yml</code> ships with sensible
+defaults (e.g. <code>compliance@sahool.io</code>, <code>#sahool-audit-compliance</code>, standard SMTP) but
+real deployments need environment-specific values — different SMTP hosts, Slack webhook
+URLs, PagerDuty service keys.</p>
+<p>Before 2026-04-18 the file used <code>${VAR:-default}</code> syntax expecting shell-style
+env substitution. Alertmanager does <strong>not</strong> perform that substitution, and the
+docker-compose mount has no envsubst preprocessing — every placeholder was being
+sent as a literal string to SMTP/Slack/PagerDuty, silently failing delivery.
+That PR removed the broken syntax; per-env overrides now require an explicit
+templating layer. This doc covers the three supported workflows.</p>
+</blockquote>
+<hr />
+<h2 id="which-env-vars-override-what">Which env vars override what<a class="headerlink" href="#which-env-vars-override-what" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Important — these env vars do nothing on their own.</strong> Setting <code>SMTP_*</code>,
+<code>SLACK_WEBHOOK_URL</code>, <code>PAGERDUTY_SERVICE_KEY</code>, etc. in <code>.env</code> or the
+Alertmanager container environment does <strong>not</strong> change alert delivery by
+itself. Alertmanager does not read these names automatically, and this stack
+does not run <code>envsubst</code> over <code>alertmanager.yml</code>. To apply any override
+below, render it into the final config via one of the workflows in this
+document (envsubst wrapper, init container, or Helm/kustomize).</p>
+</blockquote>
+<p>All names are conventions — not auto-consumed by Alertmanager.</p>
+<table>
+<thead>
+<tr>
+<th>Env var</th>
+<th>Default</th>
+<th>Used by receiver(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SMTP_HOST</code></td>
+<td><code>smtp.gmail.com</code></td>
+<td>global (all email)</td>
+</tr>
+<tr>
+<td><code>SMTP_PORT</code></td>
+<td><code>587</code></td>
+<td>global (all email)</td>
+</tr>
+<tr>
+<td><code>SMTP_USERNAME</code></td>
+<td><em>(empty)</em></td>
+<td>global (all email)</td>
+</tr>
+<tr>
+<td><code>SMTP_PASSWORD</code></td>
+<td><em>(empty)</em></td>
+<td>global (all email)</td>
+</tr>
+<tr>
+<td><code>SLACK_WEBHOOK_URL</code></td>
+<td><em>(empty)</em></td>
+<td>global (all slack)</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_AUDIT</code></td>
+<td><code>compliance@sahool.io,sre@sahool.io</code></td>
+<td>audit-compliance-team</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_AUDIT</code></td>
+<td><code>#sahool-audit-compliance</code></td>
+<td>audit-compliance-team</td>
+</tr>
+<tr>
+<td><code>PAGERDUTY_AUDIT_KEY</code></td>
+<td><em>(empty)</em></td>
+<td>audit-compliance-team</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_DEFAULT</code></td>
+<td><code>devops@sahool.io</code></td>
+<td>default-notifications</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_DEFAULT</code></td>
+<td><code>#sahool-alerts</code></td>
+<td>default-notifications</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_CRITICAL</code></td>
+<td><code>sre@sahool.io,devops@sahool.io</code></td>
+<td>critical-infrastructure, critical-alerts</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_CRITICAL</code></td>
+<td><code>#sahool-critical</code></td>
+<td>critical-infrastructure, critical-alerts</td>
+</tr>
+<tr>
+<td><code>PAGERDUTY_SERVICE_KEY</code></td>
+<td><em>(empty)</em></td>
+<td>critical-infrastructure</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_DATABASE</code></td>
+<td><code>dba@sahool.io,devops@sahool.io</code></td>
+<td>database-team</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_DATABASE</code></td>
+<td><code>#sahool-database</code></td>
+<td>database-team</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_PERFORMANCE</code></td>
+<td><code>performance@sahool.io</code></td>
+<td>performance-team</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_PERFORMANCE</code></td>
+<td><code>#sahool-performance</code></td>
+<td>performance-team</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_AI_ML</code></td>
+<td><code>ai-team@sahool.io</code></td>
+<td>ai-ml-team</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_AI_ML</code></td>
+<td><code>#sahool-ai-ml</code></td>
+<td>ai-ml-team</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_WARNINGS</code></td>
+<td><code>devops@sahool.io</code></td>
+<td>warning-notifications</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_WARNINGS</code></td>
+<td><code>#sahool-warnings</code></td>
+<td>warning-notifications</td>
+</tr>
+<tr>
+<td><code>ALERT_EMAIL_INFO</code></td>
+<td><code>monitoring@sahool.io</code></td>
+<td>info-notifications</td>
+</tr>
+<tr>
+<td><code>SLACK_CHANNEL_INFO</code></td>
+<td><code>#sahool-info</code></td>
+<td>info-notifications</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>PagerDuty blocks are commented out in the committed default</strong>. Alertmanager
+rejects <code>service_key: ''</code> at config-check time, so the two <code>pagerduty_configs</code>
+stanzas (<code>audit-compliance-team</code>, <code>critical-infrastructure</code>) are shipped as
+YAML comments. Your templating layer must uncomment and inject the real key
+(<code>PAGERDUTY_AUDIT_KEY</code>, <code>PAGERDUTY_SERVICE_KEY</code>) before the final file is
+mounted — <code>grep -n pagerduty_configs alertmanager.yml</code> should return two
+uncommented lines in a working render.</p>
+</blockquote>
+<hr />
+<h2 id="workflow-a-envsubst-wrapper-docker-compose">Workflow A — envsubst wrapper (docker-compose)<a class="headerlink" href="#workflow-a-envsubst-wrapper-docker-compose" title="Permanent link">&para;</a></h2>
+<p>Simplest pre-deploy step; keeps the file template-free in git.</p>
+<ol>
+<li>Rename <code>alertmanager.yml</code> to <code>alertmanager.yml.tmpl</code> in a deployment checkout
+   (not in git — this is a local rendering step).</li>
+<li>Substitute back with <code>${VAR}</code> references at the values you want to override.</li>
+<li>Add a one-off render before <code>docker compose up</code>:</li>
+</ol>
+<div class="codehilite"><pre><span></span><code><span class="c1"># render-alertmanager.sh</span>
+<span class="c1"># Load KEY=value overrides from .env.alerting safely — `set -a` auto-exports</span>
+<span class="c1"># every variable assigned by the sourced file, and the shell&#39;s own parser</span>
+<span class="c1"># handles quoting, spaces, and `#` comments correctly (unlike the brittle</span>
+<span class="c1"># `export $(grep ... | xargs)` idiom).</span>
+<span class="nb">set</span><span class="w"> </span>-a
+.<span class="w"> </span>./.env.alerting
+<span class="nb">set</span><span class="w"> </span>+a
+envsubst<span class="w"> </span>&lt;<span class="w"> </span>infrastructure/monitoring/alertmanager/alertmanager.yml.tmpl<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&gt;<span class="w"> </span>infrastructure/monitoring/alertmanager/alertmanager.yml
+docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>infrastructure/monitoring/docker-compose.monitoring.yml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>alertmanager
+</code></pre></div>
+
+<p><strong>Pros</strong>: no new container, no Helm dep.
+<strong>Cons</strong>: manual step; the rendered file shouldn't be committed.</p>
+<hr />
+<h2 id="workflow-b-init-container-docker-compose-compose-v220">Workflow B — init container (docker-compose, Compose v2.20+)<a class="headerlink" href="#workflow-b-init-container-docker-compose-compose-v220" title="Permanent link">&para;</a></h2>
+<p>Let Docker Compose do the substitution at deploy time without human intervention.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Additions to infrastructure/monitoring/docker-compose.monitoring.yml</span>
+<span class="nt">services</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">alertmanager-config-render</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alpine:3.19</span>
+<span class="w">    </span><span class="nt">command</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sh</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-c</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">        </span><span class="no">apk add --no-cache gettext &amp;&amp;</span>
+<span class="w">        </span><span class="no">envsubst &lt; /src/alertmanager.yml.tmpl &gt; /rendered/alertmanager.yml</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./alertmanager:/src:ro</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alertmanager-rendered:/rendered</span>
+<span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">SMTP_HOST</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${SMTP_HOST:-smtp.gmail.com}</span>
+<span class="w">      </span><span class="nt">SMTP_PORT</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${SMTP_PORT:-587}</span>
+<span class="w">      </span><span class="c1"># ... rest of env vars from the table above</span>
+
+<span class="w">  </span><span class="nt">alertmanager</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># existing config ...</span>
+<span class="w">    </span><span class="nt">depends_on</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">alertmanager-config-render</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">service_completed_successfully</span>
+<span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alertmanager-rendered:/etc/alertmanager:ro</span>
+
+<span class="nt">volumes</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">alertmanager-rendered</span><span class="p">:</span>
+</code></pre></div>
+
+<p>Ship alertmanager.yml as <code>alertmanager.yml.tmpl</code> in the <code>alertmanager/</code> directory
+alongside this compose addition.</p>
+<p><strong>Pros</strong>: idempotent, fully CI-reproducible, uses env vars directly from compose.
+<strong>Cons</strong>: adds a container startup; <code>.tmpl</code> file diverges from the committed <code>.yml</code>.</p>
+<hr />
+<h2 id="workflow-c-helm-kustomize-kubernetes">Workflow C — Helm / kustomize (Kubernetes)<a class="headerlink" href="#workflow-c-helm-kustomize-kubernetes" title="Permanent link">&para;</a></h2>
+<p>If you're deploying to a Kubernetes cluster, prefer Helm's templating or a
+kustomize overlay. Example Helm chart structure:</p>
+<div class="codehilite"><pre><span></span><code>charts/monitoring/
+├── Chart.yaml
+├── values.yaml            # contains smtp.host, slack.webhookUrl, etc.
+└── templates/
+    └── alertmanager-config.yaml   # ConfigMap, templated from values
+</code></pre></div>
+
+<p>Where <code>templates/alertmanager-config.yaml</code> does:</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">alertmanager-config</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">alertmanager.yml</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">global:</span>
+<span class="w">      </span><span class="no">smtp_smarthost: &#39;{{ .Values.smtp.host }}:{{ .Values.smtp.port }}&#39;</span>
+<span class="w">      </span><span class="no">smtp_auth_username: &#39;{{ .Values.smtp.username }}&#39;</span>
+<span class="w">      </span><span class="no"># ... and so on</span>
+<span class="w">    </span><span class="no">receivers:</span>
+<span class="w">      </span><span class="no">- name: audit-compliance-team</span>
+<span class="w">        </span><span class="no">email_configs:</span>
+<span class="w">          </span><span class="no">- to: &#39;{{ .Values.receivers.audit.email }}&#39;</span>
+<span class="w">        </span><span class="no">slack_configs:</span>
+<span class="w">          </span><span class="no">- channel: &#39;{{ .Values.receivers.audit.slackChannel }}&#39;</span>
+</code></pre></div>
+
+<p><strong>Pros</strong>: proper config-as-code, works with ArgoCD / Flux.
+<strong>Cons</strong>: ~200 LOC of templates; investment only worth it for K8s deployments.</p>
+<hr />
+<h2 id="why-not-configexpand-env">Why not <code>--config.expand-env</code>?<a class="headerlink" href="#why-not-configexpand-env" title="Permanent link">&para;</a></h2>
+<p>Alertmanager does ship a <code>--config.expand-env</code> flag. Two reasons we don't use it:</p>
+<ol>
+<li><strong>Doesn't support <code>:-default</code> syntax.</strong> It uses Go's <code>os.ExpandEnv</code>, which
+   only handles <code>${VAR}</code> and <code>$VAR</code> — no defaults. Unset vars become empty strings
+   silently. That's worse than the current literal-default approach, which at least
+   lets a human reader see what the intended default is.</li>
+<li><strong>Doesn't cover nested references.</strong> <code>'${PAGERDUTY_AUDIT_KEY:-${PAGERDUTY_SERVICE_KEY:-}}'</code>
+   (a pattern we had) would never work.</li>
+</ol>
+<p>If you want <code>${VAR}</code> without defaults on a file you're willing to keep simple,
+<code>--config.expand-env</code> is a valid alternative to the workflows above.</p>
+<hr />
+<h2 id="smoke-check-after-any-change">Smoke check after any change<a class="headerlink" href="#smoke-check-after-any-change" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Parse check (any YAML tool)</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import yaml; yaml.safe_load(open(&#39;alertmanager.yml&#39;))&quot;</span>
+
+<span class="c1"># Alertmanager-specific validation (requires amtool)</span>
+amtool<span class="w"> </span>check-config<span class="w"> </span>alertmanager.yml
+</code></pre></div>
+
+<p>If <code>amtool</code> complains about an unresolved <code>${...}</code> placeholder in the literal
+file, your render step didn't run.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

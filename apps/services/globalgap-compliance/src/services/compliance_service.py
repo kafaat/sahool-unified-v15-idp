@@ -297,3 +297,120 @@ class ComplianceService:
             )
 
         return trends
+
+    async def generate_compliance_report(
+        self,
+        farm_id: str,
+        tenant_id: str,
+        months: int = 12,
+    ) -> dict[str, Any]:
+        """
+        Assemble a comprehensive bilingual compliance report for a farm.
+        توليد تقرير امتثال شامل ثنائي اللغة للمزرعة.
+
+        Combines the current compliance record, open and resolved
+        non-conformities, and historical trend into a single structure
+        that auditors / certification bodies can consume directly as
+        JSON (or a downstream service can render to PDF).
+
+        Args:
+            farm_id:   Farm identifier | معرف المزرعة
+            tenant_id: Tenant identifier | معرف المستأجر
+            months:    Trend window in months | نافذة الاتجاه بالأشهر
+
+        Returns:
+            Report dict with sections: summary (+summary_ar), current,
+            non_conformities, trend, verdict (+verdict_ar). Never raises —
+            missing data is expressed as NOT_ASSESSED so the endpoint is
+            safe to call at any stage of the compliance lifecycle.
+        """
+        current = await self.get_farm_compliance(farm_id, tenant_id)
+        all_ncs = await self.get_non_conformities(farm_id=farm_id, tenant_id=tenant_id)
+        trend = await self.get_compliance_trends(farm_id, tenant_id, months=months)
+
+        open_ncs = [nc for nc in all_ncs if not nc.corrective_action_completed]
+        resolved_ncs = [nc for nc in all_ncs if nc.corrective_action_completed]
+        major_open = sum(1 for nc in open_ncs if nc.severity == SeverityLevel.MAJOR)
+        minor_open = sum(1 for nc in open_ncs if nc.severity == SeverityLevel.MINOR)
+        critical_open = sum(1 for nc in open_ncs if nc.severity == SeverityLevel.CRITICAL)
+
+        # Verdict derivation. Certification bodies read the "can certify"
+        # signal before anything else; surface it explicitly rather than
+        # forcing them to interpret raw percentages + NC counts.
+        # Criteria mirror GlobalGAP IFA v6: any open MAJOR-must or
+        # CRITICAL non-conformity blocks certification regardless of
+        # overall percentage. 100% of MAJOR-musts + ≥95% of MINOR-musts
+        # = pass with no findings.
+        if current is None or current.overall_status == ComplianceStatus.NOT_ASSESSED:
+            verdict = "not_assessed"
+            verdict_en = "Not yet assessed — no compliance record on file."
+            verdict_ar = "لم يتم التقييم بعد — لا يوجد سجل امتثال."
+        elif critical_open > 0 or major_open > 0:
+            verdict = "blocked"
+            verdict_en = (
+                f"Certification BLOCKED: {major_open} open major non-conformity(ies), "
+                f"{critical_open} critical. Must be resolved before audit."
+            )
+            verdict_ar = (
+                f"الشهادة محجوبة: {major_open} حالة عدم مطابقة رئيسية مفتوحة، "
+                f"{critical_open} حرجة. يجب حلها قبل التدقيق."
+            )
+        elif current.overall_status == ComplianceStatus.COMPLIANT:
+            verdict = "eligible"
+            verdict_en = "Eligible for certification — all major-musts satisfied."
+            verdict_ar = "مؤهل للحصول على الشهادة — جميع المتطلبات الرئيسية مستوفاة."
+        else:
+            verdict = "conditional"
+            verdict_en = (
+                f"Conditional eligibility at {current.compliance_percentage:.1f}%. "
+                f"{minor_open} minor non-conformity(ies) open."
+            )
+            verdict_ar = (
+                f"أهلية مشروطة بنسبة {current.compliance_percentage:.1f}%. "
+                f"{minor_open} حالة عدم مطابقة ثانوية مفتوحة."
+            )
+
+        # Summary paragraph — bilingual, narrative form so the report's
+        # first page reads like a human-written executive summary rather
+        # than a struct dump.
+        pct = current.compliance_percentage if current else 0.0
+        total_ncs = len(all_ncs)
+        summary_en = (
+            f"Farm {farm_id} currently scores {pct:.1f}% against GlobalGAP IFA v6. "
+            f"{total_ncs} non-conformity(ies) on record: {len(open_ncs)} open, "
+            f"{len(resolved_ncs)} resolved. {len(trend)}-month trend included."
+        )
+        summary_ar = (
+            f"تحقق المزرعة {farm_id} حاليًا نسبة {pct:.1f}% وفقًا لمعيار GlobalGAP IFA v6. "
+            f"{total_ncs} حالة عدم مطابقة مسجلة: {len(open_ncs)} مفتوحة، "
+            f"{len(resolved_ncs)} تم حلها. اتجاه {len(trend)} أشهر مُدرج."
+        )
+
+        return {
+            "report_type": "globalgap_compliance_report",
+            "ifa_version": "6.0",
+            "farm_id": farm_id,
+            "tenant_id": tenant_id,
+            "generated_at": datetime.now(UTC).isoformat(),
+            "summary": summary_en,
+            "summary_ar": summary_ar,
+            "verdict": verdict,
+            "verdict_en": verdict_en,
+            "verdict_ar": verdict_ar,
+            "current": current.model_dump() if current else None,
+            "non_conformities": {
+                "total": total_ncs,
+                "open": len(open_ncs),
+                "resolved": len(resolved_ncs),
+                "by_severity": {
+                    "critical_open": critical_open,
+                    "major_open": major_open,
+                    "minor_open": minor_open,
+                },
+                "open_items": [nc.model_dump() for nc in open_ncs],
+            },
+            "trend": {
+                "months": months,
+                "data_points": trend,
+            },
+        }

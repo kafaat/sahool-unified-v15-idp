@@ -344,6 +344,30 @@ async def get_compliance_trends(
     }
 
 
+@app.get("/farms/{farm_id}/compliance/report")
+async def get_compliance_report(
+    farm_id: str,
+    months: int = Query(12, ge=1, le=24, description="Trend window in months | نافذة الاتجاه بالأشهر"),
+    tenant_id: str = Depends(get_tenant_id),
+    _current_user=Depends(get_current_user),
+):
+    """
+    Generate a comprehensive GlobalGAP IFA v6 compliance report.
+    توليد تقرير امتثال شامل لـ GlobalGAP IFA v6.
+
+    Aggregates the current compliance record, open and resolved
+    non-conformities, and an N-month trend into a single bilingual
+    JSON artifact that certification bodies / internal auditors can
+    consume directly. The `verdict` field is derived from IFA v6
+    major-must + critical rules — `blocked` means the farm cannot
+    be certified in its current state regardless of percentage.
+    """
+    compliance_service = app.state.compliance_service
+    return await compliance_service.generate_compliance_report(
+        farm_id=farm_id, tenant_id=tenant_id, months=months
+    )
+
+
 # ============== Checklist Endpoints ==============
 
 

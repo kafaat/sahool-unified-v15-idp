@@ -1015,6 +1015,109 @@ class TestMainEndpoints:
         r = client.get("/farms/farm_1/non-conformities", headers=self._HEADERS)
         assert r.status_code == 200
 
+    # ─────────────────────────────────────────────────────────────────
+    # Compliance report endpoint — aggregated bilingual artifact for
+    # auditors / certification bodies.
+    # ─────────────────────────────────────────────────────────────────
+
+    def test_compliance_report_not_assessed_farm(self, client):
+        """Calling the report endpoint on a farm with no compliance
+        record must succeed and return a ``not_assessed`` verdict
+        rather than 404 or 500 — auditors frequently run it before
+        the first audit to confirm the farm is on file."""
+        r = client.get("/farms/farm_new/compliance/report", headers=self._HEADERS)
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["report_type"] == "globalgap_compliance_report"
+        assert body["verdict"] == "not_assessed"
+        assert "summary" in body and "summary_ar" in body
+        assert body["current"] is None
+        assert body["non_conformities"]["total"] == 0
+        assert body["trend"]["months"] == 12
+
+    def test_compliance_report_eligible_farm(self, client):
+        """A fully compliant farm with no open non-conformities
+        must be surfaced as ``eligible`` so the certification body's
+        tooling can auto-advance it to scheduling."""
+        client.post(
+            "/farms/farm_elig/compliance",
+            json={
+                "farm_id": "farm_elig",
+                "tenant_id": self._UUID,
+                "overall_status": "compliant",
+                "compliance_percentage": 98.5,
+                "total_control_points": 200,
+                "compliant_points": 197,
+                "non_compliant_points": 3,
+            },
+            headers=self._HEADERS,
+        )
+
+        r = client.get("/farms/farm_elig/compliance/report", headers=self._HEADERS)
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["verdict"] == "eligible"
+        assert body["current"]["compliance_percentage"] == 98.5
+        assert body["non_conformities"]["open"] == 0
+        # Bilingual payload is required — certification bodies in
+        # MENA need the Arabic verdict text verbatim.
+        assert "مؤهل" in body["verdict_ar"]
+
+    def test_compliance_report_blocked_by_major_open_nc(self, client):
+        """Open MAJOR non-conformities must set the verdict to
+        ``blocked`` regardless of overall compliance percentage —
+        this is an IFA v6 hard rule (major-must gate)."""
+        client.post(
+            "/farms/farm_blk/compliance",
+            json={
+                "farm_id": "farm_blk",
+                "tenant_id": self._UUID,
+                "overall_status": "partially_compliant",
+                "compliance_percentage": 92.0,
+                "total_control_points": 100,
+                "compliant_points": 92,
+                "non_compliant_points": 8,
+            },
+            headers=self._HEADERS,
+        )
+        # Inject an open MAJOR non-conformity into the in-memory store
+        # (avoids coupling the test to the create-NC endpoint's wiring).
+        from src.main import app
+        from src.models.compliance import NonConformity, SeverityLevel
+
+        nc = NonConformity(
+            compliance_record_id=f"{self._UUID}:farm_blk",
+            control_point_id="AF.1.1.1",
+            control_point_number="AF.1.1.1",
+            severity=SeverityLevel.MAJOR,
+            description_en="Site history risk assessment missing",
+            description_ar="تقييم مخاطر تاريخ الموقع مفقود",
+            corrective_action_completed=False,
+        )
+        app.state.compliance_service.non_conformities[f"{self._UUID}:farm_blk"] = [nc]
+
+        r = client.get("/farms/farm_blk/compliance/report", headers=self._HEADERS)
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["verdict"] == "blocked"
+        assert body["non_conformities"]["by_severity"]["major_open"] == 1
+        # Bilingual block reason must name the count.
+        assert "BLOCKED" in body["verdict_en"]
+        assert "محجوبة" in body["verdict_ar"]
+
+    def test_compliance_report_trend_window_respected(self, client):
+        """The `months` query parameter must flow through to the
+        trend computation. Default is 12; this covers the 3-month
+        explicit override."""
+        r = client.get(
+            "/farms/farm_trend/compliance/report?months=3",
+            headers=self._HEADERS,
+        )
+        assert r.status_code == 200
+        body = r.json()
+        assert body["trend"]["months"] == 3
+        assert len(body["trend"]["data_points"]) == 3
+
     def test_get_farm_certificates(self, client):
         r = client.get("/farms/farm_1/certificates", headers=self._HEADERS)
         assert r.status_code == 200

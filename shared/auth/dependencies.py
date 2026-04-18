@@ -15,6 +15,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .config import config
 from .jwt_handler import verify_token
 from .models import AuthErrors, AuthException, User
+from .token_revocation import is_token_revoked
 from .user_cache import get_user_cache
 from .user_repository import get_user_repository
 
@@ -68,6 +69,36 @@ async def get_current_user(
         token = credentials.credentials
         payload = verify_token(token)
         user_id = payload.user_id
+
+        # Revocation check (defense in depth).
+        # Fail-closed on definitive revocation; fail-open on store errors so a
+        # Redis outage doesn't lock every user out. Logged for observability.
+        try:
+            revoked, reason = await is_token_revoked(
+                jti=payload.jti,
+                user_id=user_id,
+                tenant_id=payload.tenant_id,
+                issued_at=payload.iat.timestamp() if payload.iat else None,
+            )
+            if revoked:
+                logger.warning(
+                    "Authentication failed: Token revoked for user %s (reason=%s)",
+                    user_id,
+                    reason,
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=AuthErrors.INVALID_TOKEN.en,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except HTTPException:
+            raise
+        except Exception as revocation_err:  # noqa: BLE001 - fail-open on infra errors
+            logger.warning(
+                "Revocation check unavailable for user %s: %s",
+                user_id,
+                revocation_err,
+            )
 
         # Check cache first for user status
         cache = get_user_cache()

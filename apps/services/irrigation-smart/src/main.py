@@ -323,11 +323,15 @@ async def get_current_user(
             detail="JWT not configured",
         )
 
+    # Lock to platform algorithm (HS256). Accepting HS384/HS512 opens an
+    # algorithm-confusion surface and diverges from shared/auth config.
+    jwt_algorithm = os.getenv("JWT_ALGORITHM", "HS256")
     try:
         payload = jwt.decode(
             token,
             jwt_secret,
-            algorithms=["HS256", "HS384", "HS512"],
+            algorithms=[jwt_algorithm],
+            options={"require": ["exp", "sub"]},
         )
         logger.debug("JWT validated successfully", user_id=payload.get("sub"))
         return payload
@@ -336,6 +340,13 @@ async def get_current_user(
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token has expired",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except jwt.MissingRequiredClaimError as e:
+        logger.warning("JWT missing required claim", error=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
             headers={"WWW-Authenticate": "Bearer"},
         )
     except jwt.InvalidTokenError as e:

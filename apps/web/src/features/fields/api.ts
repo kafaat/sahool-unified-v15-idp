@@ -219,13 +219,21 @@ interface ApiFieldRequest {
 }
 
 /**
- * Map feature field to API field
+ * Map feature field to API field.
+ *
+ * Throws if tenantId is missing — never silently falls back to a shared tenant,
+ * which would cause cross-tenant writes when the auth store is transiently empty.
  */
 function mapFieldToApiField(field: FieldFormData, tenantId?: string): ApiFieldRequest {
+  if (!tenantId) {
+    throw new Error(
+      'tenantId is required for field mutations. Ensure the user is authenticated before submitting.',
+    );
+  }
   return {
     name: field.name,
     nameAr: field.nameAr,
-    tenantId: tenantId || 'default-tenant',
+    tenantId,
     cropType: field.crop || 'unknown',
     cropTypeAr: field.cropAr,
     // Send flat ring as coordinates (service handles GeoJSON wrapping internally)

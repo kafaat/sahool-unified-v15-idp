@@ -325,7 +325,7 @@ curl -X POST "http://localhost:8165/api/v1/hydrology/analyze" \
 | `DATABASE_URL` | - | PostgreSQL connection | Yes |
 | `NATS_URL` | - | NATS server URL | Yes |
 | `TERRAIN_SERVICE_URL` | `http://terrain-core-service:8160` | Terrain service URL | No |
-| `WEATHER_SERVICE_URL` | `http://weather-service:8108` | Weather service URL | No |
+| `WEATHER_SERVICE_URL` | `http://weather-service:8092` | Weather service URL | No |
 | `DEFAULT_DEM_RESOLUTION` | `30.0` | Default DEM resolution (m) | No |
 | `FLOW_ACCUMULATION_THRESHOLD` | `100` | Stream detection threshold | No |
 | `DEPRESSION_FILL_MAX_DEPTH` | `2.0` | Max depression fill depth (m) | No |
@@ -395,7 +395,7 @@ docker run -p 8165:8165 \
   -e DATABASE_URL=postgresql://user:pass@localhost:5432/sahool \
   -e NATS_URL=nats://localhost:4222 \
   -e TERRAIN_SERVICE_URL=http://terrain-core-service:8160 \
-  -e WEATHER_SERVICE_URL=http://weather-service:8108 \
+  -e WEATHER_SERVICE_URL=http://weather-service:8092 \
   sahool/hydrology-service
 ```
 

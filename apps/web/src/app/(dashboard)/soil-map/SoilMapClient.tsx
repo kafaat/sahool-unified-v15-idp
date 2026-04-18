@@ -107,7 +107,7 @@ export default function SoilMapClient() {
   const [expandedZone, setExpandedZone] = useState<string | null>(null);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-gray-50 p-6 space-y-6">
+    <div className="min-h-screen bg-gray-50 p-6 space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-gray-900">خريطة التربة اليمنية</h1>

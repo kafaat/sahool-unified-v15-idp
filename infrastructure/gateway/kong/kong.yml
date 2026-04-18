@@ -155,6 +155,38 @@ services:
           policy: local
           fault_tolerant: true
 
+  # User Service - Login Route (tightest rate limits)
+  # مسار تسجيل الدخول - أشد حدود المعدل
+  # Split from the other public auth routes so brute-force login attempts
+  # cannot borrow quota from OTP / refresh flows.
+  - name: user-service-login
+    host: user-service
+    port: 3025
+    protocol: http
+    routes:
+      - name: user-service-auth-login
+        paths:
+          - /api/v1/auth/login
+        strip_path: false
+        protocols: ["http", "https"]
+    plugins:
+      - name: rate-limiting
+        config:
+          minute: 10
+          hour: 100
+          # Redis-backed counters survive Kong restarts and are shared
+          # across worker processes, so the limit cannot be bypassed by
+          # spraying requests across nodes.
+          policy: redis
+          redis_host: "${KONG_REDIS_HOST:-redis}"
+          redis_port: 6379
+          redis_password: "${KONG_REDIS_PASSWORD:-}"
+          redis_timeout: 2000
+          # Fail CLOSED: if Redis is unreachable the plugin must reject
+          # requests rather than silently allow unlimited login attempts.
+          fault_tolerant: false
+          hide_client_headers: false
+
   # User Service - Public Authentication Routes (no JWT required)
   # مسارات المصادقة العامة - لا تتطلب رمز JWT
   - name: user-service-public
@@ -164,7 +196,6 @@ services:
     routes:
       - name: user-service-auth-public
         paths:
-          - /api/v1/auth/login
           - /api/v1/auth/register
           - /api/v1/auth/forgot-password
           - /api/v1/auth/reset-password
@@ -178,8 +209,16 @@ services:
         config:
           minute: 30
           hour: 500
-          policy: local
-          fault_tolerant: true
+          # Redis-backed to share counters across Kong workers / replicas.
+          policy: redis
+          redis_host: "${KONG_REDIS_HOST:-redis}"
+          redis_port: 6379
+          redis_password: "${KONG_REDIS_PASSWORD:-}"
+          redis_timeout: 2000
+          # Fail CLOSED — protect OTP / reset / refresh endpoints from
+          # unthrottled abuse when Redis is degraded.
+          fault_tolerant: false
+          hide_client_headers: false
 
   # User Service - Protected Routes (requires JWT in production)
   # مسارات المستخدمين المحمية

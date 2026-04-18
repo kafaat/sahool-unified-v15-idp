@@ -56,6 +56,12 @@ except ImportError:
         pass
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# Logging Configuration
+# إعداد السجلات
+# ═══════════════════════════════════════════════════════════════════════════════
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
 from shared.middleware.tenant_context import TenantContextMiddleware
 
 from .decision_engine import (
@@ -95,18 +101,18 @@ from .yield_prediction import (
     predict_yield,
 )
 
-# ═══════════════════════════════════════════════════════════════════════════════
-# Logging Configuration
-# إعداد السجلات
-# ═══════════════════════════════════════════════════════════════════════════════
-
+setup_logging("crop-intelligence-service")
 try:
     import structlog
 
     logger = structlog.get_logger(__name__)
 except ImportError:
-    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("crop-intelligence-service")
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Database Migrations
@@ -903,6 +909,9 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
+
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
@@ -996,7 +1005,12 @@ def health():
 
 @app.get("/readyz")
 def readiness():
-    """Kubernetes readiness probe - is the service ready to accept traffic?"""
+    """Kubernetes readiness probe - is the service ready to accept traffic?
+
+    In production/staging, returns HTTP 503 when a configured critical
+    dependency (DB, NATS) is disconnected. Dev preserves 200 behavior.
+    """
+    env = os.getenv("ENVIRONMENT", "development").lower()
     nats_connected = getattr(app.state, "nats_connected", False)
     db_connected = getattr(app.state, "db_connected", False)
 
@@ -1016,15 +1030,32 @@ def readiness():
     else:
         db_status = "not_configured"
 
+    checks = {
+        "service": "ready",
+        "nats": nats_status,
+        "database": db_status,
+    }
+
+    if env in ("production", "prod", "staging"):
+        critical_down = nats_status == "disconnected" or db_status == "disconnected"
+        if critical_down:
+            from fastapi.responses import JSONResponse
+
+            return JSONResponse(
+                status_code=503,
+                content={
+                    "status": "not_ready",
+                    "service": "crop-intelligence-service",
+                    "version": "16.0.0",
+                    "checks": checks,
+                },
+            )
+
     return {
         "status": "ready",
         "service": "crop-intelligence-service",
         "version": "16.0.0",
-        "checks": {
-            "service": "ready",
-            "nats": nats_status,
-            "database": db_status,
-        },
+        "checks": checks,
     }
 
 

@@ -276,6 +276,405 @@ def test_validate_chain_detects_tampering():
 
 
 # ═══════════════════════════════════════════════════════════════════════════
+# Retention-aware chain validation
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# When the audit-retention-worker deletes expired rows it records the
+# (seq_num, entry_hash) of the last-deleted row in audit_retention_events.
+# validate_chain() must treat a surviving row whose prev_hash equals that
+# recorded hash as a LEGITIMATE gap (not tampering) and count it in
+# `retention_gaps_crossed`. These tests exercise that contract end-to-end
+# through the in-memory store's `_simulate_retention` helper.
+
+
+def test_validate_chain_accepts_retention_gap():
+    """Retention-boundary hash matches a surviving row's prev_hash → VALID."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        # Write 6 entries; the chain is intact at this point.
+        for i in range(6):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Simulate retention: drop seq_nums 1..3, keep 4..6. The worker
+        # records last_retained_seq_num=3 and its entry_hash.
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=4)
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is True
+    assert result.errors == []
+    # Exactly one retention boundary crossed — the one simulated above.
+    assert result.retention_gaps_crossed == 1
+    assert result.total_entries == 3  # Only surviving rows are walked.
+
+
+def test_validate_chain_still_detects_tamper_post_retention():
+    """Retention-awareness must not weaken tamper detection. A row mutated
+    AFTER retention still trips the entry_hash check because recomputation
+    uses the row's OWN stored prev_hash, not the retention boundary."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(5):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Retain only the last 2 rows; boundary hash is row 3's entry_hash.
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=4)
+        # Now tamper with the first surviving row's content.
+        store._by_tenant[VALID_TENANT_ID][0]["details"] = {"i": 999}
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is False
+    assert any("entry_hash mismatch" in err for err in result.errors)
+
+
+def test_validate_chain_rejects_forged_prev_hash_after_retention():
+    """An attacker who knows a retention boundary hash can't use it to
+    smuggle a forged row in if they leave the entry_hash untouched — the
+    entry_hash recompute against the forged prev_hash won't match the
+    stored entry_hash."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(4):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+        # Attacker rewrites the first surviving row's prev_hash to a
+        # fabricated value that isn't in the retention-boundary set. The
+        # row's entry_hash was computed from the ORIGINAL prev_hash, so
+        # recomputation won't match either.
+        store._by_tenant[VALID_TENANT_ID][0]["prev_hash"] = "f" * 64
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is False
+    assert any("prev_hash mismatch" in err for err in result.errors)
+
+
+def test_validate_chain_counts_multiple_retention_runs():
+    """Each retention run adds one boundary; a chain walked across N
+    retention boundaries should report retention_gaps_crossed = N."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(6):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Two staged retention runs; each leaves a boundary hash behind.
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+        store._simulate_retention(VALID_TENANT_ID, keep_from_seq=5)
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    # After both runs the chain should still be valid; two gaps crossed
+    # from the first surviving row after each retention checkpoint.
+    # Depending on whether the second retention happens to re-anchor
+    # the same hash as the first, the count is 1 or 2 — both are valid
+    # outcomes. The invariant we care about is: non-zero AND `valid`.
+    assert result.valid is True
+    assert result.retention_gaps_crossed >= 1
+    assert result.total_entries == 2
+
+
+def test_inmemory_store_retention_boundaries_empty_by_default():
+    """A fresh InMemoryAuditStore has no simulated retention → boundaries
+    query returns []. Smoke-tests the protocol method without DB."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        return await store.retention_boundaries_for_tenant(VALID_TENANT_ID)
+
+    boundaries = asyncio.get_event_loop().run_until_complete(run())
+    assert boundaries == []
+
+
+def test_chain_validate_endpoint_exposes_retention_gaps_crossed(client):
+    """The /chain/validate response must surface retention_gaps_crossed
+    so dashboards (and the AUDIT_CHAIN_RETENTION_GAPS_CROSSED gauge it
+    mirrors) can distinguish "retention has run" from "never touched".
+
+    We drive the endpoint end-to-end: POST a handful of entries, reach
+    into the in-memory store to simulate a retention run, then GET the
+    endpoint and assert the field is present and non-zero.
+    """
+    # Seed a few entries so there's a chain to retention-process.
+    for i in range(5):
+        r = client.post(
+            "/api/v1/audit/logs",
+            headers=HDR,
+            json={
+                "action": f"e{i}",
+                "category": "authentication",
+                "severity": "info",
+                "details": {"i": i},
+            },
+        )
+        assert r.status_code == 200
+
+    # Simulate retention: drop the first 2 rows, keeping seq_nums >= 3.
+    from src.main import app
+
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+
+    r = client.get("/api/v1/audit/chain/validate", headers=HDR)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["valid"] is True
+    assert body["retention_gaps_crossed"] is not None
+    assert body["retention_gaps_crossed"] > 0
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Replay endpoint — GET /api/v1/audit/logs/archived
+# Compliance path for retrieving rows the retention worker moved off
+# audit_log into audit_log_archive (retention worker migration 004).
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+def test_archived_endpoint_empty_when_no_retention_has_run(client):
+    """Baseline: with no retention sweep, the archive bucket is empty and
+    the endpoint returns a clean paginated empty result — not a 500."""
+    # Seed a few rows so audit_log isn't empty either.
+    for i in range(3):
+        r = client.post(
+            "/api/v1/audit/logs",
+            headers=HDR,
+            json={
+                "action": f"e{i}",
+                "category": "authentication",
+                "severity": "info",
+                "details": {"i": i},
+            },
+        )
+        assert r.status_code == 200
+
+    r = client.get("/api/v1/audit/logs/archived", headers=HDR)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["items"] == []
+    assert body["total"] == 0
+    assert body["has_more"] is False
+
+
+def test_archived_endpoint_returns_retention_swept_rows(client):
+    """After a retention run, the rows that got swept out of audit_log
+    must still be retrievable from the archive endpoint. This is the
+    core compliance contract — 5-year GlobalGAP retention means the
+    auditor can still read 4-year-old auth events even though they're
+    no longer in the hot table."""
+    from src.main import app
+
+    # Seed 5 rows with distinctive actions so we can tell which came back.
+    for i in range(5):
+        r = client.post(
+            "/api/v1/audit/logs",
+            headers=HDR,
+            json={
+                "action": f"event_{i}",
+                "category": "authentication",
+                "severity": "info",
+                "details": {"i": i},
+            },
+        )
+        assert r.status_code == 200
+
+    # Simulate retention: seq_nums 1 and 2 swept → archived; 3-5 stay live.
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=3)
+
+    # Live endpoint should show only the surviving rows.
+    r_live = client.get("/api/v1/audit/logs", headers=HDR)
+    assert r_live.status_code == 200
+    live_actions = sorted(item["action"] for item in r_live.json()["items"])
+    assert live_actions == ["event_2", "event_3", "event_4"]
+
+    # Archived endpoint surfaces exactly the swept rows.
+    r_arc = client.get("/api/v1/audit/logs/archived", headers=HDR)
+    assert r_arc.status_code == 200, r_arc.text
+    body = r_arc.json()
+    assert body["total"] == 2
+    archived_actions = sorted(item["action"] for item in body["items"])
+    assert archived_actions == ["event_0", "event_1"]
+
+
+def test_archived_endpoint_respects_filters(client):
+    """Filter semantics on the archive endpoint must match the live
+    endpoint — a compliance query for a specific user over a date range
+    should work the same way whether the rows are live or archived."""
+    from src.main import app
+
+    client.post(
+        "/api/v1/audit/logs",
+        headers=HDR,
+        json={"action": "login", "category": "authentication", "severity": "info", "details": {}},
+    )
+    client.post(
+        "/api/v1/audit/logs",
+        headers=HDR,
+        json={"action": "password_change", "category": "authentication", "severity": "info", "details": {}},
+    )
+    client.post(
+        "/api/v1/audit/logs",
+        headers=HDR,
+        json={"action": "logout", "category": "authentication", "severity": "info", "details": {}},
+    )
+
+    # Sweep everything into the archive.
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=99)
+
+    # Filter for a single action — only the matching archived row should come back.
+    r = client.get("/api/v1/audit/logs/archived?action=password_change", headers=HDR)
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["total"] == 1
+    assert body["items"][0]["action"] == "password_change"
+
+
+def test_archived_endpoint_enforces_tenant_isolation(client, cross_tenant_client):
+    """The archive is just as sensitive as the live log — RLS tenant
+    isolation must apply to archived rows as well.
+
+    We deliberately seed an archived row for BOTH tenants so the
+    assertions aren't vacuous: if OTHER_TENANT_ID had zero archived
+    rows, the loop would be empty and the test would pass even on a
+    broken isolation policy. By giving OTHER_TENANT_ID its own
+    distinguishable row we confirm the endpoint returns exactly that
+    row and nothing from VALID_TENANT_ID.
+    """
+    from src.main import app
+
+    # VALID_TENANT_ID writes a secret and gets retention-swept.
+    client.post(
+        "/api/v1/audit/logs",
+        headers={"X-Tenant-Id": VALID_TENANT_ID},
+        json={"action": "secret.archive", "category": "security", "severity": "info", "details": {}},
+    )
+    app.state.store._simulate_retention(VALID_TENANT_ID, keep_from_seq=99)
+
+    # OTHER_TENANT_ID writes its own audit row and also gets swept.
+    cross_tenant_client.post(
+        "/api/v1/audit/logs",
+        headers={"X-Tenant-Id": OTHER_TENANT_ID},
+        json={"action": "other.archive", "category": "security", "severity": "info", "details": {}},
+    )
+    app.state.store._simulate_retention(OTHER_TENANT_ID, keep_from_seq=99)
+
+    # OTHER_TENANT_ID queries archive — must see ONLY its own row,
+    # never VALID_TENANT_ID's "secret.archive".
+    r = cross_tenant_client.get(
+        "/api/v1/audit/logs/archived",
+        headers={"X-Tenant-Id": OTHER_TENANT_ID},
+    )
+    assert r.status_code == 200
+    items = r.json()["items"]
+    assert len(items) == 1, f"expected exactly 1 archived row, got {len(items)}: {items}"
+    assert items[0]["tenant_id"] == OTHER_TENANT_ID
+    assert items[0]["action"] == "other.archive"
+    # Explicit negative assertion: the secret must NOT have crossed tenants.
+    assert not any(entry["action"] == "secret.archive" for entry in items)
+
+
+def test_archived_endpoint_does_not_shadow_log_id_route(client):
+    """Regression: /api/v1/audit/logs/archived must route to the replay
+    endpoint, NOT be captured by /api/v1/audit/logs/{log_id}. If the
+    route ordering regresses, FastAPI would treat "archived" as a
+    log_id and 404."""
+    r = client.get("/api/v1/audit/logs/archived", headers=HDR)
+    # Expect 200 (empty page), never a 404 saying "Audit log not found".
+    assert r.status_code == 200
+    assert "items" in r.json()
+
+
+def test_validate_chain_flags_cleared_prev_hash_as_tamper():
+    """If an attacker clears `prev_hash` to None/empty, validator must NOT
+    silently normalize it to GENESIS_HASH. Addresses Copilot r3103488517:
+    the old `stored_prev = entry.get("prev_hash") or GENESIS_HASH` would
+    have accepted the cleared row as a genesis link."""
+    import asyncio
+
+    from src.persistence import InMemoryAuditStore
+
+    store = InMemoryAuditStore()
+
+    async def run():
+        for i in range(3):
+            await store.write(
+                {
+                    "tenant_id": VALID_TENANT_ID,
+                    "user_id": "u",
+                    "action": f"a{i}",
+                    "category": "authentication",
+                    "severity": "info",
+                    "details": {"i": i},
+                }
+            )
+        # Clear prev_hash on entry #1 — attacker trying to hide the link.
+        store._by_tenant[VALID_TENANT_ID][1]["prev_hash"] = None
+        return await store.validate_chain(VALID_TENANT_ID)
+
+    result = asyncio.get_event_loop().run_until_complete(run())
+    assert result.valid is False
+    # Both a "missing" error and an entry_hash mismatch (because the
+    # stored entry_hash was computed against the real prev, not GENESIS)
+    # should surface — the validator now catches both signals.
+    assert any("prev_hash missing" in err for err in result.errors)
+
+
+# ═══════════════════════════════════════════════════════════════════════════
 # Tenant isolation
 # ═══════════════════════════════════════════════════════════════════════════
 

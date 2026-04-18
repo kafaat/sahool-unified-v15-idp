@@ -1,0 +1,50 @@
+name: Service Template Guard
+
+on:
+  pull_request:
+    paths:
+      - "apps/services/**/src/main.py"
+
+jobs:
+  check:
+    name: Verify new/changed service main.py follows template
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Collect changed service main.py files
+        id: changed
+        run: |
+          set -euo pipefail
+          base_sha="${{ github.event.pull_request.base.sha }}"
+          head_sha="${{ github.event.pull_request.head.sha }}"
+          files=$(git diff --name-only --diff-filter=AM "$base_sha" "$head_sha" \
+            | grep -E '^apps/services/[^/]+/src/main\.py$' || true)
+          if [ -z "$files" ]; then
+            echo "No changed service main.py files; skipping."
+            echo "files=" >> "$GITHUB_OUTPUT"
+          else
+            echo "Changed files:"
+            echo "$files"
+            {
+              echo "files<<EOF"
+              echo "$files"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run service-template check
+        if: steps.changed.outputs.files != ''
+        run: |
+          set -euo pipefail
+          # shellcheck disable=SC2086
+          mapfile -t paths <<< "${{ steps.changed.outputs.files }}"
+          python3 scripts/ci/service-template-check.py "${paths[@]}"

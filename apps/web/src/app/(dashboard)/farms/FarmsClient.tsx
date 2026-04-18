@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Building2, Plus, Search, MapPin, Droplets, Users, AlertTriangle, X } from 'lucide-react';
 import { useFarms, useFarmStats, useUpdateFarm, useCreateFarm } from '@/features/farms';
 import type { Farm, FarmStatus, FarmFormData } from '@/features/farms';
+import { logger } from '@/lib/logger';
 
 const statusConfig: Record<FarmStatus, { color: string; labelAr: string }> = {
   active: { color: 'bg-green-100 text-green-800', labelAr: 'نشطة' },
@@ -224,12 +225,17 @@ export default function FarmsClient() {
             // fall back to 'active'. Using the narrowed key removes the
             // prior TS7053 implicit-any on the index expression.
             // استعلام آمن للحالة مع قيمة افتراضية عند عدم إرجاع الحقل من الخلفية
-            const statusKey: FarmStatus =
+            const isKnownStatus =
               farm.status === 'active' ||
               farm.status === 'inactive' ||
-              farm.status === 'seasonal'
-                ? farm.status
-                : 'active';
+              farm.status === 'seasonal';
+            if (!isKnownStatus) {
+              logger.warn('Unknown farm status, defaulting to active', {
+                status: farm.status,
+                farmId: farm.id,
+              });
+            }
+            const statusKey: FarmStatus = isKnownStatus ? farm.status : 'active';
             const st = statusConfig[statusKey];
             return (
               <div

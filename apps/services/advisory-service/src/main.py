@@ -35,7 +35,9 @@ if str(SHARED_PATH) not in sys.path:
 
 # Import unified error handling
 # Import shared crop catalogs
-import structlog
+from shared.logging_config import get_logger, setup_logging
+
+setup_logging(service_name="advisory-service")
 from crops import (
     ALL_CROPS,
     CATEGORIES_COUNT,
@@ -50,7 +52,7 @@ from yemen_varieties import (
     get_varieties_by_crop,
 )
 
-logger = structlog.get_logger()
+logger = get_logger(__name__)
 
 # Import authentication dependencies
 from shared.auth.dependencies import get_current_user
@@ -402,12 +404,19 @@ class FertilizerPlanRequest(BaseModel):
         return v
 
 
+# Outbox feature flag — gated so deployments without the DDL still boot
+OUTBOX_ENABLED = os.getenv("OUTBOX_ENABLED", "false").lower() in ("1", "true", "yes")
+
+
 # Lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup - initialize state first to avoid AttributeError
     app.state.publisher = None
     app.state.revocation_store = None
+    app.state.db_pool = None
+    app.state.outbox = None
+    app.state.outbox_relay = None
     logger.info("service_starting", service="advisory-service")
     try:
         publisher = await get_publisher()
@@ -426,9 +435,57 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.warning("token_revocation_store_failed", error=str(e))
 
+    # Initialize transactional outbox (feature-flagged)
+    # نمط الصندوق الصادر — ناشر + مُرحِّل خلفي
+    if OUTBOX_ENABLED:
+        try:
+            import asyncpg  # local import: only needed when outbox is enabled
+
+            from shared.db.ssl import enforce_ssl_mode
+            from shared.libs.outbox import OutboxPublisher, OutboxRelay
+
+            db_url = enforce_ssl_mode(os.getenv("DATABASE_URL"))
+            if not db_url:
+                logger.warning("outbox_disabled_no_database_url")
+            else:
+                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=2, max_size=10)
+
+                # Apply outbox DDL (idempotent)
+                migration_path = (
+                    Path(__file__).parent.parent.parent.parent / "shared" / "libs" / "outbox" / "migration.sql"
+                )
+                if migration_path.exists():
+                    migration_sql = migration_path.read_text(encoding="utf-8")
+                    async with app.state.db_pool.acquire() as conn:
+                        await conn.execute(migration_sql)
+                    logger.info("outbox_migration_applied")
+
+                app.state.outbox = OutboxPublisher()
+                app.state.outbox_relay = OutboxRelay()
+
+                # Start relay only if we have a NATS connection to publish through
+                publisher_nc = getattr(app.state.publisher, "nc", None) if app.state.publisher else None
+                if publisher_nc is not None:
+                    await app.state.outbox_relay.start(app.state.db_pool, publisher_nc)
+                    logger.info("outbox_relay_started", service="advisory-service")
+                else:
+                    logger.warning("outbox_relay_not_started_nats_unavailable")
+        except Exception as e:
+            logger.warning("outbox_init_failed", error=str(e))
+
     yield
 
     # Shutdown
+    if getattr(app.state, "outbox_relay", None):
+        try:
+            await app.state.outbox_relay.stop()
+        except Exception as e:
+            logger.warning("outbox_relay_stop_failed", error=str(e))
+    if getattr(app.state, "db_pool", None):
+        try:
+            await app.state.db_pool.close()
+        except Exception as e:
+            logger.warning("db_pool_close_failed", error=str(e))
     if getattr(app.state, "publisher", None):
         await app.state.publisher.close()
     if getattr(app.state, "revocation_store", None):
@@ -640,6 +697,7 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
         }
 
     # Publish event
+    # TODO: migrate remaining publishers to outbox (see /api/v1/fertilizer/plan exemplar)
     event_id = None
     if getattr(app.state, "publisher", None):
         try:
@@ -685,6 +743,7 @@ async def assess_symptoms(req: SymptomAssessRequest, user: User = Depends(get_cu
         }
 
     # Publish top result as recommendation
+    # TODO: migrate remaining publishers to outbox (see /api/v1/fertilizer/plan exemplar)
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
@@ -766,6 +825,7 @@ async def assess_from_ndvi_endpoint(req: NDVIAssessRequest, user: User = Depends
     )
 
     # Publish top result
+    # TODO: migrate remaining publishers to outbox (see /api/v1/fertilizer/plan exemplar)
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
@@ -807,6 +867,7 @@ async def assess_visual_endpoint(req: VisualAssessRequest, user: User = Depends(
     assessments = assess_from_visual(indicators, req.crop, req.lang)
 
     # Publish top result
+    # TODO: migrate remaining publishers to outbox (see /api/v1/fertilizer/plan exemplar)
     event_id = None
     if getattr(app.state, "publisher", None) and assessments:
         top = assessments[0]
@@ -851,7 +912,14 @@ def get_deficiency_info(request: Request, deficiency_id: str, user: User = Depen
 
 @app.post("/api/v1/fertilizer/plan")
 async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depends(get_current_user)):
-    """Generate fertilizer plan for crop and stage"""
+    """Generate fertilizer plan for crop and stage.
+
+    Reference exemplar for the transactional outbox pattern in advisory-service.
+    When ``OUTBOX_ENABLED=true`` and the DB pool is available, the event is
+    enqueued into ``outbox_messages`` and published by the background
+    :class:`OutboxRelay`. Otherwise we fall back to the legacy direct-publish
+    path for backwards compatibility.
+    """
     _enforce_tenant(user, req.tenant_id)
 
     plan = fertilizer_plan(
@@ -862,9 +930,38 @@ async def create_fertilizer_plan(req: FertilizerPlanRequest, user: User = Depend
         irrigation_type=req.irrigation_type,
     )
 
-    # Publish event
     event_id = None
-    if getattr(app.state, "publisher", None):
+    outbox = getattr(app.state, "outbox", None)
+    db_pool = getattr(app.state, "db_pool", None)
+
+    if outbox is not None and db_pool is not None:
+        # Canonical path: atomic outbox enqueue.
+        # In a future pass, domain writes (e.g. persisting the plan row)
+        # should move inside this transaction so plan + event commit together.
+        subject = f"sahool.tenant.{req.tenant_id}.advisory.fertilizer_plan_issued"
+        payload = {
+            "field_id": req.field_id,
+            "crop": req.crop,
+            "stage": req.stage,
+            "plan": plan.applications,
+            "notes": plan.notes,
+            "correlation_id": req.correlation_id,
+        }
+        try:
+            async with db_pool.acquire() as conn:
+                async with conn.transaction():
+                    # (Future: domain writes for the plan go here, same txn)
+                    row_id = await outbox.enqueue(
+                        conn,
+                        subject=subject,
+                        payload=payload,
+                        tenant_id=req.tenant_id,
+                    )
+                    event_id = str(row_id)
+        except Exception as _pub_err:
+            logger.warning("outbox enqueue failed (non-fatal): %s", _pub_err)
+    elif getattr(app.state, "publisher", None):
+        # Legacy direct-publish fallback (non-atomic).
         try:
             event_id = await app.state.publisher.publish_fertilizer_plan(
                 tenant_id=req.tenant_id,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Mountain,
   Droplets,
@@ -14,6 +14,9 @@ import {
   Loader2,
   AlertTriangle,
 } from 'lucide-react';
+import DemoBanner from '@/components/common/DemoBanner';
+import { useAuth } from '@/stores/auth.store';
+import { useSoilAnalytics } from '@/features/analytics/hooks/useSoilAnalytics';
 
 const statsCards = [
   {
@@ -68,24 +71,21 @@ function getNutrientStatus(value: number, thresholds: { low: number; high: numbe
 export default function SoilAnalyticsPage() {
   const [dateRange, setDateRange] = useState('season');
   const [fieldFilter, setFieldFilter] = useState('all');
-  const [loading, setLoading] = useState(true);
-  const [error] = useState<string | null>(null);
-  const [apiSoilData, setApiSoilData] = useState<typeof soilData | null>(null);
+  const { user } = useAuth();
+  const tenantId = user?.tenant_id ?? '';
 
-  // NOTE: Soil analytics API does not return structured table data yet.
-  // Skip the API call to avoid a useless request. Show local reference data
-  // with a visual indicator that it's sample data, not live.
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setApiSoilData(null); // Will use fallback soilData
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const displayData = apiSoilData ?? soilData;
+  // Wired to soil-analysis-service via SOIL_ENDPOINTS.TESTS.
+  // The hook is enabled only once we have a tenant_id; otherwise it stays
+  // idle and the sample rows + DemoBanner are used.
+  const {
+    data: apiRows,
+    isLoading,
+    error,
+    refetch,
+  } = useSoilAnalytics({ tenantId });
+  const loading = isLoading;
+  const hasLiveData = Array.isArray(apiRows) && apiRows.length > 0;
+  const displayData = hasLiveData ? apiRows : soilData;
 
   if (loading) {
     return (
@@ -104,8 +104,8 @@ export default function SoilAnalyticsPage() {
         <div className="text-center max-w-md">
           <AlertTriangle className="w-12 h-12 text-red-400 mx-auto mb-3" />
           <h3 className="text-lg font-semibold text-gray-900 mb-2">خطأ في تحميل البيانات</h3>
-          <p className="text-gray-500 mb-4">{error}</p>
-          <button onClick={fetchData} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+          <p className="text-gray-500 mb-4">{error instanceof Error ? error.message : String(error)}</p>
+          <button onClick={() => refetch()} className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
             إعادة المحاولة
           </button>
         </div>
@@ -115,6 +115,7 @@ export default function SoilAnalyticsPage() {
 
   return (
     <div className="space-y-6" dir="rtl">
+      {!hasLiveData && <DemoBanner />}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>

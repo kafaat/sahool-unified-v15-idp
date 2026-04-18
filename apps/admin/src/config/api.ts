@@ -462,6 +462,10 @@ export const API_PATHS = {
     logs: AUDIT_ENDPOINTS.LOGS,
     logById: (id: string) => buildUrl(AUDIT_ENDPOINTS.LOG_GET, { logId: id }),
     stats: AUDIT_ENDPOINTS.STATS,
+    resourceTrail: (resourceType: string, resourceId: string) =>
+      buildUrl(AUDIT_ENDPOINTS.RESOURCE_TRAIL, { resourceType, resourceId }),
+    userTrail: (userId: string) => buildUrl(AUDIT_ENDPOINTS.USER_TRAIL, { userId }),
+    chainValidate: AUDIT_ENDPOINTS.CHAIN_VALIDATE,
   },
 
   // Inventory (from unified contracts)
@@ -677,6 +681,10 @@ export const API_URLS = {
     logs: `${SERVICE_URLS.audit}${API_PATHS.audit.logs}`,
     logById: (id: string) => `${SERVICE_URLS.audit}${API_PATHS.audit.logById(id)}`,
     stats: `${SERVICE_URLS.audit}${API_PATHS.audit.stats}`,
+    resourceTrail: (resourceType: string, resourceId: string) =>
+      `${SERVICE_URLS.audit}${API_PATHS.audit.resourceTrail(resourceType, resourceId)}`,
+    userTrail: (userId: string) => `${SERVICE_URLS.audit}${API_PATHS.audit.userTrail(userId)}`,
+    chainValidate: `${SERVICE_URLS.audit}${API_PATHS.audit.chainValidate}`,
   },
 
   // Drone endpoints

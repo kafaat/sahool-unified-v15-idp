@@ -90,26 +90,13 @@ MIGRATIONS = [
     ),
 ]
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer(),
-    ],
-    wrapper_class=structlog.stdlib.BoundLogger,
-    context_class=dict,
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
+# Configure structured logging and tracing
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
 
+setup_logging("hydrology-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("hydrology-service")
 
 
 @asynccontextmanager
@@ -223,6 +210,7 @@ Agricultural hydrological analysis service for the SAHOOL platform.
     docs_url="/docs",
     redoc_url="/redoc",
 )
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)
@@ -358,11 +346,36 @@ hydrology_config_wetness_threshold {settings.wetness_index_high_threshold}
 # ==============================================================================
 
 
-async def publish_event(subject: str, data: dict):
+async def publish_event(subject: str, data: dict, tenant_id: str | None = None):
     """
     Publish event to NATS if connected.
     نشر حدث إلى NATS إذا كان متصلاً
+
+    When ``tenant_id`` is provided, rewrites a global ``sahool.<domain>.<action>``
+    subject to the tenant-scoped ``sahool.tenant.<tenant_id>.<domain>.<action>``
+    form. Falls back to the original subject with a warning when tenant_id is
+    absent (TODO: plumb tenant_id through all callers).
     """
+    if tenant_id:
+        # get_tenant_subject enforces UUID shape and raises ValueError on
+        # non-UUID tenant_ids; ImportError fires when the shared helper isn't
+        # on sys.path (local dev). Both degrade to the inline pattern so the
+        # publish still lands on a tenant-scoped subject.
+        try:
+            from shared.events.subjects import get_tenant_subject
+
+            parts = subject.split(".", 2)
+            if len(parts) >= 3 and parts[0] == "sahool":
+                subject = get_tenant_subject(tenant_id, parts[1], parts[2])
+        except (ImportError, ValueError):
+            subject = f"sahool.tenant.{tenant_id or 'unknown'}." + subject.removeprefix("sahool.")
+    elif subject.startswith("sahool.") and not subject.startswith("sahool.tenant."):
+        logger.warning(
+            "nats_publish_missing_tenant_id",
+            subject=subject,
+            note="falling back to global subject; TODO plumb tenant_id",
+        )
+
     if hasattr(app.state, "nc") and app.state.nc:
         try:
             await app.state.nc.publish(subject, json.dumps(data).encode())

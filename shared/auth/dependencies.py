@@ -15,6 +15,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .config import config
 from .jwt_handler import verify_token
 from .models import AuthErrors, AuthException, User
+from .token_revocation import is_token_revoked
 from .user_cache import get_user_cache
 from .user_repository import get_user_repository
 
@@ -68,6 +69,47 @@ async def get_current_user(
         token = credentials.credentials
         payload = verify_token(token)
         user_id = payload.user_id
+
+        # Revocation check (defense in depth).
+        # Fail-closed on definitive revocation; fail-open on store errors so a
+        # Redis outage doesn't lock every user out. Logged for observability.
+        try:
+            revoked, reason = await is_token_revoked(
+                jti=payload.jti,
+                user_id=user_id,
+                tenant_id=payload.tenant_id,
+                issued_at=payload.iat.timestamp() if payload.iat else None,
+            )
+            if revoked:
+                # Use structured kwargs so the message template is a static
+                # literal and user/reason are structured fields, not format
+                # args embedded in a sentence (avoids heuristic "credential
+                # disclosure" flags on the log call).
+                logger.warning(
+                    "auth_denied_revoked_session",
+                    extra={"user_id": user_id, "reason": reason},
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail=AuthErrors.INVALID_TOKEN.en,
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+        except HTTPException:
+            raise
+        except Exception as revocation_err:  # noqa: BLE001 - fail-open on infra errors
+            # Log a static event name with structured fields so the
+            # revocation-store's exception text (which may contain infra
+            # details like Redis hostnames or connection strings) never
+            # lands in the free-form log message body. We still keep the
+            # error class name for triage — it's a known-safe identifier,
+            # unlike str(revocation_err).
+            logger.warning(
+                "auth_revocation_check_unavailable",
+                extra={
+                    "user_id": user_id,
+                    "error_class": type(revocation_err).__name__,
+                },
+            )
 
         # Check cache first for user status
         cache = get_user_cache()

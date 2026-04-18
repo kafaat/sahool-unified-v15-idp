@@ -31,6 +31,14 @@ except ImportError:
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
+try:
+    from shared.events.subjects import get_tenant_subject
+except ImportError:
+
+    def get_tenant_subject(tenant_id: str, domain: str, action: str) -> str:
+        return f"sahool.tenant.{tenant_id}.{domain}.{action}"
+
+
 logger = structlog.get_logger(__name__)
 
 router = APIRouter()
@@ -529,8 +537,10 @@ async def identify_pest_from_image(
                     },
                     default=str,
                 ).encode()
-                await nc.publish("sahool.vision.pest_detected", event_payload)
-                logger.info("nats_event_published", subject="sahool.vision.pest_detected", pest_id=result.pest_id)
+                tenant_id = current_user.tenant_id or "unknown"
+                subject = get_tenant_subject(tenant_id, "vision", "pest_detected")
+                await nc.publish(subject, event_payload)
+                logger.info("nats_event_published", subject=subject, pest_id=result.pest_id)
             except Exception as pub_err:
                 logger.warning("nats_publish_failed", error=str(pub_err))
 

@@ -26,6 +26,9 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
 from .agents.executor import AgentExecutor
 from .api.endpoints import integrations as integrations_module
 from .api.endpoints import router as orchestrator_router
@@ -36,18 +39,13 @@ from .core.config import settings
 from .integrations import CrewService, MLService, NLPService, SatelliteService
 from .training import AGLTrainer, FeedbackCollector
 
-# Configure structured logging
-structlog.configure(
-    processors=[
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.JSONRenderer(),
-    ]
-)
-
+setup_logging("llm-orchestrator-service")
 logger = structlog.get_logger(__name__)
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("llm-orchestrator-service")
 
 
 # Optional imports
@@ -319,6 +317,9 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

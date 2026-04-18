@@ -34,10 +34,10 @@ spec:
     server: https://kubernetes.default.svc
     namespace: sahool-intelligence
   syncPolicy:
-    # automated sync disabled for production safety - use manual sync
-    # automated:
-      # prune: true
-      # selfHeal: true
+    # automated sync enabled for staging (prune disabled for safety)
+    automated:
+      prune: false
+      selfHeal: true
       allowEmpty: false
     syncOptions:
       - CreateNamespace=true

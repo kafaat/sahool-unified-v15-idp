@@ -21,6 +21,7 @@ from shared.events.subjects import (
     SAHOOL_TRACEABILITY_PROCESSING_RECORDED,
     SAHOOL_TRACEABILITY_STORAGE_RECORDED,
     SAHOOL_TRACEABILITY_TRANSPORT_RECORDED,
+    get_tenant_subject,
 )
 
 logger = structlog.get_logger()
@@ -224,7 +225,7 @@ async def create_batch(
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish(
-            SAHOOL_TRACEABILITY_BATCH_CREATED,
+            get_tenant_subject(tenant_id, "traceability", "batch_created"),
             json.dumps({"batch_id": batch_data["id"], "batch_code": batch_code, "tenant_id": tenant_id}).encode(),
         )
 
@@ -789,7 +790,7 @@ async def initiate_recall(
     nc = getattr(req.app.state, "nc", None)
     if nc:
         await nc.publish(
-            SAHOOL_TRACEABILITY_BATCH_RECALLED,
+            get_tenant_subject(tenant_id, "traceability", "batch_recalled"),
             json.dumps(
                 {
                     "batch_id": batch_id,
@@ -801,7 +802,7 @@ async def initiate_recall(
         )
         # Critical notification for recalls
         await nc.publish(
-            SAHOOL_NOTIFICATION_SEND,
+            get_tenant_subject(tenant_id, "notification", "send"),
             json.dumps(
                 {
                     "type": "product_recall",

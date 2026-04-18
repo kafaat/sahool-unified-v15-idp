@@ -135,6 +135,7 @@ describe("AuthService", () => {
       publishUserLoggedOut: jest.fn().mockResolvedValue(undefined),
       publishUserLoggedOutAll: jest.fn().mockResolvedValue(undefined),
       publishUserAccountLocked: jest.fn().mockResolvedValue(undefined),
+      publishUserPasswordChanged: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -583,6 +584,34 @@ describe("AuthService", () => {
       } finally {
         process.off("unhandledRejection", listener);
       }
+    });
+
+    it("publishes UserPasswordChanged when resetPassword completes", async () => {
+      const crypto = await import("crypto");
+      const token = "reset-token-abc";
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+      const userWithResetToken = {
+        ...mockUser,
+        passwordResetToken: tokenHash,
+        passwordResetExpiry: new Date(Date.now() + 60 * 60 * 1000),
+      };
+      prismaService.user.findFirst = jest.fn().mockResolvedValue(userWithResetToken);
+      prismaService.user.update.mockResolvedValue(userWithResetToken);
+      // updateMany returns { count } — the code forwards count to audit so
+      // compliance can verify the revoke-all side-effect fired.
+      prismaService.refreshToken.updateMany.mockResolvedValue({ count: 3 });
+      jest.spyOn(bcrypt, "hash").mockResolvedValue("new-hash" as never);
+
+      await service.resetPassword(token, "NewPassword123!");
+
+      expect(userEvents.publishUserPasswordChanged).toHaveBeenCalledWith(
+        expect.objectContaining({
+          tenantId: mockTenantId,
+          userId: mockUserId,
+          method: "reset_token",
+          sessionsRevoked: 3,
+        }),
+      );
     });
   });
 

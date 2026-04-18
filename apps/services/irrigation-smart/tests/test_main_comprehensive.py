@@ -47,6 +47,23 @@ sys.modules["shared.middleware.tenant_context"] = _mock_tenant
 sys.modules.setdefault("shared.contracts", MagicMock())
 sys.modules.setdefault("shared.contracts.actions", MagicMock())
 
+# Wave-3 platform imports (structured logging, OTel tracing, tenant NATS).
+# Mock so tests stay lightweight and don't need the real shared packages
+# or Prometheus/OTel dependencies at collection time.
+_mock_logging = MagicMock()
+_mock_logging.setup_logging = MagicMock(return_value=MagicMock())
+sys.modules.setdefault("shared.logging_config", _mock_logging)
+_mock_tracing = MagicMock()
+_mock_tracing.setup_tracing = MagicMock(return_value=MagicMock())
+sys.modules.setdefault("shared.observability", MagicMock())
+sys.modules.setdefault("shared.observability.tracing", _mock_tracing)
+_mock_subjects = MagicMock()
+_mock_subjects.get_tenant_subject = MagicMock(
+    side_effect=lambda tenant_id, domain, action: f"sahool.tenant.{tenant_id}.{domain}.{action}"
+)
+sys.modules.setdefault("shared.events", MagicMock())
+sys.modules.setdefault("shared.events.subjects", _mock_subjects)
+
 # Now import the source module
 from src.main import (
     CROP_TRANSLATIONS,

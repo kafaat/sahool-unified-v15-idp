@@ -16,7 +16,12 @@ try:
 except ImportError:
     TENANT_MIDDLEWARE_AVAILABLE = False
 
+from shared.logging_config import setup_logging
+from shared.observability.tracing import setup_tracing
+
+setup_logging("soil-analysis-service")
 logger = structlog.get_logger()
+_tracer = setup_tracing("soil-analysis-service")
 
 
 @asynccontextmanager
@@ -88,6 +93,7 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+_tracer.instrument_fastapi(app)
 
 # Setup CORS
 cors_origins = os.getenv(
@@ -119,8 +125,12 @@ if TENANT_MIDDLEWARE_AVAILABLE:
 
 # Include API routers
 try:
-    from src.api.v1 import soil_tests
+    from src.api.v1 import analytics, soil_tests
 
+    # Register analytics first so GET /api/v1/soil/tests resolves to the
+    # cross-field tenant-scoped listing (the soil_tests router only exposes
+    # POST/GET-by-id/DELETE on the same path).
+    app.include_router(analytics.router)
     app.include_router(soil_tests.router)
     logger.info("API routers registered")
 except ImportError as e:

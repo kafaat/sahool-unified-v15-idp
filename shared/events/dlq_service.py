@@ -49,6 +49,23 @@ from .publisher import EventPublisher
 
 logger = logging.getLogger(__name__)
 
+
+def _sanitize_for_log(value: str, max_len: int = 256) -> str:
+    """Strip CR/LF/tab from user-influenced strings before logging.
+
+    The DLQ replay path reads subjects/errors that originated from remote
+    publishers. Forwarding those into the logger without sanitisation lets
+    an attacker forge additional log lines by embedding ``\\n`` in a
+    subject or payload (CodeQL log-injection rule). Keep this cheap — we
+    only escape the three characters that break one-line-per-event logs.
+    """
+    if not isinstance(value, str):
+        value = str(value)
+    if len(value) > max_len:
+        value = value[:max_len] + "…"
+    return value.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
+
+
 # NATS client - lazy import
 _nats_available = False
 
@@ -305,49 +322,77 @@ class DLQManager:
         Replay a message from DLQ to its original subject.
 
         Args:
-            seq: Message sequence number
+            seq: Stream sequence number of the DLQ message to replay.
+                 This is the JetStream `stream_seq`, not a consumer offset.
             delete_after: Delete from DLQ after successful replay
 
         Returns:
             True if replayed successfully
+
+        Note: the previous implementation ignored `seq` and instead pulled
+        whichever message the `dlq_replayer` consumer cursor returned next,
+        which silently replayed the WRONG message. We now address the
+        message directly by stream sequence via `js.get_msg(stream, seq)`.
         """
         if not self._connected:
             await self.connect()
 
         try:
-            # Fetch the specific message
-            consumer = await self._js.pull_subscribe(
-                f"{self.config.dlq_subject_prefix}.>",
-                durable="dlq_replayer",
-            )
+            # Address the message by stream sequence — this is the whole
+            # point of the `seq` parameter. `get_msg` returns a RawStreamMsg
+            # (not a consumer message) so `ack()` is not applicable; we use
+            # the stream's `delete_msg` API for the delete_after path.
+            stream_name = self.config.dlq_stream_name
+            try:
+                raw_msg = await self._js.get_msg(stream_name, seq)
+            except Exception as fetch_err:  # nats raises on not-found
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"DLQ message seq={seq} not found: {fetch_err}",
+                ) from fetch_err
 
-            messages = await consumer.fetch(batch=1, timeout=5)
-
-            if not messages:
-                raise HTTPException(status_code=404, detail="Message not found")
-
-            msg = messages[0]
-            data = json.loads(msg.data.decode("utf-8"))
+            data = json.loads(raw_msg.data.decode("utf-8"))
             metadata = DLQMessageMetadata(**data.get("metadata", {}))
 
-            # Publish to original subject
+            # Publish via JetStream so we get a PubAck before deleting the DLQ
+            # row. Using core NATS publish here (fire-and-forget) would risk
+            # deleting the DLQ copy while the replay never landed on the
+            # destination stream — replay would look successful but the
+            # event would be lost.
             original_payload = data.get("original_message", "")
-
-            await self._publisher._nc.publish(
+            await self._js.publish(
                 metadata.original_subject,
                 original_payload.encode("utf-8"),
             )
 
-            logger.info(f"✅ Replayed message seq={seq} to {metadata.original_subject}")
+            # original_subject is read back from the DLQ row payload — treat
+            # it as user-influenced data. Strip CR/LF/tabs before logging so
+            # an attacker who managed to write a DLQ entry cannot forge
+            # additional log lines (CodeQL log-injection rule).
+            safe_subject = _sanitize_for_log(metadata.original_subject)
+            logger.info("Replayed message seq=%d to %s", seq, safe_subject)
 
-            # Delete if requested
+            # Delete the DLQ row if requested (stream-level delete, not ack).
+            # Only reached after js.publish() above returned a PubAck, so the
+            # destination stream has durably persisted the replayed message.
             if delete_after:
-                await msg.ack()
+                try:
+                    await self._js.delete_msg(stream_name, seq)
+                except Exception as del_err:  # best-effort; replay already succeeded
+                    logger.warning(
+                        "Failed to delete DLQ msg seq=%d: %s",
+                        seq,
+                        _sanitize_for_log(str(del_err)),
+                    )
 
             return True
 
+        except HTTPException:
+            # Re-raise HTTPException (e.g. 404 for missing seq) unchanged —
+            # otherwise the generic except below would downgrade it to 500.
+            raise
         except Exception as e:
-            logger.error(f"Failed to replay message: {e}")
+            logger.error("Failed to replay message: %s", _sanitize_for_log(str(e)))
             raise HTTPException(status_code=500, detail=str(e))
 
     async def replay_bulk(self, request: ReplayRequest) -> ReplayResponse:

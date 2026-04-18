@@ -56,6 +56,9 @@ except ImportError:
 # Configure structured logging
 import structlog
 
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
 from .events import IoTPublisher, get_publisher
 from .mqtt_client import MqttClient, MqttMessage
 from .normalizer import normalize
@@ -68,7 +71,13 @@ from .registry import (
     set_registry,
 )
 
+setup_logging("iot-gateway")
 logger = structlog.get_logger("iot-gateway")
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("iot-gateway")
 
 # Redis imports
 try:
@@ -356,6 +365,9 @@ app = FastAPI(
     version="16.0.0",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 setup_exception_handlers(app)

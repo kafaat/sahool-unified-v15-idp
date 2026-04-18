@@ -677,9 +677,19 @@ class AlertManager:
                     },
                 }
 
-                # Publish to NATS
+                # Publish to NATS — tenant-scoped subject.
+                # get_tenant_subject enforces UUID shape; if tenant_id is
+                # missing or non-UUID (legacy data, test fixture), fall
+                # back to the inline pattern so the publish still happens
+                # scoped to the tenant we DO have (or "unknown").
                 encoded_payload = json.dumps(notification_data, default=str).encode()
-                await nats_client.publish("sahool.inventory.alert", encoded_payload)
+                try:
+                    from shared.events.subjects import get_tenant_subject
+
+                    _subject = get_tenant_subject(alert.tenant_id or "unknown", "inventory", "alert")
+                except (ImportError, ValueError):
+                    _subject = f"sahool.tenant.{alert.tenant_id or 'unknown'}.inventory.alert"
+                await nats_client.publish(_subject, encoded_payload)
 
                 sent += 1
                 logger.info(f"Notification sent for alert {alert.id}")

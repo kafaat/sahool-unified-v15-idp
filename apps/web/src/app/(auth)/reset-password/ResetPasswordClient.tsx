@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Lock, ArrowRight, CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
@@ -8,6 +8,34 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { useToast } from '@/components/ui/toast';
+
+type TokenStatus = 'pending' | 'valid' | 'expired' | 'invalid';
+
+/**
+ * Best-effort client-side JWT `exp` check. Does NOT replace server
+ * verification, but flags obviously-expired or malformed tokens up front so
+ * the user doesn't fill in a password only to be rejected.
+ */
+function inspectJwt(token: string): TokenStatus {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return 'invalid';
+    const payload = parts[1]!;
+    const padded = payload.padEnd(payload.length + ((4 - (payload.length % 4)) % 4), '=');
+    const base64 = padded.replace(/-/g, '+').replace(/_/g, '/');
+    const json =
+      typeof atob === 'function'
+        ? atob(base64)
+        : Buffer.from(base64, 'base64').toString('utf-8');
+    const parsed = JSON.parse(json) as { exp?: number };
+    if (typeof parsed.exp === 'number' && parsed.exp * 1000 < Date.now()) {
+      return 'expired';
+    }
+    return 'valid';
+  } catch {
+    return 'invalid';
+  }
+}
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -19,6 +47,45 @@ function ResetPasswordForm() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [tokenStatus, setTokenStatus] = useState<TokenStatus>('pending');
+
+  // Validate the token upfront: try a backend verify endpoint first, and fall
+  // back to a local JWT `exp` check when no verify endpoint is available.
+  useEffect(() => {
+    let cancelled = false;
+    if (!token) {
+      setTokenStatus('invalid');
+      return;
+    }
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/auth/reset-password/verify?token=${encodeURIComponent(token)}`,
+          { method: 'GET' }
+        );
+        if (cancelled) return;
+        if (res.ok) {
+          setTokenStatus('valid');
+          return;
+        }
+        if (res.status === 404 || res.status === 405) {
+          // Endpoint does not exist — fall back to client-only inspection.
+          setTokenStatus(inspectJwt(token));
+          return;
+        }
+        if (res.status === 410) {
+          setTokenStatus('expired');
+          return;
+        }
+        setTokenStatus('invalid');
+      } catch {
+        if (!cancelled) setTokenStatus(inspectJwt(token));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   // Password validation
   const passwordErrors: string[] = [];
@@ -94,8 +161,18 @@ function ResetPasswordForm() {
     }
   };
 
-  // No token provided
-  if (!token) {
+  // Pending validation — show spinner while we verify the token.
+  if (tokenStatus === 'pending') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white">
+        <Loader2 className="w-8 h-8 animate-spin text-sahool-green-600" />
+      </div>
+    );
+  }
+
+  // Token missing, invalid, or expired — show a clear bilingual message.
+  if (tokenStatus !== 'valid') {
+    const isExpired = tokenStatus === 'expired';
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sahool-green-50 to-white p-4">
         <Card className="w-full max-w-md" variant="elevated">
@@ -104,15 +181,21 @@ function ResetPasswordForm() {
               <AlertTriangle className="w-8 h-8 text-red-600" />
             </div>
             <CardTitle className="text-2xl">
-              <div>رابط غير صالح</div>
-              <div className="text-base text-gray-600 mt-1">Invalid Link</div>
+              <div>{isExpired ? 'الرابط منتهي الصلاحية' : 'رابط غير صالح'}</div>
+              <div className="text-base text-gray-600 mt-1">
+                {isExpired ? 'Link Expired' : 'Invalid Link'}
+              </div>
             </CardTitle>
             <CardDescription>
               <div className="text-gray-600">
-                رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية
+                {isExpired
+                  ? 'انتهت صلاحية رابط إعادة تعيين كلمة المرور. الرجاء طلب رابط جديد.'
+                  : 'رابط إعادة تعيين كلمة المرور غير صالح أو منتهي الصلاحية'}
               </div>
               <div className="text-xs text-gray-500 mt-1">
-                The password reset link is invalid or has expired
+                {isExpired
+                  ? 'Your password reset link has expired. Please request a new one.'
+                  : 'The password reset link is invalid or has expired'}
               </div>
             </CardDescription>
           </CardHeader>

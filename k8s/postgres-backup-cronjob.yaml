@@ -1,0 +1,103 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform - PostgreSQL WAL-G Backup CronJob
+# ═══════════════════════════════════════════════════════════════════════════════
+# Runs daily at 02:00 UTC. Pushes a base backup to S3/MinIO via WAL-G.
+#
+# Secret `walg-credentials` must expose the same keys used in
+# docker-compose.walg.yml: WALG_S3_PREFIX, WALG_COMPRESSION_METHOD,
+# AWS_ENDPOINT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_REGION.
+#
+# NOTE — Weekly Restore Drill (operational runbook):
+#   A weekly restore drill MUST run to validate backup integrity:
+#     1. `wal-g backup-fetch /var/lib/postgresql/restore LATEST`
+#     2. Start postgres on the restored data directory.
+#     3. Verify `SELECT pg_is_in_recovery();` returns `t` during replay,
+#        then `f` once promoted.
+#   Failures should page the on-call DBA (see docs/disaster-recovery/).
+# ═══════════════════════════════════════════════════════════════════════════════
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-walg-backup
+  namespace: sahool-data
+  labels:
+    app.kubernetes.io/name: postgres-walg-backup
+    app.kubernetes.io/part-of: sahool
+    app.kubernetes.io/component: backup
+spec:
+  schedule: "0 2 * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      template:
+        spec:
+          restartPolicy: OnFailure
+          serviceAccountName: postgres-backup
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            fsGroup: 1000
+          containers:
+            - name: walg
+              image: ghcr.io/wal-g/wal-g:v3
+              imagePullPolicy: IfNotPresent
+              command:
+                - /bin/sh
+                - -c
+                - wal-g backup-push /var/lib/postgresql/data
+              env:
+                - name: WALG_S3_PREFIX
+                  valueFrom:
+                    secretKeyRef:
+                      name: walg-credentials
+                      key: WALG_S3_PREFIX
+                - name: WALG_COMPRESSION_METHOD
+                  valueFrom:
+                    secretKeyRef:
+                      name: walg-credentials
+                      key: WALG_COMPRESSION_METHOD
+                - name: AWS_ENDPOINT
+                  valueFrom:
+                    secretKeyRef:
+                      name: walg-credentials
+                      key: AWS_ENDPOINT
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: walg-credentials
+                      key: AWS_ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: walg-credentials
+                      key: AWS_SECRET_ACCESS_KEY
+                - name: AWS_REGION
+                  valueFrom:
+                    secretKeyRef:
+                      name: walg-credentials
+                      key: AWS_REGION
+                - name: AWS_S3_FORCE_PATH_STYLE
+                  value: "true"
+                - name: PGHOST
+                  value: postgres.sahool-data.svc.cluster.local
+                - name: PGPORT
+                  value: "5432"
+              volumeMounts:
+                - name: pgdata
+                  mountPath: /var/lib/postgresql/data
+                  readOnly: true
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 256Mi
+                limits:
+                  cpu: 1000m
+                  memory: 1Gi
+          volumes:
+            - name: pgdata
+              persistentVolumeClaim:
+                claimName: postgres-data
+                readOnly: true

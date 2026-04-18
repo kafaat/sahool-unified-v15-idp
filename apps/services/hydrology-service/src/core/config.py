@@ -37,7 +37,7 @@ class Settings(BaseSettings):
 
     # External Services
     terrain_service_url: str = Field(default="http://terrain-core-service:8164", alias="TERRAIN_SERVICE_URL")
-    weather_service_url: str = Field(default="http://weather-service:8108", alias="WEATHER_SERVICE_URL")
+    weather_service_url: str = Field(default="http://weather-service:8092", alias="WEATHER_SERVICE_URL")
 
     # Hydrology Analysis Settings
     default_dem_resolution: float = Field(

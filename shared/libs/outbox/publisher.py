@@ -70,8 +70,15 @@ def publish_pending(
     """
     Publish pending events from the outbox.
 
+    TRANSACTION CONTRACT: this function OWNS the session's transaction —
+    it calls ``db.commit()`` at the end so the ``published=True`` /
+    ``retry_count`` updates actually persist. Callers MUST pass a
+    dedicated session; do not share a session with unrelated pending
+    changes or they will be committed alongside the outbox updates.
+    The async variant in ``worker.py`` already enforces this pattern.
+
     Args:
-        db: SQLAlchemy session
+        db: SQLAlchemy session (dedicated — see transaction contract above)
         bus: Event bus client
         batch_size: Number of events to process per batch
         max_retries: Maximum retry attempts before giving up
@@ -109,6 +116,18 @@ def publish_pending(
             event.retry_count += 1
             event.last_error = str(e)
             logger.error(f"Failed to publish event {event.id}: {e} (attempt {event.retry_count}/{max_retries})")
+
+    # CRITICAL: commit the published/retry_count updates. Without this, the
+    # session rolls back on close and every iteration republishes the same
+    # rows forever. The async worker in worker.py already commits; this sync
+    # path was missing it — callers lost all acks between restarts.
+    # Rollback on commit failure so the session isn't left in a failed
+    # transaction state for the next tick.
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
 
     return published_count
 

@@ -294,6 +294,25 @@ class CopilotRAGService:
         if not self._initialized:
             await self.initialize()
 
+        # Tenant scoping for RAG: a falsy tenant_id (None, "") used to fall
+        # through to downstream Qdrant/keyword filters that skipped the
+        # tenant predicate, i.e. an unscoped cross-tenant read. We now
+        # rewrite it to the explicit shared-knowledge sentinel and log a
+        # WARN so the unscoped intent is visible in observability — callers
+        # with a real tenant must pass it, and callers that genuinely want
+        # shared agricultural knowledge should pass `"__GLOBAL__"`
+        # themselves instead of relying on this fallback.
+        if not tenant_id:
+            logger.warning(
+                "rag_search_missing_tenant_id_defaulting_global",
+                msg=(
+                    "RAGService.search called without explicit tenant_id — "
+                    'defaulting to "__GLOBAL__". Caller should pass tenant_id '
+                    "explicitly or add a tid claim to the JWT."
+                ),
+            )
+            tenant_id = "__GLOBAL__"
+
         top_k = top_k or self.config.default_top_k
         start_time = time.time()
 

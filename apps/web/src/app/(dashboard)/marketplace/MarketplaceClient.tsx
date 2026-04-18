@@ -5,7 +5,7 @@
  * صفحة السوق الزراعي
  */
 
-import React, { useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   ShoppingCart as ShoppingCartIcon,
   Package,
@@ -26,6 +26,17 @@ import {
 import type { Order } from '@/features/marketplace';
 import { ErrorTracking } from '@/lib/monitoring/error-tracking';
 import { Modal, ModalFooter, useToast } from '@/components/ui';
+import { formatCurrency } from '@/lib/format';
+
+/**
+ * Generate a UUID for Idempotency-Key usage.
+ */
+function generateIdempotencyKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `ord-${Date.now()}-${Math.random().toString(36).slice(2, 14)}`;
+}
 
 // Initial shipping address state
 const initialShippingAddress: Order['shippingAddress'] = {
@@ -54,6 +65,28 @@ function MarketplaceContent() {
   const { data: orders } = useOrders();
   const { showToast } = useToast();
   const createOrderMutation = useCreateOrder();
+
+  // Stable idempotency key per cart content — a fresh key is generated only
+  // when items/quantities change, so accidental double-submits use the same
+  // key and are de-duplicated by the server.
+  const cartSignature = useMemo(
+    () =>
+      cart.items
+        .map((item) => `${item.productId}:${item.quantity}`)
+        .sort()
+        .join('|'),
+    [cart.items]
+  );
+  const idempotencyKeyRef = useRef<{ signature: string; key: string } | null>(null);
+  if (
+    !idempotencyKeyRef.current ||
+    idempotencyKeyRef.current.signature !== cartSignature
+  ) {
+    idempotencyKeyRef.current = {
+      signature: cartSignature,
+      key: generateIdempotencyKey(),
+    };
+  }
 
   const totalProducts = products?.length || 0;
   const totalOrders = orders?.length || 0;
@@ -127,6 +160,7 @@ function MarketplaceContent() {
         items: orderItems,
         shippingAddress,
         notes: orderNotes || undefined,
+        idempotencyKey: idempotencyKeyRef.current?.key,
       });
 
       // Success - show success screen
@@ -239,7 +273,7 @@ function MarketplaceContent() {
             <div>
               <h3 className="text-xl font-bold mb-1">لديك {cartItemsCount} منتجات في السلة</h3>
               <p className="text-blue-100">
-                الإجمالي: {cart.total.toFixed(2)} {cart.currency}
+                الإجمالي: {formatCurrency(cart.total, cart.currency)}
               </p>
             </div>
             <button
@@ -311,15 +345,11 @@ function MarketplaceContent() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">المجموع الفرعي | Subtotal</span>
-                  <span>
-                    {cart.subtotal.toFixed(2)} {cart.currency}
-                  </span>
+                  <span>{formatCurrency(cart.subtotal, cart.currency)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">الضريبة | Tax (15%)</span>
-                  <span>
-                    {cart.tax.toFixed(2)} {cart.currency}
-                  </span>
+                  <span>{formatCurrency(cart.tax, cart.currency)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">الشحن | Shipping</span>
@@ -327,14 +357,14 @@ function MarketplaceContent() {
                     {cart.shipping === 0 ? (
                       <span className="text-green-600">مجاني | Free</span>
                     ) : (
-                      `${cart.shipping.toFixed(2)} ${cart.currency}`
+                      formatCurrency(cart.shipping, cart.currency)
                     )}
                   </span>
                 </div>
                 <div className="flex justify-between pt-2 border-t border-gray-200 text-lg font-bold">
                   <span>الإجمالي | Total</span>
                   <span className="text-blue-600">
-                    {cart.total.toFixed(2)} {cart.currency}
+                    {formatCurrency(cart.total, cart.currency)}
                   </span>
                 </div>
               </div>

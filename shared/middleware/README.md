@@ -14,6 +14,7 @@ HTTP middleware components for FastAPI services in the SAHOOL platform.
 | **API Versioning** | `api_versioning.py` | URL-based API versioning (`/api/v1/`, `/api/v2/`) |
 | **Security Headers** | `security_headers.py` | HTTP security headers (CSP, HSTS, X-Frame-Options) |
 | **Input Sanitization** | `input_sanitizer.py` | XSS and injection prevention |
+| **Idempotency** | `idempotency.py` | Cache responses for `Idempotency-Key` on POST/PATCH/DELETE (in-memory, 10-min TTL — swap to Redis for prod) |
 
 ## Quick Start
 

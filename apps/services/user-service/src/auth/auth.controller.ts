@@ -488,7 +488,9 @@ export class AuthController {
 
     // Tenant context from request body or x-tenant-id header
     const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
-    return this.authService.resetPassword(dto.token, dto.newPassword, tenantId);
+    return this.authService.resetPassword(dto.token, dto.newPassword, tenantId, {
+      ipAddress: ip,
+    });
   }
 
   /**

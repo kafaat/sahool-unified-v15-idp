@@ -67,16 +67,18 @@ from .repository import BillingRepository
 
 sys.path.insert(0, str(FilePath(__file__).parent.parent.parent / "shared"))
 
-# Configure logging early so it can be used in imports
-# FIX: Use force=True to reset handlers and prevent double logging with uvicorn's default handlers
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    force=True,
-)
+# Configure structured logging (replaces stdlib logging init)
+from shared.logging_config import setup_logging
+
+setup_logging("billing-core")
 # Suppress duplicate uvicorn access/error logs
 logging.getLogger("uvicorn.access").propagate = False
 logger = structlog.get_logger("sahool-billing")
+
+# OpenTelemetry tracing (must be called before FastAPI instrumentation)
+from shared.observability.tracing import setup_tracing
+
+_tracer = setup_tracing("billing-core")
 
 # Python mirror of DEFAULT_FREE_TIER from packages/shared-types/src/contracts/api-responses.ts
 # IMPORTANT: Keep in sync with TypeScript contract. Any changes must update both files.
@@ -585,6 +587,9 @@ app = FastAPI(
     description="Complete billing, subscription, and payment management for SAHOOL platform",
     lifespan=lifespan,
 )
+
+# Instrument FastAPI with OpenTelemetry
+_tracer.instrument_fastapi(app)
 
 # Setup unified error handling
 if setup_exception_handlers:

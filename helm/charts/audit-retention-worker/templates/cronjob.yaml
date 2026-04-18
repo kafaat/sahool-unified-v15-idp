@@ -1,0 +1,97 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "audit-retention-worker.fullname" . }}
+  labels:
+    {{- include "audit-retention-worker.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  {{- with .Values.timeZone }}
+  timeZone: {{ . | quote }}
+  {{- end }}
+  concurrencyPolicy: {{ .Values.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.failedJobsHistoryLimit }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "audit-retention-worker.labels" . | nindent 8 }}
+    spec:
+      activeDeadlineSeconds: {{ .Values.activeDeadlineSeconds }}
+      backoffLimit: {{ .Values.backoffLimit }}
+      template:
+        metadata:
+          labels:
+            {{- include "audit-retention-worker.selectorLabels" . | nindent 12 }}
+        spec:
+          serviceAccountName: {{ include "audit-retention-worker.serviceAccountName" . }}
+          # Defence in depth: even if `serviceAccount.create=false` is
+          # overridden and a pre-existing SA is used that DOES mount its
+          # token, the pod spec wins. The worker never needs the in-pod
+          # kube API token — all its I/O is Postgres.
+          automountServiceAccountToken: false
+          restartPolicy: Never
+          {{- with .Values.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            {{- toYaml .Values.podSecurityContext | nindent 12 }}
+          # Writable scratch dirs. With `readOnlyRootFilesystem: true`
+          # below, libraries that write to /tmp (asyncpg's tempfile
+          # usage, Python's tempfile module) or /.cache (pip-vendored
+          # wheels, TLS ca cache) fail without these emptyDir mounts.
+          # Matches the pattern used by audit-service's helm chart.
+          volumes:
+            - name: tmp
+              emptyDir: {}
+            - name: cache
+              emptyDir: {}
+          containers:
+            - name: worker
+              image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              securityContext:
+                {{- toYaml .Values.securityContext | nindent 16 }}
+              volumeMounts:
+                - name: tmp
+                  mountPath: /tmp
+                - name: cache
+                  mountPath: /.cache
+              {{- if .Values.retention.dryRun }}
+              args: ["--dry-run"]
+              {{- end }}
+              env:
+                - name: AUDIT_RETENTION_DATABASE_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.secrets.databaseUrlSecretName }}
+                      key: {{ .Values.secrets.databaseUrlSecretKey }}
+                - name: AUDIT_RETENTION_DEFAULT_DAYS
+                  value: {{ .Values.retention.defaultDays | quote }}
+                {{- range $category, $days := .Values.retention.perCategoryDays }}
+                - name: AUDIT_RETENTION_{{ $category | upper }}_DAYS
+                  value: {{ $days | quote }}
+                {{- end }}
+                # Empty string → worker skips the pushgateway batch entirely.
+                # Set .Values.pushgatewayUrl to a reachable URL (e.g.
+                # http://prometheus-pushgateway.monitoring.svc.cluster.local:9091)
+                # to enable Prometheus metrics for this CronJob.
+                - name: AUDIT_RETENTION_PUSHGATEWAY_URL
+                  value: {{ .Values.pushgatewayUrl | quote }}
+                - name: LOG_LEVEL
+                  value: "INFO"
+              resources:
+                {{- toYaml .Values.resources | nindent 16 }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}

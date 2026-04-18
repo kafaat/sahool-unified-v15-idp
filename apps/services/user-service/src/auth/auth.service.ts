@@ -15,7 +15,6 @@ import {
   UnauthorizedException,
   NotFoundException,
   BadRequestException,
-  ConflictException,
   Logger,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
@@ -200,6 +199,13 @@ export class AuthService {
         ipAddress: ctx.ipAddress,
         userAgent: ctx.userAgent,
       }));
+      // Apply an equivalent progressive delay in the "user not found"
+      // branch so timing cannot distinguish from "wrong password".
+      // Uses the floor (0 prior attempts) delay — the only timing profile
+      // an unauthenticated probe ever observes.
+      await new Promise(resolve =>
+        setTimeout(resolve, this.getProgressiveDelay(0)),
+      );
       throw new UnauthorizedException("Invalid email or password");
     }
 
@@ -271,11 +277,9 @@ export class AuthService {
         );
       }
 
-      throw new UnauthorizedException(
-        lockResult.attemptsRemaining > 0
-          ? `Invalid email or password. ${lockResult.attemptsRemaining} attempts remaining before account lockout.`
-          : "Invalid email or password",
-      );
+      // Uniform error: never expose attempts-remaining in the response.
+      // The counter is still tracked internally via recordFailedLoginAttempt.
+      throw new UnauthorizedException("Invalid email or password");
     }
 
     // Check user status
@@ -743,8 +747,15 @@ export class AuthService {
   /**
    * User registration
    * تسجيل مستخدم جديد
+   *
+   * Returns either ``TokenResponse`` (brand-new account, auto-login) or an
+   * enumeration-safe ``{ success: true, message }`` envelope when the email
+   * was already registered. The uniform shape prevents attackers from
+   * distinguishing existing accounts via HTTP status or payload contents.
    */
-  async register(registerDto: RegisterDto): Promise<TokenResponse> {
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<TokenResponse | { success: true; message: string }> {
     const { password, phone, tenantId } = registerDto;
     const email = registerDto.email.toLowerCase().trim();
 
@@ -767,7 +778,14 @@ export class AuthService {
         `Registration attempt with existing email`,
         { email: this.sanitizeForLog(email) },
       );
-      throw new ConflictException("Email already registered");
+      // Enumeration-safe response: do NOT create a duplicate, do NOT reveal
+      // that the email is taken. Uniform 200 OK envelope mirrors the
+      // forgot-password pattern used elsewhere in this service.
+      return {
+        success: true,
+        message:
+          "If this email is new, you will receive a verification link.",
+      };
     }
 
     // Hash password
@@ -1158,7 +1176,12 @@ SAHOOL - National Agricultural Intelligence Platform
    * Reset password using token
    * إعادة تعيين كلمة المرور باستخدام الرمز
    */
-  async resetPassword(token: string, newPassword: string, tenantId?: string): Promise<{
+  async resetPassword(
+    token: string,
+    newPassword: string,
+    tenantId?: string,
+    context?: { ipAddress?: string },
+  ): Promise<{
     success: boolean;
     message: string;
   }> {
@@ -1182,6 +1205,17 @@ SAHOOL - National Agricultural Intelligence Platform
 
     if (!user) {
       this.logger.warn(`Invalid or expired password reset token used`);
+      // Emit password-reset failure audit — fire-and-forget so NATS
+      // degradation doesn't block the error response.
+      this.fireAndForget(
+        this.userEvents?.publishPasswordReset({
+          tenantId: tenantId ?? "00000000-0000-0000-0000-000000000000",
+          status: "failed",
+          reason: "invalid_or_expired_token",
+          ipAddress: context?.ipAddress,
+        }),
+        "publishPasswordReset",
+      );
       throw new BadRequestException("Invalid or expired password reset token");
     }
 
@@ -1206,9 +1240,13 @@ SAHOOL - National Agricultural Intelligence Platform
       },
     });
 
-    // Revoke all existing refresh tokens for security
-    await this.prisma.refreshToken.updateMany({
-      where: { userId: user.id },
+    // Revoke all existing *active* refresh tokens for security.
+    // Filter on `revoked: false` so the returned count reflects tokens
+    // this call actually flipped — without the filter, already-revoked
+    // rows inflate `sessionsRevoked` in the audit payload and make the
+    // metric misleading for compliance dashboards.
+    const revokeResult = await this.prisma.refreshToken.updateMany({
+      where: { userId: user.id, revoked: false },
       data: { revoked: true },
     });
 
@@ -1216,6 +1254,34 @@ SAHOOL - National Agricultural Intelligence Platform
       userId: user.id,
       email: this.sanitizeForLog(user.email),
     });
+
+    // Fire-and-forget audit event — compliance requires a trail of every
+    // password change regardless of which flow (reset-token vs OTP vs
+    // authenticated self-service) was used. audit-service maps the subject
+    // to action="auth.password_changed", category="authentication".
+    this.fireAndForget(
+      this.userEvents?.publishUserPasswordChanged({
+        tenantId: user.tenantId,
+        userId: user.id,
+        method: "reset_token",
+        identifier: this.sanitizeForLog(user.email),
+        sessionsRevoked: revokeResult.count,
+      }),
+      "publishUserPasswordChanged",
+    );
+
+    // Emit the dedicated password_reset audit event on success so the
+    // reset-flow probe trail (success + failure) is complete.
+    this.fireAndForget(
+      this.userEvents?.publishPasswordReset({
+        tenantId: user.tenantId,
+        userId: user.id,
+        status: "success",
+        identifier: this.sanitizeForLog(user.email),
+        ipAddress: context?.ipAddress,
+      }),
+      "publishPasswordReset",
+    );
 
     return {
       success: true,
@@ -1417,7 +1483,9 @@ SAHOOL - National Agricultural Intelligence Platform
         });
 
         if (!user) {
-          throw new BadRequestException("User not found.");
+          // Enumeration-safe: do not reveal whether the identifier exists.
+          // Returns the same error shape as an invalid/expired OTP.
+          throw new BadRequestException("Invalid or expired OTP");
         }
 
         // Generate secure reset token
@@ -1463,7 +1531,8 @@ SAHOOL - National Agricultural Intelligence Platform
         });
 
         if (!user) {
-          throw new BadRequestException("User not found.");
+          // Enumeration-safe: same error as an invalid/expired OTP.
+          throw new BadRequestException("Invalid or expired OTP");
         }
 
         if (user.status !== UserStatus.ACTIVE) {

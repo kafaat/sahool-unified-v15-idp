@@ -1508,16 +1508,39 @@ class VectorStore:
             # If so, the search IS tenant-scoped and no warning is needed.
             filter_has_tenant = filter.get("tenant_id") if filter else None
             if filter_has_tenant is None:
-                # Warn when neither parameter nor filter provides tenant scope.
-                # This does NOT raise because some collections (e.g. global
-                # knowledge base) are legitimately shared across all tenants.
-                # تحذير عند عدم تمرير tenant_id — قد يعني تسرب بيانات بين المستأجرين
-                logger.warning(
-                    "VectorStore.search called without tenant_id for collection '%s'. "
-                    "Results are UNSCOPED and may include data from all tenants. "
-                    "Ensure this is intentional (e.g. a shared knowledge collection).",
-                    collection,
-                )
+                # Collections that are intentionally shared across all tenants
+                # (built-in agricultural knowledge, public RAG corpora) can be
+                # allowlisted via VECTOR_STORE_GLOBAL_COLLECTIONS=coll_a,coll_b
+                # so their callers don't have to plumb a tenant_id through
+                # every layer. We still force the scope to be explicit before
+                # it hits the backend — callers can't accidentally query a
+                # per-tenant collection without scoping.
+                import os as _os
+
+                global_collections = {
+                    name.strip()
+                    for name in _os.getenv("VECTOR_STORE_GLOBAL_COLLECTIONS", "").split(",")
+                    if name.strip()
+                }
+                if collection in global_collections:
+                    filter = dict(filter) if filter else {}
+                    filter["tenant_id"] = "__GLOBAL__"
+                else:
+                    # Fail-closed: missing tenant_id is treated as a programming
+                    # error, not a warning. Legitimate shared-knowledge callers
+                    # must opt in explicitly with `tenant_id="__GLOBAL__"` (or
+                    # add a `tenant_id` key to `filter`, or allowlist the
+                    # collection via VECTOR_STORE_GLOBAL_COLLECTIONS), which
+                    # makes the cross-tenant intent visible at the call site
+                    # and grep-able.
+                    # تحذير -> رفض صارم: نرفض قراءة غير مُقيّدة بمستأجر
+                    raise ValueError(
+                        f"VectorStore.search on collection '{collection}' requires an "
+                        "explicit tenant_id (or filter['tenant_id']). Pass "
+                        'tenant_id="__GLOBAL__" only for collections that are '
+                        "deliberately shared across all tenants, or allowlist "
+                        "the collection via VECTOR_STORE_GLOBAL_COLLECTIONS."
+                    )
 
         # Get query vector
         if vector is None:

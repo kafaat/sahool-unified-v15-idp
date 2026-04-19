@@ -18,7 +18,7 @@ separately.
 | Piece | Path | Executes where |
 | ----- | ---- | -------------- |
 | OpenAPI exporter | `scripts/export-openapi.py` | local + CI |
-| OpenAPI specs (regenerated fresh on every run, uploaded as CI artifact) | `build/openapi-specs/` | CI (`build-specs` job) |
+| OpenAPI specs (regenerated fresh on every run, uploaded as CI artifact) | `apps/services/<svc>/openapi.yaml` | CI (`build-specs` job) |
 | Schemathesis static validation (every spec, per-spec matrix) | `.github/workflows/schemathesis-api-tests.yml` | CI |
 | pgTAP suite — tenant isolation (RLS) | `tests/database/rls/` | local + CI |
 | pgTAP workflow | `.github/workflows/pgtap-rls-tests.yml` | CI |

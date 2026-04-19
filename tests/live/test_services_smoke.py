@@ -12,6 +12,7 @@ are provided by ``tests/live/conftest.py``.
 from __future__ import annotations
 
 import asyncio
+import uuid
 
 import pytest
 
@@ -37,7 +38,9 @@ def test_redis_round_trip(redis_url: str) -> None:
     import redis
 
     client = redis.Redis.from_url(redis_url, decode_responses=True)
-    key = "sahool:smoke:roundtrip"
+    # Per-run unique key so parallel pytest-xdist workers or concurrent CI
+    # runs against a shared Redis instance can't trample each other.
+    key = f"sahool:smoke:roundtrip:{uuid.uuid4().hex}"
     client.set(key, "ok", ex=30)
     try:
         assert client.get(key) == "ok"
@@ -47,6 +50,8 @@ def test_redis_round_trip(redis_url: str) -> None:
 
 def test_nats_publish_subscribe(nats_url: str) -> None:
     nats = pytest.importorskip("nats")
+    # Per-run subject: same xdist/shared-instance concern as the Redis test.
+    subject = f"sahool.test.smoke.{uuid.uuid4().hex}"
 
     async def _roundtrip() -> str:
         nc = await nats.connect(nats_url)
@@ -56,8 +61,8 @@ def test_nats_publish_subscribe(nats_url: str) -> None:
             async def handler(msg):
                 received.append(msg.data.decode())
 
-            sub = await nc.subscribe("sahool.test.smoke", cb=handler)
-            await nc.publish("sahool.test.smoke", b"hello")
+            sub = await nc.subscribe(subject, cb=handler)
+            await nc.publish(subject, b"hello")
             await nc.flush(timeout=2)
             # Small grace period for the async handler.
             for _ in range(20):

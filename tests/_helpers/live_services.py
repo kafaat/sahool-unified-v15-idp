@@ -14,10 +14,11 @@ Either way, tests opt in with::
 
 Environment overrides (explicit > auto-detect):
 
-    SAHOOL_TEST_POSTGRES_DSN   postgres://user:pw@host:5432/db
-    SAHOOL_TEST_REDIS_URL      redis://host:6379/0
-    SAHOOL_TEST_NATS_URL       nats://host:4222
-    SAHOOL_TEST_FORCE_LOCAL=1  skip container discovery
+    SAHOOL_TEST_POSTGRES_DSN         postgres://user:pw@host:5432/db
+    SAHOOL_TEST_POSTGRES_ADMIN_DSN   postgres://user:pw@host:5432/postgres
+    SAHOOL_TEST_REDIS_URL            redis://host:6379/0
+    SAHOOL_TEST_NATS_URL             nats://host:4222
+    SAHOOL_TEST_FORCE_LOCAL=1        skip container discovery
 
 The module intentionally has **no hard dependency** on testcontainers;
 if the package is missing and no local service is reachable, fixtures
@@ -55,19 +56,32 @@ def _force_local() -> bool:
     return os.environ.get("SAHOOL_TEST_FORCE_LOCAL") == "1"
 
 
+# Cached outside the function: ``docker info`` is a multi-hundred-millisecond
+# subprocess, and every session-scoped fixture (pg_dsn, redis_url, nats_url)
+# calls the detection helper. ``_SENTINEL`` distinguishes "not yet computed"
+# from "computed and resolved to None".
+_SENTINEL: object = object()
+_TC_CACHE: object = _SENTINEL
+
+
 def _try_testcontainers():
     """Return the testcontainers package or None if unavailable.
 
     We return the *module*, not specific containers, so callers decide
-    which sub-container (Postgres/Redis/NATS) they need.
+    which sub-container (Postgres/Redis/NATS) they need. Cached per
+    process — test sessions don't bring Docker up and down.
     """
+    global _TC_CACHE
+    if _TC_CACHE is not _SENTINEL:
+        return _TC_CACHE
     if _force_local():
+        _TC_CACHE = None
         return None
     try:
         import testcontainers  # noqa: F401
     except ImportError:
+        _TC_CACHE = None
         return None
-    # testcontainers needs a working docker daemon.
     try:
         subprocess.run(
             ["docker", "info"],
@@ -76,9 +90,11 @@ def _try_testcontainers():
             timeout=3,
         )
     except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        _TC_CACHE = None
         return None
     import testcontainers
 
+    _TC_CACHE = testcontainers
     return testcontainers
 
 

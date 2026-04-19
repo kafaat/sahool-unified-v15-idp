@@ -194,12 +194,17 @@ def export_all(
     result = ExportResult()
 
     # Test-mode envs so services that read env at import time don't explode.
+    # Connection-oriented settings are OVERRIDDEN (not setdefault) by default
+    # so a developer with real DATABASE_URL / NATS_URL / REDIS_URL in their
+    # shell can't accidentally have the exporter open connections to real
+    # infrastructure at module-load time. Opt back into the real env with
+    # ``OPENAPI_EXPORT_KEEP_REAL_ENV=1`` if you have a specific reason.
     os.environ.setdefault("ENVIRONMENT", "test")
     os.environ.setdefault("JWT_SECRET_KEY", "openapi-export-placeholder-key-32chars")
     os.environ.setdefault("JWT_ALGORITHM", "HS256")
-    os.environ.setdefault("DATABASE_URL", "")
-    os.environ.setdefault("NATS_URL", "")
-    os.environ.setdefault("REDIS_URL", "")
+    if not os.environ.get("OPENAPI_EXPORT_KEEP_REAL_ENV"):
+        for key in ("DATABASE_URL", "NATS_URL", "REDIS_URL"):
+            os.environ[key] = ""
 
     for service_dir in services:
         name = service_dir.name

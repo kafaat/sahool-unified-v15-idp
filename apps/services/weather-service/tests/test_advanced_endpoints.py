@@ -739,3 +739,67 @@ class TestYemenLocationEndpoints:
         provider-quota burn from huge values."""
         r = client.get("/weather/v1/forecast/sanaa", params={"days": 999})
         assert r.status_code == 422
+
+    def test_forecast_by_location_success_response_shape(self, client):
+        """200-path coverage. The error-only tests above wouldn't catch a
+        regression like calling `multi_provider.get_forecast(...)` (which
+        doesn't exist — the real method is `get_daily_forecast`); only an
+        actual happy-path call exercises that code branch.
+
+        Mocks the provider so the test doesn't hit the real Open-Meteo API.
+        """
+
+        class _Daily:
+            """Minimal stand-in for a DailyForecast row."""
+
+            def __init__(self, day_idx: int) -> None:
+                self.date = f"2026-04-{20 + day_idx:02d}"
+                self.temp_max_c = 32.0
+                self.temp_min_c = 18.0
+                self.precipitation_mm = 0.0
+                self.precipitation_probability_pct = 5.0
+                self.wind_speed_max_kmh = 10.0
+                self.uv_index_max = 8.0
+                self.condition = "sunny"
+                self.condition_ar = "مشمس"
+                self.sunrise = "05:30"
+                self.sunset = "18:30"
+
+        class _Result:
+            success = True
+            data = [_Daily(i) for i in range(3)]
+            provider = "Open-Meteo"
+
+        async def _fake_get_daily_forecast(lat, lon, days, tenant_id=None):
+            assert days == 3
+            return _Result()
+
+        with patch("src.main.app.state") as mock_state:
+            mock_state.publisher = None
+            mock_state.multi_provider = MagicMock()
+            mock_state.multi_provider.get_daily_forecast = AsyncMock(
+                side_effect=_fake_get_daily_forecast
+            )
+
+            r = client.get("/weather/v1/forecast/sanaa", params={"days": 3})
+
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["success"] is True
+        data = body["data"]
+        # Location resolved from the static governorates table.
+        assert data["location"]["id"] == "sanaa"
+        assert data["location"]["name_ar"] == "صنعاء"
+        # Forecast list shape mirrors the existing POST /weather/forecast.
+        assert data["days"] == 3
+        assert len(data["forecast"]) == 3
+        first = data["forecast"][0]
+        assert {
+            "date",
+            "temp_max_c",
+            "temp_min_c",
+            "precipitation_mm",
+            "wind_speed_max_kmh",
+            "condition",
+            "condition_ar",
+        } <= set(first.keys())

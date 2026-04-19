@@ -616,8 +616,8 @@ async def list_yemen_locations(
     }
 
 
-def _resolve_tenant_or_401(user: User) -> str:
-    """Pull tenant_id off the authenticated user or raise 401.
+def _resolve_tenant_or_403(user: User) -> str:
+    """Pull tenant_id off the authenticated user or raise 403.
 
     The Yemen-location endpoints are GET-only with no `tenant_id`
     query/body — the caller's tenant MUST come from the JWT. Falling
@@ -625,12 +625,20 @@ def _resolve_tenant_or_401(user: User) -> str:
     quota/rate-limit counters across unrelated requests AND give us
     no way to attribute downstream provider charges, so we fail loud
     instead.
+
+    Status code matches `_enforce_tenant` above (403 with
+    error="missing_tenant") so a single client-side handler covers
+    both endpoints families.
     """
     tenant_id = getattr(user, "tenant_id", None)
     if not tenant_id:
         raise HTTPException(
-            status_code=401,
-            detail="Authenticated user has no tenant context — cannot scope weather request.",
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
         )
     return str(tenant_id)
 
@@ -656,7 +664,7 @@ async def get_current_weather_by_location(
             detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
         )
 
-    tenant_id = _resolve_tenant_or_401(user)
+    tenant_id = _resolve_tenant_or_403(user)
 
     if app.state.multi_provider:
         result = await app.state.multi_provider.get_current(location["lat"], location["lon"], tenant_id=tenant_id)
@@ -726,7 +734,7 @@ async def get_forecast_by_location(
             detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
         )
 
-    tenant_id = _resolve_tenant_or_401(user)
+    tenant_id = _resolve_tenant_or_403(user)
 
     # Mirror the existing POST /weather/forecast handler — it calls
     # get_daily_forecast (NOT get_forecast). The providers in

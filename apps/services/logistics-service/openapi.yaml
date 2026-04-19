@@ -1,0 +1,2103 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Logistics Service | خدمة اللوجستيات
+  description: Agricultural logistics management - fleet, storage, collection, and
+    delivery optimization
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health Check
+      description: 'Liveness probe endpoint
+
+        نقطة نهاية فحص الحيوية'
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness Check
+      description: 'Readiness probe endpoint
+
+        نقطة نهاية فحص الجاهزية'
+      operationId: readiness_check_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Combined Health
+      description: 'Combined health check
+
+        فحص صحة شامل'
+      operationId: combined_health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/vehicles:
+    get:
+      summary: List Vehicles
+      description: 'List all fleet vehicles
+
+        قائمة جميع مركبات الأسطول'
+      operationId: list_vehicles_api_v1_vehicles_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: vehicle_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/VehicleType'
+          - type: 'null'
+          description: Filter by vehicle type
+          title: Vehicle Type
+        description: Filter by vehicle type
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/VehicleStatus'
+          - type: 'null'
+          description: Filter by status
+          title: Status
+        description: Filter by status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Vehicles Api V1 Vehicles Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Vehicle
+      description: 'Create a new vehicle
+
+        إنشاء مركبة جديدة'
+      operationId: create_vehicle_api_v1_vehicles_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/vehicles/{vehicle_id}:
+    get:
+      summary: Get Vehicle
+      description: 'Get vehicle by ID
+
+        الحصول على مركبة بواسطة المعرف'
+      operationId: get_vehicle_api_v1_vehicles__vehicle_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: vehicle_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Vehicle Id
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update Vehicle
+      description: 'Update vehicle
+
+        تحديث المركبة'
+      operationId: update_vehicle_api_v1_vehicles__vehicle_id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: vehicle_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Vehicle Id
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VehicleUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vehicle'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/vehicles/{vehicle_id}/location:
+    post:
+      summary: Update Vehicle Location
+      description: 'Update vehicle GPS location
+
+        تحديث موقع GPS للمركبة'
+      operationId: update_vehicle_location_api_v1_vehicles__vehicle_id__location_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: vehicle_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Vehicle Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          title: Lat
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          title: Lon
+      - name: fuel_level
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fuel Level
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/storage-facilities:
+    get:
+      summary: List Storage Facilities
+      description: 'List storage facilities
+
+        قائمة مرافق التخزين'
+      operationId: list_storage_facilities_api_v1_storage_facilities_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: storage_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/StorageType'
+          - type: 'null'
+          title: Storage Type
+      - name: active_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Active Only
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Storage Facilities Api V1 Storage Facilities
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Storage Facility
+      description: 'Create a new storage facility
+
+        إنشاء مرفق تخزين جديد'
+      operationId: create_storage_facility_api_v1_storage_facilities_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StorageFacilityCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageFacility'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/storage-facilities/{facility_id}:
+    get:
+      summary: Get Storage Facility
+      description: 'Get storage facility by ID
+
+        الحصول على مرفق التخزين بواسطة المعرف'
+      operationId: get_storage_facility_api_v1_storage_facilities__facility_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: facility_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Facility Id
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StorageFacility'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/storage-facilities/{facility_id}/conditions:
+    post:
+      summary: Update Facility Conditions
+      description: 'Update storage facility conditions (temperature, humidity)
+
+        تحديث ظروف مرفق التخزين (درجة الحرارة، الرطوبة)'
+      operationId: update_facility_conditions_api_v1_storage_facilities__facility_id__conditions_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: facility_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Facility Id
+      - name: temperature_c
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature C
+      - name: humidity_percent
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Percent
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/collections:
+    get:
+      summary: List Harvest Collections
+      description: 'List harvest collections
+
+        قائمة جمع المحاصيل'
+      operationId: list_harvest_collections_api_v1_collections_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ShipmentStatus'
+          - type: 'null'
+          title: Status
+      - name: priority
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CollectionPriority'
+          - type: 'null'
+          title: Priority
+      - name: scheduled_from
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Scheduled From
+      - name: scheduled_to
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Scheduled To
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Harvest Collections Api V1 Collections Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Harvest Collection
+      description: 'Schedule a new harvest collection
+
+        جدولة جمع محاصيل جديد'
+      operationId: create_harvest_collection_api_v1_collections_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HarvestCollectionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HarvestCollection'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/collections/{collection_id}/assign:
+    post:
+      summary: Assign Vehicle To Collection
+      description: 'Assign a vehicle to a harvest collection
+
+        تعيين مركبة لجمع المحاصيل'
+      operationId: assign_vehicle_to_collection_api_v1_collections__collection_id__assign_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: collection_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Collection Id
+      - name: vehicle_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Vehicle Id
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/collections/{collection_id}/status:
+    post:
+      summary: Update Collection Status
+      description: 'Update harvest collection status
+
+        تحديث حالة جمع المحاصيل'
+      operationId: update_collection_status_api_v1_collections__collection_id__status_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: collection_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Collection Id
+      - name: status
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/ShipmentStatus'
+      - name: actual_quantity_kg
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Actual Quantity Kg
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/routes/optimize:
+    post:
+      summary: Optimize Route
+      description: 'Optimize collection route for a vehicle
+
+        تحسين مسار الجمع للمركبة
+
+
+        Uses a simple nearest-neighbor algorithm for demonstration.
+
+        In production, integrate with a proper routing service.'
+      operationId: optimize_route_api_v1_routes_optimize_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteOptimizationRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteOptimizationResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/logistics/shipments:
+    get:
+      summary: List Shipments
+      description: 'List shipments/deliveries
+
+        قائمة الشحنات/التسليمات
+
+
+        Returns an envelope:
+
+        `{shipments: [...], total, limit, offset, pagination: {...}}`'
+      operationId: list_shipments_api_v1_logistics_shipments_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by shipment status (canonical or legacy)
+          title: Status
+        description: Filter by shipment status (canonical or legacy)
+      - name: vehicle_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Shipments Api V1 Logistics Shipments Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Shipment
+      description: 'Create a new shipment/delivery
+
+        إنشاء شحنة/تسليم جديد'
+      operationId: create_shipment_api_v1_logistics_shipments_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShipmentCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Shipment'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/logistics/shipments/{shipment_id}/status:
+    post:
+      summary: Update Shipment Status
+      description: 'Update shipment status
+
+        تحديث حالة الشحنة
+
+
+        Accepts both canonical backend statuses (scheduled, collecting, in_transit,
+
+        at_storage, delivering, delivered, cancelled) and soft/UX frontend statuses
+
+        (pending, delayed). The "pending" value is mapped to `scheduled`;
+
+        "delayed" is mapped to `in_transit` with a metadata.delayed=True flag.'
+      operationId: update_shipment_status_api_v1_logistics_shipments__shipment_id__status_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: shipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Shipment Id
+      - name: status
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Shipment status (canonical or legacy value)
+          title: Status
+        description: Shipment status (canonical or legacy value)
+      - name: lat
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lat
+      - name: lon
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lon
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/logistics/stats:
+    get:
+      summary: Get Logistics Stats
+      description: 'Get logistics statistics
+
+        الحصول على إحصائيات اللوجستيات'
+      operationId: get_logistics_stats_api_v1_logistics_stats_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/logistics/drivers:
+    get:
+      summary: List Drivers
+      description: 'List drivers in the fleet.
+
+        قائمة سائقي الأسطول.
+
+
+        Returns an envelope:
+
+        `{drivers: [...], total, limit, offset, pagination: {...}}`'
+      operationId: list_drivers_api_v1_logistics_drivers_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/DriverStatus'
+          - type: 'null'
+          description: Filter by driver status
+          title: Status
+        description: Filter by driver status
+      - name: vehicle_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/VehicleType'
+          - type: 'null'
+          description: Filter by certified vehicle type
+          title: Vehicle Type
+        description: Filter by certified vehicle type
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Drivers Api V1 Logistics Drivers Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Driver
+      description: 'Create a new driver.
+
+        إنشاء سائق جديد.'
+      operationId: create_driver_api_v1_logistics_drivers_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DriverCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/logistics/drivers/{driver_id}:
+    get:
+      summary: Get Driver
+      description: 'Get driver by ID.
+
+        الحصول على سائق بواسطة المعرف.'
+      operationId: get_driver_api_v1_logistics_drivers__driver_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: driver_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Driver Id
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Driver'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CollectionPriority:
+      type: string
+      enum:
+      - low
+      - medium
+      - high
+      - urgent
+      title: CollectionPriority
+    Driver:
+      properties:
+        id:
+          type: string
+          title: Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        license_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: License Number
+        vehicle_type:
+          anyOf:
+          - $ref: '#/components/schemas/VehicleType'
+          - type: 'null'
+        status:
+          $ref: '#/components/schemas/DriverStatus'
+          default: active
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        version:
+          type: integer
+          title: Version
+          default: 1
+      type: object
+      required:
+      - id
+      - tenant_id
+      - name
+      - created_at
+      title: Driver
+      description: Driver model - نموذج السائق
+    DriverCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        license_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: License Number
+        vehicle_type:
+          anyOf:
+          - $ref: '#/components/schemas/VehicleType'
+          - type: 'null'
+        status:
+          $ref: '#/components/schemas/DriverStatus'
+          default: active
+      type: object
+      required:
+      - name
+      title: DriverCreate
+      description: Create driver request
+    DriverStatus:
+      type: string
+      enum:
+      - active
+      - inactive
+      title: DriverStatus
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HarvestCollection:
+      properties:
+        collection_id:
+          type: string
+          title: Collection Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        field_id:
+          type: string
+          title: Field Id
+        field_name:
+          type: string
+          title: Field Name
+        field_name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Name Ar
+        crop_type:
+          type: string
+          title: Crop Type
+        crop_type_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop Type Ar
+        estimated_quantity_kg:
+          type: number
+          title: Estimated Quantity Kg
+        actual_quantity_kg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Actual Quantity Kg
+        priority:
+          $ref: '#/components/schemas/CollectionPriority'
+        priority_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Priority Ar
+        scheduled_date:
+          type: string
+          format: date-time
+          title: Scheduled Date
+        actual_collection_date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Actual Collection Date
+        pickup_lat:
+          type: number
+          title: Pickup Lat
+        pickup_lon:
+          type: number
+          title: Pickup Lon
+        assigned_vehicle_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assigned Vehicle Id
+        destination_facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destination Facility Id
+        status:
+          $ref: '#/components/schemas/ShipmentStatus'
+        status_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Ar
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - collection_id
+      - tenant_id
+      - field_id
+      - field_name
+      - crop_type
+      - estimated_quantity_kg
+      - priority
+      - scheduled_date
+      - pickup_lat
+      - pickup_lon
+      - status
+      - created_at
+      - updated_at
+      title: HarvestCollection
+      description: Harvest collection schedule - جدول جمع المحاصيل
+    HarvestCollectionCreate:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        field_name:
+          type: string
+          title: Field Name
+        field_name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Name Ar
+        crop_type:
+          type: string
+          title: Crop Type
+        crop_type_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop Type Ar
+        estimated_quantity_kg:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Estimated Quantity Kg
+        priority:
+          $ref: '#/components/schemas/CollectionPriority'
+          default: medium
+        scheduled_date:
+          type: string
+          format: date-time
+          title: Scheduled Date
+        pickup_lat:
+          type: number
+          title: Pickup Lat
+        pickup_lon:
+          type: number
+          title: Pickup Lon
+        destination_facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destination Facility Id
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+      type: object
+      required:
+      - field_id
+      - field_name
+      - crop_type
+      - estimated_quantity_kg
+      - scheduled_date
+      - pickup_lat
+      - pickup_lon
+      title: HarvestCollectionCreate
+      description: Create harvest collection request
+    RouteOptimizationRequest:
+      properties:
+        vehicle_id:
+          type: string
+          title: Vehicle Id
+        start_lat:
+          type: number
+          title: Start Lat
+        start_lon:
+          type: number
+          title: Start Lon
+        collection_ids:
+          items:
+            type: string
+          type: array
+          title: Collection Ids
+        return_to_start:
+          type: boolean
+          title: Return To Start
+          default: true
+        max_weight_kg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Weight Kg
+      type: object
+      required:
+      - vehicle_id
+      - start_lat
+      - start_lon
+      - collection_ids
+      title: RouteOptimizationRequest
+      description: Request for route optimization - طلب تحسين المسار
+    RouteOptimizationResult:
+      properties:
+        vehicle_id:
+          type: string
+          title: Vehicle Id
+        optimized_order:
+          items:
+            type: string
+          type: array
+          title: Optimized Order
+        total_distance_km:
+          type: number
+          title: Total Distance Km
+        estimated_duration_hours:
+          type: number
+          title: Estimated Duration Hours
+        waypoints:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Waypoints
+        message:
+          type: string
+          title: Message
+        message_ar:
+          type: string
+          title: Message Ar
+      type: object
+      required:
+      - vehicle_id
+      - optimized_order
+      - total_distance_km
+      - estimated_duration_hours
+      - waypoints
+      - message
+      - message_ar
+      title: RouteOptimizationResult
+      description: Route optimization result - نتيجة تحسين المسار
+    Shipment:
+      properties:
+        shipment_id:
+          type: string
+          title: Shipment Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        vehicle_id:
+          type: string
+          title: Vehicle Id
+        driver_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Id
+        origin_facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Origin Facility Id
+        destination_facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destination Facility Id
+        destination_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destination Address
+        destination_lat:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Destination Lat
+        destination_lon:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Destination Lon
+        cargo_description:
+          type: string
+          title: Cargo Description
+        cargo_description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cargo Description Ar
+        weight_kg:
+          type: number
+          title: Weight Kg
+        status:
+          type: string
+          title: Status
+        status_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Ar
+        scheduled_departure:
+          type: string
+          format: date-time
+          title: Scheduled Departure
+        actual_departure:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Actual Departure
+        estimated_arrival:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Estimated Arrival
+        actual_arrival:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Actual Arrival
+        route_waypoints:
+          anyOf:
+          - items:
+              additionalProperties:
+                type: number
+              type: object
+            type: array
+          - type: 'null'
+          title: Route Waypoints
+        current_lat:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lat
+        current_lon:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lon
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - shipment_id
+      - tenant_id
+      - vehicle_id
+      - cargo_description
+      - weight_kg
+      - status
+      - scheduled_departure
+      - created_at
+      - updated_at
+      title: Shipment
+      description: "Shipment/delivery model - نموذج الشحنة\n\nStatus field accepts\
+        \ both legacy and canonical values. See module-level\n`normalize_status()`\
+        \ and `CANONICAL_STATUSES`.\n\nSoft/UX states (see ShipmentStatus docstring):\n\
+        \  - `pending`: Frontend-only; persisted as `scheduled`.\n  - `delayed`: Frontend-only;\
+        \ persisted as `in_transit` with\n    metadata.delayed=True."
+    ShipmentCreate:
+      properties:
+        vehicle_id:
+          type: string
+          title: Vehicle Id
+        driver_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Id
+        origin_facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Origin Facility Id
+        destination_facility_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destination Facility Id
+        destination_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Destination Address
+        destination_lat:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Destination Lat
+        destination_lon:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Destination Lon
+        cargo_description:
+          type: string
+          title: Cargo Description
+        cargo_description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cargo Description Ar
+        weight_kg:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Weight Kg
+        scheduled_departure:
+          type: string
+          format: date-time
+          title: Scheduled Departure
+        estimated_arrival:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Estimated Arrival
+      type: object
+      required:
+      - vehicle_id
+      - cargo_description
+      - weight_kg
+      - scheduled_departure
+      title: ShipmentCreate
+      description: Create shipment request
+    ShipmentStatus:
+      type: string
+      enum:
+      - pending
+      - delayed
+      - scheduled
+      - collecting
+      - in_transit
+      - at_storage
+      - delivering
+      - delivered
+      - cancelled
+      title: ShipmentStatus
+      description: "Canonical shipment status enum.\n\nIncludes both backend-native\
+        \ values (scheduled, collecting, at_storage,\ndelivering) and soft/UX values\
+        \ used by the frontend (pending, delayed).\n\nSoft states semantics:\n  -\
+        \ `pending`: Maps internally to `scheduled` (not yet dispatched) - a \"soft\"\
+        \ state\n    used by the frontend to represent shipments that have been created\
+        \ but have\n    no vehicle assigned. Persisted canonically as `scheduled`.\n\
+        \  - `delayed`: Maps internally to `in_transit` with a `delayed=True` flag\
+        \ - a\n    \"soft\" state representing a shipment in transit past its ETA.\
+        \ Persisted\n    canonically as `in_transit` with metadata.delayed=True."
+    StorageFacility:
+      properties:
+        facility_id:
+          type: string
+          title: Facility Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        storage_type:
+          $ref: '#/components/schemas/StorageType'
+        storage_type_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Storage Type Ar
+        address:
+          type: string
+          title: Address
+        address_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Ar
+        lat:
+          type: number
+          title: Lat
+        lon:
+          type: number
+          title: Lon
+        total_capacity_kg:
+          type: number
+          title: Total Capacity Kg
+        available_capacity_kg:
+          type: number
+          title: Available Capacity Kg
+        temperature_min_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature Min C
+        temperature_max_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature Max C
+        humidity_min_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Min Percent
+        humidity_max_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Max Percent
+        current_temperature_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Temperature C
+        current_humidity_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Humidity Percent
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        contact_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact Phone
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - facility_id
+      - tenant_id
+      - name
+      - storage_type
+      - address
+      - lat
+      - lon
+      - total_capacity_kg
+      - available_capacity_kg
+      - created_at
+      - updated_at
+      title: StorageFacility
+      description: Storage facility model - نموذج مرفق التخزين
+    StorageFacilityCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        storage_type:
+          $ref: '#/components/schemas/StorageType'
+        address:
+          type: string
+          title: Address
+        address_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address Ar
+        lat:
+          type: number
+          title: Lat
+        lon:
+          type: number
+          title: Lon
+        total_capacity_kg:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Total Capacity Kg
+        temperature_min_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature Min C
+        temperature_max_c:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Temperature Max C
+        humidity_min_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Min Percent
+        humidity_max_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Humidity Max Percent
+        contact_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Contact Phone
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - name
+      - storage_type
+      - address
+      - lat
+      - lon
+      - total_capacity_kg
+      title: StorageFacilityCreate
+      description: Create storage facility request
+    StorageType:
+      type: string
+      enum:
+      - cold
+      - dry
+      - controlled_atmosphere
+      - grain_silo
+      - general
+      title: StorageType
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    Vehicle:
+      properties:
+        vehicle_id:
+          type: string
+          title: Vehicle Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleType'
+        vehicle_type_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Vehicle Type Ar
+        status:
+          $ref: '#/components/schemas/VehicleStatus'
+        status_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status Ar
+        license_plate:
+          type: string
+          title: License Plate
+        capacity_kg:
+          type: number
+          title: Capacity Kg
+        capacity_volume_m3:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Capacity Volume M3
+        driver_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Id
+        driver_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Name
+        current_lat:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lat
+        current_lon:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lon
+        fuel_level_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fuel Level Percent
+        last_maintenance_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Maintenance At
+        next_maintenance_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Next Maintenance At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - vehicle_id
+      - tenant_id
+      - name
+      - vehicle_type
+      - status
+      - license_plate
+      - capacity_kg
+      - created_at
+      - updated_at
+      title: Vehicle
+      description: Fleet vehicle model - نموذج مركبة الأسطول
+    VehicleCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        vehicle_type:
+          $ref: '#/components/schemas/VehicleType'
+        license_plate:
+          type: string
+          maxLength: 20
+          minLength: 1
+          title: License Plate
+        capacity_kg:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Capacity Kg
+        capacity_volume_m3:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Capacity Volume M3
+        driver_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - name
+      - vehicle_type
+      - license_plate
+      - capacity_kg
+      title: VehicleCreate
+      description: Create vehicle request
+    VehicleStatus:
+      type: string
+      enum:
+      - available
+      - in_transit
+      - loading
+      - unloading
+      - maintenance
+      - out_of_service
+      title: VehicleStatus
+    VehicleType:
+      type: string
+      enum:
+      - truck
+      - pickup
+      - van
+      - refrigerated
+      - tanker
+      - tractor_trailer
+      title: VehicleType
+    VehicleUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/VehicleStatus'
+          - type: 'null'
+        driver_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Id
+        current_lat:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lat
+        current_lon:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lon
+        fuel_level_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fuel Level Percent
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      title: VehicleUpdate
+      description: Update vehicle request
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

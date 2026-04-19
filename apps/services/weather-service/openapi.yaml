@@ -1,0 +1,1140 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Weather Core
+  description: Agricultural weather assessment, forecasting, and alerts
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      description: Health check endpoint (liveness probe)
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      summary: Metrics
+      description: Prometheus metrics endpoint
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /weather/assess:
+    post:
+      summary: Assess
+      description: 'Assess weather conditions and generate alerts
+
+
+        Manual weather data input for assessment'
+      operationId: assess_weather_assess_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherAssessRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/current:
+    post:
+      summary: Get Current Weather
+      description: 'Get current weather from API provider
+
+
+        Uses multi-provider service with automatic fallback:
+
+        - Open-Meteo (free)
+
+        - OpenWeatherMap (if OPENWEATHERMAP_API_KEY set)
+
+        - WeatherAPI (if WEATHERAPI_KEY set)'
+      operationId: get_current_weather_weather_current_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/forecast:
+    post:
+      summary: Get Forecast
+      description: "Get weather forecast\n\nArgs:\n    days: Number of forecast days\
+        \ (1-16)"
+      operationId: get_forecast_weather_forecast_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 7
+          title: Days
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /weather/irrigation:
+    post:
+      summary: Irrigation Adjustment
+      description: 'Calculate irrigation adjustment based on weather
+
+
+        Returns adjustment factor and recommendations'
+      operationId: irrigation_adjustment_weather_irrigation_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/heat-stress/{temp_c}:
+    get:
+      summary: Check Heat Stress
+      description: Quick heat stress check for a temperature
+      operationId: check_heat_stress_weather_heat_stress__temp_c__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: temp_c
+        in: path
+        required: true
+        schema:
+          type: number
+          title: Temp C
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /weather/providers:
+    get:
+      summary: Get Providers
+      description: 'Get list of available weather providers
+
+        الحصول على قائمة مزودي الطقس المتاحين'
+      operationId: get_providers_weather_providers_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/evapotranspiration:
+    post:
+      summary: Calculate Et
+      description: "Calculate Reference Evapotranspiration (ET0)\nحساب التبخر-نتح\
+        \ المرجعي\n\nUses FAO-56 Penman-Monteith equation (simplified).\nEssential\
+        \ for irrigation scheduling.\n\nReturns:\n    ET0 in mm/day with irrigation\
+        \ recommendations"
+      operationId: calculate_et_weather_evapotranspiration_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ETRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/gdd:
+    post:
+      summary: Calculate Gdd
+      description: "Calculate Growing Degree Days (GDD)\nحساب أيام النمو الحراري\n\
+        \nGDD predicts crop development stages based on accumulated heat.\nEssential\
+        \ for phenology modeling and harvest prediction.\n\nReturns:\n    Daily GDD\
+        \ with growth rate classification"
+      operationId: calculate_gdd_weather_gdd_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GDDRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/spray-window:
+    post:
+      summary: Assess Spray Window
+      description: "Assess spray window suitability\nتقييم مدى ملاءمة نافذة الرش\n\
+        \nEvaluates if current conditions are suitable for pesticide/herbicide application.\n\
+        Considers temperature, humidity, wind, and precipitation probability.\n\n\
+        Returns:\n    Spray suitability score and recommendations"
+      operationId: assess_spray_window_weather_spray_window_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SprayWindowRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/agricultural-report:
+    post:
+      summary: Get Agricultural Report
+      description: 'Comprehensive agricultural weather report
+
+        تقرير الطقس الزراعي الشامل
+
+
+        Combines current weather, alerts, ET0, GDD, and spray window
+
+        into a single comprehensive report for farmers.'
+      operationId: get_agricultural_report_weather_agricultural_report_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/frost-risk:
+    post:
+      summary: Assess Frost Risk
+      description: 'Assess frost risk and get protection recommendations
+
+        تقييم خطر الصقيع والحصول على توصيات الحماية
+
+
+        Evaluates frost risk based on temperature, humidity, wind, and cloud cover.
+
+        Returns protection measures for different risk levels.'
+      operationId: assess_frost_risk_weather_frost_risk_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrostRiskRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/heat-stress:
+    post:
+      summary: Assess Heat Stress
+      description: 'Calculate heat stress index for crops
+
+        حساب مؤشر الإجهاد الحراري للمحاصيل
+
+
+        Evaluates heat stress using Temperature-Humidity Index (THI).
+
+        Returns mitigation recommendations for high stress conditions.'
+      operationId: assess_heat_stress_weather_heat_stress_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeatStressRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/chill-hours:
+    post:
+      summary: Calculate Chill
+      description: 'Calculate chill hours/units for fruit trees
+
+        حساب ساعات البرودة للأشجار المثمرة
+
+
+        Supports multiple chill models:
+
+        - simple: Hours below threshold
+
+        - utah: Utah Chill Unit model (default, more accurate)
+
+        - dynamic: Dynamic model for mild winters
+
+
+        Returns chill units and which crops'' requirements are satisfied.'
+      operationId: calculate_chill_weather_chill_hours_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChillHoursRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/drought-index:
+    post:
+      summary: Calculate Drought
+      description: 'Calculate drought stress index
+
+        حساب مؤشر الإجهاد الجفافي
+
+
+        Based on water balance (precipitation vs evapotranspiration).
+
+        Returns irrigation recommendations.'
+      operationId: calculate_drought_weather_drought_index_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DroughtIndexRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /weather/comprehensive-stress-report:
+    post:
+      summary: Get Stress Report
+      description: 'Comprehensive weather stress report
+
+        تقرير الإجهاد الجوي الشامل
+
+
+        Combines frost risk, heat stress, spray window, and alerts
+
+        into a single comprehensive stress assessment.'
+      operationId: get_stress_report_weather_comprehensive_stress_report_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/weather/fields/{field_id}/graph:
+    post:
+      summary: Generate Weather Graph
+      description: "Generate a weather history graph for a field and return its URL.\n\
+        \nFarmonaut-style: the API returns a signed URL to a server-rendered\nSVG\
+        \ chart. The client loads it as an <img src=\"...\"> instead of\nreceiving\
+        \ JSON + rendering the chart in Dart/JS. This is much\nlighter on the mobile\
+        \ client and gives identical visuals across\nplatforms.\n\nResponse:\n  {\n\
+        \    \"success\": true,\n    \"data\": {\n      \"graph_id\": \"...\",\n \
+        \     \"url\": \"/api/v1/weather/graphs/{id}?tid=...&sig=...\",\n      \"\
+        expires_at\": \"2026-04-11T18:30:00Z\",\n      \"metric\": \"combined\",\n\
+        \      \"days\": 14\n    }\n  }"
+      operationId: generate_weather_graph_api_v1_weather_fields__field_id__graph_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherGraphGenerateRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/weather/graphs/{graph_id}:
+    get:
+      summary: Fetch Weather Graph
+      description: 'Serve the rendered SVG for a previously-generated graph.
+
+
+        The URL is signed with HMAC-SHA256 (stored tenant + graph_id),
+
+        so only clients who went through POST /fields/:id/graph can
+
+        fetch the resulting SVG. No JWT required on this read — the
+
+        signature is the authorisation. Cache-Control: private so
+
+        proxies don''t leak per-tenant graphs.'
+      operationId: fetch_weather_graph_api_v1_weather_graphs__graph_id__get
+      parameters:
+      - name: graph_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Graph Id
+      - name: tid
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Tid
+      - name: sig
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Sig
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    ChillHoursRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+        hourly_temps:
+          items:
+            type: number
+          type: array
+          title: Hourly Temps
+          description: List of hourly temperatures °C
+        model:
+          $ref: '#/components/schemas/ChillModel'
+          description: 'Model: simple, utah, or dynamic'
+          default: utah
+        base_temp_c:
+          type: number
+          maximum: 15.0
+          minimum: 0.0
+          title: Base Temp C
+          description: Base temp for simple model
+          default: 7.2
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - hourly_temps
+      title: ChillHoursRequest
+      description: Chill hours calculation request
+    ChillModel:
+      type: string
+      enum:
+      - simple
+      - utah
+      - dynamic
+      title: ChillModel
+    DroughtIndexRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+          default: ''
+        precipitation_mm:
+          type: number
+          minimum: 0.0
+          title: Precipitation Mm
+          description: Total precipitation mm
+        et0_mm:
+          type: number
+          minimum: 0.0
+          title: Et0 Mm
+          description: Total ET0 mm
+        days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Days
+          description: Period in days
+          default: 30
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - precipitation_mm
+      - et0_mm
+      title: DroughtIndexRequest
+      description: Drought index calculation request
+    ETRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+          default: ''
+        temp_c:
+          type: number
+          maximum: 60.0
+          minimum: -50.0
+          title: Temp C
+        humidity_pct:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Humidity Pct
+        wind_speed_kmh:
+          type: number
+          maximum: 400.0
+          minimum: 0.0
+          title: Wind Speed Kmh
+        solar_radiation_mj:
+          type: number
+          maximum: 50.0
+          minimum: 0.0
+          title: Solar Radiation Mj
+          default: 15.0
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - temp_c
+      - humidity_pct
+      - wind_speed_kmh
+      title: ETRequest
+      description: Evapotranspiration calculation request
+    FrostRiskRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+          default: ''
+        temp_c:
+          type: number
+          maximum: 60.0
+          minimum: -50.0
+          title: Temp C
+          description: Temperature °C
+        humidity_pct:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Humidity Pct
+          description: Humidity %
+        wind_speed_kmh:
+          type: number
+          maximum: 400.0
+          minimum: 0.0
+          title: Wind Speed Kmh
+          description: Wind speed km/h
+        cloud_cover_pct:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Cloud Cover Pct
+          description: Cloud cover %
+          default: 0
+        dew_point_c:
+          anyOf:
+          - type: number
+            maximum: 50.0
+            minimum: -50.0
+          - type: 'null'
+          title: Dew Point C
+          description: Dew point °C
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - temp_c
+      - humidity_pct
+      - wind_speed_kmh
+      title: FrostRiskRequest
+      description: Frost risk assessment request
+    GDDRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+          default: ''
+        temp_max_c:
+          type: number
+          maximum: 60.0
+          minimum: -50.0
+          title: Temp Max C
+        temp_min_c:
+          type: number
+          maximum: 60.0
+          minimum: -50.0
+          title: Temp Min C
+        base_temp_c:
+          type: number
+          maximum: 30.0
+          minimum: 0.0
+          title: Base Temp C
+          default: 10.0
+        upper_temp_c:
+          type: number
+          maximum: 50.0
+          minimum: 20.0
+          title: Upper Temp C
+          default: 30.0
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - temp_max_c
+      - temp_min_c
+      title: GDDRequest
+      description: Growing Degree Days calculation request
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HeatStressRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+          default: ''
+        temp_c:
+          type: number
+          maximum: 60.0
+          minimum: -50.0
+          title: Temp C
+          description: Temperature °C
+        humidity_pct:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Humidity Pct
+          description: Humidity %
+        solar_radiation_mj:
+          type: number
+          maximum: 50.0
+          minimum: 0.0
+          title: Solar Radiation Mj
+          description: Solar radiation MJ/m²/day
+          default: 15.0
+        wind_speed_kmh:
+          type: number
+          maximum: 400.0
+          minimum: 0.0
+          title: Wind Speed Kmh
+          description: Wind speed km/h
+          default: 10.0
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - temp_c
+      - humidity_pct
+      title: HeatStressRequest
+      description: Heat stress assessment request
+    IrrigationRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+        temp_c:
+          type: number
+          maximum: 60.0
+          minimum: -60.0
+          title: Temp C
+        humidity_pct:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Humidity Pct
+        wind_speed_kmh:
+          type: number
+          maximum: 400.0
+          minimum: 0.0
+          title: Wind Speed Kmh
+        precipitation_mm:
+          type: number
+          maximum: 500.0
+          minimum: 0.0
+          title: Precipitation Mm
+          default: 0
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - temp_c
+      - humidity_pct
+      - wind_speed_kmh
+      title: IrrigationRequest
+    LocationRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+          default: ''
+        lat:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Lat
+        lon:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Lon
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - lat
+      - lon
+      title: LocationRequest
+    SprayWindowRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+          default: ''
+        temp_c:
+          type: number
+          maximum: 60.0
+          minimum: -50.0
+          title: Temp C
+        humidity_pct:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Humidity Pct
+        wind_speed_kmh:
+          type: number
+          maximum: 400.0
+          minimum: 0.0
+          title: Wind Speed Kmh
+        precipitation_probability:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Precipitation Probability
+          default: 0
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - temp_c
+      - humidity_pct
+      - wind_speed_kmh
+      title: SprayWindowRequest
+      description: Spray window assessment request
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WeatherAssessRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          title: Field Id
+        temp_c:
+          type: number
+          maximum: 60.0
+          minimum: -60.0
+          title: Temp C
+        humidity_pct:
+          anyOf:
+          - type: number
+            maximum: 100.0
+            minimum: 0.0
+          - type: 'null'
+          title: Humidity Pct
+        wind_speed_kmh:
+          anyOf:
+          - type: number
+            maximum: 400.0
+            minimum: 0.0
+          - type: 'null'
+          title: Wind Speed Kmh
+        precipitation_mm:
+          anyOf:
+          - type: number
+            maximum: 500.0
+            minimum: 0.0
+          - type: 'null'
+          title: Precipitation Mm
+        uv_index:
+          anyOf:
+          - type: number
+            maximum: 20.0
+            minimum: 0.0
+          - type: 'null'
+          title: Uv Index
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - temp_c
+      title: WeatherAssessRequest
+    WeatherGraphGenerateRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+        lat:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Lat
+        lon:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Lon
+        days:
+          type: integer
+          maximum: 90.0
+          minimum: 1.0
+          title: Days
+          default: 14
+        metric:
+          type: string
+          enum:
+          - temperature
+          - precipitation
+          - humidity
+          - wind
+          - combined
+          title: Metric
+          default: combined
+        language:
+          type: string
+          enum:
+          - ar
+          - en
+          title: Language
+          default: ar
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - lat
+      - lon
+      title: WeatherGraphGenerateRequest
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

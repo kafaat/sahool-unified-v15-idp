@@ -1,0 +1,781 @@
+openapi: 3.1.0
+info:
+  title: IoT Sensor Hub
+  description: LoRaWAN + MQTT gateway with edge computing for agricultural IoT
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/iot/nodes:
+    post:
+      summary: Register Node
+      description: Register a new IoT sensor node.
+      operationId: register_node_api_v1_iot_nodes_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NodeRegistration'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Nodes
+      description: List registered IoT nodes.
+      operationId: list_nodes_api_v1_iot_nodes_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/iot/nodes/{node_id}:
+    get:
+      summary: Get Node
+      description: Get node status and recent readings.
+      operationId: get_node_api_v1_iot_nodes__node_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: node_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Node Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/iot/readings:
+    post:
+      summary: Ingest Reading
+      description: Ingest a single sensor reading with Kalman filtering and alert
+        checking.
+      operationId: ingest_reading_api_v1_iot_readings_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorReading'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/iot/readings/batch:
+    post:
+      summary: Ingest Batch
+      description: Ingest a batch of sensor readings.
+      operationId: ingest_batch_api_v1_iot_readings_batch_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensorReadingBatch'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/iot/wdi:
+    post:
+      summary: Calculate Wdi
+      description: 'Calculate Weighted Decision Index (WDI) for irrigation decision.
+
+
+        WDI integrates multiple sensor readings into a single irrigation
+
+        decision index. Based on Sahu & Tripathi (2025): 25% water saving.'
+      operationId: calculate_wdi_api_v1_iot_wdi_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WDIRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WDIResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/iot/alerts:
+    get:
+      summary: Get Alerts
+      description: Get recent IoT alerts.
+      operationId: get_alerts_api_v1_iot_alerts_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: severity
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/AlertSeverity'
+          - type: 'null'
+          title: Severity
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/iot/cache/status:
+    get:
+      summary: Cache Status
+      description: Get offline cache status.
+      operationId: cache_status_api_v1_iot_cache_status_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/iot/cache/sync:
+    post:
+      summary: Sync Cache
+      description: 'Retrieve cached entries and optionally clear them.
+
+
+        Two-phase sync: first call with confirm_clear=false to preview,
+
+        then confirm_clear=true to actually clear synced entries.'
+      operationId: sync_cache_api_v1_iot_cache_sync_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 10000
+          default: 1000
+          title: Limit
+      - name: confirm_clear
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Set true to clear synced entries
+          default: false
+          title: Confirm Clear
+        description: Set true to clear synced entries
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/iot/stats:
+    get:
+      summary: Get Stats
+      description: Get IoT hub statistics.
+      operationId: get_stats_api_v1_iot_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/iot/sensor-types:
+    get:
+      summary: List Sensor Types
+      description: List supported sensor types with valid ranges.
+      operationId: list_sensor_types_api_v1_iot_sensor_types_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/iot/sensors:
+    get:
+      summary: List Sensors Alias
+      description: 'Alias for ``/api/v1/iot/nodes`` — returns sensors in camelCase
+        shape.
+
+
+        Aligned with ``IOT_ENDPOINTS.SENSORS`` in the shared contracts package.'
+      operationId: list_sensors_alias_api_v1_iot_sensors_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional field filter
+          title: Field Id
+        description: Optional field filter
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/iot/sensors/stats:
+    get:
+      summary: Sensors Stats Alias
+      description: 'Sensor summary statistics grouped by status and node type.
+
+
+        Aligned with ``IOT_ENDPOINTS.SENSOR_STATS`` in the shared contracts package.'
+      operationId: sensors_stats_alias_api_v1_iot_sensors_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/iot/sensors/stream:
+    get:
+      summary: Sensors Stream Alias
+      description: 'Server-Sent Events stream of live sensor readings.
+
+
+        Subscribes to NATS subject ``sahool.tenant.{tenantId}.iot.reading.*``
+
+        and forwards each message as a ``data:`` SSE event. Returns HTTP 501
+
+        with a bilingual explanation if ``sse-starlette`` is not installed or
+
+        NATS is unavailable.
+
+
+        Aligned with ``IOT_ENDPOINTS.SENSOR_STREAM`` in the shared contracts
+
+        package.'
+      operationId: sensors_stream_alias_api_v1_iot_sensors_stream_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: sensor_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional sensor/node filter
+          title: Sensor Id
+        description: Optional sensor/node filter
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Optional field filter
+          title: Field Id
+        description: Optional field filter
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/iot/sensors/{sensor_id}:
+    get:
+      summary: Get Sensor Alias
+      description: Alias for ``/api/v1/iot/nodes/{id}`` — returns a single sensor
+        in camelCase shape.
+      operationId: get_sensor_alias_api_v1_iot_sensors__sensor_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: sensor_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Sensor Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/iot/sensors/{sensor_id}/latest:
+    get:
+      summary: Get Sensor Latest
+      description: 'Return the most recent filtered reading for a sensor in camelCase
+        shape.
+
+
+        Aligned with ``IOT_ENDPOINTS.SENSOR_LATEST`` in the shared contracts package.'
+      operationId: get_sensor_latest_api_v1_iot_sensors__sensor_id__latest_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: sensor_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Sensor Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AlertSeverity:
+      type: string
+      enum:
+      - critical
+      - warning
+      - advisory
+      - info
+      title: AlertSeverity
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    NodeRegistration:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+        node_type:
+          $ref: '#/components/schemas/NodeType'
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        field_id:
+          type: string
+          title: Field Id
+        sensors:
+          items:
+            $ref: '#/components/schemas/SensorType'
+          type: array
+          title: Sensors
+        latitude:
+          type: number
+          title: Latitude
+        longitude:
+          type: number
+          title: Longitude
+        firmware_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Firmware Version
+        battery_level:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Battery Level
+      type: object
+      required:
+      - node_id
+      - node_type
+      - name
+      - field_id
+      - sensors
+      - latitude
+      - longitude
+      title: NodeRegistration
+      description: Register a new IoT node.
+    NodeType:
+      type: string
+      enum:
+      - esp32_lora
+      - esp32_wifi
+      - arduino_lora
+      - commercial
+      - gateway
+      title: NodeType
+    SensorReading:
+      properties:
+        node_id:
+          type: string
+          title: Node Id
+          description: Node identifier
+        sensor_type:
+          $ref: '#/components/schemas/SensorType'
+        value:
+          type: number
+          title: Value
+        unit:
+          type: string
+          title: Unit
+          default: ''
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        quality:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Quality
+          description: Data quality 0-1
+          default: 1.0
+        latitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Latitude
+        longitude:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Longitude
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - node_id
+      - sensor_type
+      - value
+      title: SensorReading
+      description: Single sensor reading from a node.
+    SensorReadingBatch:
+      properties:
+        readings:
+          items:
+            $ref: '#/components/schemas/SensorReading'
+          type: array
+          title: Readings
+        field_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+      type: object
+      required:
+      - readings
+      title: SensorReadingBatch
+      description: Batch of sensor readings from one or more nodes.
+    SensorType:
+      type: string
+      enum:
+      - soil_moisture
+      - soil_temperature
+      - soil_ec
+      - air_temperature
+      - air_humidity
+      - wind_speed
+      - solar_radiation
+      - rainfall
+      - water_flow
+      - water_level
+      - water_ec
+      - water_ph
+      - leaf_wetness
+      - ndvi_sensor
+      - pressure
+      title: SensorType
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WDIRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        soil_moisture:
+          type: number
+          title: Soil Moisture
+          description: Current soil moisture (%)
+        soil_moisture_threshold:
+          type: number
+          title: Soil Moisture Threshold
+          description: Moisture threshold (%)
+          default: 40.0
+        temperature:
+          type: number
+          title: Temperature
+          description: Air temperature (°C)
+        temperature_optimal:
+          type: number
+          title: Temperature Optimal
+          description: Optimal temperature (°C)
+          default: 25.0
+        humidity:
+          type: number
+          title: Humidity
+          description: Relative humidity (%)
+          default: 50.0
+        wind_speed:
+          type: number
+          title: Wind Speed
+          description: Wind speed (m/s)
+          default: 2.0
+        solar_radiation:
+          type: number
+          title: Solar Radiation
+          description: Solar radiation (MJ/m²/day)
+          default: 20.0
+        w_moisture:
+          type: number
+          title: W Moisture
+          description: Weight for soil moisture
+          default: 0.35
+        w_temperature:
+          type: number
+          title: W Temperature
+          description: Weight for temperature
+          default: 0.25
+        w_humidity:
+          type: number
+          title: W Humidity
+          description: Weight for humidity
+          default: 0.15
+        w_wind:
+          type: number
+          title: W Wind
+          description: Weight for wind
+          default: 0.1
+        w_radiation:
+          type: number
+          title: W Radiation
+          description: Weight for radiation
+          default: 0.15
+      type: object
+      required:
+      - field_id
+      - soil_moisture
+      - temperature
+      title: WDIRequest
+      description: Weighted Decision Index calculation request.
+    WDIResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        wdi:
+          type: number
+          title: Wdi
+          description: WDI value (0-1, higher = more stress)
+        decision:
+          type: string
+          title: Decision
+        decision_ar:
+          type: string
+          title: Decision Ar
+        components:
+          additionalProperties:
+            type: number
+          type: object
+          title: Components
+        irrigate:
+          type: boolean
+          title: Irrigate
+        confidence:
+          type: number
+          title: Confidence
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+      type: object
+      required:
+      - field_id
+      - wdi
+      - decision
+      - decision_ar
+      - components
+      - irrigate
+      - confidence
+      - timestamp
+      title: WDIResponse
+      description: Weighted Decision Index result.
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

@@ -1,0 +1,802 @@
+openapi: 3.1.0
+info:
+  title: Irrigation Cycle Engine
+  description: FAO-56 based irrigation scheduling with Yemen adaptations
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/irrigation/et0:
+    post:
+      summary: Calculate Et0
+      description: Calculate reference evapotranspiration (ET0) using FAO-56 Penman-Monteith.
+      operationId: calculate_et0_api_v1_irrigation_et0_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ET0Request'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ET0Response'
+                type: array
+                title: Response Calculate Et0 Api V1 Irrigation Et0 Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/irrigation/cycle:
+    post:
+      summary: Calculate Irrigation Cycle
+      description: 'Calculate irrigation cycle period and water requirements.
+
+
+        Uses the formula: T = ((θfc - θmin) × Zr × β) / (ETc × α × γ)
+
+        With optional salinity adjustment via SalinityModule.'
+      operationId: calculate_irrigation_cycle_api_v1_irrigation_cycle_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationCycleRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IrrigationCycleResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/irrigation/schedule:
+    post:
+      summary: Generate Irrigation Schedule
+      description: 'Generate multi-day irrigation schedule using Yemen crop/climate/soil
+        data.
+
+
+        Combines pyfao56 ET calculations with Yemen-specific parameters
+
+        for a complete irrigation plan.'
+      operationId: generate_irrigation_schedule_api_v1_irrigation_schedule_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduleRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScheduleResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/yemen/crops:
+    get:
+      summary: List Yemen Crops
+      description: List available Yemen crop parameters.
+      operationId: list_yemen_crops_api_v1_yemen_crops_get
+      parameters:
+      - name: crop_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by type
+          title: Crop Type
+        description: Filter by type
+      - name: region
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by region
+          title: Region
+        description: Filter by region
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YemenCropListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/yemen/crops/{crop_name}:
+    get:
+      summary: Get Crop Info
+      description: Get detailed crop parameters for a Yemen crop.
+      operationId: get_crop_info_api_v1_yemen_crops__crop_name__get
+      parameters:
+      - name: crop_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropInfoResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/yemen/climate-zones:
+    get:
+      summary: List Climate Zones
+      description: List Yemen climate zones with key parameters.
+      operationId: list_climate_zones_api_v1_yemen_climate_zones_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/yemen/soils:
+    get:
+      summary: List Soil Profiles
+      description: List Yemen soil profiles with hydraulic properties.
+      operationId: list_soil_profiles_api_v1_yemen_soils_get
+      parameters:
+      - name: region
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/irrigation/salinity-assessment:
+    post:
+      summary: Assess Salinity
+      description: Assess salinity impact on irrigation and crop yield.
+      operationId: assess_salinity_api_v1_irrigation_salinity_assessment_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: ec_water
+        in: query
+        required: true
+        schema:
+          type: number
+          description: EC of irrigation water (dS/m)
+          title: Ec Water
+        description: EC of irrigation water (dS/m)
+      - name: crop
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Crop name
+          title: Crop
+        description: Crop name
+      - name: kc
+        in: query
+        required: false
+        schema:
+          type: number
+          description: Current Kc
+          default: 1.0
+          title: Kc
+        description: Current Kc
+      - name: ec_soil
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Soil EC (dS/m)
+          title: Ec Soil
+        description: Soil EC (dS/m)
+      - name: na
+        in: query
+        required: false
+        schema:
+          type: number
+          description: Sodium (meq/L)
+          default: 0.0
+          title: Na
+        description: Sodium (meq/L)
+      - name: ca
+        in: query
+        required: false
+        schema:
+          type: number
+          description: Calcium (meq/L)
+          default: 0.0
+          title: Ca
+        description: Calcium (meq/L)
+      - name: mg
+        in: query
+        required: false
+        schema:
+          type: number
+          description: Magnesium (meq/L)
+          default: 0.0
+          title: Mg
+        description: Magnesium (meq/L)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CropInfoResponse:
+      properties:
+        name:
+          type: string
+          title: Name
+        name_ar:
+          type: string
+          title: Name Ar
+        crop_type:
+          type: string
+          title: Crop Type
+        root_depth_m:
+          type: number
+          title: Root Depth M
+        depletion_fraction:
+          type: number
+          title: Depletion Fraction
+        growth_stages:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Growth Stages
+        salinity_threshold_dsm:
+          type: number
+          title: Salinity Threshold Dsm
+        regions:
+          items:
+            type: string
+          type: array
+          title: Regions
+      type: object
+      required:
+      - name
+      - name_ar
+      - crop_type
+      - root_depth_m
+      - depletion_fraction
+      - growth_stages
+      - salinity_threshold_dsm
+      - regions
+      title: CropInfoResponse
+      description: Detailed crop information.
+    ET0Request:
+      properties:
+        latitude:
+          type: number
+          title: Latitude
+          description: Latitude (decimal degrees)
+        elevation_m:
+          type: number
+          title: Elevation M
+          description: Elevation (m)
+        weather:
+          items:
+            $ref: '#/components/schemas/WeatherInput'
+          type: array
+          minItems: 1
+          title: Weather
+          description: Weather data series
+      type: object
+      required:
+      - latitude
+      - elevation_m
+      - weather
+      title: ET0Request
+      description: Request for ET0 calculation.
+    ET0Response:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+        et0_mm:
+          type: number
+          title: Et0 Mm
+        method:
+          type: string
+          title: Method
+          default: penman_monteith_fao56
+      type: object
+      required:
+      - date
+      - et0_mm
+      title: ET0Response
+      description: ET0 calculation result.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IrrigationCycleRequest:
+      properties:
+        crop:
+          type: string
+          title: Crop
+          description: Crop name
+        growth_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growth Stage
+          description: Current growth stage name
+        field_capacity:
+          type: number
+          title: Field Capacity
+          description: θfc (cm³/cm³)
+        wilting_point:
+          type: number
+          title: Wilting Point
+          description: θwp (cm³/cm³)
+        root_depth_m:
+          type: number
+          title: Root Depth M
+          description: Effective root depth (m)
+          default: 1.0
+        bulk_density:
+          type: number
+          title: Bulk Density
+          description: Soil bulk density (g/cm³)
+          default: 1.4
+        depletion_fraction:
+          type: number
+          title: Depletion Fraction
+          description: Allowable depletion (p)
+          default: 0.5
+        et0_mm_day:
+          type: number
+          title: Et0 Mm Day
+          description: Reference ET (mm/day)
+        kc:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Kc
+          description: Crop coefficient (overrides crop DB)
+        ec_water:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ec Water
+          description: Irrigation water EC (dS/m)
+        ec_soil:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ec Soil
+          description: Soil EC (dS/m)
+        alpha:
+          type: number
+          title: Alpha
+          description: ET correction factor α
+          default: 1.0
+        beta:
+          type: number
+          title: Beta
+          description: Soil correction factor β
+          default: 1.0
+        gamma:
+          type: number
+          title: Gamma
+          description: Stress correction factor γ
+          default: 1.0
+      type: object
+      required:
+      - crop
+      - field_capacity
+      - wilting_point
+      - et0_mm_day
+      title: IrrigationCycleRequest
+      description: Request for irrigation cycle calculation.
+    IrrigationCycleResponse:
+      properties:
+        cycle_days:
+          type: number
+          title: Cycle Days
+          description: Irrigation cycle T (days)
+        net_irrigation_mm:
+          type: number
+          title: Net Irrigation Mm
+          description: Net irrigation depth (mm)
+        gross_irrigation_mm:
+          type: number
+          title: Gross Irrigation Mm
+          description: Gross irrigation with efficiency (mm)
+        etc_mm_day:
+          type: number
+          title: Etc Mm Day
+          description: Crop ET (mm/day)
+        kc_used:
+          type: number
+          title: Kc Used
+          description: Kc value used
+        kc_adjusted:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Kc Adjusted
+          description: Salinity-adjusted Kc
+        leaching_fraction:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Leaching Fraction
+          description: Leaching fraction if salinity
+        total_water_mm:
+          type: number
+          title: Total Water Mm
+          description: Total water including leaching (mm)
+        available_water_mm:
+          type: number
+          title: Available Water Mm
+          description: Total available water in root zone (mm)
+        readily_available_mm:
+          type: number
+          title: Readily Available Mm
+          description: Readily available water (mm)
+        next_irrigation_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Next Irrigation Date
+          description: Recommended next irrigation
+        crop_name:
+          type: string
+          title: Crop Name
+        crop_name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop Name Ar
+        recommendations:
+          items:
+            type: string
+          type: array
+          title: Recommendations
+          default: []
+        recommendations_ar:
+          items:
+            type: string
+          type: array
+          title: Recommendations Ar
+          default: []
+      type: object
+      required:
+      - cycle_days
+      - net_irrigation_mm
+      - gross_irrigation_mm
+      - etc_mm_day
+      - kc_used
+      - total_water_mm
+      - available_water_mm
+      - readily_available_mm
+      - crop_name
+      title: IrrigationCycleResponse
+      description: Irrigation cycle calculation result.
+    ScheduleDay:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+        day_of_season:
+          type: integer
+          title: Day Of Season
+        growth_stage:
+          type: string
+          title: Growth Stage
+        kc:
+          type: number
+          title: Kc
+        et0_mm:
+          type: number
+          title: Et0 Mm
+        etc_mm:
+          type: number
+          title: Etc Mm
+        soil_moisture_pct:
+          type: number
+          title: Soil Moisture Pct
+        irrigate:
+          type: boolean
+          title: Irrigate
+        irrigation_mm:
+          type: number
+          title: Irrigation Mm
+        cumulative_water_mm:
+          type: number
+          title: Cumulative Water Mm
+      type: object
+      required:
+      - date
+      - day_of_season
+      - growth_stage
+      - kc
+      - et0_mm
+      - etc_mm
+      - soil_moisture_pct
+      - irrigate
+      - irrigation_mm
+      - cumulative_water_mm
+      title: ScheduleDay
+      description: Single day in irrigation schedule.
+    ScheduleRequest:
+      properties:
+        crop:
+          type: string
+          title: Crop
+        soil_profile:
+          type: string
+          title: Soil Profile
+          description: Yemen soil profile name
+        climate_zone:
+          type: string
+          title: Climate Zone
+          description: Yemen climate zone
+        start_date:
+          type: string
+          format: date
+          title: Start Date
+        days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Days
+          default: 30
+        field_area_ha:
+          type: number
+          title: Field Area Ha
+          description: Field area (hectares)
+          default: 1.0
+        irrigation_efficiency:
+          type: number
+          title: Irrigation Efficiency
+          description: System efficiency (0-1)
+          default: 0.85
+        ec_water:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ec Water
+          description: Water EC (dS/m)
+      type: object
+      required:
+      - crop
+      - soil_profile
+      - climate_zone
+      - start_date
+      title: ScheduleRequest
+      description: Multi-day irrigation schedule request.
+    ScheduleResponse:
+      properties:
+        crop:
+          type: string
+          title: Crop
+        crop_ar:
+          type: string
+          title: Crop Ar
+        soil_profile:
+          type: string
+          title: Soil Profile
+        climate_zone:
+          type: string
+          title: Climate Zone
+        schedule:
+          items:
+            $ref: '#/components/schemas/ScheduleDay'
+          type: array
+          title: Schedule
+        total_water_mm:
+          type: number
+          title: Total Water Mm
+        total_water_m3_per_ha:
+          type: number
+          title: Total Water M3 Per Ha
+        irrigation_events:
+          type: integer
+          title: Irrigation Events
+        average_cycle_days:
+          type: number
+          title: Average Cycle Days
+        water_use_efficiency:
+          type: string
+          title: Water Use Efficiency
+      type: object
+      required:
+      - crop
+      - crop_ar
+      - soil_profile
+      - climate_zone
+      - schedule
+      - total_water_mm
+      - total_water_m3_per_ha
+      - irrigation_events
+      - average_cycle_days
+      - water_use_efficiency
+      title: ScheduleResponse
+      description: Multi-day irrigation schedule.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WeatherInput:
+      properties:
+        date:
+          type: string
+          format: date
+          title: Date
+        temp_min_c:
+          type: number
+          title: Temp Min C
+          description: Min temperature (°C)
+        temp_max_c:
+          type: number
+          title: Temp Max C
+          description: Max temperature (°C)
+        humidity_min_pct:
+          type: number
+          title: Humidity Min Pct
+          description: Min relative humidity (%)
+          default: 30.0
+        humidity_max_pct:
+          type: number
+          title: Humidity Max Pct
+          description: Max relative humidity (%)
+          default: 70.0
+        wind_speed_2m_ms:
+          type: number
+          title: Wind Speed 2M Ms
+          description: Wind speed at 2m (m/s)
+          default: 2.0
+        solar_radiation_mjm2:
+          type: number
+          title: Solar Radiation Mjm2
+          description: Solar radiation (MJ/m²/day)
+          default: 20.0
+        rainfall_mm:
+          type: number
+          title: Rainfall Mm
+          description: Rainfall (mm)
+          default: 0.0
+      type: object
+      required:
+      - date
+      - temp_min_c
+      - temp_max_c
+      title: WeatherInput
+      description: Daily weather data for ET0 calculation.
+    YemenCropListResponse:
+      properties:
+        crops:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Crops
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - crops
+      - total
+      title: YemenCropListResponse
+      description: List of available Yemen crops.
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

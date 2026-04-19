@@ -1,0 +1,1212 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Alert Service
+  description: "\n    خدمة إدارة التنبيهات والإنذارات الزراعية\n\n    Agricultural\
+    \ Alerts and Warnings Management Service\n\n    Features:\n    - إنشاء وإدارة\
+    \ التنبيهات\n    - قواعد التنبيه التلقائي\n    - تكامل مع خدمات NDVI والطقس وIoT\n\
+    \    - إحصائيات وتقارير\n    "
+  version: 16.0.0
+paths:
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: فحص صحة الخدمة - Health check with dependencies
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /healthz:
+    get:
+      tags:
+      - Health
+      summary: Healthz
+      description: فحص صحة الخدمة - Kubernetes liveness probe with dependency check
+      operationId: healthz_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      tags:
+      - Health
+      summary: Readiness
+      description: فحص جاهزية الخدمة - Kubernetes readiness probe
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /alerts/stats:
+    get:
+      tags:
+      - Statistics
+      summary: Get Stats
+      description: 'إحصائيات التنبيهات
+
+        Get alert statistics'
+      operationId: get_stats_alerts_stats_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: تصفية حسب الحقل
+          title: Field Id
+        description: تصفية حسب الحقل
+      - name: period
+        in: query
+        required: false
+        schema:
+          type: string
+          pattern: ^\d{1,4}d$
+          description: الفترة الزمنية (7d, 30d, 90d)
+          default: 30d
+          title: Period
+        description: الفترة الزمنية (7d, 30d, 90d)
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertStats'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts/rules:
+    post:
+      tags:
+      - Alert Rules
+      summary: Create Rule
+      description: 'إنشاء قاعدة تنبيه
+
+        Create an alert rule'
+      operationId: create_rule_alerts_rules_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRuleCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertRuleResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Alert Rules
+      summary: Get Rules
+      description: 'جلب قواعد التنبيه
+
+        Get alert rules'
+      operationId: get_rules_alerts_rules_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: تصفية حسب الحقل
+          title: Field Id
+        description: تصفية حسب الحقل
+      - name: enabled
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: تصفية حسب الحالة
+          title: Enabled
+        description: تصفية حسب الحالة
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertRuleResponse'
+                title: Response Get Rules Alerts Rules Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts/rules/{rule_id}:
+    delete:
+      tags:
+      - Alert Rules
+      summary: Delete Rule
+      description: 'حذف قاعدة تنبيه
+
+        Delete an alert rule'
+      operationId: delete_rule_alerts_rules__rule_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: rule_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف القاعدة
+          title: Rule Id
+        description: معرف القاعدة
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts:
+    post:
+      tags:
+      - Alerts
+      summary: Create Alert Endpoint
+      description: 'إنشاء تنبيه جديد
+
+        Create a new alert'
+      operationId: create_alert_endpoint_alerts_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts/field/{field_id}:
+    get:
+      tags:
+      - Alerts
+      summary: Get Alerts By Field Endpoint
+      description: 'جلب تنبيهات حقل معين
+
+        Get alerts for a specific field'
+      operationId: get_alerts_by_field_endpoint_alerts_field__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف الحقل
+          title: Field Id
+        description: معرف الحقل
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/AlertStatus'
+          - type: 'null'
+          description: تصفية حسب الحالة
+          title: Status
+        description: تصفية حسب الحالة
+      - name: severity
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/AlertSeverity'
+          - type: 'null'
+          description: تصفية حسب الخطورة
+          title: Severity
+        description: تصفية حسب الخطورة
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/AlertType'
+          - type: 'null'
+          description: تصفية حسب النوع
+          title: Type
+        description: تصفية حسب النوع
+      - name: skip
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Skip
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts/{alert_id}:
+    get:
+      tags:
+      - Alerts
+      summary: Get Alert Endpoint
+      description: 'جلب تنبيه محدد
+
+        Get a specific alert'
+      operationId: get_alert_endpoint_alerts__alert_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف التنبيه
+          title: Alert Id
+        description: معرف التنبيه
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    patch:
+      tags:
+      - Alerts
+      summary: Update Alert Endpoint
+      description: 'تحديث حالة تنبيه
+
+        Update alert status'
+      operationId: update_alert_endpoint_alerts__alert_id__patch
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف التنبيه
+          title: Alert Id
+        description: معرف التنبيه
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Alerts
+      summary: Delete Alert Endpoint
+      description: 'حذف تنبيه
+
+        Delete an alert'
+      operationId: delete_alert_endpoint_alerts__alert_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف التنبيه
+          title: Alert Id
+        description: معرف التنبيه
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts/{alert_id}/acknowledge:
+    post:
+      tags:
+      - Alert Actions
+      summary: Acknowledge Alert
+      description: 'الإقرار بتنبيه
+
+        Acknowledge an alert'
+      operationId: acknowledge_alert_alerts__alert_id__acknowledge_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف التنبيه
+          title: Alert Id
+        description: معرف التنبيه
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts/{alert_id}/resolve:
+    post:
+      tags:
+      - Alert Actions
+      summary: Resolve Alert
+      description: 'حل تنبيه
+
+        Resolve an alert'
+      operationId: resolve_alert_alerts__alert_id__resolve_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف التنبيه
+          title: Alert Id
+        description: معرف التنبيه
+      - name: user_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: معرف المستخدم
+          title: User Id
+        description: معرف المستخدم
+      - name: note
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ملاحظة الحل
+          title: Note
+        description: ملاحظة الحل
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /alerts/{alert_id}/dismiss:
+    post:
+      tags:
+      - Alert Actions
+      summary: Dismiss Alert
+      description: 'رفض تنبيه
+
+        Dismiss an alert'
+      operationId: dismiss_alert_alerts__alert_id__dismiss_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: معرف التنبيه
+          title: Alert Id
+        description: معرف التنبيه
+      - name: X-Tenant-Id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AlertCreate:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+          description: معرف الحقل
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+          description: معرف المستأجر
+        type:
+          $ref: '#/components/schemas/AlertType'
+          description: نوع التنبيه
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+          description: مستوى الخطورة
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+          description: عنوان التنبيه
+        title_en:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Title En
+          description: العنوان بالإنجليزية
+        message:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Message
+          description: رسالة التنبيه
+        message_en:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Message En
+          description: الرسالة بالإنجليزية
+        recommendations:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Recommendations
+          description: التوصيات
+        recommendations_en:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Recommendations En
+          description: التوصيات بالإنجليزية
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+          description: بيانات إضافية
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+          description: تاريخ انتهاء الصلاحية
+        source_service:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Service
+          description: الخدمة المصدر
+        correlation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Correlation Id
+          description: معرف الارتباط
+      type: object
+      required:
+      - field_id
+      - type
+      - severity
+      - title
+      - message
+      title: AlertCreate
+      description: إنشاء تنبيه جديد
+    AlertResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        field_id:
+          type: string
+          title: Field Id
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+        type:
+          $ref: '#/components/schemas/AlertType'
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+        status:
+          $ref: '#/components/schemas/AlertStatus'
+        title:
+          type: string
+          title: Title
+        title_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title En
+        message:
+          type: string
+          title: Message
+        message_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message En
+        recommendations:
+          items:
+            type: string
+          type: array
+          title: Recommendations
+        recommendations_en:
+          items:
+            type: string
+          type: array
+          title: Recommendations En
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+        source_service:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Service
+        correlation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Correlation Id
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        expires_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Expires At
+        acknowledged_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Acknowledged At
+        acknowledged_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acknowledged By
+        dismissed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Dismissed At
+        dismissed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dismissed By
+        resolved_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Resolved At
+        resolved_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resolved By
+        resolution_note:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resolution Note
+      type: object
+      required:
+      - id
+      - field_id
+      - tenant_id
+      - type
+      - severity
+      - status
+      - title
+      - title_en
+      - message
+      - message_en
+      - recommendations
+      - recommendations_en
+      - metadata
+      - source_service
+      - correlation_id
+      - created_at
+      - expires_at
+      - acknowledged_at
+      - acknowledged_by
+      - dismissed_at
+      - dismissed_by
+      - resolved_at
+      - resolved_by
+      - resolution_note
+      title: AlertResponse
+      description: استجابة التنبيه
+    AlertRuleConfig:
+      properties:
+        type:
+          $ref: '#/components/schemas/AlertType'
+        severity:
+          $ref: '#/components/schemas/AlertSeverity'
+        title:
+          type: string
+          maxLength: 200
+          title: Title
+        title_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title En
+        message_template:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message Template
+      type: object
+      required:
+      - type
+      - severity
+      - title
+      title: AlertRuleConfig
+      description: إعدادات التنبيه للقاعدة
+    AlertRuleCreate:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Name
+        name_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name En
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+        condition:
+          $ref: '#/components/schemas/RuleCondition'
+        alert_config:
+          $ref: '#/components/schemas/AlertRuleConfig'
+        cooldown_hours:
+          type: integer
+          maximum: 168.0
+          minimum: 0.0
+          title: Cooldown Hours
+          description: فترة الانتظار بالساعات
+          default: 24
+      type: object
+      required:
+      - field_id
+      - name
+      - condition
+      - alert_config
+      title: AlertRuleCreate
+      description: إنشاء قاعدة تنبيه
+    AlertRuleResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        field_id:
+          type: string
+          title: Field Id
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+        name:
+          type: string
+          title: Name
+        name_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name En
+        enabled:
+          type: boolean
+          title: Enabled
+        condition:
+          $ref: '#/components/schemas/RuleCondition'
+        alert_config:
+          $ref: '#/components/schemas/AlertRuleConfig'
+        cooldown_hours:
+          type: integer
+          title: Cooldown Hours
+        last_triggered_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Triggered At
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - field_id
+      - tenant_id
+      - name
+      - name_en
+      - enabled
+      - condition
+      - alert_config
+      - cooldown_hours
+      - last_triggered_at
+      - created_at
+      - updated_at
+      title: AlertRuleResponse
+      description: استجابة قاعدة التنبيه
+    AlertSeverity:
+      type: string
+      enum:
+      - critical
+      - high
+      - medium
+      - low
+      - info
+      title: AlertSeverity
+      description: مستويات الخطورة
+    AlertStats:
+      properties:
+        total_alerts:
+          type: integer
+          title: Total Alerts
+        active_alerts:
+          type: integer
+          title: Active Alerts
+        by_type:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Type
+        by_severity:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Severity
+        by_status:
+          additionalProperties:
+            type: integer
+          type: object
+          title: By Status
+        acknowledged_rate:
+          type: number
+          title: Acknowledged Rate
+        resolved_rate:
+          type: number
+          title: Resolved Rate
+        average_resolution_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Average Resolution Hours
+      type: object
+      required:
+      - total_alerts
+      - active_alerts
+      - by_type
+      - by_severity
+      - by_status
+      - acknowledged_rate
+      - resolved_rate
+      - average_resolution_hours
+      title: AlertStats
+      description: إحصائيات التنبيهات
+    AlertStatus:
+      type: string
+      enum:
+      - active
+      - acknowledged
+      - dismissed
+      - resolved
+      - expired
+      title: AlertStatus
+      description: حالة التنبيه
+    AlertType:
+      type: string
+      enum:
+      - weather
+      - pest
+      - disease
+      - irrigation
+      - fertilizer
+      - harvest
+      - ndvi_low
+      - ndvi_anomaly
+      - soil_moisture
+      - equipment
+      - general
+      title: AlertType
+      description: أنواع التنبيهات
+    AlertUpdate:
+      properties:
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/AlertStatus'
+          - type: 'null'
+        acknowledged_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acknowledged By
+        dismissed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Dismissed By
+        resolved_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resolved By
+        resolution_note:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Resolution Note
+      type: object
+      title: AlertUpdate
+      description: تحديث تنبيه
+    ConditionOperator:
+      type: string
+      enum:
+      - eq
+      - ne
+      - gt
+      - gte
+      - lt
+      - lte
+      title: ConditionOperator
+      description: عوامل المقارنة للقواعد
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PaginatedResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/AlertResponse'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        skip:
+          type: integer
+          title: Skip
+        limit:
+          type: integer
+          title: Limit
+        has_more:
+          type: boolean
+          title: Has More
+      type: object
+      required:
+      - items
+      - total
+      - skip
+      - limit
+      - has_more
+      title: PaginatedResponse
+      description: استجابة مع ترقيم الصفحات
+    RuleCondition:
+      properties:
+        metric:
+          type: string
+          title: Metric
+          description: 'اسم المقياس (مثل: soil_moisture, ndvi)'
+        operator:
+          $ref: '#/components/schemas/ConditionOperator'
+          description: عامل المقارنة
+        value:
+          type: number
+          title: Value
+          description: القيمة للمقارنة
+        duration_minutes:
+          anyOf:
+          - type: integer
+            minimum: 0.0
+          - type: 'null'
+          title: Duration Minutes
+          description: المدة بالدقائق قبل الإطلاق
+          default: 0
+      type: object
+      required:
+      - metric
+      - operator
+      - value
+      title: RuleCondition
+      description: شرط قاعدة التنبيه
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

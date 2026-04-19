@@ -1,0 +1,462 @@
+openapi: 3.1.0
+info:
+  title: Fertigation Engine
+  description: Integrated fertilizer + irrigation management with NPK scheduling
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/fertigation/plan:
+    post:
+      summary: Create Fertigation Plan
+      description: 'Calculate fertigation plan with NPK requirements, fertilizer selection,
+
+        EC management, and environmental risk assessment.'
+      operationId: create_fertigation_plan_api_v1_fertigation_plan_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FertigationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FertigationPlan'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/fertigation/nutrient-balance:
+    post:
+      summary: Calculate Balance
+      description: Track and analyze nutrient balance for a field.
+      operationId: calculate_balance_api_v1_fertigation_nutrient_balance_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutrientBalanceRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutrientBalance'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/fertigation/fertilizers:
+    get:
+      summary: List Fertilizers
+      description: List available fertilizers with NPK content and pricing.
+      operationId: list_fertilizers_api_v1_fertigation_fertilizers_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/fertigation/crops/{crop_name}/npk:
+    get:
+      summary: Get Crop Npk
+      description: Get NPK requirements by growth phase for a crop.
+      operationId: get_crop_npk_api_v1_fertigation_crops__crop_name__npk_get
+      parameters:
+      - name: crop_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fertigation/crops:
+    get:
+      summary: List Crops With Npk
+      description: List crops with NPK data available.
+      operationId: list_crops_with_npk_api_v1_fertigation_crops_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/fertigation/growth-phases:
+    get:
+      summary: List Growth Phases
+      description: List available growth phases.
+      operationId: list_growth_phases_api_v1_fertigation_growth_phases_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    FertigationPlan:
+      properties:
+        crop:
+          type: string
+          title: Crop
+        crop_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop Ar
+        growth_phase:
+          type: string
+          title: Growth Phase
+        field_area_ha:
+          type: number
+          title: Field Area Ha
+        n_required_kg_ha:
+          type: number
+          title: N Required Kg Ha
+        p_required_kg_ha:
+          type: number
+          title: P Required Kg Ha
+        k_required_kg_ha:
+          type: number
+          title: K Required Kg Ha
+        n_adjusted_kg_ha:
+          type: number
+          title: N Adjusted Kg Ha
+        p_adjusted_kg_ha:
+          type: number
+          title: P Adjusted Kg Ha
+        k_adjusted_kg_ha:
+          type: number
+          title: K Adjusted Kg Ha
+        fertilizer_plan:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Fertilizer Plan
+        ec_water:
+          type: number
+          title: Ec Water
+        ec_fertilizer_contribution:
+          type: number
+          title: Ec Fertilizer Contribution
+        ec_total:
+          type: number
+          title: Ec Total
+        ec_within_limit:
+          type: boolean
+          title: Ec Within Limit
+        total_cost_sar:
+          type: number
+          title: Total Cost Sar
+        cost_per_ha_sar:
+          type: number
+          title: Cost Per Ha Sar
+        n_loss_risk:
+          type: string
+          title: N Loss Risk
+        n_loss_risk_ar:
+          type: string
+          title: N Loss Risk Ar
+        p_loss_risk:
+          type: string
+          title: P Loss Risk
+        p_loss_risk_ar:
+          type: string
+          title: P Loss Risk Ar
+        recommendations:
+          items:
+            type: string
+          type: array
+          title: Recommendations
+        recommendations_ar:
+          items:
+            type: string
+          type: array
+          title: Recommendations Ar
+      type: object
+      required:
+      - crop
+      - growth_phase
+      - field_area_ha
+      - n_required_kg_ha
+      - p_required_kg_ha
+      - k_required_kg_ha
+      - n_adjusted_kg_ha
+      - p_adjusted_kg_ha
+      - k_adjusted_kg_ha
+      - fertilizer_plan
+      - ec_water
+      - ec_fertilizer_contribution
+      - ec_total
+      - ec_within_limit
+      - total_cost_sar
+      - cost_per_ha_sar
+      - n_loss_risk
+      - n_loss_risk_ar
+      - p_loss_risk
+      - p_loss_risk_ar
+      - recommendations
+      - recommendations_ar
+      title: FertigationPlan
+      description: Fertigation schedule result.
+    FertigationRequest:
+      properties:
+        crop:
+          type: string
+          title: Crop
+          description: Crop name
+        growth_phase:
+          $ref: '#/components/schemas/GrowthPhase'
+        field_area_ha:
+          type: number
+          minimum: 0.01
+          title: Field Area Ha
+          description: Field area (ha)
+          default: 1.0
+        soil_n_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Soil N Ppm
+          description: Current soil N (ppm)
+        soil_p_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Soil P Ppm
+          description: Current soil P (ppm)
+        soil_k_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Soil K Ppm
+          description: Current soil K (ppm)
+        irrigation_volume_m3:
+          type: number
+          title: Irrigation Volume M3
+          description: Irrigation volume per event (m³)
+        ec_water:
+          type: number
+          title: Ec Water
+          description: Irrigation water EC (dS/m)
+          default: 0.5
+        max_ec_solution:
+          type: number
+          title: Max Ec Solution
+          description: Max EC of fertigation solution (dS/m)
+          default: 2.5
+        target_yield_tha:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Target Yield Tha
+          description: Target yield (t/ha)
+        preferred_fertilizers:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/FertilizerType'
+            type: array
+          - type: 'null'
+          title: Preferred Fertilizers
+      type: object
+      required:
+      - crop
+      - growth_phase
+      - irrigation_volume_m3
+      title: FertigationRequest
+      description: Calculate fertigation schedule for a field.
+    FertilizerType:
+      type: string
+      enum:
+      - urea
+      - dap
+      - map
+      - kcl
+      - sop
+      - ammonium_nitrate
+      - calcium_nitrate
+      - potassium_nitrate
+      - npk_20_20_20
+      - npk_15_15_15
+      - phosphoric_acid
+      - sulfuric_acid
+      title: FertilizerType
+    GrowthPhase:
+      type: string
+      enum:
+      - germination
+      - seedling
+      - vegetative
+      - tillering
+      - flowering
+      - fruit_development
+      - ripening
+      - harvest
+      title: GrowthPhase
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    NutrientBalance:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        crop:
+          type: string
+          title: Crop
+        n_balance_kg_ha:
+          type: number
+          title: N Balance Kg Ha
+        p_balance_kg_ha:
+          type: number
+          title: P Balance Kg Ha
+        k_balance_kg_ha:
+          type: number
+          title: K Balance Kg Ha
+        n_efficiency_pct:
+          type: number
+          title: N Efficiency Pct
+        p_efficiency_pct:
+          type: number
+          title: P Efficiency Pct
+        k_efficiency_pct:
+          type: number
+          title: K Efficiency Pct
+        surplus_alert:
+          type: boolean
+          title: Surplus Alert
+        deficit_alert:
+          type: boolean
+          title: Deficit Alert
+        recommendations:
+          items:
+            type: string
+          type: array
+          title: Recommendations
+        recommendations_ar:
+          items:
+            type: string
+          type: array
+          title: Recommendations Ar
+      type: object
+      required:
+      - field_id
+      - crop
+      - n_balance_kg_ha
+      - p_balance_kg_ha
+      - k_balance_kg_ha
+      - n_efficiency_pct
+      - p_efficiency_pct
+      - k_efficiency_pct
+      - surplus_alert
+      - deficit_alert
+      - recommendations
+      - recommendations_ar
+      title: NutrientBalance
+      description: Nutrient balance summary.
+    NutrientBalanceRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        crop:
+          type: string
+          title: Crop
+        entries:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Entries
+          description: 'List of {date, type: ''applied''|''removed'', n_kg, p_kg,
+            k_kg}'
+      type: object
+      required:
+      - field_id
+      - crop
+      - entries
+      title: NutrientBalanceRequest
+      description: Track nutrient balance over time.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

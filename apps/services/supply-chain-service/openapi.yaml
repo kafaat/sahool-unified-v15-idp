@@ -1,0 +1,1545 @@
+openapi: 3.1.0
+info:
+  title: Supply Chain Service | خدمة سلسلة التوريد
+  description: "\n## Supply Chain Service\n\nConnects farmers to agricultural suppliers\
+    \ for auto-purchasing based on advisory recommendations.\n\n### Features | الميزات\n\
+    \n- **Product Catalog** | كتالوج المنتجات: Browse agricultural supplies\n- **Supplier\
+    \ Management** | إدارة الموردين: Find and compare suppliers\n- **Order Management**\
+    \ | إدارة الطلبات: Create and track orders\n- **Auto-Purchase** | الشراء التلقائي:\
+    \ Automatic purchasing from recommendations\n- **Delivery Tracking** | تتبع التوصيل:\
+    \ Real-time delivery tracking\n\n### API Endpoints | نقاط الوصول\n\n- `/api/v1/products`\
+    \ - Product catalog operations\n- `/api/v1/suppliers` - Supplier management\n\
+    - `/api/v1/orders` - Order management\n- `/api/v1/auto-purchase` - Auto-purchase\
+    \ features\n\n---\n\n## خدمة سلسلة التوريد\n\nتربط المزارعين بموردي المستلزمات\
+    \ الزراعية للشراء التلقائي بناءً على التوصيات الاستشارية.\n    "
+  version: 16.0.0
+paths:
+  /api/v1/products:
+    get:
+      tags:
+      - products
+      summary: List Products | قائمة المنتجات
+      description: Get a paginated list of available agricultural products. احصل على
+        قائمة مُرقمة بالمنتجات الزراعية المتاحة.
+      operationId: list_products_api_v1_products_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ProductCategory'
+          - type: 'null'
+          description: Filter by category
+          title: Category
+        description: Filter by category
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Search in name
+          title: Search
+        description: Search in name
+      - name: is_available
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Filter by availability
+          default: true
+          title: Is Available
+        description: Filter by availability
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Page number
+          default: 1
+          title: Page
+        description: Page number
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Items per page
+          default: 20
+          title: Page Size
+        description: Items per page
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/products/search:
+    get:
+      tags:
+      - products
+      summary: Search Products | البحث عن المنتجات
+      description: Search products by name, category, or description. البحث عن المنتجات
+        بالاسم أو الفئة أو الوصف.
+      operationId: search_products_api_v1_products_search_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 2
+          description: Search query
+          title: Q
+        description: Search query
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ProductCategory'
+          - type: 'null'
+          description: Filter by category
+          title: Category
+        description: Filter by category
+      - name: price_min
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            minimum: 0
+          - type: 'null'
+          description: Minimum price
+          title: Price Min
+        description: Minimum price
+      - name: price_max
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            minimum: 0
+          - type: 'null'
+          description: Maximum price
+          title: Price Max
+        description: Maximum price
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/products/{product_id}:
+    get:
+      tags:
+      - products
+      summary: Get Product | الحصول على منتج
+      description: Get detailed information about a specific product. الحصول على معلومات
+        تفصيلية عن منتج محدد.
+      operationId: get_product_api_v1_products__product_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: product_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Product Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/suppliers:
+    get:
+      tags:
+      - suppliers
+      summary: List Suppliers | قائمة الموردين
+      description: Get a paginated list of agricultural suppliers. احصل على قائمة
+        مُرقمة بالموردين الزراعيين.
+      operationId: list_suppliers_api_v1_suppliers_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: is_verified
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          description: Filter by verification status
+          title: Is Verified
+        description: Filter by verification status
+      - name: min_rating
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 5
+            minimum: 0
+          - type: 'null'
+          description: Minimum rating
+          title: Min Rating
+        description: Minimum rating
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/suppliers/nearby:
+    get:
+      tags:
+      - suppliers
+      summary: Find Nearby Suppliers | العثور على موردين قريبين
+      description: Find suppliers near a specific location. العثور على موردين بالقرب
+        من موقع محدد.
+      operationId: find_nearby_suppliers_api_v1_suppliers_nearby_get
+      parameters:
+      - name: latitude
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Latitude
+        description: Latitude
+      - name: longitude
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Longitude
+        description: Longitude
+      - name: radius_km
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 500
+          minimum: 1
+          description: Search radius in kilometers
+          default: 50.0
+          title: Radius Km
+        description: Search radius in kilometers
+      - name: min_rating
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 5
+            minimum: 0
+          - type: 'null'
+          title: Min Rating
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/suppliers/{supplier_id}:
+    get:
+      tags:
+      - suppliers
+      summary: Get Supplier | الحصول على مورد
+      description: Get detailed information about a specific supplier. الحصول على
+        معلومات تفصيلية عن مورد محدد.
+      operationId: get_supplier_api_v1_suppliers__supplier_id__get
+      parameters:
+      - name: supplier_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Supplier Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Supplier'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/suppliers/{supplier_id}/quote:
+    post:
+      tags:
+      - suppliers
+      summary: Request Quote | طلب عرض سعر
+      description: Request a quote from a supplier for a specific product. طلب عرض
+        سعر من مورد لمنتج محدد.
+      operationId: request_quote_api_v1_suppliers__supplier_id__quote_post
+      parameters:
+      - name: supplier_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Supplier Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierQuote'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders:
+    post:
+      tags:
+      - orders
+      summary: Create Order | إنشاء طلب
+      description: Create a new order from a supplier. إنشاء طلب جديد من مورد.
+      operationId: create_order_api_v1_orders_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - orders
+      summary: List Orders | قائمة الطلبات
+      description: Get a list of the farmer's orders. الحصول على قائمة طلبات المزارع.
+      operationId: list_orders_api_v1_orders_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/OrderStatus'
+          - type: 'null'
+          description: Filter by status
+          title: Status
+        description: Filter by status
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+          title: Page
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Page Size
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/{order_id}:
+    get:
+      tags:
+      - orders
+      summary: Get Order | الحصول على طلب
+      description: Get details of a specific order. الحصول على تفاصيل طلب محدد.
+      operationId: get_order_api_v1_orders__order_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Order Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/{order_id}/cancel:
+    post:
+      tags:
+      - orders
+      summary: Cancel Order | إلغاء الطلب
+      description: Cancel a pending order. إلغاء طلب قيد الانتظار.
+      operationId: cancel_order_api_v1_orders__order_id__cancel_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Order Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/orders/{order_id}/track:
+    get:
+      tags:
+      - orders
+      summary: Track Delivery | تتبع التوصيل
+      description: Track the delivery status of an order. تتبع حالة توصيل الطلب.
+      operationId: track_order_api_v1_orders__order_id__track_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: order_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Order Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeliveryStatus'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auto-purchase:
+    post:
+      tags:
+      - auto-purchase
+      summary: Auto-Purchase from Recommendation | الشراء التلقائي من التوصية
+      description: Automatically create an order based on an advisory recommendation.
+        إنشاء طلب تلقائياً بناءً على توصية استشارية.
+      operationId: auto_purchase_api_v1_auto_purchase_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutoPurchaseRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auto-purchase/compare:
+    post:
+      tags:
+      - auto-purchase
+      summary: Compare Suppliers | مقارنة الموردين
+      description: Compare quotes from multiple suppliers for a product. مقارنة عروض
+        الأسعار من موردين متعددين لمنتج.
+      operationId: compare_suppliers_api_v1_auto_purchase_compare_post
+      parameters:
+      - name: product_id
+        in: query
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Product Id
+      - name: quantity
+        in: query
+        required: true
+        schema:
+          type: number
+          title: Quantity
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SupplierComparison'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/auto-purchase/bulk:
+    post:
+      tags:
+      - auto-purchase
+      summary: Bulk Purchase | شراء بالجملة
+      description: Purchase multiple items at once with optimization. شراء عناصر متعددة
+        مرة واحدة مع التحسين.
+      operationId: bulk_purchase_api_v1_auto_purchase_bulk_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkPurchaseRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkPurchaseResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /healthz:
+    get:
+      tags:
+      - health
+      summary: Liveness Probe | فحص الحياة
+      description: Check if the service is alive. فحص ما إذا كانت الخدمة حية.
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Health Healthz Get
+  /readyz:
+    get:
+      tags:
+      - health
+      summary: Readiness Probe | فحص الجاهزية
+      description: Check if the service is ready to accept traffic. فحص ما إذا كانت
+        الخدمة جاهزة لاستقبال الطلبات.
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Readiness Readyz Get
+  /health:
+    get:
+      tags:
+      - health
+      summary: Health Check | فحص الصحة
+      description: Combined health check endpoint. نقطة فحص الصحة الشاملة.
+      operationId: combined_health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Combined Health Health Get
+  /:
+    get:
+      tags:
+      - root
+      summary: Service Info | معلومات الخدمة
+      description: Root endpoint with service information.
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                type: object
+                title: Response Root  Get
+components:
+  schemas:
+    AutoPurchaseRequest:
+      properties:
+        recommendation_id:
+          type: string
+          format: uuid
+          title: Recommendation Id
+        supplier_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Supplier Id
+        delivery_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivery Address
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+          default: cash_on_delivery
+      type: object
+      required:
+      - recommendation_id
+      title: AutoPurchaseRequest
+      description: Auto-purchase request from recommendation.
+    BulkPurchaseItem:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        quantity:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Quantity
+        supplier_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Supplier Id
+      type: object
+      required:
+      - product_id
+      - quantity
+      title: BulkPurchaseItem
+      description: Bulk purchase item.
+    BulkPurchaseRequest:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/BulkPurchaseItem'
+          type: array
+          minItems: 1
+          title: Items
+        delivery_address:
+          type: string
+          title: Delivery Address
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+          default: cash_on_delivery
+        optimize_for:
+          type: string
+          pattern: ^(price|delivery|rating)$
+          title: Optimize For
+          default: price
+      type: object
+      required:
+      - items
+      - delivery_address
+      title: BulkPurchaseRequest
+      description: Bulk purchase request.
+    BulkPurchaseResult:
+      properties:
+        orders:
+          items:
+            $ref: '#/components/schemas/Order'
+          type: array
+          title: Orders
+        total_cost:
+          type: number
+          title: Total Cost
+        estimated_savings:
+          type: number
+          title: Estimated Savings
+        optimization_applied:
+          type: string
+          title: Optimization Applied
+      type: object
+      required:
+      - orders
+      - total_cost
+      - estimated_savings
+      - optimization_applied
+      title: BulkPurchaseResult
+      description: Bulk purchase result.
+    DeliveryStatus:
+      properties:
+        order_id:
+          type: string
+          format: uuid
+          title: Order Id
+        status:
+          $ref: '#/components/schemas/DeliveryStatusEnum'
+        status_ar:
+          type: string
+          title: Status Ar
+        eta:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Eta
+        tracking_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tracking Url
+        current_location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Location
+        current_location_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Current Location Ar
+        driver_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Name
+        driver_phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Driver Phone
+        last_update:
+          type: string
+          format: date-time
+          title: Last Update
+      type: object
+      required:
+      - order_id
+      - status
+      - status_ar
+      title: DeliveryStatus
+      description: Delivery status schema.
+    DeliveryStatusEnum:
+      type: string
+      enum:
+      - preparing
+      - picked_up
+      - in_transit
+      - out_for_delivery
+      - delivered
+      - failed
+      title: DeliveryStatusEnum
+      description: Delivery status enumeration.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Order:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        farmer_id:
+          type: string
+          format: uuid
+          title: Farmer Id
+        supplier_id:
+          type: string
+          format: uuid
+          title: Supplier Id
+        supplier_name:
+          type: string
+          title: Supplier Name
+        supplier_name_ar:
+          type: string
+          title: Supplier Name Ar
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+          default: pending
+        items:
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          type: array
+          title: Items
+        subtotal:
+          type: number
+          minimum: 0.0
+          title: Subtotal
+        delivery_fee:
+          type: number
+          minimum: 0.0
+          title: Delivery Fee
+          default: 0
+        tax:
+          type: number
+          minimum: 0.0
+          title: Tax
+          default: 0
+        total:
+          type: number
+          minimum: 0.0
+          title: Total
+        delivery_address:
+          type: string
+          title: Delivery Address
+        delivery_address_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivery Address Ar
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+        payment_status:
+          type: string
+          title: Payment Status
+          default: pending
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+        estimated_delivery:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Estimated Delivery
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - farmer_id
+      - supplier_id
+      - supplier_name
+      - supplier_name_ar
+      - items
+      - subtotal
+      - total
+      - delivery_address
+      - payment_method
+      title: Order
+      description: Order schema.
+    OrderCreate:
+      properties:
+        supplier_id:
+          type: string
+          format: uuid
+          title: Supplier Id
+        items:
+          items:
+            $ref: '#/components/schemas/OrderItemCreate'
+          type: array
+          minItems: 1
+          title: Items
+        delivery_address:
+          type: string
+          minLength: 5
+          title: Delivery Address
+        delivery_address_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivery Address Ar
+        payment_method:
+          $ref: '#/components/schemas/PaymentMethod'
+          default: cash_on_delivery
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+      type: object
+      required:
+      - supplier_id
+      - items
+      - delivery_address
+      title: OrderCreate
+      description: Order creation schema.
+    OrderItem:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        product_name:
+          type: string
+          title: Product Name
+        product_name_ar:
+          type: string
+          title: Product Name Ar
+        quantity:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Quantity
+        unit:
+          type: string
+          title: Unit
+        unit_price:
+          type: number
+          minimum: 0.0
+          title: Unit Price
+        total_price:
+          type: number
+          minimum: 0.0
+          title: Total Price
+      type: object
+      required:
+      - product_id
+      - product_name
+      - product_name_ar
+      - quantity
+      - unit
+      - unit_price
+      - total_price
+      title: OrderItem
+      description: Order item schema.
+    OrderItemCreate:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        quantity:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Quantity
+      type: object
+      required:
+      - product_id
+      - quantity
+      title: OrderItemCreate
+      description: Order item creation schema.
+    OrderListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Order'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - items
+      - total
+      - page
+      - page_size
+      title: OrderListResponse
+      description: Order list response.
+    OrderStatus:
+      type: string
+      enum:
+      - pending
+      - confirmed
+      - processing
+      - shipped
+      - delivered
+      - cancelled
+      title: OrderStatus
+      description: Order status enumeration.
+    PaymentMethod:
+      type: string
+      enum:
+      - cash_on_delivery
+      - credit_card
+      - bank_transfer
+      - digital_wallet
+      title: PaymentMethod
+      description: Payment method enumeration.
+    Product:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        name_ar:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name Ar
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        category:
+          $ref: '#/components/schemas/ProductCategory'
+        unit:
+          type: string
+          title: Unit
+          description: Unit of measurement (kg, L, pcs)
+        unit_ar:
+          type: string
+          title: Unit Ar
+          description: وحدة القياس
+        price_min:
+          type: number
+          minimum: 0.0
+          title: Price Min
+          description: Minimum price in SAR
+        price_max:
+          type: number
+          minimum: 0.0
+          title: Price Max
+          description: Maximum price in SAR
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+        is_available:
+          type: boolean
+          title: Is Available
+          default: true
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - name_ar
+      - category
+      - unit
+      - unit_ar
+      - price_min
+      - price_max
+      title: Product
+      description: Product schema.
+    ProductCategory:
+      type: string
+      enum:
+      - seeds
+      - fertilizers
+      - pesticides
+      - herbicides
+      - equipment
+      - irrigation
+      - tools
+      - other
+      title: ProductCategory
+      description: Product category enumeration.
+    ProductListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Product'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - items
+      - total
+      - page
+      - page_size
+      title: ProductListResponse
+      description: Product list response.
+    QuoteRequest:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        quantity:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Quantity
+        delivery_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Delivery Address
+      type: object
+      required:
+      - product_id
+      - quantity
+      title: QuoteRequest
+      description: Request for quote from supplier.
+    Supplier:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        name_ar:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name Ar
+        location:
+          type: string
+          title: Location
+        location_ar:
+          type: string
+          title: Location Ar
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        rating:
+          type: number
+          maximum: 5.0
+          minimum: 0.0
+          title: Rating
+          description: Supplier rating (0-5)
+        total_reviews:
+          type: integer
+          minimum: 0.0
+          title: Total Reviews
+          default: 0
+        delivery_time_days:
+          type: integer
+          minimum: 1.0
+          title: Delivery Time Days
+          description: Average delivery time in days
+        products:
+          items:
+            type: string
+            format: uuid
+          type: array
+          title: Products
+        phone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Phone
+        email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Email
+        is_verified:
+          type: boolean
+          title: Is Verified
+          default: false
+        is_active:
+          type: boolean
+          title: Is Active
+          default: true
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      - name_ar
+      - location
+      - location_ar
+      - latitude
+      - longitude
+      - rating
+      - delivery_time_days
+      title: Supplier
+      description: Supplier schema.
+    SupplierComparison:
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        product_name:
+          type: string
+          title: Product Name
+        product_name_ar:
+          type: string
+          title: Product Name Ar
+        quantity:
+          type: number
+          title: Quantity
+        quotes:
+          items:
+            $ref: '#/components/schemas/SupplierQuote'
+          type: array
+          title: Quotes
+        best_price_supplier_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Best Price Supplier Id
+        fastest_delivery_supplier_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Fastest Delivery Supplier Id
+        best_rated_supplier_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Best Rated Supplier Id
+      type: object
+      required:
+      - product_id
+      - product_name
+      - product_name_ar
+      - quantity
+      - quotes
+      title: SupplierComparison
+      description: Supplier comparison for a product.
+    SupplierListResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/Supplier'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          title: Page
+        page_size:
+          type: integer
+          title: Page Size
+      type: object
+      required:
+      - items
+      - total
+      - page
+      - page_size
+      title: SupplierListResponse
+      description: Supplier list response.
+    SupplierQuote:
+      properties:
+        id:
+          type: string
+          format: uuid
+          title: Id
+        supplier_id:
+          type: string
+          format: uuid
+          title: Supplier Id
+        supplier_name:
+          type: string
+          title: Supplier Name
+        supplier_name_ar:
+          type: string
+          title: Supplier Name Ar
+        product_id:
+          type: string
+          format: uuid
+          title: Product Id
+        product_name:
+          type: string
+          title: Product Name
+        product_name_ar:
+          type: string
+          title: Product Name Ar
+        quantity:
+          type: number
+          title: Quantity
+        unit_price:
+          type: number
+          minimum: 0.0
+          title: Unit Price
+          description: Price per unit in SAR
+        total_price:
+          type: number
+          minimum: 0.0
+          title: Total Price
+          description: Total price in SAR
+        delivery_days:
+          type: integer
+          minimum: 1.0
+          title: Delivery Days
+        availability:
+          type: string
+          pattern: ^(in_stock|limited|out_of_stock|pre_order)$
+          title: Availability
+        valid_until:
+          type: string
+          format: date-time
+          title: Valid Until
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      type: object
+      required:
+      - id
+      - supplier_id
+      - supplier_name
+      - supplier_name_ar
+      - product_id
+      - product_name
+      - product_name_ar
+      - quantity
+      - unit_price
+      - total_price
+      - delivery_days
+      - availability
+      - valid_until
+      title: SupplierQuote
+      description: Quote from a supplier for a product.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

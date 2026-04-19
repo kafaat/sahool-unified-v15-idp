@@ -1,0 +1,626 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL WhatsApp Bot Service
+  description: "\n    WhatsApp messaging service for SAHOOL farmers.\n    خدمة رسائل\
+    \ واتساب لمزارعي سهول.\n\n    **Features / الميزات:**\n    - Receive and respond\
+    \ to farmer messages | استقبال والرد على رسائل المزارعين\n    - Forward queries\
+    \ to AI advisory | إحالة الاستفسارات إلى المستشار الذكي\n    - Handle crop images\
+    \ for disease detection | معالجة صور المحاصيل لكشف الأمراض\n    - Interactive\
+    \ menus and buttons | قوائم وأزرار تفاعلية\n    - Bilingual support (Arabic/English)\
+    \ | دعم ثنائي اللغة (عربي/إنجليزي)\n    - Session context management | إدارة سياق\
+    \ الجلسات\n\n    **Supported Message Types / أنواع الرسائل المدعومة:**\n    -\
+    \ Text messages | رسائل نصية\n    - Image messages | رسائل صور\n    - Location\
+    \ messages | رسائل مواقع\n    - Interactive button responses | ردود الأزرار التفاعلية\n\
+    \    "
+  version: 16.0.0
+paths:
+  /webhook:
+    get:
+      tags:
+      - WhatsApp Webhook
+      summary: Verify Webhook
+      description: 'WhatsApp webhook verification endpoint.
+
+        نقطة التحقق من webhook لواتساب.
+
+
+        Meta sends this request when you configure the webhook URL.
+
+        يرسل Meta هذا الطلب عند تكوين رابط webhook.'
+      operationId: verify_webhook_webhook_get
+      parameters:
+      - name: hub.mode
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hub.Mode
+      - name: hub.verify_token
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hub.Verify Token
+      - name: hub.challenge
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Hub.Challenge
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - WhatsApp Webhook
+      summary: Receive Webhook
+      description: 'Receive incoming WhatsApp messages and status updates.
+
+        استقبال رسائل واتساب الواردة وتحديثات الحالة.
+
+
+        This endpoint:
+
+        1. Verifies X-Hub-Signature-256 HMAC (Meta webhook security)
+
+        2. Validates the webhook payload
+
+        3. Extracts messages from the payload
+
+        4. Processes messages asynchronously via background tasks
+
+        5. Returns 200 OK immediately (WhatsApp requirement)'
+      operationId: receive_webhook_webhook_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/send:
+    post:
+      tags:
+      - WhatsApp Webhook
+      summary: Send Message
+      description: 'Send a message to a WhatsApp user.
+
+        إرسال رسالة إلى مستخدم واتساب.
+
+
+        Supports:
+
+        - Text messages | رسائل نصية
+
+        - Image messages | رسائل صور
+
+        - Location messages | رسائل مواقع
+
+        - Interactive buttons | أزرار تفاعلية'
+      operationId: send_message_api_v1_send_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendMessageRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendMessageResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/send-template:
+    post:
+      tags:
+      - WhatsApp Webhook
+      summary: Send Template Message
+      description: 'Send a template message to a WhatsApp user.
+
+        إرسال رسالة قالب إلى مستخدم واتساب.
+
+
+        Template messages are pre-approved messages that can be sent
+
+        outside the 24-hour messaging window.
+
+        رسائل القوالب هي رسائل معتمدة مسبقا يمكن إرسالها
+
+        خارج نافذة الرسائل لمدة 24 ساعة.'
+      operationId: send_template_message_api_v1_send_template_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SendTemplateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SendMessageResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/mark-read:
+    post:
+      tags:
+      - WhatsApp Webhook
+      summary: Mark Message As Read
+      description: 'Mark a message as read.
+
+        وضع علامة مقروء على الرسالة.'
+      operationId: mark_message_as_read_api_v1_mark_read_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: message_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Message ID to mark as read
+          title: Message Id
+        description: Message ID to mark as read
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /healthz:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: 'Health check endpoint (liveness probe).
+
+        نقطة فحص الصحة (فحص الحياة).'
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      tags:
+      - Health
+      summary: Readiness
+      description: 'Kubernetes readiness probe - is the service ready to accept traffic?
+
+        فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الحركة؟'
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /:
+    get:
+      tags:
+      - Root
+      summary: Root
+      description: 'Root endpoint with service information.
+
+        نقطة الجذر مع معلومات الخدمة.'
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InteractiveAction:
+      properties:
+        buttons:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/InteractiveButton'
+            type: array
+          - type: 'null'
+          title: Buttons
+        button:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Button
+        sections:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Sections
+      type: object
+      title: InteractiveAction
+      description: إجراء تفاعلي
+    InteractiveBody:
+      properties:
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - text
+      title: InteractiveBody
+      description: جسم تفاعلي
+    InteractiveButton:
+      properties:
+        type:
+          type: string
+          title: Type
+          default: reply
+        reply:
+          additionalProperties:
+            type: string
+          type: object
+          title: Reply
+      type: object
+      required:
+      - reply
+      title: InteractiveButton
+      description: زر تفاعلي
+    InteractiveFooter:
+      properties:
+        text:
+          type: string
+          title: Text
+      type: object
+      required:
+      - text
+      title: InteractiveFooter
+      description: تذييل تفاعلي
+    InteractiveHeader:
+      properties:
+        type:
+          type: string
+          title: Type
+          default: text
+        text:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Text
+        image:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Image
+      type: object
+      title: InteractiveHeader
+      description: رأس تفاعلي
+    InteractiveType:
+      type: string
+      enum:
+      - button
+      - list
+      - button_reply
+      - list_reply
+      title: InteractiveType
+      description: نوع الرسالة التفاعلية
+    MessageType:
+      type: string
+      enum:
+      - text
+      - image
+      - audio
+      - video
+      - document
+      - location
+      - contacts
+      - sticker
+      - interactive
+      - button
+      - reaction
+      - order
+      - unknown
+      title: MessageType
+      description: نوع الرسالة
+    SendImageContent:
+      properties:
+        link:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Link
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        caption:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Caption
+      type: object
+      title: SendImageContent
+      description: محتوى صورة للإرسال
+    SendInteractiveContent:
+      properties:
+        type:
+          $ref: '#/components/schemas/InteractiveType'
+        header:
+          anyOf:
+          - $ref: '#/components/schemas/InteractiveHeader'
+          - type: 'null'
+        body:
+          $ref: '#/components/schemas/InteractiveBody'
+        footer:
+          anyOf:
+          - $ref: '#/components/schemas/InteractiveFooter'
+          - type: 'null'
+        action:
+          $ref: '#/components/schemas/InteractiveAction'
+      type: object
+      required:
+      - type
+      - body
+      - action
+      title: SendInteractiveContent
+      description: محتوى تفاعلي للإرسال
+    SendLocationContent:
+      properties:
+        latitude:
+          type: number
+          title: Latitude
+        longitude:
+          type: number
+          title: Longitude
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Address
+      type: object
+      required:
+      - latitude
+      - longitude
+      title: SendLocationContent
+      description: محتوى موقع للإرسال
+    SendMessageRequest:
+      properties:
+        to:
+          type: string
+          title: To
+          description: Recipient phone number | رقم هاتف المستلم
+        type:
+          $ref: '#/components/schemas/MessageType'
+          description: Message type
+          default: text
+        text:
+          anyOf:
+          - $ref: '#/components/schemas/SendTextContent'
+          - type: 'null'
+        image:
+          anyOf:
+          - $ref: '#/components/schemas/SendImageContent'
+          - type: 'null'
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/SendLocationContent'
+          - type: 'null'
+        interactive:
+          anyOf:
+          - $ref: '#/components/schemas/SendInteractiveContent'
+          - type: 'null'
+        template:
+          anyOf:
+          - $ref: '#/components/schemas/SendTemplateContent'
+          - type: 'null'
+        context:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Context
+      type: object
+      required:
+      - to
+      title: SendMessageRequest
+      description: 'Request to send a message via WhatsApp.
+
+        طلب إرسال رسالة عبر واتساب.'
+    SendMessageResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        message_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message Id
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        error_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Ar
+      type: object
+      required:
+      - success
+      title: SendMessageResponse
+      description: 'Response after sending a message.
+
+        استجابة بعد إرسال رسالة.'
+    SendTemplateComponent:
+      properties:
+        type:
+          type: string
+          title: Type
+        parameters:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Parameters
+      type: object
+      required:
+      - type
+      - parameters
+      title: SendTemplateComponent
+      description: مكون قالب
+    SendTemplateContent:
+      properties:
+        name:
+          type: string
+          title: Name
+        language:
+          additionalProperties:
+            type: string
+          type: object
+          title: Language
+        components:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SendTemplateComponent'
+            type: array
+          - type: 'null'
+          title: Components
+      type: object
+      required:
+      - name
+      - language
+      title: SendTemplateContent
+      description: محتوى قالب للإرسال
+    SendTemplateRequest:
+      properties:
+        to:
+          type: string
+          title: To
+          description: Recipient phone number | رقم هاتف المستلم
+        template_name:
+          type: string
+          title: Template Name
+          description: Template name | اسم القالب
+        language_code:
+          type: string
+          title: Language Code
+          description: Language code (ar/en)
+          default: ar
+        components:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/SendTemplateComponent'
+            type: array
+          - type: 'null'
+          title: Components
+      type: object
+      required:
+      - to
+      - template_name
+      title: SendTemplateRequest
+      description: 'Request to send a template message.
+
+        طلب إرسال رسالة قالب.'
+    SendTextContent:
+      properties:
+        body:
+          type: string
+          title: Body
+        preview_url:
+          type: boolean
+          title: Preview Url
+          default: false
+      type: object
+      required:
+      - body
+      title: SendTextContent
+      description: محتوى نص للإرسال
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

@@ -1,0 +1,127 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL MCP Server
+  description: Model Context Protocol server for SAHOOL agricultural platform
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      description: Health check endpoint
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Health
+      description: Health check endpoint
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Ready
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: ready_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /ready:
+    get:
+      summary: Ready
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: ready_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      summary: Metrics
+      description: Prometheus metrics endpoint
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /:
+    get:
+      summary: Root
+      description: Root endpoint with server information
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /mcp:
+    post:
+      summary: Handle Mcp Request
+      description: Handle MCP JSON-RPC request
+      operationId: handle_mcp_request_mcp_post
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /mcp/sse:
+    get:
+      summary: Handle Sse
+      description: Handle Server-Sent Events for streaming MCP
+      operationId: handle_sse_mcp_sse_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /tools:
+    get:
+      summary: List Tools
+      description: List available tools (convenience endpoint)
+      operationId: list_tools_tools_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /resources:
+    get:
+      summary: List Resources
+      description: List available resources (convenience endpoint)
+      operationId: list_resources_resources_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /prompts:
+    get:
+      summary: List Prompts
+      description: List available prompts (convenience endpoint)
+      operationId: list_prompts_prompts_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}

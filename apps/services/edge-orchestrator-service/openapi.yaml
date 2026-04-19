@@ -1,0 +1,2235 @@
+openapi: 3.1.0
+info:
+  title: Edge Orchestrator Service | خدمة تنسيق الحافة
+  description: "\n    Manages edge computing devices for agricultural AI inference.\n\
+    \n    تدير أجهزة الحوسبة على الحافة للاستدلال بالذكاء الاصطناعي الزراعي.\n\n \
+    \   ## Features | الميزات\n\n    - **Device Management**: Register, monitor, and\
+    \ manage edge devices\n    - **Job Orchestration**: Queue and execute AI inference\
+    \ jobs\n    - **Model Deployment**: Deploy AI models to edge devices\n    - **Data\
+    \ Synchronization**: Sync data between edge and cloud\n    - **Real-time Updates**:\
+    \ WebSocket support for live monitoring\n\n    - **إدارة الأجهزة**: تسجيل ومراقبة\
+    \ وإدارة أجهزة الحافة\n    - **تنسيق المهام**: إدراج وتنفيذ مهام استدلال الذكاء\
+    \ الاصطناعي\n    - **نشر النماذج**: نشر نماذج الذكاء الاصطناعي على أجهزة الحافة\n\
+    \    - **مزامنة البيانات**: مزامنة البيانات بين الحافة والسحابة\n    - **التحديثات\
+    \ الفورية**: دعم WebSocket للمراقبة المباشرة\n\n    ## Supported Devices | الأجهزة\
+    \ المدعومة\n\n    - NVIDIA Jetson Orin Nano (8GB)\n    - NVIDIA Jetson Orin NX\
+    \ (16GB)\n    - NVIDIA Jetson AGX Orin (64GB)\n    - Raspberry Pi 5 with AI HAT\n\
+    \    "
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      tags:
+      - health
+      summary: Liveness probe | فحص الحياة
+      description: 'Liveness probe for Kubernetes.
+
+
+        فحص الحياة لـ Kubernetes.'
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+  /readyz:
+    get:
+      tags:
+      - health
+      summary: Readiness probe | فحص الجاهزية
+      description: 'Readiness probe for Kubernetes.
+
+
+        فحص الجاهزية لـ Kubernetes.'
+      operationId: readiness_check_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessStatus'
+  /health:
+    get:
+      tags:
+      - health
+      summary: Combined health status | حالة الصحة المجمعة
+      description: 'Combined health check with detailed status.
+
+
+        فحص صحة مجمع مع حالة مفصلة.'
+      operationId: combined_health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Combined Health Health Get
+  /api/v1/edge/devices:
+    get:
+      tags:
+      - devices
+      - edge
+      summary: List all edge devices | عرض جميع أجهزة الحافة
+      description: 'List all edge devices with filtering and pagination.
+
+
+        عرض جميع أجهزة الحافة مع التصفية والترقيم.'
+      operationId: list_devices_api_v1_edge_devices_get
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Page number
+          default: 1
+          title: Page
+        description: Page number
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Items per page
+          default: 20
+          title: Page Size
+        description: Items per page
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/DeviceStatus'
+          - type: 'null'
+          description: Filter by status | تصفية حسب الحالة
+          title: Status
+        description: Filter by status | تصفية حسب الحالة
+      - name: device_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/DeviceType'
+          - type: 'null'
+          description: Filter by device type | تصفية حسب نوع الجهاز
+          title: Device Type
+        description: Filter by device type | تصفية حسب نوع الجهاز
+      - name: farm_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Filter by farm ID | تصفية حسب معرف المزرعة
+          title: Farm Id
+        description: Filter by farm ID | تصفية حسب معرف المزرعة
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Filter by field ID | تصفية حسب معرف الحقل
+          title: Field Id
+        description: Filter by field ID | تصفية حسب معرف الحقل
+      - name: search
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          description: Search by name | البحث بالاسم
+          title: Search
+        description: Search by name | البحث بالاسم
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeDeviceList'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - devices
+      - edge
+      summary: Register new device | تسجيل جهاز جديد
+      description: 'Register a new edge device (e.g., Jetson Orin Nano).
+
+
+        تسجيل جهاز حافة جديد (مثل Jetson Orin Nano).'
+      operationId: create_device_api_v1_edge_devices_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EdgeDeviceCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeDevice'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/devices/{device_id}:
+    get:
+      tags:
+      - devices
+      - edge
+      summary: Get device details | الحصول على تفاصيل الجهاز
+      description: 'Get detailed information about a specific edge device.
+
+
+        الحصول على معلومات مفصلة حول جهاز حافة معين.'
+      operationId: get_device_api_v1_edge_devices__device_id__get
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeDevice'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - devices
+      - edge
+      summary: Update device | تحديث الجهاز
+      description: 'Update an existing edge device.
+
+
+        تحديث جهاز حافة موجود.'
+      operationId: update_device_api_v1_edge_devices__device_id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EdgeDeviceUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeDevice'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - devices
+      - edge
+      summary: Remove device | إزالة الجهاز
+      description: 'Remove an edge device from the system.
+
+
+        إزالة جهاز حافة من النظام.'
+      operationId: delete_device_api_v1_edge_devices__device_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/devices/{device_id}/reconnect:
+    post:
+      tags:
+      - devices
+      - edge
+      summary: Reconnect to device | إعادة الاتصال بالجهاز
+      description: 'Attempt to reconnect to an edge device.
+
+
+        محاولة إعادة الاتصال بجهاز الحافة.'
+      operationId: reconnect_device_api_v1_edge_devices__device_id__reconnect_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeDevice'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/devices/{device_id}/metrics:
+    get:
+      tags:
+      - devices
+      - edge
+      summary: Get device metrics | الحصول على مقاييس الجهاز
+      description: 'Get real-time metrics from an edge device.
+
+
+        الحصول على مقاييس الوقت الفعلي من جهاز الحافة.'
+      operationId: get_device_metrics_api_v1_edge_devices__device_id__metrics_get
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceMetrics'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/jobs:
+    post:
+      tags:
+      - jobs
+      - edge
+      summary: Create new job | إنشاء مهمة جديدة
+      description: 'Create and queue a new edge computing job.
+
+
+        إنشاء وإدراج مهمة حوسبة حافة جديدة في قائمة الانتظار.'
+      operationId: create_job_api_v1_edge_jobs_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EdgeJobCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeJob'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - jobs
+      - edge
+      summary: List all jobs | عرض جميع المهام
+      description: 'List all jobs across all devices.
+
+
+        عرض جميع المهام عبر جميع الأجهزة.'
+      operationId: list_all_jobs_api_v1_edge_jobs_get
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Page number
+          default: 1
+          title: Page
+        description: Page number
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Items per page
+          default: 20
+          title: Page Size
+        description: Items per page
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/JobStatus'
+          - type: 'null'
+          description: Filter by status
+          title: Status
+        description: Filter by status
+      - name: job_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/JobType'
+          - type: 'null'
+          description: Filter by job type
+          title: Job Type
+        description: Filter by job type
+      - name: device_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          description: Filter by device
+          title: Device Id
+        description: Filter by device
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeJobList'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/jobs/{job_id}:
+    get:
+      tags:
+      - jobs
+      - edge
+      summary: Get job status | الحصول على حالة المهمة
+      description: 'Get the status and details of a specific job.
+
+
+        الحصول على حالة وتفاصيل مهمة محددة.'
+      operationId: get_job_api_v1_edge_jobs__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeJob'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/devices/{device_id}/jobs:
+    get:
+      tags:
+      - jobs
+      - edge
+      summary: List device jobs | عرض مهام الجهاز
+      description: 'List all jobs for a specific device.
+
+
+        عرض جميع المهام لجهاز محدد.'
+      operationId: list_device_jobs_api_v1_edge_devices__device_id__jobs_get
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 1
+          description: Page number
+          default: 1
+          title: Page
+        description: Page number
+      - name: page_size
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Items per page
+          default: 20
+          title: Page Size
+        description: Items per page
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/JobStatus'
+          - type: 'null'
+          description: Filter by status | تصفية حسب الحالة
+          title: Status
+        description: Filter by status | تصفية حسب الحالة
+      - name: job_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/JobType'
+          - type: 'null'
+          description: Filter by job type | تصفية حسب نوع المهمة
+          title: Job Type
+        description: Filter by job type | تصفية حسب نوع المهمة
+      - name: priority
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/JobPriority'
+          - type: 'null'
+          description: Filter by priority | تصفية حسب الأولوية
+          title: Priority
+        description: Filter by priority | تصفية حسب الأولوية
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeJobList'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/jobs/{job_id}/cancel:
+    post:
+      tags:
+      - jobs
+      - edge
+      summary: Cancel job | إلغاء المهمة
+      description: 'Cancel a pending or running job.
+
+
+        إلغاء مهمة معلقة أو قيد التنفيذ.'
+      operationId: cancel_job_api_v1_edge_jobs__job_id__cancel_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeJob'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/jobs/{job_id}/retry:
+    post:
+      tags:
+      - jobs
+      - edge
+      summary: Retry failed job | إعادة محاولة المهمة الفاشلة
+      description: 'Retry a failed or cancelled job.
+
+
+        إعادة محاولة مهمة فاشلة أو ملغاة.'
+      operationId: retry_job_api_v1_edge_jobs__job_id__retry_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EdgeJob'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/sync/{device_id}:
+    post:
+      tags:
+      - sync
+      - deploy
+      - edge
+      summary: Sync data from/to device | مزامنة البيانات من/إلى الجهاز
+      description: 'Initiate data synchronization between edge device and cloud.
+
+
+        بدء مزامنة البيانات بين جهاز الحافة والسحابة.
+
+
+        Data types that can be synced:
+
+        - inference_results: AI inference outputs
+
+        - sensor_data: IoT sensor readings
+
+        - images: Captured images
+
+        - logs: Device logs
+
+        - metrics: Performance metrics
+
+
+        أنواع البيانات التي يمكن مزامنتها:
+
+        - inference_results: مخرجات استدلال الذكاء الاصطناعي
+
+        - sensor_data: قراءات مستشعرات إنترنت الأشياء
+
+        - images: الصور الملتقطة
+
+        - logs: سجلات الجهاز
+
+        - metrics: مقاييس الأداء'
+      operationId: sync_device_data_api_v1_edge_sync__device_id__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      - name: direction
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/SyncDirection'
+          description: Sync direction | اتجاه المزامنة
+          default: upload
+        description: Sync direction | اتجاه المزامنة
+      - name: data_types
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Comma-separated data types | أنواع البيانات مفصولة بفواصل
+          title: Data Types
+        description: Comma-separated data types | أنواع البيانات مفصولة بفواصل
+      - name: force
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Force sync even if no changes | فرض المزامنة
+          default: false
+          title: Force
+        description: Force sync even if no changes | فرض المزامنة
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/SyncRequest'
+              - type: 'null'
+              title: Sync Request
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/sync/{sync_id}/status:
+    get:
+      tags:
+      - sync
+      - deploy
+      - edge
+      summary: Get sync status | الحصول على حالة المزامنة
+      description: 'Get the status of a sync operation.
+
+
+        الحصول على حالة عملية المزامنة.'
+      operationId: get_sync_status_api_v1_edge_sync__sync_id__status_get
+      parameters:
+      - name: sync_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Sync Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/deploy/{device_id}:
+    post:
+      tags:
+      - sync
+      - deploy
+      - edge
+      summary: Deploy model to device | نشر النموذج على الجهاز
+      description: 'Deploy an AI model to an edge device.
+
+
+        نشر نموذج ذكاء اصطناعي على جهاز الحافة.
+
+
+        Supported models for Jetson Orin Nano:
+
+        - yolo26-s: YOLO26 Small (optimized for edge)
+
+        - yolo26-n: YOLO26 Nano (fastest)
+
+        - yolo11-s: YOLO11 Small
+
+        - crop-disease-v3: Crop disease detection
+
+        - pest-detection-v2: Pest detection
+
+        - weed-classifier-v1: Weed classification
+
+
+        النماذج المدعومة لـ Jetson Orin Nano:
+
+        - yolo26-s: YOLO26 صغير (محسن للحافة)
+
+        - yolo26-n: YOLO26 نانو (الأسرع)
+
+        - yolo11-s: YOLO11 صغير
+
+        - crop-disease-v3: كشف أمراض المحاصيل
+
+        - pest-detection-v2: كشف الآفات
+
+        - weed-classifier-v1: تصنيف الأعشاب الضارة'
+      operationId: deploy_model_api_v1_edge_deploy__device_id__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: device_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Device Id
+      - name: model_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Model name to deploy | اسم النموذج للنشر
+          title: Model Name
+        description: Model name to deploy | اسم النموذج للنشر
+      - name: model_version
+        in: query
+        required: false
+        schema:
+          type: string
+          description: Model version | إصدار النموذج
+          default: latest
+          title: Model Version
+        description: Model version | إصدار النموذج
+      - name: model_format
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/ModelFormat'
+          description: Model format | تنسيق النموذج
+          default: tensorrt
+        description: Model format | تنسيق النموذج
+      - name: force_update
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Force update even if same version | فرض التحديث
+          default: false
+          title: Force Update
+        description: Force update even if same version | فرض التحديث
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - $ref: '#/components/schemas/DeployRequest'
+              - type: 'null'
+              title: Deploy Request
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeployResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/deploy/{deploy_id}/status:
+    get:
+      tags:
+      - sync
+      - deploy
+      - edge
+      summary: Get deploy status | الحصول على حالة النشر
+      description: 'Get the status of a deployment operation.
+
+
+        الحصول على حالة عملية النشر.'
+      operationId: get_deploy_status_api_v1_edge_deploy__deploy_id__status_get
+      parameters:
+      - name: deploy_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Deploy Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeployResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/edge/models:
+    get:
+      tags:
+      - sync
+      - deploy
+      - edge
+      summary: List available models | عرض النماذج المتاحة
+      description: 'List all available AI models for edge deployment.
+
+
+        عرض جميع نماذج الذكاء الاصطناعي المتاحة للنشر على الحافة.'
+      operationId: list_available_models_api_v1_edge_models_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response List Available Models Api V1 Edge Models Get
+  /api/v1/edge/deploy/{deploy_id}/cancel:
+    post:
+      tags:
+      - sync
+      - deploy
+      - edge
+      summary: Cancel deployment | إلغاء النشر
+      description: 'Cancel an ongoing deployment operation.
+
+
+        إلغاء عملية نشر جارية.'
+      operationId: cancel_deployment_api_v1_edge_deploy__deploy_id__cancel_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: deploy_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+          title: Deploy Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeployResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    DeployProgress:
+      properties:
+        stage:
+          type: string
+          title: Stage
+          description: Current deployment stage
+          default: initializing
+        stage_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Stage Ar
+          description: Stage in Arabic
+        percent_complete:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Percent Complete
+          default: 0.0
+        bytes_transferred:
+          type: integer
+          title: Bytes Transferred
+          default: 0
+        total_bytes:
+          type: integer
+          title: Total Bytes
+          default: 0
+        estimated_time_remaining_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Time Remaining Seconds
+      type: object
+      title: DeployProgress
+      description: Model deployment progress | تقدم نشر النموذج.
+    DeployRequest:
+      properties:
+        device_id:
+          type: string
+          format: uuid
+          title: Device Id
+          description: Target device | الجهاز المستهدف
+        model_name:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Model Name
+          description: Model to deploy | النموذج للنشر
+        model_version:
+          type: string
+          title: Model Version
+          description: Model version | إصدار النموذج
+          default: latest
+        model_format:
+          $ref: '#/components/schemas/ModelFormat'
+          description: Model format | تنسيق النموذج
+          default: tensorrt
+        force_update:
+          type: boolean
+          title: Force Update
+          description: Force update even if same version | فرض التحديث
+          default: false
+        config_overrides:
+          additionalProperties: true
+          type: object
+          title: Config Overrides
+          description: Configuration overrides for deployment
+          default: {}
+        validate_after_deploy:
+          type: boolean
+          title: Validate After Deploy
+          description: Run validation after deployment
+          default: true
+      type: object
+      required:
+      - device_id
+      - model_name
+      title: DeployRequest
+      description: Request to deploy model to device | طلب نشر النموذج على الجهاز.
+    DeployResponse:
+      properties:
+        deploy_id:
+          type: string
+          format: uuid
+          title: Deploy Id
+          description: Deployment ID | معرف النشر
+        device_id:
+          type: string
+          format: uuid
+          title: Device Id
+        model_name:
+          type: string
+          title: Model Name
+        model_version:
+          type: string
+          title: Model Version
+        status:
+          type: string
+          title: Status
+          description: Deployment status
+        progress:
+          $ref: '#/components/schemas/DeployProgress'
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        validation_result:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Validation Result
+          description: Post-deployment validation result
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+        error_message_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message Ar
+      type: object
+      required:
+      - deploy_id
+      - device_id
+      - model_name
+      - model_version
+      - status
+      title: DeployResponse
+      description: Response from deploy operation | استجابة عملية النشر.
+    DeviceCapabilities:
+      properties:
+        gpu_memory_gb:
+          type: number
+          title: Gpu Memory Gb
+          description: GPU memory in GB
+          default: 8.0
+        cpu_cores:
+          type: integer
+          title: Cpu Cores
+          description: Number of CPU cores
+          default: 6
+        ram_gb:
+          type: number
+          title: Ram Gb
+          description: RAM in GB
+          default: 8.0
+        storage_gb:
+          type: number
+          title: Storage Gb
+          description: Storage in GB
+          default: 64.0
+        has_nvme:
+          type: boolean
+          title: Has Nvme
+          description: Has NVMe storage
+          default: false
+        max_power_watts:
+          type: integer
+          title: Max Power Watts
+          description: Max power consumption
+          default: 15
+        supported_models:
+          items:
+            type: string
+          type: array
+          title: Supported Models
+          description: Supported AI models
+          default:
+          - yolo26-s
+          - yolo26-n
+        camera_interfaces:
+          items:
+            type: string
+          type: array
+          title: Camera Interfaces
+          description: Camera interfaces available
+          default:
+          - csi
+          - usb
+      additionalProperties: true
+      type: object
+      title: DeviceCapabilities
+      description: Device hardware capabilities | قدرات أجهزة الجهاز.
+    DeviceMetrics:
+      properties:
+        cpu_usage_percent:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Cpu Usage Percent
+          default: 0.0
+        gpu_usage_percent:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Gpu Usage Percent
+          default: 0.0
+        memory_usage_percent:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Memory Usage Percent
+          default: 0.0
+        disk_usage_percent:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Disk Usage Percent
+          default: 0.0
+        temperature_celsius:
+          type: number
+          title: Temperature Celsius
+          default: 0.0
+        power_usage_watts:
+          type: number
+          minimum: 0.0
+          title: Power Usage Watts
+          default: 0.0
+        network_latency_ms:
+          type: number
+          minimum: 0.0
+          title: Network Latency Ms
+          default: 0.0
+        uptime_seconds:
+          type: integer
+          minimum: 0.0
+          title: Uptime Seconds
+          default: 0
+        inference_fps:
+          type: number
+          minimum: 0.0
+          title: Inference Fps
+          default: 0.0
+        last_heartbeat:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Heartbeat
+      additionalProperties: true
+      type: object
+      title: DeviceMetrics
+      description: Real-time device metrics | مقاييس الجهاز في الوقت الفعلي.
+    DeviceStatus:
+      type: string
+      enum:
+      - online
+      - offline
+      - idle
+      - busy
+      - syncing
+      - deploying
+      - error
+      - maintenance
+      title: DeviceStatus
+      description: Device operational status | حالة تشغيل الجهاز.
+    DeviceType:
+      type: string
+      enum:
+      - jetson_orin_nano
+      - jetson_orin_nx
+      - jetson_agx_orin
+      - raspberry_pi_5
+      - generic_edge
+      title: DeviceType
+      description: Edge device types | أنواع أجهزة الحافة.
+    EdgeDevice:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Name Ar
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description Ar
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+          description: Device type | نوع الجهاز
+          default: jetson_orin_nano
+        farm_id:
+          type: string
+          format: uuid
+          title: Farm Id
+          description: Associated farm ID | معرف المزرعة
+        field_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Field Id
+          description: Associated field ID | معرف الحقل
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/GeoLocation'
+          - type: 'null'
+          description: Device location | موقع الجهاز
+        ip_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ip Address
+          description: Device IP address
+        mac_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mac Address
+          description: Device MAC address
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+          description: Device serial number
+        firmware_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Firmware Version
+          description: Firmware version
+        installed_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Installed Model
+          description: Currently installed AI model
+        installed_model_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Installed Model Version
+          description: Version of installed model
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Device tags | علامات الجهاز
+          default: []
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+          description: Additional metadata | بيانات وصفية إضافية
+          default: {}
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Device unique ID | المعرف الفريد للجهاز
+        tenant_id:
+          type: string
+          format: uuid
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        status:
+          $ref: '#/components/schemas/DeviceStatus'
+          description: Current status | الحالة الحالية
+          default: offline
+        capabilities:
+          $ref: '#/components/schemas/DeviceCapabilities'
+        metrics:
+          $ref: '#/components/schemas/DeviceMetrics'
+        last_seen:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Last Seen
+          description: Last seen timestamp | آخر ظهور
+        is_active:
+          type: boolean
+          title: Is Active
+          description: Is device active | هل الجهاز نشط
+          default: true
+        total_inference_count:
+          type: integer
+          title: Total Inference Count
+          description: Total inferences run | إجمالي الاستدلالات
+          default: 0
+        total_sync_bytes:
+          type: integer
+          title: Total Sync Bytes
+          description: Total bytes synced | إجمالي البايتات المزامنة
+          default: 0
+      type: object
+      required:
+      - name
+      - farm_id
+      - id
+      - tenant_id
+      title: EdgeDevice
+      description: Complete edge device schema | مخطط جهاز الحافة الكامل.
+    EdgeDeviceCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          minLength: 1
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+            maxLength: 255
+          - type: 'null'
+          title: Name Ar
+        description:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Description Ar
+        device_type:
+          $ref: '#/components/schemas/DeviceType'
+          description: Device type | نوع الجهاز
+          default: jetson_orin_nano
+        farm_id:
+          type: string
+          format: uuid
+          title: Farm Id
+          description: Associated farm ID | معرف المزرعة
+        field_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Field Id
+          description: Associated field ID | معرف الحقل
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/GeoLocation'
+          - type: 'null'
+          description: Device location | موقع الجهاز
+        ip_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ip Address
+          description: Device IP address
+        mac_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Mac Address
+          description: Device MAC address
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+          description: Device serial number
+        firmware_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Firmware Version
+          description: Firmware version
+        installed_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Installed Model
+          description: Currently installed AI model
+        installed_model_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Installed Model Version
+          description: Version of installed model
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Device tags | علامات الجهاز
+          default: []
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+          description: Additional metadata | بيانات وصفية إضافية
+          default: {}
+      type: object
+      required:
+      - name
+      - farm_id
+      title: EdgeDeviceCreate
+      description: Schema for creating a new edge device | مخطط إنشاء جهاز حافة جديد.
+    EdgeDeviceList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EdgeDevice'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+          description: Total count | العدد الإجمالي
+        page:
+          type: integer
+          minimum: 1.0
+          title: Page
+          default: 1
+        page_size:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Page Size
+          default: 20
+        pages:
+          type: integer
+          minimum: 1.0
+          title: Pages
+          default: 1
+      type: object
+      required:
+      - items
+      - total
+      title: EdgeDeviceList
+      description: Paginated list of edge devices | قائمة أجهزة الحافة مرقمة.
+    EdgeDeviceUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        field_id:
+          anyOf:
+          - type: string
+            format: uuid
+          - type: 'null'
+          title: Field Id
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/GeoLocation'
+          - type: 'null'
+        ip_address:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ip Address
+        firmware_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Firmware Version
+        installed_model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Installed Model
+        installed_model_version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Installed Model Version
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+        status:
+          anyOf:
+          - $ref: '#/components/schemas/DeviceStatus'
+          - type: 'null'
+      additionalProperties: false
+      type: object
+      title: EdgeDeviceUpdate
+      description: Schema for updating an edge device | مخطط تحديث جهاز الحافة.
+    EdgeJob:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        job_type:
+          $ref: '#/components/schemas/JobType'
+          description: Type of job | نوع المهمة
+        device_id:
+          type: string
+          format: uuid
+          title: Device Id
+          description: Target device ID | معرف الجهاز المستهدف
+        priority:
+          $ref: '#/components/schemas/JobPriority'
+          description: Job priority | أولوية المهمة
+          default: normal
+        config:
+          $ref: '#/components/schemas/JobConfig'
+          description: Job configuration | تكوين المهمة
+        scheduled_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Scheduled At
+          description: Scheduled execution time | وقت التنفيذ المجدول
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+          description: Additional metadata
+          default: {}
+        id:
+          type: string
+          format: uuid
+          title: Id
+          description: Job unique ID | المعرف الفريد للمهمة
+        tenant_id:
+          type: string
+          format: uuid
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        status:
+          $ref: '#/components/schemas/JobStatus'
+          description: Current status | الحالة الحالية
+          default: pending
+        started_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Started At
+          description: When job started | وقت بدء المهمة
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+          description: When job completed | وقت اكتمال المهمة
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/JobResult'
+          - type: 'null'
+          description: Job result | نتيجة المهمة
+        retry_count:
+          type: integer
+          title: Retry Count
+          description: Number of retries
+          default: 0
+        max_retries:
+          type: integer
+          title: Max Retries
+          description: Maximum retries allowed
+          default: 3
+        progress_percent:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Progress Percent
+          description: Progress percentage | نسبة التقدم
+          default: 0.0
+      type: object
+      required:
+      - job_type
+      - device_id
+      - id
+      - tenant_id
+      title: EdgeJob
+      description: Complete edge job schema | مخطط مهمة الحافة الكامل.
+    EdgeJobCreate:
+      properties:
+        job_type:
+          $ref: '#/components/schemas/JobType'
+          description: Type of job | نوع المهمة
+        device_id:
+          type: string
+          format: uuid
+          title: Device Id
+          description: Target device ID | معرف الجهاز المستهدف
+        priority:
+          $ref: '#/components/schemas/JobPriority'
+          description: Job priority | أولوية المهمة
+          default: normal
+        config:
+          $ref: '#/components/schemas/JobConfig'
+          description: Job configuration | تكوين المهمة
+        scheduled_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Scheduled At
+          description: Scheduled execution time | وقت التنفيذ المجدول
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+          description: Additional metadata
+          default: {}
+      type: object
+      required:
+      - job_type
+      - device_id
+      title: EdgeJobCreate
+      description: Schema for creating a new job | مخطط إنشاء مهمة جديدة.
+    EdgeJobList:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/EdgeJob'
+          type: array
+          title: Items
+        total:
+          type: integer
+          title: Total
+        page:
+          type: integer
+          minimum: 1.0
+          title: Page
+          default: 1
+        page_size:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Page Size
+          default: 20
+        pages:
+          type: integer
+          minimum: 1.0
+          title: Pages
+          default: 1
+      type: object
+      required:
+      - items
+      - total
+      title: EdgeJobList
+      description: Paginated list of jobs | قائمة المهام مرقمة.
+    GeoLocation:
+      properties:
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        altitude_m:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Altitude M
+          description: Altitude in meters
+        accuracy_m:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Accuracy M
+          description: Accuracy in meters
+      type: object
+      required:
+      - latitude
+      - longitude
+      title: GeoLocation
+      description: Geographic location | الموقع الجغرافي.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthStatus:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: Service status
+          default: ok
+        service:
+          type: string
+          title: Service
+          description: Service name
+          default: edge-orchestrator-service
+        version:
+          type: string
+          title: Version
+          description: Service version
+          default: 16.0.0
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+      type: object
+      title: HealthStatus
+      description: Health check response | استجابة فحص الصحة.
+    JobConfig:
+      properties:
+        model_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model Name
+          description: AI model to use
+        confidence_threshold:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence Threshold
+          description: Detection confidence threshold
+          default: 0.5
+        max_detections:
+          type: integer
+          maximum: 1000.0
+          minimum: 1.0
+          title: Max Detections
+          default: 100
+        input_source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Input Source
+          description: Input source (camera, file path)
+        output_format:
+          type: string
+          title: Output Format
+          description: Output format
+          default: json
+        save_images:
+          type: boolean
+          title: Save Images
+          description: Save annotated images
+          default: false
+        batch_size:
+          type: integer
+          maximum: 32.0
+          minimum: 1.0
+          title: Batch Size
+          default: 1
+        timeout_seconds:
+          type: integer
+          maximum: 3600.0
+          minimum: 1.0
+          title: Timeout Seconds
+          default: 300
+      additionalProperties: true
+      type: object
+      title: JobConfig
+      description: Job configuration parameters | معلمات تكوين المهمة.
+    JobPriority:
+      type: string
+      enum:
+      - low
+      - normal
+      - high
+      - critical
+      title: JobPriority
+      description: Job priority levels | مستويات أولوية المهمة.
+    JobResult:
+      properties:
+        success:
+          type: boolean
+          title: Success
+          description: Whether job succeeded
+        message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message
+          description: Result message
+        message_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Message Ar
+          description: Result message in Arabic
+        output_data:
+          additionalProperties: true
+          type: object
+          title: Output Data
+          description: Job output data
+          default: {}
+        error_code:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Code
+          description: Error code if failed
+        execution_time_ms:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Execution Time Ms
+          description: Execution time in ms
+        detections_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Detections Count
+          description: Number of detections
+        artifacts:
+          items:
+            type: string
+          type: array
+          title: Artifacts
+          description: Generated artifact paths
+          default: []
+      additionalProperties: true
+      type: object
+      required:
+      - success
+      title: JobResult
+      description: Job execution result | نتيجة تنفيذ المهمة.
+    JobStatus:
+      type: string
+      enum:
+      - pending
+      - scheduled
+      - running
+      - completed
+      - failed
+      - cancelled
+      - timeout
+      title: JobStatus
+      description: Job execution status | حالة تنفيذ المهمة.
+    JobType:
+      type: string
+      enum:
+      - inference
+      - model_deploy
+      - data_sync
+      - firmware_update
+      - diagnostic
+      - calibration
+      - capture
+      title: JobType
+      description: Edge job types | أنواع مهام الحافة.
+    ModelFormat:
+      type: string
+      enum:
+      - tensorrt
+      - onnx
+      - pytorch
+      - tflite
+      title: ModelFormat
+      description: AI model format | تنسيق نموذج الذكاء الاصطناعي.
+    ReadinessStatus:
+      properties:
+        status:
+          type: string
+          title: Status
+          default: ok
+        database:
+          type: boolean
+          title: Database
+          description: Database connection status
+          default: false
+        nats:
+          type: boolean
+          title: Nats
+          description: NATS connection status
+          default: false
+        redis:
+          type: boolean
+          title: Redis
+          description: Redis connection status
+          default: false
+        active_devices:
+          type: integer
+          title: Active Devices
+          description: Number of active devices
+          default: 0
+        active_jobs:
+          type: integer
+          title: Active Jobs
+          description: Number of active jobs
+          default: 0
+      type: object
+      title: ReadinessStatus
+      description: Readiness check response | استجابة فحص الجاهزية.
+    SyncDataItem:
+      properties:
+        item_type:
+          type: string
+          title: Item Type
+          description: Type of data item
+        item_id:
+          type: string
+          title: Item Id
+          description: Unique identifier
+        data:
+          additionalProperties: true
+          type: object
+          title: Data
+          description: Item data
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        checksum:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Checksum
+          description: Data checksum for validation
+      additionalProperties: true
+      type: object
+      required:
+      - item_type
+      - item_id
+      - data
+      title: SyncDataItem
+      description: Single data item for synchronization | عنصر بيانات واحد للمزامنة.
+    SyncDirection:
+      type: string
+      enum:
+      - upload
+      - download
+      - bidirectional
+      title: SyncDirection
+      description: Data sync direction | اتجاه مزامنة البيانات.
+    SyncProgress:
+      properties:
+        total_items:
+          type: integer
+          title: Total Items
+          description: Total items to sync
+          default: 0
+        synced_items:
+          type: integer
+          title: Synced Items
+          description: Items synced so far
+          default: 0
+        failed_items:
+          type: integer
+          title: Failed Items
+          description: Items that failed to sync
+          default: 0
+        bytes_transferred:
+          type: integer
+          title: Bytes Transferred
+          description: Bytes transferred
+          default: 0
+        percent_complete:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Percent Complete
+          default: 0.0
+        estimated_time_remaining_seconds:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Estimated Time Remaining Seconds
+      type: object
+      title: SyncProgress
+      description: Sync operation progress | تقدم عملية المزامنة.
+    SyncRequest:
+      properties:
+        device_id:
+          type: string
+          format: uuid
+          title: Device Id
+          description: Device to sync | الجهاز للمزامنة
+        direction:
+          $ref: '#/components/schemas/SyncDirection'
+          description: Sync direction | اتجاه المزامنة
+          default: upload
+        data_types:
+          items:
+            type: string
+          type: array
+          title: Data Types
+          description: Types of data to sync | أنواع البيانات للمزامنة
+          default:
+          - inference_results
+          - sensor_data
+          - images
+        since:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Since
+          description: Sync data since this timestamp | مزامنة البيانات منذ
+        items:
+          items:
+            $ref: '#/components/schemas/SyncDataItem'
+          type: array
+          title: Items
+          description: Data items to sync | عناصر البيانات للمزامنة
+          default: []
+        force:
+          type: boolean
+          title: Force
+          description: Force sync even if no changes | فرض المزامنة
+          default: false
+      type: object
+      required:
+      - device_id
+      title: SyncRequest
+      description: Request to sync data from/to device | طلب مزامنة البيانات من/إلى
+        الجهاز.
+    SyncResponse:
+      properties:
+        sync_id:
+          type: string
+          format: uuid
+          title: Sync Id
+          description: Sync operation ID | معرف عملية المزامنة
+        device_id:
+          type: string
+          format: uuid
+          title: Device Id
+        status:
+          type: string
+          title: Status
+          description: Sync status
+        direction:
+          $ref: '#/components/schemas/SyncDirection'
+        progress:
+          $ref: '#/components/schemas/SyncProgress'
+        started_at:
+          type: string
+          format: date-time
+          title: Started At
+        completed_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Completed At
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+        error_message_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message Ar
+      type: object
+      required:
+      - sync_id
+      - device_id
+      - status
+      - direction
+      title: SyncResponse
+      description: Response from sync operation | استجابة عملية المزامنة.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

@@ -1,0 +1,103 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL pgTAP RLS Tests
+# اختبارات عزل المستأجرين على مستوى قاعدة البيانات
+#
+# Executes the pgTAP suite under ``tests/database/rls/`` against a real
+# PostgreSQL 16 + pgTAP cluster spun up as a service container. Validates
+# that Row-Level Security policies enforce tenant isolation and super-admin
+# bypass — the same pattern used throughout the platform.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: pgTAP RLS Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'tests/database/rls/**'
+      - 'shared/**/migrations/*.sql'
+      - 'database/migrations/**'
+      - '.github/workflows/pgtap-rls-tests.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 2'  # Tuesday 04:00 UTC — belt-and-braces nightly check.
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pgtap-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pgtap:
+    name: pgTAP (RLS suite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        # Official PostGIS image already bundles PostGIS 3.4; we add pgTAP below.
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PG_DB: postgres
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pgTAP extension and pg_prove
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          # pg_prove (TAP runner) ships with the perl parser package.
+          sudo apt-get install -y --no-install-recommends \
+            postgresql-client-16 \
+            pgtap \
+            libtap-parser-sourcehandler-pgtap-perl
+          pg_prove --version
+          psql --version
+
+      - name: Install pgTAP into the server container
+        # The service container ships without pgTAP, so we install the SQL
+        # definitions the client-side package provides, then CREATE EXTENSION.
+        run: |
+          set -euo pipefail
+          # Find the pgtap SQL files provided by the apt package.
+          PGTAP_SQL=$(dpkg -L pgtap | grep -E 'pgtap.*\.sql$' | head -1)
+          if [ -z "$PGTAP_SQL" ]; then
+            echo "::error::pgTAP SQL not found in installed package"
+            exit 1
+          fi
+          echo "Loading pgTAP from $PGTAP_SQL"
+          PGPASSWORD="$PGPASSWORD" psql \
+            -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PG_DB" \
+            -v ON_ERROR_STOP=1 -f "$PGTAP_SQL"
+          PGPASSWORD="$PGPASSWORD" psql \
+            -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PG_DB" \
+            -c "SELECT pgtap_version();"
+
+      - name: Run pgTAP suite
+        run: |
+          chmod +x tests/database/rls/run.sh
+          PG_HOST="$PGHOST" \
+          PG_PORT="$PGPORT" \
+          PG_USER="$PGUSER" \
+          PG_PASS="$PGPASSWORD" \
+          PG_DB="$PG_DB" \
+          bash tests/database/rls/run.sh

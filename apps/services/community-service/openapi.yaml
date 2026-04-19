@@ -1,0 +1,884 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Community Service
+  description: Rocket.Chat integration for farmer community messaging - خدمة المجتمع
+    الزراعي
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      tags:
+      - Health
+      summary: Healthz
+      description: Liveness probe.
+      operationId: healthz_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      tags:
+      - Health
+      summary: Readyz
+      description: Readiness probe.
+      operationId: readyz_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: Combined health status.
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      tags:
+      - Monitoring
+      summary: Metrics
+      description: Prometheus metrics endpoint.
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/community/setup-tenant:
+    post:
+      tags:
+      - Tenant
+      summary: Setup Tenant
+      description: 'Initialize tenant community workspace - تهيئة مساحة عمل المجتمع
+        للمستأجر
+
+
+        Creates all default agricultural channels for a tenant and optionally syncs
+
+        an admin user to Rocket.Chat.'
+      operationId: setup_tenant_api_v1_community_setup_tenant_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantSetupRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TenantSetupResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/community/channels:
+    post:
+      tags:
+      - Channels
+      summary: Create Channel
+      description: Create a community channel | إنشاء قناة مجتمع
+      operationId: create_channel_api_v1_community_channels_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Channels
+      summary: List Channels
+      description: List community channels | عرض قنوات المجتمع
+      operationId: list_channels_api_v1_community_channels_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: count
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Count
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/community/channels/{channel_id}/join:
+    post:
+      tags:
+      - Channels
+      summary: Join Channel
+      description: Join a community channel | الانضمام إلى قناة
+      operationId: join_channel_api_v1_community_channels__channel_id__join_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Channel Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/community/channels/{channel_id}/leave:
+    post:
+      tags:
+      - Channels
+      summary: Leave Channel
+      description: Leave a community channel | مغادرة قناة
+      operationId: leave_channel_api_v1_community_channels__channel_id__leave_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Channel Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/community/channels/{channel_id}/members:
+    get:
+      tags:
+      - Channels
+      summary: Get Channel Members
+      description: Get channel members | عرض أعضاء القناة
+      operationId: get_channel_members_api_v1_community_channels__channel_id__members_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Channel Id
+      - name: count
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          default: 100
+          title: Count
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/community/messages:
+    post:
+      tags:
+      - Messages
+      summary: Post Message
+      description: Post a message to a channel | نشر رسالة في قناة
+      operationId: post_message_api_v1_community_messages_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessagePost'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/community/channels/{channel_id}/history:
+    get:
+      tags:
+      - Messages
+      summary: Get Channel History
+      description: Get channel message history | عرض سجل رسائل القناة
+      operationId: get_channel_history_api_v1_community_channels__channel_id__history_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Channel Id
+      - name: count
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Count
+      - name: oldest
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: ISO timestamp for oldest message
+          title: Oldest
+        description: ISO timestamp for oldest message
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/community/messages/search:
+    post:
+      tags:
+      - Messages
+      summary: Search Messages
+      description: Search messages in a channel | البحث في رسائل القناة
+      operationId: search_messages_api_v1_community_messages_search_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageSearchRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/community/users/sync:
+    post:
+      tags:
+      - Users
+      summary: Sync User
+      description: Sync a SAHOOL user to Rocket.Chat | مزامنة مستخدم سهول مع روكيت
+        شات
+      operationId: sync_user_api_v1_community_users_sync_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSyncRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSyncResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/community/bots/advisory:
+    post:
+      tags:
+      - Bots
+      summary: Post Advisory
+      description: 'Post advisory bot message to relevant channel.
+
+        نشر رسالة بوت استشاري في القناة المناسبة'
+      operationId: post_advisory_api_v1_community_bots_advisory_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdvisoryBotMessage'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/community/bots/alert:
+    post:
+      tags:
+      - Bots
+      summary: Post Alert
+      description: 'Post weather/pest alert to relevant channel.
+
+        نشر تنبيه طقس/آفات في القناة المناسبة'
+      operationId: post_alert_api_v1_community_bots_alert_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertBotMessage'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+components:
+  schemas:
+    AdvisoryBotMessage:
+      properties:
+        advisory_type:
+          type: string
+          title: Advisory Type
+          description: 'Advisory type: irrigation | crop-diseases | pest-management
+            | weather-alerts | market-prices | best-practices'
+        text:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Text
+          description: Advisory text | نص الاستشارة
+        text_ar:
+          anyOf:
+          - type: string
+            maxLength: 5000
+          - type: 'null'
+          title: Text Ar
+          description: Arabic advisory text | النص بالعربية
+        severity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Severity
+          description: 'Alert severity: info | warning | critical'
+        source:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source
+          description: Advisory source service
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+          description: Additional metadata
+      type: object
+      required:
+      - advisory_type
+      - text
+      title: AdvisoryBotMessage
+      description: Post an advisory bot message | نشر رسالة بوت استشاري
+    AlertBotMessage:
+      properties:
+        alert_type:
+          type: string
+          title: Alert Type
+          description: 'Alert type: weather | pest | disease | frost | flood | heatwave'
+        title:
+          type: string
+          maxLength: 200
+          title: Title
+          description: Alert title | عنوان التنبيه
+        title_ar:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Title Ar
+          description: Arabic title | العنوان بالعربية
+        text:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Text
+          description: Alert body | نص التنبيه
+        text_ar:
+          anyOf:
+          - type: string
+            maxLength: 5000
+          - type: 'null'
+          title: Text Ar
+          description: Arabic alert body | النص بالعربية
+        severity:
+          type: string
+          title: Severity
+          description: 'Severity: info | warning | critical'
+          default: warning
+        affected_area:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Affected Area
+          description: Affected geographic area
+        expires_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Expires At
+          description: Alert expiry ISO timestamp
+      type: object
+      required:
+      - alert_type
+      - title
+      - text
+      title: AlertBotMessage
+      description: Post a weather/pest alert | نشر تنبيه طقس/آفات
+    ChannelCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 64
+          minLength: 2
+          title: Name
+          description: Channel name (English)
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+          description: Channel name (Arabic) | اسم القناة بالعربية
+        description:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Description
+          description: Channel description
+        description_ar:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Description Ar
+          description: وصف القناة بالعربية
+        topic:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Topic
+        members:
+          items:
+            type: string
+          type: array
+          title: Members
+          description: Initial member usernames
+        read_only:
+          type: boolean
+          title: Read Only
+          description: Read-only channel | قناة للقراءة فقط
+          default: false
+      type: object
+      required:
+      - name
+      title: ChannelCreate
+      description: Create a new community channel | إنشاء قناة مجتمع جديدة
+    ChannelResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        topic:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Topic
+        members_count:
+          type: integer
+          title: Members Count
+          default: 0
+        read_only:
+          type: boolean
+          title: Read Only
+          default: false
+        created_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Created At
+      type: object
+      required:
+      - id
+      - name
+      title: ChannelResponse
+      description: Channel information | معلومات القناة
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MessagePost:
+      properties:
+        channel_id:
+          type: string
+          title: Channel Id
+          description: Target channel ID or name
+        text:
+          type: string
+          maxLength: 5000
+          minLength: 1
+          title: Text
+          description: Message text | نص الرسالة
+        alias:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Alias
+          description: Display name override
+        emoji:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Emoji
+          description: Avatar emoji
+        attachments:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Attachments
+          description: Message attachments
+      type: object
+      required:
+      - channel_id
+      - text
+      title: MessagePost
+      description: Post a message to a channel | نشر رسالة في قناة
+    MessageResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        channel_id:
+          type: string
+          title: Channel Id
+        text:
+          type: string
+          title: Text
+        user:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User
+        timestamp:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Timestamp
+      type: object
+      required:
+      - id
+      - channel_id
+      - text
+      title: MessageResponse
+      description: Message information | معلومات الرسالة
+    MessageSearchRequest:
+      properties:
+        channel_id:
+          type: string
+          title: Channel Id
+          description: Channel ID to search in
+        query:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Query
+          description: Search query | نص البحث
+      type: object
+      required:
+      - channel_id
+      - query
+      title: MessageSearchRequest
+      description: Search messages in a channel | البحث في رسائل القناة
+    TenantSetupRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: Tenant UUID
+        tenant_name:
+          type: string
+          title: Tenant Name
+          description: Tenant display name | اسم المستأجر
+        admin_username:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Admin Username
+          description: Tenant admin username
+        admin_email:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Admin Email
+          description: Tenant admin email
+        extra_channels:
+          items:
+            $ref: '#/components/schemas/ChannelCreate'
+          type: array
+          title: Extra Channels
+          description: Additional channels beyond defaults
+      type: object
+      required:
+      - tenant_id
+      - tenant_name
+      title: TenantSetupRequest
+      description: Initialize tenant community workspace | تهيئة مساحة عمل المجتمع
+        للمستأجر
+    TenantSetupResponse:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        channels_created:
+          type: integer
+          title: Channels Created
+        channels:
+          items:
+            $ref: '#/components/schemas/ChannelResponse'
+          type: array
+          title: Channels
+        admin_synced:
+          type: boolean
+          title: Admin Synced
+          default: false
+      type: object
+      required:
+      - tenant_id
+      - channels_created
+      - channels
+      title: TenantSetupResponse
+      description: Tenant setup result | نتيجة تهيئة المستأجر
+    UserSyncRequest:
+      properties:
+        email:
+          type: string
+          title: Email
+          description: User email
+        name:
+          type: string
+          title: Name
+          description: Display name | الاسم المعروض
+        username:
+          type: string
+          title: Username
+          description: Username
+        password:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Password
+          description: Password (generated if empty)
+        roles:
+          items:
+            type: string
+          type: array
+          title: Roles
+          description: Rocket.Chat roles
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+          description: Avatar URL
+      type: object
+      required:
+      - email
+      - name
+      - username
+      title: UserSyncRequest
+      description: Sync a SAHOOL user to Rocket.Chat | مزامنة مستخدم سهول مع روكيت
+        شات
+    UserSyncResponse:
+      properties:
+        rc_user_id:
+          type: string
+          title: Rc User Id
+        username:
+          type: string
+          title: Username
+        synced:
+          type: boolean
+          title: Synced
+          default: true
+      type: object
+      required:
+      - rc_user_id
+      - username
+      title: UserSyncResponse
+      description: User sync result | نتيجة مزامنة المستخدم
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

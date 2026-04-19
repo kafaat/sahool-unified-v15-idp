@@ -1,0 +1,3838 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Satellite Service | خدمة الأقمار الصناعية
+  description: Multi-provider satellite monitoring with automatic fallback. Supports
+    Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil
+    moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen
+    crops.
+  version: 16.0.0
+paths:
+  /v1/weather/forecast:
+    get:
+      summary: Get Weather Forecast
+      description: 'توقعات الطقس | Get Weather Forecast
+
+
+        Get weather forecast for next N days with ET0 (evapotranspiration).
+
+        Useful for irrigation planning and crop water management.
+
+
+        Data from Open-Meteo free API.
+
+
+        **Yemen Locations:**
+
+        - Sanaa: lat=15.3694, lon=44.1910 (highland)
+
+        - Aden: lat=12.7855, lon=45.0187 (coastal)
+
+        - Hodeidah: lat=14.8022, lon=42.9511 (coastal)
+
+        - Ibb: lat=13.9667, lon=44.1667 (highland)
+
+        - Taiz: lat=13.5795, lon=44.0202 (mid-elevation)
+
+
+        **Returns:**
+
+        - Daily forecast: temp, precipitation, ET0
+
+        - Hourly forecast: temp, humidity, wind, solar radiation'
+      operationId: get_weather_forecast_v1_weather_forecast_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 16
+          minimum: 1
+          description: Forecast days (1-16)
+          default: 7
+          title: Days
+        description: Forecast days (1-16)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/weather/historical:
+    get:
+      summary: Get Historical Weather
+      description: 'بيانات الطقس التاريخية | Get Historical Weather
+
+
+        Get historical weather data from 1940 to ~7 days ago.
+
+        Includes summary statistics: avg temp, total precipitation, ET0, GDD.
+
+
+        Useful for:
+
+        - Analyzing past growing seasons
+
+        - Calibrating yield prediction models
+
+        - Understanding long-term climate patterns
+
+
+        **Example:**
+
+        ```
+
+        GET /v1/weather/historical?lat=15.3694&lon=44.1910&start_date=2024-01-01&end_date=2024-06-30
+
+        ```'
+      operationId: get_historical_weather_v1_weather_historical_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+        description: Start date (YYYY-MM-DD)
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: End date (YYYY-MM-DD)
+          title: End Date
+        description: End date (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/weather/gdd:
+    get:
+      summary: Get Gdd
+      description: 'وحدات الحرارة النامية | Calculate Growing Degree Days (GDD)
+
+
+        Calculate accumulated Growing Degree Days for crop phenology tracking.
+
+
+        **GDD Formula:**
+
+        GDD = Σ(max(0, (Tmax + Tmin)/2 - Tbase))
+
+
+        **Base Temperatures:**
+
+        - Most crops: 10°C (default)
+
+        - Warm-season crops (corn, tomato): 10-12°C
+
+        - Cool-season crops (wheat, barley): 5-8°C
+
+        - Tropical crops (mango, banana): 12-15°C
+
+
+        **Use Cases:**
+
+        - Predict flowering/harvest dates
+
+        - Track crop development stages
+
+        - Compare seasons
+
+        - Schedule field operations
+
+
+        **Example:**
+
+        ```
+
+        GET /v1/weather/gdd?lat=15.37&lon=44.19&start_date=2024-03-01&end_date=2024-06-30&base_temp=10
+
+        ```'
+      operationId: get_gdd_v1_weather_gdd_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+        description: Start date (YYYY-MM-DD)
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: End date (YYYY-MM-DD)
+          title: End Date
+        description: End date (YYYY-MM-DD)
+      - name: base_temp
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 20
+          minimum: 0
+          description: Base temperature (°C)
+          default: 10.0
+          title: Base Temp
+        description: Base temperature (°C)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/weather/water-balance:
+    get:
+      summary: Get Water Balance
+      description: 'الميزان المائي | Calculate Water Balance
+
+
+        Calculate water balance: Precipitation - (ET0 × Kc)
+
+
+        Returns water deficit or surplus in mm, critical for irrigation scheduling.
+
+
+        **Crop Coefficients (Kc) by Growth Stage:**
+
+
+        **Cereals (Wheat, Barley):**
+
+        - Initial: 0.3-0.5
+
+        - Mid-season: 1.0-1.15
+
+        - Late: 0.3-0.5
+
+
+        **Vegetables (Tomato, Potato):**
+
+        - Initial: 0.4-0.6
+
+        - Mid-season: 1.05-1.25
+
+        - Late: 0.7-0.9
+
+
+        **Fruit Trees (Mango, Date):**
+
+        - Year-round: 0.8-1.1
+
+
+        **Water Balance Status:**
+
+        - Surplus (> +50mm): Reduce irrigation
+
+        - Balanced (-50 to +50mm): Optimal
+
+        - Deficit (< -50mm): Increase irrigation
+
+
+        **Example:**
+
+        ```
+
+        GET /v1/weather/water-balance?lat=15.37&lon=44.19&start_date=2024-03-01&end_date=2024-06-30&kc=1.0
+
+        ```'
+      operationId: get_water_balance_v1_weather_water_balance_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+        description: Start date (YYYY-MM-DD)
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: End date (YYYY-MM-DD)
+          title: End Date
+        description: End date (YYYY-MM-DD)
+      - name: kc
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 1.3
+          minimum: 0.4
+          description: Crop coefficient (0.4-1.3)
+          default: 1.0
+          title: Kc
+        description: Crop coefficient (0.4-1.3)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/weather/irrigation-advice:
+    get:
+      summary: Get Irrigation Advice
+      description: 'نصائح الري | Get Irrigation Recommendation
+
+
+        Get irrigation recommendation based on:
+
+        - 7-day weather forecast with ET0
+
+        - Crop type and growth stage
+
+        - Current soil moisture (if available)
+
+
+        Returns:
+
+        - Water requirement (mm)
+
+        - Irrigation schedule (frequency in days)
+
+        - Specific recommendations in Arabic and English
+
+
+        **Growth Stages:**
+
+        - `initial`: Germination/establishment (Kc ~0.5)
+
+        - `development`: Vegetative growth (Kc ~0.7)
+
+        - `mid`: Flowering/peak growth (Kc ~1.0-1.2)
+
+        - `late`: Ripening/maturation (Kc ~0.8)
+
+        - `harvest`: Pre-harvest (Kc ~0.6)
+
+
+        **Yemen Crop Examples:**
+
+        - Wheat: WHEAT
+
+        - Tomato: TOMATO
+
+        - Potato: POTATO
+
+        - Sorghum: SORGHUM
+
+        - Coffee: COFFEE
+
+
+        **Example:**
+
+        ```
+
+        GET /v1/weather/irrigation-advice?lat=15.37&lon=44.19&crop_type=WHEAT&growth_stage=mid&soil_moisture=0.4
+
+        ```'
+      operationId: get_irrigation_advice_v1_weather_irrigation_advice_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: crop_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Crop code (e.g., 'WHEAT', 'TOMATO')
+          title: Crop Type
+        description: Crop code (e.g., 'WHEAT', 'TOMATO')
+      - name: growth_stage
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Growth stage (initial, development, mid, late, harvest)
+          title: Growth Stage
+        description: Growth stage (initial, development, mid, late, harvest)
+      - name: soil_moisture
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 1
+            minimum: 0
+          - type: 'null'
+          description: Current soil moisture (0-1)
+          title: Soil Moisture
+        description: Current soil moisture (0-1)
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Field identifier
+          title: Field Id
+        description: Field identifier
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/weather/frost-risk:
+    get:
+      summary: Get Frost Risk
+      description: 'مخاطر الصقيع | Assess Frost Risk
+
+
+        Assess frost risk for next N days.
+
+
+        **Critical for Yemen Highlands:**
+
+        - Sanaa (1,900m elevation): Regular frost in winter
+
+        - Ibb (2,200m elevation): Frost risk Dec-Feb
+
+        - Dhamar (2,400m elevation): High frost risk
+
+        - Taiz (1,400m): Occasional frost
+
+
+        **Frost Risk Levels:**
+
+        - **Severe** (< -2°C, 95%+ probability): Immediate protection needed
+
+        - **High** (-2°C to 0°C, 70-95% probability): Protect sensitive crops
+
+        - **Moderate** (0°C to 2°C, 40-70% probability): Monitor and prepare
+
+        - **Low** (2°C to 5°C, 10-40% probability): Watch forecasts
+
+        - **None** (> 5°C, <10% probability): No action needed
+
+
+        **Frost Protection Methods:**
+
+        - Cover crops with plastic sheets or blankets
+
+        - Use smoke/heating for orchards
+
+        - Irrigate before frost (wet soil holds heat)
+
+        - Avoid low-lying areas (cold air pools)
+
+
+        **Example:**
+
+        ```
+
+        GET /v1/weather/frost-risk?lat=15.3694&lon=44.1910&days=7
+
+        ```'
+      operationId: get_frost_risk_v1_weather_frost_risk_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 16
+          minimum: 1
+          description: Forecast days (1-16)
+          default: 7
+          title: Days
+        description: Forecast days (1-16)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/gdd/chart/{field_id}:
+    get:
+      summary: Get Gdd Chart
+      description: "مخطط وحدات الحرارة النامية | Get GDD Accumulation Chart\n\nGet\
+        \ comprehensive GDD tracking chart for a field from planting to current date.\n\
+        \n**Features:**\n- Daily GDD accumulation from planting\n- Growth stage identification\n\
+        - Milestone tracking (emergence, flowering, harvest)\n- Harvest date prediction\n\
+        - Comparison to historical normal\n- Visual chart data for mobile app\n\n\
+        **Calculation Methods:**\n- `simple`: (Tmax + Tmin) / 2 - Tbase (fastest,\
+        \ most common)\n- `modified`: Apply upper/lower cutoffs (more accurate for\
+        \ extreme temps)\n- `sine`: Sine wave approximation (most accurate, slower)\n\
+        \n**Supported Crops:**\n- Cereals: WHEAT, BARLEY, CORN, SORGHUM, MILLET\n\
+        - Vegetables: TOMATO, POTATO, ONION, CUCUMBER, PEPPER\n- Legumes: FABA_BEAN,\
+        \ LENTIL, CHICKPEA\n- Cash: COTTON, COFFEE, QAT\n- Fruits: DATE_PALM, GRAPE,\
+        \ MANGO\n- Fodder: ALFALFA\n\n**Example:**\n```\nGET /v1/gdd/chart/field123?crop_code=WHEAT&planting_date=2024-03-01&lat=15.37&lon=44.19\n\
+        ```\n\n**Returns:**\n```json\n{\n  \"field_id\": \"field123\",\n  \"crop\"\
+        : {\"code\": \"WHEAT\", \"name_ar\": \"قمح\", \"name_en\": \"Wheat\"},\n \
+        \ \"planting_date\": \"2024-03-01\",\n  \"current_status\": {\n    \"date\"\
+        : \"2024-05-15\",\n    \"total_gdd\": 1247.5,\n    \"days_since_planting\"\
+        : 75,\n    \"avg_daily_gdd\": 16.6\n  },\n  \"current_stage\": {\n    \"name_en\"\
+        : \"Flowering\",\n    \"name_ar\": \"الإزهار\",\n    \"next_stage_en\": \"\
+        Grain Fill\",\n    \"next_stage_ar\": \"امتلاء الحبوب\",\n    \"gdd_to_next_stage\"\
+        : 252.5\n  },\n  \"milestones\": [...],\n  \"harvest_prediction\": {\n   \
+        \ \"estimated_date\": \"2024-06-20\",\n    \"gdd_remaining\": 752.5,\n   \
+        \ \"days_remaining\": 36\n  },\n  \"comparison\": {\n    \"vs_normal_percent\"\
+        : 8.5,\n    \"description_ar\": \"متقدم بنسبة 8.5% عن المعدل الطبيعي\",\n\
+        \    \"description_en\": \"8.5% ahead of normal\"\n  },\n  \"daily_data\"\
+        : [...]\n}\n```\n\n**Use Cases:**\n- Track crop development progress\n- Predict\
+        \ flowering and harvest dates\n- Plan field operations (fertilization, irrigation)\n\
+        - Compare current season to normal\n- Optimize harvest timing\n- Mobile app\
+        \ charts and progress bars"
+      operationId: get_gdd_chart_v1_gdd_chart__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: crop_code
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Crop code (e.g., 'WHEAT', 'TOMATO')
+          title: Crop Code
+        description: Crop code (e.g., 'WHEAT', 'TOMATO')
+      - name: planting_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Planting date (YYYY-MM-DD)
+          title: Planting Date
+        description: Planting date (YYYY-MM-DD)
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: end_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'End date (default: today)'
+          title: End Date
+        description: 'End date (default: today)'
+      - name: method
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Calculation method: simple, modified, sine'
+          default: simple
+          title: Method
+        description: 'Calculation method: simple, modified, sine'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/gdd/forecast:
+    get:
+      summary: Get Gdd Forecast
+      description: "توقع وحدات الحرارة النامية | Forecast GDD Accumulation\n\nForecast\
+        \ when a target GDD will be reached using weather forecast.\n\n**Use Cases:**\n\
+        - Predict flowering date: \"When will we reach 1300 GDD?\"\n- Estimate harvest\
+        \ date: \"When will we reach 2000 GDD?\"\n- Plan irrigation: \"When will next\
+        \ growth stage begin?\"\n- Schedule fertilization: \"When to apply nitrogen?\"\
+        \n\n**How it Works:**\n1. Takes current accumulated GDD\n2. Uses 16-day weather\
+        \ forecast to project future GDD\n3. Calculates daily GDD accumulation\n4.\
+        \ Estimates date when target will be reached\n5. If target beyond forecast,\
+        \ uses historical average to extrapolate\n\n**Example Use Case - Wheat Flowering:**\n\
+        ```\nWheat planted March 1, currently at 1100 GDD (May 10).\nFlowering requires\
+        \ 1500 GDD.\nWhen will flowering occur?\n\nGET /v1/gdd/forecast?lat=15.37&lon=44.19&current_gdd=1100&target_gdd=1500&base_temp=0\n\
+        ```\n\n**Example Response:**\n```json\n{\n  \"current_gdd\": 1100,\n  \"target_gdd\"\
+        : 1500,\n  \"gdd_needed\": 400,\n  \"estimated_date\": \"2024-05-28\",\n \
+        \ \"is_estimated\": false,\n  \"forecast_data\": [\n    {\"date\": \"2024-05-11\"\
+        , \"daily_gdd\": 18.5, \"accumulated_gdd\": 1118.5},\n    {\"date\": \"2024-05-12\"\
+        , \"daily_gdd\": 17.2, \"accumulated_gdd\": 1135.7},\n    ...\n  ]\n}\n```\n\
+        \n**Integration with Mobile App:**\n- Show countdown to next milestone\n-\
+        \ Display progress bars\n- Push notifications when stages reached\n- Update\
+        \ field task scheduling"
+      operationId: get_gdd_forecast_v1_gdd_forecast_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: current_gdd
+        in: query
+        required: true
+        schema:
+          type: number
+          minimum: 0
+          description: Current accumulated GDD
+          title: Current Gdd
+        description: Current accumulated GDD
+      - name: target_gdd
+        in: query
+        required: true
+        schema:
+          type: number
+          minimum: 0
+          description: Target GDD to reach
+          title: Target Gdd
+        description: Target GDD to reach
+      - name: base_temp
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 20
+          minimum: 0
+          description: Base temperature (°C)
+          default: 10.0
+          title: Base Temp
+        description: Base temperature (°C)
+      - name: upper_temp
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 45
+            minimum: 20
+          - type: 'null'
+          description: Upper cutoff temp (°C)
+          title: Upper Temp
+        description: Upper cutoff temp (°C)
+      - name: method
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Calculation method: simple, modified, sine'
+          default: simple
+          title: Method
+        description: 'Calculation method: simple, modified, sine'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/gdd/requirements/{crop_code}:
+    get:
+      summary: Get Crop Gdd Requirements
+      description: "متطلبات المحصول | Get Crop GDD Requirements\n\nGet complete GDD\
+        \ requirements and growth stages for a crop.\n\n**What You Get:**\n- Base\
+        \ temperature for the crop\n- Upper cutoff temperature (if applicable)\n-\
+        \ Total GDD required from planting to harvest\n- All growth stages with GDD\
+        \ thresholds\n- Stage descriptions in Arabic and English\n\n**Use Cases:**\n\
+        - Understand crop development timeline\n- Plan planting dates\n- Estimate\
+        \ season length\n- Compare different crops\n- Educational content for farmers\n\
+        \n**Example:**\n```\nGET /v1/gdd/requirements/WHEAT\n```\n\n**Response:**\n\
+        ```json\n{\n  \"crop_code\": \"WHEAT\",\n  \"crop_name_ar\": \"قمح\",\n  \"\
+        crop_name_en\": \"Wheat\",\n  \"base_temp_c\": 0,\n  \"upper_temp_c\": 30,\n\
+        \  \"total_gdd_required\": 2000,\n  \"stages\": [\n    {\n      \"name_en\"\
+        : \"Emergence\",\n      \"name_ar\": \"الإنبات\",\n      \"gdd_start\": 0,\n\
+        \      \"gdd_end\": 150,\n      \"gdd_duration\": 150,\n      \"description_ar\"\
+        : \"ظهور البادرات\",\n      \"description_en\": \"Seedling emergence\"\n \
+        \   },\n    ...\n  ]\n}\n```\n\n**All Yemen Crops Supported:**\n- 6 Cereals\
+        \ (wheat, barley, corn, sorghum, millet, rice)\n- 11 Vegetables (tomato, potato,\
+        \ onion, cucumber, pepper, etc.)\n- 6 Legumes (faba bean, lentil, chickpea,\
+        \ etc.)\n- 5 Cash crops (cotton, coffee, qat, sesame, tobacco)\n- 9 Fruits\
+        \ (date palm, grape, mango, banana, citrus, etc.)\n- 3 Fodder crops (alfalfa,\
+        \ rhodes grass, sudan grass)\n\n**40+ crops total!**"
+      operationId: get_crop_gdd_requirements_v1_gdd_requirements__crop_code__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/gdd/stage/{crop_code}:
+    get:
+      summary: Get Growth Stage From Gdd
+      description: "مرحلة النمو | Get Growth Stage from GDD\n\nDetermine current growth\
+        \ stage based on accumulated GDD.\n\n**Simple API for Stage Lookup:**\n- Input:\
+        \ Crop + GDD\n- Output: Current stage + Next stage + GDD to next\n\n**Example:**\n\
+        ```\nGET /v1/gdd/stage/WHEAT?gdd=1247.5\n```\n\n**Response:**\n```json\n{\n\
+        \  \"crop_code\": \"WHEAT\",\n  \"crop_name_ar\": \"قمح\",\n  \"crop_name_en\"\
+        : \"Wheat\",\n  \"accumulated_gdd\": 1247.5,\n  \"current_stage\": {\n   \
+        \ \"name_en\": \"Flowering\",\n    \"name_ar\": \"الإزهار\",\n    \"gdd_start\"\
+        : 1100,\n    \"gdd_end\": 1500\n  },\n  \"next_stage\": {\n    \"name_en\"\
+        : \"Grain Fill\",\n    \"name_ar\": \"امتلاء الحبوب\",\n    \"gdd_start\"\
+        : 1500,\n    \"gdd_end\": 1700\n  },\n  \"gdd_to_next_stage\": 252.5,\n  \"\
+        progress_percent\": 61.9\n}\n```\n\n**Use Cases:**\n- Quick stage lookup\n\
+        - Mobile app stage indicator\n- Alert generation\n- Task recommendations"
+      operationId: get_growth_stage_from_gdd_v1_gdd_stage__crop_code__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Code
+      - name: gdd
+        in: query
+        required: true
+        schema:
+          type: number
+          minimum: 0
+          description: Accumulated GDD
+          title: Gdd
+        description: Accumulated GDD
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/gdd/crops:
+    get:
+      summary: List Supported Crops
+      description: "قائمة المحاصيل | List All Supported Crops\n\nGet list of all crops\
+        \ with GDD tracking support.\n\n**40+ Yemen Crops:**\n\n**Cereals (الحبوب):**\n\
+        - Wheat, Barley, Corn, Sorghum, Millet, Rice\n\n**Vegetables (الخضروات):**\n\
+        - Tomato, Potato, Onion, Carrot, Cucumber, Squash\n- Pepper, Eggplant, Okra,\
+        \ Cabbage, Lettuce\n\n**Legumes (البقوليات):**\n- Faba Bean, Lentil, Chickpea,\
+        \ Cowpea, Peanut, Alfalfa\n\n**Cash Crops (المحاصيل النقدية):**\n- Cotton,\
+        \ Coffee, Qat, Sesame, Tobacco\n\n**Fruits (الفواكه):**\n- Date Palm, Grape,\
+        \ Mango, Banana, Papaya\n- Citrus, Pomegranate, Fig, Guava\n\n**Fodder (الأعلاف):**\n\
+        - Alfalfa, Rhodes Grass, Sudan Grass\n\n**Response:**\n```json\n[\n  {\n \
+        \   \"crop_code\": \"WHEAT\",\n    \"crop_name_ar\": \"قمح\",\n    \"crop_name_en\"\
+        : \"Wheat\",\n    \"base_temp_c\": 0,\n    \"upper_temp_c\": 30,\n    \"total_gdd_required\"\
+        : 2000,\n    \"num_stages\": 8\n  },\n  ...\n]\n```"
+      operationId: list_supported_crops_v1_gdd_crops_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/spray/forecast:
+    get:
+      summary: Get Spray Forecast
+      description: "توقعات أوقات الرش | Get Spray Time Forecast\n\nGet spray time\
+        \ recommendations for next N days based on weather conditions.\n\nIdentifies\
+        \ optimal spray windows during daylight hours (6 AM - 6 PM) considering:\n\
+        - **Temperature**: 10-30°C ideal (varies by product)\n- **Humidity**: 40-80%\
+        \ ideal\n- **Wind Speed**: < 15 km/h (prevents drift)\n- **Rain Probability**:\
+        \ < 20% (prevents wash-off)\n- **Delta-T**: 2-8°C optimal (wet bulb depression)\n\
+        \n**Product Types:**\n- `herbicide`: Higher temp needed (15-28°C), longer\
+        \ rain-free period (6h)\n- `insecticide`: Lower wind tolerance (<10 km/h)\n\
+        - `fungicide`: Lower humidity preferred (<70%)\n- `foliar_fertilizer`: Higher\
+        \ humidity needed (>60%)\n- `growth_regulator`: Moderate conditions (15-25°C)\n\
+        \n**Spray Conditions:**\n- `excellent` (score 85-100): Perfect conditions\n\
+        - `good` (score 70-84): Safe to spray\n- `marginal` (score 50-69): Some risk,\
+        \ use caution\n- `poor` (score 30-49): Not recommended\n- `dangerous` (score\
+        \ 0-29): Do not spray\n\n**Example:**\n```\nGET /v1/spray/forecast?lat=15.3694&lon=44.1910&days=7&product_type=herbicide\n\
+        ```\n\n**Returns:**\n```json\n[\n  {\n    \"date\": \"2024-12-25\",\n    \"\
+        overall_condition\": \"good\",\n    \"best_window\": {\n      \"start_time\"\
+        : \"2024-12-25T07:00:00\",\n      \"end_time\": \"2024-12-25T11:00:00\",\n\
+        \      \"duration_hours\": 4,\n      \"condition\": \"good\",\n      \"score\"\
+        : 78.5,\n      \"weather\": {...},\n      \"risks\": [\"low_humidity\"],\n\
+        \      \"recommendations_ar\": [...],\n      \"recommendations_en\": [...]\n\
+        \    },\n    \"all_windows\": [...],\n    \"hours_suitable\": 6.5,\n    \"\
+        daily_summary\": {...}\n  }\n]\n```"
+      operationId: get_spray_forecast_v1_spray_forecast_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 16
+          minimum: 1
+          description: Forecast days (1-16)
+          default: 7
+          title: Days
+        description: Forecast days (1-16)
+      - name: product_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Product type: herbicide, insecticide, fungicide, foliar_fertilizer,
+            growth_regulator'
+          title: Product Type
+        description: 'Product type: herbicide, insecticide, fungicide, foliar_fertilizer,
+          growth_regulator'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/spray/best-time:
+    get:
+      summary: Get Best Spray Time
+      description: "أفضل وقت للرش | Find Best Spray Time\n\nFind the single best spray\
+        \ window in the next N days for a specific product.\n\nThis endpoint searches\
+        \ all available spray windows and returns the one with\nthe highest suitability\
+        \ score, considering product-specific requirements.\n\n**Use Case:**\nWhen\
+        \ you need to spray but have flexibility in timing, use this endpoint\nto\
+        \ find the absolute best time.\n\n**Example:**\n```\nGET /v1/spray/best-time?lat=15.37&lon=44.19&product_type=insecticide&within_days=3\n\
+        ```\n\n**Returns:**\n```json\n{\n  \"location\": {\"lat\": 15.37, \"lon\"\
+        : 44.19},\n  \"product_type\": \"insecticide\",\n  \"search_period_days\"\
+        : 3,\n  \"best_window\": {\n    \"start_time\": \"2024-12-26T08:00:00\",\n\
+        \    \"end_time\": \"2024-12-26T12:00:00\",\n    \"duration_hours\": 4,\n\
+        \    \"condition\": \"excellent\",\n    \"score\": 92.3,\n    ...\n  }\n}\n\
+        ```\n\nReturns 404 if no suitable windows found."
+      operationId: get_best_spray_time_v1_spray_best_time_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: product_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Product type (herbicide, insecticide, etc.)
+          title: Product Type
+        description: Product type (herbicide, insecticide, etc.)
+      - name: within_days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 7
+          minimum: 1
+          description: Search within next N days
+          default: 3
+          title: Within Days
+        description: Search within next N days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/spray/evaluate:
+    post:
+      summary: Evaluate Spray Time
+      description: "تقييم وقت محدد للرش | Evaluate Specific Spray Time\n\nEvaluate\
+        \ if a specific date/time is suitable for spraying.\n\n**Use Case:**\nWhen\
+        \ you have a planned spray time and want to check if conditions will be suitable.\n\
+        \n**Example:**\n```\nPOST /v1/spray/evaluate?lat=15.37&lon=44.19&target_datetime=2024-12-26T09:00:00&product_type=herbicide\n\
+        ```\n\n**Target DateTime Format:**\n- ISO 8601 format: `2024-12-26T09:00:00`\n\
+        - With timezone: `2024-12-26T09:00:00+03:00`\n- Must be within next 16 days\n\
+        \n**Returns:**\n```json\n{\n  \"location\": {\"lat\": 15.37, \"lon\": 44.19},\n\
+        \  \"target_time\": \"2024-12-26T09:00:00\",\n  \"product_type\": \"herbicide\"\
+        ,\n  \"evaluation\": {\n    \"start_time\": \"2024-12-26T09:00:00\",\n   \
+        \ \"end_time\": \"2024-12-26T10:00:00\",\n    \"condition\": \"good\",\n \
+        \   \"score\": 75.2,\n    \"weather\": {\n      \"temperature_c\": 22.5,\n\
+        \      \"humidity_percent\": 65.0,\n      \"wind_speed_kmh\": 8.2,\n     \
+        \ \"precipitation_probability\": 10.0\n    },\n    \"risks\": [\"low_humidity\"\
+        ],\n    \"recommendations_ar\": [...],\n    \"recommendations_en\": [...]\n\
+        \  }\n}\n```"
+      operationId: evaluate_spray_time_v1_spray_evaluate_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: target_datetime
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target spray time (ISO 8601 format)
+          title: Target Datetime
+        description: Target spray time (ISO 8601 format)
+      - name: product_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Product type (optional)
+          title: Product Type
+        description: Product type (optional)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/spray/conditions:
+    get:
+      summary: Get Spray Conditions Info
+      description: 'معلومات ظروف الرش | Get Spray Conditions Information
+
+
+        Get detailed information about spray conditions, risk factors, and guidelines.
+
+
+        **Returns:**
+
+        Reference information about:
+
+        - Ideal conditions for each product type
+
+        - Risk factors and their meanings
+
+        - Spray condition levels
+
+        - Delta-T guidelines
+
+        - Yemen-specific considerations
+
+
+        **Example:**
+
+        ```
+
+        GET /v1/spray/conditions
+
+        ```'
+      operationId: get_spray_conditions_info_v1_spray_conditions_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - OAuth2PasswordBearer: []
+  /healthz:
+    get:
+      summary: Health
+      description: Health check endpoint with comprehensive dependency status
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      summary: Metrics
+      description: Prometheus metrics endpoint
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/providers:
+    get:
+      summary: Get Providers
+      description: 'Get list of available satellite data providers
+
+        الحصول على قائمة مزودي بيانات الأقمار الصناعية المتاحين'
+      operationId: get_providers_v1_providers_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/cache/stats:
+    get:
+      summary: Cache Statistics
+      description: إحصائيات الـCache
+      operationId: cache_statistics_v1_cache_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/cache/health:
+    get:
+      summary: Cache Health
+      description: فحص صحة الـCache
+      operationId: cache_health_v1_cache_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/eo-status:
+    get:
+      summary: Eo Status
+      description: حالة تكامل eo-learn
+      operationId: eo_status_v1_eo_status_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/satellites:
+    get:
+      summary: List Satellites
+      description: قائمة الأقمار الصناعية المتاحة
+      operationId: list_satellites_v1_satellites_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response List Satellites V1 Satellites Get
+  /v1/regions:
+    get:
+      summary: List Monitored Regions
+      description: المناطق المراقبة في اليمن
+      operationId: list_monitored_regions_v1_regions_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response List Monitored Regions V1 Regions Get
+  /v1/imagery/request:
+    post:
+      summary: Request Imagery
+      description: طلب صور الأقمار الصناعية لحقل معين
+      operationId: request_imagery_v1_imagery_request_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageryRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SatelliteImagery'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/analyze:
+    post:
+      summary: Analyze Field
+      description: تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية
+      operationId: analyze_field_v1_analyze_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImageryRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldAnalysis'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/analyze-with-action:
+    post:
+      summary: Analyze Field With Action
+      description: 'تحليل الحقل مع إنتاج ActionTemplate
+
+
+        Field-First: ينتج قالب إجراء للتطبيق المحمول
+
+        ينشر الحدث عبر NATS للإشعارات الفورية'
+      operationId: analyze_field_with_action_v1_analyze_with_action_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyzeWithActionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/analyze/real:
+    post:
+      summary: Analyze Field Real
+      description: 'تحليل الحقل باستخدام بيانات الأقمار الصناعية الحقيقية
+
+
+        يستخدم sahool-eo و Sentinel Hub للحصول على بيانات حقيقية.
+
+        إذا لم تكن الاعتمادات مكونة، يعود إلى البيانات المحاكاة.'
+      operationId: analyze_field_real_v1_analyze_real_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealAnalysisRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/timeseries/{field_id}:
+    get:
+      summary: Get Timeseries
+      description: الحصول على سلسلة زمنية للمؤشرات النباتية
+      operationId: get_timeseries_v1_timeseries__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 7
+          default: 30
+          title: Days
+      - name: satellite
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/SatelliteSource'
+          default: sentinel-2
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/ndvi-timeseries/analyze/{field_id}:
+    post:
+      summary: Analyze Ndvi Timeseries
+      description: 'تحليل شامل للسلسلة الزمنية لمؤشر NDVI
+
+        Comprehensive NDVI time-series analysis
+
+
+        Includes:
+
+        - Anomaly detection (كشف الشذوذ)
+
+        - Trend analysis (تحليل الاتجاه)
+
+        - Phenological stage detection (كشف مراحل النمو)
+
+        - Seasonal metrics (المقاييس الموسمية)
+
+        - 7-day forecast (تنبؤ 7 أيام)'
+      operationId: analyze_ndvi_timeseries_v1_ndvi_timeseries_analyze__field_id__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 14
+          description: Days of historical data
+          default: 60
+          title: Days
+        description: Days of historical data
+      - name: anomaly_threshold
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 4.0
+          minimum: 1.0
+          description: Z-score threshold for anomaly detection
+          default: 2.0
+          title: Anomaly Threshold
+        description: Z-score threshold for anomaly detection
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/ndvi-timeseries/compare/{field_id}:
+    post:
+      summary: Compare Ndvi Periods
+      description: 'مقارنة فترتين زمنيتين لكشف التغييرات
+
+        Compare two time periods to detect changes
+
+
+        Useful for:
+
+        - Year-over-year comparison (مقارنة سنوية)
+
+        - Before/after events (قبل/بعد الأحداث)
+
+        - Seasonal comparisons (مقارنات موسمية)'
+      operationId: compare_ndvi_periods_v1_ndvi_timeseries_compare__field_id__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: period1_start
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Period 1 start date (YYYY-MM-DD)
+          title: Period1 Start
+        description: Period 1 start date (YYYY-MM-DD)
+      - name: period1_end
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Period 1 end date (YYYY-MM-DD)
+          title: Period1 End
+        description: Period 1 end date (YYYY-MM-DD)
+      - name: period2_start
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Period 2 start date (YYYY-MM-DD)
+          title: Period2 Start
+        description: Period 2 start date (YYYY-MM-DD)
+      - name: period2_end
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Period 2 end date (YYYY-MM-DD)
+          title: Period2 End
+        description: Period 2 end date (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phenology/{field_id}:
+    get:
+      summary: Get Phenology
+      description: 'Detect current crop growth stage from NDVI time series
+
+        كشف مرحلة نمو المحصول الحالية من بيانات NDVI
+
+
+        This endpoint:
+
+        1. Retrieves NDVI time series for the field
+
+        2. Detects phenological events (SOS, POS, EOS)
+
+        3. Determines current growth stage (BBCH scale)
+
+        4. Provides stage-specific recommendations'
+      operationId: get_phenology_v1_phenology__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: crop_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: نوع المحصول (wheat, sorghum, tomato, etc.)
+          title: Crop Type
+        description: نوع المحصول (wheat, sorghum, tomato, etc.)
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: planting_date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Planting date (YYYY-MM-DD)
+          title: Planting Date
+        description: Planting date (YYYY-MM-DD)
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 14
+          description: Days of historical data
+          default: 60
+          title: Days
+        description: Days of historical data
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phenology/{field_id}/timeline:
+    get:
+      summary: Get Phenology Timeline
+      description: 'Get expected phenology timeline for crop planning
+
+        الحصول على الجدول الزمني المتوقع لمراحل نمو المحصول
+
+
+        Returns expected dates for all growth stages based on planting date.
+
+        Useful for planning irrigation, fertilization, and harvest.'
+      operationId: get_phenology_timeline_v1_phenology__field_id__timeline_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: crop_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: نوع المحصول
+          title: Crop Type
+        description: نوع المحصول
+      - name: planting_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Planting date (YYYY-MM-DD)
+          title: Planting Date
+        description: Planting date (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phenology/recommendations/{crop_type}/{stage}:
+    get:
+      summary: Get Stage Recommendations
+      description: 'Get recommendations for a specific crop and growth stage
+
+        الحصول على توصيات لمحصول ومرحلة نمو محددة
+
+
+        Example: /v1/phenology/recommendations/wheat/flowering'
+      operationId: get_stage_recommendations_v1_phenology_recommendations__crop_type___stage__get
+      parameters:
+      - name: crop_type
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Type
+      - name: stage
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Stage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/phenology/crops:
+    get:
+      summary: List Supported Crops
+      description: 'List all supported crops for phenology detection
+
+        قائمة جميع المحاصيل المدعومة لكشف مراحل النمو'
+      operationId: list_supported_crops_v1_phenology_crops_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/phenology/{field_id}/analyze-with-action:
+    post:
+      summary: Analyze Phenology With Action
+      description: 'Detect phenology stage and generate ActionTemplate
+
+        كشف مرحلة النمو وإنشاء قالب إجراء
+
+
+        This endpoint:
+
+        1. Detects current growth stage
+
+        2. Creates stage-specific ActionTemplate for mobile app
+
+        3. Publishes event via NATS if enabled'
+      operationId: analyze_phenology_with_action_v1_phenology__field_id__analyze_with_action_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhenologyActionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/soil-moisture/{field_id}:
+    get:
+      summary: Get Soil Moisture
+      description: 'تقدير رطوبة التربة من بيانات SAR سنتينل-1
+
+        Estimate soil moisture from Sentinel-1 SAR backscatter
+
+
+        Uses VV and VH polarization data to estimate:
+
+        - Soil moisture percentage (0-100%)
+
+        - Volumetric water content (m³/m³)
+
+        - Confidence level
+
+
+        Works in all weather conditions (cloud-independent).'
+      operationId: get_soil_moisture_v1_soil_moisture__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Target date (YYYY-MM-DD), defaults to today
+          title: Date
+        description: Target date (YYYY-MM-DD), defaults to today
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/irrigation-events/{field_id}:
+    get:
+      summary: Get Irrigation Events
+      description: 'كشف أحداث الري من تغيرات رطوبة التربة
+
+        Detect irrigation events from soil moisture changes
+
+
+        Analyzes SAR time series to identify:
+
+        - Sudden moisture increases (irrigation/rainfall)
+
+        - Estimated water application depth
+
+        - Event confidence level
+
+
+        Useful for:
+
+        - Irrigation scheduling verification
+
+        - Water use monitoring
+
+        - Rainfall vs irrigation discrimination'
+      operationId: get_irrigation_events_v1_irrigation_events__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 90
+          minimum: 7
+          description: Days to look back
+          default: 30
+          title: Days
+        description: Days to look back
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/sar-timeseries/{field_id}:
+    get:
+      summary: Get Sar Timeseries
+      description: 'سلسلة زمنية لبيانات SAR ورطوبة التربة
+
+        Time series of SAR backscatter and soil moisture
+
+
+        Returns:
+
+        - SAR backscatter values (VV, VH)
+
+        - Derived soil moisture
+
+        - Orbit direction (ascending/descending)
+
+        - Incidence angle
+
+
+        Sentinel-1 revisit: every 6 days'
+      operationId: get_sar_timeseries_v1_sar_timeseries__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+        description: Start date (YYYY-MM-DD)
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: End date (YYYY-MM-DD)
+          title: End Date
+        description: End date (YYYY-MM-DD)
+      - name: lat
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 90
+            minimum: -90
+          - type: 'null'
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 180
+            minimum: -180
+          - type: 'null'
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/indices/{field_id}:
+    get:
+      summary: Get All Indices
+      description: 'Get all vegetation indices for a field location
+
+        الحصول على جميع المؤشرات النباتية لموقع الحقل
+
+
+        Returns 18+ vegetation indices including:
+
+        - Basic: NDVI, NDWI, EVI, SAVI, LAI, NDMI
+
+        - Chlorophyll: NDRE, CVI, MCARI, TCARI, SIPI
+
+        - Early Stress: GNDVI, VARI, GLI, GRVI
+
+        - Corrected: MSAVI, OSAVI, ARVI'
+      operationId: get_all_indices_v1_indices__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: satellite
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/SatelliteSource'
+          default: sentinel-2
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/indices/{field_id}/{index_name}:
+    get:
+      summary: Get Specific Index
+      description: 'Get a specific vegetation index with interpretation
+
+        الحصول على مؤشر نباتي محدد مع التفسير
+
+
+        Parameters:
+
+        - index_name: ndvi, ndre, gndvi, mcari, etc.
+
+        - crop_type: wheat, sorghum, coffee, qat, etc.
+
+        - growth_stage: emergence, vegetative, reproductive, maturation'
+      operationId: get_specific_index_v1_indices__field_id___index_name__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: index_name
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Index Name
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: crop_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: نوع المحصول
+          default: unknown
+          title: Crop Type
+        description: نوع المحصول
+      - name: growth_stage
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: مرحلة النمو
+          default: vegetative
+          title: Growth Stage
+        description: مرحلة النمو
+      - name: satellite
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/SatelliteSource'
+          default: sentinel-2
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/indices/interpret:
+    post:
+      summary: Interpret Indices
+      description: "Interpret multiple vegetation indices for a specific crop and\
+        \ growth stage\nتفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو\n\nBody:\n\
+        {\n    \"field_id\": \"field123\",\n    \"indices\": {\"ndvi\": 0.65, \"ndre\"\
+        : 0.28, \"gndvi\": 0.55},\n    \"crop_type\": \"wheat\",\n    \"growth_stage\"\
+        : \"reproductive\"\n}"
+      operationId: interpret_indices_v1_indices_interpret_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterpretRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/indices/guide:
+    get:
+      summary: Get Indices Guide
+      description: 'Get usage guide for vegetation indices by growth stage
+
+        الحصول على دليل استخدام المؤشرات النباتية حسب مراحل النمو'
+      operationId: get_indices_guide_v1_indices_guide_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/yield-prediction:
+    post:
+      summary: Predict Yield
+      description: 'التنبؤ بإنتاجية المحصول | Predict Crop Yield
+
+
+        Uses ML-based ensemble model combining:
+
+        - NDVI-based regression (40%)
+
+        - Growing Degree Days model (30%)
+
+        - Water balance model (20%)
+
+        - Soil moisture model (10%)
+
+
+        Returns predicted yield with confidence interval and actionable recommendations.'
+      operationId: predict_yield_v1_yield_prediction_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YieldPredictionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YieldPredictionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/yield-history/{field_id}:
+    get:
+      summary: Get Yield History
+      description: 'الحصول على سجل التنبؤات السابقة | Get Yield Prediction History
+
+
+        Returns historical yield predictions for a field, optionally filtered by crop.
+
+        In production, this would fetch from a database. Currently returns simulated
+        data.'
+      operationId: get_yield_history_v1_yield_history__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: seasons
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 20
+          minimum: 1
+          description: Number of past seasons to retrieve
+          default: 5
+          title: Seasons
+        description: Number of past seasons to retrieve
+      - name: crop_code
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by crop code
+          title: Crop Code
+        description: Filter by crop code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/regional-yields/{governorate}:
+    get:
+      summary: Get Regional Yields
+      description: 'الحصول على إحصائيات الإنتاجية الإقليمية | Get Regional Yield Statistics
+
+
+        Returns average yields for a specific governorate in Yemen.
+
+        In production, this would aggregate data from multiple fields.'
+      operationId: get_regional_yields_v1_regional_yields__governorate__get
+      parameters:
+      - name: governorate
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Governorate
+      - name: crop
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by crop code (e.g., 'WHEAT', 'TOMATO')
+          title: Crop
+        description: Filter by crop code (e.g., 'WHEAT', 'TOMATO')
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/cloud-cover/{field_id}:
+    get:
+      summary: Get Cloud Cover
+      description: "Analyze cloud cover for a field location using Sentinel-2 SCL\n\
+        تحليل الغطاء السحابي لموقع الحقل\n\nReturns detailed cloud coverage analysis\
+        \ including:\n- Cloud coverage percentage\n- Shadow coverage percentage\n\
+        - Clear pixel percentage\n- Quality score (0-1)\n- Usability assessment\n\
+        - SCL class distribution\n- Recommendation\n\nExample:\n    GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15"
+      operationId: get_cloud_cover_v1_cloud_cover__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Target date (YYYY-MM-DD), defaults to today
+          title: Date
+        description: Target date (YYYY-MM-DD), defaults to today
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/clear-observations/{field_id}:
+    get:
+      summary: Find Clear Observations
+      description: "Find all clear (low cloud) observations in date range\nالبحث عن\
+        \ جميع الأرصاد الصافية في فترة زمنية\n\nReturns list of clear observations\
+        \ sorted by quality score.\nUseful for selecting best images for analysis.\n\
+        \nExample:\n    GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15"
+      operationId: find_clear_observations_v1_clear_observations__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+        description: Start date (YYYY-MM-DD)
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: End date (YYYY-MM-DD)
+          title: End Date
+        description: End date (YYYY-MM-DD)
+      - name: max_cloud
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 100
+          minimum: 0
+          description: Maximum cloud cover %
+          default: 20.0
+          title: Max Cloud
+        description: Maximum cloud cover %
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/best-observation/{field_id}:
+    get:
+      summary: Get Best Observation
+      description: "Find the best (lowest cloud) observation near target date\nالبحث\
+        \ عن أفضل رصد (أقل غيوم) قريب من التاريخ المستهدف\n\nReturns the highest quality\
+        \ observation within tolerance window.\nUseful for finding best image for\
+        \ a specific date.\n\nExample:\n    GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10"
+      operationId: get_best_observation_v1_best_observation__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: target_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target date (YYYY-MM-DD)
+          title: Target Date
+        description: Target date (YYYY-MM-DD)
+      - name: tolerance_days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 90
+          minimum: 1
+          description: Days before/after to search
+          default: 15
+          title: Tolerance Days
+        description: Days before/after to search
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/interpolate-cloudy:
+    post:
+      summary: Interpolate Cloudy Pixels
+      description: "Interpolate cloudy observations using temporal neighbors\nاستكمال\
+        \ الأرصاد الملبدة بالغيوم باستخدام القيم المجاورة زمنياً\n\nMethods:\n- linear:\
+        \ Linear interpolation between valid neighbors\n- spline: Smooth spline interpolation\
+        \ (better for curves)\n- previous: Use previous valid value (forward fill)\n\
+        \nRequest body:\n{\n    \"field_id\": \"field_123\",\n    \"method\": \"linear\"\
+        ,\n    \"ndvi_series\": [\n        {\"date\": \"2024-01-01\", \"ndvi\": 0.65,\
+        \ \"cloudy\": false},\n        {\"date\": \"2024-01-10\", \"ndvi\": 0.45,\
+        \ \"cloudy\": true},\n        {\"date\": \"2024-01-20\", \"ndvi\": 0.75, \"\
+        cloudy\": false}\n    ]\n}"
+      operationId: interpolate_cloudy_pixels_v1_interpolate_cloudy_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Field identifier
+          title: Field Id
+        description: Field identifier
+      - name: method
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Interpolation method: linear, spline, previous'
+          default: linear
+          title: Method
+        description: 'Interpolation method: linear, spline, previous'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                additionalProperties: true
+              title: Ndvi Series
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/export/analysis/{field_id}:
+    get:
+      summary: Export Analysis
+      description: 'Export field analysis data in specified format.
+
+
+        Formats:
+
+        - geojson: Geographic data with analysis properties
+
+        - csv: Tabular format with flattened data
+
+        - json: Complete JSON structure
+
+        - kml: Google Earth compatible format'
+      operationId: export_analysis_v1_export_analysis__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Export format: geojson, csv, json, kml'
+          default: geojson
+          title: Format
+        description: 'Export format: geojson, csv, json, kml'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/export/timeseries/{field_id}:
+    get:
+      summary: Export Timeseries
+      description: 'Export time series data (NDVI over time) in specified format.
+
+
+        Best for tracking vegetation health trends over time.'
+      operationId: export_timeseries_v1_export_timeseries__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+        description: Start date (YYYY-MM-DD)
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: End date (YYYY-MM-DD)
+          title: End Date
+        description: End date (YYYY-MM-DD)
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Export format: csv, json, geojson'
+          default: csv
+          title: Format
+        description: 'Export format: csv, json, geojson'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/export/boundaries:
+    get:
+      summary: Export Boundaries
+      description: 'Export field boundaries in specified format.
+
+
+        Useful for GIS systems and mapping applications.'
+      operationId: export_boundaries_v1_export_boundaries_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_ids
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Comma-separated field IDs
+          title: Field Ids
+        description: Comma-separated field IDs
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Export format: geojson, json, kml'
+          default: geojson
+          title: Format
+        description: 'Export format: geojson, json, kml'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/export/report/{field_id}:
+    get:
+      summary: Export Report
+      description: 'Export comprehensive field report.
+
+
+        Report types:
+
+        - full: Complete analysis with all indices and recommendations
+
+        - summary: High-level health metrics
+
+        - changes: Change detection over time'
+      operationId: export_report_v1_export_report__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Latitude
+          title: Lat
+        description: Latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Longitude
+          title: Lon
+        description: Longitude
+      - name: report_type
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Report type: full, summary, changes'
+          default: full
+          title: Report Type
+        description: 'Report type: full, summary, changes'
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Export format: json, csv, geojson'
+          default: json
+          title: Format
+        description: 'Export format: json, csv, geojson'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/changes/{field_id}:
+    get:
+      summary: Detect Changes
+      description: "كشف التغييرات الزراعية | Detect Agricultural Changes\n\nAnalyzes\
+        \ satellite time series to detect significant changes in agricultural fields:\n\
+        - Vegetation growth or decline\n- Water stress and drought\n- Flooding events\n\
+        - Harvest and planting detection\n- Crop damage from pests/weather\n- Land\
+        \ clearing\n\nReturns comprehensive report with detected events, trends, and\
+        \ recommendations.\n\nExample:\n    GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat"
+      operationId: detect_changes_v1_changes__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: start_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Start date (YYYY-MM-DD)
+          title: Start Date
+        description: Start date (YYYY-MM-DD)
+      - name: end_date
+        in: query
+        required: true
+        schema:
+          type: string
+          description: End date (YYYY-MM-DD)
+          title: End Date
+        description: End date (YYYY-MM-DD)
+      - name: crop_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Crop type (e.g., wheat, sorghum, coffee, qat)
+          title: Crop Type
+        description: Crop type (e.g., wheat, sorghum, coffee, qat)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeReportResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/changes/{field_id}/compare:
+    get:
+      summary: Compare Dates
+      description: "مقارنة تاريخين | Compare Two Dates\n\nCompares satellite imagery\
+        \ from two specific dates to identify changes.\nUseful for before/after analysis\
+        \ of specific events.\n\nExample:\n    GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01"
+      operationId: compare_dates_v1_changes__field_id__compare_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: date1
+        in: query
+        required: true
+        schema:
+          type: string
+          description: First date (YYYY-MM-DD)
+          title: Date1
+        description: First date (YYYY-MM-DD)
+      - name: date2
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Second date (YYYY-MM-DD)
+          title: Date2
+        description: Second date (YYYY-MM-DD)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeEventResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/changes/{field_id}/anomalies:
+    get:
+      summary: Get Anomalies
+      description: "كشف الشذوذ | Detect Anomalies\n\nDetects anomalies (unusual NDVI\
+        \ values) in recent satellite time series.\nAnomalies are deviations from\
+        \ normal patterns that may indicate problems.\n\nExample:\n    GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat"
+      operationId: get_anomalies_v1_changes__field_id__anomalies_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 90
+          minimum: -90
+          description: Field latitude
+          title: Lat
+        description: Field latitude
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 180
+          minimum: -180
+          description: Field longitude
+          title: Lon
+        description: Field longitude
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          description: 'Number of days to analyze (default: 90)'
+          default: 90
+          title: Days
+        description: 'Number of days to analyze (default: 90)'
+      - name: crop_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Crop type for expected pattern
+          title: Crop Type
+        description: Crop type for expected pattern
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AnalyzeWithActionRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+          description: معرف الحقل
+        farmer_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Farmer Id
+          description: معرف المزارع
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+          description: معرف المستأجر
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        satellite:
+          $ref: '#/components/schemas/SatelliteSource'
+          default: sentinel-2
+        start_date:
+          type: string
+          format: date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: End Date
+        cloud_cover_max:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Cloud Cover Max
+          default: 20.0
+        publish_event:
+          type: boolean
+          title: Publish Event
+          description: نشر الحدث عبر NATS
+          default: true
+      type: object
+      required:
+      - field_id
+      - latitude
+      - longitude
+      title: AnalyzeWithActionRequest
+      description: Request for analysis with ActionTemplate output
+    ChangeEventResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        change_type:
+          type: string
+          title: Change Type
+        severity:
+          type: string
+          title: Severity
+        detected_date:
+          type: string
+          title: Detected Date
+        location:
+          additionalProperties:
+            type: number
+          type: object
+          title: Location
+        ndvi_before:
+          type: number
+          title: Ndvi Before
+        ndvi_after:
+          type: number
+          title: Ndvi After
+        ndvi_change:
+          type: number
+          title: Ndvi Change
+        change_percent:
+          type: number
+          title: Change Percent
+        confidence:
+          type: number
+          title: Confidence
+        description_ar:
+          type: string
+          title: Description Ar
+        description_en:
+          type: string
+          title: Description En
+        recommended_action_ar:
+          type: string
+          title: Recommended Action Ar
+        recommended_action_en:
+          type: string
+          title: Recommended Action En
+        additional_metrics:
+          anyOf:
+          - additionalProperties:
+              type: number
+            type: object
+          - type: 'null'
+          title: Additional Metrics
+      type: object
+      required:
+      - field_id
+      - change_type
+      - severity
+      - detected_date
+      - location
+      - ndvi_before
+      - ndvi_after
+      - ndvi_change
+      - change_percent
+      - confidence
+      - description_ar
+      - description_en
+      - recommended_action_ar
+      - recommended_action_en
+      title: ChangeEventResponse
+      description: Response model for a single change event
+    ChangeReportResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        analysis_period:
+          additionalProperties:
+            type: string
+          type: object
+          title: Analysis Period
+        events:
+          items:
+            $ref: '#/components/schemas/ChangeEventResponse'
+          type: array
+          title: Events
+        overall_trend:
+          type: string
+          title: Overall Trend
+        ndvi_trend:
+          type: number
+          title: Ndvi Trend
+        anomaly_count:
+          type: integer
+          title: Anomaly Count
+        severity_summary:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Severity Summary
+        change_type_summary:
+          additionalProperties:
+            type: integer
+          type: object
+          title: Change Type Summary
+        summary_ar:
+          type: string
+          title: Summary Ar
+        summary_en:
+          type: string
+          title: Summary En
+        recommendations_ar:
+          items:
+            type: string
+          type: array
+          title: Recommendations Ar
+        recommendations_en:
+          items:
+            type: string
+          type: array
+          title: Recommendations En
+      type: object
+      required:
+      - field_id
+      - analysis_period
+      - events
+      - overall_trend
+      - ndvi_trend
+      - anomaly_count
+      - severity_summary
+      - change_type_summary
+      - summary_ar
+      - summary_en
+      - recommendations_ar
+      - recommendations_en
+      title: ChangeReportResponse
+      description: Response model for comprehensive change detection report
+    FieldAnalysis:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        analysis_date:
+          type: string
+          format: date-time
+          title: Analysis Date
+        satellite:
+          $ref: '#/components/schemas/SatelliteSource'
+        imagery:
+          $ref: '#/components/schemas/SatelliteImagery'
+        indices:
+          $ref: '#/components/schemas/VegetationIndices'
+        health_score:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Health Score
+        health_status:
+          type: string
+          title: Health Status
+        anomalies:
+          items:
+            type: string
+          type: array
+          title: Anomalies
+        recommendations_ar:
+          items:
+            type: string
+          type: array
+          title: Recommendations Ar
+        recommendations_en:
+          items:
+            type: string
+          type: array
+          title: Recommendations En
+      type: object
+      required:
+      - field_id
+      - analysis_date
+      - satellite
+      - imagery
+      - indices
+      - health_score
+      - health_status
+      - anomalies
+      - recommendations_ar
+      - recommendations_en
+      title: FieldAnalysis
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ImageryRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+          description: معرف الحقل
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        satellite:
+          $ref: '#/components/schemas/SatelliteSource'
+          default: sentinel-2
+        start_date:
+          type: string
+          format: date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: End Date
+        cloud_cover_max:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Cloud Cover Max
+          default: 20.0
+      type: object
+      required:
+      - field_id
+      - latitude
+      - longitude
+      title: ImageryRequest
+    InterpretRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+          description: معرف الحقل
+        indices:
+          additionalProperties:
+            type: number
+          type: object
+          title: Indices
+          description: Index values to interpret
+        crop_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop Type
+          description: نوع المحصول
+          default: unknown
+        growth_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growth Stage
+          description: مرحلة النمو
+          default: vegetative
+      type: object
+      required:
+      - field_id
+      - indices
+      title: InterpretRequest
+      description: Request for interpreting indices
+    PhenologyActionRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+          description: معرف الحقل
+        farmer_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Farmer Id
+          description: معرف المزارع
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+          description: معرف المستأجر
+        crop_type:
+          type: string
+          title: Crop Type
+          description: نوع المحصول
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        planting_date:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Planting Date
+          description: تاريخ الزراعة
+        days:
+          type: integer
+          maximum: 365.0
+          minimum: 14.0
+          title: Days
+          default: 60
+        publish_event:
+          type: boolean
+          title: Publish Event
+          description: نشر الحدث عبر NATS
+          default: true
+      type: object
+      required:
+      - field_id
+      - crop_type
+      - latitude
+      - longitude
+      title: PhenologyActionRequest
+      description: Request for phenology detection with ActionTemplate output
+    RealAnalysisRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+          description: معرف الحقل
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: معرف المستأجر
+          default: default
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        start_date:
+          type: string
+          format: date
+          title: Start Date
+        end_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: End Date
+        cloud_cover_max:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Cloud Cover Max
+          default: 30.0
+      type: object
+      required:
+      - field_id
+      - latitude
+      - longitude
+      title: RealAnalysisRequest
+      description: Request model for real satellite analysis
+    SatelliteBand:
+      properties:
+        band_name:
+          type: string
+          title: Band Name
+        wavelength_nm:
+          type: string
+          title: Wavelength Nm
+        resolution_m:
+          type: integer
+          title: Resolution M
+        value:
+          type: number
+          title: Value
+      type: object
+      required:
+      - band_name
+      - wavelength_nm
+      - resolution_m
+      - value
+      title: SatelliteBand
+    SatelliteImagery:
+      properties:
+        imagery_id:
+          type: string
+          title: Imagery Id
+        field_id:
+          type: string
+          title: Field Id
+        satellite:
+          $ref: '#/components/schemas/SatelliteSource'
+        acquisition_date:
+          type: string
+          format: date-time
+          title: Acquisition Date
+        cloud_cover_percent:
+          type: number
+          title: Cloud Cover Percent
+        sun_elevation:
+          type: number
+          title: Sun Elevation
+        bands:
+          items:
+            $ref: '#/components/schemas/SatelliteBand'
+          type: array
+          title: Bands
+        scene_id:
+          type: string
+          title: Scene Id
+        tile_id:
+          type: string
+          title: Tile Id
+        processing_level:
+          type: string
+          title: Processing Level
+      type: object
+      required:
+      - imagery_id
+      - field_id
+      - satellite
+      - acquisition_date
+      - cloud_cover_percent
+      - sun_elevation
+      - bands
+      - scene_id
+      - tile_id
+      - processing_level
+      title: SatelliteImagery
+    SatelliteSource:
+      type: string
+      enum:
+      - sentinel-2
+      - landsat-8
+      - landsat-9
+      - modis
+      title: SatelliteSource
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VegetationIndices:
+      properties:
+        ndvi:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Ndvi
+          description: Normalized Difference Vegetation Index
+        ndwi:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Ndwi
+          description: Normalized Difference Water Index
+        evi:
+          type: number
+          title: Evi
+          description: Enhanced Vegetation Index
+        savi:
+          type: number
+          title: Savi
+          description: Soil Adjusted Vegetation Index
+        lai:
+          type: number
+          minimum: 0.0
+          title: Lai
+          description: Leaf Area Index estimate
+        ndmi:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Ndmi
+          description: Normalized Difference Moisture Index
+      type: object
+      required:
+      - ndvi
+      - ndwi
+      - evi
+      - savi
+      - lai
+      - ndmi
+      title: VegetationIndices
+    YieldPredictionRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+          description: معرف الحقل
+        crop_code:
+          type: string
+          title: Crop Code
+          description: رمز المحصول (WHEAT, TOMATO, etc.)
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        planting_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Planting Date
+          description: تاريخ الزراعة
+        field_area_ha:
+          type: number
+          minimum: 0.01
+          title: Field Area Ha
+          description: مساحة الحقل بالهكتار
+          default: 1.0
+        ndvi_series:
+          anyOf:
+          - items:
+              type: number
+            type: array
+          - type: 'null'
+          title: Ndvi Series
+          description: سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا
+            لم تقدم)
+        precipitation_mm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Precipitation Mm
+          description: الأمطار الكلية (مم)
+        avg_temp_min:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Temp Min
+          description: متوسط درجة الحرارة الصغرى (°س)
+        avg_temp_max:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Avg Temp Max
+          description: متوسط درجة الحرارة الكبرى (°س)
+        soil_moisture:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Soil Moisture
+          description: رطوبة التربة (0-1)
+      type: object
+      required:
+      - field_id
+      - crop_code
+      - latitude
+      - longitude
+      title: YieldPredictionRequest
+      description: Request for crop yield prediction
+    YieldPredictionResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        crop_code:
+          type: string
+          title: Crop Code
+        crop_name_ar:
+          type: string
+          title: Crop Name Ar
+        crop_name_en:
+          type: string
+          title: Crop Name En
+        predicted_yield_ton_ha:
+          type: number
+          title: Predicted Yield Ton Ha
+        predicted_yield_total_ton:
+          type: number
+          title: Predicted Yield Total Ton
+        yield_range_min:
+          type: number
+          title: Yield Range Min
+        yield_range_max:
+          type: number
+          title: Yield Range Max
+        confidence:
+          type: number
+          title: Confidence
+        factors:
+          additionalProperties:
+            type: number
+          type: object
+          title: Factors
+        comparison_to_average:
+          type: number
+          title: Comparison To Average
+        comparison_to_base:
+          type: number
+          title: Comparison To Base
+        recommendations_ar:
+          items:
+            type: string
+          type: array
+          title: Recommendations Ar
+        recommendations_en:
+          items:
+            type: string
+          type: array
+          title: Recommendations En
+        prediction_date:
+          type: string
+          title: Prediction Date
+        growth_stage:
+          type: string
+          title: Growth Stage
+        days_to_harvest:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Days To Harvest
+        data_sources_used:
+          items:
+            type: string
+          type: array
+          title: Data Sources Used
+      type: object
+      required:
+      - field_id
+      - crop_code
+      - crop_name_ar
+      - crop_name_en
+      - predicted_yield_ton_ha
+      - predicted_yield_total_ton
+      - yield_range_min
+      - yield_range_max
+      - confidence
+      - factors
+      - comparison_to_average
+      - comparison_to_base
+      - recommendations_ar
+      - recommendations_en
+      - prediction_date
+      - growth_stage
+      - days_to_harvest
+      - data_sources_used
+      title: YieldPredictionResponse
+      description: Response for crop yield prediction
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

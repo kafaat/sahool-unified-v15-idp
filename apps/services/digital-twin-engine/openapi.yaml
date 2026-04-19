@@ -1,0 +1,612 @@
+openapi: 3.1.0
+info:
+  title: Digital Twin Engine
+  description: L3 agricultural digital twin for simulation, optimization, and decision
+    support
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/digital-twin/simulate:
+    post:
+      summary: Simulate Field
+      description: 'Simulate field state over time with soil moisture, crop growth,
+
+        and water balance modeling.'
+      operationId: simulate_field_api_v1_digital_twin_simulate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/digital-twin/scenarios:
+    post:
+      summary: Compare Scenarios
+      description: 'Compare multiple irrigation scenarios with what-if analysis.
+
+        Returns comparison metrics and recommendation.'
+      operationId: compare_scenarios_api_v1_digital_twin_scenarios_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioComparison'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/digital-twin/optimize:
+    post:
+      summary: Optimize Irrigation
+      description: 'Multi-objective optimization for irrigation scheduling.
+
+        Optimizes across water usage, yield, cost, and environmental impact.'
+      operationId: optimize_irrigation_api_v1_digital_twin_optimize_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OptimizationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizationResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/digital-twin/state/update:
+    post:
+      summary: Update Field State
+      description: 'Update digital twin state with real-time sensor data.
+
+        Uses Kalman filter for state estimation.'
+      operationId: update_field_state_api_v1_digital_twin_state_update_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldState'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/digital-twin/info:
+    get:
+      summary: Get Dt Info
+      description: Get digital twin engine information and capabilities.
+      operationId: get_dt_info_api_v1_digital_twin_info_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    FieldState:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        soil_moisture_pct:
+          type: number
+          title: Soil Moisture Pct
+          description: Volumetric water content (%)
+          default: 50.0
+        soil_temperature_c:
+          type: number
+          title: Soil Temperature C
+          default: 20.0
+        soil_ec_dsm:
+          type: number
+          title: Soil Ec Dsm
+          description: Soil EC (dS/m)
+          default: 1.0
+        soil_n_ppm:
+          type: number
+          title: Soil N Ppm
+          default: 25.0
+        soil_p_ppm:
+          type: number
+          title: Soil P Ppm
+          default: 15.0
+        soil_k_ppm:
+          type: number
+          title: Soil K Ppm
+          default: 100.0
+        crop:
+          type: string
+          title: Crop
+          default: wheat
+        growth_stage:
+          type: string
+          title: Growth Stage
+          default: vegetative
+        days_after_planting:
+          type: integer
+          title: Days After Planting
+          default: 30
+        lai:
+          type: number
+          title: Lai
+          description: Leaf Area Index
+          default: 2.0
+        biomass_kg_ha:
+          type: number
+          title: Biomass Kg Ha
+          default: 500.0
+        canopy_cover_pct:
+          type: number
+          title: Canopy Cover Pct
+          default: 40.0
+        cumulative_irrigation_mm:
+          type: number
+          title: Cumulative Irrigation Mm
+          default: 100.0
+        cumulative_rainfall_mm:
+          type: number
+          title: Cumulative Rainfall Mm
+          default: 20.0
+        cumulative_et_mm:
+          type: number
+          title: Cumulative Et Mm
+          default: 80.0
+        air_temp_c:
+          type: number
+          title: Air Temp C
+          default: 25.0
+        humidity_pct:
+          type: number
+          title: Humidity Pct
+          default: 50.0
+        et0_mm_day:
+          type: number
+          title: Et0 Mm Day
+          default: 5.0
+      type: object
+      required:
+      - field_id
+      title: FieldState
+      description: Current state of a field's digital twin.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    OptimizationObjective:
+      type: string
+      enum:
+      - minimize_water
+      - maximize_yield
+      - minimize_cost
+      - minimize_environmental
+      - balanced
+      title: OptimizationObjective
+    OptimizationRequest:
+      properties:
+        field_state:
+          $ref: '#/components/schemas/FieldState'
+        days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Days
+          default: 90
+        objectives:
+          items:
+            $ref: '#/components/schemas/OptimizationObjective'
+          type: array
+          title: Objectives
+          default:
+          - balanced
+        constraints:
+          additionalProperties: true
+          type: object
+          title: Constraints
+        climate_zone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Climate Zone
+      type: object
+      required:
+      - field_state
+      title: OptimizationRequest
+      description: Multi-objective optimization request.
+    OptimizationResult:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        crop:
+          type: string
+          title: Crop
+        objectives:
+          items:
+            type: string
+          type: array
+          title: Objectives
+        optimal_schedule:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Optimal Schedule
+        metrics:
+          additionalProperties: true
+          type: object
+          title: Metrics
+        pareto_solutions:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Pareto Solutions
+        recommendation:
+          type: string
+          title: Recommendation
+        recommendation_ar:
+          type: string
+          title: Recommendation Ar
+      type: object
+      required:
+      - field_id
+      - crop
+      - objectives
+      - optimal_schedule
+      - metrics
+      - pareto_solutions
+      - recommendation
+      - recommendation_ar
+      title: OptimizationResult
+      description: Optimization result.
+    ScenarioComparison:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        crop:
+          type: string
+          title: Crop
+        scenarios:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Scenarios
+        best_for_water:
+          type: string
+          title: Best For Water
+        best_for_yield:
+          type: string
+          title: Best For Yield
+        best_for_cost:
+          type: string
+          title: Best For Cost
+        recommended:
+          type: string
+          title: Recommended
+        recommendation_reason:
+          type: string
+          title: Recommendation Reason
+        recommendation_reason_ar:
+          type: string
+          title: Recommendation Reason Ar
+      type: object
+      required:
+      - field_id
+      - crop
+      - scenarios
+      - best_for_water
+      - best_for_yield
+      - best_for_cost
+      - recommended
+      - recommendation_reason
+      - recommendation_reason_ar
+      title: ScenarioComparison
+      description: Comparison result of multiple scenarios.
+    ScenarioRequest:
+      properties:
+        field_state:
+          $ref: '#/components/schemas/FieldState'
+        days:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Days
+          default: 90
+        scenarios:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Scenarios
+          description: List of {name, irrigation_schedule, description}
+        climate_zone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Climate Zone
+      type: object
+      required:
+      - field_state
+      - scenarios
+      title: ScenarioRequest
+      description: Request to compare multiple scenarios.
+    SimulationDay:
+      properties:
+        day:
+          type: integer
+          title: Day
+        date:
+          type: string
+          format: date
+          title: Date
+        soil_moisture_pct:
+          type: number
+          title: Soil Moisture Pct
+        soil_ec_dsm:
+          type: number
+          title: Soil Ec Dsm
+        etc_mm:
+          type: number
+          title: Etc Mm
+        irrigation_mm:
+          type: number
+          title: Irrigation Mm
+        rainfall_mm:
+          type: number
+          title: Rainfall Mm
+        drainage_mm:
+          type: number
+          title: Drainage Mm
+        lai:
+          type: number
+          title: Lai
+        biomass_kg_ha:
+          type: number
+          title: Biomass Kg Ha
+        canopy_cover_pct:
+          type: number
+          title: Canopy Cover Pct
+        water_stress:
+          type: number
+          title: Water Stress
+        salinity_stress:
+          type: number
+          title: Salinity Stress
+        cumulative_water_mm:
+          type: number
+          title: Cumulative Water Mm
+        yield_estimate_pct:
+          type: number
+          title: Yield Estimate Pct
+      type: object
+      required:
+      - day
+      - date
+      - soil_moisture_pct
+      - soil_ec_dsm
+      - etc_mm
+      - irrigation_mm
+      - rainfall_mm
+      - drainage_mm
+      - lai
+      - biomass_kg_ha
+      - canopy_cover_pct
+      - water_stress
+      - salinity_stress
+      - cumulative_water_mm
+      - yield_estimate_pct
+      title: SimulationDay
+      description: Simulated state for a single day.
+    SimulationRequest:
+      properties:
+        field_state:
+          $ref: '#/components/schemas/FieldState'
+        days_to_simulate:
+          type: integer
+          maximum: 365.0
+          minimum: 1.0
+          title: Days To Simulate
+          default: 30
+        irrigation_schedule:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Irrigation Schedule
+          description: 'List of {day: int, amount_mm: float} irrigation events'
+        rainfall_forecast:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Rainfall Forecast
+          description: 'List of {day: int, amount_mm: float} rainfall events'
+        climate_zone:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Climate Zone
+        soil_profile:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Soil Profile
+      type: object
+      required:
+      - field_state
+      title: SimulationRequest
+      description: Request to simulate field state over time.
+    SimulationResult:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        crop:
+          type: string
+          title: Crop
+        simulation_days:
+          type: integer
+          title: Simulation Days
+        daily_states:
+          items:
+            $ref: '#/components/schemas/SimulationDay'
+          type: array
+          title: Daily States
+        total_irrigation_mm:
+          type: number
+          title: Total Irrigation Mm
+        total_rainfall_mm:
+          type: number
+          title: Total Rainfall Mm
+        total_et_mm:
+          type: number
+          title: Total Et Mm
+        total_drainage_mm:
+          type: number
+          title: Total Drainage Mm
+        final_yield_pct:
+          type: number
+          title: Final Yield Pct
+        water_use_efficiency:
+          type: number
+          title: Water Use Efficiency
+        peak_lai:
+          type: number
+          title: Peak Lai
+        max_water_stress:
+          type: number
+          title: Max Water Stress
+        max_salinity_stress:
+          type: number
+          title: Max Salinity Stress
+      type: object
+      required:
+      - field_id
+      - crop
+      - simulation_days
+      - daily_states
+      - total_irrigation_mm
+      - total_rainfall_mm
+      - total_et_mm
+      - total_drainage_mm
+      - final_yield_pct
+      - water_use_efficiency
+      - peak_lai
+      - max_water_stress
+      - max_salinity_stress
+      title: SimulationResult
+      description: Complete simulation result.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

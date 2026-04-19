@@ -1,0 +1,85 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Live Services Smoke
+# اختبار دخان الخدمات الحية
+#
+# Runs ``tests/live/`` against a real Postgres (PostGIS), Redis, and NATS
+# provisioned as GitHub Actions service containers. Guards the integration
+# harness itself so downstream integration tests can rely on the fixtures.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: Live Services Smoke
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'tests/live/**'
+      - 'tests/_helpers/live_services.py'
+      - '.github/workflows/live-services-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: live-smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    name: Postgres + Redis + NATS smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+      # NATS has no official action container support for JetStream yet; the
+      # image starts quickly and the smoke test tolerates a brief warm-up via
+      # its own connect retries.
+      nats:
+        image: nats:2.10-alpine
+        ports: ["4222:4222"]
+
+    env:
+      SAHOOL_TEST_FORCE_LOCAL: '1'
+      SAHOOL_TEST_POSTGRES_ADMIN_DSN: postgresql://postgres:postgres@127.0.0.1:5432/postgres
+      SAHOOL_TEST_REDIS_URL: redis://127.0.0.1:6379/0
+      SAHOOL_TEST_NATS_URL: nats://127.0.0.1:4222
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install test dependencies
+        run: |
+          pip install --no-cache-dir \
+            pytest pytest-asyncio \
+            psycopg2-binary redis "nats-py>=2.6"
+
+      - name: Run live smoke suite
+        run: |
+          python -m pytest tests/live/ -v --tb=short

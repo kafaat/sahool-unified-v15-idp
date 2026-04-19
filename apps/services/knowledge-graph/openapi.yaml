@@ -1,0 +1,1471 @@
+openapi: 3.1.0
+info:
+  title: Knowledge Graph Service
+  description: سهول - خدمة الرسم البياني للمعرفة | Manages crop-disease-treatment
+    relationships and knowledge graph queries
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health Check
+      description: 'Health check endpoint
+
+
+        Returns the service status and basic health information.'
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+  /readyz:
+    get:
+      summary: Readiness Check
+      description: 'Readiness check endpoint
+
+
+        Returns readiness status for load balancers and orchestrators.'
+      operationId: readiness_check_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthCheckResponse'
+  /health:
+    get:
+      summary: Health Combined
+      description: 'Combined health endpoint
+
+
+        Returns comprehensive health information.'
+      operationId: health_combined_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/graphs/stats:
+    get:
+      tags:
+      - graphs
+      summary: Get Graph Statistics
+      description: 'Get knowledge graph statistics
+
+
+        Returns statistics about nodes, edges, and entities in the graph.'
+      operationId: get_graph_statistics_api_v1_graphs_stats_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/graphs/path:
+    get:
+      tags:
+      - graphs
+      summary: Find Relationship Path
+      description: 'Find the shortest path between two entities
+
+
+        Shows the relationship chain connecting two entities in the knowledge graph.
+
+        Useful for understanding how crops, diseases, and treatments are connected.'
+      operationId: find_relationship_path_api_v1_graphs_path_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: source_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Source entity type (crop, disease, treatment)
+          title: Source Type
+        description: Source entity type (crop, disease, treatment)
+      - name: source_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Source entity ID
+          title: Source Id
+        description: Source entity ID
+      - name: target_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target entity type (crop, disease, treatment)
+          title: Target Type
+        description: Target entity type (crop, disease, treatment)
+      - name: target_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target entity ID
+          title: Target Id
+        description: Target entity ID
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/graphs/search:
+    get:
+      tags:
+      - graphs
+      summary: Search Graph
+      description: 'Search for entities in the knowledge graph
+
+
+        Searches across all entity types (crops, diseases, treatments) for matching
+        names or descriptions.'
+      operationId: search_graph_api_v1_graphs_search_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Search query
+          title: Q
+        description: Search query
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by entity type (crop, disease, treatment)
+          title: Entity Type
+        description: Filter by entity type (crop, disease, treatment)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Maximum results
+          default: 20
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/entities/crops:
+    get:
+      tags:
+      - entities
+      summary: List Crops
+      description: 'List all crops in the knowledge graph
+
+
+        Returns a paginated list of all crops with their properties.'
+      operationId: list_crops_api_v1_entities_crops_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Maximum crops to return
+          default: 100
+          title: Limit
+        description: Maximum crops to return
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - entities
+      summary: Create Crop
+      description: 'Create a new crop in the knowledge graph
+
+
+        Adds a new crop entity with all its properties.'
+      operationId: create_crop_api_v1_entities_crops_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Crop'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/entities/crops/{crop_id}:
+    get:
+      tags:
+      - entities
+      summary: Get Crop
+      description: 'Get a specific crop by ID
+
+
+        Returns detailed information about a crop including its properties and attributes.'
+      operationId: get_crop_api_v1_entities_crops__crop_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/entities/diseases:
+    get:
+      tags:
+      - entities
+      summary: List Diseases
+      description: 'List all diseases in the knowledge graph
+
+
+        Returns a paginated list of all diseases with their properties.'
+      operationId: list_diseases_api_v1_entities_diseases_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Maximum diseases to return
+          default: 100
+          title: Limit
+        description: Maximum diseases to return
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - entities
+      summary: Create Disease
+      description: 'Create a new disease in the knowledge graph
+
+
+        Adds a new disease entity with all its properties.'
+      operationId: create_disease_api_v1_entities_diseases_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Disease'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/entities/diseases/{disease_id}:
+    get:
+      tags:
+      - entities
+      summary: Get Disease
+      description: 'Get a specific disease by ID
+
+
+        Returns detailed information about a disease including symptoms, severity,
+        and pathogen type.'
+      operationId: get_disease_api_v1_entities_diseases__disease_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: disease_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disease Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/entities/treatments:
+    get:
+      tags:
+      - entities
+      summary: List Treatments
+      description: 'List all treatments in the knowledge graph
+
+
+        Returns a paginated list of all treatments with their properties.'
+      operationId: list_treatments_api_v1_entities_treatments_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Maximum treatments to return
+          default: 100
+          title: Limit
+        description: Maximum treatments to return
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - entities
+      summary: Create Treatment
+      description: 'Create a new treatment in the knowledge graph
+
+
+        Adds a new treatment entity with all its properties.'
+      operationId: create_treatment_api_v1_entities_treatments_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Treatment'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/entities/treatments/{treatment_id}:
+    get:
+      tags:
+      - entities
+      summary: Get Treatment
+      description: 'Get a specific treatment by ID
+
+
+        Returns detailed information about a treatment including ingredients, dosage,
+        and safety level.'
+      operationId: get_treatment_api_v1_entities_treatments__treatment_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: treatment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Treatment Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/entities/search:
+    get:
+      tags:
+      - entities
+      summary: Search Entities
+      description: 'Search for entities by name or description
+
+
+        Searches across crops, diseases, and treatments.'
+      operationId: search_entities_api_v1_entities_search_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Search query
+          title: Q
+        description: Search query
+      - name: entity_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by type (crop, disease, treatment)
+          title: Entity Type
+        description: Filter by type (crop, disease, treatment)
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          description: Maximum results
+          default: 20
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/affected-crops/{disease_id}:
+    get:
+      tags:
+      - relationships
+      summary: Get Affected Crops
+      description: 'Get all crops affected by a disease
+
+
+        Returns a list of crops that are affected by the specified disease.'
+      operationId: get_affected_crops_api_v1_relationships_affected_crops__disease_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: disease_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disease Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          description: Maximum results
+          default: 50
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/disease-treatments/{disease_id}:
+    get:
+      tags:
+      - relationships
+      summary: Get Disease Treatments
+      description: 'Get all treatments for a disease
+
+
+        Returns a list of treatments that can be used to treat the specified disease.'
+      operationId: get_disease_treatments_api_v1_relationships_disease_treatments__disease_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: disease_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disease Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          description: Maximum results
+          default: 50
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/crop-compatible-treatments/{crop_id}:
+    get:
+      tags:
+      - relationships
+      summary: Get Compatible Treatments
+      description: 'Get treatments compatible with a crop
+
+
+        Returns a list of treatments that are safe to use on the specified crop.'
+      operationId: get_compatible_treatments_api_v1_relationships_crop_compatible_treatments__crop_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          description: Maximum results
+          default: 50
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/diseases-by-crop/{crop_id}:
+    get:
+      tags:
+      - relationships
+      summary: Get Diseases By Crop
+      description: 'Get diseases that affect a crop
+
+
+        Returns a list of diseases that can affect the specified crop.'
+      operationId: get_diseases_by_crop_api_v1_relationships_diseases_by_crop__crop_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          description: Maximum results
+          default: 50
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/preventive-treatments/{disease_id}:
+    get:
+      tags:
+      - relationships
+      summary: Get Preventive Treatments
+      description: 'Get preventive treatments for a disease
+
+
+        Returns treatments that can prevent the specified disease.'
+      operationId: get_preventive_treatments_api_v1_relationships_preventive_treatments__disease_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: disease_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disease Id
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          description: Maximum results
+          default: 50
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/related/{entity_type}/{entity_id}:
+    get:
+      tags:
+      - relationships
+      summary: Get All Related
+      description: 'Get all entities related to a given entity
+
+
+        Returns all entities (of any type) that have a relationship with the specified
+        entity.'
+      operationId: get_all_related_api_v1_relationships_related__entity_type___entity_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: entity_type
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Entity type (crop, disease, treatment)
+          title: Entity Type
+        description: Entity type (crop, disease, treatment)
+      - name: entity_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Entity ID
+          title: Entity Id
+        description: Entity ID
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          description: Maximum results
+          default: 50
+          title: Limit
+        description: Maximum results
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/path/{source_type}/{source_id}/{target_type}/{target_id}:
+    get:
+      tags:
+      - relationships
+      summary: Find Path
+      description: 'Find the relationship path between two entities
+
+
+        Shows how two entities are connected through intermediate relationships.
+
+        Useful for understanding the connection chain between crops, diseases, and
+        treatments.'
+      operationId: find_path_api_v1_relationships_path__source_type___source_id___target_type___target_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: source_type
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Source entity type
+          title: Source Type
+        description: Source entity type
+      - name: source_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Source entity ID
+          title: Source Id
+        description: Source entity ID
+      - name: target_type
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Target entity type
+          title: Target Type
+        description: Target entity type
+      - name: target_id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: Target entity ID
+          title: Target Id
+        description: Target entity ID
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/validate:
+    post:
+      tags:
+      - relationships
+      summary: Validate Relationship
+      description: 'Validate if a specific relationship exists
+
+
+        Checks whether a specific relationship exists between two entities.'
+      operationId: validate_relationship_api_v1_relationships_validate_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: source_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Source entity type
+          title: Source Type
+        description: Source entity type
+      - name: source_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Source entity ID
+          title: Source Id
+        description: Source entity ID
+      - name: target_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target entity type
+          title: Target Type
+        description: Target entity type
+      - name: target_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target entity ID
+          title: Target Id
+        description: Target entity ID
+      - name: relationship_type
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/RelationshipType'
+          description: Relationship type
+        description: Relationship type
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/relationships/add:
+    post:
+      tags:
+      - relationships
+      summary: Add Relationship
+      description: 'Create a new relationship between two entities
+
+
+        Adds a new relationship between two entities in the knowledge graph.'
+      operationId: add_relationship_api_v1_relationships_add_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: request
+        in: query
+        required: true
+        schema:
+          title: Request
+      - name: source_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Source entity type
+          title: Source Type
+        description: Source entity type
+      - name: source_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Source entity ID
+          title: Source Id
+        description: Source entity ID
+      - name: target_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target entity type
+          title: Target Type
+        description: Target entity type
+      - name: target_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Target entity ID
+          title: Target Id
+        description: Target entity ID
+      - name: relationship_type
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/RelationshipType'
+          description: Relationship type
+        description: Relationship type
+      - name: confidence
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          description: Confidence score
+          default: 1.0
+          title: Confidence
+        description: Confidence score
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /:
+    get:
+      summary: Root
+      description: 'Root endpoint
+
+
+        Returns service information and available endpoints.'
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Crop:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique crop identifier (e.g., 'wheat', 'tomato')
+        name_en:
+          type: string
+          title: Name En
+          description: English crop name
+        name_ar:
+          type: string
+          title: Name Ar
+          description: Arabic crop name
+        description_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description En
+          description: English description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+          description: Arabic description
+        growing_season:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growing Season
+          description: Growing season (spring/summer/fall/winter)
+        family:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Family
+          description: Botanical family
+        attributes:
+          additionalProperties: true
+          type: object
+          title: Attributes
+          description: Additional attributes
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name_en
+      - name_ar
+      title: Crop
+      description: Crop entity in the knowledge graph
+      example:
+        family: Poaceae
+        growing_season: winter
+        id: wheat
+        name_ar: القمح
+        name_en: Wheat
+    Disease:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique disease identifier
+        name_en:
+          type: string
+          title: Name En
+          description: English disease name
+        name_ar:
+          type: string
+          title: Name Ar
+          description: Arabic disease name
+        description_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description En
+          description: English description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+          description: Arabic description
+        pathogen_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pathogen Type
+          description: Type of pathogen (fungal, bacterial, viral, etc.)
+        symptoms_en:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Symptoms En
+          description: List of English symptoms
+        symptoms_ar:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Symptoms Ar
+          description: List of Arabic symptoms
+        severity_level:
+          anyOf:
+          - type: integer
+            maximum: 10.0
+            minimum: 1.0
+          - type: 'null'
+          title: Severity Level
+          description: Severity level (1-10)
+        incubation_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Incubation Days
+          description: Incubation period in days
+        attributes:
+          additionalProperties: true
+          type: object
+          title: Attributes
+          description: Additional attributes
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name_en
+      - name_ar
+      title: Disease
+      description: Disease entity in the knowledge graph
+      example:
+        id: powdery-mildew-wheat
+        name_ar: البياض الدقيقي
+        name_en: Powdery Mildew
+        pathogen_type: fungal
+        severity_level: 7
+        symptoms_en:
+        - White powder coating
+        - Leaf distortion
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthCheckResponse:
+      properties:
+        status:
+          type: string
+          title: Status
+          description: Service status
+        service:
+          type: string
+          title: Service
+          description: Service name
+        version:
+          type: string
+          title: Version
+          description: Service version
+        database:
+          type: boolean
+          title: Database
+          description: Database connection status
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+      type: object
+      required:
+      - status
+      - service
+      - version
+      - database
+      title: HealthCheckResponse
+      description: Health check response
+      example:
+        database: true
+        service: knowledge-graph
+        status: healthy
+        timestamp: '2026-01-13T10:00:00'
+        version: 1.0.0
+    RelationshipType:
+      type: string
+      enum:
+      - affects
+      - treated_by
+      - used_for
+      - causes
+      - prevents
+      - alleviates
+      - requires
+      - compatible
+      - follows
+      - resistant_to
+      title: RelationshipType
+      description: Types of relationships in the knowledge graph
+    Treatment:
+      properties:
+        id:
+          type: string
+          title: Id
+          description: Unique treatment identifier
+        name_en:
+          type: string
+          title: Name En
+          description: English treatment name
+        name_ar:
+          type: string
+          title: Name Ar
+          description: Arabic treatment name
+        description_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description En
+          description: English description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+          description: Arabic description
+        treatment_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Treatment Type
+          description: Type (fungicide, bactericide, insecticide, etc.)
+        active_ingredient:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Active Ingredient
+          description: Active ingredient
+        concentration:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Concentration
+          description: Concentration/dosage (e.g., '0.2%')
+        application_method:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Application Method
+          description: Application method (spray, drench, dust, etc.)
+        safety_level:
+          anyOf:
+          - type: integer
+            maximum: 5.0
+            minimum: 1.0
+          - type: 'null'
+          title: Safety Level
+          description: Safety level (1=very safe, 5=dangerous)
+        environmental_impact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Environmental Impact
+          description: Environmental impact
+        cost_per_liter:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cost Per Liter
+          description: Cost per liter/unit
+        attributes:
+          additionalProperties: true
+          type: object
+          title: Attributes
+          description: Additional attributes
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      type: object
+      required:
+      - id
+      - name_en
+      - name_ar
+      title: Treatment
+      description: Treatment/Pesticide entity in the knowledge graph
+      example:
+        active_ingredient: Sulfur
+        application_method: dust
+        id: sulfur-dust
+        name_ar: مسحوق الكبريت
+        name_en: Sulfur Dust
+        safety_level: 1
+        treatment_type: fungicide
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

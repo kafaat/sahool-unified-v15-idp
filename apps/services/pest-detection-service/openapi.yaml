@@ -1,0 +1,2069 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Pest Detection Service
+  description: AI-powered pest detection with Middle East pest database | خدمة كشف
+    الآفات بالذكاء الاصطناعي
+  version: 16.0.0
+paths:
+  /v1/feature-schema:
+    get:
+      tags:
+      - Schema
+      summary: Get Feature Schema
+      description: Return the ML feature schema for data drift monitoring.
+      operationId: get_feature_schema_v1_feature_schema_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /healthz:
+    get:
+      tags:
+      - Health
+      summary: Liveness
+      description: Kubernetes liveness probe.
+      operationId: liveness_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      tags:
+      - Health
+      summary: Readiness
+      description: Kubernetes readiness probe.
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: Comprehensive health check.
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      tags:
+      - Health
+      summary: Metrics
+      description: Prometheus metrics endpoint.
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/pests:
+    get:
+      tags:
+      - Pests | الآفات
+      summary: List Pests
+      description: 'List all pests in database.
+
+        قائمة جميع الآفات في قاعدة البيانات.'
+      operationId: list_pests_api_v1_pests_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/PestCategory'
+          - type: 'null'
+          title: Category
+      - name: crop
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop
+      - name: quarantine_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Quarantine Only
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pest'
+                title: Response List Pests Api V1 Pests Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/pests/search:
+    get:
+      tags:
+      - Pests | الآفات
+      summary: Search Pests
+      description: 'Search pests by name.
+
+        البحث عن الآفات بالاسم.'
+      operationId: search_pests_api_v1_pests_search_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 2
+          description: Search query
+          title: Q
+        description: Search query
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/pests/crop/{crop}:
+    get:
+      tags:
+      - Pests | الآفات
+      summary: Get Pests By Crop
+      description: 'Get pests that affect a specific crop.
+
+        الحصول على الآفات التي تصيب محصولاً معيناً.'
+      operationId: get_pests_by_crop_api_v1_pests_crop__crop__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/pests/identify:
+    post:
+      tags:
+      - Pests | الآفات
+      summary: Identify Pest From Image
+      description: 'Identify pest from image using AI.
+
+        تحديد الآفة من الصورة باستخدام الذكاء الاصطناعي.'
+      operationId: identify_pest_from_image_api_v1_pests_identify_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_identify_pest_from_image_api_v1_pests_identify_post'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetectionResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/pests/identify/symptoms:
+    post:
+      tags:
+      - Pests | الآفات
+      summary: Identify By Symptoms
+      description: 'Identify pest by symptoms.
+
+        تحديد الآفة من خلال الأعراض.'
+      operationId: identify_by_symptoms_api_v1_pests_identify_symptoms_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IdentifyRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/pests/quarantine:
+    get:
+      tags:
+      - Pests | الآفات
+      summary: List Quarantine Pests
+      description: 'List quarantine pests requiring immediate reporting.
+
+        قائمة آفات الحجر الزراعي التي تتطلب إبلاغاً فورياً.'
+      operationId: list_quarantine_pests_api_v1_pests_quarantine_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/pests/seasonal:
+    get:
+      tags:
+      - Pests | الآفات
+      summary: Get Seasonal Predictions
+      description: 'Get seasonal pest predictions.
+
+        الحصول على توقعات الآفات الموسمية.'
+      operationId: get_seasonal_predictions_api_v1_pests_seasonal_get
+      parameters:
+      - name: crop
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop
+      - name: month
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+            maximum: 12
+            minimum: 1
+          - type: 'null'
+          title: Month
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/pests/{pest_id}:
+    get:
+      tags:
+      - Pests | الآفات
+      summary: Get Pest
+      description: 'Get pest details by ID.
+
+        الحصول على تفاصيل الآفة بواسطة المعرف.'
+      operationId: get_pest_api_v1_pests__pest_id__get
+      parameters:
+      - name: pest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Pest Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pest'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/scouts/reports:
+    get:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: List Reports
+      description: 'List scout reports.
+
+        قائمة تقارير المسح الحقلي.'
+      operationId: list_reports_api_v1_scouts_reports_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ReportStatus'
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Create Report
+      description: 'Create a new scout report.
+
+        إنشاء تقرير مسح حقلي جديد.'
+      operationId: create_report_api_v1_scouts_reports_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoutReportCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoutReport'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/scouts/reports/{report_id}:
+    get:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Get Report
+      description: 'Get scout report by ID.
+
+        الحصول على تقرير المسح بواسطة المعرف.'
+      operationId: get_report_api_v1_scouts_reports__report_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Report Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoutReport'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Update Report
+      description: 'Update scout report.
+
+        تحديث تقرير المسح الحقلي.'
+      operationId: update_report_api_v1_scouts_reports__report_id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Report Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScoutReportCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScoutReport'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Delete Report
+      description: 'Delete scout report.
+
+        حذف تقرير المسح الحقلي.'
+      operationId: delete_report_api_v1_scouts_reports__report_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Report Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/scouts/reports/field/{field_id}:
+    get:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Get Reports By Field
+      description: 'Get all reports for a field.
+
+        الحصول على جميع التقارير لحقل معين.'
+      operationId: get_reports_by_field_api_v1_scouts_reports_field__field_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/scouts/reports/{report_id}/observations:
+    post:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Add Observation
+      description: 'Add observation to report.
+
+        إضافة ملاحظة إلى التقرير.'
+      operationId: add_observation_api_v1_scouts_reports__report_id__observations_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Report Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObservationCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Observation'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/scouts/reports/{report_id}/submit:
+    post:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Submit Report
+      description: 'Submit report for review.
+
+        تقديم التقرير للمراجعة.'
+      operationId: submit_report_api_v1_scouts_reports__report_id__submit_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Report Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/scouts/statistics:
+    get:
+      tags:
+      - Scouts | المسح الحقلي
+      summary: Get Scouting Statistics
+      description: 'Get scouting statistics.
+
+        الحصول على إحصائيات المسح الحقلي.'
+      operationId: get_scouting_statistics_api_v1_scouts_statistics_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/thresholds:
+    get:
+      tags:
+      - Thresholds | العتبات
+      summary: List Thresholds
+      description: 'List economic thresholds.
+
+        قائمة العتبات الاقتصادية.'
+      operationId: list_thresholds_api_v1_thresholds_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop
+      - name: pest_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pest Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/thresholds/crop/{crop}/pest/{pest_id}:
+    get:
+      tags:
+      - Thresholds | العتبات
+      summary: Get Threshold
+      description: 'Get threshold for crop-pest combination.
+
+        الحصول على العتبة لمزيج المحصول والآفة.'
+      operationId: get_threshold_api_v1_thresholds_crop__crop__pest__pest_id__get
+      parameters:
+      - name: crop
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop
+      - name: pest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Pest Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EconomicThreshold'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/thresholds/assess:
+    post:
+      tags:
+      - Thresholds | العتبات
+      summary: Assess Threshold
+      description: 'Assess threshold status.
+
+        تقييم حالة العتبة.'
+      operationId: assess_threshold_api_v1_thresholds_assess_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThresholdAssessment'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThresholdResult'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/alerts:
+    get:
+      tags:
+      - Thresholds | العتبات
+      summary: List Alerts
+      description: 'List active pest alerts.
+
+        قائمة تنبيهات الآفات النشطة.'
+      operationId: list_alerts_api_v1_alerts_get
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/AlertStatus'
+          - type: 'null'
+          title: Status
+      - name: priority
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/AlertPriority'
+          - type: 'null'
+          title: Priority
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/alerts/{alert_id}:
+    get:
+      tags:
+      - Thresholds | العتبات
+      summary: Get Alert
+      description: 'Get alert details.
+
+        الحصول على تفاصيل التنبيه.'
+      operationId: get_alert_api_v1_alerts__alert_id__get
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Alert Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/alerts/{alert_id}/acknowledge:
+    post:
+      tags:
+      - Thresholds | العتبات
+      summary: Acknowledge Alert
+      description: 'Acknowledge alert.
+
+        الإقرار بالتنبيه.'
+      operationId: acknowledge_alert_api_v1_alerts__alert_id__acknowledge_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Alert Id
+      - name: acknowledged_by
+        in: query
+        required: true
+        schema:
+          type: string
+          description: User acknowledging the alert
+          title: Acknowledged By
+        description: User acknowledging the alert
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/alerts/{alert_id}/resolve:
+    post:
+      tags:
+      - Thresholds | العتبات
+      summary: Resolve Alert
+      description: 'Resolve alert.
+
+        حل التنبيه.'
+      operationId: resolve_alert_api_v1_alerts__alert_id__resolve_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Alert Id
+      - name: resolution_notes
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resolution Notes
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/alerts/create:
+    post:
+      tags:
+      - Thresholds | العتبات
+      summary: Create Alert
+      description: 'Create manual alert.
+
+        إنشاء تنبيه يدوي.'
+      operationId: create_alert_api_v1_alerts_create_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: pest_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Pest Id
+      - name: priority
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/AlertPriority'
+      - name: message_en
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Message En
+      - name: message_ar
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Message Ar
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alert'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/treatments/recommend:
+    post:
+      tags:
+      - Treatments | العلاج
+      summary: Get Recommendations
+      description: 'Get treatment recommendations for a pest.
+
+        الحصول على توصيات العلاج لآفة.'
+      operationId: get_recommendations_api_v1_treatments_recommend_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendationRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/treatments/protocols/{pest_id}:
+    get:
+      tags:
+      - Treatments | العلاج
+      summary: Get Protocol
+      description: 'Get full treatment protocol for pest.
+
+        الحصول على بروتوكول العلاج الكامل للآفة.'
+      operationId: get_protocol_api_v1_treatments_protocols__pest_id__get
+      parameters:
+      - name: pest_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Pest Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreatmentProtocol'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/treatments/ipm-calendar:
+    get:
+      tags:
+      - Treatments | العلاج
+      summary: Get Ipm Calendar
+      description: 'Get IPM calendar for crop.
+
+        الحصول على تقويم المكافحة المتكاملة للمحصول.'
+      operationId: get_ipm_calendar_api_v1_treatments_ipm_calendar_get
+      parameters:
+      - name: crop
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Crop type
+          title: Crop
+        description: Crop type
+      - name: region
+        in: query
+        required: false
+        schema:
+          type: string
+          description: Region
+          default: middle_east
+          title: Region
+        description: Region
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/treatments/rotation:
+    get:
+      tags:
+      - Treatments | العلاج
+      summary: Get Rotation Plan
+      description: 'Get pesticide rotation plan.
+
+        الحصول على خطة تناوب المبيدات.'
+      operationId: get_rotation_plan_api_v1_treatments_rotation_get
+      parameters:
+      - name: pest_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Pest ID
+          title: Pest Id
+        description: Pest ID
+      - name: seasons
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 8
+          minimum: 1
+          description: Number of seasons to plan
+          default: 4
+          title: Seasons
+        description: Number of seasons to plan
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    Alert:
+      properties:
+        id:
+          type: string
+          title: Id
+        field_id:
+          type: string
+          title: Field Id
+        pest_id:
+          type: string
+          title: Pest Id
+        pest_name_en:
+          type: string
+          title: Pest Name En
+        pest_name_ar:
+          type: string
+          title: Pest Name Ar
+        priority:
+          $ref: '#/components/schemas/AlertPriority'
+        status:
+          $ref: '#/components/schemas/AlertStatus'
+          default: active
+        title_en:
+          type: string
+          title: Title En
+        title_ar:
+          type: string
+          title: Title Ar
+        message_en:
+          type: string
+          title: Message En
+        message_ar:
+          type: string
+          title: Message Ar
+        threshold_exceeded:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Threshold Exceeded
+        recommended_action_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Action En
+        recommended_action_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Recommended Action Ar
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        acknowledged_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Acknowledged At
+        acknowledged_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Acknowledged By
+        resolved_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Resolved At
+      type: object
+      required:
+      - field_id
+      - pest_id
+      - pest_name_en
+      - pest_name_ar
+      - priority
+      - title_en
+      - title_ar
+      - message_en
+      - message_ar
+      title: Alert
+      description: Pest alert.
+    AlertPriority:
+      type: string
+      enum:
+      - low
+      - medium
+      - high
+      - critical
+      title: AlertPriority
+      description: Alert priority levels.
+    AlertStatus:
+      type: string
+      enum:
+      - active
+      - acknowledged
+      - resolved
+      - dismissed
+      title: AlertStatus
+      description: Alert status.
+    Body_identify_pest_from_image_api_v1_pests_identify_post:
+      properties:
+        file:
+          type: string
+          contentMediaType: application/octet-stream
+          title: File
+          description: Image file (JPG, PNG)
+      type: object
+      required:
+      - file
+      title: Body_identify_pest_from_image_api_v1_pests_identify_post
+    DetectionResult:
+      properties:
+        pest_id:
+          type: string
+          title: Pest Id
+        pest_name_en:
+          type: string
+          title: Pest Name En
+        pest_name_ar:
+          type: string
+          title: Pest Name Ar
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+        severity:
+          $ref: '#/components/schemas/SeverityLevel'
+        life_stage:
+          anyOf:
+          - $ref: '#/components/schemas/LifeStage'
+          - type: 'null'
+        bounding_box:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Bounding Box
+        recommendations_en:
+          items:
+            type: string
+          type: array
+          title: Recommendations En
+        recommendations_ar:
+          items:
+            type: string
+          type: array
+          title: Recommendations Ar
+      type: object
+      required:
+      - pest_id
+      - pest_name_en
+      - pest_name_ar
+      - confidence
+      - severity
+      - recommendations_en
+      - recommendations_ar
+      title: DetectionResult
+      description: AI pest detection result.
+    EconomicThreshold:
+      properties:
+        id:
+          type: string
+          title: Id
+        pest_id:
+          type: string
+          title: Pest Id
+        pest_name_en:
+          type: string
+          title: Pest Name En
+        pest_name_ar:
+          type: string
+          title: Pest Name Ar
+        crop:
+          type: string
+          title: Crop
+        threshold_value:
+          type: number
+          title: Threshold Value
+        threshold_unit:
+          type: string
+          title: Threshold Unit
+        threshold_unit_ar:
+          type: string
+          title: Threshold Unit Ar
+        action_threshold:
+          type: number
+          title: Action Threshold
+        economic_injury_level:
+          type: number
+          title: Economic Injury Level
+        sampling_method_en:
+          type: string
+          title: Sampling Method En
+        sampling_method_ar:
+          type: string
+          title: Sampling Method Ar
+        notes_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes En
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+      type: object
+      required:
+      - id
+      - pest_id
+      - pest_name_en
+      - pest_name_ar
+      - crop
+      - threshold_value
+      - threshold_unit
+      - threshold_unit_ar
+      - action_threshold
+      - economic_injury_level
+      - sampling_method_en
+      - sampling_method_ar
+      title: EconomicThreshold
+      description: Economic threshold for pest.
+    GPSLocation:
+      properties:
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+        longitude:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Longitude
+        accuracy_m:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Accuracy M
+      type: object
+      required:
+      - latitude
+      - longitude
+      title: GPSLocation
+      description: GPS coordinates.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IdentifyRequest:
+      properties:
+        crop:
+          type: string
+          title: Crop
+        symptoms:
+          items:
+            type: string
+          type: array
+          title: Symptoms
+        region:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Region
+          default: middle_east
+      type: object
+      required:
+      - crop
+      - symptoms
+      title: IdentifyRequest
+      description: Request for symptom-based identification.
+    InfestationLevel:
+      type: string
+      enum:
+      - none
+      - trace
+      - low
+      - moderate
+      - high
+      - severe
+      title: InfestationLevel
+      description: Infestation level assessment.
+    LifeStage:
+      type: string
+      enum:
+      - egg
+      - larva
+      - pupa
+      - nymph
+      - adult
+      title: LifeStage
+      description: Pest life stages.
+    Observation:
+      properties:
+        id:
+          type: string
+          title: Id
+        pest_id:
+          type: string
+          title: Pest Id
+        pest_name_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pest Name En
+        pest_name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Pest Name Ar
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/GPSLocation'
+          - type: 'null'
+        infestation_level:
+          $ref: '#/components/schemas/InfestationLevel'
+        affected_area_percent:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Affected Area Percent
+        life_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Life Stage
+        count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Count
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+        image_urls:
+          items:
+            type: string
+          type: array
+          title: Image Urls
+          default: []
+        observed_at:
+          type: string
+          format: date-time
+          title: Observed At
+      type: object
+      required:
+      - pest_id
+      - infestation_level
+      - affected_area_percent
+      title: Observation
+      description: Single pest observation.
+    ObservationCreate:
+      properties:
+        pest_id:
+          type: string
+          title: Pest Id
+        location:
+          anyOf:
+          - $ref: '#/components/schemas/GPSLocation'
+          - type: 'null'
+        infestation_level:
+          $ref: '#/components/schemas/InfestationLevel'
+        affected_area_percent:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Affected Area Percent
+        life_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Life Stage
+        count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Count
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+        image_urls:
+          items:
+            type: string
+          type: array
+          title: Image Urls
+          default: []
+      type: object
+      required:
+      - pest_id
+      - infestation_level
+      - affected_area_percent
+      title: ObservationCreate
+      description: Add observation to report.
+    Pest:
+      properties:
+        id:
+          type: string
+          title: Id
+        name_en:
+          type: string
+          title: Name En
+          description: English name
+        name_ar:
+          type: string
+          title: Name Ar
+          description: Arabic name
+        scientific_name:
+          type: string
+          title: Scientific Name
+        category:
+          $ref: '#/components/schemas/PestCategory'
+        description_en:
+          type: string
+          title: Description En
+        description_ar:
+          type: string
+          title: Description Ar
+        affected_crops:
+          items:
+            type: string
+          type: array
+          title: Affected Crops
+        symptoms_en:
+          items:
+            type: string
+          type: array
+          title: Symptoms En
+        symptoms_ar:
+          items:
+            type: string
+          type: array
+          title: Symptoms Ar
+        is_quarantine:
+          type: boolean
+          title: Is Quarantine
+          default: false
+        image_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Image Url
+      type: object
+      required:
+      - id
+      - name_en
+      - name_ar
+      - scientific_name
+      - category
+      - description_en
+      - description_ar
+      - affected_crops
+      - symptoms_en
+      - symptoms_ar
+      title: Pest
+      description: Pest information model.
+    PestCategory:
+      type: string
+      enum:
+      - insect
+      - mite
+      - nematode
+      - rodent
+      - bird
+      - mollusk
+      title: PestCategory
+      description: Pest categories.
+    RecommendationRequest:
+      properties:
+        pest_id:
+          type: string
+          title: Pest Id
+        crop:
+          type: string
+          title: Crop
+        severity:
+          type: string
+          title: Severity
+        growth_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growth Stage
+        organic_only:
+          type: boolean
+          title: Organic Only
+          default: false
+        budget_constraint:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Budget Constraint
+      type: object
+      required:
+      - pest_id
+      - crop
+      - severity
+      title: RecommendationRequest
+      description: Request for treatment recommendation.
+    ReportStatus:
+      type: string
+      enum:
+      - draft
+      - submitted
+      - reviewed
+      - action_required
+      - resolved
+      title: ReportStatus
+      description: Scout report status.
+    SafetyLevel:
+      type: string
+      enum:
+      - low_risk
+      - moderate
+      - caution
+      - warning
+      - danger
+      title: SafetyLevel
+      description: Safety classification.
+    ScoutReport:
+      properties:
+        id:
+          type: string
+          title: Id
+        field_id:
+          type: string
+          title: Field Id
+        crop:
+          type: string
+          title: Crop
+        growth_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growth Stage
+        scout_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scout Name
+        status:
+          $ref: '#/components/schemas/ReportStatus'
+          default: draft
+        observations:
+          items:
+            $ref: '#/components/schemas/Observation'
+          type: array
+          title: Observations
+          default: []
+        weather_conditions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Weather Conditions
+        general_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: General Notes
+        general_notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: General Notes Ar
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+        reviewed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reviewed By
+        review_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Review Notes
+      type: object
+      required:
+      - field_id
+      - crop
+      title: ScoutReport
+      description: Scout report model.
+    ScoutReportCreate:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        crop:
+          type: string
+          title: Crop
+        growth_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growth Stage
+        scout_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Scout Name
+        observations:
+          items:
+            $ref: '#/components/schemas/Observation'
+          type: array
+          title: Observations
+          default: []
+        weather_conditions:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Weather Conditions
+        general_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: General Notes
+        general_notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: General Notes Ar
+      type: object
+      required:
+      - field_id
+      - crop
+      title: ScoutReportCreate
+      description: Create scout report request.
+    SeverityLevel:
+      type: string
+      enum:
+      - none
+      - low
+      - medium
+      - high
+      - critical
+      title: SeverityLevel
+      description: Infestation severity levels.
+    ThresholdAssessment:
+      properties:
+        pest_id:
+          type: string
+          title: Pest Id
+        crop:
+          type: string
+          title: Crop
+        current_value:
+          type: number
+          title: Current Value
+        field_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+        growth_stage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Growth Stage
+      type: object
+      required:
+      - pest_id
+      - crop
+      - current_value
+      title: ThresholdAssessment
+      description: Request to assess threshold status.
+    ThresholdResult:
+      properties:
+        pest_id:
+          type: string
+          title: Pest Id
+        crop:
+          type: string
+          title: Crop
+        current_value:
+          type: number
+          title: Current Value
+        threshold_value:
+          type: number
+          title: Threshold Value
+        action_threshold:
+          type: number
+          title: Action Threshold
+        status:
+          $ref: '#/components/schemas/ThresholdStatus'
+        status_ar:
+          type: string
+          title: Status Ar
+        yield_loss_estimate_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Yield Loss Estimate Percent
+        recommendation_en:
+          type: string
+          title: Recommendation En
+        recommendation_ar:
+          type: string
+          title: Recommendation Ar
+        urgency:
+          $ref: '#/components/schemas/AlertPriority'
+      type: object
+      required:
+      - pest_id
+      - crop
+      - current_value
+      - threshold_value
+      - action_threshold
+      - status
+      - status_ar
+      - recommendation_en
+      - recommendation_ar
+      - urgency
+      title: ThresholdResult
+      description: Threshold assessment result.
+    ThresholdStatus:
+      type: string
+      enum:
+      - below
+      - approaching
+      - at_threshold
+      - exceeded
+      title: ThresholdStatus
+      description: Threshold status.
+    TreatmentOption:
+      properties:
+        id:
+          type: string
+          title: Id
+        type:
+          $ref: '#/components/schemas/TreatmentType'
+        name_en:
+          type: string
+          title: Name En
+        name_ar:
+          type: string
+          title: Name Ar
+        active_ingredient:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Active Ingredient
+        active_ingredient_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Active Ingredient Ar
+        application_rate:
+          type: string
+          title: Application Rate
+        application_rate_ar:
+          type: string
+          title: Application Rate Ar
+        application_method_en:
+          type: string
+          title: Application Method En
+        application_method_ar:
+          type: string
+          title: Application Method Ar
+        phi_days:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Phi Days
+          description: Pre-Harvest Interval in days
+        rei_hours:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Rei Hours
+          description: Restricted Entry Interval in hours
+        safety_level:
+          $ref: '#/components/schemas/SafetyLevel'
+          default: moderate
+        ppe_required_en:
+          items:
+            type: string
+          type: array
+          title: Ppe Required En
+          default: []
+        ppe_required_ar:
+          items:
+            type: string
+          type: array
+          title: Ppe Required Ar
+          default: []
+        effectiveness_rating:
+          type: number
+          maximum: 5.0
+          minimum: 0.0
+          title: Effectiveness Rating
+        environmental_impact:
+          type: string
+          title: Environmental Impact
+        environmental_impact_ar:
+          type: string
+          title: Environmental Impact Ar
+        cost_level:
+          type: string
+          title: Cost Level
+        notes_en:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes En
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+      type: object
+      required:
+      - id
+      - type
+      - name_en
+      - name_ar
+      - application_rate
+      - application_rate_ar
+      - application_method_en
+      - application_method_ar
+      - effectiveness_rating
+      - environmental_impact
+      - environmental_impact_ar
+      - cost_level
+      title: TreatmentOption
+      description: Single treatment option.
+    TreatmentProtocol:
+      properties:
+        pest_id:
+          type: string
+          title: Pest Id
+        pest_name_en:
+          type: string
+          title: Pest Name En
+        pest_name_ar:
+          type: string
+          title: Pest Name Ar
+        crop:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Crop
+        chemical_options:
+          items:
+            $ref: '#/components/schemas/TreatmentOption'
+          type: array
+          title: Chemical Options
+          default: []
+        biological_options:
+          items:
+            $ref: '#/components/schemas/TreatmentOption'
+          type: array
+          title: Biological Options
+          default: []
+        cultural_options:
+          items:
+            $ref: '#/components/schemas/TreatmentOption'
+          type: array
+          title: Cultural Options
+          default: []
+        ipm_strategy_en:
+          type: string
+          title: Ipm Strategy En
+        ipm_strategy_ar:
+          type: string
+          title: Ipm Strategy Ar
+        rotation_recommendation_en:
+          type: string
+          title: Rotation Recommendation En
+        rotation_recommendation_ar:
+          type: string
+          title: Rotation Recommendation Ar
+      type: object
+      required:
+      - pest_id
+      - pest_name_en
+      - pest_name_ar
+      - ipm_strategy_en
+      - ipm_strategy_ar
+      - rotation_recommendation_en
+      - rotation_recommendation_ar
+      title: TreatmentProtocol
+      description: Treatment protocol for a pest.
+    TreatmentType:
+      type: string
+      enum:
+      - chemical
+      - biological
+      - cultural
+      - mechanical
+      - pheromone
+      title: TreatmentType
+      description: Treatment type.
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

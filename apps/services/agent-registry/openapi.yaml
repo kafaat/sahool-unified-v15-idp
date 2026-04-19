@@ -1,0 +1,894 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Agent Registry Service
+  description: A2A Protocol-compliant agent registry for SAHOOL platform
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      tags:
+      - Health
+      summary: Health Check
+      description: 'Health check endpoint
+
+        نقطة فحص الصحة'
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      tags:
+      - Health
+      summary: Readiness
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/registry/stats:
+    get:
+      tags:
+      - Registry
+      summary: Get Registry Stats
+      description: 'Get registry statistics
+
+        الحصول على إحصائيات السجل'
+      operationId: get_registry_stats_api_v1_registry_stats_get
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/agents:
+    post:
+      tags:
+      - Agents
+      summary: Register Agent
+      description: 'Register a new agent
+
+        تسجيل وكيل جديد
+
+
+        Requires API key authentication.
+
+        يتطلب مصادقة مفتاح API.'
+      operationId: register_agent_api_v1_registry_agents_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterAgentRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+      - Agents
+      summary: List Agents
+      description: 'List all agents with optional filters
+
+        قائمة بجميع الوكلاء مع مرشحات اختيارية'
+      operationId: list_agents_api_v1_registry_agents_get
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/agents/{agent_id}:
+    get:
+      tags:
+      - Agents
+      summary: Get Agent
+      description: 'Get agent card by ID
+
+        الحصول على بطاقة الوكيل بواسطة المعرف'
+      operationId: get_agent_api_v1_registry_agents__agent_id__get
+      parameters:
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - Agents
+      summary: Deregister Agent
+      description: 'Deregister an agent
+
+        إلغاء تسجيل وكيل
+
+
+        Requires API key authentication.
+
+        يتطلب مصادقة مفتاح API.'
+      operationId: deregister_agent_api_v1_registry_agents__agent_id__delete
+      parameters:
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/discover/capability:
+    get:
+      tags:
+      - Discovery
+      summary: Discover By Capability
+      description: 'Discover agents by capability
+
+        اكتشاف الوكلاء حسب القدرة'
+      operationId: discover_by_capability_api_v1_registry_discover_capability_get
+      parameters:
+      - name: capability
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Capability
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/discover/skill:
+    get:
+      tags:
+      - Discovery
+      summary: Discover By Skill
+      description: 'Discover agents by skill
+
+        اكتشاف الوكلاء حسب المهارة'
+      operationId: discover_by_skill_api_v1_registry_discover_skill_get
+      parameters:
+      - name: skill
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Skill
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/discover/tags:
+    post:
+      tags:
+      - Discovery
+      summary: Discover By Tags
+      description: 'Discover agents by tags
+
+        اكتشاف الوكلاء حسب العلامات'
+      operationId: discover_by_tags_api_v1_registry_discover_tags_post
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscoverByTagsRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/agents/{agent_id}/health:
+    get:
+      tags:
+      - Health
+      summary: Check Agent Health
+      description: 'Check health of a specific agent
+
+        فحص صحة وكيل محدد'
+      operationId: check_agent_health_api_v1_registry_agents__agent_id__health_get
+      parameters:
+      - name: agent_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Agent Id
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/registry/health/all:
+    get:
+      tags:
+      - Health
+      summary: Get All Health Statuses
+      description: 'Get health statuses of all agents
+
+        الحصول على حالات صحة جميع الوكلاء'
+      operationId: get_all_health_statuses_api_v1_registry_health_all_get
+      parameters:
+      - name: x-api-key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Api-Key
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AgentCapability:
+      properties:
+        name:
+          type: string
+          title: Name
+          description: Capability name
+        description:
+          type: string
+          title: Description
+          description: Capability description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+          description: Arabic description
+        input_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Input Schema
+          description: JSON Schema for input
+        output_schema:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Output Schema
+          description: JSON Schema for output
+        examples:
+          anyOf:
+          - items:
+              additionalProperties: true
+              type: object
+            type: array
+          - type: 'null'
+          title: Examples
+          description: Usage examples
+      type: object
+      required:
+      - name
+      - description
+      title: AgentCapability
+      description: 'Agent capability definition
+
+        تعريف قدرة الوكيل
+
+
+        Describes a specific capability or function the agent can perform.
+
+        يصف قدرة أو وظيفة محددة يمكن للوكيل أدائها.'
+      example:
+        description: Diagnose crop diseases from symptoms
+        description_ar: تشخيص أمراض المحاصيل من الأعراض
+        input_schema:
+          properties:
+            crop_type:
+              type: string
+            symptoms:
+              type: object
+          type: object
+        name: diagnose_disease
+        output_schema:
+          properties:
+            disease:
+              type: string
+            confidence:
+              type: number
+          type: object
+    AgentCard:
+      properties:
+        agent_id:
+          type: string
+          minLength: 1
+          title: Agent Id
+          description: Unique agent identifier
+        name:
+          type: string
+          minLength: 1
+          title: Name
+          description: Agent name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+          description: Arabic name
+        version:
+          type: string
+          pattern: ^\d+\.\d+\.\d+$
+          title: Version
+          description: Agent version (semver)
+        description:
+          type: string
+          minLength: 1
+          title: Description
+          description: Agent description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+          description: Arabic description
+        capabilities:
+          items:
+            $ref: '#/components/schemas/AgentCapability'
+          type: array
+          title: Capabilities
+          description: Agent capabilities
+        skills:
+          items:
+            $ref: '#/components/schemas/AgentSkill'
+          type: array
+          title: Skills
+          description: Agent skills/expertise
+        input_modes:
+          items:
+            $ref: '#/components/schemas/InputMode'
+          type: array
+          title: Input Modes
+          description: Supported input modes
+        output_modes:
+          items:
+            $ref: '#/components/schemas/OutputMode'
+          type: array
+          title: Output Modes
+          description: Supported output modes
+        endpoint:
+          $ref: '#/components/schemas/AgentEndpoint'
+          description: Primary agent endpoint
+        health_endpoint:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Health Endpoint
+          description: Health check endpoint
+        security_scheme:
+          $ref: '#/components/schemas/SecurityScheme'
+          description: Authentication scheme
+          default: bearer
+        requires_authentication:
+          type: boolean
+          title: Requires Authentication
+          description: Whether authentication is required
+          default: true
+        dependencies:
+          items:
+            type: string
+          type: array
+          title: Dependencies
+          description: Other agents this agent depends on
+        metadata:
+          $ref: '#/components/schemas/AgentMetadata'
+          description: Additional metadata
+        status:
+          type: string
+          enum:
+          - active
+          - inactive
+          - deprecated
+          - maintenance
+          title: Status
+          description: Agent status
+          default: active
+      type: object
+      required:
+      - agent_id
+      - name
+      - version
+      - description
+      - endpoint
+      title: AgentCard
+      description: 'A2A Protocol Agent Card
+
+        بطاقة الوكيل - بروتوكول A2A
+
+
+        Complete agent specification following the A2A protocol.
+
+        مواصفات كاملة للوكيل تتبع بروتوكول A2A.
+
+
+        This is the core data structure for agent registry and discovery.
+
+        هذا هو هيكل البيانات الأساسي لسجل واكتشاف الوكلاء.'
+      example:
+        agent_id: disease-expert-agent
+        capabilities:
+        - description: Diagnose crop diseases from symptoms
+          input_schema:
+            type: object
+          name: diagnose_disease
+          output_schema:
+            type: object
+        dependencies:
+        - crop-health-service
+        - satellite-service
+        description: AI agent specialized in diagnosing crop diseases
+        description_ar: وكيل ذكاء اصطناعي متخصص في تشخيص أمراض المحاصيل
+        endpoint:
+          method: POST
+          url: https://api.sahool.app/agents/disease-expert/invoke
+        health_endpoint: https://api.sahool.app/agents/disease-expert/health
+        input_modes:
+        - text
+        - structured
+        - multimodal
+        name: Disease Expert Agent
+        name_ar: وكيل خبير الأمراض
+        output_modes:
+        - text
+        - structured
+        requires_authentication: true
+        security_scheme: bearer
+        skills:
+        - keywords:
+          - disease
+          - diagnosis
+          level: expert
+          name: Crop Pathology
+          skill_id: crop_pathology
+        status: active
+        version: 1.0.0
+    AgentEndpoint:
+      properties:
+        url:
+          type: string
+          maxLength: 2083
+          minLength: 1
+          format: uri
+          title: Url
+          description: Endpoint URL
+        method:
+          type: string
+          enum:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+          - PATCH
+          title: Method
+          description: HTTP method
+          default: POST
+        headers:
+          anyOf:
+          - additionalProperties:
+              type: string
+            type: object
+          - type: 'null'
+          title: Headers
+          description: Required headers
+        timeout_seconds:
+          type: integer
+          title: Timeout Seconds
+          description: Request timeout
+          default: 30
+      type: object
+      required:
+      - url
+      title: AgentEndpoint
+      description: 'Agent endpoint configuration
+
+        تكوين نقطة نهاية الوكيل'
+      example:
+        headers:
+          Content-Type: application/json
+        method: POST
+        timeout_seconds: 30
+        url: https://api.sahool.app/agents/disease-expert/invoke
+    AgentMetadata:
+      properties:
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Searchable tags
+        category:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+          description: Agent category
+        organization:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Organization
+          description: Organization/owner
+        license:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: License
+          description: License type
+        homepage:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Homepage
+          description: Agent homepage
+        documentation:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Documentation
+          description: Documentation URL
+        source_code:
+          anyOf:
+          - type: string
+            maxLength: 2083
+            minLength: 1
+            format: uri
+          - type: 'null'
+          title: Source Code
+          description: Source code repository
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+          description: Last update timestamp
+      type: object
+      title: AgentMetadata
+      description: 'Agent metadata and discovery information
+
+        البيانات الوصفية للوكيل ومعلومات الاكتشاف'
+      example:
+        category: agricultural-intelligence
+        documentation: https://docs.sahool.app/agents/disease-expert
+        homepage: https://sahool.app
+        license: MIT
+        organization: SAHOOL
+        tags:
+        - agriculture
+        - ai
+        - disease-detection
+    AgentSkill:
+      properties:
+        skill_id:
+          type: string
+          title: Skill Id
+          description: Unique skill identifier
+        name:
+          type: string
+          title: Name
+          description: Skill name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+          description: Arabic name
+        level:
+          type: string
+          enum:
+          - beginner
+          - intermediate
+          - advanced
+          - expert
+          title: Level
+          description: Proficiency level
+        keywords:
+          items:
+            type: string
+          type: array
+          title: Keywords
+          description: Search keywords
+      type: object
+      required:
+      - skill_id
+      - name
+      - level
+      title: AgentSkill
+      description: 'Agent skill/expertise area
+
+        مهارة/مجال خبرة الوكيل
+
+
+        Represents a domain or area of expertise for the agent.
+
+        يمثل مجالًا أو منطقة خبرة للوكيل.'
+      example:
+        keywords:
+        - disease
+        - diagnosis
+        - pathology
+        - pest
+        level: expert
+        name: Crop Disease Diagnosis
+        name_ar: تشخيص أمراض المحاصيل
+        skill_id: crop_disease_diagnosis
+    DiscoverByTagsRequest:
+      properties:
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+          description: Tags to search for
+      type: object
+      required:
+      - tags
+      title: DiscoverByTagsRequest
+      description: Request to discover agents by tags / طلب لاكتشاف الوكلاء حسب العلامات
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InputMode:
+      type: string
+      enum:
+      - text
+      - structured
+      - multimodal
+      - stream
+      title: InputMode
+      description: Agent input modes / أنماط إدخال الوكيل
+    OutputMode:
+      type: string
+      enum:
+      - text
+      - structured
+      - multimodal
+      - stream
+      title: OutputMode
+      description: Agent output modes / أنماط إخراج الوكيل
+    RegisterAgentRequest:
+      properties:
+        agent_card:
+          $ref: '#/components/schemas/AgentCard'
+          description: Agent card to register
+      type: object
+      required:
+      - agent_card
+      title: RegisterAgentRequest
+      description: Request to register an agent / طلب لتسجيل وكيل
+    SecurityScheme:
+      type: string
+      enum:
+      - apiKey
+      - bearer
+      - oauth2
+      - mutualTLS
+      - none
+      title: SecurityScheme
+      description: Security authentication schemes / مخططات المصادقة الأمنية
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

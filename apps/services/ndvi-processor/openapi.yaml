@@ -1,0 +1,1283 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL NDVI Processor
+  description: "\n    خدمة معالجة صور الأقمار الصناعية وحساب NDVI\n\n    ## الميزات\
+    \ الرئيسية\n\n    - معالجة صور Sentinel-2, Landsat, MODIS\n    - التصحيح الجوي\
+    \ وقناع السحب\n    - السلاسل الزمنية لـ NDVI\n    - تحليل التغير والشذوذ\n   \
+    \ - إنشاء المركبات الشهرية\n    - تصدير GeoTIFF و PNG\n    "
+  version: 16.0.0
+paths:
+  /health:
+    get:
+      summary: Health
+      description: فحص الصحة - Health check with metrics
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /healthz:
+    get:
+      summary: Healthz
+      description: فحص الصحة - Kubernetes liveness probe
+      operationId: healthz_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      description: فحص الجاهزية - Kubernetes readiness probe
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /process:
+    post:
+      summary: Start Processing
+      description: بدء معالجة صورة جديدة
+      operationId: start_processing_process_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      summary: List Processing Jobs
+      description: قائمة المهام مع عزل إلزامي للمستأجر
+      operationId: list_processing_jobs_process_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Tenant ID for isolation
+          title: Tenant Id
+        description: Tenant ID for isolation
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          type: string
+          title: Field Id
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /process/{job_id}/status:
+    get:
+      summary: Get Job Status
+      description: حالة المعالجة
+      operationId: get_job_status_process__job_id__status_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /process/{job_id}:
+    delete:
+      summary: Cancel Processing
+      description: إلغاء معالجة
+      operationId: cancel_processing_process__job_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /fields/{field_id}/ndvi:
+    get:
+      summary: Get Ndvi
+      description: الحصول على NDVI
+      operationId: get_ndvi_fields__field_id__ndvi_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /fields/{field_id}/ndvi/latest:
+    get:
+      summary: Get Latest Ndvi
+      description: أحدث NDVI متاح
+      operationId: get_latest_ndvi_fields__field_id__ndvi_latest_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /fields/{field_id}/ndvi/timeseries:
+    get:
+      summary: Get Timeseries
+      description: السلسلة الزمنية
+      operationId: get_timeseries_fields__field_id__ndvi_timeseries_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: start
+        in: query
+        required: true
+        schema:
+          type: string
+          description: YYYY-MM-DD
+          title: Start
+        description: YYYY-MM-DD
+      - name: end
+        in: query
+        required: true
+        schema:
+          type: string
+          description: YYYY-MM-DD
+          title: End
+        description: YYYY-MM-DD
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeseriesResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /fields/{field_id}/ndvi/change:
+    get:
+      summary: Get Change Analysis
+      description: تحليل التغير
+      operationId: get_change_analysis_fields__field_id__ndvi_change_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: date1
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Date1
+      - name: date2
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Date2
+      - name: include_zones
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Include Zones
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeAnalysisResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Post Change Analysis
+      description: تحليل التغير (POST)
+      operationId: post_change_analysis_fields__field_id__ndvi_change_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangeAnalysisRequest'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeAnalysisResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /fields/{field_id}/ndvi/seasonal:
+    get:
+      summary: Get Seasonal Analysis
+      description: تحليل موسمي
+      operationId: get_seasonal_analysis_fields__field_id__ndvi_seasonal_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          maximum: 2100
+          minimum: 2000
+          title: Year
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeasonalAnalysisResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /fields/{field_id}/ndvi/anomaly:
+    get:
+      summary: Get Anomaly Detection
+      description: كشف الشذوذ
+      operationId: get_anomaly_detection_fields__field_id__ndvi_anomaly_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Date
+      - name: current_ndvi
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+            maximum: 1
+            minimum: -1
+          - type: 'null'
+          title: Current Ndvi
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /fields/{field_id}/ndvi/export:
+    get:
+      summary: Export Ndvi
+      description: تصدير NDVI
+      operationId: export_ndvi_fields__field_id__ndvi_export_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: date
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Date
+      - name: start
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Start
+      - name: end
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: End
+      - name: format
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/ExportFormat'
+          default: geotiff
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /composites/monthly:
+    post:
+      summary: Create Monthly Composite
+      description: إنشاء مركب شهري
+      operationId: create_monthly_composite_composites_monthly_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompositeRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompositeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /fields/{field_id}/composites:
+    get:
+      summary: List Composites
+      description: قائمة المركبات
+      operationId: list_composites_fields__field_id__composites_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: year
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Year
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompositeListResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /composites/{composite_id}:
+    get:
+      summary: Get Composite
+      description: جلب مركب
+      operationId: get_composite_composites__composite_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: composite_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Composite Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /composites/{composite_id}/download:
+    get:
+      summary: Download Composite
+      description: تنزيل مركب
+      operationId: download_composite_composites__composite_id__download_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: composite_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Composite Id
+      - name: format
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/ExportFormat'
+          default: geotiff
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AnomalyResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        date:
+          type: string
+          title: Date
+        current_ndvi:
+          type: number
+          title: Current Ndvi
+        historical_mean:
+          type: number
+          title: Historical Mean
+        historical_std:
+          type: number
+          title: Historical Std
+        z_score:
+          type: number
+          title: Z Score
+        is_anomaly:
+          type: boolean
+          title: Is Anomaly
+        anomaly_type:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Anomaly Type
+        severity:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Severity
+      type: object
+      required:
+      - field_id
+      - date
+      - current_ndvi
+      - historical_mean
+      - historical_std
+      - z_score
+      - is_anomaly
+      - anomaly_type
+      - severity
+      title: AnomalyResponse
+      description: استجابة الشذوذ
+    ChangeAnalysisRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        field_id:
+          type: string
+          title: Field Id
+        date1:
+          type: string
+          title: Date1
+        date2:
+          type: string
+          title: Date2
+        include_zones:
+          type: boolean
+          title: Include Zones
+          default: true
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - date1
+      - date2
+      title: ChangeAnalysisRequest
+      description: طلب تحليل التغير
+    ChangeAnalysisResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        date1:
+          type: string
+          title: Date1
+        date2:
+          type: string
+          title: Date2
+        days_between:
+          type: integer
+          title: Days Between
+        change:
+          additionalProperties: true
+          type: object
+          title: Change
+        zones:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ZoneChange'
+            type: array
+          - type: 'null'
+          title: Zones
+      type: object
+      required:
+      - field_id
+      - date1
+      - date2
+      - days_between
+      - change
+      - zones
+      title: ChangeAnalysisResponse
+      description: استجابة تحليل التغير
+    CompositeListResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        composites:
+          items:
+            $ref: '#/components/schemas/CompositeResponse'
+          type: array
+          title: Composites
+        total:
+          type: integer
+          title: Total
+      type: object
+      required:
+      - field_id
+      - composites
+      - total
+      title: CompositeListResponse
+      description: قائمة المركبات
+    CompositeMethod:
+      type: string
+      enum:
+      - max_ndvi
+      - mean_ndvi
+      - median_ndvi
+      - min_cloud
+      title: CompositeMethod
+      description: طريقة التركيب
+    CompositeRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        field_id:
+          type: string
+          title: Field Id
+        year:
+          type: integer
+          maximum: 2100.0
+          minimum: 2000.0
+          title: Year
+        month:
+          type: integer
+          maximum: 12.0
+          minimum: 1.0
+          title: Month
+        method:
+          $ref: '#/components/schemas/CompositeMethod'
+          default: max_ndvi
+        source:
+          $ref: '#/components/schemas/SatelliteSource'
+          default: sentinel-2
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - year
+      - month
+      title: CompositeRequest
+      description: طلب إنشاء مركب
+    CompositeResponse:
+      properties:
+        composite_id:
+          type: string
+          title: Composite Id
+        field_id:
+          type: string
+          title: Field Id
+        year:
+          type: integer
+          title: Year
+        month:
+          type: integer
+          title: Month
+        method:
+          type: string
+          title: Method
+        source:
+          type: string
+          title: Source
+        statistics:
+          $ref: '#/components/schemas/NDVIStatistics'
+        images_used:
+          type: integer
+          title: Images Used
+        files:
+          $ref: '#/components/schemas/FileUrls'
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - composite_id
+      - field_id
+      - year
+      - month
+      - method
+      - source
+      - statistics
+      - images_used
+      - files
+      - created_at
+      title: CompositeResponse
+      description: استجابة المركب
+    DateRange:
+      properties:
+        start:
+          type: string
+          title: Start
+          description: تاريخ البداية YYYY-MM-DD
+        end:
+          type: string
+          title: End
+          description: تاريخ النهاية YYYY-MM-DD
+      type: object
+      required:
+      - start
+      - end
+      title: DateRange
+      description: نطاق التاريخ
+    ExportFormat:
+      type: string
+      enum:
+      - geotiff
+      - png
+      - csv
+      - json
+      title: ExportFormat
+      description: صيغة التصدير
+    FileUrls:
+      properties:
+        geotiff:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Geotiff
+        png:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Png
+        thumbnail:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Thumbnail
+      type: object
+      title: FileUrls
+      description: روابط الملفات
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    JobListResponse:
+      properties:
+        jobs:
+          items:
+            $ref: '#/components/schemas/JobResponse'
+          type: array
+          title: Jobs
+        total:
+          type: integer
+          title: Total
+        active_count:
+          type: integer
+          title: Active Count
+      type: object
+      required:
+      - jobs
+      - total
+      - active_count
+      title: JobListResponse
+      description: قائمة المهام
+    JobResponse:
+      properties:
+        job_id:
+          type: string
+          title: Job Id
+        field_id:
+          type: string
+          title: Field Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        type:
+          type: string
+          title: Type
+        status:
+          $ref: '#/components/schemas/JobStatus'
+        progress_percent:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Progress Percent
+        parameters:
+          additionalProperties: true
+          type: object
+          title: Parameters
+        started_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Started At
+        completed_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Completed At
+        estimated_completion:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Estimated Completion
+        result:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Result
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      type: object
+      required:
+      - job_id
+      - field_id
+      - tenant_id
+      - type
+      - status
+      - progress_percent
+      - parameters
+      - started_at
+      - completed_at
+      - estimated_completion
+      - result
+      - error
+      title: JobResponse
+      description: استجابة المهمة
+    JobStatus:
+      type: string
+      enum:
+      - queued
+      - processing
+      - completed
+      - failed
+      - cancelled
+      title: JobStatus
+      description: حالة المهمة
+    NDVIStatistics:
+      properties:
+        mean:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Mean
+        median:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Median
+        std:
+          type: number
+          minimum: 0.0
+          title: Std
+        min:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Min
+        max:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Max
+        percentiles:
+          anyOf:
+          - additionalProperties:
+              type: number
+            type: object
+          - type: 'null'
+          title: Percentiles
+      type: object
+      required:
+      - mean
+      - std
+      - min
+      - max
+      title: NDVIStatistics
+      description: إحصائيات NDVI
+    ProcessRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        field_id:
+          type: string
+          title: Field Id
+        source:
+          $ref: '#/components/schemas/SatelliteSource'
+          default: sentinel-2
+        date_range:
+          $ref: '#/components/schemas/DateRange'
+        options:
+          anyOf:
+          - $ref: '#/components/schemas/ProcessingOptions'
+          - type: 'null'
+        priority:
+          type: integer
+          maximum: 10.0
+          minimum: 1.0
+          title: Priority
+          default: 5
+        callback_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Callback Url
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - date_range
+      title: ProcessRequest
+      description: طلب معالجة صورة
+    ProcessingOptions:
+      properties:
+        cloud_threshold_percent:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Cloud Threshold Percent
+          default: 20
+        atmospheric_correction:
+          type: boolean
+          title: Atmospheric Correction
+          default: true
+        cloud_masking:
+          type: boolean
+          title: Cloud Masking
+          default: true
+        output_format:
+          $ref: '#/components/schemas/ExportFormat'
+          default: geotiff
+        include_thumbnail:
+          type: boolean
+          title: Include Thumbnail
+          default: true
+      type: object
+      title: ProcessingOptions
+      description: خيارات المعالجة
+    SatelliteSource:
+      type: string
+      enum:
+      - sentinel-2
+      - landsat-8
+      - landsat-9
+      - modis
+      title: SatelliteSource
+      description: مصادر الأقمار الصناعية
+    SeasonalAnalysisResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        year:
+          type: integer
+          title: Year
+        seasons:
+          items:
+            $ref: '#/components/schemas/SeasonalStats'
+          type: array
+          title: Seasons
+        peak_month:
+          type: integer
+          title: Peak Month
+        trough_month:
+          type: integer
+          title: Trough Month
+        annual_mean:
+          type: number
+          title: Annual Mean
+      type: object
+      required:
+      - field_id
+      - year
+      - seasons
+      - peak_month
+      - trough_month
+      - annual_mean
+      title: SeasonalAnalysisResponse
+      description: استجابة التحليل الموسمي
+    SeasonalStats:
+      properties:
+        season:
+          type: string
+          title: Season
+        season_ar:
+          type: string
+          title: Season Ar
+        months:
+          items:
+            type: integer
+          type: array
+          title: Months
+        ndvi_mean:
+          type: number
+          title: Ndvi Mean
+        ndvi_max:
+          type: number
+          title: Ndvi Max
+        ndvi_min:
+          type: number
+          title: Ndvi Min
+        observations_count:
+          type: integer
+          title: Observations Count
+      type: object
+      required:
+      - season
+      - season_ar
+      - months
+      - ndvi_mean
+      - ndvi_max
+      - ndvi_min
+      - observations_count
+      title: SeasonalStats
+      description: إحصائيات موسمية
+    TimeseriesPoint:
+      properties:
+        date:
+          type: string
+          title: Date
+        ndvi_mean:
+          type: number
+          title: Ndvi Mean
+        ndvi_min:
+          type: number
+          title: Ndvi Min
+        ndvi_max:
+          type: number
+          title: Ndvi Max
+        cloud_cover_percent:
+          type: number
+          title: Cloud Cover Percent
+        source:
+          type: string
+          title: Source
+      type: object
+      required:
+      - date
+      - ndvi_mean
+      - ndvi_min
+      - ndvi_max
+      - cloud_cover_percent
+      - source
+      title: TimeseriesPoint
+      description: نقطة في السلسلة الزمنية
+    TimeseriesResponse:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        start_date:
+          type: string
+          title: Start Date
+        end_date:
+          type: string
+          title: End Date
+        data:
+          items:
+            $ref: '#/components/schemas/TimeseriesPoint'
+          type: array
+          title: Data
+        total_points:
+          type: integer
+          title: Total Points
+        sources:
+          items:
+            type: string
+          type: array
+          title: Sources
+      type: object
+      required:
+      - field_id
+      - start_date
+      - end_date
+      - data
+      - total_points
+      - sources
+      title: TimeseriesResponse
+      description: استجابة السلسلة الزمنية
+    TrendDirection:
+      type: string
+      enum:
+      - improving
+      - declining
+      - stable
+      title: TrendDirection
+      description: اتجاه التغير
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    ZoneChange:
+      properties:
+        zone:
+          type: string
+          title: Zone
+        zone_name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Zone Name Ar
+        ndvi_date1:
+          type: number
+          title: Ndvi Date1
+        ndvi_date2:
+          type: number
+          title: Ndvi Date2
+        change:
+          type: number
+          title: Change
+        change_percent:
+          type: number
+          title: Change Percent
+        trend:
+          $ref: '#/components/schemas/TrendDirection'
+      type: object
+      required:
+      - zone
+      - zone_name_ar
+      - ndvi_date1
+      - ndvi_date2
+      - change
+      - change_percent
+      - trend
+      title: ZoneChange
+      description: تغير منطقة
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

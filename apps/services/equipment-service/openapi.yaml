@@ -1,0 +1,1227 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Equipment Service
+  description: Agricultural equipment and asset management API
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health Check
+      description: Health check endpoint (liveness probe)
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Health
+      description: Health check endpoint alias for compatibility
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness Check
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_check_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/equipment:
+    get:
+      summary: List Equipment
+      description: "List all equipment with optional filters.\n\nAccepts both ``equipment_type``\
+        \ and ``type`` query parameters for\nfrontend compatibility. ``equipment_type``\
+        \ takes precedence if both are\nsupplied. ``status`` accepts both the backend\
+        \ canonical dialect\n(``operational``, ``inactive``) and the frontend canonical\
+        \ dialect\n(``active``, ``idle``, ``retired``).\n\nThe response envelope is::\n\
+        \n    {\n        \"data\": [...],           # new, preferred\n        \"pagination\"\
+        : {...},     # new, preferred\n        \"equipment\": [...],      # legacy\
+        \ alias (will be removed in v17)\n        \"total\": N,              # legacy\
+        \ alias\n        \"limit\": X,              # legacy alias\n        \"offset\"\
+        : Y,             # legacy alias\n    }"
+      operationId: list_equipment_api_v1_equipment_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by equipment type (preferred)
+          title: Equipment Type
+        description: Filter by equipment type (preferred)
+      - name: type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Alias for equipment_type (frontend compatibility)
+          title: Type
+        description: Alias for equipment_type (frontend compatibility)
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by status. Accepts both backend (operational) and frontend
+            (active) canonical values.
+          title: Status
+        description: Filter by status. Accepts both backend (operational) and frontend
+          (active) canonical values.
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by field
+          title: Field Id
+        description: Filter by field
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 50
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response List Equipment Api V1 Equipment Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Equipment
+      description: Create new equipment
+      operationId: create_equipment_api_v1_equipment_post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Create Equipment Api V1 Equipment Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/stats:
+    get:
+      summary: Get Equipment Stats
+      description: Get equipment statistics
+      operationId: get_equipment_stats_api_v1_equipment_stats_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Get Equipment Stats Api V1 Equipment Stats Get
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/equipment/alerts:
+    get:
+      summary: Get Maintenance Alerts
+      description: Get maintenance alerts
+      operationId: get_maintenance_alerts_api_v1_equipment_alerts_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: priority
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/MaintenancePriority'
+          - type: 'null'
+          title: Priority
+      - name: overdue_only
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Overdue Only
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Maintenance Alerts Api V1 Equipment Alerts Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/maintenance-schedule:
+    get:
+      summary: Get Maintenance Schedule
+      description: "Return the upcoming maintenance schedule.\n\nCombines two sources:\n\
+        \n1. ``MaintenanceAlert`` rows scoped to the tenant (via the equipment join),\n\
+        \   which represent service tickets the system has already raised.\n2. Equipment\
+        \ whose ``next_maintenance_at`` falls inside the look-ahead\n   window --\
+        \ these are upcoming scheduled services that may not yet have\n   an explicit\
+        \ alert row.\n\nThe endpoint is the authoritative source for the frontend\n\
+        ``/api/v1/equipment/maintenance-schedule`` call, which used to 404."
+      operationId: get_maintenance_schedule_api_v1_equipment_maintenance_schedule_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: days_ahead
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 1
+          description: Look-ahead window in days for upcoming maintenance
+          default: 90
+          title: Days Ahead
+        description: Look-ahead window in days for upcoming maintenance
+      - name: priority
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/MaintenancePriority'
+          - type: 'null'
+          title: Priority
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Maintenance Schedule Api V1 Equipment Maintenance
+                  Schedule Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/{equipment_id}:
+    get:
+      summary: Get Equipment
+      description: 'Get equipment by ID.
+
+
+        Returns the unified response shape emitted by :func:`serialize_equipment`
+
+        (legacy snake_case fields + new camelCase frontend aliases).'
+      operationId: get_equipment_api_v1_equipment__equipment_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Equipment Api V1 Equipment  Equipment Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      summary: Update Equipment
+      description: Update equipment
+      operationId: update_equipment_api_v1_equipment__equipment_id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentUpdate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update Equipment Api V1 Equipment  Equipment Id  Put
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Equipment
+      description: Delete equipment
+      operationId: delete_equipment_api_v1_equipment__equipment_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/qr/{qr_code}:
+    get:
+      summary: Get Equipment By Qr
+      description: Get equipment by QR code.
+      operationId: get_equipment_by_qr_api_v1_equipment_qr__qr_code__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: qr_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Qr Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Equipment By Qr Api V1 Equipment Qr  Qr Code  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/{equipment_id}/status:
+    post:
+      summary: Update Equipment Status
+      description: 'Update equipment status.
+
+
+        Accepts both backend canonical (``operational``, ``inactive``) and
+
+        frontend canonical (``active``, ``idle``, ``retired``) values.'
+      operationId: update_equipment_status_api_v1_equipment__equipment_id__status_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      - name: status
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Status
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update Equipment Status Api V1 Equipment  Equipment
+                  Id  Status Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/{equipment_id}/location:
+    post:
+      summary: Update Equipment Location
+      description: Update equipment GPS location
+      operationId: update_equipment_location_api_v1_equipment__equipment_id__location_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          title: Lat
+      - name: lon
+        in: query
+        required: true
+        schema:
+          type: number
+          title: Lon
+      - name: location_name
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update Equipment Location Api V1 Equipment  Equipment
+                  Id  Location Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/{equipment_id}/telemetry:
+    post:
+      summary: Update Equipment Telemetry
+      description: Update equipment telemetry data (fuel, hours, location)
+      operationId: update_equipment_telemetry_api_v1_equipment__equipment_id__telemetry_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      - name: fuel_percent
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fuel Percent
+      - name: hours
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Hours
+      - name: lat
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lat
+      - name: lon
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Lon
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Update Equipment Telemetry Api V1 Equipment  Equipment
+                  Id  Telemetry Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/{equipment_id}/issues:
+    post:
+      summary: Report Equipment Issue
+      description: "Report an issue/incident against a piece of equipment.\n\nThis\
+        \ endpoint is an **event-first** replacement for the missing DB-backed\nissues\
+        \ table. Behaviour:\n\n1. Verifies the equipment exists and belongs to the\
+        \ authenticated tenant.\n2. Builds an ``EquipmentIssueResponse`` payload with\
+        \ a synthetic issue_id.\n3. Best-effort publishes the payload to NATS on the\
+        \ subject\n   ``sahool.tenant.{tenant_id}.equipment.issue_reported`` so downstream\n\
+        \   services (notification, audit, ticketing) can react. Publishing is\n \
+        \  best-effort: the HTTP call returns ``202 Accepted`` even if the NATS\n\
+        \   connection is unavailable (the payload is still logged for later\n   reconciliation).\n\
+        \nReturns ``202 Accepted`` to signal the issue has been queued."
+      operationId: report_equipment_issue_api_v1_equipment__equipment_id__issues_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EquipmentIssueCreate'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EquipmentIssueResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/{equipment_id}/maintenance:
+    get:
+      summary: Get Maintenance History
+      description: Get maintenance history for equipment
+      operationId: get_maintenance_history_api_v1_equipment__equipment_id__maintenance_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 20
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Maintenance History Api V1 Equipment  Equipment
+                  Id  Maintenance Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Add Maintenance Record
+      description: Add a maintenance record
+      operationId: add_maintenance_record_api_v1_equipment__equipment_id__maintenance_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: equipment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Equipment Id
+      - name: maintenance_type
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/MaintenanceType'
+      - name: description
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Description
+      - name: description_ar
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+      - name: performed_by
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Performed By
+      - name: cost
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cost
+      - name: notes
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              anyOf:
+              - type: array
+                items:
+                  type: string
+              - type: 'null'
+              title: Parts Replaced
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceRecord'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/equipment/geofence/event:
+    post:
+      summary: Geofence Event
+      description: "Handle a geofence entry event and, when appropriate, auto-draft\n\
+        a FieldOperation in field-management-service.\n\nCalled by the fleet/geofencing\
+        \ worker whenever tracked equipment\ncrosses a geofence boundary. Returns:\n\
+        \n* ``reason=drafted`` + ``operation_id`` — a draft FieldOperation\n  was\
+        \ created in field-management-service, status pending review.\n* ``reason=skipped``\
+        \ — the event was not actionable (wrong zone\n  type, not an entry, no field\
+        \ mapping).\n* ``reason=pending_retry`` — field-management-service was\n \
+        \ unreachable, the event is logged and should be retried.\n\nThe draft is\
+        \ NEVER auto-approved. A human operator must confirm\nvia the existing ``POST\
+        \ /api/v1/field-operations/:id/approve``\nendpoint before it counts for cost\
+        \ rollup, ERP sync, or carbon.\n\nSecurity: the equipment must exist and belong\
+        \ to the authenticated\ntenant. Cross-tenant geofence events are rejected\
+        \ with 404."
+      operationId: geofence_event_api_v1_equipment_geofence_event_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeofenceEventPayload'
+        required: true
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+components:
+  schemas:
+    EquipmentCreate:
+      properties:
+        name:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        equipment_type:
+          $ref: '#/components/schemas/EquipmentType'
+        brand:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Brand
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+        year:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Year
+        purchase_date:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Purchase Date
+        purchase_price:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Purchase Price
+        field_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        horsepower:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Horsepower
+        fuel_capacity_liters:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fuel Capacity Liters
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - name
+      - equipment_type
+      title: EquipmentCreate
+      description: Create a new equipment
+    EquipmentIssueCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+        title_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title Ar
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        severity:
+          $ref: '#/components/schemas/IssueSeverity'
+          default: medium
+        reported_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reported By
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - title
+      title: EquipmentIssueCreate
+      description: 'Schema for reporting an incident/issue against a piece of equipment.
+
+
+        This is intentionally minimal: the service does not yet own a dedicated
+
+        ``equipment_issues`` table, so we persist via the NATS event bus instead
+
+        (subject ``sahool.tenant.{tid}.equipment.issue_reported``) and return a
+
+        synthetic ``issue_id`` so the client can correlate.'
+    EquipmentIssueResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        issue_id:
+          type: string
+          title: Issue Id
+        equipment_id:
+          type: string
+          title: Equipment Id
+        tenant_id:
+          type: string
+          title: Tenant Id
+        title:
+          type: string
+          title: Title
+        title_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title Ar
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        severity:
+          $ref: '#/components/schemas/IssueSeverity'
+        status:
+          $ref: '#/components/schemas/IssueStatus'
+          default: open
+        reported_at:
+          type: string
+          format: date-time
+          title: Reported At
+        reported_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reported By
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - id
+      - issue_id
+      - equipment_id
+      - tenant_id
+      - title
+      - severity
+      - reported_at
+      title: EquipmentIssueResponse
+      description: Response payload for a reported issue.
+    EquipmentType:
+      type: string
+      enum:
+      - tractor
+      - pump
+      - drone
+      - harvester
+      - sprayer
+      - pivot
+      - sensor
+      - vehicle
+      - other
+      title: EquipmentType
+    EquipmentUpdate:
+      properties:
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        equipment_type:
+          anyOf:
+          - $ref: '#/components/schemas/EquipmentType'
+          - type: 'null'
+        status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+        brand:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Brand
+        model:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Model
+        serial_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Serial Number
+        year:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Year
+        field_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+        location_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Name
+        current_fuel_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Fuel Percent
+        current_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Hours
+        current_lat:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lat
+        current_lon:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Current Lon
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      title: EquipmentUpdate
+      description: 'Update equipment properties.
+
+
+        Accepts both backend-canonical status values (``operational``, ``inactive``)
+
+        and frontend-canonical aliases (``active``, ``idle``, ``retired``). Incoming
+
+        aliases are normalized to the backend canonical form before persistence.'
+    GeofenceEventPayload:
+      properties:
+        equipment_id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Equipment Id
+        geofence_id:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Geofence Id
+        geofence_type:
+          type: string
+          maxLength: 64
+          title: Geofence Type
+          default: field
+        alert_type:
+          type: string
+          maxLength: 32
+          title: Alert Type
+          default: entry
+        lat:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Lat
+        lng:
+          type: number
+          maximum: 180.0
+          minimum: -180.0
+          title: Lng
+        timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Timestamp
+        field_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Field Id
+        crop_season_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Crop Season Id
+        equipment_type:
+          type: string
+          maxLength: 32
+          title: Equipment Type
+          default: other
+        equipment_name:
+          type: string
+          maxLength: 255
+          title: Equipment Name
+          default: ''
+        operator_id:
+          anyOf:
+          - type: string
+            maxLength: 128
+          - type: 'null'
+          title: Operator Id
+      type: object
+      required:
+      - equipment_id
+      - geofence_id
+      - lat
+      - lng
+      title: GeofenceEventPayload
+      description: Geofence entry/exit event consumed by the auto-op bridge.
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IssueSeverity:
+      type: string
+      enum:
+      - low
+      - medium
+      - high
+      - critical
+      title: IssueSeverity
+    IssueStatus:
+      type: string
+      enum:
+      - open
+      - acknowledged
+      - in_progress
+      - resolved
+      - closed
+      title: IssueStatus
+    MaintenancePriority:
+      type: string
+      enum:
+      - low
+      - medium
+      - high
+      - critical
+      title: MaintenancePriority
+    MaintenanceRecord:
+      properties:
+        record_id:
+          type: string
+          title: Record Id
+        equipment_id:
+          type: string
+          title: Equipment Id
+        maintenance_type:
+          $ref: '#/components/schemas/MaintenanceType'
+        description:
+          type: string
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        performed_at:
+          type: string
+          format: date-time
+          title: Performed At
+        performed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Performed By
+        cost:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cost
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        parts_replaced:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Parts Replaced
+      type: object
+      required:
+      - record_id
+      - equipment_id
+      - maintenance_type
+      - description
+      - performed_at
+      title: MaintenanceRecord
+      description: Maintenance record
+    MaintenanceType:
+      type: string
+      enum:
+      - oil_change
+      - filter_change
+      - tire_check
+      - battery_check
+      - calibration
+      - general_service
+      - repair
+      - other
+      title: MaintenanceType
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

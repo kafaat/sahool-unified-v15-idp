@@ -1,0 +1,1260 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL WeChat Integration Service
+  description: WeChat messaging and social integration for farmers | تكامل ويتشات
+    للمراسلة والتواصل الاجتماعي للمزارعين
+  version: 16.0.0
+paths:
+  /api/v1/callback:
+    get:
+      tags:
+      - Callback
+      summary: Wechat Verify Callback
+      description: 'WeChat server verification handshake (GET).
+
+
+        WeChat sends this to verify the server URL during configuration.
+
+        توثيق خادم ويتشات عند إعداد عنوان الاستدعاء.'
+      operationId: wechat_verify_callback_api_v1_callback_get
+      parameters:
+      - name: signature
+        in: query
+        required: true
+        schema:
+          type: string
+          description: WeChat signature
+          title: Signature
+        description: WeChat signature
+      - name: timestamp
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Timestamp
+          title: Timestamp
+        description: Timestamp
+      - name: nonce
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Random nonce
+          title: Nonce
+        description: Random nonce
+      - name: echostr
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Echo string to return on success
+          title: Echostr
+        description: Echo string to return on success
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: string
+                title: Response Wechat Verify Callback Api V1 Callback Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - Callback
+      summary: Wechat Receive Callback
+      description: 'Receive incoming WeChat messages/events (POST).
+
+
+        WeChat pushes XML payloads to this endpoint for incoming messages.
+
+        استقبال رسائل وأحداث ويتشات الواردة.'
+      operationId: wechat_receive_callback_api_v1_callback_post
+      parameters:
+      - name: signature
+        in: query
+        required: true
+        schema:
+          type: string
+          description: WeChat signature
+          title: Signature
+        description: WeChat signature
+      - name: timestamp
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Timestamp
+          title: Timestamp
+        description: Timestamp
+      - name: nonce
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Random nonce
+          title: Nonce
+        description: Random nonce
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /healthz:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: Liveness probe | فحص الحيوية
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      tags:
+      - Health
+      summary: Readiness
+      description: Readiness probe | فحص الجاهزية
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Health Detailed
+      description: Detailed health status | حالة الصحة المفصلة
+      operationId: health_detailed_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/messages/fetch:
+    post:
+      tags:
+      - Messages
+      summary: Fetch Messages
+      description: 'Fetch messages from a WeChat chat or group.
+
+
+        جلب الرسائل من محادثة أو مجموعة ويتشات
+
+
+        - Supports filtering by time range and message types
+
+        - Returns messages in chronological order
+
+        - Pagination via before_timestamp/after_timestamp'
+      operationId: fetch_messages_api_v1_messages_fetch_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageFetchRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageFetchResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/messages/send:
+    post:
+      tags:
+      - Messages
+      summary: Send Message
+      description: 'Send a message to a WeChat chat or group.
+
+
+        إرسال رسالة إلى محادثة أو مجموعة ويتشات
+
+
+        - Supports text, image, voice, video, location, link messages
+
+        - Can reply to a specific message
+
+        - Returns message ID and status'
+      operationId: send_message_api_v1_messages_send_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageSendRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageSendResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/contacts/add:
+    post:
+      tags:
+      - Contacts
+      summary: Add Contact
+      description: 'Add a new WeChat contact (friend request).
+
+
+        إضافة جهة اتصال ويتشات جديدة (طلب صداقة)
+
+
+        - Send friend request with optional greeting message
+
+        - Add to groups or follow official accounts
+
+        - Add notes and tags for organization'
+      operationId: add_contact_api_v1_contacts_add_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactAddRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/moments/publish:
+    post:
+      tags:
+      - Moments
+      summary: Publish Moment
+      description: 'Publish a new moment to WeChat Moments.
+
+
+        نشر لحظة جديدة في لحظات ويتشات
+
+
+        - Support text, images, and video
+
+        - Set visibility (public, friends, private, or selected users)
+
+        - Add location tags
+
+        - Attach links with titles'
+      operationId: publish_moment_api_v1_moments_publish_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MomentPublishRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MomentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/chat/summarize:
+    post:
+      tags:
+      - Chat Analysis
+      summary: Summarize Chat
+      description: 'Generate an AI-powered summary of a chat conversation.
+
+
+        إنشاء ملخص للمحادثة باستخدام الذكاء الاصطناعي
+
+
+        - Summarize key topics and discussions
+
+        - Extract action items
+
+        - Analyze participant contributions
+
+        - Support multiple output languages'
+      operationId: summarize_chat_api_v1_chat_summarize_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatSummarizeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSummaryResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/chat/insights:
+    post:
+      tags:
+      - Chat Analysis
+      summary: Get Chat Insights
+      description: 'Extract AI-powered insights from a chat conversation.
+
+
+        استخراج رؤى من المحادثة باستخدام الذكاء الاصطناعي
+
+
+        - Sentiment analysis
+
+        - Topic extraction
+
+        - Action item detection
+
+        - Question identification
+
+        - Key decision tracking'
+      operationId: get_chat_insights_api_v1_chat_insights_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatInsightsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatInsightsResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /metrics:
+    get:
+      tags:
+      - Monitoring
+      summary: Metrics
+      description: Prometheus-compatible metrics | مقاييس متوافقة مع Prometheus
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    ChatInsightsRequest:
+      properties:
+        chat_id:
+          type: string
+          title: Chat Id
+          description: Chat ID | معرف المحادثة
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        insight_types:
+          items:
+            $ref: '#/components/schemas/InsightType'
+          type: array
+          title: Insight Types
+          description: Types of insights to extract | أنواع الرؤى للاستخراج
+          default:
+          - sentiment
+          - topic
+          - action_items
+        time_range_hours:
+          type: integer
+          maximum: 168.0
+          minimum: 1.0
+          title: Time Range Hours
+          description: Hours to analyze | ساعات التحليل
+          default: 24
+        language:
+          type: string
+          title: Language
+          description: Output language (en/ar/both) | لغة المخرجات
+          default: en
+      type: object
+      required:
+      - chat_id
+      - tenant_id
+      title: ChatInsightsRequest
+      description: Request to extract chat insights | طلب استخراج رؤى المحادثة
+    ChatInsightsResponse:
+      properties:
+        chat_id:
+          type: string
+          title: Chat Id
+        time_range_start:
+          type: string
+          format: date-time
+          title: Time Range Start
+        time_range_end:
+          type: string
+          format: date-time
+          title: Time Range End
+        total_messages_analyzed:
+          type: integer
+          title: Total Messages Analyzed
+        insights:
+          items:
+            $ref: '#/components/schemas/InsightItem'
+          type: array
+          title: Insights
+        overall_sentiment:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: -1.0
+          - type: 'null'
+          title: Overall Sentiment
+        sentiment_label:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sentiment Label
+        sentiment_label_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sentiment Label Ar
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+      type: object
+      required:
+      - chat_id
+      - time_range_start
+      - time_range_end
+      - total_messages_analyzed
+      - insights
+      - generated_at
+      title: ChatInsightsResponse
+      description: Chat insights response | استجابة رؤى المحادثة
+    ChatSummarizeRequest:
+      properties:
+        chat_id:
+          type: string
+          title: Chat Id
+          description: Chat ID to summarize | معرف المحادثة للتلخيص
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        time_range_hours:
+          type: integer
+          maximum: 168.0
+          minimum: 1.0
+          title: Time Range Hours
+          description: Hours of chat to summarize | ساعات المحادثة للتلخيص
+          default: 24
+        max_messages:
+          type: integer
+          maximum: 2000.0
+          minimum: 10.0
+          title: Max Messages
+          description: Maximum messages to analyze | الحد الأقصى للرسائل
+          default: 500
+        language:
+          type: string
+          title: Language
+          description: Output language (en/ar/both) | لغة المخرجات
+          default: en
+        include_participants:
+          type: boolean
+          title: Include Participants
+          description: Include participant summary | تضمين ملخص المشاركين
+          default: true
+        include_timeline:
+          type: boolean
+          title: Include Timeline
+          description: Include activity timeline | تضمين الجدول الزمني
+          default: false
+      type: object
+      required:
+      - chat_id
+      - tenant_id
+      title: ChatSummarizeRequest
+      description: Request to summarize a chat | طلب تلخيص المحادثة
+    ChatSummaryResponse:
+      properties:
+        chat_id:
+          type: string
+          title: Chat Id
+        time_range_start:
+          type: string
+          format: date-time
+          title: Time Range Start
+        time_range_end:
+          type: string
+          format: date-time
+          title: Time Range End
+        total_messages:
+          type: integer
+          title: Total Messages
+        summary:
+          type: string
+          title: Summary
+        summary_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Summary Ar
+        key_topics:
+          items:
+            type: string
+          type: array
+          title: Key Topics
+        key_topics_ar:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Key Topics Ar
+        action_items:
+          items:
+            type: string
+          type: array
+          title: Action Items
+        action_items_ar:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Action Items Ar
+        participants:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ParticipantSummary'
+            type: array
+          - type: 'null'
+          title: Participants
+        sentiment_overview:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sentiment Overview
+        sentiment_overview_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sentiment Overview Ar
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+      type: object
+      required:
+      - chat_id
+      - time_range_start
+      - time_range_end
+      - total_messages
+      - summary
+      - key_topics
+      - action_items
+      - generated_at
+      title: ChatSummaryResponse
+      description: Chat summary response | استجابة ملخص المحادثة
+    ContactAddRequest:
+      properties:
+        wechat_id:
+          type: string
+          title: Wechat Id
+          description: WeChat ID or phone number | معرف ويتشات أو رقم الهاتف
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        contact_type:
+          $ref: '#/components/schemas/ContactType'
+          description: Contact type | نوع جهة الاتصال
+          default: friend
+        greeting_message:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Greeting Message
+          description: Friend request message | رسالة طلب الصداقة
+        greeting_message_ar:
+          anyOf:
+          - type: string
+            maxLength: 500
+          - type: 'null'
+          title: Greeting Message Ar
+          description: Greeting in Arabic | الترحيب بالعربية
+        notes:
+          anyOf:
+          - type: string
+            maxLength: 1000
+          - type: 'null'
+          title: Notes
+          description: Personal notes | ملاحظات شخصية
+        tags:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Tags
+          description: Contact tags | وسوم جهة الاتصال
+      type: object
+      required:
+      - wechat_id
+      - tenant_id
+      title: ContactAddRequest
+      description: Request to add a contact | طلب إضافة جهة اتصال
+    ContactResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        wechat_id:
+          type: string
+          title: Wechat Id
+        nickname:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nickname
+        nickname_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nickname Ar
+        avatar_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Avatar Url
+        contact_type:
+          $ref: '#/components/schemas/ContactType'
+        status:
+          type: string
+          title: Status
+        status_ar:
+          type: string
+          title: Status Ar
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        tags:
+          items:
+            type: string
+          type: array
+          title: Tags
+        added_at:
+          type: string
+          format: date-time
+          title: Added At
+      type: object
+      required:
+      - id
+      - wechat_id
+      - contact_type
+      - status
+      - status_ar
+      - tags
+      - added_at
+      title: ContactResponse
+      description: Contact response model | نموذج استجابة جهة الاتصال
+    ContactType:
+      type: string
+      enum:
+      - friend
+      - group
+      - official_account
+      - mini_program
+      title: ContactType
+      description: WeChat contact types
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InsightItem:
+      properties:
+        insight_type:
+          $ref: '#/components/schemas/InsightType'
+        title:
+          type: string
+          title: Title
+        title_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title Ar
+        description:
+          type: string
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+        related_messages:
+          items:
+            type: string
+          type: array
+          title: Related Messages
+          default: []
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - insight_type
+      - title
+      - description
+      - confidence
+      title: InsightItem
+      description: Single insight item | عنصر رؤية واحد
+    InsightType:
+      type: string
+      enum:
+      - sentiment
+      - topic
+      - action_items
+      - questions
+      - key_decisions
+      title: InsightType
+      description: Chat insight types
+    MessageFetchRequest:
+      properties:
+        chat_id:
+          type: string
+          title: Chat Id
+          description: WeChat chat/group ID | معرف المحادثة
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        limit:
+          type: integer
+          maximum: 200.0
+          minimum: 1.0
+          title: Limit
+          description: Maximum messages to fetch | الحد الأقصى للرسائل
+          default: 50
+        before_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Before Timestamp
+          description: Fetch messages before this time | جلب الرسائل قبل هذا الوقت
+        after_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: After Timestamp
+          description: Fetch messages after this time | جلب الرسائل بعد هذا الوقت
+        message_types:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/MessageType'
+            type: array
+          - type: 'null'
+          title: Message Types
+          description: Filter by message types | تصفية حسب أنواع الرسائل
+      type: object
+      required:
+      - chat_id
+      - tenant_id
+      title: MessageFetchRequest
+      description: Request to fetch messages from a chat | طلب جلب الرسائل من محادثة
+    MessageFetchResponse:
+      properties:
+        chat_id:
+          type: string
+          title: Chat Id
+        messages:
+          items:
+            $ref: '#/components/schemas/MessageResponse'
+          type: array
+          title: Messages
+        total_count:
+          type: integer
+          title: Total Count
+        has_more:
+          type: boolean
+          title: Has More
+        oldest_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Oldest Timestamp
+        newest_timestamp:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Newest Timestamp
+      type: object
+      required:
+      - chat_id
+      - messages
+      - total_count
+      - has_more
+      title: MessageFetchResponse
+      description: Response for message fetch | استجابة جلب الرسائل
+    MessageResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        chat_id:
+          type: string
+          title: Chat Id
+        sender_id:
+          type: string
+          title: Sender Id
+        sender_name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sender Name
+        sender_name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sender Name Ar
+        message_type:
+          $ref: '#/components/schemas/MessageType'
+        content:
+          type: string
+          title: Content
+        content_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content Ar
+        media_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Media Url
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        is_from_self:
+          type: boolean
+          title: Is From Self
+          default: false
+        reply_to_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reply To Id
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+      type: object
+      required:
+      - id
+      - chat_id
+      - sender_id
+      - message_type
+      - content
+      - timestamp
+      title: MessageResponse
+      description: Message response model | نموذج استجابة الرسالة
+    MessageSendRequest:
+      properties:
+        chat_id:
+          type: string
+          title: Chat Id
+          description: Target chat/group ID | معرف المحادثة المستهدفة
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        message_type:
+          $ref: '#/components/schemas/MessageType'
+          description: Message type | نوع الرسالة
+          default: text
+        content:
+          type: string
+          maxLength: 10000
+          minLength: 1
+          title: Content
+          description: Message content | محتوى الرسالة
+        media_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Media Url
+          description: Media URL for non-text messages | رابط الوسائط
+        reply_to_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reply To Id
+          description: Message ID to reply to | معرف الرسالة للرد عليها
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
+          description: Additional metadata | بيانات إضافية
+      type: object
+      required:
+      - chat_id
+      - tenant_id
+      - content
+      title: MessageSendRequest
+      description: Request to send a message | طلب إرسال رسالة
+    MessageSendResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        chat_id:
+          type: string
+          title: Chat Id
+        message_type:
+          $ref: '#/components/schemas/MessageType'
+        content:
+          type: string
+          title: Content
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        status:
+          type: string
+          title: Status
+        status_ar:
+          type: string
+          title: Status Ar
+      type: object
+      required:
+      - id
+      - chat_id
+      - message_type
+      - content
+      - timestamp
+      - status
+      - status_ar
+      title: MessageSendResponse
+      description: Response for message send | استجابة إرسال الرسالة
+    MessageType:
+      type: string
+      enum:
+      - text
+      - image
+      - voice
+      - video
+      - location
+      - link
+      - file
+      - mini_program
+      title: MessageType
+      description: WeChat message types
+    MomentPublishRequest:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+          description: Tenant ID | معرف المستأجر
+        content:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Content
+          description: Moment text content | محتوى النص
+        content_ar:
+          anyOf:
+          - type: string
+            maxLength: 2000
+          - type: 'null'
+          title: Content Ar
+          description: Content in Arabic | المحتوى بالعربية
+        media_urls:
+          anyOf:
+          - items:
+              type: string
+            type: array
+            maxItems: 9
+          - type: 'null'
+          title: Media Urls
+          description: Media URLs (max 9) | روابط الوسائط
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+          description: Location tag | علامة الموقع
+        location_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Ar
+          description: Location in Arabic | الموقع بالعربية
+        visibility:
+          $ref: '#/components/schemas/MomentVisibility'
+          description: Visibility setting | إعداد الرؤية
+          default: friends
+        visible_to:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Visible To
+          description: Specific user IDs if visibility is 'selected' | معرفات المستخدمين
+            المحددين
+        link_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Link Url
+          description: Link to attach | رابط للإرفاق
+        link_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Link Title
+          description: Link title | عنوان الرابط
+      type: object
+      required:
+      - tenant_id
+      - content
+      title: MomentPublishRequest
+      description: Request to publish a moment | طلب نشر لحظة
+    MomentResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        content:
+          type: string
+          title: Content
+        content_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Content Ar
+        media_urls:
+          items:
+            type: string
+          type: array
+          title: Media Urls
+        location:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location
+        location_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Location Ar
+        visibility:
+          $ref: '#/components/schemas/MomentVisibility'
+        link_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Link Url
+        link_title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Link Title
+        published_at:
+          type: string
+          format: date-time
+          title: Published At
+        likes_count:
+          type: integer
+          title: Likes Count
+          default: 0
+        comments_count:
+          type: integer
+          title: Comments Count
+          default: 0
+        status:
+          type: string
+          title: Status
+        status_ar:
+          type: string
+          title: Status Ar
+      type: object
+      required:
+      - id
+      - content
+      - media_urls
+      - visibility
+      - published_at
+      - status
+      - status_ar
+      title: MomentResponse
+      description: Moment response model | نموذج استجابة اللحظة
+    MomentVisibility:
+      type: string
+      enum:
+      - public
+      - friends
+      - private
+      - selected
+      title: MomentVisibility
+      description: WeChat moment visibility options
+    ParticipantSummary:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        name:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        message_count:
+          type: integer
+          title: Message Count
+        sentiment_score:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Sentiment Score
+        key_contributions:
+          items:
+            type: string
+          type: array
+          title: Key Contributions
+          default: []
+        key_contributions_ar:
+          items:
+            type: string
+          type: array
+          title: Key Contributions Ar
+          default: []
+      type: object
+      required:
+      - user_id
+      - message_count
+      title: ParticipantSummary
+      description: Participant summary in chat | ملخص المشارك في المحادثة
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

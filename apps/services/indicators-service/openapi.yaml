@@ -1,0 +1,560 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Agricultural Indicators | خدمة المؤشرات الزراعية
+  description: Comprehensive agricultural indicators dashboard - KPIs, trends, alerts
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      description: Health check endpoint (liveness probe)
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      summary: Metrics
+      description: Prometheus metrics endpoint
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/indicators/definitions:
+    get:
+      summary: Get Indicator Definitions
+      description: الحصول على تعريفات جميع المؤشرات
+      operationId: get_indicator_definitions_v1_indicators_definitions_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/field/{field_id}/indicators:
+    get:
+      summary: Get Field Indicators
+      description: "الحصول على مؤشرات حقل معين\n\nArgs:\n    field_id: Field identifier\n\
+        \    category: Optional category filter\n    force_refresh: If True, regenerate\
+        \ indicators even if cached"
+      operationId: get_field_indicators_v1_field__field_id__indicators_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: category
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/IndicatorCategory'
+          - type: 'null'
+          title: Category
+      - name: force_refresh
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
+          title: Force Refresh
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldIndicators'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Store Field Indicator
+      description: 'تخزين قيمة مؤشر لحقل معين
+
+
+        Store an indicator value for a specific field. This is useful when
+
+        indicator values are computed externally (e.g., from satellite imagery
+
+        processing or IoT sensors).'
+      operationId: store_field_indicator_v1_field__field_id__indicators_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IndicatorInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Delete Field Indicators Endpoint
+      description: 'حذف جميع مؤشرات حقل معين
+
+
+        Delete all stored indicators for a specific field.
+
+        Use with caution - this operation cannot be undone.'
+      operationId: delete_field_indicators_endpoint_v1_field__field_id__indicators_delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/field/{field_id}/indicator/{indicator_type}:
+    get:
+      summary: Get Single Indicator
+      description: 'الحصول على مؤشر واحد لحقل معين
+
+
+        Retrieve a single indicator value from the database.'
+      operationId: get_single_indicator_v1_field__field_id__indicator__indicator_type__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: indicator_type
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Indicator Type
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/dashboard/{tenant_id}:
+    get:
+      summary: Get Dashboard Summary
+      description: لوحة المعلومات الرئيسية للمستأجر
+      operationId: get_dashboard_summary_v1_dashboard__tenant_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: num_fields
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 100
+          minimum: 1
+          default: 10
+          title: Num Fields
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardSummary'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/alerts/{tenant_id}:
+    get:
+      summary: Get Tenant Alerts
+      description: الحصول على تنبيهات المستأجر
+      operationId: get_tenant_alerts_v1_alerts__tenant_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: severity
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/AlertSeverity'
+          - type: 'null'
+          title: Severity
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 200
+          minimum: 1
+          default: 50
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/trends/{field_id}/{indicator_id}:
+    get:
+      summary: Get Indicator Trends
+      description: الحصول على اتجاهات مؤشر معين
+      operationId: get_indicator_trends_v1_trends__field_id___indicator_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: indicator_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Indicator Id
+      - name: days
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 365
+          minimum: 7
+          default: 30
+          title: Days
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    AlertSeverity:
+      type: string
+      enum:
+      - info
+      - warning
+      - critical
+      title: AlertSeverity
+    DashboardSummary:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        total_fields:
+          type: integer
+          title: Total Fields
+        total_area_hectares:
+          type: number
+          title: Total Area Hectares
+        average_health_score:
+          type: number
+          title: Average Health Score
+        indicators_summary:
+          additionalProperties: true
+          type: object
+          title: Indicators Summary
+        active_alerts:
+          type: integer
+          title: Active Alerts
+        critical_alerts:
+          type: integer
+          title: Critical Alerts
+        top_performing_fields:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Top Performing Fields
+        attention_needed_fields:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Attention Needed Fields
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+      type: object
+      required:
+      - tenant_id
+      - total_fields
+      - total_area_hectares
+      - average_health_score
+      - indicators_summary
+      - active_alerts
+      - critical_alerts
+      - top_performing_fields
+      - attention_needed_fields
+      - generated_at
+      title: DashboardSummary
+    FieldIndicators:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        field_name:
+          type: string
+          title: Field Name
+        area_hectares:
+          type: number
+          title: Area Hectares
+        crop_type:
+          type: string
+          title: Crop Type
+        indicators:
+          items:
+            $ref: '#/components/schemas/Indicator'
+          type: array
+          title: Indicators
+        overall_score:
+          type: number
+          title: Overall Score
+        alerts:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Alerts
+      type: object
+      required:
+      - field_id
+      - field_name
+      - area_hectares
+      - crop_type
+      - indicators
+      - overall_score
+      - alerts
+      title: FieldIndicators
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    Indicator:
+      properties:
+        id:
+          type: string
+          title: Id
+        name_ar:
+          type: string
+          title: Name Ar
+        name_en:
+          type: string
+          title: Name En
+        category:
+          $ref: '#/components/schemas/IndicatorCategory'
+        value:
+          type: number
+          title: Value
+        unit:
+          type: string
+          title: Unit
+        min_value:
+          type: number
+          title: Min Value
+        max_value:
+          type: number
+          title: Max Value
+        optimal_min:
+          type: number
+          title: Optimal Min
+        optimal_max:
+          type: number
+          title: Optimal Max
+        trend:
+          $ref: '#/components/schemas/TrendDirection'
+        trend_percent:
+          type: number
+          title: Trend Percent
+        status:
+          type: string
+          title: Status
+        last_updated:
+          type: string
+          format: date-time
+          title: Last Updated
+      type: object
+      required:
+      - id
+      - name_ar
+      - name_en
+      - category
+      - value
+      - unit
+      - min_value
+      - max_value
+      - optimal_min
+      - optimal_max
+      - trend
+      - trend_percent
+      - status
+      - last_updated
+      title: Indicator
+    IndicatorCategory:
+      type: string
+      enum:
+      - vegetation
+      - water
+      - soil
+      - weather
+      - crop_health
+      - productivity
+      - financial
+      title: IndicatorCategory
+    IndicatorInput:
+      properties:
+        indicator_type:
+          type: string
+          title: Indicator Type
+        value:
+          type: number
+          title: Value
+        trend:
+          anyOf:
+          - $ref: '#/components/schemas/TrendDirection'
+          - type: 'null'
+        trend_percent:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Trend Percent
+      type: object
+      required:
+      - indicator_type
+      - value
+      title: IndicatorInput
+      description: Input model for storing indicator values
+    TrendDirection:
+      type: string
+      enum:
+      - up
+      - down
+      - stable
+      title: TrendDirection
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

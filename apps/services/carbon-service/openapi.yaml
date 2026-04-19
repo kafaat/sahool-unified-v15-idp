@@ -1,0 +1,521 @@
+openapi: 3.1.0
+info:
+  title: carbon-service
+  description: Agricultural carbon footprint (IPCC Tier 1) — خدمة البصمة الكربونية
+    الزراعية
+  version: 16.0.0
+paths:
+  /api/v1/carbon/compute:
+    post:
+      tags:
+      - Carbon - الكربون
+      summary: Compute Stateless
+      description: 'Stateless compute — runs the engine on a fully-populated request
+
+        without touching the DB. Useful for what-if analysis from the web
+
+        client ("if I halve my fertiliser, what happens to my emissions?").
+
+
+        Requires a valid JWT; does NOT persist anything, so tenant header
+
+        isn''t mandatory for this endpoint.'
+      operationId: compute_stateless_api_v1_carbon_compute_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/carbon/operations/{operation_id}/compute:
+    post:
+      tags:
+      - Carbon - الكربون
+      summary: Compute For Operation
+      description: "DB-backed compute — reads the FieldOperation row from the\nfield-management-service\
+        \ DB, maps it into the engine's input shape\n(using operation_type + metadata\
+        \ + cost breakdown columns as a\nheuristic for inputs), runs the engine, and\
+        \ writes the result back\nonto the same row. Used by:\n\n  - The NATS subscriber\
+        \ when a new operation is recorded\n  - The admin API for re-computing after\
+        \ formula updates\n  - Batch backfill jobs"
+      operationId: compute_for_operation_api_v1_carbon_operations__operation_id__compute_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: operation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Operation Id
+      - name: x-tenant-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComputeResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/carbon/fields/{field_id}/summary:
+    get:
+      tags:
+      - Carbon - الكربون
+      summary: Field Summary
+      description: Aggregate carbon data for a single field across all operations.
+      operationId: field_summary_api_v1_carbon_fields__field_id__summary_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      - name: x-tenant-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldCarbonSummary'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/carbon/crop-seasons/{crop_season_id}/summary:
+    get:
+      tags:
+      - Carbon - الكربون
+      summary: Crop Season Summary
+      description: Aggregate carbon data for all operations in a crop season.
+      operationId: crop_season_summary_api_v1_carbon_crop_seasons__crop_season_id__summary_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_season_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Season Id
+      - name: x-tenant-id
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropSeasonCarbonSummary'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /healthz:
+    get:
+      summary: Healthz
+      description: Liveness probe.
+      operationId: healthz_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Healthz Healthz Get
+  /readyz:
+    get:
+      summary: Readyz
+      description: Readiness probe — reports DB + NATS connection state.
+      operationId: readyz_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Readyz Readyz Get
+  /health:
+    get:
+      summary: Health
+      description: Comprehensive health check.
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Health Health Get
+  /metrics:
+    get:
+      summary: Metrics
+      description: Prometheus metrics.
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    CarbonBreakdownResponse:
+      properties:
+        fuel:
+          type: number
+          title: Fuel
+        fertilizer_n:
+          type: number
+          title: Fertilizer N
+        fertilizer_p:
+          type: number
+          title: Fertilizer P
+        fertilizer_k:
+          type: number
+          title: Fertilizer K
+        machinery:
+          type: number
+          title: Machinery
+        pesticide:
+          type: number
+          title: Pesticide
+        residue_burning:
+          type: number
+          title: Residue Burning
+        cover_cropping_seq:
+          type: number
+          title: Cover Cropping Seq
+        no_till_seq:
+          type: number
+          title: No Till Seq
+        biochar_seq:
+          type: number
+          title: Biochar Seq
+      type: object
+      required:
+      - fuel
+      - fertilizer_n
+      - fertilizer_p
+      - fertilizer_k
+      - machinery
+      - pesticide
+      - residue_burning
+      - cover_cropping_seq
+      - no_till_seq
+      - biochar_seq
+      title: CarbonBreakdownResponse
+    ComputeRequest:
+      properties:
+        operation_id:
+          type: string
+          title: Operation Id
+          description: Operation UUID or synthetic id
+        operation_type:
+          type: string
+          title: Operation Type
+        area_hectares:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Area Hectares
+        duration_hours:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Duration Hours
+        fuel_liters:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Fuel Liters
+        fuel_type:
+          type: string
+          title: Fuel Type
+          default: diesel
+        nitrogen_kg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Nitrogen Kg
+        phosphorus_kg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Phosphorus Kg
+        potassium_kg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Potassium Kg
+        pesticide_kg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Pesticide Kg
+        biochar_tonnes:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Biochar Tonnes
+        is_cover_cropping:
+          type: boolean
+          title: Is Cover Cropping
+          default: false
+        is_no_till:
+          type: boolean
+          title: Is No Till
+          default: false
+        is_residue_burning:
+          type: boolean
+          title: Is Residue Burning
+          default: false
+        metadata:
+          additionalProperties: true
+          type: object
+          title: Metadata
+      type: object
+      required:
+      - operation_id
+      - operation_type
+      title: ComputeRequest
+      description: Stateless compute request — caller supplies all inputs inline.
+    ComputeResponse:
+      properties:
+        operation_id:
+          type: string
+          title: Operation Id
+        operation_type:
+          type: string
+          title: Operation Type
+        emissions_kg:
+          type: number
+          title: Emissions Kg
+        sequestration_kg:
+          type: number
+          title: Sequestration Kg
+        net_kg:
+          type: number
+          title: Net Kg
+        methodology:
+          type: string
+          title: Methodology
+        emission_source_type:
+          type: string
+          title: Emission Source Type
+        carbon_credit_eligible:
+          type: boolean
+          title: Carbon Credit Eligible
+        breakdown:
+          $ref: '#/components/schemas/CarbonBreakdownResponse'
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+      type: object
+      required:
+      - operation_id
+      - operation_type
+      - emissions_kg
+      - sequestration_kg
+      - net_kg
+      - methodology
+      - emission_source_type
+      - carbon_credit_eligible
+      - breakdown
+      - warnings
+      title: ComputeResponse
+    CropSeasonCarbonSummary:
+      properties:
+        crop_season_id:
+          type: string
+          title: Crop Season Id
+        field_id:
+          type: string
+          title: Field Id
+        crop_type:
+          type: string
+          title: Crop Type
+        sowing_date:
+          type: string
+          title: Sowing Date
+        total_operations:
+          type: integer
+          title: Total Operations
+        total_emissions_kg:
+          type: number
+          title: Total Emissions Kg
+        total_sequestration_kg:
+          type: number
+          title: Total Sequestration Kg
+        total_net_kg:
+          type: number
+          title: Total Net Kg
+        by_source:
+          additionalProperties:
+            type: number
+          type: object
+          title: By Source
+        by_operation_type:
+          additionalProperties:
+            additionalProperties:
+              type: number
+            type: object
+          type: object
+          title: By Operation Type
+      type: object
+      required:
+      - crop_season_id
+      - field_id
+      - crop_type
+      - sowing_date
+      - total_operations
+      - total_emissions_kg
+      - total_sequestration_kg
+      - total_net_kg
+      - by_source
+      - by_operation_type
+      title: CropSeasonCarbonSummary
+    FieldCarbonSummary:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        total_operations:
+          type: integer
+          title: Total Operations
+        total_emissions_kg:
+          type: number
+          title: Total Emissions Kg
+        total_sequestration_kg:
+          type: number
+          title: Total Sequestration Kg
+        total_net_kg:
+          type: number
+          title: Total Net Kg
+        currency:
+          type: string
+          title: Currency
+          default: kgCO2e
+        by_source:
+          additionalProperties:
+            type: number
+          type: object
+          title: By Source
+        first_operation_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: First Operation At
+        last_operation_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Last Operation At
+      type: object
+      required:
+      - field_id
+      - total_operations
+      - total_emissions_kg
+      - total_sequestration_kg
+      - total_net_kg
+      - by_source
+      - first_operation_at
+      - last_operation_at
+      title: FieldCarbonSummary
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

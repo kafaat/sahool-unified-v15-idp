@@ -63,6 +63,14 @@ allure-pytest>=2.13.2
 # Contract / Fuzz testing
 schemathesis>=3.38.0
 
+# Live-services harness (tests/_helpers/live_services.py).
+# Optional: when missing the fixtures auto-fall back to services on
+# localhost and skip cleanly if nothing is reachable.
+testcontainers>=4.8.0
+
+# NATS client for the live-services smoke suite
+nats-py>=2.6.0
+
 # Utilities
 python-dateutil>=2.9.0
 pytz>=2024.1

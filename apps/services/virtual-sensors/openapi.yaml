@@ -1,0 +1,1085 @@
+openapi: 3.1.0
+info:
+  title: Sahool Virtual Sensors Engine
+  description: "\n    محرك المستشعرات الافتراضية - سهول\n\n    Software-based sensor\
+    \ calculations for smart irrigation management.\n    Provides evapotranspiration\
+    \ calculations, soil moisture estimation,\n    and irrigation recommendations\
+    \ without physical sensors.\n\n    Based on FAO-56 Penman-Monteith methodology.\n\
+    \    "
+  version: 16.0.0
+paths:
+  /health:
+    get:
+      summary: Health Check
+      description: Health check endpoint with dependency status
+      operationId: health_check_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /healthz:
+    get:
+      summary: Health Check
+      description: Health check endpoint with dependency status
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      summary: Prometheus Metrics
+      description: Prometheus metrics endpoint
+      operationId: prometheus_metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/info:
+    get:
+      summary: Service Info
+      description: Get service information
+      operationId: service_info_v1_info_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/et0/calculate:
+    post:
+      summary: Calculate Et0
+      description: 'Calculate reference evapotranspiration (ET0) using Penman-Monteith.
+
+        حساب التبخر-نتح المرجعي باستخدام بنمان-مونتيث'
+      operationId: calculate_et0_v1_et0_calculate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ET0Response'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/crops:
+    get:
+      summary: Get Supported Crops
+      description: Get list of supported crops with Kc values
+      operationId: get_supported_crops_v1_crops_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/crops/{crop_type}/kc:
+    get:
+      summary: Get Crop Kc Values
+      description: Get Kc values for a specific crop
+      operationId: get_crop_kc_values_v1_crops__crop_type__kc_get
+      parameters:
+      - name: crop_type
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Type
+      - name: growth_stage
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/GrowthStage'
+          - type: 'null'
+          title: Growth Stage
+      - name: days_in_stage
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Days In Stage
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/etc/calculate:
+    post:
+      summary: Calculate Crop Etc
+      description: 'Calculate crop evapotranspiration (ETc = ET0 × Kc).
+
+        حساب التبخر-نتح للمحصول'
+      operationId: calculate_crop_etc_v1_etc_calculate_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Crop type
+          title: Crop Type
+        description: Crop type
+      - name: growth_stage
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/GrowthStage'
+          description: Current growth stage
+        description: Current growth stage
+      - name: field_area_hectares
+        in: query
+        required: false
+        schema:
+          type: number
+          exclusiveMinimum: 0
+          description: Field area in hectares
+          default: 1.0
+          title: Field Area Hectares
+        description: Field area in hectares
+      - name: days_in_stage
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          description: Days in current stage
+          title: Days In Stage
+        description: Days in current stage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherInput'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropETcResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/soils:
+    get:
+      summary: Get Soil Types
+      description: Get list of supported soil types with properties
+      operationId: get_soil_types_v1_soils_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/soil-moisture/estimate:
+    post:
+      summary: Estimate Virtual Soil Moisture
+      description: 'Estimate soil moisture using water balance method.
+
+        تقدير رطوبة التربة باستخدام ميزان الماء'
+      operationId: estimate_virtual_soil_moisture_v1_soil_moisture_estimate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoilMoistureInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VirtualSoilMoistureResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/irrigation-methods:
+    get:
+      summary: Get Irrigation Methods
+      description: Get irrigation methods with efficiencies
+      operationId: get_irrigation_methods_v1_irrigation_methods_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/irrigation/recommend:
+    post:
+      summary: Get Irrigation Recommendation
+      description: 'Get complete irrigation recommendation.
+
+        الحصول على توصية ري شاملة'
+      operationId: get_irrigation_recommendation_v1_irrigation_recommend_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationRecommendationInput'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IrrigationRecommendation'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/irrigation/quick-check:
+    get:
+      summary: Quick Irrigation Check
+      description: 'Quick irrigation check without full weather data.
+
+        فحص سريع للري بدون بيانات الطقس الكاملة'
+      operationId: quick_irrigation_check_v1_irrigation_quick_check_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: Crop type
+          title: Crop Type
+        description: Crop type
+      - name: growth_stage
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/GrowthStage'
+          description: Growth stage
+        description: Growth stage
+      - name: soil_type
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/SoilType'
+          description: Soil type
+          default: loam
+        description: Soil type
+      - name: days_since_irrigation
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 0
+          description: Days since last irrigation
+          title: Days Since Irrigation
+        description: Days since last irrigation
+      - name: temperature
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 60
+          minimum: -60
+          description: Average temperature (°C)
+          title: Temperature
+        description: Average temperature (°C)
+      - name: humidity
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 100
+          minimum: 0
+          description: Relative humidity (%)
+          default: 50
+          title: Humidity
+        description: Relative humidity (%)
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/irrigation/recommend-with-action:
+    post:
+      summary: Get Irrigation Recommendation With Action
+      description: 'الحصول على توصية ري مع ActionTemplate
+
+
+        Field-First: ينتج قالب إجراء للتطبيق المحمول
+
+        Badge: تقدير افتراضي (بدون حساس)'
+      operationId: get_irrigation_recommendation_with_action_v1_irrigation_recommend_with_action_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VirtualSensorActionRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /v1/quick-check-with-action:
+    get:
+      summary: Quick Check With Action
+      description: 'فحص سريع مع ActionTemplate
+
+
+        للبيئات الريفية بدون IoT'
+      operationId: quick_check_with_action_v1_quick_check_with_action_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[a-zA-Z0-9_\-]+$
+          description: معرف الحقل - Field identifier
+          title: Field Id
+        description: معرف الحقل - Field identifier
+      - name: farmer_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            minLength: 1
+            maxLength: 100
+            pattern: ^[a-zA-Z0-9_\-]+$
+          - type: 'null'
+          description: معرف المزارع
+          title: Farmer Id
+        description: معرف المزارع
+      - name: crop_type
+        in: query
+        required: true
+        schema:
+          type: string
+          description: نوع المحصول
+          title: Crop Type
+        description: نوع المحصول
+      - name: growth_stage
+        in: query
+        required: true
+        schema:
+          $ref: '#/components/schemas/GrowthStage'
+          description: مرحلة النمو
+        description: مرحلة النمو
+      - name: soil_type
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/SoilType'
+          description: نوع التربة
+          default: loam
+        description: نوع التربة
+      - name: days_since_irrigation
+        in: query
+        required: true
+        schema:
+          type: integer
+          minimum: 0
+          description: أيام منذ آخر ري
+          title: Days Since Irrigation
+        description: أيام منذ آخر ري
+      - name: temperature
+        in: query
+        required: true
+        schema:
+          type: number
+          maximum: 60
+          minimum: -60
+          description: درجة الحرارة
+          title: Temperature
+        description: درجة الحرارة
+      - name: humidity
+        in: query
+        required: false
+        schema:
+          type: number
+          maximum: 100
+          minimum: 0
+          description: الرطوبة النسبية
+          default: 50
+          title: Humidity
+        description: الرطوبة النسبية
+      - name: tenant_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: معرف المستأجر - Tenant identifier
+          title: Tenant Id
+        description: معرف المستأجر - Tenant identifier
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CropETcResponse:
+      properties:
+        crop_type:
+          type: string
+          title: Crop Type
+        crop_name_ar:
+          type: string
+          title: Crop Name Ar
+        growth_stage:
+          type: string
+          title: Growth Stage
+        kc:
+          type: number
+          title: Kc
+          description: Crop coefficient
+        et0:
+          type: number
+          title: Et0
+          description: Reference ET (mm/day)
+        etc:
+          type: number
+          title: Etc
+          description: Crop ET (mm/day)
+        daily_water_need_liters:
+          type: number
+          title: Daily Water Need Liters
+        daily_water_need_m3:
+          type: number
+          title: Daily Water Need M3
+        weekly_water_need_m3:
+          type: number
+          title: Weekly Water Need M3
+        critical_period:
+          type: boolean
+          title: Critical Period
+        notes:
+          type: string
+          title: Notes
+        notes_ar:
+          type: string
+          title: Notes Ar
+      type: object
+      required:
+      - crop_type
+      - crop_name_ar
+      - growth_stage
+      - kc
+      - et0
+      - etc
+      - daily_water_need_liters
+      - daily_water_need_m3
+      - weekly_water_need_m3
+      - critical_period
+      - notes
+      - notes_ar
+      title: CropETcResponse
+      description: Crop evapotranspiration response
+    ET0Response:
+      properties:
+        et0:
+          type: number
+          title: Et0
+          description: Reference ET (mm/day)
+        et0_ar:
+          type: string
+          title: Et0 Ar
+        method:
+          type: string
+          title: Method
+        weather_summary:
+          additionalProperties: true
+          type: object
+          title: Weather Summary
+        calculation_date:
+          type: string
+          format: date
+          title: Calculation Date
+      type: object
+      required:
+      - et0
+      - et0_ar
+      - method
+      - weather_summary
+      - calculation_date
+      title: ET0Response
+      description: Reference evapotranspiration response
+    GrowthStage:
+      type: string
+      enum:
+      - initial
+      - development
+      - mid_season
+      - late_season
+      title: GrowthStage
+      description: Crop growth stages for Kc determination
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    IrrigationMethod:
+      type: string
+      enum:
+      - drip
+      - sprinkler
+      - surface
+      - flood
+      - furrow
+      title: IrrigationMethod
+      description: Irrigation methods
+    IrrigationRecommendation:
+      properties:
+        recommendation_id:
+          type: string
+          title: Recommendation Id
+        timestamp:
+          type: string
+          format: date-time
+          title: Timestamp
+        crop_type:
+          type: string
+          title: Crop Type
+        crop_name_ar:
+          type: string
+          title: Crop Name Ar
+        growth_stage:
+          type: string
+          title: Growth Stage
+        field_area_hectares:
+          type: number
+          title: Field Area Hectares
+        et0:
+          type: number
+          title: Et0
+        kc:
+          type: number
+          title: Kc
+        etc:
+          type: number
+          title: Etc
+        soil_type:
+          type: string
+          title: Soil Type
+        soil_type_ar:
+          type: string
+          title: Soil Type Ar
+        estimated_moisture:
+          type: number
+          title: Estimated Moisture
+        moisture_depletion_percent:
+          type: number
+          title: Moisture Depletion Percent
+        irrigation_needed:
+          type: boolean
+          title: Irrigation Needed
+        urgency:
+          $ref: '#/components/schemas/UrgencyLevel'
+        urgency_ar:
+          type: string
+          title: Urgency Ar
+        recommended_amount_mm:
+          type: number
+          title: Recommended Amount Mm
+        recommended_amount_liters:
+          type: number
+          title: Recommended Amount Liters
+        recommended_amount_m3:
+          type: number
+          title: Recommended Amount M3
+        gross_irrigation_mm:
+          type: number
+          title: Gross Irrigation Mm
+        optimal_time:
+          type: string
+          title: Optimal Time
+        optimal_time_ar:
+          type: string
+          title: Optimal Time Ar
+        next_irrigation_days:
+          type: integer
+          title: Next Irrigation Days
+        advice:
+          type: string
+          title: Advice
+        advice_ar:
+          type: string
+          title: Advice Ar
+        warnings:
+          items:
+            type: string
+          type: array
+          title: Warnings
+        warnings_ar:
+          items:
+            type: string
+          type: array
+          title: Warnings Ar
+      type: object
+      required:
+      - recommendation_id
+      - timestamp
+      - crop_type
+      - crop_name_ar
+      - growth_stage
+      - field_area_hectares
+      - et0
+      - kc
+      - etc
+      - soil_type
+      - soil_type_ar
+      - estimated_moisture
+      - moisture_depletion_percent
+      - irrigation_needed
+      - urgency
+      - urgency_ar
+      - recommended_amount_mm
+      - recommended_amount_liters
+      - recommended_amount_m3
+      - gross_irrigation_mm
+      - optimal_time
+      - optimal_time_ar
+      - next_irrigation_days
+      - advice
+      - advice_ar
+      - warnings
+      - warnings_ar
+      title: IrrigationRecommendation
+      description: Complete irrigation recommendation response
+    IrrigationRecommendationInput:
+      properties:
+        crop_type:
+          type: string
+          title: Crop Type
+        growth_stage:
+          $ref: '#/components/schemas/GrowthStage'
+        soil_type:
+          $ref: '#/components/schemas/SoilType'
+        irrigation_method:
+          $ref: '#/components/schemas/IrrigationMethod'
+        field_area_hectares:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Field Area Hectares
+          default: 1.0
+        last_irrigation_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Last Irrigation Date
+        last_irrigation_amount:
+          anyOf:
+          - type: number
+            maximum: 500.0
+            minimum: 0.0
+          - type: 'null'
+          title: Last Irrigation Amount
+        current_soil_moisture:
+          anyOf:
+          - type: number
+            maximum: 1.0
+            minimum: 0.0
+          - type: 'null'
+          title: Current Soil Moisture
+          description: Current moisture if known (m³/m³)
+        weather:
+          $ref: '#/components/schemas/WeatherInput'
+      type: object
+      required:
+      - crop_type
+      - growth_stage
+      - soil_type
+      - irrigation_method
+      - weather
+      title: IrrigationRecommendationInput
+      description: Input for irrigation recommendation
+    SoilMoistureInput:
+      properties:
+        soil_type:
+          $ref: '#/components/schemas/SoilType'
+        root_depth:
+          type: number
+          maximum: 3.0
+          exclusiveMinimum: 0.0
+          title: Root Depth
+          description: Root depth (m)
+          default: 0.6
+        last_irrigation_date:
+          type: string
+          format: date
+          title: Last Irrigation Date
+        last_irrigation_amount:
+          type: number
+          maximum: 500.0
+          minimum: 0.0
+          title: Last Irrigation Amount
+          description: Irrigation amount (mm)
+        rainfall_since:
+          type: number
+          maximum: 500.0
+          minimum: 0.0
+          title: Rainfall Since
+          description: Rainfall since last irrigation (mm)
+          default: 0
+        daily_etc:
+          type: number
+          maximum: 25.0
+          minimum: 0.0
+          title: Daily Etc
+          description: Daily crop ET (mm/day)
+      type: object
+      required:
+      - soil_type
+      - last_irrigation_date
+      - last_irrigation_amount
+      - daily_etc
+      title: SoilMoistureInput
+      description: Input for virtual soil moisture calculation
+    SoilType:
+      type: string
+      enum:
+      - sandy
+      - sandy_loam
+      - loam
+      - clay_loam
+      - clay
+      - silty_clay
+      title: SoilType
+      description: Soil types common in Yemen
+    UrgencyLevel:
+      type: string
+      enum:
+      - none
+      - low
+      - medium
+      - high
+      - critical
+      title: UrgencyLevel
+      description: Irrigation urgency levels
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VirtualSensorActionRequest:
+      properties:
+        field_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          pattern: ^[a-zA-Z0-9_\-]+$
+          title: Field Id
+          description: معرف الحقل - Field identifier (alphanumeric, hyphens, underscores)
+        farmer_id:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+            pattern: ^[a-zA-Z0-9_\-]+$
+          - type: 'null'
+          title: Farmer Id
+          description: معرف المزارع
+        tenant_id:
+          anyOf:
+          - type: string
+            maxLength: 100
+            minLength: 1
+            pattern: ^[a-zA-Z0-9_\-]+$
+          - type: 'null'
+          title: Tenant Id
+          description: معرف المستأجر
+        crop_type:
+          type: string
+          maxLength: 50
+          minLength: 1
+          title: Crop Type
+          description: نوع المحصول
+        growth_stage:
+          $ref: '#/components/schemas/GrowthStage'
+          description: مرحلة النمو
+        soil_type:
+          $ref: '#/components/schemas/SoilType'
+          description: نوع التربة
+          default: loam
+        irrigation_method:
+          $ref: '#/components/schemas/IrrigationMethod'
+          description: طريقة الري
+          default: drip
+        field_area_hectares:
+          type: number
+          exclusiveMinimum: 0.0
+          title: Field Area Hectares
+          description: مساحة الحقل بالهكتار
+          default: 1.0
+        last_irrigation_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Last Irrigation Date
+          description: تاريخ آخر ري
+        last_irrigation_amount:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Last Irrigation Amount
+          description: كمية آخر ري بالمم
+        weather:
+          $ref: '#/components/schemas/WeatherInput'
+          description: بيانات الطقس
+        publish_event:
+          type: boolean
+          title: Publish Event
+          description: نشر الحدث عبر NATS
+          default: true
+      type: object
+      required:
+      - field_id
+      - crop_type
+      - growth_stage
+      - weather
+      title: VirtualSensorActionRequest
+      description: Request for virtual sensor analysis with ActionTemplate output
+    VirtualSoilMoistureResponse:
+      properties:
+        calculation_id:
+          type: string
+          title: Calculation Id
+        estimated_moisture:
+          type: number
+          title: Estimated Moisture
+          description: Estimated soil moisture (m³/m³)
+        moisture_percentage:
+          type: number
+          title: Moisture Percentage
+          description: Available water depletion (%)
+        days_since_irrigation:
+          type: integer
+          title: Days Since Irrigation
+        total_et_loss:
+          type: number
+          title: Total Et Loss
+          description: Total ET loss since irrigation (mm)
+        available_water:
+          type: number
+          title: Available Water
+          description: Remaining available water (mm)
+        total_available_water:
+          type: number
+          title: Total Available Water
+          description: Total available water capacity (mm)
+        status:
+          type: string
+          title: Status
+        status_ar:
+          type: string
+          title: Status Ar
+        urgency:
+          $ref: '#/components/schemas/UrgencyLevel'
+      type: object
+      required:
+      - calculation_id
+      - estimated_moisture
+      - moisture_percentage
+      - days_since_irrigation
+      - total_et_loss
+      - available_water
+      - total_available_water
+      - status
+      - status_ar
+      - urgency
+      title: VirtualSoilMoistureResponse
+      description: Virtual soil moisture estimation response
+    WeatherInput:
+      properties:
+        temperature_max:
+          type: number
+          maximum: 60.0
+          minimum: -60.0
+          title: Temperature Max
+          description: Maximum temperature (°C)
+        temperature_min:
+          type: number
+          maximum: 60.0
+          minimum: -60.0
+          title: Temperature Min
+          description: Minimum temperature (°C)
+        humidity:
+          type: number
+          maximum: 100.0
+          minimum: 0.0
+          title: Humidity
+          description: Relative humidity (%)
+        wind_speed:
+          type: number
+          maximum: 111.12
+          minimum: 0.0
+          title: Wind Speed
+          description: Wind speed at 2m height (m/s). Max 400 km/h = 111.12 m/s
+        solar_radiation:
+          anyOf:
+          - type: number
+            maximum: 130.0
+            minimum: 0.0
+          - type: 'null'
+          title: Solar Radiation
+          description: Solar radiation (MJ/m²/day). Max 1500 W/m² peak ≈ 130 MJ/m²/day
+        sunshine_hours:
+          anyOf:
+          - type: number
+            maximum: 24.0
+            minimum: 0.0
+          - type: 'null'
+          title: Sunshine Hours
+          description: Sunshine hours
+        latitude:
+          type: number
+          maximum: 90.0
+          minimum: -90.0
+          title: Latitude
+          description: Latitude (degrees)
+        longitude:
+          anyOf:
+          - type: number
+            maximum: 180.0
+            minimum: -180.0
+          - type: 'null'
+          title: Longitude
+          description: Longitude (degrees)
+        altitude:
+          type: number
+          maximum: 5000.0
+          minimum: -500.0
+          title: Altitude
+          description: Altitude above sea level (m)
+          default: 0
+        calculation_date:
+          type: string
+          format: date
+          title: Calculation Date
+          description: Date for calculation
+      type: object
+      required:
+      - temperature_max
+      - temperature_min
+      - humidity
+      - wind_speed
+      - latitude
+      title: WeatherInput
+      description: Weather data input for ET0 calculation
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

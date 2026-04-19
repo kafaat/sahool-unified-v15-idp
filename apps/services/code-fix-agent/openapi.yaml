@@ -1,0 +1,555 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Code Fix Agent
+  description: AI-powered code analysis, bug fixing, and implementation agent
+  version: 16.0.0
+paths:
+  /health/live:
+    get:
+      tags:
+      - Health
+      summary: Liveness
+      description: 'Liveness probe
+
+        فحص الحياة'
+      operationId: liveness_health_live_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /healthz:
+    get:
+      tags:
+      - Health
+      summary: Liveness
+      description: 'Liveness probe
+
+        فحص الحياة'
+      operationId: liveness_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health/ready:
+    get:
+      tags:
+      - Health
+      summary: Readiness
+      description: 'Readiness probe
+
+        فحص الجاهزية'
+      operationId: readiness_health_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      tags:
+      - Health
+      summary: Readiness
+      description: 'Readiness probe
+
+        فحص الجاهزية'
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      tags:
+      - Health
+      summary: Health
+      description: 'Combined health check
+
+        فحص الصحة الشامل'
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      tags:
+      - Health
+      summary: Metrics
+      description: 'Prometheus metrics
+
+        مقاييس بروميثيوس'
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/analyze:
+    post:
+      tags:
+      - Agent
+      summary: Analyze Code
+      description: 'تحليل الكود واكتشاف المشاكل
+
+        Analyze code and detect issues
+
+
+        Analyzes the provided code snippet for:
+
+        - Syntax errors
+
+        - Security vulnerabilities
+
+        - Performance issues
+
+        - Style violations
+
+        - Type errors'
+      operationId: analyze_code_api_v1_analyze_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalyzeCodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/fix:
+    post:
+      tags:
+      - Agent
+      summary: Fix Code
+      description: 'إصلاح الكود تلقائياً
+
+        Automatically fix code issues
+
+
+        Generates and applies fixes for the provided errors.'
+      operationId: fix_code_api_v1_fix_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FixCodeRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/review:
+    post:
+      tags:
+      - Agent
+      summary: Review Pr
+      description: 'مراجعة طلب السحب
+
+        Review pull request
+
+
+        Analyzes PR changes and provides review comments.'
+      operationId: review_pr_api_v1_review_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewPRRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/generate-tests:
+    post:
+      tags:
+      - Agent
+      summary: Generate Tests
+      description: 'توليد اختبارات تلقائية
+
+        Generate automated tests
+
+
+        Generates unit tests for the provided code.'
+      operationId: generate_tests_api_v1_generate_tests_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenerateTestsRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/implement:
+    post:
+      tags:
+      - Agent
+      summary: Implement Feature
+      description: 'تنفيذ ميزة جديدة
+
+        Implement new feature
+
+
+        Implements a feature based on the provided specification.'
+      operationId: implement_feature_api_v1_implement_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImplementFeatureRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/feedback:
+    post:
+      tags:
+      - Agent
+      summary: Submit Feedback
+      description: 'إرسال التغذية الراجعة للتعلم
+
+        Submit feedback for learning
+
+
+        Allows the agent to learn from fix results.'
+      operationId: submit_feedback_api_v1_feedback_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              type: object
+              title: Feedback
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/agent/info:
+    get:
+      tags:
+      - Agent
+      summary: Get Agent Info
+      description: 'الحصول على معلومات الوكيل
+
+        Get agent information'
+      operationId: get_agent_info_api_v1_agent_info_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AgentResponse:
+      properties:
+        success:
+          type: boolean
+          title: Success
+        action_type:
+          type: string
+          title: Action Type
+        data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Data
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        confidence:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Confidence
+        reasoning:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning
+        reasoning_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Reasoning Ar
+        response_time_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Response Time Ms
+        agent_id:
+          type: string
+          title: Agent Id
+      type: object
+      required:
+      - success
+      - action_type
+      - agent_id
+      title: AgentResponse
+      description: استجابة الوكيل
+    AnalyzeCodeRequest:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: Code snippet to analyze
+        language:
+          type: string
+          title: Language
+          description: Programming language (python, typescript, dart)
+          default: python
+        file_path:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: File Path
+          description: Optional file path
+        context:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Context
+          description: Additional context
+      type: object
+      required:
+      - code
+      title: AnalyzeCodeRequest
+      description: طلب تحليل الكود
+    FixCodeRequest:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: Code with issue to fix
+        errors:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Errors
+          description: Error information
+        language:
+          type: string
+          title: Language
+          description: Programming language
+          default: python
+        strategy:
+          type: string
+          title: Strategy
+          description: Fix strategy (minimal, comprehensive, refactor)
+          default: minimal
+      type: object
+      required:
+      - code
+      - errors
+      title: FixCodeRequest
+      description: طلب إصلاح الكود
+    GenerateTestsRequest:
+      properties:
+        code:
+          type: string
+          title: Code
+          description: Code to generate tests for
+        language:
+          type: string
+          title: Language
+          description: Programming language
+          default: python
+        framework:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Framework
+          description: Test framework
+        coverage_target:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Coverage Target
+          description: Coverage target
+          default: 80
+      type: object
+      required:
+      - code
+      title: GenerateTestsRequest
+      description: طلب توليد الاختبارات
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ImplementFeatureRequest:
+      properties:
+        specification:
+          additionalProperties: true
+          type: object
+          title: Specification
+          description: Feature specification
+        target_files:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Target Files
+          description: Target files
+        design_patterns:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Design Patterns
+          description: Patterns to use
+      type: object
+      required:
+      - specification
+      title: ImplementFeatureRequest
+      description: طلب تنفيذ ميزة
+    ReviewPRRequest:
+      properties:
+        diff:
+          type: string
+          title: Diff
+          description: PR diff content
+        context_files:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Context Files
+          description: Related files
+        review_focus:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Review Focus
+          description: Focus areas (security, performance, style)
+      type: object
+      required:
+      - diff
+      title: ReviewPRRequest
+      description: طلب مراجعة طلب السحب
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

@@ -1,0 +1,619 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Provider Configuration Service
+  description: خدمة إدارة وتكوين المزودين الخارجيين للخرائط والطقس والأقمار الصناعية
+  version: 16.0.0
+paths:
+  /:
+    get:
+      summary: Root
+      description: Service information
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /healthz:
+    get:
+      summary: Health Check
+      description: Health check endpoint
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /providers:
+    get:
+      summary: List All Providers
+      description: List all available providers
+      operationId: list_all_providers_providers_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvidersListResponse'
+  /providers/maps:
+    get:
+      summary: List Map Providers
+      description: List all map providers
+      operationId: list_map_providers_providers_maps_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /providers/weather:
+    get:
+      summary: List Weather Providers
+      description: List all weather providers
+      operationId: list_weather_providers_providers_weather_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /providers/satellite:
+    get:
+      summary: List Satellite Providers
+      description: List all satellite providers
+      operationId: list_satellite_providers_providers_satellite_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /providers/payment:
+    get:
+      summary: List Payment Providers
+      description: List all payment providers - قائمة مزودي الدفع
+      operationId: list_payment_providers_providers_payment_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /providers/sms:
+    get:
+      summary: List Sms Providers
+      description: List all SMS providers - قائمة مزودي الرسائل النصية
+      operationId: list_sms_providers_providers_sms_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /providers/notification:
+    get:
+      summary: List Notification Providers
+      description: List all notification providers - قائمة مزودي الإشعارات
+      operationId: list_notification_providers_providers_notification_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /providers/select/{provider_type}:
+    get:
+      summary: Select Provider
+      description: 'Smart provider selection based on country and requirements
+
+        اختيار المزود الذكي بناءً على البلد والمتطلبات'
+      operationId: select_provider_providers_select__provider_type__get
+      parameters:
+      - name: provider_type
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProviderType'
+      - name: country
+        in: query
+        required: false
+        schema:
+          type: string
+          default: YE
+          title: Country
+      - name: currency
+        in: query
+        required: false
+        schema:
+          type: string
+          default: YER
+          title: Currency
+      - name: fallback
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Fallback
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /providers/failover-chain/{provider_type}:
+    get:
+      summary: Get Failover Chain
+      description: 'Get ordered failover chain for a provider type
+
+        سلسلة الاحتياط المرتبة لنوع المزود'
+      operationId: get_failover_chain_providers_failover_chain__provider_type__get
+      parameters:
+      - name: provider_type
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProviderType'
+      - name: country
+        in: query
+        required: false
+        schema:
+          type: string
+          default: YE
+          title: Country
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /providers/check:
+    post:
+      summary: Check Provider Health
+      description: Check health of a specific provider
+      operationId: check_provider_health_providers_check_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthCheckRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProviderStatusResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /providers/check/all:
+    get:
+      summary: Check All Free Providers
+      description: Check health of all free providers (no API key required)
+      operationId: check_all_free_providers_providers_check_all_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /config/{tenant_id}:
+    get:
+      summary: Get Tenant Config
+      description: Get provider configuration for a tenant
+      operationId: get_tenant_config_config__tenant_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Update Tenant Config
+      description: Update provider configuration for a tenant
+      operationId: update_tenant_config_config__tenant_id__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantProviderConfig'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Reset Tenant Config
+      description: Reset tenant configuration to defaults
+      operationId: reset_tenant_config_config__tenant_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /config/{tenant_id}/history:
+    get:
+      summary: Get Config History
+      description: Get configuration change history for a tenant
+      operationId: get_config_history_config__tenant_id__history_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: provider_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Provider Type
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 100
+          title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /config/{tenant_id}/rollback:
+    post:
+      summary: Rollback Config
+      description: Rollback configuration to a specific version
+      operationId: rollback_config_config__tenant_id__rollback_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: tenant_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Tenant Id
+      - name: config_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Config Id
+      - name: version
+        in: query
+        required: true
+        schema:
+          type: integer
+          title: Version
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /providers/recommend:
+    get:
+      summary: Recommend Providers
+      description: Get recommended providers based on use case and budget
+      operationId: recommend_providers_providers_recommend_get
+      parameters:
+      - name: use_case
+        in: query
+        required: false
+        schema:
+          type: string
+          default: agricultural
+          title: Use Case
+      - name: budget
+        in: query
+        required: false
+        schema:
+          type: string
+          default: free
+          title: Budget
+      - name: offline_required
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
+          title: Offline Required
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    HealthCheckRequest:
+      properties:
+        provider_type:
+          $ref: '#/components/schemas/ProviderType'
+        provider_name:
+          type: string
+          title: Provider Name
+        api_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Api Key
+      type: object
+      required:
+      - provider_type
+      - provider_name
+      title: HealthCheckRequest
+    ProviderConfig:
+      properties:
+        provider_name:
+          type: string
+          title: Provider Name
+        api_key:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Api Key
+        priority:
+          $ref: '#/components/schemas/ProviderPriority'
+          default: primary
+        enabled:
+          type: boolean
+          title: Enabled
+          default: true
+      type: object
+      required:
+      - provider_name
+      title: ProviderConfig
+    ProviderPriority:
+      type: string
+      enum:
+      - primary
+      - secondary
+      - tertiary
+      - disabled
+      title: ProviderPriority
+    ProviderStatus:
+      type: string
+      enum:
+      - available
+      - unavailable
+      - rate_limited
+      - error
+      - checking
+      title: ProviderStatus
+    ProviderStatusResponse:
+      properties:
+        provider_name:
+          type: string
+          title: Provider Name
+        status:
+          $ref: '#/components/schemas/ProviderStatus'
+        last_check:
+          type: string
+          format: date-time
+          title: Last Check
+        response_time_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Response Time Ms
+        error_message:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error Message
+      type: object
+      required:
+      - provider_name
+      - status
+      - last_check
+      title: ProviderStatusResponse
+    ProviderType:
+      type: string
+      enum:
+      - map
+      - weather
+      - satellite
+      - notification
+      - payment
+      - sms
+      title: ProviderType
+    ProvidersListResponse:
+      properties:
+        map_providers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Map Providers
+        weather_providers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Weather Providers
+        satellite_providers:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Satellite Providers
+      type: object
+      required:
+      - map_providers
+      - weather_providers
+      - satellite_providers
+      title: ProvidersListResponse
+    TenantProviderConfig:
+      properties:
+        tenant_id:
+          type: string
+          title: Tenant Id
+        map_providers:
+          items:
+            $ref: '#/components/schemas/ProviderConfig'
+          type: array
+          title: Map Providers
+          default: []
+        weather_providers:
+          items:
+            $ref: '#/components/schemas/ProviderConfig'
+          type: array
+          title: Weather Providers
+          default: []
+        satellite_providers:
+          items:
+            $ref: '#/components/schemas/ProviderConfig'
+          type: array
+          title: Satellite Providers
+          default: []
+      type: object
+      required:
+      - tenant_id
+      title: TenantProviderConfig
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

@@ -1,0 +1,1011 @@
+openapi: 3.1.0
+info:
+  title: SAHOOL Advisory Service
+  description: Disease diagnosis, nutrient assessment, and fertilizer planning for
+    Yemen agriculture
+  version: 16.0.0
+paths:
+  /healthz:
+    get:
+      summary: Health
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/disease/assess:
+    post:
+      summary: Assess Disease
+      description: Assess disease from image classification result
+      operationId: assess_disease_api_v1_disease_assess_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiseaseAssessRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/disease/symptoms:
+    post:
+      summary: Assess Symptoms
+      description: Assess possible diseases from reported symptoms
+      operationId: assess_symptoms_api_v1_disease_symptoms_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SymptomAssessRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/disease/search:
+    get:
+      summary: Search Disease
+      description: Search diseases by name or symptoms
+      operationId: search_disease_api_v1_disease_search_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Q
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ar
+          title: Lang
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/disease/crop/{crop}:
+    get:
+      summary: Get Crop Diseases
+      description: Get all diseases for a specific crop
+      operationId: get_crop_diseases_api_v1_disease_crop__crop__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: crop
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/disease/{disease_id}:
+    get:
+      summary: Get Disease Info
+      description: Get disease information by ID
+      operationId: get_disease_info_api_v1_disease__disease_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: disease_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Disease Id
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ar
+          title: Lang
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/nutrient/ndvi:
+    post:
+      summary: Assess From Ndvi Endpoint
+      description: Assess nutrient deficiency from NDVI data
+      operationId: assess_from_ndvi_endpoint_api_v1_nutrient_ndvi_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NDVIAssessRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/nutrient/visual:
+    post:
+      summary: Assess Visual Endpoint
+      description: Assess nutrient deficiency from visual indicators
+      operationId: assess_visual_endpoint_api_v1_nutrient_visual_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VisualAssessRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/nutrient/{deficiency_id}:
+    get:
+      summary: Get Deficiency Info
+      description: Get nutrient deficiency information by ID
+      operationId: get_deficiency_info_api_v1_nutrient__deficiency_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: deficiency_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Deficiency Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fertilizer/plan:
+    post:
+      summary: Create Fertilizer Plan
+      description: 'Generate fertilizer plan for crop and stage.
+
+
+        Reference exemplar for the transactional outbox pattern in advisory-service.
+
+        When ``OUTBOX_ENABLED=true`` and the DB pool is available, the event is
+
+        enqueued into ``outbox_messages`` and published by the background
+
+        :class:`OutboxRelay`. Otherwise we fall back to the legacy direct-publish
+
+        path for backwards compatibility.'
+      operationId: create_fertilizer_plan_api_v1_fertilizer_plan_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FertilizerPlanRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/fertilizer/{fertilizer_id}:
+    get:
+      summary: Get Fertilizer Info
+      description: Get fertilizer information by ID
+      operationId: get_fertilizer_info_api_v1_fertilizer__fertilizer_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: fertilizer_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Fertilizer Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/fertilizer/nutrient/{nutrient}:
+    get:
+      summary: Get Fertilizers By Nutrient
+      description: Get fertilizers that provide a specific nutrient
+      operationId: get_fertilizers_by_nutrient_api_v1_fertilizer_nutrient__nutrient__get
+      parameters:
+      - name: nutrient
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Nutrient
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/crops/categories:
+    get:
+      summary: List Categories
+      description: List crop categories with counts
+      operationId: list_categories_api_v1_crops_categories_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /api/v1/crops/search:
+    get:
+      summary: Search Crops Endpoint
+      description: Search crops by Arabic or English name
+      operationId: search_crops_endpoint_api_v1_crops_search_get
+      parameters:
+      - name: q
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Q
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/crop-catalog/categories:
+    get:
+      summary: List Crop Catalog Categories
+      description: 'List crop-type TAXONOMY grouped by category with pagination.
+
+
+        This is the canonical endpoint for the crop taxonomy catalog. It returns
+
+        reference data (crop types like ''wheat'', ''tomato'', ''date_palm'') shared
+
+        across all tenants — NOT user-owned crop records.
+
+
+        For user/farm crop CRUD operations use `field-management-service` (the
+
+        canonical owner of user crop records) or `crop-intelligence-service`.'
+      operationId: list_crop_catalog_categories_api_v1_crop_catalog_categories_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Maximum number of crops per category
+          default: 100
+          title: Limit
+        description: Maximum number of crops per category
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          description: Number of crops to skip per category
+          default: 0
+          title: Offset
+        description: Number of crops to skip per category
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/crops:
+    get:
+      summary: '[DEPRECATED] Use /api/v1/crop-catalog/categories'
+      description: "[DEPRECATED] Returns crop-type TAXONOMY (not user-owned crops).\n\
+        \nThis endpoint was misnamed: it returns a catalog (taxonomy) of crop types,\n\
+        not a CRUD `Crop[]` collection. The frontend expects CRUD semantics here.\n\
+        \nMIGRATION:\n- For the crop taxonomy catalog, use\n  ``GET /api/v1/crop-catalog/categories``\
+        \ (same response shape).\n- For user/farm crop CRUD (create/read/update/delete\
+        \ user crops), use\n  ``field-management-service`` (canonical) or ``crop-intelligence-service``.\n\
+        \nSunset: 2026-12-01. Deprecation headers (RFC 8594) are emitted by\nmiddleware\
+        \ on every GET /api/v1/crops response."
+      operationId: list_all_crops_api_v1_crops_get
+      deprecated: true
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 500
+          minimum: 1
+          description: Maximum number of crops per category
+          default: 100
+          title: Limit
+        description: Maximum number of crops per category
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          description: Number of crops to skip per category
+          default: 0
+          title: Offset
+        description: Number of crops to skip per category
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/crops/{crop_code}:
+    get:
+      summary: Get Crop Details
+      description: Get single crop details with Yemen varieties
+      operationId: get_crop_details_api_v1_crops__crop_code__get
+      parameters:
+      - name: crop_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/crops/{crop_code}/varieties:
+    get:
+      summary: Get Crop Varieties
+      description: Get Yemen-specific varieties for a crop
+      operationId: get_crop_varieties_api_v1_crops__crop_code__varieties_get
+      parameters:
+      - name: crop_code
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop Code
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/crops/{crop}/stages:
+    get:
+      summary: Get Crop Stages
+      description: Get growth stages for a crop
+      operationId: get_crop_stages_api_v1_crops__crop__stages_get
+      parameters:
+      - name: crop
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/crops/{crop}/requirements:
+    get:
+      summary: Get Crop Requirements Legacy
+      description: Get nutrient requirements for a crop (legacy endpoint)
+      operationId: get_crop_requirements_legacy_api_v1_crops__crop__requirements_get
+      parameters:
+      - name: crop
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Crop
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/actions/{action_id}:
+    get:
+      summary: Get Action
+      description: Get detailed action instructions
+      operationId: get_action_api_v1_actions__action_id__get
+      parameters:
+      - name: action_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Action Id
+      - name: lang
+        in: query
+        required: false
+        schema:
+          type: string
+          default: ar
+          title: Lang
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/advisory/comprehensive/{field_id}:
+    post:
+      summary: Comprehensive Advisory
+      description: "One-call comprehensive advisory for a field.\n\nAggregates per-field\
+        \ insights from the nutrient, pest, disease,\nirrigation, weather, yield,\
+        \ carbon, and alert services into a\nsingle response. Matches the UX of Farmonaut's\
+        \ Jeevn AI\n(\"one question → comprehensive answer\") without forcing the\n\
+        client to orchestrate ten downstream calls.\n\nGraceful degradation: every\
+        \ downstream call is wrapped in its\nown try/except with a per-call timeout.\
+        \ If a single service is\nslow or down, that section comes back with `degraded:\
+        \ true` and\nthe rest of the payload still returns. The `overall_status`\n\
+        field at the top of the response summarises the result:\n\n  * `healthy` \
+        \ — all sections returned, no active alerts\n  * `degraded` — at least one\
+        \ section failed OR there are alerts\n  * `critical` — a critical alert exists\
+        \ OR >=4 sections failed\n\nThe endpoint is tenant-scoped: the caller's JWT\
+        \ provides the\ntenant id, which is propagated to every downstream call via\n\
+        the X-Tenant-Id header so cross-tenant access is impossible."
+      operationId: comprehensive_advisory_api_v1_advisory_comprehensive__field_id__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+          maxLength: 100
+          pattern: ^[A-Za-z0-9_-]+$
+          description: Opaque field identifier (alphanumeric, _ or -).
+          title: Field Id
+        description: Opaque field identifier (alphanumeric, _ or -).
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/loans/crop-loan-verification/{field_id}:
+    post:
+      summary: Verify Crop Loan
+      description: "Satellite-backed crop loan verification for banks / lenders.\n\
+        \nFarmonaut offers a \"large-scale crop loan monitoring\" product that\nbanks\
+        \ use to verify farmer declarations against real satellite\nimagery. This\
+        \ endpoint is SAHOOL's equivalent, built on our own\nfield-management + vegetation-analysis\
+        \ + crop-intelligence stack.\n\nGiven a ``field_id`` and the bank's declared\
+        \ loan parameters, the\nendpoint returns:\n\n  * ``eligibility_score`` — 0-100,\
+        \ based on NDVI health, area\n    match, crop verification, and risk profile.\n\
+        \  * ``recommended_loan_amount_sar`` — bounded by expected gross\n    revenue\
+        \ and the eligibility score.\n  * ``max_safe_loan_amount_sar`` — the upper\
+        \ bound we'd comfortably\n    underwrite.\n  * ``loan_to_value_ratio`` — requested\
+        \ amount vs expected revenue.\n  * ``decision`` — ``approved`` | ``review``\
+        \ | ``rejected``.\n  * ``satellite_evidence`` — full NDVI stats, area match,\
+        \ last pass.\n  * ``summary`` / ``summary_ar`` — bilingual one-liner the loan\n\
+        \    officer can paste into their risk file.\n\nSAHOOL does NOT underwrite\
+        \ loans. The endpoint surfaces agronomic\nevidence; the bank's own credit\
+        \ scorecard makes the final call.\n\nTenant-scoped: the caller's JWT drives\
+        \ the tenant id, which is\npropagated to every downstream call via ``X-Tenant-Id``\
+        \ so cross-\ntenant access is impossible."
+      operationId: verify_crop_loan_api_v1_loans_crop_loan_verification__field_id__post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Field Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CropLoanVerificationPayload'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    CropLoanVerificationPayload:
+      properties:
+        declared_crop:
+          type: string
+          maxLength: 64
+          minLength: 1
+          title: Declared Crop
+        declared_area_hectares:
+          type: number
+          maximum: 100000.0
+          exclusiveMinimum: 0.0
+          title: Declared Area Hectares
+        requested_loan_amount_sar:
+          type: number
+          maximum: 1000000000.0
+          exclusiveMinimum: 0.0
+          title: Requested Loan Amount Sar
+        loan_term_months:
+          type: integer
+          maximum: 120.0
+          minimum: 1.0
+          title: Loan Term Months
+          default: 12
+        language:
+          type: string
+          pattern: ^(ar|en)$
+          title: Language
+          default: ar
+      type: object
+      required:
+      - declared_crop
+      - declared_area_hectares
+      - requested_loan_amount_sar
+      title: CropLoanVerificationPayload
+      description: Bank / lender payload for a satellite-backed loan verification.
+    DiseaseAssessRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+        condition_id:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Condition Id
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+        crop:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Crop
+        weather:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Weather
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - condition_id
+      - confidence
+      title: DiseaseAssessRequest
+    FertilizerPlanRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+        crop:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Crop
+        stage:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Stage
+        field_size_ha:
+          type: number
+          maximum: 10000.0
+          exclusiveMinimum: 0.0
+          title: Field Size Ha
+          default: 1.0
+        soil_fertility:
+          type: string
+          maxLength: 20
+          title: Soil Fertility
+          default: medium
+        irrigation_type:
+          type: string
+          maxLength: 20
+          title: Irrigation Type
+          default: drip
+        planting_date:
+          anyOf:
+          - type: string
+            format: date
+          - type: 'null'
+          title: Planting Date
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - crop
+      - stage
+      title: FertilizerPlanRequest
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    NDVIAssessRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+        ndvi:
+          type: number
+          maximum: 1.0
+          minimum: -1.0
+          title: Ndvi
+        ndvi_history:
+          anyOf:
+          - items:
+              type: number
+            type: array
+            maxItems: 365
+          - type: 'null'
+          title: Ndvi History
+        crop:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Crop
+        stage:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Stage
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - ndvi
+      title: NDVIAssessRequest
+    SymptomAssessRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+        crop:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Crop
+        symptoms:
+          items:
+            type: string
+          type: array
+          maxItems: 50
+          minItems: 1
+          title: Symptoms
+        lang:
+          type: string
+          maxLength: 5
+          title: Lang
+          default: ar
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      - crop
+      - symptoms
+      title: SymptomAssessRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    VisualAssessRequest:
+      properties:
+        tenant_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+        field_id:
+          type: string
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+        leaf_color:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Leaf Color
+        pattern:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Pattern
+        location:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Location
+        crop:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          title: Crop
+        lang:
+          type: string
+          maxLength: 5
+          title: Lang
+          default: ar
+        correlation_id:
+          anyOf:
+          - type: string
+            maxLength: 200
+          - type: 'null'
+          title: Correlation Id
+      type: object
+      required:
+      - tenant_id
+      - field_id
+      title: VisualAssessRequest
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

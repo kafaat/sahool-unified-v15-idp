@@ -1,0 +1,1256 @@
+openapi: 3.1.0
+info:
+  title: drone-service
+  description: Drone integration and management - تكامل وإدارة الطائرات المسيرة
+  version: 16.0.0
+paths:
+  /api/v1/drones/:
+    get:
+      tags:
+      - drones
+      summary: List Drones
+      description: List all registered drones - قائمة بجميع الطائرات المسجلة
+      operationId: list_drones_api_v1_drones__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 500
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DroneResponse'
+                title: Response List Drones Api V1 Drones  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - drones
+      summary: Register Drone
+      description: Register a new drone - تسجيل طائرة جديدة
+      operationId: register_drone_api_v1_drones__post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DroneCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DroneResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/drones/{drone_id}:
+    get:
+      tags:
+      - drones
+      summary: Get Drone
+      description: Get drone details - الحصول على تفاصيل الطائرة
+      operationId: get_drone_api_v1_drones__drone_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: drone_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Drone Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DroneResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+      - drones
+      summary: Update Drone
+      description: Update drone information - تحديث معلومات الطائرة
+      operationId: update_drone_api_v1_drones__drone_id__put
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: drone_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Drone Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DroneCreate'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DroneResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+      - drones
+      summary: Delete Drone
+      description: Deregister a drone - إلغاء تسجيل الطائرة
+      operationId: delete_drone_api_v1_drones__drone_id__delete
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: drone_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Drone Id
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/drones/{drone_id}/status:
+    get:
+      tags:
+      - drones
+      summary: Get Drone Status
+      description: Get real-time drone status - الحصول على حالة الطائرة في الوقت الفعلي
+      operationId: get_drone_status_api_v1_drones__drone_id__status_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: drone_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Drone Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/drones/{drone_id}/telemetry:
+    get:
+      tags:
+      - drones
+      summary: Get Drone Telemetry
+      description: Get drone telemetry history - الحصول على سجل القياس عن بعد للطائرة
+      operationId: get_drone_telemetry_api_v1_drones__drone_id__telemetry_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: drone_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Drone Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/flights/plan/spray:
+    post:
+      tags:
+      - flight-planning
+      summary: Create Spray Flight Plan
+      description: Create spray flight plan - إنشاء خطة رحلة رش
+      operationId: create_spray_flight_plan_api_v1_flights_plan_spray_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SprayFlightRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/flights/plan/mapping:
+    post:
+      tags:
+      - flight-planning
+      summary: Create Mapping Flight Plan
+      description: Create mapping flight plan - إنشاء خطة رحلة تصوير
+      operationId: create_mapping_flight_plan_api_v1_flights_plan_mapping_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MappingFlightRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/flights/weather-check:
+    post:
+      tags:
+      - flight-planning
+      summary: Check Flight Weather
+      description: Check weather conditions for flight - فحص حالة الطقس للرحلة
+      operationId: check_flight_weather_api_v1_flights_weather_check_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherCheckRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/flights/estimate:
+    post:
+      tags:
+      - flight-planning
+      summary: Estimate Resources
+      description: Estimate flight resources - تقدير موارد الرحلة
+      operationId: estimate_resources_api_v1_flights_estimate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceEstimateRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/flights/plans:
+    get:
+      tags:
+      - flight-planning
+      summary: List Flight Plans
+      description: List flight plans - قائمة خطط الرحلات
+      operationId: list_flight_plans_api_v1_flights_plans_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      - name: plan_type
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Type
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 500
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/flights/plans/{plan_id}:
+    get:
+      tags:
+      - flight-planning
+      summary: Get Flight Plan
+      description: Get flight plan details - تفاصيل خطة الرحلة
+      operationId: get_flight_plan_api_v1_flights_plans__plan_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: plan_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Plan Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/missions/:
+    get:
+      tags:
+      - missions
+      summary: List Missions
+      description: List all missions - قائمة بجميع المهام
+      operationId: list_missions_api_v1_missions__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Status
+      - name: drone_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drone Id
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 500
+          title: Limit
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: integer
+          default: 0
+          title: Offset
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MissionResponse'
+                title: Response List Missions Api V1 Missions  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      tags:
+      - missions
+      summary: Create Mission
+      description: Create a new mission - إنشاء مهمة جديدة
+      operationId: create_mission_api_v1_missions__post
+      security:
+      - OAuth2PasswordBearer: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MissionCreate'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/missions/{mission_id}:
+    get:
+      tags:
+      - missions
+      summary: Get Mission
+      description: Get mission details - الحصول على تفاصيل المهمة
+      operationId: get_mission_api_v1_missions__mission_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MissionResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/missions/{mission_id}/start:
+    post:
+      tags:
+      - missions
+      summary: Start Mission
+      description: Start mission execution - بدء تنفيذ المهمة
+      operationId: start_mission_api_v1_missions__mission_id__start_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/missions/{mission_id}/pause:
+    post:
+      tags:
+      - missions
+      summary: Pause Mission
+      description: Pause mission - إيقاف المهمة مؤقتاً
+      operationId: pause_mission_api_v1_missions__mission_id__pause_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/missions/{mission_id}/resume:
+    post:
+      tags:
+      - missions
+      summary: Resume Mission
+      description: Resume mission - استئناف المهمة
+      operationId: resume_mission_api_v1_missions__mission_id__resume_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/missions/{mission_id}/abort:
+    post:
+      tags:
+      - missions
+      summary: Abort Mission
+      description: Abort mission - إلغاء المهمة
+      operationId: abort_mission_api_v1_missions__mission_id__abort_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/missions/{mission_id}/complete:
+    post:
+      tags:
+      - missions
+      summary: Complete Mission
+      description: Complete mission - إكمال المهمة
+      operationId: complete_mission_api_v1_missions__mission_id__complete_post
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/vra/prescription/ndvi:
+    post:
+      tags:
+      - vra
+      summary: Create Ndvi Prescription
+      description: Create NDVI-based prescription map - إنشاء خريطة وصفة مبنية على
+        NDVI
+      operationId: create_ndvi_prescription_api_v1_vra_prescription_ndvi_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NDVIPrescriptionRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/vra/prescription/spot-spray:
+    post:
+      tags:
+      - vra
+      summary: Create Spot Spray
+      description: Create spot spray map from detection points - إنشاء خريطة رش نقطي
+        من نقاط الكشف
+      operationId: create_spot_spray_api_v1_vra_prescription_spot_spray_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpotSprayRequest'
+        required: true
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+      security:
+      - OAuth2PasswordBearer: []
+  /api/v1/vra/prescriptions:
+    get:
+      tags:
+      - vra
+      summary: List Prescriptions
+      description: List prescription maps - قائمة خرائط الوصفات
+      operationId: list_prescriptions_api_v1_vra_prescriptions_get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: field_id
+        in: query
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /api/v1/vra/prescriptions/{prescription_id}:
+    get:
+      tags:
+      - vra
+      summary: Get Prescription
+      description: Get prescription map details - تفاصيل خريطة الوصفة
+      operationId: get_prescription_api_v1_vra_prescriptions__prescription_id__get
+      security:
+      - OAuth2PasswordBearer: []
+      parameters:
+      - name: prescription_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Prescription Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /healthz:
+    get:
+      summary: Health
+      description: Liveness probe - فحص الحياة
+      operationId: health_healthz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /readyz:
+    get:
+      summary: Readiness
+      description: 'Readiness probe - فحص الجاهزية.
+
+
+        In production/staging, ALL critical dependencies must be up for the
+
+        service to accept traffic. Dev only requires at least one so local
+
+        runs without real infra still succeed.'
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /health:
+    get:
+      summary: Comprehensive Health
+      description: Comprehensive health check - فحص صحي شامل
+      operationId: comprehensive_health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /metrics:
+    get:
+      summary: Metrics
+      description: Prometheus metrics endpoint
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /:
+    get:
+      summary: Root
+      description: Root endpoint - نقطة نهاية الجذر
+      operationId: root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    BoundsInput:
+      properties:
+        min_lat:
+          type: number
+          title: Min Lat
+        max_lat:
+          type: number
+          title: Max Lat
+        min_lng:
+          type: number
+          title: Min Lng
+        max_lng:
+          type: number
+          title: Max Lng
+      type: object
+      required:
+      - min_lat
+      - max_lat
+      - min_lng
+      - max_lng
+      title: BoundsInput
+    Coordinate:
+      properties:
+        lat:
+          type: number
+          title: Lat
+        lng:
+          type: number
+          title: Lng
+      type: object
+      required:
+      - lat
+      - lng
+      title: Coordinate
+    DroneCreate:
+      properties:
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        model:
+          type: string
+          title: Model
+        serial_number:
+          type: string
+          title: Serial Number
+        drone_type:
+          type: string
+          title: Drone Type
+          default: custom
+        max_payload_kg:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Payload Kg
+        tank_capacity_l:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Tank Capacity L
+        max_flight_time_min:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Max Flight Time Min
+      type: object
+      required:
+      - name
+      - model
+      - serial_number
+      title: DroneCreate
+    DroneResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        model:
+          type: string
+          title: Model
+        serial_number:
+          type: string
+          title: Serial Number
+        drone_type:
+          type: string
+          title: Drone Type
+        status:
+          type: string
+          title: Status
+          default: active
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+      type: object
+      required:
+      - id
+      - name
+      - model
+      - serial_number
+      - drone_type
+      title: DroneResponse
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MappingFlightRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        boundary:
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          type: array
+          title: Boundary
+        gsd_cm_px:
+          type: number
+          title: Gsd Cm Px
+          default: 2.0
+        frontal_overlap:
+          type: number
+          title: Frontal Overlap
+          default: 80.0
+        side_overlap:
+          type: number
+          title: Side Overlap
+          default: 70.0
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+      type: object
+      required:
+      - field_id
+      - boundary
+      - name
+      title: MappingFlightRequest
+    MissionCreate:
+      properties:
+        drone_id:
+          type: string
+          title: Drone Id
+        flight_plan_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Flight Plan Id
+        mission_type:
+          type: string
+          title: Mission Type
+          default: spray
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        field_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+      type: object
+      required:
+      - drone_id
+      - name
+      title: MissionCreate
+    MissionResponse:
+      properties:
+        id:
+          type: string
+          title: Id
+        drone_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Drone Id
+        mission_type:
+          type: string
+          title: Mission Type
+        name:
+          type: string
+          title: Name
+        status:
+          type: string
+          title: Status
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+      type: object
+      required:
+      - id
+      - mission_type
+      - name
+      - status
+      title: MissionResponse
+    NDVIPrescriptionRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        ndvi_grid:
+          items:
+            items:
+              type: number
+            type: array
+          type: array
+          title: Ndvi Grid
+        bounds:
+          $ref: '#/components/schemas/BoundsInput'
+        base_rate_l_ha:
+          type: number
+          title: Base Rate L Ha
+          default: 10.0
+        name:
+          type: string
+          title: Name
+          default: NDVI Prescription
+        name_ar:
+          type: string
+          title: Name Ar
+          default: وصفة NDVI
+      type: object
+      required:
+      - field_id
+      - ndvi_grid
+      - bounds
+      title: NDVIPrescriptionRequest
+    ResourceEstimateRequest:
+      properties:
+        area_ha:
+          type: number
+          title: Area Ha
+        spray_rate_l_ha:
+          type: number
+          title: Spray Rate L Ha
+          default: 10.0
+        tank_capacity_l:
+          type: number
+          title: Tank Capacity L
+          default: 20.0
+        flight_time_per_tank_min:
+          type: number
+          title: Flight Time Per Tank Min
+          default: 15.0
+      type: object
+      required:
+      - area_ha
+      title: ResourceEstimateRequest
+    SpotSprayRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        detection_points:
+          items:
+            additionalProperties: true
+            type: object
+          type: array
+          title: Detection Points
+        boundary:
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          type: array
+          title: Boundary
+        detection_type:
+          type: string
+          title: Detection Type
+          default: weed
+        base_rate_l_ha:
+          type: number
+          title: Base Rate L Ha
+          default: 5.0
+        name:
+          type: string
+          title: Name
+          default: Spot Spray Map
+        name_ar:
+          type: string
+          title: Name Ar
+          default: خريطة الرش النقطي
+      type: object
+      required:
+      - field_id
+      - detection_points
+      - boundary
+      title: SpotSprayRequest
+    SprayFlightRequest:
+      properties:
+        field_id:
+          type: string
+          title: Field Id
+        boundary:
+          items:
+            $ref: '#/components/schemas/Coordinate'
+          type: array
+          title: Boundary
+        spray_rate_l_ha:
+          type: number
+          title: Spray Rate L Ha
+          default: 10.0
+        swath_width_m:
+          type: number
+          title: Swath Width M
+          default: 5.0
+        altitude_m:
+          type: number
+          title: Altitude M
+          default: 3.0
+        name:
+          type: string
+          title: Name
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+      type: object
+      required:
+      - field_id
+      - boundary
+      - name
+      title: SprayFlightRequest
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+    WeatherCheckRequest:
+      properties:
+        lat:
+          type: number
+          title: Lat
+        lng:
+          type: number
+          title: Lng
+        wind_speed_ms:
+          type: number
+          title: Wind Speed Ms
+          default: 0.0
+        temperature_c:
+          type: number
+          title: Temperature C
+          default: 25.0
+        humidity_percent:
+          type: number
+          title: Humidity Percent
+          default: 50.0
+        precipitation_mm:
+          type: number
+          title: Precipitation Mm
+          default: 0.0
+      type: object
+      required:
+      - lat
+      - lng
+      title: WeatherCheckRequest
+  securitySchemes:
+    OAuth2PasswordBearer:
+      type: oauth2
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token

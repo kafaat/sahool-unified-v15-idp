@@ -13,9 +13,11 @@ Port: 8164
 # Service version - single source of truth
 VERSION = "16.0.0"
 
+import asyncio
 import os
 import sys
 from contextlib import asynccontextmanager
+from typing import Any
 
 import structlog
 from fastapi import FastAPI
@@ -144,11 +146,59 @@ except ImportError:
         raise _HTTPException(status_code=503, detail="Authentication backend unavailable")
 
 
+async def _initialize_integrations_background(app: FastAPI) -> None:
+    """
+    Background task that initializes heavy integration services.
+
+    Runs after the app has started serving HTTP so `/healthz` responds immediately.
+    Each integration updates its own readiness flag; failures are non-fatal because
+    the integrations all have built-in fallback behavior.
+
+    تهيئة التكاملات الثقيلة في الخلفية بعد بدء الخدمة حتى لا تتعطل نقطة فحص الصحة.
+    """
+    services: list[tuple[str, Any]] = [
+        ("nlp", app.state.nlp_service),
+        ("satellite", app.state.satellite_service),
+        ("ml", app.state.ml_service),
+        ("crew", app.state.crew_service),
+    ]
+
+    for name, service in services:
+        try:
+            ready = await service.initialize()
+            app.state.integration_status[name] = "ready" if ready else "fallback"
+            logger.info(
+                "integration_initialized",
+                integration=name,
+                status=app.state.integration_status[name],
+            )
+        except asyncio.CancelledError:
+            app.state.integration_status[name] = "cancelled"
+            raise
+        except Exception as e:
+            app.state.integration_status[name] = "failed"
+            logger.warning(
+                "integration_init_failed",
+                integration=name,
+                error=str(e),
+            )
+
+    app.state.integrations_ready = True
+    logger.info(
+        "integrations_background_init_complete",
+        status=dict(app.state.integration_status),
+    )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Application lifespan manager.
     مدير دورة حياة التطبيق.
+
+    Only fast, bounded operations run before `yield`. Heavy integration setup
+    (AraBERT / Sentinel / AgML / CrewAI) runs in a background task so that the
+    container's liveness probe can succeed within the configured start_period.
     """
     # Startup
     logger.info(
@@ -166,6 +216,14 @@ async def lifespan(app: FastAPI):
     app.state.nc = None
     app.state.db_pool = None
     app.state.executor = None
+    app.state.integrations_ready = False
+    app.state.integration_status = {
+        "nlp": "pending",
+        "satellite": "pending",
+        "ml": "pending",
+        "crew": "pending",
+    }
+    app.state.integrations_task = None
 
     # Initialize Redis for caching
     if REDIS_AVAILABLE and settings.redis_url:
@@ -232,23 +290,32 @@ async def lifespan(app: FastAPI):
     if app.state.trainer.enabled:
         await app.state.trainer.check_availability()
 
-    # Initialize integration services (AraBERT, Sentinel, AgML, CrewAI)
+    # Create integration service instances (construction is cheap; heavy work
+    # happens inside initialize() which we offload to a background task).
     app.state.nlp_service = NLPService()
     app.state.satellite_service = SatelliteService()
     app.state.ml_service = MLService()
     app.state.crew_service = CrewService()
 
-    # Initialize services asynchronously
-    await app.state.nlp_service.initialize()
-    await app.state.satellite_service.initialize()
-    await app.state.ml_service.initialize()
-    await app.state.crew_service.initialize()
-
-    # Wire up integrations module
+    # Wire up integrations module before the background task runs so endpoints
+    # that depend on these services always see the same instance (fallbacks work
+    # before initialize() completes).
     integrations_module.nlp_service = app.state.nlp_service
     integrations_module.satellite_service = app.state.satellite_service
     integrations_module.ml_service = app.state.ml_service
     integrations_module.crew_service = app.state.crew_service
+
+    # Offload heavy ML/model loading to a background task so the container's
+    # healthcheck can succeed within start_period. Each integration has a
+    # fallback path so the service stays usable while models warm up.
+    if os.getenv("ORCHESTRATOR_EAGER_INIT", "false").lower() == "true":
+        # Escape hatch for tests / CI where blocking init is acceptable.
+        await _initialize_integrations_background(app)
+    else:
+        app.state.integrations_task = asyncio.create_task(
+            _initialize_integrations_background(app),
+            name="llm-orchestrator-integrations-init",
+        )
 
     logger.info(
         "llm_orchestrator_service_ready",
@@ -257,13 +324,22 @@ async def lifespan(app: FastAPI):
         redis=app.state.redis_connected,
         nats=app.state.nats_connected,
         database=app.state.db_connected,
-        integrations=["nlp", "satellite", "ml", "crew"],
+        integrations_mode="background" if app.state.integrations_task else "eager",
     )
 
     yield
 
     # Shutdown
     logger.info("llm_orchestrator_service_shutting_down")
+
+    # Cancel background integration init if still running
+    task = app.state.integrations_task
+    if task is not None and not task.done():
+        task.cancel()
+        try:
+            await task
+        except (asyncio.CancelledError, Exception):
+            pass
 
     # Close executor
     if app.state.executor:
@@ -363,8 +439,12 @@ if INPUT_SANITIZATION_AVAILABLE:
     app.add_middleware(InputSanitizationMiddleware)
 
 # Rate limiting middleware (H-05)
+# NOTE: rate_limit_middleware is a plain ASGI function (request, call_next),
+# not a middleware class. FastAPI's .add_middleware() expects a class and
+# produces a confusing "missing call_next" TypeError on the first request.
+# Register it through the .middleware("http") hook instead.
 if RATE_LIMIT_AVAILABLE:
-    app.add_middleware(rate_limit_middleware)
+    app.middleware("http")(rate_limit_middleware)
 
 # Token revocation middleware (H-25)
 if REVOCATION_AVAILABLE:
@@ -402,10 +482,17 @@ def readiness():
     """
     Kubernetes readiness probe - is the service ready to accept traffic?
     فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الحركة؟
+
+    The orchestrator is considered ready as soon as its core infrastructure
+    (Redis / NATS / DB) is evaluated. Integrations (NLP / satellite / ML / crew)
+    warm up in the background and have fallback paths, so they are reported as
+    informational details but do not block readiness.
     """
     redis_connected = getattr(app.state, "redis_connected", False)
     nats_connected = getattr(app.state, "nats_connected", False)
     db_connected = getattr(app.state, "db_connected", False)
+    integrations_ready = getattr(app.state, "integrations_ready", False)
+    integration_status = dict(getattr(app.state, "integration_status", {}))
 
     # Determine status strings
     if redis_connected:
@@ -439,6 +526,8 @@ def readiness():
             "redis": redis_status,
             "nats": nats_status,
             "database": db_status,
+            "integrations_ready": integrations_ready,
+            "integrations": integration_status,
         },
     }
 

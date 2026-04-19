@@ -3781,10 +3781,15 @@ asyncio.run(main())
         condition: service_healthy
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8164/healthz')" ]
+      # Integrations (AraBERT / Sentinel / AgML / CrewAI) warm up in a background
+      # task so /healthz responds immediately, but the initial import of
+      # transformers + crewai + anthropic + openai is genuinely slow on first run.
+      # start_period gives the container enough time to finish imports before the
+      # probe starts counting failures.
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

@@ -83,7 +83,7 @@ try:
 except ImportError:
     HAS_PROMETHEUS = False
 
-from datetime import UTC
+from datetime import UTC, datetime
 
 from .events import get_publisher
 from .providers import MockWeatherProvider, MultiWeatherService, OpenMeteoProvider
@@ -819,6 +819,191 @@ async def get_forecast_by_location(
                 }
                 for f in (forecast or [])
             ],
+        },
+    }
+
+
+# Agricultural calendar data — crop-specific planting/harvest windows for
+# Yemen's climate. Kept inline (small static table) so the handler stays a
+# pure in-process lookup; grow it into a DB/config load if it starts
+# carrying per-tenant overrides.
+_CROPS_CALENDAR: dict[str, dict] = {
+    "tomato": {
+        "name_ar": "طماطم",
+        "planting_months": [9, 10, 2, 3],
+        "harvest_months": [12, 1, 5, 6],
+        "optimal_temp_c": (20, 30),
+        "water_need": "high",
+    },
+    "wheat": {
+        "name_ar": "قمح",
+        "planting_months": [10, 11],
+        "harvest_months": [4, 5],
+        "optimal_temp_c": (15, 25),
+        "water_need": "medium",
+    },
+    "coffee": {
+        "name_ar": "بن",
+        "planting_months": [3, 4],
+        "harvest_months": [10, 11, 12],
+        "optimal_temp_c": (18, 24),
+        "water_need": "medium",
+    },
+    "banana": {
+        "name_ar": "موز",
+        "planting_months": [2, 3, 4],
+        "harvest_months": list(range(1, 13)),  # year-round
+        "optimal_temp_c": (25, 35),
+        "water_need": "very_high",
+    },
+}
+
+
+@app.get("/weather/v1/alerts/{location_id}")
+async def get_alerts_by_location(
+    location_id: str,
+    days: int = 7,
+    user: User = Depends(get_current_user),
+):
+    """Agricultural weather alerts for a Yemen governorate.
+
+    Pulls the 1..16-day daily forecast for the location, runs the forecast
+    through `assess_weather` (the same risk engine used by POST
+    /weather/current), and returns the aggregated alerts. Ported from
+    weather-advanced (archived) with JWT-based tenant scope to match the
+    rest of the Yemen-location endpoints in this file.
+    """
+    if days < 1 or days > 16:
+        raise HTTPException(status_code=422, detail="days must be between 1 and 16")
+
+    location = get_location(location_id)
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
+        )
+
+    tenant_id = _resolve_tenant_or_403(user)
+
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_daily_forecast(
+                location["lat"], location["lon"], days, tenant_id=tenant_id
+            )
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            forecast = result.data
+        else:
+            forecast = await app.state.weather_provider.get_daily_forecast(location["lat"], location["lon"], days)
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        raise ExternalServiceException.weather_service(e) from e
+
+    # Aggregate alerts across the forecast horizon. De-dupe by (alert_type,
+    # severity) so callers don't see 7 copies of the same "heat stress" alert
+    # for a heatwave week — one row with the earliest day wins.
+    alerts_by_key: dict[tuple[str, str], dict] = {}
+    for idx, f in enumerate(forecast or []):
+        day_alerts = assess_weather(
+            temp_c=getattr(f, "temp_max_c", None) or 0,
+            humidity_pct=getattr(f, "humidity_pct", None),
+            wind_speed_kmh=getattr(f, "wind_speed_max_kmh", None),
+            precipitation_mm=getattr(f, "precipitation_mm", None),
+            uv_index=getattr(f, "uv_index_max", None),
+        )
+        for alert in day_alerts:
+            key = (alert.alert_type, alert.severity)
+            if key not in alerts_by_key:
+                alerts_by_key[key] = {
+                    **alert.to_dict(),
+                    "first_day_offset": idx,
+                    "first_date": getattr(f, "date", None),
+                }
+
+    alerts = list(alerts_by_key.values())
+
+    return {
+        "success": True,
+        "data": {
+            "location": {
+                "id": location_id.lower(),
+                "name_ar": location["name_ar"],
+                "lat": location["lat"],
+                "lon": location["lon"],
+                "elevation": location["elevation"],
+                "region": location["region"],
+            },
+            "horizon_days": len(forecast or []),
+            "alerts_count": len(alerts),
+            "alerts": alerts,
+        },
+    }
+
+
+@app.get("/weather/v1/agricultural-calendar/{location_id}")
+async def get_agricultural_calendar(
+    location_id: str,
+    crop: str = "tomato",
+    user: User = Depends(get_current_user),
+):
+    """Crop-specific agricultural calendar for a Yemen governorate.
+
+    Ported from weather-advanced (archived). Requires auth + valid tenant
+    so we can enforce per-tenant rate limits; the calendar data itself is
+    not tenant-scoped (Yemen's seasons don't vary per tenant).
+
+    Supported crops: tomato, wheat, coffee, banana. Unknown crop falls
+    back to tomato (the default in the archived implementation — kept
+    for behavioural parity).
+    """
+    location = get_location(location_id)
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
+        )
+
+    _resolve_tenant_or_403(user)
+
+    crop_info = _CROPS_CALENDAR.get(crop, _CROPS_CALENDAR["tomato"])
+    now = datetime.now(UTC)
+    current_month = now.month
+
+    if current_month in crop_info["planting_months"]:
+        activity_en = "Planting season - optimal time for planting"
+        activity_ar = "موسم الزراعة - وقت مثالي للزراعة"
+    elif current_month in crop_info["harvest_months"]:
+        activity_en = "Harvest season - crop ready for collection"
+        activity_ar = "موسم الحصاد - المحصول جاهز للجمع"
+    else:
+        activity_en = "Growing season - care and monitoring"
+        activity_ar = "موسم النمو - العناية والمتابعة"
+
+    return {
+        "success": True,
+        "data": {
+            "location": {
+                "id": location_id.lower(),
+                "name_ar": location["name_ar"],
+                "region": location["region"],
+            },
+            "crop": crop,
+            "crop_name_ar": crop_info["name_ar"],
+            "supported_crops": sorted(_CROPS_CALENDAR.keys()),
+            "current_month": current_month,
+            "current_activity_en": activity_en,
+            "current_activity_ar": activity_ar,
+            "optimal_temperature_range_c": list(crop_info["optimal_temp_c"]),
+            "water_requirement": crop_info["water_need"],
+            "planting_months": crop_info["planting_months"],
+            "harvest_months": crop_info["harvest_months"],
         },
     }
 

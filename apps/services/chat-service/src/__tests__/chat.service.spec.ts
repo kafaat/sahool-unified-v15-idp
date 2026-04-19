@@ -1466,5 +1466,18 @@ describe("ChatService - Ported Field-Chat Features", () => {
         service.removeParticipant(CONVERSATION_ID, "ghost-user", USER_ID_BUYER, TENANT_ID),
       ).rejects.toThrow(NotFoundException);
     });
+
+    it("rejects a non-participant requester with ForbiddenException", async () => {
+      // Regression guard for round-8: requester isn't in participantIds, so
+      // the remove must 403, not 400 — verifies the authz→Forbidden swap.
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      });
+      await expect(
+        service.removeParticipant(CONVERSATION_ID, USER_ID_SELLER, "stranger", TENANT_ID),
+      ).rejects.toThrow(ForbiddenException);
+    });
   });
 });

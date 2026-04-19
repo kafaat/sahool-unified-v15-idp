@@ -4,7 +4,7 @@
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
-import { NotFoundException, BadRequestException, ForbiddenException } from "@nestjs/common";
+import { NotFoundException, ForbiddenException } from "@nestjs/common";
 import { ChatService } from "../src/chat/chat.service";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { ChatEventsService } from "../src/events/chat-events.service";

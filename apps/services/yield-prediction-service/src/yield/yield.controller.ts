@@ -16,6 +16,14 @@ import {
   FEATURE_SCHEMA,
   validateFeatureInput,
 } from "./yield.service";
+import {
+  CROP_CATALOG,
+  SUPPORTED_CROP_IDS,
+  USD_TO_YER,
+  isSupportedCrop,
+  type CropType,
+} from "./crop-catalog";
+import { NotFoundException } from "@nestjs/common";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DTOs - التحقق من صحة المدخلات
@@ -269,6 +277,56 @@ export class YieldController {
       status: "ok",
       service: "yield-prediction",
       timestamp: new Date().toISOString(),
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Crop Catalog — Ported from the archived yield-engine service.
+  // Pure reference data; both endpoints are auth-free (static Yemen crop
+  // catalog is not tenant-sensitive) — matches the archived behaviour.
+  // ─────────────────────────────────────────────────────────────────────────────
+
+  @Get("crops")
+  @ApiOperation({
+    summary: "List supported crops",
+    description:
+      "Returns all Yemen crops recognised by the yield pipeline, with per-crop metadata (target yield, reference price, growing season, water demand). Ported from the archived yield-engine `/v1/crops`.",
+  })
+  listSupportedCrops() {
+    return SUPPORTED_CROP_IDS.map((cropId) => {
+      const info = CROP_CATALOG[cropId];
+      return {
+        crop_id: cropId,
+        name_ar: info.name_ar,
+        base_yield_per_hectare: info.base_yield_per_hectare,
+        target_yield: info.target_yield,
+        price_usd_per_ton: info.price_usd_per_ton,
+        growing_season_days: info.growing_season_days,
+        water_requirement: info.water_requirement,
+      };
+    });
+  }
+
+  @Get("price/:cropType")
+  @ApiOperation({
+    summary: "Crop reference price",
+    description:
+      "Returns the reference price for a crop in both USD/t and YER/t. Ported from the archived yield-engine `/v1/price/{crop_type}`; the exchange rate is a constant (no live FX lookup) — identical behaviour to the archive.",
+  })
+  getCropPrice(@Param("cropType") cropType: string) {
+    if (!isSupportedCrop(cropType)) {
+      throw new NotFoundException(
+        `Unsupported crop: ${cropType}. See /api/v1/yield/crops for valid IDs.`,
+      );
+    }
+    const typed = cropType as CropType;
+    const info = CROP_CATALOG[typed];
+    return {
+      crop_type: typed,
+      name_ar: info.name_ar,
+      price_usd_per_ton: info.price_usd_per_ton,
+      price_yer_per_ton: info.price_usd_per_ton * USD_TO_YER,
+      last_updated: new Date().toISOString(),
     };
   }
 }

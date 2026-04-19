@@ -777,9 +777,7 @@ class TestYemenLocationEndpoints:
         with patch("src.main.app.state") as mock_state:
             mock_state.publisher = None
             mock_state.multi_provider = MagicMock()
-            mock_state.multi_provider.get_daily_forecast = AsyncMock(
-                side_effect=_fake_get_daily_forecast
-            )
+            mock_state.multi_provider.get_daily_forecast = AsyncMock(side_effect=_fake_get_daily_forecast)
 
             r = client.get("/weather/v1/forecast/sanaa", params={"days": 3})
 

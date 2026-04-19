@@ -261,3 +261,12 @@ CLAUDE_LOCAL.md
 .claude/settings.local.json
 .claude/.cache/
 .claude/logs/
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Generated OpenAPI specs (produced by scripts/export-openapi.py in CI).
+# crop-intelligence-service/openapi.yaml is hand-authored and tracked via an
+# explicit !negation, so the exception stays narrow and intentional.
+# ─────────────────────────────────────────────────────────────────────────────
+apps/services/*/openapi.yaml
+!apps/services/crop-intelligence-service/openapi.yaml
+build/openapi-summary.json

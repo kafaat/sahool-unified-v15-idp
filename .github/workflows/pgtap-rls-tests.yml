@@ -1,0 +1,107 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL pgTAP RLS Tests
+# اختبارات عزل المستأجرين على مستوى قاعدة البيانات
+#
+# Executes the pgTAP suite under ``tests/database/rls/`` against a real
+# PostgreSQL 16 + pgTAP cluster spun up as a service container. Validates
+# that Row-Level Security policies enforce tenant isolation and super-admin
+# bypass — the same pattern used throughout the platform.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+name: pgTAP RLS Tests
+
+on:
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'tests/database/rls/**'
+      - 'shared/**/migrations/*.sql'
+      - 'database/migrations/**'
+      - '.github/workflows/pgtap-rls-tests.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4 * * 2'  # Tuesday 04:00 UTC — belt-and-braces weekly check.
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pgtap-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pgtap:
+    name: pgTAP (RLS suite)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    services:
+      postgres:
+        # Official PostGIS image already bundles PostGIS 3.4; we add pgTAP below.
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PG_DB: postgres
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install runner-side tools (psql + pg_prove)
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          # psql → talk to the service container.
+          # libtap-parser-sourcehandler-pgtap-perl → ships pg_prove, the TAP runner.
+          sudo apt-get install -y --no-install-recommends \
+            postgresql-client-16 \
+            libtap-parser-sourcehandler-pgtap-perl
+          pg_prove --version
+          psql --version
+
+      - name: Install pgTAP extension inside the postgres container
+        # Extension files must live on the server, not the runner. The simplest
+        # robust path is to apt-install ``postgresql-16-pgtap`` directly inside
+        # the postgis/postgis:16-3.4 service container and then CREATE EXTENSION.
+        run: |
+          set -euo pipefail
+          CID=$(docker ps \
+            --filter "ancestor=postgis/postgis:16-3.4" \
+            --format "{{.ID}}" | head -1)
+          if [ -z "$CID" ]; then
+            echo "::error::postgres service container not found"
+            docker ps
+            exit 1
+          fi
+          echo "Installing postgresql-16-pgtap inside container $CID"
+          docker exec -u 0 "$CID" bash -c \
+            "apt-get update -qq && apt-get install -y --no-install-recommends postgresql-16-pgtap"
+          PGPASSWORD="$PGPASSWORD" psql \
+            -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PG_DB" \
+            -v ON_ERROR_STOP=1 \
+            -c "CREATE EXTENSION IF NOT EXISTS pgtap;" \
+            -c "SELECT pgtap_version();"
+
+      - name: Run pgTAP suite
+        run: |
+          chmod +x tests/database/rls/run.sh
+          PG_HOST="$PGHOST" \
+          PG_PORT="$PGPORT" \
+          PG_USER="$PGUSER" \
+          PG_PASS="$PGPASSWORD" \
+          PG_DB="$PG_DB" \
+          bash tests/database/rls/run.sh

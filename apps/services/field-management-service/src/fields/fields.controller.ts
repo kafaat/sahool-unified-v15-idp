@@ -23,7 +23,9 @@ import {
   ParseUUIDPipe,
   ValidationPipe,
   Req,
+  Res,
 } from "@nestjs/common";
+import type { Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import {
   ApiTags,
@@ -42,6 +44,7 @@ import {
   NearbyFieldsDto,
   UpdateBoundaryDto,
   RollbackBoundaryDto,
+  CheckOverlapDto,
   FieldResponseDto,
   PaginatedFieldsResponseDto,
 } from "./dto/field.dto";
@@ -169,6 +172,29 @@ export class FieldsController {
       data: stats,
       timestamp: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Check if a candidate polygon overlaps any existing tenant fields.
+   *
+   * NOTE: This literal route MUST come before `@Get(":id")` / `@Put(":id")`
+   * so NestJS matches the "check-overlap" path before treating it as a UUID.
+   * Ported from archived field-service `POST /fields/check-overlap`.
+   */
+  @Post("check-overlap")
+  @ApiOperation({
+    summary: "Check polygon overlap with existing fields",
+    description: "فحص تداخل حدود مقترحة مع حقول المستأجر",
+  })
+  @ApiResponse({ status: 200, description: "Overlap analysis returned" })
+  @HttpCode(HttpStatus.OK)
+  async checkOverlap(
+    @Req() req: any,
+    @Body(new ValidationPipe({ transform: true })) dto: CheckOverlapDto,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const result = await this.fieldsService.checkOverlap(dto, tenantId);
+    return { success: true, data: result };
   }
 
   /**
@@ -386,6 +412,79 @@ export class FieldsController {
       data: snapshot,
       message: "تم حفظ لقطة KPI بنجاح",
     };
+  }
+
+  // ---------------------------------------------------------------------------
+  // Ported from archived field-service: area recompute + KML / GeoJSON export.
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Recompute boundary area from PostGIS and return delta vs stored column.
+   * Ported from archived field-service `GET /fields/{field_id}/area`.
+   */
+  @Get(":id/area")
+  @ApiOperation({
+    summary: "Recompute field area from PostGIS boundary",
+    description: "حساب مساحة الحقل من الحدود (PostGIS) ومقارنتها بالمساحة المخزنة",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 200, description: "Area recomputed" })
+  @ApiResponse({ status: 400, description: "Field has no boundary" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async getFieldArea(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const data = await this.fieldsService.getFieldArea(id, tenantId);
+    return { success: true, data };
+  }
+
+  /**
+   * Export the field's boundary as a KML document.
+   * Ported from archived field-service `GET /fields/{field_id}/export/kml`.
+   */
+  @Get(":id/export/kml")
+  @ApiOperation({
+    summary: "Export field boundary as KML",
+    description: "تصدير حدود الحقل بصيغة KML",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 200, description: "KML document returned" })
+  @ApiResponse({ status: 400, description: "Field has no boundary" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async exportFieldKml(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+    @Res() res: Response,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const kml = await this.fieldsService.exportFieldKml(id, tenantId);
+    res
+      .type("application/vnd.google-earth.kml+xml")
+      .set("Content-Disposition", `attachment; filename="${id}.kml"`)
+      .send(kml);
+  }
+
+  /**
+   * Export the field's boundary as a GeoJSON Feature.
+   * Ported from archived field-service `GET /fields/{field_id}/export/geojson`.
+   */
+  @Get(":id/export/geojson")
+  @ApiOperation({
+    summary: "Export field boundary as GeoJSON Feature",
+    description: "تصدير حدود الحقل بصيغة GeoJSON Feature",
+  })
+  @ApiParam({ name: "id", type: String, format: "uuid" })
+  @ApiResponse({ status: 200, description: "GeoJSON Feature returned" })
+  @ApiResponse({ status: 400, description: "Field has no boundary" })
+  @ApiResponse({ status: 404, description: "Field not found" })
+  async exportFieldGeoJson(
+    @Req() req: any,
+    @Param("id", ParseUUIDPipe) id: string,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    return this.fieldsService.exportFieldGeoJson(id, tenantId);
   }
 
 }

@@ -618,3 +618,33 @@ export class RollbackBoundaryDto {
   @IsString()
   reason?: string;
 }
+
+/**
+ * Check Overlap DTO - ported from the archived field-service
+ *
+ * Callers pass a candidate GeoJSON polygon (and optionally an existing
+ * fieldId to exclude for the "am I overlapping anyone else?" update case)
+ * and get back a list of tenant-scoped fields whose boundaries intersect.
+ */
+export class CheckOverlapDto {
+  @ApiProperty({
+    description: "Candidate polygon coordinates [[lng, lat], ...] (outer ring only)",
+    example: [[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8]],
+  })
+  @IsArray()
+  @ArrayMinSize(3, { message: "A polygon requires at least 3 coordinate points" })
+  @ArrayMaxSize(MAX_POLYGON_POINTS, {
+    message: `Polygon must not exceed ${MAX_POLYGON_POINTS} coordinate points`,
+  })
+  @Validate(IsValidCoordinatePairsConstraint)
+  @Validate(IsWithinMaxAreaConstraint)
+  coordinates: number[][];
+
+  @ApiPropertyOptional({
+    description:
+      "Field ID to exclude from the overlap scan — use when checking a boundary edit for an existing field",
+  })
+  @IsOptional()
+  @IsUUID()
+  excludeFieldId?: string;
+}

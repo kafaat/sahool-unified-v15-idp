@@ -25,6 +25,7 @@ import {
   NearbyFieldsDto,
   UpdateBoundaryDto,
   RollbackBoundaryDto,
+  CheckOverlapDto,
   FieldResponseDto,
   PaginatedFieldsResponseDto,
 } from "./dto/field.dto";
@@ -925,4 +926,292 @@ export class FieldsService {
 
     return result;
   }
+
+  // ---------------------------------------------------------------------------
+  // Ported from archived field-service. Four geospatial-export / geospatial-
+  // validation endpoints that field-management-service was missing after the
+  // field-service → field-management-service consolidation.
+  //
+  // All four use PostGIS primitives (ST_Area::geography, ST_Intersects,
+  // ST_AsGeoJSON) for accuracy over the archive's Shoelace approximations.
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Recompute the field's boundary area from the stored polygon.
+   *
+   * Returns the DB-computed area in hectares (via `ST_Area(boundary::geography)`)
+   * alongside the currently-persisted `area_hectares` column plus the percent
+   * delta — useful for reconciliation UI and for detecting drift between
+   * what the mobile app wrote and what PostGIS actually measures.
+   */
+  async getFieldArea(
+    id: string,
+    tenantId: string,
+  ): Promise<{
+    field_id: string;
+    calculated_area_hectares: number;
+    stored_area_hectares: number;
+    difference_percent: number;
+    centroid: { lat: number; lng: number } | null;
+  }> {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        id: string;
+        tenant_id: string;
+        stored_area: any;
+        calculated_area: any;
+        centroid_lat: number | null;
+        centroid_lng: number | null;
+        has_boundary: boolean;
+      }>
+    >`
+      SELECT
+        id,
+        tenant_id,
+        area_hectares AS stored_area,
+        ST_Area(boundary::geography) / 10000.0 AS calculated_area,
+        ST_Y(centroid::geometry) AS centroid_lat,
+        ST_X(centroid::geometry) AS centroid_lng,
+        (boundary IS NOT NULL) AS has_boundary
+      FROM fields
+      WHERE id = ${id}::uuid AND is_deleted = false
+      LIMIT 1
+    `;
+
+    const row = rows[0];
+    if (!row) {
+      throw new NotFoundException("Field not found - الحقل غير موجود");
+    }
+    assertTenantOwnership(row.tenant_id, tenantId, "field");
+    if (!row.has_boundary) {
+      throw new BadRequestException(
+        "Field has no boundary set — لا توجد حدود محددة للحقل",
+      );
+    }
+
+    const stored = toNumber(row.stored_area) ?? 0;
+    const calculated = toNumber(row.calculated_area) ?? 0;
+    const diffPct = stored > 0 ? ((calculated - stored) / stored) * 100 : 0;
+
+    return {
+      field_id: row.id,
+      calculated_area_hectares: Number(calculated.toFixed(4)),
+      stored_area_hectares: Number(stored.toFixed(4)),
+      difference_percent: Number(diffPct.toFixed(2)),
+      centroid:
+        row.centroid_lat !== null && row.centroid_lng !== null
+          ? { lat: row.centroid_lat, lng: row.centroid_lng }
+          : null,
+    };
+  }
+
+  /**
+   * Check whether a candidate polygon overlaps any existing (non-deleted)
+   * tenant fields. Uses PostGIS `ST_Intersects` for the boolean test and
+   * `ST_Area(ST_Intersection(...)::geography) / 10000` for the overlap area
+   * in hectares.
+   */
+  async checkOverlap(
+    dto: CheckOverlapDto,
+    tenantId: string,
+  ): Promise<{
+    has_overlap: boolean;
+    overlapping_fields: Array<{
+      field_id: string;
+      field_name: string;
+      overlap_area_hectares: number;
+    }>;
+    overlap_area_hectares: number;
+  }> {
+    // Close the ring for PostGIS (same behavior as updateBoundary)
+    const coords = [...dto.coordinates];
+    if (
+      JSON.stringify(coords[0]) !== JSON.stringify(coords[coords.length - 1])
+    ) {
+      coords.push(coords[0]);
+    }
+    const candidate = { type: "Polygon", coordinates: [coords] };
+
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        id: string;
+        name: string;
+        overlap_area: any;
+      }>
+    >`
+      SELECT
+        id,
+        name,
+        ST_Area(
+          ST_Intersection(
+            boundary::geometry,
+            ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(candidate)}), 4326)
+          )::geography
+        ) / 10000.0 AS overlap_area
+      FROM fields
+      WHERE tenant_id = ${tenantId}::uuid
+        AND is_deleted = false
+        AND boundary IS NOT NULL
+        AND (${dto.excludeFieldId ?? null}::uuid IS NULL OR id != ${dto.excludeFieldId ?? null}::uuid)
+        AND ST_Intersects(
+          boundary::geometry,
+          ST_SetSRID(ST_GeomFromGeoJSON(${JSON.stringify(candidate)}), 4326)
+        )
+    `;
+
+    const overlapping = rows
+      .map((r) => ({
+        field_id: r.id,
+        field_name: r.name,
+        overlap_area_hectares: Number((toNumber(r.overlap_area) ?? 0).toFixed(4)),
+      }))
+      .filter((r) => r.overlap_area_hectares > 0);
+
+    const total = overlapping.reduce((sum, r) => sum + r.overlap_area_hectares, 0);
+
+    return {
+      has_overlap: overlapping.length > 0,
+      overlapping_fields: overlapping,
+      overlap_area_hectares: Number(total.toFixed(4)),
+    };
+  }
+
+  /**
+   * Shared loader for the two export endpoints. Returns the field's
+   * boundary as a parsed GeoJSON Polygon plus the name and stored area
+   * (needed for the KML description and the GeoJSON Feature properties).
+   */
+  private async loadFieldForExport(
+    id: string,
+    tenantId: string,
+  ): Promise<{
+    id: string;
+    name: string;
+    areaHectares: number;
+    cropType: string | null;
+    soilType: string | null;
+    boundary: { type: "Polygon"; coordinates: number[][][] };
+  }> {
+    const rows = await this.prisma.$queryRaw<
+      Array<{
+        id: string;
+        name: string;
+        tenant_id: string;
+        area_hectares: any;
+        crop_type: string | null;
+        soil_type: string | null;
+        boundary_geojson: string | null;
+      }>
+    >`
+      SELECT
+        id,
+        name,
+        tenant_id,
+        area_hectares,
+        crop_type,
+        soil_type,
+        ST_AsGeoJSON(boundary) AS boundary_geojson
+      FROM fields
+      WHERE id = ${id}::uuid AND is_deleted = false
+      LIMIT 1
+    `;
+
+    const row = rows[0];
+    if (!row) {
+      throw new NotFoundException("Field not found - الحقل غير موجود");
+    }
+    assertTenantOwnership(row.tenant_id, tenantId, "field");
+    if (!row.boundary_geojson) {
+      throw new BadRequestException(
+        "Field has no boundary to export — لا توجد حدود للتصدير",
+      );
+    }
+
+    return {
+      id: row.id,
+      name: row.name,
+      areaHectares: toNumber(row.area_hectares) ?? 0,
+      cropType: row.crop_type,
+      soilType: row.soil_type,
+      boundary: JSON.parse(row.boundary_geojson),
+    };
+  }
+
+  /**
+   * Export the field's boundary as a KML document string.
+   *
+   * KML escaping: `name` is user-controlled, so we escape the five XML
+   * entities. Coordinates are pure numbers and do not need escaping.
+   */
+  async exportFieldKml(id: string, tenantId: string): Promise<string> {
+    const field = await this.loadFieldForExport(id, tenantId);
+    const outerRing = field.boundary.coordinates[0] ?? [];
+    const coordStr = outerRing.map((p) => `${p[0]},${p[1]},0`).join(" ");
+    const safeName = escapeXml(field.name);
+    const safeDescription = escapeXml(
+      `Area: ${field.areaHectares.toFixed(2)} hectares (Field ID: ${field.id})`,
+    );
+
+    return `<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+  <Document>
+    <name>SAHOOL Field Export</name>
+    <Placemark>
+      <name>${safeName}</name>
+      <description>${safeDescription}</description>
+      <Style>
+        <LineStyle>
+          <color>ff00ff00</color>
+          <width>2</width>
+        </LineStyle>
+        <PolyStyle>
+          <color>4000ff00</color>
+        </PolyStyle>
+      </Style>
+      <Polygon>
+        <outerBoundaryIs>
+          <LinearRing>
+            <coordinates>${coordStr}</coordinates>
+          </LinearRing>
+        </outerBoundaryIs>
+      </Polygon>
+    </Placemark>
+  </Document>
+</kml>`;
+  }
+
+  /**
+   * Export the field's boundary as a GeoJSON Feature with agronomic
+   * properties (area, crop, soil).
+   */
+  async exportFieldGeoJson(
+    id: string,
+    tenantId: string,
+  ): Promise<{
+    type: "Feature";
+    properties: Record<string, any>;
+    geometry: { type: "Polygon"; coordinates: number[][][] };
+  }> {
+    const field = await this.loadFieldForExport(id, tenantId);
+    return {
+      type: "Feature",
+      properties: {
+        field_id: field.id,
+        name: field.name,
+        area_hectares: Number(field.areaHectares.toFixed(4)),
+        crop_type: field.cropType,
+        soil_type: field.soilType,
+      },
+      geometry: field.boundary,
+    };
+  }
+}
+
+function escapeXml(raw: string): string {
+  return raw
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }

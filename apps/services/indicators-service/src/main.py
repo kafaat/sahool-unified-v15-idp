@@ -1061,13 +1061,15 @@ def get_indicator_definitions():
     }
 
 
-# The web contract (INDICATOR_ENDPOINTS.FIELD) expects the indicators
-# namespace to be the top-level segment:
+# The web contract (INDICATOR_ENDPOINTS.FIELD) uses the `indicators`
+# namespace at the top-level segment:
 #   /api/v1/indicators/field/{fieldId}
-# After Kong strips /api/v1/indicators and prepends /v1, the upstream
-# request becomes `/v1/field/{fieldId}` — no trailing /indicators. Register
-# both paths on the same handler so the contract and the legacy internal
-# spelling (`/v1/field/{id}/indicators`) both hit this function.
+# Depending on the Kong routing in effect, the external path may be
+# rewritten to either `/v1/field/{fieldId}` or
+# `/v1/field/{fieldId}/indicators` before reaching this service. Register
+# the handler on BOTH spellings so every Kong rewrite permutation lands on
+# the same function — no assumption that any specific Kong `path:` rewrite
+# has already rolled out.
 @app.get("/v1/field/{field_id}", response_model=FieldIndicators)
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
 async def get_field_indicators(

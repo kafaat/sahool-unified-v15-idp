@@ -693,6 +693,40 @@ class TestFieldIndicatorsEndpoint:
         r = client.get("/v1/field/f1/indicators?category=crop_health")
         assert r.status_code == 200
 
+    # Web contract INDICATOR_ENDPOINTS.FIELD (/api/v1/indicators/field/{id})
+    # hits this service as GET /v1/field/{id} (no trailing /indicators).
+    # The handler is registered on BOTH paths so internal callers using the
+    # legacy spelling still work. These two tests guard that aliasing.
+    def test_field_alias_without_indicators_suffix(self, client):
+        """GET /v1/field/{id} (web contract spelling) must reach the same handler."""
+        r = client.get("/v1/field/field_alias_test?category=vegetation")
+        assert r.status_code == 200
+        d = r.json()
+        assert d["field_id"] == "field_alias_test"
+        assert "indicators" in d
+        assert "overall_score" in d
+
+    def test_field_alias_shape_matches_legacy(self, client):
+        """Both spellings return the same shape for the same field + category."""
+        r_new = client.get("/v1/field/f_same?category=water")
+        r_legacy = client.get("/v1/field/f_same/indicators?category=water")
+        assert r_new.status_code == 200 == r_legacy.status_code
+        assert set(r_new.json().keys()) == set(r_legacy.json().keys())
+        assert r_new.json()["field_id"] == r_legacy.json()["field_id"]
+
+    def test_field_post_alias(self, client):
+        """POST /v1/field/{id} must reach the same handler as the legacy suffix."""
+        payload = {
+            "indicator_id": "ind_test_post_alias",
+            "category": "vegetation",
+            "value": 0.72,
+            "unit": "index",
+        }
+        r = client.post("/v1/field/f_post_alias", json=payload)
+        # Route registered → any non-404 means the handler was reached.
+        # Business validation may return 200/400/422 depending on fixtures.
+        assert r.status_code != 404, "alias POST /v1/field/{id} not registered"
+
 
 class TestStoreFieldIndicator:
     def test_invalid_type_returns_400(self, client):

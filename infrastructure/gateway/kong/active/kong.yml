@@ -942,20 +942,28 @@ services:
 #   2. Legacy categories + analytics — `@app.get("/v1/categories")` and
 #      `@app.get("/v1/analytics/*")` in src/main.py. Mobile's
 #      service_registry.dart still calls `/api/v1/inventory/categories`,
-#      and an analytics_service hits `/api/v1/inventory/analytics/*`.
-#      A separate Kong service strips `/api/v1/inventory` and prepends
-#      `/v1` so the upstream URL matches the legacy `@app.*("/v1/...")`
-#      handlers without touching the backend.
+#      and analytics_service hits `/api/v1/inventory/analytics/*`.
 #
-# Longest-prefix match means /api/v1/inventory/categories goes to the
-# legacy service, /api/v1/inventory/analytics/* goes there too, and
-# everything else (`/api/v1/inventory/{itemId}`, `/stats`, etc.) stays on
-# the modern strip_path:false route.
-- name: inventory-service-legacy
+# Categories and analytics each need their OWN Kong service entry
+# because Kong's strip_path consumes the FULL matched route path.
+# Example for /api/v1/inventory/categories with the route path set to
+# "/api/v1/inventory/categories":
+#   strip → ""  (empty — the entire route prefix is gone)
+#   prepend service.path → just service.path
+# So the service.path must be `/v1/categories` (NOT `/v1`) for the
+# upstream URL to come out as `/v1/categories`. Same logic for
+# `/v1/analytics`. Trying to share a single service with `path: /v1`
+# yields just `/v1` upstream — verified empirically.
+- name: inventory-service-legacy-categories
   host: inventory-service
   port: 8116
   protocol: http
-  path: /v1
+  # Strip removes the full /api/v1/inventory/categories prefix and
+  # prepends /v1/categories. Result for the bare route:
+  #   /api/v1/inventory/categories → /v1/categories ✓
+  # And for any sub-path like /api/v1/inventory/categories/{id}:
+  #   strip → /{id} → prepend /v1/categories → /v1/categories/{id} ✓
+  path: /v1/categories
   plugins:
   - name: jwt
     config:
@@ -970,6 +978,21 @@ services:
     protocols:
     - http
     - https
+- name: inventory-service-legacy-analytics
+  host: inventory-service
+  port: 8116
+  protocol: http
+  # Same pattern. /api/v1/inventory/analytics/forecast →
+  #   strip /api/v1/inventory/analytics → /forecast →
+  #   prepend /v1/analytics → /v1/analytics/forecast ✓
+  path: /v1/analytics
+  plugins:
+  - name: jwt
+    config:
+      run_on_preflight: false
+      claims_to_verify:
+      - exp
+  routes:
   - name: inventory-service-analytics-route
     paths:
     - /api/v1/inventory/analytics
@@ -977,6 +1000,9 @@ services:
     protocols:
     - http
     - https
+# Longest-prefix match means /api/v1/inventory/categories and
+# /api/v1/inventory/analytics/* hit the dedicated services above before
+# reaching the modern catch-all below.
 - name: inventory-service
   host: inventory-service
   port: 8116
@@ -986,10 +1012,11 @@ services:
     paths:
     - /api/v1/inventory
     # Backend's modern router mounts at APIRouter(prefix="/api/v1/inventory")
-    # (src/api/v1/inventory.py:36). strip_path:false forwards the full path
-    # so /api/v1/inventory/{itemId}, /stats, /transactions reach the
-    # matching handlers. Legacy /v1/categories and /v1/analytics/* are
-    # routed through inventory-service-legacy above.
+    # (src/api/v1/inventory.py:36). With strip_path: false, Kong forwards
+    # the full mounted path, so /api/v1/inventory/{itemId},
+    # /api/v1/inventory/stats, and /api/v1/inventory/transactions reach
+    # the matching handlers. Legacy /v1/categories and /v1/analytics/*
+    # are routed through the two dedicated services above.
     strip_path: false
     protocols:
     - http

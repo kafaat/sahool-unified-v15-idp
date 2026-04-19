@@ -430,12 +430,22 @@ function renderDartEndpointClass(
     // Replace /api/v1 with $apiPrefix for consistency with existing convention.
     const pathExpr = template.replace(/^\/api\/v1/, "\\$apiPrefix");
 
-    // Translate JSDoc @deprecated → Dart `@Deprecated('msg')`. Single-quotes
-    // in the message must be escaped so the generated Dart string literal
-    // remains valid.
+    // Translate JSDoc @deprecated → Dart `@Deprecated('msg')`. The
+    // sequence here matters:
+    //   1. backslash FIRST (otherwise step 2's escape introduces backslashes
+    //      that step 1 would double again)
+    //   2. single quote (Dart string delimiter)
+    //   3. CR / LF / TAB → escape sequences so the literal stays single-line
+    // Without (1), a JSDoc message containing `\n` literally or a Windows
+    // path like `C:\foo` would generate invalid Dart string syntax.
     const depMsg = deprecations?.get(rawKey);
     if (depMsg) {
-      const escaped = depMsg.replace(/'/g, "\\'");
+      const escaped = depMsg
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "\\'")
+        .replace(/\r/g, "\\r")
+        .replace(/\n/g, "\\n")
+        .replace(/\t/g, "\\t");
       lines.push(`  @Deprecated('${escaped}')`);
     }
 

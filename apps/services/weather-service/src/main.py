@@ -616,6 +616,25 @@ async def list_yemen_locations(
     }
 
 
+def _resolve_tenant_or_401(user: User) -> str:
+    """Pull tenant_id off the authenticated user or raise 401.
+
+    The Yemen-location endpoints are GET-only with no `tenant_id`
+    query/body — the caller's tenant MUST come from the JWT. Falling
+    back to a shared sentinel like "unknown" would silently merge
+    quota/rate-limit counters across unrelated requests AND give us
+    no way to attribute downstream provider charges, so we fail loud
+    instead.
+    """
+    tenant_id = getattr(user, "tenant_id", None)
+    if not tenant_id:
+        raise HTTPException(
+            status_code=401,
+            detail="Authenticated user has no tenant context — cannot scope weather request.",
+        )
+    return str(tenant_id)
+
+
 @app.get("/weather/v1/current/{location_id}")
 async def get_current_weather_by_location(
     location_id: str,
@@ -637,7 +656,7 @@ async def get_current_weather_by_location(
             detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
         )
 
-    tenant_id = getattr(user, "tenant_id", None) or "unknown"
+    tenant_id = _resolve_tenant_or_401(user)
 
     if app.state.multi_provider:
         result = await app.state.multi_provider.get_current(location["lat"], location["lon"], tenant_id=tenant_id)
@@ -707,11 +726,15 @@ async def get_forecast_by_location(
             detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
         )
 
-    tenant_id = getattr(user, "tenant_id", None) or "unknown"
+    tenant_id = _resolve_tenant_or_401(user)
 
+    # Mirror the existing POST /weather/forecast handler — it calls
+    # get_daily_forecast (NOT get_forecast). The providers in
+    # src/providers/multi_provider.py expose get_daily_forecast on every
+    # adapter, returning a list[DailyForecast] directly.
     if app.state.multi_provider:
-        result = await app.state.multi_provider.get_forecast(
-            location["lat"], location["lon"], days=days, tenant_id=tenant_id
+        result = await app.state.multi_provider.get_daily_forecast(
+            location["lat"], location["lon"], days, tenant_id=tenant_id
         )
         if not result.success:
             raise ExternalServiceException.weather_service(
@@ -724,9 +747,14 @@ async def get_forecast_by_location(
         forecast = result.data
         provider = result.provider
     else:
-        forecast = await app.state.weather_provider.get_forecast(location["lat"], location["lon"], days=days)
+        forecast = await app.state.weather_provider.get_daily_forecast(
+            location["lat"], location["lon"], days
+        )
         provider = "Open-Meteo"
 
+    # Match POST /weather/forecast's response shape so existing
+    # web/mobile parsers continue to work — `forecast` is already a
+    # list[DailyForecast], no `.daily` accessor needed.
     return {
         "success": True,
         "data": {
@@ -740,19 +768,22 @@ async def get_forecast_by_location(
             },
             "field_id": field_id,
             "provider": provider,
-            "days": days,
+            "days": len(forecast) if forecast else days,
             "forecast": [
                 {
-                    "date": getattr(d, "date", None),
-                    "temp_min_c": getattr(d, "temp_min_c", None),
-                    "temp_max_c": getattr(d, "temp_max_c", None),
-                    "humidity_pct": getattr(d, "humidity_pct", None),
-                    "precipitation_mm": getattr(d, "precipitation_mm", None),
-                    "wind_speed_kmh": getattr(d, "wind_speed_kmh", None),
-                    "condition": getattr(d, "condition", None),
-                    "condition_ar": getattr(d, "condition_ar", None),
+                    "date": getattr(f, "date", None),
+                    "temp_max_c": getattr(f, "temp_max_c", None),
+                    "temp_min_c": getattr(f, "temp_min_c", None),
+                    "precipitation_mm": getattr(f, "precipitation_mm", None),
+                    "precipitation_probability_pct": getattr(f, "precipitation_probability_pct", None),
+                    "wind_speed_max_kmh": getattr(f, "wind_speed_max_kmh", None),
+                    "uv_index_max": getattr(f, "uv_index_max", None),
+                    "condition": getattr(f, "condition", None),
+                    "condition_ar": getattr(f, "condition_ar", None),
+                    "sunrise": getattr(f, "sunrise", None),
+                    "sunset": getattr(f, "sunset", None),
                 }
-                for d in (forecast.daily if hasattr(forecast, "daily") else [])
+                for f in (forecast or [])
             ],
         },
     }

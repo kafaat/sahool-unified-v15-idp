@@ -51,41 +51,70 @@ def kong_config() -> dict:
 
 class TestInventoryKongSplit:
     """The mobile client calls /api/v1/inventory/categories (see
-    apps/mobile/lib/core/services/service_registry.dart). Backend handlers
-    are at @app.get("/v1/categories") — a Kong path rewrite is required.
+    apps/mobile/lib/core/services/service_registry.dart) and
+    /api/v1/inventory/analytics/* (analytics_service). Backend handlers
+    are at @app.get("/v1/categories") and @app.get("/v1/analytics/*").
+
+    Each legacy sub-tree needs its OWN Kong service because Kong's
+    strip_path consumes the FULL matched route path. With one shared
+    legacy service using `path: /v1`, /api/v1/inventory/categories would
+    strip to "" and rewrite to just "/v1" — never reaching the backend's
+    /v1/categories handler. So we have:
+      inventory-service-legacy-categories  → path: /v1/categories
+      inventory-service-legacy-analytics   → path: /v1/analytics
+      inventory-service                     → strip_path: false (modern)
     """
 
     def _services_named(self, kong_config: dict, name: str) -> list[dict]:
         return [s for s in kong_config.get("services", []) if s.get("name") == name]
 
-    def test_inventory_legacy_service_exists(self, kong_config):
-        """inventory-service-legacy is the dedicated split that handles
-        the /v1/categories + /v1/analytics paths."""
-        legacy = self._services_named(kong_config, "inventory-service-legacy")
-        assert len(legacy) == 1, "Expected exactly one inventory-service-legacy entry"
-        assert legacy[0]["host"] == "inventory-service"  # share the same upstream
-        assert legacy[0].get("path") == "/v1", (
-            "inventory-service-legacy MUST set path:/v1 — without the rewrite, "
-            "Kong forwards /categories instead of /v1/categories and the backend 404s"
+    def test_categories_service_path_is_v1_categories(self, kong_config):
+        """Without `path: /v1/categories`, the strip+prepend math leaves
+        the upstream URL at "/v1" — backend's /v1/categories handler
+        never matches. The path MUST include the categories suffix."""
+        svc = self._services_named(kong_config, "inventory-service-legacy-categories")
+        assert len(svc) == 1, "Expected exactly one inventory-service-legacy-categories entry"
+        assert svc[0]["host"] == "inventory-service"
+        assert svc[0].get("path") == "/v1/categories", (
+            "inventory-service-legacy-categories MUST set path:/v1/categories — "
+            "with just /v1, /api/v1/inventory/categories rewrites to /v1 and 404s"
         )
 
-    def test_legacy_routes_cover_categories_and_analytics(self, kong_config):
-        legacy_list = self._services_named(kong_config, "inventory-service-legacy")
-        assert legacy_list, "inventory-service-legacy missing — see test_inventory_legacy_service_exists"
-        legacy = legacy_list[0]
-        all_paths = {p for r in legacy["routes"] for p in r.get("paths", [])}
-        assert "/api/v1/inventory/categories" in all_paths
-        assert "/api/v1/inventory/analytics" in all_paths
+    def test_categories_route_owns_only_categories_path(self, kong_config):
+        svc = self._services_named(kong_config, "inventory-service-legacy-categories")
+        assert svc, "inventory-service-legacy-categories missing"
+        all_paths = {p for r in svc[0]["routes"] for p in r.get("paths", [])}
+        assert all_paths == {"/api/v1/inventory/categories"}, (
+            f"Expected exactly one route /api/v1/inventory/categories, got {all_paths}"
+        )
+
+    def test_analytics_service_path_is_v1_analytics(self, kong_config):
+        """Same logic: without `path: /v1/analytics`, strip+prepend would
+        send /api/v1/inventory/analytics/forecast to /v1/forecast (no
+        analytics segment) — backend's /v1/analytics/forecast 404s."""
+        svc = self._services_named(kong_config, "inventory-service-legacy-analytics")
+        assert len(svc) == 1, "Expected exactly one inventory-service-legacy-analytics entry"
+        assert svc[0]["host"] == "inventory-service"
+        assert svc[0].get("path") == "/v1/analytics", (
+            "inventory-service-legacy-analytics MUST set path:/v1/analytics — "
+            "with just /v1, /api/v1/inventory/analytics/forecast rewrites to /v1/forecast and 404s"
+        )
+
+    def test_analytics_route_owns_only_analytics_path(self, kong_config):
+        svc = self._services_named(kong_config, "inventory-service-legacy-analytics")
+        assert svc, "inventory-service-legacy-analytics missing"
+        all_paths = {p for r in svc[0]["routes"] for p in r.get("paths", [])}
+        assert all_paths == {"/api/v1/inventory/analytics"}, (
+            f"Expected exactly one route /api/v1/inventory/analytics, got {all_paths}"
+        )
 
     def test_modern_inventory_uses_strip_path_false(self, kong_config):
-        """The non-legacy inventory route must forward as-is so the modern
+        """The catch-all inventory route must forward as-is so the modern
         APIRouter(prefix='/api/v1/inventory') in src/api/v1/inventory.py
         receives the full path."""
         modern = self._services_named(kong_config, "inventory-service")
         assert len(modern) == 1
-        # No service-level path rewrite — just forward.
-        assert modern[0].get("path") is None
-        # Find the main /api/v1/inventory route.
+        assert modern[0].get("path") is None  # No service-level rewrite
         main_routes = [r for r in modern[0]["routes"] if "/api/v1/inventory" in r.get("paths", [])]
         assert main_routes, "No /api/v1/inventory route on inventory-service"
         assert main_routes[0]["strip_path"] is False, (
@@ -93,19 +122,19 @@ class TestInventoryKongSplit:
             "router is mounted at prefix='/api/v1/inventory', stripping kills it"
         )
 
-    def test_no_path_collision_between_legacy_and_modern(self, kong_config):
-        """Longest-prefix match must steer /categories + /analytics to the
-        legacy service. Anything else (/{itemId}, /stats, etc.) goes to the
-        modern service. We assert both services exist on the SAME upstream
-        so Kong can do that routing decision."""
-        legacy_list = self._services_named(kong_config, "inventory-service-legacy")
-        modern_list = self._services_named(kong_config, "inventory-service")
-        assert legacy_list and modern_list, (
-            "Both inventory-service-legacy and inventory-service entries are required"
+    def test_all_three_inventory_services_share_upstream(self, kong_config):
+        """Longest-prefix match steers /categories + /analytics to the
+        dedicated legacy services; anything else (/{itemId}, /stats, etc.)
+        goes to the modern catch-all. All three MUST point at the same
+        backend upstream so a single deployment serves every variant."""
+        names = (
+            "inventory-service-legacy-categories",
+            "inventory-service-legacy-analytics",
+            "inventory-service",
         )
-        assert legacy_list[0]["host"] == modern_list[0]["host"], (
-            "Both inventory Kong services must point at the same upstream "
-            f"(legacy={legacy_list[0]['host']!r}, modern={modern_list[0]['host']!r})"
+        hosts = {self._services_named(kong_config, n)[0]["host"] for n in names if self._services_named(kong_config, n)}
+        assert hosts == {"inventory-service"}, (
+            f"All three inventory services must share host=inventory-service, got {hosts}"
         )
 
 
@@ -120,9 +149,11 @@ class TestDartDeprecatedAnnotations:
     propagate those into Dart `@Deprecated('msg')` annotations so mobile
     builds emit warnings when callers touch them.
 
-    Counts checked against the snapshot taken when the codegen lands; if
-    the live contract grows new @deprecated entries the count will
-    only increase — assert_>= guards that direction.
+    Counts are asserted EXACTLY: every JSDoc @deprecated tag inside an
+    *_ENDPOINTS object should produce one and only one `@Deprecated(...)`
+    annotation in the generated Dart. A mismatch in either direction is
+    a codegen bug — extras mean over-eager parsing, missing means a
+    regex regression dropped a tag.
     """
 
     @pytest.fixture(scope="class")

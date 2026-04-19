@@ -101,7 +101,17 @@
 //            — same skip+limit-only constraint, user-scoped.
 //          * CHAIN_VALIDATE (/audit/chain/validate)
 //          Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.19.0" as const;
+//
+// v4.20.0  Document KONG_CURRENT_BY_LOCATION / KONG_FORECAST_BY_LOCATION /
+//          KONG_LOCATIONS as live (backed by weather-service handlers
+//          @app.get("/weather/v1/{current,forecast}/{location_id}") and
+//          @app.get("/weather/v1/locations")). No path changes — the
+//          three exports already had these strings; just removed the
+//          "never implemented" caveat from the JSDoc comment now that
+//          the backend ships them.
+//          Codegen: scripts/sync-contracts-to-dart.ts now translates
+//          JSDoc @deprecated tags into Dart @Deprecated() annotations.
+export const CONTRACT_VERSION = "4.20.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

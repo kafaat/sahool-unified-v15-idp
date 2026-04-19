@@ -686,3 +686,56 @@ class TestAgriculturalReportEndpoint:
         assert "growing_degree_days" in data
         assert "spray_window" in data
         assert "irrigation_adjustment" in data
+
+
+# ============== Yemen-Location-Scoped Endpoints ==============
+
+
+class TestYemenLocationEndpoints:
+    """Test the WEATHER_ENDPOINTS.KONG_*_BY_LOCATION + KONG_LOCATIONS handlers.
+
+    These were previously in the contract but unimplemented; the backend
+    now resolves the {locationId} against the static Yemen governorates
+    table (apps/services/weather-service/src/locations.py) and reuses the
+    multi-provider weather pipeline.
+    """
+
+    def test_locations_returns_22_governorates(self, client):
+        """GET /weather/v1/locations lists every Yemen governorate."""
+        r = client.get("/weather/v1/locations")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["success"] is True
+        assert body["total"] == 22
+        # Each entry must carry id + Arabic name + coords + region.
+        for loc in body["data"]:
+            assert {"id", "name_ar", "lat", "lon", "region", "elevation"} <= set(loc.keys())
+
+    def test_locations_filtered_by_region(self, client):
+        """`?region=highland` narrows the list."""
+        r = client.get("/weather/v1/locations", params={"region": "highland"})
+        assert r.status_code == 200
+        body = r.json()
+        assert body["total"] > 0
+        assert body["total"] < 22  # Some governorates aren't highland.
+        assert all(loc["region"] == "highland" for loc in body["data"])
+
+    def test_current_by_location_unknown_id_returns_404(self, client):
+        """An invented locationId must 404 — the static lookup catches it
+        before any provider call."""
+        r = client.get("/weather/v1/current/not-a-real-yemen-place")
+        assert r.status_code == 404
+        # Make sure the message points users at the listing endpoint.
+        body_text = (r.text or "").lower()
+        assert "locations" in body_text or "not found" in body_text
+
+    def test_forecast_by_location_unknown_id_returns_404(self, client):
+        """Same coverage for the forecast variant."""
+        r = client.get("/weather/v1/forecast/not-a-real-yemen-place")
+        assert r.status_code == 404
+
+    def test_forecast_by_location_rejects_out_of_range_days(self, client):
+        """`days` must be 1..14 inclusive — guard against accidental
+        provider-quota burn from huge values."""
+        r = client.get("/weather/v1/forecast/sanaa", params={"days": 999})
+        assert r.status_code == 422

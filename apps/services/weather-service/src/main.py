@@ -573,6 +573,197 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
         raise ExternalServiceException.weather_service(e) from e
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Yemen-location-scoped weather endpoints
+#
+# These satisfy `WEATHER_ENDPOINTS.KONG_CURRENT_BY_LOCATION`,
+# `KONG_FORECAST_BY_LOCATION`, and `KONG_LOCATIONS` in
+# packages/shared-types/src/contracts/api-endpoints.ts. Web/mobile clients
+# call them via the Kong-routed paths `/api/v1/weather/v1/{current,forecast,
+# locations}`; the gateway strips `/api/v1/weather` and prepends `/weather`,
+# so the upstream URLs the backend sees are `/weather/v1/...` — exactly what
+# we register below.
+#
+# The locations table is a static dictionary of the 22 Yemen governorates
+# (apps/services/weather-service/src/locations.py), so resolving a
+# `location_id` to lat/lon is an in-process lookup with no extra latency.
+# Once resolved, both endpoints reuse the existing multi-provider weather
+# pipeline.
+# ─────────────────────────────────────────────────────────────────────────────
+
+from .locations import get_all_locations, get_location  # noqa: E402  (kept near the routes that use it)
+
+
+@app.get("/weather/v1/locations")
+async def list_yemen_locations(
+    region: str | None = None,
+    user: User = Depends(get_current_user),
+):
+    """List Yemen governorates with id/name/coords/region/elevation.
+
+    Optional `?region=highland|coastal|desert|island` filters the result.
+    Auth is required so we can enforce per-tenant rate limits even though
+    the data itself is non-sensitive (all 22 governorates are public).
+    """
+    locations = get_all_locations()
+    if region:
+        region_norm = region.lower()
+        locations = [loc for loc in locations if loc.get("region") == region_norm]
+    return {
+        "success": True,
+        "data": locations,
+        "total": len(locations),
+    }
+
+
+@app.get("/weather/v1/current/{location_id}")
+async def get_current_weather_by_location(
+    location_id: str,
+    field_id: str = "",
+    user: User = Depends(get_current_user),
+):
+    """Current weather for a Yemen governorate.
+
+    Translates `location_id` → lat/lon via the static locations table, then
+    delegates to the same multi-provider service used by `POST /weather/current`.
+    Tenant scope comes from the JWT (no body / no `tenant_id` query) — keeps
+    the contract aligned with how web/mobile call it (a plain GET with the
+    bearer token only).
+    """
+    location = get_location(location_id)
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Yemen location '{location_id}' not found. "
+            "Use /weather/v1/locations to list valid IDs.",
+        )
+
+    tenant_id = getattr(user, "tenant_id", None) or "unknown"
+
+    if app.state.multi_provider:
+        result = await app.state.multi_provider.get_current(
+            location["lat"], location["lon"], tenant_id=tenant_id
+        )
+        if not result.success:
+            raise ExternalServiceException.weather_service(
+                details={
+                    "error": result.error,
+                    "error_ar": result.error_ar,
+                    "failed_providers": result.failed_providers,
+                }
+            )
+        weather = result.data
+        provider = result.provider
+    else:
+        weather = await app.state.weather_provider.get_current(location["lat"], location["lon"])
+        provider = "Open-Meteo"
+
+    return {
+        "success": True,
+        "data": {
+            "location": {
+                "id": location_id.lower(),
+                "name_ar": location["name_ar"],
+                "lat": location["lat"],
+                "lon": location["lon"],
+                "elevation": location["elevation"],
+                "region": location["region"],
+            },
+            "field_id": field_id,
+            "provider": provider,
+            "current": {
+                "temperature_c": weather.temperature_c,
+                "humidity_pct": weather.humidity_pct,
+                "wind_speed_kmh": weather.wind_speed_kmh,
+                "wind_direction_deg": weather.wind_direction_deg,
+                "precipitation_mm": weather.precipitation_mm,
+                "cloud_cover_pct": weather.cloud_cover_pct,
+                "pressure_hpa": weather.pressure_hpa,
+                "uv_index": weather.uv_index,
+                "condition": getattr(weather, "condition", None),
+                "condition_ar": getattr(weather, "condition_ar", None),
+                "timestamp": weather.timestamp,
+            },
+        },
+    }
+
+
+@app.get("/weather/v1/forecast/{location_id}")
+async def get_forecast_by_location(
+    location_id: str,
+    days: int = 7,
+    field_id: str = "",
+    user: User = Depends(get_current_user),
+):
+    """N-day forecast for a Yemen governorate.
+
+    Same lookup strategy as `/weather/v1/current/{location_id}`. `days` is
+    the standard 1-14 horizon supported by the underlying providers.
+    """
+    if days < 1 or days > 14:
+        raise HTTPException(status_code=422, detail="days must be between 1 and 14")
+
+    location = get_location(location_id)
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Yemen location '{location_id}' not found. "
+            "Use /weather/v1/locations to list valid IDs.",
+        )
+
+    tenant_id = getattr(user, "tenant_id", None) or "unknown"
+
+    if app.state.multi_provider:
+        result = await app.state.multi_provider.get_forecast(
+            location["lat"], location["lon"], days=days, tenant_id=tenant_id
+        )
+        if not result.success:
+            raise ExternalServiceException.weather_service(
+                details={
+                    "error": result.error,
+                    "error_ar": result.error_ar,
+                    "failed_providers": result.failed_providers,
+                }
+            )
+        forecast = result.data
+        provider = result.provider
+    else:
+        forecast = await app.state.weather_provider.get_forecast(
+            location["lat"], location["lon"], days=days
+        )
+        provider = "Open-Meteo"
+
+    return {
+        "success": True,
+        "data": {
+            "location": {
+                "id": location_id.lower(),
+                "name_ar": location["name_ar"],
+                "lat": location["lat"],
+                "lon": location["lon"],
+                "elevation": location["elevation"],
+                "region": location["region"],
+            },
+            "field_id": field_id,
+            "provider": provider,
+            "days": days,
+            "forecast": [
+                {
+                    "date": getattr(d, "date", None),
+                    "temp_min_c": getattr(d, "temp_min_c", None),
+                    "temp_max_c": getattr(d, "temp_max_c", None),
+                    "humidity_pct": getattr(d, "humidity_pct", None),
+                    "precipitation_mm": getattr(d, "precipitation_mm", None),
+                    "wind_speed_kmh": getattr(d, "wind_speed_kmh", None),
+                    "condition": getattr(d, "condition", None),
+                    "condition_ar": getattr(d, "condition_ar", None),
+                }
+                for d in (forecast.daily if hasattr(forecast, "daily") else [])
+            ],
+        },
+    }
+
+
 @app.post("/weather/irrigation")
 async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get_current_user)):
     """

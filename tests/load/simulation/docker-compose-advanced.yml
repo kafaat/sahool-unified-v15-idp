@@ -216,6 +216,7 @@ services:
       <<: *app-env
       INSTANCE_ID: "1"
       SERVER_PORT: "8080"
+      PORT: "8080"  # override field-management-service Dockerfile default (3000) to match sim load-balancer
     networks:
       sahool-advanced-network:
         ipv4_address: 172.31.0.100
@@ -229,6 +230,7 @@ services:
       <<: *app-env
       INSTANCE_ID: "2"
       SERVER_PORT: "8080"
+      PORT: "8080"  # override field-management-service Dockerfile default (3000) to match sim load-balancer
     networks:
       sahool-advanced-network:
         ipv4_address: 172.31.0.101
@@ -242,6 +244,7 @@ services:
       <<: *app-env
       INSTANCE_ID: "3"
       SERVER_PORT: "8080"
+      PORT: "8080"  # override field-management-service Dockerfile default (3000) to match sim load-balancer
     networks:
       sahool-advanced-network:
         ipv4_address: 172.31.0.102
@@ -255,6 +258,7 @@ services:
       <<: *app-env
       INSTANCE_ID: "4"
       SERVER_PORT: "8080"
+      PORT: "8080"  # override field-management-service Dockerfile default (3000) to match sim load-balancer
     networks:
       sahool-advanced-network:
         ipv4_address: 172.31.0.103
@@ -268,6 +272,7 @@ services:
       <<: *app-env
       INSTANCE_ID: "5"
       SERVER_PORT: "8080"
+      PORT: "8080"  # override field-management-service Dockerfile default (3000) to match sim load-balancer
     networks:
       sahool-advanced-network:
         ipv4_address: 172.31.0.104

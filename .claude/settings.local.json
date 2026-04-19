@@ -85,7 +85,14 @@
       "Bash(pip install:*)",
       "Bash(python:*)",
       "Bash(xargs sed:*)",
-      "Bash(sh -n D:/projects/v91/sahoo-adel-full/docker/apt-update.sh)"
+      "Bash(sh -n D:/projects/v91/sahoo-adel-full/docker/apt-update.sh)",
+      "Bash(grep -r \"typescript@\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
+      "Bash(npm view:*)",
+      "Bash(node -e ':*)",
+      "Bash(npm install:*)",
+      "Bash(grep -l \"pip install.*aliyun.*upgrade\\\\|upgrade.*pip.*aliyun\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
+      "Bash(grep -rl \"pip install.*--upgrade.*pip.*setuptools\\\\|pip install.*setuptools.*wheel.*upgrade\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
+      "Bash(grep -rn \"aliyun.*pypi/simple\\\\|pypi.tuna\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)"
     ]
   }
 }

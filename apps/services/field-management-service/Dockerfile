@@ -160,7 +160,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install --omit=dev --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Apply security patches to production dependencies (fix known CVEs in transitive deps)
-RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
+RUN npm config set registry https://registry.npmjs.org && npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Copy built files
 COPY --from=builder /app/dist ./dist

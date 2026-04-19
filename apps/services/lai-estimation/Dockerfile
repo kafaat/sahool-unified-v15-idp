@@ -62,8 +62,15 @@ RUN --mount=type=cache,target=/root/.npm \
 #    satisfies the ^10.0.0 peer dep declared in nestjs-auth/package.json for NestJS 10)
 # 2. Symlink service node_modules into nestjs-auth so tsc can resolve all peer deps
 # 3. Run tsc with local binary, falling back to npx if not found
-RUN npm install --no-save --legacy-peer-deps \
-    typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5 redis@4 && \
+# FIX: Add registry + fallback — matches crop-growth-model pattern. Without an
+# explicit registry the step inherits whatever was last set in ~/.npmrc; if that
+# mirror is unreachable the install hangs/fails with no recovery path.
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install --no-save --legacy-peer-deps \
+    typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5 redis@4 || \
+    (npm config set registry https://registry.npmjs.org && \
+    npm install --no-save --legacy-peer-deps \
+    typescript@5.9.3 "@liaoliaots/nestjs-redis@10" ioredis@5 redis@4) && \
     ln -sf /workspace/lai-estimation/node_modules /workspace/nestjs-auth/node_modules && \
     (/workspace/lai-estimation/node_modules/.bin/tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
      npx -y typescript@5.9.3 tsc -p /workspace/nestjs-auth/tsconfig.json --skipLibCheck || \
@@ -126,7 +133,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5 --no-audit --no-fund)
 
 # Apply security patches to production dependencies (fix known CVEs in transitive deps)
-RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
+RUN npm config set registry https://registry.npmjs.org && npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
 # (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)

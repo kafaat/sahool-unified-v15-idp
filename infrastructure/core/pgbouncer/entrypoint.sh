@@ -107,8 +107,10 @@ wait_for_postgres() {
 
     # Phase 2: Wait for init scripts to complete by checking for pgbouncer schema
     # The pgbouncer schema is created by 02-pgbouncer-user.sql (one of the last init scripts)
+    # FIX: Reduced from 30 to 10 attempts (30s max) so bootstrap triggers quickly
+    # when the schema is absent (pre-existing volume). Bootstrap is idempotent.
     _attempt=1
-    _max_init_attempts=30
+    _max_init_attempts=10
 
     if [ "$HAVE_PSQL" = true ]; then
         log_info "Waiting for PostgreSQL init scripts to complete (checking pgbouncer schema)..."

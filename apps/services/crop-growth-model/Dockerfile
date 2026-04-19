@@ -143,7 +143,7 @@ RUN --mount=type=cache,target=/root/.npm \
     fi
 
 # Apply security patches to production dependencies (fix known CVEs in transitive deps)
-RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
+RUN npm config set registry https://registry.npmjs.org && npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Symlink node_modules into nestjs-auth so its require() calls resolve peer deps
 # (Node.js resolves from /nestjs-auth/ → /nestjs-auth/node_modules/ → found)

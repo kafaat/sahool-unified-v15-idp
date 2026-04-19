@@ -3,7 +3,7 @@
 # Usage: COPY docker/apt-update.sh /usr/local/bin/
 #        RUN apt-update.sh && apt-get install -y --no-install-recommends <packages>
 #
-# Strategy: mirror-first (Tencent → Aliyun → official deb.debian.org)
+# Strategy: mirror-first (Tencent → Aliyun → USTC → Huawei → official deb.debian.org)
 # Reason: in restricted/slow-network environments the official repo is often
 # reachable for the small metadata fetch in apt-get update but then drops during
 # the larger .deb downloads in apt-get install. Always using a mirror avoids this.
@@ -12,19 +12,23 @@
 
 set -e
 
-MAX_RETRIES=2
-RETRY_DELAY=5
-# Hard wall-clock limit per apt-get update attempt. A mirror delivering at 863 B/s
-# can hold the build for 10+ minutes; 90 seconds abandons it fast enough to try the
-# next mirror without unacceptable total build time.
-UPDATE_TIMEOUT=90
+# One attempt per mirror — we have 5 mirrors, so retrying the same failing one
+# wastes time that is better spent trying the next mirror in the list.
+MAX_RETRIES=1
+# Hard wall-clock limit per apt-get update attempt.
+# Connection setup on constrained networks can take ~60 s before any data flows;
+# 180 s gives enough headroom for connection + index download on a slow link.
+UPDATE_TIMEOUT=180
 
 # Write apt resilience config early so both apt-get update AND apt-get install
 # benefit from higher retries and longer per-connection timeouts.
 # This is critical when mirrors serve metadata (small files) fine but time out
 # on large .deb downloads (e.g. openssl 1.4 MB from mirrors.aliyun.com/debian-security).
 mkdir -p /etc/apt/apt.conf.d
-printf 'Acquire::http::Timeout "120";\nAcquire::https::Timeout "120";\nAcquire::Retries "10";\nAPT::Get::Assume-Yes "true";\n' \
+# Acquire::Languages=none  — skip translation/i18n index files (saves ~5-20 MB of downloads)
+# Acquire::Pdiffs=false    — always fetch full indexes instead of incremental diffs
+#                            (pdiffs can be larger than the full index on a cold cache)
+printf 'Acquire::http::Timeout "120";\nAcquire::https::Timeout "120";\nAcquire::Retries "5";\nAcquire::Languages "none";\nAcquire::Pdiffs "false";\nAPT::Get::Assume-Yes "true";\n' \
     > /etc/apt/apt.conf.d/99sahool-resilience
 
 switch_to_mirror() {
@@ -34,14 +38,18 @@ switch_to_mirror() {
     if [ -f /etc/apt/sources.list.d/debian.sources ]; then
         sed -i "s|deb.debian.org|${mirror_host}|g; \
                 s|mirrors.aliyun.com|${mirror_host}|g; \
-                s|mirrors.cloud.tencent.com|${mirror_host}|g" \
+                s|mirrors.cloud.tencent.com|${mirror_host}|g; \
+                s|mirrors.ustc.edu.cn|${mirror_host}|g; \
+                s|mirrors.huaweicloud.com|${mirror_host}|g" \
             /etc/apt/sources.list.d/debian.sources
     # Ubuntu DEB822 format (noble+)
     elif [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then
         sed -i "s|archive.ubuntu.com|${mirror_host}|g; \
                 s|security.ubuntu.com|${mirror_host}|g; \
                 s|mirrors.aliyun.com|${mirror_host}|g; \
-                s|mirrors.cloud.tencent.com|${mirror_host}|g" \
+                s|mirrors.cloud.tencent.com|${mirror_host}|g; \
+                s|mirrors.ustc.edu.cn|${mirror_host}|g; \
+                s|mirrors.huaweicloud.com|${mirror_host}|g" \
             /etc/apt/sources.list.d/ubuntu.sources
     # Legacy sources.list (Debian or Ubuntu)
     elif [ -f /etc/apt/sources.list ]; then
@@ -49,7 +57,9 @@ switch_to_mirror() {
                 s|archive.ubuntu.com|${mirror_host}|g; \
                 s|security.ubuntu.com|${mirror_host}|g; \
                 s|mirrors.aliyun.com|${mirror_host}|g; \
-                s|mirrors.cloud.tencent.com|${mirror_host}|g" \
+                s|mirrors.cloud.tencent.com|${mirror_host}|g; \
+                s|mirrors.ustc.edu.cn|${mirror_host}|g; \
+                s|mirrors.huaweicloud.com|${mirror_host}|g" \
             /etc/apt/sources.list
     fi
 }
@@ -57,10 +67,16 @@ switch_to_mirror() {
 # try_apt_update runs apt-get update with retries and validates the result.
 # Returns 0 only if apt-get update succeeds WITHOUT partial fetch warnings.
 try_apt_update() {
+    # Reset delay locally so it does NOT accumulate across mirror switches.
+    _delay=5
     attempt=1
     while [ "$attempt" -le "$MAX_RETRIES" ]; do
         echo "apt-get update attempt ${attempt}/${MAX_RETRIES} (timeout ${UPDATE_TIMEOUT}s)..."
-        update_output=$(timeout "${UPDATE_TIMEOUT}" apt-get update -o Acquire::Retries=1 2>&1) && rc=0 || rc=$?
+        update_output=$(timeout "${UPDATE_TIMEOUT}" apt-get update \
+            -o Acquire::Retries=1 \
+            -o Acquire::Languages=none \
+            -o Acquire::Pdiffs=false \
+            2>&1) && rc=0 || rc=$?
         echo "$update_output"
 
         if [ "$rc" -eq 0 ]; then
@@ -75,9 +91,9 @@ try_apt_update() {
         fi
 
         if [ "$attempt" -lt "$MAX_RETRIES" ]; then
-            echo "Retrying in ${RETRY_DELAY}s..."
-            sleep "$RETRY_DELAY"
-            RETRY_DELAY=$((RETRY_DELAY * 2))
+            echo "Retrying in ${_delay}s..."
+            sleep "$_delay"
+            _delay=$((_delay * 2))
         fi
         attempt=$((attempt + 1))
     done
@@ -88,7 +104,7 @@ try_apt_update() {
 # This ensures both apt-get update AND apt-get install use the same mirror — avoiding
 # the failure mode where update succeeds (small files) but install fails (large .deb).
 #
-# Mirror order: Tencent → Aliyun → official deb.debian.org
+# Mirror order: Tencent → Aliyun → USTC → Huawei → official deb.debian.org
 # Tencent is tried first because Aliyun's debian-security endpoint (155.102.167.215)
 # has been observed to time out on large package downloads (e.g. openssl 1.4 MB)
 # even when apt-get update succeeds on the same mirror.
@@ -107,8 +123,24 @@ if try_apt_update; then
     exit 0
 fi
 
-echo "Aliyun mirror failed, attempting official deb.debian.org..."
+echo "Aliyun mirror failed, attempting USTC mirror..."
 
-# Attempt 3: official repos as last resort
+# Attempt 3: USTC (University of Science and Technology of China)
+switch_to_mirror "mirrors.ustc.edu.cn"
+if try_apt_update; then
+    exit 0
+fi
+
+echo "USTC mirror failed, attempting Huawei Cloud mirror..."
+
+# Attempt 4: Huawei Cloud mirror
+switch_to_mirror "mirrors.huaweicloud.com"
+if try_apt_update; then
+    exit 0
+fi
+
+echo "Huawei mirror failed, attempting official deb.debian.org..."
+
+# Attempt 5: official repos as last resort
 switch_to_mirror "deb.debian.org"
 try_apt_update

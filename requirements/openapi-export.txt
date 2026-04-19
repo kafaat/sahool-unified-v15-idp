@@ -19,6 +19,13 @@ pydantic
 pydantic-settings
 pydantic[email]
 python-multipart
+uvicorn
+
+# Auth / crypto — many services import these at module load time
+cffi
+cryptography
+pyjwt
+python-jose
 
 # Observability / logging imported at module-load time by several services
 structlog
@@ -31,6 +38,13 @@ opentelemetry-instrumentation-fastapi
 # Minor PyYAML releases have changed default escaping/wrapping in the past;
 # locking the version is cheaper than chasing false drift.
 pyyaml==6.0.2
+
+# Async / filesystem
+aiofiles
+anyio
+
+# Environment / config
+python-dotenv
 
 # Databases / queues commonly imported eagerly at startup
 sqlalchemy
@@ -47,3 +61,4 @@ httpx
 networkx
 defusedxml
 numpy
+jinja2

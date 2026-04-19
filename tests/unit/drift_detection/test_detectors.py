@@ -263,7 +263,8 @@ class TestAPIDriftDetector:
         # pass the test regardless of whether the allowlist works.
         svc = temp_project / "apps" / "services" / "audit-retention-worker" / "src"
         svc.mkdir(parents=True)
-        (svc / "main.py").write_text(
+        main_py = svc / "main.py"
+        main_py.write_text(
             '"""Audit Retention Worker — K8s CronJob entrypoint."""\n'
             "import asyncio\n"
             "async def main():\n"
@@ -272,6 +273,17 @@ class TestAPIDriftDetector:
             "if __name__ == '__main__':\n"
             "    asyncio.run(main())\n"
         )
+        # Self-check: confirm the dummy file actually lacks every substring
+        # the scanner searches for. If a future edit re-introduces any of
+        # them (even in a comment), this assertion fails BEFORE the detector
+        # runs, so the test can't silently rot into a false-positive pass.
+        _main_py_contents = main_py.read_text()
+        for _forbidden in ("/healthz", "healthz", "/health", "readyz"):
+            assert _forbidden not in _main_py_contents, (
+                f"dummy main.py leaked the scanner-trigger substring "
+                f"{_forbidden!r} — rewrite to avoid it or the allowlist "
+                f"test degrades to a substring-match check"
+            )
 
         detector = APIDriftDetector(str(temp_project))
         results = await detector.detect()

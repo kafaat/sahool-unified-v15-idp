@@ -192,12 +192,15 @@ class APIDriftDetector(BaseDriftDetector):
 
         service_dirs = list(root.glob("apps/services/*/src"))
 
-        # Services that are CLI tools or non-HTTP agents (no server to health-check)
-        # - code-review-agent: one-shot PR review CLI (invoked from CI)
-        # - audit-retention-worker: Kubernetes CronJob batch worker
-        #   (see apps/services/audit-retention-worker/src/main.py docstring —
-        #   runs sweep, exits, has no HTTP server to probe).
-        _CLI_ONLY_SERVICES = {"code-review-agent", "audit-retention-worker"}
+        # Services that don't run an HTTP server (so there's nothing to
+        # health-check). Covers CLI tools, K8s CronJob workers, and other
+        # batch entrypoints — their liveness is "process exited 0". Adding
+        # `/healthz` endpoints to these services would be architectural
+        # noise (a whole aiohttp/FastAPI app just to satisfy a scanner).
+        _NON_HTTP_SERVICES = {
+            "code-review-agent",        # CLI review tool
+            "audit-retention-worker",   # K8s CronJob — runs nightly, exits
+        }
 
         for src_dir in service_dirs:
             service_name = src_dir.parent.name
@@ -206,8 +209,8 @@ class APIDriftDetector(BaseDriftDetector):
             if "archive" in str(src_dir):
                 continue
 
-            # Skip CLI-only services that don't run an HTTP server
-            if service_name in _CLI_ONLY_SERVICES:
+            # Skip services that don't run an HTTP server
+            if service_name in _NON_HTTP_SERVICES:
                 continue
 
             main_files = (

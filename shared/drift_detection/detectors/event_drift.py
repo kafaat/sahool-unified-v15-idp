@@ -238,6 +238,13 @@ class EventDriftDetector(BaseDriftDetector):
             if "{" in subject or ">" in subject or "*" in subject:
                 continue
 
+            # Skip prefix literals used for string slicing/stripping
+            # (e.g. `if subject.startswith("sahool.weather.")` — the dot
+            # at the end means it's not a standalone subject, just a
+            # prefix constant). Real NATS subjects never end with `.`.
+            if subject.endswith("."):
+                continue
+
             valid = any(p.match(subject) for p in VALID_SUBJECT_PATTERNS)
             if not valid:
                 self.add_result(

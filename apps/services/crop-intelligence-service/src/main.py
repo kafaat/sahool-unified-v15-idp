@@ -1909,6 +1909,65 @@ def list_disease_types():
     }
 
 
+# ───────────────────────────────────────────────────────────────────────────
+# Ported from archived crop-health-ai: named-disease catalog + treatment +
+# supported-crops list. See ``disease_catalog.py`` for the data shape.
+# ───────────────────────────────────────────────────────────────────────────
+
+
+@app.get("/api/v1/crops")
+def list_supported_crops_catalog():
+    """📋 Supported crops with Arabic labels and disease counts.
+
+    Ported from archived crop-health-ai ``GET /v1/crops``.
+    """
+    from .disease_catalog import list_supported_crops
+
+    crops = list_supported_crops()
+    return {"crops": crops, "count": len(crops)}
+
+
+@app.get("/api/v1/diseases/catalog")
+def list_named_disease_catalog(
+    crop_type: CropType | None = Query(default=None, description="فلترة حسب نوع المحصول"),
+    limit: int = Query(default=50, ge=1, le=100, description="Maximum results"),
+    offset: int = Query(default=0, ge=0, description="Results to skip"),
+):
+    """📋 Curated list of named Yemeni crop diseases with pagination.
+
+    Distinct from ``/api/v1/disease/types`` which dumps the ``DiseaseType``
+    enum (category-level). This endpoint returns specific named diseases
+    like ``wheat_leaf_rust`` with bilingual labels + default severity.
+    Ported from archived crop-health-ai ``GET /v1/diseases``.
+    """
+    from .disease_catalog import list_named_diseases
+
+    all_diseases = list_named_diseases(crop_type)
+    total = len(all_diseases)
+    paginated = all_diseases[offset : offset + limit]
+    return {
+        "diseases": paginated,
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+        "has_more": (offset + limit) < total,
+    }
+
+
+@app.get("/api/v1/treatment/{disease_id}")
+def get_disease_treatment(disease_id: str):
+    """💊 Treatment and prevention protocol for a named disease.
+
+    Ported from archived crop-health-ai ``GET /v1/treatment/{disease_id}``.
+    """
+    from .disease_catalog import get_treatment_details
+
+    result = get_treatment_details(disease_id)
+    if not result:
+        raise HTTPException(status_code=404, detail="Disease not found in catalog")
+    return result
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Nutrient Deficiency Endpoints
 # نقاط نهاية كشف نقص العناصر الغذائية

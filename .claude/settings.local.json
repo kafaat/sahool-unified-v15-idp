@@ -94,7 +94,9 @@
       "Bash(grep -rl \"pip install.*--upgrade.*pip.*setuptools\\\\|pip install.*setuptools.*wheel.*upgrade\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
       "Bash(grep -rn \"aliyun.*pypi/simple\\\\|pypi.tuna\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
       "Bash(grep -rL \"pip-install.sh\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
-      "Bash(grep -n \"def require_roles\" D:/projects/v91/sahoo-adel-full/shared/events/dlq_service.py D:/projects/v91/sahoo-adel-full/shared/security/*.py D:/projects/v91/sahoo-adel-full/shared/auth/*.py)"
+      "Bash(grep -n \"def require_roles\" D:/projects/v91/sahoo-adel-full/shared/events/dlq_service.py D:/projects/v91/sahoo-adel-full/shared/security/*.py D:/projects/v91/sahoo-adel-full/shared/auth/*.py)",
+      "Bash(grep -rL \"distutils-precedence\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
+      "Bash(xargs -I{} grep -l \"_distutils_hack\" {})"
     ]
   }
 }

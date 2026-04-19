@@ -572,16 +572,42 @@ asyncio.run(main())
   # ─────────────────────────────────────────────────────────────────────────────
 
   # MongoDB for Rocket.Chat - قاعدة بيانات MongoDB لمنصة المجتمع
+  # Generate a persistent keyFile for MongoDB auth+replicaset.
+  # Runs once, exits 0, then mongo depends on it being complete.
+  mongo-keyfile-init:
+    image: mongo:6.0
+    container_name: sahool-mongo-keyfile-init
+    volumes:
+      - mongo_keyfile:/keyfile
+    entrypoint: ["bash", "-c"]
+    command:
+      - |
+        if [ ! -s /keyfile/mongo.key ]; then
+          openssl rand -base64 756 > /keyfile/mongo.key
+          chmod 400 /keyfile/mongo.key
+          chown 999:999 /keyfile/mongo.key
+          echo "mongo-keyfile-init: keyFile generated"
+        else
+          echo "mongo-keyfile-init: keyFile already exists, skipping"
+        fi
+    restart: "no"
+    networks:
+      - sahool-network
+
   mongo:
     image: mongo:6.0
     container_name: sahool-mongo
+    depends_on:
+      mongo-keyfile-init:
+        condition: service_completed_successfully
     volumes:
       - mongo_data:/data/db
       - mongo_configdb:/data/configdb
+      - mongo_keyfile:/keyfile:ro
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-sahool}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:?MONGO_PASSWORD is required}
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128"]
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all", "--oplogSize", "128", "--keyFile", "/keyfile/mongo.key"]
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 15s
@@ -4933,6 +4959,8 @@ volumes:
   milvus_data:
     name: sahool-milvus-data
   # Rocket.Chat Community Platform Volumes
+  mongo_keyfile:
+    name: sahool-mongo-keyfile
   mongo_data:
     name: sahool-mongo-data
   mongo_configdb:

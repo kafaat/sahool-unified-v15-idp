@@ -30,6 +30,7 @@ runtime like buildkit.
 from __future__ import annotations
 
 import contextlib
+import functools
 import os
 import socket
 import subprocess
@@ -56,31 +57,21 @@ def _force_local() -> bool:
     return os.environ.get("SAHOOL_TEST_FORCE_LOCAL") == "1"
 
 
-# Cached outside the function: ``docker info`` is a multi-hundred-millisecond
-# subprocess, and every session-scoped fixture (pg_dsn, redis_url, nats_url)
-# calls the detection helper. ``_SENTINEL`` distinguishes "not yet computed"
-# from "computed and resolved to None".
-_SENTINEL: object = object()
-_TC_CACHE: object = _SENTINEL
-
-
+@functools.cache
 def _try_testcontainers():
     """Return the testcontainers package or None if unavailable.
 
     We return the *module*, not specific containers, so callers decide
-    which sub-container (Postgres/Redis/NATS) they need. Cached per
-    process — test sessions don't bring Docker up and down.
+    which sub-container (Postgres/Redis/NATS) they need. ``functools.cache``
+    keeps the result for the life of the process — ``docker info`` is a
+    multi-hundred-millisecond subprocess and each session-scoped fixture
+    (pg_dsn, redis_url, nats_url) calls this helper.
     """
-    global _TC_CACHE
-    if _TC_CACHE is not _SENTINEL:
-        return _TC_CACHE
     if _force_local():
-        _TC_CACHE = None
         return None
     try:
         import testcontainers  # noqa: F401
     except ImportError:
-        _TC_CACHE = None
         return None
     try:
         subprocess.run(
@@ -90,11 +81,9 @@ def _try_testcontainers():
             timeout=3,
         )
     except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
-        _TC_CACHE = None
         return None
     import testcontainers
 
-    _TC_CACHE = testcontainers
     return testcontainers
 
 

@@ -428,11 +428,37 @@ services:
   host: weather-service
   port: 8092
   protocol: http
+  # Kong upstream path: backend routes live at /weather/X (no /api/v1 prefix).
+  # With `path: /weather` and `strip_path: true`, a request to
+  # /api/v1/weather/current becomes: strip "/api/v1/weather" → "/current",
+  # prepend service.path "/weather" → "/weather/current", which matches
+  # @app.post("/weather/current") in the backend.
+  path: /weather
   routes:
+  # Legacy "double weather" prefix used by the current web contract
+  # WEATHER_ENDPOINTS.KONG_CURRENT / KONG_FORECAST / KONG_AGRICULTURAL_REPORT
+  # in packages/shared-types/src/contracts/api-endpoints.ts. With the
+  # service.path prepend above, a naive single prefix would produce
+  # "/weather/weather/current" upstream (404). This more-specific route
+  # strips the full /api/v1/weather/weather so the remainder ("/current")
+  # gets "/weather" prepended once → /weather/current ✓. Kong picks this
+  # route over the single-prefix one below via longest-prefix match.
+  - name: weather-service-legacy-route
+    paths:
+    - /api/v1/weather/weather
+    strip_path: true
+    protocols:
+    - http
+    - https
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
   - name: weather-service-route
     paths:
     - /api/v1/weather
-    - /weather
     strip_path: true
     protocols:
     - http
@@ -465,11 +491,17 @@ services:
   routes:
   - name: advisory-service-route
     paths:
+    # Backend declares @app.post("/api/v1/advisory/..."), /api/v1/disease/...,
+    # /api/v1/fertilizer/..., /api/v1/crops, /api/v1/loans/..., /api/v1/actions
+    # and /api/v1/nutrient — all with the /api/v1 prefix already. Route every
+    # top-level namespace it owns through the same upstream.
     - /api/v1/advisory
+    - /api/v1/disease
     - /api/v1/fertilizer
-    - /advisory
-    - /fertilizer
-    strip_path: true
+    - /api/v1/nutrient
+    - /api/v1/loans/crop-loan-verification
+    - /api/v1/crop-catalog
+    strip_path: false  # backend routes already carry /api/v1 — don't strip
     protocols:
     - http
     - https
@@ -489,6 +521,20 @@ services:
       claims_to_verify:
       - exp
   routes:
+  # Schedules CRUD (new): backend mounts at /api/v1/irrigation/schedules;
+  # strip_path:false preserves the full path. Must come BEFORE the legacy
+  # /api/v1/irrigation route because Kong does longest-prefix match and
+  # the schedules prefix is more specific.
+  - name: irrigation-smart-schedules-route
+    paths:
+    - /api/v1/irrigation/schedules
+    strip_path: false
+    protocols:
+    - http
+    - https
+  # Legacy /v1/* routes (calculate, crops, methods, water-balance, ...)
+  # live at /v1/X in the backend with no /api prefix, so Kong must strip
+  # the /api/v1/irrigation match and forward /X.
   - name: irrigation-smart-route
     paths:
     - /api/v1/irrigation
@@ -562,8 +608,7 @@ services:
   - name: equipment-service-route
     paths:
     - /api/v1/equipment
-    - /equipment
-    strip_path: true
+    strip_path: false  # backend declares @app.get("/api/v1/equipment/...") — preserve the full path
     protocols:
     - http
     - https
@@ -606,8 +651,7 @@ services:
     paths:
     - /api/v1/tasks
     - /api/v1/task
-    - /task
-    strip_path: true
+    strip_path: false  # backend router has prefix="/api/v1/tasks"; strip_path:true would send "/" to backend and 404
     protocols:
     - http
     - https
@@ -820,6 +864,10 @@ services:
     protocols:
     - http
     - https
+    strip_path: true
+    protocols:
+    - http
+    - https
 - name: inventory-service
   host: inventory-service
   port: 8116
@@ -852,9 +900,15 @@ services:
   routes:
   - name: field-intelligence-route
     paths:
+    # Global /intelligence/* + /field-intelligence/{id} aggregate. The
+    # /api/v1/fields/{id}/intelligence/* endpoints need regex routing (Kong
+    # "~/..." syntax) to win over field-management-service's /api/v1/fields
+    # prefix; tracked separately. For now the aggregate route is the
+    # primary server-side entry — web can call /field-intelligence/{id}
+    # instead of the per-sub-resource paths.
+    - /api/v1/intelligence
     - /api/v1/field-intelligence
-    - /field-intelligence
-    strip_path: true
+    strip_path: false  # backend router mounts at /api/v1/... — preserve full path
     protocols:
     - http
     - https
@@ -933,8 +987,7 @@ services:
   - name: audit-service-route
     paths:
     - /api/v1/audit
-    - /audit
-    strip_path: true
+    strip_path: false  # backend declares @app.get("/api/v1/audit/...") — preserve the full path
     protocols:
     - http
     - https

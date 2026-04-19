@@ -17,7 +17,7 @@ import uuid
 from contextlib import asynccontextmanager
 from datetime import UTC, date, datetime, time, timedelta, timezone
 from enum import Enum, StrEnum
-from typing import Any
+from typing import Any, Literal
 
 import jwt
 import structlog
@@ -116,7 +116,7 @@ _tracer = setup_tracing("irrigation-smart")
 
 import re
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 sys.path.insert(0, "/app")
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
@@ -219,6 +219,42 @@ async def lifespan(app: FastAPI):
     """Application lifespan handler for startup/shutdown"""
     logger.info("Starting irrigation-smart service...")
 
+    # Optional DB pool — the core /v1/calculate endpoint is stateless and
+    # does not require a database, but the /api/v1/irrigation/schedules
+    # CRUD does. We fail-soft so the service still boots if DATABASE_URL
+    # is absent in dev/CI; the schedules endpoints then return 503.
+    #
+    # TLS: pass the DSN through shared.db.ssl.enforce_ssl_mode so prod /
+    # staging connections default to sslmode=require. The helper is a
+    # no-op when the DSN already specifies any sslmode, so explicit
+    # verify-full stays verify-full.
+    app.state.db_pool = None
+    database_url = os.getenv("DATABASE_URL")
+    if database_url:
+        try:
+            import asyncpg  # type: ignore[import-untyped]
+
+            try:
+                from shared.db.ssl import enforce_ssl_mode
+
+                database_url = enforce_ssl_mode(database_url)
+            except ImportError:
+                logger.warning("shared.db.ssl unavailable; DSN used as-is")
+
+            app.state.db_pool = await asyncpg.create_pool(
+                database_url,
+                min_size=2,
+                max_size=10,
+                command_timeout=30,
+                statement_cache_size=0,  # PgBouncer transaction-mode safe
+            )
+            logger.info("db_pool_ready")
+        except Exception as e:
+            logger.warning("db_pool_init_failed", error=str(e))
+            app.state.db_pool = None
+    else:
+        logger.info("DATABASE_URL not configured, schedule CRUD disabled")
+
     # Initialize NATS connection
     app.state.nc = None
     if NATS_AVAILABLE:
@@ -253,6 +289,10 @@ async def lifespan(app: FastAPI):
         await app.state.nc.close()
         logger.info("Closed NATS connection")
 
+    if hasattr(app.state, "db_pool") and app.state.db_pool:
+        await app.state.db_pool.close()
+        logger.info("Closed DB pool")
+
     logger.info("Shutdown irrigation-smart service complete")
 
 
@@ -267,6 +307,65 @@ _tracer.instrument_fastapi(app)
 # Setup unified error handling
 setup_exception_handlers(app)
 add_request_id_middleware(app)
+
+
+# ApiResponse envelope for HTTPException
+# -----------------------------------------------------------------------------
+# FastAPI's default HTTPException handler wraps the detail as
+# `{"detail": <value>}`, which breaks the canonical envelope expected by the
+# web client (`{success, error, errorAr, errorCode}` — see
+# packages/shared-types/src/contracts/api-responses.ts). Every HTTPException
+# raised anywhere in this service (including the legacy /v1/* routes and the
+# new /api/v1/irrigation/schedules CRUD) now goes through this handler so
+# clients get a consistent error shape.
+#
+# The detail is normalised in three shapes:
+#   - plain string       → `error` + `errorAr` (Ar falls back to En)
+#   - {error, error_ar}  → snake_case preserved as camelCase
+#   - other dict/list    → serialised into `error=str(detail)`
+@app.exception_handler(HTTPException)
+async def _http_exception_envelope(_req, exc: HTTPException):
+    from fastapi.responses import JSONResponse as _JR
+
+    detail = exc.detail
+    body: dict[str, Any] = {"success": False}
+    if isinstance(detail, str):
+        body["error"] = detail
+        body["errorAr"] = detail
+    elif isinstance(detail, dict):
+        # Named-error shape: {"error": "...", "error_ar": "...", ...}
+        if detail.get("error") or detail.get("message"):
+            body["error"] = detail.get("error") or detail.get("message")
+            body["errorAr"] = (
+                detail.get("error_ar") or detail.get("errorAr") or detail.get("message_ar") or body["error"]
+            )
+        # Validation-list shape: {"errors": [...], "error_ar": "..."} —
+        # used by _validate_sensor_ranges() and a handful of older call
+        # sites. We map it to a stable English message plus the same
+        # Arabic/errors payload the client already expects.
+        elif "errors" in detail:
+            body["error"] = "Validation error"
+            body["errorAr"] = detail.get("error_ar") or detail.get("errorAr") or "خطأ في التحقق من الصحة"
+        # Anything else: stringify as a last resort but tag it so clients
+        # can detect unexpected shapes.
+        else:
+            body["error"] = "Request failed"
+            body["errorAr"] = "فشل الطلب"
+            body["detail"] = detail
+        if detail.get("error_code") or detail.get("errorCode"):
+            body["errorCode"] = detail.get("error_code") or detail.get("errorCode")
+        # Forward any additional keys the caller attached (validActivities,
+        # errors list, field names, ...) at the top level so clients can
+        # surface them directly.
+        reserved = {"error", "error_ar", "errorAr", "message", "message_ar", "error_code", "errorCode"}
+        for key, value in detail.items():
+            if key not in reserved:
+                body.setdefault(key, value)
+    else:
+        body["error"] = str(detail)
+        body["errorAr"] = str(detail)
+    return _JR(status_code=exc.status_code, content=body, headers=exc.headers)
+
 
 # CORS middleware - use centralized config to prevent wildcard in production
 try:
@@ -1584,6 +1683,482 @@ def record_sensor_reading_with_action(
         "action_template": action.model_dump(),
         "task_card": action.to_task_card(),
     }
+
+
+# =============================================================================
+# Irrigation Schedule CRUD — /api/v1/irrigation/schedules
+#
+# Wires the existing `irrigation_schedules` table (see migrations/001) to the
+# HTTP surface that the web + mobile clients already expect (contracts at
+# packages/shared-types/src/contracts/api-endpoints.ts → IRRIGATION_ENDPOINTS).
+# All queries are tenant-scoped via the JWT; clients that want cross-field
+# listing pass no field_id, otherwise the list narrows to one field.
+# =============================================================================
+
+
+# Schedule request models accept BOTH the web client's camelCase contract
+# (`IrrigationScheduleCreate` at apps/web/src/lib/api/types.ts:347-357 →
+# fieldId/name/type/startDate/frequency/duration/waterAmount) AND the
+# legacy snake_case shape. Pydantic aliases do the work;
+# `populate_by_name=True` lets code construct with either style.
+#
+# The web type models RECURRING schedules (frequency/type) while the DB
+# stores per-event rows. We map the web model to the DB columns like this:
+#   - `startDate` (ISO datetime) → split into `irrigation_date` + `start_time`
+#   - `duration` (minutes) → `duration_minutes`
+#   - `waterAmount` → `water_amount_liters`
+#   - `name` → `notes` (the DB has no name column; `notes` carries it)
+#   - `type` and `frequency` → ignored by the per-event backend (single
+#     event per row); surfaced on the way back out so the web can still
+#     render them.
+
+
+# Literal types pinned to the DB CHECK constraints so Pydantic rejects
+# invalid values with 422 at the API boundary instead of Postgres 500.
+IrrigationScheduleType = Literal["manual", "automatic", "scheduled"]
+# Matches the web IrrigationFrequency union
+# (apps/web/src/lib/api/types.ts:318 → 'daily' | 'weekly' | 'custom').
+# 'once' is not in the contract, so /row_to_schedule synthesises 'custom'
+# for the per-event DB rows instead.
+IrrigationFrequency = Literal["daily", "weekly", "custom"]
+# Matches the web IrrigationStatus union
+# (apps/web/src/lib/api/types.ts:312 → 'active' | 'paused' | 'completed')
+# AND the CHECK in migrations/001_create_irrigation_schedules.sql.
+IrrigationStatusLit = Literal["active", "paused", "completed"]
+
+
+class ScheduleCreateRequest(BaseModel):
+    """POST payload. CamelCase aliases mirror web `IrrigationScheduleCreate`."""
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    field_id: str = Field(..., min_length=1, max_length=100, alias="fieldId")
+    plan_id: uuid.UUID | None = Field(default=None, alias="planId")
+    name: str | None = Field(default=None, max_length=200)
+    type: IrrigationScheduleType | None = Field(default=None)
+    frequency: IrrigationFrequency | None = Field(default=None)
+    # The web sends `startDate` as an ISO datetime; split into date + time
+    # server-side. We still accept `irrigation_date` + `start_time` as
+    # legacy aliases for older callers.
+    start_date: datetime | None = Field(default=None, alias="startDate")
+    irrigation_date: date | None = None
+    start_time: time | None = None
+    duration_minutes: int | None = Field(default=None, ge=1, le=24 * 60, alias="duration")
+    water_amount_liters: float | None = Field(default=None, ge=0, alias="waterAmount")
+    urgency: str | None = Field(default=None, max_length=20)
+    method: str | None = Field(default=None, max_length=50)
+    notes: str | None = Field(default=None, max_length=2000)
+
+    @model_validator(mode="after")
+    def _normalise_dates_and_required(self) -> "ScheduleCreateRequest":
+        """Split startDate → irrigation_date + start_time, and enforce
+        presence of the fields the DB needs."""
+        if self.start_date is not None:
+            dt = self.start_date
+            if dt.tzinfo is not None:
+                dt = dt.astimezone(UTC).replace(tzinfo=None)
+            if self.irrigation_date is None:
+                self.irrigation_date = dt.date()
+            if self.start_time is None:
+                self.start_time = dt.time().replace(microsecond=0)
+        # DB requires these on INSERT — they don't have defaults.
+        missing = [
+            name
+            for name, value in (
+                ("irrigation_date/startDate", self.irrigation_date),
+                ("duration/duration_minutes", self.duration_minutes),
+                ("waterAmount/water_amount_liters", self.water_amount_liters),
+            )
+            if value is None
+        ]
+        if missing:
+            raise ValueError(f"Missing required fields: {missing}")
+        return self
+
+
+class ScheduleUpdateRequest(BaseModel):
+    """Payload for PUT/PATCH /api/v1/irrigation/schedules/{id}.
+
+    Accepts the full web `IrrigationSchedule` edit surface so a client
+    can round-trip a row it got from GET straight back into an UPDATE.
+    The `fieldId`/`name`/`type`/`startDate`/`frequency` inputs are
+    mapped into the DB columns: `name` → `notes` (same column the
+    creation flow uses), `startDate` → `irrigation_date` + `start_time`,
+    and `fieldId`/`type`/`frequency` are accepted-but-ignored (the
+    per-event DB model has no recurrence / type column).
+
+    All fields optional in the "omit to skip" sense — `model_dump(
+    exclude_unset=True)` at the use site filters unset fields so only
+    the columns the client actually sent get touched. An EXPLICIT
+    ``null`` for any of `irrigation_date`, `duration_minutes`,
+    `water_amount_liters` would try to write NULL into a NOT-NULL
+    column (see migrations/001_create_irrigation_schedules.sql) and
+    fail on the DB side with a misleading 500. The validator below
+    rejects that case at the API boundary so clients get a clean 422
+    with a clear error instead.
+    """
+
+    model_config = ConfigDict(extra="forbid", populate_by_name=True)
+
+    # Web-facing camelCase fields — some translate into DB columns, some
+    # are accepted for round-trip compatibility and ignored on UPDATE.
+    field_id: str | None = Field(default=None, max_length=100, alias="fieldId")
+    name: str | None = Field(default=None, max_length=200)
+    type: IrrigationScheduleType | None = Field(default=None)
+    frequency: IrrigationFrequency | None = Field(default=None)
+    start_date: datetime | None = Field(default=None, alias="startDate")
+
+    # DB-column fields (snake_case primary, camelCase alias where the web
+    # contract uses a shorter name like duration / waterAmount).
+    irrigation_date: date | None = None
+    start_time: time | None = None
+    duration_minutes: int | None = Field(default=None, ge=1, le=24 * 60, alias="duration")
+    water_amount_liters: float | None = Field(default=None, ge=0, alias="waterAmount")
+    urgency: str | None = Field(default=None, max_length=20)
+    method: str | None = Field(default=None, max_length=50)
+    # `status` pinned to the CHECK-constraint enum; invalid values now 422.
+    status: IrrigationStatusLit | None = Field(default=None)
+    notes: str | None = Field(default=None, max_length=2000)
+
+    @model_validator(mode="after")
+    def _normalise_and_reject_nulls(self) -> "ScheduleUpdateRequest":
+        """Rewrite camelCase → DB column names, and reject explicit null
+        on NOT NULL columns.
+
+        Rewrites (all applied in-place so the UPDATE downstream sees only
+        DB columns):
+          - `startDate` (ISO datetime) → `irrigation_date` + `start_time`
+          - `name` → `notes` (unless `notes` was also sent — explicit wins)
+        The `fieldId` / `type` / `frequency` fields are intentionally
+        accepted but NOT written — the DB model doesn't carry them.
+
+        Uses `model_fields_set` (what the JSON payload actually
+        contained) to distinguish "field omitted" (default `None` →
+        skip) from "field sent as null" (explicit `None` → reject for
+        NOT NULL columns). Only the three columns declared NOT NULL in
+        the migration are guarded; nullable ones (notes / urgency /
+        method / status) accept explicit null.
+        """
+        # Rewrite startDate → DB columns if the client used the contract shape.
+        if "start_date" in self.model_fields_set and self.start_date is not None:
+            dt = self.start_date
+            if dt.tzinfo is not None:
+                dt = dt.astimezone(UTC).replace(tzinfo=None)
+            if "irrigation_date" not in self.model_fields_set:
+                self.irrigation_date = dt.date()
+                self.model_fields_set.add("irrigation_date")
+            if "start_time" not in self.model_fields_set:
+                self.start_time = dt.time().replace(microsecond=0)
+                self.model_fields_set.add("start_time")
+        # name → notes when the client didn't also send notes explicitly.
+        if "name" in self.model_fields_set and "notes" not in self.model_fields_set and self.name is not None:
+            self.notes = self.name
+            self.model_fields_set.add("notes")
+
+        notnull_cols = ("irrigation_date", "duration_minutes", "water_amount_liters")
+        sent_as_null = [col for col in notnull_cols if col in self.model_fields_set and getattr(self, col) is None]
+        if sent_as_null:
+            raise ValueError(f"Columns {sent_as_null} are NOT NULL; omit the field to skip, do not send null.")
+        return self
+
+
+def _require_db_pool():
+    """Raise 503 when the service was booted without a DATABASE_URL."""
+    pool = getattr(app.state, "db_pool", None)
+    if pool is None:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "error": "Database not configured",
+                "error_ar": "قاعدة البيانات غير مُهيّأة",
+            },
+        )
+    return pool
+
+
+def _row_to_schedule(row) -> dict:
+    """Map an asyncpg Record to the `IrrigationSchedule` shape the web
+    consumes (apps/web/src/lib/api/types.ts:323-345 — camelCase keys:
+    fieldId, name, type, status, startDate, frequency, duration,
+    waterAmount, createdAt, updatedAt). Snake_case aliases are emitted
+    alongside for legacy callers that still read them — harmless bloat
+    on the wire, same data under different keys.
+    """
+    irrigation_date_val = row["irrigation_date"]
+    start_time_val = row["start_time"]
+    created_at_val = row["created_at"]
+    updated_at_val = row["updated_at"]
+
+    # Compose an ISO datetime for the web's `startDate` from the DB's
+    # date + optional time. Time defaults to 00:00 when not recorded.
+    start_date_iso: str | None = None
+    if irrigation_date_val is not None:
+        tt = start_time_val if start_time_val is not None else time.min
+        combined = datetime.combine(irrigation_date_val, tt).replace(tzinfo=UTC)
+        start_date_iso = combined.isoformat()
+
+    notes = row["notes"]
+    method = row["method"]
+    duration_minutes = row["duration_minutes"]
+    water_amount_liters = float(row["water_amount_liters"])
+    irrigation_date_iso = irrigation_date_val.isoformat() if irrigation_date_val else None
+
+    return {
+        # Canonical camelCase shape per the web IrrigationSchedule interface.
+        "id": str(row["id"]),
+        "tenantId": str(row["tenant_id"]),
+        "fieldId": str(row["field_id"]),
+        "planId": str(row["plan_id"]) if row["plan_id"] is not None else None,
+        "name": notes if notes else (f"Irrigation {irrigation_date_iso}" if irrigation_date_iso else "Irrigation"),
+        # The per-event DB model doesn't have a `type`/`frequency`; the
+        # web IrrigationSchedule type requires both and both are unions:
+        # type ∈ {manual, automatic, scheduled}, frequency ∈ {daily,
+        # weekly, custom}. A single-event row has no recurrence, so
+        # `custom` is the closest honest value — 'once' would break the
+        # client's union check.
+        "type": "scheduled",
+        "frequency": "custom",
+        "status": row["status"],
+        "startDate": start_date_iso,
+        "scheduledAt": start_date_iso,  # legacy alias some UI components read
+        "duration": duration_minutes,
+        "waterAmount": water_amount_liters,
+        "urgency": row["urgency"],
+        "method": method,
+        "notes": notes,
+        "createdAt": created_at_val.isoformat() if created_at_val else None,
+        "updatedAt": updated_at_val.isoformat() if updated_at_val else None,
+        # Legacy snake_case aliases. New callers should read camelCase;
+        # dropping these on a future major bump is safe once grep is clean.
+        "tenant_id": str(row["tenant_id"]),
+        "field_id": str(row["field_id"]),
+        "plan_id": str(row["plan_id"]) if row["plan_id"] is not None else None,
+        "irrigation_date": irrigation_date_iso,
+        "start_time": start_time_val.isoformat() if start_time_val else None,
+        "duration_minutes": duration_minutes,
+        "water_amount_liters": water_amount_liters,
+        "created_at": created_at_val.isoformat() if created_at_val else None,
+        "updated_at": updated_at_val.isoformat() if updated_at_val else None,
+    }
+
+
+@app.get("/api/v1/irrigation/schedules")
+async def list_irrigation_schedules(
+    field_id: str | None = Query(default=None, max_length=100),
+    status_filter: str | None = Query(default=None, alias="status", max_length=30),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    user: dict = Depends(get_current_user),
+):
+    """List irrigation schedules for the caller's tenant."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+    if field_id is not None:
+        _validate_field_id(field_id)
+
+    sql_parts = ["SELECT * FROM irrigation_schedules WHERE tenant_id = $1"]
+    params: list[Any] = [tenant_id]
+    if field_id:
+        sql_parts.append(f"AND field_id = ${len(params) + 1}")
+        params.append(field_id)
+    if status_filter:
+        sql_parts.append(f"AND status = ${len(params) + 1}")
+        params.append(status_filter)
+    # Build the WHERE fragment once; COUNT + SELECT share identical filters
+    # so `pagination.total` reports total MATCHING rows (not just this page).
+    where_clause = " ".join(sql_parts).removeprefix("SELECT * FROM irrigation_schedules ")
+    count_sql = f"SELECT COUNT(*) AS c FROM irrigation_schedules {where_clause}"  # nosec B608 — where_clause is composed of literal fragments; values are parameterized
+    count_params = list(params)
+
+    sql_parts.append(
+        f"ORDER BY irrigation_date DESC, created_at DESC LIMIT ${len(params) + 1} OFFSET ${len(params) + 2}"
+    )
+    params.extend([limit, offset])
+    sql = " ".join(sql_parts)
+
+    async with pool.acquire() as conn:
+        total_row = await conn.fetchrow(count_sql, *count_params)
+        rows = await conn.fetch(sql, *params)
+    total = int(total_row["c"]) if total_row else 0
+    items = [_row_to_schedule(r) for r in rows]
+    return {
+        "success": True,
+        "data": items,
+        # Canonical `ApiResponse.pagination` shape (web expects `total` to
+        # be the MATCHING-rows count across all pages, not the page size).
+        "pagination": {
+            "total": total,
+            "page": (offset // limit) + 1 if limit else 1,
+            "limit": limit,
+            "offset": offset,
+            "hasMore": offset + len(items) < total,
+        },
+    }
+
+
+@app.post("/api/v1/irrigation/schedules", status_code=201)
+async def create_irrigation_schedule(
+    payload: ScheduleCreateRequest,
+    user: dict = Depends(get_current_user),
+):
+    """Create an irrigation schedule row."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+    _validate_field_id(payload.field_id)
+
+    schedule_id = uuid.uuid4()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            """
+            INSERT INTO irrigation_schedules (
+                id, tenant_id, field_id, plan_id, irrigation_date, start_time,
+                duration_minutes, water_amount_liters, urgency, method, notes
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            RETURNING *
+            """,
+            schedule_id,
+            tenant_id,
+            payload.field_id,
+            payload.plan_id,  # already uuid.UUID | None after Pydantic parse
+            payload.irrigation_date,
+            payload.start_time,
+            payload.duration_minutes,
+            payload.water_amount_liters,
+            payload.urgency,
+            payload.method,
+            # `notes` carries the web `name` field — we prefer `notes` if
+            # both came in, otherwise fall back to name so the row has a
+            # human label even when the caller only sent `name`.
+            payload.notes or payload.name,
+        )
+    return {"success": True, "data": _row_to_schedule(row)}
+
+
+@app.get("/api/v1/irrigation/schedules/{schedule_id}")
+async def get_irrigation_schedule(
+    schedule_id: uuid.UUID,
+    user: dict = Depends(get_current_user),
+):
+    """Fetch a single schedule; tenant-scoped so cross-tenant IDs 404."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow(
+            "SELECT * FROM irrigation_schedules WHERE id = $1 AND tenant_id = $2",
+            schedule_id,
+            tenant_id,
+        )
+    if not row:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return {"success": True, "data": _row_to_schedule(row)}
+
+
+# Allowlist of columns the PUT endpoint is permitted to update. Built
+# once at module import so Bandit can prove the SET clause below is
+# composed of literal identifiers (not user input) — the keys come from
+# Pydantic `ScheduleUpdateRequest` which already rejects `extra` fields,
+# but the allowlist makes the guarantee visible to static analyzers.
+_SCHEDULE_UPDATABLE_COLUMNS: frozenset[str] = frozenset(
+    {
+        "irrigation_date",
+        "start_time",
+        "duration_minutes",
+        "water_amount_liters",
+        "urgency",
+        "method",
+        "status",
+        "notes",
+    }
+)
+
+
+# Web uses PATCH for partial schedule updates
+# (apps/web/src/features/irrigation/api.ts:77 `api.patch(url, data)`). Keep the
+# PUT route too so either verb works; the handler body is the only logic.
+@app.patch("/api/v1/irrigation/schedules/{schedule_id}")
+@app.put("/api/v1/irrigation/schedules/{schedule_id}")
+async def update_irrigation_schedule(
+    schedule_id: uuid.UUID,
+    payload: ScheduleUpdateRequest,
+    user: dict = Depends(get_current_user),
+):
+    """Partial update; only columns that were explicitly sent get touched.
+
+    Empty payload is treated as a NO-OP: we return the current row so
+    the client's optimistic UI can retry or dry-run without erroring.
+    """
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+
+    # Build SET clause from only the fields the client actually sent,
+    # intersected with the allowlist. The request model accepts several
+    # write-only fields (`fieldId`, `type`, `frequency`, `start_date`,
+    # `name`) for round-trip compatibility with the web contract — those
+    # are NOT DB columns, so we filter them out here rather than rejecting
+    # the request. Anything else unexpected IS a bug and we fail closed.
+    raw_updates = payload.model_dump(exclude_unset=True)
+    write_only = {"field_id", "type", "frequency", "start_date", "name"}
+    updates = {k: v for k, v in raw_updates.items() if k not in write_only}
+
+    async with pool.acquire() as conn:
+        if not updates:
+            # No DB-column fields actually changed → return the current row
+            # unchanged so the client's optimistic update still gets a
+            # response (not a 400). This also keeps idempotent retries
+            # cheap: the UI can re-send the same PUT payload after a
+            # network hiccup and see the exact same body.
+            row = await conn.fetchrow(
+                "SELECT * FROM irrigation_schedules WHERE id = $1 AND tenant_id = $2",
+                schedule_id,
+                tenant_id,
+            )
+            if not row:
+                raise HTTPException(status_code=404, detail="Schedule not found")
+            return {"success": True, "data": _row_to_schedule(row)}
+
+        set_parts: list[str] = []
+        params: list[Any] = []
+        for key, value in updates.items():
+            if key not in _SCHEDULE_UPDATABLE_COLUMNS:
+                # Server bug: Pydantic let a non-allowlisted key through.
+                raise HTTPException(status_code=400, detail=f"Field '{key}' is not updatable")
+            set_parts.append(f"{key} = ${len(params) + 1}")
+            params.append(value)
+        set_parts.append("updated_at = NOW()")
+        params.extend([schedule_id, tenant_id])
+
+        # `set_parts` is composed exclusively from allowlisted column names
+        # above; user-supplied VALUES are bound via asyncpg's $N placeholders.
+        sql = (
+            f"UPDATE irrigation_schedules SET {', '.join(set_parts)} "  # nosec B608 — allowlisted identifiers
+            f"WHERE id = ${len(params) - 1} AND tenant_id = ${len(params)} "
+            f"RETURNING *"
+        )
+        row = await conn.fetchrow(sql, *params)
+    if not row:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return {"success": True, "data": _row_to_schedule(row)}
+
+
+@app.delete("/api/v1/irrigation/schedules/{schedule_id}", status_code=204)
+async def delete_irrigation_schedule(
+    schedule_id: uuid.UUID,
+    user: dict = Depends(get_current_user),
+):
+    """Hard-delete a schedule row."""
+    pool = _require_db_pool()
+    tenant_id = _validate_tenant_id(user)
+
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            "DELETE FROM irrigation_schedules WHERE id = $1 AND tenant_id = $2",
+            schedule_id,
+            tenant_id,
+        )
+    if result == "DELETE 0":
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return None
 
 
 if __name__ == "__main__":

@@ -211,13 +211,15 @@ class TestEagerInitEscapeHatch:
         from src.main import lifespan
 
         # Patch out network-heavy pieces so only our integration init runs
-        with patch("src.main.REDIS_AVAILABLE", False), patch("src.main.NATS_AVAILABLE", False), patch(
-            "src.main.ASYNCPG_AVAILABLE", False
-        ), patch("src.main.NLPService") as MockNLP, patch("src.main.SatelliteService") as MockSat, patch(
-            "src.main.MLService"
-        ) as MockML, patch(
-            "src.main.CrewService"
-        ) as MockCrew:
+        with (
+            patch("src.main.REDIS_AVAILABLE", False),
+            patch("src.main.NATS_AVAILABLE", False),
+            patch("src.main.ASYNCPG_AVAILABLE", False),
+            patch("src.main.NLPService") as MockNLP,
+            patch("src.main.SatelliteService") as MockSat,
+            patch("src.main.MLService") as MockML,
+            patch("src.main.CrewService") as MockCrew,
+        ):
             for mock_cls in (MockNLP, MockSat, MockML, MockCrew):
                 instance = mock_cls.return_value
                 instance.initialize = AsyncMock(return_value=True)

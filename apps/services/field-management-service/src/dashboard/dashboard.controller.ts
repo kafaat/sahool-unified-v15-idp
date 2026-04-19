@@ -33,7 +33,9 @@ export class DashboardController {
     // alert-service lives behind a different DB and a cross-service
     // join in a dashboard widget is overkill.
     const [totalFields, activeTasks, completedTasks, activeAlerts] = await Promise.all([
-      this.prisma.field.count({ where: { tenantId, deletedAt: null } }),
+      // Field model has no soft-delete column; "total fields" means
+      // non-inactive rows for this tenant.
+      this.prisma.field.count({ where: { tenantId, NOT: { status: "inactive" } } }),
       this.prisma.task.count({ where: { tenantId, status: "pending" } }),
       this.prisma.task.count({ where: { tenantId, status: "completed" } }),
       this.prisma.task.count({

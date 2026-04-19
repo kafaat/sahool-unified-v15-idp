@@ -1558,12 +1558,8 @@ def _serialize_notification(n) -> dict:
         "channel": data.get("channel"),
         "metadata": n.data,
         "actionUrl": n.action_url,
-        "createdAt": (
-            n.created_at.isoformat() if hasattr(n.created_at, "isoformat") else n.created_at
-        ),
-        "readAt": (
-            n.read_at.isoformat() if n.read_at and hasattr(n.read_at, "isoformat") else n.read_at
-        ),
+        "createdAt": (n.created_at.isoformat() if hasattr(n.created_at, "isoformat") else n.created_at),
+        "readAt": (n.read_at.isoformat() if n.read_at and hasattr(n.read_at, "isoformat") else n.read_at),
     }
 
 

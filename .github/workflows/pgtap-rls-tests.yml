@@ -20,7 +20,7 @@ on:
       - '.github/workflows/pgtap-rls-tests.yml'
   workflow_dispatch:
   schedule:
-    - cron: '0 4 * * 2'  # Tuesday 04:00 UTC — belt-and-braces nightly check.
+    - cron: '0 4 * * 2'  # Tuesday 04:00 UTC — belt-and-braces weekly check.
 
 permissions:
   contents: read
@@ -61,35 +61,39 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Install pgTAP extension and pg_prove
+      - name: Install runner-side tools (psql + pg_prove)
         run: |
           set -euo pipefail
-          sudo apt-get update
-          # pg_prove (TAP runner) ships with the perl parser package.
+          sudo apt-get update -qq
+          # psql → talk to the service container.
+          # libtap-parser-sourcehandler-pgtap-perl → ships pg_prove, the TAP runner.
           sudo apt-get install -y --no-install-recommends \
             postgresql-client-16 \
-            pgtap \
             libtap-parser-sourcehandler-pgtap-perl
           pg_prove --version
           psql --version
 
-      - name: Install pgTAP into the server container
-        # The service container ships without pgTAP, so we install the SQL
-        # definitions the client-side package provides, then CREATE EXTENSION.
+      - name: Install pgTAP extension inside the postgres container
+        # Extension files must live on the server, not the runner. The simplest
+        # robust path is to apt-install ``postgresql-16-pgtap`` directly inside
+        # the postgis/postgis:16-3.4 service container and then CREATE EXTENSION.
         run: |
           set -euo pipefail
-          # Find the pgtap SQL files provided by the apt package.
-          PGTAP_SQL=$(dpkg -L pgtap | grep -E 'pgtap.*\.sql$' | head -1)
-          if [ -z "$PGTAP_SQL" ]; then
-            echo "::error::pgTAP SQL not found in installed package"
+          CID=$(docker ps \
+            --filter "ancestor=postgis/postgis:16-3.4" \
+            --format "{{.ID}}" | head -1)
+          if [ -z "$CID" ]; then
+            echo "::error::postgres service container not found"
+            docker ps
             exit 1
           fi
-          echo "Loading pgTAP from $PGTAP_SQL"
+          echo "Installing postgresql-16-pgtap inside container $CID"
+          docker exec -u 0 "$CID" bash -c \
+            "apt-get update -qq && apt-get install -y --no-install-recommends postgresql-16-pgtap"
           PGPASSWORD="$PGPASSWORD" psql \
             -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PG_DB" \
-            -v ON_ERROR_STOP=1 -f "$PGTAP_SQL"
-          PGPASSWORD="$PGPASSWORD" psql \
-            -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d "$PG_DB" \
+            -v ON_ERROR_STOP=1 \
+            -c "CREATE EXTENSION IF NOT EXISTS pgtap;" \
             -c "SELECT pgtap_version();"
 
       - name: Run pgTAP suite

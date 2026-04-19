@@ -699,8 +699,8 @@ components:
           title: Limits
         trial_days:
           type: integer
-          maximum: 365.0
-          minimum: 0.0
+          maximum: 365
+          minimum: 0
           title: Trial Days
           default: 14
       type: object
@@ -803,8 +803,8 @@ components:
           title: Metric
         quantity:
           type: integer
-          maximum: 100000.0
-          exclusiveMinimum: 0.0
+          maximum: 100000
+          exclusiveMinimum: 0
           title: Quantity
           default: 1
         metadata:

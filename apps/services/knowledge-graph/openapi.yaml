@@ -1238,8 +1238,8 @@ components:
         severity_level:
           anyOf:
           - type: integer
-            maximum: 10.0
-            minimum: 1.0
+            maximum: 10
+            minimum: 1
           - type: 'null'
           title: Severity Level
           description: Severity level (1-10)
@@ -1391,8 +1391,8 @@ components:
         safety_level:
           anyOf:
           - type: integer
-            maximum: 5.0
-            minimum: 1.0
+            maximum: 5
+            minimum: 1
           - type: 'null'
           title: Safety Level
           description: Safety level (1=very safe, 5=dangerous)

@@ -3460,8 +3460,8 @@ components:
           description: تاريخ الزراعة
         days:
           type: integer
-          maximum: 365.0
-          minimum: 14.0
+          maximum: 365
+          minimum: 14
           title: Days
           default: 60
         publish_event:

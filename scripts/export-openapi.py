@@ -123,7 +123,44 @@ def extract_openapi(service_dir: Path) -> dict[str, Any]:
 
     if not isinstance(schema, dict):
         raise TypeError(f"{service_name}: app.openapi() returned {type(schema).__name__}")
+    _normalise_integer_bounds(schema)
     return schema
+
+
+# Keywords where a numeric value must match the declared ``type`` for the
+# schema to be strictly valid JSON Schema / OpenAPI 3.1. FastAPI sometimes
+# emits them as integer-valued floats (``365.0``) on ``type: integer``
+# fields, which several validators flag as a schema error.
+_INTEGER_BOUND_KEYS = ("minimum", "maximum", "exclusiveMinimum", "exclusiveMaximum", "multipleOf")
+
+
+def _is_integer_type(t: Any) -> bool:
+    """Return True if the schema's ``type`` is (or includes) ``integer``."""
+    if t == "integer":
+        return True
+    if isinstance(t, list) and "integer" in t:
+        return True
+    return False
+
+
+def _normalise_integer_bounds(node: Any) -> None:
+    """Recursively coerce integer-valued floats on ``type: integer`` fields.
+
+    Only the five numeric bound keywords are touched, and only when the value
+    is a float whose fractional part is zero — fractional values get left
+    alone so a real schema bug still surfaces.
+    """
+    if isinstance(node, dict):
+        if _is_integer_type(node.get("type")):
+            for key in _INTEGER_BOUND_KEYS:
+                val = node.get(key)
+                if isinstance(val, float) and val.is_integer():
+                    node[key] = int(val)
+        for v in node.values():
+            _normalise_integer_bounds(v)
+    elif isinstance(node, list):
+        for item in node:
+            _normalise_integer_bounds(item)
 
 
 def write_spec(service_dir: Path, schema: dict[str, Any], fmt: str) -> Path:

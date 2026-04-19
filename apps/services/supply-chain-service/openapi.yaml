@@ -1308,12 +1308,12 @@ components:
           description: Supplier rating (0-5)
         total_reviews:
           type: integer
-          minimum: 0.0
+          minimum: 0
           title: Total Reviews
           default: 0
         delivery_time_days:
           type: integer
-          minimum: 1.0
+          minimum: 1
           title: Delivery Time Days
           description: Average delivery time in days
         products:
@@ -1469,7 +1469,7 @@ components:
           description: Total price in SAR
         delivery_days:
           type: integer
-          minimum: 1.0
+          minimum: 1
           title: Delivery Days
         availability:
           type: string

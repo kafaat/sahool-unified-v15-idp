@@ -446,8 +446,8 @@ components:
           description: Test framework
         coverage_target:
           type: integer
-          maximum: 100.0
-          minimum: 0.0
+          maximum: 100
+          minimum: 0
           title: Coverage Target
           description: Coverage target
           default: 80

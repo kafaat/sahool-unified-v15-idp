@@ -704,8 +704,8 @@ components:
           title: Requested Loan Amount Sar
         loan_term_months:
           type: integer
-          maximum: 120.0
-          minimum: 1.0
+          maximum: 120
+          minimum: 1
           title: Loan Term Months
           default: 12
         language:

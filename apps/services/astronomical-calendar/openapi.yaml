@@ -1219,8 +1219,8 @@ components:
           description: الموسم
         overall_farming_score:
           type: integer
-          maximum: 10.0
-          minimum: 1.0
+          maximum: 10
+          minimum: 1
           title: Overall Farming Score
           description: درجة الزراعة الإجمالية
         recommendations:
@@ -1253,8 +1253,8 @@ components:
           description: مدى الملاءمة
         suitability_score:
           type: integer
-          maximum: 10.0
-          minimum: 1.0
+          maximum: 10
+          minimum: 1
           title: Suitability Score
           description: درجة الملاءمة
         reason:
@@ -1292,14 +1292,14 @@ components:
           description: السنة الهجرية
         month:
           type: integer
-          maximum: 12.0
-          minimum: 1.0
+          maximum: 12
+          minimum: 1
           title: Month
           description: الشهر
         day:
           type: integer
-          maximum: 30.0
-          minimum: 1.0
+          maximum: 30
+          minimum: 1
           title: Day
           description: اليوم
         month_name:
@@ -1328,8 +1328,8 @@ components:
       properties:
         number:
           type: integer
-          maximum: 28.0
-          minimum: 1.0
+          maximum: 28
+          minimum: 1
           title: Number
           description: رقم المنزلة
         name:
@@ -1358,8 +1358,8 @@ components:
           description: حالة الزراعة
         farming_score:
           type: integer
-          maximum: 10.0
-          minimum: 1.0
+          maximum: 10
+          minimum: 1
           title: Farming Score
           description: درجة ملاءمة الزراعة
         crops:
@@ -1567,8 +1567,8 @@ components:
           description: الخصوبة
         score:
           type: integer
-          maximum: 10.0
-          minimum: 1.0
+          maximum: 10
+          minimum: 1
           title: Score
           description: درجة ملاءمة الزراعة
       type: object

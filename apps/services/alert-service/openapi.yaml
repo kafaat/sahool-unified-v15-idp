@@ -915,8 +915,8 @@ components:
           $ref: '#/components/schemas/AlertRuleConfig'
         cooldown_hours:
           type: integer
-          maximum: 168.0
-          minimum: 0.0
+          maximum: 168
+          minimum: 0
           title: Cooldown Hours
           description: فترة الانتظار بالساعات
           default: 24
@@ -1165,7 +1165,7 @@ components:
         duration_minutes:
           anyOf:
           - type: integer
-            minimum: 0.0
+            minimum: 0
           - type: 'null'
           title: Duration Minutes
           description: المدة بالدقائق قبل الإطلاق

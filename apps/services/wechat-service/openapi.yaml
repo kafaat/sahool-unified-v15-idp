@@ -424,8 +424,8 @@ components:
           - action_items
         time_range_hours:
           type: integer
-          maximum: 168.0
-          minimum: 1.0
+          maximum: 168
+          minimum: 1
           title: Time Range Hours
           description: Hours to analyze | ساعات التحليل
           default: 24
@@ -504,15 +504,15 @@ components:
           description: Tenant ID | معرف المستأجر
         time_range_hours:
           type: integer
-          maximum: 168.0
-          minimum: 1.0
+          maximum: 168
+          minimum: 1
           title: Time Range Hours
           description: Hours of chat to summarize | ساعات المحادثة للتلخيص
           default: 24
         max_messages:
           type: integer
-          maximum: 2000.0
-          minimum: 10.0
+          maximum: 2000
+          minimum: 10
           title: Max Messages
           description: Maximum messages to analyze | الحد الأقصى للرسائل
           default: 500
@@ -808,8 +808,8 @@ components:
           description: Tenant ID | معرف المستأجر
         limit:
           type: integer
-          maximum: 200.0
-          minimum: 1.0
+          maximum: 200
+          minimum: 1
           title: Limit
           description: Maximum messages to fetch | الحد الأقصى للرسائل
           default: 50

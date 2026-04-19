@@ -118,14 +118,31 @@ jobs:
           python3 scripts/export-openapi.py \
             --summary-json /tmp/openapi-summary.json
 
-      - name: Fail if any committed spec drifted
+      - name: Fail if any exporter-produced spec drifted
+        # Only diff specs the exporter actually regenerated in this run. A
+        # service the exporter cannot import (missing heavy runtime deps, or
+        # a hand-authored spec like crop-intelligence-service) would otherwise
+        # make the check fail for reasons unrelated to the PR's changes.
         run: |
           set -euo pipefail
-          if ! git diff --exit-code -- 'apps/services/*/openapi.yaml'; then
+          mapfile -t REGENERATED < <(python3 -c '
+          import json, pathlib
+          s = json.load(open("/tmp/openapi-summary.json"))
+          for name in s["exported"]:
+              p = pathlib.Path("apps/services") / name / "openapi.yaml"
+              if p.exists():
+                  print(p)
+          ')
+          echo "Checking drift on ${#REGENERATED[@]} exporter-produced spec(s)"
+          if [ "${#REGENERATED[@]}" -eq 0 ]; then
+            echo "::error::Exporter produced no specs — aborting (environment issue)"
+            exit 1
+          fi
+          if ! git diff --exit-code -- "${REGENERATED[@]}"; then
             echo "::error::OpenAPI specs are out of date. Run 'python3 scripts/export-openapi.py' and commit the result."
             exit 1
           fi
-          echo "✓ all committed specs match the exporter output"
+          echo "✓ all regenerated specs match the committed copies"
 
       - name: Upload export summary
         if: always()

@@ -628,8 +628,8 @@ components:
           title: Start Date
         days:
           type: integer
-          maximum: 365.0
-          minimum: 1.0
+          maximum: 365
+          minimum: 1
           title: Days
           default: 30
         field_area_ha:

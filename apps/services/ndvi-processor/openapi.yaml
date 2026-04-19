@@ -743,13 +743,13 @@ components:
           title: Field Id
         year:
           type: integer
-          maximum: 2100.0
-          minimum: 2000.0
+          maximum: 2100
+          minimum: 2000
           title: Year
         month:
           type: integer
-          maximum: 12.0
-          minimum: 1.0
+          maximum: 12
+          minimum: 1
           title: Month
         method:
           $ref: '#/components/schemas/CompositeMethod'
@@ -901,8 +901,8 @@ components:
           $ref: '#/components/schemas/JobStatus'
         progress_percent:
           type: integer
-          maximum: 100.0
-          minimum: 0.0
+          maximum: 100
+          minimum: 0
           title: Progress Percent
         parameters:
           additionalProperties: true
@@ -1022,8 +1022,8 @@ components:
           - type: 'null'
         priority:
           type: integer
-          maximum: 10.0
-          minimum: 1.0
+          maximum: 10
+          minimum: 1
           title: Priority
           default: 5
         callback_url:
@@ -1042,8 +1042,8 @@ components:
       properties:
         cloud_threshold_percent:
           type: integer
-          maximum: 100.0
-          minimum: 0.0
+          maximum: 100
+          minimum: 0
           title: Cloud Threshold Percent
           default: 20
         atmospheric_correction:

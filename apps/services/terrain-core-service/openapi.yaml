@@ -778,8 +778,8 @@ components:
           description: Mean annual precipitation (mm) | الهطول السنوي
         rainy_days_per_year:
           type: integer
-          maximum: 365.0
-          minimum: 0.0
+          maximum: 365
+          minimum: 0
           title: Rainy Days Per Year
           description: Mean rainy days per year | عدد الأيام الممطرة سنوياً
         cover_type:
@@ -1421,8 +1421,8 @@ components:
           description: Mean annual precipitation (mm)
         rainy_days_per_year:
           type: integer
-          maximum: 365.0
-          minimum: 0.0
+          maximum: 365
+          minimum: 0
           title: Rainy Days Per Year
           description: Mean rainy days per year
         cover_type:

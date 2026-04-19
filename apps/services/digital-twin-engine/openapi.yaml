@@ -262,8 +262,8 @@ components:
           $ref: '#/components/schemas/FieldState'
         days:
           type: integer
-          maximum: 365.0
-          minimum: 1.0
+          maximum: 365
+          minimum: 1
           title: Days
           default: 90
         objectives:
@@ -385,8 +385,8 @@ components:
           $ref: '#/components/schemas/FieldState'
         days:
           type: integer
-          maximum: 365.0
-          minimum: 1.0
+          maximum: 365
+          minimum: 1
           title: Days
           default: 90
         scenarios:
@@ -480,8 +480,8 @@ components:
           $ref: '#/components/schemas/FieldState'
         days_to_simulate:
           type: integer
-          maximum: 365.0
-          minimum: 1.0
+          maximum: 365
+          minimum: 1
           title: Days To Simulate
           default: 30
         irrigation_schedule:

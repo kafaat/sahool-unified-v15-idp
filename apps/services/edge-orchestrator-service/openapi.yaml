@@ -1220,7 +1220,7 @@ components:
           default: 0.0
         uptime_seconds:
           type: integer
-          minimum: 0.0
+          minimum: 0
           title: Uptime Seconds
           default: 0
         inference_fps:
@@ -1526,18 +1526,18 @@ components:
           description: Total count | العدد الإجمالي
         page:
           type: integer
-          minimum: 1.0
+          minimum: 1
           title: Page
           default: 1
         page_size:
           type: integer
-          maximum: 100.0
-          minimum: 1.0
+          maximum: 100
+          minimum: 1
           title: Page Size
           default: 20
         pages:
           type: integer
-          minimum: 1.0
+          minimum: 1
           title: Pages
           default: 1
       type: object
@@ -1763,18 +1763,18 @@ components:
           title: Total
         page:
           type: integer
-          minimum: 1.0
+          minimum: 1
           title: Page
           default: 1
         page_size:
           type: integer
-          maximum: 100.0
-          minimum: 1.0
+          maximum: 100
+          minimum: 1
           title: Page Size
           default: 20
         pages:
           type: integer
-          minimum: 1.0
+          minimum: 1
           title: Pages
           default: 1
       type: object
@@ -1863,8 +1863,8 @@ components:
           default: 0.5
         max_detections:
           type: integer
-          maximum: 1000.0
-          minimum: 1.0
+          maximum: 1000
+          minimum: 1
           title: Max Detections
           default: 100
         input_source:
@@ -1885,14 +1885,14 @@ components:
           default: false
         batch_size:
           type: integer
-          maximum: 32.0
-          minimum: 1.0
+          maximum: 32
+          minimum: 1
           title: Batch Size
           default: 1
         timeout_seconds:
           type: integer
-          maximum: 3600.0
-          minimum: 1.0
+          maximum: 3600
+          minimum: 1
           title: Timeout Seconds
           default: 300
       additionalProperties: true

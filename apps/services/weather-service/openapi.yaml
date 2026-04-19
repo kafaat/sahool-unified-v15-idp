@@ -639,8 +639,8 @@ components:
           description: Total ET0 mm
         days:
           type: integer
-          maximum: 365.0
-          minimum: 1.0
+          maximum: 365
+          minimum: 1
           title: Days
           description: Period in days
           default: 30
@@ -1103,8 +1103,8 @@ components:
           title: Lon
         days:
           type: integer
-          maximum: 90.0
-          minimum: 1.0
+          maximum: 90
+          minimum: 1
           title: Days
           default: 14
         metric:

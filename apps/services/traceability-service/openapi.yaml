@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: Traceability Service
-  description: Product traceability and supply chain tracking - تتبع المنتجات وسلسلة
-    التوريد
+  description: Product traceability and supply chain tracking - تتبع المنتجات وسلسلة التوريد
   version: 16.0.0
 paths:
   /api/v1/traceability/anchors/{tenant_id}/{field_id}:

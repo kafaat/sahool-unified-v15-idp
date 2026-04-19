@@ -1,17 +1,7 @@
 openapi: 3.1.0
 info:
   title: Supply Chain Service | خدمة سلسلة التوريد
-  description: "\n## Supply Chain Service\n\nConnects farmers to agricultural suppliers\
-    \ for auto-purchasing based on advisory recommendations.\n\n### Features | الميزات\n\
-    \n- **Product Catalog** | كتالوج المنتجات: Browse agricultural supplies\n- **Supplier\
-    \ Management** | إدارة الموردين: Find and compare suppliers\n- **Order Management**\
-    \ | إدارة الطلبات: Create and track orders\n- **Auto-Purchase** | الشراء التلقائي:\
-    \ Automatic purchasing from recommendations\n- **Delivery Tracking** | تتبع التوصيل:\
-    \ Real-time delivery tracking\n\n### API Endpoints | نقاط الوصول\n\n- `/api/v1/products`\
-    \ - Product catalog operations\n- `/api/v1/suppliers` - Supplier management\n\
-    - `/api/v1/orders` - Order management\n- `/api/v1/auto-purchase` - Auto-purchase\
-    \ features\n\n---\n\n## خدمة سلسلة التوريد\n\nتربط المزارعين بموردي المستلزمات\
-    \ الزراعية للشراء التلقائي بناءً على التوصيات الاستشارية.\n    "
+  description: "\n## Supply Chain Service\n\nConnects farmers to agricultural suppliers for auto-purchasing based on advisory recommendations.\n\n### Features | الميزات\n\n- **Product Catalog** | كتالوج المنتجات: Browse agricultural supplies\n- **Supplier Management** | إدارة الموردين: Find and compare suppliers\n- **Order Management** | إدارة الطلبات: Create and track orders\n- **Auto-Purchase** | الشراء التلقائي: Automatic purchasing from recommendations\n- **Delivery Tracking** | تتبع التوصيل: Real-time delivery tracking\n\n### API Endpoints | نقاط الوصول\n\n- `/api/v1/products` - Product catalog operations\n- `/api/v1/suppliers` - Supplier management\n- `/api/v1/orders` - Order management\n- `/api/v1/auto-purchase` - Auto-purchase features\n\n---\n\n## خدمة سلسلة التوريد\n\nتربط المزارعين بموردي المستلزمات الزراعية للشراء التلقائي بناءً على التوصيات الاستشارية.\n    "
   version: 16.0.0
 paths:
   /api/v1/products:
@@ -19,8 +9,7 @@ paths:
       tags:
       - products
       summary: List Products | قائمة المنتجات
-      description: Get a paginated list of available agricultural products. احصل على
-        قائمة مُرقمة بالمنتجات الزراعية المتاحة.
+      description: Get a paginated list of available agricultural products. احصل على قائمة مُرقمة بالمنتجات الزراعية المتاحة.
       operationId: list_products_api_v1_products_get
       security:
       - OAuth2PasswordBearer: []
@@ -93,8 +82,7 @@ paths:
       tags:
       - products
       summary: Search Products | البحث عن المنتجات
-      description: Search products by name, category, or description. البحث عن المنتجات
-        بالاسم أو الفئة أو الوصف.
+      description: Search products by name, category, or description. البحث عن المنتجات بالاسم أو الفئة أو الوصف.
       operationId: search_products_api_v1_products_search_get
       security:
       - OAuth2PasswordBearer: []
@@ -175,8 +163,7 @@ paths:
       tags:
       - products
       summary: Get Product | الحصول على منتج
-      description: Get detailed information about a specific product. الحصول على معلومات
-        تفصيلية عن منتج محدد.
+      description: Get detailed information about a specific product. الحصول على معلومات تفصيلية عن منتج محدد.
       operationId: get_product_api_v1_products__product_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -206,8 +193,7 @@ paths:
       tags:
       - suppliers
       summary: List Suppliers | قائمة الموردين
-      description: Get a paginated list of agricultural suppliers. احصل على قائمة
-        مُرقمة بالموردين الزراعيين.
+      description: Get a paginated list of agricultural suppliers. احصل على قائمة مُرقمة بالموردين الزراعيين.
       operationId: list_suppliers_api_v1_suppliers_get
       security:
       - OAuth2PasswordBearer: []
@@ -269,8 +255,7 @@ paths:
       tags:
       - suppliers
       summary: Find Nearby Suppliers | العثور على موردين قريبين
-      description: Find suppliers near a specific location. العثور على موردين بالقرب
-        من موقع محدد.
+      description: Find suppliers near a specific location. العثور على موردين بالقرب من موقع محدد.
       operationId: find_nearby_suppliers_api_v1_suppliers_nearby_get
       parameters:
       - name: latitude
@@ -349,8 +334,7 @@ paths:
       tags:
       - suppliers
       summary: Get Supplier | الحصول على مورد
-      description: Get detailed information about a specific supplier. الحصول على
-        معلومات تفصيلية عن مورد محدد.
+      description: Get detailed information about a specific supplier. الحصول على معلومات تفصيلية عن مورد محدد.
       operationId: get_supplier_api_v1_suppliers__supplier_id__get
       parameters:
       - name: supplier_id
@@ -378,8 +362,7 @@ paths:
       tags:
       - suppliers
       summary: Request Quote | طلب عرض سعر
-      description: Request a quote from a supplier for a specific product. طلب عرض
-        سعر من مورد لمنتج محدد.
+      description: Request a quote from a supplier for a specific product. طلب عرض سعر من مورد لمنتج محدد.
       operationId: request_quote_api_v1_suppliers__supplier_id__quote_post
       parameters:
       - name: supplier_id
@@ -580,8 +563,7 @@ paths:
       tags:
       - auto-purchase
       summary: Auto-Purchase from Recommendation | الشراء التلقائي من التوصية
-      description: Automatically create an order based on an advisory recommendation.
-        إنشاء طلب تلقائياً بناءً على توصية استشارية.
+      description: Automatically create an order based on an advisory recommendation. إنشاء طلب تلقائياً بناءً على توصية استشارية.
       operationId: auto_purchase_api_v1_auto_purchase_post
       requestBody:
         content:
@@ -607,8 +589,7 @@ paths:
       tags:
       - auto-purchase
       summary: Compare Suppliers | مقارنة الموردين
-      description: Compare quotes from multiple suppliers for a product. مقارنة عروض
-        الأسعار من موردين متعددين لمنتج.
+      description: Compare quotes from multiple suppliers for a product. مقارنة عروض الأسعار من موردين متعددين لمنتج.
       operationId: compare_suppliers_api_v1_auto_purchase_compare_post
       parameters:
       - name: product_id
@@ -642,8 +623,7 @@ paths:
       tags:
       - auto-purchase
       summary: Bulk Purchase | شراء بالجملة
-      description: Purchase multiple items at once with optimization. شراء عناصر متعددة
-        مرة واحدة مع التحسين.
+      description: Purchase multiple items at once with optimization. شراء عناصر متعددة مرة واحدة مع التحسين.
       operationId: bulk_purchase_api_v1_auto_purchase_bulk_post
       requestBody:
         content:
@@ -686,8 +666,7 @@ paths:
       tags:
       - health
       summary: Readiness Probe | فحص الجاهزية
-      description: Check if the service is ready to accept traffic. فحص ما إذا كانت
-        الخدمة جاهزة لاستقبال الطلبات.
+      description: Check if the service is ready to accept traffic. فحص ما إذا كانت الخدمة جاهزة لاستقبال الطلبات.
       operationId: readiness_readyz_get
       responses:
         '200':

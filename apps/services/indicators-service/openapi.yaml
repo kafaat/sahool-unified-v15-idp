@@ -51,9 +51,7 @@ paths:
   /v1/field/{field_id}/indicators:
     get:
       summary: Get Field Indicators
-      description: "الحصول على مؤشرات حقل معين\n\nArgs:\n    field_id: Field identifier\n\
-        \    category: Optional category filter\n    force_refresh: If True, regenerate\
-        \ indicators even if cached"
+      description: "الحصول على مؤشرات حقل معين\n\nArgs:\n    field_id: Field identifier\n    category: Optional category filter\n    force_refresh: If True, regenerate indicators even if cached"
       operationId: get_field_indicators_v1_field__field_id__indicators_get
       security:
       - OAuth2PasswordBearer: []

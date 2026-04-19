@@ -105,8 +105,7 @@ paths:
   /api/v1/iot/readings:
     post:
       summary: Ingest Reading
-      description: Ingest a single sensor reading with Kalman filtering and alert
-        checking.
+      description: Ingest a single sensor reading with Kalman filtering and alert checking.
       operationId: ingest_reading_api_v1_iot_readings_post
       requestBody:
         content:
@@ -310,8 +309,7 @@ paths:
   /api/v1/iot/sensors:
     get:
       summary: List Sensors Alias
-      description: 'Alias for ``/api/v1/iot/nodes`` — returns sensors in camelCase
-        shape.
+      description: 'Alias for ``/api/v1/iot/nodes`` — returns sensors in camelCase shape.
 
 
         Aligned with ``IOT_ENDPOINTS.SENSORS`` in the shared contracts package.'
@@ -414,8 +412,7 @@ paths:
   /api/v1/iot/sensors/{sensor_id}:
     get:
       summary: Get Sensor Alias
-      description: Alias for ``/api/v1/iot/nodes/{id}`` — returns a single sensor
-        in camelCase shape.
+      description: Alias for ``/api/v1/iot/nodes/{id}`` — returns a single sensor in camelCase shape.
       operationId: get_sensor_alias_api_v1_iot_sensors__sensor_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -441,8 +438,7 @@ paths:
   /api/v1/iot/sensors/{sensor_id}/latest:
     get:
       summary: Get Sensor Latest
-      description: 'Return the most recent filtered reading for a sensor in camelCase
-        shape.
+      description: 'Return the most recent filtered reading for a sensor in camelCase shape.
 
 
         Aligned with ``IOT_ENDPOINTS.SENSOR_LATEST`` in the shared contracts package.'

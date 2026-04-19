@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Pest Detection Service
-  description: AI-powered pest detection with Middle East pest database | خدمة كشف
-    الآفات بالذكاء الاصطناعي
+  description: AI-powered pest detection with Middle East pest database | خدمة كشف الآفات بالذكاء الاصطناعي
   version: 16.0.0
 paths:
   /v1/feature-schema:

@@ -1,10 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Alert Service
-  description: "\n    خدمة إدارة التنبيهات والإنذارات الزراعية\n\n    Agricultural\
-    \ Alerts and Warnings Management Service\n\n    Features:\n    - إنشاء وإدارة\
-    \ التنبيهات\n    - قواعد التنبيه التلقائي\n    - تكامل مع خدمات NDVI والطقس وIoT\n\
-    \    - إحصائيات وتقارير\n    "
+  description: "\n    خدمة إدارة التنبيهات والإنذارات الزراعية\n\n    Agricultural Alerts and Warnings Management Service\n\n    Features:\n    - إنشاء وإدارة التنبيهات\n    - قواعد التنبيه التلقائي\n    - تكامل مع خدمات NDVI والطقس وIoT\n    - إحصائيات وتقارير\n    "
   version: 16.0.0
 paths:
   /health:

@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: carbon-service
-  description: Agricultural carbon footprint (IPCC Tier 1) — خدمة البصمة الكربونية
-    الزراعية
+  description: Agricultural carbon footprint (IPCC Tier 1) — خدمة البصمة الكربونية الزراعية
   version: 16.0.0
 paths:
   /api/v1/carbon/compute:
@@ -47,12 +46,7 @@ paths:
       tags:
       - Carbon - الكربون
       summary: Compute For Operation
-      description: "DB-backed compute — reads the FieldOperation row from the\nfield-management-service\
-        \ DB, maps it into the engine's input shape\n(using operation_type + metadata\
-        \ + cost breakdown columns as a\nheuristic for inputs), runs the engine, and\
-        \ writes the result back\nonto the same row. Used by:\n\n  - The NATS subscriber\
-        \ when a new operation is recorded\n  - The admin API for re-computing after\
-        \ formula updates\n  - Batch backfill jobs"
+      description: "DB-backed compute — reads the FieldOperation row from the\nfield-management-service DB, maps it into the engine's input shape\n(using operation_type + metadata + cost breakdown columns as a\nheuristic for inputs), runs the engine, and writes the result back\nonto the same row. Used by:\n\n  - The NATS subscriber when a new operation is recorded\n  - The admin API for re-computing after formula updates\n  - Batch backfill jobs"
       operationId: compute_for_operation_api_v1_carbon_operations__operation_id__compute_post
       security:
       - OAuth2PasswordBearer: []

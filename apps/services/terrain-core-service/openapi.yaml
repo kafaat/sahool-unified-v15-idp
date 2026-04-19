@@ -1,19 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Terrain Core Service | خدمة تحليل التضاريس
-  description: "\n## Terrain Analysis Service for Agricultural Applications\nخدمة\
-    \ تحليل التضاريس للتطبيقات الزراعية\n\nProvides comprehensive terrain analysis\
-    \ from Digital Elevation Models (DEMs):\n\n### DEM Sources | مصادر بيانات الارتفاعات\n\
-    - **Copernicus DEM** (30m/90m) - Global coverage\n- **NASA SRTM** (30m/90m) -\
-    \ 60°N to 56°S\n- **ALOS World 3D** (30m) - Global coverage\n- **Local Upload**\
-    \ - User-provided GeoTIFF files\n\n### Terrain Indicators | مؤشرات التضاريس\n\
-    1. **Slope** (الميل) - Using Horn's method\n2. **Aspect** (الجانب) - Slope direction\n\
-    3. **Flow Direction** (اتجاه التدفق) - D8 algorithm\n4. **Flow Accumulation**\
-    \ (تراكم التدفق) - Contributing area\n5. **TWI** (مؤشر الرطوبة الطبوغرافية) -\
-    \ Topographic Wetness Index\n6. **Curvature** (الانحناء) - Plan and profile curvature\n\
-    7. **Contours** (خطوط الكنتور) - Elevation isolines\n\n### Agricultural Applications\
-    \ | التطبيقات الزراعية\n- Irrigation suitability assessment\n- Erosion risk evaluation\n\
-    - Water flow analysis\n- Terrain-based zone delineation\n    "
+  description: "\n## Terrain Analysis Service for Agricultural Applications\nخدمة تحليل التضاريس للتطبيقات الزراعية\n\nProvides comprehensive terrain analysis from Digital Elevation Models (DEMs):\n\n### DEM Sources | مصادر بيانات الارتفاعات\n- **Copernicus DEM** (30m/90m) - Global coverage\n- **NASA SRTM** (30m/90m) - 60°N to 56°S\n- **ALOS World 3D** (30m) - Global coverage\n- **Local Upload** - User-provided GeoTIFF files\n\n### Terrain Indicators | مؤشرات التضاريس\n1. **Slope** (الميل) - Using Horn's method\n2. **Aspect** (الجانب) - Slope direction\n3. **Flow Direction** (اتجاه التدفق) - D8 algorithm\n4. **Flow Accumulation** (تراكم التدفق) - Contributing area\n5. **TWI** (مؤشر الرطوبة الطبوغرافية) - Topographic Wetness Index\n6. **Curvature** (الانحناء) - Plan and profile curvature\n7. **Contours** (خطوط الكنتور) - Elevation isolines\n\n### Agricultural Applications | التطبيقات الزراعية\n- Irrigation suitability assessment\n- Erosion risk evaluation\n- Water flow analysis\n- Terrain-based zone delineation\n    "
   version: 16.0.0
 paths:
   /healthz:
@@ -79,13 +67,7 @@ paths:
       tags:
       - terrain | التضاريس
       summary: Full Terrain Analysis | تحليل التضاريس الكامل
-      description: "Performs comprehensive terrain analysis for a field including:\n\
-        \    - Slope and aspect\n    - Flow direction and accumulation\n    - Topographic\
-        \ Wetness Index (TWI)\n    - Curvature (plan and profile)\n    - Contour generation\n\
-        \    - Irrigation recommendations\n\n    يجري تحليلاً شاملاً للتضاريس للحقل\
-        \ بما في ذلك:\n    - الميل والجانب\n    - اتجاه التدفق وتراكمه\n    - مؤشر\
-        \ الرطوبة الطبوغرافية\n    - الانحناء (أفقي وطولي)\n    - إنشاء خطوط الكنتور\n\
-        \    - توصيات الري"
+      description: "Performs comprehensive terrain analysis for a field including:\n    - Slope and aspect\n    - Flow direction and accumulation\n    - Topographic Wetness Index (TWI)\n    - Curvature (plan and profile)\n    - Contour generation\n    - Irrigation recommendations\n\n    يجري تحليلاً شاملاً للتضاريس للحقل بما في ذلك:\n    - الميل والجانب\n    - اتجاه التدفق وتراكمه\n    - مؤشر الرطوبة الطبوغرافية\n    - الانحناء (أفقي وطولي)\n    - إنشاء خطوط الكنتور\n    - توصيات الري"
       operationId: analyze_terrain_api_v1_terrain_analyze_post
       requestBody:
         content:
@@ -163,12 +145,7 @@ paths:
       tags:
       - terrain | التضاريس
       summary: Get Aspect Analysis | الحصول على تحليل الجانب
-      description: "Compute aspect (sun-facing direction, 0-360°) for a field from\
-        \ its DEM.\n\n    حساب اتجاه الجانب (اتجاه مواجهة الشمس، 0-360 درجة) للحقل\
-        \ من بيانات الارتفاع.\n\n    - Uses Horn's method (same gradient path as slope).\n\
-        \    - 0° = North, 90° = East, 180° = South, 270° = West.\n    - Flat cells\
-        \ are reported in the distribution under `flat`.\n    - Coordinates returned\
-        \ assume CRS EPSG:4326 (WGS84)."
+      description: "Compute aspect (sun-facing direction, 0-360°) for a field from its DEM.\n\n    حساب اتجاه الجانب (اتجاه مواجهة الشمس، 0-360 درجة) للحقل من بيانات الارتفاع.\n\n    - Uses Horn's method (same gradient path as slope).\n    - 0° = North, 90° = East, 180° = South, 270° = West.\n    - Flat cells are reported in the distribution under `flat`.\n    - Coordinates returned assume CRS EPSG:4326 (WGS84)."
       operationId: get_aspect_analysis_api_v1_terrain_aspect__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -205,8 +182,7 @@ paths:
       tags:
       - terrain | التضاريس
       summary: Get Flow Analysis | الحصول على تحليل التدفق
-      description: Get flow direction and accumulation analysis | الحصول على تحليل
-        اتجاه التدفق وتراكمه
+      description: Get flow direction and accumulation analysis | الحصول على تحليل اتجاه التدفق وتراكمه
       operationId: get_flow_analysis_api_v1_terrain_flow__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -255,8 +231,7 @@ paths:
       tags:
       - terrain | التضاريس
       summary: Get Topographic Wetness Index | الحصول على مؤشر الرطوبة الطبوغرافية
-      description: Get Topographic Wetness Index analysis | الحصول على تحليل مؤشر
-        الرطوبة الطبوغرافية
+      description: Get Topographic Wetness Index analysis | الحصول على تحليل مؤشر الرطوبة الطبوغرافية
       operationId: get_twi_analysis_api_v1_terrain_twi__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -350,8 +325,7 @@ paths:
       tags:
       - terrain | التضاريس
       summary: List Available DEM Sources | قائمة مصادر الارتفاعات المتاحة
-      description: List available DEM data sources | قائمة مصادر بيانات الارتفاعات
-        المتاحة
+      description: List available DEM data sources | قائمة مصادر بيانات الارتفاعات المتاحة
       operationId: list_dem_sources_api_v1_terrain_sources_get
       responses:
         '200':
@@ -367,10 +341,7 @@ paths:
       tags:
       - terrain | التضاريس
       summary: Get DEM Data for Field | الحصول على بيانات الارتفاعات للحقل
-      description: "Retrieves Digital Elevation Model data for a specific field.\n\
-        \    Used by downstream services (hydrology, leveling) for terrain analysis.\n\
-        \n    يسترجع بيانات نموذج الارتفاع الرقمي لحقل محدد.\n    يستخدم من قبل الخدمات\
-        \ المتصلة (الهيدرولوجيا، التسوية) لتحليل التضاريس."
+      description: "Retrieves Digital Elevation Model data for a specific field.\n    Used by downstream services (hydrology, leveling) for terrain analysis.\n\n    يسترجع بيانات نموذج الارتفاع الرقمي لحقل محدد.\n    يستخدم من قبل الخدمات المتصلة (الهيدرولوجيا، التسوية) لتحليل التضاريس."
       operationId: get_dem_data_api_v1_terrain_dem__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -401,12 +372,10 @@ paths:
         required: false
         schema:
           type: boolean
-          description: Include raw elevation data (for small fields only) | تضمين
-            بيانات الارتفاع الخام
+          description: Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام
           default: false
           title: Include Data
-        description: Include raw elevation data (for small fields only) | تضمين بيانات
-          الارتفاع الخام
+        description: Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام
       responses:
         '200':
           description: Successful Response
@@ -424,28 +393,8 @@ paths:
     post:
       tags:
       - terrain | التضاريس
-      summary: Per-field soil erosion assessment (RUSLE) | تقييم تعرية التربة للحقل
-        (RUSLE)
-      description: "Compute the per-field annual soil loss using the RUSLE model:\n\
-        \n    A = R × K × LS × C × P\n\nWhere:\n  * **R** — rainfall-runoff erosivity\
-        \ (from annual precipitation + rainy days)\n  * **K** — soil erodibility (from\
-        \ USDA texture class)\n  * **LS** — slope length × steepness (from the terrain-core\
-        \ slope endpoint)\n  * **C** — cover-management (from the field's crop / cover\
-        \ class)\n  * **P** — support practice (none, contour, terraces, bench terraces)\n\
-        \nReturns:\n  * `soil_loss_t_ha_yr` — annual soil loss in tonnes / hectare\
-        \ / year\n  * `risk_level` — FAO classification (none / low / moderate / high\
-        \ / severe / catastrophic)\n  * `factors` — per-factor breakdown so operators\
-        \ can see which factor drives the loss\n  * `factor_contributions_pct` — log-normalised\
-        \ contribution per factor\n  * `recommendations` — targeted mitigation actions\
-        \ (bilingual EN + AR)\n\n**Context**: this replaces the Phase-1 ``erosion_risk:\
-        \ \"low\"`` string\nthat the /terrain/analyze response used to hard-code based\
-        \ on slope\nalone. That stub lied to farmers in Yemeni highland terraced fields\n\
-        (which frequently sit at slopes of 20-40%+ on silt-loam soils and\nrun a catastrophic\
-        \ erosion risk). The RUSLE endpoint surfaces the\nhonest answer plus actionable\
-        \ recommendations (bench terraces, cover\ncrops, residue retention).\n\nThe\
-        \ endpoint is a pure calculation — no DB, no satellite fetch. The\ncaller\
-        \ supplies aggregated per-field inputs. For sub-field zonation,\ncall once\
-        \ per management zone and compose on the client side."
+      summary: Per-field soil erosion assessment (RUSLE) | تقييم تعرية التربة للحقل (RUSLE)
+      description: "Compute the per-field annual soil loss using the RUSLE model:\n\n    A = R × K × LS × C × P\n\nWhere:\n  * **R** — rainfall-runoff erosivity (from annual precipitation + rainy days)\n  * **K** — soil erodibility (from USDA texture class)\n  * **LS** — slope length × steepness (from the terrain-core slope endpoint)\n  * **C** — cover-management (from the field's crop / cover class)\n  * **P** — support practice (none, contour, terraces, bench terraces)\n\nReturns:\n  * `soil_loss_t_ha_yr` — annual soil loss in tonnes / hectare / year\n  * `risk_level` — FAO classification (none / low / moderate / high / severe / catastrophic)\n  * `factors` — per-factor breakdown so operators can see which factor drives the loss\n  * `factor_contributions_pct` — log-normalised contribution per factor\n  * `recommendations` — targeted mitigation actions (bilingual EN + AR)\n\n**Context**: this replaces the Phase-1 ``erosion_risk: \"low\"`` string\nthat the /terrain/analyze response used to hard-code based on slope\nalone. That stub lied to farmers in Yemeni highland terraced fields\n(which frequently sit at slopes of 20-40%+ on silt-loam soils and\nrun a catastrophic erosion risk). The RUSLE endpoint surfaces the\nhonest answer plus actionable recommendations (bench terraces, cover\ncrops, residue retention).\n\nThe endpoint is a pure calculation — no DB, no satellite fetch. The\ncaller supplies aggregated per-field inputs. For sub-field zonation,\ncall once per management zone and compose on the client side."
       operationId: assess_erosion_api_v1_terrain_erosion_post
       requestBody:
         content:
@@ -472,28 +421,8 @@ paths:
     post:
       tags:
       - terrain | التضاريس
-      summary: Per-field wind erosion assessment (RWEQ-lite) | تقييم تعرية الرياح
-        للحقل (RWEQ-lite)
-      description: "Compute the per-field annual wind soil loss using the RWEQ-lite\
-        \ model:\n\n    SL = 2 × (s / 50000²) × Q_max\n    Q_max = 109.8 × (WF × EF\
-        \ × SCF × K' × COG)\n\nWhere:\n  * **WF** — wind factor (aridity-weighted\
-        \ wind kinetic energy)\n  * **EF** — soil erodibility factor (texture fractions\
-        \ + organic matter)\n  * **SCF** — soil crust factor (clay + OM protective\
-        \ crusts)\n  * **K'** — Chepil surface roughness factor (tillage relief)\n\
-        \  * **COG** — combined (residue + canopy) ground cover factor\n  * **s**\
-        \ — unsheltered field length along the prevailing wind\n\nReturns:\n  * `soil_loss_t_ha_yr`\
-        \ — annual wind soil loss in tonnes / hectare / year\n  * `risk_level` — FAO\
-        \ band (none / low / moderate / high / severe / catastrophic)\n  * `factors`\
-        \ — the 5 RWEQ sub-factors\n  * `factor_contributions_pct` — log-normalised\
-        \ contribution per factor\n  * `recommendations` — wind-specific mitigation\
-        \ (bilingual EN + AR)\n\n**Context**: RUSLE is wrong for Yemen's grain-producing\
-        \ plains\n(Tihama, Marib, Al-Jawf, Hadramawt) where slope is near-zero and\
-        \ wind\nis the dominant erosion driver. A flat Tihama sandy-loam field with\n\
-        no standing stubble can lose ~50 t/ha/yr to wind in a single sandstorm\nseason\
-        \ — RUSLE would score it as \"none\". This endpoint surfaces the\nhonest wind\
-        \ answer. For sloped fields pair with ``/erosion`` (water)\nor call ``/erosion/combined``\
-        \ for both at once.\n\nThe endpoint is a pure calculation — no DB, no satellite\
-        \ fetch."
+      summary: Per-field wind erosion assessment (RWEQ-lite) | تقييم تعرية الرياح للحقل (RWEQ-lite)
+      description: "Compute the per-field annual wind soil loss using the RWEQ-lite model:\n\n    SL = 2 × (s / 50000²) × Q_max\n    Q_max = 109.8 × (WF × EF × SCF × K' × COG)\n\nWhere:\n  * **WF** — wind factor (aridity-weighted wind kinetic energy)\n  * **EF** — soil erodibility factor (texture fractions + organic matter)\n  * **SCF** — soil crust factor (clay + OM protective crusts)\n  * **K'** — Chepil surface roughness factor (tillage relief)\n  * **COG** — combined (residue + canopy) ground cover factor\n  * **s** — unsheltered field length along the prevailing wind\n\nReturns:\n  * `soil_loss_t_ha_yr` — annual wind soil loss in tonnes / hectare / year\n  * `risk_level` — FAO band (none / low / moderate / high / severe / catastrophic)\n  * `factors` — the 5 RWEQ sub-factors\n  * `factor_contributions_pct` — log-normalised contribution per factor\n  * `recommendations` — wind-specific mitigation (bilingual EN + AR)\n\n**Context**: RUSLE is wrong for Yemen's grain-producing plains\n(Tihama, Marib, Al-Jawf, Hadramawt) where slope is near-zero and wind\nis the dominant erosion driver. A flat Tihama sandy-loam field with\nno standing stubble can lose ~50 t/ha/yr to wind in a single sandstorm\nseason — RUSLE would score it as \"none\". This endpoint surfaces the\nhonest wind answer. For sloped fields pair with ``/erosion`` (water)\nor call ``/erosion/combined`` for both at once.\n\nThe endpoint is a pure calculation — no DB, no satellite fetch."
       operationId: assess_wind_erosion_api_v1_terrain_erosion_wind_post
       requestBody:
         content:
@@ -520,25 +449,8 @@ paths:
     post:
       tags:
       - terrain | التضاريس
-      summary: Combined water + wind erosion assessment (RUSLE + RWEQ-lite) | التقييم
-        المشترك لتعرية المياه والرياح
-      description: "Run both the RUSLE (water) and RWEQ-lite (wind) engines on a single\n\
-        field and return a unified assessment:\n\n  * `overall_risk_level` — the **worst-of-two**\
-        \ FAO band across the\n    two processes (not the sum — they operate on different\
-        \ time scales)\n  * `dominant_process` — which engine drives the overall risk\n\
-        \    (`water` | `wind` | `both` | `none`), so operators can prioritise\n \
-        \   between bench-terrace / cover-crop actions vs. windbreak /\n    standing-stubble\
-        \ actions\n  * `water` — the full RUSLE sub-result (same shape as ``/erosion``)\n\
-        \  * `wind` — the full RWEQ-lite sub-result (same shape as ``/erosion/wind``)\n\
-        \  * `combined_recommendations` — priority-ordered mitigation actions\n  \
-        \  starting with the dominant process (bilingual EN + AR)\n\n**Use this endpoint**\
-        \ whenever you need a per-field erosion risk\nwithout making assumptions about\
-        \ which process dominates. A field can\nbe safe on water and catastrophic\
-        \ on wind (flat Tihama sandy loam) or\nvice versa (Sana'a highland terrace\
-        \ at 30% slope). ``texture_key`` is\noptional: when omitted it's derived from\
-        \ the USDA ``soil_texture``\nvalue, which keeps the single-call path ergonomic\
-        \ for callers that\ndon't need Yemen-specific soil profiles.\n\nThe endpoint\
-        \ is a pure calculation — no DB, no satellite fetch."
+      summary: Combined water + wind erosion assessment (RUSLE + RWEQ-lite) | التقييم المشترك لتعرية المياه والرياح
+      description: "Run both the RUSLE (water) and RWEQ-lite (wind) engines on a single\nfield and return a unified assessment:\n\n  * `overall_risk_level` — the **worst-of-two** FAO band across the\n    two processes (not the sum — they operate on different time scales)\n  * `dominant_process` — which engine drives the overall risk\n    (`water` | `wind` | `both` | `none`), so operators can prioritise\n    between bench-terrace / cover-crop actions vs. windbreak /\n    standing-stubble actions\n  * `water` — the full RUSLE sub-result (same shape as ``/erosion``)\n  * `wind` — the full RWEQ-lite sub-result (same shape as ``/erosion/wind``)\n  * `combined_recommendations` — priority-ordered mitigation actions\n    starting with the dominant process (bilingual EN + AR)\n\n**Use this endpoint** whenever you need a per-field erosion risk\nwithout making assumptions about which process dominates. A field can\nbe safe on water and catastrophic on wind (flat Tihama sandy loam) or\nvice versa (Sana'a highland terrace at 30% slope). ``texture_key`` is\noptional: when omitted it's derived from the USDA ``soil_texture``\nvalue, which keeps the single-call path ergonomic for callers that\ndon't need Yemen-specific soil profiles.\n\nThe endpoint is a pure calculation — no DB, no satellite fetch."
       operationId: assess_combined_erosion_api_v1_terrain_erosion_combined_post
       requestBody:
         content:
@@ -565,22 +477,8 @@ paths:
     post:
       tags:
       - terrain | التضاريس
-      summary: Combined erosion assessment for a Yemeni agro-ecological region | التقييم
-        المشترك للتعرية لمنطقة زراعية يمنية
-      description: "Minimum-input combined erosion assessment for Yemeni fields. Only\n\
-        field-specific variables (slope, cover type, residue state) are\nrequired\
-        \ — climate (rainfall, wind speed, ET0) and soil texture\ndefaults are looked\
-        \ up from the ``YEMEN_REGION_PRESETS`` in\n``shared/terrain_erosion/combined.py``\
-        \ (derived from\n``shared/yemen/climate.py`` + ``shared/yemen/soils.py``).\n\
-        \nSupported regions (``region`` field):\n  * ``tihama`` — Tihama Coastal Plain\
-        \ (peak wind 3.5 m/s, 125 mm rain)\n  * ``eastern_plateau`` — Marib / Al-Jawf\
-        \ semi-arid (3.5 m/s, 100 mm)\n  * ``hadhramaut`` — Wadi Hadhramaut (3.0 m/s,\
-        \ 65 mm)\n  * ``southern_coast`` — Aden / Lahj / Abyan delta (3.2 m/s, 120\
-        \ mm)\n  * ``highlands`` — Sana'a / Ibb / Taiz terraces (2.5 m/s, 500 mm)\n\
-        \nReturns the full :class:`CombinedErosionAssessmentResponse` shape.\n\n**Use\
-        \ this endpoint** when an advisory-service caller only knows the\nfarmer's\
-        \ region name and wants a single call to get both the water\nand wind erosion\
-        \ risk. For full control over every input, call\n``/erosion/combined`` instead."
+      summary: Combined erosion assessment for a Yemeni agro-ecological region | التقييم المشترك للتعرية لمنطقة زراعية يمنية
+      description: "Minimum-input combined erosion assessment for Yemeni fields. Only\nfield-specific variables (slope, cover type, residue state) are\nrequired — climate (rainfall, wind speed, ET0) and soil texture\ndefaults are looked up from the ``YEMEN_REGION_PRESETS`` in\n``shared/terrain_erosion/combined.py`` (derived from\n``shared/yemen/climate.py`` + ``shared/yemen/soils.py``).\n\nSupported regions (``region`` field):\n  * ``tihama`` — Tihama Coastal Plain (peak wind 3.5 m/s, 125 mm rain)\n  * ``eastern_plateau`` — Marib / Al-Jawf semi-arid (3.5 m/s, 100 mm)\n  * ``hadhramaut`` — Wadi Hadhramaut (3.0 m/s, 65 mm)\n  * ``southern_coast`` — Aden / Lahj / Abyan delta (3.2 m/s, 120 mm)\n  * ``highlands`` — Sana'a / Ibb / Taiz terraces (2.5 m/s, 500 mm)\n\nReturns the full :class:`CombinedErosionAssessmentResponse` shape.\n\n**Use this endpoint** when an advisory-service caller only knows the\nfarmer's region name and wants a single call to get both the water\nand wind erosion risk. For full control over every input, call\n``/erosion/combined`` instead."
       operationId: assess_yemen_region_erosion_api_v1_terrain_erosion_yemen_post
       requestBody:
         content:
@@ -764,12 +662,10 @@ components:
             minimum: 1.0
           - type: 'null'
           title: Slope Length M
-          description: Slope length in metres (default 22.13, the RUSLE reference)
-            | طول الميل (م)
+          description: Slope length in metres (default 22.13, the RUSLE reference) | طول الميل (م)
         soil_texture:
           $ref: '#/components/schemas/SoilTextureEnum'
-          description: USDA soil texture class — drives the RUSLE K factor | فئة قوام
-            التربة
+          description: USDA soil texture class — drives the RUSLE K factor | فئة قوام التربة
         annual_rainfall_mm:
           type: number
           maximum: 5000.0
@@ -786,15 +682,13 @@ components:
           type: string
           maxLength: 64
           title: Cover Type
-          description: Crop / cover class (bare_soil, wheat, date_palm, ...) | نوع
-            الغطاء النباتي
+          description: Crop / cover class (bare_soil, wheat, date_palm, ...) | نوع الغطاء النباتي
           default: bare_soil
         conservation_practice:
           type: string
           maxLength: 64
           title: Conservation Practice
-          description: Support practice (none, contour_farming, bench_terraces, ...)
-            | ممارسة الحفاظ
+          description: Support practice (none, contour_farming, bench_terraces, ...) | ممارسة الحفاظ
           default: none
         texture_key:
           anyOf:
@@ -802,9 +696,7 @@ components:
             maxLength: 64
           - type: 'null'
           title: Texture Key
-          description: Optional Yemen-specific texture key (e.g. tihama_sandy_loam).
-            If omitted, derived from the RUSLE soil_texture. | مفتاح قوام تربة يمني
-            اختياري، يُشتق من soil_texture إذا لم يُحدد
+          description: Optional Yemen-specific texture key (e.g. tihama_sandy_loam). If omitted, derived from the RUSLE soil_texture. | مفتاح قوام تربة يمني اختياري، يُشتق من soil_texture إذا لم يُحدد
         mean_wind_speed_ms:
           type: number
           maximum: 50.0
@@ -816,8 +708,7 @@ components:
           maximum: 5000.0
           minimum: 100.0
           title: Annual Et0 Mm
-          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر
-            النتح المرجعي
+          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر النتح المرجعي
         roughness:
           $ref: '#/components/schemas/SurfaceRoughnessEnum'
           description: Chepil surface roughness class | فئة خشونة السطح
@@ -845,8 +736,7 @@ components:
           maximum: 5000.0
           minimum: 1.0
           title: Unsheltered Length M
-          description: Unsheltered field length along prevailing wind (m) | طول الحقل
-            غير المحمي
+          description: Unsheltered field length along prevailing wind (m) | طول الحقل غير المحمي
           default: 100.0
       type: object
       required:
@@ -1178,8 +1068,7 @@ components:
             type: array
           - type: 'null'
           title: Elevation Data
-          description: Elevation data array (optional, for small fields) | مصفوفة
-            الارتفاعات
+          description: Elevation data array (optional, for small fields) | مصفوفة الارتفاعات
         download_url:
           anyOf:
           - type: string
@@ -1206,8 +1095,7 @@ components:
       - elevation_mean
       - analyzed_at
       title: DEMDataResponse
-      description: Response containing DEM data for downstream services | استجابة
-        بيانات الارتفاعات للخدمات المتصلة
+      description: Response containing DEM data for downstream services | استجابة بيانات الارتفاعات للخدمات المتصلة
     DEMMetadata:
       properties:
         source:
@@ -1429,15 +1317,13 @@ components:
           type: string
           maxLength: 64
           title: Cover Type
-          description: Crop / cover class (bare_soil, fallow, wheat, barley, corn,
-            date_palm, olive, citrus, grass, forest, ...)
+          description: Crop / cover class (bare_soil, fallow, wheat, barley, corn, date_palm, olive, citrus, grass, forest, ...)
           default: bare_soil
         conservation_practice:
           type: string
           maxLength: 64
           title: Conservation Practice
-          description: Support practice (none, contour_farming, strip_cropping, terraces,
-            bench_terraces)
+          description: Support practice (none, contour_farming, strip_cropping, terraces, bench_terraces)
           default: none
       type: object
       required:
@@ -1483,8 +1369,7 @@ components:
             type: number
           type: object
           title: Factor Contributions Pct
-          description: Log-normalised per-factor contribution (%) — which factor drives
-            the loss
+          description: Log-normalised per-factor contribution (%) — which factor drives the loss
         recommendations:
           items:
             type: string
@@ -1512,8 +1397,7 @@ components:
       - factors
       - assessed_at
       title: ErosionAssessmentResponse
-      description: 'Full RUSLE assessment output — the honest answer that replaces
-        the
+      description: 'Full RUSLE assessment output — the honest answer that replaces the
 
         Phase-1 ``erosion_risk: "low"`` stub in the irrigation recommendation
 
@@ -2287,8 +2171,7 @@ components:
       - erosion_risk
       - notes
       title: TerrainIrrigationRecommendation
-      description: Irrigation recommendation based on terrain | توصية الري بناءً على
-        التضاريس
+      description: Irrigation recommendation based on terrain | توصية الري بناءً على التضاريس
     ValidationError:
       properties:
         loc:
@@ -2334,16 +2217,13 @@ components:
           maxLength: 64
           minLength: 1
           title: Texture Key
-          description: Soil texture key — USDA class (sand, loam, clay, ...) or Yemen
-            profile (tihama_sandy_loam, highland_clay_loam, ...) | مفتاح قوام التربة
-            (USDA أو ملف تعريف يمني)
+          description: Soil texture key — USDA class (sand, loam, clay, ...) or Yemen profile (tihama_sandy_loam, highland_clay_loam, ...) | مفتاح قوام التربة (USDA أو ملف تعريف يمني)
         mean_wind_speed_ms:
           type: number
           maximum: 50.0
           minimum: 0.0
           title: Mean Wind Speed Ms
-          description: Mean wind speed (m/s) — use peak-month mean for conservative
-            planning | متوسط سرعة الرياح (م/ث)
+          description: Mean wind speed (m/s) — use peak-month mean for conservative planning | متوسط سرعة الرياح (م/ث)
         annual_rainfall_mm:
           type: number
           maximum: 5000.0
@@ -2355,16 +2235,14 @@ components:
           maximum: 5000.0
           minimum: 100.0
           title: Annual Et0 Mm
-          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر
-            النتح المرجعي السنوي (مم)
+          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر النتح المرجعي السنوي (مم)
         roughness:
           $ref: '#/components/schemas/SurfaceRoughnessEnum'
           description: Chepil surface roughness class (drives K') | فئة خشونة السطح
           default: medium
         residue_state:
           $ref: '#/components/schemas/ResidueStateEnum'
-          description: Crop residue state after harvest (drives COG) | حالة بقايا
-            المحصول
+          description: Crop residue state after harvest (drives COG) | حالة بقايا المحصول
           default: bare
         residue_cover_pct:
           type: number
@@ -2385,8 +2263,7 @@ components:
           maximum: 5000.0
           minimum: 1.0
           title: Unsheltered Length M
-          description: Unsheltered field length along the prevailing wind direction
-            (m) | طول الحقل غير المحمي باتجاه الرياح السائدة (م)
+          description: Unsheltered field length along the prevailing wind direction (m) | طول الحقل غير المحمي باتجاه الرياح السائدة (م)
           default: 100.0
       type: object
       required:
@@ -2421,8 +2298,7 @@ components:
         soil_loss_t_ha_yr:
           type: number
           title: Soil Loss T Ha Yr
-          description: Annual wind soil loss (tonnes / hectare / year) | فقد التربة
-            بالرياح سنوياً
+          description: Annual wind soil loss (tonnes / hectare / year) | فقد التربة بالرياح سنوياً
         risk_level:
           $ref: '#/components/schemas/ErosionRiskLevelEnum'
           description: FAO risk band (none / low / moderate / high / severe / catastrophic)
@@ -2438,8 +2314,7 @@ components:
             type: number
           type: object
           title: Factor Contributions Pct
-          description: Log-normalised per-factor contribution (%) — which factor drives
-            the loss
+          description: Log-normalised per-factor contribution (%) — which factor drives the loss
         recommendations:
           items:
             type: string
@@ -2489,22 +2364,19 @@ components:
           maxLength: 64
           minLength: 1
           title: Region
-          description: Yemen agro-ecological region key (tihama, eastern_plateau,
-            hadhramaut, southern_coast, highlands) | المنطقة الزراعية اليمنية
+          description: Yemen agro-ecological region key (tihama, eastern_plateau, hadhramaut, southern_coast, highlands) | المنطقة الزراعية اليمنية
         slope_pct:
           type: number
           maximum: 200.0
           minimum: 0.0
           title: Slope Pct
-          description: Mean slope percentage (0-200), default 1% for plains | نسبة
-            الميل
+          description: Mean slope percentage (0-200), default 1% for plains | نسبة الميل
           default: 1.0
         soil_texture:
           anyOf:
           - $ref: '#/components/schemas/SoilTextureEnum'
           - type: 'null'
-          description: Optional USDA soil texture override — when None, inferred from
-            the regional Yemen profile | فئة قوام تربة اختيارية تُستنتج تلقائياً
+          description: Optional USDA soil texture override — when None, inferred from the regional Yemen profile | فئة قوام تربة اختيارية تُستنتج تلقائياً
         cover_type:
           type: string
           maxLength: 64

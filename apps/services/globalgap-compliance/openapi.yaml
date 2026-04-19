@@ -1,12 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL GlobalGAP Compliance Service
-  description: "\n    خدمة الامتثال لمعايير GlobalGAP IFA v6\n    GlobalGAP IFA v6\
-    \ Compliance Service\n\n    ## الميزات الرئيسية | Main Features\n\n    - تتبع\
-    \ الامتثال للمزارع | Farm compliance tracking\n    - إدارة قوائم المراجعة | Checklist\
-    \ management\n    - إعداد تقارير التدقيق | Audit report preparation\n    - إدارة\
-    \ شهادات GGN | GGN certificate management\n    - تتبع عدم المطابقات والإجراءات\
-    \ التصحيحية | Non-conformity and corrective action tracking\n    "
+  description: "\n    خدمة الامتثال لمعايير GlobalGAP IFA v6\n    GlobalGAP IFA v6 Compliance Service\n\n    ## الميزات الرئيسية | Main Features\n\n    - تتبع الامتثال للمزارع | Farm compliance tracking\n    - إدارة قوائم المراجعة | Checklist management\n    - إعداد تقارير التدقيق | Audit report preparation\n    - إدارة شهادات GGN | GGN certificate management\n    - تتبع عدم المطابقات والإجراءات التصحيحية | Non-conformity and corrective action tracking\n    "
   version: 16.0.0
 paths:
   /health:
@@ -1083,8 +1078,7 @@ components:
           maxLength: 13
           minLength: 13
           title: Ggn Number
-          description: GlobalGAP Number (GGN) - 13 digits | رقم GlobalGAP (GGN) -
-            13 رقم
+          description: GlobalGAP Number (GGN) - 13 digits | رقم GlobalGAP (GGN) - 13 رقم
         gln_number:
           anyOf:
           - type: string
@@ -1163,8 +1157,7 @@ components:
           type: number
           exclusiveMinimum: 0.0
           title: Total Area Ha
-          description: Total certified area in hectares | المساحة الكلية المعتمدة
-            بالهكتار
+          description: Total certified area in hectares | المساحة الكلية المعتمدة بالهكتار
         producer_name:
           type: string
           title: Producer Name
@@ -1188,16 +1181,14 @@ components:
         major_must_compliance:
           type: boolean
           title: Major Must Compliance
-          description: All Major Must points compliant | جميع النقاط الإلزامية الرئيسية
-            متوافقة
+          description: All Major Must points compliant | جميع النقاط الإلزامية الرئيسية متوافقة
           default: false
         minor_must_compliance_percentage:
           type: number
           maximum: 100.0
           minimum: 0.0
           title: Minor Must Compliance Percentage
-          description: Minor Must compliance (must be >= 95%) | نسبة الامتثال للنقاط
-            الإلزامية الثانوية (يجب أن تكون >= 95%)
+          description: Minor Must compliance (must be >= 95%) | نسبة الامتثال للنقاط الإلزامية الثانوية (يجب أن تكون >= 95%)
         certificate_pdf_url:
           anyOf:
           - type: string
@@ -1216,8 +1207,7 @@ components:
         publicly_searchable:
           type: boolean
           title: Publicly Searchable
-          description: Certificate searchable in GlobalGAP database | الشهادة قابلة
-            للبحث في قاعدة بيانات GlobalGAP
+          description: Certificate searchable in GlobalGAP database | الشهادة قابلة للبحث في قاعدة بيانات GlobalGAP
           default: true
         renewal_notification_sent:
           type: boolean

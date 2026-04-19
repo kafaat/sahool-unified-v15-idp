@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: Knowledge Graph Service
-  description: سهول - خدمة الرسم البياني للمعرفة | Manages crop-disease-treatment
-    relationships and knowledge graph queries
+  description: سهول - خدمة الرسم البياني للمعرفة | Manages crop-disease-treatment relationships and knowledge graph queries
   version: 16.0.0
 paths:
   /healthz:
@@ -151,8 +150,7 @@ paths:
       description: 'Search for entities in the knowledge graph
 
 
-        Searches across all entity types (crops, diseases, treatments) for matching
-        names or descriptions.'
+        Searches across all entity types (crops, diseases, treatments) for matching names or descriptions.'
       operationId: search_graph_api_v1_graphs_search_get
       security:
       - OAuth2PasswordBearer: []
@@ -399,8 +397,7 @@ paths:
       description: 'Get a specific disease by ID
 
 
-        Returns detailed information about a disease including symptoms, severity,
-        and pathogen type.'
+        Returns detailed information about a disease including symptoms, severity, and pathogen type.'
       operationId: get_disease_api_v1_entities_diseases__disease_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -512,8 +509,7 @@ paths:
       description: 'Get a specific treatment by ID
 
 
-        Returns detailed information about a treatment including ingredients, dosage,
-        and safety level.'
+        Returns detailed information about a treatment including ingredients, dosage, and safety level.'
       operationId: get_treatment_api_v1_entities_treatments__treatment_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -843,8 +839,7 @@ paths:
       description: 'Get all entities related to a given entity
 
 
-        Returns all entities (of any type) that have a relationship with the specified
-        entity.'
+        Returns all entities (of any type) that have a relationship with the specified entity.'
       operationId: get_all_related_api_v1_relationships_related__entity_type___entity_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -903,8 +898,7 @@ paths:
 
         Shows how two entities are connected through intermediate relationships.
 
-        Useful for understanding the connection chain between crops, diseases, and
-        treatments.'
+        Useful for understanding the connection chain between crops, diseases, and treatments.'
       operationId: find_path_api_v1_relationships_path__source_type___source_id___target_type___target_id__get
       security:
       - OAuth2PasswordBearer: []

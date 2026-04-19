@@ -1,11 +1,7 @@
 openapi: 3.1.0
 info:
   title: Ground Vision Service - خدمة الرؤية الأرضية
-  description: "\n    High-frequency agricultural monitoring using tower-mounted cameras.\n\
-    \n    Based on: Qin et al. (2026) - A Real-Time, High-Frequency, Parcel-Level\n\
-    \    Agricultural Monitoring Framework\n\n    Features:\n    - Quaternion-based\
-    \ georeferencing\n    - GIS-guided SAM segmentation\n    - YOLO-based operation\
-    \ detection\n    - MLLM crop timeline analysis\n    - Anomaly detection\n    "
+  description: "\n    High-frequency agricultural monitoring using tower-mounted cameras.\n\n    Based on: Qin et al. (2026) - A Real-Time, High-Frequency, Parcel-Level\n    Agricultural Monitoring Framework\n\n    Features:\n    - Quaternion-based georeferencing\n    - GIS-guided SAM segmentation\n    - YOLO-based operation detection\n    - MLLM crop timeline analysis\n    - Anomaly detection\n    "
   version: 16.0.0
 paths:
   /health/live:

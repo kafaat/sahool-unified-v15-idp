@@ -101,8 +101,7 @@ paths:
   /weather/forecast:
     post:
       summary: Get Forecast
-      description: "Get weather forecast\n\nArgs:\n    days: Number of forecast days\
-        \ (1-16)"
+      description: "Get weather forecast\n\nArgs:\n    days: Number of forecast days (1-16)"
       operationId: get_forecast_weather_forecast_post
       security:
       - OAuth2PasswordBearer: []
@@ -204,10 +203,7 @@ paths:
   /weather/evapotranspiration:
     post:
       summary: Calculate Et
-      description: "Calculate Reference Evapotranspiration (ET0)\nحساب التبخر-نتح\
-        \ المرجعي\n\nUses FAO-56 Penman-Monteith equation (simplified).\nEssential\
-        \ for irrigation scheduling.\n\nReturns:\n    ET0 in mm/day with irrigation\
-        \ recommendations"
+      description: "Calculate Reference Evapotranspiration (ET0)\nحساب التبخر-نتح المرجعي\n\nUses FAO-56 Penman-Monteith equation (simplified).\nEssential for irrigation scheduling.\n\nReturns:\n    ET0 in mm/day with irrigation recommendations"
       operationId: calculate_et_weather_evapotranspiration_post
       requestBody:
         content:
@@ -232,10 +228,7 @@ paths:
   /weather/gdd:
     post:
       summary: Calculate Gdd
-      description: "Calculate Growing Degree Days (GDD)\nحساب أيام النمو الحراري\n\
-        \nGDD predicts crop development stages based on accumulated heat.\nEssential\
-        \ for phenology modeling and harvest prediction.\n\nReturns:\n    Daily GDD\
-        \ with growth rate classification"
+      description: "Calculate Growing Degree Days (GDD)\nحساب أيام النمو الحراري\n\nGDD predicts crop development stages based on accumulated heat.\nEssential for phenology modeling and harvest prediction.\n\nReturns:\n    Daily GDD with growth rate classification"
       operationId: calculate_gdd_weather_gdd_post
       requestBody:
         content:
@@ -260,10 +253,7 @@ paths:
   /weather/spray-window:
     post:
       summary: Assess Spray Window
-      description: "Assess spray window suitability\nتقييم مدى ملاءمة نافذة الرش\n\
-        \nEvaluates if current conditions are suitable for pesticide/herbicide application.\n\
-        Considers temperature, humidity, wind, and precipitation probability.\n\n\
-        Returns:\n    Spray suitability score and recommendations"
+      description: "Assess spray window suitability\nتقييم مدى ملاءمة نافذة الرش\n\nEvaluates if current conditions are suitable for pesticide/herbicide application.\nConsiders temperature, humidity, wind, and precipitation probability.\n\nReturns:\n    Spray suitability score and recommendations"
       operationId: assess_spray_window_weather_spray_window_post
       requestBody:
         content:
@@ -487,15 +477,7 @@ paths:
   /api/v1/weather/fields/{field_id}/graph:
     post:
       summary: Generate Weather Graph
-      description: "Generate a weather history graph for a field and return its URL.\n\
-        \nFarmonaut-style: the API returns a signed URL to a server-rendered\nSVG\
-        \ chart. The client loads it as an <img src=\"...\"> instead of\nreceiving\
-        \ JSON + rendering the chart in Dart/JS. This is much\nlighter on the mobile\
-        \ client and gives identical visuals across\nplatforms.\n\nResponse:\n  {\n\
-        \    \"success\": true,\n    \"data\": {\n      \"graph_id\": \"...\",\n \
-        \     \"url\": \"/api/v1/weather/graphs/{id}?tid=...&sig=...\",\n      \"\
-        expires_at\": \"2026-04-11T18:30:00Z\",\n      \"metric\": \"combined\",\n\
-        \      \"days\": 14\n    }\n  }"
+      description: "Generate a weather history graph for a field and return its URL.\n\nFarmonaut-style: the API returns a signed URL to a server-rendered\nSVG chart. The client loads it as an <img src=\"...\"> instead of\nreceiving JSON + rendering the chart in Dart/JS. This is much\nlighter on the mobile client and gives identical visuals across\nplatforms.\n\nResponse:\n  {\n    \"success\": true,\n    \"data\": {\n      \"graph_id\": \"...\",\n      \"url\": \"/api/v1/weather/graphs/{id}?tid=...&sig=...\",\n      \"expires_at\": \"2026-04-11T18:30:00Z\",\n      \"metric\": \"combined\",\n      \"days\": 14\n    }\n  }"
       operationId: generate_weather_graph_api_v1_weather_fields__field_id__graph_post
       security:
       - OAuth2PasswordBearer: []

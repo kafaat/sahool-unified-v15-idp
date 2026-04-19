@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Logistics Service | خدمة اللوجستيات
-  description: Agricultural logistics management - fleet, storage, collection, and
-    delivery optimization
+  description: Agricultural logistics management - fleet, storage, collection, and delivery optimization
   version: 16.0.0
 paths:
   /healthz:
@@ -343,8 +342,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response List Storage Facilities Api V1 Storage Facilities
-                  Get
+                title: Response List Storage Facilities Api V1 Storage Facilities Get
         '422':
           description: Validation Error
           content:
@@ -1566,11 +1564,7 @@ components:
       - created_at
       - updated_at
       title: Shipment
-      description: "Shipment/delivery model - نموذج الشحنة\n\nStatus field accepts\
-        \ both legacy and canonical values. See module-level\n`normalize_status()`\
-        \ and `CANONICAL_STATUSES`.\n\nSoft/UX states (see ShipmentStatus docstring):\n\
-        \  - `pending`: Frontend-only; persisted as `scheduled`.\n  - `delayed`: Frontend-only;\
-        \ persisted as `in_transit` with\n    metadata.delayed=True."
+      description: "Shipment/delivery model - نموذج الشحنة\n\nStatus field accepts both legacy and canonical values. See module-level\n`normalize_status()` and `CANONICAL_STATUSES`.\n\nSoft/UX states (see ShipmentStatus docstring):\n  - `pending`: Frontend-only; persisted as `scheduled`.\n  - `delayed`: Frontend-only; persisted as `in_transit` with\n    metadata.delayed=True."
     ShipmentCreate:
       properties:
         vehicle_id:
@@ -1649,15 +1643,7 @@ components:
       - delivered
       - cancelled
       title: ShipmentStatus
-      description: "Canonical shipment status enum.\n\nIncludes both backend-native\
-        \ values (scheduled, collecting, at_storage,\ndelivering) and soft/UX values\
-        \ used by the frontend (pending, delayed).\n\nSoft states semantics:\n  -\
-        \ `pending`: Maps internally to `scheduled` (not yet dispatched) - a \"soft\"\
-        \ state\n    used by the frontend to represent shipments that have been created\
-        \ but have\n    no vehicle assigned. Persisted canonically as `scheduled`.\n\
-        \  - `delayed`: Maps internally to `in_transit` with a `delayed=True` flag\
-        \ - a\n    \"soft\" state representing a shipment in transit past its ETA.\
-        \ Persisted\n    canonically as `in_transit` with metadata.delayed=True."
+      description: "Canonical shipment status enum.\n\nIncludes both backend-native values (scheduled, collecting, at_storage,\ndelivering) and soft/UX values used by the frontend (pending, delayed).\n\nSoft states semantics:\n  - `pending`: Maps internally to `scheduled` (not yet dispatched) - a \"soft\" state\n    used by the frontend to represent shipments that have been created but have\n    no vehicle assigned. Persisted canonically as `scheduled`.\n  - `delayed`: Maps internally to `in_transit` with a `delayed=True` flag - a\n    \"soft\" state representing a shipment in transit past its ETA. Persisted\n    canonically as `in_transit` with metadata.delayed=True."
     StorageFacility:
       properties:
         facility_id:

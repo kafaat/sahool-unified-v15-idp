@@ -1,17 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL WhatsApp Bot Service
-  description: "\n    WhatsApp messaging service for SAHOOL farmers.\n    خدمة رسائل\
-    \ واتساب لمزارعي سهول.\n\n    **Features / الميزات:**\n    - Receive and respond\
-    \ to farmer messages | استقبال والرد على رسائل المزارعين\n    - Forward queries\
-    \ to AI advisory | إحالة الاستفسارات إلى المستشار الذكي\n    - Handle crop images\
-    \ for disease detection | معالجة صور المحاصيل لكشف الأمراض\n    - Interactive\
-    \ menus and buttons | قوائم وأزرار تفاعلية\n    - Bilingual support (Arabic/English)\
-    \ | دعم ثنائي اللغة (عربي/إنجليزي)\n    - Session context management | إدارة سياق\
-    \ الجلسات\n\n    **Supported Message Types / أنواع الرسائل المدعومة:**\n    -\
-    \ Text messages | رسائل نصية\n    - Image messages | رسائل صور\n    - Location\
-    \ messages | رسائل مواقع\n    - Interactive button responses | ردود الأزرار التفاعلية\n\
-    \    "
+  description: "\n    WhatsApp messaging service for SAHOOL farmers.\n    خدمة رسائل واتساب لمزارعي سهول.\n\n    **Features / الميزات:**\n    - Receive and respond to farmer messages | استقبال والرد على رسائل المزارعين\n    - Forward queries to AI advisory | إحالة الاستفسارات إلى المستشار الذكي\n    - Handle crop images for disease detection | معالجة صور المحاصيل لكشف الأمراض\n    - Interactive menus and buttons | قوائم وأزرار تفاعلية\n    - Bilingual support (Arabic/English) | دعم ثنائي اللغة (عربي/إنجليزي)\n    - Session context management | إدارة سياق الجلسات\n\n    **Supported Message Types / أنواع الرسائل المدعومة:**\n    - Text messages | رسائل نصية\n    - Image messages | رسائل صور\n    - Location messages | رسائل مواقع\n    - Interactive button responses | ردود الأزرار التفاعلية\n    "
   version: 16.0.0
 paths:
   /webhook:

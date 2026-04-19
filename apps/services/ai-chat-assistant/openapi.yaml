@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: AI Chat Assistant
-  description: Lightweight AI assistant for SAHOOL chat services | مساعد الشات الذكي
-    لخدمات سهول
+  description: Lightweight AI assistant for SAHOOL chat services | مساعد الشات الذكي لخدمات سهول
   version: 1.0.0
 paths:
   /health/live:
@@ -34,15 +33,7 @@ paths:
   /health/ready:
     get:
       summary: Readiness Check
-      description: "Readiness probe - checks if the service is ready to serve requests.\n\
-        مسبار الجاهزية - يتحقق من جاهزية الخدمة لخدمة الطلبات.\n\nSemantics:\n* production\
-        \ / staging  — fail closed. Any missing dependency\n  (Redis / NATS / LLM\
-        \ orchestrator) returns 503 so K8s removes\n  this pod from the service endpoints\
-        \ until every backend is up.\n* development / test    — fail open with diagnostic\
-        \ body. The\n  process is up and able to answer HTTP; returning 200 lets local\n\
-        \  smoke tests (and the module-import-only unit test) pass without\n  standing\
-        \ up the full Redis/NATS/LLM stack. The body still\n  reports each dependency's\
-        \ state for visibility."
+      description: "Readiness probe - checks if the service is ready to serve requests.\nمسبار الجاهزية - يتحقق من جاهزية الخدمة لخدمة الطلبات.\n\nSemantics:\n* production / staging  — fail closed. Any missing dependency\n  (Redis / NATS / LLM orchestrator) returns 503 so K8s removes\n  this pod from the service endpoints until every backend is up.\n* development / test    — fail open with diagnostic body. The\n  process is up and able to answer HTTP; returning 200 lets local\n  smoke tests (and the module-import-only unit test) pass without\n  standing up the full Redis/NATS/LLM stack. The body still\n  reports each dependency's state for visibility."
       operationId: readiness_check_health_ready_get
       responses:
         '200':
@@ -53,15 +44,7 @@ paths:
   /readyz:
     get:
       summary: Readiness Check
-      description: "Readiness probe - checks if the service is ready to serve requests.\n\
-        مسبار الجاهزية - يتحقق من جاهزية الخدمة لخدمة الطلبات.\n\nSemantics:\n* production\
-        \ / staging  — fail closed. Any missing dependency\n  (Redis / NATS / LLM\
-        \ orchestrator) returns 503 so K8s removes\n  this pod from the service endpoints\
-        \ until every backend is up.\n* development / test    — fail open with diagnostic\
-        \ body. The\n  process is up and able to answer HTTP; returning 200 lets local\n\
-        \  smoke tests (and the module-import-only unit test) pass without\n  standing\
-        \ up the full Redis/NATS/LLM stack. The body still\n  reports each dependency's\
-        \ state for visibility."
+      description: "Readiness probe - checks if the service is ready to serve requests.\nمسبار الجاهزية - يتحقق من جاهزية الخدمة لخدمة الطلبات.\n\nSemantics:\n* production / staging  — fail closed. Any missing dependency\n  (Redis / NATS / LLM orchestrator) returns 503 so K8s removes\n  this pod from the service endpoints until every backend is up.\n* development / test    — fail open with diagnostic body. The\n  process is up and able to answer HTTP; returning 200 lets local\n  smoke tests (and the module-import-only unit test) pass without\n  standing up the full Redis/NATS/LLM stack. The body still\n  reports each dependency's state for visibility."
       operationId: readiness_check_readyz_get
       responses:
         '200':

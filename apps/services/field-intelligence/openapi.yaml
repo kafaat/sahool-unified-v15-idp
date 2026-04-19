@@ -1,19 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Field Intelligence Service
-  description: "\n    خدمة ذكاء الحقول والقواعد الآلية\n    Field Intelligence and\
-    \ Automation Rules Service\n\n    **Features:**\n    - \U0001F916 محرك القواعد\
-    \ للأتمتة الحقلية - Rules engine for field automation\n    - \U0001F4CA معالجة\
-    \ الأحداث - Event processing (NDVI drop, weather alert, soil moisture)\n    -\
-    \ ✅ إنشاء المهام التلقائية - Auto task creation from events\n    - \U0001F514\
-    \ تفعيل الإشعارات - Notification triggers\n    - \U0001F319 التكامل مع التقويم\
-    \ الفلكي - Integration with astronomical calendar\n\n    **Supported Events:**\n\
-    \    - NDVI drop/anomaly detection\n    - Weather alerts (frost, heatwave, storm,\
-    \ etc.)\n    - Soil moisture (low/high)\n    - Temperature extremes\n    - Pest/disease\
-    \ detection\n    - Irrigation needs\n    - Harvest readiness\n    - Astronomical\
-    \ events\n\n    **Automation Actions:**\n    - Create tasks automatically\n  \
-    \  - Send notifications (push, SMS, email, WhatsApp)\n    - Create alerts\n  \
-    \  - Trigger irrigation systems\n    - Call webhooks\n    - Log events\n    "
+  description: "\n    خدمة ذكاء الحقول والقواعد الآلية\n    Field Intelligence and Automation Rules Service\n\n    **Features:**\n    - \U0001F916 محرك القواعد للأتمتة الحقلية - Rules engine for field automation\n    - \U0001F4CA معالجة الأحداث - Event processing (NDVI drop, weather alert, soil moisture)\n    - ✅ إنشاء المهام التلقائية - Auto task creation from events\n    - \U0001F514 تفعيل الإشعارات - Notification triggers\n    - \U0001F319 التكامل مع التقويم الفلكي - Integration with astronomical calendar\n\n    **Supported Events:**\n    - NDVI drop/anomaly detection\n    - Weather alerts (frost, heatwave, storm, etc.)\n    - Soil moisture (low/high)\n    - Temperature extremes\n    - Pest/disease detection\n    - Irrigation needs\n    - Harvest readiness\n    - Astronomical events\n\n    **Automation Actions:**\n    - Create tasks automatically\n    - Send notifications (push, SMS, email, WhatsApp)\n    - Create alerts\n    - Trigger irrigation systems\n    - Call webhooks\n    - Log events\n    "
   version: 16.0.0
 paths:
   /api/v1/events:
@@ -302,8 +290,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Get Field Event Stats Api V1 Events Field  Field Id  Stats
-                  Get
+                title: Response Get Field Event Stats Api V1 Events Field  Field Id  Stats Get
         '422':
           description: Validation Error
           content:

@@ -1,10 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Satellite Service | خدمة الأقمار الصناعية
-  description: Multi-provider satellite monitoring with automatic fallback. Supports
-    Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil
-    moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen
-    crops.
+  description: Multi-provider satellite monitoring with automatic fallback. Supports Sentinel Hub, Copernicus STAC, NASA Earthdata. Includes Sentinel-1 SAR for soil moisture estimation. Now with GDD (Growing Degree Days) tracking for 40+ Yemen crops.
   version: 16.0.0
 paths:
   /v1/weather/forecast:
@@ -620,34 +617,7 @@ paths:
   /v1/gdd/chart/{field_id}:
     get:
       summary: Get Gdd Chart
-      description: "مخطط وحدات الحرارة النامية | Get GDD Accumulation Chart\n\nGet\
-        \ comprehensive GDD tracking chart for a field from planting to current date.\n\
-        \n**Features:**\n- Daily GDD accumulation from planting\n- Growth stage identification\n\
-        - Milestone tracking (emergence, flowering, harvest)\n- Harvest date prediction\n\
-        - Comparison to historical normal\n- Visual chart data for mobile app\n\n\
-        **Calculation Methods:**\n- `simple`: (Tmax + Tmin) / 2 - Tbase (fastest,\
-        \ most common)\n- `modified`: Apply upper/lower cutoffs (more accurate for\
-        \ extreme temps)\n- `sine`: Sine wave approximation (most accurate, slower)\n\
-        \n**Supported Crops:**\n- Cereals: WHEAT, BARLEY, CORN, SORGHUM, MILLET\n\
-        - Vegetables: TOMATO, POTATO, ONION, CUCUMBER, PEPPER\n- Legumes: FABA_BEAN,\
-        \ LENTIL, CHICKPEA\n- Cash: COTTON, COFFEE, QAT\n- Fruits: DATE_PALM, GRAPE,\
-        \ MANGO\n- Fodder: ALFALFA\n\n**Example:**\n```\nGET /v1/gdd/chart/field123?crop_code=WHEAT&planting_date=2024-03-01&lat=15.37&lon=44.19\n\
-        ```\n\n**Returns:**\n```json\n{\n  \"field_id\": \"field123\",\n  \"crop\"\
-        : {\"code\": \"WHEAT\", \"name_ar\": \"قمح\", \"name_en\": \"Wheat\"},\n \
-        \ \"planting_date\": \"2024-03-01\",\n  \"current_status\": {\n    \"date\"\
-        : \"2024-05-15\",\n    \"total_gdd\": 1247.5,\n    \"days_since_planting\"\
-        : 75,\n    \"avg_daily_gdd\": 16.6\n  },\n  \"current_stage\": {\n    \"name_en\"\
-        : \"Flowering\",\n    \"name_ar\": \"الإزهار\",\n    \"next_stage_en\": \"\
-        Grain Fill\",\n    \"next_stage_ar\": \"امتلاء الحبوب\",\n    \"gdd_to_next_stage\"\
-        : 252.5\n  },\n  \"milestones\": [...],\n  \"harvest_prediction\": {\n   \
-        \ \"estimated_date\": \"2024-06-20\",\n    \"gdd_remaining\": 752.5,\n   \
-        \ \"days_remaining\": 36\n  },\n  \"comparison\": {\n    \"vs_normal_percent\"\
-        : 8.5,\n    \"description_ar\": \"متقدم بنسبة 8.5% عن المعدل الطبيعي\",\n\
-        \    \"description_en\": \"8.5% ahead of normal\"\n  },\n  \"daily_data\"\
-        : [...]\n}\n```\n\n**Use Cases:**\n- Track crop development progress\n- Predict\
-        \ flowering and harvest dates\n- Plan field operations (fertilization, irrigation)\n\
-        - Compare current season to normal\n- Optimize harvest timing\n- Mobile app\
-        \ charts and progress bars"
+      description: "مخطط وحدات الحرارة النامية | Get GDD Accumulation Chart\n\nGet comprehensive GDD tracking chart for a field from planting to current date.\n\n**Features:**\n- Daily GDD accumulation from planting\n- Growth stage identification\n- Milestone tracking (emergence, flowering, harvest)\n- Harvest date prediction\n- Comparison to historical normal\n- Visual chart data for mobile app\n\n**Calculation Methods:**\n- `simple`: (Tmax + Tmin) / 2 - Tbase (fastest, most common)\n- `modified`: Apply upper/lower cutoffs (more accurate for extreme temps)\n- `sine`: Sine wave approximation (most accurate, slower)\n\n**Supported Crops:**\n- Cereals: WHEAT, BARLEY, CORN, SORGHUM, MILLET\n- Vegetables: TOMATO, POTATO, ONION, CUCUMBER, PEPPER\n- Legumes: FABA_BEAN, LENTIL, CHICKPEA\n- Cash: COTTON, COFFEE, QAT\n- Fruits: DATE_PALM, GRAPE, MANGO\n- Fodder: ALFALFA\n\n**Example:**\n```\nGET /v1/gdd/chart/field123?crop_code=WHEAT&planting_date=2024-03-01&lat=15.37&lon=44.19\n```\n\n**Returns:**\n```json\n{\n  \"field_id\": \"field123\",\n  \"crop\": {\"code\": \"WHEAT\", \"name_ar\": \"قمح\", \"name_en\": \"Wheat\"},\n  \"planting_date\": \"2024-03-01\",\n  \"current_status\": {\n    \"date\": \"2024-05-15\",\n    \"total_gdd\": 1247.5,\n    \"days_since_planting\": 75,\n    \"avg_daily_gdd\": 16.6\n  },\n  \"current_stage\": {\n    \"name_en\": \"Flowering\",\n    \"name_ar\": \"الإزهار\",\n    \"next_stage_en\": \"Grain Fill\",\n    \"next_stage_ar\": \"امتلاء الحبوب\",\n    \"gdd_to_next_stage\": 252.5\n  },\n  \"milestones\": [...],\n  \"harvest_prediction\": {\n    \"estimated_date\": \"2024-06-20\",\n    \"gdd_remaining\": 752.5,\n    \"days_remaining\": 36\n  },\n  \"comparison\": {\n    \"vs_normal_percent\": 8.5,\n    \"description_ar\": \"متقدم بنسبة 8.5% عن المعدل الطبيعي\",\n    \"description_en\": \"8.5% ahead of normal\"\n  },\n  \"daily_data\": [...]\n}\n```\n\n**Use Cases:**\n- Track crop development progress\n- Predict flowering and harvest dates\n- Plan field operations (fertilization, irrigation)\n- Compare current season to normal\n- Optimize harvest timing\n- Mobile app charts and progress bars"
       operationId: get_gdd_chart_v1_gdd_chart__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -728,25 +698,7 @@ paths:
   /v1/gdd/forecast:
     get:
       summary: Get Gdd Forecast
-      description: "توقع وحدات الحرارة النامية | Forecast GDD Accumulation\n\nForecast\
-        \ when a target GDD will be reached using weather forecast.\n\n**Use Cases:**\n\
-        - Predict flowering date: \"When will we reach 1300 GDD?\"\n- Estimate harvest\
-        \ date: \"When will we reach 2000 GDD?\"\n- Plan irrigation: \"When will next\
-        \ growth stage begin?\"\n- Schedule fertilization: \"When to apply nitrogen?\"\
-        \n\n**How it Works:**\n1. Takes current accumulated GDD\n2. Uses 16-day weather\
-        \ forecast to project future GDD\n3. Calculates daily GDD accumulation\n4.\
-        \ Estimates date when target will be reached\n5. If target beyond forecast,\
-        \ uses historical average to extrapolate\n\n**Example Use Case - Wheat Flowering:**\n\
-        ```\nWheat planted March 1, currently at 1100 GDD (May 10).\nFlowering requires\
-        \ 1500 GDD.\nWhen will flowering occur?\n\nGET /v1/gdd/forecast?lat=15.37&lon=44.19&current_gdd=1100&target_gdd=1500&base_temp=0\n\
-        ```\n\n**Example Response:**\n```json\n{\n  \"current_gdd\": 1100,\n  \"target_gdd\"\
-        : 1500,\n  \"gdd_needed\": 400,\n  \"estimated_date\": \"2024-05-28\",\n \
-        \ \"is_estimated\": false,\n  \"forecast_data\": [\n    {\"date\": \"2024-05-11\"\
-        , \"daily_gdd\": 18.5, \"accumulated_gdd\": 1118.5},\n    {\"date\": \"2024-05-12\"\
-        , \"daily_gdd\": 17.2, \"accumulated_gdd\": 1135.7},\n    ...\n  ]\n}\n```\n\
-        \n**Integration with Mobile App:**\n- Show countdown to next milestone\n-\
-        \ Display progress bars\n- Push notifications when stages reached\n- Update\
-        \ field task scheduling"
+      description: "توقع وحدات الحرارة النامية | Forecast GDD Accumulation\n\nForecast when a target GDD will be reached using weather forecast.\n\n**Use Cases:**\n- Predict flowering date: \"When will we reach 1300 GDD?\"\n- Estimate harvest date: \"When will we reach 2000 GDD?\"\n- Plan irrigation: \"When will next growth stage begin?\"\n- Schedule fertilization: \"When to apply nitrogen?\"\n\n**How it Works:**\n1. Takes current accumulated GDD\n2. Uses 16-day weather forecast to project future GDD\n3. Calculates daily GDD accumulation\n4. Estimates date when target will be reached\n5. If target beyond forecast, uses historical average to extrapolate\n\n**Example Use Case - Wheat Flowering:**\n```\nWheat planted March 1, currently at 1100 GDD (May 10).\nFlowering requires 1500 GDD.\nWhen will flowering occur?\n\nGET /v1/gdd/forecast?lat=15.37&lon=44.19&current_gdd=1100&target_gdd=1500&base_temp=0\n```\n\n**Example Response:**\n```json\n{\n  \"current_gdd\": 1100,\n  \"target_gdd\": 1500,\n  \"gdd_needed\": 400,\n  \"estimated_date\": \"2024-05-28\",\n  \"is_estimated\": false,\n  \"forecast_data\": [\n    {\"date\": \"2024-05-11\", \"daily_gdd\": 18.5, \"accumulated_gdd\": 1118.5},\n    {\"date\": \"2024-05-12\", \"daily_gdd\": 17.2, \"accumulated_gdd\": 1135.7},\n    ...\n  ]\n}\n```\n\n**Integration with Mobile App:**\n- Show countdown to next milestone\n- Display progress bars\n- Push notifications when stages reached\n- Update field task scheduling"
       operationId: get_gdd_forecast_v1_gdd_forecast_get
       security:
       - OAuth2PasswordBearer: []
@@ -836,26 +788,7 @@ paths:
   /v1/gdd/requirements/{crop_code}:
     get:
       summary: Get Crop Gdd Requirements
-      description: "متطلبات المحصول | Get Crop GDD Requirements\n\nGet complete GDD\
-        \ requirements and growth stages for a crop.\n\n**What You Get:**\n- Base\
-        \ temperature for the crop\n- Upper cutoff temperature (if applicable)\n-\
-        \ Total GDD required from planting to harvest\n- All growth stages with GDD\
-        \ thresholds\n- Stage descriptions in Arabic and English\n\n**Use Cases:**\n\
-        - Understand crop development timeline\n- Plan planting dates\n- Estimate\
-        \ season length\n- Compare different crops\n- Educational content for farmers\n\
-        \n**Example:**\n```\nGET /v1/gdd/requirements/WHEAT\n```\n\n**Response:**\n\
-        ```json\n{\n  \"crop_code\": \"WHEAT\",\n  \"crop_name_ar\": \"قمح\",\n  \"\
-        crop_name_en\": \"Wheat\",\n  \"base_temp_c\": 0,\n  \"upper_temp_c\": 30,\n\
-        \  \"total_gdd_required\": 2000,\n  \"stages\": [\n    {\n      \"name_en\"\
-        : \"Emergence\",\n      \"name_ar\": \"الإنبات\",\n      \"gdd_start\": 0,\n\
-        \      \"gdd_end\": 150,\n      \"gdd_duration\": 150,\n      \"description_ar\"\
-        : \"ظهور البادرات\",\n      \"description_en\": \"Seedling emergence\"\n \
-        \   },\n    ...\n  ]\n}\n```\n\n**All Yemen Crops Supported:**\n- 6 Cereals\
-        \ (wheat, barley, corn, sorghum, millet, rice)\n- 11 Vegetables (tomato, potato,\
-        \ onion, cucumber, pepper, etc.)\n- 6 Legumes (faba bean, lentil, chickpea,\
-        \ etc.)\n- 5 Cash crops (cotton, coffee, qat, sesame, tobacco)\n- 9 Fruits\
-        \ (date palm, grape, mango, banana, citrus, etc.)\n- 3 Fodder crops (alfalfa,\
-        \ rhodes grass, sudan grass)\n\n**40+ crops total!**"
+      description: "متطلبات المحصول | Get Crop GDD Requirements\n\nGet complete GDD requirements and growth stages for a crop.\n\n**What You Get:**\n- Base temperature for the crop\n- Upper cutoff temperature (if applicable)\n- Total GDD required from planting to harvest\n- All growth stages with GDD thresholds\n- Stage descriptions in Arabic and English\n\n**Use Cases:**\n- Understand crop development timeline\n- Plan planting dates\n- Estimate season length\n- Compare different crops\n- Educational content for farmers\n\n**Example:**\n```\nGET /v1/gdd/requirements/WHEAT\n```\n\n**Response:**\n```json\n{\n  \"crop_code\": \"WHEAT\",\n  \"crop_name_ar\": \"قمح\",\n  \"crop_name_en\": \"Wheat\",\n  \"base_temp_c\": 0,\n  \"upper_temp_c\": 30,\n  \"total_gdd_required\": 2000,\n  \"stages\": [\n    {\n      \"name_en\": \"Emergence\",\n      \"name_ar\": \"الإنبات\",\n      \"gdd_start\": 0,\n      \"gdd_end\": 150,\n      \"gdd_duration\": 150,\n      \"description_ar\": \"ظهور البادرات\",\n      \"description_en\": \"Seedling emergence\"\n    },\n    ...\n  ]\n}\n```\n\n**All Yemen Crops Supported:**\n- 6 Cereals (wheat, barley, corn, sorghum, millet, rice)\n- 11 Vegetables (tomato, potato, onion, cucumber, pepper, etc.)\n- 6 Legumes (faba bean, lentil, chickpea, etc.)\n- 5 Cash crops (cotton, coffee, qat, sesame, tobacco)\n- 9 Fruits (date palm, grape, mango, banana, citrus, etc.)\n- 3 Fodder crops (alfalfa, rhodes grass, sudan grass)\n\n**40+ crops total!**"
       operationId: get_crop_gdd_requirements_v1_gdd_requirements__crop_code__get
       security:
       - OAuth2PasswordBearer: []
@@ -881,18 +814,7 @@ paths:
   /v1/gdd/stage/{crop_code}:
     get:
       summary: Get Growth Stage From Gdd
-      description: "مرحلة النمو | Get Growth Stage from GDD\n\nDetermine current growth\
-        \ stage based on accumulated GDD.\n\n**Simple API for Stage Lookup:**\n- Input:\
-        \ Crop + GDD\n- Output: Current stage + Next stage + GDD to next\n\n**Example:**\n\
-        ```\nGET /v1/gdd/stage/WHEAT?gdd=1247.5\n```\n\n**Response:**\n```json\n{\n\
-        \  \"crop_code\": \"WHEAT\",\n  \"crop_name_ar\": \"قمح\",\n  \"crop_name_en\"\
-        : \"Wheat\",\n  \"accumulated_gdd\": 1247.5,\n  \"current_stage\": {\n   \
-        \ \"name_en\": \"Flowering\",\n    \"name_ar\": \"الإزهار\",\n    \"gdd_start\"\
-        : 1100,\n    \"gdd_end\": 1500\n  },\n  \"next_stage\": {\n    \"name_en\"\
-        : \"Grain Fill\",\n    \"name_ar\": \"امتلاء الحبوب\",\n    \"gdd_start\"\
-        : 1500,\n    \"gdd_end\": 1700\n  },\n  \"gdd_to_next_stage\": 252.5,\n  \"\
-        progress_percent\": 61.9\n}\n```\n\n**Use Cases:**\n- Quick stage lookup\n\
-        - Mobile app stage indicator\n- Alert generation\n- Task recommendations"
+      description: "مرحلة النمو | Get Growth Stage from GDD\n\nDetermine current growth stage based on accumulated GDD.\n\n**Simple API for Stage Lookup:**\n- Input: Crop + GDD\n- Output: Current stage + Next stage + GDD to next\n\n**Example:**\n```\nGET /v1/gdd/stage/WHEAT?gdd=1247.5\n```\n\n**Response:**\n```json\n{\n  \"crop_code\": \"WHEAT\",\n  \"crop_name_ar\": \"قمح\",\n  \"crop_name_en\": \"Wheat\",\n  \"accumulated_gdd\": 1247.5,\n  \"current_stage\": {\n    \"name_en\": \"Flowering\",\n    \"name_ar\": \"الإزهار\",\n    \"gdd_start\": 1100,\n    \"gdd_end\": 1500\n  },\n  \"next_stage\": {\n    \"name_en\": \"Grain Fill\",\n    \"name_ar\": \"امتلاء الحبوب\",\n    \"gdd_start\": 1500,\n    \"gdd_end\": 1700\n  },\n  \"gdd_to_next_stage\": 252.5,\n  \"progress_percent\": 61.9\n}\n```\n\n**Use Cases:**\n- Quick stage lookup\n- Mobile app stage indicator\n- Alert generation\n- Task recommendations"
       operationId: get_growth_stage_from_gdd_v1_gdd_stage__crop_code__get
       security:
       - OAuth2PasswordBearer: []
@@ -927,18 +849,7 @@ paths:
   /v1/gdd/crops:
     get:
       summary: List Supported Crops
-      description: "قائمة المحاصيل | List All Supported Crops\n\nGet list of all crops\
-        \ with GDD tracking support.\n\n**40+ Yemen Crops:**\n\n**Cereals (الحبوب):**\n\
-        - Wheat, Barley, Corn, Sorghum, Millet, Rice\n\n**Vegetables (الخضروات):**\n\
-        - Tomato, Potato, Onion, Carrot, Cucumber, Squash\n- Pepper, Eggplant, Okra,\
-        \ Cabbage, Lettuce\n\n**Legumes (البقوليات):**\n- Faba Bean, Lentil, Chickpea,\
-        \ Cowpea, Peanut, Alfalfa\n\n**Cash Crops (المحاصيل النقدية):**\n- Cotton,\
-        \ Coffee, Qat, Sesame, Tobacco\n\n**Fruits (الفواكه):**\n- Date Palm, Grape,\
-        \ Mango, Banana, Papaya\n- Citrus, Pomegranate, Fig, Guava\n\n**Fodder (الأعلاف):**\n\
-        - Alfalfa, Rhodes Grass, Sudan Grass\n\n**Response:**\n```json\n[\n  {\n \
-        \   \"crop_code\": \"WHEAT\",\n    \"crop_name_ar\": \"قمح\",\n    \"crop_name_en\"\
-        : \"Wheat\",\n    \"base_temp_c\": 0,\n    \"upper_temp_c\": 30,\n    \"total_gdd_required\"\
-        : 2000,\n    \"num_stages\": 8\n  },\n  ...\n]\n```"
+      description: "قائمة المحاصيل | List All Supported Crops\n\nGet list of all crops with GDD tracking support.\n\n**40+ Yemen Crops:**\n\n**Cereals (الحبوب):**\n- Wheat, Barley, Corn, Sorghum, Millet, Rice\n\n**Vegetables (الخضروات):**\n- Tomato, Potato, Onion, Carrot, Cucumber, Squash\n- Pepper, Eggplant, Okra, Cabbage, Lettuce\n\n**Legumes (البقوليات):**\n- Faba Bean, Lentil, Chickpea, Cowpea, Peanut, Alfalfa\n\n**Cash Crops (المحاصيل النقدية):**\n- Cotton, Coffee, Qat, Sesame, Tobacco\n\n**Fruits (الفواكه):**\n- Date Palm, Grape, Mango, Banana, Papaya\n- Citrus, Pomegranate, Fig, Guava\n\n**Fodder (الأعلاف):**\n- Alfalfa, Rhodes Grass, Sudan Grass\n\n**Response:**\n```json\n[\n  {\n    \"crop_code\": \"WHEAT\",\n    \"crop_name_ar\": \"قمح\",\n    \"crop_name_en\": \"Wheat\",\n    \"base_temp_c\": 0,\n    \"upper_temp_c\": 30,\n    \"total_gdd_required\": 2000,\n    \"num_stages\": 8\n  },\n  ...\n]\n```"
       operationId: list_supported_crops_v1_gdd_crops_get
       responses:
         '200':
@@ -951,28 +862,7 @@ paths:
   /v1/spray/forecast:
     get:
       summary: Get Spray Forecast
-      description: "توقعات أوقات الرش | Get Spray Time Forecast\n\nGet spray time\
-        \ recommendations for next N days based on weather conditions.\n\nIdentifies\
-        \ optimal spray windows during daylight hours (6 AM - 6 PM) considering:\n\
-        - **Temperature**: 10-30°C ideal (varies by product)\n- **Humidity**: 40-80%\
-        \ ideal\n- **Wind Speed**: < 15 km/h (prevents drift)\n- **Rain Probability**:\
-        \ < 20% (prevents wash-off)\n- **Delta-T**: 2-8°C optimal (wet bulb depression)\n\
-        \n**Product Types:**\n- `herbicide`: Higher temp needed (15-28°C), longer\
-        \ rain-free period (6h)\n- `insecticide`: Lower wind tolerance (<10 km/h)\n\
-        - `fungicide`: Lower humidity preferred (<70%)\n- `foliar_fertilizer`: Higher\
-        \ humidity needed (>60%)\n- `growth_regulator`: Moderate conditions (15-25°C)\n\
-        \n**Spray Conditions:**\n- `excellent` (score 85-100): Perfect conditions\n\
-        - `good` (score 70-84): Safe to spray\n- `marginal` (score 50-69): Some risk,\
-        \ use caution\n- `poor` (score 30-49): Not recommended\n- `dangerous` (score\
-        \ 0-29): Do not spray\n\n**Example:**\n```\nGET /v1/spray/forecast?lat=15.3694&lon=44.1910&days=7&product_type=herbicide\n\
-        ```\n\n**Returns:**\n```json\n[\n  {\n    \"date\": \"2024-12-25\",\n    \"\
-        overall_condition\": \"good\",\n    \"best_window\": {\n      \"start_time\"\
-        : \"2024-12-25T07:00:00\",\n      \"end_time\": \"2024-12-25T11:00:00\",\n\
-        \      \"duration_hours\": 4,\n      \"condition\": \"good\",\n      \"score\"\
-        : 78.5,\n      \"weather\": {...},\n      \"risks\": [\"low_humidity\"],\n\
-        \      \"recommendations_ar\": [...],\n      \"recommendations_en\": [...]\n\
-        \    },\n    \"all_windows\": [...],\n    \"hours_suitable\": 6.5,\n    \"\
-        daily_summary\": {...}\n  }\n]\n```"
+      description: "توقعات أوقات الرش | Get Spray Time Forecast\n\nGet spray time recommendations for next N days based on weather conditions.\n\nIdentifies optimal spray windows during daylight hours (6 AM - 6 PM) considering:\n- **Temperature**: 10-30°C ideal (varies by product)\n- **Humidity**: 40-80% ideal\n- **Wind Speed**: < 15 km/h (prevents drift)\n- **Rain Probability**: < 20% (prevents wash-off)\n- **Delta-T**: 2-8°C optimal (wet bulb depression)\n\n**Product Types:**\n- `herbicide`: Higher temp needed (15-28°C), longer rain-free period (6h)\n- `insecticide`: Lower wind tolerance (<10 km/h)\n- `fungicide`: Lower humidity preferred (<70%)\n- `foliar_fertilizer`: Higher humidity needed (>60%)\n- `growth_regulator`: Moderate conditions (15-25°C)\n\n**Spray Conditions:**\n- `excellent` (score 85-100): Perfect conditions\n- `good` (score 70-84): Safe to spray\n- `marginal` (score 50-69): Some risk, use caution\n- `poor` (score 30-49): Not recommended\n- `dangerous` (score 0-29): Do not spray\n\n**Example:**\n```\nGET /v1/spray/forecast?lat=15.3694&lon=44.1910&days=7&product_type=herbicide\n```\n\n**Returns:**\n```json\n[\n  {\n    \"date\": \"2024-12-25\",\n    \"overall_condition\": \"good\",\n    \"best_window\": {\n      \"start_time\": \"2024-12-25T07:00:00\",\n      \"end_time\": \"2024-12-25T11:00:00\",\n      \"duration_hours\": 4,\n      \"condition\": \"good\",\n      \"score\": 78.5,\n      \"weather\": {...},\n      \"risks\": [\"low_humidity\"],\n      \"recommendations_ar\": [...],\n      \"recommendations_en\": [...]\n    },\n    \"all_windows\": [...],\n    \"hours_suitable\": 6.5,\n    \"daily_summary\": {...}\n  }\n]\n```"
       operationId: get_spray_forecast_v1_spray_forecast_get
       security:
       - OAuth2PasswordBearer: []
@@ -1015,11 +905,9 @@ paths:
           anyOf:
           - type: string
           - type: 'null'
-          description: 'Product type: herbicide, insecticide, fungicide, foliar_fertilizer,
-            growth_regulator'
+          description: 'Product type: herbicide, insecticide, fungicide, foliar_fertilizer, growth_regulator'
           title: Product Type
-        description: 'Product type: herbicide, insecticide, fungicide, foliar_fertilizer,
-          growth_regulator'
+        description: 'Product type: herbicide, insecticide, fungicide, foliar_fertilizer, growth_regulator'
       responses:
         '200':
           description: Successful Response
@@ -1035,18 +923,7 @@ paths:
   /v1/spray/best-time:
     get:
       summary: Get Best Spray Time
-      description: "أفضل وقت للرش | Find Best Spray Time\n\nFind the single best spray\
-        \ window in the next N days for a specific product.\n\nThis endpoint searches\
-        \ all available spray windows and returns the one with\nthe highest suitability\
-        \ score, considering product-specific requirements.\n\n**Use Case:**\nWhen\
-        \ you need to spray but have flexibility in timing, use this endpoint\nto\
-        \ find the absolute best time.\n\n**Example:**\n```\nGET /v1/spray/best-time?lat=15.37&lon=44.19&product_type=insecticide&within_days=3\n\
-        ```\n\n**Returns:**\n```json\n{\n  \"location\": {\"lat\": 15.37, \"lon\"\
-        : 44.19},\n  \"product_type\": \"insecticide\",\n  \"search_period_days\"\
-        : 3,\n  \"best_window\": {\n    \"start_time\": \"2024-12-26T08:00:00\",\n\
-        \    \"end_time\": \"2024-12-26T12:00:00\",\n    \"duration_hours\": 4,\n\
-        \    \"condition\": \"excellent\",\n    \"score\": 92.3,\n    ...\n  }\n}\n\
-        ```\n\nReturns 404 if no suitable windows found."
+      description: "أفضل وقت للرش | Find Best Spray Time\n\nFind the single best spray window in the next N days for a specific product.\n\nThis endpoint searches all available spray windows and returns the one with\nthe highest suitability score, considering product-specific requirements.\n\n**Use Case:**\nWhen you need to spray but have flexibility in timing, use this endpoint\nto find the absolute best time.\n\n**Example:**\n```\nGET /v1/spray/best-time?lat=15.37&lon=44.19&product_type=insecticide&within_days=3\n```\n\n**Returns:**\n```json\n{\n  \"location\": {\"lat\": 15.37, \"lon\": 44.19},\n  \"product_type\": \"insecticide\",\n  \"search_period_days\": 3,\n  \"best_window\": {\n    \"start_time\": \"2024-12-26T08:00:00\",\n    \"end_time\": \"2024-12-26T12:00:00\",\n    \"duration_hours\": 4,\n    \"condition\": \"excellent\",\n    \"score\": 92.3,\n    ...\n  }\n}\n```\n\nReturns 404 if no suitable windows found."
       operationId: get_best_spray_time_v1_spray_best_time_get
       security:
       - OAuth2PasswordBearer: []
@@ -1105,21 +982,7 @@ paths:
   /v1/spray/evaluate:
     post:
       summary: Evaluate Spray Time
-      description: "تقييم وقت محدد للرش | Evaluate Specific Spray Time\n\nEvaluate\
-        \ if a specific date/time is suitable for spraying.\n\n**Use Case:**\nWhen\
-        \ you have a planned spray time and want to check if conditions will be suitable.\n\
-        \n**Example:**\n```\nPOST /v1/spray/evaluate?lat=15.37&lon=44.19&target_datetime=2024-12-26T09:00:00&product_type=herbicide\n\
-        ```\n\n**Target DateTime Format:**\n- ISO 8601 format: `2024-12-26T09:00:00`\n\
-        - With timezone: `2024-12-26T09:00:00+03:00`\n- Must be within next 16 days\n\
-        \n**Returns:**\n```json\n{\n  \"location\": {\"lat\": 15.37, \"lon\": 44.19},\n\
-        \  \"target_time\": \"2024-12-26T09:00:00\",\n  \"product_type\": \"herbicide\"\
-        ,\n  \"evaluation\": {\n    \"start_time\": \"2024-12-26T09:00:00\",\n   \
-        \ \"end_time\": \"2024-12-26T10:00:00\",\n    \"condition\": \"good\",\n \
-        \   \"score\": 75.2,\n    \"weather\": {\n      \"temperature_c\": 22.5,\n\
-        \      \"humidity_percent\": 65.0,\n      \"wind_speed_kmh\": 8.2,\n     \
-        \ \"precipitation_probability\": 10.0\n    },\n    \"risks\": [\"low_humidity\"\
-        ],\n    \"recommendations_ar\": [...],\n    \"recommendations_en\": [...]\n\
-        \  }\n}\n```"
+      description: "تقييم وقت محدد للرش | Evaluate Specific Spray Time\n\nEvaluate if a specific date/time is suitable for spraying.\n\n**Use Case:**\nWhen you have a planned spray time and want to check if conditions will be suitable.\n\n**Example:**\n```\nPOST /v1/spray/evaluate?lat=15.37&lon=44.19&target_datetime=2024-12-26T09:00:00&product_type=herbicide\n```\n\n**Target DateTime Format:**\n- ISO 8601 format: `2024-12-26T09:00:00`\n- With timezone: `2024-12-26T09:00:00+03:00`\n- Must be within next 16 days\n\n**Returns:**\n```json\n{\n  \"location\": {\"lat\": 15.37, \"lon\": 44.19},\n  \"target_time\": \"2024-12-26T09:00:00\",\n  \"product_type\": \"herbicide\",\n  \"evaluation\": {\n    \"start_time\": \"2024-12-26T09:00:00\",\n    \"end_time\": \"2024-12-26T10:00:00\",\n    \"condition\": \"good\",\n    \"score\": 75.2,\n    \"weather\": {\n      \"temperature_c\": 22.5,\n      \"humidity_percent\": 65.0,\n      \"wind_speed_kmh\": 8.2,\n      \"precipitation_probability\": 10.0\n    },\n    \"risks\": [\"low_humidity\"],\n    \"recommendations_ar\": [...],\n    \"recommendations_en\": [...]\n  }\n}\n```"
       operationId: evaluate_spray_time_v1_spray_evaluate_post
       security:
       - OAuth2PasswordBearer: []
@@ -2195,11 +2058,7 @@ paths:
   /v1/indices/interpret:
     post:
       summary: Interpret Indices
-      description: "Interpret multiple vegetation indices for a specific crop and\
-        \ growth stage\nتفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو\n\nBody:\n\
-        {\n    \"field_id\": \"field123\",\n    \"indices\": {\"ndvi\": 0.65, \"ndre\"\
-        : 0.28, \"gndvi\": 0.55},\n    \"crop_type\": \"wheat\",\n    \"growth_stage\"\
-        : \"reproductive\"\n}"
+      description: "Interpret multiple vegetation indices for a specific crop and growth stage\nتفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو\n\nBody:\n{\n    \"field_id\": \"field123\",\n    \"indices\": {\"ndvi\": 0.65, \"ndre\": 0.28, \"gndvi\": 0.55},\n    \"crop_type\": \"wheat\",\n    \"growth_stage\": \"reproductive\"\n}"
       operationId: interpret_indices_v1_indices_interpret_post
       requestBody:
         content:
@@ -2282,8 +2141,7 @@ paths:
 
         Returns historical yield predictions for a field, optionally filtered by crop.
 
-        In production, this would fetch from a database. Currently returns simulated
-        data.'
+        In production, this would fetch from a database. Currently returns simulated data.'
       operationId: get_yield_history_v1_yield_history__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -2369,11 +2227,7 @@ paths:
   /v1/cloud-cover/{field_id}:
     get:
       summary: Get Cloud Cover
-      description: "Analyze cloud cover for a field location using Sentinel-2 SCL\n\
-        تحليل الغطاء السحابي لموقع الحقل\n\nReturns detailed cloud coverage analysis\
-        \ including:\n- Cloud coverage percentage\n- Shadow coverage percentage\n\
-        - Clear pixel percentage\n- Quality score (0-1)\n- Usability assessment\n\
-        - SCL class distribution\n- Recommendation\n\nExample:\n    GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15"
+      description: "Analyze cloud cover for a field location using Sentinel-2 SCL\nتحليل الغطاء السحابي لموقع الحقل\n\nReturns detailed cloud coverage analysis including:\n- Cloud coverage percentage\n- Shadow coverage percentage\n- Clear pixel percentage\n- Quality score (0-1)\n- Usability assessment\n- SCL class distribution\n- Recommendation\n\nExample:\n    GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15"
       operationId: get_cloud_cover_v1_cloud_cover__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -2429,10 +2283,7 @@ paths:
   /v1/clear-observations/{field_id}:
     get:
       summary: Find Clear Observations
-      description: "Find all clear (low cloud) observations in date range\nالبحث عن\
-        \ جميع الأرصاد الصافية في فترة زمنية\n\nReturns list of clear observations\
-        \ sorted by quality score.\nUseful for selecting best images for analysis.\n\
-        \nExample:\n    GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15"
+      description: "Find all clear (low cloud) observations in date range\nالبحث عن جميع الأرصاد الصافية في فترة زمنية\n\nReturns list of clear observations sorted by quality score.\nUseful for selecting best images for analysis.\n\nExample:\n    GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15"
       operationId: find_clear_observations_v1_clear_observations__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -2505,10 +2356,7 @@ paths:
   /v1/best-observation/{field_id}:
     get:
       summary: Get Best Observation
-      description: "Find the best (lowest cloud) observation near target date\nالبحث\
-        \ عن أفضل رصد (أقل غيوم) قريب من التاريخ المستهدف\n\nReturns the highest quality\
-        \ observation within tolerance window.\nUseful for finding best image for\
-        \ a specific date.\n\nExample:\n    GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10"
+      description: "Find the best (lowest cloud) observation near target date\nالبحث عن أفضل رصد (أقل غيوم) قريب من التاريخ المستهدف\n\nReturns the highest quality observation within tolerance window.\nUseful for finding best image for a specific date.\n\nExample:\n    GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10"
       operationId: get_best_observation_v1_best_observation__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -2573,15 +2421,7 @@ paths:
   /v1/interpolate-cloudy:
     post:
       summary: Interpolate Cloudy Pixels
-      description: "Interpolate cloudy observations using temporal neighbors\nاستكمال\
-        \ الأرصاد الملبدة بالغيوم باستخدام القيم المجاورة زمنياً\n\nMethods:\n- linear:\
-        \ Linear interpolation between valid neighbors\n- spline: Smooth spline interpolation\
-        \ (better for curves)\n- previous: Use previous valid value (forward fill)\n\
-        \nRequest body:\n{\n    \"field_id\": \"field_123\",\n    \"method\": \"linear\"\
-        ,\n    \"ndvi_series\": [\n        {\"date\": \"2024-01-01\", \"ndvi\": 0.65,\
-        \ \"cloudy\": false},\n        {\"date\": \"2024-01-10\", \"ndvi\": 0.45,\
-        \ \"cloudy\": true},\n        {\"date\": \"2024-01-20\", \"ndvi\": 0.75, \"\
-        cloudy\": false}\n    ]\n}"
+      description: "Interpolate cloudy observations using temporal neighbors\nاستكمال الأرصاد الملبدة بالغيوم باستخدام القيم المجاورة زمنياً\n\nMethods:\n- linear: Linear interpolation between valid neighbors\n- spline: Smooth spline interpolation (better for curves)\n- previous: Use previous valid value (forward fill)\n\nRequest body:\n{\n    \"field_id\": \"field_123\",\n    \"method\": \"linear\",\n    \"ndvi_series\": [\n        {\"date\": \"2024-01-01\", \"ndvi\": 0.65, \"cloudy\": false},\n        {\"date\": \"2024-01-10\", \"ndvi\": 0.45, \"cloudy\": true},\n        {\"date\": \"2024-01-20\", \"ndvi\": 0.75, \"cloudy\": false}\n    ]\n}"
       operationId: interpolate_cloudy_pixels_v1_interpolate_cloudy_post
       security:
       - OAuth2PasswordBearer: []
@@ -2880,12 +2720,7 @@ paths:
   /v1/changes/{field_id}:
     get:
       summary: Detect Changes
-      description: "كشف التغييرات الزراعية | Detect Agricultural Changes\n\nAnalyzes\
-        \ satellite time series to detect significant changes in agricultural fields:\n\
-        - Vegetation growth or decline\n- Water stress and drought\n- Flooding events\n\
-        - Harvest and planting detection\n- Crop damage from pests/weather\n- Land\
-        \ clearing\n\nReturns comprehensive report with detected events, trends, and\
-        \ recommendations.\n\nExample:\n    GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat"
+      description: "كشف التغييرات الزراعية | Detect Agricultural Changes\n\nAnalyzes satellite time series to detect significant changes in agricultural fields:\n- Vegetation growth or decline\n- Water stress and drought\n- Flooding events\n- Harvest and planting detection\n- Crop damage from pests/weather\n- Land clearing\n\nReturns comprehensive report with detected events, trends, and recommendations.\n\nExample:\n    GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat"
       operationId: detect_changes_v1_changes__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -2958,9 +2793,7 @@ paths:
   /v1/changes/{field_id}/compare:
     get:
       summary: Compare Dates
-      description: "مقارنة تاريخين | Compare Two Dates\n\nCompares satellite imagery\
-        \ from two specific dates to identify changes.\nUseful for before/after analysis\
-        \ of specific events.\n\nExample:\n    GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01"
+      description: "مقارنة تاريخين | Compare Two Dates\n\nCompares satellite imagery from two specific dates to identify changes.\nUseful for before/after analysis of specific events.\n\nExample:\n    GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01"
       operationId: compare_dates_v1_changes__field_id__compare_get
       security:
       - OAuth2PasswordBearer: []
@@ -3023,9 +2856,7 @@ paths:
   /v1/changes/{field_id}/anomalies:
     get:
       summary: Get Anomalies
-      description: "كشف الشذوذ | Detect Anomalies\n\nDetects anomalies (unusual NDVI\
-        \ values) in recent satellite time series.\nAnomalies are deviations from\
-        \ normal patterns that may indicate problems.\n\nExample:\n    GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat"
+      description: "كشف الشذوذ | Detect Anomalies\n\nDetects anomalies (unusual NDVI values) in recent satellite time series.\nAnomalies are deviations from normal patterns that may indicate problems.\n\nExample:\n    GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat"
       operationId: get_anomalies_v1_changes__field_id__anomalies_get
       security:
       - OAuth2PasswordBearer: []
@@ -3705,8 +3536,7 @@ components:
             type: array
           - type: 'null'
           title: Ndvi Series
-          description: سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا
-            لم تقدم)
+          description: سلسلة زمنية من قيم NDVI (اختياري - سيتم جلبها تلقائياً إذا لم تقدم)
         precipitation_mm:
           anyOf:
           - type: number

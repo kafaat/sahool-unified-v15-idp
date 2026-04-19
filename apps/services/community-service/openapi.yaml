@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Community Service
-  description: Rocket.Chat integration for farmer community messaging - خدمة المجتمع
-    الزراعي
+  description: Rocket.Chat integration for farmer community messaging - خدمة المجتمع الزراعي
   version: 16.0.0
 paths:
   /healthz:
@@ -62,8 +61,7 @@ paths:
       tags:
       - Tenant
       summary: Setup Tenant
-      description: 'Initialize tenant community workspace - تهيئة مساحة عمل المجتمع
-        للمستأجر
+      description: 'Initialize tenant community workspace - تهيئة مساحة عمل المجتمع للمستأجر
 
 
         Creates all default agricultural channels for a tenant and optionally syncs
@@ -357,8 +355,7 @@ paths:
       tags:
       - Users
       summary: Sync User
-      description: Sync a SAHOOL user to Rocket.Chat | مزامنة مستخدم سهول مع روكيت
-        شات
+      description: Sync a SAHOOL user to Rocket.Chat | مزامنة مستخدم سهول مع روكيت شات
       operationId: sync_user_api_v1_community_users_sync_post
       requestBody:
         content:
@@ -446,8 +443,7 @@ components:
         advisory_type:
           type: string
           title: Advisory Type
-          description: 'Advisory type: irrigation | crop-diseases | pest-management
-            | weather-alerts | market-prices | best-practices'
+          description: 'Advisory type: irrigation | crop-diseases | pest-management | weather-alerts | market-prices | best-practices'
         text:
           type: string
           maxLength: 5000
@@ -765,8 +761,7 @@ components:
       - tenant_id
       - tenant_name
       title: TenantSetupRequest
-      description: Initialize tenant community workspace | تهيئة مساحة عمل المجتمع
-        للمستأجر
+      description: Initialize tenant community workspace | تهيئة مساحة عمل المجتمع للمستأجر
     TenantSetupResponse:
       properties:
         tenant_id:
@@ -829,8 +824,7 @@ components:
       - name
       - username
       title: UserSyncRequest
-      description: Sync a SAHOOL user to Rocket.Chat | مزامنة مستخدم سهول مع روكيت
-        شات
+      description: Sync a SAHOOL user to Rocket.Chat | مزامنة مستخدم سهول مع روكيت شات
     UserSyncResponse:
       properties:
         rc_user_id:

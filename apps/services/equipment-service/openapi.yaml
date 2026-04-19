@@ -40,16 +40,7 @@ paths:
   /api/v1/equipment:
     get:
       summary: List Equipment
-      description: "List all equipment with optional filters.\n\nAccepts both ``equipment_type``\
-        \ and ``type`` query parameters for\nfrontend compatibility. ``equipment_type``\
-        \ takes precedence if both are\nsupplied. ``status`` accepts both the backend\
-        \ canonical dialect\n(``operational``, ``inactive``) and the frontend canonical\
-        \ dialect\n(``active``, ``idle``, ``retired``).\n\nThe response envelope is::\n\
-        \n    {\n        \"data\": [...],           # new, preferred\n        \"pagination\"\
-        : {...},     # new, preferred\n        \"equipment\": [...],      # legacy\
-        \ alias (will be removed in v17)\n        \"total\": N,              # legacy\
-        \ alias\n        \"limit\": X,              # legacy alias\n        \"offset\"\
-        : Y,             # legacy alias\n    }"
+      description: "List all equipment with optional filters.\n\nAccepts both ``equipment_type`` and ``type`` query parameters for\nfrontend compatibility. ``equipment_type`` takes precedence if both are\nsupplied. ``status`` accepts both the backend canonical dialect\n(``operational``, ``inactive``) and the frontend canonical dialect\n(``active``, ``idle``, ``retired``).\n\nThe response envelope is::\n\n    {\n        \"data\": [...],           # new, preferred\n        \"pagination\": {...},     # new, preferred\n        \"equipment\": [...],      # legacy alias (will be removed in v17)\n        \"total\": N,              # legacy alias\n        \"limit\": X,              # legacy alias\n        \"offset\": Y,             # legacy alias\n    }"
       operationId: list_equipment_api_v1_equipment_get
       security:
       - OAuth2PasswordBearer: []
@@ -81,11 +72,9 @@ paths:
           anyOf:
           - type: string
           - type: 'null'
-          description: Filter by status. Accepts both backend (operational) and frontend
-            (active) canonical values.
+          description: Filter by status. Accepts both backend (operational) and frontend (active) canonical values.
           title: Status
-        description: Filter by status. Accepts both backend (operational) and frontend
-          (active) canonical values.
+        description: Filter by status. Accepts both backend (operational) and frontend (active) canonical values.
       - name: field_id
         in: query
         required: false
@@ -212,13 +201,7 @@ paths:
   /api/v1/equipment/maintenance-schedule:
     get:
       summary: Get Maintenance Schedule
-      description: "Return the upcoming maintenance schedule.\n\nCombines two sources:\n\
-        \n1. ``MaintenanceAlert`` rows scoped to the tenant (via the equipment join),\n\
-        \   which represent service tickets the system has already raised.\n2. Equipment\
-        \ whose ``next_maintenance_at`` falls inside the look-ahead\n   window --\
-        \ these are upcoming scheduled services that may not yet have\n   an explicit\
-        \ alert row.\n\nThe endpoint is the authoritative source for the frontend\n\
-        ``/api/v1/equipment/maintenance-schedule`` call, which used to 404."
+      description: "Return the upcoming maintenance schedule.\n\nCombines two sources:\n\n1. ``MaintenanceAlert`` rows scoped to the tenant (via the equipment join),\n   which represent service tickets the system has already raised.\n2. Equipment whose ``next_maintenance_at`` falls inside the look-ahead\n   window -- these are upcoming scheduled services that may not yet have\n   an explicit alert row.\n\nThe endpoint is the authoritative source for the frontend\n``/api/v1/equipment/maintenance-schedule`` call, which used to 404."
       operationId: get_maintenance_schedule_api_v1_equipment_maintenance_schedule_get
       security:
       - OAuth2PasswordBearer: []
@@ -250,8 +233,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Get Maintenance Schedule Api V1 Equipment Maintenance
-                  Schedule Get
+                title: Response Get Maintenance Schedule Api V1 Equipment Maintenance Schedule Get
         '422':
           description: Validation Error
           content:
@@ -410,8 +392,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Update Equipment Status Api V1 Equipment  Equipment
-                  Id  Status Post
+                title: Response Update Equipment Status Api V1 Equipment  Equipment Id  Status Post
         '422':
           description: Validation Error
           content:
@@ -460,8 +441,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Update Equipment Location Api V1 Equipment  Equipment
-                  Id  Location Post
+                title: Response Update Equipment Location Api V1 Equipment  Equipment Id  Location Post
         '422':
           description: Validation Error
           content:
@@ -522,8 +502,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Update Equipment Telemetry Api V1 Equipment  Equipment
-                  Id  Telemetry Post
+                title: Response Update Equipment Telemetry Api V1 Equipment  Equipment Id  Telemetry Post
         '422':
           description: Validation Error
           content:
@@ -533,16 +512,7 @@ paths:
   /api/v1/equipment/{equipment_id}/issues:
     post:
       summary: Report Equipment Issue
-      description: "Report an issue/incident against a piece of equipment.\n\nThis\
-        \ endpoint is an **event-first** replacement for the missing DB-backed\nissues\
-        \ table. Behaviour:\n\n1. Verifies the equipment exists and belongs to the\
-        \ authenticated tenant.\n2. Builds an ``EquipmentIssueResponse`` payload with\
-        \ a synthetic issue_id.\n3. Best-effort publishes the payload to NATS on the\
-        \ subject\n   ``sahool.tenant.{tenant_id}.equipment.issue_reported`` so downstream\n\
-        \   services (notification, audit, ticketing) can react. Publishing is\n \
-        \  best-effort: the HTTP call returns ``202 Accepted`` even if the NATS\n\
-        \   connection is unavailable (the payload is still logged for later\n   reconciliation).\n\
-        \nReturns ``202 Accepted`` to signal the issue has been queued."
+      description: "Report an issue/incident against a piece of equipment.\n\nThis endpoint is an **event-first** replacement for the missing DB-backed\nissues table. Behaviour:\n\n1. Verifies the equipment exists and belongs to the authenticated tenant.\n2. Builds an ``EquipmentIssueResponse`` payload with a synthetic issue_id.\n3. Best-effort publishes the payload to NATS on the subject\n   ``sahool.tenant.{tenant_id}.equipment.issue_reported`` so downstream\n   services (notification, audit, ticketing) can react. Publishing is\n   best-effort: the HTTP call returns ``202 Accepted`` even if the NATS\n   connection is unavailable (the payload is still logged for later\n   reconciliation).\n\nReturns ``202 Accepted`` to signal the issue has been queued."
       operationId: report_equipment_issue_api_v1_equipment__equipment_id__issues_post
       security:
       - OAuth2PasswordBearer: []
@@ -603,8 +573,7 @@ paths:
               schema:
                 type: object
                 additionalProperties: true
-                title: Response Get Maintenance History Api V1 Equipment  Equipment
-                  Id  Maintenance Get
+                title: Response Get Maintenance History Api V1 Equipment  Equipment Id  Maintenance Get
         '422':
           description: Validation Error
           content:
@@ -693,19 +662,7 @@ paths:
   /api/v1/equipment/geofence/event:
     post:
       summary: Geofence Event
-      description: "Handle a geofence entry event and, when appropriate, auto-draft\n\
-        a FieldOperation in field-management-service.\n\nCalled by the fleet/geofencing\
-        \ worker whenever tracked equipment\ncrosses a geofence boundary. Returns:\n\
-        \n* ``reason=drafted`` + ``operation_id`` — a draft FieldOperation\n  was\
-        \ created in field-management-service, status pending review.\n* ``reason=skipped``\
-        \ — the event was not actionable (wrong zone\n  type, not an entry, no field\
-        \ mapping).\n* ``reason=pending_retry`` — field-management-service was\n \
-        \ unreachable, the event is logged and should be retried.\n\nThe draft is\
-        \ NEVER auto-approved. A human operator must confirm\nvia the existing ``POST\
-        \ /api/v1/field-operations/:id/approve``\nendpoint before it counts for cost\
-        \ rollup, ERP sync, or carbon.\n\nSecurity: the equipment must exist and belong\
-        \ to the authenticated\ntenant. Cross-tenant geofence events are rejected\
-        \ with 404."
+      description: "Handle a geofence entry event and, when appropriate, auto-draft\na FieldOperation in field-management-service.\n\nCalled by the fleet/geofencing worker whenever tracked equipment\ncrosses a geofence boundary. Returns:\n\n* ``reason=drafted`` + ``operation_id`` — a draft FieldOperation\n  was created in field-management-service, status pending review.\n* ``reason=skipped`` — the event was not actionable (wrong zone\n  type, not an entry, no field mapping).\n* ``reason=pending_retry`` — field-management-service was\n  unreachable, the event is logged and should be retried.\n\nThe draft is NEVER auto-approved. A human operator must confirm\nvia the existing ``POST /api/v1/field-operations/:id/approve``\nendpoint before it counts for cost rollup, ERP sync, or carbon.\n\nSecurity: the equipment must exist and belong to the authenticated\ntenant. Cross-tenant geofence events are rejected with 404."
       operationId: geofence_event_api_v1_equipment_geofence_event_post
       requestBody:
         content:

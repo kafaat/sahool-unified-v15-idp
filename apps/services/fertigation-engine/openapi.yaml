@@ -418,8 +418,7 @@ components:
             type: object
           type: array
           title: Entries
-          description: 'List of {date, type: ''applied''|''removed'', n_kg, p_kg,
-            k_kg}'
+          description: 'List of {date, type: ''applied''|''removed'', n_kg, p_kg, k_kg}'
       type: object
       required:
       - field_id

@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL WeChat Integration Service
-  description: WeChat messaging and social integration for farmers | تكامل ويتشات
-    للمراسلة والتواصل الاجتماعي للمزارعين
+  description: WeChat messaging and social integration for farmers | تكامل ويتشات للمراسلة والتواصل الاجتماعي للمزارعين
   version: 16.0.0
 paths:
   /api/v1/callback:
@@ -1086,8 +1085,7 @@ components:
             type: array
           - type: 'null'
           title: Visible To
-          description: Specific user IDs if visibility is 'selected' | معرفات المستخدمين
-            المحددين
+          description: Specific user IDs if visibility is 'selected' | معرفات المستخدمين المحددين
         link_url:
           anyOf:
           - type: string

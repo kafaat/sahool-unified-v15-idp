@@ -1,11 +1,7 @@
 openapi: 3.1.0
 info:
   title: Sahool Virtual Sensors Engine
-  description: "\n    محرك المستشعرات الافتراضية - سهول\n\n    Software-based sensor\
-    \ calculations for smart irrigation management.\n    Provides evapotranspiration\
-    \ calculations, soil moisture estimation,\n    and irrigation recommendations\
-    \ without physical sensors.\n\n    Based on FAO-56 Penman-Monteith methodology.\n\
-    \    "
+  description: "\n    محرك المستشعرات الافتراضية - سهول\n\n    Software-based sensor calculations for smart irrigation management.\n    Provides evapotranspiration calculations, soil moisture estimation,\n    and irrigation recommendations without physical sensors.\n\n    Based on FAO-56 Penman-Monteith methodology.\n    "
   version: 16.0.0
 paths:
   /health:

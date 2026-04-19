@@ -1,9 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Notification Service | خدمة الإشعارات
-  description: Enhanced personalized agricultural notifications for Yemeni farmers.
-    Field-First Architecture with NATS integration, Redis queue, and comprehensive
-    analytics.
+  description: Enhanced personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration, Redis queue, and comprehensive analytics.
   version: 16.0.0
 paths:
   /add:
@@ -422,8 +420,7 @@ paths:
         Set quiet hours (do not disturb period)
 
 
-        During quiet hours, notifications will not be sent unless they are critical
-        priority.
+        During quiet hours, notifications will not be sent unless they are critical priority.
 
         Time format: HH:MM (24-hour format)
 
@@ -671,9 +668,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Delivery Statistics
-      description: "إحصائيات التسليم\nGet delivery statistics for specified time range\n\
-        \nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant\
-        \ filter\n\nReturns:\n    Delivery statistics including success/failure rates"
+      description: "إحصائيات التسليم\nGet delivery statistics for specified time range\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Delivery statistics including success/failure rates"
       operationId: get_delivery_statistics_analytics_delivery_stats_get
       parameters:
       - name: time_range
@@ -710,9 +705,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Channel Performance
-      description: "أداء القنوات\nGet performance metrics by notification channel\n\
-        \nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant\
-        \ filter\n\nReturns:\n    Channel performance metrics"
+      description: "أداء القنوات\nGet performance metrics by notification channel\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Channel performance metrics"
       operationId: get_channel_performance_analytics_channel_performance_get
       parameters:
       - name: time_range
@@ -749,9 +742,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Notification Type Breakdown
-      description: "تفصيل أنواع الإشعارات\nGet breakdown of notifications by type\n\
-        \nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant\
-        \ filter\n\nReturns:\n    Notification type breakdown with counts and percentages"
+      description: "تفصيل أنواع الإشعارات\nGet breakdown of notifications by type\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Notification type breakdown with counts and percentages"
       operationId: get_notification_type_breakdown_analytics_notification_types_get
       parameters:
       - name: time_range
@@ -788,9 +779,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Regional Distribution
-      description: "التوزيع الجغرافي\nGet notification distribution by governorate/region\n\
-        \nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant\
-        \ filter\n\nReturns:\n    Regional distribution data"
+      description: "التوزيع الجغرافي\nGet notification distribution by governorate/region\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Regional distribution data"
       operationId: get_regional_distribution_analytics_regional_distribution_get
       parameters:
       - name: time_range
@@ -827,9 +816,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Hourly Trends
-      description: "الاتجاهات بالساعة\nGet notification trends by hour of day\n\n\
-        Args:\n    days: Number of days to analyze\n    tenant_id: Optional tenant\
-        \ filter\n\nReturns:\n    Hourly trend data with peak hours"
+      description: "الاتجاهات بالساعة\nGet notification trends by hour of day\n\nArgs:\n    days: Number of days to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Hourly trend data with peak hours"
       operationId: get_hourly_trends_analytics_hourly_trends_get
       parameters:
       - name: days
@@ -868,9 +855,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get User Engagement
-      description: "تفاعل المستخدم\nGet user engagement metrics\n\nArgs:\n    user_id:\
-        \ Optional specific user ID\n    time_range: Time range to analyze\n    tenant_id:\
-        \ Optional tenant filter\n\nReturns:\n    User engagement metrics"
+      description: "تفاعل المستخدم\nGet user engagement metrics\n\nArgs:\n    user_id: Optional specific user ID\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    User engagement metrics"
       operationId: get_user_engagement_analytics_user_engagement_get
       parameters:
       - name: user_id
@@ -917,9 +902,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Priority Distribution
-      description: "توزيع الأولويات\nGet distribution of notifications by priority\n\
-        \nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant\
-        \ filter\n\nReturns:\n    Priority distribution data"
+      description: "توزيع الأولويات\nGet distribution of notifications by priority\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Priority distribution data"
       operationId: get_priority_distribution_analytics_priority_distribution_get
       parameters:
       - name: time_range
@@ -956,9 +939,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Dashboard Summary
-      description: "ملخص لوحة القيادة\nGet comprehensive dashboard summary with all\
-        \ key metrics\n\nArgs:\n    tenant_id: Optional tenant filter\n\nReturns:\n\
-        \    Complete dashboard data"
+      description: "ملخص لوحة القيادة\nGet comprehensive dashboard summary with all key metrics\n\nArgs:\n    tenant_id: Optional tenant filter\n\nReturns:\n    Complete dashboard data"
       operationId: get_dashboard_summary_analytics_dashboard_get
       parameters:
       - name: X-Tenant-Id
@@ -986,8 +967,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Get Notification Health
-      description: "صحة نظام الإشعارات\nGet notification system health status\n\n\
-        Returns:\n    System health metrics"
+      description: "صحة نظام الإشعارات\nGet notification system health status\n\nReturns:\n    System health metrics"
       operationId: get_notification_health_analytics_health_get
       responses:
         '200':
@@ -1000,10 +980,7 @@ paths:
       tags:
       - Notification Analytics | تحليلات الإشعارات
       summary: Compare Time Periods
-      description: "مقارنة الفترات الزمنية\nCompare notification metrics between two\
-        \ time periods\n\nArgs:\n    current_range: Current time range\n    previous_range:\
-        \ Previous time range\n    tenant_id: Optional tenant filter\n\nReturns:\n\
-        \    Comparison data with change percentages"
+      description: "مقارنة الفترات الزمنية\nCompare notification metrics between two time periods\n\nArgs:\n    current_range: Current time range\n    previous_range: Previous time range\n    tenant_id: Optional tenant filter\n\nReturns:\n    Comparison data with change percentages"
       operationId: compare_time_periods_analytics_compare_get
       parameters:
       - name: current_range
@@ -1049,13 +1026,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Get User Notification History
-      description: "الحصول على سجل إشعارات المستخدم\nGet paginated notification history\
-        \ for a user\n\nArgs:\n    user_id: User ID\n    page: Page number (1-indexed)\n\
-        \    page_size: Number of items per page\n    status: Optional status filter\n\
-        \    type: Optional notification type filter\n    channel: Optional channel\
-        \ filter\n    start_date: Optional start date filter\n    end_date: Optional\
-        \ end date filter\n    include_expired: Whether to include expired notifications\n\
-        \nReturns:\n    Paginated list of notifications"
+      description: "الحصول على سجل إشعارات المستخدم\nGet paginated notification history for a user\n\nArgs:\n    user_id: User ID\n    page: Page number (1-indexed)\n    page_size: Number of items per page\n    status: Optional status filter\n    type: Optional notification type filter\n    channel: Optional channel filter\n    start_date: Optional start date filter\n    end_date: Optional end date filter\n    include_expired: Whether to include expired notifications\n\nReturns:\n    Paginated list of notifications"
       operationId: get_user_notification_history_history_user__user_id__get
       parameters:
       - name: user_id
@@ -1160,11 +1131,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Get Notification Details
-      description: "الحصول على تفاصيل إشعار\nGet detailed information about a specific\
-        \ notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to\
-        \ enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n\
-        \    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n\
-        \    Notification details with delivery logs"
+      description: "الحصول على تفاصيل إشعار\nGet detailed information about a specific notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Notification details with delivery logs"
       operationId: get_notification_details_history_notification__notification_id__get
       parameters:
       - name: notification_id
@@ -1198,11 +1165,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Get Delivery Logs
-      description: "الحصول على سجلات التسليم\nGet delivery logs for a notification\n\
-        \nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant\
-        \ isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id:\
-        \ Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    List of delivery\
-        \ log entries"
+      description: "الحصول على سجلات التسليم\nGet delivery logs for a notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    List of delivery log entries"
       operationId: get_delivery_logs_history_delivery_logs__notification_id__get
       parameters:
       - name: notification_id
@@ -1236,11 +1199,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Get Failed Notifications
-      description: "الحصول على الإشعارات الفاشلة\nGet failed notifications for monitoring\n\
-        \nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant\
-        \ isolation.\n\nArgs:\n    limit: Maximum number of records\n    retry_pending:\
-        \ Only show notifications pending retry\n    tenant_id: Tenant ID from X-Tenant-Id\
-        \ header (required)\n\nReturns:\n    List of failed notifications with details"
+      description: "الحصول على الإشعارات الفاشلة\nGet failed notifications for monitoring\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    limit: Maximum number of records\n    retry_pending: Only show notifications pending retry\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    List of failed notifications with details"
       operationId: get_failed_notifications_history_failed_get
       parameters:
       - name: limit
@@ -1286,12 +1245,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Get Notification Stats
-      description: "إحصائيات الإشعارات\nGet notification statistics\n\nSECURITY: tenant_id\
-        \ is now required via X-Tenant-Id header (not optional query param)\nto enforce\
-        \ tenant isolation and prevent cross-tenant data access.\n\nArgs:\n    user_id:\
-        \ Optional user ID filter\n    days: Number of days to analyze\n    tenant_id:\
-        \ Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Notification\
-        \ statistics"
+      description: "إحصائيات الإشعارات\nGet notification statistics\n\nSECURITY: tenant_id is now required via X-Tenant-Id header (not optional query param)\nto enforce tenant isolation and prevent cross-tenant data access.\n\nArgs:\n    user_id: Optional user ID filter\n    days: Number of days to analyze\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Notification statistics"
       operationId: get_notification_stats_history_stats_get
       parameters:
       - name: user_id
@@ -1341,9 +1295,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Cleanup Old Notifications
-      description: "تنظيف الإشعارات القديمة\nDelete old notifications to free up database\
-        \ space\n\nArgs:\n    days: Number of days to keep\n\nReturns:\n    Number\
-        \ of notifications deleted"
+      description: "تنظيف الإشعارات القديمة\nDelete old notifications to free up database space\n\nArgs:\n    days: Number of days to keep\n\nReturns:\n    Number of notifications deleted"
       operationId: cleanup_old_notifications_history_old_delete
       parameters:
       - name: days
@@ -1374,13 +1326,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Export Notification History
-      description: "تصدير سجل الإشعارات\nExport notification history for a date range\n\
-        \nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant\
-        \ isolation.\n\nArgs:\n    user_id: Optional user ID filter\n    start_date:\
-        \ Start date for export\n    end_date: End date for export\n    format: Export\
-        \ format (json or csv)\n    limit: Maximum records to export\n    tenant_id:\
-        \ Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Exported data\
-        \ in requested format"
+      description: "تصدير سجل الإشعارات\nExport notification history for a date range\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    user_id: Optional user ID filter\n    start_date: Start date for export\n    end_date: End date for export\n    format: Export format (json or csv)\n    limit: Maximum records to export\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Exported data in requested format"
       operationId: export_notification_history_history_export_get
       parameters:
       - name: user_id
@@ -1452,10 +1398,7 @@ paths:
       tags:
       - Notification History | سجل الإشعارات
       summary: Retry Failed Notification
-      description: "إعادة محاولة إرسال إشعار فاشل\nRetry sending a failed notification\n\
-        \nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant\
-        \ isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id:\
-        \ Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Retry result"
+      description: "إعادة محاولة إرسال إشعار فاشل\nRetry sending a failed notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Retry result"
       operationId: retry_failed_notification_history_retry__notification_id__post
       parameters:
       - name: notification_id
@@ -2464,15 +2407,13 @@ components:
           maxLength: 255
           minLength: 3
           title: Identifier
-          description: Phone number (E.164) or email address | رقم الهاتف أو البريد
-            الإلكتروني
+          description: Phone number (E.164) or email address | رقم الهاتف أو البريد الإلكتروني
         channel:
           $ref: '#/components/schemas/OTPChannel'
           description: 'Delivery channel: sms, whatsapp, telegram, email | قناة الإرسال'
         purpose:
           $ref: '#/components/schemas/OTPPurpose'
-          description: 'OTP purpose: login, password_reset, verify_phone, verify_email,
-            two_factor | غرض OTP'
+          description: 'OTP purpose: login, password_reset, verify_phone, verify_email, two_factor | غرض OTP'
         language:
           $ref: '#/components/schemas/Language'
           description: 'Preferred language: ar, en | اللغة المفضلة'

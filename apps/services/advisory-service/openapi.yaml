@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Advisory Service
-  description: Disease diagnosis, nutrient assessment, and fertilizer planning for
-    Yemen agriculture
+  description: Disease diagnosis, nutrient assessment, and fertilizer planning for Yemen agriculture
   version: 16.0.0
 paths:
   /healthz:
@@ -419,14 +418,7 @@ paths:
   /api/v1/crops:
     get:
       summary: '[DEPRECATED] Use /api/v1/crop-catalog/categories'
-      description: "[DEPRECATED] Returns crop-type TAXONOMY (not user-owned crops).\n\
-        \nThis endpoint was misnamed: it returns a catalog (taxonomy) of crop types,\n\
-        not a CRUD `Crop[]` collection. The frontend expects CRUD semantics here.\n\
-        \nMIGRATION:\n- For the crop taxonomy catalog, use\n  ``GET /api/v1/crop-catalog/categories``\
-        \ (same response shape).\n- For user/farm crop CRUD (create/read/update/delete\
-        \ user crops), use\n  ``field-management-service`` (canonical) or ``crop-intelligence-service``.\n\
-        \nSunset: 2026-12-01. Deprecation headers (RFC 8594) are emitted by\nmiddleware\
-        \ on every GET /api/v1/crops response."
+      description: "[DEPRECATED] Returns crop-type TAXONOMY (not user-owned crops).\n\nThis endpoint was misnamed: it returns a catalog (taxonomy) of crop types,\nnot a CRUD `Crop[]` collection. The frontend expects CRUD semantics here.\n\nMIGRATION:\n- For the crop taxonomy catalog, use\n  ``GET /api/v1/crop-catalog/categories`` (same response shape).\n- For user/farm crop CRUD (create/read/update/delete user crops), use\n  ``field-management-service`` (canonical) or ``crop-intelligence-service``.\n\nSunset: 2026-12-01. Deprecation headers (RFC 8594) are emitted by\nmiddleware on every GET /api/v1/crops response."
       operationId: list_all_crops_api_v1_crops_get
       deprecated: true
       parameters:
@@ -593,20 +585,7 @@ paths:
   /api/v1/advisory/comprehensive/{field_id}:
     post:
       summary: Comprehensive Advisory
-      description: "One-call comprehensive advisory for a field.\n\nAggregates per-field\
-        \ insights from the nutrient, pest, disease,\nirrigation, weather, yield,\
-        \ carbon, and alert services into a\nsingle response. Matches the UX of Farmonaut's\
-        \ Jeevn AI\n(\"one question → comprehensive answer\") without forcing the\n\
-        client to orchestrate ten downstream calls.\n\nGraceful degradation: every\
-        \ downstream call is wrapped in its\nown try/except with a per-call timeout.\
-        \ If a single service is\nslow or down, that section comes back with `degraded:\
-        \ true` and\nthe rest of the payload still returns. The `overall_status`\n\
-        field at the top of the response summarises the result:\n\n  * `healthy` \
-        \ — all sections returned, no active alerts\n  * `degraded` — at least one\
-        \ section failed OR there are alerts\n  * `critical` — a critical alert exists\
-        \ OR >=4 sections failed\n\nThe endpoint is tenant-scoped: the caller's JWT\
-        \ provides the\ntenant id, which is propagated to every downstream call via\n\
-        the X-Tenant-Id header so cross-tenant access is impossible."
+      description: "One-call comprehensive advisory for a field.\n\nAggregates per-field insights from the nutrient, pest, disease,\nirrigation, weather, yield, carbon, and alert services into a\nsingle response. Matches the UX of Farmonaut's Jeevn AI\n(\"one question → comprehensive answer\") without forcing the\nclient to orchestrate ten downstream calls.\n\nGraceful degradation: every downstream call is wrapped in its\nown try/except with a per-call timeout. If a single service is\nslow or down, that section comes back with `degraded: true` and\nthe rest of the payload still returns. The `overall_status`\nfield at the top of the response summarises the result:\n\n  * `healthy`  — all sections returned, no active alerts\n  * `degraded` — at least one section failed OR there are alerts\n  * `critical` — a critical alert exists OR >=4 sections failed\n\nThe endpoint is tenant-scoped: the caller's JWT provides the\ntenant id, which is propagated to every downstream call via\nthe X-Tenant-Id header so cross-tenant access is impossible."
       operationId: comprehensive_advisory_api_v1_advisory_comprehensive__field_id__post
       security:
       - OAuth2PasswordBearer: []
@@ -637,24 +616,7 @@ paths:
   /api/v1/loans/crop-loan-verification/{field_id}:
     post:
       summary: Verify Crop Loan
-      description: "Satellite-backed crop loan verification for banks / lenders.\n\
-        \nFarmonaut offers a \"large-scale crop loan monitoring\" product that\nbanks\
-        \ use to verify farmer declarations against real satellite\nimagery. This\
-        \ endpoint is SAHOOL's equivalent, built on our own\nfield-management + vegetation-analysis\
-        \ + crop-intelligence stack.\n\nGiven a ``field_id`` and the bank's declared\
-        \ loan parameters, the\nendpoint returns:\n\n  * ``eligibility_score`` — 0-100,\
-        \ based on NDVI health, area\n    match, crop verification, and risk profile.\n\
-        \  * ``recommended_loan_amount_sar`` — bounded by expected gross\n    revenue\
-        \ and the eligibility score.\n  * ``max_safe_loan_amount_sar`` — the upper\
-        \ bound we'd comfortably\n    underwrite.\n  * ``loan_to_value_ratio`` — requested\
-        \ amount vs expected revenue.\n  * ``decision`` — ``approved`` | ``review``\
-        \ | ``rejected``.\n  * ``satellite_evidence`` — full NDVI stats, area match,\
-        \ last pass.\n  * ``summary`` / ``summary_ar`` — bilingual one-liner the loan\n\
-        \    officer can paste into their risk file.\n\nSAHOOL does NOT underwrite\
-        \ loans. The endpoint surfaces agronomic\nevidence; the bank's own credit\
-        \ scorecard makes the final call.\n\nTenant-scoped: the caller's JWT drives\
-        \ the tenant id, which is\npropagated to every downstream call via ``X-Tenant-Id``\
-        \ so cross-\ntenant access is impossible."
+      description: "Satellite-backed crop loan verification for banks / lenders.\n\nFarmonaut offers a \"large-scale crop loan monitoring\" product that\nbanks use to verify farmer declarations against real satellite\nimagery. This endpoint is SAHOOL's equivalent, built on our own\nfield-management + vegetation-analysis + crop-intelligence stack.\n\nGiven a ``field_id`` and the bank's declared loan parameters, the\nendpoint returns:\n\n  * ``eligibility_score`` — 0-100, based on NDVI health, area\n    match, crop verification, and risk profile.\n  * ``recommended_loan_amount_sar`` — bounded by expected gross\n    revenue and the eligibility score.\n  * ``max_safe_loan_amount_sar`` — the upper bound we'd comfortably\n    underwrite.\n  * ``loan_to_value_ratio`` — requested amount vs expected revenue.\n  * ``decision`` — ``approved`` | ``review`` | ``rejected``.\n  * ``satellite_evidence`` — full NDVI stats, area match, last pass.\n  * ``summary`` / ``summary_ar`` — bilingual one-liner the loan\n    officer can paste into their risk file.\n\nSAHOOL does NOT underwrite loans. The endpoint surfaces agronomic\nevidence; the bank's own credit scorecard makes the final call.\n\nTenant-scoped: the caller's JWT drives the tenant id, which is\npropagated to every downstream call via ``X-Tenant-Id`` so cross-\ntenant access is impossible."
       operationId: verify_crop_loan_api_v1_loans_crop_loan_verification__field_id__post
       security:
       - OAuth2PasswordBearer: []

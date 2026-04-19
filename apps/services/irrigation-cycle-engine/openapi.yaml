@@ -87,8 +87,7 @@ paths:
   /api/v1/irrigation/schedule:
     post:
       summary: Generate Irrigation Schedule
-      description: 'Generate multi-day irrigation schedule using Yemen crop/climate/soil
-        data.
+      description: 'Generate multi-day irrigation schedule using Yemen crop/climate/soil data.
 
 
         Combines pyfao56 ET calculations with Yemen-specific parameters

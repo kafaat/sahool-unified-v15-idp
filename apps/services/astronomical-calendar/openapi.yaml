@@ -1,12 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Astronomical Calendar Service
-  description: "\n    خدمة التقويم الفلكي الزراعي التقليدي اليمني\n\n    ## المميزات:\n\
-    \    - \U0001F319 حساب مراحل القمر بدقة عالية\n    - ⭐ منازل النجوم الـ 28 (المنازل\
-    \ القمرية)\n    - \U0001F4C5 التقويم الهجري\n    - \U0001F331 توقيتات الزراعة\
-    \ التقليدية\n    - ♈ الأبراج الزراعية\n    - \U0001F517 تكامل مع خدمة الطقس\n\n\
-    \    ## الاستخدام:\n    يستخدم المزارعون اليمنيون هذا التقويم منذ آلاف السنين\n\
-    \    لتحديد أفضل أوقات الزراعة والحصاد.\n    "
+  description: "\n    خدمة التقويم الفلكي الزراعي التقليدي اليمني\n\n    ## المميزات:\n    - \U0001F319 حساب مراحل القمر بدقة عالية\n    - ⭐ منازل النجوم الـ 28 (المنازل القمرية)\n    - \U0001F4C5 التقويم الهجري\n    - \U0001F331 توقيتات الزراعة التقليدية\n    - ♈ الأبراج الزراعية\n    - \U0001F517 تكامل مع خدمة الطقس\n\n    ## الاستخدام:\n    يستخدم المزارعون اليمنيون هذا التقويم منذ آلاف السنين\n    لتحديد أفضل أوقات الزراعة والحصاد.\n    "
   version: 16.0.0
 paths:
   /healthz:
@@ -399,8 +394,7 @@ paths:
       description: 'المناطق الزراعية اليمنية
 
 
-        يرجع قائمة بجميع المناطق الزراعية الرئيسية في اليمن مع معلومات أساسية عن كل
-        منطقة:
+        يرجع قائمة بجميع المناطق الزراعية الرئيسية في اليمن مع معلومات أساسية عن كل منطقة:
 
         - سهل تهامة
 
@@ -443,8 +437,7 @@ paths:
         - أنظمة الري التقليدية
 
 
-        المناطق المتاحة: tihama, central_highlands, eastern_plateau, northern_highlands,
-        southern_coast'
+        المناطق المتاحة: tihama, central_highlands, eastern_plateau, northern_highlands, southern_coast'
       operationId: get_region_v1_regions__region_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -484,8 +477,7 @@ paths:
         - المنتجات الشهيرة من المنطقة
 
 
-        المناطق المتاحة: tihama, central_highlands, eastern_plateau, northern_highlands,
-        southern_coast'
+        المناطق المتاحة: tihama, central_highlands, eastern_plateau, northern_highlands, southern_coast'
       operationId: get_region_crops_v1_regions__region_id__crops_get
       security:
       - OAuth2PasswordBearer: []

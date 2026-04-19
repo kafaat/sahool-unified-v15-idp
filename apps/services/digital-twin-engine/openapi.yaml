@@ -1,8 +1,7 @@
 openapi: 3.1.0
 info:
   title: Digital Twin Engine
-  description: L3 agricultural digital twin for simulation, optimization, and decision
-    support
+  description: L3 agricultural digital twin for simulation, optimization, and decision support
   version: 16.0.0
 paths:
   /healthz:

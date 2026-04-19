@@ -186,8 +186,7 @@ paths:
       tags:
       - soil-analysis
       summary: Get Field Soil Tests
-      description: Get all soil tests for a field - الحصول على جميع تحاليل التربة
-        للحقل
+      description: Get all soil tests for a field - الحصول على جميع تحاليل التربة للحقل
       operationId: get_field_soil_tests_api_v1_soil_tests_field__field_id__get
       security:
       - OAuth2PasswordBearer: []
@@ -326,8 +325,7 @@ paths:
       tags:
       - soil-analysis
       summary: Get Crop Nutrient Requirements
-      description: Get nutrient requirements for a crop - الحصول على متطلبات المحصول
-        من العناصر الغذائية
+      description: Get nutrient requirements for a crop - الحصول على متطلبات المحصول من العناصر الغذائية
       operationId: get_crop_nutrient_requirements_api_v1_soil_crops__crop__requirements_get
       parameters:
       - name: crop
@@ -461,8 +459,7 @@ paths:
       tags:
       - soil-analysis
       summary: Get Single Nutrient Trend
-      description: Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي
-        محدد
+      description: Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد
       operationId: get_single_nutrient_trend_api_v1_soil_trends_nutrient_post
       security:
       - OAuth2PasswordBearer: []
@@ -498,8 +495,7 @@ paths:
       tags:
       - soil-analysis
       summary: Compare Periods
-      description: Compare soil health between two periods - مقارنة صحة التربة بين
-        فترتين
+      description: Compare soil health between two periods - مقارنة صحة التربة بين فترتين
       operationId: compare_periods_api_v1_soil_trends_compare_periods_post
       security:
       - OAuth2PasswordBearer: []

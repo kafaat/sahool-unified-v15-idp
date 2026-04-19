@@ -670,8 +670,7 @@ paths:
       tags:
       - vra
       summary: Create Ndvi Prescription
-      description: Create NDVI-based prescription map - إنشاء خريطة وصفة مبنية على
-        NDVI
+      description: Create NDVI-based prescription map - إنشاء خريطة وصفة مبنية على NDVI
       operationId: create_ndvi_prescription_api_v1_vra_prescription_ndvi_post
       requestBody:
         content:
@@ -698,8 +697,7 @@ paths:
       tags:
       - vra
       summary: Create Spot Spray
-      description: Create spot spray map from detection points - إنشاء خريطة رش نقطي
-        من نقاط الكشف
+      description: Create spot spray map from detection points - إنشاء خريطة رش نقطي من نقاط الكشف
       operationId: create_spot_spray_api_v1_vra_prescription_spot_spray_post
       requestBody:
         content:

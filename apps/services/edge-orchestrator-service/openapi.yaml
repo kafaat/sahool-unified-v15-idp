@@ -1,20 +1,7 @@
 openapi: 3.1.0
 info:
   title: Edge Orchestrator Service | خدمة تنسيق الحافة
-  description: "\n    Manages edge computing devices for agricultural AI inference.\n\
-    \n    تدير أجهزة الحوسبة على الحافة للاستدلال بالذكاء الاصطناعي الزراعي.\n\n \
-    \   ## Features | الميزات\n\n    - **Device Management**: Register, monitor, and\
-    \ manage edge devices\n    - **Job Orchestration**: Queue and execute AI inference\
-    \ jobs\n    - **Model Deployment**: Deploy AI models to edge devices\n    - **Data\
-    \ Synchronization**: Sync data between edge and cloud\n    - **Real-time Updates**:\
-    \ WebSocket support for live monitoring\n\n    - **إدارة الأجهزة**: تسجيل ومراقبة\
-    \ وإدارة أجهزة الحافة\n    - **تنسيق المهام**: إدراج وتنفيذ مهام استدلال الذكاء\
-    \ الاصطناعي\n    - **نشر النماذج**: نشر نماذج الذكاء الاصطناعي على أجهزة الحافة\n\
-    \    - **مزامنة البيانات**: مزامنة البيانات بين الحافة والسحابة\n    - **التحديثات\
-    \ الفورية**: دعم WebSocket للمراقبة المباشرة\n\n    ## Supported Devices | الأجهزة\
-    \ المدعومة\n\n    - NVIDIA Jetson Orin Nano (8GB)\n    - NVIDIA Jetson Orin NX\
-    \ (16GB)\n    - NVIDIA Jetson AGX Orin (64GB)\n    - Raspberry Pi 5 with AI HAT\n\
-    \    "
+  description: "\n    Manages edge computing devices for agricultural AI inference.\n\n    تدير أجهزة الحوسبة على الحافة للاستدلال بالذكاء الاصطناعي الزراعي.\n\n    ## Features | الميزات\n\n    - **Device Management**: Register, monitor, and manage edge devices\n    - **Job Orchestration**: Queue and execute AI inference jobs\n    - **Model Deployment**: Deploy AI models to edge devices\n    - **Data Synchronization**: Sync data between edge and cloud\n    - **Real-time Updates**: WebSocket support for live monitoring\n\n    - **إدارة الأجهزة**: تسجيل ومراقبة وإدارة أجهزة الحافة\n    - **تنسيق المهام**: إدراج وتنفيذ مهام استدلال الذكاء الاصطناعي\n    - **نشر النماذج**: نشر نماذج الذكاء الاصطناعي على أجهزة الحافة\n    - **مزامنة البيانات**: مزامنة البيانات بين الحافة والسحابة\n    - **التحديثات الفورية**: دعم WebSocket للمراقبة المباشرة\n\n    ## Supported Devices | الأجهزة المدعومة\n\n    - NVIDIA Jetson Orin Nano (8GB)\n    - NVIDIA Jetson Orin NX (16GB)\n    - NVIDIA Jetson AGX Orin (64GB)\n    - Raspberry Pi 5 with AI HAT\n    "
   version: 16.0.0
 paths:
   /healthz:
@@ -2151,8 +2138,7 @@ components:
       required:
       - device_id
       title: SyncRequest
-      description: Request to sync data from/to device | طلب مزامنة البيانات من/إلى
-        الجهاز.
+      description: Request to sync data from/to device | طلب مزامنة البيانات من/إلى الجهاز.
     SyncResponse:
       properties:
         sync_id:

@@ -1,10 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL NDVI Processor
-  description: "\n    خدمة معالجة صور الأقمار الصناعية وحساب NDVI\n\n    ## الميزات\
-    \ الرئيسية\n\n    - معالجة صور Sentinel-2, Landsat, MODIS\n    - التصحيح الجوي\
-    \ وقناع السحب\n    - السلاسل الزمنية لـ NDVI\n    - تحليل التغير والشذوذ\n   \
-    \ - إنشاء المركبات الشهرية\n    - تصدير GeoTIFF و PNG\n    "
+  description: "\n    خدمة معالجة صور الأقمار الصناعية وحساب NDVI\n\n    ## الميزات الرئيسية\n\n    - معالجة صور Sentinel-2, Landsat, MODIS\n    - التصحيح الجوي وقناع السحب\n    - السلاسل الزمنية لـ NDVI\n    - تحليل التغير والشذوذ\n    - إنشاء المركبات الشهرية\n    - تصدير GeoTIFF و PNG\n    "
   version: 16.0.0
 paths:
   /health:

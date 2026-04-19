@@ -1,11 +1,7 @@
 openapi: 3.1.0
 info:
   title: SAHOOL Audit Service
-  description: "\n    خدمة التدقيق والمراجعة المركزية\n\n    Centralized Audit Logging\
-    \ Service for Security Compliance\n\n    Features:\n    - سلسلة التجزئة للتحقق\
-    \ من السلامة (Hash Chain Integrity)\n    - تتبع التغييرات على مستوى الحقل (Field-Level\
-    \ Tracking)\n    - تقارير الامتثال (Compliance Reporting)\n    - تنبيهات الأمان\
-    \ في الوقت الفعلي (Real-time Security Alerts)\n    "
+  description: "\n    خدمة التدقيق والمراجعة المركزية\n\n    Centralized Audit Logging Service for Security Compliance\n\n    Features:\n    - سلسلة التجزئة للتحقق من السلامة (Hash Chain Integrity)\n    - تتبع التغييرات على مستوى الحقل (Field-Level Tracking)\n    - تقارير الامتثال (Compliance Reporting)\n    - تنبيهات الأمان في الوقت الفعلي (Real-time Security Alerts)\n    "
   version: 16.0.0
 paths:
   /health:

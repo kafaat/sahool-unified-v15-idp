@@ -254,6 +254,7 @@ def main() -> int:
     )
 
     if args.summary_json:
+        args.summary_json.parent.mkdir(parents=True, exist_ok=True)
         args.summary_json.write_text(json.dumps(result.as_dict(), indent=2))
         print(f"Summary written to {args.summary_json}")
 

@@ -117,18 +117,40 @@ jobs:
             -r requirements/openapi-export.txt
 
       - name: Export per-service OpenAPI specs
+        id: export
         run: |
+          mkdir -p build
+          # Run with ``|| true`` so the failure is recorded in the summary
+          # step below instead of eating the log; the gate comes at the end.
           python3 scripts/export-openapi.py \
-            --summary-json build/openapi-summary.json
+            --summary-json build/openapi-summary.json \
+            && echo "exit_code=0" >> "$GITHUB_OUTPUT" \
+            || echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Print export summary (always)
+        if: always()
+        run: |
+          set -euo pipefail
           echo "─── Export summary ───"
+          if [ ! -f build/openapi-summary.json ]; then
+            echo "::warning::No summary file produced — the exporter failed before writing it"
+            exit 0
+          fi
           python3 -c "
           import json
           s = json.load(open('build/openapi-summary.json'))
           print(f\"exported: {s['exported_count']}\")
           print(f\"skipped:  {s['skipped_count']}\")
-          for row in s['skipped'][:20]:
+          print('─── Skipped services (first 40) ───')
+          for row in s['skipped'][:40]:
               print(f\"  • {row['service']}: {row['reason']}\")
           "
+
+      - name: Gate — fail if exporter errored
+        if: steps.export.outputs.exit_code != '0'
+        run: |
+          echo "::error::Exporter failed with exit code ${{ steps.export.outputs.exit_code }}. See the 'Print export summary' step above for the per-service skip reasons."
+          exit 1
 
       - name: Enumerate spec files (hand-written + generated)
         id: enumerate

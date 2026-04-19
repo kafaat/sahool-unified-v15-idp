@@ -74,7 +74,6 @@ SERVICE_PORTS = {
     "advisory-service": 8093,
     "irrigation-smart": 8094,
     "crop-intelligence-service": 8095,
-    "ndvi-processor": 8118,
     "virtual-sensors": 8119,
     "field-intelligence": 8120,
     "skills-service": 8121,

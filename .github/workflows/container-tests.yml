@@ -233,10 +233,6 @@ jobs:
             path: apps/services/billing-core
             port: 8023
             container_port: 8089
-          - name: ndvi-processor
-            path: apps/services/ndvi-processor
-            port: 8024
-            container_port: 8118
           - name: task-service
             path: apps/services/task-service
             port: 8025

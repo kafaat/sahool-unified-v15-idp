@@ -355,7 +355,7 @@
       "targets": [
         {
           "datasource": { "type": "prometheus", "uid": "prometheus" },
-          "expr": "rate(http_requests_total{service=~\"indicators-service|crop-intelligence-service|ndvi-processor|field-intelligence|skills-service\"}[5m])",
+          "expr": "rate(http_requests_total{service=~\"indicators-service|crop-intelligence-service|field-intelligence|skills-service\"}[5m])",
           "legendFormat": "{{ service }}",
           "refId": "A"
         }

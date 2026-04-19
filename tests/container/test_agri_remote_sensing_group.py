@@ -8,7 +8,7 @@ field health monitoring services have the correct agricultural domain
 dependencies, API endpoints, NATS event subjects, and shared modules.
 
 Services:
-  vegetation-analysis-service · ndvi-processor · indicators-service
+  vegetation-analysis-service · indicators-service
   field-intelligence · ground-vision-service
 
 Domain coverage:
@@ -48,20 +48,19 @@ MAIN_COMPOSE = REPO_ROOT / "docker-compose.yml"
 
 REMOTE_SENSING_SERVICES: dict[str, int] = {
     "vegetation-analysis-service": 8090,
-    "ndvi-processor": 8118,
     "indicators-service": 8091,
     "field-intelligence": 8120,
     "ground-vision-service": 8182,
 }
 
 # Services that process satellite imagery directly
-SATELLITE_PROCESSING = {"vegetation-analysis-service", "ndvi-processor"}
+SATELLITE_PROCESSING = {"vegetation-analysis-service"}
 
 # Services that compute vegetation indices
-NDVI_CHAIN = {"vegetation-analysis-service", "ndvi-processor", "indicators-service"}
+NDVI_CHAIN = {"vegetation-analysis-service", "indicators-service"}
 
 # Services that need geospatial libraries
-GEOSPATIAL_REQUIRED = {"ndvi-processor", "ground-vision-service"}
+GEOSPATIAL_REQUIRED = {"ground-vision-service"}
 
 # NATS event subjects these services should publish/subscribe
 EXPECTED_NATS_SUBJECTS = {
@@ -220,21 +219,6 @@ class TestNDVIPipeline:
         assert len(found) >= 2, (
             f"vegetation-analysis-service should implement health classification "
             f"(found: {found}, expected ≥2 of {health_terms})"
-        )
-
-    def test_ndvi_processor_satellite_data(self) -> None:
-        """ndvi-processor references satellite data processing."""
-        source = _read_all_source("ndvi-processor")
-        if not source:
-            pytest.skip("No source")
-        has_satellite = (
-            "satellite" in source.lower()
-            or "sentinel" in source.lower()
-            or "raster" in source.lower()
-            or "band" in source.lower()
-        )
-        assert has_satellite, (
-            "ndvi-processor should reference satellite/sentinel/raster data"
         )
 
 

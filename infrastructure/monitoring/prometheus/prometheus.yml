@@ -608,12 +608,6 @@ scrape_configs:
   # Advanced Analytics Services - خدمات التحليلات المتقدمة
   # ─────────────────────────────────────────────────────────────────────────────
 
-  # DEPRECATED: ndvi-processor has been replaced by vegetation-analysis-service
-  # - job_name: 'ndvi-processor'
-  #   static_configs:
-  #     - targets: ['ndvi_processor:8118']
-  #   metrics_path: /metrics
-
   # Field Intelligence - ذكاء الحقول
   - job_name: 'field-intelligence'
     static_configs:

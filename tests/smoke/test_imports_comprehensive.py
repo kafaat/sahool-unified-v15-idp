@@ -569,7 +569,6 @@ _PYTHON_SERVICES = [
     "logistics-service",
     "lowcode-engine",
     "mcp-server",
-    "ndvi-processor",
     "notification-service",
     "pest-detection-service",
     "provider-config",

@@ -86,7 +86,6 @@ scrape_configs:
           # satellite_service → DEPRECATED: replaced by vegetation-analysis-service
           - 'vegetation_analysis_service:9090'
           - 'ndvi_engine:9090'
-          - 'ndvi_processor:9090'
         labels:
           service_group: 'satellite'
           category: 'imagery'

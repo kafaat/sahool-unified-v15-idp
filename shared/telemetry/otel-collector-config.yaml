@@ -58,7 +58,6 @@ receivers:
             - targets:
                 - 'vegetation_analysis_service:9090'
                 - 'ndvi_engine:9090'
-                - 'ndvi_processor:9090'
               labels:
                 service_group: 'satellite'
 

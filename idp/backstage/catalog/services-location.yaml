@@ -63,7 +63,6 @@ spec:
   - ./services/marketplace-service.yaml
   - ./services/mcp-server.yaml
   - ./services/ndvi-engine.yaml
-  - ./services/ndvi-processor.yaml
   - ./services/notification-service.yaml
   - ./services/partner-auth-service.yaml
   - ./services/pest-detection-service.yaml

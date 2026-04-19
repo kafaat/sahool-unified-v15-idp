@@ -176,17 +176,6 @@ jobs:
             psycopg2-binary redis alembic apscheduler python-dotenv python-dateutil \
             pillow aiofiles pyotp qrcode tortoise-orm asyncpg
 
-      - name: Run NDVI Processor Tests
-        run: |
-          echo "Running NDVI Processor tests..."
-          PYTHONPATH=$PWD pytest apps/services/ndvi-processor/tests/ -v --tb=short
-        env:
-          ENVIRONMENT: test
-          JWT_SECRET_KEY: test-secret-key-for-unit-tests-only-32chars
-          JWT_ALGORITHM: HS256
-          DATABASE_URL: ""
-          NATS_URL: ""
-
       - name: Run Alert Service Tests
         run: |
           echo "Running Alert Service tests..."
@@ -205,10 +194,10 @@ jobs:
           echo "Generating coverage report..."
           # Run each service separately to avoid tests/__init__.py namespace
           # collisions. Only services with guarded imports are included.
-          # Uses -c pyproject.toml to force root config — some services (e.g.
-          # ndvi-processor) ship their own pytest.ini which changes rootdir
-          # and can prevent pytest-cov plugin detection (exit code 4).
-          SERVICES="ndvi-processor alert-service crop-intelligence-service pest-detection-service supply-chain-service notification-service"
+          # Uses -c pyproject.toml to force root config — some services ship
+          # their own pytest.ini which changes rootdir and can prevent
+          # pytest-cov plugin detection (exit code 4).
+          SERVICES="alert-service crop-intelligence-service pest-detection-service supply-chain-service notification-service"
           FIRST=true
           FAILED=""
           for svc in $SERVICES; do

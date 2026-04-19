@@ -100,7 +100,6 @@ export const SERVICE_PORTS = {
 
   // Satellite & Remote Sensing
   satellite: UNIFIED_PORTS.VEGETATION_ANALYSIS,
-  ndviProcessor: UNIFIED_PORTS.NDVI_PROCESSOR,
 
   // Weather Services
   weather: UNIFIED_PORTS.WEATHER,
@@ -817,7 +816,6 @@ export type ServiceName =
   // Satellite & Remote Sensing
   | 'satellite' // @deprecated - use "vegetation-analysis"
   | 'vegetation-analysis'
-  | 'ndvi-processor'
   // Weather
   | 'weather'
   // AI & Analytics

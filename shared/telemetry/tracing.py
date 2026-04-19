@@ -422,7 +422,6 @@ SAHOOL_SERVICES = {
     # Satellite & imagery
     "satellite_service": "Satellite Imagery Service",
     "ndvi_engine": "NDVI Calculation Engine",
-    "ndvi_processor": "NDVI Processor Service",
     # Agriculture AI/ML
     "crop_health_ai": "Crop Health AI Service",
     "crop_health": "Crop Health Monitoring",

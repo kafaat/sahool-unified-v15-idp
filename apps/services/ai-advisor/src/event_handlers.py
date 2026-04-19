@@ -127,7 +127,7 @@ class AIEventHandlers:
         await self.bus.subscribe_events(
             domain="ndvi",
             handler=self.on_ndvi_update,
-            durable="ai_ndvi_processor",
+            durable="ai_advisor_ndvi",  # renamed from ai_ndvi_processor — ndvi-processor decommissioned
         )
 
         # Subscribe to sensor data

@@ -516,32 +516,6 @@ services:
           memory: 512Mi
     depends_on:
     - vegetation-analysis-service
-  ndvi-processor:
-    build:
-      context: ../../apps/services/ndvi-processor
-      dockerfile: Dockerfile
-    ports:
-    - 8118:8118
-    environment:
-    - PORT=8118
-    - ENVIRONMENT=production
-    healthcheck:
-      test:
-      - CMD
-      - curl
-      - -f
-      - http://localhost:8118/healthz
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.5'
-          memory: 512Mi
-    depends_on:
-    - vegetation-analysis-service
   field-intelligence:
     build:
       context: ../../apps/services/field-intelligence

@@ -339,7 +339,8 @@ services:
       - sahool-pro-network
 
   # NDVI Processor - معالج NDVI
-  # (legacy alias: ndvi_engine → canonical: ndvi-processor, port 8118)
+  # Legacy alias: ndvi_engine keeps the port 8118 binding but builds
+  # vegetation-analysis-service (ndvi-processor has been fully decommissioned).
   ndvi_engine:
     build:
       context: ../../apps/services/vegetation-analysis-service

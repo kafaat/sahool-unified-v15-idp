@@ -58,7 +58,6 @@ PYTHON_SERVICES: dict[str, int] = {
     "logistics-service": 8167,
     "lowcode-engine": 8132,
     "mcp-server": 8201,
-    "ndvi-processor": 8118,
     "notification-service": 8110,
     "pest-detection-service": 8125,
     "provider-config": 8104,

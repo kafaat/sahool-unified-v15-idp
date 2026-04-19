@@ -779,38 +779,6 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8081'
       prometheus.io/path: /metrics
-  ndvi-processor:
-    enabled: false
-    name: ndvi-processor
-    image:
-      repository: ghcr.io/kafaat/sahool-ndvi-processor
-      tag: 16.0.0
-      pullPolicy: IfNotPresent
-    replicaCount: 1
-    port: 8118
-    healthCheck:
-      path: /healthz
-      initialDelaySeconds: 30
-      periodSeconds: 10
-    resources:
-      requests:
-        cpu: 500m
-        memory: 512Mi
-      limits:
-        cpu: 500m
-        memory: 512Mi
-    env:
-    - name: NODE_ENV
-      value: production
-    - name: PORT
-      value: '8118'
-    serviceAccount:
-      create: true
-      name: sahool-ndvi-processor
-    podAnnotations:
-      prometheus.io/scrape: 'true'
-      prometheus.io/port: '8118'
-      prometheus.io/path: /metrics
   field-intelligence:
     enabled: true
     name: field-intelligence
@@ -2853,10 +2821,6 @@ ingress:
       pathType: Prefix
       service: ws-gateway
       port: 8081
-    - path: /api/v1/ndvi/processor
-      pathType: Prefix
-      service: ndvi-processor
-      port: 8118
     - path: /api/v1/field/intelligence
       pathType: Prefix
       service: field-intelligence

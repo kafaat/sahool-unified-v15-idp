@@ -8,7 +8,7 @@ All tests are **static analysis** — no Docker daemon required.
 
 Services in this group:
   yolo26-vision-service · ground-vision-service · vegetation-analysis-service
-  crop-intelligence-service · pest-detection-service · ndvi-processor
+  crop-intelligence-service · pest-detection-service
   field-intelligence · indicators-service
 
 Coverage:
@@ -50,7 +50,6 @@ VISION_SERVICES: dict[str, int] = {
     "vegetation-analysis-service": 8090,
     "crop-intelligence-service": 8095,
     "pest-detection-service": 8125,
-    "ndvi-processor": 8118,
     "field-intelligence": 8120,
     "indicators-service": 8091,
 }
@@ -67,7 +66,6 @@ CV_LIGHT_SERVICES = {"pest-detection-service"}
 # Sub-cluster: remote-sensing / satellite services
 REMOTE_SENSING_SERVICES = {
     "vegetation-analysis-service",
-    "ndvi-processor",
     "indicators-service",
 }
 

@@ -57,7 +57,6 @@ VISION_SERVICES: dict[str, int] = {
     "vegetation-analysis-service": 8090,
     "crop-intelligence-service": 8095,
     "pest-detection-service": 8125,
-    "ndvi-processor": 8118,
     "field-intelligence": 8120,
     "indicators-service": 8091,
 }

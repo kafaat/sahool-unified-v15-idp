@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]  # ndvi-processor is deprecated → vegetation-analysis-service
+      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]  # ndvi-processor removed → vegetation-analysis-service
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -1095,35 +1095,8 @@ services:
       memory: "256Mi"
       replicas: 2
 
-  # ═══════════════════════════════════════════════════════════════════════════
-  # NDVI PROCESSOR - معالج NDVI
-  # ═══════════════════════════════════════════════════════════════════════════
-  ndvi-processor:
-    name: "NDVI Processor"
-    name_ar: "معالج NDVI"
-    type: python
-    category: analytics
-    layer: intelligence
-    path: "apps/services/ndvi-processor"
-    port: 8118
-    protocol: http
-    health_endpoint: "/healthz"
-    status: deprecated  # Deprecated → vegetation-analysis-service (sunset: 2026-02)
-    owner: "data-team@sahool.io"
-    team: data
-    lifecycle: experimental  # Mock/dev implementation - not yet production-ready
-    tier: tier-2
-    events:
-      produces:
-        - NDVIProcessed.v1
-      consumes:
-        - SatelliteSceneIngested.v1
-    dependencies:
-      - vegetation-analysis-service
-    resources:
-      cpu: "500m"
-      memory: "512Mi"
-      replicas: 1
+  # ndvi-processor was decommissioned; vegetation-analysis-service is the
+  # sole producer of satellite.ndvi.computed and owns all NDVI workloads.
 
   # ═══════════════════════════════════════════════════════════════════════════
   # FIELD INTELLIGENCE - ذكاء الحقول

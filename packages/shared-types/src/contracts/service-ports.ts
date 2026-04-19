@@ -47,11 +47,6 @@ export const SERVICE_PORTS = {
   IRRIGATION_SMART: 8094,
   /** Crop health AI / disease detection - صحة المحاصيل */
   CROP_INTELLIGENCE: 8095,
-  /**
-   * NDVI processing - معالجة NDVI
-   * @deprecated Use VEGETATION_ANALYSIS (8090) instead. Removal: v3.0.0
-   */
-  NDVI_PROCESSOR: 8118,
   /** Virtual sensor computation (ET0, ETC) - أجهزة الاستشعار الافتراضية */
   VIRTUAL_SENSORS: 8119,
   /** Field analytics - تحليلات الحقل */
@@ -489,17 +484,6 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
     kongRoute: '/api/v1/lai',
     type: 'nodejs',
     layer: 'intelligence',
-  },
-  'ndvi-processor': {
-    key: 'NDVI_PROCESSOR',
-    port: SERVICE_PORTS.NDVI_PROCESSOR,
-    name: 'NDVI Processor',
-    nameAr: 'معالج NDVI',
-    kongRoute: '/api/v1/ndvi',
-    type: 'python',
-    layer: 'intelligence',
-    deprecated: true,
-    replacedBy: 'VEGETATION_ANALYSIS',
   },
   'disaster-assessment': {
     key: 'DISASTER_ASSESSMENT',

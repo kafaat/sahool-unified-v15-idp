@@ -231,29 +231,8 @@ services:
           redis_timeout: 2000
           fault_tolerant: true
 
-  # NDVI Processor
-  - name: ndvi-processor
-    url: http://ndvi-processor:8118
-    connect_timeout: 5000
-    read_timeout: 60000
-    retries: 2
-    routes:
-      - name: ndvi-processor-route
-        paths:
-          - /api/v1/ndvi-processor
-        strip_path: true
-    plugins:
-      - name: rate-limiting
-        config:
-          minute: 500
-          hour: 25000
-          policy: redis
-          redis_host: redis
-          redis_port: 6379
-          redis_password: ${REDIS_PASSWORD}
-          redis_database: 1
-          redis_timeout: 2000
-          fault_tolerant: true
+  # ndvi-processor was fully decommissioned; NDVI traffic goes to
+  # vegetation-analysis-service (see the upstream satellite route).
 
   # Indicators Service
   - name: indicators-service

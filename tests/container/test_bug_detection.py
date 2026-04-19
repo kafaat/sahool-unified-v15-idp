@@ -122,7 +122,7 @@ class TestNATSSubjectDrift:
         "advisory-service", "alert-service", "audit-service",
         "billing-core", "crop-intelligence-service",
         "field-management-service", "indicators-service",
-        "irrigation-smart", "ndvi-processor",
+        "irrigation-smart",
         "pest-detection-service", "soil-analysis-service",
         "task-service", "weather-service", "yolo26-vision-service",
     ]

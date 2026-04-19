@@ -130,7 +130,6 @@ agents:
 
     dependencies:
       - vegetation-analysis-service
-      - ndvi-processor  # NOTE: ndvi-processor is deprecated, use vegetation-analysis-service
       - weather-service
       - iot-gateway
 
@@ -668,7 +667,6 @@ agents:
 
     dependencies:
       - vegetation-analysis-service
-      - ndvi-processor  # NOTE: ndvi-processor is deprecated, use vegetation-analysis-service
       - ndvi-engine  # NOTE: ndvi-engine is deprecated, use vegetation-analysis-service
 
     endpoint:

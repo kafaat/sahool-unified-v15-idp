@@ -555,10 +555,10 @@ legacy_services:
     removal_date: "2026-03"
 
   ndvi_engine:
-    status: deprecated
+    status: removed
     port: 8107
-    path: "apps/services/ndvi-processor"
-    replacement: "satellite-service"
+    path: null  # apps/services/ndvi-processor was fully decommissioned
+    replacement: "vegetation-analysis-service"
     replacement_port: 8090
     reason: "توسيع لدعم NDWI, EVI, SAVI"
     deprecation_date: "2025-12"

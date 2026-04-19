@@ -303,7 +303,10 @@ class NDVIMetrics(MetricsCollector):
     """
 
     def __init__(self, registry: CollectorRegistry | None = None):
-        super().__init__("ndvi_processor", registry)
+        # Service tag is now the successor ("vegetation-analysis") since
+        # ndvi-processor has been fully decommissioned. The metric names
+        # themselves (ndvi_calculations_total, etc.) remain unchanged.
+        super().__init__("vegetation-analysis", registry)
         self._setup_ndvi_metrics()
 
     def _setup_ndvi_metrics(self) -> None:

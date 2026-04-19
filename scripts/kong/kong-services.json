@@ -532,21 +532,6 @@
       "timeout_ms": 5000
     },
     {
-      "name": "ndvi-processor",
-      "name_ar": "معالج NDVI (قديم)",
-      "host": "ndvi-processor",
-      "port": 8118,
-      "health_endpoint": "/healthz",
-      "expected_status": 200,
-      "category": "analysis",
-      "category_ar": "خدمات التحليل",
-      "framework": "fastapi",
-      "routes": ["/ndvi-processor-legacy"],
-      "critical": false,
-      "timeout_ms": 10000,
-      "deprecated": true
-    },
-    {
       "name": "field-intelligence",
       "name_ar": "ذكاء الحقول",
       "host": "field-intelligence",

@@ -31,7 +31,6 @@ export type ServiceName =
   // Satellite & Remote Sensing
   | 'satellite' // @deprecated use "vegetation-analysis"
   | 'vegetation-analysis'
-  | 'ndvi-processor'
   // Weather
   | 'weather'
   // AI & Analytics
@@ -177,14 +176,6 @@ const SERVICES: Record<ServiceName, ServiceConfig> = {
     name: 'vegetation-analysis',
     baseUrl: `${API_BASE}:${SERVICE_PORTS.VEGETATION_ANALYSIS}`,
     port: SERVICE_PORTS.VEGETATION_ANALYSIS,
-    healthEndpoint: '/healthz',
-    timeout: 30000,
-    retries: 2,
-  },
-  'ndvi-processor': {
-    name: 'ndvi-processor',
-    baseUrl: `${API_BASE}:${SERVICE_PORTS.NDVI_PROCESSOR}`,
-    port: SERVICE_PORTS.NDVI_PROCESSOR,
     healthEndpoint: '/healthz',
     timeout: 30000,
     retries: 2,

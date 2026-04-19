@@ -261,7 +261,8 @@ services:
     paths:
     - /api/v1/disaster
     - /disaster
-    strip_path: true
+    # NestJS controllers at @Controller("api/v1/disaster|disasters/*") — forward as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -365,6 +366,10 @@ services:
   host: vegetation-analysis-service
   port: 8090
   protocol: http
+  # Backend routes mount at /v1/* (analyze, boundaries, etc).
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   routes:
   - name: vegetation-analysis-service-route
     paths:
@@ -406,10 +411,47 @@ services:
       - application/json
       cache_ttl: 1800
       strategy: memory
+# indicators-service has an inconsistent backend route layout that a
+# single service.path rewrite cannot cover. Split into two Kong services
+# sharing the same upstream host, differing only in `path`:
+#   * indicators-service-definitions — upstream `/v1/indicators/*`
+#     (only /v1/indicators/definitions lives here; longest-prefix match
+#     wins for this specific sub-path so the other routes below aren't
+#     affected).
+#   * indicators-service          — upstream `/v1/*` for the remaining
+#     contract endpoints (dashboard, alerts, trends, field) whose
+#     backend handlers live at /v1/<resource>/*, NOT /v1/indicators/<resource>.
+- name: indicators-service-definitions
+  host: indicators-service
+  port: 8091
+  protocol: http
+  # Route only the /definitions sub-path here so upstream becomes
+  # /v1/indicators/definitions (matches backend exactly).
+  path: /v1/indicators
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+  routes:
+  - name: indicators-service-definitions-route
+    paths:
+    - /api/v1/indicators/definitions
+    strip_path: true
+    protocols:
+    - http
+    - https
 - name: indicators-service
   host: indicators-service
   port: 8091
   protocol: http
+  # Backend's remaining /v1/* endpoints (dashboard/{tenant_id},
+  # alerts/{tenant_id}, trends/{field_id}/{indicator_id},
+  # field/{field_id}/indicators). Kong strips /api/v1/indicators then
+  # prepends /v1 so the upstream request matches the backend.
+  # Longest-prefix routing means requests to /api/v1/indicators/definitions
+  # fall to the -definitions service above before reaching this one.
+  path: /v1
   plugins:
   - name: jwt
     config:
@@ -547,6 +589,12 @@ services:
   host: crop-intelligence-service
   port: 8095
   protocol: http
+  # Backend routes at /api/v1/fields/*, /api/v1/diagnose, /api/v1/disease/*, /api/v1/nutrients/*, /api/v1/yield/*, /api/v1/feature-schema.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/crop-health/diagnose → /api/v1/diagnose
+  path: /api/v1
   routes:
   - name: crop-intelligence-service-route
     paths:
@@ -567,6 +615,10 @@ services:
   host: virtual-sensors
   port: 8119
   protocol: http
+  # Backend routes mount at /v1/* (et0, etc, crops, irrigation).
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   plugins:
   - name: jwt
     config:
@@ -590,7 +642,8 @@ services:
     paths:
     - /api/v1/yield
     - /yield
-    strip_path: true
+    # NestJS controller mounted at @Controller("api/v1/yield") — forward as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -804,6 +857,10 @@ services:
   host: astronomical-calendar
   port: 8111
   protocol: http
+  # Backend routes mount at /v1/* (hijri, crop-calendar, date).
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   plugins:
   - name: jwt
     config:
@@ -822,6 +879,13 @@ services:
   host: ai-advisor
   port: 8112
   protocol: http
+  # Every backend route is mounted under /v1/advisor/* (ask, diagnose,
+  # recommend, analyze-field, agents, tools, memory/context, cost/usage,
+  # rag/info, evaluation/stats, context-engineering/status). Kong strips
+  # the /api/v1/ai-advisor route prefix then prepends `/v1/advisor`, so
+  # the upstream request matches `@router.post("/v1/advisor/<tail>")`.
+  # A bare `path: /v1` would forward /ask → /v1/ask (404).
+  path: /v1/advisor
   plugins:
   - name: jwt
     config:
@@ -1007,6 +1071,12 @@ services:
   host: crm-service
   port: 8131
   protocol: http
+  # Backend routes at /api/v1/farmers, /api/v1/deals (CRM entities).
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/crm/farmers → strip /api/v1/crm → /farmers → prepend /api/v1 → /api/v1/farmers
+  path: /api/v1
   routes:
   - name: crm-service-route
     paths:
@@ -1032,6 +1102,12 @@ services:
   host: lowcode-engine
   port: 8132
   protocol: http
+  # Backend routes at /api/v1/components, /api/v1/models.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/lowcode/components → /api/v1/components
+  path: /api/v1
   plugins:
   - name: jwt
     config:
@@ -1060,7 +1136,8 @@ services:
     paths:
     - /api/v1/community
     - /community
-    strip_path: true
+    # Backend declares @app.post("/api/v1/community/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -1156,6 +1233,12 @@ services:
   host: agent-registry
   port: 8160
   protocol: http
+  # Backend routes at /api/v1/registry/agents, /api/v1/registry/stats, /api/v1/registry/discover/*.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/agents/registry/stats → /api/v1/registry/stats
+  path: /api/v1
   plugins:
   - name: jwt
     config:
@@ -1174,6 +1257,12 @@ services:
   host: ai-agents-core
   port: 8161
   protocol: http
+  # Backend routes at /api/v1/analyze, /api/v1/edge/*, /api/v1/feedback, /api/v1/system/status, /api/v1/agents/{id}/metrics.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/ai-agents/analyze → /api/v1/analyze
+  path: /api/v1
   plugins:
   - name: jwt
     config:
@@ -1210,6 +1299,12 @@ services:
   host: ai-agents-service
   port: 8130
   protocol: http
+  # Backend routes at /api/v1/agents, /api/v1/agents/execute, /api/v1/agents/executions/*.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/ai-agents-service/agents/execute → /api/v1/agents/execute
+  path: /api/v1
   plugins:
   - name: jwt
     config:
@@ -1228,6 +1323,12 @@ services:
   host: code-fix-agent
   port: 8162
   protocol: http
+  # Backend routes at /api/v1/agent, /api/v1/analyze, /api/v1/feedback, /api/v1/fix, /api/v1/generate-tests.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/code-fix/analyze → /api/v1/analyze
+  path: /api/v1
   connect_timeout: 30000
   write_timeout: 120000
   read_timeout: 120000
@@ -1344,7 +1445,8 @@ services:
     paths:
     - /api/v1/digital-twin
     - /digital-twin
-    strip_path: true
+    # Backend declares @app.post("/api/v1/digital-twin/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -1371,7 +1473,8 @@ services:
     paths:
     - /api/v1/fertigation
     - /fertigation
-    strip_path: true
+    # Backend declares @app.post("/api/v1/fertigation/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -1390,6 +1493,12 @@ services:
   host: iot-sensor-hub
   port: 8251
   protocol: http
+  # Backend routes at /api/v1/iot/nodes, /api/v1/iot/readings, /api/v1/iot/wdi, /api/v1/iot/alerts.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/iot-sensor-hub/iot/nodes → /api/v1/iot/nodes
+  path: /api/v1
   connect_timeout: 15000
   write_timeout: 60000
   read_timeout: 60000
@@ -1418,6 +1527,12 @@ services:
   host: irrigation-cycle-engine
   port: 8250
   protocol: http
+  # Backend routes at /api/v1/irrigation/* and /api/v1/yemen/*.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/irrigation-cycle/irrigation/cycle → /api/v1/irrigation/cycle
+  path: /api/v1
   connect_timeout: 15000
   write_timeout: 60000
   read_timeout: 60000
@@ -1499,6 +1614,12 @@ services:
   host: supply-chain-service
   port: 8230
   protocol: http
+  # Backend routes at /api/v1/orders, /api/v1/products, /api/v1/suppliers, /api/v1/auto-purchase.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/supply-chain/orders → /api/v1/orders
+  path: /api/v1
   routes:
   - name: supply-chain-route
     paths:
@@ -1607,6 +1728,12 @@ services:
   host: ground-vision-service
   port: 8182
   protocol: http
+  # Backend routes at /api/v1/anomalies, /api/v1/cameras, /api/v1/detections, /api/v1/frames, /api/v1/timeline.
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/ground-vision/cameras → /api/v1/cameras
+  path: /api/v1
   connect_timeout: 30000
   write_timeout: 120000
   read_timeout: 120000
@@ -2108,7 +2235,8 @@ services:
   - name: terrain-base-route
     paths:
     - /api/v1/terrain
-    strip_path: true
+    # Backend declares @app.get("/api/v1/terrain/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2163,7 +2291,8 @@ services:
   - name: hydrology-base-route
     paths:
     - /api/v1/hydrology
-    strip_path: true
+    # Backend declares @app.get("/api/v1/hydrology/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2218,7 +2347,8 @@ services:
   - name: leveling-base-route
     paths:
     - /api/v1/leveling
-    strip_path: true
+    # Backend declares @app.get("/api/v1/leveling/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2273,7 +2403,8 @@ services:
   - name: edge-base-route
     paths:
     - /api/v1/edge
-    strip_path: true
+    # Backend declares @app.get("/api/v1/edge/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2303,6 +2434,12 @@ services:
   host: whatsapp-bot-service
   port: 8240
   protocol: http
+  # Backend routes at /api/v1/send, /api/v1/send-template, /api/v1/mark-read (plus /webhook at root handled by existing route).
+  # Kong strips the /api/v1/<kong-name> route prefix then prepends
+  # `/api/v1` so the upstream request matches the backend's
+  # `/api/v1/<resource>/*` handlers. Example:
+  #   /api/v1/whatsapp/send → /api/v1/send
+  path: /api/v1
   connect_timeout: 30000
   write_timeout: 120000
   read_timeout: 120000
@@ -2315,16 +2452,6 @@ services:
     protocols:
     - http
     - https
-  - name: whatsapp-webhook-route
-    paths:
-    - /api/v1/whatsapp/webhook
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - GET
-    - POST
   plugins:
   - name: rate-limiting
     config:
@@ -2336,6 +2463,31 @@ services:
     config:
       claims_to_verify:
       - exp
+
+# whatsapp-bot-service webhook lives at /webhook on the backend (root,
+# no /api/v1 prefix). With the main service now using `path: /api/v1`
+# a merged route would produce /api/v1/api/v1/whatsapp/webhook upstream
+# (double prefix) — so route the webhook via a dedicated service that
+# strips the full client prefix and uses `path: /webhook` instead.
+- name: whatsapp-bot-service-webhook
+  host: whatsapp-bot-service
+  port: 8240
+  protocol: http
+  path: /webhook
+  connect_timeout: 30000
+  write_timeout: 120000
+  read_timeout: 120000
+  routes:
+  - name: whatsapp-webhook-route
+    paths:
+    - /api/v1/whatsapp/webhook
+    strip_path: true
+    protocols:
+    - http
+    - https
+    methods:
+    - GET
+    - POST
 
 # ═══════════════════════════════════════════════════════════════════════════
 # Partner Auth Service (OAuth 2.0 / OIDC) — @since contract 4.11.0

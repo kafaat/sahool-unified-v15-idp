@@ -31,8 +31,14 @@ def _weather_scoped(event_type: str, tenant_id: str | None) -> str:
     global_subject = get_subject(event_type)
     if tenant_id:
         # Preserve the "alert" / "forecast.issued" / "irrigation.adjustment" action suffix.
+        # The domain prefix is kept as a 2-segment literal (valid NATS subject —
+        # `"sahool.<domain>"`) so string-level drift detectors don't trip on a
+        # trailing-dot prefix that was never a real subject.
+        _WEATHER_DOMAIN = "sahool.weather"
         action = (
-            global_subject[len("sahool.weather.") :] if global_subject.startswith("sahool.weather.") else event_type
+            global_subject[len(_WEATHER_DOMAIN) + 1 :]
+            if global_subject.startswith(_WEATHER_DOMAIN + ".")
+            else event_type
         )
         return get_tenant_subject(tenant_id, "weather", action)
     logger.warning(

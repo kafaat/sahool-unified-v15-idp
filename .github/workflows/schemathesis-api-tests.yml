@@ -86,9 +86,9 @@ jobs:
           fi
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Freshness guard: regenerate per-service specs and fail if they drift
-  # from what is committed. Prevents "schema looked fine in PR, diverged at
-  # runtime" bugs. Only runs on PRs that touched service source.
+  # Freshness guard: regenerate every per-service spec and fail if any drifts
+  # from what is committed. Triggered whenever service source, a committed
+  # spec, or the exporter script changes (see ``paths:`` at the top).
   # حارس الطزاجة: يضمن تطابق المواصفات المولدة مع الكود
   # ─────────────────────────────────────────────────────────────────────────────
   openapi-freshness:
@@ -103,19 +103,15 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
 
-      - name: Install minimal runtime deps
+      - name: Install runtime deps (pinned via constraints.txt)
+        # Versions are governed centrally by constraints.txt so this job stays
+        # reproducible and upgrades flow through a single place.
         run: |
-          # Best-effort dep set; services with heavier requirements simply get
-          # skipped by the exporter and don't block the freshness check.
           pip install --no-cache-dir \
-            "fastapi>=0.115" "pydantic>=2.10" pydantic-settings \
-            structlog pyyaml python-multipart httpx \
-            sqlalchemy psycopg2-binary "pydantic[email]" \
-            slowapi tortoise-orm aiohttp networkx defusedxml \
-            asyncpg "nats-py>=2.6" redis prometheus-client \
-            opentelemetry-api opentelemetry-sdk opentelemetry-instrumentation-fastapi \
-            numpy
+            -c constraints.txt \
+            -r requirements/openapi-export.txt
 
       - name: Regenerate per-service openapi.yaml
         run: |

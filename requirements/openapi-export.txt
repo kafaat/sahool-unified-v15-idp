@@ -1,0 +1,47 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# Deps for scripts/export-openapi.py (CI freshness guard)
+# متطلبات أداة تصدير OpenAPI
+#
+# Install with:
+#   pip install -c constraints.txt -r requirements/openapi-export.txt
+#
+# The constraints file pins versions platform-wide; this file is intentionally
+# version-free so a single place (constraints.txt) governs upgrades.
+#
+# Scope: only the dependencies the *exporter* imports at runtime — not the full
+# platform dep set. Services whose additional runtime deps are missing are
+# skipped with a structured reason by the exporter itself.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Core web / validation — needed to import FastAPI services
+fastapi
+pydantic
+pydantic-settings
+pydantic[email]
+python-multipart
+
+# Observability / logging imported at module-load time by several services
+structlog
+prometheus-client
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-instrumentation-fastapi
+
+# Serialization
+pyyaml
+
+# Databases / queues commonly imported eagerly at startup
+sqlalchemy
+psycopg2-binary
+asyncpg
+redis
+nats-py
+
+# Other eager imports in the broader service set
+slowapi
+tortoise-orm
+aiohttp
+httpx
+networkx
+defusedxml
+numpy

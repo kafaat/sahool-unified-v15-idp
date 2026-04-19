@@ -59,7 +59,12 @@ export class TenantGuard implements CanActivate {
       );
     }
 
-    const requestedTenantId = userTenantId || headerTenantId;
+    // Admin callers can opt in to another tenant's scope via the header.
+    // For non-admins, the JWT claim is always authoritative (header is only
+    // used as a fallback when the JWT legitimately lacks a claim, e.g. for
+    // service-to-service tokens — that code path is already gated above).
+    const requestedTenantId =
+      isAdmin && headerTenantId ? headerTenantId : userTenantId || headerTenantId;
 
     if (!requestedTenantId) {
       this.logger.warn(

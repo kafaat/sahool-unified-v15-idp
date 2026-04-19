@@ -7,6 +7,7 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { ChatEventsService } from "../events/chat-events.service";
@@ -40,6 +41,13 @@ export class ChatService {
     // that as the uniqueness key (matches field-chat semantics: one thread
     // per field/task/incident). Otherwise fall back to the marketplace
     // (productId, orderId) de-dup.
+    //
+    // Security: the scope-dedupe path also requires `hasEvery: participantIds`
+    // so a tenant user who guesses a scopeId cannot read back an existing
+    // scoped conversation they're not part of (which would leak the most
+    // recent message body via the `messages` include). Callers must include
+    // their own userId in dto.participantIds — enforced by the controller
+    // which overrides participantIds[0] with the authenticated user.
     const hasScope = !!(dto.scopeType && dto.scopeId);
     const existingConversation = await this.prisma.conversation.findFirst({
       where: hasScope
@@ -47,6 +55,9 @@ export class ChatService {
             tenantId,
             scopeType: dto.scopeType!,
             scopeId: dto.scopeId!,
+            participantIds: {
+              hasEvery: dto.participantIds,
+            },
           }
         : {
             tenantId,
@@ -72,29 +83,44 @@ export class ChatService {
     // Create new conversation — scopeType/scopeId are nullable in the
     // schema, so omitting them keeps marketplace flows unchanged while
     // field-chat style calls now persist their domain anchor.
-    const conversation = await this.prisma.conversation.create({
-      data: {
-        tenantId,
-        participantIds: dto.participantIds,
-        productId: dto.productId,
-        orderId: dto.orderId,
-        scopeType: dto.scopeType,
-        scopeId: dto.scopeId,
-        participants: {
-          create: dto.participantIds.map((userId, index) => ({
-            tenantId,
-            userId,
-            role: index === 0 ? "BUYER" : "SELLER",
-          })),
+    //
+    // If a scoped conversation already exists for (tenantId, scopeType,
+    // scopeId) but the caller isn't in its participants, the unique index
+    // `uq_conversation_scope` will fire on insert (Prisma P2002). Translate
+    // that to a ForbiddenException rather than a 500 — it means the caller
+    // tried to "create" a scope that already exists without access.
+    try {
+      const conversation = await this.prisma.conversation.create({
+        data: {
+          tenantId,
+          participantIds: dto.participantIds,
+          productId: dto.productId,
+          orderId: dto.orderId,
+          scopeType: dto.scopeType,
+          scopeId: dto.scopeId,
+          participants: {
+            create: dto.participantIds.map((userId, index) => ({
+              tenantId,
+              userId,
+              role: index === 0 ? "BUYER" : "SELLER",
+            })),
+          },
         },
-      },
-      include: {
-        participants: true,
-        messages: true,
-      },
-    });
+        include: {
+          participants: true,
+          messages: true,
+        },
+      });
 
-    return conversation;
+      return conversation;
+    } catch (e: any) {
+      if (e?.code === "P2002") {
+        throw new ForbiddenException(
+          "A conversation with this scope already exists and you are not a participant",
+        );
+      }
+      throw e;
+    }
   }
 
   /**

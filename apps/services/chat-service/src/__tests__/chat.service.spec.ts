@@ -480,12 +480,16 @@ describe("ChatService - Conversation Creation", () => {
 
     const result = await service.createConversation(dto, TENANT_ID);
 
-    // findFirst WHERE used the scope key, not the participant/product key.
+    // findFirst WHERE used the scope key PLUS a hasEvery participantIds
+    // check — the latter prevents a tenant user who guesses a scopeId
+    // from reading back an existing scoped conversation they're not part
+    // of (see Copilot review feedback round-6, chat.service.ts:70).
     const where = mockPrisma.conversation.findFirst.mock.calls[0][0].where;
     expect(where).toEqual({
       tenantId: TENANT_ID,
       scopeType: "task",
       scopeId: "task_42",
+      participantIds: { hasEvery: [USER_ID_BUYER, USER_ID_SELLER] },
     });
     // create was never called — existing row returned.
     expect(mockPrisma.conversation.create).not.toHaveBeenCalled();

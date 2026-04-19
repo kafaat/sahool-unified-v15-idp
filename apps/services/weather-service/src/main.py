@@ -634,16 +634,13 @@ async def get_current_weather_by_location(
     if location is None:
         raise HTTPException(
             status_code=404,
-            detail=f"Yemen location '{location_id}' not found. "
-            "Use /weather/v1/locations to list valid IDs.",
+            detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
         )
 
     tenant_id = getattr(user, "tenant_id", None) or "unknown"
 
     if app.state.multi_provider:
-        result = await app.state.multi_provider.get_current(
-            location["lat"], location["lon"], tenant_id=tenant_id
-        )
+        result = await app.state.multi_provider.get_current(location["lat"], location["lon"], tenant_id=tenant_id)
         if not result.success:
             raise ExternalServiceException.weather_service(
                 details={
@@ -707,8 +704,7 @@ async def get_forecast_by_location(
     if location is None:
         raise HTTPException(
             status_code=404,
-            detail=f"Yemen location '{location_id}' not found. "
-            "Use /weather/v1/locations to list valid IDs.",
+            detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
         )
 
     tenant_id = getattr(user, "tenant_id", None) or "unknown"
@@ -728,9 +724,7 @@ async def get_forecast_by_location(
         forecast = result.data
         provider = result.provider
     else:
-        forecast = await app.state.weather_provider.get_forecast(
-            location["lat"], location["lon"], days=days
-        )
+        forecast = await app.state.weather_provider.get_forecast(location["lat"], location["lon"], days=days)
         provider = "Open-Meteo"
 
     return {

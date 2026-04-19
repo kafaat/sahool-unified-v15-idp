@@ -932,6 +932,51 @@ services:
     protocols:
     - http
     - https
+# inventory-service has TWO route families on different backend prefixes:
+#
+#   1. Modern items CRUD — APIRouter(prefix="/api/v1/inventory") in
+#      src/api/v1/inventory.py. Web/mobile call this via
+#      INVENTORY_ENDPOINTS.{LIST, GET, CREATE, UPDATE, DELETE, STOCK_LEVELS}.
+#      Forwarded as-is (strip_path: false) so the backend router matches.
+#
+#   2. Legacy categories + analytics — `@app.get("/v1/categories")` and
+#      `@app.get("/v1/analytics/*")` in src/main.py. Mobile's
+#      service_registry.dart still calls `/api/v1/inventory/categories`,
+#      and an analytics_service hits `/api/v1/inventory/analytics/*`.
+#      A separate Kong service strips `/api/v1/inventory` and prepends
+#      `/v1` so the upstream URL matches the legacy `@app.*("/v1/...")`
+#      handlers without touching the backend.
+#
+# Longest-prefix match means /api/v1/inventory/categories goes to the
+# legacy service, /api/v1/inventory/analytics/* goes there too, and
+# everything else (`/api/v1/inventory/{itemId}`, `/stats`, etc.) stays on
+# the modern strip_path:false route.
+- name: inventory-service-legacy
+  host: inventory-service
+  port: 8116
+  protocol: http
+  path: /v1
+  plugins:
+  - name: jwt
+    config:
+      run_on_preflight: false
+      claims_to_verify:
+      - exp
+  routes:
+  - name: inventory-service-categories-route
+    paths:
+    - /api/v1/inventory/categories
+    strip_path: true
+    protocols:
+    - http
+    - https
+  - name: inventory-service-analytics-route
+    paths:
+    - /api/v1/inventory/analytics
+    strip_path: true
+    protocols:
+    - http
+    - https
 - name: inventory-service
   host: inventory-service
   port: 8116
@@ -940,8 +985,12 @@ services:
   - name: inventory-service-route
     paths:
     - /api/v1/inventory
-    - /inventory
-    strip_path: true
+    # Backend's modern router mounts at APIRouter(prefix="/api/v1/inventory")
+    # (src/api/v1/inventory.py:36). strip_path:false forwards the full path
+    # so /api/v1/inventory/{itemId}, /stats, /transactions reach the
+    # matching handlers. Legacy /v1/categories and /v1/analytics/* are
+    # routed through inventory-service-legacy above.
+    strip_path: false
     protocols:
     - http
     - https

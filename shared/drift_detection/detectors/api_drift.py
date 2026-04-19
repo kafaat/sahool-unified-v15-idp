@@ -193,7 +193,11 @@ class APIDriftDetector(BaseDriftDetector):
         service_dirs = list(root.glob("apps/services/*/src"))
 
         # Services that are CLI tools or non-HTTP agents (no server to health-check)
-        _CLI_ONLY_SERVICES = {"code-review-agent"}
+        # - code-review-agent: one-shot PR review CLI (invoked from CI)
+        # - audit-retention-worker: Kubernetes CronJob batch worker
+        #   (see apps/services/audit-retention-worker/src/main.py docstring —
+        #   runs sweep, exits, has no HTTP server to probe).
+        _CLI_ONLY_SERVICES = {"code-review-agent", "audit-retention-worker"}
 
         for src_dir in service_dirs:
             service_name = src_dir.parent.name

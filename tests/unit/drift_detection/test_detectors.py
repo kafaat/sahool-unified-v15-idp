@@ -255,14 +255,19 @@ class TestAPIDriftDetector:
         all — the detector should skip it because it's a K8s CronJob
         whose liveness is "process exited 0", not a polled HTTP probe.
         """
-        # Create the CronJob service without any health endpoints
+        # Create the CronJob service without any health endpoints.
+        # IMPORTANT: the file contents below MUST NOT contain the substrings
+        # `/healthz`, `healthz`, `/health`, or `readyz` — not even in a
+        # comment — because the scanner does a broad substring match and
+        # would otherwise treat the file as "has health endpoints" and
+        # pass the test regardless of whether the allowlist works.
         svc = temp_project / "apps" / "services" / "audit-retention-worker" / "src"
         svc.mkdir(parents=True)
         (svc / "main.py").write_text(
             '"""Audit Retention Worker — K8s CronJob entrypoint."""\n'
             "import asyncio\n"
             "async def main():\n"
-            "    # Run once, exit. No HTTP server, no /healthz.\n"
+            "    # Run once and exit — no HTTP server.\n"
             "    pass\n"
             "if __name__ == '__main__':\n"
             "    asyncio.run(main())\n"

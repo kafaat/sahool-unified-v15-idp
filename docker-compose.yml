@@ -156,7 +156,9 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-      start_period: 45s
+      # FIX: Increased from 45s — entrypoint schema-check loop (10 attempts × 3s = 30s)
+      # + bootstrap + PgBouncer startup takes ~40s. 90s gives a comfortable buffer.
+      start_period: 90s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

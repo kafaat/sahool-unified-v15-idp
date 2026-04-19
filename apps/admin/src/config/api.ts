@@ -210,7 +210,8 @@ export const SERVICE_URLS = {
 
   // Satellite & Remote Sensing
   satellite: getServiceUrl(SERVICE_PORTS.satellite),
-  ndviProcessor: getServiceUrl(SERVICE_PORTS.ndviProcessor),
+  // ndviProcessor removed in contract v5.0.0 — fully decommissioned into
+  // vegetation-analysis-service (port 8090, alias `satellite` above).
 
   // Weather
   weather: getServiceUrl(SERVICE_PORTS.weather),

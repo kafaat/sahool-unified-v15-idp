@@ -209,6 +209,22 @@ services:
       health: "/healthz"
       estimate: "/v1/yield/estimate"
 
+  # Deprecated alias — kept for backward compatibility with existing lookups
+  # (e.g. tests/integration/test_service_health.py). Points at the same
+  # yield-prediction-service path/port. Remove after all callers migrate.
+  yield_engine:
+    status: deprecated
+    alias_of: yield_prediction_service
+    layer: bridge
+    port: 8152
+    path: "apps/services/yield-prediction-service"
+    language: nodejs
+    framework: nestjs
+    description_en: "[DEPRECATED] Use yield_prediction_service"
+    endpoints:
+      health: "/healthz"
+      estimate: "/v1/yield/estimate"
+
   irrigation_smart:
     layer: bridge
     port: 8094
@@ -237,6 +253,20 @@ services:
     transforms:
       - input: "soil_test"
         output: "fertilizer_plan"
+    endpoints:
+      health: "/healthz"
+      recommend: "/v1/fertilizer/recommend"
+
+  # Deprecated alias — kept for backward compatibility. Points at advisory-service.
+  fertilizer_advisor:
+    status: deprecated
+    alias_of: advisory_service
+    layer: bridge
+    port: 8093
+    path: "apps/services/advisory-service"
+    language: python
+    framework: fastapi
+    description_en: "[DEPRECATED] Use advisory_service"
     endpoints:
       health: "/healthz"
       recommend: "/v1/fertilizer/recommend"
@@ -292,6 +322,20 @@ services:
       health: "/healthz"
       analyze: "/v1/satellite/analyze"
 
+  # Deprecated alias — kept for backward compatibility. Points at vegetation-analysis-service.
+  satellite_service:
+    status: deprecated
+    alias_of: vegetation_analysis_service
+    layer: analysis
+    port: 8090
+    path: "apps/services/vegetation-analysis-service"
+    language: python
+    framework: fastapi
+    description_en: "[DEPRECATED] Use vegetation_analysis_service"
+    endpoints:
+      health: "/healthz"
+      analyze: "/v1/satellite/analyze"
+
   crop_intelligence_service:
     layer: analysis
     port: 8095
@@ -318,6 +362,20 @@ services:
     async: true
     cache_ttl: "6h"
     outputs: ["forecast", "alerts", "historical"]
+    endpoints:
+      health: "/healthz"
+      forecast: "/v1/weather/forecast"
+
+  # Deprecated alias — kept for backward compatibility. Points at weather-service.
+  weather_advanced:
+    status: deprecated
+    alias_of: weather_service
+    layer: analysis
+    port: 8092
+    path: "apps/services/weather-service"
+    language: python
+    framework: fastapi
+    description_en: "[DEPRECATED] Use weather_service"
     endpoints:
       health: "/healthz"
       forecast: "/v1/weather/forecast"

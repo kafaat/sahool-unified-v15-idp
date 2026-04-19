@@ -437,6 +437,77 @@ describe("ChatService - Conversation Creation", () => {
       "Database connection lost",
     );
   });
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Regression tests for scope wiring — closes Copilot review #4 on
+  // PR #1664 which noted that createConversation never persisted
+  // scopeType/scopeId, so getConversationByScope would always 404.
+  // ─────────────────────────────────────────────────────────────────────
+
+  it("persists scopeType/scopeId when creating a field-chat style conversation", async () => {
+    const dto: CreateConversationDto = {
+      participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      scopeType: "field",
+      scopeId: "fld_abc123",
+    };
+    mockPrisma.conversation.findFirst.mockResolvedValue(null);
+    mockPrisma.conversation.create.mockImplementation(async ({ data }: any) => ({
+      ...mockConversation,
+      ...data,
+    }));
+
+    const result = await service.createConversation(dto, TENANT_ID);
+
+    // Scope is forwarded to the create call and ends up on the row.
+    const createCall = mockPrisma.conversation.create.mock.calls[0][0];
+    expect(createCall.data.scopeType).toBe("field");
+    expect(createCall.data.scopeId).toBe("fld_abc123");
+    expect(result.scopeType).toBe("field");
+    expect(result.scopeId).toBe("fld_abc123");
+  });
+
+  it("dedups on (scopeType, scopeId) when both are provided", async () => {
+    const dto: CreateConversationDto = {
+      participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      scopeType: "task",
+      scopeId: "task_42",
+    };
+    mockPrisma.conversation.findFirst.mockResolvedValue({
+      ...mockConversation,
+      scopeType: "task",
+      scopeId: "task_42",
+    });
+
+    const result = await service.createConversation(dto, TENANT_ID);
+
+    // findFirst WHERE used the scope key, not the participant/product key.
+    const where = mockPrisma.conversation.findFirst.mock.calls[0][0].where;
+    expect(where).toEqual({
+      tenantId: TENANT_ID,
+      scopeType: "task",
+      scopeId: "task_42",
+    });
+    // create was never called — existing row returned.
+    expect(mockPrisma.conversation.create).not.toHaveBeenCalled();
+    expect(result.scopeType).toBe("task");
+  });
+
+  it("still dedups on (productId, orderId, participantIds) when no scope is given", async () => {
+    const dto: CreateConversationDto = {
+      participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      productId: PRODUCT_ID,
+    };
+    mockPrisma.conversation.findFirst.mockResolvedValue(null);
+    mockPrisma.conversation.create.mockResolvedValue(mockConversation);
+
+    await service.createConversation(dto, TENANT_ID);
+
+    const where = mockPrisma.conversation.findFirst.mock.calls[0][0].where;
+    // No scope filter — participants/product/order path is preserved.
+    expect(where).not.toHaveProperty("scopeType");
+    expect(where.productId).toBe(PRODUCT_ID);
+    expect(where.orderId).toBeNull();
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════

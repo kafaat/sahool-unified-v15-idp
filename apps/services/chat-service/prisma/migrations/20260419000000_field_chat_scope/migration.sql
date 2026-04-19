@@ -20,9 +20,10 @@ ALTER TABLE "conversations" ADD COLUMN IF NOT EXISTS "archived_at" TIMESTAMP(3);
 CREATE INDEX IF NOT EXISTS "idx_conversation_tenant_scope"
     ON "conversations" ("tenant_id", "scope_type");
 
--- Partial unique index: enforce one conversation per (tenant, scope_type, scope_id)
--- ONLY when both scope fields are set. Nulls are ignored, which keeps the
--- marketplace flows (productId/orderId-only conversations) from colliding.
+-- Unique index: enforce one conversation per (tenant, scope_type, scope_id).
+-- Postgres treats NULLs as distinct in unique indexes by default, so existing
+-- marketplace rows with scope_type/scope_id = NULL do not collide. Keeping
+-- this non-partial keeps it in sync with schema.prisma's
+-- `@@unique([tenantId, scopeType, scopeId])` so `prisma migrate diff` stays clean.
 CREATE UNIQUE INDEX IF NOT EXISTS "uq_conversation_scope"
-    ON "conversations" ("tenant_id", "scope_type", "scope_id")
-    WHERE "scope_type" IS NOT NULL AND "scope_id" IS NOT NULL;
+    ON "conversations" ("tenant_id", "scope_type", "scope_id");

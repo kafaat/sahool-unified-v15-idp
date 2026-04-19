@@ -36,16 +36,26 @@ export class ChatService {
    * إنشاء محادثة جديدة
    */
   async createConversation(dto: CreateConversationDto, tenantId: string) {
-    // Check if conversation already exists between these participants
+    // Scope handling — if the caller gave us (scopeType, scopeId), prefer
+    // that as the uniqueness key (matches field-chat semantics: one thread
+    // per field/task/incident). Otherwise fall back to the marketplace
+    // (productId, orderId) de-dup.
+    const hasScope = !!(dto.scopeType && dto.scopeId);
     const existingConversation = await this.prisma.conversation.findFirst({
-      where: {
-        tenantId,
-        participantIds: {
-          hasEvery: dto.participantIds,
-        },
-        productId: dto.productId || null,
-        orderId: dto.orderId || null,
-      },
+      where: hasScope
+        ? {
+            tenantId,
+            scopeType: dto.scopeType!,
+            scopeId: dto.scopeId!,
+          }
+        : {
+            tenantId,
+            participantIds: {
+              hasEvery: dto.participantIds,
+            },
+            productId: dto.productId || null,
+            orderId: dto.orderId || null,
+          },
       include: {
         participants: true,
         messages: {
@@ -59,13 +69,17 @@ export class ChatService {
       return existingConversation;
     }
 
-    // Create new conversation
+    // Create new conversation — scopeType/scopeId are nullable in the
+    // schema, so omitting them keeps marketplace flows unchanged while
+    // field-chat style calls now persist their domain anchor.
     const conversation = await this.prisma.conversation.create({
       data: {
         tenantId,
         participantIds: dto.participantIds,
         productId: dto.productId,
         orderId: dto.orderId,
+        scopeType: dto.scopeType,
+        scopeId: dto.scopeId,
         participants: {
           create: dto.participantIds.map((userId, index) => ({
             tenantId,
@@ -463,7 +477,13 @@ export class ChatService {
 
   /**
    * Find an existing conversation for (scopeType, scopeId) within a tenant.
-   * Returns null when none exists — the caller decides whether to auto-create.
+   *
+   * Throws NotFoundException when no match exists. The archived field-chat
+   * service returned null; chat-service's convention (see
+   * `getConversationById` above) is to 404 on missing rows so the
+   * controller can pass the exception through without extra branching.
+   * Callers that want "find-or-create" should use `createConversation`
+   * with scopeType/scopeId in the DTO — that path de-dups on scope.
    */
   async getConversationByScope(
     scopeType: string,

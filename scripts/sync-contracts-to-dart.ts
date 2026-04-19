@@ -167,12 +167,11 @@ String getServiceUrl(int port, {String host = 'http://localhost'}) =>
   )
     .filter(([key]) => !(ERROR_CODES as Record<string, string>)[key]?.startsWith?.("E"))
     .map(([key, msg]) => {
-      const escaped = (s: string) => s.replace(/'/g, "\\'");
       return `  '${key}': ErrorMessage(
     code: '${msg.code}',
     httpStatus: ${msg.httpStatus},
-    en: '${escaped(msg.en)}',
-    ar: '${escaped(msg.ar)}',
+    en: '${dartEscape(msg.en)}',
+    ar: '${dartEscape(msg.ar)}',
     retryable: ${msg.retryable},
   ),`;
     })
@@ -386,6 +385,24 @@ function toCamelCase(screaming: string): string {
 }
 
 /**
+ * Escape a string for safe inclusion inside a single-quoted Dart literal.
+ *
+ * Order matters — backslash FIRST so the substitutions in subsequent
+ * steps don't get themselves doubled. Without this, a JSDoc message
+ * containing a Windows path (`C:\foo`), a regex example (`\\d+`), or
+ * any literal `\n` in the source would produce invalid Dart string
+ * syntax. Tracked under CodeQL js/incomplete-sanitization.
+ */
+function dartEscape(s: string): string {
+  return s
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n")
+    .replace(/\t/g, "\\t");
+}
+
+/**
  * Convert a {paramName} template placeholder to Dart string interpolation.
  * - If no placeholders: emit `static const String name = 'path';`
  * - If placeholders: emit `static String name(String p1, String p2) => 'path/$p1/$p2';`
@@ -430,23 +447,12 @@ function renderDartEndpointClass(
     // Replace /api/v1 with $apiPrefix for consistency with existing convention.
     const pathExpr = template.replace(/^\/api\/v1/, "\\$apiPrefix");
 
-    // Translate JSDoc @deprecated → Dart `@Deprecated('msg')`. The
-    // sequence here matters:
-    //   1. backslash FIRST (otherwise step 2's escape introduces backslashes
-    //      that step 1 would double again)
-    //   2. single quote (Dart string delimiter)
-    //   3. CR / LF / TAB → escape sequences so the literal stays single-line
-    // Without (1), a JSDoc message containing `\n` literally or a Windows
-    // path like `C:\foo` would generate invalid Dart string syntax.
+    // Translate JSDoc @deprecated → Dart `@Deprecated('msg')`. Use the
+    // shared dartEscape() helper so both error_messages and the
+    // annotation renderer go through one CodeQL-audited code path.
     const depMsg = deprecations?.get(rawKey);
     if (depMsg) {
-      const escaped = depMsg
-        .replace(/\\/g, "\\\\")
-        .replace(/'/g, "\\'")
-        .replace(/\r/g, "\\r")
-        .replace(/\n/g, "\\n")
-        .replace(/\t/g, "\\t");
-      lines.push(`  @Deprecated('${escaped}')`);
+      lines.push(`  @Deprecated('${dartEscape(depMsg)}')`);
     }
 
     if (params.length === 0) {

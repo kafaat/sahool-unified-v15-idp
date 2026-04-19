@@ -266,14 +266,62 @@ jobs:
           done
 
   # ═══════════════════════════════════════════════════════════════════════════
+  # Stage 4.5: Deploy Pre-flight
+  # ───────────────────────────────────────────────────────────────────────────
+  # Determines which AWS auth method is available for EKS deploys:
+  #   oidc   → AWS_DEPLOY_ROLE_ARN secret present (preferred: short-lived,
+  #            no long-lived static creds in repo)
+  #   static → legacy AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY present
+  #   none   → neither configured → downstream deploy jobs skip cleanly
+  #            (matches cd-staging.yml's KUBE_CONFIG_STAGING guard pattern)
+  #
+  # To migrate a deployment target to OIDC:
+  #   1. Create IAM role with trust policy for token.actions.githubusercontent.com
+  #      scoped to this repo + branch/environment.
+  #   2. Store the role ARN as repository secret `AWS_DEPLOY_ROLE_ARN` (or
+  #      environment-scoped secret on `staging` / `production`).
+  #   3. Remove AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY secrets.
+  # ═══════════════════════════════════════════════════════════════════════════
+  deploy-preflight:
+    name: "\U0001F50D Deploy Pre-flight"
+    runs-on: ubuntu-latest
+    needs: push-images
+    if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
+    outputs:
+      auth_mode: ${{ steps.check.outputs.auth_mode }}
+    steps:
+      - name: Detect AWS auth configuration
+        id: check
+        env:
+          HAS_OIDC_ROLE: ${{ secrets.AWS_DEPLOY_ROLE_ARN != '' }}
+          HAS_STATIC_CREDS: ${{ secrets.AWS_ACCESS_KEY_ID != '' && secrets.AWS_SECRET_ACCESS_KEY != '' }}
+        run: |
+          if [ "$HAS_OIDC_ROLE" = "true" ]; then
+            echo "auth_mode=oidc" >> "$GITHUB_OUTPUT"
+            echo "✅ OIDC role configured — will assume AWS_DEPLOY_ROLE_ARN"
+          elif [ "$HAS_STATIC_CREDS" = "true" ]; then
+            echo "auth_mode=static" >> "$GITHUB_OUTPUT"
+            echo "⚠️ Using legacy static credentials — consider migrating to OIDC"
+          else
+            echo "auth_mode=none" >> "$GITHUB_OUTPUT"
+            echo "::warning::No AWS auth configured — EKS deploy jobs will be skipped."
+            echo "::warning::Set AWS_DEPLOY_ROLE_ARN (preferred) or AWS_ACCESS_KEY_ID+AWS_SECRET_ACCESS_KEY."
+          fi
+
+  # ═══════════════════════════════════════════════════════════════════════════
   # Stage 5: Deploy to Staging
   # ═══════════════════════════════════════════════════════════════════════════
   deploy-staging:
     name: "\U0001F680 Deploy to Staging"
     runs-on: ubuntu-latest
-    needs: push-images
+    needs: [push-images, deploy-preflight]
     environment: staging
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && needs.deploy-preflight.outputs.auth_mode != 'none'
+    # id-token: write is required for OIDC. contents: read re-declared because
+    # job-level permissions fully override the workflow default.
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
@@ -283,14 +331,20 @@ jobs:
       - name: Setup Helm
         uses: azure/setup-helm@v5
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
+        if: needs.deploy-preflight.outputs.auth_mode == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: gha-sahool-v16-staging
+          aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'me-south-1' }}
+
+      - name: Configure AWS credentials (static — legacy)
+        if: needs.deploy-preflight.outputs.auth_mode == 'static'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # Falls back to SAHOOL's canonical deployment region (CLAUDE.md: AWS me-south-1)
-          # when the AWS_REGION secret/var is unset, preventing
-          # "Input required and not supplied: aws-region" failures.
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'me-south-1' }}
 
       - name: Update kubeconfig
@@ -314,20 +368,29 @@ jobs:
   deploy-production:
     name: "\U0001F680 Deploy to Production"
     runs-on: ubuntu-latest
-    needs: deploy-staging
+    needs: [deploy-staging, deploy-preflight]
     environment: production
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') && needs.deploy-preflight.outputs.auth_mode != 'none'
+    permissions:
+      contents: read
+      id-token: write
     steps:
       - uses: actions/checkout@v6
 
-      - name: Configure AWS credentials
+      - name: Configure AWS credentials (OIDC)
+        if: needs.deploy-preflight.outputs.auth_mode == 'oidc'
+        uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: gha-sahool-v16-production
+          aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'me-south-1' }}
+
+      - name: Configure AWS credentials (static — legacy)
+        if: needs.deploy-preflight.outputs.auth_mode == 'static'
         uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          # Falls back to SAHOOL's canonical deployment region (CLAUDE.md: AWS me-south-1)
-          # when the AWS_REGION secret/var is unset, preventing
-          # "Input required and not supplied: aws-region" failures.
           aws-region: ${{ vars.AWS_REGION || secrets.AWS_REGION || 'me-south-1' }}
 
       - name: Deploy to Production EKS

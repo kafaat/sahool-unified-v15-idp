@@ -37,6 +37,17 @@ export class ChatService {
    * إنشاء محادثة جديدة
    */
   async createConversation(dto: CreateConversationDto, tenantId: string) {
+    // Duplicate participantIds would otherwise hit the
+    // `Participant @@unique([conversationId, userId])` constraint on insert,
+    // surfacing as a P2002 we'd misclassify below. Reject at the boundary
+    // so callers get a clear 400.
+    const uniqueParticipantIds = [...new Set(dto.participantIds)];
+    if (uniqueParticipantIds.length !== dto.participantIds.length) {
+      throw new BadRequestException(
+        "participantIds must not contain duplicates",
+      );
+    }
+
     // Scope handling — if the caller gave us (scopeType, scopeId), prefer
     // that as the uniqueness key (matches field-chat semantics: one thread
     // per field/task/incident). Otherwise fall back to the marketplace
@@ -114,10 +125,25 @@ export class ChatService {
 
       return conversation;
     } catch (e: any) {
+      // Narrow the P2002 handler to the scope-uniqueness constraint only —
+      // other unique-index violations (e.g. a race on Participant inserts)
+      // must not be misclassified as "scope already exists".
       if (e?.code === "P2002") {
-        throw new ForbiddenException(
-          "A conversation with this scope already exists and you are not a participant",
-        );
+        const target: unknown = e?.meta?.target;
+        const targetStr = Array.isArray(target)
+          ? target.join(",")
+          : typeof target === "string"
+            ? target
+            : "";
+        const isScopeConstraint =
+          targetStr.includes("uq_conversation_scope") ||
+          targetStr.includes("scope_type") ||
+          targetStr.includes("scopeType");
+        if (isScopeConstraint) {
+          throw new ForbiddenException(
+            "A conversation with this scope already exists and you are not a participant",
+          );
+        }
       }
       throw e;
     }

@@ -1536,27 +1536,34 @@ async def metrics():
 
 def _serialize_notification(n) -> dict:
     """Shape a Notification ORM row to the web `Notification` TypeScript
-    interface consumed by apps/web/src/features/notifications/api.ts."""
+    interface at apps/web/src/features/notifications/types.ts:209.
+
+    The web client returns the backend response directly without key
+    remapping, so every key here has to match the TS interface exactly:
+    camelCase, with `body`→`message`, `is_read`→`read`, `data`→`metadata`,
+    `action_url`→`actionUrl`, etc. Fields not on the TS interface are
+    intentionally omitted (status, expires_at, type_ar, priority_ar) —
+    bilingual labels are derived client-side from `type`/`priority`.
+    """
+    data = n.data or {}
     return {
         "id": str(n.id),
         "type": n.type,
-        "type_ar": (n.data or {}).get("type_ar", ""),
-        "priority": n.priority,
-        "priority_ar": (n.data or {}).get("priority_ar", ""),
         "title": n.title,
-        "title_ar": n.title_ar,
-        "body": n.body,
-        "body_ar": n.body_ar,
-        "data": n.data,
-        "is_read": n.is_read,
-        "status": n.status,
-        "created_at": n.created_at.isoformat() if hasattr(n.created_at, "isoformat") else n.created_at,
-        "read_at": n.read_at.isoformat() if n.read_at and hasattr(n.read_at, "isoformat") else n.read_at,
-        "expires_at": (
-            n.expires_at.isoformat() if n.expires_at and hasattr(n.expires_at, "isoformat") else n.expires_at
+        "titleAr": n.title_ar,
+        "message": n.body,
+        "messageAr": n.body_ar,
+        "read": n.is_read,
+        "priority": n.priority,
+        "channel": data.get("channel"),
+        "metadata": n.data,
+        "actionUrl": n.action_url,
+        "createdAt": (
+            n.created_at.isoformat() if hasattr(n.created_at, "isoformat") else n.created_at
         ),
-        "action_url": n.action_url,
-        "channel": (n.data or {}).get("channel"),
+        "readAt": (
+            n.read_at.isoformat() if n.read_at and hasattr(n.read_at, "isoformat") else n.read_at
+        ),
     }
 
 

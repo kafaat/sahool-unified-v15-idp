@@ -263,12 +263,13 @@ def calculate_intent_score(text: str, intent_type: IntentType, language: str) ->
     Calculate confidence score for an intent based on keyword matching.
     حساب درجة الثقة للنية بناءً على مطابقة الكلمات المفتاحية.
 
-    Each matched keyword contributes a fixed weight of 0.55. This keeps scores
-    interpretable regardless of how many keywords a category defines — the
-    previous per-category denominator made a single strong match unreachable
-    above a threshold whenever the category had many keywords, so a one-word
-    irrigation query scored 0.09 while a generic "crop" match in
-    YIELD_PREDICTION could out-score a specific disease query.
+    Each matched keyword contributes a fixed weight of 0.55, up to a maximum
+    score of 0.95. This keeps scores interpretable regardless of how many
+    keywords a category defines — the previous per-category denominator made
+    a single strong match unreachable above a threshold whenever the category
+    had many keywords, so a one-word irrigation query scored 0.09 while a
+    generic "crop" match in YIELD_PREDICTION could out-score a specific
+    disease query.
     """
     _PER_KEYWORD_WEIGHT = 0.55
     _MAX_SCORE = 0.95

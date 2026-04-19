@@ -183,10 +183,20 @@ async def _initialize_integrations_background(app: FastAPI) -> None:
                 error=str(e),
             )
 
-    app.state.integrations_ready = True
+    # `integrations_initialized` means the warmup task finished running.
+    # `integrations_ready` means every integration reached a usable state —
+    # either its primary path (`ready`) or a documented fallback. If anything
+    # ended up `failed` / `cancelled`, warmup completed but the service is not
+    # fully ready, and operators reading /readyz see the difference.
+    app.state.integrations_initialized = True
+    app.state.integrations_ready = all(
+        status in {"ready", "fallback"} for status in app.state.integration_status.values()
+    )
     logger.info(
         "integrations_background_init_complete",
         status=dict(app.state.integration_status),
+        initialized=app.state.integrations_initialized,
+        ready=app.state.integrations_ready,
     )
 
 
@@ -216,6 +226,7 @@ async def lifespan(app: FastAPI):
     app.state.nc = None
     app.state.db_pool = None
     app.state.executor = None
+    app.state.integrations_initialized = False
     app.state.integrations_ready = False
     app.state.integration_status = {
         "nlp": "pending",
@@ -332,14 +343,18 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("llm_orchestrator_service_shutting_down")
 
-    # Cancel background integration init if still running
+    # Cancel background integration init if still running. Only swallow the
+    # expected CancelledError — any other exception bubbling up here indicates
+    # a real bug that must not disappear silently during shutdown.
     task = app.state.integrations_task
     if task is not None and not task.done():
         task.cancel()
         try:
             await task
-        except (asyncio.CancelledError, Exception):
+        except asyncio.CancelledError:
             pass
+        except Exception:
+            logger.exception("background_integration_init_failed_during_shutdown")
 
     # Close executor
     if app.state.executor:
@@ -495,6 +510,7 @@ def readiness():
     redis_connected = getattr(app.state, "redis_connected", False)
     nats_connected = getattr(app.state, "nats_connected", False)
     db_connected = getattr(app.state, "db_connected", False)
+    integrations_initialized = getattr(app.state, "integrations_initialized", False)
     integrations_ready = getattr(app.state, "integrations_ready", False)
     integration_status = dict(getattr(app.state, "integration_status", {}))
 
@@ -530,6 +546,7 @@ def readiness():
             "redis": redis_status,
             "nats": nats_status,
             "database": db_status,
+            "integrations_initialized": integrations_initialized,
             "integrations_ready": integrations_ready,
             "integrations": integration_status,
         },

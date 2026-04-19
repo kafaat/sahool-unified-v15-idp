@@ -24,15 +24,41 @@ except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 try:
+    from src import main as main_module
     from src.main import _initialize_integrations_background, app
 except ImportError:
     pytest.skip("llm-orchestrator-service dependencies not installed", allow_module_level=True)
 
 
+@pytest.fixture
+def stub_integrations(monkeypatch):
+    """
+    Patch the four integration service classes so TestClient(app)-based tests
+    are deterministic and don't trigger real model downloads / HTTP calls.
+
+    Each stub's initialize() is a no-op coroutine returning True. Tests that
+    want to observe the pre-initialized state should still use this fixture —
+    the background task completes near-instantly so /readyz will report
+    integrations_ready=True very quickly.
+    """
+
+    class _StubService:
+        def __init__(self):
+            self._initialized = False
+
+        async def initialize(self):
+            self._initialized = True
+            return True
+
+    for attr in ("NLPService", "SatelliteService", "MLService", "CrewService"):
+        monkeypatch.setattr(main_module, attr, _StubService)
+    return _StubService
+
+
 class TestHealthzResponsiveness:
     """Health probe must respond immediately regardless of integration state."""
 
-    def test_healthz_responds_during_background_init(self):
+    def test_healthz_responds_during_background_init(self, stub_integrations):
         """
         /healthz must return 200 without waiting for integrations.
         Regression test: previous implementation blocked lifespan on model loads
@@ -45,7 +71,7 @@ class TestHealthzResponsiveness:
             assert body["status"] == "ok"
             assert body["service"] == "llm-orchestrator-service"
 
-    def test_readyz_exposes_integration_status(self):
+    def test_readyz_exposes_integration_status(self, stub_integrations):
         """
         /readyz must include per-integration status so operators can tell
         whether NLP / satellite / ML / crew are warming up or ready.
@@ -56,6 +82,7 @@ class TestHealthzResponsiveness:
             body = response.json()
             assert body["status"] == "ready"
             checks = body["checks"]
+            assert "integrations_initialized" in checks
             assert "integrations_ready" in checks
             assert "integrations" in checks
             # Each integration must have a status string
@@ -67,7 +94,7 @@ class TestHealthzResponsiveness:
 class TestLifespanState:
     """Verify lifespan populates all expected state slots."""
 
-    def test_app_state_initialized(self):
+    def test_app_state_initialized(self, stub_integrations):
         """Service instances and state flags must exist after lifespan start."""
         with TestClient(app) as c:
             # Touching the client drives the lifespan startup
@@ -77,6 +104,7 @@ class TestLifespanState:
             assert hasattr(app.state, "satellite_service")
             assert hasattr(app.state, "ml_service")
             assert hasattr(app.state, "crew_service")
+            assert hasattr(app.state, "integrations_initialized")
             assert hasattr(app.state, "integrations_ready")
             assert hasattr(app.state, "integration_status")
             # integration_status is a dict keyed by integration name
@@ -105,6 +133,7 @@ class TestBackgroundInitResilience:
         fake.state.ml_service.initialize = AsyncMock(return_value=False)
         fake.state.crew_service = AsyncMock()
         fake.state.crew_service.initialize = AsyncMock(return_value=True)
+        fake.state.integrations_initialized = False
         fake.state.integrations_ready = False
         fake.state.integration_status = {
             "nlp": "pending",
@@ -115,7 +144,9 @@ class TestBackgroundInitResilience:
 
         await _initialize_integrations_background(fake)
 
-        assert fake.state.integrations_ready is True
+        # Warmup completed, but one integration outright failed → not fully ready.
+        assert fake.state.integrations_initialized is True
+        assert fake.state.integrations_ready is False
         assert fake.state.integration_status["nlp"] == "failed"
         assert fake.state.integration_status["satellite"] == "ready"
         assert fake.state.integration_status["ml"] == "fallback"
@@ -146,6 +177,7 @@ class TestBackgroundInitResilience:
         fake.state.ml_service.initialize = AsyncMock(return_value=True)
         fake.state.crew_service = AsyncMock()
         fake.state.crew_service.initialize = AsyncMock(return_value=True)
+        fake.state.integrations_initialized = False
         fake.state.integrations_ready = False
         fake.state.integration_status = {
             "nlp": "pending",
@@ -192,6 +224,7 @@ class TestEagerInitEscapeHatch:
             fake = FastAPI()
             async with lifespan(fake):
                 # In eager mode integrations must already be reported ready
+                assert fake.state.integrations_initialized is True
                 assert fake.state.integrations_ready is True
                 assert fake.state.integrations_task is None
                 assert all(s == "ready" for s in fake.state.integration_status.values())

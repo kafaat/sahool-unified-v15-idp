@@ -14,9 +14,10 @@ DB_WAIT_INTERVAL=2
 # only @prisma/client is copied into the production image — the `prisma` CLI
 # is not — so a bare `npx prisma …` call here would fetch the current latest
 # (7.x) from the registry, whose schema format is incompatible with ours and
-# fails with P1012 ("url/directUrl no longer supported"). Pin to v5 so
-# migrations run with the CLI that understands the schema we ship.
-PRISMA_CLI="npx prisma@5"
+# fails with P1012 ("url/directUrl no longer supported"). Pin the exact
+# version (not just the major) so migrations always run with a CLI whose
+# behavior matches the @prisma/client baked into the image.
+PRISMA_CLI="npx prisma@5.22.0"
 
 # ---------------------------------------------------------------------------
 # wait_for_db: block until PostgreSQL accepts connections or timeout expires

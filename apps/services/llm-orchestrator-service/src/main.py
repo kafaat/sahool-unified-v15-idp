@@ -191,12 +191,14 @@ async def _initialize_integrations_background(app: FastAPI) -> None:
                 ready=app.state.integrations_ready,
             )
             raise
-        except Exception as e:
+        except Exception:
+            # Background task — use .exception() so the full traceback makes it
+            # into logs; without it, diagnosing warmup failures in a running
+            # container becomes guesswork.
             app.state.integration_status[name] = "failed"
-            logger.warning(
+            logger.exception(
                 "integration_init_failed",
                 integration=name,
-                error=str(e),
             )
 
     # `integrations_initialized` means the warmup task finished running.
@@ -467,12 +469,32 @@ if OBSERVABILITY_AVAILABLE:
     )
 
 # Tenant context middleware - عزل المستأجرين
-# Extract tenant context when present but don't hard-fail on missing header —
-# public endpoints (/, /api/v1/agents, /api/v1/orchestrate/plans) must remain
-# reachable, and endpoints that require a tenant enforce it themselves via
-# `Depends(get_tenant_id)` which returns 400 per-route.
+# Require X-Tenant-Id on every request by default. The handful of truly public
+# endpoints (/, agent/plan catalogs) are enumerated in `exempt_paths` so they
+# stay reachable without a header. Training / feedback / integration routes
+# don't all carry `Depends(get_tenant_id)`, so leaving enforcement only
+# per-route would unintentionally widen cross-tenant access — the middleware
+# is the safety net.
+_TENANT_EXEMPT_PATHS = [
+    "/",
+    "/health",
+    "/healthz",
+    "/readyz",
+    "/metrics",
+    "/docs",
+    "/redoc",
+    "/openapi.json",
+    # Read-only catalogs that describe available agents/plans — no tenant data.
+    "/api/v1/agents",
+    "/api/v1/orchestrate/plans",
+    "/api/v1/training/health",
+]
 if TENANT_MIDDLEWARE_AVAILABLE:
-    app.add_middleware(TenantContextMiddleware, require_tenant=False)
+    app.add_middleware(
+        TenantContextMiddleware,
+        require_tenant=True,
+        exempt_paths=_TENANT_EXEMPT_PATHS,
+    )
 
 # Input sanitization middleware (H-25)
 if INPUT_SANITIZATION_AVAILABLE:

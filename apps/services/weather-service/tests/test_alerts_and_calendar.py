@@ -14,9 +14,11 @@ import pytest
 
 try:
     from fastapi.testclient import TestClient
-except BaseException as e:
-    if isinstance(e, (KeyboardInterrupt, SystemExit, GeneratorExit)):
-        raise
+except ImportError:
+    # Narrow to ImportError instead of BaseException — addresses CodeQL
+    # advice against catching BaseException-family control-flow signals
+    # (KeyboardInterrupt / SystemExit / GeneratorExit) in module-level
+    # import guards.
     pytest.skip("fastapi not installed", allow_module_level=True)
 
 

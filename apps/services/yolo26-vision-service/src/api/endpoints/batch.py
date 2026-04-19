@@ -69,7 +69,7 @@ except ImportError:
 
 logger = structlog.get_logger(__name__)
 
-router = APIRouter(prefix="/api/v1/batch", tags=["batch"])
+router = APIRouter(prefix="/api/v1/vision/batch", tags=["batch"])
 
 
 # =============================================================================

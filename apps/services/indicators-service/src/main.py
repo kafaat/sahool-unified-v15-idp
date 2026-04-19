@@ -1061,6 +1061,16 @@ def get_indicator_definitions():
     }
 
 
+# The web contract (INDICATOR_ENDPOINTS.FIELD) uses the `indicators`
+# namespace at the top-level segment:
+#   /api/v1/indicators/field/{fieldId}
+# Depending on the Kong routing in effect, the external path may be
+# rewritten to either `/v1/field/{fieldId}` or
+# `/v1/field/{fieldId}/indicators` before reaching this service. Register
+# the handler on BOTH spellings so every Kong rewrite permutation lands on
+# the same function — no assumption that any specific Kong `path:` rewrite
+# has already rolled out.
+@app.get("/v1/field/{field_id}", response_model=FieldIndicators)
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
 async def get_field_indicators(
     field_id: str,
@@ -1210,6 +1220,7 @@ class IndicatorInput(BaseModel):
     trend_percent: float | None = None
 
 
+@app.post("/v1/field/{field_id}")  # web contract spelling — see GET handler above
 @app.post("/v1/field/{field_id}/indicators")
 async def store_field_indicator(
     field_id: str,

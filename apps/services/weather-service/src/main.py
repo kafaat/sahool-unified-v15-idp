@@ -764,7 +764,8 @@ async def calculate_gdd(req: GDDRequest, user: User = Depends(get_current_user))
     }
 
 
-@app.post("/weather/spray-window")
+@app.post("/weather/spray-windows")
+@app.post("/weather/spray-window")  # legacy singular alias; remove in v17
 async def assess_spray_window(req: SprayWindowRequest, user: User = Depends(get_current_user)):
     """
     Assess spray window suitability
@@ -1233,7 +1234,14 @@ class WeatherGraphGenerateRequest(BaseModel):
     language: Literal["ar", "en"] = "ar"
 
 
-@app.post("/api/v1/weather/fields/{field_id}/graph")
+# Backend uses `/weather/*` (no /api/v1 prefix) for every other route in
+# this module. Kong's weather-service has `path: /weather` + strip_path:true,
+# so a client call to `/api/v1/weather/fields/{id}/graph` gets stripped to
+# `/fields/{id}/graph` then /weather prepended → `/weather/fields/{id}/graph`.
+# Register the route at BOTH paths during the migration window so in-flight
+# callers don't break; remove the /api/v1/ variant in v17.
+@app.post("/weather/fields/{field_id}/graph")
+@app.post("/api/v1/weather/fields/{field_id}/graph")  # legacy; remove in v17
 async def generate_weather_graph(
     field_id: str,
     req: WeatherGraphGenerateRequest,
@@ -1317,7 +1325,8 @@ async def generate_weather_graph(
     }
 
 
-@app.get("/api/v1/weather/graphs/{graph_id}")
+@app.get("/weather/graphs/{graph_id}")
+@app.get("/api/v1/weather/graphs/{graph_id}")  # legacy; remove in v17
 async def fetch_weather_graph(graph_id: str, tid: str, sig: str):
     """
     Serve the rendered SVG for a previously-generated graph.

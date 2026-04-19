@@ -260,9 +260,17 @@ export const WEATHER_ENDPOINTS = {
   KONG_CURRENT: `${API_PREFIX}/weather/weather/current`,
   KONG_FORECAST: `${API_PREFIX}/weather/weather/forecast`,
   KONG_AGRICULTURAL_REPORT: `${API_PREFIX}/weather/weather/agricultural-report`,
-  /** Yemen/location-scoped endpoints (Kong-routed with v1 prefix) */
+  /**
+   * @deprecated Never implemented — weather-service backend has no
+   * `/weather/v1/current/{locationId}` handler. These paths were placeholders
+   * for Yemen/location-scoped endpoints that never landed. Callers must use
+   * `WEATHER_ENDPOINTS.CURRENT` (POST body carries the location) or switch to
+   * the astronomical-calendar service. Removal: v17.0.0.
+   */
   KONG_CURRENT_BY_LOCATION: `${API_PREFIX}/weather/v1/current/{locationId}`,
+  /** @deprecated Never implemented in backend — see KONG_CURRENT_BY_LOCATION. Removal: v17.0.0 */
   KONG_FORECAST_BY_LOCATION: `${API_PREFIX}/weather/v1/forecast/{locationId}`,
+  /** @deprecated Never implemented in backend — see KONG_CURRENT_BY_LOCATION. Removal: v17.0.0 */
   KONG_LOCATIONS: `${API_PREFIX}/weather/v1/locations`,
   /** @deprecated Use WEATHER_ENDPOINTS.CURRENT instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0 */
   WEATHER_CORE_CURRENT: `${API_PREFIX}/weather-core/weather/current`,

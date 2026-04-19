@@ -80,6 +80,7 @@ except ImportError:
         _logger.debug("Security headers not configured (module unavailable)")
 
 
+from .api.intelligence_endpoints import router as intelligence_router
 from .api.routes import router
 from .services.event_processor import EventProcessor
 from .services.rules_engine import RulesEngine
@@ -296,6 +297,10 @@ app.add_middleware(TenantContextMiddleware)
 
 # تضمين المسارات
 app.include_router(router, prefix="/api/v1", tags=["Field Intelligence"])
+# Client-facing intelligence endpoints (living field score, zones, alerts,
+# best-days, validate-date, create-task). Contract lives in
+# packages/shared-types/src/contracts/api-endpoints.ts → INTELLIGENCE_ENDPOINTS.
+app.include_router(intelligence_router, prefix="/api/v1")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

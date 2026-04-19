@@ -247,10 +247,10 @@ verify_dockerfile() {
     section_header "5. Application Dockerfile - ملف بناء التطبيق"
 
     # Check the Dockerfile referenced in docker-compose
-    DOCKERFILE_PATH="$PROJECT_ROOT/apps/services/field-ops/Dockerfile"
+    DOCKERFILE_PATH="$PROJECT_ROOT/apps/services/field-management-service/Dockerfile"
 
     if [ -f "$DOCKERFILE_PATH" ]; then
-        check_pass "apps/services/field-ops/Dockerfile exists"
+        check_pass "apps/services/field-management-service/Dockerfile exists"
 
         # Check Dockerfile contents
         if grep -q "FROM python" "$DOCKERFILE_PATH"; then
@@ -273,7 +273,7 @@ verify_dockerfile() {
             check_warn "Dockerfile may not expose correct port"
         fi
     else
-        check_fail "apps/services/field-ops/Dockerfile NOT FOUND"
+        check_fail "apps/services/field-management-service/Dockerfile NOT FOUND"
         echo -e "    ${YELLOW}→ The docker-compose-sim.yml references this Dockerfile${NC}"
     fi
 }

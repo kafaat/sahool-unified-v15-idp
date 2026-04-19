@@ -58,7 +58,7 @@ def example_single_service():
     generator = APIDocsGenerator()
 
     # Scan a specific service
-    service = generator._scan_service("weather-core", Path("apps/services/weather-core/src/main.py"))
+    service = generator._scan_service("weather-service", Path("apps/services/weather-service/src/main.py"))
 
     if service:
         print(f"Service: {service.title}")

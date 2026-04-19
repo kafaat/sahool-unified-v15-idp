@@ -22,56 +22,13 @@ class TestCoreImports:
 
 
 class TestServiceImports:
-    """Test that service modules can be imported"""
+    """Test that service modules can be imported.
 
-    def test_field_ops_imports(self):
-        """Field ops service should import"""
-        import sys
-        from pathlib import Path
-
-        # Updated path to match new apps/services structure
-        field_ops_path = Path("apps/services/field-ops/src")
-        if not field_ops_path.exists():
-            import pytest
-
-            pytest.skip("Field ops service not found at expected path")
-
-        sys.path.insert(0, str(field_ops_path))
-
-        try:
-            import main as field_ops_main  # noqa: F401
-
-            # Verify app exists
-            assert hasattr(field_ops_main, "app")
-        except ImportError:
-            import pytest
-
-            pytest.skip("Field ops main module not available")
-
-    def test_field_ops_models_exist(self):
-        """Field ops models should exist"""
-        import sys
-        from pathlib import Path
-
-        # Updated path to match new apps/services structure
-        field_ops_path = Path("apps/services/field-ops/src")
-        if not field_ops_path.exists():
-            import pytest
-
-            pytest.skip("Field ops service not found at expected path")
-
-        sys.path.insert(0, str(field_ops_path))
-
-        try:
-            from main import FieldCreate, FieldResponse, OperationCreate
-
-            assert FieldCreate is not None
-            assert FieldResponse is not None
-            assert OperationCreate is not None
-        except ImportError:
-            import pytest
-
-            pytest.skip("Field ops models not available")
+    NOTE: field-ops was archived (merged into field-management-service,
+    which is NestJS/TypeScript and not Python-importable). The former
+    field-ops smoke tests were removed; add successor-specific smoke
+    tests here if/when field-management-service grows a Python facade.
+    """
 
 
 class TestSecurityModules:

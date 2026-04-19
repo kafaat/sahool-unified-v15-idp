@@ -241,7 +241,7 @@ services:
   sahool-app-1:
     build:
       context: ../../..
-      dockerfile: apps/services/field-ops/Dockerfile
+      dockerfile: apps/services/field-management-service/Dockerfile
     container_name: sahool_app_1_sim
     environment:
       <<: *app-common-env
@@ -272,7 +272,7 @@ services:
   sahool-app-2:
     build:
       context: ../../..
-      dockerfile: apps/services/field-ops/Dockerfile
+      dockerfile: apps/services/field-management-service/Dockerfile
     container_name: sahool_app_2_sim
     environment:
       <<: *app-common-env
@@ -303,7 +303,7 @@ services:
   sahool-app-3:
     build:
       context: ../../..
-      dockerfile: apps/services/field-ops/Dockerfile
+      dockerfile: apps/services/field-management-service/Dockerfile
     container_name: sahool_app_3_sim
     environment:
       <<: *app-common-env

@@ -19,7 +19,7 @@
 x-app-common: &app-common
   build:
     context: ../../..
-    dockerfile: apps/services/field-ops/Dockerfile
+    dockerfile: apps/services/field-management-service/Dockerfile
   restart: unless-stopped
   networks:
     - sahool-advanced-network

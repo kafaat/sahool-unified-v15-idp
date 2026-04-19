@@ -243,6 +243,32 @@ class TestAPIDriftDetector:
         health_drifts = [r for r in results if r.source == "health_endpoint" and r.service_name == "user-service"]
         assert len(health_drifts) == 0
 
+    @pytest.mark.asyncio
+    async def test_health_endpoints_skip_cronjobs(self, tmp_path: Path):
+        """CronJob services ship no HTTP server; they must not be flagged
+        for missing /healthz. Declaration is the presence of a k8s manifest
+        with ``kind: CronJob``."""
+        svc = tmp_path / "apps" / "services" / "my-cron-worker"
+        (svc / "src").mkdir(parents=True)
+        (svc / "src" / "main.py").write_text(
+            "# CLI entrypoint — ``python -m src.main``\nif __name__ == '__main__':\n    pass\n"
+        )
+        (svc / "k8s").mkdir()
+        (svc / "k8s" / "cronjob.yaml").write_text(
+            "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: my-cron-worker\n"
+        )
+
+        detector = APIDriftDetector(str(tmp_path))
+        results = await detector.detect()
+
+        cron_drifts = [
+            r for r in results
+            if r.source == "health_endpoint" and r.service_name == "my-cron-worker"
+        ]
+        assert cron_drifts == [], (
+            f"CronJob should not be flagged for missing health endpoints; got: {cron_drifts}"
+        )
+
 
 class TestEventDriftDetector:
     """Tests for EventDriftDetector."""

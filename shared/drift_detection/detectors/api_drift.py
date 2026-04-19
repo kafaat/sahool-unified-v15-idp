@@ -27,6 +27,29 @@ from shared.drift_detection.models import (
 logger = logging.getLogger(__name__)
 
 
+def _has_cronjob_manifest(service_dir: Path) -> bool:
+    """Return True if the service ships a Kubernetes CronJob manifest.
+
+    Lifecycle probes (``/healthz`` / ``/readyz``) are a K8s Deployment /
+    StatefulSet concept. CronJob pods are short-lived and managed by the
+    JobController, so flagging them as "missing health endpoints" is a
+    false positive. We treat the presence of ``kind: CronJob`` in any
+    ``k8s/*.yaml`` file as the service's own declaration of its lifecycle.
+    """
+    k8s_dir = service_dir / "k8s"
+    if not k8s_dir.is_dir():
+        return False
+    for manifest in k8s_dir.glob("*.yaml"):
+        try:
+            text = manifest.read_text(errors="ignore")
+        except OSError:
+            continue
+        # Match ``kind: CronJob`` with any amount of whitespace between key and value.
+        if re.search(r"^\s*kind\s*:\s*CronJob\s*$", text, re.MULTILINE):
+            return True
+    return False
+
+
 class APIDriftDetector(BaseDriftDetector):
     """
     Detects API contract drift between definitions and implementations.
@@ -204,6 +227,13 @@ class APIDriftDetector(BaseDriftDetector):
 
             # Skip CLI-only services that don't run an HTTP server
             if service_name in _CLI_ONLY_SERVICES:
+                continue
+
+            # Skip CronJobs — K8s manages their lifecycle via JobController and
+            # short-lived pods can't be scraped by liveness/readiness probes. A
+            # service declares itself a CronJob by shipping a k8s/*.yaml with
+            # ``kind: CronJob``.
+            if _has_cronjob_manifest(src_dir.parent):
                 continue
 
             main_files = (

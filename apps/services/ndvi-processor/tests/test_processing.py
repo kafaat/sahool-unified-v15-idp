@@ -387,3 +387,50 @@ class TestStore:
 
     def test_composites_empty(self):
         assert get_composites("f1") == []
+
+
+class TestLifespan:
+    """Regression tests for the FastAPI lifespan manager."""
+
+    @pytest.mark.asyncio
+    async def test_lifespan_passes_real_pool_to_store(self, monkeypatch):
+        """When DATABASE_URL is set and create_pool succeeds, store.configure
+        must receive the real pool (regression: previously received None because
+        the local db_pool variable was never reassigned).
+        """
+        from unittest.mock import AsyncMock, MagicMock
+
+        from src import main as main_module
+
+        monkeypatch.setenv("DATABASE_URL", "postgresql://u:p@pgbouncer:6432/db")
+        monkeypatch.setenv("ENVIRONMENT", "development")
+        monkeypatch.delenv("NATS_URL", raising=False)
+
+        fake_pool = MagicMock(name="pool")
+        fake_pool.close = AsyncMock()
+
+        async def fake_create_pool(*_args, **_kwargs):
+            return fake_pool
+
+        fake_asyncpg = MagicMock()
+        fake_asyncpg.create_pool = fake_create_pool
+        monkeypatch.setitem(sys.modules, "asyncpg", fake_asyncpg)
+
+        received: dict = {}
+
+        async def fake_ensure_tables(pool):
+            received["ensure_tables_pool"] = pool
+
+        def fake_configure(db_pool=None, nats_client=None):
+            received["configure_db_pool"] = db_pool
+            received["configure_nats"] = nats_client
+
+        monkeypatch.setattr(main_module.ndvi_store, "ensure_tables", fake_ensure_tables)
+        monkeypatch.setattr(main_module.ndvi_store, "configure", fake_configure)
+
+        async with main_module.lifespan(main_module.app):
+            pass
+
+        assert received["ensure_tables_pool"] is fake_pool
+        assert received["configure_db_pool"] is fake_pool
+        fake_pool.close.assert_awaited_once()

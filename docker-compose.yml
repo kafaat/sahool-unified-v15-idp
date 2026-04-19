@@ -3042,6 +3042,8 @@ asyncio.run(main())
       context: .
       dockerfile: apps/services/ndvi-processor/Dockerfile
     container_name: sahool-ndvi-processor
+    profiles:
+      - deprecated
     environment:
       - PORT=8118
       - LOG_LEVEL=${LOG_LEVEL:-INFO}

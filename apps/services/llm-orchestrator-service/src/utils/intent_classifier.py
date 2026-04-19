@@ -22,8 +22,17 @@ from ..core.config import settings
 logger = structlog.get_logger(__name__)
 
 # Intent keywords for pattern matching (Arabic and English)
+#
+# NOTE: keyword lists MUST be free of internal substring overlap — scoring
+# uses `kw in text_lower`, which would otherwise double-count a single word
+# (e.g. `water` + `watering` both firing on the token "watering") and inflate
+# confidence. When two forms would match, keep the shorter one: substring
+# matching already covers the longer variant via prefix. This invariant is
+# verified in tests/test_keyword_lists.py.
 INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
     IntentType.CROP_DISEASE: {
+        # `عفن` covers `تعفن` (rottenness), `بقع` covers `تبقع` (spotting) via
+        # Arabic verbal-noun morphology, so the longer forms are redundant.
         "ar": [
             "مرض",
             "أمراض",
@@ -34,10 +43,10 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
             "بقع",
             "ذبول",
             "اصفرار",
-            "تعفن",
             "لفحة",
-            "تبقع",
         ],
+        # `yellow` already matches `yellowing`/`yellowish` via prefix; keep
+        # only the shorter form.
         "en": [
             "disease",
             "fungus",
@@ -47,17 +56,20 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
             "rust",
             "spots",
             "wilt",
-            "yellowing",
+            "yellow",
             "blight",
             "infection",
         ],
     },
     IntentType.IRRIGATION_QUERY: {
         "ar": ["ري", "ماء", "سقي", "رطوبة", "جفاف", "عطش", "مياه", "رش", "تنقيط"],
+        # `water` already covers `watering`/`watered`; `irrigate` and
+        # `irrigation` don't overlap (irrigat**e** vs irrigat**ion**), so
+        # both stay.
         "en": [
             "irrigation",
+            "irrigate",
             "water",
-            "watering",
             "moisture",
             "dry",
             "drought",
@@ -77,8 +89,9 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
             "يوريا",
             "مغذيات",
         ],
+        # `fertilize` covers `fertilizer`, `fertilizing`, `fertilized` via
+        # prefix; keep the shorter form.
         "en": [
-            "fertilizer",
             "fertilize",
             "nitrogen",
             "phosphorus",
@@ -128,21 +141,25 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
         ],
     },
     IntentType.YIELD_PREDICTION: {
+        # NOTE: "crop" / "محصول" / "كمية" / "توقع" were removed from this
+        # category because they are overly generic and appear in crop-disease,
+        # fertilizer, and pest queries too. With the old scoring formula they
+        # caused YIELD_PREDICTION to win over the correct intent on a single
+        # weak match. Specific yield terms (yield / harvest / غلة) remain as
+        # the disambiguating signal.
+        #
+        # `إنتاج` covers `إنتاجية` via prefix substring match; keep only the
+        # shorter form to avoid double-counting a single token.
         "ar": [
-            "محصول",
             "إنتاج",
             "حصاد",
             "غلة",
-            "إنتاجية",
-            "كمية",
-            "توقع",
             "تنبؤ",
         ],
         "en": [
             "yield",
             "harvest",
             "production",
-            "crop",
             "predict",
             "estimate",
             "output",
@@ -187,13 +204,22 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
     },
     IntentType.LEVELING_QUERY: {
         "ar": ["تسوية", "استصلاح", "تمهيد", "قطع", "ردم", "مستوى"],
-        "en": ["leveling", "grading", "cut", "fill", "land", "preparation", "level"],
+        # `level` covers `leveling`/`leveled` via prefix; keep the shorter form.
+        "en": ["level", "grading", "cut", "fill", "land", "preparation"],
     },
     IntentType.IMAGE_ANALYSIS: {
-        "ar": ["صورة", "صور", "تصوير", "كاميرا", "فحص", "مرئي"],
+        # `صور` (plural of صورة) is a prefix of `صورة` — keep the plural form,
+        # which matches both singular and plural via substring.
+        "ar": ["صور", "تصوير", "كاميرا", "فحص", "مرئي"],
         "en": ["image", "photo", "picture", "camera", "visual", "scan", "detect"],
     },
 }
+
+# Intent scoring constants — each matched keyword contributes
+# PER_KEYWORD_WEIGHT, capped at MAX_INTENT_SCORE. See
+# `calculate_intent_score()` for rationale.
+PER_KEYWORD_WEIGHT: float = 0.55
+MAX_INTENT_SCORE: float = 0.95
 
 # Entity patterns (Arabic and English)
 ENTITY_PATTERNS: dict[str, dict[str, str]] = {
@@ -258,6 +284,14 @@ def calculate_intent_score(text: str, intent_type: IntentType, language: str) ->
     """
     Calculate confidence score for an intent based on keyword matching.
     حساب درجة الثقة للنية بناءً على مطابقة الكلمات المفتاحية.
+
+    Each matched keyword contributes PER_KEYWORD_WEIGHT (0.55), up to
+    MAX_INTENT_SCORE (0.95). Keeping the weight flat makes scores
+    interpretable regardless of how many keywords a category defines — the
+    previous per-category denominator made a single strong match unreachable
+    above a threshold whenever the category had many keywords, so a one-word
+    irrigation query scored 0.09 while a generic "crop" match in
+    YIELD_PREDICTION could out-score a specific disease query.
     """
     keywords_data = INTENT_KEYWORDS.get(intent_type, {})
     keywords = keywords_data.get(language, [])
@@ -271,16 +305,7 @@ def calculate_intent_score(text: str, intent_type: IntentType, language: str) ->
     if matched_keywords == 0:
         return 0.0
 
-    # Calculate score based on matched keywords
-    base_score = min(matched_keywords / len(keywords), 1.0) * 0.7
-
-    # Boost score if multiple keywords match
-    if matched_keywords >= 2:
-        base_score += 0.15
-    if matched_keywords >= 3:
-        base_score += 0.10
-
-    return min(base_score, 0.95)
+    return min(matched_keywords * PER_KEYWORD_WEIGHT, MAX_INTENT_SCORE)
 
 
 class IntentClassifier:

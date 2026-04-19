@@ -10,6 +10,15 @@ MAX_MIGRATION_ATTEMPTS=3
 DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-30}
 DB_WAIT_INTERVAL=2
 
+# All SAHOOL Node.js services pin Prisma ~5.22.0 in their package.json, but
+# only @prisma/client is copied into the production image — the `prisma` CLI
+# is not — so a bare `npx prisma …` call here would fetch the current latest
+# (7.x) from the registry, whose schema format is incompatible with ours and
+# fails with P1012 ("url/directUrl no longer supported"). Pin the exact
+# version (not just the major) so migrations always run with a CLI whose
+# behavior matches the @prisma/client baked into the image.
+PRISMA_CLI="npx prisma@5.22.0"
+
 # ---------------------------------------------------------------------------
 # wait_for_db: block until PostgreSQL accepts connections or timeout expires
 # ---------------------------------------------------------------------------
@@ -25,7 +34,7 @@ wait_for_db() {
       fi
     else
       # Fallback: use node to attempt a raw TCP connection via prisma
-      if printf 'SELECT 1;' | npx prisma db execute --stdin >/dev/null 2>&1; then
+      if printf 'SELECT 1;' | $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
         echo "Database is ready (prisma probe)."
         return 0
       fi
@@ -46,7 +55,7 @@ handle_p3005() {
     [ -d "$dir" ] || continue
     migration_name=$(basename "$dir")
     echo "Resolving migration as applied: $migration_name"
-    npx prisma migrate resolve --applied "$migration_name" >>/tmp/prisma_migrate.log 2>&1 || true
+    $PRISMA_CLI migrate resolve --applied "$migration_name" >>/tmp/prisma_migrate.log 2>&1 || true
   done
   echo 'Baseline complete.'
 }
@@ -70,7 +79,7 @@ handle_p3018() {
     return 1
   fi
   echo "Marking migration as rolled back: $failed_migration"
-  if ! npx prisma migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+  if ! $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
     echo 'ERROR: Failed to mark migration as rolled back.'
     cat /tmp/prisma_migrate.log
     return 1
@@ -93,7 +102,7 @@ handle_p3009() {
     return 1
   fi
   echo "Marking migration as rolled back: $failed_migration"
-  if ! npx prisma migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+  if ! $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
     echo 'ERROR: Failed to mark migration as rolled back.'
     cat /tmp/prisma_migrate.log
     return 1
@@ -109,7 +118,7 @@ run_migrations() {
   attempt=1
   while [ "$attempt" -le "$MAX_MIGRATION_ATTEMPTS" ]; do
     echo "Migration attempt ${attempt}/${MAX_MIGRATION_ATTEMPTS}..."
-    if npx prisma migrate deploy >/tmp/prisma_migrate.log 2>&1; then
+    if $PRISMA_CLI migrate deploy >/tmp/prisma_migrate.log 2>&1; then
       cat /tmp/prisma_migrate.log
       echo 'Migrations applied successfully.'
       return 0

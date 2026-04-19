@@ -258,10 +258,13 @@ class TestOrchestratorEndpoints:
 
     def test_orchestrate_endpoint_validation(self, client: TestClient):
         """Test orchestrate endpoint validation."""
-        # Empty text should fail
+        # Empty text should fail Pydantic min_length=1 validation → 422.
+        # A valid UUID tenant header is supplied so we exercise body validation
+        # rather than the tenant-header guard, which would otherwise return 400.
         response = client.post(
             "/api/v1/orchestrate",
             json={"text": ""},
+            headers={"X-Tenant-Id": "00000000-0000-0000-0000-000000000000"},
         )
         assert response.status_code == 422
 

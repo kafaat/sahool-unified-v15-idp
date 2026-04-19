@@ -747,9 +747,7 @@ async def get_forecast_by_location(
         forecast = result.data
         provider = result.provider
     else:
-        forecast = await app.state.weather_provider.get_daily_forecast(
-            location["lat"], location["lon"], days
-        )
+        forecast = await app.state.weather_provider.get_daily_forecast(location["lat"], location["lon"], days)
         provider = "Open-Meteo"
 
     # Match POST /weather/forecast's response shape so existing

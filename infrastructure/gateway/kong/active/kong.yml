@@ -261,7 +261,8 @@ services:
     paths:
     - /api/v1/disaster
     - /disaster
-    strip_path: true
+    # NestJS controllers at @Controller("api/v1/disaster|disasters/*") — forward as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -365,6 +366,10 @@ services:
   host: vegetation-analysis-service
   port: 8090
   protocol: http
+  # Backend routes mount at /v1/* (analyze, boundaries, etc).
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   routes:
   - name: vegetation-analysis-service-route
     paths:
@@ -410,6 +415,10 @@ services:
   host: indicators-service
   port: 8091
   protocol: http
+  # Backend routes mount at /v1/indicators, /v1/alerts, /v1/field.
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   plugins:
   - name: jwt
     config:
@@ -521,6 +530,10 @@ services:
   host: virtual-sensors
   port: 8119
   protocol: http
+  # Backend routes mount at /v1/* (et0, etc, crops, irrigation).
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   plugins:
   - name: jwt
     config:
@@ -544,7 +557,8 @@ services:
     paths:
     - /api/v1/yield
     - /yield
-    strip_path: true
+    # NestJS controller mounted at @Controller("api/v1/yield") — forward as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -563,7 +577,8 @@ services:
     paths:
     - /api/v1/equipment
     - /equipment
-    strip_path: true
+    # Backend declares @app.get("/api/v1/equipment/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -607,7 +622,8 @@ services:
     - /api/v1/tasks
     - /api/v1/task
     - /task
-    strip_path: true
+    # NestJS controller mounted at @Controller("api/v1/tasks") — forward as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -760,6 +776,10 @@ services:
   host: astronomical-calendar
   port: 8111
   protocol: http
+  # Backend routes mount at /v1/* (hijri, crop-calendar, date).
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   plugins:
   - name: jwt
     config:
@@ -778,6 +798,10 @@ services:
   host: ai-advisor
   port: 8112
   protocol: http
+  # Backend routes mount at /v1/advisor.
+  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
+  # so the upstream request matches the backend's `/v1/*` handlers.
+  path: /v1
   plugins:
   - name: jwt
     config:
@@ -934,7 +958,8 @@ services:
     paths:
     - /api/v1/audit
     - /audit
-    strip_path: true
+    # Backend declares @app.get("/api/v1/audit/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -1007,7 +1032,8 @@ services:
     paths:
     - /api/v1/community
     - /community
-    strip_path: true
+    # Backend declares @app.post("/api/v1/community/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -1291,7 +1317,8 @@ services:
     paths:
     - /api/v1/digital-twin
     - /digital-twin
-    strip_path: true
+    # Backend declares @app.post("/api/v1/digital-twin/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -1318,7 +1345,8 @@ services:
     paths:
     - /api/v1/fertigation
     - /fertigation
-    strip_path: true
+    # Backend declares @app.post("/api/v1/fertigation/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2055,7 +2083,8 @@ services:
   - name: terrain-base-route
     paths:
     - /api/v1/terrain
-    strip_path: true
+    # Backend declares @app.get("/api/v1/terrain/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2110,7 +2139,8 @@ services:
   - name: hydrology-base-route
     paths:
     - /api/v1/hydrology
-    strip_path: true
+    # Backend declares @app.get("/api/v1/hydrology/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2165,7 +2195,8 @@ services:
   - name: leveling-base-route
     paths:
     - /api/v1/leveling
-    strip_path: true
+    # Backend declares @app.get("/api/v1/leveling/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https
@@ -2220,7 +2251,8 @@ services:
   - name: edge-base-route
     paths:
     - /api/v1/edge
-    strip_path: true
+    # Backend declares @app.get("/api/v1/edge/*") — forward path as-is
+    strip_path: false
     protocols:
     - http
     - https

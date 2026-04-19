@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.20.0
+/// Contract version: 5.0.0
 library;
 
 /// Single source of truth for all microservice ports.
@@ -19,7 +19,6 @@ abstract final class ServicePorts {
   static const int advisory = 8093;
   static const int irrigationSmart = 8094;
   static const int cropIntelligence = 8095;
-  static const int ndviProcessor = 8118;
   static const int virtualSensors = 8119;
   static const int fieldIntelligence = 8120;
   static const int skillsService = 8121;

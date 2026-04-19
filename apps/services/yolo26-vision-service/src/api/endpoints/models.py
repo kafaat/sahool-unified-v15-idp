@@ -46,7 +46,7 @@ from src.models.yolo26_manager import (
 
 logger = structlog.get_logger(__name__)
 
-router = APIRouter(prefix="/api/v1/vision/models", tags=["models"])
+router = APIRouter(tags=["models"])
 
 
 # =============================================================================

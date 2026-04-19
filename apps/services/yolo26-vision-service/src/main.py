@@ -519,10 +519,24 @@ async def root() -> dict:
 # =============================================================================
 
 
-app.include_router(detection.router)
-app.include_router(analysis.router)
-app.include_router(batch.router)
-app.include_router(models.router)
+# Canonical `/api/v1/vision/*` prefix (added in b81833229). The endpoint
+# files no longer bake a prefix into their APIRouter — it is applied here so
+# the same handlers can also be mounted under their legacy prefixes for
+# backward compatibility (see below).
+app.include_router(detection.router, prefix="/api/v1/vision")
+app.include_router(analysis.router, prefix="/api/v1/vision")
+app.include_router(batch.router, prefix="/api/v1/vision/batch")
+app.include_router(models.router, prefix="/api/v1/vision/models")
+
+# Legacy aliases kept for clients that still call the pre-b81833229 paths
+# (apps/admin/src/config/api.ts, packages/api-client/src/index.ts,
+# tests/e2e/test_vision_detection_e2e.py). Hidden from the OpenAPI schema so
+# the canonical `/vision/*` paths are what shows up in Swagger / codegen.
+# Remove in v17 once all callers are migrated.
+app.include_router(detection.router, prefix="/api/v1", include_in_schema=False)
+app.include_router(analysis.router, prefix="/api/v1", include_in_schema=False)
+app.include_router(batch.router, prefix="/api/v1/batch", include_in_schema=False)
+app.include_router(models.router, prefix="/api/v1/models", include_in_schema=False)
 
 
 # =============================================================================

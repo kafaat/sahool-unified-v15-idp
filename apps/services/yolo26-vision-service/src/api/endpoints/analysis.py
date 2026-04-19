@@ -68,7 +68,7 @@ def _get_event_publisher(request) -> VisionEventPublisher | None:
     return None
 
 
-router = APIRouter(prefix="/api/v1/vision", tags=["analysis"])
+router = APIRouter(tags=["analysis"])
 
 
 # =============================================================================

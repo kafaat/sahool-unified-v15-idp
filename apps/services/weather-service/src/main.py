@@ -688,13 +688,12 @@ async def get_current_weather_by_location(
             provider = "Open-Meteo"
     except (ExternalServiceException, InternalServerException):
         raise
-    except Exception as exc:
-        raise ExternalServiceException.weather_service(
-            details={
-                "error": f"Provider failed for location '{location_id.lower()}': {exc}",
-                "location_id": location_id.lower(),
-            }
-        ) from exc
+    except Exception as e:
+        # Same one-liner used by every other handler in this file (e.g.
+        # line 499). Passes the exception as the positional `error`
+        # argument — avoids the CodeQL false-positive on `details=` kwarg
+        # names and keeps the error surface consistent.
+        raise ExternalServiceException.weather_service(e) from e
 
     return {
         "success": True,
@@ -778,13 +777,11 @@ async def get_forecast_by_location(
             provider = "Open-Meteo"
     except (ExternalServiceException, InternalServerException):
         raise
-    except Exception as exc:
-        raise ExternalServiceException.weather_service(
-            details={
-                "error": f"Provider failed for forecast at '{location_id.lower()}': {exc}",
-                "location_id": location_id.lower(),
-            }
-        ) from exc
+    except Exception as e:
+        # Idiomatic pattern — see the matching one-liner on every other
+        # weather-service handler (line 499 etc.). Passes the exception
+        # as the positional `error` argument.
+        raise ExternalServiceException.weather_service(e) from e
 
     # Match POST /weather/forecast's response shape so existing
     # web/mobile parsers continue to work — `forecast` is already a

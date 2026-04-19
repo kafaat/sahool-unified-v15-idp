@@ -139,6 +139,36 @@ class TestInventoryKongSplit:
             f"All three inventory services must share host=inventory-service, got {hosts}"
         )
 
+    def test_legacy_inventory_services_have_same_rate_limits(self, kong_config):
+        """Both legacy services MUST carry the same rate-limiting config as
+        the modern route. Without this, a client can sidestep the 60/min cap
+        by hitting /api/v1/inventory/categories or /api/v1/inventory/analytics
+        instead of /api/v1/inventory/{itemId}.
+        """
+
+        def _rate_limit(svc_name: str) -> dict | None:
+            svc = self._services_named(kong_config, svc_name)
+            if not svc:
+                return None
+            for p in svc[0].get("plugins") or []:
+                if p.get("name") == "rate-limiting":
+                    return p.get("config", {})
+            return None
+
+        modern = _rate_limit("inventory-service")
+        assert modern is not None, "Modern inventory-service must have rate-limiting (baseline)"
+
+        for legacy_name in ("inventory-service-legacy-categories", "inventory-service-legacy-analytics"):
+            legacy = _rate_limit(legacy_name)
+            assert legacy is not None, f"{legacy_name} missing rate-limiting plugin"
+            # Compare only the caps — other fields (`fault_tolerant`, `policy`)
+            # are execution knobs and can match loosely.
+            for key in ("minute", "hour"):
+                assert legacy.get(key) == modern.get(key), (
+                    f"{legacy_name} rate-limiting {key!r} = {legacy.get(key)} "
+                    f"differs from modern inventory-service {key!r} = {modern.get(key)}"
+                )
+
 
 # ===========================================================================
 # 2. JSDoc @deprecated → Dart @Deprecated codegen

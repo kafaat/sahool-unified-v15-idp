@@ -104,7 +104,8 @@
 //
 // v4.20.0  Document KONG_CURRENT_BY_LOCATION / KONG_FORECAST_BY_LOCATION /
 //          KONG_LOCATIONS as live (backed by weather-service handlers
-//          @app.get("/weather/v1/{current,forecast}/{location_id}") and
+//          @app.get("/weather/v1/current/{location_id}"),
+//          @app.get("/weather/v1/forecast/{location_id}"), and
 //          @app.get("/weather/v1/locations")). No path changes — the
 //          three exports already had these strings; just removed the
 //          "never implemented" caveat from the JSDoc comment now that

@@ -970,6 +970,16 @@ services:
       run_on_preflight: false
       claims_to_verify:
       - exp
+  # Rate-limiting MUST mirror the modern `inventory-service` block below.
+  # Without this, a client hitting /api/v1/inventory/categories bypasses
+  # the 60-req/min cap that the main route enforces — the categories
+  # legacy path becomes a free-tier escape hatch.
+  - name: rate-limiting
+    config:
+      minute: 60
+      hour: 2000
+      policy: local
+      fault_tolerant: true
   routes:
   - name: inventory-service-categories-route
     paths:
@@ -992,6 +1002,14 @@ services:
       run_on_preflight: false
       claims_to_verify:
       - exp
+  # Same rate-limiting as the modern inventory-service (see rationale
+  # on inventory-service-legacy-categories above).
+  - name: rate-limiting
+    config:
+      minute: 60
+      hour: 2000
+      policy: local
+      fault_tolerant: true
   routes:
   - name: inventory-service-analytics-route
     paths:

@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 5.0.0
+/// Contract version: 5.1.0
 library;
 
 /// API version prefix
@@ -1075,4 +1075,6 @@ abstract final class YieldEndpoints {
   static const String predictPost = '\$apiPrefix/yield/predict';
   static const String predictions = '\$apiPrefix/yield/predictions';
   static const String profitability = '\$apiPrefix/yield/profitability';
+  static const String cropsCatalog = '\$apiPrefix/yield/crops';
+  static String cropPrice(String cropType) => '\$apiPrefix/yield/price/${Uri.encodeComponent(cropType)}';
 }

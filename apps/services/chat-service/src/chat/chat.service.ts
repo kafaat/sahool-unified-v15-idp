@@ -592,21 +592,33 @@ export class ChatService {
     if (conversation.participantIds.includes(newUserId)) {
       return conversation;
     }
-    return this.prisma.$transaction(async (tx: any) => {
-      await tx.participant.create({
-        data: {
-          tenantId,
-          conversationId,
-          userId: newUserId,
-          role,
-        },
+    // Race-safe: two concurrent addParticipant() calls for the same user
+    // can both pass the pre-check above. The Participant row has a
+    // (conversationId, userId) unique index, so the loser hits Prisma error
+    // P2002 — treat that as "already added" and return the current row,
+    // matching the read-modify-write semantics that single callers see.
+    try {
+      return await this.prisma.$transaction(async (tx: any) => {
+        await tx.participant.create({
+          data: {
+            tenantId,
+            conversationId,
+            userId: newUserId,
+            role,
+          },
+        });
+        return tx.conversation.update({
+          where: { id: conversationId },
+          data: { participantIds: { push: newUserId } },
+          include: { participants: true },
+        });
       });
-      return tx.conversation.update({
-        where: { id: conversationId },
-        data: { participantIds: { push: newUserId } },
-        include: { participants: true },
-      });
-    });
+    } catch (e: any) {
+      if (e?.code === "P2002") {
+        return this.getConversationById(conversationId, tenantId);
+      }
+      throw e;
+    }
   }
 
   /**

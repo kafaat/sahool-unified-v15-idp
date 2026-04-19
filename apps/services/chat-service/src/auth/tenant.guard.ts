@@ -44,7 +44,22 @@ export class TenantGuard implements CanActivate {
     const headerTenantId = request.headers["x-tenant-id"];
 
     const userTenantId = user?.tenantId;
-    const requestedTenantId = headerTenantId || userTenantId;
+    const isAdmin = user?.roles?.includes("admin");
+
+    // Require a tenant claim on the JWT for any non-admin caller. This closes
+    // the gap where an attacker with a valid JWT that lacks `tenant_id` could
+    // pass an arbitrary X-Tenant-ID header and have it accepted as authoritative.
+    // Admins can still scope queries to a specific tenant via the header.
+    if (!userTenantId && !isAdmin) {
+      this.logger.warn(
+        `JWT missing tenant_id [${request.method} ${request.url}]`,
+      );
+      throw new ForbiddenException(
+        "JWT tenant_id claim is required for non-admin callers",
+      );
+    }
+
+    const requestedTenantId = userTenantId || headerTenantId;
 
     if (!requestedTenantId) {
       this.logger.warn(
@@ -54,8 +69,6 @@ export class TenantGuard implements CanActivate {
         "Tenant ID is required. Provide via JWT or X-Tenant-ID header.",
       );
     }
-
-    const isAdmin = user?.roles?.includes("admin");
 
     if (headerTenantId && userTenantId && headerTenantId !== userTenantId) {
       if (!isAdmin) {

@@ -484,7 +484,8 @@ export class FieldsController {
     @Param("id", ParseUUIDPipe) id: string,
   ) {
     const tenantId = getRequestTenantId(req);
-    return this.fieldsService.exportFieldGeoJson(id, tenantId);
+    const feature = await this.fieldsService.exportFieldGeoJson(id, tenantId);
+    return { success: true, data: feature };
   }
 
 }

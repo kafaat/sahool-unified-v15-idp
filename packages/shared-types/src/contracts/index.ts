@@ -114,7 +114,9 @@
 //          JSDoc @deprecated tags into Dart @Deprecated() annotations.
 // v5.0.0: removed SERVICE_PORTS.NDVI_PROCESSOR (8118) and its metadata entry.
 //         ndvi-processor is fully decommissioned → vegetation-analysis-service (8090).
-export const CONTRACT_VERSION = "5.0.0" as const;
+// v5.1.0: additive — YIELD_ENDPOINTS.CROPS_CATALOG and YIELD_ENDPOINTS.CROP_PRICE
+//         (public crop catalog ported from archived yield-engine).
+export const CONTRACT_VERSION = "5.1.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

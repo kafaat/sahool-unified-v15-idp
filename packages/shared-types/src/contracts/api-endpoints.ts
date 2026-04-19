@@ -694,6 +694,10 @@ export const YIELD_ENDPOINTS = {
   PREDICT_POST: `${API_PREFIX}/yield/predict`,
   PREDICTIONS: `${API_PREFIX}/yield/predictions`,
   PROFITABILITY: `${API_PREFIX}/yield/profitability`,
+  // Static crop catalog ported from the archived yield-engine — pure
+  // reference data, public (no JWT). See yield.controller.ts.
+  CROPS_CATALOG: `${API_PREFIX}/yield/crops`,
+  CROP_PRICE: `${API_PREFIX}/yield/price/{cropType}`,
 } as const;
 
 // ---------------------------------------------------------------------------

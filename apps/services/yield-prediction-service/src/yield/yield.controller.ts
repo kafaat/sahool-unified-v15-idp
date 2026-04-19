@@ -4,7 +4,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { Controller, Get, Post, Param, Query, Body, UseGuards, Req, UsePipes, ValidationPipe } from "@nestjs/common";
-import { JwtAuthGuard } from "@sahool/nestjs-auth";
+import { JwtAuthGuard, Public } from "@sahool/nestjs-auth";
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiProperty } from "@nestjs/swagger";
 import { IsNumber, IsOptional, IsString, IsIn, Min, Max } from "class-validator";
 import { Type } from "class-transformer";
@@ -286,6 +286,7 @@ export class YieldController {
   // catalog is not tenant-sensitive) — matches the archived behaviour.
   // ─────────────────────────────────────────────────────────────────────────────
 
+  @Public()
   @Get("crops")
   @ApiOperation({
     summary: "List supported crops",
@@ -307,6 +308,7 @@ export class YieldController {
     });
   }
 
+  @Public()
   @Get("price/:cropType")
   @ApiOperation({
     summary: "Crop reference price",

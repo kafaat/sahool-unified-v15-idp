@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 5.0.0
+/// Contract version: 5.1.0
 library;
 
 /// Single source of truth for all microservice ports.

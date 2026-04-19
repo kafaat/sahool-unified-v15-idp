@@ -97,7 +97,11 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     // Security: Ensure the authenticated user is one of the participants
     if (!createConversationDto.participantIds.includes(userId)) {
       throw new UnauthorizedException(
@@ -127,7 +131,11 @@ export class ChatController {
     description: "Unauthorized - Valid JWT token required",
   })
   async getUserConversations(@UserId() userId: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     return this.chatService.getUserConversations(userId, tenantId);
   }
 
@@ -160,7 +168,11 @@ export class ChatController {
     description: "Conversation not found",
   })
   async getConversation(@Param("id") id: string, @UserId() userId: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     await this.verifyConversationAccess(id, userId, tenantId);
     return this.chatService.getConversationById(id, tenantId);
   }
@@ -208,7 +220,11 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     await this.verifyConversationAccess(conversationId, userId, tenantId);
     return this.chatService.getMessages(
       conversationId,
@@ -251,7 +267,11 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     // Ensure the senderId matches the authenticated user
     sendMessageDto.senderId = userId;
     return this.chatService.sendMessage(sendMessageDto, tenantId);
@@ -287,7 +307,11 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     return this.chatService.markMessageAsRead(messageId, userId, tenantId);
   }
 
@@ -321,7 +345,11 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     await this.verifyConversationAccess(conversationId, userId, tenantId);
     return this.chatService.markConversationAsRead(conversationId, userId, tenantId);
   }
@@ -346,7 +374,11 @@ export class ChatController {
     description: "Unauthorized - Valid JWT token required",
   })
   async getUnreadCount(@UserId() userId: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // tenantId is set by the global TenantGuard from the verified JWT claim
+    // (or the X-Tenant-ID header when the caller is an admin). The guard
+    // throws Forbidden if the JWT lacks tenant_id, so this value is always
+    // a non-empty string here.
+    const tenantId = req.tenantId as string;
     const count = await this.chatService.getUnreadCount(userId, tenantId);
     return { userId, unreadCount: count };
   }
@@ -374,7 +406,7 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    const tenantId = req.tenantId as string;
     const conversation = await this.chatService.getConversationByScope(
       scopeType,
       scopeId,
@@ -400,7 +432,7 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    const tenantId = req.tenantId as string;
     return this.chatService.archiveConversation(
       conversationId,
       userId,
@@ -425,7 +457,7 @@ export class ChatController {
     @Query("limit") limit: string | undefined,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    const tenantId = req.tenantId as string;
     const parsedLimit = limit ? Math.max(1, parseInt(limit, 10) || 50) : 50;
     const messages = await this.chatService.searchMessages(q, tenantId, {
       conversationId,
@@ -448,7 +480,7 @@ export class ChatController {
     @UserId() requesterId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    const tenantId = req.tenantId as string;
     return this.chatService.addParticipant(
       conversationId,
       dto.userId,
@@ -473,7 +505,7 @@ export class ChatController {
     @UserId() requesterId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    const tenantId = req.tenantId as string;
     return this.chatService.removeParticipant(
       conversationId,
       userIdToRemove,

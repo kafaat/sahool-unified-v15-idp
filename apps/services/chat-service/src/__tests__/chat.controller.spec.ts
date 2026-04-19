@@ -78,6 +78,9 @@ describe("ChatController", () => {
   const mockReq = {
     user: { tenantId: "tenant-001" },
     headers: { "x-tenant-id": "tenant-001" },
+    // TenantGuard normally populates this from the verified JWT claim before
+    // the controller runs; unit tests bypass the guard so we set it directly.
+    tenantId: "tenant-001",
   };
 
   beforeEach(async () => {

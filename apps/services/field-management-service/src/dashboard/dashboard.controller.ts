@@ -81,7 +81,12 @@ export class DashboardController {
       title: t.title,
       titleAr: t.titleAr ?? t.title,
       dueDate: t.dueDate ? t.dueDate.toISOString() : "",
-      priority: t.priority as "high" | "medium" | "low",
+      // The schema also allows "urgent" (used by the alerts query above), but
+      // the response union is intentionally narrower (high|medium|low) since
+      // the dashboard widget treats urgent and high identically. Collapse here
+      // rather than widening every downstream type.
+      priority:
+        (t.priority === "urgent" ? "high" : (t.priority as "high" | "medium" | "low")),
       status: String(t.status),
     }));
     return {

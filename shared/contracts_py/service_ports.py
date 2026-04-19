@@ -3,7 +3,7 @@ SAHOOL Unified Service Ports Registry (Python mirror).
 
 AUTO-GENERATED — DO NOT EDIT BY HAND.
 Source: packages/shared-types/src/contracts/service-ports.ts
-Generated: 2026-04-19T14:10:17Z
+Generated: 2026-04-19T15:33:52Z
 Regenerate via: npx tsx scripts/sync-contracts-to-python.ts
 """
 

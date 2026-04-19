@@ -124,7 +124,7 @@ describe("YieldController - Crop Catalog (ported from yield-engine)", () => {
         "high",
         "very_high",
       ]);
-      for (const [crop, info] of Object.entries(CROP_CATALOG)) {
+      for (const [, info] of Object.entries(CROP_CATALOG)) {
         expect(allowed.has(info.water_requirement)).toBe(true);
       }
     });

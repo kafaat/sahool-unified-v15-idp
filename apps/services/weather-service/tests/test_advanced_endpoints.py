@@ -809,6 +809,5 @@ class TestWeatherGraphRouting:
             except ValueError:
                 error_msg = None
             assert error_msg != "Not Found", (
-                f"Route {path} not registered "
-                f"(framework-default 'Not Found' returned — handler never reached)"
+                f"Route {path} not registered (framework-default 'Not Found' returned — handler never reached)"
             )

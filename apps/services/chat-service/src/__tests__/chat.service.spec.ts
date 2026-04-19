@@ -10,6 +10,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import {
   NotFoundException,
   BadRequestException,
+  ForbiddenException,
 } from "@nestjs/common";
 import { ChatService } from "../chat/chat.service";
 import { ChatController } from "../chat/chat.controller";
@@ -580,7 +581,7 @@ describe("ChatService - Message Creation & Validation", () => {
     );
   });
 
-  it("should throw BadRequestException when sender is not a participant", async () => {
+  it("should throw ForbiddenException when sender is not a participant", async () => {
     const dto: SendMessageDto = {
       conversationId: CONVERSATION_ID,
       senderId: "user-outsider-999",
@@ -589,8 +590,11 @@ describe("ChatService - Message Creation & Validation", () => {
     };
     mockPrisma.conversation.findFirst.mockResolvedValue(mockConversation);
 
+    // Non-participant sends are an access-control failure, not a bad
+    // request — the input was well-formed, the caller just isn't
+    // authorized. Swapped to ForbiddenException per Copilot round-8.
     await expect(service.sendMessage(dto, TENANT_ID)).rejects.toThrow(
-      BadRequestException,
+      ForbiddenException,
     );
   });
 
@@ -1310,7 +1314,7 @@ describe("ChatService - Ported Field-Chat Features", () => {
       });
       await expect(
         service.archiveConversation(CONVERSATION_ID, "stranger", TENANT_ID),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -1412,7 +1416,7 @@ describe("ChatService - Ported Field-Chat Features", () => {
       });
       await expect(
         service.addParticipant(CONVERSATION_ID, USER_ID_SELLER, "stranger", TENANT_ID),
-      ).rejects.toThrow(BadRequestException);
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 
@@ -1461,6 +1465,19 @@ describe("ChatService - Ported Field-Chat Features", () => {
       await expect(
         service.removeParticipant(CONVERSATION_ID, "ghost-user", USER_ID_BUYER, TENANT_ID),
       ).rejects.toThrow(NotFoundException);
+    });
+
+    it("rejects a non-participant requester with ForbiddenException", async () => {
+      // Regression guard for round-8: requester isn't in participantIds, so
+      // the remove must 403, not 400 — verifies the authz→Forbidden swap.
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      });
+      await expect(
+        service.removeParticipant(CONVERSATION_ID, USER_ID_SELLER, "stranger", TENANT_ID),
+      ).rejects.toThrow(ForbiddenException);
     });
   });
 });

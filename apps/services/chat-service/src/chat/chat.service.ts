@@ -304,7 +304,7 @@ export class ChatService {
 
       // Verify sender is a participant
       if (!conversation.participantIds.includes(dto.senderId)) {
-        throw new BadRequestException(
+        throw new ForbiddenException(
           "User is not a participant in this conversation",
         );
       }
@@ -378,10 +378,13 @@ export class ChatService {
 
       return message;
     } catch (error) {
-      // Sanitize error messages - don't expose internal details
+      // Sanitize error messages - don't expose internal details. Access
+      // control failures must propagate with their original 403 so the
+      // client can distinguish "not a participant" from "bad payload".
       if (
         error instanceof NotFoundException ||
-        error instanceof BadRequestException
+        error instanceof BadRequestException ||
+        error instanceof ForbiddenException
       ) {
         throw error;
       }
@@ -578,7 +581,7 @@ export class ChatService {
       tenantId,
     );
     if (!conversation.participantIds.includes(userId)) {
-      throw new BadRequestException(
+      throw new ForbiddenException(
         "Only a participant can archive this conversation",
       );
     }
@@ -637,7 +640,7 @@ export class ChatService {
       tenantId,
     );
     if (!conversation.participantIds.includes(requesterId)) {
-      throw new BadRequestException(
+      throw new ForbiddenException(
         "Only a participant can add other participants",
       );
     }
@@ -688,7 +691,7 @@ export class ChatService {
       tenantId,
     );
     if (!conversation.participantIds.includes(requesterId)) {
-      throw new BadRequestException(
+      throw new ForbiddenException(
         "Only a participant can remove participants",
       );
     }

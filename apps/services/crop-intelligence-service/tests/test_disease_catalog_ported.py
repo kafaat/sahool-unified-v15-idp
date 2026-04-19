@@ -22,7 +22,10 @@ try:
         list_supported_crops,
     )
     from src.disease_detection import CropType, DiseaseSeverity
-except Exception:
+except ImportError:
+    # Narrow to ImportError so genuine runtime crashes inside src modules
+    # (e.g. a regression in disease_catalog or disease_detection) keep
+    # failing CI instead of silently skipping the whole test file.
     pytest.skip(
         "crop-intelligence-service src not importable in this env",
         allow_module_level=True,

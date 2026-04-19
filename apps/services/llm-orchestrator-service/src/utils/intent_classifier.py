@@ -47,6 +47,7 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
             "rust",
             "spots",
             "wilt",
+            "yellow",
             "yellowing",
             "blight",
             "infection",
@@ -56,6 +57,7 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
         "ar": ["ري", "ماء", "سقي", "رطوبة", "جفاف", "عطش", "مياه", "رش", "تنقيط"],
         "en": [
             "irrigation",
+            "irrigate",
             "water",
             "watering",
             "moisture",
@@ -128,21 +130,23 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
         ],
     },
     IntentType.YIELD_PREDICTION: {
+        # NOTE: "crop" / "محصول" / "كمية" / "توقع" were removed from this
+        # category because they are overly generic and appear in crop-disease,
+        # fertilizer, and pest queries too. With the old scoring formula they
+        # caused YIELD_PREDICTION to win over the correct intent on a single
+        # weak match. Specific yield terms (yield / harvest / إنتاجية / غلة)
+        # remain as the disambiguating signal.
         "ar": [
-            "محصول",
             "إنتاج",
             "حصاد",
             "غلة",
             "إنتاجية",
-            "كمية",
-            "توقع",
             "تنبؤ",
         ],
         "en": [
             "yield",
             "harvest",
             "production",
-            "crop",
             "predict",
             "estimate",
             "output",
@@ -258,7 +262,17 @@ def calculate_intent_score(text: str, intent_type: IntentType, language: str) ->
     """
     Calculate confidence score for an intent based on keyword matching.
     حساب درجة الثقة للنية بناءً على مطابقة الكلمات المفتاحية.
+
+    Each matched keyword contributes a fixed weight of 0.55. This keeps scores
+    interpretable regardless of how many keywords a category defines — the
+    previous per-category denominator made a single strong match unreachable
+    above a threshold whenever the category had many keywords, so a one-word
+    irrigation query scored 0.09 while a generic "crop" match in
+    YIELD_PREDICTION could out-score a specific disease query.
     """
+    _PER_KEYWORD_WEIGHT = 0.55
+    _MAX_SCORE = 0.95
+
     keywords_data = INTENT_KEYWORDS.get(intent_type, {})
     keywords = keywords_data.get(language, [])
 
@@ -271,16 +285,7 @@ def calculate_intent_score(text: str, intent_type: IntentType, language: str) ->
     if matched_keywords == 0:
         return 0.0
 
-    # Calculate score based on matched keywords
-    base_score = min(matched_keywords / len(keywords), 1.0) * 0.7
-
-    # Boost score if multiple keywords match
-    if matched_keywords >= 2:
-        base_score += 0.15
-    if matched_keywords >= 3:
-        base_score += 0.10
-
-    return min(base_score, 0.95)
+    return min(matched_keywords * _PER_KEYWORD_WEIGHT, _MAX_SCORE)
 
 
 class IntentClassifier:

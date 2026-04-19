@@ -431,8 +431,12 @@ if OBSERVABILITY_AVAILABLE:
     )
 
 # Tenant context middleware - عزل المستأجرين
+# Extract tenant context when present but don't hard-fail on missing header —
+# public endpoints (/, /api/v1/agents, /api/v1/orchestrate/plans) must remain
+# reachable, and endpoints that require a tenant enforce it themselves via
+# `Depends(get_tenant_id)` which returns 400 per-route.
 if TENANT_MIDDLEWARE_AVAILABLE:
-    app.add_middleware(TenantContextMiddleware)
+    app.add_middleware(TenantContextMiddleware, require_tenant=False)
 
 # Input sanitization middleware (H-25)
 if INPUT_SANITIZATION_AVAILABLE:

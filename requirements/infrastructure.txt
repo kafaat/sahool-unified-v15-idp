@@ -21,7 +21,7 @@ redis>=7.1.0,<8.0.0
 # Authentication & Security
 PyJWT[crypto]>=2.10.1,<3.0.0  # CVE-2024-53861; replaces python-jose (CVE-2024-33663, CVE-2024-33664)
 passlib[bcrypt]==1.7.4
-bcrypt>=4.2.0,<5.0.0  # Explicit install to avoid PBKDF2 fallback
+bcrypt>=4.2.0,<6.0.0  # Explicit install to avoid PBKDF2 fallback
 
 # Two-Factor Authentication (2FA)
 pyotp>=2.9.0,<3.0.0          # TOTP generation and verification

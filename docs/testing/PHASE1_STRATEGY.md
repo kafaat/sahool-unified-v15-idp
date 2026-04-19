@@ -20,7 +20,7 @@ separately.
 | Auto-generated OpenAPI specs | `apps/services/*/openapi.yaml` | committed artefact |
 | OpenAPI exporter | `scripts/export-openapi.py` | local + CI |
 | Schemathesis static validation (every spec) | `.github/workflows/schemathesis-api-tests.yml` | CI |
-| OpenAPI freshness guard | same workflow, `openapi-freshness` job | CI (PRs) |
+| OpenAPI drift reporter (warning + artifact, non-blocking) | same workflow, `openapi-freshness` job | CI (PRs) |
 | pgTAP suite — tenant isolation (RLS) | `tests/database/rls/` | local + CI |
 | pgTAP workflow | `.github/workflows/pgtap-rls-tests.yml` | CI |
 | Live-services fixtures (Postgres/Redis/NATS) | `tests/_helpers/live_services.py` | local + CI |

@@ -25,6 +25,65 @@ const DART_CONTRACTS = resolve(ROOT, "apps/mobile/lib/core/contracts");
 const CHECK_MODE = process.argv.includes("--check");
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Source-text parsing for JSDoc tags
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Build a `{GROUP_NAME: {KEY: message}}` map of @deprecated annotations
+ * from the TypeScript api-endpoints source. Runtime imports lose JSDoc,
+ * so we re-read the file as text and scan for the inline pattern:
+ *
+ *     /\** @deprecated Use FOO instead. Removal: vN. *\/
+ *     KEY: `path`,
+ *
+ * or the multi-line pattern:
+ *
+ *     /\**
+ *      * @deprecated Use FOO instead.
+ *      * Removal: vN.
+ *      *\/
+ *     KEY: `path`,
+ *
+ * Both forms are flattened to a single message string.
+ */
+function buildDeprecationMap(
+  apiEndpointsSource: string,
+): Map<string, Map<string, string>> {
+  const result = new Map<string, Map<string, string>>();
+  // Find every `export const FOO_ENDPOINTS = { ... } as const;` block.
+  const groupRe =
+    /export\s+const\s+([A-Z][A-Z0-9_]*_ENDPOINTS)\s*=\s*\{([\s\S]*?)\}\s*as\s*const\s*;/g;
+  let groupMatch: RegExpExecArray | null;
+  while ((groupMatch = groupRe.exec(apiEndpointsSource)) !== null) {
+    const [, groupName, body] = groupMatch;
+    const keyMap = new Map<string, string>();
+
+    // Inside the body, find each block-comment-immediately-followed-by-key.
+    // We tolerate optional leading whitespace and any number of comment
+    // continuation lines between `/**` and `*/`.
+    const memberRe =
+      /\/\*\*([\s\S]*?)\*\/\s*([A-Z][A-Z0-9_]*)\s*:/g;
+    let memberMatch: RegExpExecArray | null;
+    while ((memberMatch = memberRe.exec(body)) !== null) {
+      const [, commentBody, key] = memberMatch;
+      const depMatch = commentBody.match(/@deprecated\s+([\s\S]*?)(?=\n\s*\*\s*@|\*\/|$)/);
+      if (depMatch) {
+        // Flatten leading `* ` continuation markers and collapse whitespace.
+        const message = depMatch[1]
+          .split("\n")
+          .map((line) => line.replace(/^\s*\*\s?/, "").trim())
+          .filter(Boolean)
+          .join(" ");
+        if (message) keyMap.set(key, message);
+      }
+    }
+
+    if (keyMap.size > 0) result.set(groupName, keyMap);
+  }
+  return result;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Import TypeScript contracts dynamically
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -39,6 +98,11 @@ async function main() {
     resolve(TS_CONTRACTS, "api-endpoints.ts")
   );
   const { CONTRACT_VERSION } = await import(resolve(TS_CONTRACTS, "index.ts"));
+
+  // Re-read the api-endpoints source so we can scan JSDoc comments —
+  // dynamic imports drop them.
+  const endpointsSource = readFileSync(resolve(TS_CONTRACTS, "api-endpoints.ts"), "utf-8");
+  const deprecationMap = buildDeprecationMap(endpointsSource);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Generate service_ports.dart
@@ -103,12 +167,11 @@ String getServiceUrl(int port, {String host = 'http://localhost'}) =>
   )
     .filter(([key]) => !(ERROR_CODES as Record<string, string>)[key]?.startsWith?.("E"))
     .map(([key, msg]) => {
-      const escaped = (s: string) => s.replace(/'/g, "\\'");
       return `  '${key}': ErrorMessage(
     code: '${msg.code}',
     httpStatus: ${msg.httpStatus},
-    en: '${escaped(msg.en)}',
-    ar: '${escaped(msg.ar)}',
+    en: '${dartEscape(msg.en)}',
+    ar: '${dartEscape(msg.ar)}',
     retryable: ${msg.retryable},
   ),`;
     })
@@ -226,7 +289,8 @@ bool isRetryable(String code) => getErrorMessage(code).retryable;
   for (const { tsName, dartClass, label } of ENDPOINT_GROUPS) {
     const obj = endpointsModule[tsName] as Record<string, string> | undefined;
     if (!obj) continue;
-    endpointsClassBlocks.push(renderDartEndpointClass(label, dartClass, obj));
+    const deps = deprecationMap.get(tsName);
+    endpointsClassBlocks.push(renderDartEndpointClass(label, dartClass, obj, deps));
   }
 
   const apiEndpointsDart = `/// SAHOOL Unified API Endpoint Paths (auto-generated)
@@ -321,6 +385,24 @@ function toCamelCase(screaming: string): string {
 }
 
 /**
+ * Escape a string for safe inclusion inside a single-quoted Dart literal.
+ *
+ * Order matters — backslash FIRST so the substitutions in subsequent
+ * steps don't get themselves doubled. Without this, a JSDoc message
+ * containing a Windows path (`C:\foo`), a regex example (`\\d+`), or
+ * any literal `\n` in the source would produce invalid Dart string
+ * syntax. Tracked under CodeQL js/incomplete-sanitization.
+ */
+function dartEscape(s: string): string {
+  return s
+    .replace(/\\/g, "\\\\")
+    .replace(/'/g, "\\'")
+    .replace(/\r/g, "\\r")
+    .replace(/\n/g, "\\n")
+    .replace(/\t/g, "\\t");
+}
+
+/**
  * Convert a {paramName} template placeholder to Dart string interpolation.
  * - If no placeholders: emit `static const String name = 'path';`
  * - If placeholders: emit `static String name(String p1, String p2) => 'path/$p1/$p2';`
@@ -350,6 +432,7 @@ function renderDartEndpointClass(
   label: string,
   dartClass: string,
   entries: Record<string, string>,
+  deprecations?: Map<string, string>,
 ): string {
   // Derive a suffix from the class name to disambiguate reserved words
   const suffix = dartClass.replace(/Endpoints$/, "");
@@ -363,6 +446,14 @@ function renderDartEndpointClass(
     );
     // Replace /api/v1 with $apiPrefix for consistency with existing convention.
     const pathExpr = template.replace(/^\/api\/v1/, "\\$apiPrefix");
+
+    // Translate JSDoc @deprecated → Dart `@Deprecated('msg')`. Use the
+    // shared dartEscape() helper so both error_messages and the
+    // annotation renderer go through one CodeQL-audited code path.
+    const depMsg = deprecations?.get(rawKey);
+    if (depMsg) {
+      lines.push(`  @Deprecated('${dartEscape(depMsg)}')`);
+    }
 
     if (params.length === 0) {
       // Plain constant

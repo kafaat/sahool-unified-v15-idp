@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.19.0
+/// Contract version: 4.20.0
 library;
 
 /// API version prefix
@@ -72,8 +72,11 @@ abstract final class AdvisoryEndpoints {
   static const String advice = '\$apiPrefix/advisory/advice';
   static const String disease = '\$apiPrefix/advisory/disease';
   static const String nutrients = '\$apiPrefix/advisory/nutrients';
+  @Deprecated('Use ADVICE instead (agro-advisor service was consolidated into advisory-service)')
   static const String agroAdvice = '\$apiPrefix/agro-advisor/advice';
+  @Deprecated('Use DISEASE instead')
   static const String agroDisease = '\$apiPrefix/agro-advisor/disease';
+  @Deprecated('Use NUTRIENTS instead')
   static const String agroNutrients = '\$apiPrefix/agro-advisor/nutrients';
   static String comprehensive(String fieldId) => '\$apiPrefix/advisory/comprehensive/${Uri.encodeComponent(fieldId)}';
   static String recommendationsByField(String fieldId) => '\$apiPrefix/advisory/recommendations/${Uri.encodeComponent(fieldId)}';
@@ -200,6 +203,7 @@ abstract final class ChatEndpoints {
   static String markRead(String conversationId) => '\$apiPrefix/chat/conversations/${Uri.encodeComponent(conversationId)}/read';
   static const String createConversation = '\$apiPrefix/chat/conversations';
   static const String unreadCount = '\$apiPrefix/chat/conversations/unread-count';
+  @Deprecated('Use FIELD_MESSAGES_V2 / FIELD_SEND_V2 / FIELD_PARTICIPANTS_V2 which route through the consolidated chat-service at /api/v1/chat/fields/*. Removal: v5.0.0')
   static String fieldMessages(String fieldId) => '\$apiPrefix/field-chat/fields/${Uri.encodeComponent(fieldId)}/messages';
   static String fieldSend(String fieldId) => '\$apiPrefix/field-chat/fields/${Uri.encodeComponent(fieldId)}/messages';
   static String fieldParticipants(String fieldId) => '\$apiPrefix/field-chat/fields/${Uri.encodeComponent(fieldId)}/participants';
@@ -873,6 +877,7 @@ abstract final class SoilEndpoints {
   static const String testCreate = '\$apiPrefix/soil/tests';
   static String testUpdate(String testId) => '\$apiPrefix/soil/tests/${Uri.encodeComponent(testId)}';
   static String testDelete(String testId) => '\$apiPrefix/soil/tests/${Uri.encodeComponent(testId)}';
+  @Deprecated('Use TESTS_BY_FIELD instead (different path shape from main).')
   static String testsByFieldLegacy(String fieldId) => '\$apiPrefix/soil/fields/${Uri.encodeComponent(fieldId)}/tests';
   static const String analysis = '\$apiPrefix/soil/analysis';
   static const String analysisInterpret = '\$apiPrefix/soil/analysis/interpret';
@@ -926,10 +931,14 @@ abstract final class TerrainEndpoints {
   static const String dem = '\$apiPrefix/terrain/dem';
   static const String slope = '\$apiPrefix/terrain/slope';
   static String aspect(String fieldId) => '\$apiPrefix/terrain/aspect/${Uri.encodeComponent(fieldId)}';
+  @Deprecated('Use HYDROLOGY_ENDPOINTS.DRAINAGE_BY_FIELD instead')
   static String hydrologyDrainage(String fieldId) => '\$apiPrefix/hydrology/drainage/${Uri.encodeComponent(fieldId)}';
+  @Deprecated('Use HYDROLOGY_ENDPOINTS.WATERSHED_DELINEATE instead')
   static String hydrologyWatershed(String fieldId) => '\$apiPrefix/hydrology/basins/${Uri.encodeComponent(fieldId)}';
+  @Deprecated('Use HYDROLOGY_ENDPOINTS.FLOW_ACCUMULATION instead')
   static String hydrologyFlow(String fieldId) => '\$apiPrefix/terrain/flow/${Uri.encodeComponent(fieldId)}';
   static const String levelingOptimize = '\$apiPrefix/leveling/analyze';
+  @Deprecated('Use LEVELING_OPTIMIZE instead. Cut/fill data is part of the `/leveling/analyze` response body. Removal: v6.0.0')
   static const String levelingCutFill = '\$apiPrefix/leveling/cut-fill';
   static String levelingCost(String fieldId) => '\$apiPrefix/leveling/cost/${Uri.encodeComponent(fieldId)}';
   static const String erosion = '\$apiPrefix/terrain/erosion';
@@ -1049,8 +1058,11 @@ abstract final class WeatherEndpoints {
   static String kongCurrentByLocation(String locationId) => '\$apiPrefix/weather/v1/current/${Uri.encodeComponent(locationId)}';
   static String kongForecastByLocation(String locationId) => '\$apiPrefix/weather/v1/forecast/${Uri.encodeComponent(locationId)}';
   static const String kongLocations = '\$apiPrefix/weather/v1/locations';
+  @Deprecated('Use WEATHER_ENDPOINTS.CURRENT instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0')
   static const String weatherCoreCurrent = '\$apiPrefix/weather-core/weather/current';
+  @Deprecated('Use WEATHER_ENDPOINTS.FORECAST instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0')
   static const String weatherCoreForecast = '\$apiPrefix/weather-core/weather/forecast';
+  @Deprecated('Use WEATHER_ENDPOINTS.AGRICULTURAL_CALENDAR instead. WEATHER_CORE has been consolidated into WEATHER. Removal: v18.0.0')
   static const String weatherCoreAgReport = '\$apiPrefix/weather-core/weather/agricultural-report';
   static const String gdd = '\$apiPrefix/weather/gdd';
   static const String sprayWindows = '\$apiPrefix/weather/spray-windows';

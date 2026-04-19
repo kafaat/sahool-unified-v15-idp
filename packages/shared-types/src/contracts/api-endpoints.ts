@@ -260,7 +260,14 @@ export const WEATHER_ENDPOINTS = {
   KONG_CURRENT: `${API_PREFIX}/weather/weather/current`,
   KONG_FORECAST: `${API_PREFIX}/weather/weather/forecast`,
   KONG_AGRICULTURAL_REPORT: `${API_PREFIX}/weather/weather/agricultural-report`,
-  /** Yemen/location-scoped endpoints (Kong-routed with v1 prefix) */
+  /**
+   * Yemen/location-scoped endpoints. The backend resolves `{locationId}`
+   * against the 22 Yemen governorates table at
+   * apps/services/weather-service/src/locations.py and returns the
+   * weather payload for that lat/lon. `KONG_LOCATIONS` lists the
+   * supported IDs; the result includes Arabic names and elevation so
+   * UI can render directly without a second lookup.
+   */
   KONG_CURRENT_BY_LOCATION: `${API_PREFIX}/weather/v1/current/{locationId}`,
   KONG_FORECAST_BY_LOCATION: `${API_PREFIX}/weather/v1/forecast/{locationId}`,
   KONG_LOCATIONS: `${API_PREFIX}/weather/v1/locations`,

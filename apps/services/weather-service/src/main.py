@@ -573,6 +573,256 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
         raise ExternalServiceException.weather_service(e) from e
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Yemen-location-scoped weather endpoints
+#
+# These satisfy `WEATHER_ENDPOINTS.KONG_CURRENT_BY_LOCATION`,
+# `KONG_FORECAST_BY_LOCATION`, and `KONG_LOCATIONS` in
+# packages/shared-types/src/contracts/api-endpoints.ts. Web/mobile clients
+# call them via the Kong-routed paths `/api/v1/weather/v1/{current,forecast,
+# locations}`; the gateway strips `/api/v1/weather` and prepends `/weather`,
+# so the upstream URLs the backend sees are `/weather/v1/...` — exactly what
+# we register below.
+#
+# The locations table is a static dictionary of the 22 Yemen governorates
+# (apps/services/weather-service/src/locations.py), so resolving a
+# `location_id` to lat/lon is an in-process lookup with no extra latency.
+# Once resolved, both endpoints reuse the existing multi-provider weather
+# pipeline.
+# ─────────────────────────────────────────────────────────────────────────────
+
+from .locations import get_all_locations, get_location  # noqa: E402  (kept near the routes that use it)
+
+
+@app.get("/weather/v1/locations")
+async def list_yemen_locations(
+    region: str | None = None,
+    user: User = Depends(get_current_user),
+):
+    """List Yemen governorates with id/name/coords/region/elevation.
+
+    Optional `?region=highland|coastal|desert|island` filters the result.
+    Auth is required so we can enforce per-tenant rate limits even though
+    the data itself is non-sensitive (all 22 governorates are public).
+    """
+    locations = get_all_locations()
+    if region:
+        region_norm = region.lower()
+        locations = [loc for loc in locations if loc.get("region") == region_norm]
+    return {
+        "success": True,
+        "data": locations,
+        "total": len(locations),
+    }
+
+
+def _resolve_tenant_or_403(user: User) -> str:
+    """Pull tenant_id off the authenticated user or raise 403.
+
+    The Yemen-location endpoints are GET-only with no `tenant_id`
+    query/body — the caller's tenant MUST come from the JWT. Falling
+    back to a shared sentinel like "unknown" would silently merge
+    quota/rate-limit counters across unrelated requests AND give us
+    no way to attribute downstream provider charges, so we fail loud
+    instead.
+
+    Status code matches `_enforce_tenant` above (403 with
+    error="missing_tenant") so a single client-side handler covers
+    both endpoints families.
+    """
+    tenant_id = getattr(user, "tenant_id", None)
+    if not tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "missing_tenant",
+                "message_en": "Token missing tenant ID",
+                "message_ar": "الرمز لا يحتوي على معرف المستأجر",
+            },
+        )
+    return str(tenant_id)
+
+
+@app.get("/weather/v1/current/{location_id}")
+async def get_current_weather_by_location(
+    location_id: str,
+    field_id: str = "",
+    user: User = Depends(get_current_user),
+):
+    """Current weather for a Yemen governorate.
+
+    Translates `location_id` → lat/lon via the static locations table, then
+    delegates to the same multi-provider service used by `POST /weather/current`.
+    Tenant scope comes from the JWT (no body / no `tenant_id` query) — keeps
+    the contract aligned with how web/mobile call it (a plain GET with the
+    bearer token only).
+    """
+    location = get_location(location_id)
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
+        )
+
+    tenant_id = _resolve_tenant_or_403(user)
+
+    # Wrap provider calls in the same try/except shape as POST /weather/current
+    # (line 496) so transient network/timeout errors come out as a 502
+    # ExternalServiceException via the unified error handler — NOT as a bare
+    # 500 from the catch-all in shared/errors_py.
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_current(location["lat"], location["lon"], tenant_id=tenant_id)
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            weather = result.data
+            provider = result.provider
+        else:
+            weather = await app.state.weather_provider.get_current(location["lat"], location["lon"])
+            provider = "Open-Meteo"
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        # Same one-liner used by every other handler in this file (e.g.
+        # line 499). Passes the exception as the positional `error`
+        # argument — avoids the CodeQL false-positive on `details=` kwarg
+        # names and keeps the error surface consistent.
+        raise ExternalServiceException.weather_service(e) from e
+
+    return {
+        "success": True,
+        "data": {
+            "location": {
+                "id": location_id.lower(),
+                "name_ar": location["name_ar"],
+                "lat": location["lat"],
+                "lon": location["lon"],
+                "elevation": location["elevation"],
+                "region": location["region"],
+            },
+            "field_id": field_id,
+            "provider": provider,
+            "current": {
+                "temperature_c": weather.temperature_c,
+                "humidity_pct": weather.humidity_pct,
+                "wind_speed_kmh": weather.wind_speed_kmh,
+                "wind_direction_deg": weather.wind_direction_deg,
+                "precipitation_mm": weather.precipitation_mm,
+                "cloud_cover_pct": weather.cloud_cover_pct,
+                "pressure_hpa": weather.pressure_hpa,
+                "uv_index": weather.uv_index,
+                "condition": getattr(weather, "condition", None),
+                "condition_ar": getattr(weather, "condition_ar", None),
+                "timestamp": weather.timestamp,
+            },
+        },
+    }
+
+
+@app.get("/weather/v1/forecast/{location_id}")
+async def get_forecast_by_location(
+    location_id: str,
+    days: int = 7,
+    field_id: str = "",
+    user: User = Depends(get_current_user),
+):
+    """N-day forecast for a Yemen governorate.
+
+    Same lookup strategy as `/weather/v1/current/{location_id}`. `days`
+    is aligned with POST /weather/forecast: 1..16 inclusive (Open-Meteo
+    supports up to 16, the multi-provider service inherits that range).
+    """
+    if days < 1 or days > 16:
+        raise HTTPException(status_code=422, detail="days must be between 1 and 16")
+
+    location = get_location(location_id)
+    if location is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Yemen location '{location_id}' not found. Use /weather/v1/locations to list valid IDs.",
+        )
+
+    tenant_id = _resolve_tenant_or_403(user)
+
+    # Mirror the existing POST /weather/forecast handler — it calls
+    # get_daily_forecast (NOT get_forecast). The providers in
+    # src/providers/multi_provider.py expose get_daily_forecast on every
+    # adapter, returning a list[DailyForecast] directly. try/except
+    # converts unexpected provider failures (timeouts, network) into the
+    # ExternalServiceException 502 response shape — the catch-all in
+    # shared/errors_py would otherwise emit a bare 500.
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_daily_forecast(
+                location["lat"], location["lon"], days, tenant_id=tenant_id
+            )
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            forecast = result.data
+            provider = result.provider
+        else:
+            forecast = await app.state.weather_provider.get_daily_forecast(location["lat"], location["lon"], days)
+            provider = "Open-Meteo"
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        # Idiomatic pattern — see the matching one-liner on every other
+        # weather-service handler (line 499 etc.). Passes the exception
+        # as the positional `error` argument.
+        raise ExternalServiceException.weather_service(e) from e
+
+    # Match POST /weather/forecast's response shape so existing
+    # web/mobile parsers continue to work — `forecast` is already a
+    # list[DailyForecast], no `.daily` accessor needed. `days` reports
+    # the actual returned horizon (POST /weather/forecast does the same
+    # — `days: len(forecast)` at line 567), so an empty result honestly
+    # advertises 0, not the requested ceiling.
+    return {
+        "success": True,
+        "data": {
+            "location": {
+                "id": location_id.lower(),
+                "name_ar": location["name_ar"],
+                "lat": location["lat"],
+                "lon": location["lon"],
+                "elevation": location["elevation"],
+                "region": location["region"],
+            },
+            "field_id": field_id,
+            "provider": provider,
+            "days": len(forecast or []),
+            "forecast": [
+                {
+                    "date": getattr(f, "date", None),
+                    "temp_max_c": getattr(f, "temp_max_c", None),
+                    "temp_min_c": getattr(f, "temp_min_c", None),
+                    "precipitation_mm": getattr(f, "precipitation_mm", None),
+                    "precipitation_probability_pct": getattr(f, "precipitation_probability_pct", None),
+                    "wind_speed_max_kmh": getattr(f, "wind_speed_max_kmh", None),
+                    "uv_index_max": getattr(f, "uv_index_max", None),
+                    "condition": getattr(f, "condition", None),
+                    "condition_ar": getattr(f, "condition_ar", None),
+                    "sunrise": getattr(f, "sunrise", None),
+                    "sunset": getattr(f, "sunset", None),
+                }
+                for f in (forecast or [])
+            ],
+        },
+    }
+
+
 @app.post("/weather/irrigation")
 async def irrigation_adjustment(req: IrrigationRequest, user: User = Depends(get_current_user)):
     """

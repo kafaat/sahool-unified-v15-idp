@@ -558,7 +558,13 @@ legacy_services:
 
   ndvi_engine:
     status: removed
-    port: 8107
+    # port was a registry-only artefact (the legacy alias `ndvi_engine` in the
+    # professional/enterprise compose files bound to the host on 8118, not
+    # 8107 — the old value here predates the decommission and is misleading
+    # to operators). Nulling it matches the now-absent service and steers
+    # automation toward replacement_port instead. Fixes Copilot review
+    # feedback on commit ec3e315d.
+    port: null
     path: null  # apps/services/ndvi-processor was fully decommissioned
     replacement: "vegetation-analysis-service"
     replacement_port: 8090

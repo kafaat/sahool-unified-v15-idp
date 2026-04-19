@@ -303,10 +303,11 @@ class NDVIMetrics(MetricsCollector):
     """
 
     def __init__(self, registry: CollectorRegistry | None = None):
-        # Service tag is now the successor ("vegetation-analysis") since
-        # ndvi-processor has been fully decommissioned. The metric names
-        # themselves (ndvi_calculations_total, etc.) remain unchanged.
-        super().__init__("vegetation-analysis", registry)
+        # Service tag is the successor, rendered with underscores so it is a
+        # valid Prometheus metric-name component (hyphens are rejected by
+        # MetricsCollector._name + Prometheus itself). Fixes Copilot review
+        # feedback on commit ec3e315d.
+        super().__init__("vegetation_analysis_service", registry)
         self._setup_ndvi_metrics()
 
     def _setup_ndvi_metrics(self) -> None:

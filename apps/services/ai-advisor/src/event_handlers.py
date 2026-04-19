@@ -123,11 +123,18 @@ class AIEventHandlers:
         self.bus = await SAHOOLEventBus.get_instance()
         await self.bus.connect(nats_url, service_name="ai-advisor")
 
-        # Subscribe to NDVI updates
+        # Subscribe to NDVI updates. The durable name is kept intentionally
+        # as "ai_ndvi_processor" even though the ndvi-processor producer was
+        # decommissioned — renaming the durable would create a brand-new
+        # JetStream consumer starting from the stream's default policy, which
+        # with DeliverPolicy=All would replay every historical NDVI event on
+        # the first ai-advisor deploy post-rename. The name is a consumer
+        # identifier, not a producer reference; NDVI events are now emitted
+        # by vegetation-analysis-service on the same subject.
         await self.bus.subscribe_events(
             domain="ndvi",
             handler=self.on_ndvi_update,
-            durable="ai_advisor_ndvi",  # renamed from ai_ndvi_processor — ndvi-processor decommissioned
+            durable="ai_ndvi_processor",
         )
 
         # Subscribe to sensor data

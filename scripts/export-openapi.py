@@ -167,18 +167,21 @@ def write_spec(service_dir: Path, schema: dict[str, Any], fmt: str) -> Path:
     suffix = "yaml" if fmt == "yaml" else "json"
     out = service_dir / f"openapi.{suffix}"
     if fmt == "yaml":
-        # Fixed formatting knobs so the output is byte-stable across PyYAML
-        # patch releases — the freshness guard in CI diffs byte-for-byte.
+        # ``sort_keys=True`` is the critical knob: FastAPI's internal dict order
+        # depends on which modules imported Pydantic models in what sequence,
+        # which drifts with transitive deps. Sorted output is byte-stable across
+        # environments. Key order isn't semantic in OpenAPI, so we're free to
+        # normalise it.
         text = yaml.safe_dump(
             schema,
-            sort_keys=False,
+            sort_keys=True,
             allow_unicode=True,
             default_flow_style=False,
             width=4096,
             indent=2,
         )
     else:
-        text = json.dumps(schema, indent=2, ensure_ascii=False) + "\n"
+        text = json.dumps(schema, indent=2, sort_keys=True, ensure_ascii=False) + "\n"
     out.write_text(text, encoding="utf-8")
     return out
 

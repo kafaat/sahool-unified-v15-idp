@@ -1,14 +1,606 @@
-openapi: 3.1.0
+components:
+  schemas:
+    AmendmentPlanRequest:
+      properties:
+        area_ha:
+          default: 1.0
+          title: Area Ha
+          type: number
+        crop:
+          default: wheat
+          title: Crop
+          type: string
+        target_yield_t_ha:
+          default: 5.0
+          title: Target Yield T Ha
+          type: number
+        test_id:
+          title: Test Id
+          type: string
+      required:
+      - test_id
+      title: AmendmentPlanRequest
+      type: object
+    EcStatusRequest:
+      properties:
+        ec_ds_m:
+          description: EC in dS/m
+          minimum: 0.0
+          title: Ec Ds M
+          type: number
+      required:
+      - ec_ds_m
+      title: EcStatusRequest
+      type: object
+    FertilizerRateRequest:
+      properties:
+        fertilizer_nutrient_percent:
+          description: Nutrient content in fertilizer (%)
+          exclusiveMinimum: 0.0
+          maximum: 100.0
+          title: Fertilizer Nutrient Percent
+          type: number
+        nutrient_needed_kg_ha:
+          description: Nutrient needed in kg/ha
+          exclusiveMinimum: 0.0
+          title: Nutrient Needed Kg Ha
+          type: number
+      required:
+      - nutrient_needed_kg_ha
+      - fertilizer_nutrient_percent
+      title: FertilizerRateRequest
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    InterpretRequest:
+      properties:
+        crop:
+          default: wheat
+          title: Crop
+          type: string
+        test_id:
+          title: Test Id
+          type: string
+      required:
+      - test_id
+      title: InterpretRequest
+      type: object
+    MacronutrientsInput:
+      properties:
+        calcium_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Calcium Ppm
+        magnesium_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Magnesium Ppm
+        nitrogen_nitrate_ppm:
+          description: Nitrogen (NO3) ppm
+          minimum: 0.0
+          title: Nitrogen Nitrate Ppm
+          type: number
+        phosphorus_ppm:
+          description: Phosphorus ppm
+          minimum: 0.0
+          title: Phosphorus Ppm
+          type: number
+        potassium_ppm:
+          description: Potassium ppm
+          minimum: 0.0
+          title: Potassium Ppm
+          type: number
+        sulfur_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Sulfur Ppm
+      required:
+      - nitrogen_nitrate_ppm
+      - phosphorus_ppm
+      - potassium_ppm
+      title: MacronutrientsInput
+      type: object
+    NutrientStatusRequest:
+      properties:
+        extraction_method:
+          default: olsen
+          title: Extraction Method
+          type: string
+        nutrient:
+          description: 'Nutrient code: N, P, K, Ca, Mg, S, Fe, Mn, Zn, Cu, B'
+          title: Nutrient
+          type: string
+        value:
+          description: Value in ppm
+          minimum: 0.0
+          title: Value
+          type: number
+      required:
+      - nutrient
+      - value
+      title: NutrientStatusRequest
+      type: object
+    NutrientTrendRequest:
+      properties:
+        field_id:
+          title: Field Id
+          type: string
+        nutrient:
+          description: 'Nutrient code: N, P, K, etc.'
+          title: Nutrient
+          type: string
+      required:
+      - field_id
+      - nutrient
+      title: NutrientTrendRequest
+      type: object
+    PaginatedSoilTestsResponse:
+      properties:
+        items:
+          items:
+            $ref: '#/components/schemas/SoilTestRow'
+          title: Items
+          type: array
+        nextCursor:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Nextcursor
+        total:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Total
+      required:
+      - items
+      title: PaginatedSoilTestsResponse
+      type: object
+    PeriodCompareRequest:
+      properties:
+        field_id:
+          title: Field Id
+          type: string
+        period1_end:
+          format: date-time
+          title: Period1 End
+          type: string
+        period1_start:
+          format: date-time
+          title: Period1 Start
+          type: string
+        period2_end:
+          format: date-time
+          title: Period2 End
+          type: string
+        period2_start:
+          format: date-time
+          title: Period2 Start
+          type: string
+      required:
+      - field_id
+      - period1_start
+      - period1_end
+      - period2_start
+      - period2_end
+      title: PeriodCompareRequest
+      type: object
+    PhStatusRequest:
+      properties:
+        ph:
+          description: Soil pH value
+          maximum: 14.0
+          minimum: 0.0
+          title: Ph
+          type: number
+      required:
+      - ph
+      title: PhStatusRequest
+      type: object
+    SoilPropertiesInput:
+      properties:
+        cec_meq_100g:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Cec Meq 100G
+        ec_ds_m:
+          description: EC dS/m
+          minimum: 0.0
+          title: Ec Ds M
+          type: number
+        organic_matter_percent:
+          maximum: 100.0
+          minimum: 0.0
+          title: Organic Matter Percent
+          type: number
+        ph:
+          description: Soil pH
+          maximum: 14.0
+          minimum: 0.0
+          title: Ph
+          type: number
+      required:
+      - ph
+      - ec_ds_m
+      - organic_matter_percent
+      title: SoilPropertiesInput
+      type: object
+    SoilTestCreateRequest:
+      properties:
+        field_id:
+          title: Field Id
+          type: string
+        macronutrients:
+          $ref: '#/components/schemas/MacronutrientsInput'
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        notes_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes Ar
+        sample_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Sample Date
+        sample_depth_cm:
+          default: 30.0
+          title: Sample Depth Cm
+          type: number
+        soil_properties:
+          $ref: '#/components/schemas/SoilPropertiesInput'
+      required:
+      - field_id
+      - macronutrients
+      - soil_properties
+      title: SoilTestCreateRequest
+      type: object
+    SoilTestRow:
+      description: Single soil test row as returned by the analytics list endpoint.
+      properties:
+        calcium_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Calcium Ppm
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        ec:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ec
+        field_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field Id
+        id:
+          title: Id
+          type: string
+        magnesium_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Magnesium Ppm
+        nitrogen_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Nitrogen Ppm
+        organic_matter:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Organic Matter
+        ph:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Ph
+        phosphorus_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Phosphorus Ppm
+        potassium_ppm:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Potassium Ppm
+        sample_date:
+          format: date-time
+          title: Sample Date
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+      required:
+      - id
+      - tenant_id
+      - sample_date
+      - created_at
+      title: SoilTestRow
+      type: object
+    TrendRequest:
+      properties:
+        field_id:
+          title: Field Id
+          type: string
+      required:
+      - field_id
+      title: TrendRequest
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+  securitySchemes:
+    OAuth2PasswordBearer:
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token
+      type: oauth2
 info:
-  title: soil-analysis-service
   description: Soil analysis and recommendations - تحليل التربة والتوصيات
+  title: soil-analysis-service
   version: 16.0.0
+openapi: 3.1.0
 paths:
+  /:
+    get:
+      description: Root endpoint - نقطة نهاية الجذر
+      operationId: root__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Root
+  /api/v1/soil/crops/{crop}/requirements:
+    get:
+      description: Get nutrient requirements for a crop - الحصول على متطلبات المحصول من العناصر الغذائية
+      operationId: get_crop_nutrient_requirements_api_v1_soil_crops__crop__requirements_get
+      parameters:
+      - in: path
+        name: crop
+        required: true
+        schema:
+          title: Crop
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Crop Nutrient Requirements
+      tags:
+      - soil-analysis
+  /api/v1/soil/interpret:
+    post:
+      description: Interpret soil test results - تفسير نتائج تحليل التربة
+      operationId: interpret_soil_test_api_v1_soil_interpret_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterpretRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Interpret Soil Test
+      tags:
+      - soil-analysis
+  /api/v1/soil/interpretation/ec-status:
+    post:
+      description: Check soil EC/salinity status - فحص حالة ملوحة التربة
+      operationId: check_ec_status_api_v1_soil_interpretation_ec_status_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EcStatusRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Check Ec Status
+      tags:
+      - soil-analysis
+  /api/v1/soil/interpretation/nutrient-status:
+    post:
+      description: Check individual nutrient status - فحص حالة عنصر غذائي فردي
+      operationId: check_nutrient_status_api_v1_soil_interpretation_nutrient_status_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutrientStatusRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Check Nutrient Status
+      tags:
+      - soil-analysis
+  /api/v1/soil/interpretation/ph-status:
+    post:
+      description: Check soil pH status - فحص حالة حموضة التربة
+      operationId: check_ph_status_api_v1_soil_interpretation_ph_status_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhStatusRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Check Ph Status
+      tags:
+      - soil-analysis
+  /api/v1/soil/products:
+    get:
+      description: List available fertilizer products - قائمة المنتجات السمادية المتاحة
+      operationId: list_fertilizer_products_api_v1_soil_products_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: List Fertilizer Products
+      tags:
+      - soil-analysis
+  /api/v1/soil/recommendations/amendment-plan:
+    post:
+      description: Generate soil amendment plan - إنشاء خطة تعديل التربة
+      operationId: generate_amendment_plan_api_v1_soil_recommendations_amendment_plan_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AmendmentPlanRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Generate Amendment Plan
+      tags:
+      - soil-analysis
+  /api/v1/soil/recommendations/calculate-rate:
+    post:
+      description: Calculate fertilizer application rate - حساب معدل تطبيق السماد
+      operationId: calculate_rate_api_v1_soil_recommendations_calculate_rate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FertilizerRateRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Calculate Rate
+      tags:
+      - soil-analysis
   /api/v1/soil/tests:
     get:
-      tags:
-      - soil-analytics
-      summary: List Soil Tests
       description: 'List soil tests for the authenticated tenant across fields.
 
 
@@ -21,52 +613,50 @@ paths:
 
         Pagination: cursor-based on `(created_at, id)`.'
       operationId: list_soil_tests_api_v1_soil_tests_get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: tenantId
-        in: query
+      - in: query
+        name: tenantId
         required: true
         schema:
-          type: string
           title: Tenantid
-      - name: fieldId
-        in: query
+          type: string
+      - in: query
+        name: fieldId
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: Fieldid
-      - name: fromDate
-        in: query
+      - in: query
+        name: fromDate
         required: false
         schema:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           title: Fromdate
-      - name: toDate
-        in: query
+      - in: query
+        name: toDate
         required: false
         schema:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           title: Todate
-      - name: limit
-        in: query
+      - in: query
+        name: limit
         required: false
         schema:
-          type: integer
+          default: 100
           maximum: 500
           minimum: 1
-          default: 100
           title: Limit
-      - name: cursor
-        in: query
+          type: integer
+      - in: query
+        name: cursor
         required: false
         schema:
           anyOf:
@@ -75,28 +665,28 @@ paths:
           title: Cursor
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedSoilTestsResponse'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-    post:
-      tags:
-      - soil-analysis
-      summary: Create Soil Test
-      description: Create a new soil test record - إنشاء سجل تحليل تربة جديد
-      operationId: create_soil_test_api_v1_soil_tests_post
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
+      summary: List Soil Tests
+      tags:
+      - soil-analytics
+    post:
+      description: Create a new soil test record - إنشاء سجل تحليل تربة جديد
+      operationId: create_soil_test_api_v1_soil_tests_post
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -104,41 +694,41 @@ paths:
           - type: 'null'
           title: X-Tenant-Id
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/SoilTestCreateRequest'
+        required: true
       responses:
         '201':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/soil/tests/{test_id}:
-    get:
-      tags:
-      - soil-analysis
-      summary: Get Soil Test
-      description: Get soil test by ID - الحصول على تحليل التربة
-      operationId: get_soil_test_api_v1_soil_tests__test_id__get
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
+      summary: Create Soil Test
+      tags:
+      - soil-analysis
+  /api/v1/soil/tests/field/{field_id}:
+    get:
+      description: Get all soil tests for a field - الحصول على جميع تحاليل التربة للحقل
+      operationId: get_field_soil_tests_api_v1_soil_tests_field__field_id__get
       parameters:
-      - name: test_id
-        in: path
+      - in: path
+        name: field_id
         required: true
         schema:
+          title: Field Id
           type: string
-          title: Test Id
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -147,58 +737,58 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-    delete:
-      tags:
-      - soil-analysis
-      summary: Delete Soil Test
-      description: Delete soil test - حذف تحليل التربة
-      operationId: delete_soil_test_api_v1_soil_tests__test_id__delete
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
+      summary: Get Field Soil Tests
+      tags:
+      - soil-analysis
+  /api/v1/soil/tests/{test_id}:
+    delete:
+      description: Delete soil test - حذف تحليل التربة
+      operationId: delete_soil_test_api_v1_soil_tests__test_id__delete
       parameters:
-      - name: test_id
-        in: path
+      - in: path
+        name: test_id
         required: true
         schema:
-          type: string
           title: Test Id
+          type: string
       responses:
         '204':
           description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/soil/tests/field/{field_id}:
-    get:
-      tags:
-      - soil-analysis
-      summary: Get Field Soil Tests
-      description: Get all soil tests for a field - الحصول على جميع تحاليل التربة للحقل
-      operationId: get_field_soil_tests_api_v1_soil_tests_field__field_id__get
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
+      summary: Delete Soil Test
+      tags:
+      - soil-analysis
+    get:
+      description: Get soil test by ID - الحصول على تحليل التربة
+      operationId: get_soil_test_api_v1_soil_tests__test_id__get
       parameters:
-      - name: field_id
-        in: path
+      - in: path
+        name: test_id
         required: true
         schema:
+          title: Test Id
           type: string
-          title: Field Id
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -207,82 +797,28 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/soil/interpret:
-    post:
-      tags:
-      - soil-analysis
-      summary: Interpret Soil Test
-      description: Interpret soil test results - تفسير نتائج تحليل التربة
-      operationId: interpret_soil_test_api_v1_soil_interpret_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InterpretRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
           description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
       security:
       - OAuth2PasswordBearer: []
-  /api/v1/soil/recommendations/amendment-plan:
-    post:
+      summary: Get Soil Test
       tags:
       - soil-analysis
-      summary: Generate Amendment Plan
-      description: Generate soil amendment plan - إنشاء خطة تعديل التربة
-      operationId: generate_amendment_plan_api_v1_soil_recommendations_amendment_plan_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AmendmentPlanRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
   /api/v1/soil/trends:
     post:
-      tags:
-      - soil-analysis
-      summary: Analyze Soil Trends
       description: Analyze soil trends for a field - تحليل اتجاهات التربة للحقل
       operationId: analyze_soil_trends_api_v1_soil_trends_post
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -290,218 +826,35 @@ paths:
           - type: 'null'
           title: X-Tenant-Id
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/TrendRequest'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/soil/products:
-    get:
-      tags:
-      - soil-analysis
-      summary: List Fertilizer Products
-      description: List available fertilizer products - قائمة المنتجات السمادية المتاحة
-      operationId: list_fertilizer_products_api_v1_soil_products_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /api/v1/soil/crops/{crop}/requirements:
-    get:
-      tags:
-      - soil-analysis
-      summary: Get Crop Nutrient Requirements
-      description: Get nutrient requirements for a crop - الحصول على متطلبات المحصول من العناصر الغذائية
-      operationId: get_crop_nutrient_requirements_api_v1_soil_crops__crop__requirements_get
-      parameters:
-      - name: crop
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Crop
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/soil/interpretation/nutrient-status:
-    post:
-      tags:
-      - soil-analysis
-      summary: Check Nutrient Status
-      description: Check individual nutrient status - فحص حالة عنصر غذائي فردي
-      operationId: check_nutrient_status_api_v1_soil_interpretation_nutrient_status_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NutrientStatusRequest'
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /api/v1/soil/interpretation/ph-status:
-    post:
+      summary: Analyze Soil Trends
       tags:
       - soil-analysis
-      summary: Check Ph Status
-      description: Check soil pH status - فحص حالة حموضة التربة
-      operationId: check_ph_status_api_v1_soil_interpretation_ph_status_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PhStatusRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/soil/interpretation/ec-status:
-    post:
-      tags:
-      - soil-analysis
-      summary: Check Ec Status
-      description: Check soil EC/salinity status - فحص حالة ملوحة التربة
-      operationId: check_ec_status_api_v1_soil_interpretation_ec_status_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EcStatusRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/soil/recommendations/calculate-rate:
-    post:
-      tags:
-      - soil-analysis
-      summary: Calculate Rate
-      description: Calculate fertilizer application rate - حساب معدل تطبيق السماد
-      operationId: calculate_rate_api_v1_soil_recommendations_calculate_rate_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FertilizerRateRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/soil/trends/nutrient:
-    post:
-      tags:
-      - soil-analysis
-      summary: Get Single Nutrient Trend
-      description: Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد
-      operationId: get_single_nutrient_trend_api_v1_soil_trends_nutrient_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NutrientTrendRequest'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /api/v1/soil/trends/compare-periods:
     post:
-      tags:
-      - soil-analysis
-      summary: Compare Periods
       description: Compare soil health between two periods - مقارنة صحة التربة بين فترتين
       operationId: compare_periods_api_v1_soil_trends_compare_periods_post
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -509,458 +862,105 @@ paths:
           - type: 'null'
           title: X-Tenant-Id
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/PeriodCompareRequest'
+        required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /healthz:
-    get:
-      summary: Health
-      description: Liveness probe - فحص الحياة
-      operationId: health_healthz_get
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Compare Periods
+      tags:
+      - soil-analysis
+  /api/v1/soil/trends/nutrient:
+    post:
+      description: Get trend for a specific nutrient - الحصول على اتجاه عنصر غذائي محدد
+      operationId: get_single_nutrient_trend_api_v1_soil_trends_nutrient_post
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutrientTrendRequest'
+        required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-  /readyz:
-    get:
-      summary: Readiness
-      description: Readiness probe - فحص الجاهزية
-      operationId: readiness_readyz_get
-      responses:
-        '200':
           description: Successful Response
+        '422':
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Single Nutrient Trend
+      tags:
+      - soil-analysis
   /health:
     get:
-      summary: Comprehensive Health
       description: Comprehensive health check - فحص صحي شامل
       operationId: comprehensive_health_health_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
+      summary: Comprehensive Health
+  /healthz:
+    get:
+      description: Liveness probe - فحص الحياة
+      operationId: health_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Health
   /metrics:
     get:
-      summary: Metrics
       description: Prometheus metrics endpoint
       operationId: metrics_metrics_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-  /:
+          description: Successful Response
+      summary: Metrics
+  /readyz:
     get:
-      summary: Root
-      description: Root endpoint - نقطة نهاية الجذر
-      operationId: root__get
+      description: Readiness probe - فحص الجاهزية
+      operationId: readiness_readyz_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-components:
-  schemas:
-    AmendmentPlanRequest:
-      properties:
-        test_id:
-          type: string
-          title: Test Id
-        crop:
-          type: string
-          title: Crop
-          default: wheat
-        target_yield_t_ha:
-          type: number
-          title: Target Yield T Ha
-          default: 5.0
-        area_ha:
-          type: number
-          title: Area Ha
-          default: 1.0
-      type: object
-      required:
-      - test_id
-      title: AmendmentPlanRequest
-    EcStatusRequest:
-      properties:
-        ec_ds_m:
-          type: number
-          minimum: 0.0
-          title: Ec Ds M
-          description: EC in dS/m
-      type: object
-      required:
-      - ec_ds_m
-      title: EcStatusRequest
-    FertilizerRateRequest:
-      properties:
-        nutrient_needed_kg_ha:
-          type: number
-          exclusiveMinimum: 0.0
-          title: Nutrient Needed Kg Ha
-          description: Nutrient needed in kg/ha
-        fertilizer_nutrient_percent:
-          type: number
-          maximum: 100.0
-          exclusiveMinimum: 0.0
-          title: Fertilizer Nutrient Percent
-          description: Nutrient content in fertilizer (%)
-      type: object
-      required:
-      - nutrient_needed_kg_ha
-      - fertilizer_nutrient_percent
-      title: FertilizerRateRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    InterpretRequest:
-      properties:
-        test_id:
-          type: string
-          title: Test Id
-        crop:
-          type: string
-          title: Crop
-          default: wheat
-      type: object
-      required:
-      - test_id
-      title: InterpretRequest
-    MacronutrientsInput:
-      properties:
-        nitrogen_nitrate_ppm:
-          type: number
-          minimum: 0.0
-          title: Nitrogen Nitrate Ppm
-          description: Nitrogen (NO3) ppm
-        phosphorus_ppm:
-          type: number
-          minimum: 0.0
-          title: Phosphorus Ppm
-          description: Phosphorus ppm
-        potassium_ppm:
-          type: number
-          minimum: 0.0
-          title: Potassium Ppm
-          description: Potassium ppm
-        calcium_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Calcium Ppm
-        magnesium_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Magnesium Ppm
-        sulfur_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Sulfur Ppm
-      type: object
-      required:
-      - nitrogen_nitrate_ppm
-      - phosphorus_ppm
-      - potassium_ppm
-      title: MacronutrientsInput
-    NutrientStatusRequest:
-      properties:
-        nutrient:
-          type: string
-          title: Nutrient
-          description: 'Nutrient code: N, P, K, Ca, Mg, S, Fe, Mn, Zn, Cu, B'
-        value:
-          type: number
-          minimum: 0.0
-          title: Value
-          description: Value in ppm
-        extraction_method:
-          type: string
-          title: Extraction Method
-          default: olsen
-      type: object
-      required:
-      - nutrient
-      - value
-      title: NutrientStatusRequest
-    NutrientTrendRequest:
-      properties:
-        field_id:
-          type: string
-          title: Field Id
-        nutrient:
-          type: string
-          title: Nutrient
-          description: 'Nutrient code: N, P, K, etc.'
-      type: object
-      required:
-      - field_id
-      - nutrient
-      title: NutrientTrendRequest
-    PaginatedSoilTestsResponse:
-      properties:
-        items:
-          items:
-            $ref: '#/components/schemas/SoilTestRow'
-          type: array
-          title: Items
-        nextCursor:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Nextcursor
-        total:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Total
-      type: object
-      required:
-      - items
-      title: PaginatedSoilTestsResponse
-    PeriodCompareRequest:
-      properties:
-        field_id:
-          type: string
-          title: Field Id
-        period1_start:
-          type: string
-          format: date-time
-          title: Period1 Start
-        period1_end:
-          type: string
-          format: date-time
-          title: Period1 End
-        period2_start:
-          type: string
-          format: date-time
-          title: Period2 Start
-        period2_end:
-          type: string
-          format: date-time
-          title: Period2 End
-      type: object
-      required:
-      - field_id
-      - period1_start
-      - period1_end
-      - period2_start
-      - period2_end
-      title: PeriodCompareRequest
-    PhStatusRequest:
-      properties:
-        ph:
-          type: number
-          maximum: 14.0
-          minimum: 0.0
-          title: Ph
-          description: Soil pH value
-      type: object
-      required:
-      - ph
-      title: PhStatusRequest
-    SoilPropertiesInput:
-      properties:
-        ph:
-          type: number
-          maximum: 14.0
-          minimum: 0.0
-          title: Ph
-          description: Soil pH
-        ec_ds_m:
-          type: number
-          minimum: 0.0
-          title: Ec Ds M
-          description: EC dS/m
-        organic_matter_percent:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Organic Matter Percent
-        cec_meq_100g:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Cec Meq 100G
-      type: object
-      required:
-      - ph
-      - ec_ds_m
-      - organic_matter_percent
-      title: SoilPropertiesInput
-    SoilTestCreateRequest:
-      properties:
-        field_id:
-          type: string
-          title: Field Id
-        sample_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Sample Date
-        sample_depth_cm:
-          type: number
-          title: Sample Depth Cm
-          default: 30.0
-        macronutrients:
-          $ref: '#/components/schemas/MacronutrientsInput'
-        soil_properties:
-          $ref: '#/components/schemas/SoilPropertiesInput'
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        notes_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes Ar
-      type: object
-      required:
-      - field_id
-      - macronutrients
-      - soil_properties
-      title: SoilTestCreateRequest
-    SoilTestRow:
-      properties:
-        id:
-          type: string
-          title: Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        field_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Field Id
-        sample_date:
-          type: string
-          format: date-time
-          title: Sample Date
-        ph:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Ph
-        ec:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Ec
-        organic_matter:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Organic Matter
-        nitrogen_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Nitrogen Ppm
-        phosphorus_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Phosphorus Ppm
-        potassium_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Potassium Ppm
-        calcium_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Calcium Ppm
-        magnesium_ppm:
-          anyOf:
-          - type: number
-          - type: 'null'
-          title: Magnesium Ppm
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-      type: object
-      required:
-      - id
-      - tenant_id
-      - sample_date
-      - created_at
-      title: SoilTestRow
-      description: Single soil test row as returned by the analytics list endpoint.
-    TrendRequest:
-      properties:
-        field_id:
-          type: string
-          title: Field Id
-      type: object
-      required:
-      - field_id
-      title: TrendRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-  securitySchemes:
-    OAuth2PasswordBearer:
-      type: oauth2
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: /auth/token
+          description: Successful Response
+      summary: Readiness

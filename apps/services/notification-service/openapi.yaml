@@ -1,14 +1,1098 @@
-openapi: 3.1.0
+components:
+  schemas:
+    AddChannelRequest:
+      description: طلب إضافة قناة - Add Channel Request
+      example:
+        address: farmer@example.com
+        channel_type: email
+        metadata:
+          device: web
+        tenant_id: tenant-1
+        user_id: farmer-123
+      properties:
+        address:
+          description: Channel address (email, phone, FCM token, etc.)
+          maxLength: 500
+          minLength: 1
+          title: Address
+          type: string
+        channel_type:
+          description: 'Channel type: email, sms, push, whatsapp, in_app'
+          maxLength: 20
+          minLength: 1
+          title: Channel Type
+          type: string
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Additional metadata
+          title: Metadata
+        tenant_id:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Tenant ID for multi-tenancy
+          title: Tenant Id
+        user_id:
+          description: User ID
+          maxLength: 100
+          minLength: 1
+          title: User Id
+          type: string
+      required:
+      - user_id
+      - channel_type
+      - address
+      title: AddChannelRequest
+      type: object
+    BulkUpdatePreferencesRequest:
+      description: طلب تحديث تفضيلات متعددة - Bulk Update Preferences Request
+      example:
+        preferences:
+        - channels:
+          - email
+          - sms
+          - push
+          enabled: true
+          event_type: weather_alert
+        - channels:
+          - sms
+          - push
+          enabled: true
+          event_type: pest_outbreak
+        - channels:
+          - push
+          enabled: false
+          event_type: irrigation_reminder
+        tenant_id: tenant-1
+        user_id: farmer-123
+      properties:
+        preferences:
+          description: List of preference updates
+          items:
+            additionalProperties: true
+            type: object
+          minItems: 1
+          title: Preferences
+          type: array
+        tenant_id:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Tenant ID for multi-tenancy
+          title: Tenant Id
+        user_id:
+          description: User ID
+          maxLength: 100
+          minLength: 1
+          title: User Id
+          type: string
+      required:
+      - user_id
+      - preferences
+      title: BulkUpdatePreferencesRequest
+      type: object
+    CreateNotificationRequest:
+      description: طلب إنشاء إشعار
+      properties:
+        body:
+          maxLength: 2000
+          minLength: 1
+          title: Body
+          type: string
+        body_ar:
+          maxLength: 2000
+          minLength: 1
+          title: Body Ar
+          type: string
+        channels:
+          default:
+          - in_app
+          items:
+            $ref: '#/components/schemas/NotificationChannel'
+          title: Channels
+          type: array
+        data:
+          additionalProperties: true
+          default: {}
+          title: Data
+          type: object
+        expires_in_hours:
+          anyOf:
+          - maximum: 8760
+            minimum: 1
+            type: integer
+          - type: 'null'
+          default: 24
+          title: Expires In Hours
+        priority:
+          $ref: '#/components/schemas/NotificationPriority'
+          default: medium
+        target_crops:
+          default: []
+          items:
+            $ref: '#/components/schemas/CropType'
+          title: Target Crops
+          type: array
+        target_farmers:
+          default: []
+          items:
+            type: string
+          title: Target Farmers
+          type: array
+        target_governorates:
+          default: []
+          items:
+            $ref: '#/components/schemas/Governorate'
+          title: Target Governorates
+          type: array
+        title:
+          maxLength: 200
+          minLength: 1
+          title: Title
+          type: string
+        title_ar:
+          maxLength: 200
+          minLength: 1
+          title: Title Ar
+          type: string
+        type:
+          $ref: '#/components/schemas/NotificationType'
+      required:
+      - type
+      - title
+      - title_ar
+      - body
+      - body_ar
+      title: CreateNotificationRequest
+      type: object
+    CropType:
+      enum:
+      - tomato
+      - wheat
+      - coffee
+      - qat
+      - banana
+      - date_palm
+      - mango
+      - grapes
+      - corn
+      - potato
+      title: CropType
+      type: string
+    DevicePlatform:
+      enum:
+      - ios
+      - android
+      - web
+      title: DevicePlatform
+      type: string
+    FarmerProfile:
+      description: ملف المزارع للإشعارات المخصصة
+      properties:
+        crops:
+          items:
+            $ref: '#/components/schemas/CropType'
+          title: Crops
+          type: array
+        device_platform:
+          anyOf:
+          - $ref: '#/components/schemas/DevicePlatform'
+          - type: 'null'
+        district:
+          anyOf:
+          - maxLength: 200
+            type: string
+          - type: 'null'
+          title: District
+        email:
+          anyOf:
+          - maxLength: 254
+            type: string
+          - type: 'null'
+          title: Email
+        farmer_id:
+          maxLength: 100
+          minLength: 1
+          title: Farmer Id
+          type: string
+        fcm_token:
+          anyOf:
+          - maxLength: 500
+            minLength: 10
+            type: string
+          - type: 'null'
+          title: Fcm Token
+        field_ids:
+          default: []
+          items:
+            type: string
+          title: Field Ids
+          type: array
+        governorate:
+          $ref: '#/components/schemas/Governorate'
+        language:
+          default: ar
+          maxLength: 10
+          title: Language
+          type: string
+        name:
+          maxLength: 200
+          minLength: 1
+          title: Name
+          type: string
+        name_ar:
+          maxLength: 200
+          minLength: 1
+          title: Name Ar
+          type: string
+        notification_channels:
+          default:
+          - in_app
+          items:
+            $ref: '#/components/schemas/NotificationChannel'
+          title: Notification Channels
+          type: array
+        phone:
+          anyOf:
+          - maxLength: 20
+            type: string
+          - type: 'null'
+          title: Phone
+      required:
+      - farmer_id
+      - name
+      - name_ar
+      - governorate
+      - crops
+      title: FarmerProfile
+      type: object
+    Governorate:
+      enum:
+      - sanaa
+      - aden
+      - taiz
+      - hodeidah
+      - ibb
+      - dhamar
+      - hadramaut
+      - marib
+      - hajjah
+      - saada
+      - lahj
+      - abyan
+      title: Governorate
+      type: string
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    HistoryStatsResponse:
+      description: استجابة إحصائيات السجل
+      properties:
+        delivery_rate:
+          title: Delivery Rate
+          type: number
+        failed:
+          title: Failed
+          type: integer
+        pending:
+          title: Pending
+          type: integer
+        read:
+          title: Read
+          type: integer
+        read_rate:
+          title: Read Rate
+          type: number
+        sent:
+          title: Sent
+          type: integer
+        total_notifications:
+          title: Total Notifications
+          type: integer
+      required:
+      - total_notifications
+      - sent
+      - failed
+      - pending
+      - read
+      - delivery_rate
+      - read_rate
+      title: HistoryStatsResponse
+      type: object
+    IrrigationReminderRequest:
+      description: طلب تذكير ري
+      properties:
+        crop:
+          $ref: '#/components/schemas/CropType'
+        farmer_id:
+          maxLength: 100
+          minLength: 1
+          title: Farmer Id
+          type: string
+        field_id:
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+          type: string
+        field_name:
+          maxLength: 200
+          minLength: 1
+          title: Field Name
+          type: string
+        urgency:
+          $ref: '#/components/schemas/NotificationPriority'
+        water_needed_mm:
+          exclusiveMinimum: 0.0
+          maximum: 500.0
+          title: Water Needed Mm
+          type: number
+      required:
+      - farmer_id
+      - field_id
+      - field_name
+      - crop
+      - water_needed_mm
+      - urgency
+      title: IrrigationReminderRequest
+      type: object
+    Language:
+      description: اللغة - Language
+      enum:
+      - ar
+      - en
+      title: Language
+      type: string
+    NotificationChannel:
+      enum:
+      - push
+      - sms
+      - email
+      - whatsapp
+      - in_app
+      title: NotificationChannel
+      type: string
+    NotificationHistoryResponse:
+      description: استجابة سجل الإشعارات
+      properties:
+        body:
+          title: Body
+          type: string
+        body_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Body Ar
+        channel:
+          title: Channel
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        data:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Data
+        expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Expires At
+        id:
+          title: Id
+          type: string
+        is_read:
+          title: Is Read
+          type: boolean
+        priority:
+          title: Priority
+          type: string
+        read_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Read At
+        sent_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Sent At
+        status:
+          title: Status
+          type: string
+        title:
+          title: Title
+          type: string
+        title_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title Ar
+        type:
+          title: Type
+          type: string
+        user_id:
+          title: User Id
+          type: string
+      required:
+      - id
+      - user_id
+      - title
+      - title_ar
+      - body
+      - body_ar
+      - type
+      - priority
+      - channel
+      - status
+      - is_read
+      - created_at
+      - sent_at
+      - read_at
+      - expires_at
+      - data
+      title: NotificationHistoryResponse
+      type: object
+    NotificationPreferences:
+      description: تفضيلات الإشعارات
+      properties:
+        crop_health_alerts:
+          default: true
+          title: Crop Health Alerts
+          type: boolean
+        farmer_id:
+          maxLength: 100
+          minLength: 1
+          title: Farmer Id
+          type: string
+        irrigation_reminders:
+          default: true
+          title: Irrigation Reminders
+          type: boolean
+        market_prices:
+          default: true
+          title: Market Prices
+          type: boolean
+        min_priority:
+          $ref: '#/components/schemas/NotificationPriority'
+          default: low
+        pest_alerts:
+          default: true
+          title: Pest Alerts
+          type: boolean
+        quiet_hours_end:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: 06:00
+          title: Quiet Hours End
+        quiet_hours_start:
+          anyOf:
+          - type: string
+          - type: 'null'
+          default: '22:00'
+          title: Quiet Hours Start
+        weather_alerts:
+          default: true
+          title: Weather Alerts
+          type: boolean
+      required:
+      - farmer_id
+      title: NotificationPreferences
+      type: object
+    NotificationPriority:
+      enum:
+      - low
+      - medium
+      - high
+      - critical
+      title: NotificationPriority
+      type: string
+    NotificationType:
+      enum:
+      - weather_alert
+      - pest_outbreak
+      - irrigation_reminder
+      - crop_health
+      - market_price
+      - system
+      - task_reminder
+      title: NotificationType
+      type: string
+    OTPChannel:
+      description: قناة إرسال OTP - OTP Delivery Channel
+      enum:
+      - sms
+      - whatsapp
+      - telegram
+      - email
+      title: OTPChannel
+      type: string
+    OTPPurpose:
+      description: غرض OTP - OTP Purpose
+      enum:
+      - login
+      - password_reset
+      - verify_phone
+      - verify_email
+      - two_factor
+      title: OTPPurpose
+      type: string
+    OTPStatusResponse:
+      description: استجابة حالة OTP - OTP Status Response
+      properties:
+        attempts_remaining:
+          description: Remaining verification attempts
+          title: Attempts Remaining
+          type: integer
+        expired:
+          description: Whether OTP has expired
+          title: Expired
+          type: boolean
+        last_sent_at:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Last sent timestamp (ISO format)
+          title: Last Sent At
+        remaining_seconds:
+          description: Remaining validity in seconds
+          title: Remaining Seconds
+          type: integer
+        sent:
+          description: Whether OTP was sent
+          title: Sent
+          type: boolean
+      required:
+      - sent
+      - remaining_seconds
+      - attempts_remaining
+      - expired
+      title: OTPStatusResponse
+      type: object
+    PaginatedHistoryResponse:
+      description: استجابة سجل مرقم
+      properties:
+        notifications:
+          items:
+            $ref: '#/components/schemas/NotificationHistoryResponse'
+          title: Notifications
+          type: array
+        page:
+          title: Page
+          type: integer
+        page_size:
+          title: Page Size
+          type: integer
+        total:
+          title: Total
+          type: integer
+        total_pages:
+          title: Total Pages
+          type: integer
+      required:
+      - total
+      - page
+      - page_size
+      - total_pages
+      - notifications
+      title: PaginatedHistoryResponse
+      type: object
+    PestAlertRequest:
+      description: طلب تنبيه آفات
+      properties:
+        affected_crops:
+          items:
+            $ref: '#/components/schemas/CropType'
+          minItems: 1
+          title: Affected Crops
+          type: array
+        governorate:
+          $ref: '#/components/schemas/Governorate'
+        pest_name:
+          maxLength: 200
+          minLength: 1
+          title: Pest Name
+          type: string
+        pest_name_ar:
+          maxLength: 200
+          minLength: 1
+          title: Pest Name Ar
+          type: string
+        recommendations:
+          default: []
+          items:
+            type: string
+          title: Recommendations
+          type: array
+        recommendations_ar:
+          default: []
+          items:
+            type: string
+          title: Recommendations Ar
+          type: array
+        severity:
+          $ref: '#/components/schemas/NotificationPriority'
+      required:
+      - governorate
+      - pest_name
+      - pest_name_ar
+      - affected_crops
+      - severity
+      title: PestAlertRequest
+      type: object
+    SendOTPRequest:
+      description: طلب إرسال OTP - Send OTP Request
+      example:
+        channel: sms
+        identifier: '+967771234567'
+        language: ar
+        purpose: login
+      properties:
+        channel:
+          $ref: '#/components/schemas/OTPChannel'
+          description: 'Delivery channel: sms, whatsapp, telegram, email | قناة الإرسال'
+        identifier:
+          description: Phone number (E.164) or email address | رقم الهاتف أو البريد الإلكتروني
+          maxLength: 255
+          minLength: 3
+          title: Identifier
+          type: string
+        language:
+          $ref: '#/components/schemas/Language'
+          default: ar
+          description: 'Preferred language: ar, en | اللغة المفضلة'
+        purpose:
+          $ref: '#/components/schemas/OTPPurpose'
+          description: 'OTP purpose: login, password_reset, verify_phone, verify_email, two_factor | غرض OTP'
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Tenant ID for multi-tenancy | معرف المستأجر
+          title: Tenant Id
+      required:
+      - identifier
+      - channel
+      - purpose
+      title: SendOTPRequest
+      type: object
+    SendOTPResponse:
+      description: استجابة إرسال OTP - Send OTP Response
+      properties:
+        channel:
+          description: Channel used to send OTP
+          title: Channel
+          type: string
+        expires_in_seconds:
+          description: OTP validity period in seconds
+          title: Expires In Seconds
+          type: integer
+        masked_identifier:
+          description: Masked identifier for display
+          title: Masked Identifier
+          type: string
+        message:
+          description: Response message (bilingual)
+          title: Message
+          type: string
+        message_ar:
+          description: Arabic message
+          title: Message Ar
+          type: string
+        message_en:
+          description: English message
+          title: Message En
+          type: string
+        success:
+          description: Whether OTP was sent successfully
+          title: Success
+          type: boolean
+      required:
+      - success
+      - message
+      - message_en
+      - message_ar
+      - expires_in_seconds
+      - channel
+      - masked_identifier
+      title: SendOTPResponse
+      type: object
+    SetQuietHoursRequest:
+      description: طلب تحديد ساعات الهدوء - Set Quiet Hours Request
+      example:
+        quiet_hours_end: 06:00
+        quiet_hours_start: '22:00'
+        tenant_id: tenant-1
+        user_id: farmer-123
+      properties:
+        quiet_hours_end:
+          anyOf:
+          - pattern: ^\d{2}:\d{2}$
+            type: string
+          - type: 'null'
+          description: End time in HH:MM format (e.g., '06:00')
+          title: Quiet Hours End
+        quiet_hours_start:
+          anyOf:
+          - pattern: ^\d{2}:\d{2}$
+            type: string
+          - type: 'null'
+          description: Start time in HH:MM format (e.g., '22:00')
+          title: Quiet Hours Start
+        tenant_id:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Tenant ID for multi-tenancy
+          title: Tenant Id
+        user_id:
+          description: User ID
+          maxLength: 100
+          minLength: 1
+          title: User Id
+          type: string
+      required:
+      - user_id
+      title: SetQuietHoursRequest
+      type: object
+    UpdateChannelStatusRequest:
+      description: طلب تحديث حالة قناة - Update Channel Status Request
+      example:
+        channel_id: 550e8400-e29b-41d4-a716-446655440000
+        enabled: true
+        user_id: farmer-123
+      properties:
+        channel_id:
+          description: Channel ID
+          maxLength: 100
+          minLength: 1
+          title: Channel Id
+          type: string
+        enabled:
+          description: Whether channel should be enabled
+          title: Enabled
+          type: boolean
+        user_id:
+          description: User ID
+          maxLength: 100
+          minLength: 1
+          title: User Id
+          type: string
+      required:
+      - channel_id
+      - user_id
+      - enabled
+      title: UpdateChannelStatusRequest
+      type: object
+    UpdateEventPreferenceRequest:
+      description: طلب تحديث تفضيلات حدث - Update Event Preference Request
+      example:
+        channels:
+        - email
+        - sms
+        - push
+        enabled: true
+        event_type: weather_alert
+        tenant_id: tenant-1
+        user_id: farmer-123
+      properties:
+        channels:
+          description: List of channel types to use
+          items:
+            type: string
+          minItems: 1
+          title: Channels
+          type: array
+        enabled:
+          default: true
+          description: Whether this event type is enabled
+          title: Enabled
+          type: boolean
+        event_type:
+          description: Event type (weather_alert, pest_outbreak, etc.)
+          maxLength: 50
+          minLength: 1
+          title: Event Type
+          type: string
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          description: Additional metadata
+          title: Metadata
+        tenant_id:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          description: Tenant ID for multi-tenancy
+          title: Tenant Id
+        user_id:
+          description: User ID
+          maxLength: 100
+          minLength: 1
+          title: User Id
+          type: string
+      required:
+      - user_id
+      - event_type
+      - channels
+      title: UpdateEventPreferenceRequest
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    VerifyChannelRequest:
+      description: طلب تحقق من قناة - Verify Channel Request
+      example:
+        channel_id: 550e8400-e29b-41d4-a716-446655440000
+        user_id: farmer-123
+        verification_code: '123456'
+      properties:
+        channel_id:
+          description: Channel ID
+          maxLength: 100
+          minLength: 1
+          title: Channel Id
+          type: string
+        user_id:
+          description: User ID
+          maxLength: 100
+          minLength: 1
+          title: User Id
+          type: string
+        verification_code:
+          description: Verification code
+          maxLength: 10
+          minLength: 4
+          title: Verification Code
+          type: string
+      required:
+      - channel_id
+      - verification_code
+      - user_id
+      title: VerifyChannelRequest
+      type: object
+    VerifyOTPRequest:
+      description: طلب التحقق من OTP - Verify OTP Request
+      example:
+        identifier: '+967771234567'
+        otp_code: '123456'
+        purpose: login
+      properties:
+        identifier:
+          description: Phone number or email used to send OTP | رقم الهاتف أو البريد
+          maxLength: 255
+          minLength: 3
+          title: Identifier
+          type: string
+        otp_code:
+          description: OTP code received | رمز التحقق
+          maxLength: 8
+          minLength: 4
+          title: Otp Code
+          type: string
+        purpose:
+          $ref: '#/components/schemas/OTPPurpose'
+          description: OTP purpose (must match the sent OTP) | غرض OTP
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Tenant ID for multi-tenancy | معرف المستأجر
+          title: Tenant Id
+      required:
+      - identifier
+      - otp_code
+      - purpose
+      title: VerifyOTPRequest
+      type: object
+    VerifyOTPResponse:
+      description: استجابة التحقق من OTP - Verify OTP Response
+      properties:
+        message:
+          description: Response message (bilingual)
+          title: Message
+          type: string
+        message_ar:
+          description: Arabic message
+          title: Message Ar
+          type: string
+        message_en:
+          description: English message
+          title: Message En
+          type: string
+        success:
+          description: Whether OTP verification succeeded
+          title: Success
+          type: boolean
+        token:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Reset token (only for password_reset purpose) | رمز إعادة التعيين
+          title: Token
+      required:
+      - success
+      - message
+      - message_en
+      - message_ar
+      title: VerifyOTPResponse
+      type: object
+    WeatherAlertRequest:
+      description: طلب تنبيه طقس
+      properties:
+        alert_type:
+          maxLength: 50
+          minLength: 1
+          title: Alert Type
+          type: string
+        details:
+          additionalProperties: true
+          default: {}
+          title: Details
+          type: object
+        expected_date:
+          format: date
+          title: Expected Date
+          type: string
+        governorates:
+          items:
+            $ref: '#/components/schemas/Governorate'
+          minItems: 1
+          title: Governorates
+          type: array
+        severity:
+          $ref: '#/components/schemas/NotificationPriority'
+      required:
+      - governorates
+      - alert_type
+      - severity
+      - expected_date
+      title: WeatherAlertRequest
+      type: object
+  securitySchemes:
+    OAuth2PasswordBearer:
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token
+      type: oauth2
 info:
-  title: SAHOOL Notification Service | خدمة الإشعارات
   description: Enhanced personalized agricultural notifications for Yemeni farmers. Field-First Architecture with NATS integration, Redis queue, and comprehensive analytics.
+  title: SAHOOL Notification Service | خدمة الإشعارات
   version: 16.0.0
+openapi: 3.1.0
 paths:
+  /:
+    get:
+      description: 'الحصول على جميع تفضيلات الإشعارات للمستخدم
+
+        Get all notification preferences for a user
+
+
+        Returns preferences for all event types with their configured channels.'
+      operationId: get_preferences__get
+      parameters:
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        schema:
+          description: User ID
+          title: User Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: الحصول على تفضيلات المستخدم - Get User Preferences
+      tags:
+      - Preferences
+    post:
+      description: إنشاء إشعار مخصص
+      operationId: create_custom_notification__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotificationRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Custom Notification
   /add:
     post:
-      tags:
-      - Channels
-      summary: إضافة قناة إشعار - Add Notification Channel
       description: 'إضافة قناة إشعار جديدة للمستخدم
 
         Add a new notification channel for a user
@@ -24,11 +1108,9 @@ paths:
 
         - **in_app**: No verification needed'
       operationId: add_channel_add_post
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -36,164 +1118,44 @@ paths:
           - type: 'null'
           title: X-Tenant-Id
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/AddChannelRequest'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /verify:
-    post:
-      tags:
-      - Channels
-      summary: تحقق من قناة - Verify Channel
-      description: 'تحقق من قناة إشعار باستخدام رمز التحقق
-
-        Verify a notification channel using verification code
-
-
-        Required for: email, sms, whatsapp channels'
-      operationId: verify_channel_verify_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerifyChannelRequest'
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /remove:
-    delete:
+      summary: إضافة قناة إشعار - Add Notification Channel
       tags:
       - Channels
-      summary: حذف قناة - Remove Channel
-      description: 'حذف قناة إشعار
-
-        Remove a notification channel'
-      operationId: remove_channel_remove_delete
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: channel_id
-        in: query
-        required: true
-        schema:
-          type: string
-          description: Channel ID
-          title: Channel Id
-        description: Channel ID
-      - name: user_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: User ID (deprecated, derived from auth)
-          title: User Id
-        description: User ID (deprecated, derived from auth)
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /list:
+  /analytics/channel-performance:
     get:
-      tags:
-      - Channels
-      summary: قائمة قنوات المستخدم - List User Channels
-      description: 'الحصول على قائمة قنوات الإشعار للمستخدم مع الترقيم
-
-        Get list of notification channels for a user with pagination
-
-
-        Filters:
-
-        - **channel_type**: email, sms, push, whatsapp, in_app
-
-        - **enabled_only**: Show only enabled channels'
-      operationId: list_channels_list_get
+      description: "أداء القنوات\nGet performance metrics by notification channel\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Channel performance metrics"
+      operationId: get_channel_performance_analytics_channel_performance_get
       parameters:
-      - name: user_id
+      - description: Time range
         in: query
-        required: true
+        name: time_range
+        required: false
         schema:
+          default: day
+          description: Time range
+          title: Time Range
           type: string
-          description: User ID
-          title: User Id
-        description: User ID
-      - name: channel_type
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Filter by channel type
-          title: Channel Type
-        description: Filter by channel type
-      - name: enabled_only
-        in: query
-        required: false
-        schema:
-          type: boolean
-          description: Show only enabled channels
-          default: false
-          title: Enabled Only
-        description: Show only enabled channels
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          description: Maximum number of channels to return
-          default: 50
-          title: Limit
-        description: Maximum number of channels to return
-      - name: offset
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          description: Number of channels to skip
-          default: 0
-          title: Offset
-        description: Number of channels to skip
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -202,115 +1164,428 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /update-status:
-    patch:
+          description: Validation Error
+      summary: Get Channel Performance
       tags:
-      - Channels
-      summary: تحديث حالة قناة - Update Channel Status
-      description: 'تحديث حالة قناة (تفعيل/تعطيل)
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/compare:
+    get:
+      description: "مقارنة الفترات الزمنية\nCompare notification metrics between two time periods\n\nArgs:\n    current_range: Current time range\n    previous_range: Previous time range\n    tenant_id: Optional tenant filter\n\nReturns:\n    Comparison data with change percentages"
+      operationId: compare_time_periods_analytics_compare_get
+      parameters:
+      - description: Current time range
+        in: query
+        name: current_range
+        required: false
+        schema:
+          default: week
+          description: Current time range
+          title: Current Range
+          type: string
+      - description: Previous time range for comparison
+        in: query
+        name: previous_range
+        required: false
+        schema:
+          default: week
+          description: Previous time range for comparison
+          title: Previous Range
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Compare Time Periods
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/dashboard:
+    get:
+      description: "ملخص لوحة القيادة\nGet comprehensive dashboard summary with all key metrics\n\nArgs:\n    tenant_id: Optional tenant filter\n\nReturns:\n    Complete dashboard data"
+      operationId: get_dashboard_summary_analytics_dashboard_get
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Dashboard Summary
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/delivery-stats:
+    get:
+      description: "إحصائيات التسليم\nGet delivery statistics for specified time range\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Delivery statistics including success/failure rates"
+      operationId: get_delivery_statistics_analytics_delivery_stats_get
+      parameters:
+      - description: 'Time range: hour, day, week, month, quarter, year'
+        in: query
+        name: time_range
+        required: false
+        schema:
+          default: day
+          description: 'Time range: hour, day, week, month, quarter, year'
+          title: Time Range
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Delivery Statistics
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/health:
+    get:
+      description: "صحة نظام الإشعارات\nGet notification system health status\n\nReturns:\n    System health metrics"
+      operationId: get_notification_health_analytics_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Get Notification Health
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/hourly-trends:
+    get:
+      description: "الاتجاهات بالساعة\nGet notification trends by hour of day\n\nArgs:\n    days: Number of days to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Hourly trend data with peak hours"
+      operationId: get_hourly_trends_analytics_hourly_trends_get
+      parameters:
+      - description: Number of days to analyze
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 7
+          description: Number of days to analyze
+          maximum: 30
+          minimum: 1
+          title: Days
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Hourly Trends
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/notification-types:
+    get:
+      description: "تفصيل أنواع الإشعارات\nGet breakdown of notifications by type\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Notification type breakdown with counts and percentages"
+      operationId: get_notification_type_breakdown_analytics_notification_types_get
+      parameters:
+      - description: Time range
+        in: query
+        name: time_range
+        required: false
+        schema:
+          default: week
+          description: Time range
+          title: Time Range
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Notification Type Breakdown
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/priority-distribution:
+    get:
+      description: "توزيع الأولويات\nGet distribution of notifications by priority\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Priority distribution data"
+      operationId: get_priority_distribution_analytics_priority_distribution_get
+      parameters:
+      - description: Time range
+        in: query
+        name: time_range
+        required: false
+        schema:
+          default: week
+          description: Time range
+          title: Time Range
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Priority Distribution
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/regional-distribution:
+    get:
+      description: "التوزيع الجغرافي\nGet notification distribution by governorate/region\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Regional distribution data"
+      operationId: get_regional_distribution_analytics_regional_distribution_get
+      parameters:
+      - description: Time range
+        in: query
+        name: time_range
+        required: false
+        schema:
+          default: week
+          description: Time range
+          title: Time Range
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Regional Distribution
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /analytics/user-engagement:
+    get:
+      description: "تفاعل المستخدم\nGet user engagement metrics\n\nArgs:\n    user_id: Optional specific user ID\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    User engagement metrics"
+      operationId: get_user_engagement_analytics_user_engagement_get
+      parameters:
+      - description: Specific user ID
+        in: query
+        name: user_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Specific user ID
+          title: User Id
+      - description: Time range
+        in: query
+        name: time_range
+        required: false
+        schema:
+          default: week
+          description: Time range
+          title: Time Range
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get User Engagement
+      tags:
+      - Notification Analytics | تحليلات الإشعارات
+  /broadcast:
+    get:
+      description: الحصول على الإشعارات العامة (البث)
+      operationId: get_broadcast_notifications_broadcast_get
+      parameters:
+      - in: query
+        name: governorate
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/Governorate'
+          - type: 'null'
+          title: Governorate
+      - in: query
+        name: crop
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CropType'
+          - type: 'null'
+          title: Crop
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 50
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Broadcast Notifications
+  /bulk-update:
+    post:
+      description: 'تحديث تفضيلات متعددة دفعة واحدة
 
-        Update channel status (enable/disable)'
-      operationId: update_channel_status_update_status_patch
+        Bulk update multiple preferences at once
+
+
+        Useful for initial setup or updating all preferences together.'
+      operationId: bulk_update_preferences_bulk_update_post
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateChannelStatusRequest'
+              $ref: '#/components/schemas/BulkUpdatePreferencesRequest'
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /:
-    get:
+      summary: تحديث تفضيلات متعددة - Bulk Update Preferences
       tags:
       - Preferences
-      summary: الحصول على تفضيلات المستخدم - Get User Preferences
-      description: 'الحصول على جميع تفضيلات الإشعارات للمستخدم
-
-        Get all notification preferences for a user
-
-
-        Returns preferences for all event types with their configured channels.'
-      operationId: get_preferences__get
-      parameters:
-      - name: user_id
-        in: query
-        required: true
-        schema:
-          type: string
-          description: User ID
-          title: User Id
-        description: User ID
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    post:
-      summary: Create Custom Notification
-      description: إنشاء إشعار مخصص
-      operationId: create_custom_notification__post
-      security:
-      - OAuth2PasswordBearer: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateNotificationRequest'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /event/{event_type}:
     get:
-      tags:
-      - Preferences
-      summary: الحصول على تفضيلات حدث معين - Get Event Preference
       description: 'الحصول على تفضيلات نوع حدث معين
 
         Get preference for a specific event type
@@ -333,22 +1608,22 @@ paths:
         - system'
       operationId: get_event_preference_event__event_type__get
       parameters:
-      - name: event_type
-        in: path
+      - in: path
+        name: event_type
         required: true
         schema:
-          type: string
           title: Event Type
-      - name: user_id
+          type: string
+      - description: User ID
         in: query
+        name: user_id
         required: true
         schema:
-          type: string
           description: User ID
           title: User Id
-        description: User ID
-      - name: X-Tenant-Id
-        in: header
+          type: string
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -357,150 +1632,617 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /update:
-    post:
+          description: Validation Error
+      summary: الحصول على تفضيلات حدث معين - Get Event Preference
       tags:
       - Preferences
-      summary: تحديث تفضيلات حدث - Update Event Preference
-      description: 'تحديث تفضيلات نوع حدث معين
-
-        Update preferences for a specific event type
-
-
-        Configure which channels to use for each event type.
-
-        Available channels: email, sms, push, whatsapp, in_app'
-      operationId: update_preference_update_post
+  /farmer/{farmer_id}:
+    get:
+      description: الحصول على إشعارات مزارع معين
+      operationId: get_farmer_notifications_farmer__farmer_id__get
+      parameters:
+      - in: path
+        name: farmer_id
+        required: true
+        schema:
+          title: Farmer Id
+          type: string
+      - in: query
+        name: unread_only
+        required: false
+        schema:
+          default: false
+          title: Unread Only
+          type: boolean
+      - in: query
+        name: type
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/NotificationType'
+          - type: 'null'
+          title: Type
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
+      summary: Get Farmer Notifications
+  /healthz:
+    get:
+      description: Health check endpoint (liveness probe)
+      operationId: health_check_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Health Check
+  /history/delivery-logs/{notification_id}:
+    get:
+      description: "الحصول على سجلات التسليم\nGet delivery logs for a notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    List of delivery log entries"
+      operationId: get_delivery_logs_history_delivery_logs__notification_id__get
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - in: path
+        name: notification_id
+        required: true
+        schema:
+          title: Notification Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: X-Tenant-Id
-      requestBody:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Delivery Logs
+      tags:
+      - Notification History | سجل الإشعارات
+  /history/export:
+    get:
+      description: "تصدير سجل الإشعارات\nExport notification history for a date range\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    user_id: Optional user ID filter\n    start_date: Start date for export\n    end_date: End date for export\n    format: Export format (json or csv)\n    limit: Maximum records to export\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Exported data in requested format"
+      operationId: export_notification_history_history_export_get
+      parameters:
+      - in: query
+        name: user_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: User Id
+      - description: Export start date
+        in: query
+        name: start_date
         required: true
+        schema:
+          description: Export start date
+          format: date-time
+          title: Start Date
+          type: string
+      - description: Export end date
+        in: query
+        name: end_date
+        required: true
+        schema:
+          description: Export end date
+          format: date-time
+          title: End Date
+          type: string
+      - description: 'Export format: json, csv'
+        in: query
+        name: format
+        required: false
+        schema:
+          default: json
+          description: 'Export format: json, csv'
+          title: Format
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 1000
+          maximum: 10000
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Export Notification History
+      tags:
+      - Notification History | سجل الإشعارات
+  /history/failed:
+    get:
+      description: "الحصول على الإشعارات الفاشلة\nGet failed notifications for monitoring\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    limit: Maximum number of records\n    retry_pending: Only show notifications pending retry\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    List of failed notifications with details"
+      operationId: get_failed_notifications_history_failed_get
+      parameters:
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: Only show notifications pending retry
+        in: query
+        name: retry_pending
+        required: false
+        schema:
+          default: false
+          description: Only show notifications pending retry
+          title: Retry Pending
+          type: boolean
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Failed Notifications
+      tags:
+      - Notification History | سجل الإشعارات
+  /history/notification/{notification_id}:
+    get:
+      description: "الحصول على تفاصيل إشعار\nGet detailed information about a specific notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Notification details with delivery logs"
+      operationId: get_notification_details_history_notification__notification_id__get
+      parameters:
+      - in: path
+        name: notification_id
+        required: true
+        schema:
+          title: Notification Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Notification Details
+      tags:
+      - Notification History | سجل الإشعارات
+  /history/old:
+    delete:
+      description: "تنظيف الإشعارات القديمة\nDelete old notifications to free up database space\n\nArgs:\n    days: Number of days to keep\n\nReturns:\n    Number of notifications deleted"
+      operationId: cleanup_old_notifications_history_old_delete
+      parameters:
+      - description: Delete notifications older than this many days
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 30
+          description: Delete notifications older than this many days
+          maximum: 365
+          minimum: 7
+          title: Days
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Cleanup Old Notifications
+      tags:
+      - Notification History | سجل الإشعارات
+  /history/retry/{notification_id}:
+    post:
+      description: "إعادة محاولة إرسال إشعار فاشل\nRetry sending a failed notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Retry result"
+      operationId: retry_failed_notification_history_retry__notification_id__post
+      parameters:
+      - in: path
+        name: notification_id
+        required: true
+        schema:
+          title: Notification Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Retry Failed Notification
+      tags:
+      - Notification History | سجل الإشعارات
+  /history/stats:
+    get:
+      description: "إحصائيات الإشعارات\nGet notification statistics\n\nSECURITY: tenant_id is now required via X-Tenant-Id header (not optional query param)\nto enforce tenant isolation and prevent cross-tenant data access.\n\nArgs:\n    user_id: Optional user ID filter\n    days: Number of days to analyze\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Notification statistics"
+      operationId: get_notification_stats_history_stats_get
+      parameters:
+      - description: Filter by user ID
+        in: query
+        name: user_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by user ID
+          title: User Id
+      - description: Number of days to analyze
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 7
+          description: Number of days to analyze
+          maximum: 365
+          minimum: 1
+          title: Days
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HistoryStatsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Notification Stats
+      tags:
+      - Notification History | سجل الإشعارات
+  /history/user/{user_id}:
+    get:
+      description: "الحصول على سجل إشعارات المستخدم\nGet paginated notification history for a user\n\nArgs:\n    user_id: User ID\n    page: Page number (1-indexed)\n    page_size: Number of items per page\n    status: Optional status filter\n    type: Optional notification type filter\n    channel: Optional channel filter\n    start_date: Optional start date filter\n    end_date: Optional end date filter\n    include_expired: Whether to include expired notifications\n\nReturns:\n    Paginated list of notifications"
+      operationId: get_user_notification_history_history_user__user_id__get
+      parameters:
+      - in: path
+        name: user_id
+        required: true
+        schema:
+          title: User Id
+          type: string
+      - in: query
+        name: page
+        required: false
+        schema:
+          default: 1
+          minimum: 1
+          title: Page
+          type: integer
+      - in: query
+        name: page_size
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          title: Page Size
+          type: integer
+      - description: 'Filter by status: pending, sent, failed, read'
+        in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: 'Filter by status: pending, sent, failed, read'
+          title: Status
+      - description: Filter by notification type
+        in: query
+        name: type
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by notification type
+          title: Type
+      - description: Filter by channel
+        in: query
+        name: channel
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by channel
+          title: Channel
+      - description: Filter from date
+        in: query
+        name: start_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Filter from date
+          title: Start Date
+      - description: Filter to date
+        in: query
+        name: end_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Filter to date
+          title: End Date
+      - description: Include expired notifications
+        in: query
+        name: include_expired
+        required: false
+        schema:
+          default: false
+          description: Include expired notifications
+          title: Include Expired
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedHistoryResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get User Notification History
+      tags:
+      - Notification History | سجل الإشعارات
+  /irrigation:
+    post:
+      description: إنشاء تذكير ري مخصص
+      operationId: create_irrigation_reminder_irrigation_post
+      requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateEventPreferenceRequest'
+              $ref: '#/components/schemas/IrrigationReminderRequest'
+        required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /quiet-hours:
-    post:
-      tags:
-      - Preferences
-      summary: تحديد ساعات الهدوء - Set Quiet Hours
-      description: 'تحديد ساعات الهدوء (عدم الإزعاج)
-
-        Set quiet hours (do not disturb period)
-
-
-        During quiet hours, notifications will not be sent unless they are critical priority.
-
-        Time format: HH:MM (24-hour format)
-
-        Example: 22:00 to 06:00 (10 PM to 6 AM)'
-      operationId: set_quiet_hours_quiet_hours_post
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
+      summary: Create Irrigation Reminder
+  /list:
+    get:
+      description: 'الحصول على قائمة قنوات الإشعار للمستخدم مع الترقيم
+
+        Get list of notification channels for a user with pagination
+
+
+        Filters:
+
+        - **channel_type**: email, sms, push, whatsapp, in_app
+
+        - **enabled_only**: Show only enabled channels'
+      operationId: list_channels_list_get
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        schema:
+          description: User ID
+          title: User Id
+          type: string
+      - description: Filter by channel type
+        in: query
+        name: channel_type
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Filter by channel type
+          title: Channel Type
+      - description: Show only enabled channels
+        in: query
+        name: enabled_only
+        required: false
+        schema:
+          default: false
+          description: Show only enabled channels
+          title: Enabled Only
+          type: boolean
+      - description: Maximum number of channels to return
+        in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          description: Maximum number of channels to return
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - description: Number of channels to skip
+        in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          description: Number of channels to skip
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SetQuietHoursRequest'
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /bulk-update:
-    post:
+          description: Validation Error
+      summary: قائمة قنوات المستخدم - List User Channels
       tags:
-      - Preferences
-      summary: تحديث تفضيلات متعددة - Bulk Update Preferences
-      description: 'تحديث تفضيلات متعددة دفعة واحدة
-
-        Bulk update multiple preferences at once
-
-
-        Useful for initial setup or updating all preferences together.'
-      operationId: bulk_update_preferences_bulk_update_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BulkUpdatePreferencesRequest'
+      - Channels
+  /metrics:
+    get:
+      description: Prometheus metrics endpoint - نقطة نهاية مقاييس بروميثيوس
+      operationId: metrics_metrics_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+          description: Successful Response
+      summary: Metrics
   /otp/send:
     post:
-      tags:
-      - OTP - رموز التحقق
-      summary: إرسال رمز OTP - Send OTP Code
       description: 'إرسال رمز OTP إلى المستخدم
 
         Send OTP code to user via specified channel
@@ -533,8 +2275,8 @@ paths:
         - **two_factor**: Two-factor authentication'
       operationId: send_otp_otp_send_post
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -542,79 +2284,35 @@ paths:
           - type: 'null'
           title: X-Tenant-Id
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/SendOTPRequest'
+        required: true
       responses:
         '200':
-          description: OTP sent successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SendOTPResponse'
+          description: OTP sent successfully
         '400':
           description: Invalid request
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
         '429':
           description: Too many requests - rate limited
         '503':
           description: Channel unavailable
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /otp/verify:
-    post:
+      summary: إرسال رمز OTP - Send OTP Code
       tags:
       - OTP - رموز التحقق
-      summary: التحقق من رمز OTP - Verify OTP Code
-      description: 'التحقق من رمز OTP
-
-        Verify the OTP code entered by user
-
-
-        Returns success status and optional reset token (for password reset purpose).'
-      operationId: verify_otp_otp_verify_post
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/VerifyOTPRequest'
-      responses:
-        '200':
-          description: Verification result
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VerifyOTPResponse'
-        '400':
-          description: Invalid request
-        '401':
-          description: Invalid or expired OTP
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
   /otp/status:
     get:
-      tags:
-      - OTP - رموز التحقق
-      summary: حالة OTP - OTP Status
       description: 'التحقق من حالة OTP
 
         Check OTP status including:
@@ -626,24 +2324,24 @@ paths:
         - Remaining verification attempts'
       operationId: get_otp_status_otp_status_get
       parameters:
-      - name: identifier
+      - description: Phone number or email | رقم الهاتف أو البريد
         in: query
+        name: identifier
         required: true
         schema:
-          type: string
-          minLength: 3
           description: Phone number or email | رقم الهاتف أو البريد
+          minLength: 3
           title: Identifier
-        description: Phone number or email | رقم الهاتف أو البريد
-      - name: purpose
+          type: string
+      - description: OTP purpose | غرض OTP
         in: query
+        name: purpose
         required: true
         schema:
           $ref: '#/components/schemas/OTPPurpose'
           description: OTP purpose | غرض OTP
-        description: OTP purpose | غرض OTP
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -652,841 +2350,66 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: OTP status information
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/OTPStatusResponse'
+          description: OTP status information
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/delivery-stats:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Delivery Statistics
-      description: "إحصائيات التسليم\nGet delivery statistics for specified time range\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Delivery statistics including success/failure rates"
-      operationId: get_delivery_statistics_analytics_delivery_stats_get
-      parameters:
-      - name: time_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: 'Time range: hour, day, week, month, quarter, year'
-          default: day
-          title: Time Range
-        description: 'Time range: hour, day, week, month, quarter, year'
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
           description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/channel-performance:
-    get:
+      summary: حالة OTP - OTP Status
       tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Channel Performance
-      description: "أداء القنوات\nGet performance metrics by notification channel\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Channel performance metrics"
-      operationId: get_channel_performance_analytics_channel_performance_get
-      parameters:
-      - name: time_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Time range
-          default: day
-          title: Time Range
-        description: Time range
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/notification-types:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Notification Type Breakdown
-      description: "تفصيل أنواع الإشعارات\nGet breakdown of notifications by type\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Notification type breakdown with counts and percentages"
-      operationId: get_notification_type_breakdown_analytics_notification_types_get
-      parameters:
-      - name: time_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Time range
-          default: week
-          title: Time Range
-        description: Time range
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/regional-distribution:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Regional Distribution
-      description: "التوزيع الجغرافي\nGet notification distribution by governorate/region\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Regional distribution data"
-      operationId: get_regional_distribution_analytics_regional_distribution_get
-      parameters:
-      - name: time_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Time range
-          default: week
-          title: Time Range
-        description: Time range
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/hourly-trends:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Hourly Trends
-      description: "الاتجاهات بالساعة\nGet notification trends by hour of day\n\nArgs:\n    days: Number of days to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Hourly trend data with peak hours"
-      operationId: get_hourly_trends_analytics_hourly_trends_get
-      parameters:
-      - name: days
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 30
-          minimum: 1
-          description: Number of days to analyze
-          default: 7
-          title: Days
-        description: Number of days to analyze
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/user-engagement:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get User Engagement
-      description: "تفاعل المستخدم\nGet user engagement metrics\n\nArgs:\n    user_id: Optional specific user ID\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    User engagement metrics"
-      operationId: get_user_engagement_analytics_user_engagement_get
-      parameters:
-      - name: user_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Specific user ID
-          title: User Id
-        description: Specific user ID
-      - name: time_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Time range
-          default: week
-          title: Time Range
-        description: Time range
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/priority-distribution:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Priority Distribution
-      description: "توزيع الأولويات\nGet distribution of notifications by priority\n\nArgs:\n    time_range: Time range to analyze\n    tenant_id: Optional tenant filter\n\nReturns:\n    Priority distribution data"
-      operationId: get_priority_distribution_analytics_priority_distribution_get
-      parameters:
-      - name: time_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Time range
-          default: week
-          title: Time Range
-        description: Time range
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/dashboard:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Dashboard Summary
-      description: "ملخص لوحة القيادة\nGet comprehensive dashboard summary with all key metrics\n\nArgs:\n    tenant_id: Optional tenant filter\n\nReturns:\n    Complete dashboard data"
-      operationId: get_dashboard_summary_analytics_dashboard_get
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /analytics/health:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Get Notification Health
-      description: "صحة نظام الإشعارات\nGet notification system health status\n\nReturns:\n    System health metrics"
-      operationId: get_notification_health_analytics_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /analytics/compare:
-    get:
-      tags:
-      - Notification Analytics | تحليلات الإشعارات
-      summary: Compare Time Periods
-      description: "مقارنة الفترات الزمنية\nCompare notification metrics between two time periods\n\nArgs:\n    current_range: Current time range\n    previous_range: Previous time range\n    tenant_id: Optional tenant filter\n\nReturns:\n    Comparison data with change percentages"
-      operationId: compare_time_periods_analytics_compare_get
-      parameters:
-      - name: current_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Current time range
-          default: week
-          title: Current Range
-        description: Current time range
-      - name: previous_range
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Previous time range for comparison
-          default: week
-          title: Previous Range
-        description: Previous time range for comparison
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/user/{user_id}:
-    get:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Get User Notification History
-      description: "الحصول على سجل إشعارات المستخدم\nGet paginated notification history for a user\n\nArgs:\n    user_id: User ID\n    page: Page number (1-indexed)\n    page_size: Number of items per page\n    status: Optional status filter\n    type: Optional notification type filter\n    channel: Optional channel filter\n    start_date: Optional start date filter\n    end_date: Optional end date filter\n    include_expired: Whether to include expired notifications\n\nReturns:\n    Paginated list of notifications"
-      operationId: get_user_notification_history_history_user__user_id__get
-      parameters:
-      - name: user_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: User Id
-      - name: page
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 1
-          default: 1
-          title: Page
-      - name: page_size
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 20
-          title: Page Size
-      - name: status
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: 'Filter by status: pending, sent, failed, read'
-          title: Status
-        description: 'Filter by status: pending, sent, failed, read'
-      - name: type
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Filter by notification type
-          title: Type
-        description: Filter by notification type
-      - name: channel
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Filter by channel
-          title: Channel
-        description: Filter by channel
-      - name: start_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          description: Filter from date
-          title: Start Date
-        description: Filter from date
-      - name: end_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          description: Filter to date
-          title: End Date
-        description: Filter to date
-      - name: include_expired
-        in: query
-        required: false
-        schema:
-          type: boolean
-          description: Include expired notifications
-          default: false
-          title: Include Expired
-        description: Include expired notifications
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedHistoryResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/notification/{notification_id}:
-    get:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Get Notification Details
-      description: "الحصول على تفاصيل إشعار\nGet detailed information about a specific notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Notification details with delivery logs"
-      operationId: get_notification_details_history_notification__notification_id__get
-      parameters:
-      - name: notification_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Notification Id
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/delivery-logs/{notification_id}:
-    get:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Get Delivery Logs
-      description: "الحصول على سجلات التسليم\nGet delivery logs for a notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    List of delivery log entries"
-      operationId: get_delivery_logs_history_delivery_logs__notification_id__get
-      parameters:
-      - name: notification_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Notification Id
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/failed:
-    get:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Get Failed Notifications
-      description: "الحصول على الإشعارات الفاشلة\nGet failed notifications for monitoring\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    limit: Maximum number of records\n    retry_pending: Only show notifications pending retry\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    List of failed notifications with details"
-      operationId: get_failed_notifications_history_failed_get
-      parameters:
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 200
-          minimum: 1
-          default: 50
-          title: Limit
-      - name: retry_pending
-        in: query
-        required: false
-        schema:
-          type: boolean
-          description: Only show notifications pending retry
-          default: false
-          title: Retry Pending
-        description: Only show notifications pending retry
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/stats:
-    get:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Get Notification Stats
-      description: "إحصائيات الإشعارات\nGet notification statistics\n\nSECURITY: tenant_id is now required via X-Tenant-Id header (not optional query param)\nto enforce tenant isolation and prevent cross-tenant data access.\n\nArgs:\n    user_id: Optional user ID filter\n    days: Number of days to analyze\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Notification statistics"
-      operationId: get_notification_stats_history_stats_get
-      parameters:
-      - name: user_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: Filter by user ID
-          title: User Id
-        description: Filter by user ID
-      - name: days
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 365
-          minimum: 1
-          description: Number of days to analyze
-          default: 7
-          title: Days
-        description: Number of days to analyze
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HistoryStatsResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/old:
-    delete:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Cleanup Old Notifications
-      description: "تنظيف الإشعارات القديمة\nDelete old notifications to free up database space\n\nArgs:\n    days: Number of days to keep\n\nReturns:\n    Number of notifications deleted"
-      operationId: cleanup_old_notifications_history_old_delete
-      parameters:
-      - name: days
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 365
-          minimum: 7
-          description: Delete notifications older than this many days
-          default: 30
-          title: Days
-        description: Delete notifications older than this many days
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/export:
-    get:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Export Notification History
-      description: "تصدير سجل الإشعارات\nExport notification history for a date range\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    user_id: Optional user ID filter\n    start_date: Start date for export\n    end_date: End date for export\n    format: Export format (json or csv)\n    limit: Maximum records to export\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Exported data in requested format"
-      operationId: export_notification_history_history_export_get
-      parameters:
-      - name: user_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: User Id
-      - name: start_date
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date-time
-          description: Export start date
-          title: Start Date
-        description: Export start date
-      - name: end_date
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date-time
-          description: Export end date
-          title: End Date
-        description: Export end date
-      - name: format
-        in: query
-        required: false
-        schema:
-          type: string
-          description: 'Export format: json, csv'
-          default: json
-          title: Format
-        description: 'Export format: json, csv'
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 10000
-          minimum: 1
-          default: 1000
-          title: Limit
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /history/retry/{notification_id}:
+      - OTP - رموز التحقق
+  /otp/verify:
     post:
-      tags:
-      - Notification History | سجل الإشعارات
-      summary: Retry Failed Notification
-      description: "إعادة محاولة إرسال إشعار فاشل\nRetry sending a failed notification\n\nSECURITY: tenant_id is required via X-Tenant-Id header to enforce tenant isolation.\n\nArgs:\n    notification_id: Notification UUID\n    tenant_id: Tenant ID from X-Tenant-Id header (required)\n\nReturns:\n    Retry result"
-      operationId: retry_failed_notification_history_retry__notification_id__post
+      description: 'التحقق من رمز OTP
+
+        Verify the OTP code entered by user
+
+
+        Returns success status and optional reset token (for password reset purpose).'
+      operationId: verify_otp_otp_verify_post
       parameters:
-      - name: notification_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Notification Id
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
           title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /healthz:
-    get:
-      summary: Health Check
-      description: Health check endpoint (liveness probe)
-      operationId: health_check_healthz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /readyz:
-    get:
-      summary: Readiness
-      operationId: readiness_readyz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /metrics:
-    get:
-      summary: Metrics
-      description: Prometheus metrics endpoint - نقطة نهاية مقاييس بروميثيوس
-      operationId: metrics_metrics_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /weather:
-    post:
-      summary: Create Weather Alert
-      description: إنشاء تنبيه طقس لمحافظات محددة
-      operationId: create_weather_alert_weather_post
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/WeatherAlertRequest'
+              $ref: '#/components/schemas/VerifyOTPRequest'
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/VerifyOTPResponse'
+          description: Verification result
+        '400':
+          description: Invalid request
+        '401':
+          description: Invalid or expired OTP
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
+          description: Validation Error
+      summary: التحقق من رمز OTP - Verify OTP Code
+      tags:
+      - OTP - رموز التحقق
   /pest:
     post:
-      summary: Create Pest Alert
       description: إنشاء تنبيه انتشار آفات
       operationId: create_pest_alert_pest_post
       requestBody:
@@ -1497,183 +2420,76 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /irrigation:
+      summary: Create Pest Alert
+  /quiet-hours:
     post:
-      summary: Create Irrigation Reminder
-      description: إنشاء تذكير ري مخصص
-      operationId: create_irrigation_reminder_irrigation_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/IrrigationReminderRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /farmer/{farmer_id}:
-    get:
-      summary: Get Farmer Notifications
-      description: الحصول على إشعارات مزارع معين
-      operationId: get_farmer_notifications_farmer__farmer_id__get
-      security:
-      - OAuth2PasswordBearer: []
+      description: 'تحديد ساعات الهدوء (عدم الإزعاج)
+
+        Set quiet hours (do not disturb period)
+
+
+        During quiet hours, notifications will not be sent unless they are critical priority.
+
+        Time format: HH:MM (24-hour format)
+
+        Example: 22:00 to 06:00 (10 PM to 6 AM)'
+      operationId: set_quiet_hours_quiet_hours_post
       parameters:
-      - name: farmer_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farmer Id
-      - name: unread_only
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-          title: Unread Only
-      - name: type
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/NotificationType'
-          - type: 'null'
-          title: Type
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 50
-          title: Limit
-      - name: offset
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Offset
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /{notification_id}/read:
-    patch:
-      summary: Mark Notification Read
-      description: تحديد إشعار كمقروء
-      operationId: mark_notification_read__notification_id__read_patch
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: notification_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Notification Id
-      - name: farmer_id
-        in: query
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Farmer Id
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SetQuietHoursRequest'
+        required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /broadcast:
-    get:
-      summary: Get Broadcast Notifications
-      description: الحصول على الإشعارات العامة (البث)
-      operationId: get_broadcast_notifications_broadcast_get
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-      parameters:
-      - name: governorate
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/Governorate'
-          - type: 'null'
-          title: Governorate
-      - name: crop
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/CropType'
-          - type: 'null'
-          title: Crop
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 50
-          minimum: 1
-          default: 20
-          title: Limit
+      summary: تحديد ساعات الهدوء - Set Quiet Hours
+      tags:
+      - Preferences
+  /readyz:
+    get:
+      operationId: readiness_readyz_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+          description: Successful Response
+      summary: Readiness
   /register:
     post:
-      summary: Register Farmer
       description: تسجيل مزارع للإشعارات - Database version
       operationId: register_farmer_register_post
       requestBody:
@@ -1684,1082 +2500,266 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /{farmer_id}/preferences:
-    put:
-      summary: Update Preferences
-      description: تحديث تفضيلات الإشعارات
-      operationId: update_preferences__farmer_id__preferences_put
-      security:
-      - OAuth2PasswordBearer: []
+      summary: Register Farmer
+  /remove:
+    delete:
+      description: 'حذف قناة إشعار
+
+        Remove a notification channel'
+      operationId: remove_channel_remove_delete
       parameters:
-      - name: farmer_id
-        in: path
+      - description: Channel ID
+        in: query
+        name: channel_id
         required: true
         schema:
+          description: Channel ID
+          title: Channel Id
           type: string
-          title: Farmer Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NotificationPreferences'
+      - description: User ID (deprecated, derived from auth)
+        in: query
+        name: user_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: User ID (deprecated, derived from auth)
+          title: User Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: حذف قناة - Remove Channel
+      tags:
+      - Channels
   /stats:
     get:
-      summary: Get Notification Stats
       description: إحصائيات الإشعارات - Database version
       operationId: get_notification_stats_stats_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
       security:
       - OAuth2PasswordBearer: []
-components:
-  schemas:
-    AddChannelRequest:
-      properties:
-        user_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: User Id
-          description: User ID
-        channel_type:
-          type: string
-          maxLength: 20
-          minLength: 1
-          title: Channel Type
-          description: 'Channel type: email, sms, push, whatsapp, in_app'
-        address:
-          type: string
-          maxLength: 500
-          minLength: 1
-          title: Address
-          description: Channel address (email, phone, FCM token, etc.)
-        tenant_id:
+      summary: Get Notification Stats
+  /update:
+    post:
+      description: 'تحديث تفضيلات نوع حدث معين
+
+        Update preferences for a specific event type
+
+
+        Configure which channels to use for each event type.
+
+        Available channels: email, sms, push, whatsapp, in_app'
+      operationId: update_preference_update_post
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
           anyOf:
           - type: string
-            maxLength: 100
           - type: 'null'
-          title: Tenant Id
-          description: Tenant ID for multi-tenancy
-        metadata:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Metadata
-          description: Additional metadata
-      type: object
-      required:
-      - user_id
-      - channel_type
-      - address
-      title: AddChannelRequest
-      description: طلب إضافة قناة - Add Channel Request
-      example:
-        address: farmer@example.com
-        channel_type: email
-        metadata:
-          device: web
-        tenant_id: tenant-1
-        user_id: farmer-123
-    BulkUpdatePreferencesRequest:
-      properties:
-        user_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: User Id
-          description: User ID
-        preferences:
-          items:
-            additionalProperties: true
-            type: object
-          type: array
-          minItems: 1
-          title: Preferences
-          description: List of preference updates
-        tenant_id:
-          anyOf:
-          - type: string
-            maxLength: 100
-          - type: 'null'
-          title: Tenant Id
-          description: Tenant ID for multi-tenancy
-      type: object
-      required:
-      - user_id
-      - preferences
-      title: BulkUpdatePreferencesRequest
-      description: طلب تحديث تفضيلات متعددة - Bulk Update Preferences Request
-      example:
-        preferences:
-        - channels:
-          - email
-          - sms
-          - push
-          enabled: true
-          event_type: weather_alert
-        - channels:
-          - sms
-          - push
-          enabled: true
-          event_type: pest_outbreak
-        - channels:
-          - push
-          enabled: false
-          event_type: irrigation_reminder
-        tenant_id: tenant-1
-        user_id: farmer-123
-    CreateNotificationRequest:
-      properties:
-        type:
-          $ref: '#/components/schemas/NotificationType'
-        priority:
-          $ref: '#/components/schemas/NotificationPriority'
-          default: medium
-        title:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Title
-        title_ar:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Title Ar
-        body:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Body
-        body_ar:
-          type: string
-          maxLength: 2000
-          minLength: 1
-          title: Body Ar
-        data:
-          additionalProperties: true
-          type: object
-          title: Data
-          default: {}
-        target_farmers:
-          items:
-            type: string
-          type: array
-          title: Target Farmers
-          default: []
-        target_governorates:
-          items:
-            $ref: '#/components/schemas/Governorate'
-          type: array
-          title: Target Governorates
-          default: []
-        target_crops:
-          items:
-            $ref: '#/components/schemas/CropType'
-          type: array
-          title: Target Crops
-          default: []
-        channels:
-          items:
-            $ref: '#/components/schemas/NotificationChannel'
-          type: array
-          title: Channels
-          default:
-          - in_app
-        expires_in_hours:
-          anyOf:
-          - type: integer
-            maximum: 8760
-            minimum: 1
-          - type: 'null'
-          title: Expires In Hours
-          default: 24
-      type: object
-      required:
-      - type
-      - title
-      - title_ar
-      - body
-      - body_ar
-      title: CreateNotificationRequest
-      description: طلب إنشاء إشعار
-    CropType:
-      type: string
-      enum:
-      - tomato
-      - wheat
-      - coffee
-      - qat
-      - banana
-      - date_palm
-      - mango
-      - grapes
-      - corn
-      - potato
-      title: CropType
-    DevicePlatform:
-      type: string
-      enum:
-      - ios
-      - android
-      - web
-      title: DevicePlatform
-    FarmerProfile:
-      properties:
-        farmer_id:
-          type: string
-          maxLength: 100
-          minLength: 1
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEventPreferenceRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: تحديث تفضيلات حدث - Update Event Preference
+      tags:
+      - Preferences
+  /update-status:
+    patch:
+      description: 'تحديث حالة قناة (تفعيل/تعطيل)
+
+        Update channel status (enable/disable)'
+      operationId: update_channel_status_update_status_patch
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChannelStatusRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: تحديث حالة قناة - Update Channel Status
+      tags:
+      - Channels
+  /verify:
+    post:
+      description: 'تحقق من قناة إشعار باستخدام رمز التحقق
+
+        Verify a notification channel using verification code
+
+
+        Required for: email, sms, whatsapp channels'
+      operationId: verify_channel_verify_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyChannelRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: تحقق من قناة - Verify Channel
+      tags:
+      - Channels
+  /weather:
+    post:
+      description: إنشاء تنبيه طقس لمحافظات محددة
+      operationId: create_weather_alert_weather_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherAlertRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Weather Alert
+  /{farmer_id}/preferences:
+    put:
+      description: تحديث تفضيلات الإشعارات
+      operationId: update_preferences__farmer_id__preferences_put
+      parameters:
+      - in: path
+        name: farmer_id
+        required: true
+        schema:
           title: Farmer Id
-        name:
           type: string
-          maxLength: 200
-          minLength: 1
-          title: Name
-        name_ar:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationPreferences'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Update Preferences
+  /{notification_id}/read:
+    patch:
+      description: تحديد إشعار كمقروء
+      operationId: mark_notification_read__notification_id__read_patch
+      parameters:
+      - in: path
+        name: notification_id
+        required: true
+        schema:
+          title: Notification Id
           type: string
-          maxLength: 200
-          minLength: 1
-          title: Name Ar
-        governorate:
-          $ref: '#/components/schemas/Governorate'
-        district:
+      - in: query
+        name: farmer_id
+        required: false
+        schema:
           anyOf:
           - type: string
-            maxLength: 200
           - type: 'null'
-          title: District
-        crops:
-          items:
-            $ref: '#/components/schemas/CropType'
-          type: array
-          title: Crops
-        field_ids:
-          items:
-            type: string
-          type: array
-          title: Field Ids
-          default: []
-        phone:
-          anyOf:
-          - type: string
-            maxLength: 20
-          - type: 'null'
-          title: Phone
-        email:
-          anyOf:
-          - type: string
-            maxLength: 254
-          - type: 'null'
-          title: Email
-        fcm_token:
-          anyOf:
-          - type: string
-            maxLength: 500
-            minLength: 10
-          - type: 'null'
-          title: Fcm Token
-        device_platform:
-          anyOf:
-          - $ref: '#/components/schemas/DevicePlatform'
-          - type: 'null'
-        notification_channels:
-          items:
-            $ref: '#/components/schemas/NotificationChannel'
-          type: array
-          title: Notification Channels
-          default:
-          - in_app
-        language:
-          type: string
-          maxLength: 10
-          title: Language
-          default: ar
-      type: object
-      required:
-      - farmer_id
-      - name
-      - name_ar
-      - governorate
-      - crops
-      title: FarmerProfile
-      description: ملف المزارع للإشعارات المخصصة
-    Governorate:
-      type: string
-      enum:
-      - sanaa
-      - aden
-      - taiz
-      - hodeidah
-      - ibb
-      - dhamar
-      - hadramaut
-      - marib
-      - hajjah
-      - saada
-      - lahj
-      - abyan
-      title: Governorate
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    HistoryStatsResponse:
-      properties:
-        total_notifications:
-          type: integer
-          title: Total Notifications
-        sent:
-          type: integer
-          title: Sent
-        failed:
-          type: integer
-          title: Failed
-        pending:
-          type: integer
-          title: Pending
-        read:
-          type: integer
-          title: Read
-        delivery_rate:
-          type: number
-          title: Delivery Rate
-        read_rate:
-          type: number
-          title: Read Rate
-      type: object
-      required:
-      - total_notifications
-      - sent
-      - failed
-      - pending
-      - read
-      - delivery_rate
-      - read_rate
-      title: HistoryStatsResponse
-      description: استجابة إحصائيات السجل
-    IrrigationReminderRequest:
-      properties:
-        farmer_id:
-          type: string
-          maxLength: 100
-          minLength: 1
           title: Farmer Id
-        field_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Field Id
-        field_name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Field Name
-        crop:
-          $ref: '#/components/schemas/CropType'
-        water_needed_mm:
-          type: number
-          maximum: 500.0
-          exclusiveMinimum: 0.0
-          title: Water Needed Mm
-        urgency:
-          $ref: '#/components/schemas/NotificationPriority'
-      type: object
-      required:
-      - farmer_id
-      - field_id
-      - field_name
-      - crop
-      - water_needed_mm
-      - urgency
-      title: IrrigationReminderRequest
-      description: طلب تذكير ري
-    Language:
-      type: string
-      enum:
-      - ar
-      - en
-      title: Language
-      description: اللغة - Language
-    NotificationChannel:
-      type: string
-      enum:
-      - push
-      - sms
-      - email
-      - whatsapp
-      - in_app
-      title: NotificationChannel
-    NotificationHistoryResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        user_id:
-          type: string
-          title: User Id
-        title:
-          type: string
-          title: Title
-        title_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title Ar
-        body:
-          type: string
-          title: Body
-        body_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Body Ar
-        type:
-          type: string
-          title: Type
-        priority:
-          type: string
-          title: Priority
-        channel:
-          type: string
-          title: Channel
-        status:
-          type: string
-          title: Status
-        is_read:
-          type: boolean
-          title: Is Read
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        sent_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Sent At
-        read_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Read At
-        expires_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Expires At
-        data:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Data
-      type: object
-      required:
-      - id
-      - user_id
-      - title
-      - title_ar
-      - body
-      - body_ar
-      - type
-      - priority
-      - channel
-      - status
-      - is_read
-      - created_at
-      - sent_at
-      - read_at
-      - expires_at
-      - data
-      title: NotificationHistoryResponse
-      description: استجابة سجل الإشعارات
-    NotificationPreferences:
-      properties:
-        farmer_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Farmer Id
-        weather_alerts:
-          type: boolean
-          title: Weather Alerts
-          default: true
-        pest_alerts:
-          type: boolean
-          title: Pest Alerts
-          default: true
-        irrigation_reminders:
-          type: boolean
-          title: Irrigation Reminders
-          default: true
-        crop_health_alerts:
-          type: boolean
-          title: Crop Health Alerts
-          default: true
-        market_prices:
-          type: boolean
-          title: Market Prices
-          default: true
-        quiet_hours_start:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Quiet Hours Start
-          default: '22:00'
-        quiet_hours_end:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Quiet Hours End
-          default: 06:00
-        min_priority:
-          $ref: '#/components/schemas/NotificationPriority'
-          default: low
-      type: object
-      required:
-      - farmer_id
-      title: NotificationPreferences
-      description: تفضيلات الإشعارات
-    NotificationPriority:
-      type: string
-      enum:
-      - low
-      - medium
-      - high
-      - critical
-      title: NotificationPriority
-    NotificationType:
-      type: string
-      enum:
-      - weather_alert
-      - pest_outbreak
-      - irrigation_reminder
-      - crop_health
-      - market_price
-      - system
-      - task_reminder
-      title: NotificationType
-    OTPChannel:
-      type: string
-      enum:
-      - sms
-      - whatsapp
-      - telegram
-      - email
-      title: OTPChannel
-      description: قناة إرسال OTP - OTP Delivery Channel
-    OTPPurpose:
-      type: string
-      enum:
-      - login
-      - password_reset
-      - verify_phone
-      - verify_email
-      - two_factor
-      title: OTPPurpose
-      description: غرض OTP - OTP Purpose
-    OTPStatusResponse:
-      properties:
-        sent:
-          type: boolean
-          title: Sent
-          description: Whether OTP was sent
-        remaining_seconds:
-          type: integer
-          title: Remaining Seconds
-          description: Remaining validity in seconds
-        attempts_remaining:
-          type: integer
-          title: Attempts Remaining
-          description: Remaining verification attempts
-        expired:
-          type: boolean
-          title: Expired
-          description: Whether OTP has expired
-        last_sent_at:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Last Sent At
-          description: Last sent timestamp (ISO format)
-      type: object
-      required:
-      - sent
-      - remaining_seconds
-      - attempts_remaining
-      - expired
-      title: OTPStatusResponse
-      description: استجابة حالة OTP - OTP Status Response
-    PaginatedHistoryResponse:
-      properties:
-        total:
-          type: integer
-          title: Total
-        page:
-          type: integer
-          title: Page
-        page_size:
-          type: integer
-          title: Page Size
-        total_pages:
-          type: integer
-          title: Total Pages
-        notifications:
-          items:
-            $ref: '#/components/schemas/NotificationHistoryResponse'
-          type: array
-          title: Notifications
-      type: object
-      required:
-      - total
-      - page
-      - page_size
-      - total_pages
-      - notifications
-      title: PaginatedHistoryResponse
-      description: استجابة سجل مرقم
-    PestAlertRequest:
-      properties:
-        governorate:
-          $ref: '#/components/schemas/Governorate'
-        pest_name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Pest Name
-        pest_name_ar:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Pest Name Ar
-        affected_crops:
-          items:
-            $ref: '#/components/schemas/CropType'
-          type: array
-          minItems: 1
-          title: Affected Crops
-        severity:
-          $ref: '#/components/schemas/NotificationPriority'
-        recommendations:
-          items:
-            type: string
-          type: array
-          title: Recommendations
-          default: []
-        recommendations_ar:
-          items:
-            type: string
-          type: array
-          title: Recommendations Ar
-          default: []
-      type: object
-      required:
-      - governorate
-      - pest_name
-      - pest_name_ar
-      - affected_crops
-      - severity
-      title: PestAlertRequest
-      description: طلب تنبيه آفات
-    SendOTPRequest:
-      properties:
-        identifier:
-          type: string
-          maxLength: 255
-          minLength: 3
-          title: Identifier
-          description: Phone number (E.164) or email address | رقم الهاتف أو البريد الإلكتروني
-        channel:
-          $ref: '#/components/schemas/OTPChannel'
-          description: 'Delivery channel: sms, whatsapp, telegram, email | قناة الإرسال'
-        purpose:
-          $ref: '#/components/schemas/OTPPurpose'
-          description: 'OTP purpose: login, password_reset, verify_phone, verify_email, two_factor | غرض OTP'
-        language:
-          $ref: '#/components/schemas/Language'
-          description: 'Preferred language: ar, en | اللغة المفضلة'
-          default: ar
-        tenant_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tenant Id
-          description: Tenant ID for multi-tenancy | معرف المستأجر
-      type: object
-      required:
-      - identifier
-      - channel
-      - purpose
-      title: SendOTPRequest
-      description: طلب إرسال OTP - Send OTP Request
-      example:
-        channel: sms
-        identifier: '+967771234567'
-        language: ar
-        purpose: login
-    SendOTPResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-          description: Whether OTP was sent successfully
-        message:
-          type: string
-          title: Message
-          description: Response message (bilingual)
-        message_en:
-          type: string
-          title: Message En
-          description: English message
-        message_ar:
-          type: string
-          title: Message Ar
-          description: Arabic message
-        expires_in_seconds:
-          type: integer
-          title: Expires In Seconds
-          description: OTP validity period in seconds
-        channel:
-          type: string
-          title: Channel
-          description: Channel used to send OTP
-        masked_identifier:
-          type: string
-          title: Masked Identifier
-          description: Masked identifier for display
-      type: object
-      required:
-      - success
-      - message
-      - message_en
-      - message_ar
-      - expires_in_seconds
-      - channel
-      - masked_identifier
-      title: SendOTPResponse
-      description: استجابة إرسال OTP - Send OTP Response
-    SetQuietHoursRequest:
-      properties:
-        user_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: User Id
-          description: User ID
-        quiet_hours_start:
-          anyOf:
-          - type: string
-            pattern: ^\d{2}:\d{2}$
-          - type: 'null'
-          title: Quiet Hours Start
-          description: Start time in HH:MM format (e.g., '22:00')
-        quiet_hours_end:
-          anyOf:
-          - type: string
-            pattern: ^\d{2}:\d{2}$
-          - type: 'null'
-          title: Quiet Hours End
-          description: End time in HH:MM format (e.g., '06:00')
-        tenant_id:
-          anyOf:
-          - type: string
-            maxLength: 100
-          - type: 'null'
-          title: Tenant Id
-          description: Tenant ID for multi-tenancy
-      type: object
-      required:
-      - user_id
-      title: SetQuietHoursRequest
-      description: طلب تحديد ساعات الهدوء - Set Quiet Hours Request
-      example:
-        quiet_hours_end: 06:00
-        quiet_hours_start: '22:00'
-        tenant_id: tenant-1
-        user_id: farmer-123
-    UpdateChannelStatusRequest:
-      properties:
-        channel_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Channel Id
-          description: Channel ID
-        user_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: User Id
-          description: User ID
-        enabled:
-          type: boolean
-          title: Enabled
-          description: Whether channel should be enabled
-      type: object
-      required:
-      - channel_id
-      - user_id
-      - enabled
-      title: UpdateChannelStatusRequest
-      description: طلب تحديث حالة قناة - Update Channel Status Request
-      example:
-        channel_id: 550e8400-e29b-41d4-a716-446655440000
-        enabled: true
-        user_id: farmer-123
-    UpdateEventPreferenceRequest:
-      properties:
-        user_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: User Id
-          description: User ID
-        event_type:
-          type: string
-          maxLength: 50
-          minLength: 1
-          title: Event Type
-          description: Event type (weather_alert, pest_outbreak, etc.)
-        channels:
-          items:
-            type: string
-          type: array
-          minItems: 1
-          title: Channels
-          description: List of channel types to use
-        enabled:
-          type: boolean
-          title: Enabled
-          description: Whether this event type is enabled
-          default: true
-        tenant_id:
-          anyOf:
-          - type: string
-            maxLength: 100
-          - type: 'null'
-          title: Tenant Id
-          description: Tenant ID for multi-tenancy
-        metadata:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Metadata
-          description: Additional metadata
-      type: object
-      required:
-      - user_id
-      - event_type
-      - channels
-      title: UpdateEventPreferenceRequest
-      description: طلب تحديث تفضيلات حدث - Update Event Preference Request
-      example:
-        channels:
-        - email
-        - sms
-        - push
-        enabled: true
-        event_type: weather_alert
-        tenant_id: tenant-1
-        user_id: farmer-123
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    VerifyChannelRequest:
-      properties:
-        channel_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Channel Id
-          description: Channel ID
-        verification_code:
-          type: string
-          maxLength: 10
-          minLength: 4
-          title: Verification Code
-          description: Verification code
-        user_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: User Id
-          description: User ID
-      type: object
-      required:
-      - channel_id
-      - verification_code
-      - user_id
-      title: VerifyChannelRequest
-      description: طلب تحقق من قناة - Verify Channel Request
-      example:
-        channel_id: 550e8400-e29b-41d4-a716-446655440000
-        user_id: farmer-123
-        verification_code: '123456'
-    VerifyOTPRequest:
-      properties:
-        identifier:
-          type: string
-          maxLength: 255
-          minLength: 3
-          title: Identifier
-          description: Phone number or email used to send OTP | رقم الهاتف أو البريد
-        otp_code:
-          type: string
-          maxLength: 8
-          minLength: 4
-          title: Otp Code
-          description: OTP code received | رمز التحقق
-        purpose:
-          $ref: '#/components/schemas/OTPPurpose'
-          description: OTP purpose (must match the sent OTP) | غرض OTP
-        tenant_id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Tenant Id
-          description: Tenant ID for multi-tenancy | معرف المستأجر
-      type: object
-      required:
-      - identifier
-      - otp_code
-      - purpose
-      title: VerifyOTPRequest
-      description: طلب التحقق من OTP - Verify OTP Request
-      example:
-        identifier: '+967771234567'
-        otp_code: '123456'
-        purpose: login
-    VerifyOTPResponse:
-      properties:
-        success:
-          type: boolean
-          title: Success
-          description: Whether OTP verification succeeded
-        message:
-          type: string
-          title: Message
-          description: Response message (bilingual)
-        message_en:
-          type: string
-          title: Message En
-          description: English message
-        message_ar:
-          type: string
-          title: Message Ar
-          description: Arabic message
-        token:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Token
-          description: Reset token (only for password_reset purpose) | رمز إعادة التعيين
-      type: object
-      required:
-      - success
-      - message
-      - message_en
-      - message_ar
-      title: VerifyOTPResponse
-      description: استجابة التحقق من OTP - Verify OTP Response
-    WeatherAlertRequest:
-      properties:
-        governorates:
-          items:
-            $ref: '#/components/schemas/Governorate'
-          type: array
-          minItems: 1
-          title: Governorates
-        alert_type:
-          type: string
-          maxLength: 50
-          minLength: 1
-          title: Alert Type
-        severity:
-          $ref: '#/components/schemas/NotificationPriority'
-        expected_date:
-          type: string
-          format: date
-          title: Expected Date
-        details:
-          additionalProperties: true
-          type: object
-          title: Details
-          default: {}
-      type: object
-      required:
-      - governorates
-      - alert_type
-      - severity
-      - expected_date
-      title: WeatherAlertRequest
-      description: طلب تنبيه طقس
-  securitySchemes:
-    OAuth2PasswordBearer:
-      type: oauth2
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: /auth/token
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Mark Notification Read

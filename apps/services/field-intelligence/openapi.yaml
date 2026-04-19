@@ -1,729 +1,42 @@
-openapi: 3.1.0
-info:
-  title: SAHOOL Field Intelligence Service
-  description: "\n    خدمة ذكاء الحقول والقواعد الآلية\n    Field Intelligence and Automation Rules Service\n\n    **Features:**\n    - \U0001F916 محرك القواعد للأتمتة الحقلية - Rules engine for field automation\n    - \U0001F4CA معالجة الأحداث - Event processing (NDVI drop, weather alert, soil moisture)\n    - ✅ إنشاء المهام التلقائية - Auto task creation from events\n    - \U0001F514 تفعيل الإشعارات - Notification triggers\n    - \U0001F319 التكامل مع التقويم الفلكي - Integration with astronomical calendar\n\n    **Supported Events:**\n    - NDVI drop/anomaly detection\n    - Weather alerts (frost, heatwave, storm, etc.)\n    - Soil moisture (low/high)\n    - Temperature extremes\n    - Pest/disease detection\n    - Irrigation needs\n    - Harvest readiness\n    - Astronomical events\n\n    **Automation Actions:**\n    - Create tasks automatically\n    - Send notifications (push, SMS, email, WhatsApp)\n    - Create alerts\n    - Trigger irrigation systems\n    - Call webhooks\n    - Log events\n    "
-  version: 16.0.0
-paths:
-  /api/v1/events:
-    post:
-      tags:
-      - Field Intelligence
-      - Events
-      summary: Create Event
-      description: 'إنشاء حدث حقلي جديد
-
-        Create a new field event
-
-
-        يقوم بـ:
-
-        - إنشاء الحدث
-
-        - تقييم القواعد المطابقة
-
-        - تنفيذ الإجراءات (مهام، إشعارات، تنبيهات)'
-      operationId: create_event_api_v1_events_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/EventCreate'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EventResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    get:
-      tags:
-      - Field Intelligence
-      - Events
-      summary: List Events
-      description: 'قائمة الأحداث مع الفلترة
-
-        List events with filters'
-      operationId: list_events_api_v1_events_get
-      parameters:
-      - name: field_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: تصفية حسب الحقل
-          title: Field Id
-        description: تصفية حسب الحقل
-      - name: event_type
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/EventType'
-          - type: 'null'
-          description: تصفية حسب نوع الحدث
-          title: Event Type
-        description: تصفية حسب نوع الحدث
-      - name: status
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/EventStatus'
-          - type: 'null'
-          description: تصفية حسب الحالة
-          title: Status
-        description: تصفية حسب الحالة
-      - name: start_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          description: من تاريخ
-          title: Start Date
-        description: من تاريخ
-      - name: end_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          description: إلى تاريخ
-          title: End Date
-        description: إلى تاريخ
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Skip
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 50
-          title: Limit
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-                title: Response List Events Api V1 Events Get
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/events/{event_id}:
-    get:
-      tags:
-      - Field Intelligence
-      - Events
-      summary: Get Event
-      description: 'جلب حدث محدد
-
-        Get a specific event'
-      operationId: get_event_api_v1_events__event_id__get
-      parameters:
-      - name: event_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف الحدث
-          title: Event Id
-        description: معرف الحدث
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EventResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/events/{event_id}/status:
-    patch:
-      tags:
-      - Field Intelligence
-      - Events
-      summary: Update Event Status
-      description: 'تحديث حالة الحدث
-
-        Update event status'
-      operationId: update_event_status_api_v1_events__event_id__status_patch
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: event_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف الحدث
-          title: Event Id
-        description: معرف الحدث
-      - name: new_status
-        in: query
-        required: true
-        schema:
-          $ref: '#/components/schemas/EventStatus'
-          description: الحالة الجديدة
-        description: الحالة الجديدة
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EventResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/events/field/{field_id}/stats:
-    get:
-      tags:
-      - Field Intelligence
-      - Events
-      summary: Get Field Event Stats
-      description: 'إحصائيات الأحداث للحقل
-
-        Event statistics for a field'
-      operationId: get_field_event_stats_api_v1_events_field__field_id__stats_get
-      parameters:
-      - name: field_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف الحقل
-          title: Field Id
-        description: معرف الحقل
-      - name: days
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 90
-          minimum: 1
-          description: عدد الأيام للإحصائيات
-          default: 30
-          title: Days
-        description: عدد الأيام للإحصائيات
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-                title: Response Get Field Event Stats Api V1 Events Field  Field Id  Stats Get
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/rules:
-    post:
-      tags:
-      - Field Intelligence
-      - Rules
-      summary: Create Rule
-      description: 'إنشاء قاعدة أتمتة جديدة
-
-        Create a new automation rule'
-      operationId: create_rule_api_v1_rules_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RuleCreate'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RuleResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    get:
-      tags:
-      - Field Intelligence
-      - Rules
-      summary: List Rules
-      description: 'قائمة القواعد مع الفلترة
-
-        List rules with filters'
-      operationId: list_rules_api_v1_rules_get
-      parameters:
-      - name: field_id
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: تصفية حسب الحقل
-          title: Field Id
-        description: تصفية حسب الحقل
-      - name: status
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/RuleStatus'
-          - type: 'null'
-          description: تصفية حسب الحالة
-          title: Status
-        description: تصفية حسب الحالة
-      - name: event_type
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: تصفية حسب نوع الحدث
-          title: Event Type
-        description: تصفية حسب نوع الحدث
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Skip
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 50
-          title: Limit
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-                title: Response List Rules Api V1 Rules Get
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/rules/{rule_id}:
-    get:
-      tags:
-      - Field Intelligence
-      - Rules
-      summary: Get Rule
-      description: 'جلب قاعدة محددة
-
-        Get a specific rule'
-      operationId: get_rule_api_v1_rules__rule_id__get
-      parameters:
-      - name: rule_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف القاعدة
-          title: Rule Id
-        description: معرف القاعدة
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RuleResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    patch:
-      tags:
-      - Field Intelligence
-      - Rules
-      summary: Update Rule
-      description: 'تحديث قاعدة
-
-        Update a rule'
-      operationId: update_rule_api_v1_rules__rule_id__patch
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: rule_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف القاعدة
-          title: Rule Id
-        description: معرف القاعدة
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RuleUpdate'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RuleResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    delete:
-      tags:
-      - Field Intelligence
-      - Rules
-      summary: Delete Rule
-      description: 'حذف قاعدة
-
-        Delete a rule'
-      operationId: delete_rule_api_v1_rules__rule_id__delete
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: rule_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف القاعدة
-          title: Rule Id
-        description: معرف القاعدة
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/rules/{rule_id}/toggle:
-    post:
-      tags:
-      - Field Intelligence
-      - Rules
-      summary: Toggle Rule Status
-      description: 'تبديل حالة القاعدة (نشط/غير نشط)
-
-        Toggle rule status (active/inactive)'
-      operationId: toggle_rule_status_api_v1_rules__rule_id__toggle_post
-      parameters:
-      - name: rule_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف القاعدة
-          title: Rule Id
-        description: معرف القاعدة
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RuleResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/rules/{rule_id}/stats:
-    get:
-      tags:
-      - Field Intelligence
-      - Rules
-      summary: Get Rule Stats
-      description: 'إحصائيات تنفيذ القاعدة
-
-        Rule execution statistics'
-      operationId: get_rule_stats_api_v1_rules__rule_id__stats_get
-      parameters:
-      - name: rule_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: معرف القاعدة
-          title: Rule Id
-        description: معرف القاعدة
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties: true
-                title: Response Get Rule Stats Api V1 Rules  Rule Id  Stats Get
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /health:
-    get:
-      tags:
-      - Health
-      summary: Health
-      description: 'فحص صحة الخدمة - Health check
-
-        Basic health check endpoint'
-      operationId: health_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /healthz:
-    get:
-      tags:
-      - Health
-      summary: Healthz
-      description: 'فحص صحة الخدمة - Kubernetes liveness probe
-
-        Liveness probe for Kubernetes'
-      operationId: healthz_healthz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /readyz:
-    get:
-      tags:
-      - Health
-      summary: Readiness
-      description: 'فحص جاهزية الخدمة - Kubernetes readiness probe
-
-        Readiness probe for Kubernetes'
-      operationId: readiness_readyz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /:
-    get:
-      tags:
-      - Info
-      summary: Root
-      description: 'معلومات الخدمة - Service information
-
-        Root endpoint with service information'
-      operationId: root__get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
 components:
   schemas:
     ActionConfig:
+      description: 'إعداد الإجراء
+
+        Action Configuration'
       properties:
         action_type:
           $ref: '#/components/schemas/ActionType'
-        enabled:
-          type: boolean
-          title: Enabled
-          default: true
-        task_config:
+        alert_config:
           anyOf:
-          - $ref: '#/components/schemas/TaskConfig'
+          - $ref: '#/components/schemas/AlertConfig'
           - type: 'null'
+        enabled:
+          default: true
+          title: Enabled
+          type: boolean
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
         notification_config:
           anyOf:
           - $ref: '#/components/schemas/NotificationConfig'
           - type: 'null'
-        alert_config:
+        task_config:
           anyOf:
-          - $ref: '#/components/schemas/AlertConfig'
+          - $ref: '#/components/schemas/TaskConfig'
           - type: 'null'
         webhook_config:
           anyOf:
           - $ref: '#/components/schemas/WebhookConfig'
           - type: 'null'
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-      type: object
       required:
       - action_type
       title: ActionConfig
-      description: 'إعداد الإجراء
-
-        Action Configuration'
+      type: object
     ActionType:
-      type: string
+      description: أنواع الإجراءات - Action Types
       enum:
       - create_task
       - send_notification
@@ -733,26 +46,23 @@ components:
       - webhook
       - log_event
       title: ActionType
-      description: أنواع الإجراءات - Action Types
+      type: string
     AlertConfig:
+      description: 'إعداد التنبيه
+
+        Alert Configuration'
       properties:
         alert_type:
-          type: string
           title: Alert Type
-        severity:
           type: string
-          title: Severity
-        title:
-          type: string
-          title: Title
-        title_ar:
+        expire_hours:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Title Ar
+          title: Expire Hours
         message:
-          type: string
           title: Message
+          type: string
         message_ar:
           anyOf:
           - type: string
@@ -761,30 +71,33 @@ components:
         recommendations:
           items:
             type: string
-          type: array
           title: Recommendations
+          type: array
         recommendations_ar:
           items:
             type: string
-          type: array
           title: Recommendations Ar
-        expire_hours:
+          type: array
+        severity:
+          title: Severity
+          type: string
+        title:
+          title: Title
+          type: string
+        title_ar:
           anyOf:
-          - type: integer
+          - type: string
           - type: 'null'
-          title: Expire Hours
-      type: object
+          title: Title Ar
       required:
       - alert_type
       - severity
       - title
       - message
       title: AlertConfig
-      description: 'إعداد التنبيه
-
-        Alert Configuration'
+      type: object
     ConditionOperator:
-      type: string
+      description: معاملات الشرط - Condition Operators
       enum:
       - equals
       - not_equals
@@ -796,42 +109,30 @@ components:
       - in
       - between
       title: ConditionOperator
-      description: معاملات الشرط - Condition Operators
+      type: string
     EventCreate:
+      description: 'إنشاء حدث جديد
+
+        Create New Event'
       properties:
-        tenant_id:
-          type: string
-          title: Tenant Id
-        field_id:
-          type: string
-          title: Field Id
-        event_type:
-          $ref: '#/components/schemas/EventType'
-        severity:
-          $ref: '#/components/schemas/EventSeverity'
-        title:
-          type: string
-          title: Title
-        title_ar:
+        correlation_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Title Ar
+          title: Correlation Id
         description:
-          type: string
           title: Description
+          type: string
         description_ar:
           anyOf:
           - type: string
           - type: 'null'
           title: Description Ar
-        source_service:
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        field_id:
+          title: Field Id
           type: string
-          title: Source Service
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
         location:
           anyOf:
           - additionalProperties:
@@ -839,12 +140,26 @@ components:
             type: object
           - type: 'null'
           title: Location
-        correlation_id:
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
+        severity:
+          $ref: '#/components/schemas/EventSeverity'
+        source_service:
+          title: Source Service
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+        title:
+          title: Title
+          type: string
+        title_ar:
           anyOf:
           - type: string
           - type: 'null'
-          title: Correlation Id
-      type: object
+          title: Title Ar
       required:
       - tenant_id
       - field_id
@@ -854,49 +169,49 @@ components:
       - description
       - source_service
       title: EventCreate
-      description: 'إنشاء حدث جديد
-
-        Create New Event'
+      type: object
     EventResponse:
+      description: 'استجابة الحدث
+
+        Event Response'
       properties:
-        event_id:
-          type: string
-          title: Event Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        field_id:
-          type: string
-          title: Field Id
-        event_type:
-          $ref: '#/components/schemas/EventType'
-        severity:
-          $ref: '#/components/schemas/EventSeverity'
-        status:
-          $ref: '#/components/schemas/EventStatus'
-        title:
-          type: string
-          title: Title
-        title_ar:
+        acknowledged_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Acknowledged At
+        correlation_id:
           anyOf:
           - type: string
           - type: 'null'
-          title: Title Ar
-        description:
+          title: Correlation Id
+        created_at:
+          format: date-time
+          title: Created At
           type: string
+        created_tasks:
+          description: معرفات المهام التي تم إنشاؤها
+          items:
+            type: string
+          title: Created Tasks
+          type: array
+        description:
           title: Description
+          type: string
         description_ar:
           anyOf:
           - type: string
           - type: 'null'
           title: Description Ar
-        source_service:
+        event_id:
+          title: Event Id
           type: string
-          title: Source Service
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        field_id:
+          title: Field Id
+          type: string
         location:
           anyOf:
           - additionalProperties:
@@ -904,45 +219,45 @@ components:
             type: object
           - type: 'null'
           title: Location
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        acknowledged_at:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Acknowledged At
+        metadata:
+          additionalProperties: true
+          title: Metadata
+          type: object
+        notifications_sent:
+          default: 0
+          description: عدد الإشعارات المرسلة
+          title: Notifications Sent
+          type: integer
         resolved_at:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           title: Resolved At
-        correlation_id:
+        severity:
+          $ref: '#/components/schemas/EventSeverity'
+        source_service:
+          title: Source Service
+          type: string
+        status:
+          $ref: '#/components/schemas/EventStatus'
+        tenant_id:
+          title: Tenant Id
+          type: string
+        title:
+          title: Title
+          type: string
+        title_ar:
           anyOf:
           - type: string
           - type: 'null'
-          title: Correlation Id
+          title: Title Ar
         triggered_rules:
-          items:
-            type: string
-          type: array
-          title: Triggered Rules
           description: معرفات القواعد التي تم تفعيلها
-        created_tasks:
           items:
             type: string
+          title: Triggered Rules
           type: array
-          title: Created Tasks
-          description: معرفات المهام التي تم إنشاؤها
-        notifications_sent:
-          type: integer
-          title: Notifications Sent
-          description: عدد الإشعارات المرسلة
-          default: 0
-      type: object
       required:
       - event_id
       - tenant_id
@@ -956,29 +271,27 @@ components:
       - metadata
       - created_at
       title: EventResponse
-      description: 'استجابة الحدث
-
-        Event Response'
+      type: object
     EventSeverity:
-      type: string
+      description: درجات خطورة الحدث - Event Severity
       enum:
       - low
       - medium
       - high
       - critical
       title: EventSeverity
-      description: درجات خطورة الحدث - Event Severity
-    EventStatus:
       type: string
+    EventStatus:
+      description: حالات الحدث - Event Status
       enum:
       - active
       - acknowledged
       - resolved
       - ignored
       title: EventStatus
-      description: حالات الحدث - Event Status
-    EventType:
       type: string
+    EventType:
+      description: أنواع الأحداث - Event Types
       enum:
       - ndvi_drop
       - ndvi_anomaly
@@ -993,118 +306,121 @@ components:
       - astronomical_event
       - custom
       title: EventType
-      description: أنواع الأحداث - Event Types
+      type: string
     HTTPValidationError:
       properties:
         detail:
           items:
             $ref: '#/components/schemas/ValidationError'
-          type: array
           title: Detail
-      type: object
+          type: array
       title: HTTPValidationError
+      type: object
     NotificationConfig:
+      description: 'إعداد الإشعار
+
+        Notification Configuration'
       properties:
         channels:
-          items:
-            type: string
-          type: array
-          title: Channels
           description: 'قنوات الإشعار: push, sms, email, whatsapp'
-        recipients:
           items:
             type: string
+          title: Channels
           type: array
-          title: Recipients
-          description: معرفات المستلمين أو 'field_owner'
-        title:
-          type: string
-          title: Title
-        title_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title Ar
         message:
-          type: string
           title: Message
+          type: string
         message_ar:
           anyOf:
           - type: string
           - type: 'null'
           title: Message Ar
         priority:
-          type: string
-          title: Priority
           default: normal
+          title: Priority
+          type: string
+        recipients:
+          description: معرفات المستلمين أو 'field_owner'
+          items:
+            type: string
+          title: Recipients
+          type: array
         template_id:
           anyOf:
           - type: string
           - type: 'null'
           title: Template Id
-      type: object
+        title:
+          title: Title
+          type: string
+        title_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title Ar
       required:
       - title
       - message
       title: NotificationConfig
-      description: 'إعداد الإشعار
-
-        Notification Configuration'
+      type: object
     RuleCondition:
+      description: 'شرط القاعدة
+
+        Rule Condition'
       properties:
         field:
-          type: string
-          title: Field
           description: الحقل للفحص (e.g., 'event_type', 'severity')
+          title: Field
+          type: string
         operator:
           $ref: '#/components/schemas/ConditionOperator'
         value:
-          title: Value
           description: القيمة للمقارنة
+          title: Value
         value_type:
-          type: string
-          title: Value Type
-          description: 'نوع البيانات: string, number, boolean, list'
           default: string
-      type: object
+          description: 'نوع البيانات: string, number, boolean, list'
+          title: Value Type
+          type: string
       required:
       - field
       - operator
       - value
       title: RuleCondition
-      description: 'شرط القاعدة
-
-        Rule Condition'
-    RuleConditionGroup:
-      properties:
-        logic:
-          type: string
-          title: Logic
-          description: 'المعامل المنطقي: AND أو OR'
-          default: AND
-        conditions:
-          items:
-            $ref: '#/components/schemas/RuleCondition'
-          type: array
-          title: Conditions
       type: object
-      title: RuleConditionGroup
+    RuleConditionGroup:
       description: 'مجموعة شروط (AND/OR)
 
         Condition Group with logical operators'
-    RuleCreate:
       properties:
-        tenant_id:
+        conditions:
+          items:
+            $ref: '#/components/schemas/RuleCondition'
+          title: Conditions
+          type: array
+        logic:
+          default: AND
+          description: 'المعامل المنطقي: AND أو OR'
+          title: Logic
           type: string
-          title: Tenant Id
-        name:
-          type: string
-          title: Name
-        name_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name Ar
+      title: RuleConditionGroup
+      type: object
+    RuleCreate:
+      description: 'إنشاء قاعدة جديدة
+
+        Create New Rule'
+      properties:
+        actions:
+          items:
+            $ref: '#/components/schemas/ActionConfig'
+          title: Actions
+          type: array
+        conditions:
+          $ref: '#/components/schemas/RuleConditionGroup'
+        cooldown_minutes:
+          default: 60
+          title: Cooldown Minutes
+          type: integer
         description:
           anyOf:
           - type: string
@@ -1115,64 +431,64 @@ components:
           - type: string
           - type: 'null'
           title: Description Ar
-        status:
-          $ref: '#/components/schemas/RuleStatus'
-          default: active
-        field_ids:
-          items:
-            type: string
-          type: array
-          title: Field Ids
         event_types:
           items:
             type: string
-          type: array
           title: Event Types
-        conditions:
-          $ref: '#/components/schemas/RuleConditionGroup'
-        actions:
-          items:
-            $ref: '#/components/schemas/ActionConfig'
           type: array
-          title: Actions
-        cooldown_minutes:
-          type: integer
-          title: Cooldown Minutes
-          default: 60
-        priority:
-          type: integer
-          title: Priority
-          default: 100
+        field_ids:
+          items:
+            type: string
+          title: Field Ids
+          type: array
         metadata:
           additionalProperties: true
-          type: object
           title: Metadata
-      type: object
+          type: object
+        name:
+          title: Name
+          type: string
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        priority:
+          default: 100
+          title: Priority
+          type: integer
+        status:
+          $ref: '#/components/schemas/RuleStatus'
+          default: active
+        tenant_id:
+          title: Tenant Id
+          type: string
       required:
       - tenant_id
       - name
       - conditions
       - actions
       title: RuleCreate
-      description: 'إنشاء قاعدة جديدة
-
-        Create New Rule'
+      type: object
     RuleResponse:
+      description: 'استجابة القاعدة
+
+        Rule Response'
       properties:
-        rule_id:
+        actions:
+          items:
+            $ref: '#/components/schemas/ActionConfig'
+          title: Actions
+          type: array
+        conditions:
+          $ref: '#/components/schemas/RuleConditionGroup'
+        cooldown_minutes:
+          title: Cooldown Minutes
+          type: integer
+        created_at:
+          format: date-time
+          title: Created At
           type: string
-          title: Rule Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        name:
-          type: string
-          title: Name
-        name_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Name Ar
         description:
           anyOf:
           - type: string
@@ -1183,53 +499,52 @@ components:
           - type: string
           - type: 'null'
           title: Description Ar
-        status:
-          $ref: '#/components/schemas/RuleStatus'
-        field_ids:
-          items:
-            type: string
-          type: array
-          title: Field Ids
         event_types:
           items:
             type: string
-          type: array
           title: Event Types
-        conditions:
-          $ref: '#/components/schemas/RuleConditionGroup'
-        actions:
-          items:
-            $ref: '#/components/schemas/ActionConfig'
           type: array
-          title: Actions
-        cooldown_minutes:
-          type: integer
-          title: Cooldown Minutes
-        priority:
-          type: integer
-          title: Priority
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
+        field_ids:
+          items:
+            type: string
+          title: Field Ids
+          type: array
         last_triggered_at:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           title: Last Triggered At
-        trigger_count:
-          type: integer
-          title: Trigger Count
         metadata:
           additionalProperties: true
-          type: object
           title: Metadata
-      type: object
+          type: object
+        name:
+          title: Name
+          type: string
+        name_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Name Ar
+        priority:
+          title: Priority
+          type: integer
+        rule_id:
+          title: Rule Id
+          type: string
+        status:
+          $ref: '#/components/schemas/RuleStatus'
+        tenant_id:
+          title: Tenant Id
+          type: string
+        trigger_count:
+          title: Trigger Count
+          type: integer
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
       required:
       - rule_id
       - tenant_id
@@ -1246,19 +561,66 @@ components:
       - trigger_count
       - metadata
       title: RuleResponse
-      description: 'استجابة القاعدة
-
-        Rule Response'
+      type: object
     RuleStatus:
-      type: string
+      description: حالات القاعدة - Rule Status
       enum:
       - active
       - inactive
       - paused
       title: RuleStatus
-      description: حالات القاعدة - Rule Status
+      type: string
     RuleUpdate:
+      description: 'تحديث القاعدة
+
+        Update Rule'
       properties:
+        actions:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ActionConfig'
+            type: array
+          - type: 'null'
+          title: Actions
+        conditions:
+          anyOf:
+          - $ref: '#/components/schemas/RuleConditionGroup'
+          - type: 'null'
+        cooldown_minutes:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Cooldown Minutes
+        description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
+        event_types:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Event Types
+        field_ids:
+          anyOf:
+          - items:
+              type: string
+            type: array
+          - type: 'null'
+          title: Field Ids
+        metadata:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Metadata
         name:
           anyOf:
           - type: string
@@ -1269,179 +631,817 @@ components:
           - type: string
           - type: 'null'
           title: Name Ar
-        description:
+        priority:
           anyOf:
-          - type: string
+          - type: integer
           - type: 'null'
-          title: Description
-        description_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description Ar
+          title: Priority
         status:
           anyOf:
           - $ref: '#/components/schemas/RuleStatus'
           - type: 'null'
-        field_ids:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Field Ids
-        event_types:
-          anyOf:
-          - items:
-              type: string
-            type: array
-          - type: 'null'
-          title: Event Types
-        conditions:
-          anyOf:
-          - $ref: '#/components/schemas/RuleConditionGroup'
-          - type: 'null'
-        actions:
-          anyOf:
-          - items:
-              $ref: '#/components/schemas/ActionConfig'
-            type: array
-          - type: 'null'
-          title: Actions
-        cooldown_minutes:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Cooldown Minutes
-        priority:
-          anyOf:
-          - type: integer
-          - type: 'null'
-          title: Priority
-        metadata:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Metadata
-      type: object
       title: RuleUpdate
-      description: 'تحديث القاعدة
-
-        Update Rule'
+      type: object
     TaskConfig:
+      description: 'إعداد المهمة التلقائية
+
+        Auto-Task Configuration'
       properties:
-        title:
-          type: string
-          title: Title
-        title_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Title Ar
-        description:
-          type: string
-          title: Description
-        description_ar:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Description Ar
-        task_type:
-          type: string
-          title: Task Type
-        priority:
-          type: string
-          title: Priority
-          default: medium
         assign_to:
           anyOf:
           - type: string
           - type: 'null'
           title: Assign To
+        description:
+          title: Description
+          type: string
+        description_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Description Ar
         due_hours:
-          type: integer
-          title: Due Hours
-          description: المهمة مستحقة بعد كم ساعة من الحدث
           default: 24
+          description: المهمة مستحقة بعد كم ساعة من الحدث
+          title: Due Hours
+          type: integer
         metadata:
           additionalProperties: true
-          type: object
           title: Metadata
-      type: object
+          type: object
+        priority:
+          default: medium
+          title: Priority
+          type: string
+        task_type:
+          title: Task Type
+          type: string
+        title:
+          title: Title
+          type: string
+        title_ar:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title Ar
       required:
       - title
       - description
       - task_type
       title: TaskConfig
-      description: 'إعداد المهمة التلقائية
-
-        Auto-Task Configuration'
+      type: object
     ValidationError:
       properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
         loc:
           items:
             anyOf:
             - type: string
             - type: integer
-          type: array
           title: Location
+          type: array
         msg:
-          type: string
           title: Message
-        type:
           type: string
+        type:
           title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
+          type: string
       required:
       - loc
       - msg
       - type
       title: ValidationError
+      type: object
     WebhookConfig:
+      description: 'إعداد Webhook
+
+        Webhook Configuration'
       properties:
-        url:
-          type: string
-          title: Url
-        method:
-          type: string
-          title: Method
-          default: POST
-        headers:
-          additionalProperties:
-            type: string
-          type: object
-          title: Headers
         body_template:
           anyOf:
           - additionalProperties: true
             type: object
           - type: 'null'
           title: Body Template
-        timeout_seconds:
-          type: integer
-          title: Timeout Seconds
-          default: 10
+        headers:
+          additionalProperties:
+            type: string
+          title: Headers
+          type: object
+        method:
+          default: POST
+          title: Method
+          type: string
         retry_count:
-          type: integer
-          title: Retry Count
           default: 3
-      type: object
+          title: Retry Count
+          type: integer
+        timeout_seconds:
+          default: 10
+          title: Timeout Seconds
+          type: integer
+        url:
+          title: Url
+          type: string
       required:
       - url
       title: WebhookConfig
-      description: 'إعداد Webhook
-
-        Webhook Configuration'
+      type: object
   securitySchemes:
     OAuth2PasswordBearer:
-      type: oauth2
       flows:
         password:
           scopes: {}
           tokenUrl: /auth/token
+      type: oauth2
+info:
+  description: "\n    خدمة ذكاء الحقول والقواعد الآلية\n    Field Intelligence and Automation Rules Service\n\n    **Features:**\n    - \U0001F916 محرك القواعد للأتمتة الحقلية - Rules engine for field automation\n    - \U0001F4CA معالجة الأحداث - Event processing (NDVI drop, weather alert, soil moisture)\n    - ✅ إنشاء المهام التلقائية - Auto task creation from events\n    - \U0001F514 تفعيل الإشعارات - Notification triggers\n    - \U0001F319 التكامل مع التقويم الفلكي - Integration with astronomical calendar\n\n    **Supported Events:**\n    - NDVI drop/anomaly detection\n    - Weather alerts (frost, heatwave, storm, etc.)\n    - Soil moisture (low/high)\n    - Temperature extremes\n    - Pest/disease detection\n    - Irrigation needs\n    - Harvest readiness\n    - Astronomical events\n\n    **Automation Actions:**\n    - Create tasks automatically\n    - Send notifications (push, SMS, email, WhatsApp)\n    - Create alerts\n    - Trigger irrigation systems\n    - Call webhooks\n    - Log events\n    "
+  title: SAHOOL Field Intelligence Service
+  version: 16.0.0
+openapi: 3.1.0
+paths:
+  /:
+    get:
+      description: 'معلومات الخدمة - Service information
+
+        Root endpoint with service information'
+      operationId: root__get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Root
+      tags:
+      - Info
+  /api/v1/events:
+    get:
+      description: 'قائمة الأحداث مع الفلترة
+
+        List events with filters'
+      operationId: list_events_api_v1_events_get
+      parameters:
+      - description: تصفية حسب الحقل
+        in: query
+        name: field_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: تصفية حسب الحقل
+          title: Field Id
+      - description: تصفية حسب نوع الحدث
+        in: query
+        name: event_type
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/EventType'
+          - type: 'null'
+          description: تصفية حسب نوع الحدث
+          title: Event Type
+      - description: تصفية حسب الحالة
+        in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/EventStatus'
+          - type: 'null'
+          description: تصفية حسب الحالة
+          title: Status
+      - description: من تاريخ
+        in: query
+        name: start_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: من تاريخ
+          title: Start Date
+      - description: إلى تاريخ
+        in: query
+        name: end_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: إلى تاريخ
+          title: End Date
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response List Events Api V1 Events Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Events
+      tags:
+      - Field Intelligence
+      - Events
+    post:
+      description: 'إنشاء حدث حقلي جديد
+
+        Create a new field event
+
+
+        يقوم بـ:
+
+        - إنشاء الحدث
+
+        - تقييم القواعد المطابقة
+
+        - تنفيذ الإجراءات (مهام، إشعارات، تنبيهات)'
+      operationId: create_event_api_v1_events_post
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Event
+      tags:
+      - Field Intelligence
+      - Events
+  /api/v1/events/field/{field_id}/stats:
+    get:
+      description: 'إحصائيات الأحداث للحقل
+
+        Event statistics for a field'
+      operationId: get_field_event_stats_api_v1_events_field__field_id__stats_get
+      parameters:
+      - description: معرف الحقل
+        in: path
+        name: field_id
+        required: true
+        schema:
+          description: معرف الحقل
+          title: Field Id
+          type: string
+      - description: عدد الأيام للإحصائيات
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 30
+          description: عدد الأيام للإحصائيات
+          maximum: 90
+          minimum: 1
+          title: Days
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Get Field Event Stats Api V1 Events Field  Field Id  Stats Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Field Event Stats
+      tags:
+      - Field Intelligence
+      - Events
+  /api/v1/events/{event_id}:
+    get:
+      description: 'جلب حدث محدد
+
+        Get a specific event'
+      operationId: get_event_api_v1_events__event_id__get
+      parameters:
+      - description: معرف الحدث
+        in: path
+        name: event_id
+        required: true
+        schema:
+          description: معرف الحدث
+          title: Event Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Event
+      tags:
+      - Field Intelligence
+      - Events
+  /api/v1/events/{event_id}/status:
+    patch:
+      description: 'تحديث حالة الحدث
+
+        Update event status'
+      operationId: update_event_status_api_v1_events__event_id__status_patch
+      parameters:
+      - description: معرف الحدث
+        in: path
+        name: event_id
+        required: true
+        schema:
+          description: معرف الحدث
+          title: Event Id
+          type: string
+      - description: الحالة الجديدة
+        in: query
+        name: new_status
+        required: true
+        schema:
+          $ref: '#/components/schemas/EventStatus'
+          description: الحالة الجديدة
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Update Event Status
+      tags:
+      - Field Intelligence
+      - Events
+  /api/v1/rules:
+    get:
+      description: 'قائمة القواعد مع الفلترة
+
+        List rules with filters'
+      operationId: list_rules_api_v1_rules_get
+      parameters:
+      - description: تصفية حسب الحقل
+        in: query
+        name: field_id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: تصفية حسب الحقل
+          title: Field Id
+      - description: تصفية حسب الحالة
+        in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/RuleStatus'
+          - type: 'null'
+          description: تصفية حسب الحالة
+          title: Status
+      - description: تصفية حسب نوع الحدث
+        in: query
+        name: event_type
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: تصفية حسب نوع الحدث
+          title: Event Type
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response List Rules Api V1 Rules Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Rules
+      tags:
+      - Field Intelligence
+      - Rules
+    post:
+      description: 'إنشاء قاعدة أتمتة جديدة
+
+        Create a new automation rule'
+      operationId: create_rule_api_v1_rules_post
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleCreate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Rule
+      tags:
+      - Field Intelligence
+      - Rules
+  /api/v1/rules/{rule_id}:
+    delete:
+      description: 'حذف قاعدة
+
+        Delete a rule'
+      operationId: delete_rule_api_v1_rules__rule_id__delete
+      parameters:
+      - description: معرف القاعدة
+        in: path
+        name: rule_id
+        required: true
+        schema:
+          description: معرف القاعدة
+          title: Rule Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Delete Rule
+      tags:
+      - Field Intelligence
+      - Rules
+    get:
+      description: 'جلب قاعدة محددة
+
+        Get a specific rule'
+      operationId: get_rule_api_v1_rules__rule_id__get
+      parameters:
+      - description: معرف القاعدة
+        in: path
+        name: rule_id
+        required: true
+        schema:
+          description: معرف القاعدة
+          title: Rule Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Rule
+      tags:
+      - Field Intelligence
+      - Rules
+    patch:
+      description: 'تحديث قاعدة
+
+        Update a rule'
+      operationId: update_rule_api_v1_rules__rule_id__patch
+      parameters:
+      - description: معرف القاعدة
+        in: path
+        name: rule_id
+        required: true
+        schema:
+          description: معرف القاعدة
+          title: Rule Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RuleUpdate'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Update Rule
+      tags:
+      - Field Intelligence
+      - Rules
+  /api/v1/rules/{rule_id}/stats:
+    get:
+      description: 'إحصائيات تنفيذ القاعدة
+
+        Rule execution statistics'
+      operationId: get_rule_stats_api_v1_rules__rule_id__stats_get
+      parameters:
+      - description: معرف القاعدة
+        in: path
+        name: rule_id
+        required: true
+        schema:
+          description: معرف القاعدة
+          title: Rule Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                title: Response Get Rule Stats Api V1 Rules  Rule Id  Stats Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Rule Stats
+      tags:
+      - Field Intelligence
+      - Rules
+  /api/v1/rules/{rule_id}/toggle:
+    post:
+      description: 'تبديل حالة القاعدة (نشط/غير نشط)
+
+        Toggle rule status (active/inactive)'
+      operationId: toggle_rule_status_api_v1_rules__rule_id__toggle_post
+      parameters:
+      - description: معرف القاعدة
+        in: path
+        name: rule_id
+        required: true
+        schema:
+          description: معرف القاعدة
+          title: Rule Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RuleResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Toggle Rule Status
+      tags:
+      - Field Intelligence
+      - Rules
+  /health:
+    get:
+      description: 'فحص صحة الخدمة - Health check
+
+        Basic health check endpoint'
+      operationId: health_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Health
+      tags:
+      - Health
+  /healthz:
+    get:
+      description: 'فحص صحة الخدمة - Kubernetes liveness probe
+
+        Liveness probe for Kubernetes'
+      operationId: healthz_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Healthz
+      tags:
+      - Health
+  /readyz:
+    get:
+      description: 'فحص جاهزية الخدمة - Kubernetes readiness probe
+
+        Readiness probe for Kubernetes'
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Readiness
+      tags:
+      - Health

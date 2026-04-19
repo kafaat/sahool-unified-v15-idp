@@ -1,71 +1,672 @@
-openapi: 3.1.0
+components:
+  schemas:
+    CropCalendar:
+      description: تقويم المحصول
+      properties:
+        best_moon_phases:
+          items:
+            type: string
+          title: Best Moon Phases
+          type: array
+        best_planting_mansions:
+          items:
+            type: integer
+          title: Best Planting Mansions
+          type: array
+        best_zodiac_signs:
+          items:
+            type: string
+          title: Best Zodiac Signs
+          type: array
+        crop_name:
+          title: Crop Name
+          type: string
+        crop_name_en:
+          title: Crop Name En
+          type: string
+        current_suitability:
+          title: Current Suitability
+          type: integer
+        optimal_months:
+          items:
+            type: integer
+          title: Optimal Months
+          type: array
+        planting_guide:
+          title: Planting Guide
+          type: string
+      required:
+      - crop_name
+      - crop_name_en
+      - best_planting_mansions
+      - best_moon_phases
+      - best_zodiac_signs
+      - optimal_months
+      - planting_guide
+      - current_suitability
+      title: CropCalendar
+      type: object
+    DailyAstronomicalData:
+      description: البيانات الفلكية اليومية
+      properties:
+        date_gregorian:
+          description: التاريخ الميلادي
+          title: Date Gregorian
+          type: string
+        date_hijri:
+          $ref: '#/components/schemas/HijriDate'
+        lunar_mansion:
+          $ref: '#/components/schemas/LunarMansion'
+          description: المنزلة القمرية
+        moon_phase:
+          $ref: '#/components/schemas/MoonPhase'
+        overall_farming_score:
+          description: درجة الزراعة الإجمالية
+          maximum: 10
+          minimum: 1
+          title: Overall Farming Score
+          type: integer
+        recommendations:
+          description: التوصيات الزراعية
+          items:
+            $ref: '#/components/schemas/FarmingRecommendation'
+          title: Recommendations
+          type: array
+        season:
+          $ref: '#/components/schemas/SeasonInfo'
+          description: الموسم
+        zodiac:
+          $ref: '#/components/schemas/ZodiacInfo'
+          description: البرج
+      required:
+      - date_gregorian
+      - date_hijri
+      - moon_phase
+      - lunar_mansion
+      - zodiac
+      - season
+      - overall_farming_score
+      - recommendations
+      title: DailyAstronomicalData
+      type: object
+    FarmingRecommendation:
+      description: توصية زراعية
+      properties:
+        activity:
+          description: النشاط
+          title: Activity
+          type: string
+        best_time:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: أفضل وقت
+          title: Best Time
+        reason:
+          description: السبب
+          title: Reason
+          type: string
+        suitability:
+          description: مدى الملاءمة
+          title: Suitability
+          type: string
+        suitability_score:
+          description: درجة الملاءمة
+          maximum: 10
+          minimum: 1
+          title: Suitability Score
+          type: integer
+      required:
+      - activity
+      - suitability
+      - suitability_score
+      - reason
+      title: FarmingRecommendation
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    HijriDate:
+      description: التاريخ الهجري
+      properties:
+        day:
+          description: اليوم
+          maximum: 30
+          minimum: 1
+          title: Day
+          type: integer
+        month:
+          description: الشهر
+          maximum: 12
+          minimum: 1
+          title: Month
+          type: integer
+        month_name:
+          description: اسم الشهر بالعربية
+          title: Month Name
+          type: string
+        month_name_en:
+          description: اسم الشهر بالإنجليزية
+          title: Month Name En
+          type: string
+        weekday:
+          description: اليوم من الأسبوع
+          title: Weekday
+          type: string
+        year:
+          description: السنة الهجرية
+          title: Year
+          type: integer
+      required:
+      - year
+      - month
+      - day
+      - month_name
+      - month_name_en
+      - weekday
+      title: HijriDate
+      type: object
+    LunarMansion:
+      description: منزلة قمرية
+      properties:
+        activities:
+          description: الأنشطة الموصى بها
+          items:
+            type: string
+          title: Activities
+          type: array
+        avoid:
+          description: الأنشطة التي يجب تجنبها
+          items:
+            type: string
+          title: Avoid
+          type: array
+        constellation:
+          description: البرج
+          title: Constellation
+          type: string
+        constellation_en:
+          description: البرج بالإنجليزية
+          title: Constellation En
+          type: string
+        crops:
+          description: المحاصيل الموصى بها
+          items:
+            type: string
+          title: Crops
+          type: array
+        description:
+          description: وصف المنزلة
+          title: Description
+          type: string
+        element:
+          description: العنصر
+          title: Element
+          type: string
+        farming:
+          description: حالة الزراعة
+          title: Farming
+          type: string
+        farming_score:
+          description: درجة ملاءمة الزراعة
+          maximum: 10
+          minimum: 1
+          title: Farming Score
+          type: integer
+        name:
+          description: اسم المنزلة بالعربية
+          title: Name
+          type: string
+        name_en:
+          description: اسم المنزلة بالإنجليزية
+          title: Name En
+          type: string
+        number:
+          description: رقم المنزلة
+          maximum: 28
+          minimum: 1
+          title: Number
+          type: integer
+      required:
+      - number
+      - name
+      - name_en
+      - constellation
+      - constellation_en
+      - element
+      - farming
+      - farming_score
+      - crops
+      - activities
+      - avoid
+      - description
+      title: LunarMansion
+      type: object
+    MoonPhase:
+      description: مرحلة القمر
+      properties:
+        age_days:
+          description: عمر القمر بالأيام
+          title: Age Days
+          type: number
+        farming_good:
+          description: هل مناسب للزراعة
+          title: Farming Good
+          type: boolean
+        icon:
+          description: أيقونة المرحلة
+          title: Icon
+          type: string
+        illumination:
+          description: نسبة الإضاءة
+          maximum: 100.0
+          minimum: 0.0
+          title: Illumination
+          type: number
+        is_waxing:
+          description: هل القمر متزايد
+          title: Is Waxing
+          type: boolean
+        name:
+          description: اسم المرحلة بالعربية
+          title: Name
+          type: string
+        name_en:
+          description: اسم المرحلة بالإنجليزية
+          title: Name En
+          type: string
+        phase_key:
+          description: مفتاح المرحلة
+          title: Phase Key
+          type: string
+      required:
+      - phase_key
+      - name
+      - name_en
+      - icon
+      - illumination
+      - age_days
+      - is_waxing
+      - farming_good
+      title: MoonPhase
+      type: object
+    SeasonInfo:
+      description: معلومات الموسم
+      properties:
+        activities:
+          description: الأنشطة الموصى بها
+          items:
+            type: string
+          title: Activities
+          type: array
+        description:
+          description: وصف الموسم
+          title: Description
+          type: string
+        main_crops:
+          description: المحاصيل الرئيسية
+          items:
+            type: string
+          title: Main Crops
+          type: array
+        name:
+          description: اسم الموسم بالعربية
+          title: Name
+          type: string
+        name_en:
+          description: اسم الموسم بالإنجليزية
+          title: Name En
+          type: string
+      required:
+      - name
+      - name_en
+      - description
+      - main_crops
+      - activities
+      title: SeasonInfo
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+    WeeklyForecast:
+      description: التوقعات الأسبوعية
+      properties:
+        avoid_days:
+          items:
+            type: string
+          title: Avoid Days
+          type: array
+        best_harvesting_days:
+          items:
+            type: string
+          title: Best Harvesting Days
+          type: array
+        best_planting_days:
+          items:
+            type: string
+          title: Best Planting Days
+          type: array
+        days:
+          items:
+            $ref: '#/components/schemas/DailyAstronomicalData'
+          title: Days
+          type: array
+        end_date:
+          title: End Date
+          type: string
+        start_date:
+          title: Start Date
+          type: string
+      required:
+      - start_date
+      - end_date
+      - days
+      - best_planting_days
+      - best_harvesting_days
+      - avoid_days
+      title: WeeklyForecast
+      type: object
+    ZodiacInfo:
+      description: معلومات البرج
+      properties:
+        element:
+          description: العنصر
+          title: Element
+          type: string
+        fertility:
+          description: الخصوبة
+          title: Fertility
+          type: string
+        name:
+          description: اسم البرج بالعربية
+          title: Name
+          type: string
+        name_en:
+          description: اسم البرج بالإنجليزية
+          title: Name En
+          type: string
+        score:
+          description: درجة ملاءمة الزراعة
+          maximum: 10
+          minimum: 1
+          title: Score
+          type: integer
+      required:
+      - name
+      - name_en
+      - element
+      - fertility
+      - score
+      title: ZodiacInfo
+      type: object
+  securitySchemes:
+    OAuth2PasswordBearer:
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token
+      type: oauth2
 info:
-  title: SAHOOL Astronomical Calendar Service
   description: "\n    خدمة التقويم الفلكي الزراعي التقليدي اليمني\n\n    ## المميزات:\n    - \U0001F319 حساب مراحل القمر بدقة عالية\n    - ⭐ منازل النجوم الـ 28 (المنازل القمرية)\n    - \U0001F4C5 التقويم الهجري\n    - \U0001F331 توقيتات الزراعة التقليدية\n    - ♈ الأبراج الزراعية\n    - \U0001F517 تكامل مع خدمة الطقس\n\n    ## الاستخدام:\n    يستخدم المزارعون اليمنيون هذا التقويم منذ آلاف السنين\n    لتحديد أفضل أوقات الزراعة والحصاد.\n    "
+  title: SAHOOL Astronomical Calendar Service
   version: 16.0.0
+openapi: 3.1.0
 paths:
   /healthz:
     get:
-      tags:
-      - Health
-      summary: Health Check
       description: التحقق من صحة الخدمة
       operationId: health_check_healthz_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-  /readyz:
-    get:
+          description: Successful Response
+      summary: Health Check
       tags:
       - Health
-      summary: Readiness
+  /readyz:
+    get:
       description: Kubernetes readiness probe - is the service ready to accept traffic?
       operationId: readiness_readyz_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-  /v1/today:
-    get:
+          description: Successful Response
+      summary: Readiness
       tags:
-      - Calendar
-      summary: Get Today
-      description: 'الحصول على البيانات الفلكية لليوم الحالي
+      - Health
+  /v1/best-days:
+    get:
+      description: 'البحث عن أفضل الأيام لنشاط زراعي معين
 
 
-        يرجع:
-
-        - التاريخ الهجري
-
-        - مرحلة القمر
-
-        - المنزلة القمرية
-
-        - البرج
-
-        - الموسم الزراعي
-
-        - التوصيات الزراعية'
-      operationId: get_today_v1_today_get
+        الأنشطة المدعومة: زراعة، حصاد، ري، تقليم، غرس، تطعيم'
+      operationId: get_best_farming_days_v1_best_days_get
+      parameters:
+      - description: 'النشاط: زراعة، حصاد، ري، تقليم'
+        in: query
+        name: activity
+        required: false
+        schema:
+          default: زراعة
+          description: 'النشاط: زراعة، حصاد، ري، تقليم'
+          title: Activity
+          type: string
+      - description: عدد الأيام للبحث
+        in: query
+        name: days
+        required: false
+        schema:
+          default: 30
+          description: عدد الأيام للبحث
+          maximum: 90
+          minimum: 7
+          title: Days
+          type: integer
       responses:
         '200':
+          content:
+            application/json:
+              schema: {}
           description: Successful Response
+        '422':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DailyAstronomicalData'
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /v1/date/{date_str}:
-    get:
+      summary: Get Best Farming Days
       tags:
       - Calendar
-      summary: Get Date
+  /v1/crop-calendar/{crop_name}:
+    get:
+      description: 'الحصول على التقويم الفلكي لمحصول معين
+
+
+        المحاصيل المدعومة: قمح، شعير، ذرة، طماطم، بن، موز، بصل، ثوم'
+      operationId: get_crop_calendar_v1_crop_calendar__crop_name__get
+      parameters:
+      - in: path
+        name: crop_name
+        required: true
+        schema:
+          title: Crop Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropCalendar'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Crop Calendar
+      tags:
+      - Crops
+  /v1/crop-details:
+    get:
+      description: 'قائمة المحاصيل مع التفاصيل الكاملة
+
+
+        يرجع معلومات موجزة عن جميع المحاصيل في التقويم التفصيلي'
+      operationId: list_detailed_crops_v1_crop_details_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: List Detailed Crops
+      tags:
+      - Crops
+  /v1/crop-details/{crop_id}:
+    get:
+      description: 'تفاصيل محصول كاملة
+
+
+        يرجع جميع المعلومات عن محصول معين بما في ذلك:
+
+        - الأصناف والمناطق
+
+        - معلومات الزراعة التفصيلية
+
+        - العناية والري والتسميد
+
+        - الحصاد والمعالجة
+
+        - الأمثال الشعبية'
+      operationId: get_crop_details_v1_crop_details__crop_id__get
+      parameters:
+      - in: path
+        name: crop_id
+        required: true
+        schema:
+          title: Crop Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Crop Details
+      tags:
+      - Crops
+  /v1/crop-details/{crop_id}/planting-guide:
+    get:
+      description: 'دليل زراعة المحصول المفصل
+
+
+        يرجع دليل خطوة بخطوة لزراعة المحصول المحدد'
+      operationId: get_planting_guide_v1_crop_details__crop_id__planting_guide_get
+      parameters:
+      - in: path
+        name: crop_id
+        required: true
+        schema:
+          title: Crop Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Planting Guide
+      tags:
+      - Crops
+  /v1/crops:
+    get:
+      description: قائمة المحاصيل المدعومة
+      operationId: list_supported_crops_v1_crops_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: List Supported Crops
+      tags:
+      - Crops
+  /v1/current-season:
+    get:
+      description: الحصول على الموسم الزراعي الحالي
+      operationId: get_current_season_info_v1_current_season_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeasonInfo'
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Current Season Info
+      tags:
+      - Calendar
+  /v1/date/{date_str}:
+    get:
       description: 'الحصول على البيانات الفلكية لتاريخ محدد
 
 
@@ -73,157 +674,39 @@ paths:
 
         - date_str: التاريخ بصيغة YYYY-MM-DD'
       operationId: get_date_v1_date__date_str__get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: date_str
-        in: path
+      - in: path
+        name: date_str
         required: true
         schema:
-          type: string
           title: Date Str
+          type: string
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/DailyAstronomicalData'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/week:
-    get:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Date
       tags:
       - Calendar
-      summary: Get Weekly Forecast
-      description: 'الحصول على التوقعات الفلكية الأسبوعية
-
-
-        يرجع أفضل أيام الزراعة والحصاد والأيام التي يجب تجنبها'
-      operationId: get_weekly_forecast_v1_week_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: start_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: تاريخ البداية (YYYY-MM-DD)
-          title: Start Date
-        description: تاريخ البداية (YYYY-MM-DD)
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WeeklyForecast'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/moon-phase:
-    get:
-      tags:
-      - Astronomy
-      summary: Get Moon Phase
-      description: الحصول على مرحلة القمر
-      operationId: get_moon_phase_v1_moon_phase_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: date_str
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: التاريخ (YYYY-MM-DD)
-          title: Date Str
-        description: التاريخ (YYYY-MM-DD)
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MoonPhase'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/lunar-mansion:
-    get:
-      tags:
-      - Astronomy
-      summary: Get Lunar Mansion
-      description: الحصول على المنزلة القمرية الحالية
-      operationId: get_lunar_mansion_v1_lunar_mansion_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: date_str
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: التاريخ (YYYY-MM-DD)
-          title: Date Str
-        description: التاريخ (YYYY-MM-DD)
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LunarMansion'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/lunar-mansions:
-    get:
-      tags:
-      - Reference
-      summary: List Lunar Mansions
-      description: قائمة جميع المنازل القمرية الـ 28
-      operationId: list_lunar_mansions_v1_lunar_mansions_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - OAuth2PasswordBearer: []
   /v1/hijri:
     get:
-      tags:
-      - Calendar
-      summary: Get Hijri Date
       description: تحويل تاريخ ميلادي إلى هجري
       operationId: get_hijri_date_v1_hijri_get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: date_str
+      - description: التاريخ الميلادي (YYYY-MM-DD)
         in: query
+        name: date_str
         required: false
         schema:
           anyOf:
@@ -231,47 +714,59 @@ paths:
           - type: 'null'
           description: التاريخ الميلادي (YYYY-MM-DD)
           title: Date Str
-        description: التاريخ الميلادي (YYYY-MM-DD)
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HijriDate'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Hijri Date
+      tags:
+      - Calendar
   /v1/hijri-months:
     get:
-      tags:
-      - Reference
-      summary: List Hijri Months
       description: قائمة الأشهر الهجرية
       operationId: list_hijri_months_v1_hijri_months_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
       security:
       - OAuth2PasswordBearer: []
-  /v1/zodiac:
-    get:
+      summary: List Hijri Months
       tags:
-      - Astronomy
-      summary: Get Zodiac
-      description: الحصول على البرج الشمسي
-      operationId: get_zodiac_v1_zodiac_get
-      security:
-      - OAuth2PasswordBearer: []
+      - Reference
+  /v1/integration/weather:
+    get:
+      description: 'دمج البيانات الفلكية مع بيانات الطقس
+
+
+        يتصل بخدمة الطقس للحصول على بيانات متكاملة'
+      operationId: get_integrated_data_v1_integration_weather_get
       parameters:
-      - name: date_str
+      - description: معرف الموقع
         in: query
+        name: location_id
+        required: false
+        schema:
+          default: sanaa
+          description: معرف الموقع
+          title: Location Id
+          type: string
+      - description: التاريخ (YYYY-MM-DD)
+        in: query
+        name: date_str
         required: false
         schema:
           anyOf:
@@ -279,118 +774,318 @@ paths:
           - type: 'null'
           description: التاريخ (YYYY-MM-DD)
           title: Date Str
-        description: التاريخ (YYYY-MM-DD)
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/ZodiacInfo'
+              schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/zodiac-farming:
-    get:
-      tags:
-      - Reference
-      summary: List Zodiac Farming
-      description: قائمة الأبراج مع معلومات الخصوبة الزراعية
-      operationId: list_zodiac_farming_v1_zodiac_farming_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - OAuth2PasswordBearer: []
-  /v1/seasons:
-    get:
-      tags:
-      - Reference
-      summary: List Seasons
-      description: قائمة المواسم الزراعية اليمنية
-      operationId: list_seasons_v1_seasons_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - OAuth2PasswordBearer: []
-  /v1/current-season:
-    get:
-      tags:
-      - Calendar
-      summary: Get Current Season Info
-      description: الحصول على الموسم الزراعي الحالي
-      operationId: get_current_season_info_v1_current_season_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SeasonInfo'
-      security:
-      - OAuth2PasswordBearer: []
-  /v1/crop-calendar/{crop_name}:
-    get:
-      tags:
-      - Crops
-      summary: Get Crop Calendar
-      description: 'الحصول على التقويم الفلكي لمحصول معين
-
-
-        المحاصيل المدعومة: قمح، شعير، ذرة، طماطم، بن، موز، بصل، ثوم'
-      operationId: get_crop_calendar_v1_crop_calendar__crop_name__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: crop_name
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Crop Name
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CropCalendar'
-        '422':
           description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/crops:
-    get:
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Integrated Data
       tags:
-      - Crops
-      summary: List Supported Crops
-      description: قائمة المحاصيل المدعومة
-      operationId: list_supported_crops_v1_crops_get
+      - Integration
+  /v1/landmarks:
+    get:
+      description: 'قائمة المعالم الزراعية اليمنية التاريخية
+
+
+        تشمل:
+
+        - المدرجات الجبلية
+
+        - السدود التاريخية
+
+        - أنظمة الري التقليدية
+
+        - مخازن الحبوب والمحاصيل
+
+
+        هذه المعالم تمثل التراث الزراعي اليمني العريق'
+      operationId: get_landmarks_v1_landmarks_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
       security:
       - OAuth2PasswordBearer: []
-  /v1/regions:
-    get:
+      summary: Get Landmarks
       tags:
       - Yemeni Heritage
-      summary: Get Regions
+  /v1/landmarks/{category}:
+    get:
+      description: 'المعالم حسب الفئة
+
+
+        الفئات المتاحة:
+
+        - terraces: المدرجات الجبلية
+
+        - dams: السدود التاريخية
+
+        - water_systems: أنظمة الري التقليدية
+
+        - storage: أنظمة التخزين'
+      operationId: get_landmarks_by_category_v1_landmarks__category__get
+      parameters:
+      - in: path
+        name: category
+        required: true
+        schema:
+          title: Category
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Landmarks By Category
+      tags:
+      - Yemeni Heritage
+  /v1/landmarks/{category}/{landmark_name}:
+    get:
+      description: 'الحصول على معلومات معلم محدد
+
+
+        مثال: /v1/landmarks/dams/سد مأرب'
+      operationId: get_specific_landmark_v1_landmarks__category___landmark_name__get
+      parameters:
+      - in: path
+        name: category
+        required: true
+        schema:
+          title: Category
+          type: string
+      - in: path
+        name: landmark_name
+        required: true
+        schema:
+          title: Landmark Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Specific Landmark
+      tags:
+      - Yemeni Heritage
+  /v1/lunar-mansion:
+    get:
+      description: الحصول على المنزلة القمرية الحالية
+      operationId: get_lunar_mansion_v1_lunar_mansion_get
+      parameters:
+      - description: التاريخ (YYYY-MM-DD)
+        in: query
+        name: date_str
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: التاريخ (YYYY-MM-DD)
+          title: Date Str
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LunarMansion'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Lunar Mansion
+      tags:
+      - Astronomy
+  /v1/lunar-mansions:
+    get:
+      description: قائمة جميع المنازل القمرية الـ 28
+      operationId: list_lunar_mansions_v1_lunar_mansions_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: List Lunar Mansions
+      tags:
+      - Reference
+  /v1/moon-phase:
+    get:
+      description: الحصول على مرحلة القمر
+      operationId: get_moon_phase_v1_moon_phase_get
+      parameters:
+      - description: التاريخ (YYYY-MM-DD)
+        in: query
+        name: date_str
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: التاريخ (YYYY-MM-DD)
+          title: Date Str
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MoonPhase'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Moon Phase
+      tags:
+      - Astronomy
+  /v1/proverbs:
+    get:
+      description: 'الحصول على جميع الأمثال الزراعية اليمنية
+
+
+        تشمل:
+
+        - الأمثال العامة
+
+        - أمثال حسب المحصول
+
+        - أمثال حسب الموسم'
+      operationId: get_all_proverbs_v1_proverbs_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get All Proverbs
+      tags:
+      - Yemeni Wisdom
+  /v1/proverbs/crop/{crop_name}:
+    get:
+      description: 'الحصول على الأمثال الخاصة بمحصول معين
+
+
+        المحاصيل المدعومة: قمح، بن، ذرة، بصل'
+      operationId: get_crop_proverbs_v1_proverbs_crop__crop_name__get
+      parameters:
+      - in: path
+        name: crop_name
+        required: true
+        schema:
+          title: Crop Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Crop Proverbs
+      tags:
+      - Yemeni Wisdom
+  /v1/proverbs/mansion/{mansion_name}:
+    get:
+      description: الحصول على الأمثال المرتبطة بمنزلة قمرية معينة
+      operationId: get_mansion_proverbs_v1_proverbs_mansion__mansion_name__get
+      parameters:
+      - in: path
+        name: mansion_name
+        required: true
+        schema:
+          title: Mansion Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Mansion Proverbs
+      tags:
+      - Yemeni Wisdom
+  /v1/proverbs/today:
+    get:
+      description: 'الحصول على مثل اليوم مع تفسيره
+
+
+        يختار مثلاً مناسباً بناءً على:
+
+        - المنزلة القمرية الحالية
+
+        - الموسم الحالي
+
+        - مرحلة القمر'
+      operationId: get_proverb_of_the_day_v1_proverbs_today_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Proverb Of The Day
+      tags:
+      - Yemeni Wisdom
+  /v1/regions:
+    get:
       description: 'المناطق الزراعية اليمنية
 
 
@@ -408,17 +1103,17 @@ paths:
       operationId: get_regions_v1_regions_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
       security:
       - OAuth2PasswordBearer: []
-  /v1/regions/{region_id}:
-    get:
+      summary: Get Regions
       tags:
       - Yemeni Heritage
-      summary: Get Region
+  /v1/regions/{region_id}:
+    get:
       description: 'تفاصيل منطقة زراعية
 
 
@@ -439,32 +1134,32 @@ paths:
 
         المناطق المتاحة: tihama, central_highlands, eastern_plateau, northern_highlands, southern_coast'
       operationId: get_region_v1_regions__region_id__get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: region_id
-        in: path
+      - in: path
+        name: region_id
         required: true
         schema:
-          type: string
           title: Region Id
+          type: string
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/regions/{region_id}/crops:
-    get:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Region
       tags:
       - Yemeni Heritage
-      summary: Get Region Crops
+  /v1/regions/{region_id}/crops:
+    get:
       description: 'محاصيل منطقة معينة
 
 
@@ -479,377 +1174,47 @@ paths:
 
         المناطق المتاحة: tihama, central_highlands, eastern_plateau, northern_highlands, southern_coast'
       operationId: get_region_crops_v1_regions__region_id__crops_get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: region_id
-        in: path
+      - in: path
+        name: region_id
         required: true
         schema:
-          type: string
           title: Region Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/best-days:
-    get:
-      tags:
-      - Calendar
-      summary: Get Best Farming Days
-      description: 'البحث عن أفضل الأيام لنشاط زراعي معين
-
-
-        الأنشطة المدعومة: زراعة، حصاد، ري، تقليم، غرس، تطعيم'
-      operationId: get_best_farming_days_v1_best_days_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: activity
-        in: query
-        required: false
-        schema:
           type: string
-          description: 'النشاط: زراعة، حصاد، ري، تقليم'
-          default: زراعة
-          title: Activity
-        description: 'النشاط: زراعة، حصاد، ري، تقليم'
-      - name: days
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 90
-          minimum: 7
-          description: عدد الأيام للبحث
-          default: 30
-          title: Days
-        description: عدد الأيام للبحث
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/integration/weather:
-    get:
-      tags:
-      - Integration
-      summary: Get Integrated Data
-      description: 'دمج البيانات الفلكية مع بيانات الطقس
-
-
-        يتصل بخدمة الطقس للحصول على بيانات متكاملة'
-      operationId: get_integrated_data_v1_integration_weather_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: location_id
-        in: query
-        required: false
-        schema:
-          type: string
-          description: معرف الموقع
-          default: sanaa
-          title: Location Id
-        description: معرف الموقع
-      - name: date_str
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: التاريخ (YYYY-MM-DD)
-          title: Date Str
-        description: التاريخ (YYYY-MM-DD)
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
           description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/crop-details:
-    get:
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Region Crops
       tags:
-      - Crops
-      summary: List Detailed Crops
-      description: 'قائمة المحاصيل مع التفاصيل الكاملة
-
-
-        يرجع معلومات موجزة عن جميع المحاصيل في التقويم التفصيلي'
-      operationId: list_detailed_crops_v1_crop_details_get
+      - Yemeni Heritage
+  /v1/seasons:
+    get:
+      description: قائمة المواسم الزراعية اليمنية
+      operationId: list_seasons_v1_seasons_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-      security:
-      - OAuth2PasswordBearer: []
-  /v1/crop-details/{crop_id}:
-    get:
-      tags:
-      - Crops
-      summary: Get Crop Details
-      description: 'تفاصيل محصول كاملة
-
-
-        يرجع جميع المعلومات عن محصول معين بما في ذلك:
-
-        - الأصناف والمناطق
-
-        - معلومات الزراعة التفصيلية
-
-        - العناية والري والتسميد
-
-        - الحصاد والمعالجة
-
-        - الأمثال الشعبية'
-      operationId: get_crop_details_v1_crop_details__crop_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: crop_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Crop Id
-      responses:
-        '200':
           description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/crop-details/{crop_id}/planting-guide:
-    get:
-      tags:
-      - Crops
-      summary: Get Planting Guide
-      description: 'دليل زراعة المحصول المفصل
-
-
-        يرجع دليل خطوة بخطوة لزراعة المحصول المحدد'
-      operationId: get_planting_guide_v1_crop_details__crop_id__planting_guide_get
       security:
       - OAuth2PasswordBearer: []
-      parameters:
-      - name: crop_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Crop Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/what-to-plant:
-    get:
+      summary: List Seasons
       tags:
-      - Crops
-      summary: What To Plant Now
-      description: 'ماذا أزرع الآن؟
-
-
-        يوصي بالمحاصيل المناسبة للزراعة في الوقت الحالي بناءً على:
-
-        - التاريخ الحالي (الشهر الميلادي والهجري)
-
-        - المنزلة القمرية
-
-        - مرحلة القمر
-
-        - المنطقة (اختياري)
-
-        - الارتفاع (اختياري)'
-      operationId: what_to_plant_now_v1_what_to_plant_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: region
-        in: query
-        required: false
-        schema:
-          type: string
-          description: 'المنطقة (اختياري): حراز، صنعاء، تهامة، إلخ'
-          title: Region
-        description: 'المنطقة (اختياري): حراز، صنعاء، تهامة، إلخ'
-      - name: altitude_min
-        in: query
-        required: false
-        schema:
-          type: integer
-          description: الارتفاع الأدنى بالمتر
-          title: Altitude Min
-        description: الارتفاع الأدنى بالمتر
-      - name: altitude_max
-        in: query
-        required: false
-        schema:
-          type: integer
-          description: الارتفاع الأعلى بالمتر
-          title: Altitude Max
-        description: الارتفاع الأعلى بالمتر
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/proverbs:
-    get:
-      tags:
-      - Yemeni Wisdom
-      summary: Get All Proverbs
-      description: 'الحصول على جميع الأمثال الزراعية اليمنية
-
-
-        تشمل:
-
-        - الأمثال العامة
-
-        - أمثال حسب المحصول
-
-        - أمثال حسب الموسم'
-      operationId: get_all_proverbs_v1_proverbs_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - OAuth2PasswordBearer: []
-  /v1/proverbs/today:
-    get:
-      tags:
-      - Yemeni Wisdom
-      summary: Get Proverb Of The Day
-      description: 'الحصول على مثل اليوم مع تفسيره
-
-
-        يختار مثلاً مناسباً بناءً على:
-
-        - المنزلة القمرية الحالية
-
-        - الموسم الحالي
-
-        - مرحلة القمر'
-      operationId: get_proverb_of_the_day_v1_proverbs_today_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - OAuth2PasswordBearer: []
-  /v1/proverbs/crop/{crop_name}:
-    get:
-      tags:
-      - Yemeni Wisdom
-      summary: Get Crop Proverbs
-      description: 'الحصول على الأمثال الخاصة بمحصول معين
-
-
-        المحاصيل المدعومة: قمح، بن، ذرة، بصل'
-      operationId: get_crop_proverbs_v1_proverbs_crop__crop_name__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: crop_name
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Crop Name
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/proverbs/mansion/{mansion_name}:
-    get:
-      tags:
-      - Yemeni Wisdom
-      summary: Get Mansion Proverbs
-      description: الحصول على الأمثال المرتبطة بمنزلة قمرية معينة
-      operationId: get_mansion_proverbs_v1_proverbs_mansion__mansion_name__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: mansion_name
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Mansion Name
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+      - Reference
   /v1/stars:
     get:
-      tags:
-      - Yemeni Wisdom
-      summary: Get Important Stars
       description: 'الحصول على النجوم المهمة في التقويم الزراعي اليمني
 
 
@@ -863,176 +1228,45 @@ paths:
       operationId: get_important_stars_v1_stars_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
       security:
       - OAuth2PasswordBearer: []
+      summary: Get Important Stars
+      tags:
+      - Yemeni Wisdom
   /v1/stars/{star_name}:
     get:
-      tags:
-      - Yemeni Wisdom
-      summary: Get Star Info
       description: الحصول على معلومات نجم معين
       operationId: get_star_info_v1_stars__star_name__get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: star_name
-        in: path
+      - in: path
+        name: star_name
         required: true
         schema:
-          type: string
           title: Star Name
+          type: string
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/landmarks:
-    get:
-      tags:
-      - Yemeni Heritage
-      summary: Get Landmarks
-      description: 'قائمة المعالم الزراعية اليمنية التاريخية
-
-
-        تشمل:
-
-        - المدرجات الجبلية
-
-        - السدود التاريخية
-
-        - أنظمة الري التقليدية
-
-        - مخازن الحبوب والمحاصيل
-
-
-        هذه المعالم تمثل التراث الزراعي اليمني العريق'
-      operationId: get_landmarks_v1_landmarks_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - OAuth2PasswordBearer: []
-  /v1/landmarks/{category}:
-    get:
-      tags:
-      - Yemeni Heritage
-      summary: Get Landmarks By Category
-      description: 'المعالم حسب الفئة
-
-
-        الفئات المتاحة:
-
-        - terraces: المدرجات الجبلية
-
-        - dams: السدود التاريخية
-
-        - water_systems: أنظمة الري التقليدية
-
-        - storage: أنظمة التخزين'
-      operationId: get_landmarks_by_category_v1_landmarks__category__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: category
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Category
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
           description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/landmarks/{category}/{landmark_name}:
-    get:
-      tags:
-      - Yemeni Heritage
-      summary: Get Specific Landmark
-      description: 'الحصول على معلومات معلم محدد
-
-
-        مثال: /v1/landmarks/dams/سد مأرب'
-      operationId: get_specific_landmark_v1_landmarks__category___landmark_name__get
       security:
       - OAuth2PasswordBearer: []
-      parameters:
-      - name: category
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Category
-      - name: landmark_name
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Landmark Name
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /v1/wisdom/today:
-    get:
+      summary: Get Star Info
       tags:
       - Yemeni Wisdom
-      summary: Get Daily Wisdom
-      description: 'الحكمة الزراعية اليومية الشاملة
-
-
-        تجمع بين:
-
-        - مثل اليوم
-
-        - نصيحة المنزلة
-
-        - توقعات النجوم
-
-        - توصيات الموسم'
-      operationId: get_daily_wisdom_v1_wisdom_today_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-      security:
-      - OAuth2PasswordBearer: []
   /v1/techniques:
     get:
-      tags:
-      - Yemeni Heritage
-      summary: Get All Techniques
       description: 'الحصول على جميع التقنيات الزراعية اليمنية التقليدية
 
 
@@ -1046,17 +1280,17 @@ paths:
       operationId: get_all_techniques_v1_techniques_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
       security:
       - OAuth2PasswordBearer: []
-  /v1/techniques/{category}:
-    get:
+      summary: Get All Techniques
       tags:
       - Yemeni Heritage
-      summary: Get Techniques By Category
+  /v1/techniques/{category}:
+    get:
       description: 'الحصول على جميع التقنيات في فئة معينة
 
 
@@ -1074,32 +1308,32 @@ paths:
 
         - pest_control: تقنيات مكافحة الآفات'
       operationId: get_techniques_by_category_v1_techniques__category__get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: category
-        in: path
+      - in: path
+        name: category
         required: true
         schema:
-          type: string
           title: Category
+          type: string
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /v1/techniques/{category}/{technique_id}:
-    get:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Techniques By Category
       tags:
       - Yemeni Heritage
-      summary: Get Technique Details
+  /v1/techniques/{category}/{technique_id}:
+    get:
       description: 'الحصول على تفاصيل تقنية زراعية محددة
 
 
@@ -1115,467 +1349,233 @@ paths:
 
         - الأقوال الشعبية المرتبطة'
       operationId: get_technique_details_v1_techniques__category___technique_id__get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: category
-        in: path
+      - in: path
+        name: category
         required: true
         schema:
-          type: string
           title: Category
-      - name: technique_id
-        in: path
+          type: string
+      - in: path
+        name: technique_id
         required: true
         schema:
-          type: string
           title: Technique Id
+          type: string
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-components:
-  schemas:
-    CropCalendar:
-      properties:
-        crop_name:
-          type: string
-          title: Crop Name
-        crop_name_en:
-          type: string
-          title: Crop Name En
-        best_planting_mansions:
-          items:
-            type: integer
-          type: array
-          title: Best Planting Mansions
-        best_moon_phases:
-          items:
-            type: string
-          type: array
-          title: Best Moon Phases
-        best_zodiac_signs:
-          items:
-            type: string
-          type: array
-          title: Best Zodiac Signs
-        optimal_months:
-          items:
-            type: integer
-          type: array
-          title: Optimal Months
-        planting_guide:
-          type: string
-          title: Planting Guide
-        current_suitability:
-          type: integer
-          title: Current Suitability
-      type: object
-      required:
-      - crop_name
-      - crop_name_en
-      - best_planting_mansions
-      - best_moon_phases
-      - best_zodiac_signs
-      - optimal_months
-      - planting_guide
-      - current_suitability
-      title: CropCalendar
-      description: تقويم المحصول
-    DailyAstronomicalData:
-      properties:
-        date_gregorian:
-          type: string
-          title: Date Gregorian
-          description: التاريخ الميلادي
-        date_hijri:
-          $ref: '#/components/schemas/HijriDate'
-        moon_phase:
-          $ref: '#/components/schemas/MoonPhase'
-        lunar_mansion:
-          $ref: '#/components/schemas/LunarMansion'
-          description: المنزلة القمرية
-        zodiac:
-          $ref: '#/components/schemas/ZodiacInfo'
-          description: البرج
-        season:
-          $ref: '#/components/schemas/SeasonInfo'
-          description: الموسم
-        overall_farming_score:
-          type: integer
-          maximum: 10
-          minimum: 1
-          title: Overall Farming Score
-          description: درجة الزراعة الإجمالية
-        recommendations:
-          items:
-            $ref: '#/components/schemas/FarmingRecommendation'
-          type: array
-          title: Recommendations
-          description: التوصيات الزراعية
-      type: object
-      required:
-      - date_gregorian
-      - date_hijri
-      - moon_phase
-      - lunar_mansion
-      - zodiac
-      - season
-      - overall_farming_score
-      - recommendations
-      title: DailyAstronomicalData
-      description: البيانات الفلكية اليومية
-    FarmingRecommendation:
-      properties:
-        activity:
-          type: string
-          title: Activity
-          description: النشاط
-        suitability:
-          type: string
-          title: Suitability
-          description: مدى الملاءمة
-        suitability_score:
-          type: integer
-          maximum: 10
-          minimum: 1
-          title: Suitability Score
-          description: درجة الملاءمة
-        reason:
-          type: string
-          title: Reason
-          description: السبب
-        best_time:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Technique Details
+      tags:
+      - Yemeni Heritage
+  /v1/today:
+    get:
+      description: 'الحصول على البيانات الفلكية لليوم الحالي
+
+
+        يرجع:
+
+        - التاريخ الهجري
+
+        - مرحلة القمر
+
+        - المنزلة القمرية
+
+        - البرج
+
+        - الموسم الزراعي
+
+        - التوصيات الزراعية'
+      operationId: get_today_v1_today_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyAstronomicalData'
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Today
+      tags:
+      - Calendar
+  /v1/week:
+    get:
+      description: 'الحصول على التوقعات الفلكية الأسبوعية
+
+
+        يرجع أفضل أيام الزراعة والحصاد والأيام التي يجب تجنبها'
+      operationId: get_weekly_forecast_v1_week_get
+      parameters:
+      - description: تاريخ البداية (YYYY-MM-DD)
+        in: query
+        name: start_date
+        required: false
+        schema:
           anyOf:
           - type: string
           - type: 'null'
-          title: Best Time
-          description: أفضل وقت
-      type: object
-      required:
-      - activity
-      - suitability
-      - suitability_score
-      - reason
-      title: FarmingRecommendation
-      description: توصية زراعية
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    HijriDate:
-      properties:
-        year:
-          type: integer
-          title: Year
-          description: السنة الهجرية
-        month:
-          type: integer
-          maximum: 12
-          minimum: 1
-          title: Month
-          description: الشهر
-        day:
-          type: integer
-          maximum: 30
-          minimum: 1
-          title: Day
-          description: اليوم
-        month_name:
-          type: string
-          title: Month Name
-          description: اسم الشهر بالعربية
-        month_name_en:
-          type: string
-          title: Month Name En
-          description: اسم الشهر بالإنجليزية
-        weekday:
-          type: string
-          title: Weekday
-          description: اليوم من الأسبوع
-      type: object
-      required:
-      - year
-      - month
-      - day
-      - month_name
-      - month_name_en
-      - weekday
-      title: HijriDate
-      description: التاريخ الهجري
-    LunarMansion:
-      properties:
-        number:
-          type: integer
-          maximum: 28
-          minimum: 1
-          title: Number
-          description: رقم المنزلة
-        name:
-          type: string
-          title: Name
-          description: اسم المنزلة بالعربية
-        name_en:
-          type: string
-          title: Name En
-          description: اسم المنزلة بالإنجليزية
-        constellation:
-          type: string
-          title: Constellation
-          description: البرج
-        constellation_en:
-          type: string
-          title: Constellation En
-          description: البرج بالإنجليزية
-        element:
-          type: string
-          title: Element
-          description: العنصر
-        farming:
-          type: string
-          title: Farming
-          description: حالة الزراعة
-        farming_score:
-          type: integer
-          maximum: 10
-          minimum: 1
-          title: Farming Score
-          description: درجة ملاءمة الزراعة
-        crops:
-          items:
-            type: string
-          type: array
-          title: Crops
-          description: المحاصيل الموصى بها
-        activities:
-          items:
-            type: string
-          type: array
-          title: Activities
-          description: الأنشطة الموصى بها
-        avoid:
-          items:
-            type: string
-          type: array
-          title: Avoid
-          description: الأنشطة التي يجب تجنبها
-        description:
-          type: string
-          title: Description
-          description: وصف المنزلة
-      type: object
-      required:
-      - number
-      - name
-      - name_en
-      - constellation
-      - constellation_en
-      - element
-      - farming
-      - farming_score
-      - crops
-      - activities
-      - avoid
-      - description
-      title: LunarMansion
-      description: منزلة قمرية
-    MoonPhase:
-      properties:
-        phase_key:
-          type: string
-          title: Phase Key
-          description: مفتاح المرحلة
-        name:
-          type: string
-          title: Name
-          description: اسم المرحلة بالعربية
-        name_en:
-          type: string
-          title: Name En
-          description: اسم المرحلة بالإنجليزية
-        icon:
-          type: string
-          title: Icon
-          description: أيقونة المرحلة
-        illumination:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Illumination
-          description: نسبة الإضاءة
-        age_days:
-          type: number
-          title: Age Days
-          description: عمر القمر بالأيام
-        is_waxing:
-          type: boolean
-          title: Is Waxing
-          description: هل القمر متزايد
-        farming_good:
-          type: boolean
-          title: Farming Good
-          description: هل مناسب للزراعة
-      type: object
-      required:
-      - phase_key
-      - name
-      - name_en
-      - icon
-      - illumination
-      - age_days
-      - is_waxing
-      - farming_good
-      title: MoonPhase
-      description: مرحلة القمر
-    SeasonInfo:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: اسم الموسم بالعربية
-        name_en:
-          type: string
-          title: Name En
-          description: اسم الموسم بالإنجليزية
-        description:
-          type: string
-          title: Description
-          description: وصف الموسم
-        main_crops:
-          items:
-            type: string
-          type: array
-          title: Main Crops
-          description: المحاصيل الرئيسية
-        activities:
-          items:
-            type: string
-          type: array
-          title: Activities
-          description: الأنشطة الموصى بها
-      type: object
-      required:
-      - name
-      - name_en
-      - description
-      - main_crops
-      - activities
-      title: SeasonInfo
-      description: معلومات الموسم
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-    WeeklyForecast:
-      properties:
-        start_date:
-          type: string
+          description: تاريخ البداية (YYYY-MM-DD)
           title: Start Date
-        end_date:
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeeklyForecast'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Weekly Forecast
+      tags:
+      - Calendar
+  /v1/what-to-plant:
+    get:
+      description: 'ماذا أزرع الآن؟
+
+
+        يوصي بالمحاصيل المناسبة للزراعة في الوقت الحالي بناءً على:
+
+        - التاريخ الحالي (الشهر الميلادي والهجري)
+
+        - المنزلة القمرية
+
+        - مرحلة القمر
+
+        - المنطقة (اختياري)
+
+        - الارتفاع (اختياري)'
+      operationId: what_to_plant_now_v1_what_to_plant_get
+      parameters:
+      - description: 'المنطقة (اختياري): حراز، صنعاء، تهامة، إلخ'
+        in: query
+        name: region
+        required: false
+        schema:
+          description: 'المنطقة (اختياري): حراز، صنعاء، تهامة، إلخ'
+          title: Region
           type: string
-          title: End Date
-        days:
-          items:
-            $ref: '#/components/schemas/DailyAstronomicalData'
-          type: array
-          title: Days
-        best_planting_days:
-          items:
-            type: string
-          type: array
-          title: Best Planting Days
-        best_harvesting_days:
-          items:
-            type: string
-          type: array
-          title: Best Harvesting Days
-        avoid_days:
-          items:
-            type: string
-          type: array
-          title: Avoid Days
-      type: object
-      required:
-      - start_date
-      - end_date
-      - days
-      - best_planting_days
-      - best_harvesting_days
-      - avoid_days
-      title: WeeklyForecast
-      description: التوقعات الأسبوعية
-    ZodiacInfo:
-      properties:
-        name:
-          type: string
-          title: Name
-          description: اسم البرج بالعربية
-        name_en:
-          type: string
-          title: Name En
-          description: اسم البرج بالإنجليزية
-        element:
-          type: string
-          title: Element
-          description: العنصر
-        fertility:
-          type: string
-          title: Fertility
-          description: الخصوبة
-        score:
+      - description: الارتفاع الأدنى بالمتر
+        in: query
+        name: altitude_min
+        required: false
+        schema:
+          description: الارتفاع الأدنى بالمتر
+          title: Altitude Min
           type: integer
-          maximum: 10
-          minimum: 1
-          title: Score
-          description: درجة ملاءمة الزراعة
-      type: object
-      required:
-      - name
-      - name_en
-      - element
-      - fertility
-      - score
-      title: ZodiacInfo
-      description: معلومات البرج
-  securitySchemes:
-    OAuth2PasswordBearer:
-      type: oauth2
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: /auth/token
+      - description: الارتفاع الأعلى بالمتر
+        in: query
+        name: altitude_max
+        required: false
+        schema:
+          description: الارتفاع الأعلى بالمتر
+          title: Altitude Max
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: What To Plant Now
+      tags:
+      - Crops
+  /v1/wisdom/today:
+    get:
+      description: 'الحكمة الزراعية اليومية الشاملة
+
+
+        تجمع بين:
+
+        - مثل اليوم
+
+        - نصيحة المنزلة
+
+        - توقعات النجوم
+
+        - توصيات الموسم'
+      operationId: get_daily_wisdom_v1_wisdom_today_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Daily Wisdom
+      tags:
+      - Yemeni Wisdom
+  /v1/zodiac:
+    get:
+      description: الحصول على البرج الشمسي
+      operationId: get_zodiac_v1_zodiac_get
+      parameters:
+      - description: التاريخ (YYYY-MM-DD)
+        in: query
+        name: date_str
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: التاريخ (YYYY-MM-DD)
+          title: Date Str
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZodiacInfo'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Zodiac
+      tags:
+      - Astronomy
+  /v1/zodiac-farming:
+    get:
+      description: قائمة الأبراج مع معلومات الخصوبة الزراعية
+      operationId: list_zodiac_farming_v1_zodiac_farming_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: List Zodiac Farming
+      tags:
+      - Reference

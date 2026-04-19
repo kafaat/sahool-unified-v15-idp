@@ -1,536 +1,6 @@
-openapi: 3.1.0
-info:
-  title: SAHOOL Terrain Core Service | خدمة تحليل التضاريس
-  description: "\n## Terrain Analysis Service for Agricultural Applications\nخدمة تحليل التضاريس للتطبيقات الزراعية\n\nProvides comprehensive terrain analysis from Digital Elevation Models (DEMs):\n\n### DEM Sources | مصادر بيانات الارتفاعات\n- **Copernicus DEM** (30m/90m) - Global coverage\n- **NASA SRTM** (30m/90m) - 60°N to 56°S\n- **ALOS World 3D** (30m) - Global coverage\n- **Local Upload** - User-provided GeoTIFF files\n\n### Terrain Indicators | مؤشرات التضاريس\n1. **Slope** (الميل) - Using Horn's method\n2. **Aspect** (الجانب) - Slope direction\n3. **Flow Direction** (اتجاه التدفق) - D8 algorithm\n4. **Flow Accumulation** (تراكم التدفق) - Contributing area\n5. **TWI** (مؤشر الرطوبة الطبوغرافية) - Topographic Wetness Index\n6. **Curvature** (الانحناء) - Plan and profile curvature\n7. **Contours** (خطوط الكنتور) - Elevation isolines\n\n### Agricultural Applications | التطبيقات الزراعية\n- Irrigation suitability assessment\n- Erosion risk evaluation\n- Water flow analysis\n- Terrain-based zone delineation\n    "
-  version: 16.0.0
-paths:
-  /healthz:
-    get:
-      tags:
-      - health | الصحة
-      summary: Liveness probe | فحص الحياة
-      description: 'Health check endpoint (liveness probe)
-
-        نقطة نهاية فحص الصحة (فحص الحياة)'
-      operationId: health_healthz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /readyz:
-    get:
-      tags:
-      - health | الصحة
-      summary: Readiness probe | فحص الجاهزية
-      description: 'Kubernetes readiness probe - is the service ready to accept traffic?
-
-        فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الطلبات؟'
-      operationId: readiness_readyz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /health:
-    get:
-      tags:
-      - health | الصحة
-      summary: Combined health status | حالة الصحة المجمعة
-      description: Combined health and readiness status | حالة الصحة والجاهزية المجمعة
-      operationId: health_combined_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /metrics:
-    get:
-      tags:
-      - health | الصحة
-      summary: Prometheus metrics | مقاييس بروميثيوس
-      description: 'Prometheus-compatible metrics endpoint.
-
-        نقطة نهاية المقاييس المتوافقة مع بروميثيوس'
-      operationId: metrics_metrics_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /api/v1/terrain/analyze:
-    post:
-      tags:
-      - terrain | التضاريس
-      summary: Full Terrain Analysis | تحليل التضاريس الكامل
-      description: "Performs comprehensive terrain analysis for a field including:\n    - Slope and aspect\n    - Flow direction and accumulation\n    - Topographic Wetness Index (TWI)\n    - Curvature (plan and profile)\n    - Contour generation\n    - Irrigation recommendations\n\n    يجري تحليلاً شاملاً للتضاريس للحقل بما في ذلك:\n    - الميل والجانب\n    - اتجاه التدفق وتراكمه\n    - مؤشر الرطوبة الطبوغرافية\n    - الانحناء (أفقي وطولي)\n    - إنشاء خطوط الكنتور\n    - توصيات الري"
-      operationId: analyze_terrain_api_v1_terrain_analyze_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TerrainAnalysisRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TerrainAnalysisResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/terrain/slope/{field_id}:
-    get:
-      tags:
-      - terrain | التضاريس
-      summary: Get Slope Analysis | الحصول على تحليل الميل
-      description: Get slope analysis for a field | الحصول على تحليل الميل للحقل
-      operationId: get_slope_analysis_api_v1_terrain_slope__field_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: field_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Field Id
-      - name: dem_source
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/DEMSourceType'
-          default: copernicus
-      - name: slope_unit
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/SlopeUnit'
-          default: degrees
-      - name: classify
-        in: query
-        required: false
-        schema:
-          type: boolean
-          description: Include slope classification
-          default: true
-          title: Classify
-        description: Include slope classification
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SlopeAnalysisResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/terrain/aspect/{field_id}:
-    get:
-      tags:
-      - terrain | التضاريس
-      summary: Get Aspect Analysis | الحصول على تحليل الجانب
-      description: "Compute aspect (sun-facing direction, 0-360°) for a field from its DEM.\n\n    حساب اتجاه الجانب (اتجاه مواجهة الشمس، 0-360 درجة) للحقل من بيانات الارتفاع.\n\n    - Uses Horn's method (same gradient path as slope).\n    - 0° = North, 90° = East, 180° = South, 270° = West.\n    - Flat cells are reported in the distribution under `flat`.\n    - Coordinates returned assume CRS EPSG:4326 (WGS84)."
-      operationId: get_aspect_analysis_api_v1_terrain_aspect__field_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: field_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Field Id
-      - name: dem_source
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/DEMSourceType'
-          description: DEM source | مصدر الارتفاعات
-          default: copernicus
-        description: DEM source | مصدر الارتفاعات
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AspectAnalysisResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/terrain/flow/{field_id}:
-    get:
-      tags:
-      - terrain | التضاريس
-      summary: Get Flow Analysis | الحصول على تحليل التدفق
-      description: Get flow direction and accumulation analysis | الحصول على تحليل اتجاه التدفق وتراكمه
-      operationId: get_flow_analysis_api_v1_terrain_flow__field_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: field_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Field Id
-      - name: dem_source
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/DEMSourceType'
-          default: copernicus
-      - name: method
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/FlowDirectionMethod'
-          default: d8
-      - name: accumulation_threshold
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 1
-          default: 100
-          title: Accumulation Threshold
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FlowAnalysisResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/terrain/twi/{field_id}:
-    get:
-      tags:
-      - terrain | التضاريس
-      summary: Get Topographic Wetness Index | الحصول على مؤشر الرطوبة الطبوغرافية
-      description: Get Topographic Wetness Index analysis | الحصول على تحليل مؤشر الرطوبة الطبوغرافية
-      operationId: get_twi_analysis_api_v1_terrain_twi__field_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: field_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Field Id
-      - name: dem_source
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/DEMSourceType'
-          default: copernicus
-      - name: flow_method
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/FlowDirectionMethod'
-          default: d8
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TWIAnalysisResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/terrain/contours/{field_id}:
-    get:
-      tags:
-      - terrain | التضاريس
-      summary: Get Contour Lines | الحصول على خطوط الكنتور
-      description: Get contour lines for a field | الحصول على خطوط الكنتور للحقل
-      operationId: get_contours_api_v1_terrain_contours__field_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: field_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Field Id
-      - name: dem_source
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/DEMSourceType'
-          default: copernicus
-      - name: interval_m
-        in: query
-        required: false
-        schema:
-          type: number
-          exclusiveMinimum: 0
-          description: Contour interval in meters
-          default: 5.0
-          title: Interval M
-        description: Contour interval in meters
-      - name: simplify_tolerance
-        in: query
-        required: false
-        schema:
-          type: number
-          minimum: 0
-          default: 1.0
-          title: Simplify Tolerance
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ContourAnalysisResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/terrain/sources:
-    get:
-      tags:
-      - terrain | التضاريس
-      summary: List Available DEM Sources | قائمة مصادر الارتفاعات المتاحة
-      description: List available DEM data sources | قائمة مصادر بيانات الارتفاعات المتاحة
-      operationId: list_dem_sources_api_v1_terrain_sources_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DEMSourcesResponse'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/terrain/dem/{field_id}:
-    get:
-      tags:
-      - terrain | التضاريس
-      summary: Get DEM Data for Field | الحصول على بيانات الارتفاعات للحقل
-      description: "Retrieves Digital Elevation Model data for a specific field.\n    Used by downstream services (hydrology, leveling) for terrain analysis.\n\n    يسترجع بيانات نموذج الارتفاع الرقمي لحقل محدد.\n    يستخدم من قبل الخدمات المتصلة (الهيدرولوجيا، التسوية) لتحليل التضاريس."
-      operationId: get_dem_data_api_v1_terrain_dem__field_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: field_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Field Id
-      - name: dem_source
-        in: query
-        required: false
-        schema:
-          $ref: '#/components/schemas/DEMSourceType'
-          default: copernicus
-      - name: resolution_m
-        in: query
-        required: false
-        schema:
-          type: number
-          maximum: 1000.0
-          minimum: 1.0
-          default: 30.0
-          title: Resolution M
-      - name: include_data
-        in: query
-        required: false
-        schema:
-          type: boolean
-          description: Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام
-          default: false
-          title: Include Data
-        description: Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/DEMDataResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/terrain/erosion:
-    post:
-      tags:
-      - terrain | التضاريس
-      summary: Per-field soil erosion assessment (RUSLE) | تقييم تعرية التربة للحقل (RUSLE)
-      description: "Compute the per-field annual soil loss using the RUSLE model:\n\n    A = R × K × LS × C × P\n\nWhere:\n  * **R** — rainfall-runoff erosivity (from annual precipitation + rainy days)\n  * **K** — soil erodibility (from USDA texture class)\n  * **LS** — slope length × steepness (from the terrain-core slope endpoint)\n  * **C** — cover-management (from the field's crop / cover class)\n  * **P** — support practice (none, contour, terraces, bench terraces)\n\nReturns:\n  * `soil_loss_t_ha_yr` — annual soil loss in tonnes / hectare / year\n  * `risk_level` — FAO classification (none / low / moderate / high / severe / catastrophic)\n  * `factors` — per-factor breakdown so operators can see which factor drives the loss\n  * `factor_contributions_pct` — log-normalised contribution per factor\n  * `recommendations` — targeted mitigation actions (bilingual EN + AR)\n\n**Context**: this replaces the Phase-1 ``erosion_risk: \"low\"`` string\nthat the /terrain/analyze response used to hard-code based on slope\nalone. That stub lied to farmers in Yemeni highland terraced fields\n(which frequently sit at slopes of 20-40%+ on silt-loam soils and\nrun a catastrophic erosion risk). The RUSLE endpoint surfaces the\nhonest answer plus actionable recommendations (bench terraces, cover\ncrops, residue retention).\n\nThe endpoint is a pure calculation — no DB, no satellite fetch. The\ncaller supplies aggregated per-field inputs. For sub-field zonation,\ncall once per management zone and compose on the client side."
-      operationId: assess_erosion_api_v1_terrain_erosion_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ErosionAssessmentRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErosionAssessmentResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/terrain/erosion/wind:
-    post:
-      tags:
-      - terrain | التضاريس
-      summary: Per-field wind erosion assessment (RWEQ-lite) | تقييم تعرية الرياح للحقل (RWEQ-lite)
-      description: "Compute the per-field annual wind soil loss using the RWEQ-lite model:\n\n    SL = 2 × (s / 50000²) × Q_max\n    Q_max = 109.8 × (WF × EF × SCF × K' × COG)\n\nWhere:\n  * **WF** — wind factor (aridity-weighted wind kinetic energy)\n  * **EF** — soil erodibility factor (texture fractions + organic matter)\n  * **SCF** — soil crust factor (clay + OM protective crusts)\n  * **K'** — Chepil surface roughness factor (tillage relief)\n  * **COG** — combined (residue + canopy) ground cover factor\n  * **s** — unsheltered field length along the prevailing wind\n\nReturns:\n  * `soil_loss_t_ha_yr` — annual wind soil loss in tonnes / hectare / year\n  * `risk_level` — FAO band (none / low / moderate / high / severe / catastrophic)\n  * `factors` — the 5 RWEQ sub-factors\n  * `factor_contributions_pct` — log-normalised contribution per factor\n  * `recommendations` — wind-specific mitigation (bilingual EN + AR)\n\n**Context**: RUSLE is wrong for Yemen's grain-producing plains\n(Tihama, Marib, Al-Jawf, Hadramawt) where slope is near-zero and wind\nis the dominant erosion driver. A flat Tihama sandy-loam field with\nno standing stubble can lose ~50 t/ha/yr to wind in a single sandstorm\nseason — RUSLE would score it as \"none\". This endpoint surfaces the\nhonest wind answer. For sloped fields pair with ``/erosion`` (water)\nor call ``/erosion/combined`` for both at once.\n\nThe endpoint is a pure calculation — no DB, no satellite fetch."
-      operationId: assess_wind_erosion_api_v1_terrain_erosion_wind_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/WindErosionAssessmentRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WindErosionAssessmentResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/terrain/erosion/combined:
-    post:
-      tags:
-      - terrain | التضاريس
-      summary: Combined water + wind erosion assessment (RUSLE + RWEQ-lite) | التقييم المشترك لتعرية المياه والرياح
-      description: "Run both the RUSLE (water) and RWEQ-lite (wind) engines on a single\nfield and return a unified assessment:\n\n  * `overall_risk_level` — the **worst-of-two** FAO band across the\n    two processes (not the sum — they operate on different time scales)\n  * `dominant_process` — which engine drives the overall risk\n    (`water` | `wind` | `both` | `none`), so operators can prioritise\n    between bench-terrace / cover-crop actions vs. windbreak /\n    standing-stubble actions\n  * `water` — the full RUSLE sub-result (same shape as ``/erosion``)\n  * `wind` — the full RWEQ-lite sub-result (same shape as ``/erosion/wind``)\n  * `combined_recommendations` — priority-ordered mitigation actions\n    starting with the dominant process (bilingual EN + AR)\n\n**Use this endpoint** whenever you need a per-field erosion risk\nwithout making assumptions about which process dominates. A field can\nbe safe on water and catastrophic on wind (flat Tihama sandy loam) or\nvice versa (Sana'a highland terrace at 30% slope). ``texture_key`` is\noptional: when omitted it's derived from the USDA ``soil_texture``\nvalue, which keeps the single-call path ergonomic for callers that\ndon't need Yemen-specific soil profiles.\n\nThe endpoint is a pure calculation — no DB, no satellite fetch."
-      operationId: assess_combined_erosion_api_v1_terrain_erosion_combined_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CombinedErosionAssessmentRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CombinedErosionAssessmentResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/terrain/erosion/yemen:
-    post:
-      tags:
-      - terrain | التضاريس
-      summary: Combined erosion assessment for a Yemeni agro-ecological region | التقييم المشترك للتعرية لمنطقة زراعية يمنية
-      description: "Minimum-input combined erosion assessment for Yemeni fields. Only\nfield-specific variables (slope, cover type, residue state) are\nrequired — climate (rainfall, wind speed, ET0) and soil texture\ndefaults are looked up from the ``YEMEN_REGION_PRESETS`` in\n``shared/terrain_erosion/combined.py`` (derived from\n``shared/yemen/climate.py`` + ``shared/yemen/soils.py``).\n\nSupported regions (``region`` field):\n  * ``tihama`` — Tihama Coastal Plain (peak wind 3.5 m/s, 125 mm rain)\n  * ``eastern_plateau`` — Marib / Al-Jawf semi-arid (3.5 m/s, 100 mm)\n  * ``hadhramaut`` — Wadi Hadhramaut (3.0 m/s, 65 mm)\n  * ``southern_coast`` — Aden / Lahj / Abyan delta (3.2 m/s, 120 mm)\n  * ``highlands`` — Sana'a / Ibb / Taiz terraces (2.5 m/s, 500 mm)\n\nReturns the full :class:`CombinedErosionAssessmentResponse` shape.\n\n**Use this endpoint** when an advisory-service caller only knows the\nfarmer's region name and wants a single call to get both the water\nand wind erosion risk. For full control over every input, call\n``/erosion/combined`` instead."
-      operationId: assess_yemen_region_erosion_api_v1_terrain_erosion_yemen_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/YemenRegionErosionRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CombinedErosionAssessmentResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
 components:
   schemas:
     AspectAnalysisResponse:
-      properties:
-        field_id:
-          type: string
-          title: Field Id
-          description: Field identifier | معرف الحقل
-        analyzed_at:
-          type: string
-          format: date-time
-          title: Analyzed At
-          description: Analysis timestamp | وقت التحليل
-        dem_source:
-          $ref: '#/components/schemas/DEMSourceType'
-          description: DEM source used | مصدر الارتفاعات
-        aspect:
-          $ref: '#/components/schemas/AspectResult'
-        processing_time_ms:
-          type: integer
-          title: Processing Time Ms
-          description: Processing time (ms) | وقت المعالجة (ملي ثانية)
-      type: object
-      required:
-      - field_id
-      - analyzed_at
-      - dem_source
-      - aspect
-      - processing_time_ms
-      title: AspectAnalysisResponse
       description: 'Aspect analysis response | استجابة تحليل الجانب
 
 
@@ -539,8 +9,35 @@ components:
         computed from the DEM for the field. Contract endpoint:
 
         GET /api/v1/terrain/aspect/{field_id}'
+      properties:
+        analyzed_at:
+          description: Analysis timestamp | وقت التحليل
+          format: date-time
+          title: Analyzed At
+          type: string
+        aspect:
+          $ref: '#/components/schemas/AspectResult'
+        dem_source:
+          $ref: '#/components/schemas/DEMSourceType'
+          description: DEM source used | مصدر الارتفاعات
+        field_id:
+          description: Field identifier | معرف الحقل
+          title: Field Id
+          type: string
+        processing_time_ms:
+          description: Processing time (ms) | وقت المعالجة (ملي ثانية)
+          title: Processing Time Ms
+          type: integer
+      required:
+      - field_id
+      - analyzed_at
+      - dem_source
+      - aspect
+      - processing_time_ms
+      title: AspectAnalysisResponse
+      type: object
     AspectClassification:
-      type: string
+      description: Aspect cardinal directions | اتجاهات الجوانب الأصلية
       enum:
       - flat
       - north
@@ -552,203 +49,90 @@ components:
       - west
       - northwest
       title: AspectClassification
-      description: Aspect cardinal directions | اتجاهات الجوانب الأصلية
+      type: string
     AspectResult:
+      description: Aspect analysis result | نتيجة تحليل الجانب
       properties:
+        distribution:
+          additionalProperties:
+            type: number
+          description: Aspect distribution by direction | توزيع الجوانب حسب الاتجاه
+          title: Distribution
+          type: object
         dominant_direction:
           $ref: '#/components/schemas/AspectClassification'
           description: Dominant aspect direction | الاتجاه السائد
         dominant_direction_name:
           $ref: '#/components/schemas/BilingualField'
           description: Dominant direction name | اسم الاتجاه السائد
-        distribution:
-          additionalProperties:
-            type: number
-          type: object
-          title: Distribution
-          description: Aspect distribution by direction | توزيع الجوانب حسب الاتجاه
         mean_aspect_degrees:
-          type: number
-          title: Mean Aspect Degrees
           description: Mean aspect in degrees | متوسط الجانب بالدرجات
+          title: Mean Aspect Degrees
+          type: number
         raster_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Raster Url
           description: URL to aspect raster | رابط خريطة الجانب
-      type: object
+          title: Raster Url
       required:
       - dominant_direction
       - dominant_direction_name
       - distribution
       - mean_aspect_degrees
       title: AspectResult
-      description: Aspect analysis result | نتيجة تحليل الجانب
-    BilingualField:
-      properties:
-        en:
-          type: string
-          title: En
-          description: English value | القيمة بالإنجليزية
-        ar:
-          type: string
-          title: Ar
-          description: Arabic value | القيمة بالعربية
       type: object
+    BilingualField:
+      description: Bilingual field with Arabic and English values | حقل ثنائي اللغة
+      properties:
+        ar:
+          description: Arabic value | القيمة بالعربية
+          title: Ar
+          type: string
+        en:
+          description: English value | القيمة بالإنجليزية
+          title: En
+          type: string
       required:
       - en
       - ar
       title: BilingualField
-      description: Bilingual field with Arabic and English values | حقل ثنائي اللغة
+      type: object
     BoundingBox:
+      description: Geographic bounding box | المربع المحيط
       properties:
-        min_lon:
-          type: number
-          maximum: 180.0
-          minimum: -180.0
-          title: Min Lon
-          description: Minimum longitude
-        min_lat:
-          type: number
-          maximum: 90.0
-          minimum: -90.0
-          title: Min Lat
-          description: Minimum latitude
-        max_lon:
-          type: number
-          maximum: 180.0
-          minimum: -180.0
-          title: Max Lon
-          description: Maximum longitude
         max_lat:
-          type: number
+          description: Maximum latitude
           maximum: 90.0
           minimum: -90.0
           title: Max Lat
-          description: Maximum latitude
-      type: object
+          type: number
+        max_lon:
+          description: Maximum longitude
+          maximum: 180.0
+          minimum: -180.0
+          title: Max Lon
+          type: number
+        min_lat:
+          description: Minimum latitude
+          maximum: 90.0
+          minimum: -90.0
+          title: Min Lat
+          type: number
+        min_lon:
+          description: Minimum longitude
+          maximum: 180.0
+          minimum: -180.0
+          title: Min Lon
+          type: number
       required:
       - min_lon
       - min_lat
       - max_lon
       - max_lat
       title: BoundingBox
-      description: Geographic bounding box | المربع المحيط
-    CombinedErosionAssessmentRequest:
-      properties:
-        field_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Field Id
-          description: Field identifier | معرف الحقل
-        tenant_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Tenant Id
-          description: Tenant identifier | معرف المستأجر
-        slope_pct:
-          type: number
-          maximum: 200.0
-          minimum: 0.0
-          title: Slope Pct
-          description: Mean slope percentage (0-200) | متوسط نسبة الميل
-        slope_length_m:
-          anyOf:
-          - type: number
-            maximum: 1000.0
-            minimum: 1.0
-          - type: 'null'
-          title: Slope Length M
-          description: Slope length in metres (default 22.13, the RUSLE reference) | طول الميل (م)
-        soil_texture:
-          $ref: '#/components/schemas/SoilTextureEnum'
-          description: USDA soil texture class — drives the RUSLE K factor | فئة قوام التربة
-        annual_rainfall_mm:
-          type: number
-          maximum: 5000.0
-          minimum: 0.0
-          title: Annual Rainfall Mm
-          description: Mean annual precipitation (mm) | الهطول السنوي
-        rainy_days_per_year:
-          type: integer
-          maximum: 365
-          minimum: 0
-          title: Rainy Days Per Year
-          description: Mean rainy days per year | عدد الأيام الممطرة سنوياً
-        cover_type:
-          type: string
-          maxLength: 64
-          title: Cover Type
-          description: Crop / cover class (bare_soil, wheat, date_palm, ...) | نوع الغطاء النباتي
-          default: bare_soil
-        conservation_practice:
-          type: string
-          maxLength: 64
-          title: Conservation Practice
-          description: Support practice (none, contour_farming, bench_terraces, ...) | ممارسة الحفاظ
-          default: none
-        texture_key:
-          anyOf:
-          - type: string
-            maxLength: 64
-          - type: 'null'
-          title: Texture Key
-          description: Optional Yemen-specific texture key (e.g. tihama_sandy_loam). If omitted, derived from the RUSLE soil_texture. | مفتاح قوام تربة يمني اختياري، يُشتق من soil_texture إذا لم يُحدد
-        mean_wind_speed_ms:
-          type: number
-          maximum: 50.0
-          minimum: 0.0
-          title: Mean Wind Speed Ms
-          description: Mean wind speed (m/s) — use peak-month mean | متوسط سرعة الرياح
-        annual_et0_mm:
-          type: number
-          maximum: 5000.0
-          minimum: 100.0
-          title: Annual Et0 Mm
-          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر النتح المرجعي
-        roughness:
-          $ref: '#/components/schemas/SurfaceRoughnessEnum'
-          description: Chepil surface roughness class | فئة خشونة السطح
-          default: medium
-        residue_state:
-          $ref: '#/components/schemas/ResidueStateEnum'
-          description: Crop residue state after harvest | حالة بقايا المحصول
-          default: bare
-        residue_cover_pct:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Residue Cover Pct
-          description: Flat/standing residue cover (%) | نسبة تغطية البقايا
-          default: 0.0
-        canopy_cover_pct:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Canopy Cover Pct
-          description: Active canopy cover (%) | نسبة تغطية المظلة
-          default: 0.0
-        unsheltered_length_m:
-          type: number
-          maximum: 5000.0
-          minimum: 1.0
-          title: Unsheltered Length M
-          description: Unsheltered field length along prevailing wind (m) | طول الحقل غير المحمي
-          default: 100.0
       type: object
-      required:
-      - field_id
-      - tenant_id
-      - slope_pct
-      - soil_texture
-      - annual_rainfall_mm
-      - rainy_days_per_year
-      - mean_wind_speed_ms
-      - annual_et0_mm
-      title: CombinedErosionAssessmentRequest
+    CombinedErosionAssessmentRequest:
       description: 'Inputs for a combined water (RUSLE) + wind (RWEQ-lite) erosion
 
         assessment. Every field from :class:`ErosionAssessmentRequest` and
@@ -766,58 +150,120 @@ components:
         to use a Yemen-specific soil profile (e.g. ``tihama_sandy_loam``)
 
         that the USDA class doesn''t represent.'
-    CombinedErosionAssessmentResponse:
       properties:
+        annual_et0_mm:
+          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر النتح المرجعي
+          maximum: 5000.0
+          minimum: 100.0
+          title: Annual Et0 Mm
+          type: number
+        annual_rainfall_mm:
+          description: Mean annual precipitation (mm) | الهطول السنوي
+          maximum: 5000.0
+          minimum: 0.0
+          title: Annual Rainfall Mm
+          type: number
+        canopy_cover_pct:
+          default: 0.0
+          description: Active canopy cover (%) | نسبة تغطية المظلة
+          maximum: 100.0
+          minimum: 0.0
+          title: Canopy Cover Pct
+          type: number
+        conservation_practice:
+          default: none
+          description: Support practice (none, contour_farming, bench_terraces, ...) | ممارسة الحفاظ
+          maxLength: 64
+          title: Conservation Practice
+          type: string
+        cover_type:
+          default: bare_soil
+          description: Crop / cover class (bare_soil, wheat, date_palm, ...) | نوع الغطاء النباتي
+          maxLength: 64
+          title: Cover Type
+          type: string
         field_id:
-          type: string
+          description: Field identifier | معرف الحقل
+          maxLength: 100
+          minLength: 1
           title: Field Id
+          type: string
+        mean_wind_speed_ms:
+          description: Mean wind speed (m/s) — use peak-month mean | متوسط سرعة الرياح
+          maximum: 50.0
+          minimum: 0.0
+          title: Mean Wind Speed Ms
+          type: number
+        rainy_days_per_year:
+          description: Mean rainy days per year | عدد الأيام الممطرة سنوياً
+          maximum: 365
+          minimum: 0
+          title: Rainy Days Per Year
+          type: integer
+        residue_cover_pct:
+          default: 0.0
+          description: Flat/standing residue cover (%) | نسبة تغطية البقايا
+          maximum: 100.0
+          minimum: 0.0
+          title: Residue Cover Pct
+          type: number
+        residue_state:
+          $ref: '#/components/schemas/ResidueStateEnum'
+          default: bare
+          description: Crop residue state after harvest | حالة بقايا المحصول
+        roughness:
+          $ref: '#/components/schemas/SurfaceRoughnessEnum'
+          default: medium
+          description: Chepil surface roughness class | فئة خشونة السطح
+        slope_length_m:
+          anyOf:
+          - maximum: 1000.0
+            minimum: 1.0
+            type: number
+          - type: 'null'
+          description: Slope length in metres (default 22.13, the RUSLE reference) | طول الميل (م)
+          title: Slope Length M
+        slope_pct:
+          description: Mean slope percentage (0-200) | متوسط نسبة الميل
+          maximum: 200.0
+          minimum: 0.0
+          title: Slope Pct
+          type: number
+        soil_texture:
+          $ref: '#/components/schemas/SoilTextureEnum'
+          description: USDA soil texture class — drives the RUSLE K factor | فئة قوام التربة
         tenant_id:
-          type: string
+          description: Tenant identifier | معرف المستأجر
+          maxLength: 100
+          minLength: 1
           title: Tenant Id
-        overall_risk_level:
-          $ref: '#/components/schemas/ErosionRiskLevelEnum'
-          description: Worst-of-two FAO risk band | أعلى مستوى خطر
-        overall_risk_level_ar:
           type: string
-          title: Overall Risk Level Ar
-          description: Arabic label for the overall risk band
-        dominant_process:
-          $ref: '#/components/schemas/DominantProcessEnum'
-          description: Which erosion process dominates the risk | العملية المسيطرة
-        water:
-          $ref: '#/components/schemas/ErosionAssessmentResponse'
-          description: Full RUSLE (water) sub-result | نتيجة تعرية المياه
-        wind:
-          $ref: '#/components/schemas/WindErosionAssessmentResponse'
-          description: Full RWEQ-lite (wind) sub-result | نتيجة تعرية الرياح
-        combined_recommendations:
-          items:
+        texture_key:
+          anyOf:
+          - maxLength: 64
             type: string
-          type: array
-          title: Combined Recommendations
-          description: Priority-ordered mitigation actions across both processes (English)
-        combined_recommendations_ar:
-          items:
-            type: string
-          type: array
-          title: Combined Recommendations Ar
-          description: خطوات التخفيف مرتبة حسب الأولوية لكلا العمليتين (عربي)
-        assessed_at:
-          type: string
-          format: date-time
-          title: Assessed At
-          description: Assessment timestamp
-      type: object
+          - type: 'null'
+          description: Optional Yemen-specific texture key (e.g. tihama_sandy_loam). If omitted, derived from the RUSLE soil_texture. | مفتاح قوام تربة يمني اختياري، يُشتق من soil_texture إذا لم يُحدد
+          title: Texture Key
+        unsheltered_length_m:
+          default: 100.0
+          description: Unsheltered field length along prevailing wind (m) | طول الحقل غير المحمي
+          maximum: 5000.0
+          minimum: 1.0
+          title: Unsheltered Length M
+          type: number
       required:
       - field_id
       - tenant_id
-      - overall_risk_level
-      - overall_risk_level_ar
-      - dominant_process
-      - water
-      - wind
-      - assessed_at
-      title: CombinedErosionAssessmentResponse
+      - slope_pct
+      - soil_texture
+      - annual_rainfall_mm
+      - rainy_days_per_year
+      - mean_wind_speed_ms
+      - annual_et0_mm
+      title: CombinedErosionAssessmentRequest
+      type: object
+    CombinedErosionAssessmentResponse:
       description: 'Unified water (RUSLE) + wind (RWEQ-lite) erosion assessment.
 
 
@@ -835,23 +281,74 @@ components:
         the ``water`` and ``wind`` fields so callers that care about the
 
         per-process breakdown can introspect them.'
-    ContourAnalysisResponse:
       properties:
+        assessed_at:
+          description: Assessment timestamp
+          format: date-time
+          title: Assessed At
+          type: string
+        combined_recommendations:
+          description: Priority-ordered mitigation actions across both processes (English)
+          items:
+            type: string
+          title: Combined Recommendations
+          type: array
+        combined_recommendations_ar:
+          description: خطوات التخفيف مرتبة حسب الأولوية لكلا العمليتين (عربي)
+          items:
+            type: string
+          title: Combined Recommendations Ar
+          type: array
+        dominant_process:
+          $ref: '#/components/schemas/DominantProcessEnum'
+          description: Which erosion process dominates the risk | العملية المسيطرة
         field_id:
-          type: string
           title: Field Id
-        analyzed_at:
           type: string
+        overall_risk_level:
+          $ref: '#/components/schemas/ErosionRiskLevelEnum'
+          description: Worst-of-two FAO risk band | أعلى مستوى خطر
+        overall_risk_level_ar:
+          description: Arabic label for the overall risk band
+          title: Overall Risk Level Ar
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+        water:
+          $ref: '#/components/schemas/ErosionAssessmentResponse'
+          description: Full RUSLE (water) sub-result | نتيجة تعرية المياه
+        wind:
+          $ref: '#/components/schemas/WindErosionAssessmentResponse'
+          description: Full RWEQ-lite (wind) sub-result | نتيجة تعرية الرياح
+      required:
+      - field_id
+      - tenant_id
+      - overall_risk_level
+      - overall_risk_level_ar
+      - dominant_process
+      - water
+      - wind
+      - assessed_at
+      title: CombinedErosionAssessmentResponse
+      type: object
+    ContourAnalysisResponse:
+      description: Contour analysis response | استجابة تحليل الكنتور
+      properties:
+        analyzed_at:
           format: date-time
           title: Analyzed At
-        dem_source:
-          $ref: '#/components/schemas/DEMSourceType'
+          type: string
         contours:
           $ref: '#/components/schemas/ContourResult'
+        dem_source:
+          $ref: '#/components/schemas/DEMSourceType'
+        field_id:
+          title: Field Id
+          type: string
         processing_time_ms:
-          type: integer
           title: Processing Time Ms
-      type: object
+          type: integer
       required:
       - field_id
       - analyzed_at
@@ -859,70 +356,70 @@ components:
       - contours
       - processing_time_ms
       title: ContourAnalysisResponse
-      description: Contour analysis response | استجابة تحليل الكنتور
+      type: object
     ContourLine:
+      description: Single contour line | خط كنتور واحد
       properties:
         elevation_m:
-          type: number
-          title: Elevation M
           description: Elevation in meters | الارتفاع بالأمتار
-        length_m:
+          title: Elevation M
           type: number
-          title: Length M
-          description: Length in meters | الطول بالأمتار
-        is_major:
-          type: boolean
-          title: Is Major
-          description: Is major contour | خط كنتور رئيسي
-          default: false
         geometry:
           anyOf:
           - $ref: '#/components/schemas/GeoJSONLineString'
           - $ref: '#/components/schemas/GeoJSONMultiLineString'
-          title: Geometry
           description: LineString or MultiLineString GeoJSON geometry | هندسة الخط
-      type: object
+          title: Geometry
+        is_major:
+          default: false
+          description: Is major contour | خط كنتور رئيسي
+          title: Is Major
+          type: boolean
+        length_m:
+          description: Length in meters | الطول بالأمتار
+          title: Length M
+          type: number
       required:
       - elevation_m
       - length_m
       - geometry
       title: ContourLine
-      description: Single contour line | خط كنتور واحد
+      type: object
     ContourResult:
+      description: Contour generation result | نتيجة إنشاء خطوط الكنتور
       properties:
-        interval_m:
-          type: number
-          title: Interval M
-          description: Contour interval | فترة الكنتور
-        min_elevation_m:
-          type: number
-          title: Min Elevation M
-          description: Minimum elevation | أدنى ارتفاع
-        max_elevation_m:
-          type: number
-          title: Max Elevation M
-          description: Maximum elevation | أقصى ارتفاع
-        total_contours:
-          type: integer
-          title: Total Contours
-          description: Total contour lines | إجمالي خطوط الكنتور
-        major_interval_m:
-          type: number
-          title: Major Interval M
-          description: Major contour interval | فترة الكنتور الرئيسي
         contours:
+          description: Contour lines | خطوط الكنتور
           items:
             $ref: '#/components/schemas/ContourLine'
-          type: array
           title: Contours
-          description: Contour lines | خطوط الكنتور
+          type: array
         geojson_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Geojson Url
           description: URL to contours GeoJSON | رابط ملف GeoJSON
-      type: object
+          title: Geojson Url
+        interval_m:
+          description: Contour interval | فترة الكنتور
+          title: Interval M
+          type: number
+        major_interval_m:
+          description: Major contour interval | فترة الكنتور الرئيسي
+          title: Major Interval M
+          type: number
+        max_elevation_m:
+          description: Maximum elevation | أقصى ارتفاع
+          title: Max Elevation M
+          type: number
+        min_elevation_m:
+          description: Minimum elevation | أدنى ارتفاع
+          title: Min Elevation M
+          type: number
+        total_contours:
+          description: Total contour lines | إجمالي خطوط الكنتور
+          title: Total Contours
+          type: integer
       required:
       - interval_m
       - min_elevation_m
@@ -930,46 +427,46 @@ components:
       - total_contours
       - major_interval_m
       title: ContourResult
-      description: Contour generation result | نتيجة إنشاء خطوط الكنتور
+      type: object
     CurvatureResult:
+      description: Curvature analysis result | نتيجة تحليل الانحناء
       properties:
+        concave_pct:
+          description: Concave area percentage | نسبة المنطقة المقعرة
+          title: Concave Pct
+          type: number
+        convex_pct:
+          description: Convex area percentage | نسبة المنطقة المحدبة
+          title: Convex Pct
+          type: number
         curvature_type:
           $ref: '#/components/schemas/CurvatureType'
           description: Curvature type | نوع الانحناء
-        type_name:
-          $ref: '#/components/schemas/BilingualField'
-          description: Type name | اسم النوع
-        min_curvature:
-          type: number
-          title: Min Curvature
-          description: Minimum curvature | أدنى انحناء
-        max_curvature:
-          type: number
-          title: Max Curvature
-          description: Maximum curvature | أقصى انحناء
-        mean_curvature:
-          type: number
-          title: Mean Curvature
-          description: Mean curvature | متوسط الانحناء
-        convex_pct:
-          type: number
-          title: Convex Pct
-          description: Convex area percentage | نسبة المنطقة المحدبة
-        concave_pct:
-          type: number
-          title: Concave Pct
-          description: Concave area percentage | نسبة المنطقة المقعرة
         flat_pct:
-          type: number
-          title: Flat Pct
           description: Flat area percentage | نسبة المنطقة المسطحة
+          title: Flat Pct
+          type: number
+        max_curvature:
+          description: Maximum curvature | أقصى انحناء
+          title: Max Curvature
+          type: number
+        mean_curvature:
+          description: Mean curvature | متوسط الانحناء
+          title: Mean Curvature
+          type: number
+        min_curvature:
+          description: Minimum curvature | أدنى انحناء
+          title: Min Curvature
+          type: number
         raster_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Raster Url
           description: URL to curvature raster | رابط خريطة الانحناء
-      type: object
+          title: Raster Url
+        type_name:
+          $ref: '#/components/schemas/BilingualField'
+          description: Type name | اسم النوع
       required:
       - curvature_type
       - type_name
@@ -980,85 +477,69 @@ components:
       - concave_pct
       - flat_pct
       title: CurvatureResult
-      description: Curvature analysis result | نتيجة تحليل الانحناء
+      type: object
     CurvatureType:
-      type: string
+      description: Curvature calculation types | أنواع حساب الانحناء
       enum:
       - plan
       - profile
       - total
       title: CurvatureType
-      description: Curvature calculation types | أنواع حساب الانحناء
+      type: string
     DEMDataBounds:
+      description: DEM data bounds | حدود بيانات الارتفاعات
       properties:
-        min_lon:
-          type: number
-          title: Min Lon
-          description: Minimum longitude | خط الطول الأدنى
-        min_lat:
-          type: number
-          title: Min Lat
-          description: Minimum latitude | خط العرض الأدنى
-        max_lon:
-          type: number
-          title: Max Lon
-          description: Maximum longitude | خط الطول الأقصى
         max_lat:
-          type: number
-          title: Max Lat
           description: Maximum latitude | خط العرض الأقصى
-      type: object
+          title: Max Lat
+          type: number
+        max_lon:
+          description: Maximum longitude | خط الطول الأقصى
+          title: Max Lon
+          type: number
+        min_lat:
+          description: Minimum latitude | خط العرض الأدنى
+          title: Min Lat
+          type: number
+        min_lon:
+          description: Minimum longitude | خط الطول الأدنى
+          title: Min Lon
+          type: number
       required:
       - min_lon
       - min_lat
       - max_lon
       - max_lat
       title: DEMDataBounds
-      description: DEM data bounds | حدود بيانات الارتفاعات
+      type: object
     DEMDataResponse:
+      description: Response containing DEM data for downstream services | استجابة بيانات الارتفاعات للخدمات المتصلة
       properties:
-        field_id:
+        analyzed_at:
+          description: Analysis timestamp | وقت التحليل
+          format: date-time
+          title: Analyzed At
           type: string
-          title: Field Id
-          description: Field identifier | معرف الحقل
-        dem_source:
-          $ref: '#/components/schemas/DEMSourceType'
-          description: DEM source used | مصدر الارتفاعات المستخدم
         bounds:
           $ref: '#/components/schemas/DEMDataBounds'
           description: Data bounds | حدود البيانات
-        resolution_m:
-          type: number
-          title: Resolution M
-          description: Resolution in meters | الدقة بالمتر
-        rows:
-          type: integer
-          title: Rows
-          description: Number of rows | عدد الصفوف
         cols:
-          type: integer
-          title: Cols
           description: Number of columns | عدد الأعمدة
+          title: Cols
+          type: integer
         crs:
-          type: string
-          title: Crs
           description: Coordinate reference system | نظام الإحداثيات
-        nodata_value:
-          type: number
-          title: Nodata Value
-          description: NoData value | قيمة عدم وجود بيانات
-        elevation_min:
-          type: number
-          title: Elevation Min
-          description: Minimum elevation (m) | أدنى ارتفاع (م)
-        elevation_max:
-          type: number
-          title: Elevation Max
-          description: Maximum elevation (m) | أقصى ارتفاع (م)
-        elevation_mean:
-          type: number
-          title: Elevation Mean
-          description: Mean elevation (m) | متوسط الارتفاع (م)
+          title: Crs
+          type: string
+        dem_source:
+          $ref: '#/components/schemas/DEMSourceType'
+          description: DEM source used | مصدر الارتفاعات المستخدم
+        download_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: URL to download full DEM data | رابط تنزيل البيانات الكاملة
+          title: Download Url
         elevation_data:
           anyOf:
           - items:
@@ -1067,20 +548,36 @@ components:
               type: array
             type: array
           - type: 'null'
-          title: Elevation Data
           description: Elevation data array (optional, for small fields) | مصفوفة الارتفاعات
-        download_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Download Url
-          description: URL to download full DEM data | رابط تنزيل البيانات الكاملة
-        analyzed_at:
+          title: Elevation Data
+        elevation_max:
+          description: Maximum elevation (m) | أقصى ارتفاع (م)
+          title: Elevation Max
+          type: number
+        elevation_mean:
+          description: Mean elevation (m) | متوسط الارتفاع (م)
+          title: Elevation Mean
+          type: number
+        elevation_min:
+          description: Minimum elevation (m) | أدنى ارتفاع (م)
+          title: Elevation Min
+          type: number
+        field_id:
+          description: Field identifier | معرف الحقل
+          title: Field Id
           type: string
-          format: date-time
-          title: Analyzed At
-          description: Analysis timestamp | وقت التحليل
-      type: object
+        nodata_value:
+          description: NoData value | قيمة عدم وجود بيانات
+          title: Nodata Value
+          type: number
+        resolution_m:
+          description: Resolution in meters | الدقة بالمتر
+          title: Resolution M
+          type: number
+        rows:
+          description: Number of rows | عدد الصفوف
+          title: Rows
+          type: integer
       required:
       - field_id
       - dem_source
@@ -1095,45 +592,45 @@ components:
       - elevation_mean
       - analyzed_at
       title: DEMDataResponse
-      description: Response containing DEM data for downstream services | استجابة بيانات الارتفاعات للخدمات المتصلة
+      type: object
     DEMMetadata:
+      description: DEM file metadata | بيانات ملف الارتفاعات الوصفية
       properties:
+        acquisition_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Data acquisition date | تاريخ الحصول على البيانات
+          title: Acquisition Date
+        bounds:
+          $ref: '#/components/schemas/BoundingBox'
+          description: Data bounds | حدود البيانات
+        crs:
+          description: Coordinate Reference System
+          title: Crs
+          type: string
+        nodata_value:
+          default: -9999.0
+          description: NoData value | قيمة عدم وجود بيانات
+          title: Nodata Value
+          type: number
+        resolution_m:
+          description: Resolution in meters | الدقة بالأمتار
+          exclusiveMinimum: 0.0
+          title: Resolution M
+          type: number
         source:
           $ref: '#/components/schemas/DEMSourceType'
           description: DEM source | مصدر الارتفاعات
         source_name:
           $ref: '#/components/schemas/BilingualField'
           description: Source name bilingual | اسم المصدر ثنائي اللغة
-        resolution_m:
-          type: number
-          exclusiveMinimum: 0.0
-          title: Resolution M
-          description: Resolution in meters | الدقة بالأمتار
-        crs:
-          type: string
-          title: Crs
-          description: Coordinate Reference System
-        bounds:
-          $ref: '#/components/schemas/BoundingBox'
-          description: Data bounds | حدود البيانات
-        acquisition_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Acquisition Date
-          description: Data acquisition date | تاريخ الحصول على البيانات
         vertical_datum:
-          type: string
-          title: Vertical Datum
-          description: Vertical datum | المرجع الرأسي
           default: EGM96
-        nodata_value:
-          type: number
-          title: Nodata Value
-          description: NoData value | قيمة عدم وجود بيانات
-          default: -9999.0
-      type: object
+          description: Vertical datum | المرجع الرأسي
+          title: Vertical Datum
+          type: string
       required:
       - source
       - source_name
@@ -1141,42 +638,42 @@ components:
       - crs
       - bounds
       title: DEMMetadata
-      description: DEM file metadata | بيانات ملف الارتفاعات الوصفية
+      type: object
     DEMSourceInfo:
+      description: DEM source information | معلومات مصدر الارتفاعات
       properties:
+        coverage:
+          description: Geographic coverage | التغطية الجغرافية
+          title: Coverage
+          type: string
+        description:
+          description: Source description | وصف المصدر
+          title: Description
+          type: string
+        description_ar:
+          description: Arabic description | الوصف بالعربية
+          title: Description Ar
+          type: string
+        is_available:
+          default: true
+          description: Is source available | هل المصدر متاح
+          title: Is Available
+          type: boolean
+        name:
+          description: Source name | اسم المصدر
+          title: Name
+          type: string
+        name_ar:
+          description: Arabic source name | اسم المصدر بالعربية
+          title: Name Ar
+          type: string
+        resolution_m:
+          description: Resolution in meters | الدقة بالأمتار
+          title: Resolution M
+          type: number
         source:
           $ref: '#/components/schemas/DEMSourceType'
           description: Source type | نوع المصدر
-        name:
-          type: string
-          title: Name
-          description: Source name | اسم المصدر
-        name_ar:
-          type: string
-          title: Name Ar
-          description: Arabic source name | اسم المصدر بالعربية
-        description:
-          type: string
-          title: Description
-          description: Source description | وصف المصدر
-        description_ar:
-          type: string
-          title: Description Ar
-          description: Arabic description | الوصف بالعربية
-        resolution_m:
-          type: number
-          title: Resolution M
-          description: Resolution in meters | الدقة بالأمتار
-        coverage:
-          type: string
-          title: Coverage
-          description: Geographic coverage | التغطية الجغرافية
-        is_available:
-          type: boolean
-          title: Is Available
-          description: Is source available | هل المصدر متاح
-          default: true
-      type: object
       required:
       - source
       - name
@@ -1186,69 +683,69 @@ components:
       - resolution_m
       - coverage
       title: DEMSourceInfo
-      description: DEM source information | معلومات مصدر الارتفاعات
+      type: object
     DEMSourceType:
-      type: string
+      description: DEM data source types | أنواع مصادر بيانات الارتفاعات
       enum:
       - copernicus
       - srtm
       - alos_palsar
       - local
       title: DEMSourceType
-      description: DEM data source types | أنواع مصادر بيانات الارتفاعات
+      type: string
     DEMSourcesResponse:
+      description: Response for listing DEM sources | استجابة قائمة مصادر الارتفاعات
       properties:
-        sources:
-          items:
-            $ref: '#/components/schemas/DEMSourceInfo'
-          type: array
-          title: Sources
-          description: Available DEM sources | مصادر الارتفاعات المتاحة
         default:
-          type: string
-          title: Default
           description: Default source | المصدر الافتراضي
+          title: Default
+          type: string
         default_name:
           $ref: '#/components/schemas/BilingualField'
           description: Default source name | اسم المصدر الافتراضي
-      type: object
+        sources:
+          description: Available DEM sources | مصادر الارتفاعات المتاحة
+          items:
+            $ref: '#/components/schemas/DEMSourceInfo'
+          title: Sources
+          type: array
       required:
       - sources
       - default
       - default_name
       title: DEMSourcesResponse
-      description: Response for listing DEM sources | استجابة قائمة مصادر الارتفاعات
-    DEMStatistics:
-      properties:
-        min_elevation_m:
-          type: number
-          title: Min Elevation M
-          description: Minimum elevation | أدنى ارتفاع
-        max_elevation_m:
-          type: number
-          title: Max Elevation M
-          description: Maximum elevation | أقصى ارتفاع
-        mean_elevation_m:
-          type: number
-          title: Mean Elevation M
-          description: Mean elevation | متوسط الارتفاع
-        std_elevation_m:
-          type: number
-          title: Std Elevation M
-          description: Standard deviation | الانحراف المعياري
-        elevation_range_m:
-          type: number
-          title: Elevation Range M
-          description: Elevation range | نطاق الارتفاع
-        total_pixels:
-          type: integer
-          title: Total Pixels
-          description: Total pixels | إجمالي البكسلات
-        valid_pixels:
-          type: integer
-          title: Valid Pixels
-          description: Valid pixels | البكسلات الصالحة
       type: object
+    DEMStatistics:
+      description: DEM statistical summary | ملخص إحصائي للارتفاعات
+      properties:
+        elevation_range_m:
+          description: Elevation range | نطاق الارتفاع
+          title: Elevation Range M
+          type: number
+        max_elevation_m:
+          description: Maximum elevation | أقصى ارتفاع
+          title: Max Elevation M
+          type: number
+        mean_elevation_m:
+          description: Mean elevation | متوسط الارتفاع
+          title: Mean Elevation M
+          type: number
+        min_elevation_m:
+          description: Minimum elevation | أدنى ارتفاع
+          title: Min Elevation M
+          type: number
+        std_elevation_m:
+          description: Standard deviation | الانحراف المعياري
+          title: Std Elevation M
+          type: number
+        total_pixels:
+          description: Total pixels | إجمالي البكسلات
+          title: Total Pixels
+          type: integer
+        valid_pixels:
+          description: Valid pixels | البكسلات الصالحة
+          title: Valid Pixels
+          type: integer
       required:
       - min_elevation_m
       - max_elevation_m
@@ -1258,82 +755,19 @@ components:
       - total_pixels
       - valid_pixels
       title: DEMStatistics
-      description: DEM statistical summary | ملخص إحصائي للارتفاعات
+      type: object
     DominantProcessEnum:
-      type: string
+      description: 'Which erosion process dominates a field''s combined risk.
+
+        العملية المسيطرة على الخطر المشترك لتعرية الحقل.'
       enum:
       - water
       - wind
       - both
       - none
       title: DominantProcessEnum
-      description: 'Which erosion process dominates a field''s combined risk.
-
-        العملية المسيطرة على الخطر المشترك لتعرية الحقل.'
+      type: string
     ErosionAssessmentRequest:
-      properties:
-        field_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Field Id
-          description: Field identifier
-        tenant_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Tenant Id
-          description: Tenant identifier
-        slope_pct:
-          type: number
-          maximum: 200.0
-          minimum: 0.0
-          title: Slope Pct
-          description: Mean slope percentage (0-200)
-        slope_length_m:
-          anyOf:
-          - type: number
-            maximum: 1000.0
-            minimum: 1.0
-          - type: 'null'
-          title: Slope Length M
-          description: Slope length in metres (default 22.13, the RUSLE reference)
-        soil_texture:
-          $ref: '#/components/schemas/SoilTextureEnum'
-          description: USDA soil texture class — drives the K factor
-        annual_rainfall_mm:
-          type: number
-          maximum: 5000.0
-          minimum: 0.0
-          title: Annual Rainfall Mm
-          description: Mean annual precipitation (mm)
-        rainy_days_per_year:
-          type: integer
-          maximum: 365
-          minimum: 0
-          title: Rainy Days Per Year
-          description: Mean rainy days per year
-        cover_type:
-          type: string
-          maxLength: 64
-          title: Cover Type
-          description: Crop / cover class (bare_soil, fallow, wheat, barley, corn, date_palm, olive, citrus, grass, forest, ...)
-          default: bare_soil
-        conservation_practice:
-          type: string
-          maxLength: 64
-          title: Conservation Practice
-          description: Support practice (none, contour_farming, strip_cropping, terraces, bench_terraces)
-          default: none
-      type: object
-      required:
-      - field_id
-      - tenant_id
-      - slope_pct
-      - soil_texture
-      - annual_rainfall_mm
-      - rainy_days_per_year
-      title: ErosionAssessmentRequest
       description: 'Inputs for a RUSLE (Revised Universal Soil Loss Equation) assessment.
 
 
@@ -1342,52 +776,119 @@ components:
         variability, call this endpoint once per zone and compose the
 
         results on the caller side.'
-    ErosionAssessmentResponse:
       properties:
-        field_id:
-          type: string
-          title: Field Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        soil_loss_t_ha_yr:
+        annual_rainfall_mm:
+          description: Mean annual precipitation (mm)
+          maximum: 5000.0
+          minimum: 0.0
+          title: Annual Rainfall Mm
           type: number
-          title: Soil Loss T Ha Yr
-          description: Annual soil loss A = RKLSCP (tonnes / hectare / year)
+        conservation_practice:
+          default: none
+          description: Support practice (none, contour_farming, strip_cropping, terraces, bench_terraces)
+          maxLength: 64
+          title: Conservation Practice
+          type: string
+        cover_type:
+          default: bare_soil
+          description: Crop / cover class (bare_soil, fallow, wheat, barley, corn, date_palm, olive, citrus, grass, forest, ...)
+          maxLength: 64
+          title: Cover Type
+          type: string
+        field_id:
+          description: Field identifier
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+          type: string
+        rainy_days_per_year:
+          description: Mean rainy days per year
+          maximum: 365
+          minimum: 0
+          title: Rainy Days Per Year
+          type: integer
+        slope_length_m:
+          anyOf:
+          - maximum: 1000.0
+            minimum: 1.0
+            type: number
+          - type: 'null'
+          description: Slope length in metres (default 22.13, the RUSLE reference)
+          title: Slope Length M
+        slope_pct:
+          description: Mean slope percentage (0-200)
+          maximum: 200.0
+          minimum: 0.0
+          title: Slope Pct
+          type: number
+        soil_texture:
+          $ref: '#/components/schemas/SoilTextureEnum'
+          description: USDA soil texture class — drives the K factor
+        tenant_id:
+          description: Tenant identifier
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+          type: string
+      required:
+      - field_id
+      - tenant_id
+      - slope_pct
+      - soil_texture
+      - annual_rainfall_mm
+      - rainy_days_per_year
+      title: ErosionAssessmentRequest
+      type: object
+    ErosionAssessmentResponse:
+      description: 'Full RUSLE assessment output — the honest answer that replaces the
+
+        Phase-1 ``erosion_risk: "low"`` stub in the irrigation recommendation
+
+        helper.'
+      properties:
+        assessed_at:
+          description: Assessment timestamp
+          format: date-time
+          title: Assessed At
+          type: string
+        factor_contributions_pct:
+          additionalProperties:
+            type: number
+          description: Log-normalised per-factor contribution (%) — which factor drives the loss
+          title: Factor Contributions Pct
+          type: object
+        factors:
+          $ref: '#/components/schemas/RUSLEFactorsResponse'
+          description: Per-factor breakdown
+        field_id:
+          title: Field Id
+          type: string
+        recommendations:
+          description: Mitigation actions (English)
+          items:
+            type: string
+          title: Recommendations
+          type: array
+        recommendations_ar:
+          description: خطوات التخفيف (عربي)
+          items:
+            type: string
+          title: Recommendations Ar
+          type: array
         risk_level:
           $ref: '#/components/schemas/ErosionRiskLevelEnum'
           description: FAO risk band (none / low / moderate / high / severe / catastrophic)
         risk_level_ar:
-          type: string
-          title: Risk Level Ar
           description: Arabic label for the risk band
-        factors:
-          $ref: '#/components/schemas/RUSLEFactorsResponse'
-          description: Per-factor breakdown
-        factor_contributions_pct:
-          additionalProperties:
-            type: number
-          type: object
-          title: Factor Contributions Pct
-          description: Log-normalised per-factor contribution (%) — which factor drives the loss
-        recommendations:
-          items:
-            type: string
-          type: array
-          title: Recommendations
-          description: Mitigation actions (English)
-        recommendations_ar:
-          items:
-            type: string
-          type: array
-          title: Recommendations Ar
-          description: خطوات التخفيف (عربي)
-        assessed_at:
+          title: Risk Level Ar
           type: string
-          format: date-time
-          title: Assessed At
-          description: Assessment timestamp
-      type: object
+        soil_loss_t_ha_yr:
+          description: Annual soil loss A = RKLSCP (tonnes / hectare / year)
+          title: Soil Loss T Ha Yr
+          type: number
+        tenant_id:
+          title: Tenant Id
+          type: string
       required:
       - field_id
       - tenant_id
@@ -1397,13 +898,9 @@ components:
       - factors
       - assessed_at
       title: ErosionAssessmentResponse
-      description: 'Full RUSLE assessment output — the honest answer that replaces the
-
-        Phase-1 ``erosion_risk: "low"`` stub in the irrigation recommendation
-
-        helper.'
+      type: object
     ErosionRiskLevelEnum:
-      type: string
+      description: FAO Water Erosion Classification bands.
       enum:
       - none
       - low
@@ -1412,41 +909,41 @@ components:
       - severe
       - catastrophic
       title: ErosionRiskLevelEnum
-      description: FAO Water Erosion Classification bands.
+      type: string
     FlowAccumulationResult:
+      description: Flow accumulation analysis result | نتيجة تحليل تراكم التدفق
       properties:
-        max_accumulation:
-          type: integer
-          title: Max Accumulation
-          description: Maximum flow accumulation | أقصى تراكم تدفق
-        mean_accumulation:
-          type: number
-          title: Mean Accumulation
-          description: Mean flow accumulation | متوسط تراكم التدفق
-        drainage_density:
-          type: number
-          title: Drainage Density
-          description: Drainage density | كثافة الصرف
         channel_pixels:
-          type: integer
-          title: Channel Pixels
           description: Channel pixels (above threshold) | بكسلات القنوات
-        threshold_used:
+          title: Channel Pixels
           type: integer
-          title: Threshold Used
-          description: Threshold used | العتبة المستخدمة
+        drainage_density:
+          description: Drainage density | كثافة الصرف
+          title: Drainage Density
+          type: number
+        max_accumulation:
+          description: Maximum flow accumulation | أقصى تراكم تدفق
+          title: Max Accumulation
+          type: integer
+        mean_accumulation:
+          description: Mean flow accumulation | متوسط تراكم التدفق
+          title: Mean Accumulation
+          type: number
+        raster_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: URL to flow accumulation raster | رابط خريطة تراكم التدفق
+          title: Raster Url
         streams_geojson:
           anyOf:
           - $ref: '#/components/schemas/GeoJSONFeatureCollection'
           - type: 'null'
           description: Stream network GeoJSON | شبكة المجاري بصيغة GeoJSON
-        raster_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Raster Url
-          description: URL to flow accumulation raster | رابط خريطة تراكم التدفق
-      type: object
+        threshold_used:
+          description: Threshold used | العتبة المستخدمة
+          title: Threshold Used
+          type: integer
       required:
       - max_accumulation
       - mean_accumulation
@@ -1454,26 +951,26 @@ components:
       - channel_pixels
       - threshold_used
       title: FlowAccumulationResult
-      description: Flow accumulation analysis result | نتيجة تحليل تراكم التدفق
+      type: object
     FlowAnalysisResponse:
+      description: Flow analysis response | استجابة تحليل التدفق
       properties:
-        field_id:
-          type: string
-          title: Field Id
         analyzed_at:
-          type: string
           format: date-time
           title: Analyzed At
+          type: string
         dem_source:
           $ref: '#/components/schemas/DEMSourceType'
-        flow_direction:
-          $ref: '#/components/schemas/FlowDirectionResult'
+        field_id:
+          title: Field Id
+          type: string
         flow_accumulation:
           $ref: '#/components/schemas/FlowAccumulationResult'
+        flow_direction:
+          $ref: '#/components/schemas/FlowDirectionResult'
         processing_time_ms:
-          type: integer
           title: Processing Time Ms
-      type: object
+          type: integer
       required:
       - field_id
       - analyzed_at
@@ -1482,209 +979,209 @@ components:
       - flow_accumulation
       - processing_time_ms
       title: FlowAnalysisResponse
-      description: Flow analysis response | استجابة تحليل التدفق
+      type: object
     FlowDirectionMethod:
-      type: string
+      description: Flow direction calculation methods | طرق حساب اتجاه التدفق
       enum:
       - d8
       - dinf
       - mfd
       title: FlowDirectionMethod
-      description: Flow direction calculation methods | طرق حساب اتجاه التدفق
+      type: string
     FlowDirectionResult:
+      description: Flow direction analysis result | نتيجة تحليل اتجاه التدفق
       properties:
+        direction_distribution:
+          additionalProperties:
+            type: number
+          description: Flow direction distribution | توزيع اتجاه التدفق
+          title: Direction Distribution
+          type: object
+        dominant_direction:
+          description: Dominant flow direction | اتجاه التدفق السائد
+          title: Dominant Direction
+          type: string
         method:
           $ref: '#/components/schemas/FlowDirectionMethod'
           description: Method used | الطريقة المستخدمة
         method_name:
           $ref: '#/components/schemas/BilingualField'
           description: Method name | اسم الطريقة
-        dominant_direction:
-          type: string
-          title: Dominant Direction
-          description: Dominant flow direction | اتجاه التدفق السائد
-        direction_distribution:
-          additionalProperties:
-            type: number
-          type: object
-          title: Direction Distribution
-          description: Flow direction distribution | توزيع اتجاه التدفق
         raster_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Raster Url
           description: URL to flow direction raster | رابط خريطة اتجاه التدفق
-      type: object
+          title: Raster Url
       required:
       - method
       - method_name
       - dominant_direction
       - direction_distribution
       title: FlowDirectionResult
-      description: Flow direction analysis result | نتيجة تحليل اتجاه التدفق
+      type: object
     GeoJSONFeature:
+      description: GeoJSON Feature | ميزة GeoJSON
       properties:
-        type:
-          type: string
-          const: Feature
-          title: Type
-          default: Feature
         geometry:
           anyOf:
           - $ref: '#/components/schemas/GeoJSONPoint'
           - $ref: '#/components/schemas/GeoJSONLineString'
           - $ref: '#/components/schemas/GeoJSONMultiLineString'
           - $ref: '#/components/schemas/GeoJSONPolygon'
-          title: Geometry
           description: Feature geometry | هندسة الميزة
-        properties:
-          additionalProperties: true
-          type: object
-          title: Properties
-          description: Feature properties | خصائص الميزة
+          title: Geometry
         id:
           anyOf:
           - type: string
           - type: integer
           - type: 'null'
-          title: Id
           description: Feature ID | معرف الميزة
-      type: object
+          title: Id
+        properties:
+          additionalProperties: true
+          description: Feature properties | خصائص الميزة
+          title: Properties
+          type: object
+        type:
+          const: Feature
+          default: Feature
+          title: Type
+          type: string
       required:
       - geometry
       title: GeoJSONFeature
-      description: GeoJSON Feature | ميزة GeoJSON
+      type: object
     GeoJSONFeatureCollection:
+      description: GeoJSON FeatureCollection | مجموعة ميزات GeoJSON
       properties:
-        type:
-          type: string
-          const: FeatureCollection
-          title: Type
-          default: FeatureCollection
         features:
+          description: Features list | قائمة الميزات
           items:
             $ref: '#/components/schemas/GeoJSONFeature'
-          type: array
           title: Features
-          description: Features list | قائمة الميزات
-      type: object
-      title: GeoJSONFeatureCollection
-      description: GeoJSON FeatureCollection | مجموعة ميزات GeoJSON
-    GeoJSONLineString:
-      properties:
+          type: array
         type:
-          type: string
-          const: LineString
+          const: FeatureCollection
+          default: FeatureCollection
           title: Type
-          default: LineString
+          type: string
+      title: GeoJSONFeatureCollection
+      type: object
+    GeoJSONLineString:
+      description: GeoJSON LineString geometry | هندسة خط GeoJSON
+      properties:
         coordinates:
+          description: LineString coordinates | إحداثيات الخط
           items:
             items:
               type: number
             type: array
-          type: array
           title: Coordinates
-          description: LineString coordinates | إحداثيات الخط
-      type: object
+          type: array
+        type:
+          const: LineString
+          default: LineString
+          title: Type
+          type: string
       required:
       - coordinates
       title: GeoJSONLineString
-      description: GeoJSON LineString geometry | هندسة خط GeoJSON
+      type: object
     GeoJSONMultiLineString:
+      description: GeoJSON MultiLineString geometry | هندسة خطوط متعددة GeoJSON
       properties:
-        type:
-          type: string
-          const: MultiLineString
-          title: Type
-          default: MultiLineString
         coordinates:
+          description: MultiLineString coordinates | إحداثيات الخطوط المتعددة
           items:
             items:
               items:
                 type: number
               type: array
             type: array
-          type: array
           title: Coordinates
-          description: MultiLineString coordinates | إحداثيات الخطوط المتعددة
-      type: object
+          type: array
+        type:
+          const: MultiLineString
+          default: MultiLineString
+          title: Type
+          type: string
       required:
       - coordinates
       title: GeoJSONMultiLineString
-      description: GeoJSON MultiLineString geometry | هندسة خطوط متعددة GeoJSON
+      type: object
     GeoJSONPoint:
+      description: GeoJSON Point geometry | هندسة نقطة GeoJSON
       properties:
-        type:
-          type: string
-          const: Point
-          title: Type
-          default: Point
         coordinates:
+          description: Point coordinates [lon, lat] | إحداثيات النقطة
           items:
             type: number
-          type: array
           title: Coordinates
-          description: Point coordinates [lon, lat] | إحداثيات النقطة
-      type: object
+          type: array
+        type:
+          const: Point
+          default: Point
+          title: Type
+          type: string
       required:
       - coordinates
       title: GeoJSONPoint
-      description: GeoJSON Point geometry | هندسة نقطة GeoJSON
+      type: object
     GeoJSONPolygon:
+      description: GeoJSON Polygon geometry | هندسة مضلع GeoJSON
       properties:
-        type:
-          type: string
-          const: Polygon
-          title: Type
-          default: Polygon
         coordinates:
+          description: Polygon coordinates | إحداثيات المضلع
           items:
             items:
               items:
                 type: number
               type: array
             type: array
-          type: array
           title: Coordinates
-          description: Polygon coordinates | إحداثيات المضلع
-      type: object
+          type: array
+        type:
+          const: Polygon
+          default: Polygon
+          title: Type
+          type: string
       required:
       - coordinates
       title: GeoJSONPolygon
-      description: GeoJSON Polygon geometry | هندسة مضلع GeoJSON
+      type: object
     HTTPValidationError:
       properties:
         detail:
           items:
             $ref: '#/components/schemas/ValidationError'
-          type: array
           title: Detail
-      type: object
+          type: array
       title: HTTPValidationError
-    RUSLEFactorsResponse:
-      properties:
-        r_factor:
-          type: number
-          title: R Factor
-          description: Rainfall-runoff erosivity (MJ·mm/ha·h·yr)
-        k_factor:
-          type: number
-          title: K Factor
-          description: Soil erodibility (tonnes·ha·h/ha·MJ·mm)
-        ls_factor:
-          type: number
-          title: Ls Factor
-          description: Slope length × steepness (dimensionless)
-        c_factor:
-          type: number
-          title: C Factor
-          description: Cover-management (dimensionless, 0-1)
-        p_factor:
-          type: number
-          title: P Factor
-          description: Support practice (dimensionless, 0-1)
       type: object
+    RUSLEFactorsResponse:
+      description: The 5 RUSLE factors that multiply to produce A = RKLSCP.
+      properties:
+        c_factor:
+          description: Cover-management (dimensionless, 0-1)
+          title: C Factor
+          type: number
+        k_factor:
+          description: Soil erodibility (tonnes·ha·h/ha·MJ·mm)
+          title: K Factor
+          type: number
+        ls_factor:
+          description: Slope length × steepness (dimensionless)
+          title: Ls Factor
+          type: number
+        p_factor:
+          description: Support practice (dimensionless, 0-1)
+          title: P Factor
+          type: number
+        r_factor:
+          description: Rainfall-runoff erosivity (MJ·mm/ha·h·yr)
+          title: R Factor
+          type: number
       required:
       - r_factor
       - k_factor
@@ -1692,30 +1189,32 @@ components:
       - c_factor
       - p_factor
       title: RUSLEFactorsResponse
-      description: The 5 RUSLE factors that multiply to produce A = RKLSCP.
-    RWEQFactorsResponse:
-      properties:
-        wind_factor:
-          type: number
-          title: Wind Factor
-          description: WF — aridity-weighted wind kinetic energy | عامل الرياح
-        erodibility_factor:
-          type: number
-          title: Erodibility Factor
-          description: EF — soil erodibility from texture + OM | عامل قابلية التعرية
-        soil_crust_factor:
-          type: number
-          title: Soil Crust Factor
-          description: SCF — clay + OM surface crust protection | عامل قشرة التربة
-        roughness_factor:
-          type: number
-          title: Roughness Factor
-          description: K' — Chepil tillage / surface roughness | عامل الخشونة
-        cover_factor:
-          type: number
-          title: Cover Factor
-          description: COG — residue + canopy ground cover | عامل الغطاء
       type: object
+    RWEQFactorsResponse:
+      description: 'The 5 RWEQ-lite factors that drive the wind soil loss estimate.
+
+        العوامل الخمسة في معادلة RWEQ-lite التي تحدد تقدير فقد التربة بالرياح.'
+      properties:
+        cover_factor:
+          description: COG — residue + canopy ground cover | عامل الغطاء
+          title: Cover Factor
+          type: number
+        erodibility_factor:
+          description: EF — soil erodibility from texture + OM | عامل قابلية التعرية
+          title: Erodibility Factor
+          type: number
+        roughness_factor:
+          description: K' — Chepil tillage / surface roughness | عامل الخشونة
+          title: Roughness Factor
+          type: number
+        soil_crust_factor:
+          description: SCF — clay + OM surface crust protection | عامل قشرة التربة
+          title: Soil Crust Factor
+          type: number
+        wind_factor:
+          description: WF — aridity-weighted wind kinetic energy | عامل الرياح
+          title: Wind Factor
+          type: number
       required:
       - wind_factor
       - erodibility_factor
@@ -1723,36 +1222,34 @@ components:
       - roughness_factor
       - cover_factor
       title: RWEQFactorsResponse
-      description: 'The 5 RWEQ-lite factors that drive the wind soil loss estimate.
-
-        العوامل الخمسة في معادلة RWEQ-lite التي تحدد تقدير فقد التربة بالرياح.'
+      type: object
     ResidueStateEnum:
-      type: string
+      description: 'Crop residue state after harvest — drives the RWEQ COG cover factor.
+
+        حالة بقايا المحاصيل بعد الحصاد — تحدد عامل الغطاء COG في RWEQ.'
       enum:
       - bare
       - flat
       - standing
       title: ResidueStateEnum
-      description: 'Crop residue state after harvest — drives the RWEQ COG cover factor.
-
-        حالة بقايا المحاصيل بعد الحصاد — تحدد عامل الغطاء COG في RWEQ.'
+      type: string
     SlopeAnalysisResponse:
+      description: Simple slope analysis response | استجابة تحليل الميل البسيطة
       properties:
-        field_id:
-          type: string
-          title: Field Id
         analyzed_at:
-          type: string
           format: date-time
           title: Analyzed At
+          type: string
         dem_source:
           $ref: '#/components/schemas/DEMSourceType'
+        field_id:
+          title: Field Id
+          type: string
+        processing_time_ms:
+          title: Processing Time Ms
+          type: integer
         slope:
           $ref: '#/components/schemas/SlopeResult'
-        processing_time_ms:
-          type: integer
-          title: Processing Time Ms
-      type: object
       required:
       - field_id
       - analyzed_at
@@ -1760,46 +1257,46 @@ components:
       - slope
       - processing_time_ms
       title: SlopeAnalysisResponse
-      description: Simple slope analysis response | استجابة تحليل الميل البسيطة
+      type: object
     SlopeResult:
+      description: Slope analysis result | نتيجة تحليل الميل
       properties:
-        unit:
-          $ref: '#/components/schemas/SlopeUnit'
-          description: Slope unit | وحدة الميل
-        unit_name:
-          $ref: '#/components/schemas/BilingualField'
-          description: Unit name | اسم الوحدة
-        min_slope:
-          type: number
-          title: Min Slope
-          description: Minimum slope | أدنى ميل
-        max_slope:
-          type: number
-          title: Max Slope
-          description: Maximum slope | أقصى ميل
-        mean_slope:
-          type: number
-          title: Mean Slope
-          description: Mean slope | متوسط الميل
-        std_slope:
-          type: number
-          title: Std Slope
-          description: Slope standard deviation | الانحراف المعياري للميل
         classification:
           anyOf:
           - additionalProperties:
               type: number
             type: object
           - type: 'null'
-          title: Classification
           description: Slope classification percentages | نسب تصنيف الميل
+          title: Classification
+        max_slope:
+          description: Maximum slope | أقصى ميل
+          title: Max Slope
+          type: number
+        mean_slope:
+          description: Mean slope | متوسط الميل
+          title: Mean Slope
+          type: number
+        min_slope:
+          description: Minimum slope | أدنى ميل
+          title: Min Slope
+          type: number
         raster_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Raster Url
           description: URL to slope raster | رابط خريطة الميل
-      type: object
+          title: Raster Url
+        std_slope:
+          description: Slope standard deviation | الانحراف المعياري للميل
+          title: Std Slope
+          type: number
+        unit:
+          $ref: '#/components/schemas/SlopeUnit'
+          description: Slope unit | وحدة الميل
+        unit_name:
+          $ref: '#/components/schemas/BilingualField'
+          description: Unit name | اسم الوحدة
       required:
       - unit
       - unit_name
@@ -1808,17 +1305,17 @@ components:
       - mean_slope
       - std_slope
       title: SlopeResult
-      description: Slope analysis result | نتيجة تحليل الميل
+      type: object
     SlopeUnit:
-      type: string
+      description: Slope measurement units | وحدات قياس الميل
       enum:
       - degrees
       - percent
       - radians
       title: SlopeUnit
-      description: Slope measurement units | وحدات قياس الميل
-    SoilTextureEnum:
       type: string
+    SoilTextureEnum:
+      description: USDA soil texture classes used by the RUSLE K-factor lookup.
       enum:
       - sand
       - loamy_sand
@@ -1828,35 +1325,35 @@ components:
       - clay_loam
       - clay
       title: SoilTextureEnum
-      description: USDA soil texture classes used by the RUSLE K-factor lookup.
-    SurfaceRoughnessEnum:
       type: string
+    SurfaceRoughnessEnum:
+      description: 'Chepil surface roughness classes used by the RWEQ-lite K'' factor.
+
+        فئات خشونة السطح (شيبيل) المستخدمة في عامل K'' لمعادلة RWEQ-lite.'
       enum:
       - smooth
       - medium
       - rough
       - furrowed
       title: SurfaceRoughnessEnum
-      description: 'Chepil surface roughness classes used by the RWEQ-lite K'' factor.
-
-        فئات خشونة السطح (شيبيل) المستخدمة في عامل K'' لمعادلة RWEQ-lite.'
+      type: string
     TWIAnalysisResponse:
+      description: TWI analysis response | استجابة تحليل TWI
       properties:
-        field_id:
-          type: string
-          title: Field Id
         analyzed_at:
-          type: string
           format: date-time
           title: Analyzed At
+          type: string
         dem_source:
           $ref: '#/components/schemas/DEMSourceType'
+        field_id:
+          title: Field Id
+          type: string
+        processing_time_ms:
+          title: Processing Time Ms
+          type: integer
         twi:
           $ref: '#/components/schemas/TWIResult'
-        processing_time_ms:
-          type: integer
-          title: Processing Time Ms
-      type: object
       required:
       - field_id
       - analyzed_at
@@ -1864,42 +1361,42 @@ components:
       - twi
       - processing_time_ms
       title: TWIAnalysisResponse
-      description: TWI analysis response | استجابة تحليل TWI
+      type: object
     TWIResult:
+      description: Topographic Wetness Index result | نتيجة مؤشر الرطوبة الطبوغرافية
       properties:
-        name:
-          $ref: '#/components/schemas/BilingualField'
-          description: Index name | اسم المؤشر
-        min_twi:
-          type: number
-          title: Min Twi
-          description: Minimum TWI | أدنى TWI
-        max_twi:
-          type: number
-          title: Max Twi
-          description: Maximum TWI | أقصى TWI
-        mean_twi:
-          type: number
-          title: Mean Twi
-          description: Mean TWI | متوسط TWI
-        std_twi:
-          type: number
-          title: Std Twi
-          description: TWI standard deviation | الانحراف المعياري
         high_moisture_area_pct:
-          type: number
-          title: High Moisture Area Pct
           description: High moisture area percentage | نسبة المنطقة عالية الرطوبة
+          title: High Moisture Area Pct
+          type: number
         interpretation:
           $ref: '#/components/schemas/BilingualField'
           description: TWI interpretation | تفسير المؤشر
+        max_twi:
+          description: Maximum TWI | أقصى TWI
+          title: Max Twi
+          type: number
+        mean_twi:
+          description: Mean TWI | متوسط TWI
+          title: Mean Twi
+          type: number
+        min_twi:
+          description: Minimum TWI | أدنى TWI
+          title: Min Twi
+          type: number
+        name:
+          $ref: '#/components/schemas/BilingualField'
+          description: Index name | اسم المؤشر
         raster_url:
           anyOf:
           - type: string
           - type: 'null'
-          title: Raster Url
           description: URL to TWI raster | رابط خريطة TWI
-      type: object
+          title: Raster Url
+        std_twi:
+          description: TWI standard deviation | الانحراف المعياري
+          title: Std Twi
+          type: number
       required:
       - min_twi
       - max_twi
@@ -1908,191 +1405,191 @@ components:
       - high_moisture_area_pct
       - interpretation
       title: TWIResult
-      description: Topographic Wetness Index result | نتيجة مؤشر الرطوبة الطبوغرافية
+      type: object
     TerrainAnalysisRequest:
+      description: Request for full terrain analysis | طلب تحليل التضاريس الكامل
       properties:
+        contour_interval_m:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            maximum: 100.0
+            type: number
+          - type: 'null'
+          default: 5.0
+          description: Contour interval in meters | فترة خطوط الكنتور
+          title: Contour Interval M
+        dem_source:
+          $ref: '#/components/schemas/DEMSourceType'
+          default: copernicus
+          description: DEM data source | مصدر بيانات الارتفاعات
         field_id:
-          type: string
+          description: Field identifier | معرف الحقل
           maxLength: 64
           minLength: 1
           title: Field Id
-          description: Field identifier | معرف الحقل
+          type: string
+        flow_method:
+          $ref: '#/components/schemas/FlowDirectionMethod'
+          default: d8
+          description: Flow direction method | طريقة اتجاه التدفق
         geometry:
           anyOf:
           - $ref: '#/components/schemas/GeoJSONPolygon'
           - type: 'null'
           description: Field boundary (optional if field_id is provided)
-        dem_source:
-          $ref: '#/components/schemas/DEMSourceType'
-          description: DEM data source | مصدر بيانات الارتفاعات
-          default: copernicus
-        target_resolution_m:
-          anyOf:
-          - type: number
-            maximum: 1000.0
-            exclusiveMinimum: 0.0
-          - type: 'null'
-          title: Target Resolution M
-          description: Target resolution in meters | الدقة المستهدفة
-        target_crs:
-          anyOf:
-          - type: string
-            maxLength: 32
-          - type: 'null'
-          title: Target Crs
-          description: Target CRS | نظام الإحداثيات المستهدف
-        include_slope:
-          type: boolean
-          title: Include Slope
-          description: Include slope analysis | تضمين تحليل الميل
-          default: true
         include_aspect:
-          type: boolean
-          title: Include Aspect
+          default: true
           description: Include aspect analysis | تضمين تحليل الجانب
-          default: true
-        include_flow_direction:
+          title: Include Aspect
           type: boolean
-          title: Include Flow Direction
-          description: Include flow direction | تضمين اتجاه التدفق
-          default: true
-        include_flow_accumulation:
-          type: boolean
-          title: Include Flow Accumulation
-          description: Include flow accumulation | تضمين تراكم التدفق
-          default: true
-        include_twi:
-          type: boolean
-          title: Include Twi
-          description: Include TWI | تضمين مؤشر الرطوبة الطبوغرافية
-          default: true
-        include_curvature:
-          type: boolean
-          title: Include Curvature
-          description: Include curvature | تضمين الانحناء
-          default: true
         include_contours:
-          type: boolean
-          title: Include Contours
-          description: Include contour lines | تضمين خطوط الكنتور
           default: true
-        contour_interval_m:
-          anyOf:
-          - type: number
-            maximum: 100.0
-            exclusiveMinimum: 0.0
-          - type: 'null'
-          title: Contour Interval M
-          description: Contour interval in meters | فترة خطوط الكنتور
-          default: 5.0
+          description: Include contour lines | تضمين خطوط الكنتور
+          title: Include Contours
+          type: boolean
+        include_curvature:
+          default: true
+          description: Include curvature | تضمين الانحناء
+          title: Include Curvature
+          type: boolean
+        include_flow_accumulation:
+          default: true
+          description: Include flow accumulation | تضمين تراكم التدفق
+          title: Include Flow Accumulation
+          type: boolean
+        include_flow_direction:
+          default: true
+          description: Include flow direction | تضمين اتجاه التدفق
+          title: Include Flow Direction
+          type: boolean
+        include_slope:
+          default: true
+          description: Include slope analysis | تضمين تحليل الميل
+          title: Include Slope
+          type: boolean
+        include_twi:
+          default: true
+          description: Include TWI | تضمين مؤشر الرطوبة الطبوغرافية
+          title: Include Twi
+          type: boolean
         slope_unit:
           $ref: '#/components/schemas/SlopeUnit'
-          description: Slope unit | وحدة الميل
           default: degrees
-        flow_method:
-          $ref: '#/components/schemas/FlowDirectionMethod'
-          description: Flow direction method | طريقة اتجاه التدفق
-          default: d8
+          description: Slope unit | وحدة الميل
+        target_crs:
+          anyOf:
+          - maxLength: 32
+            type: string
+          - type: 'null'
+          description: Target CRS | نظام الإحداثيات المستهدف
+          title: Target Crs
+        target_resolution_m:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            maximum: 1000.0
+            type: number
+          - type: 'null'
+          description: Target resolution in meters | الدقة المستهدفة
+          title: Target Resolution M
         tenant_id:
           anyOf:
-          - type: string
-            maxLength: 64
+          - maxLength: 64
+            type: string
           - type: 'null'
-          title: Tenant Id
           description: Tenant identifier | معرف المستأجر
-      type: object
+          title: Tenant Id
       required:
       - field_id
       title: TerrainAnalysisRequest
-      description: Request for full terrain analysis | طلب تحليل التضاريس الكامل
+      type: object
     TerrainAnalysisResponse:
+      description: Full terrain analysis response | استجابة تحليل التضاريس الكاملة
       properties:
-        field_id:
-          type: string
-          title: Field Id
-          description: Field identifier | معرف الحقل
         analysis_id:
-          type: string
-          title: Analysis Id
           description: Analysis identifier | معرف التحليل
-        status:
+          title: Analysis Id
           type: string
-          title: Status
-          description: Analysis status | حالة التحليل
         analyzed_at:
-          type: string
+          description: Analysis timestamp | وقت التحليل
           format: date-time
           title: Analyzed At
-          description: Analysis timestamp | وقت التحليل
+          type: string
+        aspect:
+          anyOf:
+          - $ref: '#/components/schemas/AspectResult'
+          - type: 'null'
+          description: Aspect analysis | تحليل الجانب
+        contours:
+          anyOf:
+          - $ref: '#/components/schemas/ContourResult'
+          - type: 'null'
+          description: Contour lines | خطوط الكنتور
         dem_metadata:
           $ref: '#/components/schemas/DEMMetadata'
           description: DEM metadata | بيانات الارتفاعات الوصفية
         dem_statistics:
           $ref: '#/components/schemas/DEMStatistics'
           description: DEM statistics | إحصائيات الارتفاعات
-        slope:
-          anyOf:
-          - $ref: '#/components/schemas/SlopeResult'
-          - type: 'null'
-          description: Slope analysis | تحليل الميل
-        aspect:
-          anyOf:
-          - $ref: '#/components/schemas/AspectResult'
-          - type: 'null'
-          description: Aspect analysis | تحليل الجانب
-        flow_direction:
-          anyOf:
-          - $ref: '#/components/schemas/FlowDirectionResult'
-          - type: 'null'
-          description: Flow direction | اتجاه التدفق
+        field_id:
+          description: Field identifier | معرف الحقل
+          title: Field Id
+          type: string
         flow_accumulation:
           anyOf:
           - $ref: '#/components/schemas/FlowAccumulationResult'
           - type: 'null'
           description: Flow accumulation | تراكم التدفق
-        twi:
+        flow_direction:
           anyOf:
-          - $ref: '#/components/schemas/TWIResult'
+          - $ref: '#/components/schemas/FlowDirectionResult'
           - type: 'null'
-          description: Topographic Wetness Index | مؤشر الرطوبة الطبوغرافية
+          description: Flow direction | اتجاه التدفق
+        irrigation_recommendations:
+          description: Irrigation recommendations | توصيات الري
+          items:
+            $ref: '#/components/schemas/TerrainIrrigationRecommendation'
+          title: Irrigation Recommendations
+          type: array
         plan_curvature:
           anyOf:
           - $ref: '#/components/schemas/CurvatureResult'
           - type: 'null'
           description: Plan curvature | الانحناء الأفقي
+        processing_time_ms:
+          description: Processing time in milliseconds | وقت المعالجة بالمللي ثانية
+          title: Processing Time Ms
+          type: integer
         profile_curvature:
           anyOf:
           - $ref: '#/components/schemas/CurvatureResult'
           - type: 'null'
           description: Profile curvature | الانحناء الطولي
-        contours:
+        slope:
           anyOf:
-          - $ref: '#/components/schemas/ContourResult'
+          - $ref: '#/components/schemas/SlopeResult'
           - type: 'null'
-          description: Contour lines | خطوط الكنتور
+          description: Slope analysis | تحليل الميل
+        status:
+          description: Analysis status | حالة التحليل
+          title: Status
+          type: string
         terrain_category:
           $ref: '#/components/schemas/TerrainCategory'
           description: Overall terrain category | تصنيف التضاريس العام
         terrain_category_name:
           $ref: '#/components/schemas/BilingualField'
           description: Category name | اسم التصنيف
-        irrigation_recommendations:
-          items:
-            $ref: '#/components/schemas/TerrainIrrigationRecommendation'
-          type: array
-          title: Irrigation Recommendations
-          description: Irrigation recommendations | توصيات الري
-        processing_time_ms:
-          type: integer
-          title: Processing Time Ms
-          description: Processing time in milliseconds | وقت المعالجة بالمللي ثانية
+        twi:
+          anyOf:
+          - $ref: '#/components/schemas/TWIResult'
+          - type: 'null'
+          description: Topographic Wetness Index | مؤشر الرطوبة الطبوغرافية
         warnings:
+          description: Processing warnings | تحذيرات المعالجة
           items:
             type: string
-          type: array
           title: Warnings
-          description: Processing warnings | تحذيرات المعالجة
-      type: object
+          type: array
       required:
       - field_id
       - analysis_id
@@ -2104,9 +1601,9 @@ components:
       - terrain_category_name
       - processing_time_ms
       title: TerrainAnalysisResponse
-      description: Full terrain analysis response | استجابة تحليل التضاريس الكاملة
+      type: object
     TerrainCategory:
-      type: string
+      description: Terrain classification categories | تصنيفات التضاريس
       enum:
       - flat
       - gentle
@@ -2114,50 +1611,50 @@ components:
       - steep
       - very_steep
       title: TerrainCategory
-      description: Terrain classification categories | تصنيفات التضاريس
+      type: string
     TerrainIrrigationRecommendation:
+      description: Irrigation recommendation based on terrain | توصية الري بناءً على التضاريس
       properties:
-        zone_id:
-          type: string
-          title: Zone Id
-          description: Zone identifier | معرف المنطقة
-        zone_name:
-          $ref: '#/components/schemas/BilingualField'
-          description: Zone name | اسم المنطقة
         area_ha:
-          type: number
-          title: Area Ha
           description: Area in hectares | المساحة بالهكتار
-        mean_slope_pct:
+          title: Area Ha
           type: number
-          title: Mean Slope Pct
-          description: Mean slope percentage | متوسط نسبة الميل
-        mean_twi:
-          type: number
-          title: Mean Twi
-          description: Mean TWI | متوسط TWI
-        irrigation_suitability:
-          type: string
-          title: Irrigation Suitability
-          description: Suitability category | فئة الملاءمة
-        suitability_name:
-          $ref: '#/components/schemas/BilingualField'
-          description: Suitability name | اسم الملاءمة
-        recommended_method:
-          $ref: '#/components/schemas/BilingualField'
-          description: Recommended irrigation method | طريقة الري الموصى بها
-        water_retention_capacity:
-          type: string
-          title: Water Retention Capacity
-          description: Water retention capacity | قدرة احتفاظ المياه
         erosion_risk:
-          type: string
-          title: Erosion Risk
           description: Erosion risk level | مستوى خطر التعرية
+          title: Erosion Risk
+          type: string
+        irrigation_suitability:
+          description: Suitability category | فئة الملاءمة
+          title: Irrigation Suitability
+          type: string
+        mean_slope_pct:
+          description: Mean slope percentage | متوسط نسبة الميل
+          title: Mean Slope Pct
+          type: number
+        mean_twi:
+          description: Mean TWI | متوسط TWI
+          title: Mean Twi
+          type: number
         notes:
           $ref: '#/components/schemas/BilingualField'
           description: Additional notes | ملاحظات إضافية
-      type: object
+        recommended_method:
+          $ref: '#/components/schemas/BilingualField'
+          description: Recommended irrigation method | طريقة الري الموصى بها
+        suitability_name:
+          $ref: '#/components/schemas/BilingualField'
+          description: Suitability name | اسم الملاءمة
+        water_retention_capacity:
+          description: Water retention capacity | قدرة احتفاظ المياه
+          title: Water Retention Capacity
+          type: string
+        zone_id:
+          description: Zone identifier | معرف المنطقة
+          title: Zone Id
+          type: string
+        zone_name:
+          $ref: '#/components/schemas/BilingualField'
+          description: Zone name | اسم المنطقة
       required:
       - zone_id
       - zone_name
@@ -2171,109 +1668,34 @@ components:
       - erosion_risk
       - notes
       title: TerrainIrrigationRecommendation
-      description: Irrigation recommendation based on terrain | توصية الري بناءً على التضاريس
+      type: object
     ValidationError:
       properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
         loc:
           items:
             anyOf:
             - type: string
             - type: integer
-          type: array
           title: Location
+          type: array
         msg:
-          type: string
           title: Message
-        type:
           type: string
+        type:
           title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
+          type: string
       required:
       - loc
       - msg
       - type
       title: ValidationError
-    WindErosionAssessmentRequest:
-      properties:
-        field_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Field Id
-          description: Field identifier | معرف الحقل
-        tenant_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Tenant Id
-          description: Tenant identifier | معرف المستأجر
-        texture_key:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Texture Key
-          description: Soil texture key — USDA class (sand, loam, clay, ...) or Yemen profile (tihama_sandy_loam, highland_clay_loam, ...) | مفتاح قوام التربة (USDA أو ملف تعريف يمني)
-        mean_wind_speed_ms:
-          type: number
-          maximum: 50.0
-          minimum: 0.0
-          title: Mean Wind Speed Ms
-          description: Mean wind speed (m/s) — use peak-month mean for conservative planning | متوسط سرعة الرياح (م/ث)
-        annual_rainfall_mm:
-          type: number
-          maximum: 5000.0
-          minimum: 0.0
-          title: Annual Rainfall Mm
-          description: Mean annual precipitation (mm) | متوسط الهطول السنوي (مم)
-        annual_et0_mm:
-          type: number
-          maximum: 5000.0
-          minimum: 100.0
-          title: Annual Et0 Mm
-          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر النتح المرجعي السنوي (مم)
-        roughness:
-          $ref: '#/components/schemas/SurfaceRoughnessEnum'
-          description: Chepil surface roughness class (drives K') | فئة خشونة السطح
-          default: medium
-        residue_state:
-          $ref: '#/components/schemas/ResidueStateEnum'
-          description: Crop residue state after harvest (drives COG) | حالة بقايا المحصول
-          default: bare
-        residue_cover_pct:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Residue Cover Pct
-          description: Flat/standing residue cover (%) | نسبة تغطية البقايا (٪)
-          default: 0.0
-        canopy_cover_pct:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Canopy Cover Pct
-          description: Active canopy cover (%) | نسبة تغطية المظلة النباتية (٪)
-          default: 0.0
-        unsheltered_length_m:
-          type: number
-          maximum: 5000.0
-          minimum: 1.0
-          title: Unsheltered Length M
-          description: Unsheltered field length along the prevailing wind direction (m) | طول الحقل غير المحمي باتجاه الرياح السائدة (م)
-          default: 100.0
       type: object
-      required:
-      - field_id
-      - tenant_id
-      - texture_key
-      - mean_wind_speed_ms
-      - annual_rainfall_mm
-      - annual_et0_mm
-      title: WindErosionAssessmentRequest
+    WindErosionAssessmentRequest:
       description: 'Inputs for a RWEQ-lite (Revised Wind Erosion Equation) assessment.
 
 
@@ -2287,52 +1709,129 @@ components:
         erosion driver. For sloped fields, pair with the water erosion
 
         endpoint — or call ``/erosion/combined`` for both at once.'
-    WindErosionAssessmentResponse:
       properties:
-        field_id:
-          type: string
-          title: Field Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        soil_loss_t_ha_yr:
+        annual_et0_mm:
+          description: Annual reference evapotranspiration total (mm) | إجمالي التبخر النتح المرجعي السنوي (مم)
+          maximum: 5000.0
+          minimum: 100.0
+          title: Annual Et0 Mm
           type: number
-          title: Soil Loss T Ha Yr
-          description: Annual wind soil loss (tonnes / hectare / year) | فقد التربة بالرياح سنوياً
+        annual_rainfall_mm:
+          description: Mean annual precipitation (mm) | متوسط الهطول السنوي (مم)
+          maximum: 5000.0
+          minimum: 0.0
+          title: Annual Rainfall Mm
+          type: number
+        canopy_cover_pct:
+          default: 0.0
+          description: Active canopy cover (%) | نسبة تغطية المظلة النباتية (٪)
+          maximum: 100.0
+          minimum: 0.0
+          title: Canopy Cover Pct
+          type: number
+        field_id:
+          description: Field identifier | معرف الحقل
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+          type: string
+        mean_wind_speed_ms:
+          description: Mean wind speed (m/s) — use peak-month mean for conservative planning | متوسط سرعة الرياح (م/ث)
+          maximum: 50.0
+          minimum: 0.0
+          title: Mean Wind Speed Ms
+          type: number
+        residue_cover_pct:
+          default: 0.0
+          description: Flat/standing residue cover (%) | نسبة تغطية البقايا (٪)
+          maximum: 100.0
+          minimum: 0.0
+          title: Residue Cover Pct
+          type: number
+        residue_state:
+          $ref: '#/components/schemas/ResidueStateEnum'
+          default: bare
+          description: Crop residue state after harvest (drives COG) | حالة بقايا المحصول
+        roughness:
+          $ref: '#/components/schemas/SurfaceRoughnessEnum'
+          default: medium
+          description: Chepil surface roughness class (drives K') | فئة خشونة السطح
+        tenant_id:
+          description: Tenant identifier | معرف المستأجر
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+          type: string
+        texture_key:
+          description: Soil texture key — USDA class (sand, loam, clay, ...) or Yemen profile (tihama_sandy_loam, highland_clay_loam, ...) | مفتاح قوام التربة (USDA أو ملف تعريف يمني)
+          maxLength: 64
+          minLength: 1
+          title: Texture Key
+          type: string
+        unsheltered_length_m:
+          default: 100.0
+          description: Unsheltered field length along the prevailing wind direction (m) | طول الحقل غير المحمي باتجاه الرياح السائدة (م)
+          maximum: 5000.0
+          minimum: 1.0
+          title: Unsheltered Length M
+          type: number
+      required:
+      - field_id
+      - tenant_id
+      - texture_key
+      - mean_wind_speed_ms
+      - annual_rainfall_mm
+      - annual_et0_mm
+      title: WindErosionAssessmentRequest
+      type: object
+    WindErosionAssessmentResponse:
+      description: 'Full RWEQ-lite assessment output for a single field.
+
+        مخرجات تقييم RWEQ-lite الكامل لحقل واحد.'
+      properties:
+        assessed_at:
+          description: Assessment timestamp
+          format: date-time
+          title: Assessed At
+          type: string
+        factor_contributions_pct:
+          additionalProperties:
+            type: number
+          description: Log-normalised per-factor contribution (%) — which factor drives the loss
+          title: Factor Contributions Pct
+          type: object
+        factors:
+          $ref: '#/components/schemas/RWEQFactorsResponse'
+          description: Per-factor breakdown
+        field_id:
+          title: Field Id
+          type: string
+        recommendations:
+          description: Wind-erosion mitigation actions (English)
+          items:
+            type: string
+          title: Recommendations
+          type: array
+        recommendations_ar:
+          description: خطوات التخفيف من تعرية الرياح (عربي)
+          items:
+            type: string
+          title: Recommendations Ar
+          type: array
         risk_level:
           $ref: '#/components/schemas/ErosionRiskLevelEnum'
           description: FAO risk band (none / low / moderate / high / severe / catastrophic)
         risk_level_ar:
-          type: string
-          title: Risk Level Ar
           description: Arabic label for the risk band
-        factors:
-          $ref: '#/components/schemas/RWEQFactorsResponse'
-          description: Per-factor breakdown
-        factor_contributions_pct:
-          additionalProperties:
-            type: number
-          type: object
-          title: Factor Contributions Pct
-          description: Log-normalised per-factor contribution (%) — which factor drives the loss
-        recommendations:
-          items:
-            type: string
-          type: array
-          title: Recommendations
-          description: Wind-erosion mitigation actions (English)
-        recommendations_ar:
-          items:
-            type: string
-          type: array
-          title: Recommendations Ar
-          description: خطوات التخفيف من تعرية الرياح (عربي)
-        assessed_at:
+          title: Risk Level Ar
           type: string
-          format: date-time
-          title: Assessed At
-          description: Assessment timestamp
-      type: object
+        soil_loss_t_ha_yr:
+          description: Annual wind soil loss (tonnes / hectare / year) | فقد التربة بالرياح سنوياً
+          title: Soil Loss T Ha Yr
+          type: number
+        tenant_id:
+          title: Tenant Id
+          type: string
       required:
       - field_id
       - tenant_id
@@ -2342,77 +1841,8 @@ components:
       - factors
       - assessed_at
       title: WindErosionAssessmentResponse
-      description: 'Full RWEQ-lite assessment output for a single field.
-
-        مخرجات تقييم RWEQ-lite الكامل لحقل واحد.'
-    YemenRegionErosionRequest:
-      properties:
-        field_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Field Id
-          description: Field identifier | معرف الحقل
-        tenant_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Tenant Id
-          description: Tenant identifier | معرف المستأجر
-        region:
-          type: string
-          maxLength: 64
-          minLength: 1
-          title: Region
-          description: Yemen agro-ecological region key (tihama, eastern_plateau, hadhramaut, southern_coast, highlands) | المنطقة الزراعية اليمنية
-        slope_pct:
-          type: number
-          maximum: 200.0
-          minimum: 0.0
-          title: Slope Pct
-          description: Mean slope percentage (0-200), default 1% for plains | نسبة الميل
-          default: 1.0
-        soil_texture:
-          anyOf:
-          - $ref: '#/components/schemas/SoilTextureEnum'
-          - type: 'null'
-          description: Optional USDA soil texture override — when None, inferred from the regional Yemen profile | فئة قوام تربة اختيارية تُستنتج تلقائياً
-        cover_type:
-          type: string
-          maxLength: 64
-          title: Cover Type
-          description: Crop / cover class for the RUSLE C factor | نوع الغطاء النباتي
-          default: bare_soil
-        conservation_practice:
-          type: string
-          maxLength: 64
-          title: Conservation Practice
-          description: Support practice for the RUSLE P factor | ممارسة الحفاظ
-          default: none
-        residue_state:
-          $ref: '#/components/schemas/ResidueStateEnum'
-          description: Crop residue state after harvest | حالة بقايا المحصول
-          default: bare
-        residue_cover_pct:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Residue Cover Pct
-          description: Flat/standing residue cover (%) | نسبة تغطية البقايا
-          default: 0.0
-        canopy_cover_pct:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Canopy Cover Pct
-          description: Active canopy cover (%) | نسبة تغطية المظلة
-          default: 0.0
       type: object
-      required:
-      - field_id
-      - tenant_id
-      - region
-      title: YemenRegionErosionRequest
+    YemenRegionErosionRequest:
       description: 'Minimum-input combined erosion request for a Yemeni field, using
 
         a named agro-ecological region to fill in climate + soil defaults.
@@ -2432,15 +1862,585 @@ components:
         inferred from ``YEMEN_REGION_PRESETS`` in
 
         ``shared/terrain_erosion/combined.py``.'
+      properties:
+        canopy_cover_pct:
+          default: 0.0
+          description: Active canopy cover (%) | نسبة تغطية المظلة
+          maximum: 100.0
+          minimum: 0.0
+          title: Canopy Cover Pct
+          type: number
+        conservation_practice:
+          default: none
+          description: Support practice for the RUSLE P factor | ممارسة الحفاظ
+          maxLength: 64
+          title: Conservation Practice
+          type: string
+        cover_type:
+          default: bare_soil
+          description: Crop / cover class for the RUSLE C factor | نوع الغطاء النباتي
+          maxLength: 64
+          title: Cover Type
+          type: string
+        field_id:
+          description: Field identifier | معرف الحقل
+          maxLength: 100
+          minLength: 1
+          title: Field Id
+          type: string
+        region:
+          description: Yemen agro-ecological region key (tihama, eastern_plateau, hadhramaut, southern_coast, highlands) | المنطقة الزراعية اليمنية
+          maxLength: 64
+          minLength: 1
+          title: Region
+          type: string
+        residue_cover_pct:
+          default: 0.0
+          description: Flat/standing residue cover (%) | نسبة تغطية البقايا
+          maximum: 100.0
+          minimum: 0.0
+          title: Residue Cover Pct
+          type: number
+        residue_state:
+          $ref: '#/components/schemas/ResidueStateEnum'
+          default: bare
+          description: Crop residue state after harvest | حالة بقايا المحصول
+        slope_pct:
+          default: 1.0
+          description: Mean slope percentage (0-200), default 1% for plains | نسبة الميل
+          maximum: 200.0
+          minimum: 0.0
+          title: Slope Pct
+          type: number
+        soil_texture:
+          anyOf:
+          - $ref: '#/components/schemas/SoilTextureEnum'
+          - type: 'null'
+          description: Optional USDA soil texture override — when None, inferred from the regional Yemen profile | فئة قوام تربة اختيارية تُستنتج تلقائياً
+        tenant_id:
+          description: Tenant identifier | معرف المستأجر
+          maxLength: 100
+          minLength: 1
+          title: Tenant Id
+          type: string
+      required:
+      - field_id
+      - tenant_id
+      - region
+      title: YemenRegionErosionRequest
+      type: object
   securitySchemes:
     OAuth2PasswordBearer:
-      type: oauth2
       flows:
         password:
           scopes: {}
           tokenUrl: /auth/token
+      type: oauth2
+info:
+  description: "\n## Terrain Analysis Service for Agricultural Applications\nخدمة تحليل التضاريس للتطبيقات الزراعية\n\nProvides comprehensive terrain analysis from Digital Elevation Models (DEMs):\n\n### DEM Sources | مصادر بيانات الارتفاعات\n- **Copernicus DEM** (30m/90m) - Global coverage\n- **NASA SRTM** (30m/90m) - 60°N to 56°S\n- **ALOS World 3D** (30m) - Global coverage\n- **Local Upload** - User-provided GeoTIFF files\n\n### Terrain Indicators | مؤشرات التضاريس\n1. **Slope** (الميل) - Using Horn's method\n2. **Aspect** (الجانب) - Slope direction\n3. **Flow Direction** (اتجاه التدفق) - D8 algorithm\n4. **Flow Accumulation** (تراكم التدفق) - Contributing area\n5. **TWI** (مؤشر الرطوبة الطبوغرافية) - Topographic Wetness Index\n6. **Curvature** (الانحناء) - Plan and profile curvature\n7. **Contours** (خطوط الكنتور) - Elevation isolines\n\n### Agricultural Applications | التطبيقات الزراعية\n- Irrigation suitability assessment\n- Erosion risk evaluation\n- Water flow analysis\n- Terrain-based zone delineation\n    "
+  title: SAHOOL Terrain Core Service | خدمة تحليل التضاريس
+  version: 16.0.0
+openapi: 3.1.0
+paths:
+  /api/v1/terrain/analyze:
+    post:
+      description: "Performs comprehensive terrain analysis for a field including:\n    - Slope and aspect\n    - Flow direction and accumulation\n    - Topographic Wetness Index (TWI)\n    - Curvature (plan and profile)\n    - Contour generation\n    - Irrigation recommendations\n\n    يجري تحليلاً شاملاً للتضاريس للحقل بما في ذلك:\n    - الميل والجانب\n    - اتجاه التدفق وتراكمه\n    - مؤشر الرطوبة الطبوغرافية\n    - الانحناء (أفقي وطولي)\n    - إنشاء خطوط الكنتور\n    - توصيات الري"
+      operationId: analyze_terrain_api_v1_terrain_analyze_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TerrainAnalysisRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TerrainAnalysisResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Full Terrain Analysis | تحليل التضاريس الكامل
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/aspect/{field_id}:
+    get:
+      description: "Compute aspect (sun-facing direction, 0-360°) for a field from its DEM.\n\n    حساب اتجاه الجانب (اتجاه مواجهة الشمس، 0-360 درجة) للحقل من بيانات الارتفاع.\n\n    - Uses Horn's method (same gradient path as slope).\n    - 0° = North, 90° = East, 180° = South, 270° = West.\n    - Flat cells are reported in the distribution under `flat`.\n    - Coordinates returned assume CRS EPSG:4326 (WGS84)."
+      operationId: get_aspect_analysis_api_v1_terrain_aspect__field_id__get
+      parameters:
+      - in: path
+        name: field_id
+        required: true
+        schema:
+          title: Field Id
+          type: string
+      - description: DEM source | مصدر الارتفاعات
+        in: query
+        name: dem_source
+        required: false
+        schema:
+          $ref: '#/components/schemas/DEMSourceType'
+          default: copernicus
+          description: DEM source | مصدر الارتفاعات
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AspectAnalysisResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Aspect Analysis | الحصول على تحليل الجانب
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/contours/{field_id}:
+    get:
+      description: Get contour lines for a field | الحصول على خطوط الكنتور للحقل
+      operationId: get_contours_api_v1_terrain_contours__field_id__get
+      parameters:
+      - in: path
+        name: field_id
+        required: true
+        schema:
+          title: Field Id
+          type: string
+      - in: query
+        name: dem_source
+        required: false
+        schema:
+          $ref: '#/components/schemas/DEMSourceType'
+          default: copernicus
+      - description: Contour interval in meters
+        in: query
+        name: interval_m
+        required: false
+        schema:
+          default: 5.0
+          description: Contour interval in meters
+          exclusiveMinimum: 0
+          title: Interval M
+          type: number
+      - in: query
+        name: simplify_tolerance
+        required: false
+        schema:
+          default: 1.0
+          minimum: 0
+          title: Simplify Tolerance
+          type: number
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContourAnalysisResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Contour Lines | الحصول على خطوط الكنتور
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/dem/{field_id}:
+    get:
+      description: "Retrieves Digital Elevation Model data for a specific field.\n    Used by downstream services (hydrology, leveling) for terrain analysis.\n\n    يسترجع بيانات نموذج الارتفاع الرقمي لحقل محدد.\n    يستخدم من قبل الخدمات المتصلة (الهيدرولوجيا، التسوية) لتحليل التضاريس."
+      operationId: get_dem_data_api_v1_terrain_dem__field_id__get
+      parameters:
+      - in: path
+        name: field_id
+        required: true
+        schema:
+          title: Field Id
+          type: string
+      - in: query
+        name: dem_source
+        required: false
+        schema:
+          $ref: '#/components/schemas/DEMSourceType'
+          default: copernicus
+      - in: query
+        name: resolution_m
+        required: false
+        schema:
+          default: 30.0
+          maximum: 1000.0
+          minimum: 1.0
+          title: Resolution M
+          type: number
+      - description: Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام
+        in: query
+        name: include_data
+        required: false
+        schema:
+          default: false
+          description: Include raw elevation data (for small fields only) | تضمين بيانات الارتفاع الخام
+          title: Include Data
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DEMDataResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get DEM Data for Field | الحصول على بيانات الارتفاعات للحقل
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/erosion:
+    post:
+      description: "Compute the per-field annual soil loss using the RUSLE model:\n\n    A = R × K × LS × C × P\n\nWhere:\n  * **R** — rainfall-runoff erosivity (from annual precipitation + rainy days)\n  * **K** — soil erodibility (from USDA texture class)\n  * **LS** — slope length × steepness (from the terrain-core slope endpoint)\n  * **C** — cover-management (from the field's crop / cover class)\n  * **P** — support practice (none, contour, terraces, bench terraces)\n\nReturns:\n  * `soil_loss_t_ha_yr` — annual soil loss in tonnes / hectare / year\n  * `risk_level` — FAO classification (none / low / moderate / high / severe / catastrophic)\n  * `factors` — per-factor breakdown so operators can see which factor drives the loss\n  * `factor_contributions_pct` — log-normalised contribution per factor\n  * `recommendations` — targeted mitigation actions (bilingual EN + AR)\n\n**Context**: this replaces the Phase-1 ``erosion_risk: \"low\"`` string\nthat the /terrain/analyze response used to hard-code based on slope\nalone. That stub lied to farmers in Yemeni highland terraced fields\n(which frequently sit at slopes of 20-40%+ on silt-loam soils and\nrun a catastrophic erosion risk). The RUSLE endpoint surfaces the\nhonest answer plus actionable recommendations (bench terraces, cover\ncrops, residue retention).\n\nThe endpoint is a pure calculation — no DB, no satellite fetch. The\ncaller supplies aggregated per-field inputs. For sub-field zonation,\ncall once per management zone and compose on the client side."
+      operationId: assess_erosion_api_v1_terrain_erosion_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErosionAssessmentRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErosionAssessmentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Per-field soil erosion assessment (RUSLE) | تقييم تعرية التربة للحقل (RUSLE)
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/erosion/combined:
+    post:
+      description: "Run both the RUSLE (water) and RWEQ-lite (wind) engines on a single\nfield and return a unified assessment:\n\n  * `overall_risk_level` — the **worst-of-two** FAO band across the\n    two processes (not the sum — they operate on different time scales)\n  * `dominant_process` — which engine drives the overall risk\n    (`water` | `wind` | `both` | `none`), so operators can prioritise\n    between bench-terrace / cover-crop actions vs. windbreak /\n    standing-stubble actions\n  * `water` — the full RUSLE sub-result (same shape as ``/erosion``)\n  * `wind` — the full RWEQ-lite sub-result (same shape as ``/erosion/wind``)\n  * `combined_recommendations` — priority-ordered mitigation actions\n    starting with the dominant process (bilingual EN + AR)\n\n**Use this endpoint** whenever you need a per-field erosion risk\nwithout making assumptions about which process dominates. A field can\nbe safe on water and catastrophic on wind (flat Tihama sandy loam) or\nvice versa (Sana'a highland terrace at 30% slope). ``texture_key`` is\noptional: when omitted it's derived from the USDA ``soil_texture``\nvalue, which keeps the single-call path ergonomic for callers that\ndon't need Yemen-specific soil profiles.\n\nThe endpoint is a pure calculation — no DB, no satellite fetch."
+      operationId: assess_combined_erosion_api_v1_terrain_erosion_combined_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CombinedErosionAssessmentRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CombinedErosionAssessmentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Combined water + wind erosion assessment (RUSLE + RWEQ-lite) | التقييم المشترك لتعرية المياه والرياح
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/erosion/wind:
+    post:
+      description: "Compute the per-field annual wind soil loss using the RWEQ-lite model:\n\n    SL = 2 × (s / 50000²) × Q_max\n    Q_max = 109.8 × (WF × EF × SCF × K' × COG)\n\nWhere:\n  * **WF** — wind factor (aridity-weighted wind kinetic energy)\n  * **EF** — soil erodibility factor (texture fractions + organic matter)\n  * **SCF** — soil crust factor (clay + OM protective crusts)\n  * **K'** — Chepil surface roughness factor (tillage relief)\n  * **COG** — combined (residue + canopy) ground cover factor\n  * **s** — unsheltered field length along the prevailing wind\n\nReturns:\n  * `soil_loss_t_ha_yr` — annual wind soil loss in tonnes / hectare / year\n  * `risk_level` — FAO band (none / low / moderate / high / severe / catastrophic)\n  * `factors` — the 5 RWEQ sub-factors\n  * `factor_contributions_pct` — log-normalised contribution per factor\n  * `recommendations` — wind-specific mitigation (bilingual EN + AR)\n\n**Context**: RUSLE is wrong for Yemen's grain-producing plains\n(Tihama, Marib, Al-Jawf, Hadramawt) where slope is near-zero and wind\nis the dominant erosion driver. A flat Tihama sandy-loam field with\nno standing stubble can lose ~50 t/ha/yr to wind in a single sandstorm\nseason — RUSLE would score it as \"none\". This endpoint surfaces the\nhonest wind answer. For sloped fields pair with ``/erosion`` (water)\nor call ``/erosion/combined`` for both at once.\n\nThe endpoint is a pure calculation — no DB, no satellite fetch."
+      operationId: assess_wind_erosion_api_v1_terrain_erosion_wind_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WindErosionAssessmentRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WindErosionAssessmentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Per-field wind erosion assessment (RWEQ-lite) | تقييم تعرية الرياح للحقل (RWEQ-lite)
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/erosion/yemen:
+    post:
+      description: "Minimum-input combined erosion assessment for Yemeni fields. Only\nfield-specific variables (slope, cover type, residue state) are\nrequired — climate (rainfall, wind speed, ET0) and soil texture\ndefaults are looked up from the ``YEMEN_REGION_PRESETS`` in\n``shared/terrain_erosion/combined.py`` (derived from\n``shared/yemen/climate.py`` + ``shared/yemen/soils.py``).\n\nSupported regions (``region`` field):\n  * ``tihama`` — Tihama Coastal Plain (peak wind 3.5 m/s, 125 mm rain)\n  * ``eastern_plateau`` — Marib / Al-Jawf semi-arid (3.5 m/s, 100 mm)\n  * ``hadhramaut`` — Wadi Hadhramaut (3.0 m/s, 65 mm)\n  * ``southern_coast`` — Aden / Lahj / Abyan delta (3.2 m/s, 120 mm)\n  * ``highlands`` — Sana'a / Ibb / Taiz terraces (2.5 m/s, 500 mm)\n\nReturns the full :class:`CombinedErosionAssessmentResponse` shape.\n\n**Use this endpoint** when an advisory-service caller only knows the\nfarmer's region name and wants a single call to get both the water\nand wind erosion risk. For full control over every input, call\n``/erosion/combined`` instead."
+      operationId: assess_yemen_region_erosion_api_v1_terrain_erosion_yemen_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YemenRegionErosionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CombinedErosionAssessmentResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Combined erosion assessment for a Yemeni agro-ecological region | التقييم المشترك للتعرية لمنطقة زراعية يمنية
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/flow/{field_id}:
+    get:
+      description: Get flow direction and accumulation analysis | الحصول على تحليل اتجاه التدفق وتراكمه
+      operationId: get_flow_analysis_api_v1_terrain_flow__field_id__get
+      parameters:
+      - in: path
+        name: field_id
+        required: true
+        schema:
+          title: Field Id
+          type: string
+      - in: query
+        name: dem_source
+        required: false
+        schema:
+          $ref: '#/components/schemas/DEMSourceType'
+          default: copernicus
+      - in: query
+        name: method
+        required: false
+        schema:
+          $ref: '#/components/schemas/FlowDirectionMethod'
+          default: d8
+      - in: query
+        name: accumulation_threshold
+        required: false
+        schema:
+          default: 100
+          minimum: 1
+          title: Accumulation Threshold
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FlowAnalysisResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Flow Analysis | الحصول على تحليل التدفق
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/slope/{field_id}:
+    get:
+      description: Get slope analysis for a field | الحصول على تحليل الميل للحقل
+      operationId: get_slope_analysis_api_v1_terrain_slope__field_id__get
+      parameters:
+      - in: path
+        name: field_id
+        required: true
+        schema:
+          title: Field Id
+          type: string
+      - in: query
+        name: dem_source
+        required: false
+        schema:
+          $ref: '#/components/schemas/DEMSourceType'
+          default: copernicus
+      - in: query
+        name: slope_unit
+        required: false
+        schema:
+          $ref: '#/components/schemas/SlopeUnit'
+          default: degrees
+      - description: Include slope classification
+        in: query
+        name: classify
+        required: false
+        schema:
+          default: true
+          description: Include slope classification
+          title: Classify
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SlopeAnalysisResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Slope Analysis | الحصول على تحليل الميل
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/sources:
+    get:
+      description: List available DEM data sources | قائمة مصادر بيانات الارتفاعات المتاحة
+      operationId: list_dem_sources_api_v1_terrain_sources_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DEMSourcesResponse'
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: List Available DEM Sources | قائمة مصادر الارتفاعات المتاحة
+      tags:
+      - terrain | التضاريس
+  /api/v1/terrain/twi/{field_id}:
+    get:
+      description: Get Topographic Wetness Index analysis | الحصول على تحليل مؤشر الرطوبة الطبوغرافية
+      operationId: get_twi_analysis_api_v1_terrain_twi__field_id__get
+      parameters:
+      - in: path
+        name: field_id
+        required: true
+        schema:
+          title: Field Id
+          type: string
+      - in: query
+        name: dem_source
+        required: false
+        schema:
+          $ref: '#/components/schemas/DEMSourceType'
+          default: copernicus
+      - in: query
+        name: flow_method
+        required: false
+        schema:
+          $ref: '#/components/schemas/FlowDirectionMethod'
+          default: d8
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TWIAnalysisResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Topographic Wetness Index | الحصول على مؤشر الرطوبة الطبوغرافية
+      tags:
+      - terrain | التضاريس
+  /health:
+    get:
+      description: Combined health and readiness status | حالة الصحة والجاهزية المجمعة
+      operationId: health_combined_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Combined health status | حالة الصحة المجمعة
+      tags:
+      - health | الصحة
+  /healthz:
+    get:
+      description: 'Health check endpoint (liveness probe)
+
+        نقطة نهاية فحص الصحة (فحص الحياة)'
+      operationId: health_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Liveness probe | فحص الحياة
+      tags:
+      - health | الصحة
+  /metrics:
+    get:
+      description: 'Prometheus-compatible metrics endpoint.
+
+        نقطة نهاية المقاييس المتوافقة مع بروميثيوس'
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Prometheus metrics | مقاييس بروميثيوس
+      tags:
+      - health | الصحة
+  /readyz:
+    get:
+      description: 'Kubernetes readiness probe - is the service ready to accept traffic?
+
+        فحص جاهزية Kubernetes - هل الخدمة جاهزة لاستقبال الطلبات؟'
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Readiness probe | فحص الجاهزية
+      tags:
+      - health | الصحة
 tags:
-- name: terrain | التضاريس
-  description: Terrain analysis endpoints | نقاط نهاية تحليل التضاريس
-- name: health | الصحة
-  description: Health check endpoints | نقاط نهاية فحص الصحة
+- description: Terrain analysis endpoints | نقاط نهاية تحليل التضاريس
+  name: terrain | التضاريس
+- description: Health check endpoints | نقاط نهاية فحص الصحة
+  name: health | الصحة

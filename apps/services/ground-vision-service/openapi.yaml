@@ -1,124 +1,549 @@
-openapi: 3.1.0
+components:
+  schemas:
+    AnomalyAcknowledgeRequest:
+      description: Anomaly acknowledgement request
+      properties:
+        acknowledged_by:
+          title: Acknowledged By
+          type: string
+        notes:
+          title: Notes
+          type: string
+        notes_ar:
+          title: Notes Ar
+          type: string
+      required:
+      - acknowledged_by
+      title: AnomalyAcknowledgeRequest
+      type: object
+    AnomalyResolveRequest:
+      description: Anomaly resolution request
+      properties:
+        resolution_notes:
+          title: Resolution Notes
+          type: string
+        resolution_notes_ar:
+          title: Resolution Notes Ar
+          type: string
+        resolved_by:
+          title: Resolved By
+          type: string
+      required:
+      - resolved_by
+      - resolution_notes
+      title: AnomalyResolveRequest
+      type: object
+    CameraRegistration:
+      description: Camera registration request
+      properties:
+        altitude_m:
+          title: Altitude M
+          type: number
+        camera_id:
+          title: Camera Id
+          type: string
+        focal_length_mm:
+          title: Focal Length Mm
+          type: number
+        image_height_px:
+          title: Image Height Px
+          type: integer
+        image_width_px:
+          title: Image Width Px
+          type: integer
+        latitude:
+          title: Latitude
+          type: number
+        longitude:
+          title: Longitude
+          type: number
+        name:
+          title: Name
+          type: string
+        name_ar:
+          title: Name Ar
+          type: string
+        sensor_height_mm:
+          title: Sensor Height Mm
+          type: number
+        sensor_width_mm:
+          title: Sensor Width Mm
+          type: number
+        tenant_id:
+          title: Tenant Id
+          type: string
+        tower_id:
+          title: Tower Id
+          type: string
+        zoom_max:
+          default: 40.0
+          title: Zoom Max
+          type: number
+        zoom_min:
+          default: 1.0
+          title: Zoom Min
+          type: number
+      required:
+      - camera_id
+      - tower_id
+      - name
+      - name_ar
+      - latitude
+      - longitude
+      - altitude_m
+      - focal_length_mm
+      - sensor_width_mm
+      - sensor_height_mm
+      - image_width_px
+      - image_height_px
+      - tenant_id
+      title: CameraRegistration
+      type: object
+    CameraResponse:
+      description: Camera response
+      properties:
+        camera_id:
+          title: Camera Id
+          type: string
+        created_at:
+          title: Created At
+          type: string
+        name:
+          title: Name
+          type: string
+        name_ar:
+          title: Name Ar
+          type: string
+        status:
+          title: Status
+          type: string
+        status_ar:
+          title: Status Ar
+          type: string
+        tower_id:
+          title: Tower Id
+          type: string
+      required:
+      - camera_id
+      - tower_id
+      - name
+      - name_ar
+      - status
+      - status_ar
+      - created_at
+      title: CameraResponse
+      type: object
+    FrameProcessRequest:
+      description: Frame processing request
+      properties:
+        camera_id:
+          title: Camera Id
+          type: string
+        captured_at:
+          title: Captured At
+          type: string
+        field_id:
+          title: Field Id
+          type: string
+        frame_id:
+          title: Frame Id
+          type: string
+        image_url:
+          title: Image Url
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+      required:
+      - frame_id
+      - camera_id
+      - field_id
+      - tenant_id
+      - image_url
+      - captured_at
+      title: FrameProcessRequest
+      type: object
+    FrameProcessResponse:
+      description: Frame processing response
+      properties:
+        anomalies_count:
+          title: Anomalies Count
+          type: integer
+        detections_count:
+          title: Detections Count
+          type: integer
+        frame_id:
+          title: Frame Id
+          type: string
+        processed:
+          title: Processed
+          type: boolean
+        processing_time_ms:
+          title: Processing Time Ms
+          type: integer
+      required:
+      - frame_id
+      - processed
+      - detections_count
+      - anomalies_count
+      - processing_time_ms
+      title: FrameProcessResponse
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    HealthResponse:
+      properties:
+        service:
+          title: Service
+          type: string
+        status:
+          title: Status
+          type: string
+        timestamp:
+          title: Timestamp
+          type: string
+        version:
+          title: Version
+          type: string
+      required:
+      - status
+      - service
+      - version
+      - timestamp
+      title: HealthResponse
+      type: object
+    ReadinessResponse:
+      properties:
+        database:
+          title: Database
+          type: boolean
+        models_loaded:
+          title: Models Loaded
+          type: boolean
+        nats:
+          title: Nats
+          type: boolean
+        status:
+          title: Status
+          type: string
+      required:
+      - status
+      - database
+      - nats
+      - models_loaded
+      title: ReadinessResponse
+      type: object
+    TimelineAnalysisRequest:
+      description: Timeline analysis request
+      properties:
+        field_id:
+          title: Field Id
+          type: string
+        force:
+          default: false
+          title: Force
+          type: boolean
+        frame_ids:
+          items:
+            type: string
+          maxItems: 10
+          minItems: 1
+          title: Frame Ids
+          type: array
+        tenant_id:
+          title: Tenant Id
+          type: string
+      required:
+      - field_id
+      - tenant_id
+      - frame_ids
+      title: TimelineAnalysisRequest
+      type: object
+    TimelineAnalysisResponse:
+      description: Timeline analysis response
+      properties:
+        analysis_id:
+          title: Analysis Id
+          type: string
+        confidence:
+          title: Confidence
+          type: number
+        crop_type:
+          title: Crop Type
+          type: string
+        crop_type_ar:
+          title: Crop Type Ar
+          type: string
+        field_id:
+          title: Field Id
+          type: string
+        growth_stage:
+          title: Growth Stage
+          type: string
+        growth_stage_ar:
+          title: Growth Stage Ar
+          type: string
+        processing_time_ms:
+          title: Processing Time Ms
+          type: integer
+      required:
+      - analysis_id
+      - field_id
+      - crop_type
+      - crop_type_ar
+      - growth_stage
+      - growth_stage_ar
+      - confidence
+      - processing_time_ms
+      title: TimelineAnalysisResponse
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+  securitySchemes:
+    OAuth2PasswordBearer:
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token
+      type: oauth2
 info:
-  title: Ground Vision Service - خدمة الرؤية الأرضية
   description: "\n    High-frequency agricultural monitoring using tower-mounted cameras.\n\n    Based on: Qin et al. (2026) - A Real-Time, High-Frequency, Parcel-Level\n    Agricultural Monitoring Framework\n\n    Features:\n    - Quaternion-based georeferencing\n    - GIS-guided SAM segmentation\n    - YOLO-based operation detection\n    - MLLM crop timeline analysis\n    - Anomaly detection\n    "
+  title: Ground Vision Service - خدمة الرؤية الأرضية
   version: 16.0.0
+openapi: 3.1.0
 paths:
-  /health/live:
+  /api/v1/anomalies:
     get:
-      tags:
-      - Health
-      summary: Health
-      description: 'Liveness probe endpoint.
+      description: 'List detected anomalies.
 
-        Returns OK if service is running.'
-      operationId: health_health_live_get
+
+        قائمة الشذوذ المكتشف'
+      operationId: list_anomalies_api_v1_anomalies_get
+      parameters:
+      - description: Filter by field
+        in: query
+        name: field_id
+        required: false
+        schema:
+          description: Filter by field
+          title: Field Id
+          type: string
+      - description: Filter by severity
+        in: query
+        name: severity
+        required: false
+        schema:
+          description: Filter by severity
+          title: Severity
+          type: string
+      - description: Filter by status
+        in: query
+        name: status
+        required: false
+        schema:
+          description: Filter by status
+          title: Status
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: header
+        name: X-Tenant-ID
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
-  /healthz:
-    get:
-      tags:
-      - Health
-      summary: Health
-      description: 'Liveness probe endpoint.
-
-        Returns OK if service is running.'
-      operationId: health_healthz_get
-      responses:
-        '200':
+              schema: {}
           description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HealthResponse'
-  /health/ready:
-    get:
-      tags:
-      - Health
-      summary: Readiness
-      description: 'Readiness probe endpoint.
-
-        Returns status of all dependencies.'
-      operationId: readiness_health_ready_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReadinessResponse'
-  /readyz:
-    get:
-      tags:
-      - Health
-      summary: Readiness
-      description: 'Readiness probe endpoint.
-
-        Returns status of all dependencies.'
-      operationId: readiness_readyz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ReadinessResponse'
-  /api/v1/cameras:
-    post:
-      tags:
-      - Cameras
-      summary: Register Camera
-      description: 'Register a new tower camera.
-
-
-        تسجيل كاميرا برج جديدة'
-      operationId: register_camera_api_v1_cameras_post
-      security:
-      - OAuth2PasswordBearer: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CameraRegistration'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CameraResponse'
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-    get:
+          description: Validation Error
+      summary: List Anomalies
       tags:
-      - Cameras
-      summary: List Cameras
+      - Anomalies
+  /api/v1/anomalies/{anomaly_id}:
+    get:
+      description: 'Get anomaly details.
+
+
+        تفاصيل الشذوذ'
+      operationId: get_anomaly_api_v1_anomalies__anomaly_id__get
+      parameters:
+      - in: path
+        name: anomaly_id
+        required: true
+        schema:
+          title: Anomaly Id
+          type: string
+      - in: header
+        name: X-Tenant-ID
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Anomaly
+      tags:
+      - Anomalies
+  /api/v1/anomalies/{anomaly_id}/acknowledge:
+    post:
+      description: 'Acknowledge an anomaly.
+
+
+        الإقرار بالشذوذ'
+      operationId: acknowledge_anomaly_api_v1_anomalies__anomaly_id__acknowledge_post
+      parameters:
+      - in: path
+        name: anomaly_id
+        required: true
+        schema:
+          title: Anomaly Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyAcknowledgeRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Acknowledge Anomaly
+      tags:
+      - Anomalies
+  /api/v1/anomalies/{anomaly_id}/resolve:
+    post:
+      description: 'Resolve an anomaly.
+
+
+        حل الشذوذ'
+      operationId: resolve_anomaly_api_v1_anomalies__anomaly_id__resolve_post
+      parameters:
+      - in: path
+        name: anomaly_id
+        required: true
+        schema:
+          title: Anomaly Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyResolveRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Resolve Anomaly
+      tags:
+      - Anomalies
+  /api/v1/cameras:
+    get:
       description: 'List registered cameras.
 
 
         قائمة الكاميرات المسجلة'
       operationId: list_cameras_api_v1_cameras_get
       parameters:
-      - name: tower_id
+      - description: Filter by tower
         in: query
+        name: tower_id
         required: false
         schema:
-          type: string
           description: Filter by tower
           title: Tower Id
-        description: Filter by tower
-      - name: X-Tenant-ID
-        in: header
+          type: string
+      - in: header
+        name: X-Tenant-ID
         required: false
         schema:
           anyOf:
@@ -127,35 +552,65 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/cameras/{camera_id}:
-    get:
+          description: Validation Error
+      summary: List Cameras
       tags:
       - Cameras
-      summary: Get Camera
+    post:
+      description: 'Register a new tower camera.
+
+
+        تسجيل كاميرا برج جديدة'
+      operationId: register_camera_api_v1_cameras_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CameraRegistration'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CameraResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Register Camera
+      tags:
+      - Cameras
+  /api/v1/cameras/{camera_id}:
+    get:
       description: 'Get camera details.
 
 
         تفاصيل الكاميرا'
       operationId: get_camera_api_v1_cameras__camera_id__get
       parameters:
-      - name: camera_id
-        in: path
+      - in: path
+        name: camera_id
         required: true
         schema:
-          type: string
           title: Camera Id
-      - name: X-Tenant-ID
-        in: header
+          type: string
+      - in: header
+        name: X-Tenant-ID
         required: false
         schema:
           anyOf:
@@ -164,21 +619,138 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Camera
+      tags:
+      - Cameras
+  /api/v1/detections:
+    get:
+      description: 'List detected operations.
+
+
+        قائمة العمليات المكتشفة'
+      operationId: list_detections_api_v1_detections_get
+      parameters:
+      - description: Filter by field
+        in: query
+        name: field_id
+        required: false
+        schema:
+          description: Filter by field
+          title: Field Id
+          type: string
+      - description: Filter by operation type
+        in: query
+        name: operation_type
+        required: false
+        schema:
+          description: Filter by operation type
+          title: Operation Type
+          type: string
+      - description: Start date (ISO format)
+        in: query
+        name: from_date
+        required: false
+        schema:
+          description: Start date (ISO format)
+          title: From Date
+          type: string
+      - description: End date (ISO format)
+        in: query
+        name: to_date
+        required: false
+        schema:
+          description: End date (ISO format)
+          title: To Date
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      - in: header
+        name: X-Tenant-ID
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Detections
+      tags:
+      - Detections
+  /api/v1/detections/{detection_id}:
+    get:
+      description: 'Get detection details.
+
+
+        تفاصيل الكشف'
+      operationId: get_detection_api_v1_detections__detection_id__get
+      parameters:
+      - in: path
+        name: detection_id
+        required: true
+        schema:
+          title: Detection Id
+          type: string
+      - in: header
+        name: X-Tenant-ID
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Detection
+      tags:
+      - Detections
   /api/v1/frames/process:
     post:
-      tags:
-      - Frames
-      summary: Process Frame
       description: 'Process a captured frame.
 
 
@@ -205,141 +777,24 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/FrameProcessResponse'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /api/v1/detections:
-    get:
+      summary: Process Frame
       tags:
-      - Detections
-      summary: List Detections
-      description: 'List detected operations.
-
-
-        قائمة العمليات المكتشفة'
-      operationId: list_detections_api_v1_detections_get
-      parameters:
-      - name: field_id
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Filter by field
-          title: Field Id
-        description: Filter by field
-      - name: operation_type
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Filter by operation type
-          title: Operation Type
-        description: Filter by operation type
-      - name: from_date
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Start date (ISO format)
-          title: From Date
-        description: Start date (ISO format)
-      - name: to_date
-        in: query
-        required: false
-        schema:
-          type: string
-          description: End date (ISO format)
-          title: To Date
-        description: End date (ISO format)
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 200
-          minimum: 1
-          default: 50
-          title: Limit
-      - name: offset
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Offset
-      - name: X-Tenant-ID
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/detections/{detection_id}:
-    get:
-      tags:
-      - Detections
-      summary: Get Detection
-      description: 'Get detection details.
-
-
-        تفاصيل الكشف'
-      operationId: get_detection_api_v1_detections__detection_id__get
-      parameters:
-      - name: detection_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Detection Id
-      - name: X-Tenant-ID
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+      - Frames
   /api/v1/timeline/analyze:
     post:
-      tags:
-      - Timeline
-      summary: Analyze Timeline
       description: 'Analyze crop timeline from frames.
 
 
@@ -364,54 +819,54 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/TimelineAnalysisResponse'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /api/v1/timeline/{field_id}:
-    get:
+      summary: Analyze Timeline
       tags:
       - Timeline
-      summary: Get Field Timeline
+  /api/v1/timeline/{field_id}:
+    get:
       description: 'Get crop timeline for a field.
 
 
         الحصول على الخط الزمني للمحصول للحقل'
       operationId: get_field_timeline_api_v1_timeline__field_id__get
       parameters:
-      - name: field_id
-        in: path
+      - in: path
+        name: field_id
         required: true
         schema:
-          type: string
           title: Field Id
-      - name: from_date
+          type: string
+      - description: Start date
         in: query
+        name: from_date
         required: false
         schema:
-          type: string
           description: Start date
           title: From Date
-        description: Start date
-      - name: to_date
+          type: string
+      - description: End date
         in: query
+        name: to_date
         required: false
         schema:
-          type: string
           description: End date
           title: To Date
-        description: End date
-      - name: X-Tenant-ID
-        in: header
+          type: string
+      - in: header
+        name: X-Tenant-ID
         required: false
         schema:
           anyOf:
@@ -420,548 +875,93 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/anomalies:
+          description: Validation Error
+      summary: Get Field Timeline
+      tags:
+      - Timeline
+  /health/live:
     get:
-      tags:
-      - Anomalies
-      summary: List Anomalies
-      description: 'List detected anomalies.
+      description: 'Liveness probe endpoint.
 
-
-        قائمة الشذوذ المكتشف'
-      operationId: list_anomalies_api_v1_anomalies_get
-      parameters:
-      - name: field_id
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Filter by field
-          title: Field Id
-        description: Filter by field
-      - name: severity
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Filter by severity
-          title: Severity
-        description: Filter by severity
-      - name: status
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Filter by status
-          title: Status
-        description: Filter by status
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 200
-          minimum: 1
-          default: 50
-          title: Limit
-      - name: offset
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Offset
-      - name: X-Tenant-ID
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
+        Returns OK if service is running.'
+      operationId: health_health_live_get
       responses:
         '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/anomalies/{anomaly_id}:
+                $ref: '#/components/schemas/HealthResponse'
+          description: Successful Response
+      summary: Health
+      tags:
+      - Health
+  /health/ready:
     get:
-      tags:
-      - Anomalies
-      summary: Get Anomaly
-      description: 'Get anomaly details.
+      description: 'Readiness probe endpoint.
 
-
-        تفاصيل الشذوذ'
-      operationId: get_anomaly_api_v1_anomalies__anomaly_id__get
-      parameters:
-      - name: anomaly_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Anomaly Id
-      - name: X-Tenant-ID
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
+        Returns status of all dependencies.'
+      operationId: readiness_health_ready_get
       responses:
         '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/anomalies/{anomaly_id}/acknowledge:
-    post:
+                $ref: '#/components/schemas/ReadinessResponse'
+          description: Successful Response
+      summary: Readiness
       tags:
-      - Anomalies
-      summary: Acknowledge Anomaly
-      description: 'Acknowledge an anomaly.
+      - Health
+  /healthz:
+    get:
+      description: 'Liveness probe endpoint.
 
-
-        الإقرار بالشذوذ'
-      operationId: acknowledge_anomaly_api_v1_anomalies__anomaly_id__acknowledge_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: anomaly_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Anomaly Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AnomalyAcknowledgeRequest'
+        Returns OK if service is running.'
+      operationId: health_healthz_get
       responses:
         '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/anomalies/{anomaly_id}/resolve:
-    post:
-      tags:
-      - Anomalies
-      summary: Resolve Anomaly
-      description: 'Resolve an anomaly.
-
-
-        حل الشذوذ'
-      operationId: resolve_anomaly_api_v1_anomalies__anomaly_id__resolve_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: anomaly_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Anomaly Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AnomalyResolveRequest'
-      responses:
-        '200':
+                $ref: '#/components/schemas/HealthResponse'
           description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+      summary: Health
+      tags:
+      - Health
   /metrics:
     get:
-      tags:
-      - Monitoring
-      summary: Metrics
       description: Prometheus metrics endpoint.
       operationId: metrics_metrics_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-components:
-  schemas:
-    AnomalyAcknowledgeRequest:
-      properties:
-        acknowledged_by:
-          type: string
-          title: Acknowledged By
-        notes:
-          type: string
-          title: Notes
-        notes_ar:
-          type: string
-          title: Notes Ar
-      type: object
-      required:
-      - acknowledged_by
-      title: AnomalyAcknowledgeRequest
-      description: Anomaly acknowledgement request
-    AnomalyResolveRequest:
-      properties:
-        resolved_by:
-          type: string
-          title: Resolved By
-        resolution_notes:
-          type: string
-          title: Resolution Notes
-        resolution_notes_ar:
-          type: string
-          title: Resolution Notes Ar
-      type: object
-      required:
-      - resolved_by
-      - resolution_notes
-      title: AnomalyResolveRequest
-      description: Anomaly resolution request
-    CameraRegistration:
-      properties:
-        camera_id:
-          type: string
-          title: Camera Id
-        tower_id:
-          type: string
-          title: Tower Id
-        name:
-          type: string
-          title: Name
-        name_ar:
-          type: string
-          title: Name Ar
-        latitude:
-          type: number
-          title: Latitude
-        longitude:
-          type: number
-          title: Longitude
-        altitude_m:
-          type: number
-          title: Altitude M
-        focal_length_mm:
-          type: number
-          title: Focal Length Mm
-        sensor_width_mm:
-          type: number
-          title: Sensor Width Mm
-        sensor_height_mm:
-          type: number
-          title: Sensor Height Mm
-        image_width_px:
-          type: integer
-          title: Image Width Px
-        image_height_px:
-          type: integer
-          title: Image Height Px
-        zoom_min:
-          type: number
-          title: Zoom Min
-          default: 1.0
-        zoom_max:
-          type: number
-          title: Zoom Max
-          default: 40.0
-        tenant_id:
-          type: string
-          title: Tenant Id
-      type: object
-      required:
-      - camera_id
-      - tower_id
-      - name
-      - name_ar
-      - latitude
-      - longitude
-      - altitude_m
-      - focal_length_mm
-      - sensor_width_mm
-      - sensor_height_mm
-      - image_width_px
-      - image_height_px
-      - tenant_id
-      title: CameraRegistration
-      description: Camera registration request
-    CameraResponse:
-      properties:
-        camera_id:
-          type: string
-          title: Camera Id
-        tower_id:
-          type: string
-          title: Tower Id
-        name:
-          type: string
-          title: Name
-        name_ar:
-          type: string
-          title: Name Ar
-        status:
-          type: string
-          title: Status
-        status_ar:
-          type: string
-          title: Status Ar
-        created_at:
-          type: string
-          title: Created At
-      type: object
-      required:
-      - camera_id
-      - tower_id
-      - name
-      - name_ar
-      - status
-      - status_ar
-      - created_at
-      title: CameraResponse
-      description: Camera response
-    FrameProcessRequest:
-      properties:
-        frame_id:
-          type: string
-          title: Frame Id
-        camera_id:
-          type: string
-          title: Camera Id
-        field_id:
-          type: string
-          title: Field Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        image_url:
-          type: string
-          title: Image Url
-        captured_at:
-          type: string
-          title: Captured At
-      type: object
-      required:
-      - frame_id
-      - camera_id
-      - field_id
-      - tenant_id
-      - image_url
-      - captured_at
-      title: FrameProcessRequest
-      description: Frame processing request
-    FrameProcessResponse:
-      properties:
-        frame_id:
-          type: string
-          title: Frame Id
-        processed:
-          type: boolean
-          title: Processed
-        detections_count:
-          type: integer
-          title: Detections Count
-        anomalies_count:
-          type: integer
-          title: Anomalies Count
-        processing_time_ms:
-          type: integer
-          title: Processing Time Ms
-      type: object
-      required:
-      - frame_id
-      - processed
-      - detections_count
-      - anomalies_count
-      - processing_time_ms
-      title: FrameProcessResponse
-      description: Frame processing response
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    HealthResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-        service:
-          type: string
-          title: Service
-        version:
-          type: string
-          title: Version
-        timestamp:
-          type: string
-          title: Timestamp
-      type: object
-      required:
-      - status
-      - service
-      - version
-      - timestamp
-      title: HealthResponse
-    ReadinessResponse:
-      properties:
-        status:
-          type: string
-          title: Status
-        database:
-          type: boolean
-          title: Database
-        nats:
-          type: boolean
-          title: Nats
-        models_loaded:
-          type: boolean
-          title: Models Loaded
-      type: object
-      required:
-      - status
-      - database
-      - nats
-      - models_loaded
-      title: ReadinessResponse
-    TimelineAnalysisRequest:
-      properties:
-        field_id:
-          type: string
-          title: Field Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        frame_ids:
-          items:
-            type: string
-          type: array
-          maxItems: 10
-          minItems: 1
-          title: Frame Ids
-        force:
-          type: boolean
-          title: Force
-          default: false
-      type: object
-      required:
-      - field_id
-      - tenant_id
-      - frame_ids
-      title: TimelineAnalysisRequest
-      description: Timeline analysis request
-    TimelineAnalysisResponse:
-      properties:
-        analysis_id:
-          type: string
-          title: Analysis Id
-        field_id:
-          type: string
-          title: Field Id
-        crop_type:
-          type: string
-          title: Crop Type
-        crop_type_ar:
-          type: string
-          title: Crop Type Ar
-        growth_stage:
-          type: string
-          title: Growth Stage
-        growth_stage_ar:
-          type: string
-          title: Growth Stage Ar
-        confidence:
-          type: number
-          title: Confidence
-        processing_time_ms:
-          type: integer
-          title: Processing Time Ms
-      type: object
-      required:
-      - analysis_id
-      - field_id
-      - crop_type
-      - crop_type_ar
-      - growth_stage
-      - growth_stage_ar
-      - confidence
-      - processing_time_ms
-      title: TimelineAnalysisResponse
-      description: Timeline analysis response
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-  securitySchemes:
-    OAuth2PasswordBearer:
-      type: oauth2
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: /auth/token
+          description: Successful Response
+      summary: Metrics
+      tags:
+      - Monitoring
+  /readyz:
+    get:
+      description: 'Readiness probe endpoint.
+
+        Returns status of all dependencies.'
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadinessResponse'
+          description: Successful Response
+      summary: Readiness
+      tags:
+      - Health

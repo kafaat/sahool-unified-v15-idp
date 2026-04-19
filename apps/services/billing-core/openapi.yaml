@@ -1,319 +1,304 @@
-openapi: 3.1.0
-info:
-  title: SAHOOL Billing Core | خدمة الفوترة
-  description: Complete billing, subscription, and payment management for SAHOOL platform
-  version: 16.0.0
-paths:
-  /healthz:
-    get:
-      summary: Health Check
-      description: Health check endpoint (liveness probe)
-      operationId: health_check_healthz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /readyz:
-    get:
-      summary: Readiness Check
-      description: Kubernetes readiness probe - is the service ready to accept traffic?
-      operationId: readiness_check_readyz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /metrics:
-    get:
-      summary: Prometheus Metrics
-      description: Prometheus metrics endpoint
-      operationId: prometheus_metrics_metrics_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /api/v1/plans:
-    get:
-      summary: List Plans
-      description: قائمة الخطط المتاحة
-      operationId: list_plans_api_v1_plans_get
-      parameters:
-      - name: active_only
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: true
-          title: Active Only
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    post:
-      summary: Create Plan
-      description: إنشاء خطة جديدة (للمسؤولين)
-      operationId: create_plan_api_v1_plans_post
-      security:
-      - OAuth2PasswordBearer: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreatePlanRequest'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/plans/{plan_id}:
-    get:
-      summary: Get Plan
-      description: تفاصيل الخطة
-      operationId: get_plan_api_v1_plans__plan_id__get
-      parameters:
-      - name: plan_id
-        in: path
-        required: true
-        schema:
-          type: string
-          minLength: 1
+components:
+  schemas:
+    BillingCycle:
+      enum:
+      - monthly
+      - quarterly
+      - yearly
+      title: BillingCycle
+      type: string
+    CreatePaymentRequest:
+      properties:
+        amount:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,10}|(?=[\d.]{1,13}0*$)\d{0,10}\.\d{0,2}0*$)
+            type: string
+          title: Amount
+        idempotency_key:
+          anyOf:
+          - maxLength: 100
+            type: string
+          - type: 'null'
+          title: Idempotency Key
+        invoice_id:
           maxLength: 100
+          minLength: 1
+          title: Invoice Id
+          type: string
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        phone_number:
+          anyOf:
+          - maxLength: 20
+            type: string
+          - type: 'null'
+          title: Phone Number
+        stripe_token:
+          anyOf:
+          - maxLength: 500
+            type: string
+          - type: 'null'
+          title: Stripe Token
+      required:
+      - invoice_id
+      - amount
+      - method
+      title: CreatePaymentRequest
+      type: object
+    CreatePlanRequest:
+      properties:
+        description:
+          maxLength: 1000
+          minLength: 1
+          title: Description
+          type: string
+        description_ar:
+          maxLength: 1000
+          minLength: 1
+          title: Description Ar
+          type: string
+        features:
+          additionalProperties:
+            type: boolean
+          title: Features
+          type: object
+        limits:
+          additionalProperties:
+            type: integer
+          title: Limits
+          type: object
+        monthly_price_usd:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,8}|(?=[\d.]{1,11}0*$)\d{0,8}\.\d{0,2}0*$)
+            type: string
+          title: Monthly Price Usd
+        name:
+          maxLength: 200
+          minLength: 1
+          title: Name
+          type: string
+        name_ar:
+          maxLength: 200
+          minLength: 1
+          title: Name Ar
+          type: string
+        tier:
+          $ref: '#/components/schemas/PlanTier'
+        trial_days:
+          default: 14
+          maximum: 365
+          minimum: 0
+          title: Trial Days
+          type: integer
+      required:
+      - name
+      - name_ar
+      - description
+      - description_ar
+      - tier
+      - monthly_price_usd
+      - features
+      - limits
+      title: CreatePlanRequest
+      type: object
+    CreateTenantRequest:
+      properties:
+        billing_cycle:
+          $ref: '#/components/schemas/BillingCycle'
+          default: monthly
+        currency:
+          anyOf:
+          - maxLength: 3
+            minLength: 3
+            type: string
+          - type: 'null'
+          title: Currency
+        email:
+          format: email
+          title: Email
+          type: string
+        name:
+          maxLength: 200
+          minLength: 1
+          title: Name
+          type: string
+        name_ar:
+          maxLength: 200
+          minLength: 1
+          title: Name Ar
+          type: string
+        phone:
+          maxLength: 20
+          minLength: 1
+          title: Phone
+          type: string
+        plan_id:
+          maxLength: 100
+          minLength: 1
           title: Plan Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/tenants:
-    post:
-      summary: Create Tenant
-      description: تسجيل مستأجر جديد مع اشتراك
-      operationId: create_tenant_api_v1_tenants_post
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateTenantRequest'
-        required: true
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-      security:
-      - OAuth2PasswordBearer: []
-  /api/v1/tenants/{tenant_id}:
-    get:
-      summary: Get Tenant
-      description: معلومات المستأجر
-      operationId: get_tenant_api_v1_tenants__tenant_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
           type: string
-          title: Tenant Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/tenants/{tenant_id}/subscription:
-    get:
-      summary: Get Subscription
-      description: تفاصيل الاشتراك
-      operationId: get_subscription_api_v1_tenants__tenant_id__subscription_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
+      required:
+      - name
+      - name_ar
+      - email
+      - phone
+      - plan_id
+      title: CreateTenantRequest
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    InvoiceStatus:
+      enum:
+      - draft
+      - pending
+      - paid
+      - overdue
+      - canceled
+      - refunded
+      title: InvoiceStatus
+      type: string
+    PaymentMethod:
+      enum:
+      - credit_card
+      - bank_transfer
+      - mobile_money
+      - cash
+      - tharwatt
+      title: PaymentMethod
+      type: string
+    PlanTier:
+      enum:
+      - free
+      - starter
+      - professional
+      - enterprise
+      title: PlanTier
+      type: string
+    RecordUsageRequest:
+      properties:
+        metadata:
+          additionalProperties: true
+          default: {}
+          title: Metadata
+          type: object
+        metric:
+          maxLength: 100
+          minLength: 1
+          title: Metric
           type: string
-          title: Tenant Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    patch:
-      summary: Update Subscription
-      description: تحديث الاشتراك (ترقية/تخفيض) مع حساب التناسب
-      operationId: update_subscription_api_v1_tenants__tenant_id__subscription_patch
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
+        quantity:
+          default: 1
+          exclusiveMinimum: 0
+          maximum: 100000
+          title: Quantity
+          type: integer
+      required:
+      - metric
+      title: RecordUsageRequest
+      type: object
+    RefundRequest:
+      description: طلب استرداد
+      properties:
+        amount:
+          anyOf:
+          - exclusiveMinimum: 0.0
+            type: number
+          - pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,10}|(?=[\d.]{1,13}0*$)\d{0,10}\.\d{0,2}0*$)
+            type: string
+          - type: 'null'
+          title: Amount
+        payment_id:
+          maxLength: 100
+          minLength: 1
+          title: Payment Id
           type: string
-          title: Tenant Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateSubscriptionRequest'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/tenants/{tenant_id}/cancel:
-    post:
-      summary: Cancel Subscription
-      description: إلغاء الاشتراك
-      operationId: cancel_subscription_api_v1_tenants__tenant_id__cancel_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
+        reason:
+          maxLength: 1000
+          minLength: 1
+          title: Reason
           type: string
-          title: Tenant Id
-      - name: immediate
-        in: query
-        required: false
-        schema:
-          type: boolean
-          default: false
-          title: Immediate
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/tenants/{tenant_id}/usage:
-    post:
-      summary: Record Usage
-      description: تسجيل استخدام
-      operationId: record_usage_api_v1_tenants__tenant_id__usage_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
+        reason_ar:
+          anyOf:
+          - maxLength: 1000
+            type: string
+          - type: 'null'
+          title: Reason Ar
+      required:
+      - payment_id
+      - reason
+      title: RefundRequest
+      type: object
+    UpdateSubscriptionRequest:
+      properties:
+        billing_cycle:
+          anyOf:
+          - $ref: '#/components/schemas/BillingCycle'
+          - type: 'null'
+        payment_method:
+          anyOf:
+          - $ref: '#/components/schemas/PaymentMethod'
+          - type: 'null'
+        plan_id:
+          anyOf:
+          - maxLength: 100
+            minLength: 1
+            type: string
+          - type: 'null'
+          title: Plan Id
+      title: UpdateSubscriptionRequest
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
           type: string
-          title: Tenant Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RecordUsageRequest'
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/tenants/{tenant_id}/quota:
-    get:
-      summary: Get Quota
-      description: حالة الحصة والاستخدام
-      operationId: get_quota_api_v1_tenants__tenant_id__quota_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
+        type:
+          title: Error Type
           type: string
-          title: Tenant Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+  securitySchemes:
+    OAuth2PasswordBearer:
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token
+      type: oauth2
+info:
+  description: Complete billing, subscription, and payment management for SAHOOL platform
+  title: SAHOOL Billing Core | خدمة الفوترة
+  version: 16.0.0
+openapi: 3.1.0
+paths:
   /api/v1/enforce:
     get:
-      summary: Enforce Quota
       description: 'التحقق من الصلاحيات (للـ Gateway)
 
 
@@ -325,127 +310,58 @@ paths:
 
         impersonate another tenant on this endpoint.'
       operationId: enforce_quota_api_v1_enforce_get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: metric
-        in: query
+      - in: query
+        name: metric
         required: true
         schema:
-          type: string
-          minLength: 1
           maxLength: 100
+          minLength: 1
           title: Metric
+          type: string
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/tenants/{tenant_id}/invoices:
-    get:
-      summary: List Invoices
-      description: قائمة الفواتير
-      operationId: list_invoices_api_v1_tenants__tenant_id__invoices_get
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Tenant Id
-      - name: status
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/InvoiceStatus'
-          - type: 'null'
-          title: Status
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 20
-          title: Limit
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+      summary: Enforce Quota
   /api/v1/invoices/{invoice_id}:
     get:
-      summary: Get Invoice
       description: تفاصيل فاتورة
       operationId: get_invoice_api_v1_invoices__invoice_id__get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: invoice_id
-        in: path
+      - in: path
+        name: invoice_id
         required: true
         schema:
-          type: string
           title: Invoice Id
+          type: string
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/tenants/{tenant_id}/invoices/generate:
-    post:
-      summary: Generate Tenant Invoice
-      description: توليد فاتورة يدوياً
-      operationId: generate_tenant_invoice_api_v1_tenants__tenant_id__invoices_generate_post
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-      parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Tenant Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
+      summary: Get Invoice
   /api/v1/payments:
     post:
-      summary: Create Payment
       description: تسجيل دفعة
       operationId: create_payment_api_v1_payments_post
       requestBody:
@@ -456,56 +372,96 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /api/v1/tenants/{tenant_id}/payments:
+      summary: Create Payment
+  /api/v1/plans:
     get:
-      summary: List Payments
-      description: قائمة المدفوعات
-      operationId: list_payments_api_v1_tenants__tenant_id__payments_get
-      security:
-      - OAuth2PasswordBearer: []
+      description: قائمة الخطط المتاحة
+      operationId: list_plans_api_v1_plans_get
       parameters:
-      - name: tenant_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Tenant Id
-      - name: limit
-        in: query
+      - in: query
+        name: active_only
         required: false
         schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 20
-          title: Limit
+          default: true
+          title: Active Only
+          type: boolean
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Plans
+    post:
+      description: إنشاء خطة جديدة (للمسؤولين)
+      operationId: create_plan_api_v1_plans_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePlanRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Plan
+  /api/v1/plans/{plan_id}:
+    get:
+      description: تفاصيل الخطة
+      operationId: get_plan_api_v1_plans__plan_id__get
+      parameters:
+      - in: path
+        name: plan_id
+        required: true
+        schema:
+          maxLength: 100
+          minLength: 1
+          title: Plan Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Plan
   /api/v1/refunds:
     post:
-      summary: Create Refund
       description: 'Process a refund for a payment (admin only)
 
         معالجة استرداد لدفعة (للمسؤولين فقط)'
@@ -518,385 +474,429 @@ paths:
         required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
       security:
       - OAuth2PasswordBearer: []
-  /api/v1/webhooks/tharwatt:
-    post:
-      summary: Tharwatt Webhook
-      description: 'Tharwatt payment webhook callback
-
-        ويب هوك لتأكيد المدفوعات من ثروات'
-      operationId: tharwatt_webhook_api_v1_webhooks_tharwatt_post
+      summary: Create Refund
+  /api/v1/reports/revenue:
+    get:
+      description: تقرير الإيرادات (للمسؤولين)
+      operationId: get_revenue_report_api_v1_reports_revenue_get
+      parameters:
+      - in: query
+        name: start_date
+        required: false
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: Start Date
+      - in: query
+        name: end_date
+        required: false
+        schema:
+          anyOf:
+          - format: date
+            type: string
+          - type: 'null'
+          title: End Date
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Revenue Report
+  /api/v1/reports/subscriptions:
+    get:
+      description: تقرير الاشتراكات (للمسؤولين)
+      operationId: get_subscriptions_report_api_v1_reports_subscriptions_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Subscriptions Report
+  /api/v1/tenants:
+    post:
+      description: تسجيل مستأجر جديد مع اشتراك
+      operationId: create_tenant_api_v1_tenants_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTenantRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Tenant
+  /api/v1/tenants/{tenant_id}:
+    get:
+      description: معلومات المستأجر
+      operationId: get_tenant_api_v1_tenants__tenant_id__get
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Tenant
+  /api/v1/tenants/{tenant_id}/cancel:
+    post:
+      description: إلغاء الاشتراك
+      operationId: cancel_subscription_api_v1_tenants__tenant_id__cancel_post
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      - in: query
+        name: immediate
+        required: false
+        schema:
+          default: false
+          title: Immediate
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Cancel Subscription
+  /api/v1/tenants/{tenant_id}/invoices:
+    get:
+      description: قائمة الفواتير
+      operationId: list_invoices_api_v1_tenants__tenant_id__invoices_get
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      - in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/InvoiceStatus'
+          - type: 'null'
+          title: Status
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: List Invoices
+  /api/v1/tenants/{tenant_id}/invoices/generate:
+    post:
+      description: توليد فاتورة يدوياً
+      operationId: generate_tenant_invoice_api_v1_tenants__tenant_id__invoices_generate_post
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Generate Tenant Invoice
+  /api/v1/tenants/{tenant_id}/payments:
+    get:
+      description: قائمة المدفوعات
+      operationId: list_payments_api_v1_tenants__tenant_id__payments_get
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: List Payments
+  /api/v1/tenants/{tenant_id}/quota:
+    get:
+      description: حالة الحصة والاستخدام
+      operationId: get_quota_api_v1_tenants__tenant_id__quota_get
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Quota
+  /api/v1/tenants/{tenant_id}/subscription:
+    get:
+      description: تفاصيل الاشتراك
+      operationId: get_subscription_api_v1_tenants__tenant_id__subscription_get
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Subscription
+    patch:
+      description: تحديث الاشتراك (ترقية/تخفيض) مع حساب التناسب
+      operationId: update_subscription_api_v1_tenants__tenant_id__subscription_patch
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSubscriptionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Update Subscription
+  /api/v1/tenants/{tenant_id}/usage:
+    post:
+      description: تسجيل استخدام
+      operationId: record_usage_api_v1_tenants__tenant_id__usage_post
+      parameters:
+      - in: path
+        name: tenant_id
+        required: true
+        schema:
+          title: Tenant Id
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordUsageRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Record Usage
   /api/v1/webhooks/stripe:
     post:
-      summary: Stripe Webhook
       description: 'Stripe payment webhook callback
 
         ويب هوك لتأكيد المدفوعات من سترايب'
       operationId: stripe_webhook_api_v1_webhooks_stripe_post
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-  /api/v1/reports/revenue:
-    get:
-      summary: Get Revenue Report
-      description: تقرير الإيرادات (للمسؤولين)
-      operationId: get_revenue_report_api_v1_reports_revenue_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: start_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Start Date
-      - name: end_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: End Date
+          description: Successful Response
+      summary: Stripe Webhook
+  /api/v1/webhooks/tharwatt:
+    post:
+      description: 'Tharwatt payment webhook callback
+
+        ويب هوك لتأكيد المدفوعات من ثروات'
+      operationId: tharwatt_webhook_api_v1_webhooks_tharwatt_post
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/reports/subscriptions:
+          description: Successful Response
+      summary: Tharwatt Webhook
+  /healthz:
     get:
-      summary: Get Subscriptions Report
-      description: تقرير الاشتراكات (للمسؤولين)
-      operationId: get_subscriptions_report_api_v1_reports_subscriptions_get
+      description: Health check endpoint (liveness probe)
+      operationId: health_check_healthz_get
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-      security:
-      - OAuth2PasswordBearer: []
-components:
-  schemas:
-    BillingCycle:
-      type: string
-      enum:
-      - monthly
-      - quarterly
-      - yearly
-      title: BillingCycle
-    CreatePaymentRequest:
-      properties:
-        invoice_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Invoice Id
-        amount:
-          anyOf:
-          - type: number
-            exclusiveMinimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,10}|(?=[\d.]{1,13}0*$)\d{0,10}\.\d{0,2}0*$)
-          title: Amount
-        method:
-          $ref: '#/components/schemas/PaymentMethod'
-        stripe_token:
-          anyOf:
-          - type: string
-            maxLength: 500
-          - type: 'null'
-          title: Stripe Token
-        phone_number:
-          anyOf:
-          - type: string
-            maxLength: 20
-          - type: 'null'
-          title: Phone Number
-        idempotency_key:
-          anyOf:
-          - type: string
-            maxLength: 100
-          - type: 'null'
-          title: Idempotency Key
-      type: object
-      required:
-      - invoice_id
-      - amount
-      - method
-      title: CreatePaymentRequest
-    CreatePlanRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Name
-        name_ar:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Name Ar
-        description:
-          type: string
-          maxLength: 1000
-          minLength: 1
-          title: Description
-        description_ar:
-          type: string
-          maxLength: 1000
-          minLength: 1
-          title: Description Ar
-        tier:
-          $ref: '#/components/schemas/PlanTier'
-        monthly_price_usd:
-          anyOf:
-          - type: number
-            exclusiveMinimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,8}|(?=[\d.]{1,11}0*$)\d{0,8}\.\d{0,2}0*$)
-          title: Monthly Price Usd
-        features:
-          additionalProperties:
-            type: boolean
-          type: object
-          title: Features
-        limits:
-          additionalProperties:
-            type: integer
-          type: object
-          title: Limits
-        trial_days:
-          type: integer
-          maximum: 365
-          minimum: 0
-          title: Trial Days
-          default: 14
-      type: object
-      required:
-      - name
-      - name_ar
-      - description
-      - description_ar
-      - tier
-      - monthly_price_usd
-      - features
-      - limits
-      title: CreatePlanRequest
-    CreateTenantRequest:
-      properties:
-        name:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Name
-        name_ar:
-          type: string
-          maxLength: 200
-          minLength: 1
-          title: Name Ar
-        email:
-          type: string
-          format: email
-          title: Email
-        phone:
-          type: string
-          maxLength: 20
-          minLength: 1
-          title: Phone
-        plan_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Plan Id
-        billing_cycle:
-          $ref: '#/components/schemas/BillingCycle'
-          default: monthly
-        currency:
-          anyOf:
-          - type: string
-            maxLength: 3
-            minLength: 3
-          - type: 'null'
-          title: Currency
-      type: object
-      required:
-      - name
-      - name_ar
-      - email
-      - phone
-      - plan_id
-      title: CreateTenantRequest
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    InvoiceStatus:
-      type: string
-      enum:
-      - draft
-      - pending
-      - paid
-      - overdue
-      - canceled
-      - refunded
-      title: InvoiceStatus
-    PaymentMethod:
-      type: string
-      enum:
-      - credit_card
-      - bank_transfer
-      - mobile_money
-      - cash
-      - tharwatt
-      title: PaymentMethod
-    PlanTier:
-      type: string
-      enum:
-      - free
-      - starter
-      - professional
-      - enterprise
-      title: PlanTier
-    RecordUsageRequest:
-      properties:
-        metric:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Metric
-        quantity:
-          type: integer
-          maximum: 100000
-          exclusiveMinimum: 0
-          title: Quantity
-          default: 1
-        metadata:
-          additionalProperties: true
-          type: object
-          title: Metadata
-          default: {}
-      type: object
-      required:
-      - metric
-      title: RecordUsageRequest
-    RefundRequest:
-      properties:
-        payment_id:
-          type: string
-          maxLength: 100
-          minLength: 1
-          title: Payment Id
-        amount:
-          anyOf:
-          - type: number
-            exclusiveMinimum: 0.0
-          - type: string
-            pattern: ^(?!^[-+.]*$)[+-]?0*(?:\d{0,10}|(?=[\d.]{1,13}0*$)\d{0,10}\.\d{0,2}0*$)
-          - type: 'null'
-          title: Amount
-        reason:
-          type: string
-          maxLength: 1000
-          minLength: 1
-          title: Reason
-        reason_ar:
-          anyOf:
-          - type: string
-            maxLength: 1000
-          - type: 'null'
-          title: Reason Ar
-      type: object
-      required:
-      - payment_id
-      - reason
-      title: RefundRequest
-      description: طلب استرداد
-    UpdateSubscriptionRequest:
-      properties:
-        plan_id:
-          anyOf:
-          - type: string
-            maxLength: 100
-            minLength: 1
-          - type: 'null'
-          title: Plan Id
-        billing_cycle:
-          anyOf:
-          - $ref: '#/components/schemas/BillingCycle'
-          - type: 'null'
-        payment_method:
-          anyOf:
-          - $ref: '#/components/schemas/PaymentMethod'
-          - type: 'null'
-      type: object
-      title: UpdateSubscriptionRequest
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-  securitySchemes:
-    OAuth2PasswordBearer:
-      type: oauth2
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: /auth/token
+          description: Successful Response
+      summary: Health Check
+  /metrics:
+    get:
+      description: Prometheus metrics endpoint
+      operationId: prometheus_metrics_metrics_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Prometheus Metrics
+  /readyz:
+    get:
+      description: Kubernetes readiness probe - is the service ready to accept traffic?
+      operationId: readiness_check_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Readiness Check

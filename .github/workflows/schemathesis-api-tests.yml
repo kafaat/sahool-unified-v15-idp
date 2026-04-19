@@ -138,15 +138,18 @@ jobs:
             echo "::error::Exporter produced no specs — aborting (environment issue)"
             exit 1
           fi
-          # Forensic output: on drift, name every file and show the diff so
-          # the CI log is enough to diagnose. ``git diff --stat`` then the
-          # full patch bounded by --stat-width so ANSI-less logs stay readable.
+          # Forensic output on drift, bounded so the log stays readable.
+          # ``set +o pipefail`` just around the ``head`` pipeline prevents a
+          # SIGPIPE from ``git diff`` (when ``head`` closes early) from killing
+          # the whole step with exit 141 before the clear error message.
           if ! git diff --exit-code -- "${REGENERATED[@]}"; then
             echo "::group::Files that drifted"
             git diff --name-only -- "${REGENERATED[@]}"
             echo "::endgroup::"
             echo "::group::Drift diff (first 400 lines)"
-            git diff -- "${REGENERATED[@]}" | head -400
+            set +o pipefail
+            git diff -- "${REGENERATED[@]}" | head -400 || true
+            set -o pipefail
             echo "::endgroup::"
             echo "::error::OpenAPI specs are out of date. Run 'python3 scripts/export-openapi.py' and commit the result."
             exit 1

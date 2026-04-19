@@ -1,63 +1,607 @@
-openapi: 3.1.0
+components:
+  schemas:
+    AuditLogCreate:
+      description: Validated request body for creating audit log entries
+      properties:
+        action:
+          default: unknown
+          maxLength: 200
+          title: Action
+          type: string
+        category:
+          default: general
+          maxLength: 100
+          title: Category
+          type: string
+        details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+        resource_id:
+          anyOf:
+          - maxLength: 200
+            type: string
+          - type: 'null'
+          title: Resource Id
+        resource_type:
+          anyOf:
+          - maxLength: 200
+            type: string
+          - type: 'null'
+          title: Resource Type
+        severity:
+          default: info
+          pattern: ^(info|warning|error|critical)$
+          title: Severity
+          type: string
+      title: AuditLogCreate
+      type: object
+    AuditLogResponse:
+      description: Audit log entry response (camelCase aliases for frontend)
+      properties:
+        action:
+          title: Action
+          type: string
+        category:
+          title: Category
+          type: string
+        correlationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Correlationid
+        createdAt:
+          title: Createdat
+          type: string
+        details:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Details
+        entryHash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Entryhash
+        errorCode:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errorcode
+        errorMessage:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Errormessage
+        id:
+          title: Id
+          type: string
+        ipAddress:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Ipaddress
+        newValue:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Newvalue
+        oldValue:
+          anyOf:
+          - additionalProperties: true
+            type: object
+          - type: 'null'
+          title: Oldvalue
+        resourceId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resourceid
+        resourceType:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Resourcetype
+        severity:
+          title: Severity
+          type: string
+        success:
+          default: true
+          title: Success
+          type: boolean
+        tenantId:
+          title: Tenantid
+          type: string
+        userId:
+          title: Userid
+          type: string
+      required:
+      - id
+      - tenantId
+      - userId
+      - action
+      - category
+      - severity
+      - createdAt
+      title: AuditLogResponse
+      type: object
+    AuditStatsResponse:
+      description: Audit statistics response (camelCase aliases for frontend)
+      properties:
+        chainCoveragePercent:
+          title: Chaincoveragepercent
+          type: number
+        eventsByCategory:
+          additionalProperties: true
+          title: Eventsbycategory
+          type: object
+        eventsBySeverity:
+          additionalProperties: true
+          title: Eventsbyseverity
+          type: object
+        failedEvents:
+          title: Failedevents
+          type: integer
+        totalEvents:
+          title: Totalevents
+          type: integer
+        uniqueUsers:
+          title: Uniqueusers
+          type: integer
+      required:
+      - totalEvents
+      - eventsByCategory
+      - eventsBySeverity
+      - failedEvents
+      - uniqueUsers
+      - chainCoveragePercent
+      title: AuditStatsResponse
+      type: object
+    ComplianceReportResponse:
+      description: Compliance report response
+      properties:
+        by_category:
+          additionalProperties: true
+          title: By Category
+          type: object
+        by_severity:
+          additionalProperties: true
+          title: By Severity
+          type: object
+        chain_integrity:
+          additionalProperties: true
+          title: Chain Integrity
+          type: object
+        framework:
+          title: Framework
+          type: string
+        period:
+          additionalProperties: true
+          title: Period
+          type: object
+        report_generated:
+          title: Report Generated
+          type: string
+        summary:
+          additionalProperties: true
+          title: Summary
+          type: object
+        tenant_id:
+          title: Tenant Id
+          type: string
+      required:
+      - tenant_id
+      - report_generated
+      - period
+      - framework
+      - summary
+      - by_category
+      - by_severity
+      - chain_integrity
+      title: ComplianceReportResponse
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    HashChainValidationResponse:
+      description: Hash chain validation result
+      properties:
+        errors:
+          items:
+            type: string
+          title: Errors
+          type: array
+        invalid_entries:
+          items:
+            type: string
+          title: Invalid Entries
+          type: array
+        retention_gaps_crossed:
+          default: 0
+          title: Retention Gaps Crossed
+          type: integer
+        total_entries:
+          title: Total Entries
+          type: integer
+        valid:
+          title: Valid
+          type: boolean
+        validated_entries:
+          title: Validated Entries
+          type: integer
+      required:
+      - valid
+      - total_entries
+      - validated_entries
+      - invalid_entries
+      - errors
+      title: HashChainValidationResponse
+      type: object
+    PaginatedResponse:
+      description: Paginated response wrapper
+      properties:
+        has_more:
+          title: Has More
+          type: boolean
+        items:
+          items: {}
+          title: Items
+          type: array
+        limit:
+          title: Limit
+          type: integer
+        skip:
+          title: Skip
+          type: integer
+        total:
+          title: Total
+          type: integer
+      required:
+      - items
+      - total
+      - skip
+      - limit
+      - has_more
+      title: PaginatedResponse
+      type: object
+    ValidationError:
+      properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+  securitySchemes:
+    OAuth2PasswordBearer:
+      flows:
+        password:
+          scopes: {}
+          tokenUrl: /auth/token
+      type: oauth2
 info:
-  title: SAHOOL Audit Service
   description: "\n    خدمة التدقيق والمراجعة المركزية\n\n    Centralized Audit Logging Service for Security Compliance\n\n    Features:\n    - سلسلة التجزئة للتحقق من السلامة (Hash Chain Integrity)\n    - تتبع التغييرات على مستوى الحقل (Field-Level Tracking)\n    - تقارير الامتثال (Compliance Reporting)\n    - تنبيهات الأمان في الوقت الفعلي (Real-time Security Alerts)\n    "
+  title: SAHOOL Audit Service
   version: 16.0.0
+openapi: 3.1.0
 paths:
-  /health:
+  /api/v1/audit/chain/summary:
     get:
-      tags:
-      - Health
-      summary: Health
-      description: Health check with dependencies
-      operationId: health_health_get
+      description: 'Get hash chain summary for tenant
+
+
+        جلب ملخص سلسلة التجزئة للمستأجر'
+      operationId: get_chain_summary_api_v1_audit_chain_summary_get
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-  /healthz:
-    get:
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Chain Summary
       tags:
-      - Health
-      summary: Healthz
-      description: Kubernetes liveness probe
-      operationId: healthz_healthz_get
+      - Hash Chain
+  /api/v1/audit/chain/validate:
+    get:
+      description: 'Validate hash chain integrity for audit logs
+
+
+        التحقق من سلامة سلسلة التجزئة لسجلات التدقيق'
+      operationId: validate_hash_chain_api_v1_audit_chain_validate_get
+      parameters:
+      - description: Start date for validation
+        in: query
+        name: start_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: Start date for validation
+          title: Start Date
+      - description: End date for validation
+        in: query
+        name: end_date
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          description: End date for validation
+          title: End Date
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
       responses:
         '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HashChainValidationResponse'
           description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Validate Hash Chain
+      tags:
+      - Hash Chain
+  /api/v1/audit/compliance/report:
+    get:
+      description: 'Generate compliance report
+
+
+        إنشاء تقرير الامتثال'
+      operationId: get_compliance_report_api_v1_audit_compliance_report_get
+      parameters:
+      - description: Report start date
+        in: query
+        name: start_date
+        required: true
+        schema:
+          description: Report start date
+          format: date-time
+          title: Start Date
+          type: string
+      - description: Report end date
+        in: query
+        name: end_date
+        required: true
+        schema:
+          description: Report end date
+          format: date-time
+          title: End Date
+          type: string
+      - description: Compliance framework
+        in: query
+        name: framework
+        required: false
+        schema:
+          default: general
+          description: Compliance framework
+          enum:
+          - general
+          - GDPR
+          - SOC2
+          - ISO27001
+          title: Framework
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceReportResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Compliance Report
+      tags:
+      - Compliance
+  /api/v1/audit/export:
+    get:
+      description: 'Export audit logs
+
+
+        تصدير سجلات التدقيق'
+      operationId: export_audit_logs_api_v1_audit_export_get
+      parameters:
+      - description: Export start date
+        in: query
+        name: start_date
+        required: true
+        schema:
+          description: Export start date
+          format: date-time
+          title: Start Date
+          type: string
+      - description: Export end date
+        in: query
+        name: end_date
+        required: true
+        schema:
+          description: Export end date
+          format: date-time
+          title: End Date
+          type: string
+      - description: Export format
+        in: query
+        name: format
+        required: false
+        schema:
+          default: json
+          description: Export format
+          enum:
+          - json
+          - csv
+          title: Format
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
           content:
             application/json:
               schema: {}
-  /readyz:
-    get:
-      tags:
-      - Health
-      summary: Readiness
-      description: Kubernetes readiness probe
-      operationId: readiness_readyz_get
-      responses:
-        '200':
           description: Successful Response
+        '422':
           content:
             application/json:
-              schema: {}
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Export Audit Logs
+      tags:
+      - Export
+  /api/v1/audit/failed-logins:
+    get:
+      description: 'Get failed login attempts
+
+
+        جلب محاولات تسجيل الدخول الفاشلة'
+      operationId: get_failed_logins_api_v1_audit_failed_logins_get
+      parameters:
+      - description: Hours to look back
+        in: query
+        name: hours
+        required: false
+        schema:
+          default: 24
+          description: Hours to look back
+          title: Hours
+          type: integer
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Failed Logins
+      tags:
+      - Security
   /api/v1/audit/logs:
     get:
-      tags:
-      - Audit Logs
-      summary: Get Audit Logs
       description: 'Query audit logs with filters
 
 
         جلب سجلات التدقيق مع الفلاتر'
       operationId: get_audit_logs_api_v1_audit_logs_get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: user_id
+      - description: Filter by user ID
         in: query
+        name: user_id
         required: false
         schema:
           anyOf:
@@ -65,9 +609,9 @@ paths:
           - type: 'null'
           description: Filter by user ID
           title: User Id
-        description: Filter by user ID
-      - name: action
+      - description: Filter by action
         in: query
+        name: action
         required: false
         schema:
           anyOf:
@@ -75,9 +619,9 @@ paths:
           - type: 'null'
           description: Filter by action
           title: Action
-        description: Filter by action
-      - name: category
+      - description: Filter by category
         in: query
+        name: category
         required: false
         schema:
           anyOf:
@@ -85,9 +629,9 @@ paths:
           - type: 'null'
           description: Filter by category
           title: Category
-        description: Filter by category
-      - name: resource_type
+      - description: Filter by resource type
         in: query
+        name: resource_type
         required: false
         schema:
           anyOf:
@@ -95,9 +639,9 @@ paths:
           - type: 'null'
           description: Filter by resource type
           title: Resource Type
-        description: Filter by resource type
-      - name: resource_id
+      - description: Filter by resource ID
         in: query
+        name: resource_id
         required: false
         schema:
           anyOf:
@@ -105,9 +649,9 @@ paths:
           - type: 'null'
           description: Filter by resource ID
           title: Resource Id
-        description: Filter by resource ID
-      - name: success
+      - description: Filter by success status
         in: query
+        name: success
         required: false
         schema:
           anyOf:
@@ -115,48 +659,47 @@ paths:
           - type: 'null'
           description: Filter by success status
           title: Success
-        description: Filter by success status
-      - name: start_date
+      - description: Start date filter
         in: query
+        name: start_date
         required: false
         schema:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           description: Start date filter
           title: Start Date
-        description: Start date filter
-      - name: end_date
+      - description: End date filter
         in: query
+        name: end_date
         required: false
         schema:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           description: End date filter
           title: End Date
-        description: End date filter
-      - name: skip
-        in: query
+      - in: query
+        name: skip
         required: false
         schema:
-          type: integer
-          minimum: 0
           default: 0
+          minimum: 0
           title: Skip
-      - name: limit
-        in: query
+          type: integer
+      - in: query
+        name: limit
         required: false
         schema:
-          type: integer
+          default: 50
           maximum: 500
           minimum: 1
-          default: 50
           title: Limit
-      - name: X-Tenant-Id
-        in: header
+          type: integer
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -165,31 +708,31 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedResponse'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-    post:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Audit Logs
       tags:
       - Audit Logs
-      summary: Create Audit Log
+    post:
       description: 'Create a new audit log entry
 
 
         إنشاء سجل تدقيق جديد'
       operationId: create_audit_log_api_v1_audit_logs_post
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: X-Tenant-Id
-        in: header
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -197,28 +740,30 @@ paths:
           - type: 'null'
           title: X-Tenant-Id
       requestBody:
-        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/AuditLogCreate'
+        required: true
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/logs/archived:
-    get:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Audit Log
       tags:
       - Audit Logs
-      summary: Get Archived Audit Logs
+  /api/v1/audit/logs/archived:
+    get:
       description: 'Replay archived audit logs (rows removed from audit_log by the
 
         retention worker). Schema and filter semantics match the live
@@ -232,11 +777,10 @@ paths:
 
         إعادة تشغيل السجلات المؤرشفة (السجلات التي أزالها عامل الاحتفاظ).'
       operationId: get_archived_audit_logs_api_v1_audit_logs_archived_get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: user_id
+      - description: Filter by user ID
         in: query
+        name: user_id
         required: false
         schema:
           anyOf:
@@ -244,9 +788,9 @@ paths:
           - type: 'null'
           description: Filter by user ID
           title: User Id
-        description: Filter by user ID
-      - name: action
+      - description: Filter by action
         in: query
+        name: action
         required: false
         schema:
           anyOf:
@@ -254,9 +798,9 @@ paths:
           - type: 'null'
           description: Filter by action
           title: Action
-        description: Filter by action
-      - name: category
+      - description: Filter by category
         in: query
+        name: category
         required: false
         schema:
           anyOf:
@@ -264,9 +808,9 @@ paths:
           - type: 'null'
           description: Filter by category
           title: Category
-        description: Filter by category
-      - name: resource_type
+      - description: Filter by resource type
         in: query
+        name: resource_type
         required: false
         schema:
           anyOf:
@@ -274,9 +818,9 @@ paths:
           - type: 'null'
           description: Filter by resource type
           title: Resource Type
-        description: Filter by resource type
-      - name: resource_id
+      - description: Filter by resource ID
         in: query
+        name: resource_id
         required: false
         schema:
           anyOf:
@@ -284,9 +828,9 @@ paths:
           - type: 'null'
           description: Filter by resource ID
           title: Resource Id
-        description: Filter by resource ID
-      - name: success
+      - description: Filter by success status
         in: query
+        name: success
         required: false
         schema:
           anyOf:
@@ -294,48 +838,47 @@ paths:
           - type: 'null'
           description: Filter by success status
           title: Success
-        description: Filter by success status
-      - name: start_date
+      - description: Start date filter
         in: query
+        name: start_date
         required: false
         schema:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           description: Start date filter
           title: Start Date
-        description: Start date filter
-      - name: end_date
+      - description: End date filter
         in: query
+        name: end_date
         required: false
         schema:
           anyOf:
-          - type: string
-            format: date-time
+          - format: date-time
+            type: string
           - type: 'null'
           description: End date filter
           title: End Date
-        description: End date filter
-      - name: skip
-        in: query
+      - in: query
+        name: skip
         required: false
         schema:
-          type: integer
-          minimum: 0
           default: 0
+          minimum: 0
           title: Skip
-      - name: limit
-        in: query
+          type: integer
+      - in: query
+        name: limit
         required: false
         schema:
-          type: integer
+          default: 50
           maximum: 500
           minimum: 1
-          default: 50
           title: Limit
-      - name: X-Tenant-Id
-        in: header
+          type: integer
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -344,40 +887,40 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedResponse'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/logs/{log_id}:
-    get:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Archived Audit Logs
       tags:
       - Audit Logs
-      summary: Get Audit Log
+  /api/v1/audit/logs/{log_id}:
+    get:
       description: 'Get a specific audit log entry
 
 
         جلب سجل تدقيق محدد'
       operationId: get_audit_log_api_v1_audit_logs__log_id__get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: log_id
+      - description: Audit log ID
         in: path
+        name: log_id
         required: true
         schema:
-          type: string
           description: Audit log ID
           title: Log Id
-        description: Audit log ID
-      - name: X-Tenant-Id
-        in: header
+          type: string
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -386,40 +929,202 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditLogResponse'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/users/{user_id}/trail:
-    get:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Audit Log
       tags:
       - Audit Logs
-      summary: Get User Audit Trail
+  /api/v1/audit/resources/{resource_type}/{resource_id}/trail:
+    get:
+      description: 'Get audit trail for a specific resource
+
+
+        جلب مسار التدقيق لمورد محدد'
+      operationId: get_resource_audit_trail_api_v1_audit_resources__resource_type___resource_id__trail_get
+      parameters:
+      - description: Resource type
+        in: path
+        name: resource_type
+        required: true
+        schema:
+          description: Resource type
+          title: Resource Type
+          type: string
+      - description: Resource ID
+        in: path
+        name: resource_id
+        required: true
+        schema:
+          description: Resource ID
+          title: Resource Id
+          type: string
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Resource Audit Trail
+      tags:
+      - Audit Logs
+  /api/v1/audit/security-events:
+    get:
+      description: 'Get recent security events
+
+
+        جلب أحداث الأمان الأخيرة'
+      operationId: get_security_events_api_v1_audit_security_events_get
+      parameters:
+      - in: query
+        name: skip
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Skip
+          type: integer
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 100
+          maximum: 500
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Security Events
+      tags:
+      - Security
+  /api/v1/audit/stats:
+    get:
+      description: 'Get audit statistics
+
+
+        جلب إحصائيات التدقيق'
+      operationId: get_audit_stats_api_v1_audit_stats_get
+      parameters:
+      - description: Time period (7d, 30d, 90d)
+        in: query
+        name: period
+        required: false
+        schema:
+          default: 30d
+          description: Time period (7d, 30d, 90d)
+          title: Period
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditStatsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Audit Stats
+      tags:
+      - Statistics
+  /api/v1/audit/users/{user_id}/trail:
+    get:
       description: 'Get audit trail for a specific user
 
 
         جلب مسار التدقيق لمستخدم محدد'
       operationId: get_user_audit_trail_api_v1_audit_users__user_id__trail_get
-      security:
-      - OAuth2PasswordBearer: []
       parameters:
-      - name: user_id
+      - description: User ID
         in: path
+        name: user_id
         required: true
         schema:
-          type: string
           description: User ID
           title: User Id
-        description: User ID
-      - name: category
+          type: string
+      - description: Filter by category
         in: query
+        name: category
         required: false
         schema:
           anyOf:
@@ -427,26 +1132,25 @@ paths:
           - type: 'null'
           description: Filter by category
           title: Category
-        description: Filter by category
-      - name: skip
-        in: query
+      - in: query
+        name: skip
         required: false
         schema:
-          type: integer
-          minimum: 0
           default: 0
+          minimum: 0
           title: Skip
-      - name: limit
-        in: query
+          type: integer
+      - in: query
+        name: limit
         required: false
         schema:
-          type: integer
+          default: 100
           maximum: 500
           minimum: 1
-          default: 100
           title: Limit
-      - name: X-Tenant-Id
-        in: header
+          type: integer
+      - in: header
+        name: X-Tenant-Id
         required: false
         schema:
           anyOf:
@@ -455,762 +1159,58 @@ paths:
           title: X-Tenant-Id
       responses:
         '200':
-          description: Successful Response
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaginatedResponse'
+          description: Successful Response
         '422':
-          description: Validation Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/resources/{resource_type}/{resource_id}/trail:
-    get:
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get User Audit Trail
       tags:
       - Audit Logs
-      summary: Get Resource Audit Trail
-      description: 'Get audit trail for a specific resource
-
-
-        جلب مسار التدقيق لمورد محدد'
-      operationId: get_resource_audit_trail_api_v1_audit_resources__resource_type___resource_id__trail_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: resource_type
-        in: path
-        required: true
-        schema:
-          type: string
-          description: Resource type
-          title: Resource Type
-        description: Resource type
-      - name: resource_id
-        in: path
-        required: true
-        schema:
-          type: string
-          description: Resource ID
-          title: Resource Id
-        description: Resource ID
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Skip
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 500
-          minimum: 1
-          default: 100
-          title: Limit
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/chain/validate:
+  /health:
     get:
-      tags:
-      - Hash Chain
-      summary: Validate Hash Chain
-      description: 'Validate hash chain integrity for audit logs
-
-
-        التحقق من سلامة سلسلة التجزئة لسجلات التدقيق'
-      operationId: validate_hash_chain_api_v1_audit_chain_validate_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: start_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          description: Start date for validation
-          title: Start Date
-        description: Start date for validation
-      - name: end_date
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          description: End date for validation
-          title: End Date
-        description: End date for validation
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
+      description: Health check with dependencies
+      operationId: health_health_get
       responses:
         '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HashChainValidationResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/chain/summary:
-    get:
-      tags:
-      - Hash Chain
-      summary: Get Chain Summary
-      description: 'Get hash chain summary for tenant
-
-
-        جلب ملخص سلسلة التجزئة للمستأجر'
-      operationId: get_chain_summary_api_v1_audit_chain_summary_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/compliance/report:
-    get:
+          description: Successful Response
+      summary: Health
       tags:
-      - Compliance
-      summary: Get Compliance Report
-      description: 'Generate compliance report
-
-
-        إنشاء تقرير الامتثال'
-      operationId: get_compliance_report_api_v1_audit_compliance_report_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: start_date
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date-time
-          description: Report start date
-          title: Start Date
-        description: Report start date
-      - name: end_date
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date-time
-          description: Report end date
-          title: End Date
-        description: Report end date
-      - name: framework
-        in: query
-        required: false
-        schema:
-          enum:
-          - general
-          - GDPR
-          - SOC2
-          - ISO27001
-          type: string
-          description: Compliance framework
-          default: general
-          title: Framework
-        description: Compliance framework
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
+      - Health
+  /healthz:
+    get:
+      description: Kubernetes liveness probe
+      operationId: healthz_healthz_get
       responses:
         '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComplianceReportResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/stats:
-    get:
-      tags:
-      - Statistics
-      summary: Get Audit Stats
-      description: 'Get audit statistics
-
-
-        جلب إحصائيات التدقيق'
-      operationId: get_audit_stats_api_v1_audit_stats_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: period
-        in: query
-        required: false
-        schema:
-          type: string
-          description: Time period (7d, 30d, 90d)
-          default: 30d
-          title: Period
-        description: Time period (7d, 30d, 90d)
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AuditStatsResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/security-events:
-    get:
-      tags:
-      - Security
-      summary: Get Security Events
-      description: 'Get recent security events
-
-
-        جلب أحداث الأمان الأخيرة'
-      operationId: get_security_events_api_v1_audit_security_events_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Skip
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 500
-          minimum: 1
-          default: 100
-          title: Limit
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/failed-logins:
-    get:
-      tags:
-      - Security
-      summary: Get Failed Logins
-      description: 'Get failed login attempts
-
-
-        جلب محاولات تسجيل الدخول الفاشلة'
-      operationId: get_failed_logins_api_v1_audit_failed_logins_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: hours
-        in: query
-        required: false
-        schema:
-          type: integer
-          description: Hours to look back
-          default: 24
-          title: Hours
-        description: Hours to look back
-      - name: skip
-        in: query
-        required: false
-        schema:
-          type: integer
-          minimum: 0
-          default: 0
-          title: Skip
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 500
-          minimum: 1
-          default: 100
-          title: Limit
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedResponse'
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /api/v1/audit/export:
-    get:
-      tags:
-      - Export
-      summary: Export Audit Logs
-      description: 'Export audit logs
-
-
-        تصدير سجلات التدقيق'
-      operationId: export_audit_logs_api_v1_audit_export_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: start_date
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date-time
-          description: Export start date
-          title: Start Date
-        description: Export start date
-      - name: end_date
-        in: query
-        required: true
-        schema:
-          type: string
-          format: date-time
-          description: Export end date
-          title: End Date
-        description: Export end date
-      - name: format
-        in: query
-        required: false
-        schema:
-          enum:
-          - json
-          - csv
-          type: string
-          description: Export format
-          default: json
-          title: Format
-        description: Export format
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
           content:
             application/json:
               schema: {}
-        '422':
-          description: Validation Error
+          description: Successful Response
+      summary: Healthz
+      tags:
+      - Health
+  /readyz:
+    get:
+      description: Kubernetes readiness probe
+      operationId: readiness_readyz_get
+      responses:
+        '200':
           content:
             application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-components:
-  schemas:
-    AuditLogCreate:
-      properties:
-        action:
-          type: string
-          maxLength: 200
-          title: Action
-          default: unknown
-        category:
-          type: string
-          maxLength: 100
-          title: Category
-          default: general
-        severity:
-          type: string
-          pattern: ^(info|warning|error|critical)$
-          title: Severity
-          default: info
-        resource_type:
-          anyOf:
-          - type: string
-            maxLength: 200
-          - type: 'null'
-          title: Resource Type
-        resource_id:
-          anyOf:
-          - type: string
-            maxLength: 200
-          - type: 'null'
-          title: Resource Id
-        details:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-      type: object
-      title: AuditLogCreate
-      description: Validated request body for creating audit log entries
-    AuditLogResponse:
-      properties:
-        id:
-          type: string
-          title: Id
-        tenantId:
-          type: string
-          title: Tenantid
-        userId:
-          type: string
-          title: Userid
-        action:
-          type: string
-          title: Action
-        category:
-          type: string
-          title: Category
-        severity:
-          type: string
-          title: Severity
-        resourceType:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resourcetype
-        resourceId:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Resourceid
-        correlationId:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Correlationid
-        ipAddress:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Ipaddress
-        success:
-          type: boolean
-          title: Success
-          default: true
-        errorCode:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Errorcode
-        errorMessage:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Errormessage
-        details:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Details
-        oldValue:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Oldvalue
-        newValue:
-          anyOf:
-          - additionalProperties: true
-            type: object
-          - type: 'null'
-          title: Newvalue
-        entryHash:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Entryhash
-        createdAt:
-          type: string
-          title: Createdat
-      type: object
-      required:
-      - id
-      - tenantId
-      - userId
-      - action
-      - category
-      - severity
-      - createdAt
-      title: AuditLogResponse
-      description: Audit log entry response (camelCase aliases for frontend)
-    AuditStatsResponse:
-      properties:
-        totalEvents:
-          type: integer
-          title: Totalevents
-        eventsByCategory:
-          additionalProperties: true
-          type: object
-          title: Eventsbycategory
-        eventsBySeverity:
-          additionalProperties: true
-          type: object
-          title: Eventsbyseverity
-        failedEvents:
-          type: integer
-          title: Failedevents
-        uniqueUsers:
-          type: integer
-          title: Uniqueusers
-        chainCoveragePercent:
-          type: number
-          title: Chaincoveragepercent
-      type: object
-      required:
-      - totalEvents
-      - eventsByCategory
-      - eventsBySeverity
-      - failedEvents
-      - uniqueUsers
-      - chainCoveragePercent
-      title: AuditStatsResponse
-      description: Audit statistics response (camelCase aliases for frontend)
-    ComplianceReportResponse:
-      properties:
-        tenant_id:
-          type: string
-          title: Tenant Id
-        report_generated:
-          type: string
-          title: Report Generated
-        period:
-          additionalProperties: true
-          type: object
-          title: Period
-        framework:
-          type: string
-          title: Framework
-        summary:
-          additionalProperties: true
-          type: object
-          title: Summary
-        by_category:
-          additionalProperties: true
-          type: object
-          title: By Category
-        by_severity:
-          additionalProperties: true
-          type: object
-          title: By Severity
-        chain_integrity:
-          additionalProperties: true
-          type: object
-          title: Chain Integrity
-      type: object
-      required:
-      - tenant_id
-      - report_generated
-      - period
-      - framework
-      - summary
-      - by_category
-      - by_severity
-      - chain_integrity
-      title: ComplianceReportResponse
-      description: Compliance report response
-    HTTPValidationError:
-      properties:
-        detail:
-          items:
-            $ref: '#/components/schemas/ValidationError'
-          type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    HashChainValidationResponse:
-      properties:
-        valid:
-          type: boolean
-          title: Valid
-        total_entries:
-          type: integer
-          title: Total Entries
-        validated_entries:
-          type: integer
-          title: Validated Entries
-        invalid_entries:
-          items:
-            type: string
-          type: array
-          title: Invalid Entries
-        errors:
-          items:
-            type: string
-          type: array
-          title: Errors
-        retention_gaps_crossed:
-          type: integer
-          title: Retention Gaps Crossed
-          default: 0
-      type: object
-      required:
-      - valid
-      - total_entries
-      - validated_entries
-      - invalid_entries
-      - errors
-      title: HashChainValidationResponse
-      description: Hash chain validation result
-    PaginatedResponse:
-      properties:
-        items:
-          items: {}
-          type: array
-          title: Items
-        total:
-          type: integer
-          title: Total
-        skip:
-          type: integer
-          title: Skip
-        limit:
-          type: integer
-          title: Limit
-        has_more:
-          type: boolean
-          title: Has More
-      type: object
-      required:
-      - items
-      - total
-      - skip
-      - limit
-      - has_more
-      title: PaginatedResponse
-      description: Paginated response wrapper
-    ValidationError:
-      properties:
-        loc:
-          items:
-            anyOf:
-            - type: string
-            - type: integer
-          type: array
-          title: Location
-        msg:
-          type: string
-          title: Message
-        type:
-          type: string
-          title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
-      required:
-      - loc
-      - msg
-      - type
-      title: ValidationError
-  securitySchemes:
-    OAuth2PasswordBearer:
-      type: oauth2
-      flows:
-        password:
-          scopes: {}
-          tokenUrl: /auth/token
+              schema: {}
+          description: Successful Response
+      summary: Readiness
+      tags:
+      - Health

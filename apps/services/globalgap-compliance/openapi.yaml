@@ -1,726 +1,9 @@
-openapi: 3.1.0
-info:
-  title: SAHOOL GlobalGAP Compliance Service
-  description: "\n    خدمة الامتثال لمعايير GlobalGAP IFA v6\n    GlobalGAP IFA v6 Compliance Service\n\n    ## الميزات الرئيسية | Main Features\n\n    - تتبع الامتثال للمزارع | Farm compliance tracking\n    - إدارة قوائم المراجعة | Checklist management\n    - إعداد تقارير التدقيق | Audit report preparation\n    - إدارة شهادات GGN | GGN certificate management\n    - تتبع عدم المطابقات والإجراءات التصحيحية | Non-conformity and corrective action tracking\n    "
-  version: 16.0.0
-paths:
-  /health:
-    get:
-      summary: Health
-      description: 'Health check with dependencies
-
-        فحص الصحة مع التبعيات'
-      operationId: health_health_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /healthz:
-    get:
-      summary: Liveness
-      description: 'Kubernetes liveness probe
-
-        فحص الصحة - Kubernetes liveness probe'
-      operationId: liveness_healthz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /health/live:
-    get:
-      summary: Liveness
-      description: 'Kubernetes liveness probe
-
-        فحص الصحة - Kubernetes liveness probe'
-      operationId: liveness_health_live_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /readyz:
-    get:
-      summary: Readiness
-      description: 'Kubernetes readiness probe
-
-        فحص الجاهزية - Kubernetes readiness probe'
-      operationId: readiness_readyz_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /health/ready:
-    get:
-      summary: Readiness
-      description: 'Kubernetes readiness probe
-
-        فحص الجاهزية - Kubernetes readiness probe'
-      operationId: readiness_health_ready_get
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-  /farms/{farm_id}/compliance:
-    get:
-      summary: Get Farm Compliance
-      description: 'Get current compliance status for a farm
-
-        الحصول على حالة الامتثال الحالية للمزرعة'
-      operationId: get_farm_compliance_farms__farm_id__compliance_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    post:
-      summary: Create Or Update Compliance
-      description: 'Create or update compliance record for a farm
-
-        إنشاء أو تحديث سجل الامتثال للمزرعة'
-      operationId: create_or_update_compliance_farms__farm_id__compliance_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ComplianceRecord'
-      responses:
-        '201':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /farms/{farm_id}/compliance/trends:
-    get:
-      summary: Get Compliance Trends
-      description: 'Get compliance trends over time
-
-        الحصول على اتجاهات الامتثال عبر الزمن'
-      operationId: get_compliance_trends_farms__farm_id__compliance_trends_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: months
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 24
-          minimum: 1
-          default: 12
-          title: Months
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /checklists:
-    get:
-      summary: Get Checklists
-      description: 'Get available checklists
-
-        الحصول على قوائم المراجعة المتاحة'
-      operationId: get_checklists_checklists_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: ifa_version
-        in: query
-        required: false
-        schema:
-          type: string
-          description: IFA version | إصدار معايير IFA
-          default: '6.0'
-          title: Ifa Version
-        description: IFA version | إصدار معايير IFA
-      - name: checklist_type
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          description: full, partial, follow_up
-          title: Checklist Type
-        description: full, partial, follow_up
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /checklists/{checklist_id}/items:
-    get:
-      summary: Get Checklist Items
-      description: 'Get checklist items (control points)
-
-        الحصول على عناصر قائمة المراجعة (نقاط التحكم)'
-      operationId: get_checklist_items_checklists__checklist_id__items_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: checklist_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Checklist Id
-      - name: category
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/ChecklistCategory'
-          - type: 'null'
-          title: Category
-      - name: compliance_level
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/ComplianceLevel'
-          - type: 'null'
-          title: Compliance Level
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /farms/{farm_id}/assessments:
-    post:
-      summary: Create Assessment
-      description: 'Create or update a checklist assessment for a farm
-
-        إنشاء أو تحديث تقييم قائمة المراجعة للمزرعة'
-      operationId: create_assessment_farms__farm_id__assessments_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ChecklistAssessment'
-      responses:
-        '201':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-    get:
-      summary: Get Farm Assessments
-      description: 'Get all assessments for a farm
-
-        الحصول على جميع التقييمات للمزرعة'
-      operationId: get_farm_assessments_farms__farm_id__assessments_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: status
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/ControlPointStatus'
-          - type: 'null'
-          title: Status
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /audits:
-    post:
-      summary: Create Audit
-      description: 'Prepare and create an audit report
-
-        إعداد وإنشاء تقرير تدقيق'
-      operationId: create_audit_audits_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: query
-        required: true
-        schema:
-          type: string
-          description: Farm identifier
-          title: Farm Id
-        description: Farm identifier
-      - name: audit_type
-        in: query
-        required: false
-        schema:
-          type: string
-          description: internal, external, certification
-          default: internal
-          title: Audit Type
-        description: internal, external, certification
-      - name: auditor_name
-        in: query
-        required: true
-        schema:
-          type: string
-          description: Name of auditor
-          title: Auditor Name
-        description: Name of auditor
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '201':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /audits/{audit_id}:
-    get:
-      summary: Get Audit
-      description: 'Get audit result by ID
-
-        الحصول على نتيجة التدقيق حسب المعرف'
-      operationId: get_audit_audits__audit_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: audit_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Audit Id
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /farms/{farm_id}/audits:
-    get:
-      summary: Get Farm Audits
-      description: 'Get audit history for a farm
-
-        الحصول على سجل التدقيق للمزرعة'
-      operationId: get_farm_audits_farms__farm_id__audits_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: limit
-        in: query
-        required: false
-        schema:
-          type: integer
-          maximum: 100
-          minimum: 1
-          default: 10
-          title: Limit
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /farms/{farm_id}/non-conformities:
-    get:
-      summary: Get Farm Non Conformities
-      description: 'Get non-conformities for a farm
-
-        الحصول على عدم المطابقات للمزرعة'
-      operationId: get_farm_non_conformities_farms__farm_id__non_conformities_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: severity
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/SeverityLevel'
-          - type: 'null'
-          title: Severity
-      - name: resolved
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - type: boolean
-          - type: 'null'
-          title: Resolved
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /non-conformities:
-    post:
-      summary: Create Non Conformity
-      description: 'Create a new non-conformity record
-
-        إنشاء سجل عدم مطابقة جديد'
-      operationId: create_non_conformity_non_conformities_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/NonConformity'
-      responses:
-        '201':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /farms/{farm_id}/certificates:
-    get:
-      summary: Get Farm Certificates
-      description: 'Get GGN certificates for a farm
-
-        الحصول على شهادات GGN للمزرعة'
-      operationId: get_farm_certificates_farms__farm_id__certificates_get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: farm_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Farm Id
-      - name: status
-        in: query
-        required: false
-        schema:
-          anyOf:
-          - $ref: '#/components/schemas/CertificateStatus'
-          - type: 'null'
-          title: Status
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /certificates:
-    post:
-      summary: Create Certificate
-      description: 'Create a new GGN certificate
-
-        إنشاء شهادة GGN جديدة'
-      operationId: create_certificate_certificates_post
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GGNCertificate'
-      responses:
-        '201':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
-  /certificates/{certificate_id}:
-    get:
-      summary: Get Certificate
-      description: 'Get certificate by ID
-
-        الحصول على الشهادة حسب المعرف'
-      operationId: get_certificate_certificates__certificate_id__get
-      security:
-      - OAuth2PasswordBearer: []
-      parameters:
-      - name: certificate_id
-        in: path
-        required: true
-        schema:
-          type: string
-          title: Certificate Id
-      - name: X-Tenant-Id
-        in: header
-        required: false
-        schema:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: X-Tenant-Id
-      responses:
-        '200':
-          description: Successful Response
-          content:
-            application/json:
-              schema: {}
-        '422':
-          description: Validation Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     CertificateStatus:
-      type: string
+      description: 'Certificate status
+
+        حالة الشهادة'
       enum:
       - active
       - expired
@@ -729,23 +12,21 @@ components:
       - pending_approval
       - renewal_required
       title: CertificateStatus
-      description: 'Certificate status
-
-        حالة الشهادة'
+      type: string
     CertificationBody:
+      description: 'Certification body information
+
+        معلومات الجهة المانحة للشهادة'
       properties:
-        name:
-          type: string
-          title: Name
-          description: Certification body name | اسم الجهة المانحة للشهادة
+        accreditation_number:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Accreditation Number
         code:
-          type: string
-          title: Code
           description: CB code | رمز الجهة
-        country:
+          title: Code
           type: string
-          title: Country
-          description: Country | الدولة
         contact_email:
           anyOf:
           - type: string
@@ -756,27 +37,29 @@ components:
           - type: string
           - type: 'null'
           title: Contact Phone
+        country:
+          description: Country | الدولة
+          title: Country
+          type: string
+        name:
+          description: Certification body name | اسم الجهة المانحة للشهادة
+          title: Name
+          type: string
         website:
           anyOf:
           - type: string
           - type: 'null'
           title: Website
-        accreditation_number:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Accreditation Number
-      type: object
       required:
       - name
       - code
       - country
       title: CertificationBody
-      description: 'Certification body information
-
-        معلومات الجهة المانحة للشهادة'
+      type: object
     CertificationScope:
-      type: string
+      description: 'Certification scope
+
+        نطاق الشهادة'
       enum:
       - crops_base
       - fruit_vegetables
@@ -784,112 +67,8 @@ components:
       - plant_propagation
       - flowers_ornamentals
       title: CertificationScope
-      description: 'Certification scope
-
-        نطاق الشهادة'
+      type: string
     ChecklistAssessment:
-      properties:
-        id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Id
-        farm_id:
-          type: string
-          title: Farm Id
-        tenant_id:
-          type: string
-          title: Tenant Id
-        checklist_item_id:
-          type: string
-          title: Checklist Item Id
-        control_point_number:
-          type: string
-          title: Control Point Number
-        status:
-          $ref: '#/components/schemas/ControlPointStatus'
-          description: Assessment status | حالة التقييم
-          default: not_assessed
-        evidence_description:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Evidence Description
-        evidence_photos:
-          items:
-            type: string
-          type: array
-          title: Evidence Photos
-        evidence_documents:
-          items:
-            type: string
-          type: array
-          title: Evidence Documents
-        assessor_notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Assessor Notes
-        non_compliance_reason:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Non Compliance Reason
-        corrective_action_required:
-          type: boolean
-          title: Corrective Action Required
-          default: false
-        corrective_action_plan:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Corrective Action Plan
-        corrective_action_deadline:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Corrective Action Deadline
-        corrective_action_status:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Corrective Action Status
-        assessed_by:
-          type: string
-          title: Assessed By
-          description: Assessor name | اسم المقيم
-        assessment_date:
-          type: string
-          format: date-time
-          title: Assessment Date
-        verified_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Verified By
-        verification_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Verification Date
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - farm_id
-      - tenant_id
-      - checklist_item_id
-      - control_point_number
-      - assessed_by
-      title: ChecklistAssessment
       description: 'Assessment of a checklist item for a specific farm
 
         تقييم عنصر قائمة المراجعة لمزرعة معينة'
@@ -901,8 +80,112 @@ components:
         farm_id: farm_12345
         status: compliant
         tenant_id: tenant_001
+      properties:
+        assessed_by:
+          description: Assessor name | اسم المقيم
+          title: Assessed By
+          type: string
+        assessment_date:
+          format: date-time
+          title: Assessment Date
+          type: string
+        assessor_notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assessor Notes
+        checklist_item_id:
+          title: Checklist Item Id
+          type: string
+        control_point_number:
+          title: Control Point Number
+          type: string
+        corrective_action_deadline:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Corrective Action Deadline
+        corrective_action_plan:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Corrective Action Plan
+        corrective_action_required:
+          default: false
+          title: Corrective Action Required
+          type: boolean
+        corrective_action_status:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Corrective Action Status
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        evidence_description:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Evidence Description
+        evidence_documents:
+          items:
+            type: string
+          title: Evidence Documents
+          type: array
+        evidence_photos:
+          items:
+            type: string
+          title: Evidence Photos
+          type: array
+        farm_id:
+          title: Farm Id
+          type: string
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        non_compliance_reason:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Non Compliance Reason
+        status:
+          $ref: '#/components/schemas/ControlPointStatus'
+          default: not_assessed
+          description: Assessment status | حالة التقييم
+        tenant_id:
+          title: Tenant Id
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        verification_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Verification Date
+        verified_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Verified By
+      required:
+      - farm_id
+      - tenant_id
+      - checklist_item_id
+      - control_point_number
+      - assessed_by
+      title: ChecklistAssessment
+      type: object
     ChecklistCategory:
-      type: string
+      description: 'Main checklist categories from IFA v6
+
+        فئات قائمة المراجعة الرئيسية من معايير IFA v6'
       enum:
       - af_site_management
       - af_soil_management
@@ -917,110 +200,18 @@ components:
       - cb_propagation_material
       - cb_site_history
       title: ChecklistCategory
-      description: 'Main checklist categories from IFA v6
-
-        فئات قائمة المراجعة الرئيسية من معايير IFA v6'
-    ComplianceLevel:
       type: string
+    ComplianceLevel:
+      description: 'Compliance level according to IFA standards
+
+        مستوى الامتثال وفقًا لمعايير IFA'
       enum:
       - major_must
       - minor_must
       - recommendation
       title: ComplianceLevel
-      description: 'Compliance level according to IFA standards
-
-        مستوى الامتثال وفقًا لمعايير IFA'
+      type: string
     ComplianceRecord:
-      properties:
-        id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Id
-        farm_id:
-          type: string
-          title: Farm Id
-          description: Farm identifier | معرف المزرعة
-        tenant_id:
-          type: string
-          title: Tenant Id
-          description: Tenant identifier | معرف المستأجر
-        overall_status:
-          $ref: '#/components/schemas/ComplianceStatus'
-          description: Overall compliance status | حالة الامتثال الإجمالية
-          default: not_assessed
-        compliance_percentage:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Compliance Percentage
-          description: Compliance percentage | نسبة الامتثال
-          default: 0.0
-        total_control_points:
-          type: integer
-          title: Total Control Points
-          description: Total control points | إجمالي نقاط التحكم
-          default: 0
-        compliant_points:
-          type: integer
-          title: Compliant Points
-          description: Compliant control points | نقاط التحكم المتوافقة
-          default: 0
-        non_compliant_points:
-          type: integer
-          title: Non Compliant Points
-          description: Non-compliant points | نقاط عدم التوافق
-          default: 0
-        major_must_fails:
-          type: integer
-          title: Major Must Fails
-          description: Major Must non-conformities | عدم المطابقات الرئيسية الإلزامية
-          default: 0
-        minor_must_fails:
-          type: integer
-          title: Minor Must Fails
-          description: Minor Must non-conformities | عدم المطابقات الثانوية الإلزامية
-          default: 0
-        assessed_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Assessed By
-        assessment_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Assessment Date
-        next_assessment_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Next Assessment Date
-        ifa_version:
-          type: string
-          title: Ifa Version
-          description: IFA version | إصدار معايير IFA
-          default: '6.0'
-        notes:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Notes
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - farm_id
-      - tenant_id
-      title: ComplianceRecord
       description: 'Compliance record for a farm
 
         سجل الامتثال للمزرعة'
@@ -1035,8 +226,100 @@ components:
         overall_status: partially_compliant
         tenant_id: tenant_001
         total_control_points: 200
+      properties:
+        assessed_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Assessed By
+        assessment_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Assessment Date
+        compliance_percentage:
+          default: 0.0
+          description: Compliance percentage | نسبة الامتثال
+          maximum: 100.0
+          minimum: 0.0
+          title: Compliance Percentage
+          type: number
+        compliant_points:
+          default: 0
+          description: Compliant control points | نقاط التحكم المتوافقة
+          title: Compliant Points
+          type: integer
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        farm_id:
+          description: Farm identifier | معرف المزرعة
+          title: Farm Id
+          type: string
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        ifa_version:
+          default: '6.0'
+          description: IFA version | إصدار معايير IFA
+          title: Ifa Version
+          type: string
+        major_must_fails:
+          default: 0
+          description: Major Must non-conformities | عدم المطابقات الرئيسية الإلزامية
+          title: Major Must Fails
+          type: integer
+        minor_must_fails:
+          default: 0
+          description: Minor Must non-conformities | عدم المطابقات الثانوية الإلزامية
+          title: Minor Must Fails
+          type: integer
+        next_assessment_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Next Assessment Date
+        non_compliant_points:
+          default: 0
+          description: Non-compliant points | نقاط عدم التوافق
+          title: Non Compliant Points
+          type: integer
+        notes:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Notes
+        overall_status:
+          $ref: '#/components/schemas/ComplianceStatus'
+          default: not_assessed
+          description: Overall compliance status | حالة الامتثال الإجمالية
+        tenant_id:
+          description: Tenant identifier | معرف المستأجر
+          title: Tenant Id
+          type: string
+        total_control_points:
+          default: 0
+          description: Total control points | إجمالي نقاط التحكم
+          title: Total Control Points
+          type: integer
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+      - farm_id
+      - tenant_id
+      title: ComplianceRecord
+      type: object
     ComplianceStatus:
-      type: string
+      description: 'Compliance status enumeration
+
+        تعداد حالات الامتثال'
       enum:
       - compliant
       - non_compliant
@@ -1044,207 +327,19 @@ components:
       - pending_review
       - not_assessed
       title: ComplianceStatus
-      description: 'Compliance status enumeration
-
-        تعداد حالات الامتثال'
-    ControlPointStatus:
       type: string
+    ControlPointStatus:
+      description: 'Status of a control point assessment
+
+        حالة تقييم نقطة التحكم'
       enum:
       - compliant
       - non_compliant
       - not_applicable
       - not_assessed
       title: ControlPointStatus
-      description: 'Status of a control point assessment
-
-        حالة تقييم نقطة التحكم'
+      type: string
     GGNCertificate:
-      properties:
-        id:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Id
-        farm_id:
-          type: string
-          title: Farm Id
-          description: Farm identifier | معرف المزرعة
-        tenant_id:
-          type: string
-          title: Tenant Id
-          description: Tenant identifier | معرف المستأجر
-        ggn_number:
-          type: string
-          maxLength: 13
-          minLength: 13
-          title: Ggn Number
-          description: GlobalGAP Number (GGN) - 13 digits | رقم GlobalGAP (GGN) - 13 رقم
-        gln_number:
-          anyOf:
-          - type: string
-            maxLength: 13
-            minLength: 13
-          - type: 'null'
-          title: Gln Number
-          description: Global Location Number (GLN) | رقم الموقع العالمي
-        certificate_number:
-          type: string
-          title: Certificate Number
-          description: Certificate number | رقم الشهادة
-        status:
-          $ref: '#/components/schemas/CertificateStatus'
-          description: Certificate status | حالة الشهادة
-          default: pending_approval
-        scope:
-          $ref: '#/components/schemas/CertificationScope'
-          description: Certification scope | نطاق الشهادة
-        products:
-          items:
-            type: string
-          type: array
-          title: Products
-          description: Certified products | المنتجات المعتمدة
-        production_methods:
-          items:
-            type: string
-          type: array
-          title: Production Methods
-          description: 'e.g., conventional, organic | مثل: تقليدي، عضوي'
-        issue_date:
-          type: string
-          format: date
-          title: Issue Date
-          description: Issue date | تاريخ الإصدار
-        valid_from:
-          type: string
-          format: date
-          title: Valid From
-          description: Valid from date | صالح من تاريخ
-        valid_until:
-          type: string
-          format: date
-          title: Valid Until
-          description: Valid until date | صالح حتى تاريخ
-        last_audit_date:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Last Audit Date
-        next_audit_date:
-          anyOf:
-          - type: string
-            format: date
-          - type: 'null'
-          title: Next Audit Date
-        certification_body:
-          $ref: '#/components/schemas/CertificationBody'
-          description: Certification body details | تفاصيل الجهة المانحة للشهادة
-        farm_name:
-          type: string
-          title: Farm Name
-          description: Farm name | اسم المزرعة
-        farm_address:
-          type: string
-          title: Farm Address
-          description: Farm address | عنوان المزرعة
-        farm_country:
-          type: string
-          title: Farm Country
-          description: Country | الدولة
-          default: Yemen
-        total_area_ha:
-          type: number
-          exclusiveMinimum: 0.0
-          title: Total Area Ha
-          description: Total certified area in hectares | المساحة الكلية المعتمدة بالهكتار
-        producer_name:
-          type: string
-          title: Producer Name
-          description: Producer/farmer name | اسم المنتج/المزارع
-        producer_contact:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Producer Contact
-        ifa_version:
-          type: string
-          title: Ifa Version
-          description: IFA version | إصدار معايير IFA
-          default: '6.0'
-        compliance_percentage:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Compliance Percentage
-          description: Overall compliance percentage | نسبة الامتثال الإجمالية
-        major_must_compliance:
-          type: boolean
-          title: Major Must Compliance
-          description: All Major Must points compliant | جميع النقاط الإلزامية الرئيسية متوافقة
-          default: false
-        minor_must_compliance_percentage:
-          type: number
-          maximum: 100.0
-          minimum: 0.0
-          title: Minor Must Compliance Percentage
-          description: Minor Must compliance (must be >= 95%) | نسبة الامتثال للنقاط الإلزامية الثانوية (يجب أن تكون >= 95%)
-        certificate_pdf_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Certificate Pdf Url
-        audit_report_url:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Audit Report Url
-        attachments:
-          items:
-            type: string
-          type: array
-          title: Attachments
-        publicly_searchable:
-          type: boolean
-          title: Publicly Searchable
-          description: Certificate searchable in GlobalGAP database | الشهادة قابلة للبحث في قاعدة بيانات GlobalGAP
-          default: true
-        renewal_notification_sent:
-          type: boolean
-          title: Renewal Notification Sent
-          default: false
-        renewal_notification_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Renewal Notification Date
-        created_at:
-          type: string
-          format: date-time
-          title: Created At
-        updated_at:
-          type: string
-          format: date-time
-          title: Updated At
-      type: object
-      required:
-      - farm_id
-      - tenant_id
-      - ggn_number
-      - certificate_number
-      - scope
-      - issue_date
-      - valid_from
-      - valid_until
-      - certification_body
-      - farm_name
-      - farm_address
-      - total_area_ha
-      - producer_name
-      - compliance_percentage
-      - minor_must_compliance_percentage
-      title: GGNCertificate
       description: 'GlobalGAP GGN Certificate
 
         شهادة GlobalGAP GGN'
@@ -1277,97 +372,202 @@ components:
         total_area_ha: 5.5
         valid_from: '2025-01-15'
         valid_until: '2026-01-14'
-    HTTPValidationError:
       properties:
-        detail:
+        attachments:
           items:
-            $ref: '#/components/schemas/ValidationError'
+            type: string
+          title: Attachments
           type: array
-          title: Detail
-      type: object
-      title: HTTPValidationError
-    NonConformity:
-      properties:
+        audit_report_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Audit Report Url
+        certificate_number:
+          description: Certificate number | رقم الشهادة
+          title: Certificate Number
+          type: string
+        certificate_pdf_url:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Certificate Pdf Url
+        certification_body:
+          $ref: '#/components/schemas/CertificationBody'
+          description: Certification body details | تفاصيل الجهة المانحة للشهادة
+        compliance_percentage:
+          description: Overall compliance percentage | نسبة الامتثال الإجمالية
+          maximum: 100.0
+          minimum: 0.0
+          title: Compliance Percentage
+          type: number
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        farm_address:
+          description: Farm address | عنوان المزرعة
+          title: Farm Address
+          type: string
+        farm_country:
+          default: Yemen
+          description: Country | الدولة
+          title: Farm Country
+          type: string
+        farm_id:
+          description: Farm identifier | معرف المزرعة
+          title: Farm Id
+          type: string
+        farm_name:
+          description: Farm name | اسم المزرعة
+          title: Farm Name
+          type: string
+        ggn_number:
+          description: GlobalGAP Number (GGN) - 13 digits | رقم GlobalGAP (GGN) - 13 رقم
+          maxLength: 13
+          minLength: 13
+          title: Ggn Number
+          type: string
+        gln_number:
+          anyOf:
+          - maxLength: 13
+            minLength: 13
+            type: string
+          - type: 'null'
+          description: Global Location Number (GLN) | رقم الموقع العالمي
+          title: Gln Number
         id:
           anyOf:
           - type: string
           - type: 'null'
           title: Id
-        compliance_record_id:
+        ifa_version:
+          default: '6.0'
+          description: IFA version | إصدار معايير IFA
+          title: Ifa Version
           type: string
-          title: Compliance Record Id
-        control_point_id:
+        issue_date:
+          description: Issue date | تاريخ الإصدار
+          format: date
+          title: Issue Date
           type: string
-          title: Control Point Id
-        control_point_number:
-          type: string
-          title: Control Point Number
-          description: CP number e.g., AF.1.1.1 | رقم نقطة التحكم
-        severity:
-          $ref: '#/components/schemas/SeverityLevel'
-        description_ar:
-          type: string
-          title: Description Ar
-          description: Description in Arabic | الوصف بالعربية
-        description_en:
-          type: string
-          title: Description En
-          description: Description in English | الوصف بالإنجليزية
-        corrective_action_required:
-          type: boolean
-          title: Corrective Action Required
-          default: true
-        corrective_action_taken:
+        last_audit_date:
           anyOf:
-          - type: string
+          - format: date
+            type: string
           - type: 'null'
-          title: Corrective Action Taken
-        corrective_action_deadline:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Corrective Action Deadline
-        corrective_action_completed:
-          type: boolean
-          title: Corrective Action Completed
+          title: Last Audit Date
+        major_must_compliance:
           default: false
-        evidence_photos:
-          items:
+          description: All Major Must points compliant | جميع النقاط الإلزامية الرئيسية متوافقة
+          title: Major Must Compliance
+          type: boolean
+        minor_must_compliance_percentage:
+          description: Minor Must compliance (must be >= 95%) | نسبة الامتثال للنقاط الإلزامية الثانوية (يجب أن تكون >= 95%)
+          maximum: 100.0
+          minimum: 0.0
+          title: Minor Must Compliance Percentage
+          type: number
+        next_audit_date:
+          anyOf:
+          - format: date
             type: string
-          type: array
-          title: Evidence Photos
-          description: Photo URLs | روابط الصور
-        evidence_documents:
-          items:
-            type: string
-          type: array
-          title: Evidence Documents
-          description: Document URLs | روابط المستندات
-        identified_date:
+          - type: 'null'
+          title: Next Audit Date
+        producer_contact:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Producer Contact
+        producer_name:
+          description: Producer/farmer name | اسم المنتج/المزارع
+          title: Producer Name
           type: string
+        production_methods:
+          description: 'e.g., conventional, organic | مثل: تقليدي، عضوي'
+          items:
+            type: string
+          title: Production Methods
+          type: array
+        products:
+          description: Certified products | المنتجات المعتمدة
+          items:
+            type: string
+          title: Products
+          type: array
+        publicly_searchable:
+          default: true
+          description: Certificate searchable in GlobalGAP database | الشهادة قابلة للبحث في قاعدة بيانات GlobalGAP
+          title: Publicly Searchable
+          type: boolean
+        renewal_notification_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Renewal Notification Date
+        renewal_notification_sent:
+          default: false
+          title: Renewal Notification Sent
+          type: boolean
+        scope:
+          $ref: '#/components/schemas/CertificationScope'
+          description: Certification scope | نطاق الشهادة
+        status:
+          $ref: '#/components/schemas/CertificateStatus'
+          default: pending_approval
+          description: Certificate status | حالة الشهادة
+        tenant_id:
+          description: Tenant identifier | معرف المستأجر
+          title: Tenant Id
+          type: string
+        total_area_ha:
+          description: Total certified area in hectares | المساحة الكلية المعتمدة بالهكتار
+          exclusiveMinimum: 0.0
+          title: Total Area Ha
+          type: number
+        updated_at:
           format: date-time
-          title: Identified Date
-        resolved_date:
-          anyOf:
-          - type: string
-            format: date-time
-          - type: 'null'
-          title: Resolved Date
-        verified_by:
-          anyOf:
-          - type: string
-          - type: 'null'
-          title: Verified By
-      type: object
+          title: Updated At
+          type: string
+        valid_from:
+          description: Valid from date | صالح من تاريخ
+          format: date
+          title: Valid From
+          type: string
+        valid_until:
+          description: Valid until date | صالح حتى تاريخ
+          format: date
+          title: Valid Until
+          type: string
       required:
-      - compliance_record_id
-      - control_point_id
-      - control_point_number
-      - severity
-      - description_ar
-      - description_en
-      title: NonConformity
+      - farm_id
+      - tenant_id
+      - ggn_number
+      - certificate_number
+      - scope
+      - issue_date
+      - valid_from
+      - valid_until
+      - certification_body
+      - farm_name
+      - farm_address
+      - total_area_ha
+      - producer_name
+      - compliance_percentage
+      - minor_must_compliance_percentage
+      title: GGNCertificate
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    NonConformity:
       description: 'Non-conformity finding
 
         نتيجة عدم المطابقة'
@@ -1379,47 +579,847 @@ components:
         description_ar: عدم وجود سجلات تطبيق المبيدات الحشرية
         description_en: Lack of pesticide application records
         severity: major
+      properties:
+        compliance_record_id:
+          title: Compliance Record Id
+          type: string
+        control_point_id:
+          title: Control Point Id
+          type: string
+        control_point_number:
+          description: CP number e.g., AF.1.1.1 | رقم نقطة التحكم
+          title: Control Point Number
+          type: string
+        corrective_action_completed:
+          default: false
+          title: Corrective Action Completed
+          type: boolean
+        corrective_action_deadline:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Corrective Action Deadline
+        corrective_action_required:
+          default: true
+          title: Corrective Action Required
+          type: boolean
+        corrective_action_taken:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Corrective Action Taken
+        description_ar:
+          description: Description in Arabic | الوصف بالعربية
+          title: Description Ar
+          type: string
+        description_en:
+          description: Description in English | الوصف بالإنجليزية
+          title: Description En
+          type: string
+        evidence_documents:
+          description: Document URLs | روابط المستندات
+          items:
+            type: string
+          title: Evidence Documents
+          type: array
+        evidence_photos:
+          description: Photo URLs | روابط الصور
+          items:
+            type: string
+          title: Evidence Photos
+          type: array
+        id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Id
+        identified_date:
+          format: date-time
+          title: Identified Date
+          type: string
+        resolved_date:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Resolved Date
+        severity:
+          $ref: '#/components/schemas/SeverityLevel'
+        verified_by:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Verified By
+      required:
+      - compliance_record_id
+      - control_point_id
+      - control_point_number
+      - severity
+      - description_ar
+      - description_en
+      title: NonConformity
+      type: object
     SeverityLevel:
-      type: string
+      description: 'Severity level for non-compliance
+
+        مستوى خطورة عدم الامتثال'
       enum:
       - critical
       - major
       - minor
       - observation
       title: SeverityLevel
-      description: 'Severity level for non-compliance
-
-        مستوى خطورة عدم الامتثال'
+      type: string
     ValidationError:
       properties:
+        ctx:
+          title: Context
+          type: object
+        input:
+          title: Input
         loc:
           items:
             anyOf:
             - type: string
             - type: integer
-          type: array
           title: Location
+          type: array
         msg:
-          type: string
           title: Message
-        type:
           type: string
+        type:
           title: Error Type
-        input:
-          title: Input
-        ctx:
-          type: object
-          title: Context
-      type: object
+          type: string
       required:
       - loc
       - msg
       - type
       title: ValidationError
+      type: object
   securitySchemes:
     OAuth2PasswordBearer:
-      type: oauth2
       flows:
         password:
           scopes: {}
           tokenUrl: /auth/token
+      type: oauth2
+info:
+  description: "\n    خدمة الامتثال لمعايير GlobalGAP IFA v6\n    GlobalGAP IFA v6 Compliance Service\n\n    ## الميزات الرئيسية | Main Features\n\n    - تتبع الامتثال للمزارع | Farm compliance tracking\n    - إدارة قوائم المراجعة | Checklist management\n    - إعداد تقارير التدقيق | Audit report preparation\n    - إدارة شهادات GGN | GGN certificate management\n    - تتبع عدم المطابقات والإجراءات التصحيحية | Non-conformity and corrective action tracking\n    "
+  title: SAHOOL GlobalGAP Compliance Service
+  version: 16.0.0
+openapi: 3.1.0
+paths:
+  /audits:
+    post:
+      description: 'Prepare and create an audit report
+
+        إعداد وإنشاء تقرير تدقيق'
+      operationId: create_audit_audits_post
+      parameters:
+      - description: Farm identifier
+        in: query
+        name: farm_id
+        required: true
+        schema:
+          description: Farm identifier
+          title: Farm Id
+          type: string
+      - description: internal, external, certification
+        in: query
+        name: audit_type
+        required: false
+        schema:
+          default: internal
+          description: internal, external, certification
+          title: Audit Type
+          type: string
+      - description: Name of auditor
+        in: query
+        name: auditor_name
+        required: true
+        schema:
+          description: Name of auditor
+          title: Auditor Name
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Audit
+  /audits/{audit_id}:
+    get:
+      description: 'Get audit result by ID
+
+        الحصول على نتيجة التدقيق حسب المعرف'
+      operationId: get_audit_audits__audit_id__get
+      parameters:
+      - in: path
+        name: audit_id
+        required: true
+        schema:
+          title: Audit Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Audit
+  /certificates:
+    post:
+      description: 'Create a new GGN certificate
+
+        إنشاء شهادة GGN جديدة'
+      operationId: create_certificate_certificates_post
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GGNCertificate'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Certificate
+  /certificates/{certificate_id}:
+    get:
+      description: 'Get certificate by ID
+
+        الحصول على الشهادة حسب المعرف'
+      operationId: get_certificate_certificates__certificate_id__get
+      parameters:
+      - in: path
+        name: certificate_id
+        required: true
+        schema:
+          title: Certificate Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Certificate
+  /checklists:
+    get:
+      description: 'Get available checklists
+
+        الحصول على قوائم المراجعة المتاحة'
+      operationId: get_checklists_checklists_get
+      parameters:
+      - description: IFA version | إصدار معايير IFA
+        in: query
+        name: ifa_version
+        required: false
+        schema:
+          default: '6.0'
+          description: IFA version | إصدار معايير IFA
+          title: Ifa Version
+          type: string
+      - description: full, partial, follow_up
+        in: query
+        name: checklist_type
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: full, partial, follow_up
+          title: Checklist Type
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Checklists
+  /checklists/{checklist_id}/items:
+    get:
+      description: 'Get checklist items (control points)
+
+        الحصول على عناصر قائمة المراجعة (نقاط التحكم)'
+      operationId: get_checklist_items_checklists__checklist_id__items_get
+      parameters:
+      - in: path
+        name: checklist_id
+        required: true
+        schema:
+          title: Checklist Id
+          type: string
+      - in: query
+        name: category
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ChecklistCategory'
+          - type: 'null'
+          title: Category
+      - in: query
+        name: compliance_level
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ComplianceLevel'
+          - type: 'null'
+          title: Compliance Level
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Checklist Items
+  /farms/{farm_id}/assessments:
+    get:
+      description: 'Get all assessments for a farm
+
+        الحصول على جميع التقييمات للمزرعة'
+      operationId: get_farm_assessments_farms__farm_id__assessments_get
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/ControlPointStatus'
+          - type: 'null'
+          title: Status
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Farm Assessments
+    post:
+      description: 'Create or update a checklist assessment for a farm
+
+        إنشاء أو تحديث تقييم قائمة المراجعة للمزرعة'
+      operationId: create_assessment_farms__farm_id__assessments_post
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChecklistAssessment'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Assessment
+  /farms/{farm_id}/audits:
+    get:
+      description: 'Get audit history for a farm
+
+        الحصول على سجل التدقيق للمزرعة'
+      operationId: get_farm_audits_farms__farm_id__audits_get
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 10
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Farm Audits
+  /farms/{farm_id}/certificates:
+    get:
+      description: 'Get GGN certificates for a farm
+
+        الحصول على شهادات GGN للمزرعة'
+      operationId: get_farm_certificates_farms__farm_id__certificates_get
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: query
+        name: status
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/CertificateStatus'
+          - type: 'null'
+          title: Status
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Farm Certificates
+  /farms/{farm_id}/compliance:
+    get:
+      description: 'Get current compliance status for a farm
+
+        الحصول على حالة الامتثال الحالية للمزرعة'
+      operationId: get_farm_compliance_farms__farm_id__compliance_get
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Farm Compliance
+    post:
+      description: 'Create or update compliance record for a farm
+
+        إنشاء أو تحديث سجل الامتثال للمزرعة'
+      operationId: create_or_update_compliance_farms__farm_id__compliance_post
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplianceRecord'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Or Update Compliance
+  /farms/{farm_id}/compliance/trends:
+    get:
+      description: 'Get compliance trends over time
+
+        الحصول على اتجاهات الامتثال عبر الزمن'
+      operationId: get_compliance_trends_farms__farm_id__compliance_trends_get
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: query
+        name: months
+        required: false
+        schema:
+          default: 12
+          maximum: 24
+          minimum: 1
+          title: Months
+          type: integer
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Compliance Trends
+  /farms/{farm_id}/non-conformities:
+    get:
+      description: 'Get non-conformities for a farm
+
+        الحصول على عدم المطابقات للمزرعة'
+      operationId: get_farm_non_conformities_farms__farm_id__non_conformities_get
+      parameters:
+      - in: path
+        name: farm_id
+        required: true
+        schema:
+          title: Farm Id
+          type: string
+      - in: query
+        name: severity
+        required: false
+        schema:
+          anyOf:
+          - $ref: '#/components/schemas/SeverityLevel'
+          - type: 'null'
+          title: Severity
+      - in: query
+        name: resolved
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Resolved
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Get Farm Non Conformities
+  /health:
+    get:
+      description: 'Health check with dependencies
+
+        فحص الصحة مع التبعيات'
+      operationId: health_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Health
+  /health/live:
+    get:
+      description: 'Kubernetes liveness probe
+
+        فحص الصحة - Kubernetes liveness probe'
+      operationId: liveness_health_live_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Liveness
+  /health/ready:
+    get:
+      description: 'Kubernetes readiness probe
+
+        فحص الجاهزية - Kubernetes readiness probe'
+      operationId: readiness_health_ready_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Readiness
+  /healthz:
+    get:
+      description: 'Kubernetes liveness probe
+
+        فحص الصحة - Kubernetes liveness probe'
+      operationId: liveness_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Liveness
+  /non-conformities:
+    post:
+      description: 'Create a new non-conformity record
+
+        إنشاء سجل عدم مطابقة جديد'
+      operationId: create_non_conformity_non_conformities_post
+      parameters:
+      - in: header
+        name: X-Tenant-Id
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: X-Tenant-Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NonConformity'
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+      - OAuth2PasswordBearer: []
+      summary: Create Non Conformity
+  /readyz:
+    get:
+      description: 'Kubernetes readiness probe
+
+        فحص الجاهزية - Kubernetes readiness probe'
+      operationId: readiness_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Readiness

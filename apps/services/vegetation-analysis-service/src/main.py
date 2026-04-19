@@ -1992,6 +1992,7 @@ class PhenologyActionRequest(BaseModel):
 
 @app.post("/v1/phenology/{field_id}/analyze-with-action")
 async def analyze_phenology_with_action(
+    field_id: str,
     request: PhenologyActionRequest,
     background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
@@ -2005,6 +2006,11 @@ async def analyze_phenology_with_action(
     2. Creates stage-specific ActionTemplate for mobile app
     3. Publishes event via NATS if enabled
     """
+    if request.field_id != field_id:
+        raise HTTPException(
+            status_code=400,
+            detail="field_id in URL must match field_id in request body",
+        )
     _validate_field_id(request.field_id)
     _validate_crop_type(request.crop_type)
 

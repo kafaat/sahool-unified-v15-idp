@@ -2,10 +2,14 @@
 # SAHOOL Schemathesis API Contract Fuzz Tests
 # اختبارات العقود التلقائية باستخدام Schemathesis
 #
-# Generates test cases automatically from OpenAPI specs and validates
-# every endpoint conforms to its declared contract (schema, status codes,
-# content types). Catches undocumented responses, 5xx errors, and schema
-# violations without writing manual tests.
+# Generates per-service OpenAPI specs fresh on every run (from FastAPI
+# ``app.openapi()``) and validates every endpoint against its declared
+# contract — response shapes, status codes, content types. Catches undocumented
+# responses, 5xx errors, and schema violations without writing manual tests.
+#
+# Design note: specs are **not** committed to git. They are generated as a CI
+# artifact, eliminating the class of false failures that byte-compare drift
+# checks produce when FastAPI's dict-insertion order varies across environments.
 #
 # Docs: https://schemathesis.readthedocs.io/
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -13,7 +17,6 @@
 name: Schemathesis API Tests
 
 on:
-  # Run on PRs touching API specs or service code
   pull_request:
     branches: [main, develop]
     paths:
@@ -22,10 +25,10 @@ on:
       - 'apps/services/*/src/**'
       - 'apps/services/*/openapi.yaml'
       - 'scripts/export-openapi.py'
+      - 'requirements/openapi-export.txt'
       - 'tests/contract/**'
       - '.github/workflows/schemathesis-api-tests.yml'
 
-  # Manual trigger for ad-hoc testing
   workflow_dispatch:
     inputs:
       target_url:
@@ -41,7 +44,6 @@ on:
         required: false
         default: '50'
 
-  # Weekly schedule against staging
   schedule:
     - cron: '30 3 * * 2'  # Tuesday 3:30 AM UTC
 
@@ -59,10 +61,11 @@ env:
 
 jobs:
   # ─────────────────────────────────────────────────────────────────────────────
-  # Validate OpenAPI Spec (static — no running services needed)
+  # Validate the hand-authored gateway spec
+  # التحقق من المواصفة اليدوية للبوابة
   # ─────────────────────────────────────────────────────────────────────────────
   validate-spec:
-    name: Validate OpenAPI Spec
+    name: Validate Gateway Spec
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -80,22 +83,22 @@ jobs:
         run: |
           SPEC_FILE="${{ github.event.inputs.spec_file || 'api/gateway-openapi.yaml' }}"
           echo "🔍 Validating OpenAPI spec: $SPEC_FILE"
-          if ! python3 -m openapi_spec_validator "$SPEC_FILE"; then
-            echo "::error::Spec validation failed — review the output above"
-            exit 1
-          fi
+          python3 -m openapi_spec_validator "$SPEC_FILE"
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Freshness guard: regenerate every per-service spec and fail if any drifts
-  # from what is committed. Triggered whenever service source, a committed
-  # spec, or the exporter script changes (see ``paths:`` at the top).
-  # حارس الطزاجة: يضمن تطابق المواصفات المولدة مع الكود
+  # Build per-service OpenAPI specs fresh from source.
+  # Publishes them as an artifact and emits a matrix of paths for downstream
+  # contract-test jobs. Specs are NOT committed to git — this job is the
+  # single source of truth.
+  # بناء مواصفات OpenAPI الجديدة من الكود المصدري
   # ─────────────────────────────────────────────────────────────────────────────
-  openapi-freshness:
-    name: OpenAPI Freshness Check
+  build-specs:
+    name: Build OpenAPI Specs
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: github.event_name == 'pull_request'
+    outputs:
+      specs: ${{ steps.enumerate.outputs.specs }}
+      service_count: ${{ steps.enumerate.outputs.service_count }}
     steps:
       - uses: actions/checkout@v6
 
@@ -105,96 +108,30 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
 
-      - name: Install runtime deps (pinned via constraints.txt)
-        # Versions are governed centrally by constraints.txt so this job stays
-        # reproducible and upgrades flow through a single place.
+      - name: Install exporter runtime deps
+        # Versions are pinned via constraints.txt so upgrades flow through a
+        # single place and the exporter stays reproducible.
         run: |
           pip install --no-cache-dir \
             -c constraints.txt \
             -r requirements/openapi-export.txt
 
-      - name: Regenerate per-service openapi.yaml
+      - name: Export per-service OpenAPI specs
         run: |
           python3 scripts/export-openapi.py \
-            --summary-json /tmp/openapi-summary.json
+            --summary-json build/openapi-summary.json
+          echo "─── Export summary ───"
+          python3 -c "
+          import json
+          s = json.load(open('build/openapi-summary.json'))
+          print(f\"exported: {s['exported_count']}\")
+          print(f\"skipped:  {s['skipped_count']}\")
+          for row in s['skipped'][:20]:
+              print(f\"  • {row['service']}: {row['reason']}\")
+          "
 
-      - name: Report drift (warning only) + upload regenerated specs
-        # Runtime drift between a dev sandbox and an ubuntu-latest runner is
-        # hard to make pixel-perfect: FastAPI's schema dict order depends on
-        # which modules imported which Pydantic models in what sequence, and
-        # the exporter's best-effort dep set inevitably differs from a full
-        # platform install.
-        #
-        # Rather than block PRs on an unstable byte-for-byte compare, this
-        # job flags drift as a **warning** and uploads the CI-regenerated
-        # specs as an artifact, so contributors can diff locally when it
-        # matters. The actual contract-validation gate (``static-contract-
-        # tests`` below) is unchanged: every spec must still load cleanly
-        # through Schemathesis, which is what guards real breakage.
-        run: |
-          set -euo pipefail
-          mapfile -t REGENERATED < <(python3 -c '
-          import json, pathlib
-          s = json.load(open("/tmp/openapi-summary.json"))
-          for name in s["exported"]:
-              p = pathlib.Path("apps/services") / name / "openapi.yaml"
-              if p.exists():
-                  print(p)
-          ')
-          echo "Checked drift on ${#REGENERATED[@]} exporter-produced spec(s)"
-          if [ "${#REGENERATED[@]}" -eq 0 ]; then
-            echo "::error::Exporter produced no specs — this is an environment issue"
-            exit 1
-          fi
-
-          # Copy the freshly-regenerated specs into a staging dir for upload.
-          mkdir -p /tmp/regenerated-openapi
-          for f in "${REGENERATED[@]}"; do
-            svc="$(basename "$(dirname "$f")")"
-            cp "$f" "/tmp/regenerated-openapi/${svc}.openapi.yaml"
-          done
-
-          if git diff --quiet -- "${REGENERATED[@]}"; then
-            echo "✓ all regenerated specs match the committed copies"
-            exit 0
-          fi
-
-          echo "::group::Files that drifted"
-          git diff --name-only -- "${REGENERATED[@]}"
-          echo "::endgroup::"
-          echo "::warning::OpenAPI specs drift from committed copies. See the 'regenerated-openapi' artifact and run 'python3 scripts/export-openapi.py' locally to refresh."
-
-      - name: Upload regenerated specs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: regenerated-openapi
-          path: /tmp/regenerated-openapi/
-          retention-days: 14
-
-      - name: Upload export summary
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: openapi-export-summary
-          path: /tmp/openapi-summary.json
-          retention-days: 7
-
-  # ─────────────────────────────────────────────────────────────────────────────
-  # Discover every OpenAPI spec shipped in the repo (hand-written + generated).
-  # اكتشاف مواصفات OpenAPI المتوفرة في المستودع
-  # ─────────────────────────────────────────────────────────────────────────────
-  discover-specs:
-    name: Discover OpenAPI Specs
-    runs-on: ubuntu-latest
-    timeout-minutes: 3
-    outputs:
-      specs: ${{ steps.list.outputs.specs }}
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Enumerate spec files
-        id: list
+      - name: Enumerate spec files (hand-written + generated)
+        id: enumerate
         run: |
           set -euo pipefail
           SPECS=()
@@ -204,38 +141,53 @@ jobs:
                    docs/api/openapi/weather-services.yaml; do
             [ -f "$f" ] && SPECS+=("$f")
           done
-          # Per-service specs generated by scripts/export-openapi.py
           while IFS= read -r f; do SPECS+=("$f"); done < <(
             find apps/services -maxdepth 2 -name openapi.yaml -type f | sort
           )
-
           printf 'Discovered %d spec(s):\n' "${#SPECS[@]}"
           printf '  • %s\n' "${SPECS[@]}"
 
-          # Emit as a JSON array for matrix fan-out.
           python3 - "${SPECS[@]}" <<'PY' >> "$GITHUB_OUTPUT"
           import json, sys
           print("specs=" + json.dumps(sys.argv[1:]))
+          print(f"service_count={len(sys.argv[1:])}")
           PY
+
+      - name: Upload generated specs
+        uses: actions/upload-artifact@v7
+        with:
+          name: openapi-specs
+          path: |
+            apps/services/*/openapi.yaml
+            api/gateway-openapi.yaml
+            docs/api/openapi/*.yaml
+            build/openapi-summary.json
+          retention-days: 14
 
   # ─────────────────────────────────────────────────────────────────────────────
   # Static Schema Contract Tests (no running service required)
-  # اختبارات عقود المخططات الثابتة — لا تتطلب خدمات قيد التشغيل
+  # اختبارات عقود المخططات الثابتة
   # ─────────────────────────────────────────────────────────────────────────────
   static-contract-tests:
     name: Static Contract Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [validate-spec, discover-specs]
-    if: needs.discover-specs.outputs.specs != '[]'
+    timeout-minutes: 15
+    needs: [validate-spec, build-specs]
+    if: needs.build-specs.outputs.service_count != '0'
 
     strategy:
       fail-fast: false
       matrix:
-        spec: ${{ fromJson(needs.discover-specs.outputs.specs) }}
+        spec: ${{ fromJson(needs.build-specs.outputs.specs) }}
 
     steps:
       - uses: actions/checkout@v6
+
+      - name: Download generated specs
+        uses: actions/download-artifact@v6
+        with:
+          name: openapi-specs
+          path: .
 
       - name: Setup Python
         uses: actions/setup-python@v6
@@ -250,34 +202,30 @@ jobs:
             pyyaml>=6.0
 
       - name: Validate ${{ matrix.spec }} (strict, warning-only)
-        # openapi-spec-validator is strict about OpenAPI 3.1 semantics (path
-        # parameters declared in URLs must appear in the operation parameters
-        # list, etc.). Some services have long-standing route-declaration bugs
-        # that pre-date this workflow; we surface them as warnings so the
-        # contract pipeline doesn't become a forcing function for unrelated
-        # service fixes. The Schemathesis loader check below is the real gate.
+        # openapi-spec-validator is stricter than Schemathesis on OpenAPI 3.1
+        # semantics (e.g. path parameters declared in URLs must also appear in
+        # the operation parameters list). Long-standing service bugs surface
+        # here as warnings so the pipeline doesn't become a forcing function
+        # for unrelated fixes. The Schemathesis loader below is the real gate.
         run: |
           set -euo pipefail
           SPEC="${{ matrix.spec }}"
           echo "🧪 openapi-spec-validator on $SPEC"
           if ! python3 -m openapi_spec_validator "$SPEC"; then
-            echo "::warning file=$SPEC::Strict OpenAPI 3.1 validation failed — fix the service's route declarations"
+            echo "::warning file=$SPEC::Strict OpenAPI 3.1 validation failed — service owners should tighten the route declarations"
           fi
 
       - name: Schemathesis schema loader check for ${{ matrix.spec }}
+        # ``from_path`` raises on a malformed spec (missing required fields,
+        # unresolvable $refs) which is exactly what this guard needs to
+        # detect. We rely on that public contract rather than poking at
+        # Schemathesis internals.
         run: |
           set -euo pipefail
           SPEC="${{ matrix.spec }}"
           echo "🧪 Loading $SPEC through Schemathesis"
-          # Loading the spec exercises the same parser/resolver path Schemathesis
-          # uses at runtime — $ref resolution, parameter styles, response shapes.
-          # A malformed or ambiguous spec surfaces here before any live run.
           python3 - "$SPEC" <<'PY'
           import sys, schemathesis
-          # ``from_path`` raises on a malformed spec (missing required fields,
-          # unresolvable $refs), which is exactly what this guard needs to
-          # detect. We rely on that public contract rather than poking at the
-          # internal result wrappers whose shape may shift between releases.
           path = sys.argv[1]
           schema = schemathesis.openapi.from_path(path)
           ops = list(schema.get_all_operations())
@@ -292,7 +240,6 @@ jobs:
     name: Live Fuzz Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Only run live tests on schedule or manual trigger (no push trigger configured)
     if: >-
       github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch'
@@ -318,14 +265,12 @@ jobs:
         id: target
         run: |
           TARGET="${{ github.event.inputs.target_url }}"
-          # Fall back to staging URL for scheduled runs
           if [ -z "$TARGET" ]; then
             TARGET="${{ vars.STAGING_API_BASE_URL }}"
           fi
           if [ -z "$TARGET" ]; then
             echo "url=" >> "$GITHUB_OUTPUT"
             echo "⚠️ No target URL provided. Live tests will be skipped."
-            echo "   Provide a URL via workflow_dispatch or set vars.STAGING_API_BASE_URL."
           else
             echo "url=$TARGET" >> "$GITHUB_OUTPUT"
             echo "🎯 Target URL: $TARGET"
@@ -392,8 +337,6 @@ jobs:
           ENVIRONMENT: test
           JWT_SECRET_KEY: test-secret-key-for-contract-tests-only32
           JWT_ALGORITHM: HS256
-          # On schedule/dispatch, point at staging so tests actually run.
-          # On PR, always use localhost — never hit staging from PR CI.
           KONG_BASE_URL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && vars.STAGING_API_BASE_URL || 'http://localhost:8000' }}
           GRAPHQL_URL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && vars.STAGING_API_BASE_URL && format('{0}/graphql', vars.STAGING_API_BASE_URL) || 'http://localhost:8000/graphql' }}
           FIELD_SERVICE_OPENAPI_URL: ${{ (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && vars.STAGING_API_BASE_URL && format('{0}/api-json', vars.STAGING_API_BASE_URL) || 'http://localhost:3000/api-json' }}
@@ -408,12 +351,9 @@ jobs:
             --junit-xml=reports/contract-tests.xml \
             2>&1 | tee /tmp/pytest-contract.log
 
-          # Warn if all tests were skipped (services unreachable)
           if grep -q "0 passed" /tmp/pytest-contract.log && grep -q "skipped" /tmp/pytest-contract.log; then
             echo "::warning::All contract tests were skipped — services are unreachable. Set vars.STAGING_API_BASE_URL for meaningful test execution."
           fi
-
-          echo "✅ Pytest contract tests complete"
 
       - name: Upload test report
         if: always()

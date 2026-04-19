@@ -17,15 +17,22 @@ separately.
 
 | Piece | Path | Executes where |
 | ----- | ---- | -------------- |
-| Auto-generated OpenAPI specs | `apps/services/*/openapi.yaml` | committed artefact |
 | OpenAPI exporter | `scripts/export-openapi.py` | local + CI |
-| Schemathesis static validation (every spec) | `.github/workflows/schemathesis-api-tests.yml` | CI |
-| OpenAPI drift reporter (warning + artifact, non-blocking) | same workflow, `openapi-freshness` job | CI (PRs) |
+| OpenAPI specs (regenerated fresh on every run, uploaded as CI artifact) | `build/openapi-specs/` | CI (`build-specs` job) |
+| Schemathesis static validation (every spec, per-spec matrix) | `.github/workflows/schemathesis-api-tests.yml` | CI |
 | pgTAP suite — tenant isolation (RLS) | `tests/database/rls/` | local + CI |
 | pgTAP workflow | `.github/workflows/pgtap-rls-tests.yml` | CI |
 | Live-services fixtures (Postgres/Redis/NATS) | `tests/_helpers/live_services.py` | local + CI |
 | Live-services smoke | `tests/live/` | local + CI |
 | Live-smoke workflow | `.github/workflows/live-services-smoke.yml` | CI |
+
+> **Design note:** generated OpenAPI specs are **not** committed to git
+> (except the hand-authored `crop-intelligence-service/openapi.yaml`).
+> They are regenerated on every CI run and published as the
+> `openapi-specs` artifact. This eliminates the class of false failures
+> that byte-compare drift checks produce when FastAPI's dict-insertion
+> order varies across environments. Downloads: `Actions → your PR run →
+> Artifacts → openapi-specs`.
 
 ## Usage
 
@@ -39,9 +46,10 @@ python3 scripts/export-openapi.py --summary-json /tmp/summary.json
 
 Services whose runtime dependencies are missing in the current environment
 are skipped with a structured reason — the script never aborts the whole
-run on a single import failure. CI fails a PR only when a committed spec
-*differs* from what the exporter produces, so contributors can't let the
-specs drift by accident.
+run on a single import failure. In CI the same script runs inside the
+`build-specs` job, and its output feeds the per-spec Schemathesis matrix.
+There is no "committed spec vs. fresh spec" compare: the fresh spec *is*
+the source of truth, so drift is impossible by construction.
 
 ### Run the pgTAP tenant-isolation suite
 

@@ -10,6 +10,7 @@ from .fertilizers import (
     get_fertilizer,
     get_fertilizers_by_type,
     get_fertilizers_for_nutrient,
+    list_fertilizers,
 )
 from .nutrients import (
     NUTRIENT_DEFICIENCIES,
@@ -34,5 +35,6 @@ __all__ = [
     "get_fertilizer",
     "get_fertilizers_by_type",
     "get_fertilizers_for_nutrient",
+    "list_fertilizers",
     "calculate_dose",
 ]

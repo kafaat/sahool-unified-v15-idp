@@ -296,6 +296,17 @@ def get_fertilizer(fertilizer_id: str) -> dict | None:
     return FERTILIZERS.get(fertilizer_id.strip())
 
 
+def list_fertilizers() -> list[dict]:
+    """Return the full fertilizer catalog as a flat list.
+
+    Each entry includes the registry id plus the underlying KB fields
+    (name_ar/name_en, analysis NPK, type, form, price_tier, etc.). Ported
+    from the archived fertilizer-advisor service so callers of the old
+    `/v1/fertilizers` endpoint keep working against advisory-service.
+    """
+    return [{"id": k, **v} for k, v in FERTILIZERS.items()]
+
+
 def get_fertilizers_by_type(fert_type: str) -> list[dict]:
     """Get all fertilizers of a specific type. Returns empty list if type is missing or not found."""
     if not fert_type or not isinstance(fert_type, str):

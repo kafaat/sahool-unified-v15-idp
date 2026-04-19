@@ -80,6 +80,7 @@ from .kb import (
     get_diseases_by_crop,
     get_fertilizer,
     get_fertilizers_for_nutrient,
+    list_fertilizers,
     search_diseases,
 )
 from .rate_limiter import rate_limit
@@ -1446,6 +1447,163 @@ async def verify_crop_loan(
         ) from e
 
     return {"success": True, "data": result.to_dict()}
+
+
+# ---------------------------------------------------------------------------
+# Ported from archived fertilizer-advisor: flat fertilizer catalog and
+# rule-based soil-analysis interpretation. These are the two genuinely
+# farmer-facing endpoints that advisory-service was missing after the
+# fertilizer-advisor → advisory-service consolidation.
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/v1/fertilizers")
+def list_fertilizers_endpoint():
+    """Return the flat fertilizer catalog (id, bilingual names, NPK, type, form, price tier).
+
+    Ported from archived fertilizer-advisor `/v1/fertilizers`. Advisory-service
+    already exposes per-id and per-nutrient lookups; this is the flat list
+    that clients iterate over to render a fertilizer picker.
+    """
+    fertilizers = list_fertilizers()
+    return {"fertilizers": fertilizers, "count": len(fertilizers)}
+
+
+class SoilAnalysisPayload(BaseModel):
+    """Soil lab-test values. Ports the shape from the archived fertilizer-advisor
+    `SoilAnalysis` model; all ranges preserved so existing clients keep working.
+    """
+
+    field_id: str = Field(min_length=1, max_length=100)
+    ph: float = Field(ge=0, le=14)
+    nitrogen_ppm: float = Field(ge=0)
+    phosphorus_ppm: float = Field(ge=0)
+    potassium_ppm: float = Field(ge=0)
+    organic_matter_percent: float = Field(ge=0, le=100)
+    ec_ds_m: float = Field(ge=0, description="Electrical conductivity (dS/m)")
+    analysis_date: str | None = None
+
+    @field_validator("field_id")
+    @classmethod
+    def _validate_field_id(cls, v: str) -> str:
+        return _validate_identifier(v, "field_id")
+
+
+def _interpret_soil_values(analysis: SoilAnalysisPayload) -> dict:
+    """Rule-based bilingual interpretation of soil test values.
+
+    Ported verbatim from the archived fertilizer-advisor service so the
+    thresholds and messages match what existing farmer-app clients expect.
+    """
+    interpretations_ar: list[str] = []
+    interpretations_en: list[str] = []
+    recommendations_ar: list[str] = []
+    recommendations_en: list[str] = []
+
+    # pH
+    if analysis.ph < 5.5:
+        interpretations_ar.append("🔴 التربة حامضية جداً")
+        interpretations_en.append("🔴 Soil is too acidic")
+        recommendations_ar.append("إضافة جير زراعي لرفع pH")
+        recommendations_en.append("Add agricultural lime to raise pH")
+    elif analysis.ph > 8.0:
+        interpretations_ar.append("🔴 التربة قلوية جداً")
+        interpretations_en.append("🔴 Soil is too alkaline")
+        recommendations_ar.append("إضافة كبريت أو سماد حامضي")
+        recommendations_en.append("Add sulfur or acidic fertilizer")
+    else:
+        interpretations_ar.append("🟢 pH التربة مناسب")
+        interpretations_en.append("🟢 Soil pH is suitable")
+
+    # Nitrogen
+    if analysis.nitrogen_ppm < 20:
+        interpretations_ar.append("🔴 نقص النيتروجين")
+        interpretations_en.append("🔴 Nitrogen deficiency")
+        recommendations_ar.append("إضافة يوريا أو نترات الأمونيوم")
+        recommendations_en.append("Add urea or ammonium nitrate")
+    elif analysis.nitrogen_ppm > 60:
+        interpretations_ar.append("🟡 فائض النيتروجين")
+        interpretations_en.append("🟡 Nitrogen excess")
+        recommendations_ar.append("تقليل التسميد النيتروجيني")
+        recommendations_en.append("Reduce nitrogen fertilization")
+    else:
+        interpretations_ar.append("🟢 مستوى النيتروجين جيد")
+        interpretations_en.append("🟢 Nitrogen level is good")
+
+    # Phosphorus
+    if analysis.phosphorus_ppm < 10:
+        interpretations_ar.append("🔴 نقص الفوسفور")
+        interpretations_en.append("🔴 Phosphorus deficiency")
+        recommendations_ar.append("إضافة سوبر فوسفات أو DAP")
+        recommendations_en.append("Add superphosphate or DAP")
+    elif analysis.phosphorus_ppm > 50:
+        interpretations_ar.append("🟡 فائض الفوسفور")
+        interpretations_en.append("🟡 Phosphorus excess")
+    else:
+        interpretations_ar.append("🟢 مستوى الفوسفور جيد")
+        interpretations_en.append("🟢 Phosphorus level is good")
+
+    # Potassium
+    if analysis.potassium_ppm < 80:
+        interpretations_ar.append("🔴 نقص البوتاسيوم")
+        interpretations_en.append("🔴 Potassium deficiency")
+        recommendations_ar.append("إضافة سلفات البوتاسيوم")
+        recommendations_en.append("Add potassium sulfate")
+    elif analysis.potassium_ppm > 250:
+        interpretations_ar.append("🟡 فائض البوتاسيوم")
+        interpretations_en.append("🟡 Potassium excess")
+    else:
+        interpretations_ar.append("🟢 مستوى البوتاسيوم جيد")
+        interpretations_en.append("🟢 Potassium level is good")
+
+    # Organic matter
+    if analysis.organic_matter_percent < 1.5:
+        interpretations_ar.append("🔴 نقص المادة العضوية")
+        interpretations_en.append("🔴 Low organic matter")
+        recommendations_ar.append("إضافة سماد عضوي أو كمبوست")
+        recommendations_en.append("Add organic fertilizer or compost")
+
+    # EC (salinity)
+    if analysis.ec_ds_m > 4:
+        interpretations_ar.append("🔴 ملوحة مرتفعة")
+        interpretations_en.append("🔴 High salinity")
+        recommendations_ar.append("غسيل التربة وتحسين الصرف")
+        recommendations_en.append("Leach soil and improve drainage")
+
+    good_count = sum(1 for i in interpretations_ar if "🟢" in i)
+    bad_count = sum(1 for i in interpretations_ar if "🔴" in i)
+    if good_count > 3:
+        overall_ar = "جيدة"
+        overall_en = "good"
+    elif bad_count < 2:
+        overall_ar = "متوسطة"
+        overall_en = "moderate"
+    else:
+        overall_ar = "ضعيفة"
+        overall_en = "poor"
+
+    return {
+        "field_id": analysis.field_id,
+        "analysis_date": analysis.analysis_date,
+        "interpretations_ar": interpretations_ar,
+        "interpretations_en": interpretations_en,
+        "recommendations_ar": recommendations_ar,
+        "recommendations_en": recommendations_en,
+        "overall_fertility_ar": overall_ar,
+        "overall_fertility_en": overall_en,
+    }
+
+
+@app.post("/api/v1/soil-analysis/interpret")
+def interpret_soil_analysis_endpoint(payload: SoilAnalysisPayload):
+    """Rule-based interpretation of a soil lab result.
+
+    Given a soil test (pH, N/P/K ppm, organic matter %, EC dS/m) returns a
+    bilingual list of interpretations and recommendations plus an overall
+    fertility rating. Stateless and pure; no DB or downstream calls.
+    Ported from archived fertilizer-advisor `/v1/soil-analysis/interpret`.
+    """
+    return _interpret_soil_values(payload)
 
 
 # ---------------------------------------------------------------------------

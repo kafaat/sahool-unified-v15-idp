@@ -27,30 +27,18 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 # ─────────────────────────────────────────────────────────────────────────────
 FROM base AS dependencies
 
+COPY docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh
+
 # Copy requirements and constraints
 COPY constraints.txt .
 COPY apps/services/copilot-api/requirements.txt .
 
 # Install Python dependencies with multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # nosemgrep: dockerfile-pip-extra-index-url -- fallback mirrors for regional availability
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --extra-index-url https://download.pytorch.org/whl/cpu \
+RUN pip-install.sh --extra-index-url https://download.pytorch.org/whl/cpu \
     -c constraints.txt -r requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -107,12 +95,7 @@ CMD ["python", "-m", "uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "
 FROM dependencies AS development
 
 # Install development dependencies with multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    pytest pytest-asyncio pytest-cov mypy || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    pytest pytest-asyncio pytest-cov mypy
+RUN pip-install.sh pytest pytest-asyncio pytest-cov mypy
 
 # Copy merged shared modules (single layer)
 COPY --from=shared-merge /shared/ ./shared/

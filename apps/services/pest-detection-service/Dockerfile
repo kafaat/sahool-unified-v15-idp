@@ -25,38 +25,16 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
-# Configure pip for network resilience
-RUN mkdir -p /root/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
+COPY docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh
 
-# Upgrade pip with multi-mirror fallback.
-# --isolated ignores pip.conf (written above) so extra-index-url from that
-# file does not interfere — mismatched hashes between mirrors caused failures.
-RUN pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+# Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with resilient multi-mirror fallback strategy
 COPY constraints.txt .
 COPY apps/services/pest-detection-service/requirements.txt .
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --trusted-host mirrors.cloud.tencent.com \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh -c constraints.txt -r requirements.txt
 
 # Copy root shared modules first, then overlay with services shared
 COPY shared/ ./shared/

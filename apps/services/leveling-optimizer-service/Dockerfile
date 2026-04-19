@@ -29,15 +29,11 @@ RUN groupadd --gid 1000 sahool \
 FROM base AS builder
 
 # Install build dependencies (apt-update.sh inherited from base stage)
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
-
-# Configure pip for network resilience with fallback mirrors
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf
 
 # Copy requirements and constraints first for better caching
 # Note: Build context is repo root, so use full path
@@ -46,22 +42,9 @@ COPY apps/services/leveling-optimizer-service/requirements.txt .
 
 # Install Python dependencies with multi-mirror fallback
 # Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh -c constraints.txt -r requirements.txt
 
 # Production stage
 FROM base AS production

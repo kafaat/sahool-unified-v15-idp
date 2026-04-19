@@ -25,40 +25,19 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 # Install tini for proper PID 1 signal handling + build deps for cryptography/bcrypt
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     tini build-essential gcc libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Configure pip for network resilience with fallback mirrors
-RUN mkdir -p /root/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
-
-# Upgrade pip. --isolated ignores pip.conf (set above) so extra-index-url does
-# not cause hash mismatches between mirrors serving different pip 26.x copies.
-RUN pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
+# Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with fallback to Aliyun mirror
 COPY apps/services/advisory-service/requirements.txt .
 COPY constraints.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh -c constraints.txt -r requirements.txt
 
 # Remove build tools from runtime image (reduce attack surface)
 RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \

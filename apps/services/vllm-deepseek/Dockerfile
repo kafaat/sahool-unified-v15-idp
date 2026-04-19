@@ -60,8 +60,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # ─────────────────────────────────────────────────────────────────────────────
 # System Dependencies (minimal attack surface)
 # ─────────────────────────────────────────────────────────────────────────────
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     python${PYTHON_VERSION} \
     python${PYTHON_VERSION}-venv \
     python${PYTHON_VERSION}-dev \
@@ -83,15 +84,7 @@ RUN groupadd --system --gid 1000 sahool && \
 # ─────────────────────────────────────────────────────────────────────────────
 # Install vLLM with Multi-Mirror Fallback (Pattern A)
 # ─────────────────────────────────────────────────────────────────────────────
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    "vllm==${VLLM_VERSION}" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    "vllm==${VLLM_VERSION}" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    "vllm==${VLLM_VERSION}"
+RUN pip-install.sh "vllm==${VLLM_VERSION}"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Prepare Model Cache & Working Directories

@@ -14,33 +14,15 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app
 
 # Copy constraints for version pinning consistency
+COPY docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh
+
 COPY constraints.txt .
 
-# Install dependencies with multi-mirror fallback for network resilience
-# Mirrors: Aliyun (primary) → PyPI (official) → Tencent
 # Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade pip; \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c constraints.txt \
-    'httpx[http2]' || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c constraints.txt \
-    'httpx[http2]' || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt \
-    'httpx[http2]'
+RUN pip-install.sh -c constraints.txt 'httpx[http2]'
 
 # Copy application
 COPY apps/services/demo-data/main.py .

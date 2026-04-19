@@ -22,14 +22,10 @@ WORKDIR /app
 # Deterministic install: pip consults all indexes in one invocation and picks
 # the same version every time. Extra-index-url provides availability without
 # fallback-induced non-determinism.
+COPY docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh
 COPY apps/services/skill-router-service/requirements.txt .
-RUN pip install --no-cache-dir \
-    --index-url https://mirrors.aliyun.com/pypi/simple/ \
-    --extra-index-url https://pypi.org/simple \
-    --trusted-host pypi.org \
-    --trusted-host files.pythonhosted.org \
-    --trusted-host mirrors.aliyun.com \
-    -r requirements.txt
+RUN pip-install.sh -r requirements.txt
 
 # Service code
 COPY apps/services/skill-router-service/app ./app

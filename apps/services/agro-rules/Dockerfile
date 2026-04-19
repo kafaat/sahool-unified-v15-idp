@@ -24,8 +24,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 # Install build dependencies (needed for nats-py)
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     apt-transport-https \
     build-essential \
     ca-certificates \
@@ -33,34 +34,12 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 
 # Upgrade pip and install build tools with multi-mirror fallback
 # setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
-
-# Configure pip for network resilience
-RUN mkdir -p /root/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build
 
 # Install dependencies (using shared requirements)
 COPY constraints.txt .
 COPY apps/services/agro-rules/requirements.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try official PyPI first with long timeout, then fallback to Aliyun, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --prefix=/install \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --prefix=/install \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --prefix=/install \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh --prefix=/install -c constraints.txt -r requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production

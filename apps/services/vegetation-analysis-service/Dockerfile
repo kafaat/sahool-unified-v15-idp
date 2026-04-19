@@ -20,36 +20,21 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Install build tools required for compiling numpy and other packages
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip to latest version with multi-mirror fallback
 # setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with multi-mirror fallback
 COPY apps/services/vegetation-analysis-service/requirements.txt .
 COPY constraints.txt .
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --prefix=/install \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --prefix=/install \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    --prefix=/install \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh --prefix=/install -c constraints.txt -r requirements.txt
 
 # Install sahool-eo local package for Sentinel Hub integration
 COPY packages/sahool-eo /tmp/sahool-eo

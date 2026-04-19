@@ -16,33 +16,19 @@ RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
 # Install system dependencies
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     curl build-essential gcc libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip with multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies
 COPY constraints.txt .
 COPY apps/services/wechat-service/requirements.txt .
-# Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun first with long timeout, then fallback to PyPI, finally Tencent
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh -c constraints.txt -r requirements.txt
 
 # Remove build tools from runtime image (reduce attack surface)
 RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \

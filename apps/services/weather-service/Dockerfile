@@ -17,8 +17,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
 WORKDIR /build
 
 # Install build dependencies
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
     && rm -rf /var/lib/apt/lists/*
@@ -38,31 +39,13 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Upgrade pip and build tools with multi-mirror fallback
 # setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
 # jaraco.context>=6.1.0 for CVE-2026-23949 (pinned here as constraints.txt is not yet copied)
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" "jaraco.context>=6.1.0" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" "jaraco.context>=6.1.0"
-
-# Configure pip for network resilience with multi-mirror fallback
-# Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
-RUN mkdir -p ~/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > ~/.pip/pip.conf
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" "jaraco.context>=6.1.0"
 
 # Copy and install dependencies
 COPY --chown=sahool:sahool apps/services/weather-service/requirements.txt /tmp/requirements.txt
 COPY --chown=sahool:sahool constraints.txt /tmp/constraints.txt
 
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c /tmp/constraints.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://mirrors.cloud.tencent.com/pypi/simple \
-    -c /tmp/constraints.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c /tmp/constraints.txt -r /tmp/requirements.txt
+RUN pip-install.sh -c /tmp/constraints.txt -r /tmp/requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production | المرحلة 2: الإنتاج

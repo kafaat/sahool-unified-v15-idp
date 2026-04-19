@@ -123,16 +123,23 @@ async def get_optional_user(
     )
 
 
-def require_roles(allowed_roles: list[str]) -> Callable:
+def require_roles(*allowed_roles) -> Callable:
     """
-    Dependency factory that requires user to have at least one of the roles
+    Dependency factory that requires user to have at least one of the roles.
+    Accepts both variadic strings and a single list/tuple for backward compatibility.
     مصنع اعتماديات يتطلب أن يكون لدى المستخدم دور واحد على الأقل
 
     Usage:
         @app.get("/admin")
+        async def admin_route(user: User = Depends(require_roles("admin", "super_admin"))):
+            ...
+        # Also accepted (legacy):
         async def admin_route(user: User = Depends(require_roles(["admin", "super_admin"]))):
             ...
     """
+    # Support both require_roles("a", "b") and require_roles(["a", "b"])
+    if len(allowed_roles) == 1 and isinstance(allowed_roles[0], (list, tuple)):
+        allowed_roles = tuple(allowed_roles[0])
 
     async def role_checker(
         current_user: User = Depends(get_current_active_user),
@@ -140,23 +147,30 @@ def require_roles(allowed_roles: list[str]) -> Callable:
         if not current_user.has_any_role(*allowed_roles):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail=f"User does not have required role. Required: {allowed_roles}",
+                detail=f"User does not have required role. Required: {list(allowed_roles)}",
             )
         return current_user
 
     return role_checker
 
 
-def require_permissions(required_permissions: list[str]) -> Callable:
+def require_permissions(*required_permissions) -> Callable:
     """
-    Dependency factory that requires user to have all specified permissions
+    Dependency factory that requires user to have all specified permissions.
+    Accepts both variadic strings and a single list/tuple for backward compatibility.
     مصنع اعتماديات يتطلب أن يكون لدى المستخدم جميع الصلاحيات المحددة
 
     Usage:
         @app.post("/farms")
+        async def create_farm(user: User = Depends(require_permissions("farm:create"))):
+            ...
+        # Also accepted (legacy):
         async def create_farm(user: User = Depends(require_permissions(["farm:create"]))):
             ...
     """
+    # Support both require_permissions("a", "b") and require_permissions(["a", "b"])
+    if len(required_permissions) == 1 and isinstance(required_permissions[0], (list, tuple)):
+        required_permissions = tuple(required_permissions[0])
 
     async def permission_checker(
         current_user: User = Depends(get_current_active_user),

@@ -36,8 +36,9 @@ WORKDIR /app
 
 # Install system dependencies for geospatial processing (build + runtime)
 # GDAL and related libraries for DEM processing
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     # GDAL and geospatial libraries
     libgdal-dev \
     gdal-bin \
@@ -65,21 +66,7 @@ RUN apt-update.sh && apt-get install -y --no-install-recommends \
 
 # Upgrade pip and install build tools with multi-mirror fallback
 # setuptools>=78.1.1 for CVE-2024-6345, PYSEC-2025-49; wheel>=0.46.2 for CVE-2026-24049
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build numpy || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build numpy
-
-# Configure pip for better network resilience with fallback mirrors
-RUN mkdir -p /root/.pip && \
-    echo "[global]" > /root/.pip/pip.conf && \
-    echo "timeout = 300" >> /root/.pip/pip.conf && \
-    echo "retries = 10" >> /root/.pip/pip.conf && \
-    echo "default-timeout = 300" >> /root/.pip/pip.conf && \
-    echo "[install]" >> /root/.pip/pip.conf && \
-    echo "prefer-binary = true" >> /root/.pip/pip.conf
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" build numpy
 
 # Copy requirements and constraints first for caching
 COPY constraints.txt .
@@ -87,22 +74,9 @@ COPY apps/services/terrain-core-service/requirements.txt .
 
 # Install Python dependencies with multi-mirror fallback
 # Install GDAL Python bindings matching system version
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    "GDAL==$(gdal-config --version)" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    "GDAL==$(gdal-config --version)"
+RUN pip-install.sh "GDAL==$(gdal-config --version)"
 
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh -c constraints.txt -r requirements.txt
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Stage 2: Production | المرحلة 2: الإنتاج

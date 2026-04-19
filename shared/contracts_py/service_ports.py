@@ -3,7 +3,7 @@ SAHOOL Unified Service Ports Registry (Python mirror).
 
 AUTO-GENERATED — DO NOT EDIT BY HAND.
 Source: packages/shared-types/src/contracts/service-ports.ts
-Generated: 2026-04-18T12:46:28Z
+Generated: 2026-04-19T14:10:17Z
 Regenerate via: npx tsx scripts/sync-contracts-to-python.ts
 """
 
@@ -28,7 +28,6 @@ class ServicePorts:
     ADVISORY: int = 8093
     IRRIGATION_SMART: int = 8094
     CROP_INTELLIGENCE: int = 8095
-    NDVI_PROCESSOR: int = 8118  # deprecated
     VIRTUAL_SENSORS: int = 8119
     FIELD_INTELLIGENCE: int = 8120
     SKILLS_SERVICE: int = 8121

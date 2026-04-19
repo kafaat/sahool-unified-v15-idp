@@ -63,7 +63,9 @@ RUN groupadd --system --gid 1000 sahool && \
 FROM base AS builder
 
 # Install build dependencies (apt-update.sh inherited from base stage)
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
     git \
@@ -74,18 +76,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Upgrade pip with multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
-
-# Configure pip for network resilience with multi-mirror fallback
-# Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
-# All mirrors use HTTPS with valid certificates - no trusted-host needed
-RUN mkdir -p ~/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\n                  https://download.pytorch.org/whl/cu121\n[install]\nprefer-binary = true\n' > ~/.pip/pip.conf
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Copy constraints and requirements files
 COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
@@ -100,18 +91,7 @@ RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries
     --extra-index-url https://pypi.org/simple
 
 # Install remaining dependencies with constraints and multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c /tmp/constraints-ai.txt \
-    -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://mirrors.cloud.tencent.com/pypi/simple \
-    -c /tmp/constraints-ai.txt \
-    -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c /tmp/constraints-ai.txt \
-    -r /tmp/requirements.txt
+RUN pip-install.sh -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production image
@@ -191,19 +171,7 @@ FROM production AS development
 USER root
 
 # Install development dependencies with multi-mirror fallback
-# Mirrors: Aliyun → Tencent → Tsinghua → PyPI
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://mirrors.aliyun.com/pypi/simple/ \
-    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://mirrors.cloud.tencent.com/pypi/simple \
-    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.tuna.tsinghua.edu.cn/simple/ \
-    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython
+RUN pip-install.sh pytest pytest-asyncio pytest-cov httpx black ruff mypy ipython
 
 # Set development environment
 ENV ENVIRONMENT=development
@@ -230,8 +198,9 @@ ENV PIP_NO_CACHE_DIR=1
 
 # Install system dependencies
 # Note: libgl1-mesa-glx replaced by libgl1 in Debian Trixie
-COPY docker/apt-update.sh /usr/local/bin/
-RUN apt-update.sh && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     libgl1 \
     libglib2.0-0 \
     libsm6 \
@@ -259,18 +228,7 @@ COPY docker/constraints-ai.txt /tmp/constraints-ai.txt
 COPY apps/services/yolo26-vision-service/requirements.txt /tmp/requirements.txt
 
 # Upgrade pip with multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
-
-# Configure pip for network resilience with multi-mirror fallback
-# Mirrors: Aliyun (primary) → Tsinghua → Tencent → PyPI (global fallback)
-# All mirrors use HTTPS with valid certificates - no trusted-host needed
-RUN mkdir -p /root/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\nindex-url = https://mirrors.aliyun.com/pypi/simple/\nextra-index-url = https://pypi.tuna.tsinghua.edu.cn/simple/\n                  https://mirrors.cloud.tencent.com/pypi/simple\n                  https://pypi.org/simple/\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install PyTorch CPU - disable pip.conf to prevent mirror hash conflicts
 # (Tsinghua mirror sympy hash differs from PyTorch index expected hash)
@@ -280,15 +238,7 @@ RUN PIP_CONFIG_FILE=/dev/null pip install --no-cache-dir --timeout=300 --retries
     --extra-index-url https://pypi.org/simple
 
 # Install remaining dependencies with multi-mirror fallback
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
+RUN pip-install.sh -c /tmp/constraints-ai.txt -r /tmp/requirements.txt
 
 # Create directories
 RUN mkdir -p /app/src /app/models /app/logs /app/data \

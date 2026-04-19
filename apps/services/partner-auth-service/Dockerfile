@@ -109,7 +109,7 @@ RUN --mount=type=cache,target=/root/.npm \
     (npm config set registry https://registry.npmjs.org && \
      npm install --omit=dev --ignore-scripts --legacy-peer-deps --fetch-retries=5)
 
-RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
+RUN npm config set registry https://registry.npmjs.org && npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 COPY --from=builder /workspace/partner-auth-service/prisma ./prisma/
 COPY --from=builder /workspace/partner-auth-service/prisma/generated/client/ ./node_modules/.prisma/client/

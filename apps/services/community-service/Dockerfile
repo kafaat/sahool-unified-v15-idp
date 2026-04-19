@@ -27,41 +27,19 @@ WORKDIR /app
 RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
+COPY docker/pip-install.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh
+
 # Install tini for proper PID 1 signal handling
 RUN apt-get update && apt-get install -y --no-install-recommends tini build-essential gcc libffi-dev && rm -rf /var/lib/apt/lists/*
 
-# Configure pip for network resilience
-# Do NOT set index-url or extra-index-url here — the Dockerfile pip install commands
-# each specify their own -i flag for the mirror fallback chain to work correctly.
-# Having extra-index-url in pip.conf causes pip to query ALL mirrors simultaneously,
-# and a truncated response from any one of them causes JSONDecodeError / IncompleteRead.
-RUN mkdir -p /root/.pip && \
-    printf '[global]\ntimeout = 300\nretries = 10\n[install]\nprefer-binary = true\n' > /root/.pip/pip.conf
-
-# Upgrade pip. --isolated ignores pip.conf (set above) so extra-index-url does
-# not cause hash mismatches between mirrors serving different pip 26.x copies.
-RUN pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    --trusted-host mirrors.aliyun.com \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || \
-    pip install --no-cache-dir --isolated --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    --trusted-host pypi.org --trusted-host files.pythonhosted.org \
-    --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2" || true
+# Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
+RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"
 
 # Install dependencies with resilient multi-mirror fallback strategy
-# Try Aliyun first (fastest in this network), fallback to PyPI, then Tencent
 COPY apps/services/community-service/requirements.txt .
 COPY constraints.txt .
-RUN pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.aliyun.com/pypi/simple/ \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    --index-url https://pypi.org/simple \
-    -c constraints.txt -r requirements.txt || \
-    pip install --no-cache-dir --timeout=600 --retries=5 \
-    -i https://mirrors.cloud.tencent.com/pypi/simple \
-    -c constraints.txt -r requirements.txt
+RUN pip-install.sh -c constraints.txt -r requirements.txt
 
 # Remove build tools from runtime image (reduce attack surface)
 RUN apt-get purge -y --auto-remove build-essential gcc libffi-dev 2>/dev/null && \

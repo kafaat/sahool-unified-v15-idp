@@ -215,7 +215,7 @@ function VerifyOTPForm({ identifier, purpose, channel }: VerifyOTPFormProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [otp, identifier, purpose, channel, router, showToast]);
+  }, [otp, identifier, purpose, router, showToast]);
 
   // Auto-submit when OTP is complete
   useEffect(() => {

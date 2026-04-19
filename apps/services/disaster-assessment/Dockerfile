@@ -124,7 +124,7 @@ RUN --mount=type=cache,target=/root/.npm \
     fi
 
 # Apply security patches to production dependencies (fix known CVEs in transitive deps)
-RUN npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
+RUN npm config set registry https://registry.npmjs.org && npm audit fix --omit=dev --legacy-peer-deps --ignore-scripts 2>/dev/null || true
 
 # Copy generated Prisma client from builder
 # Schema uses output = "./generated/client" so the actual client is at prisma/generated/client/

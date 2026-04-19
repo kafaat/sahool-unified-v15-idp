@@ -672,9 +672,7 @@ async def get_current_weather_by_location(
     # 500 from the catch-all in shared/errors_py.
     try:
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_current(
-                location["lat"], location["lon"], tenant_id=tenant_id
-            )
+            result = await app.state.multi_provider.get_current(location["lat"], location["lon"], tenant_id=tenant_id)
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -776,9 +774,7 @@ async def get_forecast_by_location(
             forecast = result.data
             provider = result.provider
         else:
-            forecast = await app.state.weather_provider.get_daily_forecast(
-                location["lat"], location["lon"], days
-            )
+            forecast = await app.state.weather_provider.get_daily_forecast(location["lat"], location["lon"], days)
             provider = "Open-Meteo"
     except (ExternalServiceException, InternalServerException):
         raise

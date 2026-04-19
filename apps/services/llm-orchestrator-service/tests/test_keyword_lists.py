@@ -35,9 +35,7 @@ def test_no_intra_category_substring_overlap():
             for shorter in kws:
                 for longer in kws:
                     if shorter != longer and shorter in longer:
-                        offenders.append(
-                            f"{intent.value} ({lang}): '{shorter}' ⊂ '{longer}'"
-                        )
+                        offenders.append(f"{intent.value} ({lang}): '{shorter}' ⊂ '{longer}'")
     assert not offenders, (
         "INTENT_KEYWORDS contains overlapping keywords within a single "
         "category — substring matching will double-count a single token. "
@@ -57,6 +55,4 @@ def test_no_duplicate_keywords_in_category():
     """Duplicates within the same list would also double-score a match."""
     for intent, langs in INTENT_KEYWORDS.items():
         for lang, kws in langs.items():
-            assert len(kws) == len(set(kws)), (
-                f"{intent.value} ({lang}) has duplicate keywords: {kws}"
-            )
+            assert len(kws) == len(set(kws)), f"{intent.value} ({lang}) has duplicate keywords: {kws}"

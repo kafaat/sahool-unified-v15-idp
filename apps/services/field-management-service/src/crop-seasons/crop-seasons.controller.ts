@@ -20,6 +20,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Patch,
   Delete,
   Body,
@@ -29,6 +30,7 @@ import {
   ValidationPipe,
   HttpCode,
   HttpStatus,
+  HttpException,
   Req,
   UseInterceptors,
 } from "@nestjs/common";
@@ -52,7 +54,14 @@ export class CropSeasonsController {
    * Tenant-wide query (with fieldId filter) — used by dashboards that
    * show "all active seasons" across the tenant's fields.
    */
-  @Get("crop-seasons")
+  // Contract aliases:
+  // - /crops  → web CROP_ENDPOINTS.LIST (apps/web/src/features/crops/api.ts)
+  // - /seasons → shorter spelling some mobile builds use
+  // The crop-seasons records ARE the field-level crop plantings the web
+  // `Crop` interface describes (fieldId + plantingDate + currentStage),
+  // so routing the shorter names to the same handler removes the
+  // "endpoint not found" gap without a data-model change.
+  @Get(["crop-seasons", "crops", "seasons"])
   @ApiOperation({
     summary: "List crop seasons",
     description: "قائمة مواسم المحاصيل للمستأجر الحالي",
@@ -120,7 +129,7 @@ export class CropSeasonsController {
   /**
    * Fetch a crop season by id (tenant-scoped).
    */
-  @Get("crop-seasons/:id")
+  @Get(["crop-seasons/:id", "crops/:id", "seasons/:id"])
   @ApiOperation({ summary: "Get a crop season by id" })
   async getById(
     @Req() req: any,
@@ -131,10 +140,50 @@ export class CropSeasonsController {
     return { success: true, data: row };
   }
 
+  // Mirror CROP_ENDPOINTS.CREATE (/api/v1/crops) — the web hook
+  // useCreateCrop posts directly to /api/v1/crops, no fieldId in the
+  // URL. The DTO already carries fieldId in the body, so we can
+  // honour both URL shapes by reading fieldId from the payload when
+  // the param is absent.
+  @Post(["crops", "seasons"])
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(IdempotencyInterceptor)
+  @ApiOperation({
+    summary: "Start a new crop season (web /crops alias)",
+    description: "بدء موسم محصولي جديد — من عقد الويب /crops",
+  })
+  @ApiResponse({ status: 201, description: "Crop season created" })
+  async createFromCropsAlias(
+    @Req() req: any,
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    dto: CreateCropSeasonDto,
+  ) {
+    const tenantId = getRequestTenantId(req);
+    const userId: string | undefined = req.user?.sub ?? req.user?.id;
+    // `fieldId` must be on the DTO when the caller used the /crops alias
+    // — we don't have a URL param to fall back on. Validation happens
+    // inside the service, but fail fast here with a clear message so
+    // the client sees a 400 instead of a UUID pipe error.
+    const fieldId = (dto as unknown as { fieldId?: string }).fieldId;
+    if (!fieldId) {
+      throw new HttpException(
+        {
+          success: false,
+          error: "fieldId is required in the request body when POSTing to /api/v1/crops",
+          errorAr: "معرف الحقل مطلوب في الطلب عند النشر على /api/v1/crops",
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const row = await this.service.create(fieldId, tenantId, dto, userId);
+    return { success: true, data: row };
+  }
+
   /**
    * Partial update.
    */
-  @Patch("crop-seasons/:id")
+  @Patch(["crop-seasons/:id", "crops/:id", "seasons/:id"])
+  @Put(["crops/:id", "seasons/:id"])
   @ApiOperation({ summary: "Update a crop season" })
   async update(
     @Req() req: any,
@@ -170,7 +219,7 @@ export class CropSeasonsController {
   /**
    * Hard delete (rare).
    */
-  @Delete("crop-seasons/:id")
+  @Delete(["crop-seasons/:id", "crops/:id", "seasons/:id"])
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Soft-delete a crop season (audit-safe)" })
   async remove(

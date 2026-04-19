@@ -1534,6 +1534,75 @@ async def metrics():
     )
 
 
+def _serialize_notification(n) -> dict:
+    """Shape a Notification ORM row to the web `Notification` TypeScript
+    interface consumed by apps/web/src/features/notifications/api.ts."""
+    return {
+        "id": str(n.id),
+        "type": n.type,
+        "type_ar": (n.data or {}).get("type_ar", ""),
+        "priority": n.priority,
+        "priority_ar": (n.data or {}).get("priority_ar", ""),
+        "title": n.title,
+        "title_ar": n.title_ar,
+        "body": n.body,
+        "body_ar": n.body_ar,
+        "data": n.data,
+        "is_read": n.is_read,
+        "status": n.status,
+        "created_at": n.created_at.isoformat() if hasattr(n.created_at, "isoformat") else n.created_at,
+        "read_at": n.read_at.isoformat() if n.read_at and hasattr(n.read_at, "isoformat") else n.read_at,
+        "expires_at": (
+            n.expires_at.isoformat() if n.expires_at and hasattr(n.expires_at, "isoformat") else n.expires_at
+        ),
+        "action_url": n.action_url,
+        "channel": (n.data or {}).get("channel"),
+    }
+
+
+@app.get("/", response_model=None)
+async def list_current_user_notifications(
+    unread_only: bool = Query(default=False),
+    type: NotificationType | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=100),
+    offset: int = Query(default=0, ge=0),
+    user: User = Depends(get_current_user),
+):
+    """NOTIFICATION_ENDPOINTS.LIST handler (web contract).
+
+    Kong strips `/api/v1/notifications` → this endpoint receives `/`.
+    Scoped to `user.id` so a farmer only sees their own notifications.
+    """
+    user_id = str(user.id)
+    tenant_id = getattr(user, "tenant_id", None)
+    notifications = await NotificationRepository.get_by_user(
+        user_id=user_id,
+        tenant_id=tenant_id,
+        unread_only=unread_only,
+        type=type.value if type else None,
+        limit=limit,
+        offset=offset,
+        include_expired=False,
+    )
+    items = [_serialize_notification(n) for n in notifications]
+    # Envelope matches apps/web/src/features/notifications/api.ts expecting
+    # `response.data.data || response.data` — arrays at `.data`.
+    return {"success": True, "data": items}
+
+
+@app.post("/read-all")
+async def mark_all_notifications_read(user: User = Depends(get_current_user)):
+    """NOTIFICATION_ENDPOINTS.MARK_ALL_READ handler.
+
+    Kong strips `/api/v1/notifications` → this endpoint receives
+    `/read-all`. Marks every un-read row for the caller's user id.
+    """
+    user_id = str(user.id)
+    tenant_id = getattr(user, "tenant_id", None)
+    updated = await NotificationRepository.mark_all_as_read(user_id=user_id, tenant_id=tenant_id)
+    return {"success": True, "data": {"marked_count": updated}}
+
+
 @app.post("/")
 async def create_custom_notification(
     request: CreateNotificationRequest,
@@ -1773,6 +1842,10 @@ async def get_farmer_notifications(
     }
 
 
+# Web client posts to MARK_READ (apps/web/src/features/notifications/api.ts:93
+# `api.post(url)`), not PATCH — register BOTH verbs on the same handler so
+# either works. FastAPI accepts stacked decorators for alternate methods.
+@app.post("/{notification_id}/read")
 @app.patch("/{notification_id}/read")
 async def mark_notification_read(
     notification_id: str,
@@ -2004,6 +2077,27 @@ async def get_notification_stats(
         "active_weather_alerts": active_weather,
         "active_pest_alerts": active_pest,
     }
+
+
+# NOTIFICATION_ENDPOINTS.GET — single-notification fetch. MUST be the last
+# registered GET to avoid Starlette's declaration-order routing catching
+# literal paths like /broadcast or /stats as notification ids (which would
+# 400 on the UUID parse).
+@app.get("/{notification_id}", response_model=None)
+async def get_single_notification(
+    notification_id: str,
+    user: User = Depends(get_current_user),
+):
+    """Return a single notification; 404 if it doesn't belong to the caller."""
+    try:
+        notif_uuid = UUID(notification_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid notification ID format")
+    tenant_id = getattr(user, "tenant_id", None)
+    notification = await NotificationRepository.get_by_id(notif_uuid, tenant_id=tenant_id)
+    if not notification or notification.user_id != str(user.id):
+        raise HTTPException(status_code=404, detail="Notification not found")
+    return {"success": True, "data": _serialize_notification(notification)}
 
 
 if __name__ == "__main__":

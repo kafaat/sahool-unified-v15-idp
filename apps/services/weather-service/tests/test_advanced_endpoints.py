@@ -747,12 +747,21 @@ class TestWeatherGraphRouting:
         with patch("src.main.app.state") as mock_state:
             mock_state.publisher = None
             mock_state.multi_provider = None
-            # Trigger the lazy singletons path for graph_renderer / graph_store.
+            # Handler's pipeline: renderer.render(...) → SVG bytes, then
+            # graph_store.store(...) returns (graph_id, url_path, expires_at).
+            # Mocks honour the real call signatures so the handler doesn't 500.
             mock_state.graph_renderer = MagicMock()
             mock_state.graph_renderer.render = MagicMock(return_value=b"<svg/>")
             mock_state.graph_store = MagicMock()
-            mock_store_put = MagicMock(return_value=("graph-id-1", "sig"))
-            mock_state.graph_store.put = mock_store_put
+            import datetime as _dt
+
+            mock_state.graph_store.store = MagicMock(
+                return_value=(
+                    "graph-id-1",
+                    "/api/v1/weather/graphs/graph-id-1?tid=x&sig=y",
+                    _dt.datetime(2026, 4, 20, tzinfo=_dt.UTC),
+                )
+            )
 
             response = client.post(
                 path,

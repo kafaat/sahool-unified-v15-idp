@@ -190,7 +190,10 @@ class TestBackgroundInitResilience:
         await started.wait()
         task.cancel()
         with pytest.raises(asyncio.CancelledError):
-            await task
+            # Assign to `_` so static analyzers don't flag the await as an
+            # ineffectual statement — its purpose is to raise CancelledError
+            # inside the `pytest.raises` context manager.
+            _ = await task
         assert fake.state.integration_status["nlp"] == "cancelled"
 
 

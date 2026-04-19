@@ -352,6 +352,8 @@ async def lifespan(app: FastAPI):
         try:
             await task
         except asyncio.CancelledError:
+            # Expected — we just called task.cancel() ourselves; the task
+            # re-raises so the await here unblocks cleanly. Nothing to log.
             pass
         except Exception:
             logger.exception("background_integration_init_failed_during_shutdown")

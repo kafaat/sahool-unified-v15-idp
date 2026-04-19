@@ -2838,7 +2838,7 @@ services:
   wechat-service:
     build:
       context: .
-      dockerfile: archive/deprecated-services/wechat-service/Dockerfile
+      dockerfile: apps/services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
     profiles:
       - deprecated

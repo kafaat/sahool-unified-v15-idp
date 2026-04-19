@@ -19,8 +19,8 @@ import json
 import os
 import sys
 from contextlib import asynccontextmanager
-from datetime import UTC, datetime, timezone
-from enum import Enum, StrEnum
+from datetime import UTC, datetime
+from enum import StrEnum
 from typing import Any
 from uuid import uuid4
 
@@ -61,7 +61,9 @@ logger = structlog.get_logger()
 # WeChat Official Account webhook signature verification uses SHA1:
 #   sort([token, timestamp, nonce]) → join → sha1 → compare with signature
 # The token is configured in the WeChat developer platform.
-_WECHAT_CALLBACK_TOKEN: str = os.getenv("WECHAT_CALLBACK_TOKEN", "")
+# Accept both WECHAT_TOKEN (WeChat's canonical name, used in compose) and
+# WECHAT_CALLBACK_TOKEN (legacy) so signature verification stays active regardless of which is set.
+_WECHAT_CALLBACK_TOKEN: str = os.getenv("WECHAT_TOKEN") or os.getenv("WECHAT_CALLBACK_TOKEN", "")
 
 
 def _verify_wechat_signature(
@@ -1095,10 +1097,6 @@ async def fetch_messages(
     _enforce_tenant(user, fetch_request.tenant_id)
 
     chat_id = fetch_request.chat_id
-
-    # Try cache first
-    cache_key = f"wechat:messages:{fetch_request.tenant_id}:{chat_id}"
-    await cache_get(cache_key)
 
     # Simulate fetching messages (in production, call WeChat API)
     if chat_id not in messages:

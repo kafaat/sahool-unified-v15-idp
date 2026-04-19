@@ -3469,8 +3469,10 @@ asyncio.run(main())
   wechat-service:
     build:
       context: .
-      dockerfile: archive/deprecated-services/wechat-service/Dockerfile
+      dockerfile: apps/services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
+    profiles:
+      - deprecated
     environment:
       - PORT=8135
       - LOG_LEVEL=${LOG_LEVEL:-INFO}

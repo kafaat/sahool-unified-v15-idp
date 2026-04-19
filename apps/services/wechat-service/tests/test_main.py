@@ -19,7 +19,7 @@ Author: SAHOOL Platform Team
 
 import os
 import sys
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 from uuid import uuid4
 
@@ -39,10 +39,14 @@ os.environ.setdefault("REDIS_URL", "")
 # ===============================================================================
 
 
+TEST_TENANT_ID = "00000000-0000-0000-0000-000000000001"
+WRONG_TENANT_ID = "00000000-0000-0000-0000-0000000000ff"
+
+
 class MockUser:
     """Mock User model for authentication."""
 
-    def __init__(self, tenant_id: str = "test-tenant"):
+    def __init__(self, tenant_id: str = TEST_TENANT_ID):
         self.id = "test-user-id"
         self.email = "test@example.com"
         self.tenant_id = tenant_id
@@ -67,7 +71,7 @@ class MockUser:
 
 # Mock auth dependencies
 def mock_get_current_user():
-    return MockUser(tenant_id="test-tenant")
+    return MockUser(tenant_id=TEST_TENANT_ID)
 
 
 mock_auth_deps = MagicMock()
@@ -157,10 +161,14 @@ def setup_app_state():
 
 @pytest.fixture
 async def client(setup_app_state):
-    """Create async test client with dependency overrides."""
-    app.dependency_overrides[get_current_user_dep] = lambda: MockUser(tenant_id="test-tenant")
+    """Create async test client with dependency overrides and tenant header."""
+    app.dependency_overrides[get_current_user_dep] = lambda: MockUser(tenant_id=TEST_TENANT_ID)
 
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+    async with AsyncClient(
+        transport=ASGITransport(app=app),
+        base_url="http://test",
+        headers={"X-Tenant-ID": TEST_TENANT_ID},
+    ) as ac:
         yield ac
 
     app.dependency_overrides.clear()
@@ -170,7 +178,7 @@ async def client(setup_app_state):
 def sample_fetch_request():
     return {
         "chat_id": "chat_001",
-        "tenant_id": "test-tenant",
+        "tenant_id": TEST_TENANT_ID,
         "limit": 50,
     }
 
@@ -179,7 +187,7 @@ def sample_fetch_request():
 def sample_send_request():
     return {
         "chat_id": "chat_001",
-        "tenant_id": "test-tenant",
+        "tenant_id": TEST_TENANT_ID,
         "message_type": "text",
         "content": "Hello, how is the crop?",
     }
@@ -189,7 +197,7 @@ def sample_send_request():
 def sample_contact_request():
     return {
         "wechat_id": "farmer_001",
-        "tenant_id": "test-tenant",
+        "tenant_id": TEST_TENANT_ID,
         "contact_type": "friend",
         "greeting_message": "Hello!",
     }
@@ -198,7 +206,7 @@ def sample_contact_request():
 @pytest.fixture
 def sample_moment_request():
     return {
-        "tenant_id": "test-tenant",
+        "tenant_id": TEST_TENANT_ID,
         "content": "Great harvest!",
         "visibility": "friends",
     }
@@ -208,7 +216,7 @@ def sample_moment_request():
 def sample_summarize_request():
     return {
         "chat_id": "chat_001",
-        "tenant_id": "test-tenant",
+        "tenant_id": TEST_TENANT_ID,
         "time_range_hours": 24,
     }
 
@@ -217,7 +225,7 @@ def sample_summarize_request():
 def sample_insights_request():
     return {
         "chat_id": "chat_001",
-        "tenant_id": "test-tenant",
+        "tenant_id": TEST_TENANT_ID,
         "insight_types": ["sentiment", "topic"],
     }
 
@@ -306,7 +314,7 @@ class TestMessageEndpoints:
         """Test fetching messages with custom limit."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "limit": 10,
         }
         response = await client.post("/api/v1/messages/fetch", json=request)
@@ -320,8 +328,8 @@ class TestMessageEndpoints:
         """Test fetching messages with time filter."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
-            "after_timestamp": (datetime.utcnow() - timedelta(hours=1)).isoformat(),
+            "tenant_id": TEST_TENANT_ID,
+            "after_timestamp": (datetime.now(UTC) - timedelta(hours=1)).isoformat(),
         }
         response = await client.post("/api/v1/messages/fetch", json=request)
 
@@ -332,7 +340,7 @@ class TestMessageEndpoints:
         """Test fetching messages with message type filter."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "message_types": ["text"],
         }
         response = await client.post("/api/v1/messages/fetch", json=request)
@@ -342,7 +350,7 @@ class TestMessageEndpoints:
     @pytest.mark.asyncio
     async def test_fetch_messages_wrong_tenant(self, client, sample_fetch_request):
         """Test tenant access denied on fetch."""
-        sample_fetch_request["tenant_id"] = "wrong-tenant"
+        sample_fetch_request["tenant_id"] = WRONG_TENANT_ID
         response = await client.post("/api/v1/messages/fetch", json=sample_fetch_request)
 
         assert response.status_code == 403
@@ -383,7 +391,7 @@ class TestMessageEndpoints:
         """Test validation error for image message without media_url."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "message_type": "image",
             "content": "Check this image",
         }
@@ -396,7 +404,7 @@ class TestMessageEndpoints:
     @pytest.mark.asyncio
     async def test_send_message_wrong_tenant(self, client, sample_send_request):
         """Test tenant access denied on send."""
-        sample_send_request["tenant_id"] = "wrong-tenant"
+        sample_send_request["tenant_id"] = WRONG_TENANT_ID
         response = await client.post("/api/v1/messages/send", json=sample_send_request)
 
         assert response.status_code == 403
@@ -406,7 +414,7 @@ class TestMessageEndpoints:
         """Test validation error for empty content."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "message_type": "text",
             "content": "",
         }
@@ -469,7 +477,7 @@ class TestContactEndpoints:
     @pytest.mark.asyncio
     async def test_add_contact_wrong_tenant(self, client, sample_contact_request):
         """Test tenant access denied on add contact."""
-        sample_contact_request["tenant_id"] = "wrong-tenant"
+        sample_contact_request["tenant_id"] = WRONG_TENANT_ID
         response = await client.post("/api/v1/contacts/add", json=sample_contact_request)
 
         assert response.status_code == 403
@@ -574,7 +582,7 @@ class TestMomentEndpoints:
     @pytest.mark.asyncio
     async def test_publish_moment_wrong_tenant(self, client, sample_moment_request):
         """Test tenant access denied on publish."""
-        sample_moment_request["tenant_id"] = "wrong-tenant"
+        sample_moment_request["tenant_id"] = WRONG_TENANT_ID
         response = await client.post("/api/v1/moments/publish", json=sample_moment_request)
 
         assert response.status_code == 403
@@ -646,7 +654,7 @@ class TestChatAnalysisEndpoints:
     @pytest.mark.asyncio
     async def test_summarize_chat_wrong_tenant(self, client, sample_summarize_request):
         """Test tenant access denied on summarize."""
-        sample_summarize_request["tenant_id"] = "wrong-tenant"
+        sample_summarize_request["tenant_id"] = WRONG_TENANT_ID
         response = await client.post("/api/v1/chat/summarize", json=sample_summarize_request)
 
         assert response.status_code == 403
@@ -692,7 +700,7 @@ class TestChatAnalysisEndpoints:
     @pytest.mark.asyncio
     async def test_get_insights_wrong_tenant(self, client, sample_insights_request):
         """Test tenant access denied on insights."""
-        sample_insights_request["tenant_id"] = "wrong-tenant"
+        sample_insights_request["tenant_id"] = WRONG_TENANT_ID
         response = await client.post("/api/v1/chat/insights", json=sample_insights_request)
 
         assert response.status_code == 403
@@ -709,7 +717,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_error_response_has_bilingual_messages(self, client):
         """Test error responses include Arabic messages."""
-        request = {"tenant_id": "wrong-tenant", "chat_id": "chat_001"}
+        request = {"tenant_id": WRONG_TENANT_ID, "chat_id": "chat_001"}
         response = await client.post("/api/v1/messages/fetch", json=request)
 
         assert response.status_code == 403
@@ -862,7 +870,7 @@ class TestMessageTypes:
         """Test sending text message."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "message_type": "text",
             "content": "Hello world!",
         }
@@ -876,7 +884,7 @@ class TestMessageTypes:
         """Test sending image message."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "message_type": "image",
             "content": "Check this field photo",
             "media_url": "https://example.com/field.jpg",
@@ -891,7 +899,7 @@ class TestMessageTypes:
         """Test sending location message."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "message_type": "location",
             "content": "Farm location",
             "media_url": "geo:24.7136,46.6753",
@@ -906,7 +914,7 @@ class TestMessageTypes:
         """Test sending link message."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "message_type": "link",
             "content": "Check this advisory",
             "media_url": "https://sahool.com/advisory/123",
@@ -930,7 +938,7 @@ class TestInsightTypes:
         """Test sentiment insight extraction."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "insight_types": ["sentiment"],
         }
         response = await client.post("/api/v1/chat/insights", json=request)
@@ -944,7 +952,7 @@ class TestInsightTypes:
         """Test topic insight extraction."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "insight_types": ["topic"],
         }
         response = await client.post("/api/v1/chat/insights", json=request)
@@ -958,7 +966,7 @@ class TestInsightTypes:
         """Test action items insight extraction."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "insight_types": ["action_items"],
         }
         response = await client.post("/api/v1/chat/insights", json=request)
@@ -972,7 +980,7 @@ class TestInsightTypes:
         """Test questions insight extraction."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "insight_types": ["questions"],
         }
         response = await client.post("/api/v1/chat/insights", json=request)
@@ -986,7 +994,7 @@ class TestInsightTypes:
         """Test key decisions insight extraction."""
         request = {
             "chat_id": "chat_001",
-            "tenant_id": "test-tenant",
+            "tenant_id": TEST_TENANT_ID,
             "insight_types": ["key_decisions"],
         }
         response = await client.post("/api/v1/chat/insights", json=request)
@@ -994,3 +1002,103 @@ class TestInsightTypes:
         assert response.status_code == 200
         data = response.json()
         assert any(i["insight_type"] == "key_decisions" for i in data["insights"])
+
+
+# ===============================================================================
+# WeChat Callback (Signature Verification) Tests
+# ===============================================================================
+
+
+class TestWeChatCallback:
+    """Verify signature handshake behavior for WeChat Official Account callbacks."""
+
+    @staticmethod
+    def _sign(token: str, timestamp: str, nonce: str) -> str:
+        import hashlib
+
+        sort_str = "".join(sorted([token, timestamp, nonce]))
+        return hashlib.sha1(sort_str.encode("utf-8")).hexdigest()  # noqa: S324 - WeChat protocol mandates SHA1
+
+    @pytest.mark.asyncio
+    async def test_verify_callback_dev_no_token_echoes(self, client, monkeypatch):
+        """In development without a token, callback echoes echostr (backward compat)."""
+        monkeypatch.setattr(main_module, "_WECHAT_CALLBACK_TOKEN", "")
+        monkeypatch.setenv("ENVIRONMENT", "development")
+
+        response = await client.get(
+            "/api/v1/callback",
+            params={"signature": "sig", "timestamp": "1", "nonce": "n", "echostr": "hello"},
+        )
+
+        assert response.status_code == 200
+        assert response.text == '"hello"'
+
+    @pytest.mark.asyncio
+    async def test_verify_callback_prod_no_token_rejects(self, client, monkeypatch):
+        """In production with no token, callback is rejected (fail-closed)."""
+        monkeypatch.setattr(main_module, "_WECHAT_CALLBACK_TOKEN", "")
+        monkeypatch.setenv("ENVIRONMENT", "production")
+
+        response = await client.get(
+            "/api/v1/callback",
+            params={"signature": "sig", "timestamp": "1", "nonce": "n", "echostr": "hello"},
+        )
+
+        assert response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_verify_callback_valid_signature(self, client, monkeypatch):
+        token = "testtoken"
+        timestamp = "1700000000"
+        nonce = "nonce123"
+        signature = self._sign(token, timestamp, nonce)
+        monkeypatch.setattr(main_module, "_WECHAT_CALLBACK_TOKEN", token)
+
+        response = await client.get(
+            "/api/v1/callback",
+            params={"signature": signature, "timestamp": timestamp, "nonce": nonce, "echostr": "ok"},
+        )
+
+        assert response.status_code == 200
+        assert response.text == '"ok"'
+
+    @pytest.mark.asyncio
+    async def test_verify_callback_invalid_signature(self, client, monkeypatch):
+        monkeypatch.setattr(main_module, "_WECHAT_CALLBACK_TOKEN", "testtoken")
+
+        response = await client.get(
+            "/api/v1/callback",
+            params={"signature": "deadbeef", "timestamp": "1", "nonce": "n", "echostr": "ok"},
+        )
+
+        assert response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_receive_callback_post_rejects_bad_signature(self, client, monkeypatch):
+        monkeypatch.setattr(main_module, "_WECHAT_CALLBACK_TOKEN", "testtoken")
+
+        response = await client.post(
+            "/api/v1/callback",
+            params={"signature": "wrong", "timestamp": "1", "nonce": "n"},
+            content=b"<xml></xml>",
+        )
+
+        assert response.status_code == 403
+
+    @pytest.mark.asyncio
+    async def test_receive_callback_post_accepts_valid(self, client, monkeypatch):
+        token = "testtoken"
+        timestamp = "1700000000"
+        nonce = "nonce123"
+        signature = self._sign(token, timestamp, nonce)
+        monkeypatch.setattr(main_module, "_WECHAT_CALLBACK_TOKEN", token)
+
+        response = await client.post(
+            "/api/v1/callback",
+            params={"signature": signature, "timestamp": timestamp, "nonce": nonce},
+            content=b"<xml></xml>",
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["status"] == "ok"

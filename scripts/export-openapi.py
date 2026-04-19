@@ -21,7 +21,6 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import json
 import os
 import sys
@@ -212,7 +211,12 @@ def export_all(
             rel = out.relative_to(REPO_ROOT)
             print(f"[ok]   {name:42s} -> {rel}")
             result.exported.append(name)
-        except BaseException as exc:
+        except (Exception, SystemExit) as exc:
+            # Catch ``SystemExit`` explicitly: some services call ``sys.exit()``
+            # at module load time when required env vars are missing. We want
+            # to treat that as a skippable error, not a hard abort. We do NOT
+            # catch the full ``BaseException`` hierarchy so Ctrl-C and other
+            # control-flow exceptions (KeyboardInterrupt) still propagate.
             reason = f"{type(exc).__name__}: {exc}".splitlines()[0][:200]
             print(f"[skip] {name:42s} {reason}", file=sys.stderr)
             if os.environ.get("OPENAPI_EXPORT_DEBUG"):

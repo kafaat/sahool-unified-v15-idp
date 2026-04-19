@@ -53,6 +53,36 @@ services:
     - /api/v1/fields
     - /api/v1/field
     - /field
+    # FARM_ENDPOINTS (apps/web/src — 256+ references). Backend is
+    # field-management-service/src/farms/farms.controller.ts, already mounted
+    # at @Controller("api/v1/farms") with full CRUD + /stats/{tenantId} +
+    # /{id}/members. Previously every call from the web farms dashboard 404'd
+    # at Kong because this path wasn't routed.
+    - /api/v1/farms
+    # FIELD_OPERATION_ENDPOINTS. Backend controller at
+    # field-management-service/src/field-operations/ has routes
+    # /api/v1/field-operations, /api/v1/field-operations/{id},
+    # /api/v1/field-operations/{id}/{approve,reject}, plus field-scoped
+    # /api/v1/fields/{fieldId}/operations (the fields prefix already reached
+    # backend via the existing /api/v1/fields route above, but the /field-
+    # operations top-level paths needed their own entry here).
+    - /api/v1/field-operations
+    # FIELD_REPORT_ENDPOINTS. Controller at
+    # field-management-service/src/field-reports/ serves
+    # /api/v1/field-reports/{id} and /api/v1/field-reports/{id}/content.
+    # Field-scoped POST /api/v1/fields/{fieldId}/reports reached backend
+    # via the existing /api/v1/fields route.
+    - /api/v1/field-reports
+    # FIELD_SUB_ZONE_ENDPOINTS. Controller at
+    # field-management-service/src/field-sub-zones/ serves
+    # /api/v1/field-sub-zones/{id}. Field-scoped list + create reached
+    # backend via /api/v1/fields.
+    - /api/v1/field-sub-zones
+    # ERP_SYNC_ENDPOINTS. Controller at
+    # field-management-service/src/erp-sync/ mounted at
+    # @Controller("api/v1/erp-sync"). Called by admin ERP integrations
+    # module, had no Kong route so every sync call 404'd.
+    - /api/v1/erp-sync
     methods:
     - GET
     - POST

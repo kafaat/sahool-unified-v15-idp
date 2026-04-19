@@ -267,10 +267,14 @@ verify_dockerfile() {
             check_warn "Dockerfile missing HEALTHCHECK instruction"
         fi
 
-        if grep -q "8080" "$DOCKERFILE_PATH"; then
-            check_pass "Dockerfile exposes port 8080"
+        # field-management-service's Dockerfile exposes PORT=3000 by default;
+        # docker-compose-sim.yml overrides PORT=8080 at runtime to match the
+        # load balancer. Accept either so the check stays meaningful for both
+        # the as-built image and the sim-overridden runtime.
+        if grep -qE 'EXPOSE (3000|8080)' "$DOCKERFILE_PATH"; then
+            check_pass "Dockerfile exposes a recognised port (3000 or 8080)"
         else
-            check_warn "Dockerfile may not expose correct port"
+            check_warn "Dockerfile may not expose 3000 (default) or 8080 (sim override)"
         fi
     else
         check_fail "apps/services/field-management-service/Dockerfile NOT FOUND"

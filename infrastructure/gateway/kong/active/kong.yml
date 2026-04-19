@@ -411,13 +411,46 @@ services:
       - application/json
       cache_ttl: 1800
       strategy: memory
+# indicators-service has an inconsistent backend route layout that a
+# single service.path rewrite cannot cover. Split into two Kong services
+# sharing the same upstream host, differing only in `path`:
+#   * indicators-service-definitions — upstream `/v1/indicators/*`
+#     (only /v1/indicators/definitions lives here; longest-prefix match
+#     wins for this specific sub-path so the other routes below aren't
+#     affected).
+#   * indicators-service          — upstream `/v1/*` for the remaining
+#     contract endpoints (dashboard, alerts, trends, field) whose
+#     backend handlers live at /v1/<resource>/*, NOT /v1/indicators/<resource>.
+- name: indicators-service-definitions
+  host: indicators-service
+  port: 8091
+  protocol: http
+  # Route only the /definitions sub-path here so upstream becomes
+  # /v1/indicators/definitions (matches backend exactly).
+  path: /v1/indicators
+  plugins:
+  - name: jwt
+    config:
+      claims_to_verify:
+      - exp
+  routes:
+  - name: indicators-service-definitions-route
+    paths:
+    - /api/v1/indicators/definitions
+    strip_path: true
+    protocols:
+    - http
+    - https
 - name: indicators-service
   host: indicators-service
   port: 8091
   protocol: http
-  # Backend routes mount at /v1/indicators, /v1/alerts, /v1/field.
-  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
-  # so the upstream request matches the backend's `/v1/*` handlers.
+  # Backend's remaining /v1/* endpoints (dashboard/{tenant_id},
+  # alerts/{tenant_id}, trends/{field_id}/{indicator_id},
+  # field/{field_id}/indicators). Kong strips /api/v1/indicators then
+  # prepends /v1 so the upstream request matches the backend.
+  # Longest-prefix routing means requests to /api/v1/indicators/definitions
+  # fall to the -definitions service above before reaching this one.
   path: /v1
   plugins:
   - name: jwt
@@ -840,10 +873,13 @@ services:
   host: ai-advisor
   port: 8112
   protocol: http
-  # Backend routes mount at /v1/advisor.
-  # Kong strips the /api/v1/<tail> route prefix then prepends `/v1`
-  # so the upstream request matches the backend's `/v1/*` handlers.
-  path: /v1
+  # Every backend route is mounted under /v1/advisor/* (ask, diagnose,
+  # recommend, analyze-field, agents, tools, memory/context, cost/usage,
+  # rag/info, evaluation/stats, context-engineering/status). Kong strips
+  # the /api/v1/ai-advisor route prefix then prepends `/v1/advisor`, so
+  # the upstream request matches `@router.post("/v1/advisor/<tail>")`.
+  # A bare `path: /v1` would forward /ask → /v1/ask (404).
+  path: /v1/advisor
   plugins:
   - name: jwt
     config:

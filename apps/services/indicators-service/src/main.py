@@ -1061,6 +1061,14 @@ def get_indicator_definitions():
     }
 
 
+# The web contract (INDICATOR_ENDPOINTS.FIELD) expects the indicators
+# namespace to be the top-level segment:
+#   /api/v1/indicators/field/{fieldId}
+# After Kong strips /api/v1/indicators and prepends /v1, the upstream
+# request becomes `/v1/field/{fieldId}` — no trailing /indicators. Register
+# both paths on the same handler so the contract and the legacy internal
+# spelling (`/v1/field/{id}/indicators`) both hit this function.
+@app.get("/v1/field/{field_id}", response_model=FieldIndicators)
 @app.get("/v1/field/{field_id}/indicators", response_model=FieldIndicators)
 async def get_field_indicators(
     field_id: str,
@@ -1210,6 +1218,7 @@ class IndicatorInput(BaseModel):
     trend_percent: float | None = None
 
 
+@app.post("/v1/field/{field_id}")  # web contract spelling — see GET handler above
 @app.post("/v1/field/{field_id}/indicators")
 async def store_field_indicator(
     field_id: str,

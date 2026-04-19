@@ -101,7 +101,15 @@
 //            — same skip+limit-only constraint, user-scoped.
 //          * CHAIN_VALIDATE (/audit/chain/validate)
 //          Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.19.0" as const;
+//
+// v4.20.0  Weather contract alignment:
+//          * KONG_CURRENT_BY_LOCATION / KONG_FORECAST_BY_LOCATION /
+//            KONG_LOCATIONS flagged @deprecated (removal v17.0.0) —
+//            these paths were never implemented in weather-service and
+//            produce 404s. Callers must use WEATHER_ENDPOINTS.CURRENT
+//            (POST body carries the location) until a replacement
+//            lands. No exports removed (deprecation-only change).
+export const CONTRACT_VERSION = "4.20.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

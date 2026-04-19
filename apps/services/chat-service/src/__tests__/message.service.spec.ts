@@ -10,7 +10,7 @@
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
-import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { NotFoundException, BadRequestException, ForbiddenException } from "@nestjs/common";
 import { ChatService } from "../chat/chat.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { ChatEventsService } from "../events/chat-events.service";
@@ -240,8 +240,10 @@ describe("MessageService (Message Operations)", () => {
         unauthorizedConversation,
       );
 
+      // Non-participant send is a 403 authz failure, not 400 — see
+      // Copilot round-8.
       await expect(service.sendMessage(sendMessageDto, "tenant-001")).rejects.toThrow(
-        BadRequestException,
+        ForbiddenException,
       );
     });
 

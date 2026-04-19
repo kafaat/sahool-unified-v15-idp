@@ -4,7 +4,7 @@
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
-import { NotFoundException, BadRequestException } from "@nestjs/common";
+import { NotFoundException, BadRequestException, ForbiddenException } from "@nestjs/common";
 import { ChatService } from "../src/chat/chat.service";
 import { PrismaService } from "../src/prisma/prisma.service";
 import { ChatEventsService } from "../src/events/chat-events.service";
@@ -278,7 +278,7 @@ describe("ChatService", () => {
       );
     });
 
-    it("should throw BadRequestException when sender is not a participant", async () => {
+    it("should throw ForbiddenException when sender is not a participant", async () => {
       const sendDto: SendMessageDto = {
         conversationId: "conv-123",
         senderId: "user-999",
@@ -289,8 +289,9 @@ describe("ChatService", () => {
         mockConversation,
       );
 
+      // Access-control failure, not bad input — see Copilot round-8.
       await expect(service.sendMessage(sendDto, "tenant-001")).rejects.toThrow(
-        BadRequestException,
+        ForbiddenException,
       );
     });
 

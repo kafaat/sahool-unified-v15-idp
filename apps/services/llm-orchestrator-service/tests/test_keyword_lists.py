@@ -42,7 +42,7 @@ def test_no_intra_category_substring_overlap():
         "INTENT_KEYWORDS contains overlapping keywords within a single "
         "category — substring matching will double-count a single token. "
         "Remove the longer form; the shorter one already covers it via "
-        f"prefix match:\n  - " + "\n  - ".join(offenders)
+        "prefix match:\n  - " + "\n  - ".join(offenders)
     )
 
 

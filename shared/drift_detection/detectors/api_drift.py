@@ -198,8 +198,8 @@ class APIDriftDetector(BaseDriftDetector):
         # `/healthz` endpoints to these services would be architectural
         # noise (a whole aiohttp/FastAPI app just to satisfy a scanner).
         _NON_HTTP_SERVICES = {
-            "code-review-agent",        # CLI review tool
-            "audit-retention-worker",   # K8s CronJob — runs nightly, exits
+            "code-review-agent",  # CLI review tool
+            "audit-retention-worker",  # K8s CronJob — runs nightly, exits
         }
 
         for src_dir in service_dirs:

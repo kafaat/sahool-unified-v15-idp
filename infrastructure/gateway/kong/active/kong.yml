@@ -53,6 +53,22 @@ services:
     - /api/v1/fields
     - /api/v1/field
     - /field
+    # /api/v1/crops — CROP_ENDPOINTS (web contract). Backend's
+    # CropSeasonsController accepts this spelling as an alias alongside
+    # /crop-seasons; MUST be listed here (not on crop-intelligence) so
+    # the longest-prefix match doesn't route /api/v1/crops → /api/v1/crop
+    # on crop-intelligence-service.
+    - /api/v1/crops
+    # /api/v1/crop-seasons — canonical spelling used by mobile builds
+    # and the field-management crop rotation module.
+    - /api/v1/crop-seasons
+    # /api/v1/seasons — shorter alias kept in sync with the controller.
+    - /api/v1/seasons
+    # /api/v1/dashboard — DASHBOARD_ENDPOINTS (web home screen). Four
+    # sub-paths (summary/stats/recent-activity/weather/alerts) are
+    # served by DashboardController in this service; aggregates Field
+    # + Task counts from Prisma so the UI gets real numbers.
+    - /api/v1/dashboard
     methods:
     - GET
     - POST
@@ -153,15 +169,49 @@ services:
     protocols:
     - http
     - https
+# Marketplace contract mismatch fix — web uses /api/v1/marketplace/*
+# (MARKETPLACE_ENDPOINTS) but the NestJS backend mounts at /api/v1/market/*
+# (products/orders/harvest/stats) and /api/v1/fintech/* (wallet/loans/
+# credit-score/escrow). Kong services can only declare ONE service.path
+# rewrite each, so we register TWO Kong services sharing the same
+# upstream host, differing only in service.path. Kong's longest-prefix
+# match picks the fintech-route for /api/v1/marketplace/fintech/... and
+# the market-route for everything else under /api/v1/marketplace.
+- name: marketplace-service-fintech
+  host: marketplace-service
+  port: 3010
+  protocol: http
+  path: /api/v1
+  routes:
+  - name: marketplace-service-fintech-route
+    paths:
+    - /api/v1/marketplace/fintech
+    strip_path: true
+    protocols:
+    - http
+    - https
+  plugins:
+  - name: jwt
+    config:
+      run_on_preflight: false
+      claims_to_verify:
+      - exp
+  - name: rate-limiting
+    config:
+      minute: 60
+      hour: 1000
+      policy: local
+      fault_tolerant: true
+      hide_client_headers: false
 - name: marketplace-service
   host: marketplace-service
   port: 3010
   protocol: http
+  path: /api/v1/market
   routes:
   - name: marketplace-service-route
     paths:
     - /api/v1/marketplace
-    - /marketplace
     strip_path: true
     protocols:
     - http
@@ -698,10 +748,21 @@ services:
     protocols:
     - http
     - https
-  - name: notification-alerts-route
+  # Notification-service's alert SEND endpoints (POST /weather, POST /pest).
+  # Narrow from the generic /api/v1/alerts (which the web contract
+  # ALERT_ENDPOINTS owns for alert-service) to only the two paths this
+  # service actually implements. Longest-prefix match ensures these
+  # specific paths win over alert-service's /api/v1/alerts below.
+  - name: notification-alerts-weather-route
     paths:
-    - /api/v1/alerts
-    - /alerts
+    - /api/v1/alerts/weather
+    strip_path: true
+    protocols:
+    - http
+    - https
+  - name: notification-alerts-pest-route
+    paths:
+    - /api/v1/alerts/pest
     strip_path: true
     protocols:
     - http
@@ -779,14 +840,11 @@ services:
   host: alert-service
   port: 8113
   protocol: http
-  # Web calls /api/v1/alerts/* (ALERT_ENDPOINTS in packages/shared-types/
-  # src/contracts/api-endpoints.ts); backend declares @app.get("/alerts/...")
-  # with no /api/v1 prefix. Kong strips /api/v1/alerts and prepends
-  # service.path "/alerts" so /api/v1/alerts/{id}/resolve becomes
-  # "/alerts/{id}/resolve" on the backend — matches exactly.
-  #
-  # Legacy /api/v1/alert-management alias kept so in-flight clients don't
-  # break; new callers should use /api/v1/alerts.
+  # Backend routes (apps/services/alert-service/src/main.py) live at
+  # `/alerts`, `/alerts/rules`, `/alerts/{id}/resolve`, etc — no /api/v1
+  # prefix. With strip_path: true AND service path `/alerts`, Kong
+  # converts /api/v1/alerts/{id}/resolve → strip → /{id}/resolve →
+  # prepend /alerts → /alerts/{id}/resolve (matches backend).
   path: /alerts
   plugins:
   - name: jwt
@@ -796,8 +854,16 @@ services:
   routes:
   - name: alert-service-route
     paths:
+    # Primary path used by the web contract (ALERT_ENDPOINTS).
     - /api/v1/alerts
+    # Legacy alias kept so callers of /api/v1/alert-management still
+    # reach this service during the rollout. Remove in v17 once all
+    # consumers switch to /api/v1/alerts.
     - /api/v1/alert-management
+    strip_path: true
+    protocols:
+    - http
+    - https
     strip_path: true
     protocols:
     - http
@@ -843,6 +909,31 @@ services:
     - /api/v1/intelligence
     - /api/v1/field-intelligence
     strip_path: false  # backend router mounts at /api/v1/... — preserve full path
+    protocols:
+    - http
+    - https
+  # INTELLIGENCE_ENDPOINTS (packages/shared-types/src/contracts/api-endpoints.ts)
+  # mounts the field-scoped score/zones/alerts/recommendations under
+  # /api/v1/fields/{fieldId}/intelligence/*. Without this regex route
+  # those requests match the broader /api/v1/fields prefix on
+  # field-management-service and 404 there. Backend's FastAPI router is
+  # already prefixed /api/v1 (see src/main.py include_router), so
+  # strip_path: false forwards the full path.
+  - name: field-intelligence-fields-route
+    paths:
+    - ~/^/api/v1/fields/[^/]+/intelligence(/.*)?$
+    strip_path: false
+    # Beat the field-management-service-route (implicit regex_priority 0).
+    regex_priority: 100
+    protocols:
+    - http
+    - https
+  # Non-field-scoped intelligence endpoints: create-task, best-days,
+  # validate-date. Backend routes are mounted under /api/v1/intelligence.
+  - name: field-intelligence-root-route
+    paths:
+    - /api/v1/intelligence
+    strip_path: false
     protocols:
     - http
     - https
@@ -1004,8 +1095,8 @@ services:
   - name: logistics-service-route
     paths:
     - /api/v1/logistics
-    - /logistics
-    strip_path: true
+    strip_path: false  # backend already serves /api/v1/logistics/{shipments,drivers,stats}
+                       # and /api/v1/routes/optimize — preserve the full path
     protocols:
     - http
     - https
@@ -1926,67 +2017,23 @@ services:
   write_timeout: 120000
   read_timeout: 120000
   routes:
-  - name: vision-detect-pest-route
-    paths:
-    - /api/v1/vision/detect/pest
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-detect-disease-route
-    paths:
-    - /api/v1/vision/detect/disease
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-detect-weed-route
-    paths:
-    - /api/v1/vision/detect/weed
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-count-plants-route
-    paths:
-    - /api/v1/vision/count/plants
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-classify-ripeness-route
-    paths:
-    - /api/v1/vision/classify/ripeness
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-segment-leaf-route
-    paths:
-    - /api/v1/vision/segment/leaf
-    strip_path: false
-    protocols:
-    - http
-    - https
-    methods:
-    - POST
-  - name: vision-base-route
+  # All yolo26 routers (detection, analysis, batch, models) now mount
+  # under /api/v1/vision on the backend (commit alignment with
+  # VISION_ENDPOINTS contract). One Kong route with strip_path:false
+  # forwards every vision path untouched — backend does the matching.
+  - name: yolo26-vision-service-route
     paths:
     - /api/v1/vision
-    strip_path: true
+    strip_path: false
     protocols:
     - http
     - https
+    methods:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
   plugins:
   - name: jwt
     config:

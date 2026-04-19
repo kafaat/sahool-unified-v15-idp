@@ -24,6 +24,7 @@ import { NdviModule } from "./ndvi/ndvi.module";
 import { SyncModule } from "./sync/sync.module";
 import { HealthModule } from "./health/health.module";
 import { CropSeasonsModule } from "./crop-seasons/crop-seasons.module";
+import { DashboardModule } from "./dashboard/dashboard.module";
 import { FieldOperationsModule } from "./field-operations/field-operations.module";
 import { FieldSubZonesModule } from "./field-sub-zones/field-sub-zones.module";
 import { FieldReportsModule } from "./field-reports/field-reports.module";
@@ -65,6 +66,7 @@ import { ErpSyncModule } from "./erp-sync/erp-sync.module";
     SyncModule,
     HealthModule,
     CropSeasonsModule,
+    DashboardModule,
     FieldOperationsModule,
     FieldSubZonesModule,
     FieldReportsModule,

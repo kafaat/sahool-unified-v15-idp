@@ -173,7 +173,23 @@ async def _initialize_integrations_background(app: FastAPI) -> None:
                 status=app.state.integration_status[name],
             )
         except asyncio.CancelledError:
+            # Cancellation is treated as a completed (but partial) warmup:
+            # flip the integrations_initialized flag on, mark the current and
+            # any still-pending integrations as "cancelled" so /readyz doesn't
+            # lie about state, then re-raise so the awaiting shutdown code
+            # still sees CancelledError as intended.
             app.state.integration_status[name] = "cancelled"
+            for remaining_name, _ in services:
+                if app.state.integration_status.get(remaining_name) == "pending":
+                    app.state.integration_status[remaining_name] = "cancelled"
+            app.state.integrations_initialized = True
+            app.state.integrations_ready = False
+            logger.info(
+                "integrations_background_init_cancelled",
+                status=dict(app.state.integration_status),
+                initialized=app.state.integrations_initialized,
+                ready=app.state.integrations_ready,
+            )
             raise
         except Exception as e:
             app.state.integration_status[name] = "failed"
@@ -343,12 +359,15 @@ async def lifespan(app: FastAPI):
     # Shutdown
     logger.info("llm_orchestrator_service_shutting_down")
 
-    # Cancel background integration init if still running. Only swallow the
-    # expected CancelledError — any other exception bubbling up here indicates
-    # a real bug that must not disappear silently during shutdown.
+    # Always await the background integration task so any exception it raised
+    # is retrieved (avoids "Task exception was never retrieved" warnings and
+    # surfaces real bugs). Cancel it first only if it's still in flight — a
+    # task that already finished keeps its result/exception available on
+    # await. Only swallow CancelledError; log anything else.
     task = app.state.integrations_task
-    if task is not None and not task.done():
-        task.cancel()
+    if task is not None:
+        if not task.done():
+            task.cancel()
         try:
             await task
         except asyncio.CancelledError:

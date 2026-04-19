@@ -194,7 +194,16 @@ class TestBackgroundInitResilience:
             # ineffectual statement — its purpose is to raise CancelledError
             # inside the `pytest.raises` context manager.
             _ = await task
+        # Current integration marked cancelled; still-pending ones also flipped
+        # to cancelled so /readyz doesn't show stale "pending" state after
+        # shutdown cancellation.
         assert fake.state.integration_status["nlp"] == "cancelled"
+        assert fake.state.integration_status["satellite"] == "cancelled"
+        assert fake.state.integration_status["ml"] == "cancelled"
+        assert fake.state.integration_status["crew"] == "cancelled"
+        # Warmup completed (cancelled = terminal), but service is not ready.
+        assert fake.state.integrations_initialized is True
+        assert fake.state.integrations_ready is False
 
 
 class TestEagerInitEscapeHatch:

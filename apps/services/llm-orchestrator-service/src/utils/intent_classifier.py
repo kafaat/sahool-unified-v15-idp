@@ -199,6 +199,12 @@ INTENT_KEYWORDS: dict[IntentType, dict[str, list[str]]] = {
     },
 }
 
+# Intent scoring constants — each matched keyword contributes
+# PER_KEYWORD_WEIGHT, capped at MAX_INTENT_SCORE. See
+# `calculate_intent_score()` for rationale.
+PER_KEYWORD_WEIGHT: float = 0.55
+MAX_INTENT_SCORE: float = 0.95
+
 # Entity patterns (Arabic and English)
 ENTITY_PATTERNS: dict[str, dict[str, str]] = {
     "crop_type": {
@@ -263,17 +269,14 @@ def calculate_intent_score(text: str, intent_type: IntentType, language: str) ->
     Calculate confidence score for an intent based on keyword matching.
     حساب درجة الثقة للنية بناءً على مطابقة الكلمات المفتاحية.
 
-    Each matched keyword contributes a fixed weight of 0.55, up to a maximum
-    score of 0.95. This keeps scores interpretable regardless of how many
-    keywords a category defines — the previous per-category denominator made
-    a single strong match unreachable above a threshold whenever the category
-    had many keywords, so a one-word irrigation query scored 0.09 while a
-    generic "crop" match in YIELD_PREDICTION could out-score a specific
-    disease query.
+    Each matched keyword contributes PER_KEYWORD_WEIGHT (0.55), up to
+    MAX_INTENT_SCORE (0.95). Keeping the weight flat makes scores
+    interpretable regardless of how many keywords a category defines — the
+    previous per-category denominator made a single strong match unreachable
+    above a threshold whenever the category had many keywords, so a one-word
+    irrigation query scored 0.09 while a generic "crop" match in
+    YIELD_PREDICTION could out-score a specific disease query.
     """
-    _PER_KEYWORD_WEIGHT = 0.55
-    _MAX_SCORE = 0.95
-
     keywords_data = INTENT_KEYWORDS.get(intent_type, {})
     keywords = keywords_data.get(language, [])
 
@@ -286,7 +289,7 @@ def calculate_intent_score(text: str, intent_type: IntentType, language: str) ->
     if matched_keywords == 0:
         return 0.0
 
-    return min(matched_keywords * _PER_KEYWORD_WEIGHT, _MAX_SCORE)
+    return min(matched_keywords * PER_KEYWORD_WEIGHT, MAX_INTENT_SCORE)
 
 
 class IntentClassifier:

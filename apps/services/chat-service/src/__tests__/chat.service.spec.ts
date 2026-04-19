@@ -110,12 +110,21 @@ function createMockPrisma() {
     },
     participant: {
       findMany: jest.fn(),
+      create: jest.fn(),
       updateMany: jest.fn(),
+      deleteMany: jest.fn(),
     },
-    $transaction: jest.fn(),
+    // For service methods that call `this.prisma.$transaction(async (tx) => ...)`
+    // run the callback inline with the mock itself — lets specs assert that
+    // participant.create + conversation.update were both invoked.
+    $transaction: jest.fn(async (cb: any) => cb(mockPrismaForTx)),
     $queryRaw: jest.fn(),
-  };
+  } as any;
 }
+
+// Lazy reference so the $transaction mock above can see the same object it
+// lives on — set inside beforeEach via `mockPrismaForTx = mockPrisma` assignment.
+let mockPrismaForTx: any;
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Health Endpoint Tests
@@ -1116,6 +1125,267 @@ describe("ChatService - Participant Management", () => {
           take: 21,
         }),
       );
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Ported field-chat capabilities — scope lookup, archive, search,
+// participant add/remove. Mocks stand in for Prisma so the tests stay
+// pure-unit (no DB connection required).
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe("ChatService - Ported Field-Chat Features", () => {
+  let service: ChatService;
+  let mockPrisma: ReturnType<typeof createMockPrisma>;
+
+  beforeEach(async () => {
+    mockPrisma = createMockPrisma();
+    mockPrismaForTx = mockPrisma; // $transaction callback reads this
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        ChatService,
+        { provide: PrismaService, useValue: mockPrisma },
+        {
+          provide: ChatEventsService,
+          useValue: { publishConversationCreated: jest.fn(), publishMessageSent: jest.fn() },
+        },
+      ],
+    }).compile();
+
+    service = module.get<ChatService>(ChatService);
+  });
+
+  describe("getConversationByScope", () => {
+    it("returns the conversation when (scopeType, scopeId) matches", async () => {
+      const expected = { id: "c1", tenantId: TENANT_ID, scopeType: "field", scopeId: "fld_1", participantIds: [USER_ID_BUYER] };
+      mockPrisma.conversation.findFirst.mockResolvedValue(expected);
+
+      const result = await service.getConversationByScope("field", "fld_1", TENANT_ID);
+
+      expect(result).toEqual(expected);
+      expect(mockPrisma.conversation.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { tenantId: TENANT_ID, scopeType: "field", scopeId: "fld_1" },
+        }),
+      );
+    });
+
+    it("throws 404 when no conversation exists for that scope", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue(null);
+      await expect(
+        service.getConversationByScope("field", "missing", TENANT_ID),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it("rejects missing scopeType/scopeId with 400", async () => {
+      await expect(
+        service.getConversationByScope("", "x", TENANT_ID),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe("archiveConversation", () => {
+    it("sets isActive=false and stamps archivedAt", async () => {
+      const now = Date.now();
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER],
+        isActive: true,
+      });
+      mockPrisma.conversation.update.mockImplementation(async ({ data }: any) => ({
+        id: CONVERSATION_ID,
+        ...data,
+      }));
+
+      const result = await service.archiveConversation(
+        CONVERSATION_ID,
+        USER_ID_BUYER,
+        TENANT_ID,
+      );
+
+      expect(result.isActive).toBe(false);
+      expect(result.archivedAt).toBeInstanceOf(Date);
+      // Non-null asserted: the previous expect already checks archivedAt is a
+      // Date, which narrows the union but TS structural checks don't follow
+      // that across a `.toBeInstanceOf`. `!` keeps strictNullChecks happy.
+      expect((result.archivedAt as Date).getTime()).toBeGreaterThanOrEqual(now);
+    });
+
+    it("is idempotent: archiving an already-archived conversation is a no-op", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER],
+        isActive: false,
+      });
+
+      await service.archiveConversation(CONVERSATION_ID, USER_ID_BUYER, TENANT_ID);
+      expect(mockPrisma.conversation.update).not.toHaveBeenCalled();
+    });
+
+    it("rejects a non-participant", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER],
+        isActive: true,
+      });
+      await expect(
+        service.archiveConversation(CONVERSATION_ID, "stranger", TENANT_ID),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe("searchMessages", () => {
+    it("does a case-insensitive contains search scoped to tenant", async () => {
+      mockPrisma.message.findMany.mockResolvedValue([{ id: "m1", content: "Hello there" }]);
+
+      const result = await service.searchMessages("hello", TENANT_ID);
+
+      expect(result).toHaveLength(1);
+      expect(mockPrisma.message.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            tenantId: TENANT_ID,
+            content: { contains: "hello", mode: "insensitive" },
+          }),
+        }),
+      );
+    });
+
+    it("narrows search to a single conversation when provided", async () => {
+      mockPrisma.message.findMany.mockResolvedValue([]);
+      await service.searchMessages("x-word", TENANT_ID, { conversationId: CONVERSATION_ID });
+      const call = mockPrisma.message.findMany.mock.calls[0][0];
+      expect(call.where.conversationId).toBe(CONVERSATION_ID);
+    });
+
+    it("rejects queries shorter than 2 chars", async () => {
+      await expect(service.searchMessages(" ", TENANT_ID)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it("clamps the limit to [1, 200]", async () => {
+      mockPrisma.message.findMany.mockResolvedValue([]);
+      await service.searchMessages("hi", TENANT_ID, { limit: 9999 });
+      expect(mockPrisma.message.findMany.mock.calls[0][0].take).toBe(200);
+
+      mockPrisma.message.findMany.mockClear();
+      await service.searchMessages("hi", TENANT_ID, { limit: -3 });
+      expect(mockPrisma.message.findMany.mock.calls[0][0].take).toBe(1);
+    });
+  });
+
+  describe("addParticipant", () => {
+    it("appends the new user, creates the Participant row, and returns the updated conversation", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER],
+      });
+      mockPrisma.conversation.update.mockResolvedValue({
+        id: CONVERSATION_ID,
+        participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      });
+
+      const result = await service.addParticipant(
+        CONVERSATION_ID,
+        USER_ID_SELLER,
+        USER_ID_BUYER,
+        TENANT_ID,
+        "SELLER",
+      );
+
+      expect(result.participantIds).toContain(USER_ID_SELLER);
+      expect(mockPrisma.participant.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          tenantId: TENANT_ID,
+          conversationId: CONVERSATION_ID,
+          userId: USER_ID_SELLER,
+          role: "SELLER",
+        }),
+      });
+    });
+
+    it("is a no-op if the user is already a participant", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      });
+
+      const result = await service.addParticipant(
+        CONVERSATION_ID,
+        USER_ID_SELLER,
+        USER_ID_BUYER,
+        TENANT_ID,
+      );
+
+      expect(mockPrisma.participant.create).not.toHaveBeenCalled();
+      expect(result.participantIds).toContain(USER_ID_SELLER);
+    });
+
+    it("rejects a non-participant requester", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER],
+      });
+      await expect(
+        service.addParticipant(CONVERSATION_ID, USER_ID_SELLER, "stranger", TENANT_ID),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe("removeParticipant", () => {
+    it("removes the user and returns the pruned participant list", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      });
+      mockPrisma.conversation.update.mockResolvedValue({
+        id: CONVERSATION_ID,
+        participantIds: [USER_ID_BUYER],
+      });
+
+      const result = await service.removeParticipant(
+        CONVERSATION_ID,
+        USER_ID_SELLER,
+        USER_ID_BUYER,
+        TENANT_ID,
+      );
+
+      expect(result.participantIds).not.toContain(USER_ID_SELLER);
+      expect(mockPrisma.participant.deleteMany).toHaveBeenCalledWith({
+        where: { tenantId: TENANT_ID, conversationId: CONVERSATION_ID, userId: USER_ID_SELLER },
+      });
+    });
+
+    it("refuses to remove the last participant (asks caller to archive instead)", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER],
+      });
+      await expect(
+        service.removeParticipant(CONVERSATION_ID, USER_ID_BUYER, USER_ID_BUYER, TENANT_ID),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it("404s when the target user is not actually a participant", async () => {
+      mockPrisma.conversation.findFirst.mockResolvedValue({
+        id: CONVERSATION_ID,
+        tenantId: TENANT_ID,
+        participantIds: [USER_ID_BUYER, USER_ID_SELLER],
+      });
+      await expect(
+        service.removeParticipant(CONVERSATION_ID, "ghost-user", USER_ID_BUYER, TENANT_ID),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 });

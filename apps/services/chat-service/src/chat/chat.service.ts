@@ -454,4 +454,180 @@ export class ChatService {
 
     return participants.reduce((total: number, p: { unreadCount: number }) => total + p.unreadCount, 0);
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Ported from the archived field-chat service (field/task/incident scope,
+  // archive flag, participants, message search). Nullable schema fields keep
+  // the marketplace flows (product/order conversations) unchanged.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Find an existing conversation for (scopeType, scopeId) within a tenant.
+   * Returns null when none exists — the caller decides whether to auto-create.
+   */
+  async getConversationByScope(
+    scopeType: string,
+    scopeId: string,
+    tenantId: string,
+  ) {
+    if (!scopeType || !scopeId) {
+      throw new BadRequestException("scopeType and scopeId are required");
+    }
+    const conversation = await this.prisma.conversation.findFirst({
+      where: { tenantId, scopeType, scopeId },
+      include: {
+        participants: true,
+        messages: {
+          orderBy: { createdAt: "desc" },
+          take: 1,
+        },
+      },
+    });
+    if (!conversation) {
+      throw new NotFoundException(
+        `No conversation found for scope ${scopeType}/${scopeId}`,
+      );
+    }
+    return conversation;
+  }
+
+  /**
+   * Archive a conversation (soft-delete semantics).
+   * Sets isActive=false and records archivedAt. Idempotent: archiving an
+   * already-archived conversation is a no-op that still returns the row.
+   */
+  async archiveConversation(
+    conversationId: string,
+    userId: string,
+    tenantId: string,
+  ) {
+    const conversation = await this.getConversationById(
+      conversationId,
+      tenantId,
+    );
+    if (!conversation.participantIds.includes(userId)) {
+      throw new BadRequestException(
+        "Only a participant can archive this conversation",
+      );
+    }
+    if (!conversation.isActive) {
+      return conversation;
+    }
+    return this.prisma.conversation.update({
+      where: { id: conversationId },
+      data: {
+        isActive: false,
+        archivedAt: new Date(),
+      },
+    });
+  }
+
+  /**
+   * Full-text-ish search across messages.
+   * Scoped to the caller's tenant; an optional conversationId restricts the
+   * search to a single thread. Returns newest-first, capped to `limit`.
+   */
+  async searchMessages(
+    query: string,
+    tenantId: string,
+    opts: { conversationId?: string; limit?: number } = {},
+  ) {
+    const q = (query || "").trim();
+    if (q.length < 2) {
+      throw new BadRequestException("Search query must be at least 2 characters");
+    }
+    const limit = Math.min(Math.max(opts.limit ?? 50, 1), 200);
+    return this.prisma.message.findMany({
+      where: {
+        tenantId,
+        ...(opts.conversationId ? { conversationId: opts.conversationId } : {}),
+        content: { contains: q, mode: "insensitive" },
+      },
+      orderBy: { createdAt: "desc" },
+      take: limit,
+    });
+  }
+
+  /**
+   * Add a participant to a conversation.
+   * No-op if the user is already a participant; otherwise appends to
+   * participantIds and creates the Participant row inside a transaction.
+   */
+  async addParticipant(
+    conversationId: string,
+    newUserId: string,
+    requesterId: string,
+    tenantId: string,
+    role: ParticipantRole = "BUYER",
+  ) {
+    const conversation = await this.getConversationById(
+      conversationId,
+      tenantId,
+    );
+    if (!conversation.participantIds.includes(requesterId)) {
+      throw new BadRequestException(
+        "Only a participant can add other participants",
+      );
+    }
+    if (conversation.participantIds.includes(newUserId)) {
+      return conversation;
+    }
+    return this.prisma.$transaction(async (tx: any) => {
+      await tx.participant.create({
+        data: {
+          tenantId,
+          conversationId,
+          userId: newUserId,
+          role,
+        },
+      });
+      return tx.conversation.update({
+        where: { id: conversationId },
+        data: { participantIds: { push: newUserId } },
+        include: { participants: true },
+      });
+    });
+  }
+
+  /**
+   * Remove a participant from a conversation.
+   * The last participant cannot leave — archive the conversation instead.
+   */
+  async removeParticipant(
+    conversationId: string,
+    userIdToRemove: string,
+    requesterId: string,
+    tenantId: string,
+  ) {
+    const conversation = await this.getConversationById(
+      conversationId,
+      tenantId,
+    );
+    if (!conversation.participantIds.includes(requesterId)) {
+      throw new BadRequestException(
+        "Only a participant can remove participants",
+      );
+    }
+    if (!conversation.participantIds.includes(userIdToRemove)) {
+      throw new NotFoundException("User is not a participant of this conversation");
+    }
+    if (conversation.participantIds.length <= 1) {
+      throw new BadRequestException(
+        "Cannot remove the last participant. Archive the conversation instead.",
+      );
+    }
+    const remaining = conversation.participantIds.filter(
+      (id: string) => id !== userIdToRemove,
+    );
+    return this.prisma.$transaction(async (tx: any) => {
+      await tx.participant.deleteMany({
+        where: { tenantId, conversationId, userId: userIdToRemove },
+      });
+      return tx.conversation.update({
+        where: { id: conversationId },
+        data: { participantIds: { set: remaining } },
+        include: { participants: true },
+      });
+    });
+  }
 }

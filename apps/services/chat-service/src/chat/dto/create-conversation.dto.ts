@@ -38,4 +38,21 @@ export class CreateConversationDto {
   @IsOptional()
   @IsString()
   orderId?: string;
+
+  @ApiPropertyOptional({
+    description:
+      "Generic domain scope type (field | task | incident | ...). Paired with scopeId. Ported from field-chat so a single service handles marketplace + field-operations conversations.",
+    example: "field",
+  })
+  @IsOptional()
+  @IsString()
+  scopeType?: string;
+
+  @ApiPropertyOptional({
+    description: "Scope identifier — value interpretation depends on scopeType.",
+    example: "fld_7e3a…",
+  })
+  @IsOptional()
+  @IsString()
+  scopeId?: string;
 }

@@ -34,12 +34,19 @@ model Conversation {
   productId String? @map("product_id")
   orderId   String? @map("order_id")
 
+  // Generic domain scope ported from the archived field-chat service.
+  // scopeType ∈ {"field","task","incident", …}, paired with scopeId.
+  // Nullable so existing marketplace conversations (product/order) stay valid.
+  scopeType String? @map("scope_type")
+  scopeId   String? @map("scope_id")
+
   // آخر رسالة (للعرض السريع)
   lastMessage   String?   @map("last_message")
   lastMessageAt DateTime? @map("last_message_at")
 
   // الحالة
-  isActive Boolean @default(true) @map("is_active")
+  isActive   Boolean   @default(true) @map("is_active")
+  archivedAt DateTime? @map("archived_at")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -48,8 +55,10 @@ model Conversation {
   messages     Message[]
   participants Participant[]
 
+  @@unique([tenantId, scopeType, scopeId], name: "uq_conversation_scope")
   @@index([tenantId], name: "idx_conversation_tenant")
   @@index([tenantId, isActive], name: "idx_conversation_tenant_active")
+  @@index([tenantId, scopeType], name: "idx_conversation_tenant_scope")
   @@index([productId])
   @@index([orderId])
   @@index([isActive, lastMessageAt], name: "idx_conversation_active_updated")

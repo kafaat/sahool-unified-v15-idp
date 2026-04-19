@@ -7,6 +7,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Body,
   Param,
   Query,
@@ -28,6 +29,7 @@ import { Throttle } from "@nestjs/throttler";
 import { ChatService } from "./chat.service";
 import { CreateConversationDto } from "./dto/create-conversation.dto";
 import { SendMessageDto } from "./dto/send-message.dto";
+import { AddParticipantDto } from "./dto/add-participant.dto";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { UserId } from "../auth/decorators";
 
@@ -347,5 +349,136 @@ export class ChatController {
     const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
     const count = await this.chatService.getUnreadCount(userId, tenantId);
     return { userId, unreadCount: count };
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Ported from the archived field-chat service.
+  // Gives chat-service feature parity for thread-style conversations (field/
+  // task/incident scope) without altering the marketplace (product/order)
+  // contract already exposed by this controller.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  @Get("conversations/by-scope/:scopeType/:scopeId")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Get conversation by domain scope",
+    description:
+      "Resolve the conversation attached to a (scopeType, scopeId) pair — e.g. field:fld_abc, task:task_123. 404 if none exists. Ported from field-chat.",
+  })
+  @ApiParam({ name: "scopeType", example: "field" })
+  @ApiParam({ name: "scopeId", example: "fld_abc" })
+  async getConversationByScope(
+    @Param("scopeType") scopeType: string,
+    @Param("scopeId") scopeId: string,
+    @UserId() userId: string,
+    @Req() req: any,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    const conversation = await this.chatService.getConversationByScope(
+      scopeType,
+      scopeId,
+      tenantId,
+    );
+    if (!conversation.participantIds.includes(userId)) {
+      throw new UnauthorizedException("Access denied to this conversation");
+    }
+    return conversation;
+  }
+
+  @Post("conversations/:id/archive")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Archive a conversation",
+    description: "Soft-delete: sets isActive=false and records archivedAt. Idempotent.",
+  })
+  @ApiParam({ name: "id", description: "Conversation UUID" })
+  async archiveConversation(
+    @Param("id") conversationId: string,
+    @UserId() userId: string,
+    @Req() req: any,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    return this.chatService.archiveConversation(
+      conversationId,
+      userId,
+      tenantId,
+    );
+  }
+
+  @Get("messages/search")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: "Search messages",
+    description:
+      "Case-insensitive substring search over message content. Tenant-scoped; optional conversationId narrows to a single thread.",
+  })
+  @ApiQuery({ name: "q", required: true, description: "Search query (>= 2 chars)" })
+  @ApiQuery({ name: "conversationId", required: false })
+  @ApiQuery({ name: "limit", required: false, description: "Default 50, max 200" })
+  async searchMessages(
+    @Query("q") q: string,
+    @Query("conversationId") conversationId: string | undefined,
+    @Query("limit") limit: string | undefined,
+    @Req() req: any,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    const parsedLimit = limit ? Math.max(1, parseInt(limit, 10) || 50) : 50;
+    const messages = await this.chatService.searchMessages(q, tenantId, {
+      conversationId,
+      limit: parsedLimit,
+    });
+    return { query: q, total: messages.length, messages };
+  }
+
+  @Post("conversations/:id/participants")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Add participant",
+    description: "Append a user to the conversation's participant list. No-op if already a participant.",
+  })
+  async addParticipant(
+    @Param("id") conversationId: string,
+    @Body() dto: AddParticipantDto,
+    @UserId() requesterId: string,
+    @Req() req: any,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    return this.chatService.addParticipant(
+      conversationId,
+      dto.userId,
+      requesterId,
+      tenantId,
+      dto.role ?? "BUYER",
+    );
+  }
+
+  @Delete("conversations/:id/participants/:userId")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: "Remove participant",
+    description:
+      "Detach a user from the conversation. Refuses the operation if it would leave the thread empty — use archive instead.",
+  })
+  async removeParticipant(
+    @Param("id") conversationId: string,
+    @Param("userId") userIdToRemove: string,
+    @UserId() requesterId: string,
+    @Req() req: any,
+  ) {
+    const tenantId = req.user?.tenantId || req.headers["x-tenant-id"];
+    return this.chatService.removeParticipant(
+      conversationId,
+      userIdToRemove,
+      requesterId,
+      tenantId,
+    );
   }
 }

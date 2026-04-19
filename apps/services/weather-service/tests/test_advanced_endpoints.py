@@ -735,8 +735,8 @@ class TestYemenLocationEndpoints:
         assert r.status_code == 404
 
     def test_forecast_by_location_rejects_out_of_range_days(self, client):
-        """`days` must be 1..14 inclusive — guard against accidental
-        provider-quota burn from huge values."""
+        """`days` must be 1..16 inclusive — same range as POST /weather/forecast.
+        Guards against accidental provider-quota burn from huge values."""
         r = client.get("/weather/v1/forecast/sanaa", params={"days": 999})
         assert r.status_code == 422
 

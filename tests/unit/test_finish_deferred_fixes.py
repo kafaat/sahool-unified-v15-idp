@@ -9,7 +9,9 @@ PR `claude/finish-deferred-fixes`:
 
 2. inventory-service Kong split — `/api/v1/inventory/categories` and
    `/api/v1/inventory/analytics` must reach the backend's `/v1/*`
-   handlers via a dedicated Kong service with `path: /v1`.
+   handlers via dedicated Kong services with `path: /v1/categories`
+   and `path: /v1/analytics` respectively. A shared `path: /v1` would
+   strip the matched suffix and rewrite to just `/v1` upstream.
 
 3. scripts/sync-contracts-to-dart.ts — JSDoc `@deprecated` tags must
    land as Dart `@Deprecated('msg')` annotations in the generated
@@ -272,23 +274,36 @@ class TestDartCodegenInSync:
     """Run the live sync script in --check mode. If anyone edits the
     TypeScript contracts (including adding/removing @deprecated tags) and
     forgets to regenerate the Dart files, this test fails immediately —
-    the same gate the GitHub Actions workflow enforces, but available
-    as a cheap local pre-push check.
+    a cheap local pre-push check that mirrors the dedicated CI workflow
+    in api-contracts-guard.yml.
+
+    Skipped when the Node toolchain is not pre-installed locally. We
+    deliberately do NOT fall back to `npx` (which would download `tsx`
+    on demand): that adds 10–20s per test run, hits the network, and
+    would silently fail in air-gapped CI runners. The
+    api-contracts-guard.yml workflow runs the same check inside a
+    properly-set-up Node environment, so coverage isn't lost.
     """
 
     def test_dart_contracts_are_in_sync(self):
-        import shutil
         import subprocess
 
-        if shutil.which("npx") is None:
-            pytest.skip("npx not available — skipping live codegen check")
+        # Prefer a project-local `tsx` (node_modules/.bin/tsx) that the
+        # api-contracts-guard CI workflow installs. If it isn't there,
+        # skip — running pytest shouldn't trigger an `npx` download.
+        local_tsx = REPO_ROOT / "node_modules" / ".bin" / "tsx"
+        if not local_tsx.exists():
+            pytest.skip(
+                f"tsx not pre-installed at {local_tsx} — skipping live codegen check. "
+                "api-contracts-guard.yml exercises the same path in CI."
+            )
 
         result = subprocess.run(
-            ["npx", "tsx", "scripts/sync-contracts-to-dart.ts", "--check"],
+            [str(local_tsx), "scripts/sync-contracts-to-dart.ts", "--check"],
             cwd=REPO_ROOT,
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=60,
         )
         assert result.returncode == 0, (
             f"sync-contracts-to-dart --check failed:\n"

@@ -666,21 +666,37 @@ async def get_current_weather_by_location(
 
     tenant_id = _resolve_tenant_or_403(user)
 
-    if app.state.multi_provider:
-        result = await app.state.multi_provider.get_current(location["lat"], location["lon"], tenant_id=tenant_id)
-        if not result.success:
-            raise ExternalServiceException.weather_service(
-                details={
-                    "error": result.error,
-                    "error_ar": result.error_ar,
-                    "failed_providers": result.failed_providers,
-                }
+    # Wrap provider calls in the same try/except shape as POST /weather/current
+    # (line 496) so transient network/timeout errors come out as a 502
+    # ExternalServiceException via the unified error handler — NOT as a bare
+    # 500 from the catch-all in shared/errors_py.
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_current(
+                location["lat"], location["lon"], tenant_id=tenant_id
             )
-        weather = result.data
-        provider = result.provider
-    else:
-        weather = await app.state.weather_provider.get_current(location["lat"], location["lon"])
-        provider = "Open-Meteo"
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            weather = result.data
+            provider = result.provider
+        else:
+            weather = await app.state.weather_provider.get_current(location["lat"], location["lon"])
+            provider = "Open-Meteo"
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as exc:
+        raise ExternalServiceException.weather_service(
+            details={
+                "error": f"Provider failed for location '{location_id.lower()}': {exc}",
+                "location_id": location_id.lower(),
+            }
+        ) from exc
 
     return {
         "success": True,
@@ -721,11 +737,12 @@ async def get_forecast_by_location(
 ):
     """N-day forecast for a Yemen governorate.
 
-    Same lookup strategy as `/weather/v1/current/{location_id}`. `days` is
-    the standard 1-14 horizon supported by the underlying providers.
+    Same lookup strategy as `/weather/v1/current/{location_id}`. `days`
+    is aligned with POST /weather/forecast: 1..16 inclusive (Open-Meteo
+    supports up to 16, the multi-provider service inherits that range).
     """
-    if days < 1 or days > 14:
-        raise HTTPException(status_code=422, detail="days must be between 1 and 14")
+    if days < 1 or days > 16:
+        raise HTTPException(status_code=422, detail="days must be between 1 and 16")
 
     location = get_location(location_id)
     if location is None:
@@ -739,28 +756,46 @@ async def get_forecast_by_location(
     # Mirror the existing POST /weather/forecast handler — it calls
     # get_daily_forecast (NOT get_forecast). The providers in
     # src/providers/multi_provider.py expose get_daily_forecast on every
-    # adapter, returning a list[DailyForecast] directly.
-    if app.state.multi_provider:
-        result = await app.state.multi_provider.get_daily_forecast(
-            location["lat"], location["lon"], days, tenant_id=tenant_id
-        )
-        if not result.success:
-            raise ExternalServiceException.weather_service(
-                details={
-                    "error": result.error,
-                    "error_ar": result.error_ar,
-                    "failed_providers": result.failed_providers,
-                }
+    # adapter, returning a list[DailyForecast] directly. try/except
+    # converts unexpected provider failures (timeouts, network) into the
+    # ExternalServiceException 502 response shape — the catch-all in
+    # shared/errors_py would otherwise emit a bare 500.
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_daily_forecast(
+                location["lat"], location["lon"], days, tenant_id=tenant_id
             )
-        forecast = result.data
-        provider = result.provider
-    else:
-        forecast = await app.state.weather_provider.get_daily_forecast(location["lat"], location["lon"], days)
-        provider = "Open-Meteo"
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            forecast = result.data
+            provider = result.provider
+        else:
+            forecast = await app.state.weather_provider.get_daily_forecast(
+                location["lat"], location["lon"], days
+            )
+            provider = "Open-Meteo"
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as exc:
+        raise ExternalServiceException.weather_service(
+            details={
+                "error": f"Provider failed for forecast at '{location_id.lower()}': {exc}",
+                "location_id": location_id.lower(),
+            }
+        ) from exc
 
     # Match POST /weather/forecast's response shape so existing
     # web/mobile parsers continue to work — `forecast` is already a
-    # list[DailyForecast], no `.daily` accessor needed.
+    # list[DailyForecast], no `.daily` accessor needed. `days` reports
+    # the actual returned horizon (POST /weather/forecast does the same
+    # — `days: len(forecast)` at line 567), so an empty result honestly
+    # advertises 0, not the requested ceiling.
     return {
         "success": True,
         "data": {
@@ -774,7 +809,7 @@ async def get_forecast_by_location(
             },
             "field_id": field_id,
             "provider": provider,
-            "days": len(forecast) if forecast else days,
+            "days": len(forecast or []),
             "forecast": [
                 {
                     "date": getattr(f, "date", None),

@@ -243,6 +243,76 @@ class TestAPIDriftDetector:
         health_drifts = [r for r in results if r.source == "health_endpoint" and r.service_name == "user-service"]
         assert len(health_drifts) == 0
 
+    @pytest.mark.asyncio
+    async def test_health_endpoints_allowlist_for_non_http_services(
+        self, temp_project: Path
+    ):
+        """Non-HTTP services (CronJobs, CLI tools) must NOT be flagged.
+
+        Regression guard for the `_NON_HTTP_SERVICES` allowlist added in
+        the drift-detector false-positive fix. Creates a dummy
+        `audit-retention-worker` service with no health endpoints at
+        all — the detector should skip it because it's a K8s CronJob
+        whose liveness is "process exited 0", not a polled HTTP probe.
+        """
+        # Create the CronJob service without any health endpoints
+        svc = temp_project / "apps" / "services" / "audit-retention-worker" / "src"
+        svc.mkdir(parents=True)
+        (svc / "main.py").write_text(
+            '"""Audit Retention Worker — K8s CronJob entrypoint."""\n'
+            "import asyncio\n"
+            "async def main():\n"
+            "    # Run once, exit. No HTTP server, no /healthz.\n"
+            "    pass\n"
+            "if __name__ == '__main__':\n"
+            "    asyncio.run(main())\n"
+        )
+
+        detector = APIDriftDetector(str(temp_project))
+        results = await detector.detect()
+
+        health_drifts = [
+            r
+            for r in results
+            if r.source == "health_endpoint"
+            and r.service_name == "audit-retention-worker"
+        ]
+        assert health_drifts == [], (
+            "audit-retention-worker is a CronJob in _NON_HTTP_SERVICES — "
+            "it must not be flagged for missing /healthz. Got: "
+            f"{[r.description for r in health_drifts]}"
+        )
+
+    @pytest.mark.asyncio
+    async def test_health_endpoints_still_flags_real_http_services(
+        self, temp_project: Path
+    ):
+        """The allowlist must only exempt named services.
+
+        An HTTP service whose `main.py` really does forget `/healthz`
+        must still produce a `health_endpoint` drift so the allowlist
+        doesn't silently grow into a blind spot.
+        """
+        svc = temp_project / "apps" / "services" / "forgotten-healthz" / "src"
+        svc.mkdir(parents=True)
+        (svc / "main.py").write_text(
+            "from fastapi import FastAPI\n"
+            "app = FastAPI()\n"
+            "@app.get('/data')\n"
+            "def data(): return {}\n"
+        )
+
+        detector = APIDriftDetector(str(temp_project))
+        results = await detector.detect()
+
+        health_drifts = [
+            r
+            for r in results
+            if r.source == "health_endpoint"
+            and r.service_name == "forgotten-healthz"
+        ]
+        assert len(health_drifts) == 1
+
 
 class TestEventDriftDetector:
     """Tests for EventDriftDetector."""
@@ -265,6 +335,46 @@ class TestEventDriftDetector:
         # Our subjects follow conventions
         convention_drifts = [r for r in results if r.source == "subject_convention"]
         assert len(convention_drifts) == 0
+
+    @pytest.mark.asyncio
+    async def test_subject_convention_skips_trailing_dot_prefix_literals(
+        self, temp_project: Path
+    ):
+        """Prefix literals used for `.startswith()`/slicing must NOT be flagged.
+
+        Regression guard for the trailing-dot skip added in the
+        drift-detector false-positive fix. Real NATS subjects never end
+        with `.`, so a captured string like `"sahool.weather."` is
+        always a prefix constant (e.g. the `len("sahool.weather.")`
+        slice in `apps/services/weather-service/src/events/publish.py`)
+        and must not produce a `subject_convention` drift.
+
+        The same file also includes a genuinely malformed subject so
+        the test proves the skip is targeted, not a blanket disable.
+        """
+        events_dir = temp_project / "apps" / "services" / "weather-service" / "src" / "events"
+        events_dir.mkdir(parents=True)
+        (events_dir / "publish.py").write_text(
+            "# Prefix literal for `.startswith()` — must NOT be flagged.\n"
+            "_SAHOOL_WEATHER_PREFIX = \"sahool.weather.\"\n"
+            "\n"
+            "# Genuinely malformed subject (contains a hyphen, which isn't `\\w+`) —\n"
+            "# MUST still be flagged so the skip is narrow.\n"
+            "BAD_SUBJECT = \"sahool.bad-domain\"\n"
+        )
+
+        detector = EventDriftDetector(str(temp_project))
+        results = await detector.detect()
+
+        convention_drifts = [r for r in results if r.source == "subject_convention"]
+        actual_subjects = [r.actual for r in convention_drifts]
+
+        assert "sahool.weather." not in actual_subjects, (
+            "Trailing-dot prefix literal must be skipped (see publish.py)"
+        )
+        assert "sahool.bad-domain" in actual_subjects, (
+            "Genuinely malformed subject must still be flagged"
+        )
 
 
 class TestDataDriftDetector:

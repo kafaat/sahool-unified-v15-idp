@@ -64,9 +64,16 @@ def create_job(tenant_id: str, field_id: str, job_type: str, parameters: dict, p
     return job_id
 
 
-def get_job(job_id: str) -> dict | None:
-    """جلب مهمة"""
-    return _jobs.get(job_id)
+def get_job(job_id: str, tenant_id: str | None = None) -> dict | None:
+    """Fetch a job. When tenant_id is provided, returns None if the job
+    belongs to a different tenant (prevents cross-tenant id probing).
+    """
+    job = _jobs.get(job_id)
+    if job is None:
+        return None
+    if tenant_id is not None and job.get("tenant_id") != tenant_id:
+        return None
+    return job
 
 
 def update_job_status(
@@ -103,12 +110,16 @@ def update_job_status(
     return job
 
 
-def cancel_job(job_id: str) -> bool:
-    """إلغاء مهمة"""
+def cancel_job(job_id: str, tenant_id: str | None = None) -> bool:
+    """Cancel a job. When tenant_id is provided, callers from another tenant
+    cannot cancel jobs they do not own (returns False).
+    """
     if job_id not in _jobs:
         return False
 
     job = _jobs[job_id]
+    if tenant_id is not None and job.get("tenant_id") != tenant_id:
+        return False
     if job["status"] in [JobStatus.COMPLETED.value, JobStatus.FAILED.value]:
         return False
 
@@ -219,10 +230,12 @@ def process_ndvi_mock(
         files=files,
     )
 
-    # تخزين النتيجة – delegate to store (persists to DB + NATS when configured)
-    # The tenant_id is unknown at this synchronous call site; we store in-memory
-    # here. The async background task in main.py calls store.save_result() with
-    # the full tenant context after this function returns.
+    # In-memory persistence: this synchronous helper does NOT have the tenant_id
+    # (it's supplied by the async caller), so the record is stored without a
+    # tenant tag. The async caller in main.py also invokes store.save_result(),
+    # which re-inserts the record *with* the tenant tag for tenant-filtered reads.
+    # Readers using tenant_id= select the tagged entry; readers without a filter
+    # see both.
     result_data = result.model_dump()
     if field_id not in _results:
         _results[field_id] = []
@@ -231,12 +244,16 @@ def process_ndvi_mock(
     return result
 
 
-def get_field_ndvi(field_id: str, date: str = None) -> dict | None:
-    """جلب NDVI لحقل"""
+def get_field_ndvi(field_id: str, date: str = None, tenant_id: str | None = None) -> dict | None:
+    """Fetch NDVI for a field. When tenant_id is provided, only records
+    tagged with that tenant are returned (prevents cross-tenant reads).
+    """
     if field_id not in _results:
         return None
 
     results = _results[field_id]
+    if tenant_id is not None:
+        results = [r for r in results if r.get("tenant_id") == tenant_id]
     if not results:
         return None
 
@@ -246,17 +263,28 @@ def get_field_ndvi(field_id: str, date: str = None) -> dict | None:
                 return r
         return None
 
-    # أحدث نتيجة
+    # Latest result by date
     return sorted(results, key=lambda x: x["date"], reverse=True)[0]
 
 
-def get_ndvi_timeseries(field_id: str, start_date: str, end_date: str) -> list[TimeseriesPoint]:
-    """جلب السلسلة الزمنية"""
+def get_ndvi_timeseries(
+    field_id: str,
+    start_date: str,
+    end_date: str,
+    tenant_id: str | None = None,
+) -> list[TimeseriesPoint]:
+    """Fetch NDVI timeseries. When tenant_id is provided, only records
+    tagged with that tenant are considered; mock data is generated for
+    fields with no matching records (preserves existing behavior).
+    """
     if field_id not in _results:
-        # توليد بيانات محاكاة
         return _generate_mock_timeseries(field_id, start_date, end_date)
 
     results = _results[field_id]
+    if tenant_id is not None:
+        results = [r for r in results if r.get("tenant_id") == tenant_id]
+    if not results:
+        return _generate_mock_timeseries(field_id, start_date, end_date)
     filtered = [r for r in results if start_date <= r["date"] <= end_date]
 
     points = []
@@ -546,9 +574,16 @@ async def create_composite(
     return composite
 
 
-def get_composites(field_id: str, year: int = None) -> list[dict]:
-    """جلب المركبات"""
+def get_composites(
+    field_id: str,
+    year: int = None,
+    tenant_id: str | None = None,
+) -> list[dict]:
+    """Fetch composites for a field. When tenant_id is provided, only composites
+    tagged with that tenant are returned."""
     composites = [c for c in _composites.values() if c["field_id"] == field_id]
+    if tenant_id is not None:
+        composites = [c for c in composites if c.get("tenant_id") == tenant_id]
 
     if year:
         composites = [c for c in composites if c["year"] == year]

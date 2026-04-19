@@ -434,3 +434,161 @@ class TestLifespan:
         assert received["ensure_tables_pool"] is fake_pool
         assert received["configure_db_pool"] is fake_pool
         fake_pool.close.assert_awaited_once()
+
+
+# ---------------------------------------------------------------------------
+# Tenant Isolation Regression Tests
+# ---------------------------------------------------------------------------
+
+
+class TestTenantIsolation:
+    """Cross-tenant reads must not leak data once a tenant_id filter is supplied."""
+
+    TENANT_A = "11111111-1111-1111-1111-111111111111"
+    TENANT_B = "22222222-2222-2222-2222-222222222222"
+
+    def setup_method(self):
+        _clear_stores()
+
+    def _seed(self, field_id: str, tenant_id: str, date: str) -> None:
+        _results.setdefault(field_id, []).append(
+            {
+                "id": f"{tenant_id[:8]}-{date}",
+                "tenant_id": tenant_id,
+                "field_id": field_id,
+                "date": date,
+                "statistics": {"mean": 0.5, "min": 0.4, "max": 0.6, "std": 0.05},
+                "quality": {"cloud_cover_percent": 5.0, "valid_pixels_percent": 95.0},
+                "source": {"satellite": "sentinel-2", "resolution_meters": 10},
+                "files": {"geotiff": "s3://x.tif"},
+            }
+        )
+
+    def test_get_field_ndvi_filters_by_tenant(self):
+        self._seed("field-1", self.TENANT_A, "2025-01-15")
+        self._seed("field-1", self.TENANT_B, "2025-02-15")
+
+        result_a = get_field_ndvi("field-1", tenant_id=self.TENANT_A)
+        result_b = get_field_ndvi("field-1", tenant_id=self.TENANT_B)
+
+        assert result_a is not None and result_a["tenant_id"] == self.TENANT_A
+        assert result_b is not None and result_b["tenant_id"] == self.TENANT_B
+        assert result_a["date"] != result_b["date"]
+
+    def test_get_field_ndvi_returns_none_for_other_tenant(self):
+        self._seed("field-1", self.TENANT_A, "2025-01-15")
+
+        assert get_field_ndvi("field-1", tenant_id=self.TENANT_B) is None
+
+    def test_get_field_ndvi_no_filter_returns_all(self):
+        """Backwards compat: without tenant_id the reader sees everything (dev/test)."""
+        self._seed("field-1", self.TENANT_A, "2025-01-15")
+        self._seed("field-1", self.TENANT_B, "2025-02-15")
+
+        result = get_field_ndvi("field-1")
+        assert result is not None  # latest by date
+
+    def test_get_ndvi_timeseries_filters_by_tenant(self):
+        self._seed("field-1", self.TENANT_A, "2025-01-15")
+        self._seed("field-1", self.TENANT_B, "2025-01-20")
+
+        points_a = get_ndvi_timeseries("field-1", "2025-01-01", "2025-01-31", tenant_id=self.TENANT_A)
+
+        assert len(points_a) == 1
+        assert points_a[0].date == "2025-01-15"
+
+    def test_get_composites_filters_by_tenant(self):
+        _composites["c-a"] = {
+            "composite_id": "c-a",
+            "tenant_id": self.TENANT_A,
+            "field_id": "field-1",
+            "year": 2025,
+            "month": 1,
+        }
+        _composites["c-b"] = {
+            "composite_id": "c-b",
+            "tenant_id": self.TENANT_B,
+            "field_id": "field-1",
+            "year": 2025,
+            "month": 1,
+        }
+
+        only_a = get_composites("field-1", tenant_id=self.TENANT_A)
+        assert len(only_a) == 1
+        assert only_a[0]["composite_id"] == "c-a"
+
+    def test_get_job_refuses_cross_tenant_lookup(self):
+        job_id = create_job(
+            tenant_id=self.TENANT_A, field_id="f1", job_type="ndvi_calculation", parameters={}
+        )
+        assert get_job(job_id, tenant_id=self.TENANT_A) is not None
+        assert get_job(job_id, tenant_id=self.TENANT_B) is None
+        # Unscoped lookup still works (used by internal/background paths).
+        assert get_job(job_id) is not None
+
+    def test_cancel_job_refuses_cross_tenant(self):
+        job_id = create_job(
+            tenant_id=self.TENANT_A, field_id="f1", job_type="ndvi_calculation", parameters={}
+        )
+        assert cancel_job(job_id, tenant_id=self.TENANT_B) is False
+        # Ensure the job is still queued, not cancelled.
+        job = get_job(job_id)
+        assert job is not None and job["status"] == "queued"
+        # Correct tenant can cancel.
+        assert cancel_job(job_id, tenant_id=self.TENANT_A) is True
+
+
+# ---------------------------------------------------------------------------
+# Store tenant tagging regression
+# ---------------------------------------------------------------------------
+
+
+class TestStoreTenantTagging:
+    """store.save_result / save_composite must tag tenant_id on in-memory records."""
+
+    TENANT_A = "11111111-1111-1111-1111-111111111111"
+
+    def setup_method(self):
+        _clear_stores()
+
+    @pytest.mark.asyncio
+    async def test_save_result_tags_tenant_id(self):
+        from src.store import save_result
+
+        result_dict = {
+            "id": "r1",
+            "field_id": "field-1",
+            "date": "2025-01-15",
+            "statistics": {"mean": 0.5, "min": 0.4, "max": 0.6, "std": 0.05},
+            "quality": {"cloud_cover_percent": 5.0, "valid_pixels_percent": 95.0},
+            "source": {"satellite": "sentinel-2", "resolution_meters": 10},
+            "files": {"geotiff": "s3://x.tif"},
+        }
+
+        await save_result("field-1", self.TENANT_A, result_dict)
+        stored = _results["field-1"][0]
+        assert stored["tenant_id"] == self.TENANT_A
+        # Ensure original dict was not mutated.
+        assert "tenant_id" not in result_dict
+
+    @pytest.mark.asyncio
+    async def test_save_composite_tags_tenant_id(self):
+        from src.store import save_composite
+
+        composite_dict = {
+            "composite_id": "c1",
+            "field_id": "field-1",
+            "year": 2025,
+            "month": 1,
+            "method": "max_ndvi",
+            "source": "sentinel-2",
+            "statistics": {"mean": 0.5, "min": 0.4, "max": 0.6, "std": 0.05},
+            "images_used": 5,
+            "files": {"geotiff": "s3://x.tif"},
+            "created_at": "2025-01-01T00:00:00+00:00",
+        }
+
+        await save_composite("c1", self.TENANT_A, composite_dict)
+        assert _composites["c1"]["tenant_id"] == self.TENANT_A
+        # Original dict not mutated.
+        assert "tenant_id" not in composite_dict

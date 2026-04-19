@@ -72,10 +72,11 @@ async def save_result(field_id: str, tenant_id: str, result_dict: dict) -> None:
       2. Postgres table ``ndvi_result`` (when DB pool is set).
       3. NATS events (when NATS client is set).
     """
-    # 1. In-memory
+    # 1. In-memory — tag tenant_id so subsequent reads can filter by tenant
     if field_id not in _results:
         _results[field_id] = []
-    _results[field_id].append(result_dict)
+    tagged = {**result_dict, "tenant_id": tenant_id}
+    _results[field_id].append(tagged)
 
     # 2. Postgres
     if _cfg.db_pool is not None:
@@ -206,7 +207,8 @@ async def _publish_ndvi_events(field_id: str, tenant_id: str, result_dict: dict)
 
 async def save_composite(composite_id: str, tenant_id: str, composite_dict: dict) -> None:
     """Persist a monthly composite (in-memory + DB)."""
-    _composites[composite_id] = composite_dict
+    # Tag tenant_id so subsequent reads can filter by tenant
+    _composites[composite_id] = {**composite_dict, "tenant_id": tenant_id}
 
     if _cfg.db_pool is not None:
         try:
@@ -273,29 +275,31 @@ CREATE TABLE IF NOT EXISTS ndvi_result (
     quality               double precision NOT NULL DEFAULT 1.0,
     raw_payload           jsonb,
     created_at            timestamptz    NOT NULL DEFAULT now(),
-    UNIQUE (tenant_id, field_id, acquisition_date)
+    PRIMARY KEY (tenant_id, field_id, acquisition_date)
 );
 CREATE INDEX IF NOT EXISTS idx_ndvi_result_field_date
     ON ndvi_result (tenant_id, field_id, acquisition_date DESC);
+CREATE INDEX IF NOT EXISTS idx_ndvi_result_id
+    ON ndvi_result (id);
 
 CREATE TABLE IF NOT EXISTS ndvi_composite (
-    composite_id    text           NOT NULL,
-    tenant_id       uuid           NOT NULL,
-    field_id        text           NOT NULL,
-    year            int            NOT NULL,
-    month           int            NOT NULL,
-    composite_method text          NOT NULL,
-    satellite       text           NOT NULL,
-    ndvi_mean       double precision NOT NULL,
-    ndvi_min        double precision NOT NULL,
-    ndvi_max        double precision NOT NULL,
-    ndvi_std        double precision NOT NULL DEFAULT 0,
-    images_used     int            NOT NULL DEFAULT 0,
-    geotiff_url     text,
-    png_url         text,
-    thumbnail_url   text,
-    raw_payload     jsonb,
-    created_at      timestamptz    NOT NULL DEFAULT now(),
+    composite_id     text           NOT NULL PRIMARY KEY,
+    tenant_id        uuid           NOT NULL,
+    field_id         text           NOT NULL,
+    year             int            NOT NULL,
+    month            int            NOT NULL,
+    composite_method text           NOT NULL,
+    satellite        text           NOT NULL,
+    ndvi_mean        double precision NOT NULL,
+    ndvi_min         double precision NOT NULL,
+    ndvi_max         double precision NOT NULL,
+    ndvi_std         double precision NOT NULL DEFAULT 0,
+    images_used      int            NOT NULL DEFAULT 0,
+    geotiff_url      text,
+    png_url          text,
+    thumbnail_url    text,
+    raw_payload      jsonb,
+    created_at       timestamptz    NOT NULL DEFAULT now(),
     UNIQUE (tenant_id, field_id, year, month)
 );
 """

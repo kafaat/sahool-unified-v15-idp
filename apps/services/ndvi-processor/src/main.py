@@ -393,18 +393,28 @@ async def start_processing(
 
 
 @app.get("/process/{job_id}/status", response_model=JobResponse)
-async def get_job_status(job_id: str, user: User = Depends(get_current_user)):
+async def get_job_status(
+    job_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
+    user: User = Depends(get_current_user),
+):
     """حالة المعالجة"""
-    job = get_job(job_id)
+    _enforce_tenant(user, tenant_id)
+    job = get_job(job_id, tenant_id=tenant_id)
     if not job:
         raise HTTPException(status_code=404, detail="المهمة غير موجودة")
     return JobResponse(**job)
 
 
 @app.delete("/process/{job_id}")
-async def cancel_processing(job_id: str, user: User = Depends(get_current_user)):
+async def cancel_processing(
+    job_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
+    user: User = Depends(get_current_user),
+):
     """إلغاء معالجة"""
-    success = cancel_job(job_id)
+    _enforce_tenant(user, tenant_id)
+    success = cancel_job(job_id, tenant_id=tenant_id)
     if not success:
         raise HTTPException(status_code=400, detail="لا يمكن إلغاء المهمة")
     return {"status": "cancelled", "job_id": job_id}
@@ -418,6 +428,7 @@ async def list_processing_jobs(
     user: User = Depends(get_current_user),
 ):
     """قائمة المهام مع عزل إلزامي للمستأجر"""
+    _enforce_tenant(user, tenant_id)
     jobs = list_jobs(tenant_id=tenant_id, field_id=field_id, status=status)
     active = len([j for j in jobs if j["status"] in ["queued", "processing"]])
 
@@ -434,20 +445,22 @@ async def list_processing_jobs(
 @app.get("/fields/{field_id}/ndvi")
 async def get_ndvi(
     field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     date: str | None = Query(None),
     user: User = Depends(get_current_user),
 ):
     """الحصول على NDVI"""
-    result = get_field_ndvi(field_id, date)
+    _enforce_tenant(user, tenant_id)
+    result = get_field_ndvi(field_id, date, tenant_id=tenant_id)
 
     if not result:
-        # توليد نتيجة محاكاة
+        # Generate a mock result (keeps existing dev/test behavior)
         from .processing import process_ndvi_mock
 
         mock_result = process_ndvi_mock(
             field_id=field_id,
             source=SatelliteSource.SENTINEL_2,
-            date_range=(date or datetime.now().strftime("%Y-%m-%d"),) * 2,
+            date_range=(date or datetime.now(UTC).strftime("%Y-%m-%d"),) * 2,
         )
         return mock_result.model_dump()
 
@@ -455,18 +468,22 @@ async def get_ndvi(
 
 
 @app.get("/fields/{field_id}/ndvi/latest")
-async def get_latest_ndvi(field_id: str, user: User = Depends(get_current_user)):
+async def get_latest_ndvi(
+    field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
+    user: User = Depends(get_current_user),
+):
     """أحدث NDVI متاح"""
-    result = get_field_ndvi(field_id)
+    _enforce_tenant(user, tenant_id)
+    result = get_field_ndvi(field_id, tenant_id=tenant_id)
 
     if not result:
-        # توليد نتيجة محاكاة
         from .processing import process_ndvi_mock
 
         mock_result = process_ndvi_mock(
             field_id=field_id,
             source=SatelliteSource.SENTINEL_2,
-            date_range=(datetime.now().strftime("%Y-%m-%d"),) * 2,
+            date_range=(datetime.now(UTC).strftime("%Y-%m-%d"),) * 2,
         )
         return mock_result.model_dump()
 
@@ -476,12 +493,14 @@ async def get_latest_ndvi(field_id: str, user: User = Depends(get_current_user))
 @app.get("/fields/{field_id}/ndvi/timeseries", response_model=TimeseriesResponse)
 async def get_timeseries(
     field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     start: str = Query(..., description="YYYY-MM-DD"),
     end: str = Query(..., description="YYYY-MM-DD"),
     user: User = Depends(get_current_user),
 ):
     """السلسلة الزمنية"""
-    data = get_ndvi_timeseries(field_id, start, end)
+    _enforce_tenant(user, tenant_id)
+    data = get_ndvi_timeseries(field_id, start, end, tenant_id=tenant_id)
 
     sources = list({p.source for p in data})
 
@@ -501,12 +520,14 @@ async def get_timeseries(
 @app.get("/fields/{field_id}/ndvi/change", response_model=ChangeAnalysisResponse)
 async def get_change_analysis(
     field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     date1: str = Query(...),
     date2: str = Query(...),
     include_zones: bool = Query(True),
     user: User = Depends(get_current_user),
 ):
     """تحليل التغير"""
+    _enforce_tenant(user, tenant_id)
     result = analyze_change(field_id, date1, date2, include_zones)
     return ChangeAnalysisResponse(**result)
 
@@ -518,6 +539,7 @@ async def post_change_analysis(
     user: User = Depends(get_current_user),
 ):
     """تحليل التغير (POST)"""
+    _enforce_tenant(user, request.tenant_id)
     result = analyze_change(
         field_id,
         request.date1,
@@ -530,10 +552,12 @@ async def post_change_analysis(
 @app.get("/fields/{field_id}/ndvi/seasonal", response_model=SeasonalAnalysisResponse)
 async def get_seasonal_analysis(
     field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     year: int = Query(..., ge=2000, le=2100),
     user: User = Depends(get_current_user),
 ):
     """تحليل موسمي"""
+    _enforce_tenant(user, tenant_id)
     result = analyze_seasonal(field_id, year)
     return SeasonalAnalysisResponse(**result)
 
@@ -541,11 +565,13 @@ async def get_seasonal_analysis(
 @app.get("/fields/{field_id}/ndvi/anomaly", response_model=AnomalyResponse)
 async def get_anomaly_detection(
     field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     date: str = Query(...),
     current_ndvi: float | None = Query(None, ge=-1, le=1),
     user: User = Depends(get_current_user),
 ):
     """كشف الشذوذ"""
+    _enforce_tenant(user, tenant_id)
     result = detect_anomaly(field_id, date, current_ndvi)
     return AnomalyResponse(**result)
 
@@ -556,6 +582,7 @@ async def get_anomaly_detection(
 @app.get("/fields/{field_id}/ndvi/export")
 async def export_ndvi(
     field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     date: str | None = Query(None),
     start: str | None = Query(None),
     end: str | None = Query(None),
@@ -563,11 +590,12 @@ async def export_ndvi(
     user: User = Depends(get_current_user),
 ):
     """تصدير NDVI"""
+    _enforce_tenant(user, tenant_id)
     if format == ExportFormat.CSV:
         if not start or not end:
             raise HTTPException(status_code=400, detail="start و end مطلوبان لتصدير CSV")
 
-        data = get_ndvi_timeseries(field_id, start, end)
+        data = get_ndvi_timeseries(field_id, start, end, tenant_id=tenant_id)
         csv_content = "date,ndvi_mean,ndvi_min,ndvi_max,cloud_cover_percent,source\n"
         for p in data:
             csv_content += f"{p.date},{p.ndvi_mean},{p.ndvi_min},{p.ndvi_max},{p.cloud_cover_percent},{p.source}\n"
@@ -580,15 +608,15 @@ async def export_ndvi(
 
     elif format == ExportFormat.JSON:
         if start and end:
-            data = get_ndvi_timeseries(field_id, start, end)
+            data = get_ndvi_timeseries(field_id, start, end, tenant_id=tenant_id)
             return {"field_id": field_id, "timeseries": [p.model_dump() for p in data]}
         else:
-            result = get_field_ndvi(field_id, date)
+            result = get_field_ndvi(field_id, date, tenant_id=tenant_id)
             return result if result else {"error": "لا توجد بيانات"}
 
     else:
-        # GeoTIFF/PNG - إرجاع رابط التنزيل
-        result = get_field_ndvi(field_id, date)
+        # GeoTIFF/PNG - return download URL
+        result = get_field_ndvi(field_id, date, tenant_id=tenant_id)
         if not result:
             raise HTTPException(status_code=404, detail="لا توجد بيانات")
 
@@ -612,6 +640,7 @@ async def export_ndvi(
 @app.post("/composites/monthly", response_model=CompositeResponse, status_code=201)
 async def create_monthly_composite(request: CompositeRequest, user: User = Depends(get_current_user)):
     """إنشاء مركب شهري"""
+    _enforce_tenant(user, request.tenant_id)
     composite = await create_composite(
         tenant_id=request.tenant_id,
         field_id=request.field_id,
@@ -626,11 +655,13 @@ async def create_monthly_composite(request: CompositeRequest, user: User = Depen
 @app.get("/fields/{field_id}/composites", response_model=CompositeListResponse)
 async def list_composites(
     field_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     year: int | None = Query(None),
     user: User = Depends(get_current_user),
 ):
     """قائمة المركبات"""
-    composites = get_composites(field_id, year)
+    _enforce_tenant(user, tenant_id)
+    composites = get_composites(field_id, year, tenant_id=tenant_id)
     return CompositeListResponse(
         field_id=field_id,
         composites=[CompositeResponse(**c) for c in composites],
@@ -638,30 +669,40 @@ async def list_composites(
     )
 
 
-@app.get("/composites/{composite_id}")
-async def get_composite(composite_id: str, user: User = Depends(get_current_user)):
-    """جلب مركب"""
-    from .processing import _composites
+def _lookup_composite_for_tenant(composite_id: str, tenant_id: str) -> dict:
+    """Return the composite if it exists and belongs to tenant_id; raise 404 otherwise.
 
-    if composite_id not in _composites:
+    A single 404 on either mismatch prevents tenant-id probing via 403 vs 404 timing.
+    """
+    composite = ndvi_store._composites.get(composite_id)
+    if composite is None or composite.get("tenant_id") != tenant_id:
         raise HTTPException(status_code=404, detail="المركب غير موجود")
+    return composite
 
-    return CompositeResponse(**_composites[composite_id])
+
+@app.get("/composites/{composite_id}")
+async def get_composite(
+    composite_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
+    user: User = Depends(get_current_user),
+):
+    """جلب مركب"""
+    _enforce_tenant(user, tenant_id)
+    composite = _lookup_composite_for_tenant(composite_id, tenant_id)
+    return CompositeResponse(**composite)
 
 
 @app.get("/composites/{composite_id}/download")
 async def download_composite(
     composite_id: str,
+    tenant_id: str = Query(..., description="Tenant ID for isolation"),
     format: ExportFormat = Query(ExportFormat.GEOTIFF),
     user: User = Depends(get_current_user),
 ):
     """تنزيل مركب"""
-    from .processing import _composites
+    _enforce_tenant(user, tenant_id)
+    composite = _lookup_composite_for_tenant(composite_id, tenant_id)
 
-    if composite_id not in _composites:
-        raise HTTPException(status_code=404, detail="المركب غير موجود")
-
-    composite = _composites[composite_id]
     files = composite.get("files", {})
     url = files.get(format.value)
 

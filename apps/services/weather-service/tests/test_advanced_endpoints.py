@@ -793,8 +793,22 @@ class TestWeatherGraphRouting:
             path,
             params={"tid": TENANT_ID, "sig": "bad-sig-so-handler-400s"},
         )
-        # Route registered → handler returns 400/401/404 for bad signature
-        # (but NOT a Starlette 404 on missing route). We accept ANY non-404 response.
-        assert response.status_code != 404 or "not registered" not in (response.text or ""), (
-            f"Route {path} not registered"
-        )
+        # 404 alone isn't enough to detect a missing route — the registered
+        # handler itself returns 404 ("Graph not found") for unknown graph IDs.
+        # weather-service wraps every error in the SAHOOL envelope
+        # `{success:false, error:{code, message, ...}}`. The framework default
+        # for a missing route is exactly "Not Found"; a handler-raised 404
+        # carries a more specific message ("Graph not found", etc.). Verified
+        # empirically by hitting an unregistered path against the live test
+        # app — so checking that message catches "route not registered" while
+        # still allowing the handler's own 404 responses through.
+        if response.status_code == 404:
+            try:
+                body = response.json()
+                error_msg = (body.get("error") or {}).get("message") or body.get("detail")
+            except ValueError:
+                error_msg = None
+            assert error_msg != "Not Found", (
+                f"Route {path} not registered "
+                f"(framework-default 'Not Found' returned — handler never reached)"
+            )

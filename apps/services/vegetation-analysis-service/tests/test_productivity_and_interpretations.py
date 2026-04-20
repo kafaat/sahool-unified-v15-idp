@@ -58,9 +58,16 @@ def test_calculate_all_includes_fpar_and_fapar():
 
     calc = VegetationIndicesCalculator()
     bands = BandData(
-        B02_blue=0.05, B03_green=0.08, B04_red=0.07,
-        B05_red_edge1=0.15, B06_red_edge2=0.22, B07_red_edge3=0.28,
-        B08_nir=0.42, B8A_nir_narrow=0.40, B11_swir1=0.18, B12_swir2=0.12,
+        B02_blue=0.05,
+        B03_green=0.08,
+        B04_red=0.07,
+        B05_red_edge1=0.15,
+        B06_red_edge2=0.22,
+        B07_red_edge3=0.28,
+        B08_nir=0.42,
+        B8A_nir_narrow=0.40,
+        B11_swir1=0.18,
+        B12_swir2=0.12,
     )
     all_indices = calc.calculate_all(bands)
     assert all_indices.fpar is not None
@@ -102,40 +109,48 @@ _DEDICATED = [
 
 
 @pytest.mark.parametrize("index_name,value,expected_status", _DEDICATED)
-def test_dedicated_interpretations_return_expected_status(
-    index_name: str, value: float, expected_status: str
-):
+def test_dedicated_interpretations_return_expected_status(index_name: str, value: float, expected_status: str):
     """Each previously-generic index now returns a specific status
     from its dedicated interpretation method (not HealthStatus fallback)."""
     from vegetation_indices import CropType, GrowthStage, IndexInterpreter
 
     interp = IndexInterpreter()
-    result = interp.interpret_index(
-        index_name, value, CropType.WHEAT, GrowthStage.VEGETATIVE
-    )
+    result = interp.interpret_index(index_name, value, CropType.WHEAT, GrowthStage.VEGETATIVE)
     assert result.status.value == expected_status, (
         f"{index_name}={value} should be {expected_status}, got {result.status.value}"
     )
 
 
-@pytest.mark.parametrize("index_name,value", [
-    ("cvi", 7.0), ("mcari", 0.6), ("tcari", 0.5), ("sipi", 1.2),
-    ("pri", 0.02), ("cri", 3.0), ("ari", 1.0), ("psri", 0.05),
-    ("rep", 728.0), ("vari", 0.1), ("gli", 0.2), ("grvi", 0.1),
-    ("msavi", 0.4), ("osavi", 0.4), ("arvi", 0.4), ("soc", 2.0),
-    ("fpar", 0.7), ("fapar", 0.6),
-])
-def test_dedicated_interpretations_return_bilingual_descriptions(
-    index_name: str, value: float
-):
+@pytest.mark.parametrize(
+    "index_name,value",
+    [
+        ("cvi", 7.0),
+        ("mcari", 0.6),
+        ("tcari", 0.5),
+        ("sipi", 1.2),
+        ("pri", 0.02),
+        ("cri", 3.0),
+        ("ari", 1.0),
+        ("psri", 0.05),
+        ("rep", 728.0),
+        ("vari", 0.1),
+        ("gli", 0.2),
+        ("grvi", 0.1),
+        ("msavi", 0.4),
+        ("osavi", 0.4),
+        ("arvi", 0.4),
+        ("soc", 2.0),
+        ("fpar", 0.7),
+        ("fapar", 0.6),
+    ],
+)
+def test_dedicated_interpretations_return_bilingual_descriptions(index_name: str, value: float):
     """Every dedicated interpretation must populate BOTH description_ar
     and description_en — Arabic is required for farmer-facing output."""
     from vegetation_indices import CropType, GrowthStage, IndexInterpreter
 
     interp = IndexInterpreter()
-    result = interp.interpret_index(
-        index_name, value, CropType.WHEAT, GrowthStage.VEGETATIVE
-    )
+    result = interp.interpret_index(index_name, value, CropType.WHEAT, GrowthStage.VEGETATIVE)
     assert result.description_ar, f"{index_name}: missing Arabic description"
     assert result.description_en, f"{index_name}: missing English description"
     # Confidence must be explicit (not the 0.6 fallback used by generic)
@@ -169,10 +184,22 @@ def test_vegetation_index_enum_covers_industry_catalog():
 
     names = {v.value for v in VegetationIndex}
     must_have = {
-        "ndvi", "ndre", "ndwi", "ndmi", "evi", "savi", "msavi", "lai",
-        "gndvi", "nbr", "bsi", "ci_green", "ci_rededge",
+        "ndvi",
+        "ndre",
+        "ndwi",
+        "ndmi",
+        "evi",
+        "savi",
+        "msavi",
+        "lai",
+        "gndvi",
+        "nbr",
+        "bsi",
+        "ci_green",
+        "ci_rededge",
         # Newly added productivity proxies
-        "fpar", "fapar",
+        "fpar",
+        "fapar",
     }
     missing = must_have - names
     assert not missing, f"Industry-standard indices missing: {missing}"

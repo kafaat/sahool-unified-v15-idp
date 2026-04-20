@@ -58,9 +58,7 @@ def sample_dates_at_interval(
     loosen the cap or widen the step.
     """
     if step_days < MIN_STEP_DAYS or step_days > MAX_STEP_DAYS:
-        raise ValueError(
-            f"step_days must be in [{MIN_STEP_DAYS}, {MAX_STEP_DAYS}], got {step_days}"
-        )
+        raise ValueError(f"step_days must be in [{MIN_STEP_DAYS}, {MAX_STEP_DAYS}], got {step_days}")
 
     today = datetime.now(UTC).date()
     end_date = _parse_iso(end, default=today)
@@ -144,9 +142,7 @@ def bucket_into_composites(
     health-status classification — "median" is the EOSDA default.
     """
     if step_days < MIN_STEP_DAYS or step_days > MAX_STEP_DAYS:
-        raise ValueError(
-            f"step_days must be in [{MIN_STEP_DAYS}, {MAX_STEP_DAYS}], got {step_days}"
-        )
+        raise ValueError(f"step_days must be in [{MIN_STEP_DAYS}, {MAX_STEP_DAYS}], got {step_days}")
     if stat not in {"median", "mean"}:
         raise ValueError(f"stat must be 'median' or 'mean', got {stat!r}")
 

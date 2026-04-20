@@ -254,10 +254,7 @@ class AgroRulesWorker:
             stage_ar = payload.get("stage_ar")
             stage_en = payload.get("stage_en")
 
-            print(
-                f"🌱 Phenology stage: field={field_id}, stage={current_stage}, "
-                f"confidence={confidence:.2f}"
-            )
+            print(f"🌱 Phenology stage: field={field_id}, stage={current_stage}, confidence={confidence:.2f}")
 
             if not tenant_id or not field_id:
                 return

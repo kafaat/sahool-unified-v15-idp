@@ -2550,9 +2550,13 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.CRITICAL, "نقص حاد — فحص نيتروجين", "Critical — check nitrogen"
         return IndexInterpretation(
-            index_name="CVI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.80, threshold_info={"excellent": ">10", "good": "5-10", "fair": "2-5", "poor": "<2"},
+            index_name="CVI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.80,
+            threshold_info={"excellent": ">10", "good": "5-10", "fair": "2-5", "poor": "<2"},
         )
 
     def _interpret_mcari(self, value: float) -> IndexInterpretation:
@@ -2566,9 +2570,13 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.POOR, "امتصاص منخفض — إجهاد", "Low absorption — stress"
         return IndexInterpretation(
-            index_name="MCARI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.78, threshold_info={"excellent": ">1.0", "good": "0.5-1.0", "fair": "0.2-0.5"},
+            index_name="MCARI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.78,
+            threshold_info={"excellent": ">1.0", "good": "0.5-1.0", "fair": "0.2-0.5"},
         )
 
     def _interpret_tcari(self, value: float) -> IndexInterpretation:
@@ -2582,15 +2590,23 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.POOR, "نقص كلوروفيل حقيقي", "Genuine chlorophyll deficit"
         return IndexInterpretation(
-            index_name="TCARI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.82, threshold_info={"excellent": ">0.8", "good": "0.4-0.8"},
+            index_name="TCARI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.82,
+            threshold_info={"excellent": ">0.8", "good": "0.4-0.8"},
         )
 
     def _interpret_sipi(self, value: float) -> IndexInterpretation:
         """SIPI (Peñuelas 1995) — 0.8..1.8 typical; >1.8 indicates stress (reverse scale)."""
         if value > 1.8:
-            status, ar, en = HealthStatus.CRITICAL, "إجهاد شديد (نسبة أصباغ مرتفعة)", "Severe stress (high pigment ratio)"
+            status, ar, en = (
+                HealthStatus.CRITICAL,
+                "إجهاد شديد (نسبة أصباغ مرتفعة)",
+                "Severe stress (high pigment ratio)",
+            )
         elif value > 1.3:
             status, ar, en = HealthStatus.POOR, "إجهاد متزايد", "Increasing stress"
         elif value > 1.0:
@@ -2600,9 +2616,13 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.EXCELLENT, "ممتاز (أصباغ متوازنة)", "Excellent (balanced pigments)"
         return IndexInterpretation(
-            index_name="SIPI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.75, threshold_info={"healthy": "0.9-1.3", "stressed": ">1.3"},
+            index_name="SIPI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.75,
+            threshold_info={"healthy": "0.9-1.3", "stressed": ">1.3"},
         )
 
     def _interpret_pri(self, value: float) -> IndexInterpretation:
@@ -2616,9 +2636,13 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.POOR, "إجهاد ضوئي — احتمال نقص مياه", "Light stress — possible water deficit"
         return IndexInterpretation(
-            index_name="PRI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.80, threshold_info={"range": "-0.2..0.2", "healthy": ">0"},
+            index_name="PRI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.80,
+            threshold_info={"range": "-0.2..0.2", "healthy": ">0"},
         )
 
     def _interpret_cri(self, value: float) -> IndexInterpretation:
@@ -2632,15 +2656,23 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.EXCELLENT, "مستوى كاروتينويد منخفض (صحي)", "Low carotenoids (healthy)"
         return IndexInterpretation(
-            index_name="CRI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.70, threshold_info={"normal": "<5", "stress_response": ">5"},
+            index_name="CRI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.70,
+            threshold_info={"normal": "<5", "stress_response": ">5"},
         )
 
     def _interpret_ari(self, value: float) -> IndexInterpretation:
         """ARI (Gitelson 2001) — 0..5+, higher = more anthocyanin (abiotic stress)."""
         if value >= 3:
-            status, ar, en = HealthStatus.CRITICAL, "أنثوسيانين عالٍ — إجهاد بارد/ملوحة", "High anthocyanin — cold/salinity stress"
+            status, ar, en = (
+                HealthStatus.CRITICAL,
+                "أنثوسيانين عالٍ — إجهاد بارد/ملوحة",
+                "High anthocyanin — cold/salinity stress",
+            )
         elif value >= 1.5:
             status, ar, en = HealthStatus.POOR, "تراكم أنثوسيانين", "Anthocyanin accumulating"
         elif value >= 0.5:
@@ -2648,9 +2680,13 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.EXCELLENT, "لا إجهاد ملحوظ", "No measurable stress"
         return IndexInterpretation(
-            index_name="ARI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.72, threshold_info={"normal": "<1.5", "stress": ">1.5"},
+            index_name="ARI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.72,
+            threshold_info={"normal": "<1.5", "stress": ">1.5"},
         )
 
     def _interpret_psri(self, value: float) -> IndexInterpretation:
@@ -2664,15 +2700,23 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.EXCELLENT, "نمو نشط (مرحلة خضرية)", "Active growth (vegetative)"
         return IndexInterpretation(
-            index_name="PSRI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.75, threshold_info={"active": "<0.1", "senescing": ">0.1"},
+            index_name="PSRI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.75,
+            threshold_info={"active": "<0.1", "senescing": ">0.1"},
         )
 
     def _interpret_rep(self, value: float) -> IndexInterpretation:
         """REP - Red Edge Position (nm). Typical healthy range 720-735nm; shift down = stress."""
         if value >= 730:
-            status, ar, en = HealthStatus.EXCELLENT, "حافة حمراء صحية (كلوروفيل عالٍ)", "Healthy red edge (high chlorophyll)"
+            status, ar, en = (
+                HealthStatus.EXCELLENT,
+                "حافة حمراء صحية (كلوروفيل عالٍ)",
+                "Healthy red edge (high chlorophyll)",
+            )
         elif value >= 725:
             status, ar, en = HealthStatus.GOOD, "طبيعي", "Normal"
         elif value >= 720:
@@ -2680,11 +2724,19 @@ class IndexInterpreter:
         elif value >= 715:
             status, ar, en = HealthStatus.POOR, "انزياح للأزرق — إجهاد", "Blue shift — stress"
         else:
-            status, ar, en = HealthStatus.CRITICAL, "انزياح شديد — نقص كلوروفيل حاد", "Severe blue shift — acute chlorophyll loss"
+            status, ar, en = (
+                HealthStatus.CRITICAL,
+                "انزياح شديد — نقص كلوروفيل حاد",
+                "Severe blue shift — acute chlorophyll loss",
+            )
         return IndexInterpretation(
-            index_name="REP", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.78, threshold_info={"healthy": ">=725nm", "stressed": "<720nm"},
+            index_name="REP",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.78,
+            threshold_info={"healthy": ">=725nm", "stressed": "<720nm"},
         )
 
     # =========================================================================
@@ -2712,9 +2764,13 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.CRITICAL, "لا غطاء نباتي فعَّال", "No effective vegetation"
         return IndexInterpretation(
-            index_name="GRVI", value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.72, threshold_info={"vegetation": ">0", "bare": "<0"},
+            index_name="GRVI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.72,
+            threshold_info={"vegetation": ">0", "bare": "<0"},
         )
 
     def _interpret_visible_band_generic(
@@ -2730,8 +2786,11 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.POOR, "تربة مكشوفة/إجهاد", "Bare soil / stress"
         return IndexInterpretation(
-            index_name=name, value=value, status=status,
-            description_ar=ar, description_en=en,
+            index_name=name,
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
             confidence=0.70,
             threshold_info={"healthy": f">={healthy}", "good": f"{good}..{healthy}", "fair": f"{fair}..{good}"},
         )
@@ -2765,9 +2824,13 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.CRITICAL, "تربة مكشوفة", "Bare soil"
         return IndexInterpretation(
-            index_name=name, value=value, status=status,
-            description_ar=ar, description_en=en,
-            confidence=0.80, threshold_info={"excellent": ">=0.5", "good": "0.3-0.5", "fair": "0.15-0.3"},
+            index_name=name,
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.80,
+            threshold_info={"excellent": ">=0.5", "good": "0.3-0.5", "fair": "0.15-0.3"},
         )
 
     # =========================================================================
@@ -2787,8 +2850,11 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.CRITICAL, "تربة مُستنزفة — تسميد عاجل", "Depleted — urgent fertilisation"
         return IndexInterpretation(
-            index_name="SOC", value=value, status=status,
-            description_ar=ar, description_en=en,
+            index_name="SOC",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
             confidence=0.65,
             threshold_info={"rich": ">=2.5%", "good": "1.5-2.5%", "moderate": "1.0-1.5%", "poor": "<1.0%"},
         )
@@ -2801,7 +2867,11 @@ class IndexInterpreter:
         """FPAR/fAPAR — fraction of PAR absorbed by canopy. Scale 0..1."""
         name_upper = index_name.upper()
         if value >= 0.8:
-            status, ar, en = HealthStatus.EXCELLENT, "امتصاص ضوئي ذروي — إنتاجية مرتفعة", "Peak absorption — high productivity"
+            status, ar, en = (
+                HealthStatus.EXCELLENT,
+                "امتصاص ضوئي ذروي — إنتاجية مرتفعة",
+                "Peak absorption — high productivity",
+            )
         elif value >= 0.5:
             status, ar, en = HealthStatus.GOOD, "غطاء كثيف — إنتاجية جيدة", "Dense canopy — good productivity"
         elif value >= 0.2:
@@ -2811,8 +2881,11 @@ class IndexInterpreter:
         else:
             status, ar, en = HealthStatus.CRITICAL, "لا نشاط ضوئي فعَّال", "No effective photosynthesis"
         return IndexInterpretation(
-            index_name=name_upper, value=value, status=status,
-            description_ar=ar, description_en=en,
+            index_name=name_upper,
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
             confidence=0.82,
             threshold_info={"peak": ">=0.8", "good": "0.5-0.8", "developing": "0.2-0.5", "sparse": "<0.2"},
         )

@@ -84,10 +84,7 @@ def test_sample_dates_rejects_inverted_window():
 def _synthetic_points(values: list[float], *, start: str = "2026-01-01") -> list[dict]:
     """Emit one timeseries point per value at 1-day cadence."""
     base = date.fromisoformat(start)
-    return [
-        {"date": (base + timedelta(days=i)).isoformat(), "ndvi": v}
-        for i, v in enumerate(values)
-    ]
+    return [{"date": (base + timedelta(days=i)).isoformat(), "ndvi": v} for i, v in enumerate(values)]
 
 
 def test_bucket_groups_by_step_days():
@@ -253,9 +250,5 @@ def test_multi_date_compare_endpoint_registered():
 def test_multi_date_compare_has_request_model():
     """The body validator (`MultiDateCompareRequest`) must be present —
     without it the 12-date cap is only honoured at runtime."""
-    names = {
-        n.name
-        for n in ast.walk(_MAIN_AST)
-        if isinstance(n, ast.ClassDef) and n.name == "MultiDateCompareRequest"
-    }
+    names = {n.name for n in ast.walk(_MAIN_AST) if isinstance(n, ast.ClassDef) and n.name == "MultiDateCompareRequest"}
     assert "MultiDateCompareRequest" in names

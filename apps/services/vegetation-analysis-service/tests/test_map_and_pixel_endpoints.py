@@ -218,9 +218,9 @@ def test_pixel_endpoint_reuses_all_indices_pipeline():
 @pytest.mark.parametrize("index", ["ndvi", "ndre", "ndwi", "evi", "savi", "lai"])
 def test_every_mappable_index_is_renderable(index):
     """Each mappable index must:
-      * be in `_MAPPABLE_INDICES`
-      * also be in the `VegetationIndex` enum (so `get_specific_index`
-        stays consistent)
+    * be in `_MAPPABLE_INDICES`
+    * also be in the `VegetationIndex` enum (so `get_specific_index`
+      stays consistent)
     """
     from map_registry import MAPPABLE_INDICES as _MAPPABLE_INDICES
     from vegetation_indices import VegetationIndex

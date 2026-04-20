@@ -443,8 +443,7 @@ class TestSubscribersRegistered:
         await worker.start()
 
         subscribed_subjects = [
-            call.args[0] if call.args else call.kwargs.get("subject")
-            for call in fake_nc.subscribe.call_args_list
+            call.args[0] if call.args else call.kwargs.get("subject") for call in fake_nc.subscribe.call_args_list
         ]
 
         assert "sahool.satellite.ndvi.trend" in subscribed_subjects

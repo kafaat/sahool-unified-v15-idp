@@ -3120,8 +3120,7 @@ async def get_index_map(
         raise HTTPException(
             status_code=400,
             detail=(
-                f"Index '{index_name}' is not renderable on the map. "
-                f"Mappable indices: {sorted(_MAPPABLE_INDICES)}"
+                f"Index '{index_name}' is not renderable on the map. Mappable indices: {sorted(_MAPPABLE_INDICES)}"
             ),
         )
 
@@ -3133,10 +3132,7 @@ async def get_index_map(
         data_source = "sentinel_hub"
     else:
         # Deterministic placeholder — safe for dev, easy to distinguish in logs.
-        raster_url = (
-            f"/api/v1/satellite/v1/indices/{field_id}/{key}/tile/{{z}}/{{x}}/{{y}}"
-            f"?date={date_str}"
-        )
+        raster_url = f"/api/v1/satellite/v1/indices/{field_id}/{key}/tile/{{z}}/{{x}}/{{y}}?date={date_str}"
         data_source = "simulated"
 
     # Bounds are computed client-side from the field polygon; we return the
@@ -3219,6 +3215,8 @@ async def get_pixel_inspection(
 try:
     from .multi_date import (
         MAX_SAMPLES as _MD_MAX_SAMPLES,
+    )
+    from .multi_date import (
         bucket_into_composites,
         sample_dates_at_interval,
         status_for_ndvi,
@@ -3226,6 +3224,8 @@ try:
 except ImportError:
     from multi_date import (  # type: ignore[no-redef]
         MAX_SAMPLES as _MD_MAX_SAMPLES,
+    )
+    from multi_date import (
         bucket_into_composites,
         sample_dates_at_interval,
         status_for_ndvi,
@@ -3246,9 +3246,7 @@ class MultiDateCompareRequest(BaseModel):
     )
     start: str | None = Field(default=None, description="ISO start date")
     end: str | None = Field(default=None, description="ISO end date")
-    step_days: int | None = Field(
-        default=None, ge=1, le=90, description="Cadence in days (1-90)"
-    )
+    step_days: int | None = Field(default=None, ge=1, le=90, description="Cadence in days (1-90)")
 
     @field_validator("dates")
     @classmethod
@@ -3407,9 +3405,7 @@ async def get_index_filmstrip(
                 "date": sample,
                 "rasterUrl": raster_url,
                 "value": round(float(value), 4) if isinstance(value, (int, float)) else None,
-                "status": status_for_ndvi(
-                    float(value) if isinstance(value, (int, float)) else None
-                ),
+                "status": status_for_ndvi(float(value) if isinstance(value, (int, float)) else None),
                 "cloudCover": point.get("cloud_cover"),
             }
         )
@@ -3461,9 +3457,7 @@ async def multi_date_compare(
         target_dates = sorted({d[:10] for d in request.dates})
     elif request.start and request.end and request.step_days:
         try:
-            target_dates = sample_dates_at_interval(
-                request.start, request.end, request.step_days, max_samples=12
-            )
+            target_dates = sample_dates_at_interval(request.start, request.end, request.step_days, max_samples=12)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e)) from e
     else:
@@ -3482,9 +3476,7 @@ async def multi_date_compare(
         raise HTTPException(status_code=400, detail="Invalid ISO date in `dates`")
     days = min(max((today - oldest).days + 7, 14), 365)
     ts = await _get_timeseries_data(field_id, days, SatelliteSource.SENTINEL2, tenant_id=tenant_id)
-    by_date: dict[str, dict] = {
-        str(p.get("date", ""))[:10]: p for p in ts.get("timeseries", [])
-    }
+    by_date: dict[str, dict] = {str(p.get("date", ""))[:10]: p for p in ts.get("timeseries", [])}
 
     rows: list[dict[str, Any]] = []
     previous_value: float | None = None
@@ -3515,9 +3507,7 @@ async def multi_date_compare(
         "count_with_data": len(present_values),
         "min": round(min(present_values), 4) if present_values else None,
         "max": round(max(present_values), 4) if present_values else None,
-        "overall_delta": round(present_values[-1] - present_values[0], 4)
-        if len(present_values) >= 2
-        else None,
+        "overall_delta": round(present_values[-1] - present_values[0], 4) if len(present_values) >= 2 else None,
     }
 
     return {

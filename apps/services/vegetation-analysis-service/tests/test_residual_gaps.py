@@ -107,9 +107,7 @@ async def test_verify_field_owned_by_tenant_forwards_bearer(monkeypatch):
     mock_req = MagicMock()
     mock_req.headers = {"Authorization": "Bearer jwt-abc"}
 
-    tenant_id = await verify_field_owned_by_tenant(
-        user=user, field_id="field_1", http_request=mock_req
-    )
+    tenant_id = await verify_field_owned_by_tenant(user=user, field_id="field_1", http_request=mock_req)
     assert tenant_id == "t1"
     assert captured["bearer_token"] == "jwt-abc"
 

@@ -14,7 +14,6 @@ from __future__ import annotations
 import os
 from typing import Any
 
-
 # Indices whose raster tiles the MapLibre web layer has a colour ramp +
 # bilingual legend copy for. Backend accepts more indices over the value
 # API, but only these are advertised as map layers. Keep in sync with

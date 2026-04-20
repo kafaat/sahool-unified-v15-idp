@@ -430,8 +430,13 @@ class TestPortConflicts:
                 parts = p_str.split(":")
                 if len(parts) < 2:
                     continue
-                host_str = parts[0].strip()
-                m = re.search(r":-?(\d+)", host_str)
+                # Format: "host:container" or "ip:host:container"
+                if len(parts) == 3:
+                    host_str = parts[1].strip()
+                else:
+                    host_str = parts[0].strip()
+                # Handle ${VAR:-default} syntax
+                m = re.search(r":-(\d+)", host_str)
                 if m:
                     host_port = int(m.group(1))
                 elif host_str.isdigit():
@@ -601,7 +606,9 @@ class TestSummaryStatistics:
         )
 
     def test_total_service_count(self, services: dict) -> None:
-        """Total compose services should be ≥ 85 (guard against mass deletion)."""
-        assert len(services) >= 85, (
-            f"Only {len(services)} services in compose — expected at least 85"
+        """Total compose services should be ≥ 90% of registry (guard against mass deletion)."""
+        threshold = int(len(ALL_COMPOSE_SERVICES) * 0.90)
+        assert len(services) >= threshold, (
+            f"Only {len(services)} services in compose — "
+            f"expected at least {threshold} (90% of {len(ALL_COMPOSE_SERVICES)} registered)"
         )

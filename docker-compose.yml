@@ -1403,6 +1403,13 @@ asyncio.run(main())
       - REDIS_URL=redis://:${REDIS_PASSWORD:?REDIS_PASSWORD is required}@redis:6379/0
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - JWT_SECRET_KEY=${JWT_SECRET_KEY:?JWT_SECRET_KEY is required}
+      # One-shot cleanup: drop _prisma_migrations rows whose migration_name
+      # is no longer present on disk (happens when migrations are renamed
+      # across versions and the postgres volume survives). Safe because it
+      # touches only the migration-tracking table, not user data. Defaults
+      # to false; override to "true" locally once after a migration rename,
+      # then flip back.
+      - PRISMA_PRUNE_ORPHAN_MIGRATIONS=${PRISMA_PRUNE_ORPHAN_MIGRATIONS:-true}
     ports:
       - "127.0.0.1:3000:3000"
     depends_on:

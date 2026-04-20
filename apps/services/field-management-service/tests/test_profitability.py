@@ -1,5 +1,12 @@
 """
-Tests for Crop Profitability Analyzer
+Tests for Crop Profitability Analyzer.
+
+STATUS: covers ``legacy/profitability_analyzer.py`` — the Python module
+that was superseded by the NestJS service in ``src/``. Kept for
+historical reference; skipped at module level so behavioural drift
+against retired code doesn't produce CI noise.
+
+To run: ``RUN_LEGACY_TESTS=1 pytest ...``.
 """
 
 import os
@@ -7,8 +14,14 @@ import sys
 
 import pytest
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+if os.environ.get("RUN_LEGACY_TESTS") != "1":
+    pytest.skip(
+        "legacy Python implementation — superseded by NestJS in src/. "
+        "Set RUN_LEGACY_TESTS=1 to run.",
+        allow_module_level=True,
+    )
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "legacy"))
 
 from profitability_analyzer import (
     CropProfitability,

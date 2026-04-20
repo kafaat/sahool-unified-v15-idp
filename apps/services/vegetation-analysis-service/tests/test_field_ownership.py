@@ -110,6 +110,37 @@ class _MockTransport(httpx.AsyncBaseTransport):
 
 
 @pytest.mark.asyncio
+async def test_field_id_is_url_encoded_in_request(monkeypatch):
+    """Security pin: characters like '/', '?', '%' in field_id must be
+    URL-encoded so they can't change the outgoing request path. Without
+    encoding, field_id='../admin' would traverse the URL path."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+    monkeypatch.setattr("field_ownership._cache_set", _async_noop())
+
+    response = httpx.Response(
+        200,
+        json={"success": True, "data": {"id": "f1", "tenantId": "t1"}},
+    )
+    transport = _MockTransport(response)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        await verify_field_ownership(
+            tenant_id="t1",
+            field_id="../admin",
+            http_client=client,
+        )
+
+    req = transport.calls[0]
+    # The slash must be percent-encoded (%2F) so it stays a single path
+    # segment and can't traverse the URL path.
+    assert "/api/v1/fields/..%2Fadmin" in str(req.url), (
+        f"field_id='../admin' was not URL-encoded. URL was: {req.url}"
+    )
+
+
+@pytest.mark.asyncio
 async def test_http_200_matching_tenant_passes(monkeypatch):
     """Happy path: field service returns 200 with matching tenantId →
     verifier returns silently + caches the ownership for 5 min."""
@@ -250,9 +281,38 @@ def test_all_field_id_handlers_use_verifier():
         src = f.read()
     tree = ast.parse(src)
 
+    _ROUTE_METHODS = {"get", "post", "put", "delete", "patch", "options", "head", "trace", "api_route"}
+
+    def _route_path_from_decorator(decorator):
+        """Extract the route path from a FastAPI decorator, or None if
+        this isn't a recognised route decorator."""
+        if not isinstance(decorator, ast.Call):
+            return None
+        if not isinstance(decorator.func, ast.Attribute):
+            return None
+        if decorator.func.attr not in _ROUTE_METHODS:
+            return None
+        if not decorator.args:
+            return None
+        path_arg = decorator.args[0]
+        if isinstance(path_arg, ast.Constant) and isinstance(path_arg.value, str):
+            return path_arg.value
+        return None
+
+    def _has_field_id_route_decorator(node):
+        """True only when at least one of the node's decorators is a
+        FastAPI route whose path contains ``{field_id}`` — stops the
+        pin from flagging internal helpers that happen to take a
+        ``field_id`` argument."""
+        for decorator in node.decorator_list:
+            route_path = _route_path_from_decorator(decorator)
+            if route_path and "{field_id}" in route_path:
+                return True
+        return False
+
     # Handlers that MUST use the verifier: any `async def` decorated
-    # with a route that contains `{field_id}` AND takes `field_id`
-    # in its signature.
+    # with a FastAPI route whose path contains `{field_id}` AND takes
+    # `field_id` in its signature.
     migrated = 0
     for node in ast.walk(tree):
         if not isinstance(node, ast.AsyncFunctionDef):
@@ -262,6 +322,10 @@ def test_all_field_id_handlers_use_verifier():
         # The helper itself is expected to call _require_tenant_id
         # (it composes tenant extraction + ownership verification).
         if node.name == "_verify_field_owned_by_tenant":
+            continue
+        # Exclude non-route helpers that happen to take field_id (e.g.
+        # `_fetch_real_timeseries_via_multi_provider`).
+        if not _has_field_id_route_decorator(node):
             continue
         body_src = ast.get_source_segment(src, node) or ""
         if "_require_tenant_id(user)" in body_src:

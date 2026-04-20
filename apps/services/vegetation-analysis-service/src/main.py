@@ -93,9 +93,14 @@ async def _verify_field_owned_by_tenant(user: "User | None", field_id: str) -> s
     would return — call sites can swap the helper in-place.
     """
     tenant_id = _require_tenant_id(user)
+    # Narrow-match ModuleNotFoundError on the specific submodule name so
+    # real import errors inside field_ownership (e.g. missing httpx)
+    # surface to the caller instead of being masked as "module missing".
     try:
         from .field_ownership import verify_field_ownership
-    except ImportError:
+    except ModuleNotFoundError as exc:
+        if exc.name not in {"field_ownership", __package__ + ".field_ownership" if __package__ else "field_ownership"}:
+            raise
         from field_ownership import verify_field_ownership  # standalone test path
     await verify_field_ownership(tenant_id, field_id)
     return tenant_id
@@ -1614,6 +1619,7 @@ async def get_timeseries(
     user: User = Depends(get_current_user),
 ):
     """الحصول على سلسلة زمنية للمؤشرات النباتية"""
+    _validate_field_id(field_id)
     await _verify_field_owned_by_tenant(user, field_id)
 
     return await _get_timeseries_data(field_id, days, satellite)
@@ -1645,8 +1651,8 @@ async def analyze_ndvi_timeseries(
     - Seasonal metrics (المقاييس الموسمية)
     - 7-day forecast (تنبؤ 7 أيام)
     """
-    await _verify_field_owned_by_tenant(user, field_id)
     _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id)
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
 
@@ -1774,8 +1780,8 @@ async def compare_ndvi_periods(
     - Before/after events (قبل/بعد الأحداث)
     - Seasonal comparisons (مقارنات موسمية)
     """
-    await _verify_field_owned_by_tenant(user, field_id)
     _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
@@ -2055,6 +2061,7 @@ async def analyze_phenology_with_action(
     2. Creates stage-specific ActionTemplate for mobile app
     3. Publishes event via NATS if enabled
     """
+    _validate_field_id(field_id)
     await _verify_field_owned_by_tenant(user, field_id)
     if request.field_id != field_id:
         raise HTTPException(
@@ -2351,8 +2358,8 @@ async def get_irrigation_events(
     - Water use monitoring
     - Rainfall vs irrigation discrimination
     """
-    await _verify_field_owned_by_tenant(user, field_id)
     _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")

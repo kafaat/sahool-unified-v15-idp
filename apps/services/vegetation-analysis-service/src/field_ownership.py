@@ -80,32 +80,44 @@ def _cache_key(tenant_id: str, field_id: str) -> str:
     return f"satellite:t:{tenant}:field_ownership:{field_id}"
 
 
+def _resolve_cache_fn(name: str):
+    """Import cache_get / cache_set defensively so a genuine error inside
+    ``cache.py`` (e.g. missing dependency) surfaces instead of being
+    swallowed as "module missing" — only the relative-vs-absolute path
+    choice is tolerated."""
+    try:
+        from .cache import cache_get, cache_set  # type: ignore
+        return {"cache_get": cache_get, "cache_set": cache_set}[name]
+    except ModuleNotFoundError as exc:
+        if exc.name not in {"cache", (__package__ + ".cache") if __package__ else "cache"}:
+            raise
+    try:
+        from cache import cache_get, cache_set  # type: ignore
+        return {"cache_get": cache_get, "cache_set": cache_set}[name]
+    except ModuleNotFoundError as exc:
+        if exc.name != "cache":
+            raise
+        return None
+
+
 async def _cache_get(key: str) -> dict[str, Any] | None:
     """Best-effort Redis GET. Returns None on any failure."""
+    fn = _resolve_cache_fn("cache_get")
+    if fn is None:
+        return None
     try:
-        from .cache import cache_get  # lazy to keep tests importable
-    except ImportError:
-        try:
-            from cache import cache_get
-        except ImportError:
-            return None
-    try:
-        return await cache_get(key)
+        return await fn(key)
     except Exception:
         return None
 
 
 async def _cache_set(key: str, value: dict[str, Any], ttl: int) -> None:
     """Best-effort Redis SETEX. Silent on failure."""
+    fn = _resolve_cache_fn("cache_set")
+    if fn is None:
+        return
     try:
-        from .cache import cache_set  # lazy
-    except ImportError:
-        try:
-            from cache import cache_set
-        except ImportError:
-            return
-    try:
-        await cache_set(key, value, ttl)
+        await fn(key, value, ttl)
     except Exception:
         pass
 
@@ -156,7 +168,13 @@ async def verify_field_ownership(
 
     if not tenant_id or not field_id:
         # Called before _require_tenant_id — programmer error.
-        raise HTTPException(status_code=500, detail="field-ownership check invoked without context")
+        raise HTTPException(
+            status_code=500,
+            detail=(
+                "Field-ownership check invoked without context | "
+                "تم استدعاء فحص ملكية الحقل بدون سياق"
+            ),
+        )
 
     # 1. Cache lookup
     cache_key = _cache_key(tenant_id, field_id)
@@ -172,7 +190,13 @@ async def verify_field_ownership(
         )
 
     # 2. Live HTTP call to field-management-service
-    url = f"{service_url.rstrip('/')}/api/v1/fields/{field_id}"
+    # URL-encode the field_id path segment so characters like '/', '?', '%'
+    # can't change request semantics or escape the intended endpoint
+    # (e.g., a field_id of "../../admin" would otherwise traverse paths).
+    from urllib.parse import quote as _url_quote
+
+    safe_field_id = _url_quote(field_id, safe="")
+    url = f"{service_url.rstrip('/')}/api/v1/fields/{safe_field_id}"
     headers: dict[str, str] = {"X-Tenant-Id": tenant_id}
     if bearer_token:
         headers["Authorization"] = f"Bearer {bearer_token}"
@@ -224,7 +248,13 @@ async def verify_field_ownership(
         except (ValueError, json.JSONDecodeError):
             # Shouldn't happen from a NestJS service returning JSON, but guard anyway
             if _strict_mode():
-                raise HTTPException(status_code=503, detail="field service returned invalid JSON")
+                raise HTTPException(
+                    status_code=503,
+                    detail=(
+                        "Field service returned invalid JSON | "
+                        "خدمة الحقول أعادت JSON غير صالح"
+                    ),
+                )
             return
 
         data = payload.get("data", payload)  # field-management wraps in {success, data, etag}
@@ -232,7 +262,13 @@ async def verify_field_ownership(
         if not remote_tenant:
             # Missing tenantId in response — can't verify.
             if _strict_mode():
-                raise HTTPException(status_code=503, detail="field response missing tenantId")
+                raise HTTPException(
+                    status_code=503,
+                    detail=(
+                        "Field response missing tenantId | "
+                        "استجابة الحقل بدون معرف المستأجر"
+                    ),
+                )
             return
 
         if remote_tenant != tenant_id:

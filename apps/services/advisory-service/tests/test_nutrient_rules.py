@@ -121,28 +121,32 @@ class TestAssessFromNDVI:
         assert n_results[0].confidence == 0.7
 
     def test_moderate_ndvi_multiple_deficiencies(self):
-        """NDVI 0.3-0.5 should return both nitrogen and potassium."""
-        results = assess_from_ndvi(ndvi=0.4)
+        """NDVI 0.2-0.4 ("moderate" per vegetation) should return both
+        nitrogen and potassium. Cutoffs aligned with
+        vegetation-analysis-service status_for_ndvi in PR #1704."""
+        results = assess_from_ndvi(ndvi=0.3)
         ids = [r.deficiency_id for r in results]
         assert "nitrogen_deficiency" in ids
         assert "potassium_deficiency" in ids
 
     def test_moderate_ndvi_nitrogen_confidence(self):
-        """NDVI 0.3-0.5 nitrogen confidence should be 0.5."""
-        results = assess_from_ndvi(ndvi=0.45)
+        """NDVI 0.2-0.4 nitrogen confidence should be 0.5."""
+        results = assess_from_ndvi(ndvi=0.3)
         n_results = [r for r in results if r.deficiency_id == "nitrogen_deficiency"]
         assert n_results[0].confidence == 0.5
 
     def test_moderate_ndvi_potassium_confidence(self):
-        """NDVI 0.3-0.5 potassium confidence should be 0.3."""
-        results = assess_from_ndvi(ndvi=0.45)
+        """NDVI 0.2-0.4 potassium confidence should be 0.3."""
+        results = assess_from_ndvi(ndvi=0.3)
         k_results = [r for r in results if r.deficiency_id == "potassium_deficiency"]
         assert k_results[0].confidence == 0.3
 
     def test_healthy_ndvi_returns_empty(self):
-        """NDVI >= 0.5 without declining history returns empty."""
-        results = assess_from_ndvi(ndvi=0.7)
-        assert results == []
+        """NDVI >= 0.4 ("good"/"excellent" per vegetation) without
+        declining history returns empty — advisory must not emit a
+        deficiency on a field with a healthy status badge."""
+        assert assess_from_ndvi(ndvi=0.5) == []
+        assert assess_from_ndvi(ndvi=0.7) == []
 
     def test_declining_ndvi_trend_adds_phosphorus(self):
         """Declining NDVI trend (>0.1 drop) should add phosphorus deficiency."""

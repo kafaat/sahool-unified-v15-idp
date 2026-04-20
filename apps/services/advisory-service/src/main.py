@@ -1307,8 +1307,25 @@ async def comprehensive_advisory(
     The endpoint is tenant-scoped: the caller's JWT provides the
     tenant id, which is propagated to every downstream call via
     the X-Tenant-Id header so cross-tenant access is impossible.
+
+    Ownership gate (defense-in-depth, added post-audit round 1):
+    before fanning out to 8 downstream services we confirm the caller
+    actually owns ``field_id`` by asking field-management-service.
+    Downstream services enforce their own gates too, but rejecting
+    an unauthorised field here cuts 8 parallel calls down to zero
+    and avoids leaking service topology to a probing attacker.
     """
     tenant_id = user.tenant_id or "default"
+    # Ownership verification — mirrors vegetation-analysis-service's
+    # pattern (see PR #1704). The helper talks to field-management-
+    # service and forwards the Bearer JWT from the inbound request.
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    await verify_field_owned_by_tenant(
+        tenant_id=tenant_id,
+        field_id=field_id,
+        http_request=request,
+    )
 
     # Lazy-init the orchestrator once per process (not per request)
     # — ServiceUrls resolves env vars which don't change at runtime.
@@ -1401,8 +1418,25 @@ async def verify_crop_loan(
     Tenant-scoped: the caller's JWT drives the tenant id, which is
     propagated to every downstream call via ``X-Tenant-Id`` so cross-
     tenant access is impossible.
+
+    Ownership gate (defense-in-depth, added post-audit round 1):
+    same rationale as comprehensive_advisory — verify the caller
+    owns this field before the engine starts fetching field data,
+    NDVI history, and risk signals in parallel. High-stakes endpoint
+    (loans) gets explicit per-request verification instead of relying
+    solely on each downstream's own tenant gate.
     """
     tenant_id = user.tenant_id or "default"
+    # Ownership verification — see comprehensive_advisory for the
+    # rationale. Fail closed before touching vegetation / FMS / crop-
+    # intelligence in parallel.
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    await verify_field_owned_by_tenant(
+        tenant_id=tenant_id,
+        field_id=field_id,
+        http_request=request,
+    )
 
     if not hasattr(app.state, "loan_verification_engine"):
         app.state.loan_verification_engine = CropLoanVerificationEngine(

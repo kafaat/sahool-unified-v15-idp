@@ -374,8 +374,7 @@ async def fetch_real_bands(
         # loaders include credential snippets in error messages. Log
         # only the exception type so a leaked log doesn't expose secrets.
         logger.warning(
-            "Sentinel Hub config invalid (exception_type=%s) — "
-            "falling back to simulated bands",
+            "Sentinel Hub config invalid (exception_type=%s) — falling back to simulated bands",
             type(e).__name__,
         )
         return None

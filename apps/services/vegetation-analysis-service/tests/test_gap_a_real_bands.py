@@ -200,8 +200,8 @@ async def test_imagery_endpoint_gates_real_path_on_sentinel2(monkeypatch):
     Sentinel-2-specific (10 S2 bands, L2A). Returning those reflectances
     for a Landsat/MODIS request would be a contract violation —
     non-S2 requests must fall through to the simulated generator."""
-    from fastapi import Response
     import src.main as main_mod
+    from fastapi import Response
     from src.main import ImageryRequest, SatelliteSource, request_imagery
 
     monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", True)
@@ -226,9 +226,7 @@ async def test_imagery_endpoint_gates_real_path_on_sentinel2(monkeypatch):
 
     result = await request_imagery(req, response, user=mock_user)
 
-    assert len(fetch_calls) == 0, (
-        "fetch_real_bands must NOT be called for non-Sentinel-2 satellites"
-    )
+    assert len(fetch_calls) == 0, "fetch_real_bands must NOT be called for non-Sentinel-2 satellites"
     assert response.headers["X-Data-Source"] == "simulated"
     assert result.satellite == SatelliteSource.LANDSAT8
 
@@ -238,8 +236,8 @@ async def test_imagery_endpoint_uses_payload_acquisition_date(monkeypatch):
     """Per Copilot review: when Sentinel Hub returns a real scene, the
     response's acquisition_date must reflect the payload's timestamp —
     not ``datetime.now(UTC)`` — so clients can trace the actual scene."""
-    from fastapi import Response
     import src.main as main_mod
+    from fastapi import Response
     from src.main import ImageryRequest, SatelliteSource, request_imagery
 
     monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", True)

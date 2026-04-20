@@ -288,13 +288,17 @@ class TestPythonBuildSpecifics:
 
     @pytest.mark.parametrize("svc_name", sorted(PYTHON_SERVICES))
     def test_pip_cache_disabled(self, svc_name: str) -> None:
-        """Python service disables pip cache via ENV or --no-cache-dir flag."""
+        """Python service disables pip cache via ENV, --no-cache-dir flag, or
+        the shared ``docker/pip-install.sh`` wrapper (which internally passes
+        --no-cache-dir to every pip invocation).
+        """
         content = _read_dockerfile(svc_name)
         has_env = bool(re.search(r"PIP_NO_CACHE_DIR", content))
         has_flag = bool(re.search(r"pip\s+install.*--no-cache-dir", content, re.DOTALL))
-        assert has_env or has_flag, (
+        has_wrapper = "pip-install.sh" in content
+        assert has_env or has_flag or has_wrapper, (
             f"{svc_name} does not disable pip cache "
-            f"(missing PIP_NO_CACHE_DIR env or --no-cache-dir flag)"
+            f"(missing PIP_NO_CACHE_DIR env, --no-cache-dir flag, or pip-install.sh wrapper)"
         )
 
     @pytest.mark.parametrize("svc_name", sorted(PYTHON_SERVICES))

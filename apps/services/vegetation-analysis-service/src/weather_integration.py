@@ -22,9 +22,13 @@ import httpx
 logger = logging.getLogger(__name__)
 
 # Import crop catalog for Kc values
+import os
 import sys
 
-sys.path.insert(0, "/home/user/sahool-unified-v15-idp")
+# Dynamic path resolution — walks up from src/ to repo root
+_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+if _project_root not in sys.path:
+    sys.path.insert(0, _project_root)
 try:
     from apps.services.shared.crops import get_crop
 except ImportError:

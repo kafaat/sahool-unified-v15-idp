@@ -500,9 +500,7 @@ class VRAGenerator:
                     provider_name = getattr(result, "provider", "") or ""
             except Exception as e:
                 # stdlib logger: f-string, not kwargs.
-                logger.warning(
-                    f"vra_real_ndvi_fetch_failed field_id={field_id} error={e}"
-                )
+                logger.warning(f"vra_real_ndvi_fetch_failed field_id={field_id} error={e}")
 
         if not real_ndvi:
             # Either no multi_provider, or it returned simulated data.
@@ -513,8 +511,7 @@ class VRAGenerator:
                 extra={
                     "field_id": field_id,
                     "reason": (
-                        "classify_zones produced synthetic zones — no real "
-                        "NDVI raster available from any provider"
+                        "classify_zones produced synthetic zones — no real NDVI raster available from any provider"
                     ),
                     "provider_seen": provider_name or "none",
                 },

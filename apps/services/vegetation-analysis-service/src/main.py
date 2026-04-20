@@ -1831,9 +1831,7 @@ async def get_timeseries(
     _validate_field_id(field_id)
     tenant_id = _require_tenant_id(user)
 
-    return await _get_timeseries_data(
-        field_id, days, satellite, tenant_id=tenant_id, lat=lat, lon=lon
-    )
+    return await _get_timeseries_data(field_id, days, satellite, tenant_id=tenant_id, lat=lat, lon=lon)
 
 
 # =============================================================================

@@ -102,8 +102,12 @@ _ts_routes_cache: dict[str, list[tuple[str, str]]] = {}
 # ---------------------------------------------------------------------------
 
 
-def _read_python_source(svc: str, max_files: int = 50) -> str:
-    """Read and cache all Python source files for a service."""
+def _read_python_source(svc: str, max_files: int = 80) -> str:
+    """Read and cache all Python source files for a service.
+
+    max_files is set to 80 (same as Node.js) to ensure consistent analysis
+    depth across both language ecosystems.
+    """
     if svc not in _source_cache:
         src_dir = SERVICES_DIR / svc / "src"
         if not src_dir.exists():
@@ -205,7 +209,12 @@ class TestHealthEndpoints:
         src = _read_python_source(svc)
         if not src:
             pytest.skip(f"{svc} has no source")
-        has_healthz = bool(re.search(r'["\'/]healthz["\']', src))
+        # Match route decorators or path strings defining /healthz
+        has_healthz = bool(re.search(
+            r'@(?:app|router)\.\w+\s*\([^)]*["\'/]healthz["\']|'
+            r'["\'/]healthz["\']',
+            src,
+        ))
         assert has_healthz, (
             f"Python service '{svc}' is missing /healthz endpoint"
         )

@@ -33,6 +33,8 @@ except ImportError:
         return {"token": credentials.credentials}
 
 
+from .tenant_guard import require_tenant_id
+
 logger = logging.getLogger(__name__)
 
 
@@ -480,6 +482,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             DELETE /v1/vra/prescription/abc-123-def
         """
+        require_tenant_id(_user)
         try:
             deleted = await vra_generator.delete_prescription(prescription_id)
 

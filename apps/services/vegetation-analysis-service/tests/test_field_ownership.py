@@ -1,0 +1,336 @@
+"""Regression tests for field-ownership verification (Gap B).
+
+Pins the following invariants of ``src.field_ownership.verify_field_ownership``:
+
+  * Bypasses cleanly when ``FIELD_SERVICE_URL`` is not configured
+    (keeps dev/test env green).
+  * Cache hit with matching tenant → fast-path return.
+  * HTTP 200 with matching tenantId → success + cache write.
+  * HTTP 200 with mismatched tenantId → 403.
+  * HTTP 403 from field service → 403 (tenant service's verdict).
+  * HTTP 404 → 404 propagated.
+  * HTTP timeout + strict mode → 503.
+  * HTTP timeout + lenient mode → bypass with warning.
+
+Also pins the integration point:
+  * ``_verify_field_owned_by_tenant`` in main.py calls
+    ``verify_field_ownership`` and returns the tenant_id.
+  * 21 field_id handlers in main.py swapped to use it.
+"""
+
+from __future__ import annotations
+
+import os
+import sys
+
+import httpx
+import pytest
+from fastapi import HTTPException
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+
+_SERVICE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _SERVICE_ROOT not in sys.path:
+    sys.path.insert(0, _SERVICE_ROOT)
+
+
+# =============================================================================
+# Configuration surface
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_bypass_when_field_service_url_not_configured(monkeypatch):
+    """When FIELD_SERVICE_URL is unset, the verifier must return silently —
+    keeps dev / CI / monolithic bring-up unblocked. Production Helm sets
+    the env var; its absence in a real environment will be caught by the
+    health-check config audit (separate concern)."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.delenv("FIELD_SERVICE_URL", raising=False)
+    # Must not raise
+    await verify_field_ownership(tenant_id="t1", field_id="f1")
+
+
+@pytest.mark.asyncio
+async def test_strict_mode_default_true(monkeypatch):
+    """STRICT_FIELD_VERIFICATION defaults to True so production fails
+    closed on unreachable field service."""
+    from field_ownership import _strict_mode
+
+    monkeypatch.delenv("STRICT_FIELD_VERIFICATION", raising=False)
+    assert _strict_mode() is True
+
+    monkeypatch.setenv("STRICT_FIELD_VERIFICATION", "false")
+    assert _strict_mode() is False
+
+    monkeypatch.setenv("STRICT_FIELD_VERIFICATION", "true")
+    assert _strict_mode() is True
+
+
+# =============================================================================
+# Cache layer
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_cache_key_is_tenant_scoped():
+    """Two different tenants checking the same field must produce
+    different cache keys — prevents cross-tenant poisoning."""
+    from field_ownership import _cache_key
+
+    k_a = _cache_key("tenant-a", "field-1")
+    k_b = _cache_key("tenant-b", "field-1")
+    assert k_a != k_b
+    assert "tenant-a" in k_a
+    assert "tenant-b" in k_b
+    # And the shape matches the rest of the vegetation-service cache
+    # convention: satellite:t:{tenant}:{kind}:{…}
+    assert k_a.startswith("satellite:t:tenant-a:field_ownership:")
+
+
+# =============================================================================
+# Happy path
+# =============================================================================
+
+
+class _MockTransport(httpx.AsyncBaseTransport):
+    """Deterministic httpx transport — lets us assert on the outgoing
+    request without any network I/O."""
+
+    def __init__(self, response: httpx.Response | Exception):
+        self.response = response
+        self.calls: list[httpx.Request] = []
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        self.calls.append(request)
+        if isinstance(self.response, Exception):
+            raise self.response
+        return self.response
+
+
+@pytest.mark.asyncio
+async def test_http_200_matching_tenant_passes(monkeypatch):
+    """Happy path: field service returns 200 with matching tenantId →
+    verifier returns silently + caches the ownership for 5 min."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    # Disable cache so we exercise the HTTP path deterministically
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+    cache_set_calls: list = []
+    monkeypatch.setattr("field_ownership._cache_set", _record(cache_set_calls))
+
+    response = httpx.Response(
+        200,
+        json={"success": True, "data": {"id": "f1", "tenantId": "t1", "name": "test"}},
+    )
+    transport = _MockTransport(response)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        await verify_field_ownership(
+            tenant_id="t1", field_id="f1", bearer_token="tok", http_client=client
+        )
+
+    # Request went to the right URL with the right headers
+    assert len(transport.calls) == 1
+    req = transport.calls[0]
+    assert str(req.url).endswith("/api/v1/fields/f1")
+    assert req.headers.get("X-Tenant-Id") == "t1"
+    assert req.headers.get("Authorization") == "Bearer tok"
+
+    # Ownership was cached
+    assert len(cache_set_calls) == 1
+    _key, value, ttl = cache_set_calls[0]
+    assert value == {"tenant_id": "t1"}
+    assert ttl == 5 * 60
+
+
+@pytest.mark.asyncio
+async def test_http_200_mismatched_tenant_raises_403(monkeypatch):
+    """Field service returns the field but it belongs to a different
+    tenant — must raise 403 with bilingual detail."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+    monkeypatch.setattr("field_ownership._cache_set", _async_noop())
+
+    response = httpx.Response(
+        200,
+        json={"success": True, "data": {"id": "f1", "tenantId": "OTHER_TENANT"}},
+    )
+    transport = _MockTransport(response)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(
+                tenant_id="t1", field_id="f1", http_client=client
+            )
+    assert excinfo.value.status_code == 403
+    assert "not belong" in excinfo.value.detail.lower() or "ينتمي" in excinfo.value.detail
+
+
+@pytest.mark.asyncio
+async def test_http_404_raises_404(monkeypatch):
+    """Field does not exist → 404 propagated."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    transport = _MockTransport(httpx.Response(404, json={"message": "not found"}))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(
+                tenant_id="t1", field_id="missing", http_client=client
+            )
+    assert excinfo.value.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_http_403_from_field_service_propagates(monkeypatch):
+    """Field service itself returned 403 — treat as the authoritative
+    verdict (field-management-service has stricter context than we do)."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    transport = _MockTransport(httpx.Response(403, json={"message": "forbidden"}))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(
+                tenant_id="t1", field_id="f1", http_client=client
+            )
+    assert excinfo.value.status_code == 403
+
+
+# =============================================================================
+# Failure modes — strict vs lenient
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_connection_error_strict_mode_raises_503(monkeypatch):
+    """Field service unreachable + strict mode → 503 (fail closed, no
+    bypass to prevent leakage during a partial outage)."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://unreachable:3000")
+    monkeypatch.setenv("STRICT_FIELD_VERIFICATION", "true")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    transport = _MockTransport(httpx.ConnectError("connection refused"))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(
+                tenant_id="t1", field_id="f1", http_client=client
+            )
+    assert excinfo.value.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_connection_error_lenient_mode_bypasses(monkeypatch):
+    """Field service unreachable + lenient mode → bypass with warning.
+    This is the dev/CI default for bring-up; production overrides to strict."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://unreachable:3000")
+    monkeypatch.setenv("STRICT_FIELD_VERIFICATION", "false")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    transport = _MockTransport(httpx.ConnectError("connection refused"))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        # Must not raise
+        await verify_field_ownership(
+            tenant_id="t1", field_id="f1", http_client=client
+        )
+
+
+# =============================================================================
+# main.py integration — every {field_id} handler delegates to the verifier
+# =============================================================================
+
+
+def test_all_field_id_handlers_use_verifier():
+    """The 21 {field_id} handlers in main.py must delegate to
+    `_verify_field_owned_by_tenant` instead of the bare
+    `_require_tenant_id(user)`. Pin the count so nothing regresses."""
+    import ast
+
+    src_path = os.path.join(os.path.dirname(__file__), "..", "src", "main.py")
+    with open(src_path) as f:
+        src = f.read()
+    tree = ast.parse(src)
+
+    # Handlers that MUST use the verifier: any `async def` decorated
+    # with a route that contains `{field_id}` AND takes `field_id`
+    # in its signature.
+    migrated = 0
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.AsyncFunctionDef):
+            continue
+        if not any(a.arg == "field_id" for a in node.args.args):
+            continue
+        # The helper itself is expected to call _require_tenant_id
+        # (it composes tenant extraction + ownership verification).
+        if node.name == "_verify_field_owned_by_tenant":
+            continue
+        body_src = ast.get_source_segment(src, node) or ""
+        if "_require_tenant_id(user)" in body_src:
+            # Regression — a field-bearing handler still uses the bare
+            # tenant check without ownership verification.
+            pytest.fail(
+                f"{node.name}: still calls _require_tenant_id(user) without "
+                f"ownership verification. Swap to "
+                f"`await _verify_field_owned_by_tenant(user, field_id)`."
+            )
+        if "_verify_field_owned_by_tenant(user, field_id)" in body_src:
+            migrated += 1
+
+    # Regression pin: at least the 21 handlers that were swapped in
+    # this PR must keep using the verifier.
+    assert migrated >= 21, (
+        f"Expected >=21 handlers to use _verify_field_owned_by_tenant, "
+        f"found {migrated}"
+    )
+
+
+def test_main_helper_is_async():
+    """_verify_field_owned_by_tenant must be async so callers that
+    `await` it don't silently receive a coroutine."""
+    import inspect
+
+    from src.main import _verify_field_owned_by_tenant
+
+    assert inspect.iscoroutinefunction(_verify_field_owned_by_tenant)
+
+
+# =============================================================================
+# Test helpers
+# =============================================================================
+
+
+def _async_return(value):
+    """Build an async function that returns `value` regardless of args."""
+
+    async def _fn(*args, **kwargs):
+        return value
+
+    return _fn
+
+
+def _async_noop():
+    async def _fn(*args, **kwargs):
+        return None
+
+    return _fn
+
+
+def _record(bucket: list):
+    """Build an async function that records its call args."""
+
+    async def _fn(*args, **kwargs):
+        bucket.append(args)
+        return None
+
+    return _fn

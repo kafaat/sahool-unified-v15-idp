@@ -45,12 +45,53 @@ function dirExists(dirPath: string): boolean {
 /**
  * Recursively collect all files matching an extension under a directory.
  * Skips node_modules, .next, dist, __pycache__, and test directories.
+ * Results are memoized per (dir, ext, skipTests) combination.
  */
+const _fileCache = new Map<string, string[]>();
 function collectFiles(
   dir: string,
   ext: string,
   maxDepth = 6,
   opts: { skipTests?: boolean } = {},
+): string[] {
+  const cacheKey = `${dir}|${ext}|${opts.skipTests ?? false}`;
+  if (_fileCache.has(cacheKey)) return _fileCache.get(cacheKey)!;
+
+  const results: string[] = [];
+  if (!dirExists(dir) || maxDepth <= 0) return results;
+
+  const SKIP = new Set([
+    'node_modules', '.next', 'dist', '__pycache__', '.git', 'coverage',
+  ]);
+  if (opts.skipTests) {
+    SKIP.add('__tests__');
+    SKIP.add('__mocks__');
+    SKIP.add('test');
+    SKIP.add('tests');
+  }
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP.has(entry.name)) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...collectFilesInner(full, ext, maxDepth - 1, opts));
+    } else if (entry.name.endsWith(ext)) {
+      if (opts.skipTests && (entry.name.includes('.test.') || entry.name.includes('.spec.'))) {
+        continue;
+      }
+      results.push(full);
+    }
+  }
+  _fileCache.set(cacheKey, results);
+  return results;
+}
+
+/** Inner recursive helper (no caching per sub-directory). */
+function collectFilesInner(
+  dir: string,
+  ext: string,
+  maxDepth: number,
+  opts: { skipTests?: boolean },
 ): string[] {
   const results: string[] = [];
   if (!dirExists(dir) || maxDepth <= 0) return results;
@@ -69,7 +110,7 @@ function collectFiles(
     if (SKIP.has(entry.name)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...collectFiles(full, ext, maxDepth - 1, opts));
+      results.push(...collectFilesInner(full, ext, maxDepth - 1, opts));
     } else if (entry.name.endsWith(ext)) {
       if (opts.skipTests && (entry.name.includes('.test.') || entry.name.includes('.spec.'))) {
         continue;

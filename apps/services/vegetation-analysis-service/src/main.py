@@ -48,6 +48,32 @@ from shared.observability.tracing import setup_tracing
 _tracer = setup_tracing("vegetation-analysis-service")
 
 
+def _require_tenant_id(user: User | None) -> str:
+    """Extract ``tenant_id`` from the authenticated user, or raise 403.
+
+    Centralises what used to be nineteen copies of the same three-line
+    check spread across every per-field endpoint::
+
+        tenant_id = getattr(user, "tenant_id", "") if user else ""
+        if not tenant_id:
+            raise HTTPException(403, "...")
+
+    CAVEAT — known gap: this verifies the CALLER has a tenant, but does
+    NOT yet verify that the ``field_id`` path parameter belongs to that
+    tenant. Field-ownership resolution requires a cross-service lookup
+    (field-management-service owns the canonical ``fields`` table) and
+    is tracked as a follow-up. Until that lands, the service runs on
+    simulated data so the gap is latent rather than leaking real rows.
+    """
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if not tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Tenant context required | سياق المستأجر مطلوب",
+        )
+    return tenant_id
+
+
 def _validate_field_id(field_id: str) -> None:
     """Validate field_id path parameter."""
     if not field_id or len(field_id) > 100:
@@ -1561,9 +1587,7 @@ async def get_timeseries(
     user: User = Depends(get_current_user),
 ):
     """الحصول على سلسلة زمنية للمؤشرات النباتية"""
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     return await _get_timeseries_data(field_id, days, satellite)
 
@@ -1594,6 +1618,7 @@ async def analyze_ndvi_timeseries(
     - Seasonal metrics (المقاييس الموسمية)
     - 7-day forecast (تنبؤ 7 أيام)
     """
+    _require_tenant_id(user)
     _validate_field_id(field_id)
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
@@ -1722,6 +1747,7 @@ async def compare_ndvi_periods(
     - Before/after events (قبل/بعد الأحداث)
     - Seasonal comparisons (مقارنات موسمية)
     """
+    _require_tenant_id(user)
     _validate_field_id(field_id)
 
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
@@ -1792,9 +1818,7 @@ async def get_phenology(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -1873,9 +1897,7 @@ async def get_phenology_timeline(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2006,6 +2028,7 @@ async def analyze_phenology_with_action(
     2. Creates stage-specific ActionTemplate for mobile app
     3. Publishes event via NATS if enabled
     """
+    _require_tenant_id(user)
     if request.field_id != field_id:
         raise HTTPException(
             status_code=400,
@@ -2236,9 +2259,7 @@ async def get_soil_moisture(
     Works in all weather conditions (cloud-independent).
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2303,9 +2324,7 @@ async def get_irrigation_events(
     - Water use monitoring
     - Rainfall vs irrigation discrimination
     """
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
     _validate_field_id(field_id)
 
     if not _sar_processor:
@@ -2378,9 +2397,7 @@ async def get_sar_timeseries(
     Sentinel-1 revisit: every 6 days
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2476,9 +2493,7 @@ async def get_all_indices(
     - Corrected: MSAVI, OSAVI, ARVI
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -2536,9 +2551,7 @@ async def get_specific_index(
     - growth_stage: emergence, vegetative, reproductive, maturation
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -3143,9 +3156,7 @@ async def get_yield_history(
     In production, this would fetch from a database. Currently returns simulated data.
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     import random
 
@@ -3373,9 +3384,7 @@ async def get_cloud_cover(
         GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3428,9 +3437,7 @@ async def find_clear_observations(
         GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3495,9 +3502,7 @@ async def get_best_observation(
         GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3640,9 +3645,7 @@ async def export_analysis(
     - kml: Google Earth compatible format
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3692,9 +3695,7 @@ async def export_timeseries(
     Best for tracking vegetation health trends over time.
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3773,9 +3774,7 @@ async def export_boundaries(
 
     Useful for GIS systems and mapping applications.
     """
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3861,9 +3860,7 @@ async def export_report(
     - changes: Change detection over time
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -4053,9 +4050,7 @@ async def detect_changes(
         GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4120,9 +4115,7 @@ async def compare_dates(
         GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    _require_tenant_id(user)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4186,9 +4179,7 @@ async def get_anomalies(
         GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat
     """
     _validate_field_id(field_id)
-    tenant_id = getattr(user, "tenant_id", "") if user else ""
-    if not tenant_id:
-        raise HTTPException(status_code=403, detail="Tenant context required | سياق المستأجر مطلوب")
+    tenant_id = _require_tenant_id(user)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")

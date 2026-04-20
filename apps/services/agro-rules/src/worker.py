@@ -358,9 +358,6 @@ class AgroRulesWorker:
         except Exception as e:
             print(f"❌ Error handling terrain erosion event: {e}")
 
-        except Exception as e:
-            print(f"❌ Error handling irrigation adjustment: {e}")
-
     async def _create_task(
         self,
         tenant_id: str,

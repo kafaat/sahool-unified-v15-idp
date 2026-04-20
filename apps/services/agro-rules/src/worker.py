@@ -14,7 +14,9 @@ from .rules import (
     TaskRule,
     rule_from_irrigation_adjustment,
     rule_from_ndvi,
+    rule_from_ndvi_trend,
     rule_from_ndvi_weather,
+    rule_from_phenology,
     rule_from_weather,
 )
 
@@ -59,6 +61,28 @@ class AgroRulesWorker:
             cb=self._handle_ndvi_anomaly,
         )
         print("📡 Subscribed to sahool.satellite.ndvi.anomaly")
+
+        # Subscribe to NDVI trend events (multi-week declining/volatile series)
+        await self.nc.subscribe(
+            "sahool.satellite.ndvi.trend",
+            cb=self._handle_ndvi_trend,
+        )
+        await self.nc.subscribe(
+            "sahool.tenant.*.satellite.ndvi.trend",
+            cb=self._handle_ndvi_trend,
+        )
+        print("📡 Subscribed to sahool.satellite.ndvi.trend (+tenant-scoped)")
+
+        # Subscribe to phenology-stage detection events
+        await self.nc.subscribe(
+            "sahool.phenology.stage_detected",
+            cb=self._handle_phenology_stage_detected,
+        )
+        await self.nc.subscribe(
+            "sahool.tenant.*.phenology.stage_detected",
+            cb=self._handle_phenology_stage_detected,
+        )
+        print("📡 Subscribed to sahool.phenology.stage_detected (+tenant-scoped)")
 
         # Subscribe to Weather alerts
         await self.nc.subscribe(
@@ -165,6 +189,91 @@ class AgroRulesWorker:
 
         except Exception as e:
             print(f"❌ Error handling NDVI anomaly: {e}")
+
+    async def _handle_ndvi_trend(self, msg):
+        """Handle multi-week NDVI trend events (satellite.ndvi.trend)."""
+        try:
+            env = json.loads(msg.data.decode())
+
+            event_id = env.get("event_id")
+            if event_id and event_id in self._processed_events:
+                return
+            if event_id:
+                self._processed_events.add(event_id)
+
+            tenant_id = env.get("tenant_id")
+            # AnalysisEvent uses `field_id`; ndvi-processor legacy events use `aggregate_id`.
+            field_id = env.get("field_id") or env.get("aggregate_id")
+            correlation_id = env.get("correlation_id") or event_id
+            payload = env.get("data") or env.get("payload") or {}
+
+            trend_direction = payload.get("trend_direction", "")
+            anomaly_count = int(payload.get("anomaly_count", 0))
+            period_days = int(payload.get("period_days", 30))
+            current_ndvi = payload.get("current_ndvi")
+
+            print(
+                f"📈 NDVI trend: field={field_id}, direction={trend_direction}, "
+                f"anomalies={anomaly_count}, period={period_days}d"
+            )
+
+            if not tenant_id or not field_id:
+                return
+
+            task_rule = rule_from_ndvi_trend(
+                trend_direction=trend_direction,
+                anomaly_count=anomaly_count,
+                period_days=period_days,
+                current_ndvi=current_ndvi,
+            )
+            if task_rule:
+                await self._create_task(tenant_id, field_id, task_rule, correlation_id)
+
+        except Exception as e:
+            print(f"❌ Error handling NDVI trend: {e}")
+
+    async def _handle_phenology_stage_detected(self, msg):
+        """Handle phenology-stage detection events (phenology.stage_detected)."""
+        try:
+            env = json.loads(msg.data.decode())
+
+            event_id = env.get("event_id")
+            if event_id and event_id in self._processed_events:
+                return
+            if event_id:
+                self._processed_events.add(event_id)
+
+            tenant_id = env.get("tenant_id")
+            field_id = env.get("field_id") or env.get("aggregate_id")
+            correlation_id = env.get("correlation_id") or event_id
+            payload = env.get("data") or env.get("payload") or {}
+            action_template = env.get("action_template")
+
+            current_stage = payload.get("current_stage", "")
+            confidence = float(payload.get("confidence", 0.0))
+            stage_ar = payload.get("stage_ar")
+            stage_en = payload.get("stage_en")
+
+            print(
+                f"🌱 Phenology stage: field={field_id}, stage={current_stage}, "
+                f"confidence={confidence:.2f}"
+            )
+
+            if not tenant_id or not field_id:
+                return
+
+            task_rule = rule_from_phenology(
+                current_stage=current_stage,
+                confidence=confidence,
+                stage_ar=stage_ar,
+                stage_en=stage_en,
+                action_template=action_template,
+            )
+            if task_rule:
+                await self._create_task(tenant_id, field_id, task_rule, correlation_id)
+
+        except Exception as e:
+            print(f"❌ Error handling phenology stage: {e}")
 
     async def _handle_weather_alert(self, msg):
         """Handle weather alert events"""

@@ -226,6 +226,171 @@ def rule_from_weather(alert_type: str, severity: str) -> TaskRule | None:
     return None
 
 
+# ============== NDVI Trend Rules ==============
+
+
+def rule_from_ndvi_trend(
+    trend_direction: str,
+    anomaly_count: int,
+    period_days: int,
+    current_ndvi: float | None = None,
+) -> TaskRule | None:
+    """Generate a task from a multi-week NDVI trend summary.
+
+    ``satellite.ndvi.trend`` events carry the direction of the linear fit
+    ("increasing" / "stable" / "declining" / "volatile") across a window
+    (typically 30-90 days), plus the count of detected anomalies. That's
+    a slower signal than ``ndvi.computed`` — only a *sustained* decline
+    or a *volatile* series should trigger an agronomic review.
+    """
+
+    # Sustained decline across the window — dominant stress signal
+    if trend_direction == "declining":
+        return TaskRule(
+            title_ar="مراجعة اتجاه هبوط NDVI",
+            title_en="Declining NDVI Trend Review",
+            description_ar=(
+                f"اتجاه هبوط مستمر في مؤشر الغطاء النباتي خلال {period_days} يوم "
+                f"({anomaly_count} شذوذ). مراجعة الري والتسميد وصحة المحصول."
+            ),
+            description_en=(
+                f"Sustained declining NDVI trend over {period_days} days "
+                f"({anomaly_count} anomalies). Review irrigation, fertilization, "
+                f"and crop health."
+            ),
+            task_type="inspection",
+            priority="high",
+            urgency_hours=24,
+        )
+
+    # Erratic series with multiple anomalies — likely pest / disease / water
+    if trend_direction == "volatile" and anomaly_count >= 2:
+        return TaskRule(
+            title_ar="تذبذب غير طبيعي في NDVI",
+            title_en="Volatile NDVI Pattern",
+            description_ar=(
+                f"تذبذب ملحوظ في مؤشر الغطاء النباتي ({anomaly_count} شذوذ خلال "
+                f"{period_days} يوم). فحص الآفات والأمراض وانتظام الري."
+            ),
+            description_en=(
+                f"Erratic NDVI pattern with {anomaly_count} anomalies over "
+                f"{period_days} days. Inspect for pests, diseases, and irrigation uniformity."
+            ),
+            task_type="inspection",
+            priority="medium",
+            urgency_hours=48,
+        )
+
+    # Increasing / stable — no action
+    return None
+
+
+# ============== Phenology Rules ==============
+
+
+_PHENOLOGY_STAGE_ACTIONS: dict[str, tuple[str, str, str, str, str, int]] = {
+    # stage -> (title_ar, title_en, description_ar, description_en, priority, hours)
+    "flowering": (
+        "دعم مرحلة الإزهار",
+        "Support Flowering Stage",
+        "الحقل دخل مرحلة الإزهار. راجع كفاية الماء، ضع السماد البوتاسي، وتابع النحل/التلقيح.",
+        "Field entered flowering. Check water sufficiency, apply potassium fertilizer, and monitor pollination.",
+        "high",
+        24,
+    ),
+    "fruiting": (
+        "دعم مرحلة عقد الثمار",
+        "Support Fruiting Stage",
+        "الحقل في مرحلة عقد الثمار. زيادة الري، رش الكالسيوم، ومراقبة الآفات.",
+        "Field is in fruiting stage. Increase irrigation, apply calcium spray, and scout for pests.",
+        "high",
+        24,
+    ),
+    "grain_filling": (
+        "دعم مرحلة امتلاء الحبة",
+        "Support Grain-Filling Stage",
+        "الحقل في امتلاء الحبة. حافظ على انتظام الري وراقب أمراض الأوراق.",
+        "Field is in grain filling. Maintain steady irrigation and monitor leaf diseases.",
+        "high",
+        24,
+    ),
+    "maturity": (
+        "تحضير الحصاد",
+        "Prepare Harvest",
+        "المحصول اقترب من النضج. خطط لوجستيات الحصاد وتحقق من التخزين والمعدات.",
+        "Crop nearing maturity. Plan harvest logistics and verify storage and equipment readiness.",
+        "medium",
+        72,
+    ),
+    "harvest_ready": (
+        "جاهز للحصاد",
+        "Ready for Harvest",
+        "المحصول جاهز للحصاد. جدولة العمالة والمعدات خلال 48 ساعة لتفادي خسائر ما بعد النضج.",
+        "Crop is ready for harvest. Schedule labor and equipment within 48h to avoid post-maturity losses.",
+        "urgent",
+        48,
+    ),
+    "senescence": (
+        "نهاية الموسم",
+        "End of Season",
+        "المحصول في مرحلة الشيخوخة. ابدأ الحصاد أو التحضير لتجهيز التربة للموسم التالي.",
+        "Crop is senescing. Begin harvest or soil preparation for the next season.",
+        "medium",
+        72,
+    ),
+}
+
+
+def rule_from_phenology(
+    current_stage: str,
+    confidence: float,
+    stage_ar: str | None = None,
+    stage_en: str | None = None,
+    action_template: dict | None = None,
+) -> TaskRule | None:
+    """Generate a task from a phenology-stage detection event.
+
+    Preference order:
+      1. Use the ``action_template`` shipped in the event (the vegetation
+         service already ran the crop-aware stage-to-action mapping).
+      2. Fall back to the stage->action table above for the common stages
+         when no template is attached.
+      3. Return None for early stages (germination, vegetative) where the
+         stage transition itself is not actionable — normal NDVI rules
+         already cover those.
+    """
+    if confidence < 0.5:
+        return None
+
+    if action_template:
+        urgency = action_template.get("urgency", "medium")
+        hours_map = {"critical": 6, "urgent": 12, "high": 24, "medium": 48, "low": 72}
+        return TaskRule(
+            title_ar=action_template.get("title_ar") or f"إجراء مرحلة: {stage_ar or current_stage}",
+            title_en=action_template.get("title_en") or f"Stage action: {stage_en or current_stage}",
+            description_ar=action_template.get("description_ar") or "متابعة مرحلة النمو.",
+            description_en=action_template.get("description_en") or "Follow up on the growth stage.",
+            task_type=action_template.get("action_type", "phenology"),
+            priority=urgency if urgency in ("low", "medium", "high", "urgent") else "medium",
+            urgency_hours=hours_map.get(urgency, 48),
+        )
+
+    mapping = _PHENOLOGY_STAGE_ACTIONS.get(current_stage.lower())
+    if not mapping:
+        return None
+
+    title_ar, title_en, desc_ar, desc_en, priority, hours = mapping
+    return TaskRule(
+        title_ar=title_ar,
+        title_en=title_en,
+        description_ar=desc_ar,
+        description_en=desc_en,
+        task_type="phenology",
+        priority=priority,
+        urgency_hours=hours,
+    )
+
+
 # ============== Combined Rules ==============
 
 

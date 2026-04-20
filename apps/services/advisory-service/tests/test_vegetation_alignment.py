@@ -190,8 +190,7 @@ def test_field_scoped_handlers_call_ownership_verifier(handler: str):
     advisory has to refuse early as defense-in-depth."""
     body = _handler_body(handler)
     assert "verify_field_owned_by_tenant" in body, (
-        f"{handler}: missing verify_field_owned_by_tenant call. "
-        "Cross-tenant field_id access is possible without it."
+        f"{handler}: missing verify_field_owned_by_tenant call. Cross-tenant field_id access is possible without it."
     )
 
 
@@ -223,8 +222,8 @@ def test_field_scoped_handlers_accept_request_for_bearer_forwarding(handler: str
 
 @pytest.mark.asyncio
 async def test_ownership_verifier_raises_403_without_tenant(monkeypatch):
-    from src.field_ownership import verify_field_owned_by_tenant
     from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
 
     with pytest.raises(HTTPException) as exc:
         await verify_field_owned_by_tenant(tenant_id="", field_id="f-1")
@@ -233,8 +232,8 @@ async def test_ownership_verifier_raises_403_without_tenant(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_ownership_verifier_raises_400_on_bogus_field_id():
-    from src.field_ownership import verify_field_owned_by_tenant
     from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
 
     with pytest.raises(HTTPException) as exc:
         await verify_field_owned_by_tenant(tenant_id="t1", field_id="")
@@ -247,8 +246,8 @@ async def test_ownership_verifier_raises_400_on_bogus_field_id():
 
 @pytest.mark.asyncio
 async def test_ownership_verifier_raises_403_when_fms_says_403():
-    from src.field_ownership import verify_field_owned_by_tenant
     from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
 
     async def fake_get(url, *, headers=None):
         m = MagicMock()
@@ -269,8 +268,8 @@ async def test_ownership_verifier_raises_403_when_fms_says_403():
 
 @pytest.mark.asyncio
 async def test_ownership_verifier_raises_404_when_fms_says_404():
-    from src.field_ownership import verify_field_owned_by_tenant
     from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
 
     async def fake_get(url, *, headers=None):
         m = MagicMock()
@@ -325,8 +324,8 @@ async def test_ownership_verifier_raises_403_on_tenant_mismatch():
     """Defense-in-depth: even if FMS returns 200 with a different
     tenant in the body (impossible if FMS is healthy, but we don't
     want to rely on that), the helper rejects."""
-    from src.field_ownership import verify_field_owned_by_tenant
     from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
 
     async def fake_get(url, *, headers=None):
         m = MagicMock()
@@ -351,8 +350,8 @@ async def test_ownership_verifier_503_strict_mode(monkeypatch):
     """With ADVISORY_STRICT_OWNERSHIP=true, an FMS outage must surface
     as 503 — don't silently allow the caller through."""
     monkeypatch.setenv("ADVISORY_STRICT_OWNERSHIP", "true")
-    from src.field_ownership import verify_field_owned_by_tenant
     from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
 
     async def fake_get(url, *, headers=None):
         raise httpx.ConnectError("connection refused")

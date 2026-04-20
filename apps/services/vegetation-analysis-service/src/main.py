@@ -1191,22 +1191,23 @@ def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
 
 def _rand_int_4() -> int:
     import random
+
     return random.randint(1000, 9999)
 
 
 def _rand_int_2() -> int:
     import random
+
     return random.randint(30, 40)
 
 
 def _rand_upper() -> int:
     import random
+
     return random.randint(65, 90)
 
 
-def _build_real_imagery_from_bands(
-    request: "ImageryRequest", band_payload: dict
-) -> "SatelliteImagery":
+def _build_real_imagery_from_bands(request: "ImageryRequest", band_payload: dict) -> "SatelliteImagery":
     """Convert `fetch_real_bands(...)` output into a SatelliteImagery instance.
 
     Only called when Sentinel Hub actually returned bands — bands and

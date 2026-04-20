@@ -89,9 +89,8 @@ async def test_fetch_real_bands_returns_none_when_credentials_missing(monkeypatc
 async def test_imagery_endpoint_uses_real_path_when_available(monkeypatch):
     """When ``fetch_real_bands`` returns real data, the imagery endpoint
     must build the response from that payload and tag ``X-Data-Source: real``."""
-    from fastapi import Response
-
     import src.main as main_mod
+    from fastapi import Response
     from src.main import ImageryRequest, SatelliteSource, request_imagery
 
     monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", True)
@@ -140,9 +139,8 @@ async def test_imagery_endpoint_uses_real_path_when_available(monkeypatch):
 async def test_imagery_endpoint_falls_back_to_simulated_when_eo_unavailable(monkeypatch):
     """When sahool-eo isn't configured, the endpoint must fall back to
     the simulated generator and tag ``X-Data-Source: simulated``."""
-    from fastapi import Response
-
     import src.main as main_mod
+    from fastapi import Response
     from src.main import ImageryRequest, SatelliteSource, request_imagery
 
     monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", False)
@@ -170,9 +168,8 @@ async def test_imagery_endpoint_falls_back_when_fetch_returns_none(monkeypatch):
     """When fetch_real_bands returns None (e.g. Sentinel Hub 404, no
     clear scenes in window) the endpoint still serves an envelope —
     via the simulated fallback."""
-    from fastapi import Response
-
     import src.main as main_mod
+    from fastapi import Response
     from src.main import ImageryRequest, SatelliteSource, request_imagery
 
     monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", True)
@@ -202,7 +199,6 @@ async def test_imagery_endpoint_requires_tenant(monkeypatch):
     """Defense-in-depth: the imagery endpoint must 403 when the user
     has no tenant_id, regardless of which data-source path is active."""
     from fastapi import HTTPException, Response
-
     from src.main import ImageryRequest, SatelliteSource, request_imagery
 
     req = ImageryRequest(
@@ -232,8 +228,14 @@ def test_sahool_sentinel_fetch_task_has_evalscript():
     returning wrong band counts."""
     src_path = os.path.join(
         os.path.dirname(__file__),
-        "..", "..", "..", "..",
-        "packages", "sahool-eo", "tasks", "fetch.py",
+        "..",
+        "..",
+        "..",
+        "..",
+        "packages",
+        "sahool-eo",
+        "tasks",
+        "fetch.py",
     )
     with open(src_path) as f:
         src = f.read()

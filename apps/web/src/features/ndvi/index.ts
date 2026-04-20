@@ -39,6 +39,14 @@ export type {
   NDVIFilters,
   IndexMapData,
   PixelInspection,
+  IndexStatus,
+  CompositeWindow,
+  IndexComposite,
+  FilmstripFrame,
+  IndexFilmstrip,
+  MultiDateCompareRow,
+  MultiDateCompare,
+  MultiDateCompareRequest,
 } from './api';
 
 // Hooks - NDVI (legacy, still supported)
@@ -61,6 +69,9 @@ export {
   useIndexTimeSeries,
   useIndexMap,
   usePixelInspection,
+  useIndexComposite,
+  useIndexFilmstrip,
+  useMultiDateCompare,
   indicesKeys,
 } from './hooks/useNDVI';
 
@@ -71,3 +82,23 @@ export { PixelInspectorPopup } from './components/PixelInspectorPopup';
 export type { PixelInspectorPopupProps } from './components/PixelInspectorPopup';
 export { IndexTimeSlider } from './components/IndexTimeSlider';
 export type { IndexTimeSliderProps } from './components/IndexTimeSlider';
+
+// Multi-date components (Phase 3)
+export {
+  IntervalStepSelector,
+  INTERVAL_PRESETS,
+} from './components/IntervalStepSelector';
+export type {
+  IntervalStepSelectorProps,
+  IntervalDays,
+} from './components/IntervalStepSelector';
+export { IndexFilmstrip } from './components/IndexFilmstrip';
+export type { IndexFilmstripProps } from './components/IndexFilmstrip';
+export {
+  MultiDateSplitScreen,
+  PANEL_COUNTS,
+} from './components/MultiDateSplitScreen';
+export type {
+  MultiDateSplitScreenProps,
+  PanelCount,
+} from './components/MultiDateSplitScreen';

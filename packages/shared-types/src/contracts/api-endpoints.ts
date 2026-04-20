@@ -298,6 +298,25 @@ export const SATELLITE_ENDPOINTS = {
    * @since CONTRACT 1.7.0
    */
   INDEX_PIXEL: `${API_PREFIX}/satellite/v1/indices/{fieldId}/pixel`,
+  /**
+   * N-day composite summary (median/mean/p25/p75 per window). Backs the
+   * "weekly/monthly composite" view.
+   * @since CONTRACT 4.21.0
+   */
+  INDEX_COMPOSITE: `${API_PREFIX}/satellite/v1/indices/{fieldId}/{indexName}/composite`,
+  /**
+   * Filmstrip of per-date thumbnail metadata (date + rasterUrl + value +
+   * status) at a fixed cadence, capped at ~20 entries.
+   * @since CONTRACT 4.21.0
+   */
+  INDEX_FILMSTRIP: `${API_PREFIX}/satellite/v1/indices/{fieldId}/{indexName}/filmstrip`,
+  /**
+   * Multi-date compare (N up to 12) — POST body with `dates[]` or
+   * `{start, end, step_days}`. Replaces the legacy 2-date compare
+   * endpoint for all mappable indices.
+   * @since CONTRACT 4.21.0
+   */
+  INDEX_MULTI_COMPARE: `${API_PREFIX}/satellite/v1/indices/{fieldId}/{indexName}/multi-date-compare`,
   SATELLITES: `${API_PREFIX}/satellite/v1/satellites`,
   HEALTH: `${API_PREFIX}/satellite/health/{fieldId}`,
   PHENOLOGY: `${API_PREFIX}/satellite/phenology/{fieldId}`,

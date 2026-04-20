@@ -126,6 +126,26 @@ export const indicesKeys = {
     [...indicesKeys.all, 'map', fieldId, indexName, date] as const,
   pixel: (fieldId: string, lat: number, lon: number, date?: string) =>
     [...indicesKeys.all, 'pixel', fieldId, lat, lon, date] as const,
+  composite: (
+    fieldId: string,
+    indexName: string,
+    stepDays?: number,
+    start?: string,
+    end?: string,
+    stat?: string,
+  ) => [...indicesKeys.all, 'composite', fieldId, indexName, stepDays, start, end, stat] as const,
+  filmstrip: (
+    fieldId: string,
+    indexName: string,
+    stepDays?: number,
+    start?: string,
+    end?: string,
+  ) => [...indicesKeys.all, 'filmstrip', fieldId, indexName, stepDays, start, end] as const,
+  multiCompare: (
+    fieldId: string,
+    indexName: string,
+    signature: string,
+  ) => [...indicesKeys.all, 'multi-compare', fieldId, indexName, signature] as const,
 };
 
 /**
@@ -251,6 +271,96 @@ export function usePixelInspection(
       }),
     enabled: !!fieldId && !!coords && (options?.enabled ?? true),
     staleTime: 1000 * 60 * 15,
+  });
+}
+
+/**
+ * Hook to fetch an N-day composite for a mappable index.
+ * خطاف لجلب التركيب الزمني لكل N يوم
+ */
+export function useIndexComposite(
+  fieldId: string,
+  indexName: VegetationIndex | string,
+  options?: {
+    stepDays?: number;
+    start?: string;
+    end?: string;
+    stat?: 'median' | 'mean';
+    enabled?: boolean;
+  }
+) {
+  return useQuery({
+    queryKey: indicesKeys.composite(
+      fieldId,
+      String(indexName),
+      options?.stepDays,
+      options?.start,
+      options?.end,
+      options?.stat,
+    ),
+    queryFn: () =>
+      vegetationIndicesApi.getIndexComposite(fieldId, indexName, {
+        stepDays: options?.stepDays,
+        start: options?.start,
+        end: options?.end,
+        stat: options?.stat,
+      }),
+    enabled: !!fieldId && !!indexName && (options?.enabled ?? true),
+    staleTime: 1000 * 60 * 60,
+  });
+}
+
+/**
+ * Hook to fetch filmstrip frames for a mappable index.
+ * خطاف لجلب شريط الصور لمؤشر قابل للعرض
+ */
+export function useIndexFilmstrip(
+  fieldId: string,
+  indexName: VegetationIndex | string,
+  options?: {
+    stepDays?: number;
+    start?: string;
+    end?: string;
+    enabled?: boolean;
+  }
+) {
+  return useQuery({
+    queryKey: indicesKeys.filmstrip(
+      fieldId,
+      String(indexName),
+      options?.stepDays,
+      options?.start,
+      options?.end,
+    ),
+    queryFn: () =>
+      vegetationIndicesApi.getIndexFilmstrip(fieldId, indexName, {
+        stepDays: options?.stepDays,
+        start: options?.start,
+        end: options?.end,
+      }),
+    enabled: !!fieldId && !!indexName && (options?.enabled ?? true),
+    staleTime: 1000 * 60 * 60,
+  });
+}
+
+/**
+ * Hook for N-date multi-date comparison (POST).
+ * خطاف لمقارنة متعددة التواريخ
+ */
+export function useMultiDateCompare(
+  fieldId: string,
+  indexName: VegetationIndex | string,
+  body: import('../api').MultiDateCompareRequest | null,
+  options?: { enabled?: boolean }
+) {
+  const signature = body ? JSON.stringify(body) : 'none';
+  return useQuery({
+    queryKey: indicesKeys.multiCompare(fieldId, String(indexName), signature),
+    queryFn: () =>
+      vegetationIndicesApi.multiDateCompare(fieldId, indexName, body!),
+    enabled:
+      !!fieldId && !!indexName && !!body && (options?.enabled ?? true),
+    staleTime: 1000 * 60 * 30,
   });
 }
 

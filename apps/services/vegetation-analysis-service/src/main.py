@@ -24,7 +24,7 @@ from enum import Enum, StrEnum
 from typing import Any
 
 import structlog
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
@@ -233,6 +233,7 @@ from .eo_integration import (
     SENTINEL_HUB_CONFIGURED,
     check_eo_configuration,
     convert_eo_result_to_api_format,
+    fetch_real_bands,
     fetch_real_satellite_data,
     get_data_source_status,
 )
@@ -1149,16 +1150,11 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
         )
 
 
-@app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
-    """طلب صور الأقمار الصناعية لحقل معين"""
-
-    config = SATELLITE_CONFIGS[request.satellite]
-
-    # Simulate satellite imagery acquisition
+def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
+    """Simulated band reflectances fallback (legacy path)."""
     import random
 
-    # Generate realistic band values (reflectance 0-1)
+    config = SATELLITE_CONFIGS[request.satellite]
     band_values = {
         "blue": random.uniform(0.02, 0.08),
         "green": random.uniform(0.03, 0.12),
@@ -1167,7 +1163,6 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
         "swir1": random.uniform(0.08, 0.35),
         "swir2": random.uniform(0.05, 0.25),
     }
-
     bands = []
     for band_id, band_info in config["bands"].items():
         band_type = band_info["name"].lower()
@@ -1180,7 +1175,6 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
                 value=round(value, 4),
             )
         )
-
     return SatelliteImagery(
         imagery_id=str(uuid.uuid4()),
         field_id=request.field_id,
@@ -1189,10 +1183,105 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
         cloud_cover_percent=random.uniform(0, request.cloud_cover_max),
         sun_elevation=random.uniform(45, 75),
         bands=bands,
-        scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{random.randint(1000, 9999)}",
-        tile_id=f"T{random.randint(30, 40)}Q{chr(random.randint(65, 90))}{chr(random.randint(65, 90))}",
+        scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{_rand_int_4()}",
+        tile_id=f"T{_rand_int_2()}Q{chr(_rand_upper())}{chr(_rand_upper())}",
         processing_level=("L2A" if request.satellite == SatelliteSource.SENTINEL2 else "L2"),
     )
+
+
+def _rand_int_4() -> int:
+    import random
+    return random.randint(1000, 9999)
+
+
+def _rand_int_2() -> int:
+    import random
+    return random.randint(30, 40)
+
+
+def _rand_upper() -> int:
+    import random
+    return random.randint(65, 90)
+
+
+def _build_real_imagery_from_bands(
+    request: "ImageryRequest", band_payload: dict
+) -> "SatelliteImagery":
+    """Convert `fetch_real_bands(...)` output into a SatelliteImagery instance.
+
+    Only called when Sentinel Hub actually returned bands — bands and
+    cloud_cover are real, sun_elevation stays synthesised (Process API
+    doesn't expose it at this request shape).
+    """
+    bands = [
+        SatelliteBand(
+            band_name=b["band_name"],
+            wavelength_nm=b["wavelength_nm"],
+            resolution_m=b["resolution_m"],
+            value=b["value"],
+        )
+        for b in band_payload["bands"]
+    ]
+    return SatelliteImagery(
+        imagery_id=str(uuid.uuid4()),
+        field_id=request.field_id,
+        satellite=request.satellite,
+        acquisition_date=datetime.now(UTC),
+        cloud_cover_percent=band_payload.get("cloud_cover_percent", 0.0),
+        sun_elevation=60.0,  # not returned by Process API at this shape
+        bands=bands,
+        scene_id=band_payload.get(
+            "scene_id",
+            f"{request.satellite.value.upper()}_{request.start_date.isoformat()}",
+        ),
+        tile_id=f"T{_rand_int_2()}Q{chr(_rand_upper())}{chr(_rand_upper())}",
+        processing_level="L2A",
+    )
+
+
+@app.post("/v1/imagery/request", response_model=SatelliteImagery)
+async def request_imagery(
+    request: ImageryRequest,
+    response: Response,
+    user: User = Depends(get_current_user),
+):
+    """طلب صور الأقمار الصناعية لحقل معين.
+
+    Real-band fallback chain (EOSDA / OneSoil pattern):
+        1. Sentinel Hub Process API via ``fetch_real_bands()`` when
+           sahool-eo + credentials are configured.
+        2. In-process simulated generator (random reflectances).
+
+    Clients read ``X-Data-Source`` and ``X-Data-Provider`` response
+    headers to know which path served the request. Once PR #1697 lands
+    these markers will also be in the JSON body.
+    """
+    _validate_field_id(request.field_id)
+    _require_tenant_id(user)
+
+    # Path 1: real bands via Sentinel Hub Process API
+    if EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED and fetch_real_bands is not None:
+        try:
+            band_payload = await fetch_real_bands(
+                latitude=request.latitude,
+                longitude=request.longitude,
+                start_date=request.start_date,
+                end_date=request.end_date,
+                max_cloud_cover=request.cloud_cover_max,
+            )
+        except Exception as e:
+            logger.warning("fetch_real_bands_failed", error=str(e))
+            band_payload = None
+
+        if band_payload is not None:
+            response.headers["X-Data-Source"] = "real"
+            response.headers["X-Data-Provider"] = band_payload.get("provider", "sentinel_hub")
+            return _build_real_imagery_from_bands(request, band_payload)
+
+    # Path 2: simulated fallback
+    response.headers["X-Data-Source"] = "simulated"
+    response.headers["X-Data-Provider"] = "simulated"
+    return _build_simulated_imagery(request)
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
@@ -1200,8 +1289,10 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
     _validate_field_id(request.field_id)
 
-    # Get imagery first
-    imagery = await request_imagery(request)
+    # Get imagery — use the simulated builder directly rather than calling
+    # `request_imagery` (the handler), so we don't depend on a FastAPI
+    # Response object when invoked in-process.
+    imagery = _build_simulated_imagery(request)
 
     # Extract band values for calculations
     bands_dict = {b.band_name: b.value for b in imagery.bands}

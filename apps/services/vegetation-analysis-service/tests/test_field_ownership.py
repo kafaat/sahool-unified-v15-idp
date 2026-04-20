@@ -248,6 +248,44 @@ async def test_non_dict_data_shape_handled_gracefully(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_http_400_from_field_service_raises_400(monkeypatch):
+    """field-management-service's ParseUUIDPipe returns 400 for malformed
+    field ids (non-UUID). Our verifier must preserve that as a caller
+    400 "Invalid field_id" — not bubble it as 503 or silently bypass.
+    Per Copilot review on PR #1698."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    transport = _MockTransport(httpx.Response(400, json={"message": "Invalid UUID"}))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(
+                tenant_id="t1", field_id="not-a-uuid", http_client=client
+            )
+    assert excinfo.value.status_code == 400
+    assert "Invalid field_id" in str(excinfo.value.detail)
+
+
+@pytest.mark.asyncio
+async def test_http_422_from_field_service_raises_400(monkeypatch):
+    """Same as the 400 case for Pydantic body-validation errors (422)."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    transport = _MockTransport(httpx.Response(422, json={"message": "Validation failed"}))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(
+                tenant_id="t1", field_id="bad-id", http_client=client
+            )
+    assert excinfo.value.status_code == 400
+
+
+@pytest.mark.asyncio
 async def test_http_403_from_field_service_propagates(monkeypatch):
     """Field service itself returned 403 — treat as the authoritative
     verdict (field-management-service has stricter context than we do)."""

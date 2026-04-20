@@ -239,6 +239,17 @@ async def verify_field_ownership(
                 status_code=403,
                 detail="Field does not belong to this tenant | الحقل لا ينتمي إلى هذا المستأجر",
             )
+        if resp.status_code in (400, 422):
+            # field-management-service's ``ParseUUIDPipe`` rejects
+            # malformed field ids (non-UUID) with 400, and Pydantic
+            # body validation errors return 422. Preserve that as a
+            # caller-facing 400 — otherwise strict mode would surface
+            # it as 503 "service unavailable" (misleading) and lenient
+            # mode would silently bypass validation. Per Copilot review.
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid field_id | معرف الحقل غير صالح",
+            )
         if resp.status_code != 200:
             # Any other unexpected status — strict mode 503, lenient bypass.
             if _strict_mode():

@@ -544,7 +544,14 @@ class TestDockerfileBestPractices:
             pytest.skip(f"No Dockerfile for {service_name}")
         content = dockerfile.read_text(errors="replace")
         if "pip install" in content:
-            has_no_cache = "--no-cache-dir" in content or "PIP_NO_CACHE_DIR" in content
+            # Accept any of: --no-cache-dir flag, PIP_NO_CACHE_DIR env, or the
+            # shared docker/pip-install.sh wrapper (which passes --no-cache-dir
+            # to every invocation internally).
+            has_no_cache = (
+                "--no-cache-dir" in content
+                or "PIP_NO_CACHE_DIR" in content
+                or "pip-install.sh" in content
+            )
             assert has_no_cache, (
                 f"Dockerfile for '{service_name}' uses pip install without --no-cache-dir (increases image size)"
             )

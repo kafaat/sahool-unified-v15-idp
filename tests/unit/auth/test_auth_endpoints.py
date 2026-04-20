@@ -174,7 +174,7 @@ class TestLoginEndpoint:
         mock_user_service.verify_user_password.return_value = mock_user
         mock_user_service.update_last_login.return_value = None
 
-        with patch("shared.auth.auth_api.create_token") as mock_create_token:
+        with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
             mock_create_token.return_value = "test_access_token"
 
             response = client.post(
@@ -282,7 +282,7 @@ class TestLoginEndpoint:
         mock_twofa_service.verify_backup_code.return_value = (False, None, [])
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
-            with patch("shared.auth.auth_api.create_token") as mock_create_token:
+            with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
                 mock_create_token.return_value = "test_access_token_2fa"
 
                 response = client.post(
@@ -331,7 +331,7 @@ class TestLoginEndpoint:
         mock_twofa_service.verify_backup_code.return_value = (True, "5f6b2a3c8d9e1f4b", [])
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
-            with patch("shared.auth.auth_api.create_token") as mock_create_token:
+            with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
                 mock_create_token.return_value = "test_access_token_backup"
 
                 response = client.post(
@@ -417,7 +417,7 @@ class TestTwoFALoginEndpoint:
         temp_token = create_temp_token("user-456", "admin@sahool.io")
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
-            with patch("shared.auth.auth_api.create_token") as mock_create_token:
+            with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
                 mock_create_token.return_value = "final_access_token"
 
                 response = client.post(
@@ -493,7 +493,7 @@ class TestTwoFALoginEndpoint:
         temp_token = create_temp_token("user-456", "admin@sahool.io")
 
         with patch("shared.auth.auth_api.get_twofa_service", return_value=mock_twofa_service):
-            with patch("shared.auth.auth_api.create_token") as mock_create_token:
+            with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
                 mock_create_token.return_value = "backup_access_token"
 
                 response = client.post(
@@ -981,7 +981,7 @@ class TestAuthEdgeCases:
         mock_user_service.verify_user_password.return_value = user
         mock_user_service.update_last_login.return_value = None
 
-        with patch("shared.auth.auth_api.create_token") as mock_create_token:
+        with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
             mock_create_token.return_value = "multi_role_token"
 
             response = client.post(
@@ -1042,7 +1042,7 @@ class TestAuthEdgeCases:
         mock_user_service.verify_user_password.return_value = user
         mock_user_service.update_last_login.return_value = None
 
-        with patch("shared.auth.auth_api.create_token") as mock_create_token:
+        with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
             mock_create_token.return_value = "special_char_token"
 
             response = client.post(
@@ -1072,9 +1072,10 @@ class TestAuthIntegrationScenarios:
         """Test complete login flow without 2FA"""
         set_user_service(mock_user_service)
         mock_user_service.verify_user_password.return_value = mock_user
+        mock_user_service.get_user.return_value = mock_user
         mock_user_service.update_last_login.return_value = None
 
-        with patch("shared.auth.auth_api.create_token") as mock_create_token:
+        with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
             mock_create_token.return_value = "complete_flow_token"
 
             # Login
@@ -1121,7 +1122,7 @@ class TestAuthIntegrationScenarios:
             temp_token = data["temp_token"]
 
             # Step 2: Complete 2FA with token
-            with patch("shared.auth.auth_api.create_token") as mock_create_token:
+            with patch("shared.auth.auth_api.create_access_token") as mock_create_token:
                 mock_create_token.return_value = "complete_2fa_token"
 
                 response = client.post(

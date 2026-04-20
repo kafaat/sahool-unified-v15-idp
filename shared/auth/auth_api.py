@@ -162,6 +162,8 @@ def verify_temp_token(temp_token: str) -> dict | None:
             temp_token,
             config.get_verification_key(),
             algorithms=ALLOWED_ALGORITHMS,
+            audience=config.JWT_AUDIENCE,
+            issuer=config.JWT_ISSUER,
         )
 
         if not raw_payload.get("temp"):

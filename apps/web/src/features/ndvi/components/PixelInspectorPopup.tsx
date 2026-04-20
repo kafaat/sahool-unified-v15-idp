@@ -60,7 +60,7 @@ const CATEGORY_ORDER: ReadonlyArray<{
     key: 'productivity',
     titleEn: 'Productivity',
     titleAr: 'الإنتاجية',
-    indices: ['fpar', 'fapar', 'cccI', 'wdrvi'],
+    indices: ['fpar', 'fapar', 'ccci', 'wdrvi'],
   },
   {
     key: 'soil_burn',

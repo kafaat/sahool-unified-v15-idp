@@ -371,7 +371,7 @@ def rule_from_phenology(
             description_ar=action_template.get("description_ar") or "متابعة مرحلة النمو.",
             description_en=action_template.get("description_en") or "Follow up on the growth stage.",
             task_type=action_template.get("action_type", "phenology"),
-            priority=urgency if urgency in ("low", "medium", "high", "urgent") else "medium",
+            priority=urgency if urgency in ("low", "medium", "high", "urgent", "critical") else "medium",
             urgency_hours=hours_map.get(urgency, 48),
         )
 

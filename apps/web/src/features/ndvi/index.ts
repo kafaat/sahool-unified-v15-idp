@@ -43,7 +43,7 @@ export type {
   CompositeWindow,
   IndexComposite,
   FilmstripFrame,
-  IndexFilmstrip,
+  IndexFilmstripData,
   MultiDateCompareRow,
   MultiDateCompare,
   MultiDateCompareRequest,

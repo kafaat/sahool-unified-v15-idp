@@ -17,7 +17,7 @@ from shared.auth.models import User
 
 from .cache import cache_invalidate_field
 from .field_boundary_detector import BoundaryChange
-from .tenant_guard import require_tenant_id, validate_field_id, verify_field_owned_by_tenant
+from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
 

@@ -138,7 +138,7 @@ export interface FilmstripFrame {
   cloudCover?: number | null;
 }
 
-export interface IndexFilmstrip {
+export interface IndexFilmstripData {
   fieldId: string;
   indexName: string;
   stepDays: number;
@@ -548,7 +548,7 @@ export const vegetationIndicesApi = {
       start?: string;
       end?: string;
     }
-  ): Promise<IndexFilmstrip> => {
+  ): Promise<IndexFilmstripData> => {
     const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_FILMSTRIP, {
       fieldId,
       indexName: String(indexName).toLowerCase(),

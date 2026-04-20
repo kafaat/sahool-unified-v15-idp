@@ -22,7 +22,7 @@ from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
 from .gdd_tracker import get_gdd_tracker
-from .tenant_guard import require_tenant_id, validate_field_id, verify_field_owned_by_tenant
+from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
 

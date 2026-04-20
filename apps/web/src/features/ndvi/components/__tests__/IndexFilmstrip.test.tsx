@@ -7,7 +7,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { IndexFilmstrip } from '../IndexFilmstrip';
-import type { IndexFilmstrip as FilmstripData } from '../../api';
+import type { IndexFilmstripData as FilmstripData } from '../../api';
 
 const filmstrip: FilmstripData = {
   fieldId: 'field-1',

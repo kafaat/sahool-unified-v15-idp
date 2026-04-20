@@ -17,7 +17,7 @@
  */
 
 import { useCallback, useMemo } from 'react';
-import type { IndexFilmstrip as FilmstripData, FilmstripFrame } from '../api';
+import type { IndexFilmstripData as FilmstripData, FilmstripFrame } from '../api';
 
 export interface IndexFilmstripProps {
   data: FilmstripData | undefined;

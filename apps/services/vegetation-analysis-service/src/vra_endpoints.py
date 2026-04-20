@@ -33,7 +33,7 @@ except ImportError:
         return {"token": credentials.credentials}
 
 
-from .tenant_guard import require_tenant_id, validate_field_id, verify_field_owned_by_tenant
+from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
 

@@ -289,13 +289,13 @@ export const SATELLITE_ENDPOINTS = {
    * Raster tile metadata for a specific mappable vegetation index. Returns
    * `{rasterUrl, bounds, colorScale}`, backs the MapLibre layer that lets
    * users switch between NDVI / NDRE / NDWI / EVI / SAVI / LAI on the map.
-   * @since CONTRACT 1.7.0
+   * @since CONTRACT 4.20.0
    */
   INDEX_MAP: `${API_PREFIX}/satellite/v1/indices/{fieldId}/{indexName}/map`,
   /**
    * Per-pixel "click to inspect" inspector — returns every computed index
    * at a given lat/lon for the field (EOSDA/OneSoil pattern).
-   * @since CONTRACT 1.7.0
+   * @since CONTRACT 4.20.0
    */
   INDEX_PIXEL: `${API_PREFIX}/satellite/v1/indices/{fieldId}/pixel`,
   /**

@@ -139,6 +139,34 @@ class TestRuleFromPhenology:
         assert rule.urgency_hours == 12  # urgent -> 12h per the map
 
     @pytest.mark.parametrize(
+        "urgency,expected_priority,expected_hours",
+        [
+            ("critical", "critical", 6),
+            ("urgent", "urgent", 12),
+            ("high", "high", 24),
+            ("medium", "medium", 48),
+            ("low", "low", 72),
+            ("bogus", "medium", 48),  # unknown collapses to the medium default
+        ],
+    )
+    def test_urgency_round_trips_to_priority_including_critical(
+        self, urgency, expected_priority, expected_hours
+    ):
+        """Regression pin (Copilot review #1704): ``critical`` must pass
+        through to ``priority`` — previously it was silently downgraded
+        to ``medium`` because the whitelist excluded it, while
+        ``hours_map`` still set the right 6h urgency. Keep these two
+        tables in lockstep."""
+        rule = rule_from_phenology(
+            current_stage="flowering",
+            confidence=0.9,
+            action_template={"urgency": urgency},
+        )
+        assert rule is not None
+        assert rule.priority == expected_priority
+        assert rule.urgency_hours == expected_hours
+
+    @pytest.mark.parametrize(
         "stage,expected_priority",
         [
             ("flowering", "high"),

@@ -274,7 +274,7 @@ def print_markdown(audits: list[ServiceAudit]) -> None:
 
     print("# SAHOOL OTEL Propagation Audit Report")
     print()
-    print(f"**Date:** Auto-generated")
+    print("**Date:** Auto-generated")
     print(f"**Services scanned:** {total}")
     print(f"**Fully instrumented:** {passing} ({passing * 100 // max(total, 1)}%)")
     print(f"**Partially instrumented:** {partial}")

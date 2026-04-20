@@ -221,7 +221,7 @@ def detect_drift(project_root: Path) -> list[dict[str, Any]]:
 
         # Check for version divergence across workspaces
         for pkg, locations in workspace_deps.items():
-            versions = set(ver for _, ver in locations)
+            versions = {ver for _, ver in locations}
             if len(versions) > 1 and pkg not in root_overrides:
                 # Only flag important packages
                 if any(k in pkg for k in ["typescript", "react", "next", "prisma", "vitest", "@nestjs"]):
@@ -302,9 +302,7 @@ def main() -> int:
         if errors:
             print(f"\n{BLUE}{BOLD}Fix suggestions:{RESET}")
             for i in errors:
-                if i["type"] == "service_vs_constraints":
-                    print(f"  In {i['source']}: change {i['package']}{i['source_version']} -> {i['package']}{i['constraint_version']}")
-                elif i["type"] == "pyproject_vs_constraints":
+                if i["type"] == "service_vs_constraints" or i["type"] == "pyproject_vs_constraints":
                     print(f"  In {i['source']}: change {i['package']}{i['source_version']} -> {i['package']}{i['constraint_version']}")
 
     # Exit 1 if errors found

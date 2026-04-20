@@ -21,7 +21,7 @@ KONG_CONFIG = REPO_ROOT / "infrastructure" / "gateway" / "kong" / "active" / "ko
 
 
 @pytest.fixture(scope="module")
-def kong_config() -> Dict[str, Any]:
+def kong_config() -> dict[str, Any]:
     """Load and parse the active Kong config once per test module."""
     assert KONG_CONFIG.exists(), f"Kong config not found at {KONG_CONFIG}"
     with KONG_CONFIG.open("r", encoding="utf-8") as fh:
@@ -29,7 +29,7 @@ def kong_config() -> Dict[str, Any]:
 
 
 @pytest.fixture(scope="module")
-def partner_auth_services(kong_config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def partner_auth_services(kong_config: dict[str, Any]) -> list[dict[str, Any]]:
     """Return every Kong service block whose host=partner-auth-service."""
     services = kong_config.get("services", [])
     return [s for s in services if s.get("host") == "partner-auth-service"]
@@ -76,7 +76,7 @@ class TestPartnerAuthRoutes:
     }
     EXPECTED_ADMIN_PREFIX = "/api/v1/admin/partner-auth"
 
-    def _collect_paths(self, services: List[Dict[str, Any]]) -> set[str]:
+    def _collect_paths(self, services: list[dict[str, Any]]) -> set[str]:
         paths: set[str] = set()
         for svc in services:
             for route in svc.get("routes", []):

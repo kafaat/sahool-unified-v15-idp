@@ -56,28 +56,28 @@ NOW = datetime.now(UTC)
 
 
 def _make_circular_geofence(**kwargs) -> Geofence:
-    defaults = dict(
-        id="geo_circ01",
-        tenant_id="tenant_001",
-        name="Main Farm",
-        name_ar="المزرعة الرئيسية",
-        geofence_type=GeofenceType.ALLOWED,
-        center=LatLng(lat=24.7, lng=46.7),
-        radius_m=1000.0,
-    )
+    defaults = {
+        "id": "geo_circ01",
+        "tenant_id": "tenant_001",
+        "name": "Main Farm",
+        "name_ar": "المزرعة الرئيسية",
+        "geofence_type": GeofenceType.ALLOWED,
+        "center": LatLng(lat=24.7, lng=46.7),
+        "radius_m": 1000.0,
+    }
     defaults.update(kwargs)
     return Geofence(**defaults)
 
 
 def _make_polygon_geofence(**kwargs) -> Geofence:
-    defaults = dict(
-        id="geo_poly01",
-        tenant_id="tenant_001",
-        name="Field A",
-        name_ar="الحقل أ",
-        geofence_type=GeofenceType.FIELD,
-        boundary=SQUARE_BOUNDARY,
-    )
+    defaults = {
+        "id": "geo_poly01",
+        "tenant_id": "tenant_001",
+        "name": "Field A",
+        "name_ar": "الحقل أ",
+        "geofence_type": GeofenceType.FIELD,
+        "boundary": SQUARE_BOUNDARY,
+    }
     defaults.update(kwargs)
     return Geofence(**defaults)
 
@@ -822,15 +822,15 @@ class TestAlertHelpers:
     """Test the standalone alert generation functions in alerts.py."""
 
     def _sample_geofence(self, **kwargs) -> Geofence:
-        defaults = dict(
-            id="gf_test",
-            tenant_id="t1",
-            name="Test Zone",
-            name_ar="منطقة الاختبار",
-            geofence_type=GeofenceType.ALLOWED,
-            center=LatLng(lat=24.7, lng=46.7),
-            radius_m=1000.0,
-        )
+        defaults = {
+            "id": "gf_test",
+            "tenant_id": "t1",
+            "name": "Test Zone",
+            "name_ar": "منطقة الاختبار",
+            "geofence_type": GeofenceType.ALLOWED,
+            "center": LatLng(lat=24.7, lng=46.7),
+            "radius_m": 1000.0,
+        }
         defaults.update(kwargs)
         return Geofence(**defaults)
 

@@ -78,18 +78,18 @@ FIELD_ID = uuid4()
 
 
 def _make_field_created(**overrides) -> FieldCreatedEvent:
-    defaults = dict(
-        tenant_id=TENANT_ID,
-        field_id=FIELD_ID,
-        name="North Wheat",
-        geometry={
+    defaults = {
+        "tenant_id": TENANT_ID,
+        "field_id": FIELD_ID,
+        "name": "North Wheat",
+        "geometry": {
             "type": "Polygon",
             "coordinates": [
                 [[46.7, 24.7], [46.8, 24.7], [46.8, 24.8], [46.7, 24.8], [46.7, 24.7]]
             ],
         },
-        area_hectares=10.5,
-    )
+        "area_hectares": 10.5,
+    }
     defaults.update(overrides)
     return FieldCreatedEvent(**defaults)
 

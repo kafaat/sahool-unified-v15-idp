@@ -61,26 +61,26 @@ from shared.audit_trail.retention import (
 
 def _make_entry(**overrides) -> AuditEntry:
     """Build an AuditEntry with sensible defaults, applying overrides."""
-    defaults = dict(
-        tenant_id="farm-001",
-        actor_id="user-100",
-        actor_type=ActorType.USER,
-        actor_name="Ali",
-        actor_name_ar="علي",
-        action=AuditActionType.CREATE,
-        category=AuditCategory.DATA,
-        severity=AuditSeverity.INFO,
-        resource_type="field",
-        resource_id="field-001",
-        success=True,
-    )
+    defaults = {
+        "tenant_id": "farm-001",
+        "actor_id": "user-100",
+        "actor_type": ActorType.USER,
+        "actor_name": "Ali",
+        "actor_name_ar": "علي",
+        "action": AuditActionType.CREATE,
+        "category": AuditCategory.DATA,
+        "severity": AuditSeverity.INFO,
+        "resource_type": "field",
+        "resource_id": "field-001",
+        "success": True,
+    }
     defaults.update(overrides)
     return AuditEntry(**defaults)
 
 
 def _make_logger(**kwargs) -> AuditTrailLogger:
     """Create an in-memory AuditTrailLogger (no file I/O)."""
-    defaults = dict(tenant_id="farm-001", storage_path=None)
+    defaults = {"tenant_id": "farm-001", "storage_path": None}
     defaults.update(kwargs)
     return AuditTrailLogger(**defaults)
 

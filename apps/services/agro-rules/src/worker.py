@@ -5,6 +5,7 @@ Event-driven worker that generates tasks from NDVI/Weather events
 
 import asyncio
 import json
+import logging
 import os
 
 from nats.aio.client import Client as NATS
@@ -14,12 +15,43 @@ from .rules import (
     TaskRule,
     rule_from_irrigation_adjustment,
     rule_from_ndvi,
+    rule_from_ndvi_trend,
     rule_from_ndvi_weather,
+    rule_from_phenology,
     rule_from_weather,
 )
 
 NATS_URL = os.getenv("NATS_URL", "nats://nats:4222")
 FIELDOPS_URL = os.getenv("FIELDOPS_URL", "http://field-management-service:3000")
+
+_log = logging.getLogger(__name__)
+
+
+def _safe_int(value, default: int = 0) -> int:
+    """Coerce *value* to int, falling back to *default* on any failure.
+
+    Event payloads can legitimately ship None, empty strings, or typed
+    JSON numbers that aren't integers yet. A bare ``int(payload.get(
+    ...))`` crashes the entire handler on any of those, so the whole
+    event gets dropped for what's often a single-field issue. Coerce
+    one field at a time and carry on.
+    """
+    if value is None or value == "":
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_float(value, default: float = 0.0) -> float:
+    """Coerce *value* to float with the same guarantees as :func:`_safe_int`."""
+    if value is None or value == "":
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
 
 
 class AgroRulesWorker:
@@ -59,6 +91,28 @@ class AgroRulesWorker:
             cb=self._handle_ndvi_anomaly,
         )
         print("📡 Subscribed to sahool.satellite.ndvi.anomaly")
+
+        # Subscribe to NDVI trend events (multi-week declining/volatile series)
+        await self.nc.subscribe(
+            "sahool.satellite.ndvi.trend",
+            cb=self._handle_ndvi_trend,
+        )
+        await self.nc.subscribe(
+            "sahool.tenant.*.satellite.ndvi.trend",
+            cb=self._handle_ndvi_trend,
+        )
+        print("📡 Subscribed to sahool.satellite.ndvi.trend (+tenant-scoped)")
+
+        # Subscribe to phenology-stage detection events
+        await self.nc.subscribe(
+            "sahool.phenology.stage_detected",
+            cb=self._handle_phenology_stage_detected,
+        )
+        await self.nc.subscribe(
+            "sahool.tenant.*.phenology.stage_detected",
+            cb=self._handle_phenology_stage_detected,
+        )
+        print("📡 Subscribed to sahool.phenology.stage_detected (+tenant-scoped)")
 
         # Subscribe to Weather alerts
         await self.nc.subscribe(
@@ -184,6 +238,105 @@ class AgroRulesWorker:
 
         except Exception as e:
             print(f"❌ Error handling NDVI anomaly: {e}")
+
+    async def _handle_ndvi_trend(self, msg):
+        """Handle multi-week NDVI trend events (satellite.ndvi.trend)."""
+        try:
+            env = json.loads(msg.data.decode())
+
+            event_id = env.get("event_id")
+            if event_id and event_id in self._processed_events:
+                return
+            if event_id:
+                self._processed_events.add(event_id)
+
+            tenant_id = env.get("tenant_id")
+            # AnalysisEvent uses `field_id`; ndvi-processor legacy events use `aggregate_id`.
+            field_id = env.get("field_id") or env.get("aggregate_id")
+            correlation_id = env.get("correlation_id") or event_id
+            payload = env.get("data") or env.get("payload") or {}
+
+            trend_direction = payload.get("trend_direction", "")
+            # Safe casts — Copilot review #1704 (round 2): a null or
+            # empty-string `anomaly_count`/`period_days` previously
+            # blew up the whole handler with a TypeError.
+            anomaly_count = _safe_int(payload.get("anomaly_count"), default=0)
+            period_days = _safe_int(payload.get("period_days"), default=30)
+            current_ndvi = payload.get("current_ndvi")
+
+            _log.info(
+                "ndvi_trend_received",
+                extra={
+                    "field_id": field_id,
+                    "direction": trend_direction,
+                    "anomalies": anomaly_count,
+                    "period_days": period_days,
+                },
+            )
+
+            if not tenant_id or not field_id:
+                return
+
+            task_rule = rule_from_ndvi_trend(
+                trend_direction=trend_direction,
+                anomaly_count=anomaly_count,
+                period_days=period_days,
+                current_ndvi=current_ndvi,
+            )
+            if task_rule:
+                await self._create_task(tenant_id, field_id, task_rule, correlation_id)
+
+        except Exception as e:
+            print(f"❌ Error handling NDVI trend: {e}")
+
+    async def _handle_phenology_stage_detected(self, msg):
+        """Handle phenology-stage detection events (phenology.stage_detected)."""
+        try:
+            env = json.loads(msg.data.decode())
+
+            event_id = env.get("event_id")
+            if event_id and event_id in self._processed_events:
+                return
+            if event_id:
+                self._processed_events.add(event_id)
+
+            tenant_id = env.get("tenant_id")
+            field_id = env.get("field_id") or env.get("aggregate_id")
+            correlation_id = env.get("correlation_id") or event_id
+            payload = env.get("data") or env.get("payload") or {}
+            action_template = env.get("action_template")
+
+            current_stage = payload.get("current_stage", "")
+            # Safe cast — per the trend handler above, a stray null
+            # confidence must not drop the whole event on the floor.
+            confidence = _safe_float(payload.get("confidence"), default=0.0)
+            stage_ar = payload.get("stage_ar")
+            stage_en = payload.get("stage_en")
+
+            _log.info(
+                "phenology_stage_received",
+                extra={
+                    "field_id": field_id,
+                    "stage": current_stage,
+                    "confidence": round(confidence, 3),
+                },
+            )
+
+            if not tenant_id or not field_id:
+                return
+
+            task_rule = rule_from_phenology(
+                current_stage=current_stage,
+                confidence=confidence,
+                stage_ar=stage_ar,
+                stage_en=stage_en,
+                action_template=action_template,
+            )
+            if task_rule:
+                await self._create_task(tenant_id, field_id, task_rule, correlation_id)
+
+        except Exception as e:
+            print(f"❌ Error handling phenology stage: {e}")
 
     async def _handle_weather_alert(self, msg):
         """Handle weather alert events"""

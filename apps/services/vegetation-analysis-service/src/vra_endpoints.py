@@ -7,7 +7,7 @@ API endpoints for Variable Rate Application prescription maps.
 
 import logging
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from .vra_generator import (
@@ -33,7 +33,7 @@ except ImportError:
         return {"token": credentials.credentials}
 
 
-from .tenant_guard import require_tenant_id
+from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
 
@@ -154,6 +154,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 "product_price_per_unit": 2.5
             }
         """
+        require_tenant_id(_user)
         try:
             # Parse VRA type
             try:
@@ -247,6 +248,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     @app.get("/v1/vra/zones/{field_id}")
     async def get_management_zones(
         field_id: str,
+        http_request: Request,
         lat: float = Query(..., description="Field latitude", ge=-90, le=90),
         lon: float = Query(..., description="Field longitude", ge=-180, le=180),
         num_zones: int = Query(3, description="Number of management zones", ge=3, le=5),
@@ -261,6 +263,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
         """
+        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             zones_stats = await vra_generator.classify_zones(
                 field_id=field_id,
@@ -305,6 +308,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     @app.get("/v1/vra/prescriptions/{field_id}")
     async def get_field_prescriptions(
         field_id: str,
+        http_request: Request,
         limit: int = Query(10, description="Maximum number of prescriptions to return", ge=1, le=50),
         _user=Depends(get_current_user),
     ):
@@ -316,6 +320,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescriptions/field_123?limit=10
         """
+        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             prescriptions = await vra_generator.get_field_prescriptions(
                 field_id=field_id,
@@ -359,6 +364,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescription/abc-123-def
         """
+        require_tenant_id(_user)
         try:
             prescription = await vra_generator.get_prescription(prescription_id)
 
@@ -436,6 +442,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/export/abc-123-def?format=geojson
         """
+        require_tenant_id(_user)
         try:
             prescription = await vra_generator.get_prescription(prescription_id)
 

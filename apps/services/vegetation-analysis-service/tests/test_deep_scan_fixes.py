@@ -329,10 +329,18 @@ def test_analyze_ndvi_timeseries_captures_tenant_id():
     func_start = src.index("async def analyze_ndvi_timeseries")
     func_end = src.index("async def", func_start + 10)
     body = src[func_start:func_end]
-    # There must not be a bare `_require_tenant_id(user)` followed later
-    # by `tenant_id=tenant_id` — the variable must be captured.
+    # There must not be a bare tenant-check call followed later by
+    # `tenant_id=tenant_id` without capturing the return value.
+    # Accept either the bare `_require_tenant_id(user)` path OR the
+    # ownership-aware `_verify_field_owned_by_tenant(user, field_id)`
+    # path (both return the tenant_id).
     if "tenant_id=tenant_id" in body:
-        assert "tenant_id = _require_tenant_id(user)" in body, (
+        has_require_capture = "tenant_id = _require_tenant_id(user)" in body
+        has_verify_capture = "tenant_id = await _verify_field_owned_by_tenant(user, field_id" in body
+        assert has_require_capture or has_verify_capture, (
             "analyze_ndvi_timeseries uses tenant_id without capturing it — "
-            "NameError regression. Restore `tenant_id = _require_tenant_id(user)`."
+            "NameError regression. Capture via "
+            "`tenant_id = await _verify_field_owned_by_tenant(user, field_id)` "
+            "(preferred, includes ownership check) or "
+            "`tenant_id = _require_tenant_id(user)` (tenant-presence only)."
         )

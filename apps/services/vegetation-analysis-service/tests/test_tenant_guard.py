@@ -184,6 +184,10 @@ def _handlers_missing_guard(fname: str) -> list[str]:
             marker in body_src
             for marker in (
                 "require_tenant_id",
+                # `verify_field_owned_by_tenant` composes require_tenant_id +
+                # validate_field_id + cross-service ownership — stricter than
+                # the base require_tenant_id, used on {field_id} handlers.
+                "verify_field_owned_by_tenant",
                 "_enforce_tenant",
                 "user.tenant_id",
                 'getattr(user, "tenant_id"',

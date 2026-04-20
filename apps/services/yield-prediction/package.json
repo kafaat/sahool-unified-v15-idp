@@ -1,7 +1,7 @@
 {
   "name": "@sahool/yield-prediction",
   "version": "16.0.0",
-  "description": "SAHOOL Yield Prediction Service - خدمة التنبؤ بالإنتاجية الزراعية",
+  "description": "SAHOOL Yield Prediction Service - \u062e\u062f\u0645\u0629 \u0627\u0644\u062a\u0646\u0628\u0624 \u0628\u0627\u0644\u0625\u0646\u062a\u0627\u062c\u064a\u0629 \u0627\u0644\u0632\u0631\u0627\u0639\u064a\u0629",
   "author": "SAHOOL Team",
   "private": true,
   "license": "MIT",
@@ -15,7 +15,7 @@
     "test:cov": "jest --coverage"
   },
   "dependencies": {
-    "@nestjs/common": "^10.4.15",
+    "@nestjs/common": "^11.1.19",
     "@nestjs/core": "^11.1.19",
     "@nestjs/platform-express": "^11.1.19",
     "@nestjs/swagger": "^11.3.0",

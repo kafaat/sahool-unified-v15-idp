@@ -1,7 +1,7 @@
 {
   "name": "@sahool/crop-growth-model",
   "version": "16.0.0",
-  "description": "SAHOOL Crop Growth Model Service - خدمة نموذج نمو المحاصيل - Based on WOFOST/DSSAT/APSIM concepts",
+  "description": "SAHOOL Crop Growth Model Service - \u062e\u062f\u0645\u0629 \u0646\u0645\u0648\u0630\u062c \u0646\u0645\u0648 \u0627\u0644\u0645\u062d\u0627\u0635\u064a\u0644 - Based on WOFOST/DSSAT/APSIM concepts",
   "author": "SAHOOL Team",
   "private": true,
   "license": "MIT",
@@ -15,7 +15,7 @@
     "test:cov": "jest --coverage"
   },
   "dependencies": {
-    "@nestjs/common": "^10.4.15",
+    "@nestjs/common": "^11.1.19",
     "@nestjs/core": "^11.1.19",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",

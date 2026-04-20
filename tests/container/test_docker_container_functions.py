@@ -48,6 +48,7 @@ SUPPORTING_CONTAINERS = {
     "nats-prometheus-exporter": {"image_pattern": "nats"},
     "mongo": {"image_pattern": "mongo"},
     "mongo-init-replica": {"image_pattern": "mongo"},
+    "mongo-keyfile-init": {"image_pattern": "alpine|busybox|mongo"},
     "rocketchat": {"image_pattern": "rocket.chat"},
 }
 
@@ -121,6 +122,7 @@ NODE_SERVICES = [
     "iot-service",
     "lai-estimation",
     "marketplace-service",
+    "partner-auth-service",
     "research-core",
     "user-service",
     "yield-prediction",

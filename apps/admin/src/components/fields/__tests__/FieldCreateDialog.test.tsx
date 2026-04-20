@@ -542,9 +542,9 @@ describe('FieldCreateDialog', () => {
       expect(content).toContain("e.key === 'Escape'");
     });
 
-    it('posts to /api/v1/fields endpoint', () => {
+    it('posts to fields endpoint via contract constant', () => {
       const content = fs.readFileSync(filePath, 'utf-8');
-      expect(content).toContain("apiClient.post('/api/v1/fields'");
+      expect(content).toContain('apiClient.post(FIELD_ENDPOINTS.CREATE');
     });
   });
 });

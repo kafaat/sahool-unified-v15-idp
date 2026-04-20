@@ -52,3 +52,76 @@ def require_tenant_id(user: Any) -> str:
         status_code=403,
         detail="Tenant context required | سياق المستأجر مطلوب",
     )
+
+
+def validate_field_id(field_id: str) -> None:
+    """Reject malformed ``field_id`` path parameters before they reach
+    downstream code. Mirrors ``main._validate_field_id`` so sub-file
+    handlers can validate without a circular import.
+
+    :raises HTTPException 400: When ``field_id`` is empty or longer
+        than 100 characters.
+    """
+    if not field_id or len(field_id) > 100:
+        raise HTTPException(
+            status_code=400,
+            detail={"error": "Invalid field_id", "error_ar": "معرف الحقل غير صالح"},
+        )
+
+
+async def verify_field_owned_by_tenant(
+    user: Any,
+    field_id: str,
+    http_request: Any = None,
+) -> str:
+    """Sub-file equivalent of ``main._verify_field_owned_by_tenant``.
+
+    Composes ``require_tenant_id`` + ``validate_field_id`` +
+    ``field_ownership.verify_field_ownership`` so sub-modules
+    (boundary_endpoints, gdd_endpoints, vra_endpoints) can enforce
+    cross-service ownership without creating a circular import with
+    ``main.py``.
+
+    Delegates ownership resolution to field-management-service (the
+    canonical owner of the ``fields`` table) using the inbound Bearer
+    JWT extracted from ``http_request``.
+
+    :raises HTTPException 400: ``field_id`` malformed.
+    :raises HTTPException 403: tenant missing, or field belongs to
+        another tenant.
+    :raises HTTPException 404: field does not exist.
+    :raises HTTPException 503: field-management-service unreachable
+        (strict mode only).
+    """
+    tenant_id = require_tenant_id(user)
+    validate_field_id(field_id)
+
+    # Extract the inbound Bearer token (case-insensitive header lookup).
+    # Only Bearer scheme — Basic/etc. stripped to avoid leaking unrelated
+    # credentials downstream.
+    bearer_token: str | None = None
+    if http_request is not None:
+        auth_header = (
+            http_request.headers.get("authorization")
+            or http_request.headers.get("Authorization")
+            or ""
+        )
+        if auth_header.lower().startswith("bearer "):
+            bearer_token = auth_header[7:].strip() or None
+
+    # Lazy import so a missing dependency inside field_ownership (e.g.
+    # httpx) surfaces to the caller instead of being masked as "module
+    # missing". Matches the pattern in main._verify_field_owned_by_tenant.
+    try:
+        from .field_ownership import verify_field_ownership
+    except ModuleNotFoundError as exc:
+        if exc.name not in {"field_ownership", __package__ + ".field_ownership" if __package__ else "field_ownership"}:
+            raise
+        from field_ownership import verify_field_ownership  # standalone test path
+    except ImportError as exc:
+        if "relative import" not in str(exc):
+            raise
+        from field_ownership import verify_field_ownership  # standalone test path
+
+    await verify_field_ownership(tenant_id, field_id, bearer_token=bearer_token)
+    return tenant_id

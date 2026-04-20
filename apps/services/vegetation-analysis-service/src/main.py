@@ -3063,7 +3063,11 @@ async def get_specific_index(
 
 
 @app.post("/v1/indices/interpret")
-async def interpret_indices(request: InterpretRequest, user: User = Depends(get_current_user)):
+async def interpret_indices(
+    request: InterpretRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user),
+):
     """
     Interpret multiple vegetation indices for a specific crop and growth stage
     تفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو
@@ -3077,6 +3081,7 @@ async def interpret_indices(request: InterpretRequest, user: User = Depends(get_
     }
     """
     _validate_field_id(request.field_id)
+    await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -3453,7 +3458,11 @@ class ChangeReportResponse(BaseModel):
 
 
 @app.post("/v1/yield-prediction", response_model=YieldPredictionResponse)
-async def predict_yield(request: YieldPredictionRequest, user: User = Depends(get_current_user)):
+async def predict_yield(
+    request: YieldPredictionRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user),
+):
     """
     التنبؤ بإنتاجية المحصول | Predict Crop Yield
 
@@ -3466,6 +3475,7 @@ async def predict_yield(request: YieldPredictionRequest, user: User = Depends(ge
     Returns predicted yield with confidence interval and actionable recommendations.
     """
     _validate_field_id(request.field_id)
+    await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
     _validate_planting_date_not_future(request.planting_date)
 
     import random
@@ -4003,6 +4013,7 @@ async def get_best_observation(
 
 @app.post("/v1/interpolate-cloudy")
 async def interpolate_cloudy_pixels(
+    http_request: Request,
     field_id: str = Query(..., description="Field identifier"),
     method: str = Query("linear", description="Interpolation method: linear, spline, previous"),
     ndvi_series: list[dict] = None,
@@ -4029,6 +4040,7 @@ async def interpolate_cloudy_pixels(
     }
     """
     _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")

@@ -1,3 +1,4 @@
+# LINT-OPT-OUT: logging  # copilot-api uses structlog with custom JSON processors (see below)
 """
 SAHOOL Copilot API - Main Application
 التطبيق الرئيسي لـ Copilot API
@@ -351,7 +352,16 @@ def create_app() -> FastAPI:
             },
         )
 
-    # Include routers
+    # Health endpoints (registered first so they take precedence over health_router aliases)
+    @app.get("/healthz", tags=["Health"])
+    async def healthz():
+        return {"status": "ok", "service": "copilot-api", "version": "16.0.0"}
+
+    @app.get("/readyz", tags=["Health"])
+    async def readyz():
+        return {"status": "ok", "service": "copilot-api", "version": "16.0.0"}
+
+    # Include routers (health_router provides /health/live, /health/ready with full status detail)
     app.include_router(health_router)
     app.include_router(chat_router, prefix="/api/v1")
     app.include_router(tools_router, prefix="/api/v1")

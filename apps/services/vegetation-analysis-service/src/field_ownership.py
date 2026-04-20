@@ -151,10 +151,7 @@ async def verify_field_ownership(
     if not service_url:
         # Lenient-by-default when not configured — keeps dev & CI green.
         # Production deployments set FIELD_SERVICE_URL via Helm.
-        logger.info(
-            "field_ownership_verification_skipped "
-            "reason=FIELD_SERVICE_URL_not_configured"
-        )
+        logger.info("field_ownership_verification_skipped reason=FIELD_SERVICE_URL_not_configured")
         return
 
     if not tenant_id or not field_id:
@@ -187,20 +184,13 @@ async def verify_field_ownership(
             resp = await client.get(url, headers=headers)
         except (httpx.TimeoutException, httpx.ConnectError, httpx.HTTPError) as e:
             if _strict_mode():
-                logger.warning(
-                    f"field_ownership_verify_failed strict=true "
-                    f"field_id={field_id} error={e}"
-                )
+                logger.warning(f"field_ownership_verify_failed strict=true field_id={field_id} error={e}")
                 raise HTTPException(
                     status_code=503,
-                    detail=(
-                        "Field ownership service unavailable | "
-                        "خدمة التحقق من ملكية الحقل غير متاحة"
-                    ),
+                    detail=("Field ownership service unavailable | خدمة التحقق من ملكية الحقل غير متاحة"),
                 ) from e
             logger.warning(
-                f"field_ownership_verify_failed strict=false "
-                f"field_id={field_id} error={e} — allowing through"
+                f"field_ownership_verify_failed strict=false field_id={field_id} error={e} — allowing through"
             )
             return
 
@@ -220,8 +210,7 @@ async def verify_field_ownership(
             # Any other unexpected status — strict mode 503, lenient bypass.
             if _strict_mode():
                 logger.warning(
-                    f"field_ownership_verify_unexpected_status "
-                    f"status={resp.status_code} field_id={field_id}"
+                    f"field_ownership_verify_unexpected_status status={resp.status_code} field_id={field_id}"
                 )
                 raise HTTPException(
                     status_code=503,

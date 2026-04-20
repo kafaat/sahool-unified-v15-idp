@@ -127,9 +127,7 @@ async def test_http_200_matching_tenant_passes(monkeypatch):
     )
     transport = _MockTransport(response)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-        await verify_field_ownership(
-            tenant_id="t1", field_id="f1", bearer_token="tok", http_client=client
-        )
+        await verify_field_ownership(tenant_id="t1", field_id="f1", bearer_token="tok", http_client=client)
 
     # Request went to the right URL with the right headers
     assert len(transport.calls) == 1
@@ -162,9 +160,7 @@ async def test_http_200_mismatched_tenant_raises_403(monkeypatch):
     transport = _MockTransport(response)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(
-                tenant_id="t1", field_id="f1", http_client=client
-            )
+            await verify_field_ownership(tenant_id="t1", field_id="f1", http_client=client)
     assert excinfo.value.status_code == 403
     assert "not belong" in excinfo.value.detail.lower() or "ينتمي" in excinfo.value.detail
 
@@ -180,9 +176,7 @@ async def test_http_404_raises_404(monkeypatch):
     transport = _MockTransport(httpx.Response(404, json={"message": "not found"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(
-                tenant_id="t1", field_id="missing", http_client=client
-            )
+            await verify_field_ownership(tenant_id="t1", field_id="missing", http_client=client)
     assert excinfo.value.status_code == 404
 
 
@@ -198,9 +192,7 @@ async def test_http_403_from_field_service_propagates(monkeypatch):
     transport = _MockTransport(httpx.Response(403, json={"message": "forbidden"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(
-                tenant_id="t1", field_id="f1", http_client=client
-            )
+            await verify_field_ownership(tenant_id="t1", field_id="f1", http_client=client)
     assert excinfo.value.status_code == 403
 
 
@@ -222,9 +214,7 @@ async def test_connection_error_strict_mode_raises_503(monkeypatch):
     transport = _MockTransport(httpx.ConnectError("connection refused"))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(
-                tenant_id="t1", field_id="f1", http_client=client
-            )
+            await verify_field_ownership(tenant_id="t1", field_id="f1", http_client=client)
     assert excinfo.value.status_code == 503
 
 
@@ -241,9 +231,7 @@ async def test_connection_error_lenient_mode_bypasses(monkeypatch):
     transport = _MockTransport(httpx.ConnectError("connection refused"))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         # Must not raise
-        await verify_field_ownership(
-            tenant_id="t1", field_id="f1", http_client=client
-        )
+        await verify_field_ownership(tenant_id="t1", field_id="f1", http_client=client)
 
 
 # =============================================================================
@@ -289,10 +277,7 @@ def test_all_field_id_handlers_use_verifier():
 
     # Regression pin: at least the 21 handlers that were swapped in
     # this PR must keep using the verifier.
-    assert migrated >= 21, (
-        f"Expected >=21 handlers to use _verify_field_owned_by_tenant, "
-        f"found {migrated}"
-    )
+    assert migrated >= 21, f"Expected >=21 handlers to use _verify_field_owned_by_tenant, found {migrated}"
 
 
 def test_main_helper_is_async():

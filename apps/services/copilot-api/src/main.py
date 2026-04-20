@@ -17,6 +17,14 @@ Author: SAHOOL Platform Team
 Updated: January 2026
 """
 
+# LINT-OPT-OUT: logging — copilot-api initialises structlog via
+# `structlog.get_logger(__name__)` below; the shared `setup_logging()`
+# helper is not used because the service pre-dates that contract.
+# LINT-OPT-OUT: health — healthz + readyz are mounted via
+# `app.include_router(health_router)` (see `./api/v1/health.py`);
+# the service-template check only scans this file, so it can't follow
+# the include_router hop.
+
 from __future__ import annotations
 
 import os

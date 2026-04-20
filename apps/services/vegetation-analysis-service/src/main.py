@@ -24,7 +24,7 @@ from enum import Enum, StrEnum
 from typing import Any
 
 import structlog
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Response
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
@@ -71,7 +71,11 @@ def _require_tenant_id(user: User | None) -> str:
     return tenant_id
 
 
-async def _verify_field_owned_by_tenant(user: "User | None", field_id: str) -> str:
+async def _verify_field_owned_by_tenant(
+    user: "User | None",
+    field_id: str,
+    http_request: "Request | None" = None,
+) -> str:
     """Extract tenant_id AND verify field ownership in one call.
 
     Closes the latent tenant-isolation gap that ``_require_tenant_id``
@@ -93,6 +97,18 @@ async def _verify_field_owned_by_tenant(user: "User | None", field_id: str) -> s
     would return — call sites can swap the helper in-place.
     """
     tenant_id = _require_tenant_id(user)
+
+    # Extract the inbound Bearer token from the caller's request so
+    # field-management-service's JwtAuthGuard accepts the forwarded
+    # lookup. Named ``http_request`` (not ``request``) to avoid
+    # colliding with request-body parameters on handlers like
+    # ``analyze_phenology_with_action(request: PhenologyActionRequest, ...)``.
+    bearer_token: str | None = None
+    if http_request is not None:
+        auth_header = http_request.headers.get("authorization") or http_request.headers.get("Authorization") or ""
+        if auth_header.lower().startswith("bearer "):
+            bearer_token = auth_header[7:].strip() or None
+
     # Narrow-match expected import failures so real errors inside
     # field_ownership (e.g. missing httpx) surface to the caller instead
     # of being masked as "module missing". Catches both:
@@ -110,7 +126,7 @@ async def _verify_field_owned_by_tenant(user: "User | None", field_id: str) -> s
         if "relative import" not in str(exc):
             raise
         from field_ownership import verify_field_ownership  # standalone test path
-    await verify_field_ownership(tenant_id, field_id)
+    await verify_field_ownership(tenant_id, field_id, bearer_token=bearer_token)
     return tenant_id
 
 
@@ -212,6 +228,45 @@ except ImportError:
     logger.info("Cache module not available - running without caching")
 
     async def is_cache_available():
+        return False
+
+    # Fallback stubs for the cache API surface so CodeQL and other
+    # static analysers don't flag call-sites below as "unknown kwarg"
+    # when the import fails. At runtime these are only reachable when
+    # `_cache_available` is False, in which case callers guard with
+    # ``if _cache_available:`` anyway — so the stubs are no-ops.
+    async def get_cached_analysis(  # type: ignore[no-redef]
+        field_id: str,
+        satellite: str,
+        tenant_id: str | None = None,
+        acquisition_date: str | None = None,
+    ) -> dict | None:
+        return None
+
+    async def cache_analysis(  # type: ignore[no-redef]
+        field_id: str,
+        satellite: str,
+        analysis_data: dict,
+        tenant_id: str | None = None,
+        acquisition_date: str | None = None,
+    ) -> bool:
+        return False
+
+    async def get_cached_timeseries(  # type: ignore[no-redef]
+        field_id: str,
+        days: int,
+        satellite: str,
+        tenant_id: str | None = None,
+    ) -> dict | None:
+        return None
+
+    async def cache_timeseries(  # type: ignore[no-redef]
+        field_id: str,
+        days: int,
+        satellite: str,
+        timeseries_data: dict,
+        tenant_id: str | None = None,
+    ) -> bool:
         return False
 
 
@@ -1988,6 +2043,7 @@ async def _get_timeseries_data(
 @app.get("/v1/timeseries/{field_id}")
 async def get_timeseries(
     field_id: str,
+    http_request: Request,
     days: int = Query(default=30, ge=7, le=365),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
     lat: float | None = Query(default=None, ge=-90, le=90, description="Field latitude (enables real-data path)"),
@@ -2003,7 +2059,7 @@ async def get_timeseries(
     response envelope.
     """
     _validate_field_id(field_id)
-    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     return await _get_timeseries_data(field_id, days, satellite, tenant_id=tenant_id, lat=lat, lon=lon)
 
@@ -2017,6 +2073,7 @@ async def get_timeseries(
 @app.post("/v1/ndvi-timeseries/analyze/{field_id}")
 async def analyze_ndvi_timeseries(
     field_id: str,
+    http_request: Request,
     days: int = Query(default=60, ge=14, le=365, description="Days of historical data"),
     anomaly_threshold: float = Query(
         default=2.0, ge=1.0, le=4.0, description="Z-score threshold for anomaly detection"
@@ -2035,7 +2092,7 @@ async def analyze_ndvi_timeseries(
     - 7-day forecast (تنبؤ 7 أيام)
     """
     _validate_field_id(field_id)
-    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
 
@@ -2148,6 +2205,7 @@ async def analyze_ndvi_timeseries(
 @app.post("/v1/ndvi-timeseries/compare/{field_id}")
 async def compare_ndvi_periods(
     field_id: str,
+    http_request: Request,
     period1_start: str = Query(..., description="Period 1 start date (YYYY-MM-DD)"),
     period1_end: str = Query(..., description="Period 1 end date (YYYY-MM-DD)"),
     period2_start: str = Query(..., description="Period 2 start date (YYYY-MM-DD)"),
@@ -2164,7 +2222,7 @@ async def compare_ndvi_periods(
     - Seasonal comparisons (مقارنات موسمية)
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
@@ -2215,6 +2273,7 @@ async def compare_ndvi_periods(
 @app.get("/v1/phenology/{field_id}")
 async def get_phenology(
     field_id: str,
+    http_request: Request,
     crop_type: str = Query(..., description="نوع المحصول (wheat, sorghum, tomato, etc.)"),
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
@@ -2234,7 +2293,7 @@ async def get_phenology(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2300,6 +2359,7 @@ async def get_phenology(
 @app.get("/v1/phenology/{field_id}/timeline")
 async def get_phenology_timeline(
     field_id: str,
+    http_request: Request,
     crop_type: str = Query(..., description="نوع المحصول"),
     planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)"),
     user: User = Depends(get_current_user),
@@ -2313,7 +2373,7 @@ async def get_phenology_timeline(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2431,6 +2491,7 @@ class PhenologyActionRequest(BaseModel):
 @app.post("/v1/phenology/{field_id}/analyze-with-action")
 async def analyze_phenology_with_action(
     field_id: str,
+    http_request: Request,
     request: PhenologyActionRequest,
     background_tasks: BackgroundTasks,
     user: User = Depends(get_current_user),
@@ -2445,7 +2506,7 @@ async def analyze_phenology_with_action(
     3. Publishes event via NATS if enabled
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
     if request.field_id != field_id:
         raise HTTPException(
             status_code=400,
@@ -2659,6 +2720,7 @@ def _create_phenology_action_template(
 @app.get("/v1/soil-moisture/{field_id}")
 async def get_soil_moisture(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
@@ -2676,7 +2738,7 @@ async def get_soil_moisture(
     Works in all weather conditions (cloud-independent).
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2724,6 +2786,7 @@ async def get_soil_moisture(
 @app.get("/v1/irrigation-events/{field_id}")
 async def get_irrigation_events(
     field_id: str,
+    http_request: Request,
     days: int = Query(default=30, ge=7, le=90, description="Days to look back"),
     user: User = Depends(get_current_user),
 ):
@@ -2742,7 +2805,7 @@ async def get_irrigation_events(
     - Rainfall vs irrigation discrimination
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2795,6 +2858,7 @@ async def get_irrigation_events(
 @app.get("/v1/sar-timeseries/{field_id}")
 async def get_sar_timeseries(
     field_id: str,
+    http_request: Request,
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
     end_date: str = Query(..., description="End date (YYYY-MM-DD)"),
     lat: float | None = Query(None, ge=-90, le=90, description="Field latitude"),
@@ -2814,7 +2878,7 @@ async def get_sar_timeseries(
     Sentinel-1 revisit: every 6 days
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2894,6 +2958,7 @@ async def get_sar_timeseries(
 @app.get("/v1/indices/{field_id}")
 async def get_all_indices(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., description="Latitude", ge=-90, le=90),
     lon: float = Query(..., description="Longitude", ge=-180, le=180),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
@@ -2910,7 +2975,7 @@ async def get_all_indices(
     - Corrected: MSAVI, OSAVI, ARVI
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -2950,6 +3015,7 @@ async def get_all_indices(
 @app.get("/v1/indices/{field_id}/{index_name}")
 async def get_specific_index(
     field_id: str,
+    http_request: Request,
     index_name: str,
     lat: float = Query(..., description="Latitude", ge=-90, le=90),
     lon: float = Query(..., description="Longitude", ge=-180, le=180),
@@ -2968,7 +3034,7 @@ async def get_specific_index(
     - growth_stage: emergence, vegetative, reproductive, maturation
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -3035,8 +3101,470 @@ async def get_specific_index(
     }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Map-visualization endpoints (Phase 1 + 2 of "indices on the map" initiative)
+#
+# - /v1/indices/{field_id}/{index_name}/map → raster tile URL + color scale
+#   for the 6 indices the web client already has colour ramps for (NDVI,
+#   NDWI, EVI, SAVI, NDRE, LAI). Lets the MapLibre layer pick any of them
+#   instead of hard-coding NDVI.
+#
+# - /v1/indices/{field_id}/pixel → every computed index at a specific
+#   lat/lon/date point, so a click on the map can populate an inspector
+#   popup with all 44 indices (the EOSDA/OneSoil "click-a-pixel" UX).
+# ─────────────────────────────────────────────────────────────────────────────
+
+try:
+    from .map_registry import MAPPABLE_INDICES as _MAPPABLE_INDICES
+    from .map_registry import sentinel_hub_wms_url as _sentinel_hub_wms_url
+except ImportError:
+    from map_registry import MAPPABLE_INDICES as _MAPPABLE_INDICES
+    from map_registry import sentinel_hub_wms_url as _sentinel_hub_wms_url
+
+
+@app.get("/v1/indices/{field_id}/{index_name}/map")
+async def get_index_map(
+    field_id: str,
+    index_name: str,
+    http_request: Request,
+    date: str | None = Query(default=None, description="ISO date (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
+):
+    """Return raster-tile metadata for a mappable vegetation index.
+
+    Response shape matches the web ``NDVIMapData`` contract so the existing
+    MapLibre raster layer can render any of the 6 mappable indices through
+    the same code path:
+
+        {
+          "fieldId": "...",
+          "indexName": "ndre",
+          "date": "2026-04-12",
+          "rasterUrl": "https://.../{bbox-epsg-3857}/...",
+          "bounds": [[west, south], [east, north]],
+          "colorScale": {"min": -1, "max": 1, "colors": ["#...", ...]},
+          "dataSource": "sentinel_hub" | "simulated"
+        }
+
+    When Sentinel Hub is configured the rasterUrl is a real WMS template.
+    Otherwise we return a ``simulated`` placeholder so clients can still
+    develop against a stable contract.
+    """
+    _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+
+    key = index_name.lower()
+    meta = _MAPPABLE_INDICES.get(key)
+    if meta is None:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Index '{index_name}' is not renderable on the map. Mappable indices: {sorted(_MAPPABLE_INDICES)}"
+            ),
+        )
+
+    date_str = date or datetime.now(UTC).date().isoformat()
+    wms_url = _sentinel_hub_wms_url(key, date_str)
+
+    if wms_url:
+        raster_url = wms_url
+        data_source = "sentinel_hub"
+    else:
+        # Deterministic placeholder — safe for dev, easy to distinguish in logs.
+        raster_url = f"/api/v1/satellite/v1/indices/{field_id}/{key}/tile/{{z}}/{{x}}/{{y}}?date={date_str}"
+        data_source = "simulated"
+
+    # Bounds are computed client-side from the field polygon; we return the
+    # world bounds as a safe fallback so the layer always has something to
+    # clip against even when the field geometry hasn't been loaded yet.
+    bounds = [[-180.0, -85.05112878], [180.0, 85.05112878]]
+
+    return {
+        "fieldId": field_id,
+        "indexName": key,
+        "date": date_str,
+        "rasterUrl": raster_url,
+        "bounds": bounds,
+        "colorScale": {
+            "min": meta["min"],
+            "max": meta["max"],
+            "colors": meta["colors"],
+        },
+        "label": {"en": meta["label_en"], "ar": meta["label_ar"]},
+        "unit": meta["unit"],
+        "dataSource": data_source,
+    }
+
+
+@app.get("/v1/indices/{field_id}/pixel")
+async def get_pixel_inspection(
+    field_id: str,
+    http_request: Request,
+    lat: float = Query(..., ge=-90, le=90),
+    lon: float = Query(..., ge=-180, le=180),
+    date: str | None = Query(default=None, description="ISO date (YYYY-MM-DD)"),
+    indices: str | None = Query(
+        default=None,
+        description="CSV subset of indices to return. Omit for all 44.",
+    ),
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
+):
+    """Return every computed vegetation index at (lat, lon) for *field_id*.
+
+    Backs the map click-to-inspect UX (EOSDA/OneSoil pattern):
+    user clicks a pixel → popup shows NDVI, NDRE, NDWI, SAVI, LAI, etc.
+    at that exact coordinate, with bilingual labels.
+    """
+    _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+
+    if not _indices_available:
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
+
+    # Reuse the existing band → all-indices pipeline so there's one source
+    # of truth for the math (FPAR / fAPAR / all 44 stay in sync).
+    all_response = await get_all_indices(field_id, lat, lon, satellite)
+    indices_dict: dict[str, float | None] = all_response["indices"]
+
+    # Optional subset filter
+    if indices:
+        requested = {s.strip().lower() for s in indices.split(",") if s.strip()}
+        indices_dict = {k: v for k, v in indices_dict.items() if k in requested}
+
+    date_str = date or all_response["acquisition_date"]
+
+    return {
+        "fieldId": field_id,
+        "location": {"latitude": lat, "longitude": lon},
+        "date": date_str,
+        "satellite": satellite.value,
+        "indices": indices_dict,
+        "mappable": sorted(_MAPPABLE_INDICES),
+        "dataSource": all_response.get("data_source", "simulated"),
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase-3 multi-date endpoints (composite / filmstrip / multi-date compare).
+# These power the EOSDA / OneSoil "look at N dates at once" UX — pick any
+# of the 6 mappable indices and step through time at a fixed cadence.
+# ─────────────────────────────────────────────────────────────────────────────
+
+try:
+    from .multi_date import (
+        MAX_SAMPLES as _MD_MAX_SAMPLES,
+    )
+    from .multi_date import (
+        bucket_into_composites,
+        sample_dates_at_interval,
+        status_for_ndvi,
+    )
+except ImportError:
+    from multi_date import (  # type: ignore[no-redef]
+        MAX_SAMPLES as _MD_MAX_SAMPLES,
+    )
+    from multi_date import (
+        bucket_into_composites,
+        sample_dates_at_interval,
+        status_for_ndvi,
+    )
+
+
+class MultiDateCompareRequest(BaseModel):
+    """Body for ``POST /v1/indices/{field_id}/{index_name}/multi-date-compare``.
+
+    Either ``dates`` (explicit list, max 12) or the triple
+    ``{start, end, step_days}`` must be supplied. If both are given,
+    ``dates`` wins — same pattern as FHIR $operation semantics.
+    """
+
+    dates: list[str] | None = Field(
+        default=None,
+        description="Explicit ISO dates (YYYY-MM-DD), max 12.",
+    )
+    start: str | None = Field(default=None, description="ISO start date")
+    end: str | None = Field(default=None, description="ISO end date")
+    step_days: int | None = Field(default=None, ge=1, le=90, description="Cadence in days (1-90)")
+
+    @field_validator("dates")
+    @classmethod
+    def _validate_dates(cls, v: list[str] | None) -> list[str] | None:
+        if v is None:
+            return v
+        if len(v) < 2:
+            raise ValueError("dates must contain at least 2 entries for comparison")
+        if len(v) > 12:
+            raise ValueError("dates is capped at 12 entries; use step_days for more")
+        return v
+
+
+@app.get("/v1/indices/{field_id}/{index_name}/composite")
+async def get_index_composite(
+    field_id: str,
+    index_name: str,
+    http_request: Request,
+    step_days: int = Query(default=7, ge=1, le=90, description="Window size in days"),
+    start: str | None = Query(default=None, description="ISO start (YYYY-MM-DD)"),
+    end: str | None = Query(default=None, description="ISO end (YYYY-MM-DD)"),
+    stat: str = Query(default="median", pattern="^(median|mean)$"),
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
+):
+    """N-day composite summary for a mappable vegetation index.
+
+    Groups the underlying timeseries into non-overlapping ``step_days``
+    windows and returns median/mean/min/max/p25/p75 per window. This is
+    the "monthly/weekly median composite" pattern EOSDA uses to smooth
+    out cloud artefacts without losing trend.
+    """
+    _validate_field_id(field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+
+    key = index_name.lower()
+    if key not in _MAPPABLE_INDICES:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Composites are only supported for mappable indices. "
+                f"Got '{index_name}'. Allowed: {sorted(_MAPPABLE_INDICES)}"
+            ),
+        )
+
+    # Fetch a timeseries wide enough to cover the requested window.
+    try:
+        start_date_obj = date.fromisoformat(start) if start else None
+        end_date_obj = date.fromisoformat(end) if end else None
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid ISO date format")
+    today = datetime.now(UTC).date()
+    effective_end = end_date_obj or today
+    effective_start = start_date_obj or (effective_end - timedelta(days=30))
+    if effective_start > effective_end:
+        raise HTTPException(status_code=400, detail="start must be <= end")
+    days = min(max((effective_end - effective_start).days + step_days, 14), 365)
+
+    ts = await _get_timeseries_data(field_id, days, satellite, tenant_id=tenant_id)
+    buckets = bucket_into_composites(
+        ts.get("timeseries", []),
+        index_name=key,
+        step_days=step_days,
+        start=effective_start.isoformat(),
+        end=effective_end.isoformat(),
+        stat=stat,
+    )
+
+    return {
+        "fieldId": field_id,
+        "indexName": key,
+        "stat": stat,
+        "stepDays": step_days,
+        "start": effective_start.isoformat(),
+        "end": effective_end.isoformat(),
+        "windows": buckets,
+        "count": len(buckets),
+        "dataSource": ts.get("data_source", "simulated"),
+    }
+
+
+@app.get("/v1/indices/{field_id}/{index_name}/filmstrip")
+async def get_index_filmstrip(
+    field_id: str,
+    index_name: str,
+    http_request: Request,
+    step_days: int = Query(default=7, ge=1, le=90),
+    start: str | None = Query(default=None),
+    end: str | None = Query(default=None),
+    user: User = Depends(get_current_user),
+):
+    """Return a filmstrip of per-date thumbnail metadata.
+
+    Each entry is shaped for direct consumption by a carousel/thumbnail
+    row in the web client:
+
+        {
+          "date":      "2026-04-12",
+          "rasterUrl": "<WMS or simulated tile template>",
+          "mean":      0.62,
+          "status":    {"key": "excellent", "en": "...", "ar": "..."}
+        }
+
+    Unlike the generic ``/v1/timeseries`` endpoint, this one always
+    includes a ``rasterUrl`` (so the UI can render the thumbnail) and
+    is capped at ~20 samples so a 1-year window at step_days=1 doesn't
+    ship 365 objects.
+    """
+    _validate_field_id(field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+
+    key = index_name.lower()
+    if key not in _MAPPABLE_INDICES:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Filmstrip is only supported for mappable indices. "
+                f"Got '{index_name}'. Allowed: {sorted(_MAPPABLE_INDICES)}"
+            ),
+        )
+
+    try:
+        dates = sample_dates_at_interval(start, end, step_days, max_samples=_MD_MAX_SAMPLES)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+
+    # Pull the timeseries once, then pick the nearest acquisition per sample date.
+    today = datetime.now(UTC).date()
+    end_date = date.fromisoformat(dates[-1]) if dates else today
+    start_date = date.fromisoformat(dates[0]) if dates else (today - timedelta(days=30))
+    days = min(max((end_date - start_date).days + step_days, 14), 365)
+    ts = await _get_timeseries_data(field_id, days, SatelliteSource.SENTINEL2, tenant_id=tenant_id)
+    points = ts.get("timeseries", [])
+
+    # Index the timeseries by date (first 10 chars = YYYY-MM-DD).
+    by_date: dict[str, dict] = {}
+    for p in points:
+        d = p.get("date", "")
+        if d:
+            by_date[str(d)[:10]] = p
+
+    meta = _MAPPABLE_INDICES[key]
+    frames: list[dict[str, Any]] = []
+    for sample in dates:
+        point = by_date.get(sample)
+        if point is None:
+            continue  # Skip dates with no acquisition rather than fabricate.
+        value = point.get(key)
+        if value is None and isinstance(point.get("indices"), dict):
+            value = point["indices"].get(key)
+        raster_url = _sentinel_hub_wms_url(key, sample) or (
+            f"/api/v1/satellite/v1/indices/{field_id}/{key}/tile/{{z}}/{{x}}/{{y}}?date={sample}"
+        )
+        frames.append(
+            {
+                "date": sample,
+                "rasterUrl": raster_url,
+                "value": round(float(value), 4) if isinstance(value, (int, float)) else None,
+                "status": status_for_ndvi(float(value) if isinstance(value, (int, float)) else None),
+                "cloudCover": point.get("cloud_cover"),
+            }
+        )
+
+    return {
+        "fieldId": field_id,
+        "indexName": key,
+        "stepDays": step_days,
+        "colorScale": {"min": meta["min"], "max": meta["max"], "colors": meta["colors"]},
+        "label": {"en": meta["label_en"], "ar": meta["label_ar"]},
+        "frames": frames,
+        "count": len(frames),
+        "dataSource": ts.get("data_source", "simulated"),
+    }
+
+
+@app.post("/v1/indices/{field_id}/{index_name}/multi-date-compare")
+async def multi_date_compare(
+    field_id: str,
+    index_name: str,
+    request: MultiDateCompareRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user),
+):
+    """Compare the same index across N explicit dates (max 12).
+
+    Supersedes the legacy 2-date ``/v1/ndvi-timeseries/compare``. Each
+    row includes ``delta_from_previous`` so the UI can render up/down
+    arrows without client-side math.
+
+    Either ``dates`` or ``(start, end, step_days)`` must be supplied;
+    ``dates`` wins when both are present.
+    """
+    _validate_field_id(field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+
+    key = index_name.lower()
+    if key not in _MAPPABLE_INDICES:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Multi-date compare is only supported for mappable indices. "
+                f"Got '{index_name}'. Allowed: {sorted(_MAPPABLE_INDICES)}"
+            ),
+        )
+
+    # Resolve the list of target dates.
+    if request.dates:
+        target_dates = sorted({d[:10] for d in request.dates})
+    elif request.start and request.end and request.step_days:
+        try:
+            target_dates = sample_dates_at_interval(request.start, request.end, request.step_days, max_samples=12)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e)) from e
+    else:
+        raise HTTPException(
+            status_code=400,
+            detail="Provide either `dates` or `{start, end, step_days}`",
+        )
+
+    if len(target_dates) < 2:
+        raise HTTPException(status_code=400, detail="Need at least 2 dates to compare")
+
+    today = datetime.now(UTC).date()
+    try:
+        oldest = date.fromisoformat(target_dates[0])
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid ISO date in `dates`")
+    days = min(max((today - oldest).days + 7, 14), 365)
+    ts = await _get_timeseries_data(field_id, days, SatelliteSource.SENTINEL2, tenant_id=tenant_id)
+    by_date: dict[str, dict] = {str(p.get("date", ""))[:10]: p for p in ts.get("timeseries", [])}
+
+    rows: list[dict[str, Any]] = []
+    previous_value: float | None = None
+    for d_ in target_dates:
+        point = by_date.get(d_)
+        value: float | None = None
+        if point is not None:
+            raw = point.get(key)
+            if raw is None and isinstance(point.get("indices"), dict):
+                raw = point["indices"].get(key)
+            if isinstance(raw, (int, float)):
+                value = float(raw)
+        delta = round(value - previous_value, 4) if (value is not None and previous_value is not None) else None
+        rows.append(
+            {
+                "date": d_,
+                "value": round(value, 4) if value is not None else None,
+                "delta_from_previous": delta,
+                "status": status_for_ndvi(value),
+            }
+        )
+        if value is not None:
+            previous_value = value
+
+    present_values = [r["value"] for r in rows if r["value"] is not None]
+    summary = {
+        "count_dates": len(rows),
+        "count_with_data": len(present_values),
+        "min": round(min(present_values), 4) if present_values else None,
+        "max": round(max(present_values), 4) if present_values else None,
+        "overall_delta": round(present_values[-1] - present_values[0], 4) if len(present_values) >= 2 else None,
+    }
+
+    return {
+        "fieldId": field_id,
+        "indexName": key,
+        "dates": target_dates,
+        "rows": rows,
+        "summary": summary,
+        "dataSource": ts.get("data_source", "simulated"),
+    }
+
+
 @app.post("/v1/indices/interpret")
-async def interpret_indices(request: InterpretRequest, user: User = Depends(get_current_user)):
+async def interpret_indices(
+    request: InterpretRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user),
+):
     """
     Interpret multiple vegetation indices for a specific crop and growth stage
     تفسير عدة مؤشرات نباتية حسب نوع المحصول ومرحلة النمو
@@ -3050,6 +3578,7 @@ async def interpret_indices(request: InterpretRequest, user: User = Depends(get_
     }
     """
     _validate_field_id(request.field_id)
+    await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -3426,7 +3955,11 @@ class ChangeReportResponse(BaseModel):
 
 
 @app.post("/v1/yield-prediction", response_model=YieldPredictionResponse)
-async def predict_yield(request: YieldPredictionRequest, user: User = Depends(get_current_user)):
+async def predict_yield(
+    request: YieldPredictionRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user),
+):
     """
     التنبؤ بإنتاجية المحصول | Predict Crop Yield
 
@@ -3439,6 +3972,7 @@ async def predict_yield(request: YieldPredictionRequest, user: User = Depends(ge
     Returns predicted yield with confidence interval and actionable recommendations.
     """
     _validate_field_id(request.field_id)
+    await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
     _validate_planting_date_not_future(request.planting_date)
 
     import random
@@ -3562,6 +4096,7 @@ async def predict_yield(request: YieldPredictionRequest, user: User = Depends(ge
 @app.get("/v1/yield-history/{field_id}")
 async def get_yield_history(
     field_id: str,
+    http_request: Request,
     seasons: int = Query(default=5, ge=1, le=20, description="Number of past seasons to retrieve"),
     crop_code: str | None = Query(None, description="Filter by crop code"),
     user: User = Depends(get_current_user),
@@ -3573,7 +4108,7 @@ async def get_yield_history(
     In production, this would fetch from a database. Currently returns simulated data.
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     import random
 
@@ -3779,6 +4314,7 @@ async def get_regional_yields(
 @app.get("/v1/cloud-cover/{field_id}")
 async def get_cloud_cover(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     date: str | None = Query(None, description="Target date (YYYY-MM-DD), defaults to today"),
@@ -3801,7 +4337,7 @@ async def get_cloud_cover(
         GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3836,6 +4372,7 @@ async def get_cloud_cover(
 @app.get("/v1/clear-observations/{field_id}")
 async def find_clear_observations(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
@@ -3854,7 +4391,7 @@ async def find_clear_observations(
         GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3902,6 +4439,7 @@ async def find_clear_observations(
 @app.get("/v1/best-observation/{field_id}")
 async def get_best_observation(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., ge=-90, le=90, description="Field latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Field longitude"),
     target_date: str = Query(..., description="Target date (YYYY-MM-DD)"),
@@ -3919,7 +4457,7 @@ async def get_best_observation(
         GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3972,6 +4510,7 @@ async def get_best_observation(
 
 @app.post("/v1/interpolate-cloudy")
 async def interpolate_cloudy_pixels(
+    http_request: Request,
     field_id: str = Query(..., description="Field identifier"),
     method: str = Query("linear", description="Interpolation method: linear, spline, previous"),
     ndvi_series: list[dict] = None,
@@ -3998,6 +4537,7 @@ async def interpolate_cloudy_pixels(
     }
     """
     _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -4047,6 +4587,7 @@ async def interpolate_cloudy_pixels(
 @app.get("/v1/export/analysis/{field_id}")
 async def export_analysis(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     format: str = Query(default="geojson", description="Export format: geojson, csv, json, kml"),
@@ -4062,7 +4603,7 @@ async def export_analysis(
     - kml: Google Earth compatible format
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -4099,6 +4640,7 @@ async def export_analysis(
 @app.get("/v1/export/timeseries/{field_id}")
 async def export_timeseries(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
@@ -4112,7 +4654,7 @@ async def export_timeseries(
     Best for tracking vegetation health trends over time.
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -4262,6 +4804,7 @@ async def export_boundaries(
 @app.get("/v1/export/report/{field_id}")
 async def export_report(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., ge=-90, le=90, description="Latitude"),
     lon: float = Query(..., ge=-180, le=180, description="Longitude"),
     report_type: str = Query(default="full", description="Report type: full, summary, changes"),
@@ -4277,7 +4820,7 @@ async def export_report(
     - changes: Change detection over time
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -4443,6 +4986,7 @@ async def _perform_analysis(field_id: str, lat: float, lon: float, analysis_date
 @app.get("/v1/changes/{field_id}", response_model=ChangeReportResponse)
 async def detect_changes(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., description="Field latitude", ge=-90, le=90),
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     start_date: str = Query(..., description="Start date (YYYY-MM-DD)"),
@@ -4467,7 +5011,7 @@ async def detect_changes(
         GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4516,6 +5060,7 @@ async def detect_changes(
 @app.get("/v1/changes/{field_id}/compare", response_model=ChangeEventResponse)
 async def compare_dates(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., description="Field latitude", ge=-90, le=90),
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     date1: str = Query(..., description="First date (YYYY-MM-DD)"),
@@ -4532,7 +5077,7 @@ async def compare_dates(
         GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4580,6 +5125,7 @@ async def compare_dates(
 @app.get("/v1/changes/{field_id}/anomalies")
 async def get_anomalies(
     field_id: str,
+    http_request: Request,
     lat: float = Query(..., description="Field latitude", ge=-90, le=90),
     lon: float = Query(..., description="Field longitude", ge=-180, le=180),
     days: int = Query(90, description="Number of days to analyze (default: 90)", ge=1, le=365),
@@ -4596,7 +5142,7 @@ async def get_anomalies(
         GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat
     """
     _validate_field_id(field_id)
-    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")

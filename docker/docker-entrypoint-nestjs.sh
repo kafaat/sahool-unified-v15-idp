@@ -112,16 +112,115 @@ handle_p3009() {
 }
 
 # ---------------------------------------------------------------------------
+# detect_orphan_migrations: warn if _prisma_migrations table references names
+# that don't exist on disk. This is a strong signal that someone renamed a
+# migration without resetting the database — Prisma will keep trying to
+# "resolve" the ghost entry and the retry loop will spin forever.
+# ---------------------------------------------------------------------------
+detect_orphan_migrations() {
+  # Pull distinct migration names known on disk
+  disk_names=""
+  for dir in prisma/migrations/*/; do
+    [ -d "$dir" ] || continue
+    n=$(basename "$dir")
+    disk_names="${disk_names}${n}\n"
+  done
+
+  # Extract names Prisma complains about from the last migrate log
+  log_names=$(grep -oE '[0-9]{14}_[A-Za-z0-9_]+' /tmp/prisma_migrate.log 2>/dev/null | sort -u)
+
+  orphans=""
+  for n in $log_names; do
+    if ! printf '%b' "$disk_names" | grep -qx "$n"; then
+      orphans="${orphans}  - ${n}\n"
+    fi
+  done
+
+  if [ -n "$orphans" ]; then
+    echo '⚠  Detected migration names referenced by Prisma that are NOT present on disk:'
+    printf '%b' "$orphans"
+    echo '   This means the database still remembers a previous migration layout.'
+    echo '   The retry loop cannot fix this automatically.'
+    echo ''
+    echo '   Two ways to recover:'
+    echo '     1. Opt-in auto-prune (destructive, but only for orphan rows):'
+    echo '        Set  PRISMA_PRUNE_ORPHAN_MIGRATIONS=true  and restart.'
+    echo '     2. Manual SQL (safer, lets you review first):'
+    echo '        DELETE FROM _prisma_migrations WHERE migration_name IN ('
+    printf '%b' "$orphans" | sed "s/^[[:space:]]*-[[:space:]]*/          '/; s/$/',/"
+    echo '        );'
+    return 0
+  fi
+  return 1
+}
+
+# ---------------------------------------------------------------------------
+# prune_orphan_migrations: DELETE rows in _prisma_migrations whose
+# migration_name no longer exists on disk. Opt-in via
+# PRISMA_PRUNE_ORPHAN_MIGRATIONS=true. Touches only the migration-tracking
+# table; all user data is untouched.
+# ---------------------------------------------------------------------------
+prune_orphan_migrations() {
+  [ "${PRISMA_PRUNE_ORPHAN_MIGRATIONS:-false}" = "true" ] || return 0
+
+  disk_names=""
+  for dir in prisma/migrations/*/; do
+    [ -d "$dir" ] || continue
+    disk_names="${disk_names}'$(basename "$dir")',"
+  done
+  # Strip trailing comma
+  disk_names="${disk_names%,}"
+  [ -z "$disk_names" ] && return 0
+
+  echo "PRISMA_PRUNE_ORPHAN_MIGRATIONS=true — deleting _prisma_migrations rows"
+  echo "                                   whose name is not on disk..."
+  printf 'DELETE FROM _prisma_migrations WHERE migration_name NOT IN (%s) RETURNING migration_name;\n' \
+    "$disk_names" \
+    | $PRISMA_CLI db execute --stdin || {
+      echo 'WARNING: prune_orphan_migrations failed — continuing anyway.'
+      return 0
+    }
+  echo "Prune complete."
+}
+
+# ---------------------------------------------------------------------------
 # run_migrations: deploy with retry loop and error handling
 # ---------------------------------------------------------------------------
 run_migrations() {
   attempt=1
+  last_failed_migration=""
+  consecutive_same_failure=0
   while [ "$attempt" -le "$MAX_MIGRATION_ATTEMPTS" ]; do
     echo "Migration attempt ${attempt}/${MAX_MIGRATION_ATTEMPTS}..."
     if $PRISMA_CLI migrate deploy >/tmp/prisma_migrate.log 2>&1; then
       cat /tmp/prisma_migrate.log
       echo 'Migrations applied successfully.'
       return 0
+    fi
+
+    # Always surface the actual Prisma output. The old behavior piped the log
+    # into /tmp and only printed it on the very last failure, so operators
+    # saw a stream of "rolled back" messages with no SQL error to diagnose.
+    echo "--- prisma migrate deploy output (attempt ${attempt}) ---"
+    cat /tmp/prisma_migrate.log
+    echo "--- end output ---"
+
+    # Capture the migration name this attempt tripped on so we can detect
+    # a loop where we rollback the same migration repeatedly and never
+    # make progress (symptom of an orphan _prisma_migrations row).
+    current_failed=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
+    if [ -n "$current_failed" ] && [ "$current_failed" = "$last_failed_migration" ]; then
+      consecutive_same_failure=$((consecutive_same_failure + 1))
+    else
+      consecutive_same_failure=0
+    fi
+    last_failed_migration="$current_failed"
+
+    if [ "$consecutive_same_failure" -ge 2 ]; then
+      echo "ERROR: migration '$current_failed' failed 3 times in a row —"
+      echo "       rollback+retry is not making progress."
+      detect_orphan_migrations || true
+      exit 1
     fi
 
     # ---- P3005: non-empty database ----
@@ -150,10 +249,10 @@ run_migrations() {
     fi
 
     # ---- Unknown error ----
-    echo "Migration failed on attempt ${attempt}/${MAX_MIGRATION_ATTEMPTS}:"
-    cat /tmp/prisma_migrate.log
+    echo "Migration failed on attempt ${attempt}/${MAX_MIGRATION_ATTEMPTS} with an unrecognized error."
     if [ "$attempt" -ge "$MAX_MIGRATION_ATTEMPTS" ]; then
       echo 'Max migration attempts reached. Exiting.'
+      detect_orphan_migrations || true
       exit 1
     fi
     echo "Retrying in 5 seconds..."
@@ -162,6 +261,7 @@ run_migrations() {
   done
 
   echo 'Max migration attempts reached. Exiting.'
+  detect_orphan_migrations || true
   exit 1
 }
 
@@ -172,6 +272,10 @@ if [ "$SKIP_DB_INIT" = "true" ]; then
   echo 'Skipping database migrations (SKIP_DB_INIT=true)'
 else
   wait_for_db
+  # Opt-in cleanup for operators who know they have stale _prisma_migrations
+  # rows (happens when migrations get renamed across versions). No-op by
+  # default; flip PRISMA_PRUNE_ORPHAN_MIGRATIONS=true to enable.
+  prune_orphan_migrations
   run_migrations
 fi
 

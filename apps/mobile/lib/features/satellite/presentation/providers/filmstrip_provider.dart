@@ -87,3 +87,121 @@ final filmstripProvider =
 /// filmstrip. When the user taps a thumbnail, the sheet writes the
 /// selection here and the primary map layer watches it.
 final selectedDateProvider = StateProvider<DateTime?>((ref) => null);
+
+/// The 6 indices the backend has raster tiles + colour ramps for.
+/// Kept as a typed enum so pickers + legends + map overlays all
+/// agree — any new index added on the backend goes here first.
+///
+/// Labels stay co-located with the enum so the picker widget doesn't
+/// need a parallel copy map.
+enum MappableIndex {
+  ndvi('NDVI', 'كثافة الغطاء', 0xff22c55e),
+  ndre('NDRE', 'الكلوروفيل', 0xff15803d),
+  ndwi('NDWI', 'محتوى الماء', 0xff0ea5e9),
+  evi('EVI', 'محسّن', 0xff65a30d),
+  savi('SAVI', 'مُعدَّل للتربة', 0xffca8a04),
+  lai('LAI', 'مساحة الأوراق', 0xff166534);
+
+  const MappableIndex(this.labelEn, this.labelAr, this.swatchArgb);
+
+  final String labelEn;
+  final String labelAr;
+  final int swatchArgb;
+
+  String get apiName => name; // enum `name` is already lowercase
+
+  static MappableIndex fromName(String raw) {
+    for (final m in values) {
+      if (m.name == raw.toLowerCase()) return m;
+    }
+    return MappableIndex.ndvi;
+  }
+}
+
+/// Currently-selected mappable index. Drives the tile overlay picker,
+/// the legend, the filmstrip, and the pixel-inspector popup label.
+final selectedIndexProvider =
+    StateProvider<MappableIndex>((ref) => MappableIndex.ndvi);
+
+/// Parameters for an `IndexMapData` fetch. Content-equatable so
+/// Riverpod de-dupes identical queries.
+class IndexMapArgs {
+  final String fieldId;
+  final MappableIndex index;
+  final DateTime? date;
+
+  const IndexMapArgs({
+    required this.fieldId,
+    required this.index,
+    this.date,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is IndexMapArgs &&
+          other.fieldId == fieldId &&
+          other.index == index &&
+          other.date == date;
+
+  @override
+  int get hashCode => Object.hash(fieldId, index, date);
+}
+
+/// Raster-tile metadata for (fieldId, index, date).
+final indexMapProvider =
+    FutureProvider.family.autoDispose<IndexMapData, IndexMapArgs>(
+  (ref, args) async {
+    final api = ref.watch(satelliteApiProvider);
+    return api.getIndexMap(
+      args.fieldId,
+      indexName: args.index.apiName,
+      date: args.date,
+    );
+  },
+);
+
+/// A single clicked pixel. When set, the pixel-inspector sheet becomes
+/// visible; setting back to null dismisses it.
+class PixelProbe {
+  final String fieldId;
+  final double lat;
+  final double lon;
+  final DateTime? date;
+
+  const PixelProbe({
+    required this.fieldId,
+    required this.lat,
+    required this.lon,
+    this.date,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PixelProbe &&
+          other.fieldId == fieldId &&
+          other.lat == lat &&
+          other.lon == lon &&
+          other.date == date;
+
+  @override
+  int get hashCode => Object.hash(fieldId, lat, lon, date);
+}
+
+/// Shared "which pixel is the user inspecting" bus. Null means no
+/// inspection active.
+final activePixelProbeProvider = StateProvider<PixelProbe?>((ref) => null);
+
+/// Pixel inspection fetch keyed by probe. autoDispose so the query is
+/// torn down the moment the user dismisses the sheet.
+final pixelInspectionProvider = FutureProvider.autoDispose
+    .family<PixelInspection, PixelProbe>((ref, probe) async {
+  final api = ref.watch(satelliteApiProvider);
+  return api.getPixelInspection(
+    probe.fieldId,
+    lat: probe.lat,
+    lon: probe.lon,
+    date: probe.date,
+  );
+});

@@ -110,6 +110,142 @@ class IndexColorScale extends Equatable {
   List<Object?> get props => [min, max, colors];
 }
 
+/// Raster-tile metadata for a mappable vegetation index.
+/// بيانات الطبقة النقطية لمؤشر قابل للعرض على الخريطة
+///
+/// Mirrors `GET /v1/indices/{field_id}/{index_name}/map`. The
+/// `rasterUrl` is a Sentinel Hub WMS template when configured and a
+/// simulated `/tile/{z}/{x}/{y}` path otherwise.
+class IndexMapData extends Equatable {
+  final String fieldId;
+  final String indexName;
+  final DateTime date;
+  final String rasterUrl;
+  final List<List<double>> bounds; // [[west, south], [east, north]]
+  final IndexColorScale colorScale;
+  final String labelEn;
+  final String labelAr;
+  final String unit;
+  final String dataSource;
+
+  const IndexMapData({
+    required this.fieldId,
+    required this.indexName,
+    required this.date,
+    required this.rasterUrl,
+    required this.bounds,
+    required this.colorScale,
+    required this.labelEn,
+    required this.labelAr,
+    required this.unit,
+    required this.dataSource,
+  });
+
+  factory IndexMapData.fromJson(Map<String, dynamic> json) {
+    final label = json['label'];
+    final labelMap = label is Map<String, dynamic> ? label : const {};
+    final boundsRaw = (json['bounds'] as List?) ?? const [];
+    return IndexMapData(
+      fieldId: (json['fieldId'] ?? json['field_id'] ?? '') as String,
+      indexName: (json['indexName'] ?? json['index_name'] ?? '') as String,
+      date: DateTime.tryParse((json['date'] ?? '') as String) ?? DateTime.now(),
+      rasterUrl: (json['rasterUrl'] ?? json['raster_url'] ?? '') as String,
+      bounds: boundsRaw
+          .whereType<List>()
+          .map((pair) =>
+              pair.whereType<num>().map((n) => n.toDouble()).toList())
+          .toList(),
+      colorScale: json['colorScale'] is Map
+          ? IndexColorScale.fromJson(
+              json['colorScale'] as Map<String, dynamic>,
+            )
+          : const IndexColorScale(min: -1, max: 1, colors: []),
+      labelEn: (labelMap['en'] ?? '') as String,
+      labelAr: (labelMap['ar'] ?? '') as String,
+      unit: (json['unit'] ?? 'index') as String,
+      dataSource: (json['dataSource'] ?? json['data_source'] ?? 'simulated')
+          as String,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        fieldId,
+        indexName,
+        date,
+        rasterUrl,
+        bounds,
+        colorScale,
+        labelEn,
+        labelAr,
+        unit,
+        dataSource,
+      ];
+}
+
+/// Pixel inspection — every computed index at a single (lat, lon).
+/// فحص البكسل — جميع المؤشرات عند نقطة محددة
+///
+/// Mirrors `GET /v1/indices/{field_id}/pixel`. `indices` stays as a raw
+/// Map because the backend ships 44 entries (most of them non-mappable)
+/// and wrapping each in a Dart object would be dead weight.
+class PixelInspection extends Equatable {
+  final String fieldId;
+  final double latitude;
+  final double longitude;
+  final DateTime date;
+  final String satellite;
+  final Map<String, double?> indices;
+  final List<String> mappable;
+  final String dataSource;
+
+  const PixelInspection({
+    required this.fieldId,
+    required this.latitude,
+    required this.longitude,
+    required this.date,
+    required this.satellite,
+    required this.indices,
+    required this.mappable,
+    required this.dataSource,
+  });
+
+  factory PixelInspection.fromJson(Map<String, dynamic> json) {
+    final loc = (json['location'] ?? const {}) as Map<String, dynamic>;
+    final rawIndices = (json['indices'] ?? const {}) as Map<String, dynamic>;
+    final parsedIndices = <String, double?>{};
+    for (final entry in rawIndices.entries) {
+      final v = entry.value;
+      parsedIndices[entry.key] = v is num ? v.toDouble() : null;
+    }
+    return PixelInspection(
+      fieldId: (json['fieldId'] ?? json['field_id'] ?? '') as String,
+      latitude: ((loc['latitude'] ?? 0) as num).toDouble(),
+      longitude: ((loc['longitude'] ?? 0) as num).toDouble(),
+      date: DateTime.tryParse((json['date'] ?? '') as String) ?? DateTime.now(),
+      satellite: (json['satellite'] ?? 'sentinel-2') as String,
+      indices: parsedIndices,
+      mappable: ((json['mappable'] as List?) ?? const [])
+          .whereType<String>()
+          .toList(),
+      dataSource:
+          (json['dataSource'] ?? json['data_source'] ?? 'simulated') as String,
+    );
+  }
+
+  @override
+  List<Object?> get props => [
+        fieldId,
+        latitude,
+        longitude,
+        date,
+        satellite,
+        indices,
+        mappable,
+        dataSource,
+      ];
+}
+
 /// Bilingual label pair, used for index descriptions.
 class BilingualLabel extends Equatable {
   final String en;

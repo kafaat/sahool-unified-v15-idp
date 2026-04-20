@@ -251,6 +251,68 @@ class SatelliteApi {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Phase-1 / Phase-2 map + pixel endpoints
+  // نقاط نهاية الخريطة وفحص البكسل
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Get raster-tile metadata for a mappable vegetation index.
+  /// جلب بيانات الطبقة النقطية لمؤشر قابل للعرض
+  ///
+  /// `indexName` must be one of: ndvi | ndre | ndwi | evi | savi | lai.
+  /// Backend rejects anything else with 400.
+  Future<IndexMapData> getIndexMap(
+    String fieldId, {
+    required String indexName,
+    DateTime? date,
+  }) async {
+    final uri = Uri.parse(
+      '${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/map',
+    ).replace(queryParameters: {
+      if (date != null) 'date': date.toIso8601String().substring(0, 10),
+    });
+    final response = await _client.get(uri, headers: _headers);
+    if (response.statusCode != 200) {
+      throw SatelliteApiException(
+        'فشل جلب الطبقة النقطية | Failed to load index map',
+        statusCode: response.statusCode,
+      );
+    }
+    return IndexMapData.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Click-to-inspect: every computed index at (lat, lon) for the field.
+  /// فحص البكسل: جميع المؤشرات عند نقطة
+  ///
+  /// Defaults to all 44 indices; pass [indices] to trim the server
+  /// payload to a subset.
+  Future<PixelInspection> getPixelInspection(
+    String fieldId, {
+    required double lat,
+    required double lon,
+    DateTime? date,
+    List<String>? indices,
+  }) async {
+    final uri = Uri.parse(
+      '${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/pixel',
+    ).replace(queryParameters: {
+      'lat': lat.toString(),
+      'lon': lon.toString(),
+      if (date != null) 'date': date.toIso8601String().substring(0, 10),
+      if (indices != null && indices.isNotEmpty) 'indices': indices.join(','),
+    });
+    final response = await _client.get(uri, headers: _headers);
+    if (response.statusCode != 200) {
+      throw SatelliteApiException(
+        'فشل فحص البكسل | Pixel inspection failed',
+        statusCode: response.statusCode,
+      );
+    }
+    return PixelInspection.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Phase-3 multi-date endpoints
   // نقاط نهاية متعددة التواريخ (المرحلة ٣)
   // ═══════════════════════════════════════════════════════════════════════════

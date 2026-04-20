@@ -1,5 +1,15 @@
 """
-Integration tests for Profitability API endpoints
+Integration tests for Profitability API endpoints.
+
+STATUS: covers ``legacy/main.py`` — the Python FastAPI implementation
+that was superseded by the NestJS service in ``src/``. The legacy
+module is kept for historical reference but isn't the deployed
+artifact. These tests are imported from ``legacy/`` but skipped at
+module level so they don't produce noise in CI runs: behavioural
+drift against retired code is not a useful signal.
+
+To run them anyway (archaeology / migrating behaviour):
+    RUN_LEGACY_TESTS=1 pytest apps/services/field-management-service/tests/test_api.py
 """
 
 import os
@@ -7,13 +17,19 @@ import sys
 
 import pytest
 
+if os.environ.get("RUN_LEGACY_TESTS") != "1":
+    pytest.skip(
+        "legacy Python implementation — superseded by NestJS in src/. Set RUN_LEGACY_TESTS=1 to run.",
+        allow_module_level=True,
+    )
+
 try:
     from fastapi.testclient import TestClient
 except ImportError:
     pytest.skip("fastapi not installed", allow_module_level=True)
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
+# Import from legacy/ — that's where the Python FastAPI main lives now.
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "legacy"))
 
 from main import app
 

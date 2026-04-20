@@ -147,30 +147,6 @@ def _validate_crop_type(crop_type: str | None) -> None:
         )
 
 
-def _validate_days_range(days: int) -> None:
-    """Validate days parameter is within 1-365 range."""
-    if days < 1 or days > 365:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": "days must be between 1 and 365",
-                "error_ar": "عدد الأيام يجب أن يكون بين 1 و 365",
-            },
-        )
-
-
-def _validate_ndvi_value(ndvi: float, label: str = "NDVI") -> None:
-    """Validate NDVI value is within -1 to 1 range."""
-    if ndvi < -1.0 or ndvi > 1.0:
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "error": f"{label} value must be between -1.0 and 1.0",
-                "error_ar": f"قيمة {label} يجب أن تكون بين -1.0 و 1.0",
-            },
-        )
-
-
 # Add shared modules to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "shared"))
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
@@ -637,6 +613,12 @@ class SatelliteImagery(BaseModel):
     scene_id: str
     tile_id: str
     processing_level: str
+    # "real" when sourced from a live provider (Sentinel Hub, Copernicus STAC,
+    # NASA Earthdata). "simulated" when band reflectances came from the
+    # fallback random-value generator. Mobile/web clients use this to decide
+    # whether to surface the result to farmers.
+    data_source: str = "simulated"
+    data_provider: str = "simulated"
 
 
 class VegetationIndices(BaseModel):
@@ -659,6 +641,13 @@ class FieldAnalysis(BaseModel):
     anomalies: list[str]
     recommendations_ar: list[str]
     recommendations_en: list[str]
+    # Honest data-source transparency — follows the OneSoil / EOSDA Crop
+    # Monitoring convention. "real" means indices came from a live provider
+    # (Sentinel Hub, Copernicus STAC, NASA Earthdata). "simulated" means
+    # the fallback generator produced the numbers — the farmer must not
+    # act on simulated output without acknowledgement.
+    data_source: str = "simulated"
+    data_provider: str = "simulated"
 
 
 class AdvancedVegetationIndices(BaseModel):
@@ -1189,16 +1178,16 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
         )
 
 
-@app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
-    """طلب صور الأقمار الصناعية لحقل معين"""
+def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
+    """Build a SatelliteImagery instance with simulated band reflectances.
+
+    Explicit helper so the call site stays readable and so tests can
+    assert on ``data_source == "simulated"``.
+    """
+    import random
 
     config = SATELLITE_CONFIGS[request.satellite]
 
-    # Simulate satellite imagery acquisition
-    import random
-
-    # Generate realistic band values (reflectance 0-1)
     band_values = {
         "blue": random.uniform(0.02, 0.08),
         "green": random.uniform(0.03, 0.12),
@@ -1232,41 +1221,168 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
         scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{random.randint(1000, 9999)}",
         tile_id=f"T{random.randint(30, 40)}Q{chr(random.randint(65, 90))}{chr(random.randint(65, 90))}",
         processing_level=("L2A" if request.satellite == SatelliteSource.SENTINEL2 else "L2"),
+        data_source="simulated",
+        data_provider="simulated",
+    )
+
+
+@app.post("/v1/imagery/request", response_model=SatelliteImagery)
+async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
+    """طلب صور الأقمار الصناعية لحقل معين.
+
+    Band reflectances are currently simulated — no live provider exposes the
+    per-band reflectance shape that clients expect here. The response is
+    tagged ``data_source="simulated"`` so callers never mistake it for
+    real Sentinel-2 / Landsat data (OneSoil / EOSDA transparency pattern).
+    """
+    _validate_field_id(request.field_id)
+    _require_tenant_id(user)
+    return _build_simulated_imagery(request)
+
+
+async def _analyze_field_via_multi_provider(request: "ImageryRequest") -> "FieldAnalysis | None":
+    """Try ``_multi_provider.analyze_field`` first; return None on any failure.
+
+    Follows the fallback chain used by EOSDA Crop Monitoring and OneSoil:
+    real provider → next provider → simulated provider (always tagged).
+    Returns None (not raises) so callers can cleanly degrade to the
+    in-process simulated path without duplicating error-handling logic.
+    """
+    if not (USE_MULTI_PROVIDER and _multi_provider and MultiSatelliteType):
+        return None
+
+    try:
+        mp_satellite = MultiSatelliteType(request.satellite.value)
+    except ValueError:
+        mp_satellite = MultiSatelliteType.SENTINEL2
+
+    try:
+        result = await _multi_provider.analyze_field(
+            field_id=request.field_id,
+            lat=request.latitude,
+            lon=request.longitude,
+            acquisition_date=request.start_date,
+            satellite=mp_satellite,
+        )
+    except Exception as e:
+        logger.warning("multi_provider_analyze_field_failed", error=str(e))
+        return None
+
+    if not getattr(result, "success", True) or not result.data:
+        return None
+
+    analysis = result.data
+    # Synthesize the `imagery` shape the API contract requires. The provider
+    # returns indices, not per-band reflectance, so bands stay simulated —
+    # but the indices (the actionable part) are now real when available.
+    imagery = _build_simulated_imagery(request)
+    is_sim = bool(getattr(analysis, "is_simulated", True))
+    return FieldAnalysis(
+        field_id=request.field_id,
+        analysis_date=getattr(analysis, "analysis_date", datetime.now(UTC)),
+        satellite=request.satellite,
+        imagery=imagery,
+        indices=VegetationIndices(
+            ndvi=analysis.indices.ndvi,
+            ndwi=analysis.indices.ndwi,
+            evi=analysis.indices.evi,
+            savi=analysis.indices.savi,
+            lai=analysis.indices.lai,
+            ndmi=analysis.indices.ndmi,
+        ),
+        health_score=analysis.health_score,
+        health_status=analysis.health_status,
+        anomalies=analysis.anomalies,
+        recommendations_ar=analysis.recommendations_ar,
+        recommendations_en=analysis.recommendations_en,
+        data_source="simulated" if is_sim else "real",
+        data_provider=getattr(analysis, "provider", "") or "unknown",
     )
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
 async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
-    """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
+    """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية.
+
+    Fallback chain (EOSDA/OneSoil pattern):
+        0. Tenant-scoped Redis cache (12h TTL) — skips re-querying Sentinel
+           Hub or re-running the sim on repeat calls for the same field.
+        1. ``_multi_provider`` — Sentinel Hub → Copernicus STAC → NASA
+           Earthdata → multi-provider's own SimulatedProvider.
+        2. In-process simulated path — the legacy random-band generator.
+
+    Regardless of which path served the request, the response carries
+    ``data_source`` ("real" | "simulated") and ``data_provider`` so that
+    farmers never act on synthetic numbers unknowingly.
+    """
     _validate_field_id(request.field_id)
+    # Field-scoped cache access must always be tenant-scoped. Require the
+    # tenant identifier here so cache operations can never fall back to the
+    # shared "global" namespace when user context is incomplete.
+    tenant_id = _require_tenant_id(user)
 
-    # Get imagery first
-    imagery = await request_imagery(request)
+    # Cache key includes request.start_date so historical queries
+    # (start_date in the past) don't collide with "today" queries on the
+    # same field+satellite (per Copilot review — real correctness bug).
+    # Normalize to YYYY-MM-DD so a future datetime field wouldn't fragment
+    # the cache with per-second keys.
+    if request.start_date:
+        _sd = request.start_date
+        _norm = _sd.date() if isinstance(_sd, datetime) else _sd
+        acquisition_date = _norm.isoformat()
+    else:
+        acquisition_date = None
 
-    # Extract band values for calculations
+    if _cache_available:
+        try:
+            cached = await get_cached_analysis(
+                request.field_id,
+                request.satellite.value,
+                tenant_id=tenant_id,
+                acquisition_date=acquisition_date,
+            )
+            if cached is not None:
+                return FieldAnalysis(**cached)
+        except Exception as e:
+            logger.debug("cache_get_failed", operation="analysis", error=str(e))
+
+    # Path 1: real (or provider-level simulated) multi-provider chain
+    real_result = await _analyze_field_via_multi_provider(request)
+    if real_result is not None:
+        if _cache_available:
+            try:
+                await cache_analysis(
+                    request.field_id,
+                    request.satellite.value,
+                    real_result.model_dump(mode="json"),
+                    tenant_id=tenant_id,
+                    acquisition_date=acquisition_date,
+                )
+            except Exception as e:
+                logger.debug("cache_set_failed", operation="analysis", error=str(e))
+        return real_result
+
+    # Path 2: fully in-process simulated fallback (preserves prior behaviour
+    # so downstream code paths that don't have multi_provider still work)
+    imagery = _build_simulated_imagery(request)
+
     bands_dict = {b.band_name: b.value for b in imagery.bands}
-
-    # Map to standard names based on satellite
     if request.satellite == SatelliteSource.SENTINEL2:
         red = bands_dict.get("B04", 0.1)
-        bands_dict.get("B03", 0.1)
         blue = bands_dict.get("B02", 0.05)
         nir = bands_dict.get("B08", 0.3)
         swir1 = bands_dict.get("B11", 0.2)
     elif request.satellite in [SatelliteSource.LANDSAT8, SatelliteSource.LANDSAT9]:
         red = bands_dict.get("B4", 0.1)
-        bands_dict.get("B3", 0.1)
         blue = bands_dict.get("B2", 0.05)
         nir = bands_dict.get("B5", 0.3)
         swir1 = bands_dict.get("B6", 0.2)
     else:  # MODIS
         red = bands_dict.get("B01", 0.1)
-        bands_dict.get("B04", 0.1)
         blue = bands_dict.get("B03", 0.05)
         nir = bands_dict.get("B02", 0.3)
-        swir1 = 0.2  # MODIS doesn't have SWIR at this resolution
+        swir1 = 0.2  # MODIS lacks SWIR at equivalent resolution
 
-    # Calculate vegetation indices
     indices = VegetationIndices(
         ndvi=calculate_ndvi(nir, red),
         ndwi=calculate_ndwi(nir, swir1),
@@ -1276,13 +1392,10 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
         ndmi=calculate_ndmi(nir, swir1),
     )
 
-    # Assess health
     health_score, health_status, anomalies = assess_vegetation_health(indices)
-
-    # Generate recommendations
     recommendations_ar, recommendations_en = generate_recommendations(indices, anomalies)
 
-    return FieldAnalysis(
+    fallback = FieldAnalysis(
         field_id=request.field_id,
         analysis_date=datetime.now(UTC),
         satellite=request.satellite,
@@ -1293,7 +1406,26 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
         anomalies=anomalies,
         recommendations_ar=recommendations_ar,
         recommendations_en=recommendations_en,
+        data_source="simulated",
+        data_provider="simulated",
     )
+
+    # Cache the simulated fallback too, so repeat calls within the TTL
+    # window return a stable result (matters for mobile offline-first
+    # replays and for downstream NATS consumers computing deltas).
+    if _cache_available:
+        try:
+            await cache_analysis(
+                request.field_id,
+                request.satellite.value,
+                fallback.model_dump(mode="json"),
+                tenant_id=tenant_id,
+                acquisition_date=acquisition_date,
+            )
+        except Exception as e:
+            logger.debug("cache_set_failed", operation="analysis_fallback", error=str(e))
+
+    return fallback
 
 
 class AnalyzeWithActionRequest(BaseModel):
@@ -1579,35 +1711,68 @@ async def analyze_field_real(
     }
 
 
-async def _get_timeseries_data(
+async def _fetch_real_timeseries_via_multi_provider(
     field_id: str,
-    days: int = 30,
-    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
-) -> dict:
-    """Internal helper for timeseries data generation (no auth required)."""
-    _validate_field_id(field_id)
+    days: int,
+    satellite: SatelliteSource,
+    lat: float,
+    lon: float,
+) -> dict | None:
+    """Loop multi_provider.get_indices() across the satellite's revisit
+    cadence to build a real NDVI/NDWI/EVI time series.
 
-    import random
+    Returns None if multi_provider is unavailable or every per-date call
+    fails — caller then falls back to the simulated generator. When any
+    single date is served from the SimulatedProvider (last tier in the
+    fallback chain), the whole series is tagged data_source="simulated"
+    so downstream consumers never mistake a mixed result for real data.
+    """
+    if not (USE_MULTI_PROVIDER and _multi_provider and MultiSatelliteType):
+        return None
 
-    # Generate time series data
+    try:
+        mp_satellite = MultiSatelliteType(satellite.value)
+    except ValueError:
+        mp_satellite = MultiSatelliteType.SENTINEL2
+
+    revisit = SATELLITE_CONFIGS[satellite]["revisit_days"]
     timeseries = []
-    base_ndvi = random.uniform(0.3, 0.5)
+    providers_seen: set[str] = set()
+    any_simulated = False
 
-    for i in range(0, days, SATELLITE_CONFIGS[satellite]["revisit_days"]):
-        date_point = datetime.now(UTC) - timedelta(days=days - i)
-        # Add realistic variation
-        ndvi = base_ndvi + random.uniform(-0.1, 0.15) + (i / days) * 0.2
-        ndvi = max(0, min(1, ndvi))
+    for i in range(0, days, revisit):
+        query_date = (datetime.now(UTC) - timedelta(days=days - i)).date()
+        try:
+            result = await _multi_provider.get_indices(
+                lat=lat,
+                lon=lon,
+                acquisition_date=query_date,
+                satellite=mp_satellite,
+            )
+        except Exception as e:
+            logger.debug("multi_provider_get_indices_failed", date=str(query_date), error=str(e))
+            continue
+
+        if not result or not getattr(result, "data", None):
+            continue
+
+        indices = result.data
+        providers_seen.add(getattr(result, "provider", "") or "unknown")
+        if getattr(result, "is_simulated", True):
+            any_simulated = True
 
         timeseries.append(
             {
-                "date": date_point.isoformat(),
-                "ndvi": round(ndvi, 4),
-                "ndwi": round(random.uniform(-0.2, 0.4), 4),
-                "evi": round(ndvi * 0.8, 4),
-                "cloud_cover": round(random.uniform(0, 30), 1),
+                "date": datetime.combine(query_date, datetime.min.time(), tzinfo=UTC).isoformat(),
+                "ndvi": round(indices.ndvi, 4),
+                "ndwi": round(indices.ndwi, 4),
+                "evi": round(indices.evi, 4),
+                "cloud_cover": 0.0,  # multi_provider's get_indices doesn't expose per-scene cloud cover
             }
         )
+
+    if not timeseries:
+        return None
 
     return {
         "field_id": field_id,
@@ -1615,8 +1780,97 @@ async def _get_timeseries_data(
         "period_days": days,
         "data_points": len(timeseries),
         "timeseries": timeseries,
-        "trend": ("improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining"),
+        "trend": "improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining",
+        "data_source": "simulated" if any_simulated else "real",
+        "data_provider": ",".join(sorted(providers_seen)) or "unknown",
     }
+
+
+async def _get_timeseries_data(
+    field_id: str,
+    days: int = 30,
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    tenant_id: str | None = None,
+    lat: float | None = None,
+    lon: float | None = None,
+) -> dict:
+    """Internal helper for timeseries data generation (no auth required).
+
+    Strategy (EOSDA / Sentera pattern):
+        0. Tenant-scoped Redis cache (TTL=1h) — early return on hit.
+        1. When ``lat`` and ``lon`` are provided AND ``_multi_provider``
+           is available, loop ``get_indices`` across the satellite revisit
+           cadence for real data (tagged real or simulated per provider).
+        2. Fall back to the in-process random-NDVI generator, tagged
+           ``data_source="simulated"`` so consumers never mistake it for
+           real imagery.
+
+    Any result (real or simulated) is written back to cache so repeat
+    callers within the TTL window get deterministic output.
+    """
+    _validate_field_id(field_id)
+
+    # Cache lookup (tenant-scoped). Best-effort: any cache failure falls
+    # through to generation — we never fail open with stale/wrong data.
+    if _cache_available:
+        try:
+            cached = await get_cached_timeseries(field_id, days, satellite.value, tenant_id=tenant_id)
+            if cached is not None:
+                return cached
+        except Exception as e:
+            logger.debug("cache_get_failed", operation="timeseries", error=str(e))
+
+    result: dict | None = None
+
+    # Path 1: real multi_provider chain when coordinates are available
+    if lat is not None and lon is not None:
+        result = await _fetch_real_timeseries_via_multi_provider(
+            field_id=field_id,
+            days=days,
+            satellite=satellite,
+            lat=lat,
+            lon=lon,
+        )
+
+    # Path 2: in-process simulated fallback (keeps backward compatibility
+    # with callers that don't know the field's coordinates yet)
+    if result is None:
+        import random
+
+        timeseries = []
+        base_ndvi = random.uniform(0.3, 0.5)
+        for i in range(0, days, SATELLITE_CONFIGS[satellite]["revisit_days"]):
+            date_point = datetime.now(UTC) - timedelta(days=days - i)
+            ndvi = base_ndvi + random.uniform(-0.1, 0.15) + (i / days) * 0.2
+            ndvi = max(0, min(1, ndvi))
+            timeseries.append(
+                {
+                    "date": date_point.isoformat(),
+                    "ndvi": round(ndvi, 4),
+                    "ndwi": round(random.uniform(-0.2, 0.4), 4),
+                    "evi": round(ndvi * 0.8, 4),
+                    "cloud_cover": round(random.uniform(0, 30), 1),
+                }
+            )
+        result = {
+            "field_id": field_id,
+            "satellite": satellite.value,
+            "period_days": days,
+            "data_points": len(timeseries),
+            "timeseries": timeseries,
+            "trend": "improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining",
+            "data_source": "simulated",
+            "data_provider": "simulated",
+        }
+
+    # Cache-write (best-effort, non-blocking on failure)
+    if _cache_available:
+        try:
+            await cache_timeseries(field_id, days, satellite.value, result, tenant_id=tenant_id)
+        except Exception as e:
+            logger.debug("cache_set_failed", operation="timeseries", error=str(e))
+
+    return result
 
 
 @app.get("/v1/timeseries/{field_id}")
@@ -1624,13 +1878,22 @@ async def get_timeseries(
     field_id: str,
     days: int = Query(default=30, ge=7, le=365),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    lat: float | None = Query(default=None, ge=-90, le=90, description="Field latitude (enables real-data path)"),
+    lon: float | None = Query(default=None, ge=-180, le=180, description="Field longitude (enables real-data path)"),
     user: User = Depends(get_current_user),
 ):
-    """الحصول على سلسلة زمنية للمؤشرات النباتية"""
-    _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    """الحصول على سلسلة زمنية للمؤشرات النباتية.
 
-    return await _get_timeseries_data(field_id, days, satellite)
+    When ``lat`` / ``lon`` are supplied, the helper queries multi_provider
+    (Sentinel Hub → Copernicus STAC → NASA Earthdata → simulated) across
+    the satellite's revisit cadence. Without coordinates, falls back to
+    the simulated generator — both paths tag ``data_source`` on the
+    response envelope.
+    """
+    _validate_field_id(field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
+
+    return await _get_timeseries_data(field_id, days, satellite, tenant_id=tenant_id, lat=lat, lon=lon)
 
 
 # =============================================================================
@@ -1660,7 +1923,7 @@ async def analyze_ndvi_timeseries(
     - 7-day forecast (تنبؤ 7 أيام)
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
 

@@ -55,7 +55,7 @@ class SemanticMemoryEntry:
     embedding: list[float] | None = None
     embedding_ar: list[float] | None = None
     memory_type: MemoryType = MemoryType.SEMANTIC
-    priority: MemoryPriority = MemoryPriority.NORMAL
+    priority: MemoryPriority = MemoryPriority.MEDIUM
     tags: list[str] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
     created_at: datetime = field(default_factory=lambda: datetime.now(UTC))
@@ -186,7 +186,7 @@ class EnhancedSemanticMemory:
         content_ar: str | None = None,
         tags: list[str] | None = None,
         metadata: dict[str, Any] | None = None,
-        priority: MemoryPriority = MemoryPriority.NORMAL,
+        priority: MemoryPriority = MemoryPriority.MEDIUM,
         importance: float = 0.5,
     ) -> SemanticMemoryEntry:
         """

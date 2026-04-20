@@ -1315,7 +1315,22 @@ async def comprehensive_advisory(
     an unauthorised field here cuts 8 parallel calls down to zero
     and avoids leaking service topology to a probing attacker.
     """
-    tenant_id = user.tenant_id or "default"
+    # Fail-closed on missing tenant (Copilot review round 4): the old
+    # ``user.tenant_id or "default"`` silently tagged anonymous / no-
+    # tenant JWTs as "default", which then passed the ownership gate
+    # because FMS happily returned the row for that synthetic tenant.
+    # Require a real tenant up-front; verify_field_owned_by_tenant
+    # also rejects empty tenant_id but doing it here produces a
+    # clearer error + saves a network hop.
+    tenant_id = (user.tenant_id or "").strip()
+    if not tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "Tenant context required",
+                "error_ar": "سياق المستأجر مطلوب",
+            },
+        )
     # Ownership verification — mirrors vegetation-analysis-service's
     # pattern (see PR #1704). The helper talks to field-management-
     # service and forwards the Bearer JWT from the inbound request.
@@ -1384,7 +1399,21 @@ class CropLoanVerificationPayload(BaseModel):
 
 @app.post("/api/v1/loans/crop-loan-verification/{field_id}")
 async def verify_crop_loan(
-    field_id: str,
+    field_id: Annotated[
+        str,
+        # SECURITY: mirror comprehensive_advisory's validation — reject
+        # path-traversal + URL-escape characters at the framework
+        # boundary (Copilot review round 4) so a malicious field_id
+        # can't change which downstream URL gets hit when the loan
+        # engine interpolates it into the field-management / vegetation /
+        # crop-intelligence URLs.
+        FastAPIPath(
+            min_length=1,
+            max_length=100,
+            pattern=r"^[A-Za-z0-9_-]+$",
+            description="Opaque field identifier (alphanumeric, _ or -).",
+        ),
+    ],
     payload: CropLoanVerificationPayload,
     request: Request,
     user: User = Depends(get_current_user),
@@ -1426,7 +1455,17 @@ async def verify_crop_loan(
     (loans) gets explicit per-request verification instead of relying
     solely on each downstream's own tenant gate.
     """
-    tenant_id = user.tenant_id or "default"
+    # Fail-closed on missing tenant — same fix as comprehensive_advisory.
+    # See that handler's docstring for why "default" is a security hole.
+    tenant_id = (user.tenant_id or "").strip()
+    if not tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "Tenant context required",
+                "error_ar": "سياق المستأجر مطلوب",
+            },
+        )
     # Ownership verification — see comprehensive_advisory for the
     # rationale. Fail closed before touching vegetation / FMS / crop-
     # intelligence in parallel.

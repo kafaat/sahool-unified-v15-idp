@@ -115,9 +115,16 @@ def _analysis_cache_key(
     field_id: str,
     satellite: str,
     tenant_id: str | None = None,
+    acquisition_date: str | None = None,
 ) -> str:
-    """Generate cache key for field analysis."""
-    date_str = datetime.now(UTC).strftime("%Y-%m-%d")
+    """Generate cache key for field analysis.
+
+    ``acquisition_date`` (ISO-8601, e.g. ``"2026-03-15"``) must be supplied
+    when the caller requests historical imagery — otherwise the key falls
+    back to "today" and historical queries collide with live ones on the
+    same field+satellite. Per Copilot review on PR #1697.
+    """
+    date_str = acquisition_date or datetime.now(UTC).strftime("%Y-%m-%d")
     return f"satellite:t:{_ns(tenant_id)}:analysis:{field_id}:{date_str}:{satellite}"
 
 
@@ -289,9 +296,14 @@ async def get_cached_analysis(
     field_id: str,
     satellite: str,
     tenant_id: str | None = None,
+    acquisition_date: str | None = None,
 ) -> dict[str, Any] | None:
-    """Get cached field analysis. Key is tenant-scoped to prevent cross-tenant leakage."""
-    key = _analysis_cache_key(field_id, satellite, tenant_id=tenant_id)
+    """Get cached field analysis. Key is tenant-scoped + date-scoped.
+
+    ``acquisition_date`` (ISO-8601) must be supplied when the caller requests
+    historical imagery to avoid collisions with the default "today" key.
+    """
+    key = _analysis_cache_key(field_id, satellite, tenant_id=tenant_id, acquisition_date=acquisition_date)
     return await cache_get(key)
 
 
@@ -300,9 +312,10 @@ async def cache_analysis(
     satellite: str,
     analysis_data: dict[str, Any],
     tenant_id: str | None = None,
+    acquisition_date: str | None = None,
 ) -> bool:
-    """Cache field analysis results. Key is tenant-scoped to prevent cross-tenant leakage."""
-    key = _analysis_cache_key(field_id, satellite, tenant_id=tenant_id)
+    """Cache field analysis results. Key is tenant-scoped + date-scoped."""
+    key = _analysis_cache_key(field_id, satellite, tenant_id=tenant_id, acquisition_date=acquisition_date)
     return await cache_set(key, analysis_data, CacheTTL.ANALYSIS)
 
 

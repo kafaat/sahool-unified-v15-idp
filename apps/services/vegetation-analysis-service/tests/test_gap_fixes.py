@@ -30,8 +30,8 @@ if _SERVICE_ROOT not in sys.path:
 
 
 def test_vra_endpoints_have_auth_dependency():
-    """The 5 sensitive VRA routes (generate / zones / prescriptions /
-    prescription details / export) must take a `_user=Depends(get_current_user)`
+    """The 6 sensitive VRA routes (generate / zones / prescriptions /
+    prescription details / export / delete) must take a `_user=Depends(get_current_user)`
     argument — without it, any network-adjacent caller can exfiltrate
     prescriptions or cause the generator to spend compute budget."""
     src_path = os.path.join(os.path.dirname(__file__), "..", "src", "vra_endpoints.py")

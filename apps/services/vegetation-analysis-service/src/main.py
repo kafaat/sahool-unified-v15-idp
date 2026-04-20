@@ -1195,6 +1195,8 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
     tagged ``data_source="simulated"`` so callers never mistake it for
     real Sentinel-2 / Landsat data (OneSoil / EOSDA transparency pattern).
     """
+    _validate_field_id(request.field_id)
+    _require_tenant_id(user)
     return _build_simulated_imagery(request)
 
 
@@ -1274,13 +1276,24 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
     farmers never act on synthetic numbers unknowingly.
     """
     _validate_field_id(request.field_id)
+    # Field-scoped cache access must always be tenant-scoped. Require the
+    # tenant identifier here so cache operations can never fall back to the
+    # shared "global" namespace when user context is incomplete.
+    tenant_id = _require_tenant_id(user)
 
-    # Tenant-scoped cache lookup (best-effort). Done here rather than in a
-    # decorator so the cache-miss path can still do the fallback chain.
-    tenant_id = getattr(user, "tenant_id", None) if user else None
+    # Cache key includes request.start_date so historical queries
+    # (start_date in the past) don't collide with "today" queries on the
+    # same field+satellite (per Copilot review — real correctness bug).
+    acquisition_date = request.start_date.isoformat() if request.start_date else None
+
     if _cache_available:
         try:
-            cached = await get_cached_analysis(request.field_id, request.satellite.value, tenant_id=tenant_id)
+            cached = await get_cached_analysis(
+                request.field_id,
+                request.satellite.value,
+                tenant_id=tenant_id,
+                acquisition_date=acquisition_date,
+            )
             if cached is not None:
                 return FieldAnalysis(**cached)
         except Exception as e:
@@ -1296,6 +1309,7 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
                     request.satellite.value,
                     real_result.model_dump(mode="json"),
                     tenant_id=tenant_id,
+                    acquisition_date=acquisition_date,
                 )
             except Exception as e:
                 logger.debug("cache_set_failed", operation="analysis", error=str(e))
@@ -1359,6 +1373,7 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
                 request.satellite.value,
                 fallback.model_dump(mode="json"),
                 tenant_id=tenant_id,
+                acquisition_date=acquisition_date,
             )
         except Exception as e:
             logger.debug("cache_set_failed", operation="analysis_fallback", error=str(e))
@@ -1701,7 +1716,7 @@ async def _fetch_real_timeseries_via_multi_provider(
 
         timeseries.append(
             {
-                "date": datetime.combine(query_date, datetime.min.time()).isoformat(),
+                "date": datetime.combine(query_date, datetime.min.time(), tzinfo=UTC).isoformat(),
                 "ndvi": round(indices.ndvi, 4),
                 "ndwi": round(indices.ndwi, 4),
                 "evi": round(indices.evi, 4),

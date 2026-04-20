@@ -122,6 +122,10 @@ export const indicesKeys = {
     [...indicesKeys.all, 'interpret', fieldId] as const,
   timeSeries: (fieldId: string, indexName: string, start?: string, end?: string) =>
     [...indicesKeys.all, 'timeseries', fieldId, indexName, start, end] as const,
+  map: (fieldId: string, indexName: string, date?: string) =>
+    [...indicesKeys.all, 'map', fieldId, indexName, date] as const,
+  pixel: (fieldId: string, lat: number, lon: number, date?: string) =>
+    [...indicesKeys.all, 'pixel', fieldId, lat, lon, date] as const,
 };
 
 /**
@@ -191,6 +195,61 @@ export function useInterpretIndices(
         options?.growthStage,
       ),
     enabled: !!fieldId && hasIndices && (options?.enabled ?? true),
+    staleTime: 1000 * 60 * 15,
+  });
+}
+
+/**
+ * Hook to fetch raster-tile metadata for a mappable vegetation index.
+ * خطاف لجلب بيانات الطبقة النقطية لمؤشر نباتي
+ *
+ * Use this in place of `useNDVIMap` when the map supports switching
+ * between indices (NDVI / NDRE / NDWI / EVI / SAVI / LAI). The hook
+ * caches per `(fieldId, indexName, date)` triple so the tile layer
+ * can swap indices without re-fetching already-loaded layers.
+ */
+export function useIndexMap(
+  fieldId: string,
+  indexName: VegetationIndex | string,
+  options?: { date?: string; enabled?: boolean }
+) {
+  return useQuery({
+    queryKey: indicesKeys.map(fieldId, String(indexName), options?.date),
+    queryFn: () => vegetationIndicesApi.getIndexMap(fieldId, indexName, options?.date),
+    enabled: !!fieldId && !!indexName && (options?.enabled ?? true),
+    staleTime: 1000 * 60 * 60, // 1 hour — satellite tiles rarely change mid-day
+  });
+}
+
+/**
+ * Hook for click-to-inspect: all indices at a specific pixel.
+ * خطاف فحص البكسل: كل المؤشرات عند نقطة محددة
+ *
+ * Enabled only when valid coordinates are supplied, so it doesn't
+ * fire until the user actually clicks the map.
+ */
+export function usePixelInspection(
+  fieldId: string,
+  coords: { lat: number; lon: number } | null,
+  options?: {
+    date?: string;
+    indices?: Array<VegetationIndex | string>;
+    enabled?: boolean;
+  }
+) {
+  return useQuery({
+    queryKey: indicesKeys.pixel(
+      fieldId,
+      coords?.lat ?? NaN,
+      coords?.lon ?? NaN,
+      options?.date
+    ),
+    queryFn: () =>
+      vegetationIndicesApi.getPixelInspection(fieldId, coords!.lat, coords!.lon, {
+        date: options?.date,
+        indices: options?.indices,
+      }),
+    enabled: !!fieldId && !!coords && (options?.enabled ?? true),
     staleTime: 1000 * 60 * 15,
   });
 }

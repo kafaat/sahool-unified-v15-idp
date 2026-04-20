@@ -101,7 +101,18 @@
 //            — same skip+limit-only constraint, user-scoped.
 //          * CHAIN_VALIDATE (/audit/chain/validate)
 //          Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.19.0" as const;
+// 4.20.0 - SATELLITE_ENDPOINTS extended with two endpoints that back the
+//          map-visualization upgrade (Phase 1 + 2):
+//          * INDEX_MAP  (/satellite/v1/indices/{fieldId}/{indexName}/map)
+//            — raster-tile metadata per index so the MapLibre layer can
+//            render any of NDVI / NDRE / NDWI / EVI / SAVI / LAI, not
+//            just hard-coded NDVI. Returns `{rasterUrl, bounds,
+//            colorScale, label, unit, dataSource}`.
+//          * INDEX_PIXEL (/satellite/v1/indices/{fieldId}/pixel)
+//            — all 44 computed indices at a given lat/lon, powering the
+//            EOSDA/OneSoil-style click-to-inspect popup.
+//          Purely additive; no existing exports removed.
+export const CONTRACT_VERSION = "4.20.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

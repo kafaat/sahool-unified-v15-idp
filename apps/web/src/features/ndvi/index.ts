@@ -32,7 +32,14 @@ export type {
 
 // API
 export { ndviApi, vegetationIndicesApi } from './api';
-export type { NDVIData, NDVITimeSeries, NDVIMapData, NDVIFilters } from './api';
+export type {
+  NDVIData,
+  NDVITimeSeries,
+  NDVIMapData,
+  NDVIFilters,
+  IndexMapData,
+  PixelInspection,
+} from './api';
 
 // Hooks - NDVI (legacy, still supported)
 export {
@@ -52,5 +59,15 @@ export {
   useSpecificIndex,
   useInterpretIndices,
   useIndexTimeSeries,
+  useIndexMap,
+  usePixelInspection,
   indicesKeys,
 } from './hooks/useNDVI';
+
+// Map visualization components (Phase 1 + 2)
+export { IndexPicker, MAPPABLE_INDICES } from './components/IndexPicker';
+export type { IndexPickerProps } from './components/IndexPicker';
+export { PixelInspectorPopup } from './components/PixelInspectorPopup';
+export type { PixelInspectorPopupProps } from './components/PixelInspectorPopup';
+export { IndexTimeSlider } from './components/IndexTimeSlider';
+export type { IndexTimeSliderProps } from './components/IndexTimeSlider';

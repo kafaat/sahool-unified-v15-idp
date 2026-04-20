@@ -3062,6 +3062,154 @@ async def get_specific_index(
     }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Map-visualization endpoints (Phase 1 + 2 of "indices on the map" initiative)
+#
+# - /v1/indices/{field_id}/{index_name}/map → raster tile URL + color scale
+#   for the 6 indices the web client already has colour ramps for (NDVI,
+#   NDWI, EVI, SAVI, NDRE, LAI). Lets the MapLibre layer pick any of them
+#   instead of hard-coding NDVI.
+#
+# - /v1/indices/{field_id}/pixel → every computed index at a specific
+#   lat/lon/date point, so a click on the map can populate an inspector
+#   popup with all 44 indices (the EOSDA/OneSoil "click-a-pixel" UX).
+# ─────────────────────────────────────────────────────────────────────────────
+
+try:
+    from .map_registry import MAPPABLE_INDICES as _MAPPABLE_INDICES
+    from .map_registry import sentinel_hub_wms_url as _sentinel_hub_wms_url
+except ImportError:
+    from map_registry import MAPPABLE_INDICES as _MAPPABLE_INDICES
+    from map_registry import sentinel_hub_wms_url as _sentinel_hub_wms_url
+
+
+@app.get("/v1/indices/{field_id}/{index_name}/map")
+async def get_index_map(
+    field_id: str,
+    index_name: str,
+    http_request: Request,
+    date: str | None = Query(default=None, description="ISO date (YYYY-MM-DD)"),
+    user: User = Depends(get_current_user),
+):
+    """Return raster-tile metadata for a mappable vegetation index.
+
+    Response shape matches the web ``NDVIMapData`` contract so the existing
+    MapLibre raster layer can render any of the 6 mappable indices through
+    the same code path:
+
+        {
+          "fieldId": "...",
+          "indexName": "ndre",
+          "date": "2026-04-12",
+          "rasterUrl": "https://.../{bbox-epsg-3857}/...",
+          "bounds": [[west, south], [east, north]],
+          "colorScale": {"min": -1, "max": 1, "colors": ["#...", ...]},
+          "dataSource": "sentinel_hub" | "simulated"
+        }
+
+    When Sentinel Hub is configured the rasterUrl is a real WMS template.
+    Otherwise we return a ``simulated`` placeholder so clients can still
+    develop against a stable contract.
+    """
+    _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+
+    key = index_name.lower()
+    meta = _MAPPABLE_INDICES.get(key)
+    if meta is None:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Index '{index_name}' is not renderable on the map. "
+                f"Mappable indices: {sorted(_MAPPABLE_INDICES)}"
+            ),
+        )
+
+    date_str = date or datetime.now(UTC).date().isoformat()
+    wms_url = _sentinel_hub_wms_url(key, date_str)
+
+    if wms_url:
+        raster_url = wms_url
+        data_source = "sentinel_hub"
+    else:
+        # Deterministic placeholder — safe for dev, easy to distinguish in logs.
+        raster_url = (
+            f"/api/v1/satellite/v1/indices/{field_id}/{key}/tile/{{z}}/{{x}}/{{y}}"
+            f"?date={date_str}"
+        )
+        data_source = "simulated"
+
+    # Bounds are computed client-side from the field polygon; we return the
+    # world bounds as a safe fallback so the layer always has something to
+    # clip against even when the field geometry hasn't been loaded yet.
+    bounds = [[-180.0, -85.05112878], [180.0, 85.05112878]]
+
+    return {
+        "fieldId": field_id,
+        "indexName": key,
+        "date": date_str,
+        "rasterUrl": raster_url,
+        "bounds": bounds,
+        "colorScale": {
+            "min": meta["min"],
+            "max": meta["max"],
+            "colors": meta["colors"],
+        },
+        "label": {"en": meta["label_en"], "ar": meta["label_ar"]},
+        "unit": meta["unit"],
+        "dataSource": data_source,
+    }
+
+
+@app.get("/v1/indices/{field_id}/pixel")
+async def get_pixel_inspection(
+    field_id: str,
+    http_request: Request,
+    lat: float = Query(..., ge=-90, le=90),
+    lon: float = Query(..., ge=-180, le=180),
+    date: str | None = Query(default=None, description="ISO date (YYYY-MM-DD)"),
+    indices: str | None = Query(
+        default=None,
+        description="CSV subset of indices to return. Omit for all 44.",
+    ),
+    satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    user: User = Depends(get_current_user),
+):
+    """Return every computed vegetation index at (lat, lon) for *field_id*.
+
+    Backs the map click-to-inspect UX (EOSDA/OneSoil pattern):
+    user clicks a pixel → popup shows NDVI, NDRE, NDWI, SAVI, LAI, etc.
+    at that exact coordinate, with bilingual labels.
+    """
+    _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+
+    if not _indices_available:
+        raise HTTPException(status_code=503, detail="Advanced indices module not available")
+
+    # Reuse the existing band → all-indices pipeline so there's one source
+    # of truth for the math (FPAR / fAPAR / all 44 stay in sync).
+    all_response = await get_all_indices(field_id, lat, lon, satellite)
+    indices_dict: dict[str, float | None] = all_response["indices"]
+
+    # Optional subset filter
+    if indices:
+        requested = {s.strip().lower() for s in indices.split(",") if s.strip()}
+        indices_dict = {k: v for k, v in indices_dict.items() if k in requested}
+
+    date_str = date or all_response["acquisition_date"]
+
+    return {
+        "fieldId": field_id,
+        "location": {"latitude": lat, "longitude": lon},
+        "date": date_str,
+        "satellite": satellite.value,
+        "indices": indices_dict,
+        "mappable": sorted(_MAPPABLE_INDICES),
+        "dataSource": all_response.get("data_source", "simulated"),
+    }
+
+
 @app.post("/v1/indices/interpret")
 async def interpret_indices(
     request: InterpretRequest,

@@ -58,6 +58,44 @@ export interface NDVIMapData {
   };
 }
 
+/**
+ * Raster-tile metadata for any mappable vegetation index (NDVI, NDRE, NDWI,
+ * EVI, SAVI, LAI). Returned by `GET /v1/indices/{fieldId}/{indexName}/map`.
+ * Mirrors the backend `_MAPPABLE_INDICES` shape.
+ */
+export interface IndexMapData {
+  fieldId: string;
+  indexName: string;
+  date: string;
+  rasterUrl: string;
+  bounds: [[number, number], [number, number]];
+  colorScale: {
+    min: number;
+    max: number;
+    colors: string[];
+  };
+  label: {
+    en: string;
+    ar: string;
+  };
+  unit: string;
+  dataSource: 'sentinel_hub' | 'simulated';
+}
+
+/** Every computed index at one (lat, lon) point — powers click-to-inspect. */
+export interface PixelInspection {
+  fieldId: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  date: string;
+  satellite: string;
+  indices: Record<string, number | null>;
+  mappable: string[];
+  dataSource: 'sentinel_hub' | 'simulated';
+}
+
 export interface NDVIFilters {
   fieldId?: string;
   governorate?: string;
@@ -314,6 +352,65 @@ export const vegetationIndicesApi = {
       const qs = params.toString();
 
       const response = await api.get(`${url}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    });
+  },
+
+  /**
+   * Get raster-tile metadata for a mappable vegetation index.
+   * جلب بيانات الطبقة النقطية لمؤشر نباتي قابل للعرض على الخريطة
+   *
+   * Returns a `{rasterUrl, bounds, colorScale}` envelope that the MapLibre
+   * layer can render. The rasterUrl is a Sentinel Hub WMS template when
+   * the instance is configured, or a simulated `/tile/{z}/{x}/{y}` path
+   * otherwise — same shape either way.
+   *
+   * @param fieldId - Field identifier
+   * @param indexName - One of ndvi|ndre|ndwi|evi|savi|lai
+   * @param date - Optional ISO date (YYYY-MM-DD); defaults to today
+   */
+  getIndexMap: async (
+    fieldId: string,
+    indexName: VegetationIndex | string,
+    date?: string
+  ): Promise<IndexMapData> => {
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_MAP, {
+      fieldId,
+      indexName: String(indexName).toLowerCase(),
+    });
+    return safeFetch(url, async () => {
+      const params = date ? `?date=${date}` : '';
+      const response = await api.get(`${url}${params}`);
+      return response.data;
+    });
+  },
+
+  /**
+   * Click-to-inspect: get every computed index at a lat/lon point.
+   * الحصول على جميع المؤشرات عند نقطة محددة (click-to-inspect)
+   *
+   * EOSDA/OneSoil UX parity — user clicks the map, popup shows NDVI +
+   * NDRE + NDWI + SAVI + LAI + 39 more at that exact coordinate.
+   */
+  getPixelInspection: async (
+    fieldId: string,
+    lat: number,
+    lon: number,
+    options?: {
+      date?: string;
+      indices?: Array<VegetationIndex | string>;
+    }
+  ): Promise<PixelInspection> => {
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_PIXEL, { fieldId });
+    return safeFetch(url, async () => {
+      const params = new URLSearchParams();
+      params.set('lat', String(lat));
+      params.set('lon', String(lon));
+      if (options?.date) params.set('date', options.date);
+      if (options?.indices?.length) {
+        params.set('indices', options.indices.map(String).join(','));
+      }
+      const response = await api.get(`${url}?${params.toString()}`);
       return response.data;
     });
   },

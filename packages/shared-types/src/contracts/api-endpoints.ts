@@ -285,6 +285,19 @@ export const SATELLITE_ENDPOINTS = {
   ANALYZE_FIELD: `${API_PREFIX}/satellite/analyze/{fieldId}`,
   TIMESERIES: `${API_PREFIX}/satellite/v1/timeseries/{fieldId}`,
   INDICES: `${API_PREFIX}/satellite/v1/indices/{fieldId}`,
+  /**
+   * Raster tile metadata for a specific mappable vegetation index. Returns
+   * `{rasterUrl, bounds, colorScale}`, backs the MapLibre layer that lets
+   * users switch between NDVI / NDRE / NDWI / EVI / SAVI / LAI on the map.
+   * @since CONTRACT 1.7.0
+   */
+  INDEX_MAP: `${API_PREFIX}/satellite/v1/indices/{fieldId}/{indexName}/map`,
+  /**
+   * Per-pixel "click to inspect" inspector — returns every computed index
+   * at a given lat/lon for the field (EOSDA/OneSoil pattern).
+   * @since CONTRACT 1.7.0
+   */
+  INDEX_PIXEL: `${API_PREFIX}/satellite/v1/indices/{fieldId}/pixel`,
   SATELLITES: `${API_PREFIX}/satellite/v1/satellites`,
   HEALTH: `${API_PREFIX}/satellite/health/{fieldId}`,
   PHENOLOGY: `${API_PREFIX}/satellite/phenology/{fieldId}`,

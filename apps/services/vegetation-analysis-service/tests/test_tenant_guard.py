@@ -93,6 +93,38 @@ def test_require_tenant_id_bilingual_detail():
     assert "سياق المستأجر مطلوب" in detail  # Arabic
 
 
+def test_require_tenant_id_rejects_non_string_tenant_id():
+    """Hardening (Copilot review): a truthy-but-non-string tenant_id
+    (e.g., bare MagicMock() attribute, accidental int) must be rejected.
+    Otherwise `MagicMock()` auto-attributes would silently pass."""
+    from tenant_guard import require_tenant_id
+
+    class _BadUser:
+        tenant_id = 42  # int, not str
+
+    with pytest.raises(HTTPException) as exc_info:
+        require_tenant_id(_BadUser())
+    assert exc_info.value.status_code == 403
+
+
+def test_require_tenant_id_rejects_whitespace_only_tenant_id():
+    """Whitespace-only tenant_id must be rejected (stripped → empty)."""
+    from tenant_guard import require_tenant_id
+
+    user = MagicMock(tenant_id="   ")
+    with pytest.raises(HTTPException) as exc_info:
+        require_tenant_id(user)
+    assert exc_info.value.status_code == 403
+
+
+def test_require_tenant_id_strips_whitespace_on_valid_tenant():
+    """Valid tenant_id with whitespace returns the stripped value."""
+    from tenant_guard import require_tenant_id
+
+    user = MagicMock(tenant_id="  t1  ")
+    assert require_tenant_id(user) == "t1"
+
+
 # =============================================================================
 # Integration — every protected sub-file handler calls the guard
 # =============================================================================

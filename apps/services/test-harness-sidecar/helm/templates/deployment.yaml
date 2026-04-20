@@ -1,0 +1,103 @@
+{{- /* Production guard #5 — chart fails to render if env == production */}}
+{{- if eq .Values.environment "production" }}
+{{- fail "test-harness-sidecar cannot be deployed in production. Remove this chart from your production Helm release." }}
+{{- end }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-harness-sidecar
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: test-harness-sidecar
+    component: test-infrastructure
+    sahool.io/non-production-only: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-harness-sidecar
+  template:
+    metadata:
+      labels:
+        app: test-harness-sidecar
+    spec:
+      containers:
+        - name: sidecar
+          image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - containerPort: 8299
+              name: http
+          env:
+            - name: ENVIRONMENT
+              value: {{ .Values.environment | quote }}
+            - name: PORT
+              value: "8299"
+            - name: TEST_SEED_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: test-harness-sidecar-secrets
+                  key: seed_token
+            - name: POSTGRES_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: test-harness-sidecar-secrets
+                  key: postgres_dsn
+            - name: TEST_TENANT_WHITELIST
+              value: {{ .Values.tenantWhitelist | toJson | quote }}
+          livenessProbe:
+            httpGet: { path: /healthz, port: 8299 }
+            periodSeconds: 30
+          readinessProbe:
+            httpGet: { path: /readyz, port: 8299 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-harness-sidecar
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: test-harness-sidecar
+  ports:
+    - port: 8299
+      targetPort: 8299
+      name: http
+  type: ClusterIP
+---
+# Production guard #7 — staging-only ingress class.
+# Production Kong cluster does NOT process this class.
+apiVersion: configuration.konghq.com/v1
+kind: KongIngress
+metadata:
+  name: test-harness-sidecar-kong
+  namespace: {{ .Values.namespace }}
+  annotations:
+    konghq.com/ingress-class: "{{ .Values.kongIngressClass | default "staging-only" }}"
+route:
+  strip_path: false
+  preserve_host: true
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: test-harness-sidecar-restrict
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: test-harness-sidecar
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: kong
+        - podSelector:
+            matchLabels:
+              sahool.io/role: e2e-runner

@@ -1,0 +1,26 @@
+namespace: sahool-staging
+# CRITICAL: Helm chart fails (refuses to render) if this value is "production".
+# See helm/templates/deployment.yaml header.
+environment: staging
+
+image:
+  registry: registry.sahool.ye
+  repository: test-harness-sidecar
+  tag: "1.0.0"
+  pullPolicy: IfNotPresent
+
+# Production Kong cluster does NOT process this ingress class — staging only.
+kongIngressClass: staging-only
+
+# Whitelist enforced per-request — strict prefix policy in src/config.py
+tenantWhitelist:
+  - tenant_e2e_staging
+  - tenant_test_staging
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

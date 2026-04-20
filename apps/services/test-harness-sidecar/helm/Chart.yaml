@@ -1,0 +1,9 @@
+apiVersion: v2
+name: test-harness-sidecar
+description: |
+  SAHOOL Test Harness Sidecar — staging/dev only.
+  Production deployment is refused at chart-render time
+  (see helm/templates/deployment.yaml).
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

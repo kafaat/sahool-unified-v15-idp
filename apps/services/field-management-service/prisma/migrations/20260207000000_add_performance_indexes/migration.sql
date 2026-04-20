@@ -11,32 +11,50 @@
 -- Farm Table Indexes
 -- فهارس جدول المزارع
 -- ═══════════════════════════════════════════════════════════════════════════════
+--
+-- NOTE: the `farms` table is created by the later migration
+-- `20260214000000_add_farms_table`. Prisma applies migrations in lexicographic
+-- filename order, so on a fresh database `farms` does not yet exist when this
+-- migration runs. Guarding the index creation with a table-existence check
+-- makes this migration idempotent and order-independent: if `farms` is not
+-- there yet we skip (the indexes are also created IF NOT EXISTS inside
+-- 20260214 itself), and if it is there we create them here. Either way the
+-- end state is the same.
+DO $$
+BEGIN
+  IF to_regclass('public.farms') IS NOT NULL THEN
+    -- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
+    CREATE INDEX IF NOT EXISTS "idx_farm_tenant_active"
+        ON "farms" ("tenant_id", "is_deleted");
 
--- Composite index for filtering active farms by tenant
--- فهرس مركب لتصفية المزارع النشطة حسب المستأجر
--- drift:safe reason=CREATE INDEX inside a Prisma-managed transaction cannot use CONCURRENTLY; zero-downtime index creation must be run manually outside Prisma migrate on large production tables.
-CREATE INDEX IF NOT EXISTS "idx_farm_tenant_active"
-    ON "farms" ("tenant_id", "is_deleted");
+    CREATE INDEX IF NOT EXISTS "idx_farm_owner"
+        ON "farms" ("owner_id");
 
--- Index for owner queries
--- فهرس لاستعلامات المالك
-CREATE INDEX IF NOT EXISTS "idx_farm_owner"
-    ON "farms" ("owner_id");
-
--- Index for time-based queries
--- فهرس للاستعلامات الزمنية
-CREATE INDEX IF NOT EXISTS "idx_farm_created"
-    ON "farms" ("created_at");
+    CREATE INDEX IF NOT EXISTS "idx_farm_created"
+        ON "farms" ("created_at");
+  END IF;
+END $$;
 
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Field Table Indexes
 -- فهارس جدول الحقول
 -- ═══════════════════════════════════════════════════════════════════════════════
 
--- Index for farm relationship
--- فهرس لعلاقة المزرعة
-CREATE INDEX IF NOT EXISTS "idx_field_farm"
-    ON "fields" ("farm_id");
+-- `fields.farm_id` column is added by 20260214000000_add_farms_table. Guard
+-- the index so this migration works whether the column exists yet or not.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name   = 'fields'
+      AND column_name  = 'farm_id'
+  ) THEN
+    CREATE INDEX IF NOT EXISTS "idx_field_farm"
+        ON "fields" ("farm_id");
+  END IF;
+END $$;
 
 -- Composite index for tenant + status filtering (most common query pattern)
 -- فهرس مركب لتصفية المستأجر + الحالة (نمط الاستعلام الأكثر شيوعًا)

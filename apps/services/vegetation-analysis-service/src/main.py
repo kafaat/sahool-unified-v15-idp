@@ -1284,7 +1284,14 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
     # Cache key includes request.start_date so historical queries
     # (start_date in the past) don't collide with "today" queries on the
     # same field+satellite (per Copilot review — real correctness bug).
-    acquisition_date = request.start_date.isoformat() if request.start_date else None
+    # Normalize to YYYY-MM-DD so a future datetime field wouldn't fragment
+    # the cache with per-second keys.
+    if request.start_date:
+        _sd = request.start_date
+        _norm = _sd.date() if isinstance(_sd, datetime) else _sd
+        acquisition_date = _norm.isoformat()
+    else:
+        acquisition_date = None
 
     if _cache_available:
         try:

@@ -29,6 +29,8 @@ export default defineConfig({
       "tests/integration/database/**/*.{test,spec}.{ts,tsx}",
       // Financial Precision & Wallet Tests
       "tests/integration/financial/**/*.{test,spec}.{ts,tsx}",
+      // UX Experience Tests (filesystem-based)
+      "tests/e2e/ux-scenarios/**/*.{test,spec}.{ts,tsx}",
     ],
     exclude: [
       "**/node_modules/**",

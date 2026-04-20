@@ -17,6 +17,7 @@ from shared.auth.models import User
 
 from .cache import cache_invalidate_field
 from .field_boundary_detector import BoundaryChange
+from .tenant_guard import require_tenant_id
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
+        require_tenant_id(_user)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
@@ -145,6 +147,7 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
+        require_tenant_id(_user)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
@@ -222,6 +225,7 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
+        require_tenant_id(_user)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 

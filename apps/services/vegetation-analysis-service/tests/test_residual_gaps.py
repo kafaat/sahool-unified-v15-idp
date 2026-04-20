@@ -122,6 +122,13 @@ _SUBFILE_FIELD_ID_HANDLERS = [
     ("gdd_endpoints.py", "get_gdd_chart"),
     ("vra_endpoints.py", "get_management_zones"),
     ("vra_endpoints.py", "get_field_prescriptions"),
+    # Copilot review #1704 round 3: the VRA *generate* endpoint is a
+    # body-param handler (not path-param), but still ops on a specific
+    # field_id and was previously only tenant-gated. Must now compose
+    # ownership too. The AST-scan treats it the same way — confirming
+    # both the `verify_field_owned_by_tenant` call and the
+    # `http_request` parameter.
+    ("vra_endpoints.py", "generate_vra_prescription"),
 ]
 
 

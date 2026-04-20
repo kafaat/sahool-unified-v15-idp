@@ -195,7 +195,14 @@ def bucket_into_composites(
                 "max": round(max(members), 4),
                 "status": status_for_ndvi(chosen),
             }
-            if len(members) >= 4:
+            # `statistics.quantiles(..., n=4)` defaults to `method=
+            # 'exclusive'`, which requires STRICTLY MORE than n data
+            # points (>=5 for n=4). At exactly 4 members it raises
+            # StatisticsError and crashes the whole composite
+            # (Copilot review #1704 round 3). Lift the threshold
+            # to 5 so the min/max fallback handles the 4-sample case
+            # instead of us crashing on it.
+            if len(members) >= 5:
                 quantiles = statistics.quantiles(members, n=4)
                 summary["p25"] = round(quantiles[0], 4)
                 summary["p75"] = round(quantiles[2], 4)

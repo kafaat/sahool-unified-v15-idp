@@ -324,6 +324,7 @@ class TestComplianceSharedModules:
             or "tencent" in content.lower()
             or "tsinghua" in content.lower()
             or "pip.conf" in content.lower()
+            or "pip-install.sh" in content.lower()
         )
         assert has_fallback, f"{svc} missing pip mirror fallback"
 

@@ -84,13 +84,23 @@ def _resolve_cache_fn(name: str):
     """Import cache_get / cache_set defensively so a genuine error inside
     ``cache.py`` (e.g. missing dependency) surfaces instead of being
     swallowed as "module missing" — only the relative-vs-absolute path
-    choice is tolerated."""
+    choice is tolerated.
+
+    Catches both ``ModuleNotFoundError`` (when the module file is
+    missing) AND the bare ``ImportError`` Python raises when a relative
+    import has no parent package (i.e. standalone test execution).
+    """
     try:
         from .cache import cache_get, cache_set  # type: ignore
 
         return {"cache_get": cache_get, "cache_set": cache_set}[name]
     except ModuleNotFoundError as exc:
         if exc.name not in {"cache", (__package__ + ".cache") if __package__ else "cache"}:
+            raise
+    except ImportError as exc:
+        # Raised as bare ImportError (not ModuleNotFoundError) when the
+        # module is imported standalone (no package context).
+        if "relative import" not in str(exc):
             raise
     try:
         from cache import cache_get, cache_set  # type: ignore
@@ -253,7 +263,33 @@ async def verify_field_ownership(
                 )
             return
 
+        # A well-formed field response is a JSON object (``{success, data, etag}``).
+        # `resp.json()` can legally return a list/string/number on HTTP 200, so
+        # the naive ``payload.get(...)`` would raise AttributeError and bubble as
+        # a 500 — bypass the strict/lenient decision. Guard with isinstance.
+        if not isinstance(payload, dict):
+            if _strict_mode():
+                raise HTTPException(
+                    status_code=503,
+                    detail=(
+                        "Field service returned unexpected payload shape | "
+                        "خدمة الحقول أعادت شكل استجابة غير متوقع"
+                    ),
+                )
+            return
+
         data = payload.get("data", payload)  # field-management wraps in {success, data, etag}
+        if not isinstance(data, dict):
+            if _strict_mode():
+                raise HTTPException(
+                    status_code=503,
+                    detail=(
+                        "Field service returned unexpected data shape | "
+                        "خدمة الحقول أعادت شكل بيانات غير متوقع"
+                    ),
+                )
+            return
+
         remote_tenant = data.get("tenantId") or data.get("tenant_id")
         if not remote_tenant:
             # Missing tenantId in response — can't verify.

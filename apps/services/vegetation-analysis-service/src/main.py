@@ -93,13 +93,21 @@ async def _verify_field_owned_by_tenant(user: "User | None", field_id: str) -> s
     would return — call sites can swap the helper in-place.
     """
     tenant_id = _require_tenant_id(user)
-    # Narrow-match ModuleNotFoundError on the specific submodule name so
-    # real import errors inside field_ownership (e.g. missing httpx)
-    # surface to the caller instead of being masked as "module missing".
+    # Narrow-match expected import failures so real errors inside
+    # field_ownership (e.g. missing httpx) surface to the caller instead
+    # of being masked as "module missing". Catches both:
+    #   - ModuleNotFoundError: the module file is absent
+    #   - bare ImportError:    "relative import with no known parent
+    #                           package" when main.py is imported
+    #                           standalone (test harness)
     try:
         from .field_ownership import verify_field_ownership
     except ModuleNotFoundError as exc:
         if exc.name not in {"field_ownership", __package__ + ".field_ownership" if __package__ else "field_ownership"}:
+            raise
+        from field_ownership import verify_field_ownership  # standalone test path
+    except ImportError as exc:
+        if "relative import" not in str(exc):
             raise
         from field_ownership import verify_field_ownership  # standalone test path
     await verify_field_ownership(tenant_id, field_id)

@@ -210,6 +210,44 @@ async def test_http_404_raises_404(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_non_dict_json_payload_handled_gracefully(monkeypatch):
+    """`resp.json()` can legally return a list/string/number on HTTP 200.
+    Naive `payload.get()` would raise AttributeError → bubble as 500 and
+    bypass the strict/lenient decision. Per Copilot review, guard with
+    isinstance and return a controlled 503 in strict mode."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setenv("STRICT_FIELD_VERIFICATION", "true")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    # Field service returns a bare JSON array instead of the expected object
+    transport = _MockTransport(httpx.Response(200, json=["not", "a", "dict"]))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(tenant_id="t1", field_id="f1", http_client=client)
+    assert excinfo.value.status_code == 503
+
+
+@pytest.mark.asyncio
+async def test_non_dict_data_shape_handled_gracefully(monkeypatch):
+    """Edge: response is a dict but ``data`` key is a non-dict value
+    (e.g., a string error marker). Must produce 503 in strict mode, not
+    AttributeError."""
+    from field_ownership import verify_field_ownership
+
+    monkeypatch.setenv("FIELD_SERVICE_URL", "http://field-management:3000")
+    monkeypatch.setenv("STRICT_FIELD_VERIFICATION", "true")
+    monkeypatch.setattr("field_ownership._cache_get", _async_return(None))
+
+    transport = _MockTransport(httpx.Response(200, json={"success": True, "data": "err"}))
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        with pytest.raises(HTTPException) as excinfo:
+            await verify_field_ownership(tenant_id="t1", field_id="f1", http_client=client)
+    assert excinfo.value.status_code == 503
+
+
+@pytest.mark.asyncio
 async def test_http_403_from_field_service_propagates(monkeypatch):
     """Field service itself returned 403 — treat as the authoritative
     verdict (field-management-service has stricter context than we do)."""
@@ -275,7 +313,10 @@ def test_all_field_id_handlers_use_verifier():
     import ast
 
     src_path = os.path.join(os.path.dirname(__file__), "..", "src", "main.py")
-    with open(src_path) as f:
+    # Explicit UTF-8: main.py contains Arabic error strings, so the
+    # default-locale open() can raise UnicodeDecodeError on non-UTF-8
+    # Windows / CI environments.
+    with open(src_path, encoding="utf-8") as f:
         src = f.read()
     tree = ast.parse(src)
 

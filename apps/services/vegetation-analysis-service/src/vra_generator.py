@@ -134,6 +134,16 @@ class PrescriptionMap:
     notes: str | None = None
     notes_ar: str | None = None
 
+    # Data-source transparency. When the NDVI zone layer was synthesised
+    # (no real satellite data available), both fields flag the farmer and
+    # downstream UI that this prescription must NOT be applied to the
+    # field without acknowledgement. Climate FieldView / OneSoil refuse
+    # to publish prescriptions lacking real imagery; we surface the
+    # warning instead of silently fabricating one.
+    is_synthetic: bool = False
+    data_warning_en: str | None = None
+    data_warning_ar: str | None = None
+
     def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary"""
         data = asdict(self)
@@ -156,6 +166,10 @@ class ZoneStatistics:
     ndvi_std: float
     ndvi_min: float
     ndvi_max: float
+    # True when the zones were fabricated by the fallback generator
+    # (no real NDVI raster available). Surfaces to PrescriptionMap so the
+    # API contract can warn downstream consumers.
+    is_synthetic: bool = False
 
 
 # =============================================================================
@@ -368,6 +382,17 @@ class VRAGenerator:
             cost_savings = savings_amount * product_price_per_unit
 
         # Step 4: Create prescription map
+        is_synthetic = bool(getattr(zones_stats, "is_synthetic", False))
+        warning_en = (
+            "Prescription generated from synthetic NDVI zones — no real "
+            "satellite imagery was available. Do NOT apply to the field "
+            "without independent verification."
+        ) if is_synthetic else None
+        warning_ar = (
+            "تم إنشاء الوصفة من مناطق NDVI افتراضية — لم تتوفر صور أقمار "
+            "صناعية حقيقية. لا تطبق على الحقل دون تحقق مستقل."
+        ) if is_synthetic else None
+
         prescription = PrescriptionMap(
             id=str(uuid.uuid4()),
             field_id=field_id,
@@ -388,6 +413,9 @@ class VRAGenerator:
             cost_savings=round(cost_savings, 2) if cost_savings else None,
             notes=notes,
             notes_ar=notes_ar,
+            is_synthetic=is_synthetic,
+            data_warning_en=warning_en,
+            data_warning_ar=warning_ar,
         )
 
         # Store prescription
@@ -420,8 +448,22 @@ class VRAGenerator:
         """
         logger.info(f"Classifying field {field_id} into {num_zones} zones")
 
-        # For simulation, we'll create synthetic zones
-        # In production, this would fetch actual NDVI data and classify pixels
+        # NOTE: zone classification below is SYNTHETIC — fixed NDVI stats
+        # (0.25–0.85) and a hardcoded 10 ha area applied to every field
+        # regardless of real geometry. A real implementation would fetch
+        # an NDVI raster from Sentinel Hub / Copernicus STAC and run
+        # k-means / percentile binning on the pixels within the actual
+        # field polygon. Climate FieldView and OneSoil refuse to issue
+        # prescriptions without real imagery; we surface a warning
+        # instead so the caller can decide. (is_synthetic propagates to
+        # PrescriptionMap.)
+        logger.warning(
+            "vra_synthetic_zones_generated",
+            extra={
+                "field_id": field_id,
+                "reason": "classify_zones has no real NDVI raster integration; zones are fabricated",
+            },
+        )
 
         # Simulated NDVI statistics for the field
         ndvi_mean = 0.55
@@ -503,6 +545,7 @@ class VRAGenerator:
             ndvi_std=ndvi_std,
             ndvi_min=ndvi_min,
             ndvi_max=ndvi_max,
+            is_synthetic=True,
         )
 
     def calculate_zone_rate(

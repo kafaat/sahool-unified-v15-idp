@@ -102,6 +102,12 @@ class PrescriptionMapResponse(BaseModel):
     geojson_url: str | None
     shapefile_url: str | None
     isoxml_url: str | None
+    # Data-source transparency (OneSoil / Climate FieldView convention).
+    # When true, the prescription was built from synthetic NDVI zones
+    # and must not be blindly applied — the UI should surface data_warning_*.
+    is_synthetic: bool = False
+    data_warning_en: str | None = None
+    data_warning_ar: str | None = None
 
 
 # =============================================================================
@@ -225,6 +231,9 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 geojson_url=f"/v1/vra/export/{prescription.id}?format=geojson",
                 shapefile_url=f"/v1/vra/export/{prescription.id}?format=shapefile",
                 isoxml_url=f"/v1/vra/export/{prescription.id}?format=isoxml",
+                is_synthetic=getattr(prescription, "is_synthetic", False),
+                data_warning_en=getattr(prescription, "data_warning_en", None),
+                data_warning_ar=getattr(prescription, "data_warning_ar", None),
             )
 
         except ValueError as e:
@@ -395,6 +404,9 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 geojson_url=f"/v1/vra/export/{prescription.id}?format=geojson",
                 shapefile_url=f"/v1/vra/export/{prescription.id}?format=shapefile",
                 isoxml_url=f"/v1/vra/export/{prescription.id}?format=isoxml",
+                is_synthetic=getattr(prescription, "is_synthetic", False),
+                data_warning_en=getattr(prescription, "data_warning_en", None),
+                data_warning_ar=getattr(prescription, "data_warning_ar", None),
             )
 
         except HTTPException:

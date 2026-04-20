@@ -671,9 +671,15 @@ class TestServiceRegistryCompleteness:
             ALL_HTTP_SERVICES,
             PORTLESS_SERVICES,
             DEPRECATED_SERVICES,
+            INFRA_SERVICES,
         )
 
-        registered = set(ALL_HTTP_SERVICES.keys()) | PORTLESS_SERVICES | set(DEPRECATED_SERVICES.keys())
+        registered = (
+            set(ALL_HTTP_SERVICES.keys())
+            | PORTLESS_SERVICES
+            | set(DEPRECATED_SERVICES.keys())
+            | INFRA_SERVICES
+        )
 
         buildable_in_compose: set[str] = set()
         for svc_name, svc_def in services.items():

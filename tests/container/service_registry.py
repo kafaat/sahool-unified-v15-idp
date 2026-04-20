@@ -89,6 +89,7 @@ NODE_SERVICES: dict[str, int] = {
     "iot-service": 8117,
     "lai-estimation": 3022,
     "marketplace-service": 3010,
+    "partner-auth-service": 3030,
     "research-core": 3015,
     "user-service": 3025,
     "yield-prediction": 3021,

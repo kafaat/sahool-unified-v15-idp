@@ -456,28 +456,69 @@ class VRAGenerator:
         """
         logger.info(f"Classifying field {field_id} into {num_zones} zones")
 
-        # NOTE: zone classification below is SYNTHETIC — fixed NDVI stats
-        # (0.25–0.85) and a hardcoded 10 ha area applied to every field
-        # regardless of real geometry. A real implementation would fetch
-        # an NDVI raster from Sentinel Hub / Copernicus STAC and run
-        # k-means / percentile binning on the pixels within the actual
-        # field polygon. Climate FieldView and OneSoil refuse to issue
-        # prescriptions without real imagery; we surface a warning
-        # instead so the caller can decide. (is_synthetic propagates to
-        # PrescriptionMap.)
-        logger.warning(
-            "vra_synthetic_zones_generated",
-            extra={
-                "field_id": field_id,
-                "reason": "classify_zones has no real NDVI raster integration; zones are fabricated",
-            },
-        )
-
-        # Simulated NDVI statistics for the field
+        # Try multi_provider first — pulls a real NDVI point from
+        # Sentinel Hub / Copernicus STAC / NASA Earthdata. The ndvi value
+        # is then used as the zone-mean; min/max/std are derived with a
+        # small uniform spread around it. This is still coarser than
+        # pixel-level k-means binning (which requires the field polygon
+        # + rasterio), but it replaces the hardcoded 0.55 with a value
+        # that actually reflects the field's current vigour.
         ndvi_mean = 0.55
         ndvi_std = 0.15
         ndvi_min = 0.25
         ndvi_max = 0.85
+        real_ndvi = False
+        provider_name = ""
+
+        if self.multi_provider is not None:
+            try:
+                # Import the enum lazily + defensively (works whether
+                # vra_generator is loaded as a package submodule or as a
+                # top-level module in tests).
+                try:
+                    from .multi_provider import SatelliteType as _MPSatelliteType
+                except ImportError:
+                    from multi_provider import SatelliteType as _MPSatelliteType
+
+                acq = date.date() if isinstance(date, datetime) else None
+                result = await self.multi_provider.get_indices(
+                    lat=latitude,
+                    lon=longitude,
+                    acquisition_date=acq,
+                    satellite=_MPSatelliteType.SENTINEL2,
+                )
+                if result and getattr(result, "data", None):
+                    ndvi_center = float(result.data.ndvi)
+                    # Derive per-zone band with a conservative spread
+                    # around the measured value — still coarser than
+                    # real k-means but anchored in reality.
+                    ndvi_mean = ndvi_center
+                    ndvi_std = 0.1
+                    ndvi_min = max(0.0, ndvi_center - 0.2)
+                    ndvi_max = min(1.0, ndvi_center + 0.2)
+                    real_ndvi = not bool(getattr(result, "is_simulated", True))
+                    provider_name = getattr(result, "provider", "") or ""
+            except Exception as e:
+                # stdlib logger: f-string, not kwargs.
+                logger.warning(
+                    f"vra_real_ndvi_fetch_failed field_id={field_id} error={e}"
+                )
+
+        if not real_ndvi:
+            # Either no multi_provider, or it returned simulated data.
+            # Surface the synthetic flag so downstream (PrescriptionMap,
+            # mobile UI) can refuse to dispatch the prescription.
+            logger.warning(
+                "vra_synthetic_zones_generated",
+                extra={
+                    "field_id": field_id,
+                    "reason": (
+                        "classify_zones produced synthetic zones — no real "
+                        "NDVI raster available from any provider"
+                    ),
+                    "provider_seen": provider_name or "none",
+                },
+            )
 
         # Get zone thresholds
         thresholds = self.ZONE_THRESHOLDS[num_zones]
@@ -545,6 +586,10 @@ class VRAGenerator:
             zones.append(zone)
             zone_id += 1
 
+        # Even when NDVI is from a real provider, the polygons + area
+        # remain synthetic (no real field-geometry integration yet). So
+        # is_synthetic stays True until rasterio + field polygons land.
+        # Prescription consumers use this to show the bilingual warning.
         return ZoneStatistics(
             num_zones=num_zones,
             zones=zones,

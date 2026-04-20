@@ -125,7 +125,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     """
 
     @app.post("/v1/vra/generate", response_model=PrescriptionMapResponse)
-    async def generate_vra_prescription(request: VRARequest):
+    async def generate_vra_prescription(request: VRARequest, _user=Depends(get_current_user)):
         """
         توليد خريطة وصفة التطبيق المتغير | Generate VRA Prescription Map
 
@@ -248,6 +248,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         lat: float = Query(..., description="Field latitude", ge=-90, le=90),
         lon: float = Query(..., description="Field longitude", ge=-180, le=180),
         num_zones: int = Query(3, description="Number of management zones", ge=3, le=5),
+        _user=Depends(get_current_user),
     ):
         """
         تحليل مناطق الإدارة | Get Management Zones
@@ -303,6 +304,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     async def get_field_prescriptions(
         field_id: str,
         limit: int = Query(10, description="Maximum number of prescriptions to return", ge=1, le=50),
+        _user=Depends(get_current_user),
     ):
         """
         سجل الوصفات | Get Prescription History
@@ -346,7 +348,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise HTTPException(status_code=500, detail="Failed to fetch prescriptions")
 
     @app.get("/v1/vra/prescription/{prescription_id}")
-    async def get_prescription_details(prescription_id: str):
+    async def get_prescription_details(prescription_id: str, _user=Depends(get_current_user)):
         """
         تفاصيل الوصفة | Get Prescription Details
 
@@ -419,6 +421,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     async def export_prescription(
         prescription_id: str,
         format: str = Query("geojson", description="Export format (geojson, shapefile, isoxml)"),
+        _user=Depends(get_current_user),
     ):
         """
         تصدير الوصفة | Export Prescription

@@ -1649,19 +1649,102 @@ async def analyze_field_real(
     }
 
 
+async def _fetch_real_timeseries_via_multi_provider(
+    field_id: str,
+    days: int,
+    satellite: SatelliteSource,
+    lat: float,
+    lon: float,
+) -> dict | None:
+    """Loop multi_provider.get_indices() across the satellite's revisit
+    cadence to build a real NDVI/NDWI/EVI time series.
+
+    Returns None if multi_provider is unavailable or every per-date call
+    fails — caller then falls back to the simulated generator. When any
+    single date is served from the SimulatedProvider (last tier in the
+    fallback chain), the whole series is tagged data_source="simulated"
+    so downstream consumers never mistake a mixed result for real data.
+    """
+    if not (USE_MULTI_PROVIDER and _multi_provider and MultiSatelliteType):
+        return None
+
+    try:
+        mp_satellite = MultiSatelliteType(satellite.value)
+    except ValueError:
+        mp_satellite = MultiSatelliteType.SENTINEL2
+
+    revisit = SATELLITE_CONFIGS[satellite]["revisit_days"]
+    timeseries = []
+    providers_seen: set[str] = set()
+    any_simulated = False
+
+    for i in range(0, days, revisit):
+        query_date = (datetime.now(UTC) - timedelta(days=days - i)).date()
+        try:
+            result = await _multi_provider.get_indices(
+                lat=lat,
+                lon=lon,
+                acquisition_date=query_date,
+                satellite=mp_satellite,
+            )
+        except Exception as e:
+            logger.debug("multi_provider_get_indices_failed", date=str(query_date), error=str(e))
+            continue
+
+        if not result or not getattr(result, "data", None):
+            continue
+
+        indices = result.data
+        providers_seen.add(getattr(result, "provider", "") or "unknown")
+        if getattr(result, "is_simulated", True):
+            any_simulated = True
+
+        timeseries.append(
+            {
+                "date": datetime.combine(query_date, datetime.min.time()).isoformat(),
+                "ndvi": round(indices.ndvi, 4),
+                "ndwi": round(indices.ndwi, 4),
+                "evi": round(indices.evi, 4),
+                "cloud_cover": 0.0,  # multi_provider's get_indices doesn't expose per-scene cloud cover
+            }
+        )
+
+    if not timeseries:
+        return None
+
+    return {
+        "field_id": field_id,
+        "satellite": satellite.value,
+        "period_days": days,
+        "data_points": len(timeseries),
+        "timeseries": timeseries,
+        "trend": "improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining",
+        "data_source": "simulated" if any_simulated else "real",
+        "data_provider": ",".join(sorted(providers_seen)) or "unknown",
+    }
+
+
 async def _get_timeseries_data(
     field_id: str,
     days: int = 30,
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
     tenant_id: str | None = None,
+    lat: float | None = None,
+    lon: float | None = None,
 ) -> dict:
     """Internal helper for timeseries data generation (no auth required).
 
-    Implements the cache-first pattern used by EOSDA Crop Monitoring and
-    Sentera: check tenant-scoped Redis first (TTL=1h for timeseries), fall
-    back to the generator if the key is missing, then write the result
-    back for subsequent callers. This avoids re-running the generator on
-    every anomaly/trend/phenology request against the same field-day.
+    Strategy (EOSDA / Sentera pattern):
+        0. Tenant-scoped Redis cache (TTL=1h) — early return on hit.
+        1. When ``lat`` and ``lon`` are provided AND ``_multi_provider``
+           is available, loop ``get_indices`` across the satellite revisit
+           cadence for real data (tagged real or simulated per provider).
+        2. Fall back to the in-process random-NDVI generator, tagged
+           ``data_source="simulated"`` so consumers never mistake it for
+           real imagery.
+
+    Any result (real or simulated) is written back to cache so repeat
+    callers within the TTL window get deterministic output.
     """
     _validate_field_id(field_id)
 
@@ -1675,39 +1758,48 @@ async def _get_timeseries_data(
         except Exception as e:
             logger.debug("cache_get_failed", operation="timeseries", error=str(e))
 
-    import random
+    result: dict | None = None
 
-    # Generate time series data (simulated fallback; tagged data_source)
-    timeseries = []
-    base_ndvi = random.uniform(0.3, 0.5)
-
-    for i in range(0, days, SATELLITE_CONFIGS[satellite]["revisit_days"]):
-        date_point = datetime.now(UTC) - timedelta(days=days - i)
-        # Add realistic variation
-        ndvi = base_ndvi + random.uniform(-0.1, 0.15) + (i / days) * 0.2
-        ndvi = max(0, min(1, ndvi))
-
-        timeseries.append(
-            {
-                "date": date_point.isoformat(),
-                "ndvi": round(ndvi, 4),
-                "ndwi": round(random.uniform(-0.2, 0.4), 4),
-                "evi": round(ndvi * 0.8, 4),
-                "cloud_cover": round(random.uniform(0, 30), 1),
-            }
+    # Path 1: real multi_provider chain when coordinates are available
+    if lat is not None and lon is not None:
+        result = await _fetch_real_timeseries_via_multi_provider(
+            field_id=field_id,
+            days=days,
+            satellite=satellite,
+            lat=lat,
+            lon=lon,
         )
 
-    result = {
-        "field_id": field_id,
-        "satellite": satellite.value,
-        "period_days": days,
-        "data_points": len(timeseries),
-        "timeseries": timeseries,
-        "trend": ("improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining"),
-        # OneSoil / EOSDA data-source transparency convention
-        "data_source": "simulated",
-        "data_provider": "simulated",
-    }
+    # Path 2: in-process simulated fallback (keeps backward compatibility
+    # with callers that don't know the field's coordinates yet)
+    if result is None:
+        import random
+
+        timeseries = []
+        base_ndvi = random.uniform(0.3, 0.5)
+        for i in range(0, days, SATELLITE_CONFIGS[satellite]["revisit_days"]):
+            date_point = datetime.now(UTC) - timedelta(days=days - i)
+            ndvi = base_ndvi + random.uniform(-0.1, 0.15) + (i / days) * 0.2
+            ndvi = max(0, min(1, ndvi))
+            timeseries.append(
+                {
+                    "date": date_point.isoformat(),
+                    "ndvi": round(ndvi, 4),
+                    "ndwi": round(random.uniform(-0.2, 0.4), 4),
+                    "evi": round(ndvi * 0.8, 4),
+                    "cloud_cover": round(random.uniform(0, 30), 1),
+                }
+            )
+        result = {
+            "field_id": field_id,
+            "satellite": satellite.value,
+            "period_days": days,
+            "data_points": len(timeseries),
+            "timeseries": timeseries,
+            "trend": "improving" if timeseries[-1]["ndvi"] > timeseries[0]["ndvi"] else "declining",
+            "data_source": "simulated",
+            "data_provider": "simulated",
+        }
 
     # Cache-write (best-effort, non-blocking on failure)
     if _cache_available:
@@ -1724,13 +1816,24 @@ async def get_timeseries(
     field_id: str,
     days: int = Query(default=30, ge=7, le=365),
     satellite: SatelliteSource = SatelliteSource.SENTINEL2,
+    lat: float | None = Query(default=None, ge=-90, le=90, description="Field latitude (enables real-data path)"),
+    lon: float | None = Query(default=None, ge=-180, le=180, description="Field longitude (enables real-data path)"),
     user: User = Depends(get_current_user),
 ):
-    """الحصول على سلسلة زمنية للمؤشرات النباتية"""
+    """الحصول على سلسلة زمنية للمؤشرات النباتية.
+
+    When ``lat`` / ``lon`` are supplied, the helper queries multi_provider
+    (Sentinel Hub → Copernicus STAC → NASA Earthdata → simulated) across
+    the satellite's revisit cadence. Without coordinates, falls back to
+    the simulated generator — both paths tag ``data_source`` on the
+    response envelope.
+    """
     _validate_field_id(field_id)
     tenant_id = _require_tenant_id(user)
 
-    return await _get_timeseries_data(field_id, days, satellite, tenant_id=tenant_id)
+    return await _get_timeseries_data(
+        field_id, days, satellite, tenant_id=tenant_id, lat=lat, lon=lon
+    )
 
 
 # =============================================================================

@@ -20,7 +20,7 @@ import os
 import sys
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, Header, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Response
 
 # Repo root on sys.path so ``shared.*`` is importable in the same way
 # every other SAHOOL service does it.
@@ -32,8 +32,8 @@ if _REPO_ROOT not in sys.path:
 from shared.logging_config import get_logger, setup_logging  # noqa: E402
 
 from src.config import Settings  # noqa: E402
-from src.db_adapter import close_pool, init_pool  # noqa: E402
-from src.routers import introspect, lifecycle  # noqa: E402
+from src.db_adapter import check_connection, close_pool, init_pool  # noqa: E402
+from src.routers import introspect  # noqa: E402
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -106,8 +106,48 @@ async def verify_seed_token(
         raise HTTPException(status_code=401, detail="Invalid X-Test-Seed-Token")
 
 
-# Lifecycle endpoints are PUBLIC — framework needs them BEFORE auth setup.
-app.include_router(lifecycle.router)
+# ─────────────────────────────────────────────────────────────────────────────
+# Lifecycle endpoints — PUBLIC (no auth). Kept inline in main.py so the
+# platform's service-template guard (scripts/ci/service-template-check.py)
+# can detect them by regex. Framework clients call these BEFORE auth setup.
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+@app.get("/healthz", tags=["lifecycle"])
+async def healthz() -> dict:
+    """Liveness — process is alive. No dependency checks here."""
+    return {"alive": True}
+
+
+@app.get("/readyz", tags=["lifecycle"])
+async def readyz(response: Response) -> dict:
+    """Readiness — DB reachable AND ENVIRONMENT != production.
+
+    PR 1 doesn't check NATS (no client yet); that's PR 2 territory.
+    """
+    db = await check_connection()
+    test_mode = settings.ENVIRONMENT.lower() != "production"
+    ready = db and test_mode
+    if not ready:
+        response.status_code = 503
+    return {
+        "ready": ready,
+        "database": db,
+        "test_mode": test_mode,
+        "nats": None,  # Reserved for PR 2
+    }
+
+
+@app.get("/version", tags=["lifecycle"])
+async def version() -> dict:
+    """Sidecar + contract version. Framework checks ``contract_version``
+    before running any test; mismatch → framework aborts."""
+    return {
+        "sidecar_version": settings.SIDECAR_VERSION,
+        "contract_version": settings.CONTRACT_VERSION,
+        "environment": settings.ENVIRONMENT,
+    }
+
 
 # Auth-protected endpoints
 app.include_router(

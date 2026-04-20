@@ -3499,6 +3499,12 @@ asyncio.run(main())
       context: .
       dockerfile: archive/deprecated-services/wechat-service/Dockerfile
     container_name: sahool-wechat-service
+    # Opt-in deprecated — match the comment above ("Use: docker compose
+    # --profile deprecated up"). Without this, ``docker compose up`` would
+    # start the retired service by default alongside its replacement
+    # (community-service on port 8133).
+    profiles:
+      - deprecated
     environment:
       - PORT=8135
       - LOG_LEVEL=${LOG_LEVEL:-INFO}

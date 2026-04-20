@@ -213,7 +213,6 @@ class YieldPredictor:
 
         # Calculate NDVI features
         ndvi_peak = max(ndvi_series) if ndvi_series else 0.5
-        sum(ndvi_series) / len(ndvi_series) if ndvi_series else 0.5
         ndvi_integral = self.calculate_ndvi_integral(ndvi_series)
 
         # Calculate GDD

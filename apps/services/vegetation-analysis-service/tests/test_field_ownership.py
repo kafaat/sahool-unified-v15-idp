@@ -23,6 +23,8 @@ from __future__ import annotations
 import os
 import sys
 
+from unittest.mock import MagicMock
+
 import httpx
 import pytest
 from fastapi import HTTPException
@@ -136,6 +138,135 @@ async def test_field_id_is_url_encoded_in_request(monkeypatch):
     # The slash must be percent-encoded (%2F) so it stays a single path
     # segment and can't traverse the URL path.
     assert "/api/v1/fields/..%2Fadmin" in str(req.url), f"field_id='../admin' was not URL-encoded. URL was: {req.url}"
+
+
+# =============================================================================
+# Bearer token forwarding — the fix introduced in PR #1701
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_verify_field_owned_by_tenant_forwards_bearer_from_request(monkeypatch):
+    """PR #1701 fix: ``_verify_field_owned_by_tenant`` must extract the
+    ``Authorization: Bearer ...`` header from the inbound FastAPI
+    ``http_request`` and forward it to ``verify_field_ownership``.
+
+    Without this, field-management-service's JwtAuthGuard returns 401
+    for every in-cluster lookup and the verifier becomes effectively
+    non-functional in strict mode."""
+    from src.main import _verify_field_owned_by_tenant
+
+    # Capture what verify_field_ownership sees
+    captured: dict = {}
+
+    async def _fake_verify(tenant_id, field_id, bearer_token=None, **kwargs):
+        captured["tenant_id"] = tenant_id
+        captured["field_id"] = field_id
+        captured["bearer_token"] = bearer_token
+
+    # Patch the relative+absolute import paths the helper tries
+    try:
+        monkeypatch.setattr("src.field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+    try:
+        monkeypatch.setattr("field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+
+    user = MagicMock(tenant_id="t1")
+    mock_req = MagicMock()
+    mock_req.headers = {"Authorization": "Bearer test-jwt-abc123"}
+
+    tenant_id = await _verify_field_owned_by_tenant(user, "field-1", http_request=mock_req)
+    assert tenant_id == "t1"
+    assert captured["tenant_id"] == "t1"
+    assert captured["field_id"] == "field-1"
+    assert captured["bearer_token"] == "test-jwt-abc123"
+
+
+@pytest.mark.asyncio
+async def test_verify_field_owned_by_tenant_handles_missing_authorization(monkeypatch):
+    """When the request has no Authorization header, bearer_token must
+    be None — not empty string or AttributeError."""
+    from src.main import _verify_field_owned_by_tenant
+
+    captured: dict = {}
+
+    async def _fake_verify(tenant_id, field_id, bearer_token=None, **kwargs):
+        captured["bearer_token"] = bearer_token
+
+    try:
+        monkeypatch.setattr("src.field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+    try:
+        monkeypatch.setattr("field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+
+    user = MagicMock(tenant_id="t1")
+    mock_req = MagicMock()
+    mock_req.headers = {}  # no Authorization
+
+    await _verify_field_owned_by_tenant(user, "field-1", http_request=mock_req)
+    assert captured["bearer_token"] is None
+
+
+@pytest.mark.asyncio
+async def test_verify_field_owned_by_tenant_accepts_lowercase_authorization(monkeypatch):
+    """HTTP headers are case-insensitive. Some proxies lowercase them —
+    the extractor must handle both ``Authorization`` and ``authorization``."""
+    from src.main import _verify_field_owned_by_tenant
+
+    captured: dict = {}
+
+    async def _fake_verify(tenant_id, field_id, bearer_token=None, **kwargs):
+        captured["bearer_token"] = bearer_token
+
+    try:
+        monkeypatch.setattr("src.field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+    try:
+        monkeypatch.setattr("field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+
+    user = MagicMock(tenant_id="t1")
+    mock_req = MagicMock()
+    mock_req.headers = {"authorization": "Bearer lowercase-jwt"}
+
+    await _verify_field_owned_by_tenant(user, "field-1", http_request=mock_req)
+    assert captured["bearer_token"] == "lowercase-jwt"
+
+
+@pytest.mark.asyncio
+async def test_verify_field_owned_by_tenant_ignores_non_bearer_scheme(monkeypatch):
+    """Only Bearer tokens are forwarded. Basic-auth / other schemes are
+    ignored to avoid leaking unintended credentials downstream."""
+    from src.main import _verify_field_owned_by_tenant
+
+    captured: dict = {}
+
+    async def _fake_verify(tenant_id, field_id, bearer_token=None, **kwargs):
+        captured["bearer_token"] = bearer_token
+
+    try:
+        monkeypatch.setattr("src.field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+    try:
+        monkeypatch.setattr("field_ownership.verify_field_ownership", _fake_verify)
+    except AttributeError:
+        pass
+
+    user = MagicMock(tenant_id="t1")
+    mock_req = MagicMock()
+    mock_req.headers = {"Authorization": "Basic dXNlcjpwYXNz"}
+
+    await _verify_field_owned_by_tenant(user, "field-1", http_request=mock_req)
+    assert captured["bearer_token"] is None
 
 
 @pytest.mark.asyncio
@@ -373,9 +504,15 @@ def test_all_field_id_handlers_use_verifier():
             pytest.fail(
                 f"{node.name}: still calls _require_tenant_id(user) without "
                 f"ownership verification. Swap to "
-                f"`await _verify_field_owned_by_tenant(user, field_id)`."
+                f"`await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)`."
             )
-        if "_verify_field_owned_by_tenant(user, field_id)" in body_src:
+        # Match both the base form and the new form that forwards the
+        # inbound Authorization header via ``http_request``. The
+        # http_request form is the production-correct variant.
+        if (
+            "_verify_field_owned_by_tenant(user, field_id)" in body_src
+            or "_verify_field_owned_by_tenant(user, field_id, http_request=http_request)" in body_src
+        ):
             migrated += 1
 
     # Regression pin: at least the 21 handlers that were swapped in

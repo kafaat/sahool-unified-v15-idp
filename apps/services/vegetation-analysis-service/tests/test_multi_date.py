@@ -73,9 +73,7 @@ def test_sample_dates_preserves_end_date_when_at_cap():
     ends arbitrary days before the user-selected range."""
     out = sample_dates_at_interval("2026-01-01", "2026-06-01", 1, max_samples=5)
     assert len(out) == 5
-    assert out[-1] == "2026-06-01", (
-        f"end_date dropped on cap; got {out!r}"
-    )
+    assert out[-1] == "2026-06-01", f"end_date dropped on cap; got {out!r}"
 
 
 def test_sample_dates_does_not_replace_when_end_already_sampled():

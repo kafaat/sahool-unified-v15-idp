@@ -103,7 +103,9 @@
       "Bash(awk '{print $1, $7, $8, $9}')",
       "Bash(docker inspect sahool-chat-service:*)",
       "Bash(echo \"Exit: $?\")",
-      "Bash(awk '{print $NF, $1}')"
+      "Bash(awk '{print $NF, $1}')",
+      "Bash(kill %1)",
+      "Bash(Get-Content \"D:/tmp/user_schema.sql\")"
     ]
   }
 }

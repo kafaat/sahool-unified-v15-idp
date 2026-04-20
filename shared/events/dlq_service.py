@@ -550,8 +550,17 @@ def create_app() -> FastAPI:
     return app
 
 
-# For running directly
-app = create_app()
+# For running directly via uvicorn. Guarded so services that import event subjects
+# don't crash when auth dependencies (PyJWT) are unavailable in the container.
+try:
+    app = create_app()
+except RuntimeError as _dlq_init_err:
+    import logging as _logging
+    _logging.getLogger(__name__).warning(
+        "DLQ standalone app not initialized: %s — "
+        "event subject imports will still work normally.", _dlq_init_err
+    )
+    app = None  # type: ignore[assignment]
 
 
 if __name__ == "__main__":

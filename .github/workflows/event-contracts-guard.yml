@@ -89,7 +89,7 @@ jobs:
                           errors.append(f'Event {event_name}: missing \"{field}\"')
 
                   # Validate category
-                  valid_categories = ['field', 'ndvi', 'alert', 'weather', 'irrigation', 'crop_health', 'yield', 'system']
+                  valid_categories = ['field', 'ndvi', 'alert', 'weather', 'irrigation', 'crop_health', 'yield', 'system', 'satellite', 'crop', 'iot', 'advisory', 'terrain']
                   if 'category' in event_def and event_def['category'] not in valid_categories:
                       errors.append(f'Event {event_name}: invalid category \"{event_def[\"category\"]}\"')
 

@@ -1226,7 +1226,6 @@ def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
         data_provider="simulated",
     )
 
-
 async def _analyze_field_via_multi_provider(request: "ImageryRequest") -> "FieldAnalysis | None":
     """Try ``_multi_provider.analyze_field`` first; return None on any failure.
 

@@ -5,11 +5,13 @@
 
 import { Controller, Get } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { Public } from "@sahool/nestjs-auth";
 
 @ApiTags("health")
 @Controller()
 export class HealthController {
   @Get("healthz")
+  @Public()
   @ApiOperation({ summary: "Liveness probe | فحص الحياة" })
   @ApiResponse({ status: 200, description: "Service is alive" })
   healthCheck() {
@@ -22,6 +24,7 @@ export class HealthController {
   }
 
   @Get("readyz")
+  @Public()
   @ApiOperation({ summary: "Readiness probe | فحص الجاهزية" })
   @ApiResponse({ status: 200, description: "Service is ready" })
   readinessCheck() {

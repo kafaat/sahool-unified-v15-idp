@@ -96,7 +96,14 @@
       "Bash(grep -rL \"pip-install.sh\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
       "Bash(grep -n \"def require_roles\" D:/projects/v91/sahoo-adel-full/shared/events/dlq_service.py D:/projects/v91/sahoo-adel-full/shared/security/*.py D:/projects/v91/sahoo-adel-full/shared/auth/*.py)",
       "Bash(grep -rL \"distutils-precedence\" D:/projects/v91/sahoo-adel-full/apps/services/*/Dockerfile)",
-      "Bash(xargs -I{} grep -l \"_distutils_hack\" {})"
+      "Bash(xargs -I{} grep -l \"_distutils_hack\" {})",
+      "Bash(docker image:*)",
+      "Bash(docker build:*)",
+      "Bash(docker create:*)",
+      "Bash(awk '{print $1, $7, $8, $9}')",
+      "Bash(docker inspect sahool-chat-service:*)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(awk '{print $NF, $1}')"
     ]
   }
 }

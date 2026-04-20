@@ -11,7 +11,6 @@
  */
 
 import Cookies from 'js-cookie';
-import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
 import { logger } from '../logger';
 
 // ---------------------------------------------------------------------------
@@ -168,10 +167,38 @@ class AuthApiClient {
       ? { email: trimmed.toLowerCase(), password }
       : { phone: trimmed, password };
 
-    return this.request<LoginResponse>(AUTH_ENDPOINTS.LOGIN, {
-      method: 'POST',
-      body: JSON.stringify(body),
-    });
+    // Route through the Next.js server-side proxy (/api/auth/login) instead of
+    // calling Kong directly. This avoids the browser→Kong CORS issue (wildcard
+    // origin + credentials:false) and lets the proxy set httpOnly cookies.
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT);
+      let response: Response;
+      try {
+        response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+          credentials: 'include',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return { success: false as const, error: data?.error || data?.message || 'Login failed' };
+      }
+      return { success: true as const, data: data as LoginResponse };
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return { success: false as const, error: 'Request timeout' };
+      }
+      return {
+        success: false as const,
+        error: error instanceof Error ? error.message : 'Network error - please check your connection',
+      };
+    }
   }
 
   /**
@@ -219,16 +246,43 @@ class AuthApiClient {
       return { success: false as const, error: 'Invalid email format' };
     }
 
-    return this.request<LoginResponse>(AUTH_ENDPOINTS.REGISTER, {
-      method: 'POST',
-      body: JSON.stringify({
-        email: normalizedEmail || undefined,
-        phone: input.phone || undefined,
-        password: input.password,
-        firstName: input.firstName.trim(),
-        lastName: input.lastName.trim(),
-      }),
-    });
+    // Route through the Next.js server-side proxy (/api/auth/register) instead of
+    // calling Kong directly. Avoids browser→Kong CORS failure.
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), DEFAULT_TIMEOUT);
+      let response: Response;
+      try {
+        response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: normalizedEmail || undefined,
+            phone: input.phone || undefined,
+            password: input.password,
+            firstName: input.firstName.trim(),
+            lastName: input.lastName.trim(),
+          }),
+          credentials: 'include',
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return { success: false as const, error: data?.error || data?.message || 'Registration failed' };
+      }
+      return { success: true as const, data: data as LoginResponse };
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        return { success: false as const, error: 'Request timeout' };
+      }
+      return {
+        success: false as const,
+        error: error instanceof Error ? error.message : 'Network error - please check your connection',
+      };
+    }
   }
 
   async getCurrentUser() {

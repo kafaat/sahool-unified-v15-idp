@@ -94,6 +94,12 @@ RUN apt-update.sh && \
 COPY --from=builder /workspace/user-service/package.json ./
 COPY --from=builder /workspace/user-service/package-lock.json ./
 
+# Copy pre-built @sahool/shared-events to the path that the file: dep resolves
+# to from /app (file:../packages/shared-events → /packages/shared-events).
+# Without this, npm ci cannot resolve the local workspace dep and the module
+# is missing at runtime, causing MODULE_NOT_FOUND on startup.
+COPY --from=builder /workspace/packages/shared-events /packages/shared-events
+
 # Install production dependencies with resilient retry loop
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \

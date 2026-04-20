@@ -82,76 +82,15 @@ def get_db() -> Generator[Session, None, None]:
 
 def init_db():
     """
-    Initialize database tables and run migrations.
+    Initialize database tables.
 
-    This function:
-    1. Creates tables if they don't exist
-    2. Runs migration to rename 'id' to 'equipment_id' if needed
-
-    In production, consider using Alembic migrations directly.
+    Creates tables that don't exist yet. The Equipment model maps the Python
+    attribute 'equipment_id' to the DB column 'id' (via mapped_column("id", ...)),
+    so no rename migration is required or safe to run — the FK constraint on
+    equipment_maintenance blocks any attempt to rename or retype that column.
     """
     # Create tables that don't exist
     Base.metadata.create_all(bind=engine)
-
-    # Run migration to rename id -> equipment_id if needed
-    # This handles the schema mismatch where DB has 'id' but model expects 'equipment_id'
-    try:
-        db = SessionLocal()
-
-        # Check if 'id' column exists (needs migration)
-        result = db.execute(
-            text(
-                """
-                SELECT column_name
-                FROM information_schema.columns
-                WHERE table_name = 'equipment' AND column_name = 'id'
-                """
-            )
-        )
-        has_id_column = result.fetchone() is not None
-
-        if has_id_column:
-            # Run migration: rename 'id' to 'equipment_id'
-            print("🔄 Running migration: renaming equipment.id to equipment.equipment_id...")
-            db.execute(
-                text(
-                    """
-                    ALTER TABLE equipment
-                    RENAME COLUMN id TO equipment_id
-                    """
-                )
-            )
-            # Also change type from UUID to VARCHAR(50) to match model
-            db.execute(
-                text(
-                    """
-                    ALTER TABLE equipment
-                    ALTER COLUMN equipment_id TYPE VARCHAR(50) USING equipment_id::VARCHAR(50)
-                    """
-                )
-            )
-            db.commit()
-            print("✅ Migration completed: equipment.id -> equipment.equipment_id")
-        else:
-            # Check if equipment_id column exists
-            result = db.execute(
-                text(
-                    """
-                    SELECT column_name
-                    FROM information_schema.columns
-                    WHERE table_name = 'equipment' AND column_name = 'equipment_id'
-                    """
-                )
-            )
-            has_equipment_id = result.fetchone() is not None
-            if has_equipment_id:
-                print("✅ Database schema is up to date (equipment_id column exists)")
-            else:
-                print("ℹ️  Equipment table not found or empty, will be created on first use")
-
-        db.close()
-    except Exception as e:
-        print(f"⚠️  Migration check failed (non-fatal): {e}")
 
 
 def drop_all_tables():

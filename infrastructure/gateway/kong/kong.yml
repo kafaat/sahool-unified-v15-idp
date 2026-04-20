@@ -21,11 +21,16 @@ plugins:
   # التطوير: يستخدم حرف البدل (*)
   - name: cors
     config:
-      # SECURITY: In production, set environment variable KONG_CORS_ORIGINS to:
-      # "https://app.sahool.com,https://admin.sahool.com,https://mobile.sahool.com"
-      # For development, "*" is used
+      # Development origins - includes all local dev ports.
+      # SECURITY: In production, restrict to your actual domains only.
       origins:
-        - "*"  # Replace with ${KONG_CORS_ORIGINS:-*} in production
+        - "http://localhost:3000"   # web app (Next.js)
+        - "http://localhost:3001"   # web app (alternate)
+        - "http://localhost:3002"   # admin app
+        - "http://localhost:8080"   # generic dev
+        - "https://app.sahool.io"
+        - "https://admin.sahool.io"
+        - "https://sahool.io"
       methods:
         - GET
         - POST
@@ -42,14 +47,15 @@ plugins:
         - Date
         - X-Request-Id
         - X-Correlation-Id
+        - X-Tenant-ID
       exposed_headers:
         - X-Request-Id
         - X-Correlation-Id
         - X-RateLimit-Limit-Minute
         - X-RateLimit-Remaining-Minute
-      # SECURITY FIX: credentials cannot be true with wildcard origin
-      # Set to false for development, true only with specific origins in production
-      credentials: false
+      # credentials:true is required for fetch() with credentials:'include' and
+      # allows Set-Cookie to be forwarded. Cannot be true with wildcard origin.
+      credentials: true
       max_age: 3600
       preflight_continue: false
 

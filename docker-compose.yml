@@ -1273,9 +1273,10 @@ asyncio.run(main())
     container_name: sahool-kong
     environment:
       KONG_DATABASE: "off"
-      # Load ALL YAML files from the active/ directory (kong.yml + kong-security.yml + ...)
-      # See infrastructure/gateway/kong/active/ for the list of loaded files
-      KONG_DECLARATIVE_CONFIG_DIR: /kong/declarative
+      # Load the main declarative config file.
+      # KONG_DECLARATIVE_CONFIG_DIR does not apply in Kong 3.9.0 DB-less mode;
+      # use KONG_DECLARATIVE_CONFIG pointing to the single merged kong.yml instead.
+      KONG_DECLARATIVE_CONFIG: /kong/declarative/kong.yml
       KONG_PROXY_ACCESS_LOG: /dev/stdout
       KONG_ADMIN_ACCESS_LOG: /dev/stdout
       KONG_PROXY_ERROR_LOG: /dev/stderr

@@ -10,7 +10,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timezone
 from decimal import Decimal
 
-from sqlalchemy import Boolean, DateTime, Index, Integer, Numeric, String, Text
+from sqlalchemy import Boolean, DateTime, Index, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, declarative_base, mapped_column
 
@@ -23,11 +23,23 @@ class Equipment(Base):
 
     Stores agricultural equipment and assets (tractors, pumps, drones, harvesters).
     Supports multi-tenancy, location tracking, and maintenance scheduling.
+
+    Column name mapping (Python attr → DB column):
+      equipment_id      → id
+      equipment_type    → type
+      brand             → manufacturer
+      field_id          → assigned_field_id
+      location_name     → current_location
+      current_hours     → operating_hours
+      last_maintenance_at → last_maintenance_date
+      next_maintenance_at → next_maintenance_date
+      extra_metadata    → documents
     """
 
     __tablename__ = "equipment"
 
     equipment_id: Mapped[str] = mapped_column(
+        "id",
         String(50),
         primary_key=True,
         comment="Unique equipment identifier",
@@ -53,23 +65,25 @@ class Equipment(Base):
         comment="Equipment name in Arabic",
     )
 
-    # Equipment classification
+    # Equipment classification — DB column is "type"
     equipment_type: Mapped[str] = mapped_column(
-        String(50),
+        "type",
+        String(100),
         nullable=False,
         index=True,
         comment="Equipment type: tractor, pump, drone, harvester, sprayer, pivot, sensor, vehicle, other",
     )
     status: Mapped[str] = mapped_column(
-        String(20),
+        String(50),
         nullable=False,
-        default="operational",
+        default="available",
         index=True,
-        comment="Status: operational, maintenance, inactive, repair",
+        comment="Status: available, in_use, maintenance, retired",
     )
 
-    # Equipment details
+    # Equipment details — DB column is "manufacturer"
     brand: Mapped[str | None] = mapped_column(
+        "manufacturer",
         String(100),
         nullable=True,
         comment="Equipment brand/manufacturer",
@@ -85,11 +99,6 @@ class Equipment(Base):
         unique=True,
         comment="Serial number (unique)",
     )
-    year: Mapped[int | None] = mapped_column(
-        Integer,
-        nullable=True,
-        comment="Manufacturing year",
-    )
 
     # Purchase information
     purchase_date: Mapped[datetime | None] = mapped_column(
@@ -98,90 +107,55 @@ class Equipment(Base):
         comment="Purchase date",
     )
     purchase_price: Mapped[Decimal | None] = mapped_column(
-        Numeric(12, 2),
+        Numeric(14, 2),
         nullable=True,
         comment="Purchase price",
     )
 
-    # Location information
+    # Location information — DB columns are assigned_field_id / current_location
     field_id: Mapped[str | None] = mapped_column(
+        "assigned_field_id",
         String(100),
         nullable=True,
         index=True,
         comment="Field ID where equipment is located",
     )
     location_name: Mapped[str | None] = mapped_column(
-        String(200),
+        "current_location",
+        String(255),
         nullable=True,
         comment="Location name (e.g., 'Northern Field - Sector C')",
     )
 
-    # Specifications
-    horsepower: Mapped[int | None] = mapped_column(
-        Integer,
-        nullable=True,
-        comment="Engine horsepower",
-    )
-    fuel_capacity_liters: Mapped[Decimal | None] = mapped_column(
-        Numeric(8, 2),
-        nullable=True,
-        comment="Fuel tank capacity in liters",
-    )
-
-    # Telemetry data
-    current_fuel_percent: Mapped[Decimal | None] = mapped_column(
-        Numeric(5, 2),
-        nullable=True,
-        comment="Current fuel level percentage",
-    )
+    # Telemetry — DB column is operating_hours
     current_hours: Mapped[Decimal | None] = mapped_column(
+        "operating_hours",
         Numeric(10, 2),
         nullable=True,
         comment="Current operating hours",
     )
-    current_lat: Mapped[Decimal | None] = mapped_column(
-        Numeric(10, 7),
-        nullable=True,
-        comment="Current latitude",
-    )
-    current_lon: Mapped[Decimal | None] = mapped_column(
-        Numeric(10, 7),
-        nullable=True,
-        comment="Current longitude",
-    )
 
-    # Maintenance scheduling
+    # Maintenance scheduling — DB columns use _date suffix
     last_maintenance_at: Mapped[datetime | None] = mapped_column(
+        "last_maintenance_date",
         DateTime(timezone=True),
         nullable=True,
         comment="Last maintenance date",
     )
     next_maintenance_at: Mapped[datetime | None] = mapped_column(
+        "next_maintenance_date",
         DateTime(timezone=True),
         nullable=True,
         comment="Next scheduled maintenance date",
     )
-    next_maintenance_hours: Mapped[Decimal | None] = mapped_column(
-        Numeric(10, 2),
-        nullable=True,
-        comment="Next maintenance at this hour reading",
-    )
 
-    # QR code for easy identification
-    qr_code: Mapped[str | None] = mapped_column(
-        String(100),
-        nullable=True,
-        unique=True,
-        comment="QR code for equipment registration",
-    )
-
-    # Additional metadata
+    # Additional metadata — DB column is "documents"
     extra_metadata: Mapped[dict | None] = mapped_column(
+        "documents",
         JSONB,
         nullable=True,
-        default=dict,
-        name="metadata",  # Map to existing column name in database
-        comment="Additional equipment metadata (JSON)",
+        default=list,
+        comment="Additional equipment metadata / documents (JSON)",
     )
 
     # Timestamps
@@ -200,16 +174,12 @@ class Equipment(Base):
     )
 
     __table_args__ = (
-        # Primary query pattern: tenant + status
         Index("ix_equipment_tenant_status", "tenant_id", "status"),
-        # Equipment type queries (tenant-scoped)
-        Index("ix_equipment_tenant_type", "tenant_id", "equipment_type"),
-        Index("ix_equipment_type_status", "equipment_type", "status"),
-        # Field-based queries
-        Index("ix_equipment_field_status", "field_id", "status"),
-        # Maintenance scheduling queries (tenant-scoped)
-        Index("ix_equipment_next_maintenance", "next_maintenance_at"),
-        Index("ix_equipment_tenant_maintenance", "tenant_id", "next_maintenance_at"),
+        Index("ix_equipment_tenant_type", "tenant_id", "type"),
+        Index("ix_equipment_type_status", "type", "status"),
+        Index("ix_equipment_field_status", "assigned_field_id", "status"),
+        Index("ix_equipment_next_maintenance", "next_maintenance_date"),
+        Index("ix_equipment_tenant_maintenance", "tenant_id", "next_maintenance_date"),
     )
 
     def __repr__(self) -> str:

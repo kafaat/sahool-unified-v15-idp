@@ -5,9 +5,40 @@
 
 import { connect, NatsConnection, ConnectionOptions, Events } from 'nats';
 
+/**
+ * Safely parse a NATS URL that may contain credentials.
+ * Uses lastIndexOf('@') so passwords containing '@' are handled correctly.
+ *
+ * nats://user:p@ssword@host:4222  →  { serverUrl: 'nats://host:4222', user, pass }
+ */
+function parseNatsUrl(urlStr: string): { serverUrl: string; user?: string; pass?: string } {
+  const atIdx = urlStr.lastIndexOf('@');
+  if (atIdx === -1) return { serverUrl: urlStr };
+
+  const schemeEnd = urlStr.indexOf('://');
+  if (schemeEnd === -1) return { serverUrl: urlStr };
+
+  const scheme = urlStr.slice(0, schemeEnd + 3);
+  const userinfo = urlStr.slice(schemeEnd + 3, atIdx);
+  const host = urlStr.slice(atIdx + 1);
+
+  const colonIdx = userinfo.indexOf(':');
+  if (colonIdx === -1) {
+    return { serverUrl: `${scheme}${host}`, user: userinfo };
+  }
+
+  return {
+    serverUrl: `${scheme}${host}`,
+    user: userinfo.slice(0, colonIdx),
+    pass: userinfo.slice(colonIdx + 1),
+  };
+}
+
 export interface NatsClientConfig {
   servers: string | string[];
   name?: string;
+  user?: string;
+  pass?: string;
   maxReconnectAttempts?: number;
   reconnectTimeWait?: number;
   timeout?: number;
@@ -63,9 +94,24 @@ export class NatsClient {
     this.isConnecting = true;
 
     try {
+      // Extract credentials from URL when the caller embeds them as
+      // nats://user:pass@host:port.  Passwords containing '@' or '#' break
+      // the URL constructor, so we parse manually with lastIndexOf('@').
+      let servers = this.config.servers;
+      let user = this.config.user;
+      let pass = this.config.pass;
+      if (!user && typeof servers === 'string') {
+        const parsed = parseNatsUrl(servers);
+        servers = parsed.serverUrl;
+        user = parsed.user;
+        pass = parsed.pass;
+      }
+
       const connectionOptions: ConnectionOptions = {
-        servers: this.config.servers,
+        servers,
         name: this.config.name || 'sahool-service',
+        user,
+        pass,
         maxReconnectAttempts: this.config.maxReconnectAttempts,
         reconnectTimeWait: this.config.reconnectTimeWait,
         timeout: this.config.timeout,

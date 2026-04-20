@@ -385,22 +385,14 @@ def seed_demo_data(db: Session):
             brand="John Deere",
             model="8R 410",
             serial_number="JD8R410-2023-001",
-            year=2023,
             purchase_date=datetime(2023, 3, 15),
-            horsepower=410,
-            fuel_capacity_liters=800,
-            current_fuel_percent=75,
             current_hours=1250,
             field_id="field_north",
             location_name="الحقل الشمالي - القطاع C",
-            current_lat=15.3694,
-            current_lon=44.1910,
             last_maintenance_at=now - timedelta(days=30),
             next_maintenance_at=now + timedelta(days=60),
-            next_maintenance_hours=1500,
             created_at=now - timedelta(days=365),
             updated_at=now - timedelta(hours=2),
-            qr_code="QR_EQ001_JD8R410",
         ),
         DBEquipment(
             equipment_id="eq_002",
@@ -412,16 +404,13 @@ def seed_demo_data(db: Session):
             brand="DJI",
             model="Agras T40",
             serial_number="DJI-T40-2024-012",
-            year=2024,
             purchase_date=datetime(2024, 1, 10),
-            current_fuel_percent=100,  # Battery
             current_hours=320,
             location_name="الورشة",
             last_maintenance_at=now - timedelta(days=5),
             created_at=now - timedelta(days=180),
             updated_at=now - timedelta(days=2),
-            qr_code="QR_EQ002_DJIT40",
-            metadata={"battery_cycles": 120, "max_payload_kg": 40},
+            extra_metadata={"battery_cycles": 120, "max_payload_kg": 40},
         ),
         DBEquipment(
             equipment_id="eq_003",
@@ -433,8 +422,6 @@ def seed_demo_data(db: Session):
             brand="Grundfos",
             model="SP 46-7",
             serial_number="GF-SP467-2022-045",
-            year=2022,
-            horsepower=15,
             field_id="field_north",
             location_name="البئر رقم 1",
             current_hours=8500,
@@ -442,8 +429,7 @@ def seed_demo_data(db: Session):
             next_maintenance_at=now + timedelta(days=30),
             created_at=now - timedelta(days=500),
             updated_at=now - timedelta(days=1),
-            qr_code="QR_EQ003_GFPUMP",
-            metadata={"flow_rate_m3h": 46, "head_m": 150},
+            extra_metadata={"flow_rate_m3h": 46, "head_m": 150},
         ),
         DBEquipment(
             equipment_id="eq_004",
@@ -455,16 +441,11 @@ def seed_demo_data(db: Session):
             brand="New Holland",
             model="CR9.90",
             serial_number="NH-CR990-2021-008",
-            year=2021,
-            horsepower=653,
-            fuel_capacity_liters=1100,
-            current_fuel_percent=40,
             current_hours=890,
             location_name="المخزن",
             last_maintenance_at=now - timedelta(days=120),
             created_at=now - timedelta(days=800),
             updated_at=now - timedelta(days=30),
-            qr_code="QR_EQ004_NHCR9",
         ),
         DBEquipment(
             equipment_id="eq_005",
@@ -476,7 +457,6 @@ def seed_demo_data(db: Session):
             brand="Valley",
             model="8000 Series",
             serial_number="VL-8K-2020-023",
-            year=2020,
             field_id="field_south",
             location_name="الحقل الجنوبي",
             current_hours=15000,
@@ -484,8 +464,7 @@ def seed_demo_data(db: Session):
             next_maintenance_at=now + timedelta(days=45),
             created_at=now - timedelta(days=1200),
             updated_at=now - timedelta(hours=12),
-            qr_code="QR_EQ005_VPIVOT",
-            metadata={"coverage_ha": 50, "spans": 7},
+            extra_metadata={"coverage_ha": 50, "spans": 7},
         ),
     ]
 
@@ -550,14 +529,8 @@ def get_tenant_id(user: User | None = Depends(get_current_user)) -> str:
 
 
 @app.get("/healthz")
-async def health_check(db: Session = Depends(get_db)):
+async def health_check():
     """Health check endpoint (liveness probe)"""
-    # Seed demo data if needed
-    try:
-        seed_demo_data(db)
-    except Exception as exc:
-        logger.debug("Demo data seeding skipped during health check: %s", exc)
-
     return {
         "status": "ok",
         "service": SERVICE_NAME,
@@ -893,17 +866,13 @@ async def create_equipment(
         brand=data.brand,
         model=data.model,
         serial_number=data.serial_number,
-        year=data.year,
         purchase_date=data.purchase_date,
         purchase_price=data.purchase_price,
         field_id=data.field_id,
         location_name=data.location_name,
-        horsepower=data.horsepower,
-        fuel_capacity_liters=data.fuel_capacity_liters,
         created_at=now,
         updated_at=now,
         extra_metadata=data.metadata,
-        qr_code=qr_code,
     )
 
     repository.create_equipment(db, db_eq)

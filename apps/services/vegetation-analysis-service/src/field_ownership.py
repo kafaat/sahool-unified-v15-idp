@@ -87,12 +87,14 @@ def _resolve_cache_fn(name: str):
     choice is tolerated."""
     try:
         from .cache import cache_get, cache_set  # type: ignore
+
         return {"cache_get": cache_get, "cache_set": cache_set}[name]
     except ModuleNotFoundError as exc:
         if exc.name not in {"cache", (__package__ + ".cache") if __package__ else "cache"}:
             raise
     try:
         from cache import cache_get, cache_set  # type: ignore
+
         return {"cache_get": cache_get, "cache_set": cache_set}[name]
     except ModuleNotFoundError as exc:
         if exc.name != "cache":
@@ -170,10 +172,7 @@ async def verify_field_ownership(
         # Called before _require_tenant_id — programmer error.
         raise HTTPException(
             status_code=500,
-            detail=(
-                "Field-ownership check invoked without context | "
-                "تم استدعاء فحص ملكية الحقل بدون سياق"
-            ),
+            detail=("Field-ownership check invoked without context | تم استدعاء فحص ملكية الحقل بدون سياق"),
         )
 
     # 1. Cache lookup
@@ -250,10 +249,7 @@ async def verify_field_ownership(
             if _strict_mode():
                 raise HTTPException(
                     status_code=503,
-                    detail=(
-                        "Field service returned invalid JSON | "
-                        "خدمة الحقول أعادت JSON غير صالح"
-                    ),
+                    detail=("Field service returned invalid JSON | خدمة الحقول أعادت JSON غير صالح"),
                 )
             return
 
@@ -264,10 +260,7 @@ async def verify_field_ownership(
             if _strict_mode():
                 raise HTTPException(
                     status_code=503,
-                    detail=(
-                        "Field response missing tenantId | "
-                        "استجابة الحقل بدون معرف المستأجر"
-                    ),
+                    detail=("Field response missing tenantId | استجابة الحقل بدون معرف المستأجر"),
                 )
             return
 

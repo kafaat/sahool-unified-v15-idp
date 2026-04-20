@@ -135,9 +135,7 @@ async def test_field_id_is_url_encoded_in_request(monkeypatch):
     req = transport.calls[0]
     # The slash must be percent-encoded (%2F) so it stays a single path
     # segment and can't traverse the URL path.
-    assert "/api/v1/fields/..%2Fadmin" in str(req.url), (
-        f"field_id='../admin' was not URL-encoded. URL was: {req.url}"
-    )
+    assert "/api/v1/fields/..%2Fadmin" in str(req.url), f"field_id='../admin' was not URL-encoded. URL was: {req.url}"
 
 
 @pytest.mark.asyncio

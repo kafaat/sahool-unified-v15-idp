@@ -304,25 +304,58 @@ class TestCSRFTimingAttackPrevention:
     """Tests for timing attack prevention."""
 
     def test_constant_time_comparison(self, csrf_manager):
-        """Test that token comparison uses constant-time algorithm."""
+        """Test that signature comparison uses a constant-time algorithm.
+
+        Flakiness notes (the old version of this test was failing ~4/5 runs):
+
+        * The previous "invalid" token was ``"invalid" * 20`` — a string with
+          no ``:`` separator. ``validate_token`` short-circuits on that at
+          the ``rsplit(':', 1)`` check and returns ``False`` WITHOUT hitting
+          the HMAC comparison at all. That meant we were comparing the full
+          validate-token path (with HMAC) against an early-exit path (no
+          HMAC), which legitimately has a >10× timing ratio — not a
+          timing-attack vulnerability, just structurally different branches.
+        * Now: we compare two STRUCTURALLY VALID tokens (both parse as
+          ``msg:sig``) — one with a correct signature, one with a wrong one.
+          Both reach ``hmac.compare_digest`` and take the same constant time.
+        * 200 samples + 20-sample warmup + median-based comparison damp the
+          OS scheduling noise that made a 10-sample mean unreliable.
+        """
         session_id = "session123"
-        token = csrf_manager.generate_token(session_id)
+        valid_token = csrf_manager.generate_token(session_id)
 
-        valid_times = []
-        invalid_times = []
+        # Forged token: same structure (msg:sig), but signature is wrong. The
+        # tamper is in the signature tail, so rsplit() still yields 2 parts
+        # and the HMAC comparison actually runs.
+        forged_token = valid_token[:-16] + ("0" * 16)
 
-        for _ in range(10):
+        # Warmup — first iterations have cache/branch-predictor noise.
+        for _ in range(20):
+            csrf_manager.validate_token(valid_token, session_id)
+            csrf_manager.validate_token(forged_token, session_id)
+
+        samples = 200
+        valid_times: list[float] = []
+        forged_times: list[float] = []
+        for _ in range(samples):
             start = time.perf_counter()
-            csrf_manager.validate_token(token, session_id)
+            csrf_manager.validate_token(valid_token, session_id)
             valid_times.append(time.perf_counter() - start)
 
-        for _ in range(10):
+        for _ in range(samples):
             start = time.perf_counter()
-            csrf_manager.validate_token("invalid" * 20, session_id)
-            invalid_times.append(time.perf_counter() - start)
+            csrf_manager.validate_token(forged_token, session_id)
+            forged_times.append(time.perf_counter() - start)
 
-        avg_valid = sum(valid_times) / len(valid_times)
-        avg_invalid = sum(invalid_times) / len(invalid_times)
+        valid_times.sort()
+        forged_times.sort()
+        median_valid = valid_times[samples // 2]
+        median_forged = forged_times[samples // 2]
 
-        ratio = max(avg_valid, avg_invalid) / min(avg_valid, avg_invalid)
-        assert ratio < 10, "Timing difference too large, possible timing attack vulnerability"
+        ratio = max(median_valid, median_forged) / min(median_valid, median_forged)
+        assert ratio < 10, (
+            f"Timing difference too large (ratio={ratio:.2f}, "
+            f"median_valid={median_valid * 1e6:.2f}µs, "
+            f"median_forged={median_forged * 1e6:.2f}µs). "
+            "Possible timing-attack vulnerability."
+        )

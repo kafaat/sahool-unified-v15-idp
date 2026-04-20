@@ -165,9 +165,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         # Switch to the composed guard that verifies the field belongs
         # to this tenant via field-management-service, forwarding the
         # Bearer token from `http_request`.
-        await verify_field_owned_by_tenant(
-            _user, request.field_id, http_request=http_request
-        )
+        await verify_field_owned_by_tenant(_user, request.field_id, http_request=http_request)
         try:
             # Parse VRA type
             try:

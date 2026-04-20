@@ -30,12 +30,36 @@ from __future__ import annotations
 import json
 import logging
 import os
+import re
 from typing import Any
 
 import httpx
 from fastapi import HTTPException
 
 logger = logging.getLogger(__name__)
+
+
+# UUID format — field-management-service's ParseUUIDPipe only accepts
+# this shape anyway. Validating locally before the HTTP call rejects
+# malformed ids early and addresses CodeQL's "partial SSRF" warning
+# (URL path segment derived from user input) with defense-in-depth on
+# top of the URL-encoding we already do.
+_UUID_RE = re.compile(
+    r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-"
+    r"[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+)
+
+
+def _safe_for_log(value: Any) -> str:
+    """Strip CR/LF/tab from a value before logging.
+
+    Every log call that interpolates field_id, HTTP error messages, or
+    status codes goes through this helper so an attacker can't embed
+    newlines into their input and forge separate log records (CodeQL
+    "log injection"). The stdlib logger doesn't do this sanitisation.
+    """
+    s = str(value)
+    return s.replace("\r", "").replace("\n", " ").replace("\t", " ")
 
 
 # =============================================================================
@@ -130,7 +154,11 @@ async def _cache_set(key: str, value: dict[str, Any], ttl: int) -> None:
         return
     try:
         await fn(key, value, ttl)
-    except Exception:
+    except Exception:  # noqa: BLE001
+        # Cache write is pure optimisation — if Redis is unavailable
+        # or the key format changes, the worst outcome is a cache miss
+        # on the next request. Never let a cache failure block the
+        # ownership check itself.
         pass
 
 
@@ -185,6 +213,17 @@ async def verify_field_ownership(
             detail=("Field-ownership check invoked without context | تم استدعاء فحص ملكية الحقل بدون سياق"),
         )
 
+    # Validate field_id format LOCALLY before building the outgoing URL.
+    # field-management-service uses ParseUUIDPipe and would reject
+    # non-UUID values with 400 anyway — but catching it here stops a
+    # crafted value from ever becoming part of the request path (CodeQL
+    # partial-SSRF defense-in-depth on top of the URL-encoding below).
+    if not _UUID_RE.match(field_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid field_id | معرف الحقل غير صالح",
+        )
+
     # 1. Cache lookup
     cache_key = _cache_key(tenant_id, field_id)
     cached = await _cache_get(cache_key)
@@ -216,14 +255,25 @@ async def verify_field_ownership(
         try:
             resp = await client.get(url, headers=headers)
         except (httpx.TimeoutException, httpx.ConnectError, httpx.HTTPError) as e:
+            # Sanitize user-controlled values (field_id, exception message)
+            # before logging so a crafted input can't inject CRLF and
+            # forge separate log records (CodeQL: log-injection).
+            safe_fid = _safe_for_log(field_id)
+            safe_err = _safe_for_log(e)
             if _strict_mode():
-                logger.warning(f"field_ownership_verify_failed strict=true field_id={field_id} error={e}")
+                logger.warning(
+                    "field_ownership_verify_failed strict=true field_id=%s error=%s",
+                    safe_fid,
+                    safe_err,
+                )
                 raise HTTPException(
                     status_code=503,
                     detail=("Field ownership service unavailable | خدمة التحقق من ملكية الحقل غير متاحة"),
                 ) from e
             logger.warning(
-                f"field_ownership_verify_failed strict=false field_id={field_id} error={e} — allowing through"
+                "field_ownership_verify_failed strict=false field_id=%s error=%s — allowing through",
+                safe_fid,
+                safe_err,
             )
             return
 
@@ -253,8 +303,11 @@ async def verify_field_ownership(
         if resp.status_code != 200:
             # Any other unexpected status — strict mode 503, lenient bypass.
             if _strict_mode():
+                # Sanitize user-controlled values (CodeQL: log-injection).
                 logger.warning(
-                    f"field_ownership_verify_unexpected_status status={resp.status_code} field_id={field_id}"
+                    "field_ownership_verify_unexpected_status status=%s field_id=%s",
+                    resp.status_code,
+                    _safe_for_log(field_id),
                 )
                 raise HTTPException(
                     status_code=503,

@@ -1618,7 +1618,7 @@ async def analyze_ndvi_timeseries(
     - Seasonal metrics (المقاييس الموسمية)
     - 7-day forecast (تنبؤ 7 أيام)
     """
-    _require_tenant_id(user)
+    tenant_id = _require_tenant_id(user)
     _validate_field_id(field_id)
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")

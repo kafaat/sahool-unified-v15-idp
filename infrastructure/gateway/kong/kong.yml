@@ -135,7 +135,7 @@ services:
       #   /api/v1/fields/{fieldId}/boundary-history/rollback (BOUNDARY_ROLLBACK)
       #   /api/v1/fields/healthz                        (SERVICE_HEALTH_ENDPOINTS.FIELD_MANAGEMENT)
       - name: field-management-service-route
-        paths: ["/api/v1/fields", "/api/v1/field", "/field"]
+        paths: ["/api/v1/fields", "/api/v1/field", "/api/v1/farms", "/field"]
         strip_path: true
         protocols: ["http", "https"]
     plugins:

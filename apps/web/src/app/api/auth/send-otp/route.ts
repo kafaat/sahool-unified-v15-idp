@@ -19,7 +19,7 @@ import {
   type SendOtpRequest,
 } from '@sahool/shared-types/contracts';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.API_GATEWAY_URL || process.env.NEXT_PUBLIC_API_URL || '';
 
 const RATE_LIMIT_CONFIG = {
   windowMs: 60000, // 1 minute

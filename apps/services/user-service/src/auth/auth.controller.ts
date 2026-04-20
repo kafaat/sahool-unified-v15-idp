@@ -12,6 +12,7 @@
 import {
   Controller,
   Post,
+  Get,
   Body,
   HttpCode,
   HttpStatus,
@@ -732,8 +733,7 @@ export class AuthController {
    * Get current user info (for testing authentication)
    * الحصول على معلومات المستخدم الحالي
    */
-  @Post("me")
-  @HttpCode(HttpStatus.OK)
+  @Get("me")
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({

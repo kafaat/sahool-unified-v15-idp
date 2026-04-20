@@ -295,8 +295,9 @@ def create_app() -> FastAPI:
         app.add_middleware(InputSanitizationMiddleware)
 
     # Rate limiting middleware - shared, distributed (H-04)
+    # rate_limit_middleware is a function (request, call_next), not a class — use middleware() not add_middleware()
     if HAS_RATE_LIMITER:
-        app.add_middleware(rate_limit_middleware)
+        app.middleware("http")(rate_limit_middleware)
 
     # Token revocation middleware - blocks revoked JWT tokens (C-08)
     if HAS_REVOCATION:

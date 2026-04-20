@@ -52,6 +52,7 @@ services:
     paths:
     - /api/v1/fields
     - /api/v1/field
+    - /api/v1/farms
     - /field
     methods:
     - GET

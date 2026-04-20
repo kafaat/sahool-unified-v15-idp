@@ -14,12 +14,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { logger } from '@/lib/logger';
 import { isRateLimited } from '@/lib/rate-limiter';
-import {
-  AUTH_ENDPOINTS,
-  type RefreshTokenRequest,
-} from '@sahool/shared-types/contracts';
+import { AUTH_ENDPOINTS } from '@sahool/shared-types/contracts';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
+const API_BASE_URL = process.env.API_GATEWAY_URL || process.env.NEXT_PUBLIC_API_URL || '';
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,11 +60,11 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward refresh request to the backend
-    const refreshPayload: RefreshTokenRequest = { refresh_token: refreshToken };
+    // NestJS RefreshTokenDto expects camelCase `refreshToken` (whitelist: true strips unknown keys)
     const backendResponse = await fetch(`${API_BASE_URL}${AUTH_ENDPOINTS.REFRESH}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(refreshPayload),
+      body: JSON.stringify({ refreshToken }),
     });
 
     if (!backendResponse.ok) {

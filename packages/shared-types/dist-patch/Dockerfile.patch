@@ -1,0 +1,2 @@
+FROM sahool-partner-auth-service
+COPY contracts/service-ports.js /app/packages/shared-types/dist/contracts/service-ports.js

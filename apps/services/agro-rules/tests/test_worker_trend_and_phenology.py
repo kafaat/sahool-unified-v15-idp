@@ -149,9 +149,7 @@ class TestRuleFromPhenology:
             ("bogus", "medium", 48),  # unknown collapses to the medium default
         ],
     )
-    def test_urgency_round_trips_to_priority_including_critical(
-        self, urgency, expected_priority, expected_hours
-    ):
+    def test_urgency_round_trips_to_priority_including_critical(self, urgency, expected_priority, expected_hours):
         """Regression pin (Copilot review #1704): ``critical`` must pass
         through to ``priority`` — previously it was silently downgraded
         to ``medium`` because the whitelist excluded it, while

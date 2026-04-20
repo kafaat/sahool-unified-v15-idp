@@ -462,6 +462,7 @@ events:
     category: advisory
     description: "Agricultural recommendation issued for a tenant / توصية زراعية لمستأجر"
     schema:
+      required: [tenant_id, field_id, actions, severity, confidence]
       properties:
         tenant_id: { type: string }
         field_id: { type: string }
@@ -480,6 +481,7 @@ events:
     category: advisory
     description: "Fertilizer plan issued / خطة التسميد"
     schema:
+      required: [tenant_id, field_id, plan, crop]
       properties:
         tenant_id: { type: string }
         field_id: { type: string }
@@ -494,6 +496,7 @@ events:
     category: advisory
     description: "Nutrient deficiency assessment issued / تقييم نقص العناصر الغذائية"
     schema:
+      required: [tenant_id, field_id, nutrient, severity]
       properties:
         tenant_id: { type: string }
         field_id: { type: string }

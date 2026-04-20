@@ -384,14 +384,22 @@ class VRAGenerator:
         # Step 4: Create prescription map
         is_synthetic = bool(getattr(zones_stats, "is_synthetic", False))
         warning_en = (
-            "Prescription generated from synthetic NDVI zones — no real "
-            "satellite imagery was available. Do NOT apply to the field "
-            "without independent verification."
-        ) if is_synthetic else None
+            (
+                "Prescription generated from synthetic NDVI zones — no real "
+                "satellite imagery was available. Do NOT apply to the field "
+                "without independent verification."
+            )
+            if is_synthetic
+            else None
+        )
         warning_ar = (
-            "تم إنشاء الوصفة من مناطق NDVI افتراضية — لم تتوفر صور أقمار "
-            "صناعية حقيقية. لا تطبق على الحقل دون تحقق مستقل."
-        ) if is_synthetic else None
+            (
+                "تم إنشاء الوصفة من مناطق NDVI افتراضية — لم تتوفر صور أقمار "
+                "صناعية حقيقية. لا تطبق على الحقل دون تحقق مستقل."
+            )
+            if is_synthetic
+            else None
+        )
 
         prescription = PrescriptionMap(
             id=str(uuid.uuid4()),

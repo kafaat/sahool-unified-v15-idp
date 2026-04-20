@@ -1280,9 +1280,7 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
     tenant_id = getattr(user, "tenant_id", None) if user else None
     if _cache_available:
         try:
-            cached = await get_cached_analysis(
-                request.field_id, request.satellite.value, tenant_id=tenant_id
-            )
+            cached = await get_cached_analysis(request.field_id, request.satellite.value, tenant_id=tenant_id)
             if cached is not None:
                 return FieldAnalysis(**cached)
         except Exception as e:

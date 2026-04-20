@@ -185,7 +185,9 @@ async def test_http_200_matching_tenant_passes(monkeypatch):
     )
     transport = _MockTransport(response)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
-        await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", bearer_token="tok", http_client=client)
+        await verify_field_ownership(
+            tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", bearer_token="tok", http_client=client
+        )
 
     # Request went to the right URL with the right headers
     assert len(transport.calls) == 1
@@ -218,7 +220,9 @@ async def test_http_200_mismatched_tenant_raises_403(monkeypatch):
     transport = _MockTransport(response)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client
+            )
     assert excinfo.value.status_code == 403
     assert "not belong" in excinfo.value.detail.lower() or "ينتمي" in excinfo.value.detail
 
@@ -234,7 +238,9 @@ async def test_http_404_raises_404(monkeypatch):
     transport = _MockTransport(httpx.Response(404, json={"message": "not found"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-00000000dead", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-00000000dead", http_client=client
+            )
     assert excinfo.value.status_code == 404
 
 
@@ -254,7 +260,9 @@ async def test_non_dict_json_payload_handled_gracefully(monkeypatch):
     transport = _MockTransport(httpx.Response(200, json=["not", "a", "dict"]))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client
+            )
     assert excinfo.value.status_code == 503
 
 
@@ -272,7 +280,9 @@ async def test_non_dict_data_shape_handled_gracefully(monkeypatch):
     transport = _MockTransport(httpx.Response(200, json={"success": True, "data": "err"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client
+            )
     assert excinfo.value.status_code == 503
 
 
@@ -290,7 +300,9 @@ async def test_http_400_from_field_service_raises_400(monkeypatch):
     transport = _MockTransport(httpx.Response(400, json={"message": "Invalid UUID"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-00000000bad1", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-00000000bad1", http_client=client
+            )
     assert excinfo.value.status_code == 400
     assert "Invalid field_id" in str(excinfo.value.detail)
 
@@ -306,7 +318,9 @@ async def test_http_422_from_field_service_raises_400(monkeypatch):
     transport = _MockTransport(httpx.Response(422, json={"message": "Validation failed"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-00000000bad2", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-00000000bad2", http_client=client
+            )
     assert excinfo.value.status_code == 400
 
 
@@ -322,7 +336,9 @@ async def test_http_403_from_field_service_propagates(monkeypatch):
     transport = _MockTransport(httpx.Response(403, json={"message": "forbidden"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client
+            )
     assert excinfo.value.status_code == 403
 
 
@@ -344,7 +360,9 @@ async def test_connection_error_strict_mode_raises_503(monkeypatch):
     transport = _MockTransport(httpx.ConnectError("connection refused"))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client)
+            await verify_field_ownership(
+                tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client
+            )
     assert excinfo.value.status_code == 503
 
 
@@ -361,7 +379,9 @@ async def test_connection_error_lenient_mode_bypasses(monkeypatch):
     transport = _MockTransport(httpx.ConnectError("connection refused"))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         # Must not raise
-        await verify_field_ownership(tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client)
+        await verify_field_ownership(
+            tenant_id="t1", field_id="00000000-0000-0000-0000-000000000001", http_client=client
+        )
 
 
 # =============================================================================

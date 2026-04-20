@@ -16,8 +16,7 @@ import pytest
 
 if os.environ.get("RUN_LEGACY_TESTS") != "1":
     pytest.skip(
-        "legacy Python implementation — superseded by NestJS in src/. "
-        "Set RUN_LEGACY_TESTS=1 to run.",
+        "legacy Python implementation — superseded by NestJS in src/. Set RUN_LEGACY_TESTS=1 to run.",
         allow_module_level=True,
     )
 

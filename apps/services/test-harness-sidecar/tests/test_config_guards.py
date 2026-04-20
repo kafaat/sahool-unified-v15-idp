@@ -38,7 +38,6 @@ def _override_env(**kwargs):
 def test_production_environment_refused():
     """Pydantic must refuse ENVIRONMENT=production at construction."""
     from pydantic import ValidationError
-
     from src.config import Settings
 
     with _override_env(ENVIRONMENT="production"):
@@ -50,7 +49,6 @@ def test_production_environment_refused():
 
 def test_production_environment_case_insensitive():
     from pydantic import ValidationError
-
     from src.config import Settings
 
     with _override_env(ENVIRONMENT="PRODUCTION"):
@@ -61,7 +59,6 @@ def test_production_environment_case_insensitive():
 def test_unsafe_tenant_prefix_refused():
     """Tenants must start with 'tenant_e2e_' or 'tenant_test_'."""
     from pydantic import ValidationError
-
     from src.config import Settings
 
     with _override_env(TEST_TENANT_WHITELIST='["tenant_real_production"]'):
@@ -73,7 +70,6 @@ def test_unsafe_tenant_prefix_refused():
 def test_short_seed_token_refused():
     """TEST_SEED_TOKEN must be at least 32 characters."""
     from pydantic import ValidationError
-
     from src.config import Settings
 
     with _override_env(TEST_SEED_TOKEN="short"):

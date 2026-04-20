@@ -30,11 +30,11 @@ _REPO_ROOT = os.path.abspath(os.path.join(_HERE, "..", "..", "..", ".."))
 if _REPO_ROOT not in sys.path:
     sys.path.insert(0, _REPO_ROOT)
 
-from shared.logging_config import get_logger, setup_logging  # noqa: E402
-
 from src.config import Settings  # noqa: E402
 from src.db_adapter import check_connection, close_pool, init_pool  # noqa: E402
 from src.routers import introspect  # noqa: E402
+
+from shared.logging_config import get_logger, setup_logging  # noqa: E402
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -45,8 +45,7 @@ def _enforce_production_guard() -> None:
     env = os.environ.get("ENVIRONMENT", "local").lower()
     if env == "production":
         print(
-            "FATAL: test-harness-sidecar refuses to start in production. "
-            "There is no override flag in this version.",
+            "FATAL: test-harness-sidecar refuses to start in production. There is no override flag in this version.",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -93,9 +92,7 @@ app = FastAPI(
     # Docs only outside production (defensive — production guard above
     # already prevents prod startup, but no reason to expose surface either)
     docs_url="/docs" if settings.ENVIRONMENT.lower() != "production" else None,
-    openapi_url=(
-        "/openapi.json" if settings.ENVIRONMENT.lower() != "production" else None
-    ),
+    openapi_url=("/openapi.json" if settings.ENVIRONMENT.lower() != "production" else None),
 )
 
 

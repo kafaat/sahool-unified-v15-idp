@@ -12,7 +12,6 @@ from typing import List
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 # Bumped every time openapi.yaml changes shape. Framework checks this
 # via /version before running its suite — mismatch aborts.
 CONTRACT_VERSION = "1.0.0"
@@ -66,7 +65,5 @@ class Settings(BaseSettings):
     def _safe_tenant_prefix(cls, v: list[str]) -> list[str]:
         for tenant in v:
             if not (tenant.startswith("tenant_e2e_") or tenant.startswith("tenant_test_")):
-                raise ValueError(
-                    f"Tenant '{tenant}' must start with 'tenant_e2e_' or 'tenant_test_'"
-                )
+                raise ValueError(f"Tenant '{tenant}' must start with 'tenant_e2e_' or 'tenant_test_'")
         return v

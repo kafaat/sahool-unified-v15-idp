@@ -21,7 +21,6 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
-
 from src.config import Settings
 from src.db_adapter import admin_connection, tenant_connection
 
@@ -101,15 +100,9 @@ async def field_invariants(field_id: str) -> FieldInvariants:
     # Use the SAME RLS-context module production uses. If RLS is enforced
     # correctly, the WRONG tenant cannot see this field → returns False.
     real_tenant = str(meta["tenant_id"])
-    probe_tenant = (
-        f"tenant_e2e_probe_{real_tenant[:8]}"
-        if real_tenant
-        else "tenant_e2e_probe_unknown"
-    )
+    probe_tenant = f"tenant_e2e_probe_{real_tenant[:8]}" if real_tenant else "tenant_e2e_probe_unknown"
     async with tenant_connection(probe_tenant) as conn:
-        leaked = await conn.fetchval(
-            "SELECT EXISTS(SELECT 1 FROM fields WHERE id = $1::uuid)", field_id
-        )
+        leaked = await conn.fetchval("SELECT EXISTS(SELECT 1 FROM fields WHERE id = $1::uuid)", field_id)
     isolation_enforced = not leaked
 
     return FieldInvariants(

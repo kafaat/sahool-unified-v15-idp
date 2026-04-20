@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import pytest
 
-
 pytestmark = pytest.mark.unit
 
 
@@ -30,7 +29,6 @@ def test_version_returns_metadata():
     """Track the source-of-truth constants rather than hardcoding strings
     so version bumps don't churn this test."""
     from fastapi.testclient import TestClient
-
     from src.config import CONTRACT_VERSION, SIDECAR_VERSION
     from src.main import app
 
@@ -68,9 +66,7 @@ def test_introspect_requires_seed_token():
         "/test-introspect/v1/invariants/rls/tenant_e2e_local",
     )
     # Header missing → 422 (Pydantic) or 401 (handler) depending on FastAPI version
-    assert resp.status_code in (401, 422), (
-        f"Unauthenticated request should be rejected, got {resp.status_code}"
-    )
+    assert resp.status_code in (401, 422), f"Unauthenticated request should be rejected, got {resp.status_code}"
 
 
 def test_introspect_rejects_wrong_seed_token():

@@ -19,13 +19,13 @@ visible to the introspection probe — which is the whole point.
 
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, Optional
+from typing import Optional
 
 import asyncpg
 
 from shared.db.tenant_connection import tenant_connection as _shared_tenant_connection
-
 
 _pool: asyncpg.Pool | None = None
 

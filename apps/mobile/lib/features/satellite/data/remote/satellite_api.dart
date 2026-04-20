@@ -10,6 +10,7 @@ import '../models/ndvi_data.dart';
 import '../models/field_health.dart';
 import '../models/weather_data.dart';
 import '../models/phenology_data.dart';
+import '../models/index_filmstrip.dart';
 
 /// Satellite API Client
 /// عميل API الأقمار الصناعية
@@ -247,6 +248,107 @@ class SatelliteApi {
         statusCode: response.statusCode,
       );
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Phase-3 multi-date endpoints
+  // نقاط نهاية متعددة التواريخ (المرحلة ٣)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Get filmstrip (per-date thumbnail metadata) for a mappable index.
+  /// جلب شريط الصور لمؤشر قابل للعرض على الخريطة
+  ///
+  /// Supports the 6 mappable indices: ndvi | ndre | ndwi | evi | savi | lai.
+  /// The backend caps [stepDays] at 90 and total frames at 20.
+  Future<IndexFilmstrip> getIndexFilmstrip(
+    String fieldId, {
+    required String indexName,
+    int stepDays = 7,
+    DateTime? start,
+    DateTime? end,
+  }) async {
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/filmstrip')
+            .replace(queryParameters: {
+      'step_days': stepDays.toString(),
+      if (start != null) 'start': start.toIso8601String().substring(0, 10),
+      if (end != null) 'end': end.toIso8601String().substring(0, 10),
+    });
+    final response = await _client.get(uri, headers: _headers);
+    if (response.statusCode != 200) {
+      throw SatelliteApiException(
+        'فشل جلب شريط الصور | Failed to load filmstrip',
+        statusCode: response.statusCode,
+      );
+    }
+    return IndexFilmstrip.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Get N-day composite summary (median/mean per window) for a mappable index.
+  /// جلب التركيب الزمني لكل N يوم
+  Future<IndexComposite> getIndexComposite(
+    String fieldId, {
+    required String indexName,
+    int stepDays = 7,
+    DateTime? start,
+    DateTime? end,
+    String stat = 'median',
+  }) async {
+    final uri =
+        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/composite')
+            .replace(queryParameters: {
+      'step_days': stepDays.toString(),
+      'stat': stat,
+      if (start != null) 'start': start.toIso8601String().substring(0, 10),
+      if (end != null) 'end': end.toIso8601String().substring(0, 10),
+    });
+    final response = await _client.get(uri, headers: _headers);
+    if (response.statusCode != 200) {
+      throw SatelliteApiException(
+        'فشل جلب التركيب الزمني | Failed to load composite',
+        statusCode: response.statusCode,
+      );
+    }
+    return IndexComposite.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// Compare a mappable index across up to 12 dates.
+  /// مقارنة المؤشر عبر حتى ١٢ تاريخاً
+  ///
+  /// Pass either [dates] (explicit list, 2-12 entries) OR the triple
+  /// [start] + [end] + [stepDays]. When both are provided, [dates] wins —
+  /// same precedence as the backend validator.
+  Future<MultiDateCompare> multiDateCompare(
+    String fieldId, {
+    required String indexName,
+    List<DateTime>? dates,
+    DateTime? start,
+    DateTime? end,
+    int? stepDays,
+  }) async {
+    final uri = Uri.parse(
+      '${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/multi-date-compare',
+    );
+    final body = <String, dynamic>{};
+    if (dates != null && dates.isNotEmpty) {
+      body['dates'] = dates.map((d) => d.toIso8601String().substring(0, 10)).toList();
+    } else if (start != null && end != null && stepDays != null) {
+      body['start'] = start.toIso8601String().substring(0, 10);
+      body['end'] = end.toIso8601String().substring(0, 10);
+      body['step_days'] = stepDays;
+    } else {
+      throw ArgumentError(
+        'Provide either `dates` or all of `start`, `end`, `stepDays`',
+      );
+    }
+    final response = await _client.post(uri, headers: _headers, body: jsonEncode(body));
+    if (response.statusCode != 200) {
+      throw SatelliteApiException(
+        'فشل المقارنة متعددة التواريخ | Multi-date compare failed',
+        statusCode: response.statusCode,
+      );
+    }
+    return MultiDateCompare.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

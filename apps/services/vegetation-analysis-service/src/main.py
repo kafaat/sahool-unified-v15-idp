@@ -1187,20 +1187,6 @@ def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
     )
 
 
-@app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
-    """طلب صور الأقمار الصناعية لحقل معين.
-
-    Band reflectances are currently simulated — no live provider exposes the
-    per-band reflectance shape that clients expect here. The response is
-    tagged ``data_source="simulated"`` so callers never mistake it for
-    real Sentinel-2 / Landsat data (OneSoil / EOSDA transparency pattern).
-    """
-    _validate_field_id(request.field_id)
-    _require_tenant_id(user)
-    return _build_simulated_imagery(request)
-
-
 async def _analyze_field_via_multi_provider(request: "ImageryRequest") -> "FieldAnalysis | None":
     """Try ``_multi_provider.analyze_field`` first; return None on any failure.
 

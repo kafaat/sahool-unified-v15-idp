@@ -7,8 +7,6 @@ that don't exist yet).
 
 from __future__ import annotations
 
-from typing import List
-
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

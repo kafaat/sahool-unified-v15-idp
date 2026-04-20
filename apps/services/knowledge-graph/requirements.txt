@@ -13,7 +13,7 @@ asyncpg>=0.30.0,<1.0.0
 tortoise-orm>=0.20.0
 
 # Data Validation
-pydantic==2.13.1
+pydantic==2.13.2
 
 # Scientific Computing (required by networkx)
 numpy>=1.26.0,<2.5.0

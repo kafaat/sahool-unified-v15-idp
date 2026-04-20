@@ -9,7 +9,7 @@ uvicorn[standard]>=0.34.0,<1.0.0
 python-multipart==0.0.26
 
 # Data Validation
-pydantic==2.13.1
+pydantic==2.13.2
 pydantic-settings==2.13.1
 
 # Authentication

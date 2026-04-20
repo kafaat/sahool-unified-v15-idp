@@ -17,6 +17,7 @@ from datetime import date as date_class
 from fastapi import Depends, HTTPException, Query
 
 from shared.auth.dependencies import get_current_user
+from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
 from .weather_integration import get_weather_service
@@ -53,6 +54,7 @@ def register_weather_endpoints(app):
         - Daily forecast: temp, precipitation, ET0
         - Hourly forecast: temp, humidity, wind, solar radiation
         """
+        require_tenant_id(_user)
         try:
             weather_service = get_weather_service()
             forecast = await weather_service.get_forecast(lat, lon, days)
@@ -85,6 +87,7 @@ def register_weather_endpoints(app):
         GET /v1/weather/historical?lat=15.3694&lon=44.1910&start_date=2024-01-01&end_date=2024-06-30
         ```
         """
+        require_tenant_id(_user)
         try:
             start = date_class.fromisoformat(start_date)
             end = date_class.fromisoformat(end_date)
@@ -140,6 +143,7 @@ def register_weather_endpoints(app):
         GET /v1/weather/gdd?lat=15.37&lon=44.19&start_date=2024-03-01&end_date=2024-06-30&base_temp=10
         ```
         """
+        require_tenant_id(_user)
         try:
             start = date_class.fromisoformat(start_date)
             end = date_class.fromisoformat(end_date)
@@ -209,6 +213,7 @@ def register_weather_endpoints(app):
         GET /v1/weather/water-balance?lat=15.37&lon=44.19&start_date=2024-03-01&end_date=2024-06-30&kc=1.0
         ```
         """
+        require_tenant_id(_user)
         try:
             start = date_class.fromisoformat(start_date)
             end = date_class.fromisoformat(end_date)
@@ -271,6 +276,7 @@ def register_weather_endpoints(app):
         GET /v1/weather/irrigation-advice?lat=15.37&lon=44.19&crop_type=WHEAT&growth_stage=mid&soil_moisture=0.4
         ```
         """
+        require_tenant_id(_user)
         try:
             # Validate growth stage
             valid_stages = [
@@ -337,6 +343,7 @@ def register_weather_endpoints(app):
         GET /v1/weather/frost-risk?lat=15.3694&lon=44.1910&days=7
         ```
         """
+        require_tenant_id(_user)
         try:
             weather_service = get_weather_service()
             frost_risks = await weather_service.get_frost_risk(lat, lon, days)

@@ -17,6 +17,7 @@ from fastapi import Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from shared.auth.dependencies import get_current_user
+from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
 logger = logging.getLogger(__name__)
@@ -144,6 +145,7 @@ def register_parcel_endpoints(app, land_detector):
         Example:
             POST /v1/parcels/auto-generate?lat=15.5&lon=44.2&radius_m=1000&strategy=hybrid
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -241,6 +243,7 @@ def register_parcel_endpoints(app, land_detector):
                 "strategy": "hybrid"
             }
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -330,6 +333,7 @@ def register_parcel_endpoints(app, land_detector):
                 ]
             }
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -524,6 +528,7 @@ def register_parcel_endpoints(app, land_detector):
 
         Returns parcels with crop_type and classification confidence.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -586,6 +591,7 @@ def register_parcel_endpoints(app, land_detector):
 
         Uses convex hull merge with weighted spectral property preservation.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -630,6 +636,7 @@ def register_parcel_endpoints(app, land_detector):
 
         The cutting line must intersect the parcel boundary at 2+ points.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -679,6 +686,7 @@ def register_parcel_endpoints(app, land_detector):
 
         Bridges gaps between fragments within max_gap_meters distance.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -734,6 +742,7 @@ def register_parcel_endpoints(app, land_detector):
         elongation (<50), self-intersection, closure, confidence.
         Returns quality issues for each parcel.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -765,6 +774,7 @@ def register_parcel_endpoints(app, land_detector):
 
         GeoLabel equivalent: Feature quick browser → WKT export.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -813,6 +823,7 @@ def register_parcel_endpoints(app, land_detector):
         Supports: crop_type, land_cover, is_irrigated.
         GeoLabel equivalent: 8-class land cover attribute assignment brush.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -873,6 +884,7 @@ def register_parcel_endpoints(app, land_detector):
 
         Returns area statistics, crop distribution, and land cover distribution.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,
@@ -909,6 +921,7 @@ def register_parcel_endpoints(app, land_detector):
         GeoLabel equivalent: Topology-preserving boundary simplification.
         Ensures no gaps or overlaps between adjacent parcels after simplification.
         """
+        require_tenant_id(_user)
         if not land_detector:
             raise HTTPException(
                 status_code=503,

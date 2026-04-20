@@ -19,6 +19,7 @@ from datetime import date as date_class
 from fastapi import Depends, HTTPException, Query
 
 from shared.auth.dependencies import get_current_user
+from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
 from .gdd_tracker import get_gdd_tracker
@@ -113,6 +114,7 @@ def register_gdd_endpoints(app):
         - Optimize harvest timing
         - Mobile app charts and progress bars
         """
+        require_tenant_id(_user)
         try:
             # Parse dates
             plant_date = date_class.fromisoformat(planting_date)
@@ -224,6 +226,7 @@ def register_gdd_endpoints(app):
         - Push notifications when stages reached
         - Update field task scheduling
         """
+        require_tenant_id(_user)
         try:
             # Validate
             if current_gdd >= target_gdd:
@@ -321,6 +324,7 @@ def register_gdd_endpoints(app):
 
         **40+ crops total!**
         """
+        require_tenant_id(_user)
         try:
             # Get tracker
             tracker = get_gdd_tracker()
@@ -392,6 +396,7 @@ def register_gdd_endpoints(app):
         - Alert generation
         - Task recommendations
         """
+        require_tenant_id(_user)
         try:
             # Get tracker
             tracker = get_gdd_tracker()

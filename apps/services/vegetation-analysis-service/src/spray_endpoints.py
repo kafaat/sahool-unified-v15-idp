@@ -14,6 +14,7 @@ from datetime import datetime
 from fastapi import Depends, HTTPException, Query
 
 from shared.auth.dependencies import get_current_user
+from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
 from .spray_advisor import (
@@ -94,6 +95,7 @@ def register_spray_endpoints(app):
         ]
         ```
         """
+        require_tenant_id(_user)
         try:
             # Validate and convert product type
             product = None
@@ -181,6 +183,7 @@ def register_spray_endpoints(app):
 
         Returns 404 if no suitable windows found.
         """
+        require_tenant_id(_user)
         try:
             # Validate and convert product type
             try:
@@ -265,6 +268,7 @@ def register_spray_endpoints(app):
         }
         ```
         """
+        require_tenant_id(_user)
         try:
             # Parse target datetime
             try:
@@ -335,6 +339,7 @@ def register_spray_endpoints(app):
         GET /v1/spray/conditions
         ```
         """
+        require_tenant_id(_user)
         return {
             "ideal_conditions": {
                 "general": {

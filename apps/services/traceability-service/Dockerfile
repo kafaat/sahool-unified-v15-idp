@@ -74,6 +74,7 @@ RUN rm -rf /home/sahool/.local/lib/python*/site-packages/setuptools* \
            /usr/local/lib/python*/site-packages/pip* \
            /usr/local/lib/python*/site-packages/wheel* \
            /usr/local/lib/python*/site-packages/_distutils_hack* \
+           /usr/local/lib/python*/site-packages/distutils-precedence.pth \
            /usr/local/lib/python*/site-packages/pkg_resources* \
            /usr/local/lib/python*/site-packages/jaraco* \
            /usr/local/bin/pip* 2>/dev/null || true

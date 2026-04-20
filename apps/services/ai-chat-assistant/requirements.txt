@@ -16,6 +16,8 @@ httpx==0.28.1
 # Async utilities
 # asyncio-mqtt removed - use aiomqtt>=2.0.0 if MQTT needed
 
+structlog>=24.1.0,<26.0.0
+
 # Monitoring
 prometheus-client==0.25.0
 

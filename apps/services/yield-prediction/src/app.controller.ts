@@ -1,8 +1,10 @@
 import { Controller, Get } from "@nestjs/common";
+import { SkipTenantCheck } from "./auth/tenant.guard";
 
 @Controller()
 export class AppController {
   @Get("healthz")
+  @SkipTenantCheck()
   healthz() {
     return {
       status: "ok",
@@ -12,6 +14,7 @@ export class AppController {
   }
 
   @Get("readyz")
+  @SkipTenantCheck()
   readyz() {
     const dbUrl = process.env.DATABASE_URL;
     const databaseReady = dbUrl ? false : true; // No DB configured = no DB dependency; DB configured = not verified

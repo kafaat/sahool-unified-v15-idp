@@ -98,6 +98,25 @@ class AgroRulesWorker:
         )
         print("📡 Subscribed to sahool.weather.irrigation_adjustment")
 
+        # Subscribe to terrain advisory events
+        await self.nc.subscribe(
+            "sahool.terrain.leveling_recommended",
+            cb=self._handle_terrain_leveling,
+        )
+        print("📡 Subscribed to sahool.terrain.leveling_recommended")
+
+        await self.nc.subscribe(
+            "sahool.terrain.drainage_recommended",
+            cb=self._handle_terrain_drainage,
+        )
+        print("📡 Subscribed to sahool.terrain.drainage_recommended")
+
+        await self.nc.subscribe(
+            "sahool.terrain.high_erosion_risk",
+            cb=self._handle_terrain_erosion,
+        )
+        print("📡 Subscribed to sahool.terrain.high_erosion_risk")
+
         print("✅ Agro Rules Worker ready")
 
     async def stop(self):
@@ -336,6 +355,114 @@ class AgroRulesWorker:
 
         except Exception as e:
             print(f"❌ Error handling irrigation adjustment: {e}")
+
+    async def _handle_terrain_leveling(self, msg):
+        """Handle terrain leveling recommended events — create a planning task"""
+        try:
+            env = json.loads(msg.data.decode())
+
+            event_id = env.get("event_id")
+            if event_id in self._processed_events:
+                return
+            self._processed_events.add(event_id)
+
+            tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
+            field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
+            correlation_id = env.get("correlation_id")
+            payload = env.get("payload", env)
+
+            slope = payload.get("slope_percent", 0)
+            volume = payload.get("cut_fill_volume_m3", 0)
+            cost = payload.get("estimated_cost")
+
+            print(f"🏔️ Terrain leveling recommended: field={field_id}, slope={slope}%")
+
+            desc_ar = f"تسوية الأرض مطلوبة (ميل: {slope}%. حجم الحفر/الردم: {volume} م³)"
+            desc_en = f"Field leveling required (slope: {slope}%, cut/fill volume: {volume} m³)"
+            if cost:
+                desc_ar += f". التكلفة التقديرية: {cost}"
+                desc_en += f". Estimated cost: {cost}"
+
+            task_rule = TaskRule(
+                title_ar="تخطيط تسوية الأرض",
+                title_en="Field Leveling Planning",
+                description_ar=desc_ar,
+                description_en=desc_en,
+                task_type="planning",
+                priority="medium",
+                urgency_hours=72,
+            )
+            await self._create_task(tenant_id, field_id, task_rule, correlation_id)
+
+        except Exception as e:
+            print(f"❌ Error handling terrain leveling event: {e}")
+
+    async def _handle_terrain_drainage(self, msg):
+        """Handle terrain drainage recommended events — create a drainage task"""
+        try:
+            env = json.loads(msg.data.decode())
+
+            event_id = env.get("event_id")
+            if event_id in self._processed_events:
+                return
+            self._processed_events.add(event_id)
+
+            tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
+            field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
+            correlation_id = env.get("correlation_id")
+            payload = env.get("payload", env)
+
+            drainage_type = payload.get("drainage_type", "surface")
+            priority = payload.get("priority", "medium")
+
+            print(f"🌊 Drainage recommended: field={field_id}, type={drainage_type}")
+
+            task_rule = TaskRule(
+                title_ar=f"تحسين الصرف ({drainage_type})",
+                title_en=f"Drainage Improvement ({drainage_type})",
+                description_ar=f"يوصى بتحسين نظام الصرف من نوع '{drainage_type}' بناءً على تحليل التضاريس.",
+                description_en=f"Drainage improvement of type '{drainage_type}' recommended based on terrain analysis.",
+                task_type="planning",
+                priority=priority if priority in ("urgent", "high", "medium", "low") else "medium",
+                urgency_hours=48,
+            )
+            await self._create_task(tenant_id, field_id, task_rule, correlation_id)
+
+        except Exception as e:
+            print(f"❌ Error handling terrain drainage event: {e}")
+
+    async def _handle_terrain_erosion(self, msg):
+        """Handle high erosion risk events — create an urgent inspection task"""
+        try:
+            env = json.loads(msg.data.decode())
+
+            event_id = env.get("event_id")
+            if event_id in self._processed_events:
+                return
+            self._processed_events.add(event_id)
+
+            tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
+            field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
+            correlation_id = env.get("correlation_id")
+            payload = env.get("payload", env)
+
+            risk_level = payload.get("risk_level", "high")
+
+            print(f"⚠️ High erosion risk: field={field_id}, level={risk_level}")
+
+            task_rule = TaskRule(
+                title_ar="فحص خطر التآكل",
+                title_en="Erosion Risk Inspection",
+                description_ar=f"خطر تآكل مرتفع ({risk_level}) تم اكتشافه. فحص الحقل وتقييم الحماية اللازمة.",
+                description_en=f"High erosion risk ({risk_level}) detected. Inspect field and assess protection measures.",
+                task_type="inspection",
+                priority="high" if risk_level in ("high", "critical") else "medium",
+                urgency_hours=24,
+            )
+            await self._create_task(tenant_id, field_id, task_rule, correlation_id)
+
+        except Exception as e:
+            print(f"❌ Error handling terrain erosion event: {e}")
 
     async def _create_task(
         self,

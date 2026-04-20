@@ -706,7 +706,7 @@ asyncio.run(main())
       mongo:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/v1/info"]
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/v1/info', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -1617,8 +1617,8 @@ asyncio.run(main())
       nats:
         condition: service_healthy
     healthcheck:
-      # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3021/api/v1/yield/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      # FIX: Use /healthz (public endpoint, no auth required) instead of /api/v1/yield/health
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:3021/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -1938,6 +1938,7 @@ asyncio.run(main())
       - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
       - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
+      - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-https://sahool.com,https://app.sahool.com,https://admin.sahool.com}
     ports:
       # SECURITY: Bind to localhost only - service should only be accessed via Kong API Gateway
@@ -1946,6 +1947,8 @@ asyncio.run(main())
       pgbouncer:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      nats:
         condition: service_healthy
       notification-service:
         condition: service_healthy
@@ -3273,6 +3276,13 @@ asyncio.run(main())
         condition: service_healthy
       nats:
         condition: service_healthy
+    healthcheck:
+      # Override Dockerfile HEALTHCHECK: pgrep not available in slim image — use python instead
+      test: ["CMD-SHELL", "python -c \"import os; os.kill(1, 0)\""]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

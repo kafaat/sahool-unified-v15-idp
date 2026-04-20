@@ -292,6 +292,11 @@ test-docker: ## تشغيل الاختبارات داخل Docker - Run tests in D
 	docker compose -f $(COMPOSE_TEST) down
 	@echo "$(GREEN)✅ اكتملت اختبارات Docker - Docker tests complete!$(RESET)"
 
+smoke-containers: ## اختبار دخان شامل لجميع الحاويات - Comprehensive smoke test for all containers
+	@echo "$(BLUE)🔥 اختبار الدخان لجميع الحاويات (94) - Smoke testing all 94 containers...$(RESET)"
+	python -m pytest tests/container/test_all_containers_smoke.py -v --tb=short
+	@echo "$(GREEN)✅ اكتمل اختبار الدخان - Container smoke tests complete!$(RESET)"
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Utilities - الأدوات المساعدة
 # ═══════════════════════════════════════════════════════════════════════════════

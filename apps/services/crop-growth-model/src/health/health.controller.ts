@@ -6,6 +6,7 @@
 import { Controller, Get, HttpStatus, Res } from "@nestjs/common";
 import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import type { Response } from "express";
+import { Public } from "@sahool/nestjs-auth";
 
 @ApiTags("health")
 @Controller()
@@ -13,6 +14,7 @@ export class HealthController {
   private readonly startTime = Date.now();
 
   @Get("healthz")
+  @Public()
   @ApiOperation({ summary: "Liveness probe | فحص الحياة" })
   @ApiResponse({ status: 200, description: "Service is alive" })
   healthCheck() {
@@ -25,6 +27,7 @@ export class HealthController {
   }
 
   @Get("readyz")
+  @Public()
   @ApiOperation({ summary: "Readiness probe | فحص الجاهزية" })
   @ApiResponse({ status: 200, description: "Service is ready" })
   @ApiResponse({ status: 503, description: "Service is not ready" })

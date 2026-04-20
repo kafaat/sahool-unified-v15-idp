@@ -30,6 +30,7 @@ import { FieldReportsModule } from "./field-reports/field-reports.module";
 import { OutboxModule } from "./outbox/outbox.module";
 import { IdempotencyModule } from "./idempotency/idempotency.module";
 import { ErpSyncModule } from "./erp-sync/erp-sync.module";
+import { FarmsModule } from "./farms/farms.module";
 
 @Module({
   imports: [
@@ -72,6 +73,7 @@ import { ErpSyncModule } from "./erp-sync/erp-sync.module";
     OutboxModule,
     IdempotencyModule,
     ErpSyncModule,
+    FarmsModule,
   ],
   providers: [
     // Global rate limiting guard

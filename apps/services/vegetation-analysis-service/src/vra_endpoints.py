@@ -154,6 +154,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 "product_price_per_unit": 2.5
             }
         """
+        require_tenant_id(_user)
         try:
             # Parse VRA type
             try:
@@ -261,6 +262,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
         """
+        require_tenant_id(_user)
         try:
             zones_stats = await vra_generator.classify_zones(
                 field_id=field_id,
@@ -316,6 +318,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescriptions/field_123?limit=10
         """
+        require_tenant_id(_user)
         try:
             prescriptions = await vra_generator.get_field_prescriptions(
                 field_id=field_id,
@@ -359,6 +362,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescription/abc-123-def
         """
+        require_tenant_id(_user)
         try:
             prescription = await vra_generator.get_prescription(prescription_id)
 
@@ -436,6 +440,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/export/abc-123-def?format=geojson
         """
+        require_tenant_id(_user)
         try:
             prescription = await vra_generator.get_prescription(prescription_id)
 

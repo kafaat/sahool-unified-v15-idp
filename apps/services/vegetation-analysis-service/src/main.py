@@ -58,12 +58,9 @@ def _require_tenant_id(user: User | None) -> str:
         if not tenant_id:
             raise HTTPException(403, "...")
 
-    CAVEAT — known gap: this verifies the CALLER has a tenant, but does
-    NOT yet verify that the ``field_id`` path parameter belongs to that
-    tenant. Field-ownership resolution requires a cross-service lookup
-    (field-management-service owns the canonical ``fields`` table) and
-    is tracked as a follow-up. Until that lands, the service runs on
-    simulated data so the gap is latent rather than leaking real rows.
+    For field-ownership verification (does ``field_id`` actually belong
+    to this tenant?), use ``_verify_field_owned_by_tenant`` below, which
+    delegates to ``field-management-service``.
     """
     tenant_id = getattr(user, "tenant_id", "") if user else ""
     if not tenant_id:
@@ -71,6 +68,49 @@ def _require_tenant_id(user: User | None) -> str:
             status_code=403,
             detail="Tenant context required | سياق المستأجر مطلوب",
         )
+    return tenant_id
+
+
+async def _verify_field_owned_by_tenant(user: "User | None", field_id: str) -> str:
+    """Extract tenant_id AND verify field ownership in one call.
+
+    Closes the latent tenant-isolation gap that ``_require_tenant_id``
+    could not: cross-service lookup against field-management-service
+    (owner of the canonical ``fields`` table) to confirm that the
+    ``{field_id}`` path parameter actually belongs to the caller's
+    tenant. Follows the Climate FieldView / FarmBeats / John Deere
+    Operations Center convention where one service owns the ownership
+    graph and all other services delegate to it.
+
+    Behaviour:
+      * Lenient when ``FIELD_SERVICE_URL`` is not configured (dev / CI)
+      * Cached 5 min in tenant-scoped Redis
+      * Strict mode (503 on service unreachable) controlled by
+        ``STRICT_FIELD_VERIFICATION`` env var
+      * Raises 403 on tenant mismatch, 404 on missing field
+
+    The returned ``tenant_id`` is the same value ``_require_tenant_id``
+    would return — call sites can swap the helper in-place.
+    """
+    tenant_id = _require_tenant_id(user)
+    # Narrow-match expected import failures so real errors inside
+    # field_ownership (e.g. missing httpx) surface to the caller instead
+    # of being masked as "module missing". Catches both:
+    #   - ModuleNotFoundError: the module file is absent
+    #   - bare ImportError:    "relative import with no known parent
+    #                           package" when main.py is imported
+    #                           standalone (test harness)
+    try:
+        from .field_ownership import verify_field_ownership
+    except ModuleNotFoundError as exc:
+        if exc.name not in {"field_ownership", __package__ + ".field_ownership" if __package__ else "field_ownership"}:
+            raise
+        from field_ownership import verify_field_ownership  # standalone test path
+    except ImportError as exc:
+        if "relative import" not in str(exc):
+            raise
+        from field_ownership import verify_field_ownership  # standalone test path
+    await verify_field_ownership(tenant_id, field_id)
     return tenant_id
 
 
@@ -1851,7 +1891,7 @@ async def get_timeseries(
     response envelope.
     """
     _validate_field_id(field_id)
-    tenant_id = _require_tenant_id(user)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
 
     return await _get_timeseries_data(field_id, days, satellite, tenant_id=tenant_id, lat=lat, lon=lon)
 
@@ -1882,8 +1922,8 @@ async def analyze_ndvi_timeseries(
     - Seasonal metrics (المقاييس الموسمية)
     - 7-day forecast (تنبؤ 7 أيام)
     """
-    tenant_id = _require_tenant_id(user)
     _validate_field_id(field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
 
@@ -2011,8 +2051,8 @@ async def compare_ndvi_periods(
     - Before/after events (قبل/بعد الأحداث)
     - Seasonal comparisons (مقارنات موسمية)
     """
-    _require_tenant_id(user)
     _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _ndvi_timeseries_analyzer or NDVITimeSeriesAnalyzer is None:
         raise HTTPException(status_code=500, detail="NDVI Time-Series Analyzer not initialized")
@@ -2082,7 +2122,7 @@ async def get_phenology(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2161,7 +2201,7 @@ async def get_phenology_timeline(
     """
     _validate_field_id(field_id)
     _validate_crop_type(crop_type)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2292,7 +2332,8 @@ async def analyze_phenology_with_action(
     2. Creates stage-specific ActionTemplate for mobile app
     3. Publishes event via NATS if enabled
     """
-    _require_tenant_id(user)
+    _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id)
     if request.field_id != field_id:
         raise HTTPException(
             status_code=400,
@@ -2523,7 +2564,7 @@ async def get_soil_moisture(
     Works in all weather conditions (cloud-independent).
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2588,8 +2629,8 @@ async def get_irrigation_events(
     - Water use monitoring
     - Rainfall vs irrigation discrimination
     """
-    _require_tenant_id(user)
     _validate_field_id(field_id)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2661,7 +2702,7 @@ async def get_sar_timeseries(
     Sentinel-1 revisit: every 6 days
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _sar_processor:
         raise HTTPException(status_code=503, detail="SAR Processor not available")
@@ -2757,7 +2798,7 @@ async def get_all_indices(
     - Corrected: MSAVI, OSAVI, ARVI
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -2815,7 +2856,7 @@ async def get_specific_index(
     - growth_stage: emergence, vegetative, reproductive, maturation
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _indices_available:
         raise HTTPException(status_code=503, detail="Advanced indices module not available")
@@ -3420,7 +3461,7 @@ async def get_yield_history(
     In production, this would fetch from a database. Currently returns simulated data.
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     import random
 
@@ -3648,7 +3689,7 @@ async def get_cloud_cover(
         GET /v1/cloud-cover/field_123?lat=15.5&lon=44.2&date=2024-01-15
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3701,7 +3742,7 @@ async def find_clear_observations(
         GET /v1/clear-observations/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&max_cloud=15
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3766,7 +3807,7 @@ async def get_best_observation(
         GET /v1/best-observation/field_123?lat=15.5&lon=44.2&target_date=2024-02-15&tolerance_days=10
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _cloud_masker:
         raise HTTPException(status_code=503, detail="Cloud masker not initialized")
@@ -3909,7 +3950,7 @@ async def export_analysis(
     - kml: Google Earth compatible format
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -3959,7 +4000,7 @@ async def export_timeseries(
     Best for tracking vegetation health trends over time.
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -4124,7 +4165,7 @@ async def export_report(
     - changes: Change detection over time
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     try:
         export_format = ExportFormat(format.lower())
@@ -4314,7 +4355,7 @@ async def detect_changes(
         GET /v1/changes/field_123?lat=15.5&lon=44.2&start_date=2024-01-01&end_date=2024-03-31&crop_type=wheat
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4379,7 +4420,7 @@ async def compare_dates(
         GET /v1/changes/field_123/compare?lat=15.5&lon=44.2&date1=2024-01-01&date2=2024-02-01
     """
     _validate_field_id(field_id)
-    _require_tenant_id(user)
+    await _verify_field_owned_by_tenant(user, field_id)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")
@@ -4443,7 +4484,7 @@ async def get_anomalies(
         GET /v1/changes/field_123/anomalies?lat=15.5&lon=44.2&days=90&crop_type=wheat
     """
     _validate_field_id(field_id)
-    tenant_id = _require_tenant_id(user)
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id)
 
     if not _change_detector:
         raise HTTPException(status_code=503, detail="Change detector not available")

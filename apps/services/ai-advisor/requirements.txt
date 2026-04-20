@@ -50,7 +50,7 @@ nats-py>=2.6.0,<3.0.0
 # أدوات مساعدة
 python-dotenv==1.2.2
 python-multipart==0.0.26  # Security fix for CVE-2024-53981
-aiofiles==24.1.0
+aiofiles==25.1.0
 tenacity==8.5.0
 
 # Monitoring and Logging

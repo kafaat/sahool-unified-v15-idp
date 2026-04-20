@@ -11,7 +11,7 @@ email-validator>=2.2.0,<3.0.0
 
 # Async Support
 httpx>=0.27.0,<1.0.0
-aiofiles>=24.0.0,<25.0.0
+aiofiles>=24.0.0,<26.0.0
 
 # NATS Messaging
 nats-py>=2.6.0,<3.0.0

@@ -261,9 +261,7 @@ async def test_http_400_from_field_service_raises_400(monkeypatch):
     transport = _MockTransport(httpx.Response(400, json={"message": "Invalid UUID"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(
-                tenant_id="t1", field_id="not-a-uuid", http_client=client
-            )
+            await verify_field_ownership(tenant_id="t1", field_id="not-a-uuid", http_client=client)
     assert excinfo.value.status_code == 400
     assert "Invalid field_id" in str(excinfo.value.detail)
 
@@ -279,9 +277,7 @@ async def test_http_422_from_field_service_raises_400(monkeypatch):
     transport = _MockTransport(httpx.Response(422, json={"message": "Validation failed"}))
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
         with pytest.raises(HTTPException) as excinfo:
-            await verify_field_ownership(
-                tenant_id="t1", field_id="bad-id", http_client=client
-            )
+            await verify_field_ownership(tenant_id="t1", field_id="bad-id", http_client=client)
     assert excinfo.value.status_code == 400
 
 

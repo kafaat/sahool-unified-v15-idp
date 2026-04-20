@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import os
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import httpx
 import pytest
@@ -69,7 +69,7 @@ def _make_jwt_token(
 ) -> str:
     """Create a signed JWT token for test requests."""
     _skip_if_no_pyjwt()
-    now = datetime.now(tz=timezone.utc)
+    now = datetime.now(tz=UTC)
     payload = {
         "sub": str(uuid.uuid4()),
         "email": f"test_{uuid.uuid4().hex[:8]}@sahool.com",

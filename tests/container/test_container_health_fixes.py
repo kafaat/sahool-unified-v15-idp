@@ -74,9 +74,7 @@ class TestAsyncioLockInitialization:
             #   _publisher_lock = asyncio.Lock()
             #   _publisher_lock: asyncio.Lock = asyncio.Lock()
             value = None
-            if isinstance(node, ast.Assign):
-                value = node.value
-            elif isinstance(node, ast.AnnAssign):
+            if isinstance(node, (ast.Assign, ast.AnnAssign)):
                 value = node.value
 
             if isinstance(value, ast.Call):
@@ -142,9 +140,7 @@ class TestAsyncioLockInitialization:
 
                 for node in ast.iter_child_nodes(tree):
                     value = None
-                    if isinstance(node, ast.Assign):
-                        value = node.value
-                    elif isinstance(node, ast.AnnAssign):
+                    if isinstance(node, (ast.Assign, ast.AnnAssign)):
                         value = node.value
 
                     if isinstance(value, ast.Call):

@@ -28,6 +28,7 @@ Arabic summary:
 from __future__ import annotations
 
 import re
+from itertools import islice
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +53,20 @@ pytestmark = [pytest.mark.container, pytest.mark.smoke]
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MAIN_COMPOSE = REPO_ROOT / "docker-compose.yml"
 SERVICES_DIR = REPO_ROOT / "apps" / "services"
+
+# ---------------------------------------------------------------------------
+# Constants
+# ---------------------------------------------------------------------------
+
+# Services excluded from registry validation because they are registered
+# in separate categories (GPU_SERVICES, DEPRECATED_SERVICES).
+_REGISTRY_EXEMPT_SERVICES: set[str] = {"wechat-service", "vllm-deepseek"}
+
+# Placeholder/test values to exclude from hardcoded-secret detection.
+_SECRET_PLACEHOLDER_RE = re.compile(
+    r"test|example|placeholder|changeme|xxxx|dummy|mock|sample|secret-key-for",
+    re.IGNORECASE,
+)
 
 # ---------------------------------------------------------------------------
 # Caches
@@ -100,7 +115,7 @@ def _read_python_source(svc: str, max_files: int = 30) -> str:
             _source_cache[svc] = ""
             return ""
         parts: list[str] = []
-        for f in sorted(src_dir.rglob("*.py"))[:max_files]:
+        for f in islice(sorted(src_dir.rglob("*.py")), max_files):
             try:
                 parts.append(f.read_text("utf-8", errors="ignore"))
             except OSError:
@@ -117,7 +132,7 @@ def _read_node_source(svc: str, max_files: int = 30) -> str:
             _node_src_cache[svc] = ""
             return ""
         parts: list[str] = []
-        for f in sorted(src_dir.rglob("*.ts"))[:max_files]:
+        for f in islice(sorted(src_dir.rglob("*.ts")), max_files):
             try:
                 parts.append(f.read_text("utf-8", errors="ignore"))
             except OSError:
@@ -559,11 +574,7 @@ class TestSecurityPatterns:
             # Filter out test/example/placeholder values
             real_secrets = [
                 m for m in matches
-                if not re.search(
-                    r"test|example|placeholder|changeme|xxxx|dummy|mock|sample|secret-key-for",
-                    m,
-                    re.IGNORECASE,
-                )
+                if not _SECRET_PLACEHOLDER_RE.search(m)
             ]
             assert not real_secrets, (
                 f"Python service '{svc}' may contain hardcoded secrets: {real_secrets[:3]}"
@@ -893,7 +904,7 @@ class TestCrossServiceConsistency:
         }
         # Some services on disk may not be registered yet
         registered = set(PYTHON_SERVICES)
-        missing_from_registry = on_disk - registered - set(NODE_SERVICES) - PORTLESS_SERVICES - {"wechat-service", "vllm-deepseek"}
+        missing_from_registry = on_disk - registered - set(NODE_SERVICES) - PORTLESS_SERVICES - _REGISTRY_EXEMPT_SERVICES
         # Soft check: no more than 5 unregistered Python services
         assert len(missing_from_registry) <= 5, (
             f"Too many Python services on disk not in registry ({len(missing_from_registry)}): "

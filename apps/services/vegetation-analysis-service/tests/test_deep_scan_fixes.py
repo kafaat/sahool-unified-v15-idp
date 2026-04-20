@@ -340,6 +340,7 @@ def test_analyze_ndvi_timeseries_captures_tenant_id():
         assert has_require_capture or has_verify_capture, (
             "analyze_ndvi_timeseries uses tenant_id without capturing it — "
             "NameError regression. Capture via "
-            "`tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)` "
-            "(preferred) or `tenant_id = _require_tenant_id(user)`."
+            "`tenant_id = await _verify_field_owned_by_tenant(user, field_id)` "
+            "(preferred, includes ownership check) or "
+            "`tenant_id = _require_tenant_id(user)` (tenant-presence only)."
         )

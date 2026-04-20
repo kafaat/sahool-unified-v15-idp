@@ -24,7 +24,7 @@ from enum import Enum, StrEnum
 from typing import Any
 
 import structlog
-from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Request
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 # Shared middleware imports
@@ -86,13 +86,6 @@ async def _verify_field_owned_by_tenant(
     Operations Center convention where one service owns the ownership
     graph and all other services delegate to it.
 
-    **Bearer token forwarding** — ``field-management-service``'s
-    ``TenantGuard`` runs after ``JwtAuthGuard`` and rejects any request
-    without a valid ``Authorization: Bearer ...`` header with 401
-    "Authentication required". Callers MUST pass the inbound FastAPI
-    ``http_request`` so we can extract the caller's JWT and forward it;
-    without it, every strict-mode verification fails at runtime.
-
     Behaviour:
       * Lenient when ``FIELD_SERVICE_URL`` is not configured (dev / CI)
       * Cached 5 min in tenant-scoped Redis
@@ -112,7 +105,11 @@ async def _verify_field_owned_by_tenant(
     # ``analyze_phenology_with_action(request: PhenologyActionRequest, ...)``.
     bearer_token: str | None = None
     if http_request is not None:
-        auth_header = http_request.headers.get("authorization") or http_request.headers.get("Authorization") or ""
+        auth_header = (
+            http_request.headers.get("authorization")
+            or http_request.headers.get("Authorization")
+            or ""
+        )
         if auth_header.lower().startswith("bearer "):
             bearer_token = auth_header[7:].strip() or None
 
@@ -272,6 +269,7 @@ from .eo_integration import (
     SENTINEL_HUB_CONFIGURED,
     check_eo_configuration,
     convert_eo_result_to_api_format,
+    fetch_real_bands,
     fetch_real_satellite_data,
     get_data_source_status,
 )
@@ -1205,7 +1203,9 @@ def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
     """Build a SatelliteImagery instance with simulated band reflectances.
 
     Explicit helper so the call site stays readable and so tests can
-    assert on ``data_source == "simulated"``.
+    assert on ``data_source == "simulated"``. Also used by the fallback
+    path in ``/v1/imagery/request`` when Sentinel Hub real-bands fetch
+    fails or isn't configured.
     """
     import random
 
@@ -1219,7 +1219,6 @@ def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
         "swir1": random.uniform(0.08, 0.35),
         "swir2": random.uniform(0.05, 0.25),
     }
-
     bands = []
     for band_id, band_info in config["bands"].items():
         band_type = band_info["name"].lower()
@@ -1232,7 +1231,6 @@ def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
                 value=round(value, 4),
             )
         )
-
     return SatelliteImagery(
         imagery_id=str(uuid.uuid4()),
         field_id=request.field_id,
@@ -1241,26 +1239,12 @@ def _build_simulated_imagery(request: "ImageryRequest") -> "SatelliteImagery":
         cloud_cover_percent=random.uniform(0, request.cloud_cover_max),
         sun_elevation=random.uniform(45, 75),
         bands=bands,
-        scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{random.randint(1000, 9999)}",
-        tile_id=f"T{random.randint(30, 40)}Q{chr(random.randint(65, 90))}{chr(random.randint(65, 90))}",
+        scene_id=f"{request.satellite.value.upper()}_{datetime.now().strftime('%Y%m%d')}_{_rand_int_4()}",
+        tile_id=f"T{_rand_int_2()}Q{chr(_rand_upper())}{chr(_rand_upper())}",
         processing_level=("L2A" if request.satellite == SatelliteSource.SENTINEL2 else "L2"),
         data_source="simulated",
         data_provider="simulated",
     )
-
-
-@app.post("/v1/imagery/request", response_model=SatelliteImagery)
-async def request_imagery(request: ImageryRequest, user: User = Depends(get_current_user)):
-    """طلب صور الأقمار الصناعية لحقل معين.
-
-    Band reflectances are currently simulated — no live provider exposes the
-    per-band reflectance shape that clients expect here. The response is
-    tagged ``data_source="simulated"`` so callers never mistake it for
-    real Sentinel-2 / Landsat data (OneSoil / EOSDA transparency pattern).
-    """
-    _validate_field_id(request.field_id)
-    _require_tenant_id(user)
-    return _build_simulated_imagery(request)
 
 
 async def _analyze_field_via_multi_provider(request: "ImageryRequest") -> "FieldAnalysis | None":
@@ -1321,6 +1305,129 @@ async def _analyze_field_via_multi_provider(request: "ImageryRequest") -> "Field
         data_source="simulated" if is_sim else "real",
         data_provider=getattr(analysis, "provider", "") or "unknown",
     )
+
+
+def _rand_int_4() -> int:
+    import random
+
+    return random.randint(1000, 9999)
+
+
+def _rand_int_2() -> int:
+    import random
+
+    return random.randint(30, 40)
+
+
+def _rand_upper() -> int:
+    import random
+
+    return random.randint(65, 90)
+
+
+def _build_real_imagery_from_bands(request: "ImageryRequest", band_payload: dict) -> "SatelliteImagery":
+    """Convert `fetch_real_bands(...)` output into a SatelliteImagery instance.
+
+    Only called when Sentinel Hub actually returned bands — bands and
+    cloud_cover are real, sun_elevation stays synthesised (Process API
+    doesn't expose it at this request shape).
+    """
+    bands = [
+        SatelliteBand(
+            band_name=b["band_name"],
+            wavelength_nm=b["wavelength_nm"],
+            resolution_m=b["resolution_m"],
+            value=b["value"],
+        )
+        for b in band_payload["bands"]
+    ]
+
+    # Prefer the acquisition_date from the Sentinel Hub payload so clients
+    # can trust the timestamp matches the actual scene. Fall back to
+    # ``datetime.now(UTC)`` only if the payload field is missing or not
+    # parseable (e.g., non-ISO string from a future provider change).
+    payload_date_str = band_payload.get("acquisition_date")
+    if payload_date_str:
+        try:
+            acquired = datetime.fromisoformat(str(payload_date_str))
+            if acquired.tzinfo is None:
+                acquired = acquired.replace(tzinfo=UTC)
+        except (TypeError, ValueError):
+            acquired = datetime.now(UTC)
+    else:
+        acquired = datetime.now(UTC)
+
+    return SatelliteImagery(
+        imagery_id=str(uuid.uuid4()),
+        field_id=request.field_id,
+        satellite=request.satellite,
+        acquisition_date=acquired,
+        cloud_cover_percent=band_payload.get("cloud_cover_percent", 0.0),
+        sun_elevation=60.0,  # not returned by Process API at this shape
+        bands=bands,
+        scene_id=band_payload.get(
+            "scene_id",
+            f"{request.satellite.value.upper()}_{request.start_date.isoformat()}",
+        ),
+        tile_id=f"T{_rand_int_2()}Q{chr(_rand_upper())}{chr(_rand_upper())}",
+        processing_level="L2A",
+    )
+
+
+@app.post("/v1/imagery/request", response_model=SatelliteImagery)
+async def request_imagery(
+    request: ImageryRequest,
+    response: Response,
+    user: User = Depends(get_current_user),
+):
+    """طلب صور الأقمار الصناعية لحقل معين.
+
+    Real-band fallback chain (EOSDA / OneSoil pattern):
+        1. Sentinel Hub Process API via ``fetch_real_bands()`` when
+           sahool-eo + credentials are configured.
+        2. In-process simulated generator (random reflectances).
+
+    Clients read ``X-Data-Source`` and ``X-Data-Provider`` response
+    headers to know which path served the request. Once PR #1697 lands
+    these markers will also be in the JSON body.
+    """
+    _validate_field_id(request.field_id)
+    _require_tenant_id(user)
+
+    # Path 1: real bands via Sentinel Hub Process API.
+    #
+    # Gate on ``request.satellite == SENTINEL2``: the evalscript in
+    # ``packages/sahool-eo/tasks/fetch.py::SahoolSentinelFetchTask`` is
+    # Sentinel-2-specific (10 S2 bands, L2A processing). Returning S2
+    # reflectances for a Landsat/MODIS request would be a contract
+    # violation — fall through to the simulated generator instead.
+    if (
+        EO_LEARN_AVAILABLE
+        and SENTINEL_HUB_CONFIGURED
+        and fetch_real_bands is not None
+        and request.satellite == SatelliteSource.SENTINEL2
+    ):
+        try:
+            band_payload = await fetch_real_bands(
+                latitude=request.latitude,
+                longitude=request.longitude,
+                start_date=request.start_date,
+                end_date=request.end_date,
+                max_cloud_cover=request.cloud_cover_max,
+            )
+        except Exception as e:
+            logger.warning("fetch_real_bands_failed", error=str(e))
+            band_payload = None
+
+        if band_payload is not None:
+            response.headers["X-Data-Source"] = "real"
+            response.headers["X-Data-Provider"] = band_payload.get("provider", "sentinel_hub")
+            return _build_real_imagery_from_bands(request, band_payload)
+
+    # Path 2: simulated fallback
+    response.headers["X-Data-Source"] = "simulated"
+    response.headers["X-Data-Provider"] = "simulated"
+    return _build_simulated_imagery(request)
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
@@ -1385,8 +1492,10 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
                 logger.debug("cache_set_failed", operation="analysis", error=str(e))
         return real_result
 
-    # Path 2: fully in-process simulated fallback (preserves prior behaviour
-    # so downstream code paths that don't have multi_provider still work)
+    # Path 2: fully in-process simulated fallback. Use
+    # `_build_simulated_imagery` directly (not the `request_imagery`
+    # handler) so this in-process call doesn't need a FastAPI Response
+    # object — the handler is for HTTP clients only.
     imagery = _build_simulated_imagery(request)
 
     bands_dict = {b.band_name: b.value for b in imagery.bands}

@@ -174,6 +174,17 @@ COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 
+# Also bake the `prisma` CLI (from package.json ~5.22.0) and its engine
+# binaries into the production image. Without these, the entrypoint's
+# `npx prisma migrate deploy` falls back to fetching the current latest
+# version from the registry at startup — which is Prisma 7.x and fails
+# with P1012 because our schema still uses the v5 `url` / `directUrl`
+# datasource syntax. Having the CLI local also removes a runtime network
+# dependency and guarantees the CLI version matches @prisma/client.
+COPY --from=builder /app/node_modules/prisma ./node_modules/prisma
+COPY --from=builder /app/node_modules/@prisma/engines ./node_modules/@prisma/engines
+COPY --from=builder /app/node_modules/.bin/prisma ./node_modules/.bin/prisma
+
 # Set ownership
 RUN chown -R sahool:sahool /app
 

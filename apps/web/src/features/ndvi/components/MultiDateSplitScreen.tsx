@@ -99,7 +99,10 @@ export const MultiDateSplitScreen: React.FC<MultiDateSplitScreenProps> = ({
     );
   }
 
-  if (!data || rows.length === 0) {
+  // A 1-row payload is logically empty for a *comparison* view — the
+  // empty-state copy asks for "at least 2 dates", so a lone row would
+  // render a single panel and contradict the message. Treat <2 as empty.
+  if (!data || rows.length < 2) {
     return (
       <div
         className={`py-6 text-center text-sm text-gray-400 ${className}`}

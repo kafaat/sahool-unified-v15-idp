@@ -83,6 +83,35 @@ describe('PixelInspectorPopup', () => {
     expect(bsi.querySelector('dt')?.textContent || '').not.toMatch(/●/);
   });
 
+  it('prefers the server-supplied `mappable` list over the client constant', () => {
+    // Copilot review round 2: when the backend ships its own allowlist
+    // the UI should track it — so the frontend stays in sync if the
+    // server changes which indices it can render as rasters.
+    const serverSays: PixelInspection = {
+      ...fullInspection,
+      // Server marks only NDVI + NDRE as mappable (hypothetical narrow config)
+      mappable: ['ndvi', 'ndre'],
+    };
+    render(<PixelInspectorPopup data={serverSays} />);
+    expect(screen.getByTestId('pixel-index-ndvi').textContent).toMatch(/●/);
+    expect(screen.getByTestId('pixel-index-ndre').textContent).toMatch(/●/);
+    // Client constant says NDWI is mappable, but server disagrees — server wins.
+    const ndwi = screen.getByTestId('pixel-index-ndwi');
+    expect(ndwi.querySelector('dt')?.textContent || '').not.toMatch(/●/);
+  });
+
+  it('falls back to the client constant when server omits `mappable`', () => {
+    const noList: PixelInspection = {
+      ...fullInspection,
+      mappable: [],
+    };
+    render(<PixelInspectorPopup data={noList} />);
+    // Client MAPPABLE_INDICES still marks the 6 canonical ones
+    for (const key of ['ndvi', 'ndre', 'ndwi', 'evi', 'savi', 'lai']) {
+      expect(screen.getByTestId(`pixel-index-${key}`).textContent).toMatch(/●/);
+    }
+  });
+
   it('calls onClose when the close button is clicked', () => {
     const onClose = vi.fn();
     render(<PixelInspectorPopup data={fullInspection} onClose={onClose} />);

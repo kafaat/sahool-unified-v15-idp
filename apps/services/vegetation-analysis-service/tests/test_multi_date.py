@@ -65,6 +65,27 @@ def test_sample_dates_caps_at_max_samples():
     assert len(out) <= MAX_SAMPLES
 
 
+def test_sample_dates_preserves_end_date_when_at_cap():
+    """Regression pin (Copilot review #1704 round 2): when the loop
+    fills ``max_samples`` before reaching ``end_date``, the most recent
+    acquisition must NOT be silently dropped — it must replace the
+    last entry. Otherwise filmstrip/compare views show a window that
+    ends arbitrary days before the user-selected range."""
+    out = sample_dates_at_interval("2026-01-01", "2026-06-01", 1, max_samples=5)
+    assert len(out) == 5
+    assert out[-1] == "2026-06-01", (
+        f"end_date dropped on cap; got {out!r}"
+    )
+
+
+def test_sample_dates_does_not_replace_when_end_already_sampled():
+    """Edge: when the loop naturally lands on end_date as its last
+    sample, we must not overwrite a valid entry."""
+    out = sample_dates_at_interval("2026-01-01", "2026-01-08", 7, max_samples=5)
+    # step=7 hits 2026-01-01 and 2026-01-08 exactly; both should remain
+    assert out == ["2026-01-01", "2026-01-08"]
+
+
 @pytest.mark.parametrize("step", [0, -1, 91, 365])
 def test_sample_dates_rejects_invalid_step(step):
     with pytest.raises(ValueError):

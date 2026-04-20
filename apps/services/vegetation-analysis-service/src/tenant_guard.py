@@ -59,6 +59,20 @@ def validate_field_id(field_id: str) -> None:
     downstream code. Mirrors ``main._validate_field_id`` so sub-file
     handlers can validate without a circular import.
 
+    Validation strategy (documented for Copilot review #1704, round 2):
+    this is a SHAPE-ONLY gate — it rejects obviously bogus inputs
+    (empty / too-long) before we spend network budget on the
+    cross-service ownership call. The canonical UUID-shape check
+    happens ONE layer deeper, inside
+    ``field_ownership.verify_field_ownership``, which is the single
+    source of truth for field-id format across the platform.
+    Duplicating UUID parsing here would drift from field-management-
+    service's rules and risk false rejections on new id formats.
+    Non-UUID strings that pass this check still get rejected by the
+    ownership call — so callers always get a consistent
+    "invalid field_id" error, it just arrives from whichever layer
+    catches it first.
+
     :raises HTTPException 400: When ``field_id`` is empty or longer
         than 100 characters.
     """

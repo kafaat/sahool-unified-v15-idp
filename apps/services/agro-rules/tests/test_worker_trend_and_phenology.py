@@ -291,6 +291,29 @@ class TestHandleNdviTrend:
         worker.fieldops.create_task.assert_not_called()
 
     @pytest.mark.asyncio
+    async def test_null_numeric_fields_dont_drop_the_event(self):
+        """Regression pin (Copilot review #1704 round 2): a payload
+        with ``null`` for anomaly_count or period_days previously
+        crashed the handler with TypeError and dropped the event.
+        Safe casts must fall through to defaults."""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
+
+        msg = _analysis_env(
+            event_type="satellite.ndvi.trend",
+            field_id="field-null",
+            event_id="trend-null",
+            data={
+                "trend_direction": "declining",
+                "anomaly_count": None,  # <— previously TypeErrored
+                "period_days": "",  # <— and this too (empty string)
+            },
+        )
+        await worker._handle_ndvi_trend(msg)
+        # declining still fires — just with defaulted numerics
+        worker.fieldops.create_task.assert_called_once()
+
+    @pytest.mark.asyncio
     async def test_accepts_legacy_aggregate_id_key(self):
         """ndvi-processor events ship `aggregate_id` instead of `field_id` —
         the handler must accept both so we don't need a flag day."""
@@ -436,6 +459,29 @@ class TestHandlePhenologyStageDetected:
         bad.data = b"not-json"
 
         await worker._handle_phenology_stage_detected(bad)
+        worker.fieldops.create_task.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_null_confidence_doesnt_drop_event(self):
+        """Copilot review #1704 round 2: null/empty confidence must
+        not TypeError the handler — default to 0.0 (which then fails
+        the >=0.5 confidence gate and quietly skips, as intended)."""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock()
+
+        msg = _analysis_env(
+            event_type="phenology.stage_detected",
+            field_id="field-null",
+            event_id="pheno-null",
+            data={
+                "crop_type": "wheat",
+                "current_stage": "flowering",
+                "confidence": None,  # <— previously TypeErrored
+            },
+        )
+        # Should not raise
+        await worker._handle_phenology_stage_detected(msg)
+        # Default confidence (0.0) is below the 0.5 gate, so no task
         worker.fieldops.create_task.assert_not_called()
 
 

@@ -124,7 +124,7 @@ export const indicesKeys = {
     [...indicesKeys.all, 'timeseries', fieldId, indexName, start, end] as const,
   map: (fieldId: string, indexName: string, date?: string) =>
     [...indicesKeys.all, 'map', fieldId, indexName, date] as const,
-  pixel: (fieldId: string, lat: number, lon: number, date?: string) =>
+  pixel: (fieldId: string, lat: number | null, lon: number | null, date?: string) =>
     [...indicesKeys.all, 'pixel', fieldId, lat, lon, date] as const,
   composite: (
     fieldId: string,
@@ -257,19 +257,23 @@ export function usePixelInspection(
     enabled?: boolean;
   }
 ) {
+  // Use `null` (not NaN) as the placeholder when coords are missing —
+  // React Query's structural hashing serialises NaN to `null` anyway,
+  // and being explicit removes the cache-collision risk Copilot flagged
+  // in review #1704 (feedback round 2). We also bind `lat`/`lon` once
+  // to the same guarded values queryKey uses, dropping the `coords!`
+  // non-null assertion from queryFn.
+  const lat = coords?.lat ?? null;
+  const lon = coords?.lon ?? null;
   return useQuery({
-    queryKey: indicesKeys.pixel(
-      fieldId,
-      coords?.lat ?? NaN,
-      coords?.lon ?? NaN,
-      options?.date
-    ),
+    queryKey: indicesKeys.pixel(fieldId, lat, lon, options?.date),
     queryFn: () =>
-      vegetationIndicesApi.getPixelInspection(fieldId, coords!.lat, coords!.lon, {
+      vegetationIndicesApi.getPixelInspection(fieldId, lat as number, lon as number, {
         date: options?.date,
         indices: options?.indices,
       }),
-    enabled: !!fieldId && !!coords && (options?.enabled ?? true),
+    enabled:
+      !!fieldId && lat !== null && lon !== null && (options?.enabled ?? true),
     staleTime: 1000 * 60 * 15,
   });
 }

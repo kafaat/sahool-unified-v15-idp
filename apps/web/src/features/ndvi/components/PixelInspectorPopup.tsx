@@ -84,10 +84,18 @@ export const PixelInspectorPopup: React.FC<PixelInspectorPopupProps> = ({
   onClose,
   className = '',
 }) => {
-  const mappableSet = useMemo(
-    () => new Set(MAPPABLE_INDICES.map((i) => i.key as string)),
-    []
-  );
+  // Prefer the server-supplied `mappable` list from the payload —
+  // that way the UI tracks backend changes without a client redeploy
+  // (Copilot review #1704, feedback round 2). Falls back to the
+  // client-side constant when the probe hasn't landed yet or an
+  // older backend doesn't ship the list.
+  const mappableSet = useMemo(() => {
+    const fromServer = data?.mappable;
+    if (Array.isArray(fromServer) && fromServer.length > 0) {
+      return new Set(fromServer.map((s) => s.toLowerCase()));
+    }
+    return new Set(MAPPABLE_INDICES.map((i) => i.key as string));
+  }, [data?.mappable]);
 
   return (
     <div

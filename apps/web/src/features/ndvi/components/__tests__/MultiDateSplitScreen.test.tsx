@@ -116,6 +116,15 @@ describe('MultiDateSplitScreen', () => {
     expect(screen.getByTestId('multi-date-split-empty')).toBeInTheDocument();
   });
 
+  it('treats a 1-row payload as empty (copilot review round 2)', () => {
+    // A lone row can't render a "compare" view — the empty-state copy
+    // asks for "at least 2 dates", so a single panel would contradict
+    // the message. Regression pin: rows.length < 2 → empty state.
+    render(<MultiDateSplitScreen data={compare(1)} />);
+    expect(screen.getByTestId('multi-date-split-empty')).toBeInTheDocument();
+    expect(screen.queryByTestId('multi-date-split-panels')).not.toBeInTheDocument();
+  });
+
   it('tints panel backgrounds using the supplied colorScale', () => {
     const colorScale = { min: 0, max: 1, colors: ['#000000', '#ffffff'] };
     render(<MultiDateSplitScreen data={compare(2)} colorScale={colorScale} />);

@@ -255,6 +255,24 @@ class SatelliteApi {
   // نقاط نهاية الخريطة وفحص البكسل
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /// Safely compose a satellite-service URL from un-trusted path
+  /// segments. Encodes each segment with [Uri.encodeComponent] so that
+  /// characters like `/`, `%`, or `?` in a fieldId / indexName can't
+  /// break out of the path and change which endpoint is hit
+  /// (Copilot review #1704, feedback round 2).
+  Uri _buildIndicesUri(List<String> segments, {Map<String, String>? query}) {
+    final base = Uri.parse(ApiConfig.satelliteServiceUrl);
+    return base.replace(
+      pathSegments: [
+        ...base.pathSegments.where((s) => s.isNotEmpty),
+        'v1',
+        'indices',
+        ...segments,
+      ],
+      queryParameters: query,
+    );
+  }
+
   /// Get raster-tile metadata for a mappable vegetation index.
   /// جلب بيانات الطبقة النقطية لمؤشر قابل للعرض
   ///
@@ -265,11 +283,12 @@ class SatelliteApi {
     required String indexName,
     DateTime? date,
   }) async {
-    final uri = Uri.parse(
-      '${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/map',
-    ).replace(queryParameters: {
-      if (date != null) 'date': date.toIso8601String().substring(0, 10),
-    });
+    final uri = _buildIndicesUri(
+      [fieldId, indexName, 'map'],
+      query: {
+        if (date != null) 'date': date.toIso8601String().substring(0, 10),
+      },
+    );
     final response = await _client.get(uri, headers: _headers);
     if (response.statusCode != 200) {
       throw SatelliteApiException(
@@ -292,14 +311,15 @@ class SatelliteApi {
     DateTime? date,
     List<String>? indices,
   }) async {
-    final uri = Uri.parse(
-      '${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/pixel',
-    ).replace(queryParameters: {
-      'lat': lat.toString(),
-      'lon': lon.toString(),
-      if (date != null) 'date': date.toIso8601String().substring(0, 10),
-      if (indices != null && indices.isNotEmpty) 'indices': indices.join(','),
-    });
+    final uri = _buildIndicesUri(
+      [fieldId, 'pixel'],
+      query: {
+        'lat': lat.toString(),
+        'lon': lon.toString(),
+        if (date != null) 'date': date.toIso8601String().substring(0, 10),
+        if (indices != null && indices.isNotEmpty) 'indices': indices.join(','),
+      },
+    );
     final response = await _client.get(uri, headers: _headers);
     if (response.statusCode != 200) {
       throw SatelliteApiException(
@@ -329,13 +349,14 @@ class SatelliteApi {
     DateTime? start,
     DateTime? end,
   }) async {
-    final uri =
-        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/filmstrip')
-            .replace(queryParameters: {
-      'step_days': stepDays.toString(),
-      if (start != null) 'start': start.toIso8601String().substring(0, 10),
-      if (end != null) 'end': end.toIso8601String().substring(0, 10),
-    });
+    final uri = _buildIndicesUri(
+      [fieldId, indexName, 'filmstrip'],
+      query: {
+        'step_days': stepDays.toString(),
+        if (start != null) 'start': start.toIso8601String().substring(0, 10),
+        if (end != null) 'end': end.toIso8601String().substring(0, 10),
+      },
+    );
     final response = await _client.get(uri, headers: _headers);
     if (response.statusCode != 200) {
       throw SatelliteApiException(
@@ -356,14 +377,15 @@ class SatelliteApi {
     DateTime? end,
     String stat = 'median',
   }) async {
-    final uri =
-        Uri.parse('${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/composite')
-            .replace(queryParameters: {
-      'step_days': stepDays.toString(),
-      'stat': stat,
-      if (start != null) 'start': start.toIso8601String().substring(0, 10),
-      if (end != null) 'end': end.toIso8601String().substring(0, 10),
-    });
+    final uri = _buildIndicesUri(
+      [fieldId, indexName, 'composite'],
+      query: {
+        'step_days': stepDays.toString(),
+        'stat': stat,
+        if (start != null) 'start': start.toIso8601String().substring(0, 10),
+        if (end != null) 'end': end.toIso8601String().substring(0, 10),
+      },
+    );
     final response = await _client.get(uri, headers: _headers);
     if (response.statusCode != 200) {
       throw SatelliteApiException(
@@ -388,9 +410,7 @@ class SatelliteApi {
     DateTime? end,
     int? stepDays,
   }) async {
-    final uri = Uri.parse(
-      '${ApiConfig.satelliteServiceUrl}/v1/indices/$fieldId/$indexName/multi-date-compare',
-    );
+    final uri = _buildIndicesUri([fieldId, indexName, 'multi-date-compare']);
     final body = <String, dynamic>{};
     if (dates != null && dates.isNotEmpty) {
       body['dates'] = dates.map((d) => d.toIso8601String().substring(0, 10)).toList();

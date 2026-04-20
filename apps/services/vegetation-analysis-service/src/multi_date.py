@@ -72,9 +72,17 @@ def sample_dates_at_interval(
     while cursor <= end_date and len(out) < max_samples:
         out.append(cursor.isoformat())
         cursor = cursor + timedelta(days=step_days)
-    # Ensure the last date is represented when the step doesn't land on it
-    if out and out[-1] != end_date.isoformat() and len(out) < max_samples:
-        out.append(end_date.isoformat())
+    # Ensure the last date is represented when the step doesn't land on
+    # it. If we've already hit `max_samples`, REPLACE the last sample
+    # with `end_date` instead of silently dropping it — the filmstrip
+    # and compare views depend on seeing the most recent acquisition
+    # (Copilot review #1704, feedback round 2).
+    end_iso = end_date.isoformat()
+    if out and out[-1] != end_iso:
+        if len(out) < max_samples:
+            out.append(end_iso)
+        else:
+            out[-1] = end_iso
     return out
 
 

@@ -230,6 +230,45 @@ except ImportError:
     async def is_cache_available():
         return False
 
+    # Fallback stubs for the cache API surface so CodeQL and other
+    # static analysers don't flag call-sites below as "unknown kwarg"
+    # when the import fails. At runtime these are only reachable when
+    # `_cache_available` is False, in which case callers guard with
+    # ``if _cache_available:`` anyway — so the stubs are no-ops.
+    async def get_cached_analysis(  # type: ignore[no-redef]
+        field_id: str,
+        satellite: str,
+        tenant_id: str | None = None,
+        acquisition_date: str | None = None,
+    ) -> dict | None:
+        return None
+
+    async def cache_analysis(  # type: ignore[no-redef]
+        field_id: str,
+        satellite: str,
+        analysis_data: dict,
+        tenant_id: str | None = None,
+        acquisition_date: str | None = None,
+    ) -> bool:
+        return False
+
+    async def get_cached_timeseries(  # type: ignore[no-redef]
+        field_id: str,
+        days: int,
+        satellite: str,
+        tenant_id: str | None = None,
+    ) -> dict | None:
+        return None
+
+    async def cache_timeseries(  # type: ignore[no-redef]
+        field_id: str,
+        days: int,
+        satellite: str,
+        timeseries_data: dict,
+        tenant_id: str | None = None,
+    ) -> bool:
+        return False
+
 
 # Import eo-learn integration
 # Import boundary endpoints

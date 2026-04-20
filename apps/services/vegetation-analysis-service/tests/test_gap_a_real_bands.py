@@ -19,8 +19,8 @@ from __future__ import annotations
 import inspect
 import os
 import sys
-from datetime import UTC, date, datetime
-from unittest.mock import AsyncMock, MagicMock
+from datetime import date
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -192,6 +192,87 @@ async def test_imagery_endpoint_falls_back_when_fetch_returns_none(monkeypatch):
     result = await request_imagery(req, response, user=mock_user)
     assert result.field_id == "fetch-none-test"
     assert response.headers["X-Data-Source"] == "simulated"
+
+
+@pytest.mark.asyncio
+async def test_imagery_endpoint_gates_real_path_on_sentinel2(monkeypatch):
+    """Per Copilot review: the evalscript in SahoolSentinelFetchTask is
+    Sentinel-2-specific (10 S2 bands, L2A). Returning those reflectances
+    for a Landsat/MODIS request would be a contract violation —
+    non-S2 requests must fall through to the simulated generator."""
+    from fastapi import Response
+    import src.main as main_mod
+    from src.main import ImageryRequest, SatelliteSource, request_imagery
+
+    monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", True)
+    monkeypatch.setattr(main_mod, "SENTINEL_HUB_CONFIGURED", True)
+
+    fetch_calls: list = []
+
+    async def _fetch_should_not_be_called(**kwargs):
+        fetch_calls.append(kwargs)
+        return {"bands": []}
+
+    monkeypatch.setattr(main_mod, "fetch_real_bands", _fetch_should_not_be_called)
+
+    req = ImageryRequest(
+        field_id="landsat-test",
+        latitude=15.5,
+        longitude=44.2,
+        satellite=SatelliteSource.LANDSAT8,  # NOT Sentinel-2
+    )
+    response = Response()
+    mock_user = MagicMock(tenant_id="t1")
+
+    result = await request_imagery(req, response, user=mock_user)
+
+    assert len(fetch_calls) == 0, (
+        "fetch_real_bands must NOT be called for non-Sentinel-2 satellites"
+    )
+    assert response.headers["X-Data-Source"] == "simulated"
+    assert result.satellite == SatelliteSource.LANDSAT8
+
+
+@pytest.mark.asyncio
+async def test_imagery_endpoint_uses_payload_acquisition_date(monkeypatch):
+    """Per Copilot review: when Sentinel Hub returns a real scene, the
+    response's acquisition_date must reflect the payload's timestamp —
+    not ``datetime.now(UTC)`` — so clients can trace the actual scene."""
+    from fastapi import Response
+    import src.main as main_mod
+    from src.main import ImageryRequest, SatelliteSource, request_imagery
+
+    monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", True)
+    monkeypatch.setattr(main_mod, "SENTINEL_HUB_CONFIGURED", True)
+
+    async def _fake_fetch(**kwargs):
+        return {
+            "bands": [
+                {"band_name": "B04", "wavelength_nm": "665nm", "resolution_m": 10, "value": 0.1},
+            ],
+            "cloud_cover_percent": 3.0,
+            "acquisition_date": "2026-03-15T00:00:00+00:00",
+            "scene_id": "SENTINEL2_L2A_2026-03-15",
+            "provider": "sentinel_hub",
+        }
+
+    monkeypatch.setattr(main_mod, "fetch_real_bands", _fake_fetch)
+
+    req = ImageryRequest(
+        field_id="payload-date-test",
+        latitude=15.5,
+        longitude=44.2,
+        satellite=SatelliteSource.SENTINEL2,
+    )
+    response = Response()
+    mock_user = MagicMock(tenant_id="t1")
+
+    result = await request_imagery(req, response, user=mock_user)
+
+    # The acquisition_date must match the Sentinel Hub payload, not "now"
+    assert result.acquisition_date.year == 2026
+    assert result.acquisition_date.month == 3
+    assert result.acquisition_date.day == 15
 
 
 @pytest.mark.asyncio

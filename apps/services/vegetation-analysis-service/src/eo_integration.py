@@ -370,7 +370,14 @@ async def fetch_real_bands(
     try:
         sh_config = SentinelHubConfig.from_env()
     except Exception as e:
-        logger.warning(f"Sentinel Hub config invalid: {e}")
+        # Don't interpolate the full exception — some configuration
+        # loaders include credential snippets in error messages. Log
+        # only the exception type so a leaked log doesn't expose secrets.
+        logger.warning(
+            "Sentinel Hub config invalid (exception_type=%s) — "
+            "falling back to simulated bands",
+            type(e).__name__,
+        )
         return None
 
     bbox = BBox(
@@ -413,6 +420,8 @@ async def fetch_real_bands(
         logger.warning(f"Failed to compute band means: {e}")
         return None
 
+    import math
+
     bands_payload = []
     for idx, (band_name, wavelength, res) in enumerate(_S2_BAND_ORDER):
         if idx >= len(mean_per_band):
@@ -421,8 +430,10 @@ async def fetch_real_bands(
             value = float(mean_per_band[idx])
         except (TypeError, ValueError):
             continue
-        # NaN / inf guard (happens when the whole footprint is cloud-masked)
-        if not (value == value and value not in (float("inf"), float("-inf"))):
+        # NaN / inf guard (happens when the whole footprint is cloud-masked).
+        # Use math.isnan / math.isinf — the old ``value == value`` trick
+        # triggers CodeQL's "comparison of identical values" warning.
+        if math.isnan(value) or math.isinf(value):
             continue
         bands_payload.append(
             {
@@ -442,7 +453,10 @@ async def fetch_real_bands(
         clp = eopatch[FeatureType.MASK].get("CLP")
         if clp is not None and clp.size > 0:
             cloud_cover_pct = float(np.mean(clp)) / 2.55  # CLP: 0-255 → %
-    except Exception:
+    except Exception:  # noqa: BLE001
+        # CLP is an optional convenience field; any failure here (missing
+        # key, empty mask, numeric overflow) just means we report 0.0
+        # cloud cover. The caller doesn't depend on this being accurate.
         pass
 
     return {

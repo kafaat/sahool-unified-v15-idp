@@ -1223,11 +1223,27 @@ def _build_real_imagery_from_bands(request: "ImageryRequest", band_payload: dict
         )
         for b in band_payload["bands"]
     ]
+
+    # Prefer the acquisition_date from the Sentinel Hub payload so clients
+    # can trust the timestamp matches the actual scene. Fall back to
+    # ``datetime.now(UTC)`` only if the payload field is missing or not
+    # parseable (e.g., non-ISO string from a future provider change).
+    payload_date_str = band_payload.get("acquisition_date")
+    if payload_date_str:
+        try:
+            acquired = datetime.fromisoformat(str(payload_date_str))
+            if acquired.tzinfo is None:
+                acquired = acquired.replace(tzinfo=UTC)
+        except (TypeError, ValueError):
+            acquired = datetime.now(UTC)
+    else:
+        acquired = datetime.now(UTC)
+
     return SatelliteImagery(
         imagery_id=str(uuid.uuid4()),
         field_id=request.field_id,
         satellite=request.satellite,
-        acquisition_date=datetime.now(UTC),
+        acquisition_date=acquired,
         cloud_cover_percent=band_payload.get("cloud_cover_percent", 0.0),
         sun_elevation=60.0,  # not returned by Process API at this shape
         bands=bands,
@@ -1260,8 +1276,19 @@ async def request_imagery(
     _validate_field_id(request.field_id)
     _require_tenant_id(user)
 
-    # Path 1: real bands via Sentinel Hub Process API
-    if EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED and fetch_real_bands is not None:
+    # Path 1: real bands via Sentinel Hub Process API.
+    #
+    # Gate on ``request.satellite == SENTINEL2``: the evalscript in
+    # ``packages/sahool-eo/tasks/fetch.py::SahoolSentinelFetchTask`` is
+    # Sentinel-2-specific (10 S2 bands, L2A processing). Returning S2
+    # reflectances for a Landsat/MODIS request would be a contract
+    # violation — fall through to the simulated generator instead.
+    if (
+        EO_LEARN_AVAILABLE
+        and SENTINEL_HUB_CONFIGURED
+        and fetch_real_bands is not None
+        and request.satellite == SatelliteSource.SENTINEL2
+    ):
         try:
             band_payload = await fetch_real_bands(
                 latitude=request.latitude,

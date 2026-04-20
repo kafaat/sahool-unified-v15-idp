@@ -112,11 +112,7 @@ async def _verify_field_owned_by_tenant(
     # ``analyze_phenology_with_action(request: PhenologyActionRequest, ...)``.
     bearer_token: str | None = None
     if http_request is not None:
-        auth_header = (
-            http_request.headers.get("authorization")
-            or http_request.headers.get("Authorization")
-            or ""
-        )
+        auth_header = http_request.headers.get("authorization") or http_request.headers.get("Authorization") or ""
         if auth_header.lower().startswith("bearer "):
             bearer_token = auth_header[7:].strip() or None
 

@@ -22,13 +22,33 @@ spec:
       labels:
         app: test-harness-sidecar
     spec:
+      # Pod-level security — belt-and-braces with the non-root user baked
+      # into the image. Prevents an accidental image override from falling
+      # back to root.
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: sidecar
           image: "{{ .Values.image.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          # Container-level security — explicit no-privilege-escalation and
+          # read-only root FS. uvicorn writes nothing to disk at runtime.
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
           ports:
             - containerPort: 8299
               name: http
+              protocol: TCP
           env:
             - name: ENVIRONMENT
               value: {{ .Values.environment | quote }}
@@ -101,3 +121,8 @@ spec:
         - podSelector:
             matchLabels:
               sahool.io/role: e2e-runner
+      # Restrict to the service's actual listening port. Without this,
+      # allowed peers could reach ANY port on the pod.
+      ports:
+        - protocol: TCP
+          port: 8299

@@ -31,8 +31,8 @@ def test_openapi_yaml_loads_through_schemathesis():
 
 def test_openapi_yaml_passes_strict_validator():
     """openapi-spec-validator is stricter than schemathesis on OpenAPI 3.1."""
+    yaml = pytest.importorskip("yaml")
     pytest.importorskip("openapi_spec_validator")
-    import yaml
     from openapi_spec_validator import validate
 
     spec_path = Path(__file__).resolve().parent.parent / "openapi.yaml"
@@ -43,7 +43,7 @@ def test_openapi_yaml_passes_strict_validator():
 
 def test_contract_version_field_present():
     """The ``x-contract-version`` field is the framework's compat anchor."""
-    import yaml
+    yaml = pytest.importorskip("yaml")
 
     spec_path = Path(__file__).resolve().parent.parent / "openapi.yaml"
     spec = yaml.safe_load(spec_path.read_text("utf-8"))

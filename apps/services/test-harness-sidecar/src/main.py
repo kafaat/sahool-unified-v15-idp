@@ -16,6 +16,7 @@ Hard production guard:
 
 from __future__ import annotations
 
+import hmac
 import os
 import sys
 from contextlib import asynccontextmanager
@@ -101,8 +102,16 @@ app = FastAPI(
 async def verify_seed_token(
     x_test_seed_token: str = Header(..., alias="X-Test-Seed-Token"),
 ) -> None:
-    """Bearer-style header check on every protected endpoint."""
-    if x_test_seed_token != settings.TEST_SEED_TOKEN:
+    """Bearer-style header check on every protected endpoint.
+
+    Uses ``hmac.compare_digest`` instead of ``==`` so the comparison is
+    constant-time with respect to the secret — eliminates the timing
+    side-channel that a raw equality check would expose.
+    """
+    if not hmac.compare_digest(
+        x_test_seed_token.encode("utf-8"),
+        settings.TEST_SEED_TOKEN.encode("utf-8"),
+    ):
         raise HTTPException(status_code=401, detail="Invalid X-Test-Seed-Token")
 
 

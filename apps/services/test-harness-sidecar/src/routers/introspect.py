@@ -19,14 +19,31 @@ behavioral regression does.
 
 from __future__ import annotations
 
-from typing import Optional
-
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
+from src.config import Settings
 from src.db_adapter import admin_connection, tenant_connection
 
 router = APIRouter()
+
+
+def _require_whitelisted_tenant(tenant_id: str) -> None:
+    """Per-request tenant guard.
+
+    Reduces blast radius if the seed token ever leaks: even with a valid
+    token, callers can only probe tenants the operator explicitly
+    opted in to via ``TEST_TENANT_WHITELIST``.
+    """
+    whitelist = Settings().TEST_TENANT_WHITELIST
+    if tenant_id not in whitelist:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                f"tenant_id '{tenant_id}' is not in TEST_TENANT_WHITELIST. "
+                "This sidecar only probes explicitly allowed test tenants."
+            ),
+        )
 
 
 class FieldInvariants(BaseModel):
@@ -75,6 +92,11 @@ async def field_invariants(field_id: str) -> FieldInvariants:
             has_spatial_index=bool(spatial_idx),
         )
 
+    # Tenant-whitelist guard: only probe fields that belong to an explicitly
+    # allowed test tenant. Prevents the endpoint from being used to
+    # introspect real tenants' data even if someone has the seed token.
+    _require_whitelisted_tenant(str(meta["tenant_id"]))
+
     # ---------- Isolation probe: tenant connection with WRONG tenant ----------
     # Use the SAME RLS-context module production uses. If RLS is enforced
     # correctly, the WRONG tenant cannot see this field → returns False.
@@ -101,6 +123,8 @@ async def field_invariants(field_id: str) -> FieldInvariants:
 
 @router.get("/invariants/rls/{tenant_id}", response_model=RlsInvariants)
 async def rls_invariants(tenant_id: str) -> RlsInvariants:
+    _require_whitelisted_tenant(tenant_id)
+
     # In a tenant-scoped session: RLS should filter rows server-side.
     # If the policy is active, an unfiltered COUNT returns the same as a
     # filtered COUNT for THIS tenant, and a COUNT of "tenant_id != current"

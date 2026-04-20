@@ -10,7 +10,7 @@ from __future__ import annotations
 from typing import List
 
 from pydantic import Field, field_validator
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 # Bumped every time openapi.yaml changes shape. Framework checks this
@@ -20,6 +20,10 @@ SIDECAR_VERSION = "1.0.0"
 
 
 class Settings(BaseSettings):
+    # Pydantic v2 / pydantic-settings configuration — the ``class Config``
+    # pattern is the v1 legacy form and can silently miss .env loading.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
     # Refused at start (see _enforce_production_guard in main.py + Pydantic
     # validator below). PR 1 has NO override flag — production accidents
     # require renaming ENVIRONMENT in source.
@@ -66,6 +70,3 @@ class Settings(BaseSettings):
                     f"Tenant '{tenant}' must start with 'tenant_e2e_' or 'tenant_test_'"
                 )
         return v
-
-    class Config:
-        env_file = ".env"

@@ -27,16 +27,20 @@ def test_healthz_returns_alive():
 
 
 def test_version_returns_metadata():
+    """Track the source-of-truth constants rather than hardcoding strings
+    so version bumps don't churn this test."""
     from fastapi.testclient import TestClient
+
+    from src.config import CONTRACT_VERSION, SIDECAR_VERSION
     from src.main import app
 
     client = TestClient(app, raise_server_exceptions=False)
     resp = client.get("/version")
     assert resp.status_code == 200
     body = resp.json()
-    assert body["sidecar_version"] == "1.0.0"
-    assert body["contract_version"] == "1.0.0"
-    assert body["environment"] in ("local", "ci", "staging", "test")
+    assert body["sidecar_version"] == SIDECAR_VERSION
+    assert body["contract_version"] == CONTRACT_VERSION
+    assert body["environment"]  # just assert it's set; exact value env-dependent
 
 
 def test_readyz_503_when_db_pool_missing():

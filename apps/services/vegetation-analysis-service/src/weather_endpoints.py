@@ -17,9 +17,9 @@ from datetime import date as date_class
 from fastapi import Depends, HTTPException, Query
 
 from shared.auth.dependencies import get_current_user
-from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
+from .tenant_guard import require_tenant_id
 from .weather_integration import get_weather_service
 
 logger = logging.getLogger(__name__)

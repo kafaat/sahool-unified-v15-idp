@@ -173,8 +173,7 @@ def test_subfile_handlers_all_enforce_tenant_presence(fname: str):
     assert not missing, (
         f"{fname}: {len(missing)} authenticated handler(s) bypass tenant "
         f"presence check — Kong is the only thing between the caller and "
-        f"tenant data. Add `require_tenant_id(_user)` to:\n  "
-        + "\n  ".join(missing)
+        f"tenant data. Add `require_tenant_id(_user)` to:\n  " + "\n  ".join(missing)
     )
 
 

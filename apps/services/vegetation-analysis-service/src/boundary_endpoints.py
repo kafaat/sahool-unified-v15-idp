@@ -13,11 +13,11 @@ from fastapi import Depends, HTTPException, Query
 from pydantic import BaseModel, Field
 
 from shared.auth.dependencies import get_current_user
-from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
 from .cache import cache_invalidate_field
 from .field_boundary_detector import BoundaryChange
+from .tenant_guard import require_tenant_id
 
 logger = logging.getLogger(__name__)
 

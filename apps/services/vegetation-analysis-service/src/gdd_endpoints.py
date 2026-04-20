@@ -19,10 +19,10 @@ from datetime import date as date_class
 from fastapi import Depends, HTTPException, Query
 
 from shared.auth.dependencies import get_current_user
-from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
 from .gdd_tracker import get_gdd_tracker
+from .tenant_guard import require_tenant_id
 
 logger = logging.getLogger(__name__)
 

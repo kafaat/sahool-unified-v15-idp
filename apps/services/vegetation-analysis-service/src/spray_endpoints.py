@@ -14,7 +14,6 @@ from datetime import datetime
 from fastapi import Depends, HTTPException, Query
 
 from shared.auth.dependencies import get_current_user
-from .tenant_guard import require_tenant_id
 from shared.auth.models import User
 
 from .spray_advisor import (
@@ -22,6 +21,7 @@ from .spray_advisor import (
     SprayProduct,
     get_spray_advisor,
 )
+from .tenant_guard import require_tenant_id
 
 logger = logging.getLogger(__name__)
 

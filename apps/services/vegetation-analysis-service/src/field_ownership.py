@@ -272,8 +272,7 @@ async def verify_field_ownership(
                 raise HTTPException(
                     status_code=503,
                     detail=(
-                        "Field service returned unexpected payload shape | "
-                        "خدمة الحقول أعادت شكل استجابة غير متوقع"
+                        "Field service returned unexpected payload shape | خدمة الحقول أعادت شكل استجابة غير متوقع"
                     ),
                 )
             return
@@ -283,10 +282,7 @@ async def verify_field_ownership(
             if _strict_mode():
                 raise HTTPException(
                     status_code=503,
-                    detail=(
-                        "Field service returned unexpected data shape | "
-                        "خدمة الحقول أعادت شكل بيانات غير متوقع"
-                    ),
+                    detail=("Field service returned unexpected data shape | خدمة الحقول أعادت شكل بيانات غير متوقع"),
                 )
             return
 

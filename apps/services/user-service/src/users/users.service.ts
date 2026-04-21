@@ -73,32 +73,45 @@ export class UsersService {
     }
 
     // Create user
-    const user = await this.prisma.user.create({
-      data: {
-        tenantId,
-        email,
-        phone: createUserDto.phone,
-        passwordHash,
-        firstName,
-        lastName,
-        role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
-        status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
-        emailVerified: createUserDto.emailVerified || false,
-        phoneVerified: createUserDto.phoneVerified || false,
-      },
-      select: {
-        ...CommonSelects.userBasic,
-        profile: {
-          select: {
-            id: true,
-            avatarUrl: true,
-            address: true,
-            city: true,
-            region: true,
+    // RACE-CONDITION FIX: the findUnique + create sequence is not atomic.
+    // Two concurrent requests for the same email can both pass the findUnique
+    // check.  Wrap the create call and re-map Prisma's unique-constraint error
+    // (P2002) to ConflictException so the API always returns 409 rather than 500.
+    let user: User;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          tenantId,
+          email,
+          phone: createUserDto.phone,
+          passwordHash,
+          firstName,
+          lastName,
+          role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
+          status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
+          emailVerified: createUserDto.emailVerified || false,
+          phoneVerified: createUserDto.phoneVerified || false,
+        },
+        select: {
+          ...CommonSelects.userBasic,
+          profile: {
+            select: {
+              id: true,
+              avatarUrl: true,
+              address: true,
+              city: true,
+              region: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (err: any) {
+      // Prisma unique constraint violation code
+      if (err?.code === "P2002") {
+        throw new ConflictException("User with this email already exists");
+      }
+      throw err;
+    }
 
     // Fire-and-forget NATS publish — downstream services (audit, notification)
     // react to `sahool.user.created`. Do not block user-creation on event bus
@@ -475,5 +488,38 @@ export class UsersService {
         tenantId,
       },
     });
+  }
+
+  /**
+   * Toggle blocked status for a user (used by mobile chat and admin moderation).
+   * تبديل حالة الحجب للمستخدم
+   */
+  async toggleBlock(userId: string, tenantId?: string): Promise<User | null> {
+    const where: any = { id: userId };
+    if (tenantId) where.tenantId = tenantId;
+
+    const existing = await this.prisma.user.findFirst({
+      where,
+      select: { id: true, status: true, tenantId: true },
+    });
+    if (!existing) return null;
+
+    const isCurrentlyBlocked = existing.status === UserStatus.SUSPENDED;
+    const newStatus = isCurrentlyBlocked ? UserStatus.ACTIVE : UserStatus.SUSPENDED;
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { status: newStatus },
+      select: { id: true, status: true, tenantId: true },
+    });
+
+    void this.events.publishUserStatusChanged({
+      tenantId: updated.tenantId,
+      userId: updated.id,
+      oldStatus: String(existing.status),
+      newStatus: String(updated.status),
+    });
+
+    return { ...updated, blocked: !isCurrentlyBlocked } as unknown as User;
   }
 }

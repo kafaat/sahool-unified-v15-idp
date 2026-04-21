@@ -332,6 +332,16 @@ try:
 except ImportError:
     HAS_PROMETHEUS = False
 
+# Agricultural domain metrics (PR7)
+try:
+    from shared.monitoring.agricultural_metrics import get_agricultural_metrics as _get_agri_metrics
+
+    _AGRI_METRICS = _get_agri_metrics()
+    HAS_AGRI_METRICS = True
+except Exception:
+    _AGRI_METRICS = None
+    HAS_AGRI_METRICS = False
+
 # Prometheus metric definitions
 if HAS_PROMETHEUS:
     REQUEST_COUNT = Counter(
@@ -1525,6 +1535,17 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
                 )
             except Exception as e:
                 logger.debug("cache_set_failed", operation="analysis", error=str(e))
+        # PR7 — record NDVI KPI to Prometheus
+        if HAS_AGRI_METRICS and _AGRI_METRICS is not None:
+            try:
+                ndvi_val = real_result.indices.ndvi if real_result.indices else None
+                if ndvi_val is not None:
+                    _AGRI_METRICS.record_ndvi_calculation(
+                        ndvi_value=float(ndvi_val),
+                        satellite_source=request.satellite.value if request.satellite else "sentinel-2",
+                    )
+            except Exception:
+                pass  # metrics are best-effort; never fail the API call
         return real_result
 
     # Path 2: fully in-process simulated fallback. Use

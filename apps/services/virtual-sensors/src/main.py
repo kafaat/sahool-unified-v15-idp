@@ -44,8 +44,10 @@ from pydantic import BaseModel, Field, field_validator
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
+from shared.logging_config import setup_logging
 
-logger = structlog.get_logger(__name__)
+setup_logging("virtual-sensors")
+logger = structlog.get_logger()
 
 # NATS publisher (optional)
 _nats_available = False
@@ -1155,7 +1157,7 @@ app.add_middleware(
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type", "X-Tenant-ID", "X-Request-ID", "Accept", "Origin"],
 )
 
 # Add tenant context middleware

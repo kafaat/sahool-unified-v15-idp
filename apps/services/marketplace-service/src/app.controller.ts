@@ -179,7 +179,14 @@ export class AppController {
     @Body(ValidationPipe) body: CreateProductDto,
   ) {
     const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.marketService.createProduct(body, tenantId);
+    // SECURITY (IDOR fix): override sellerId from the JWT so no caller can
+    // impersonate another seller by supplying a foreign user-id in the body.
+    const authenticatedUserId: string | undefined = req.user?.id ?? req.user?.sub;
+    if (!authenticatedUserId) {
+      throw new UnauthorizedException("Authenticated user id is missing from JWT payload");
+    }
+    const safeBody: CreateProductDto = { ...body, sellerId: authenticatedUserId };
+    return this.marketService.createProduct(safeBody, tenantId);
   }
 
   /**
@@ -194,8 +201,13 @@ export class AppController {
     @Body(ValidationPipe) body: ListHarvestDto,
   ) {
     const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (IDOR fix): userId must match the authenticated principal.
+    const authenticatedUserId: string | undefined = req.user?.id ?? req.user?.sub;
+    if (!authenticatedUserId) {
+      throw new UnauthorizedException("Authenticated user id is missing from JWT payload");
+    }
     return this.marketService.convertYieldToProduct(
-      body.userId,
+      authenticatedUserId,
       body.yieldData,
       tenantId,
     );

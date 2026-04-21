@@ -326,7 +326,11 @@ describe("OptionalJwtAuthGuard", () => {
       expect(mockRequest.user).toBeDefined();
     });
 
-    it("should accept tokens with allowed algorithms (HS384)", () => {
+    it("should reject tokens with disallowed algorithms (HS384)", () => {
+      // SECURITY: Platform policy is HS256-only. Tokens signed with HS384
+      // must not authenticate, even though they would be cryptographically
+      // valid under HS*, because allowing multiple HS variants broadens
+      // the attack surface for algorithm-confusion.
       const payload = { sub: "user-123", email: "test@example.com" };
       const token = jwt.sign(payload, validSecret, { algorithm: "HS384" });
 
@@ -335,10 +339,11 @@ describe("OptionalJwtAuthGuard", () => {
       const result = guard.canActivate(mockExecutionContext);
 
       expect(result).toBe(true);
-      expect(mockRequest.user).toBeDefined();
+      expect(mockRequest.user).toBeUndefined();
     });
 
-    it("should accept tokens with allowed algorithms (HS512)", () => {
+    it("should reject tokens with disallowed algorithms (HS512)", () => {
+      // SECURITY: see HS384 test above.
       const payload = { sub: "user-123", email: "test@example.com" };
       const token = jwt.sign(payload, validSecret, { algorithm: "HS512" });
 
@@ -347,7 +352,7 @@ describe("OptionalJwtAuthGuard", () => {
       const result = guard.canActivate(mockExecutionContext);
 
       expect(result).toBe(true);
-      expect(mockRequest.user).toBeDefined();
+      expect(mockRequest.user).toBeUndefined();
     });
 
     it("should reject tokens with unsupported algorithms", () => {

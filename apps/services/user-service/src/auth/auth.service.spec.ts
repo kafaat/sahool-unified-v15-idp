@@ -136,6 +136,7 @@ describe("AuthService", () => {
       publishUserLoggedOutAll: jest.fn().mockResolvedValue(undefined),
       publishUserAccountLocked: jest.fn().mockResolvedValue(undefined),
       publishUserPasswordChanged: jest.fn().mockResolvedValue(undefined),
+      publishPasswordReset: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -516,6 +517,9 @@ describe("AuthService", () => {
     });
 
     it("publishes UserAccountLocked when invalid_password trips the final retry", async () => {
+      // Bypass the progressive login delay (up to 16s for 4 prior attempts)
+      // so the test doesn't exceed Jest's 5s default timeout.
+      jest.spyOn(service as any, "getProgressiveDelay").mockReturnValue(0);
       jest.spyOn(bcrypt, "compare").mockResolvedValue(false as never);
       // First findUnique (login): user exists and not locked.
       // Second findUnique (checkAccountLockout): same user, not locked.

@@ -29,9 +29,23 @@ interface BaseEvent {
   metadata?: Record<string, unknown>;
 }
 
+/**
+ * All marketplace events carry a `tenantId` field in their payload so
+ * downstream consumers (notification-service, billing-core,
+ * traceability-service) can scope the event to the correct tenant
+ * without relying on opaque row id lookups. tenantId is REQUIRED on
+ * every publish* method (no defaults, no fallbacks).
+ *
+ * TODO(v17.0.0): migrate subjects from "sahool.marketplace.order.*" to
+ * the SAHOOL tenant-scoped convention `sahool.tenant.{tenantId}.
+ * marketplace.order.*`. Consumers must subscribe to the wildcard form
+ * `sahool.tenant.*.marketplace.order.*` first.
+ */
+
 interface OrderPlacedEvent extends BaseEvent {
   eventType: "sahool.marketplace.order.created";
   payload: {
+    tenantId: string;
     orderId: string;
     userId: string;
     items: Array<{
@@ -53,6 +67,7 @@ interface OrderPlacedEvent extends BaseEvent {
 interface OrderCompletedEvent extends BaseEvent {
   eventType: "sahool.marketplace.order.completed";
   payload: {
+    tenantId: string;
     orderId: string;
     userId: string;
     completedAt: Date;
@@ -64,6 +79,7 @@ interface OrderCompletedEvent extends BaseEvent {
 interface OrderCancelledEvent extends BaseEvent {
   eventType: "sahool.marketplace.order.cancelled";
   payload: {
+    tenantId: string;
     orderId: string;
     userId: string;
     cancelledAt: Date;
@@ -74,6 +90,7 @@ interface OrderCancelledEvent extends BaseEvent {
 interface InventoryLowStockEvent extends BaseEvent {
   eventType: "sahool.marketplace.inventory.low_stock";
   payload: {
+    tenantId: string;
     productId: string;
     productName: string;
     currentStock: number;
@@ -86,6 +103,7 @@ interface InventoryLowStockEvent extends BaseEvent {
 interface InventoryMovementEvent extends BaseEvent {
   eventType: "sahool.marketplace.inventory.movement";
   payload: {
+    tenantId: string;
     movementId: string;
     productId: string;
     quantity: number;
@@ -504,6 +522,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
    * Legacy subject will be removed in v17.0.0.
    */
   async publishOrderPlaced(orderData: {
+    tenantId: string;
     orderId: string;
     userId: string;
     items: Array<{
@@ -520,8 +539,15 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       postalCode: string;
     };
   }): Promise<void> {
+    if (!orderData.tenantId) {
+      throw new Error(
+        "publishOrderPlaced: tenantId required in payload for downstream scoping",
+      );
+    }
+
     this.logger.log(`Publishing order.created event`, {
       orderId: this.sanitizeForLog(orderData.orderId),
+      tenantId: this.sanitizeForLog(orderData.tenantId),
     });
 
     // Publish to the current subject
@@ -549,14 +575,20 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
    * OrderService.completeOrder() method).
    */
   async publishOrderCompleted(orderData: {
+    tenantId: string;
     orderId: string;
     userId: string;
     completedAt: Date;
     totalAmount: number;
     currency: string;
   }): Promise<void> {
+    if (!orderData.tenantId) {
+      throw new Error("publishOrderCompleted: tenantId required in payload");
+    }
+
     this.logger.log(`Publishing order.completed event`, {
       orderId: this.sanitizeForLog(orderData.orderId),
+      tenantId: this.sanitizeForLog(orderData.tenantId),
     });
 
     await this.publishEvent<OrderCompletedEvent>(
@@ -574,13 +606,19 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
    * or auto-cancel on payment timeout).
    */
   async publishOrderCancelled(orderData: {
+    tenantId: string;
     orderId: string;
     userId: string;
     cancelledAt: Date;
     reason?: string;
   }): Promise<void> {
+    if (!orderData.tenantId) {
+      throw new Error("publishOrderCancelled: tenantId required in payload");
+    }
+
     this.logger.log(`Publishing order.cancelled event`, {
       orderId: this.sanitizeForLog(orderData.orderId),
+      tenantId: this.sanitizeForLog(orderData.tenantId),
     });
 
     await this.publishEvent<OrderCancelledEvent>(
@@ -593,6 +631,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
    * Publish inventory low stock event
    */
   async publishInventoryLowStock(inventoryData: {
+    tenantId: string;
     productId: string;
     productName: string;
     currentStock: number;
@@ -600,8 +639,13 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     unit: string;
     warehouseId?: string;
   }): Promise<void> {
+    if (!inventoryData.tenantId) {
+      throw new Error("publishInventoryLowStock: tenantId required in payload");
+    }
+
     this.logger.log(`Publishing inventory.low_stock event`, {
       productId: this.sanitizeForLog(inventoryData.productId),
+      tenantId: this.sanitizeForLog(inventoryData.tenantId),
       currentStock: inventoryData.currentStock,
     });
 
@@ -615,6 +659,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
    * Publish inventory movement event
    */
   async publishInventoryMovement(movementData: {
+    tenantId: string;
     movementId: string;
     productId: string;
     quantity: number;
@@ -624,8 +669,13 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     reason?: string;
     movedAt: Date;
   }): Promise<void> {
+    if (!movementData.tenantId) {
+      throw new Error("publishInventoryMovement: tenantId required in payload");
+    }
+
     this.logger.log(`Publishing inventory.movement event`, {
       movementId: this.sanitizeForLog(movementData.movementId),
+      tenantId: this.sanitizeForLog(movementData.tenantId),
       type: movementData.movementType,
     });
 

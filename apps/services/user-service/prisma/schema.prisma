@@ -75,6 +75,7 @@ model User {
   refreshTokens RefreshToken[]
   assignedRoles Role[]         @relation("UserAssignedRoles")
 
+  @@unique([id, tenantId], map: "uq_user_id_tenant")
   @@index([tenantId])
   @@index([email])
   @@index([status])
@@ -107,6 +108,7 @@ model UserProfile {
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_user_profile_id_tenant")
   @@index([tenantId], name: "idx_profile_tenant")
   @@index([userId])
   @@index([nationalId])
@@ -127,6 +129,7 @@ model Role {
   // Relations
   users User[] @relation("UserAssignedRoles")
 
+  @@unique([id, tenantId], map: "uq_role_id_tenant")
   @@unique([tenantId, name], name: "uq_role_tenant_name")
   @@index([tenantId], name: "idx_role_tenant")
   @@map("user_roles")
@@ -147,6 +150,7 @@ model UserSession {
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_user_session_id_tenant")
   @@index([tenantId], name: "idx_session_tenant")
   @@index([userId])
   @@index([token])
@@ -173,6 +177,7 @@ model RefreshToken {
   // Relations
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_refresh_token_id_tenant")
   @@index([tenantId], name: "idx_refresh_token_tenant")
   @@index([userId])
   @@index([jti])

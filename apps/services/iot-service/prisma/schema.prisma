@@ -122,6 +122,7 @@ model Device {
   actuators      Actuator[]
   alerts         DeviceAlert[]
 
+  @@unique([id, tenantId], map: "uq_device_id_tenant")
   @@unique([tenantId, deviceId])
   @@index([tenantId])
   @@index([deviceId])
@@ -162,6 +163,7 @@ model Sensor {
   device   Device          @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   readings SensorReading[]
 
+  @@unique([id, tenantId], map: "uq_sensor_id_tenant")
   @@index([tenantId])
   @@index([deviceId])
   @@index([sensorType])
@@ -195,6 +197,7 @@ model SensorReading {
   sensor Sensor @relation(fields: [sensorId], references: [id], onDelete: Cascade)
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_sensor_reading_id_tenant")
   @@index([tenantId])
   @@index([sensorId])
   @@index([deviceId])
@@ -235,6 +238,7 @@ model Actuator {
   device   Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   commands ActuatorCommand[]
 
+  @@unique([id, tenantId], map: "uq_actuator_id_tenant")
   @@index([tenantId])
   @@index([deviceId])
   @@index([actuatorType])
@@ -273,6 +277,7 @@ model ActuatorCommand {
   // Relations
   actuator Actuator @relation(fields: [actuatorId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_actuator_command_id_tenant")
   @@index([tenantId])
   @@index([actuatorId])
   @@index([status])
@@ -314,6 +319,7 @@ model DeviceAlert {
   // Relations
   device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_device_alert_id_tenant")
   @@index([deviceId])
   @@index([tenantId])
   @@index([severity])

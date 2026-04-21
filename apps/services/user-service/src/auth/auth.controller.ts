@@ -779,7 +779,11 @@ export class AuthController {
   @ApiResponse({ status: 200, description: "OTP resent successfully" })
   @ApiResponse({ status: 400, description: "Invalid request parameters" })
   @ApiResponse({ status: 429, description: "Too many resend attempts" })
-  async resendOtp(@Body() dto: SendOtpRequestDto, @Req() request: AuthenticatedRequest) {
+  async resendOtp(@Body() dto: SendOtpRequestDto, @Req() _request: AuthenticatedRequest) {
+    // Tenant context from request body only. Header fallback removed:
+    // this is an unauthenticated route, so `x-tenant-id` is attacker-
+    // controlled and must not scope OTP delivery (matches sibling
+    // `resetPassword` hardening).
     const tenantId = dto.tenantId || undefined;
     return this.authService.sendOtp(dto, tenantId);
   }

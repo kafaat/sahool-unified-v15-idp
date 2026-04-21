@@ -58,6 +58,7 @@ function makePrismaMock() {
     fieldReport: {
       create: jest.fn(),
       findUnique: jest.fn(),
+      findFirst: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
@@ -230,7 +231,7 @@ describe("FieldReportsService", () => {
 
     it("renders a complete field summary for a tenant", async () => {
       prisma.fieldReport.updateMany.mockResolvedValue({ count: 1 });
-      prisma.fieldReport.findUnique.mockResolvedValue(
+      prisma.fieldReport.findFirst.mockResolvedValue(
         mockReport({ status: "rendering" }),
       );
       prisma.field.findUnique.mockResolvedValue({
@@ -264,7 +265,7 @@ describe("FieldReportsService", () => {
 
     it("transitions to 'failed' when rendering throws", async () => {
       prisma.fieldReport.updateMany.mockResolvedValue({ count: 1 });
-      prisma.fieldReport.findUnique.mockResolvedValue(
+      prisma.fieldReport.findFirst.mockResolvedValue(
         mockReport({ status: "rendering" }),
       );
       prisma.field.findUnique.mockResolvedValue(null); // triggers failure path

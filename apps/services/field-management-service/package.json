@@ -20,7 +20,7 @@
     "@nestjs/platform-express": "^11.1.19",
     "@nestjs/swagger": "^11.3.0",
     "@nestjs/throttler": "^6.5.0",
-    "@prisma/client": "~5.22.0",
+    "@prisma/client": "^5.22.0",
     "@sahool/field-shared": "file:../../../packages/field-shared",
     "@sahool/shared-events": "^16.0.0",
     "cache-manager": "^5.4.0",

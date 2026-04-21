@@ -296,7 +296,11 @@ describe("DisasterService", () => {
     });
 
     it("should return error for non-existent disaster", async () => {
-      mockPrismaService.disasterReport.findUnique.mockResolvedValueOnce(null);
+      // `getDisasterById` uses tenant-scoped `findFirst({id, tenantId})`
+      // (NOT findUnique) because the query filters by tenant. Mock must
+      // match the actual call or it falls through to the default factory
+      // and the test passes for the wrong reason.
+      mockPrismaService.disasterReport.findFirst.mockResolvedValueOnce(null);
 
       const result = await service.getDisasterById("nonexistent", "tenant-001");
 

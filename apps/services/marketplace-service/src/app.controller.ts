@@ -78,6 +78,33 @@ export class AppController {
     return userId;
   }
 
+  /**
+   * Reject the request unless the caller is the target user themselves
+   * or holds a platform admin role. Used on `:userId`-parameterised
+   * endpoints that read financial PII (wallet, credit factors, credit
+   * report) — without this check, any JWT-holder could enumerate any
+   * user's financial data simply by swapping the URL parameter.
+   */
+  private assertUserIsSelfOrAdmin(
+    req: any,
+    targetUserId: string,
+    resourceDescription: string,
+  ): void {
+    const callerId = this.requireUserId(req);
+    if (callerId === targetUserId) return;
+    const roles: string[] = Array.isArray(req?.user?.roles)
+      ? req.user.roles
+      : [];
+    const isAdmin = roles.some((r) => {
+      const s = String(r).toLowerCase();
+      return s === "admin" || s.replace(/[_-]/g, "") === "superadmin";
+    });
+    if (isAdmin) return;
+    throw new ForbiddenException(
+      `You may only access your own ${resourceDescription}`,
+    );
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Health Check
   // ═══════════════════════════════════════════════════════════════════════════
@@ -144,10 +171,23 @@ export class AppController {
     @Query("category") category?: string,
     @Query("governorate") governorate?: string,
     @Query("sellerId") sellerId?: string,
+    @Query("tenantId") queryTenantId?: string,
     @Query("minPrice") minPrice?: string,
     @Query("maxPrice") maxPrice?: string,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): this endpoint is intentionally
+    // unauthenticated so shoppers can browse the public catalog before
+    // signing in. The tenant resolution precedence is:
+    //   1. If the caller IS authenticated (JWT), use `req.user.tenantId`
+    //      — their own token wins, no header override is honoured.
+    //   2. Otherwise (anonymous browser), accept an explicit `tenantId`
+    //      QUERY parameter. A query param is visible in access logs and
+    //      is the conventional public-API way to pick a shop, whereas
+    //      `x-tenant-id` headers are invisible server-side and were
+    //      therefore a tempting forgery surface for authenticated
+    //      callers (which is what the audit flagged).
+    const tenantId: string | undefined =
+      req?.user?.tenantId ?? queryTenantId ?? undefined;
     return this.marketService.findAllProducts({
       category,
       governorate,
@@ -178,7 +218,8 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: CreateProductDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    const tenantId = this.requireTenantId(req);
     // SECURITY (IDOR fix): override sellerId from the JWT so no caller can
     // impersonate another seller by supplying a foreign user-id in the body.
     const authenticatedUserId: string | undefined = req.user?.id ?? req.user?.sub;
@@ -200,7 +241,8 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: ListHarvestDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    const tenantId = this.requireTenantId(req);
     // SECURITY (IDOR fix): userId must match the authenticated principal.
     const authenticatedUserId: string | undefined = req.user?.id ?? req.user?.sub;
     if (!authenticatedUserId) {
@@ -271,7 +313,8 @@ export class AppController {
   @Get("market/stats")
   @UseGuards(JwtAuthGuard)
   async getMarketStats(@Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    const tenantId = this.requireTenantId(req);
     return this.marketService.getMarketStats(tenantId);
   }
 
@@ -280,15 +323,36 @@ export class AppController {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * جلب محفظة المستخدم
+   * جلب محفظة المستخدم.
    * GET /api/v1/fintech/wallet/:userId
+   *
+   * SECURITY (2026-04-21 audit #2): owner-or-SUPER_ADMIN only. The URL
+   * `:userId` used to be accepted verbatim, so any JWT-holder could
+   * enumerate any other user's wallet (balance, PIN state, credit tier
+   * — all PII + financial). Wallet.userId is globally @unique, so
+   * matching `jwt.sub === :userId` is the correct ownership check.
    */
   @Get("fintech/wallet/:userId")
   @UseGuards(JwtAuthGuard)
   async getWallet(
+    @Req() request: any,
     @Param("userId") userId: string,
     @Query("userType") userType?: string,
   ) {
+    const callerId = this.requireUserId(request);
+    const roles: string[] = Array.isArray(request?.user?.roles)
+      ? request.user.roles
+      : [];
+    const isAdmin = roles.some(
+      (r) =>
+        String(r).toLowerCase() === "admin" ||
+        String(r).toLowerCase().replace(/[_-]/g, "") === "superadmin",
+    );
+    if (callerId !== userId && !isAdmin) {
+      throw new ForbiddenException(
+        "You may only read your own wallet",
+      );
+    }
     return this.fintechService.getWallet(userId, userType);
   }
 
@@ -360,12 +424,32 @@ export class AppController {
   @Get("fintech/wallet/:walletId/transactions")
   @UseGuards(JwtAuthGuard)
   async getTransactions(
+    @Req() request: any,
     @Param("walletId") walletId: string,
     @Query("limit") limit?: string,
   ) {
+    const tenantId = this.requireTenantId(request);
     const parsedLimit = Math.min(parseInt(limit ?? "20") || 20, 100);
+
+    // Verify wallet ownership or admin role
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException(
+        "You are not authorized to view transactions for this wallet",
+      );
+    }
+
     return this.fintechService.getTransactions(
       walletId,
+      tenantId,
       parsedLimit,
     );
   }
@@ -380,7 +464,12 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: CalculateCreditScoreDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    // Also ensure callers can only score themselves (or admins can score
+    // anyone) — credit scoring writes to the wallet's credit tier/limit
+    // and must not be trivially cross-tenant / cross-user.
+    const tenantId = this.requireTenantId(req);
+    this.assertUserIsSelfOrAdmin(req, body.userId, "credit score target");
     return this.fintechService.calculateCreditScore(body.userId, body.farmData, tenantId);
   }
 
@@ -394,7 +483,9 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: CalculateAdvancedCreditScoreDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant + self/admin gate.
+    const tenantId = this.requireTenantId(req);
+    this.assertUserIsSelfOrAdmin(req, body.userId, "advanced credit score target");
     return this.fintechService.calculateAdvancedCreditScore(
       body.userId,
       body.factors,
@@ -403,12 +494,19 @@ export class AppController {
   }
 
   /**
-   * جلب عوامل التصنيف الائتماني
+   * جلب عوامل التصنيف الائتماني.
    * GET /api/v1/fintech/credit-factors/:userId
+   *
+   * SECURITY (2026-04-21 audit #2): owner-or-admin only — credit factors
+   * are financial PII.
    */
   @Get("fintech/credit-factors/:userId")
   @UseGuards(JwtAuthGuard)
-  async getCreditFactors(@Param("userId") userId: string) {
+  async getCreditFactors(
+    @Req() request: any,
+    @Param("userId") userId: string,
+  ) {
+    this.assertUserIsSelfOrAdmin(request, userId, "credit factors");
     return this.fintechService.getCreditFactors(userId);
   }
 
@@ -423,17 +521,25 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: RecordCreditEventDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenantId resolution — no
+    // more `x-tenant-id` header fallback.
+    const tenantId = this.requireTenantId(req);
     return this.fintechService.recordCreditEvent(body, tenantId);
   }
 
   /**
-   * جلب التقرير الائتماني الكامل
+   * جلب التقرير الائتماني الكامل.
    * GET /api/v1/fintech/credit-report/:userId
+   *
+   * SECURITY: owner-or-admin only.
    */
   @Get("fintech/credit-report/:userId")
   @UseGuards(JwtAuthGuard)
-  async getCreditReport(@Param("userId") userId: string) {
+  async getCreditReport(
+    @Req() request: any,
+    @Param("userId") userId: string,
+  ) {
+    this.assertUserIsSelfOrAdmin(request, userId, "credit report");
     return this.fintechService.getCreditReport(userId);
   }
 
@@ -452,7 +558,9 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: RequestLoanDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution — a loan
+    // is a money-moving write, no header fallback allowed.
+    const tenantId = this.requireTenantId(req);
     return this.fintechService.requestLoan(body, tenantId);
   }
 
@@ -462,8 +570,9 @@ export class AppController {
    */
   @Put("fintech/loans/:id/approve")
   @UseGuards(JwtAuthGuard)
-  async approveLoan(@Param("id") id: string) {
-    return this.fintechService.approveLoan(id);
+  async approveLoan(@Req() req: any, @Param("id") id: string) {
+    const tenantId = this.requireTenantId(req);
+    return this.fintechService.approveLoan(id, tenantId);
   }
 
   /**
@@ -472,8 +581,22 @@ export class AppController {
    */
   @Post("fintech/loans/:id/repay")
   @UseGuards(JwtAuthGuard)
-  async repayLoan(@Param("id") id: string, @Body() body: { amount: number }) {
-    return this.fintechService.repayLoan(id, body.amount);
+  async repayLoan(
+    @Req() req: any,
+    @Param("id") id: string,
+    @Body() body: { amount: number },
+    @Headers("idempotency-key") idempotencyKey?: string,
+  ) {
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.fintechService.repayLoan(
+      id,
+      body.amount,
+      tenantId,
+      idempotencyKey,
+      userId,
+      req.ip,
+    );
   }
 
   /**
@@ -482,8 +605,9 @@ export class AppController {
    */
   @Get("fintech/loans/:walletId")
   @UseGuards(JwtAuthGuard)
-  async getUserLoans(@Param("walletId") walletId: string) {
-    return this.fintechService.getUserLoans(walletId);
+  async getUserLoans(@Req() req: any, @Param("walletId") walletId: string) {
+    const tenantId = this.requireTenantId(req);
+    return this.fintechService.getUserLoans(walletId, tenantId);
   }
 
   /**
@@ -506,8 +630,29 @@ export class AppController {
    */
   @Get("fintech/wallet/:walletId/limits")
   @UseGuards(JwtAuthGuard)
-  async getWalletLimits(@Param("walletId") walletId: string) {
-    return this.fintechService.getWalletLimits(walletId);
+  async getWalletLimits(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+  ) {
+    const tenantId = this.requireTenantId(request);
+
+    // Verify wallet ownership or admin role
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException(
+        "You are not authorized to view limits for this wallet",
+      );
+    }
+
+    return this.fintechService.getWalletLimits(walletId, tenantId);
   }
 
   /**
@@ -521,8 +666,9 @@ export class AppController {
     @Req() request: any,
     @Param("walletId") walletId: string,
   ) {
+    const tenantId = this.requireTenantId(request);
     // Verify wallet ownership or admin role
-    const wallet = await this.fintechService.getWalletById(walletId);
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
     if (!wallet) {
       throw new ForbiddenException("Wallet not found");
     }
@@ -537,7 +683,7 @@ export class AppController {
       );
     }
 
-    return this.fintechService.updateWalletLimits(walletId);
+    return this.fintechService.updateWalletLimits(walletId, tenantId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -555,7 +701,8 @@ export class AppController {
     @Param("walletId") walletId: string,
     @Body() body: { pin: string },
   ) {
-    const wallet = await this.fintechService.getWalletById(walletId);
+    const tenantId = this.requireTenantId(request);
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
     if (!wallet) {
       throw new ForbiddenException("Wallet not found");
     }
@@ -569,7 +716,7 @@ export class AppController {
       );
     }
 
-    return this.fintechService.setPin(walletId, body.pin, authenticatedUser.id);
+    return this.fintechService.setPin(walletId, body.pin, tenantId, authenticatedUser.id);
   }
 
   /**
@@ -583,7 +730,8 @@ export class AppController {
     @Param("walletId") walletId: string,
     @Body() body: { pin: string },
   ) {
-    const wallet = await this.fintechService.getWalletById(walletId);
+    const tenantId = this.requireTenantId(request);
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
     if (!wallet) {
       throw new ForbiddenException("Wallet not found");
     }
@@ -597,7 +745,7 @@ export class AppController {
       );
     }
 
-    const valid = await this.fintechService.verifyPin(walletId, body.pin);
+    const valid = await this.fintechService.verifyPin(walletId, body.pin, tenantId);
     return { valid };
   }
 
@@ -612,7 +760,8 @@ export class AppController {
     @Param("walletId") walletId: string,
     @Body() body: { oldPin: string; newPin: string },
   ) {
-    const wallet = await this.fintechService.getWalletById(walletId);
+    const tenantId = this.requireTenantId(request);
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
     if (!wallet) {
       throw new ForbiddenException("Wallet not found");
     }
@@ -630,6 +779,7 @@ export class AppController {
       walletId,
       body.oldPin,
       body.newPin,
+      tenantId,
       authenticatedUser.id,
     );
   }
@@ -646,6 +796,7 @@ export class AppController {
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createEscrow(
+    @Req() request: any,
     @Body()
     body: {
       orderId: string;
@@ -654,13 +805,20 @@ export class AppController {
       amount: number;
       notes?: string;
     },
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
+    const tenantId = this.requireTenantId(request);
+    const userId = this.requireUserId(request);
     return this.fintechService.createEscrow(
       body.orderId,
       body.buyerWalletId,
       body.sellerWalletId,
       body.amount,
+      tenantId,
       body.notes,
+      idempotencyKey,
+      userId,
+      request.ip,
     );
   }
 
@@ -671,10 +829,21 @@ export class AppController {
   @Post("fintech/escrow/:id/release")
   @UseGuards(JwtAuthGuard)
   async releaseEscrow(
+    @Req() request: any,
     @Param("id") id: string,
     @Body() body: { notes?: string },
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
-    return this.fintechService.releaseEscrow(id, body.notes);
+    const tenantId = this.requireTenantId(request);
+    const userId = this.requireUserId(request);
+    return this.fintechService.releaseEscrow(
+      id,
+      tenantId,
+      body.notes,
+      idempotencyKey,
+      userId,
+      request.ip,
+    );
   }
 
   /**
@@ -684,10 +853,21 @@ export class AppController {
   @Post("fintech/escrow/:id/refund")
   @UseGuards(JwtAuthGuard)
   async refundEscrow(
+    @Req() request: any,
     @Param("id") id: string,
     @Body() body: { reason?: string },
+    @Headers("idempotency-key") idempotencyKey?: string,
   ) {
-    return this.fintechService.refundEscrow(id, body.reason);
+    const tenantId = this.requireTenantId(request);
+    const userId = this.requireUserId(request);
+    return this.fintechService.refundEscrow(
+      id,
+      tenantId,
+      body.reason,
+      idempotencyKey,
+      userId,
+      request.ip,
+    );
   }
 
   /**
@@ -701,10 +881,12 @@ export class AppController {
     @Param("id") id: string,
     @Body() body: { reason: string },
   ) {
+    const tenantId = this.requireTenantId(request);
     const authenticatedUser = request.user;
     return this.fintechService.disputeEscrow(
       id,
       body.reason,
+      tenantId,
       authenticatedUser.id,
       request.ip,
     );
@@ -721,6 +903,7 @@ export class AppController {
     @Param("id") id: string,
     @Body() body: { resolution: "release" | "refund"; adminNotes: string },
   ) {
+    const tenantId = this.requireTenantId(request);
     const authenticatedUser = request.user;
     const isAdmin = authenticatedUser.roles?.includes("admin");
 
@@ -734,6 +917,7 @@ export class AppController {
       id,
       body.resolution,
       body.adminNotes,
+      tenantId,
       authenticatedUser.id,
       request.ip,
     );
@@ -745,8 +929,9 @@ export class AppController {
    */
   @Get("fintech/escrow/order/:orderId")
   @UseGuards(JwtAuthGuard)
-  async getEscrowByOrder(@Param("orderId") orderId: string) {
-    return this.fintechService.getEscrowByOrder(orderId);
+  async getEscrowByOrder(@Req() req: any, @Param("orderId") orderId: string) {
+    const tenantId = this.requireTenantId(req);
+    return this.fintechService.getEscrowByOrder(orderId, tenantId);
   }
 
   /**
@@ -755,8 +940,29 @@ export class AppController {
    */
   @Get("fintech/wallet/:walletId/escrows")
   @UseGuards(JwtAuthGuard)
-  async getWalletEscrows(@Param("walletId") walletId: string) {
-    return this.fintechService.getWalletEscrows(walletId);
+  async getWalletEscrows(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+  ) {
+    const tenantId = this.requireTenantId(request);
+
+    // Verify wallet ownership or admin role
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException(
+        "You are not authorized to view escrows for this wallet",
+      );
+    }
+
+    return this.fintechService.getWalletEscrows(walletId, tenantId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -783,8 +989,9 @@ export class AppController {
       descriptionAr?: string;
     },
   ) {
+    const tenantId = this.requireTenantId(request);
     // Verify wallet ownership or admin role
-    const wallet = await this.fintechService.getWalletById(walletId);
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
     if (!wallet) {
       throw new ForbiddenException("Wallet not found");
     }
@@ -804,6 +1011,7 @@ export class AppController {
       body.amount,
       body.frequency,
       new Date(body.nextPaymentDate),
+      tenantId,
       body.loanId,
       body.description,
       body.descriptionAr,
@@ -811,16 +1019,42 @@ export class AppController {
   }
 
   /**
-   * الحصول على الدفعات المجدولة للمحفظة
+   * الحصول على الدفعات المجدولة للمحفظة.
    * GET /api/v1/fintech/wallet/:walletId/scheduled-payments
+   *
+   * SECURITY FIX (2026-04-21): this endpoint previously had NO
+   * authentication guard — anyone could enumerate the scheduled
+   * payments (including amount + schedule metadata) of any wallet. Now
+   * requires JwtAuthGuard + a wallet-ownership check (except for
+   * admin callers).
    */
   @Get("fintech/wallet/:walletId/scheduled-payments")
+  @UseGuards(JwtAuthGuard)
   async getScheduledPayments(
+    @Req() req: any,
     @Param("walletId") walletId: string,
     @Query("activeOnly") activeOnly?: string,
   ) {
+    const tenantId = this.requireTenantId(req);
+    const callerUserId = this.requireUserId(req);
+
+    // Verify the caller owns this wallet (or is admin). getWalletById
+    // returns `{id, userId}` when the row exists in the caller's tenant.
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+    const authenticatedUser = req.user;
+    const isAdmin = authenticatedUser?.roles?.includes("admin");
+    if (wallet.userId !== callerUserId && !isAdmin) {
+      throw new ForbiddenException(
+        "You may only view scheduled payments for your own wallet",
+      );
+    }
+
     return this.fintechService.getScheduledPayments(
       walletId,
+      tenantId,
       activeOnly !== "false",
     );
   }
@@ -832,8 +1066,9 @@ export class AppController {
   @Post("fintech/scheduled-payment/:id/cancel")
   @UseGuards(JwtAuthGuard)
   async cancelScheduledPayment(@Req() request: any, @Param("id") id: string) {
+    const tenantId = this.requireTenantId(request);
     // Verify scheduled payment ownership or admin role
-    const scheduledPayment = await this.fintechService.getScheduledPaymentById(id);
+    const scheduledPayment = await this.fintechService.getScheduledPaymentById(id, tenantId);
     if (!scheduledPayment) {
       throw new ForbiddenException("Scheduled payment not found");
     }
@@ -848,7 +1083,7 @@ export class AppController {
       );
     }
 
-    return this.fintechService.cancelScheduledPayment(id);
+    return this.fintechService.cancelScheduledPayment(id, tenantId);
   }
 
   /**
@@ -858,8 +1093,9 @@ export class AppController {
   @Post("fintech/scheduled-payment/:id/execute")
   @UseGuards(JwtAuthGuard)
   async executeScheduledPayment(@Req() request: any, @Param("id") id: string) {
+    const tenantId = this.requireTenantId(request);
     // Verify scheduled payment ownership or admin role
-    const scheduledPayment = await this.fintechService.getScheduledPaymentById(id);
+    const scheduledPayment = await this.fintechService.getScheduledPaymentById(id, tenantId);
     if (!scheduledPayment) {
       throw new ForbiddenException("Scheduled payment not found");
     }
@@ -874,7 +1110,7 @@ export class AppController {
       );
     }
 
-    return this.fintechService.executeScheduledPayment(id);
+    return this.fintechService.executeScheduledPayment(id, tenantId);
   }
 
   /**
@@ -906,8 +1142,29 @@ export class AppController {
    */
   @Get("fintech/wallet/:walletId/dashboard")
   @UseGuards(JwtAuthGuard)
-  async getWalletDashboard(@Param("walletId") walletId: string) {
-    return this.fintechService.getWalletDashboard(walletId);
+  async getWalletDashboard(
+    @Req() request: any,
+    @Param("walletId") walletId: string,
+  ) {
+    const tenantId = this.requireTenantId(request);
+
+    // Verify wallet ownership or admin role
+    const wallet = await this.fintechService.getWalletById(walletId, tenantId);
+    if (!wallet) {
+      throw new ForbiddenException("Wallet not found");
+    }
+
+    const authenticatedUser = request.user;
+    const isAdmin = authenticatedUser.roles?.includes("admin");
+    const isOwner = authenticatedUser.id === wallet.userId;
+
+    if (!isOwner && !isAdmin) {
+      throw new ForbiddenException(
+        "You are not authorized to view this wallet dashboard",
+      );
+    }
+
+    return this.fintechService.getWalletDashboard(walletId, tenantId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -933,7 +1190,7 @@ export class AppController {
     const userId = this.requireUserId(request);
 
     // Verify sender wallet ownership
-    const wallet = await this.fintechService.getWalletById(body.fromWalletId);
+    const wallet = await this.fintechService.getWalletById(body.fromWalletId, tenantId);
     if (!wallet) {
       throw new ForbiddenException("Sender wallet not found");
     }
@@ -974,6 +1231,7 @@ export class AppController {
     @Param("walletId") walletId: string,
     @Body() body: { reason?: string },
   ) {
+    const tenantId = this.requireTenantId(request);
     const authenticatedUser = request.user;
     const isAdmin = authenticatedUser.roles?.includes("admin");
 
@@ -986,6 +1244,7 @@ export class AppController {
     return this.fintechService.freezeWallet(
       walletId,
       authenticatedUser.id,
+      tenantId,
       body.reason,
     );
   }
@@ -1001,6 +1260,7 @@ export class AppController {
     @Param("walletId") walletId: string,
     @Body() body: { reason?: string },
   ) {
+    const tenantId = this.requireTenantId(request);
     const authenticatedUser = request.user;
     const isAdmin = authenticatedUser.roles?.includes("admin");
 
@@ -1013,6 +1273,7 @@ export class AppController {
     return this.fintechService.unfreezeWallet(
       walletId,
       authenticatedUser.id,
+      tenantId,
       body.reason,
     );
   }

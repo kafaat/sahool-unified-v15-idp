@@ -135,6 +135,7 @@ model AuthCode {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  @@unique([id, tenantId], map: "uq_auth_code_id_tenant")
   @@index([clientId, userId], name: "idx_auth_code_client_user")
   @@index([expiresAt], name: "idx_auth_code_expires")
   @@map("auth_codes")
@@ -168,6 +169,7 @@ model AccessToken {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  @@unique([jti, tenantId], map: "uq_access_token_jti_tenant")
   @@index([clientId, userId], name: "idx_access_token_client_user")
   @@index([expiresAt], name: "idx_access_token_expires")
   @@index([revokedAt], name: "idx_access_token_revoked")
@@ -208,6 +210,7 @@ model RefreshToken {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  @@unique([id, tenantId], map: "uq_refresh_token_id_tenant")
   @@index([clientId, userId], name: "idx_refresh_token_client_user")
   @@index([familyId], name: "idx_refresh_token_family")
   @@index([expiresAt], name: "idx_refresh_token_expires")
@@ -240,6 +243,7 @@ model ConsentGrant {
   consentIp        String? @map("consent_ip") @db.VarChar(64)
   consentUserAgent String? @map("consent_user_agent") @db.VarChar(500)
 
+  @@unique([id, tenantId], map: "uq_consent_grant_id_tenant")
   @@unique([clientId, userId])
   @@map("consent_grants")
 }

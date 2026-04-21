@@ -233,7 +233,7 @@ export class EventsService {
     if (dto.endDate !== undefined) data.endDate = new Date(dto.endDate);
 
     const updated = await this.prisma.disasterReport.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data,
     });
 
@@ -260,7 +260,7 @@ export class EventsService {
     }
 
     const updated = await this.prisma.disasterReport.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         status: dto.status,
         ...(dto.status === DisasterEventStatus.RESOLVED

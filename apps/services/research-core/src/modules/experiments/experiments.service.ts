@@ -118,7 +118,7 @@ export class ExperimentsService {
     const { metadata, ...restDto } = dto;
 
     return this.prisma.experiment.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         ...restDto,
         startDate: dto.startDate ? new Date(dto.startDate) : undefined,
@@ -136,7 +136,7 @@ export class ExperimentsService {
     await this.findOne(id, tenantId);
 
     return this.prisma.experiment.delete({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
   }
 
@@ -144,7 +144,7 @@ export class ExperimentsService {
     await this.findOne(id, tenantId);
 
     return this.prisma.experiment.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         status: "locked",
         lockedAt: new Date(),

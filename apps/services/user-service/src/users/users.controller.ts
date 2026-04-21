@@ -72,6 +72,31 @@ export class UsersController {
     }
   }
 
+  /**
+   * Resolve which tenant scope a service call should enforce.
+   *
+   * Returns `undefined` only for platform-wide SUPER_ADMIN callers, in
+   * which case the downstream Prisma query runs without a tenantId
+   * predicate — this is how legitimate cross-tenant admin operations
+   * (e.g. platform-level user audits) stay possible. For every other
+   * caller — including regular ADMIN, MANAGER, and self-service — the
+   * caller's own `tenantId` is passed so `id_tenantId` composite-key
+   * lookups silently return 404 for cross-tenant access.
+   */
+  private resolveTenantScope(currentUser: any): string | undefined {
+    const rawRoles: string[] = Array.isArray(currentUser?.roles)
+      ? currentUser.roles
+      : [];
+    // Match both canonical "SUPER_ADMIN" and the legacy lowercase
+    // representation some upstream token issuers still emit.
+    const isSuperAdmin = rawRoles.some((r) => {
+      const s = String(r ?? "").toLowerCase();
+      return s === "super_admin" || s === "superadmin" || s === "super-admin";
+    });
+    if (isSuperAdmin) return undefined;
+    return currentUser?.tenantId;
+  }
+
   @Post()
   @UseGuards(RolesGuard)
   @Roles("ADMIN", "MANAGER")
@@ -170,15 +195,10 @@ export class UsersController {
     // Validate resource ownership - users can only access their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
-    // Scope the DB lookup to the caller's tenant for non-admins so that an
-    // internal bug cannot return a cross-tenant row. Admins intentionally
-    // skip the tenant filter (cross-tenant admin tooling).
-    const roles = Array.isArray(currentUser?.roles)
-      ? currentUser.roles.map((r: string) => r.toLowerCase())
-      : [];
-    const tenantScope = roles.includes("admin") ? undefined : currentUser?.tenantId;
-
-    const user = await this.usersService.findOne(id, tenantScope);
+    const user = await this.usersService.findOne(
+      id,
+      this.resolveTenantScope(currentUser),
+    );
     const { passwordHash, ...userWithoutPassword } = user;
     return {
       success: true,
@@ -254,7 +274,11 @@ export class UsersController {
       delete updateUserDto.status;
     }
 
-    const user = await this.usersService.update(id, updateUserDto);
+    const user = await this.usersService.update(
+      id,
+      updateUserDto,
+      this.resolveTenantScope(currentUser),
+    );
     const { passwordHash, ...userWithoutPassword } = user;
     return {
       success: true,
@@ -286,7 +310,7 @@ export class UsersController {
     // Validate resource ownership - users can only delete their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
-    await this.usersService.remove(id);
+    await this.usersService.remove(id, this.resolveTenantScope(currentUser));
     return {
       success: true,
       message: "User deleted successfully",
@@ -319,8 +343,11 @@ export class UsersController {
     status: 404,
     description: "User not found",
   })
-  async hardDelete(@Param("id", ParseUUIDPipe) id: string) {
-    await this.usersService.hardDelete(id);
+  async hardDelete(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() currentUser: any,
+  ) {
+    await this.usersService.hardDelete(id, this.resolveTenantScope(currentUser));
     return {
       success: true,
       message: "User permanently deleted",

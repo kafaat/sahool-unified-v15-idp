@@ -163,7 +163,7 @@ export class SignaturesService {
     }
 
     return this.prisma.digitalSignature.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         isValid: false,
         invalidatedAt: new Date(),

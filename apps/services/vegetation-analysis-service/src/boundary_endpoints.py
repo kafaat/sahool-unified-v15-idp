@@ -226,7 +226,12 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
-        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
+        # Access-control gate — raises 403 if the caller's tenant does not
+        # own `field_id`. The return value is discarded because the
+        # subsequent `detect_boundary_change(field_id=...)` call inherits
+        # the tenant boundary via the already-verified field_id, matching
+        # the pattern used by sibling endpoints at lines ~80 and ~150.
+        await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 

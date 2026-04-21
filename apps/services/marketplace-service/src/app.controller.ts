@@ -78,6 +78,33 @@ export class AppController {
     return userId;
   }
 
+  /**
+   * Reject the request unless the caller is the target user themselves
+   * or holds a platform admin role. Used on `:userId`-parameterised
+   * endpoints that read financial PII (wallet, credit factors, credit
+   * report) — without this check, any JWT-holder could enumerate any
+   * user's financial data simply by swapping the URL parameter.
+   */
+  private assertUserIsSelfOrAdmin(
+    req: any,
+    targetUserId: string,
+    resourceDescription: string,
+  ): void {
+    const callerId = this.requireUserId(req);
+    if (callerId === targetUserId) return;
+    const roles: string[] = Array.isArray(req?.user?.roles)
+      ? req.user.roles
+      : [];
+    const isAdmin = roles.some((r) => {
+      const s = String(r).toLowerCase();
+      return s === "admin" || s.replace(/[_-]/g, "") === "superadmin";
+    });
+    if (isAdmin) return;
+    throw new ForbiddenException(
+      `You may only access your own ${resourceDescription}`,
+    );
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // Health Check
   // ═══════════════════════════════════════════════════════════════════════════
@@ -144,10 +171,23 @@ export class AppController {
     @Query("category") category?: string,
     @Query("governorate") governorate?: string,
     @Query("sellerId") sellerId?: string,
+    @Query("tenantId") queryTenantId?: string,
     @Query("minPrice") minPrice?: string,
     @Query("maxPrice") maxPrice?: string,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): this endpoint is intentionally
+    // unauthenticated so shoppers can browse the public catalog before
+    // signing in. The tenant resolution precedence is:
+    //   1. If the caller IS authenticated (JWT), use `req.user.tenantId`
+    //      — their own token wins, no header override is honoured.
+    //   2. Otherwise (anonymous browser), accept an explicit `tenantId`
+    //      QUERY parameter. A query param is visible in access logs and
+    //      is the conventional public-API way to pick a shop, whereas
+    //      `x-tenant-id` headers are invisible server-side and were
+    //      therefore a tempting forgery surface for authenticated
+    //      callers (which is what the audit flagged).
+    const tenantId: string | undefined =
+      req?.user?.tenantId ?? queryTenantId ?? undefined;
     return this.marketService.findAllProducts({
       category,
       governorate,
@@ -178,7 +218,8 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: CreateProductDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    const tenantId = this.requireTenantId(req);
     // SECURITY (IDOR fix): override sellerId from the JWT so no caller can
     // impersonate another seller by supplying a foreign user-id in the body.
     const authenticatedUserId: string | undefined = req.user?.id ?? req.user?.sub;
@@ -200,7 +241,8 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: ListHarvestDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    const tenantId = this.requireTenantId(req);
     // SECURITY (IDOR fix): userId must match the authenticated principal.
     const authenticatedUserId: string | undefined = req.user?.id ?? req.user?.sub;
     if (!authenticatedUserId) {
@@ -271,7 +313,8 @@ export class AppController {
   @Get("market/stats")
   @UseGuards(JwtAuthGuard)
   async getMarketStats(@Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    const tenantId = this.requireTenantId(req);
     return this.marketService.getMarketStats(tenantId);
   }
 
@@ -280,15 +323,36 @@ export class AppController {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * جلب محفظة المستخدم
+   * جلب محفظة المستخدم.
    * GET /api/v1/fintech/wallet/:userId
+   *
+   * SECURITY (2026-04-21 audit #2): owner-or-SUPER_ADMIN only. The URL
+   * `:userId` used to be accepted verbatim, so any JWT-holder could
+   * enumerate any other user's wallet (balance, PIN state, credit tier
+   * — all PII + financial). Wallet.userId is globally @unique, so
+   * matching `jwt.sub === :userId` is the correct ownership check.
    */
   @Get("fintech/wallet/:userId")
   @UseGuards(JwtAuthGuard)
   async getWallet(
+    @Req() request: any,
     @Param("userId") userId: string,
     @Query("userType") userType?: string,
   ) {
+    const callerId = this.requireUserId(request);
+    const roles: string[] = Array.isArray(request?.user?.roles)
+      ? request.user.roles
+      : [];
+    const isAdmin = roles.some(
+      (r) =>
+        String(r).toLowerCase() === "admin" ||
+        String(r).toLowerCase().replace(/[_-]/g, "") === "superadmin",
+    );
+    if (callerId !== userId && !isAdmin) {
+      throw new ForbiddenException(
+        "You may only read your own wallet",
+      );
+    }
     return this.fintechService.getWallet(userId, userType);
   }
 
@@ -400,7 +464,12 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: CalculateCreditScoreDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution.
+    // Also ensure callers can only score themselves (or admins can score
+    // anyone) — credit scoring writes to the wallet's credit tier/limit
+    // and must not be trivially cross-tenant / cross-user.
+    const tenantId = this.requireTenantId(req);
+    this.assertUserIsSelfOrAdmin(req, body.userId, "credit score target");
     return this.fintechService.calculateCreditScore(body.userId, body.farmData, tenantId);
   }
 
@@ -414,7 +483,9 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: CalculateAdvancedCreditScoreDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant + self/admin gate.
+    const tenantId = this.requireTenantId(req);
+    this.assertUserIsSelfOrAdmin(req, body.userId, "advanced credit score target");
     return this.fintechService.calculateAdvancedCreditScore(
       body.userId,
       body.factors,
@@ -423,12 +494,19 @@ export class AppController {
   }
 
   /**
-   * جلب عوامل التصنيف الائتماني
+   * جلب عوامل التصنيف الائتماني.
    * GET /api/v1/fintech/credit-factors/:userId
+   *
+   * SECURITY (2026-04-21 audit #2): owner-or-admin only — credit factors
+   * are financial PII.
    */
   @Get("fintech/credit-factors/:userId")
   @UseGuards(JwtAuthGuard)
-  async getCreditFactors(@Param("userId") userId: string) {
+  async getCreditFactors(
+    @Req() request: any,
+    @Param("userId") userId: string,
+  ) {
+    this.assertUserIsSelfOrAdmin(request, userId, "credit factors");
     return this.fintechService.getCreditFactors(userId);
   }
 
@@ -443,17 +521,25 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: RecordCreditEventDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenantId resolution — no
+    // more `x-tenant-id` header fallback.
+    const tenantId = this.requireTenantId(req);
     return this.fintechService.recordCreditEvent(body, tenantId);
   }
 
   /**
-   * جلب التقرير الائتماني الكامل
+   * جلب التقرير الائتماني الكامل.
    * GET /api/v1/fintech/credit-report/:userId
+   *
+   * SECURITY: owner-or-admin only.
    */
   @Get("fintech/credit-report/:userId")
   @UseGuards(JwtAuthGuard)
-  async getCreditReport(@Param("userId") userId: string) {
+  async getCreditReport(
+    @Req() request: any,
+    @Param("userId") userId: string,
+  ) {
+    this.assertUserIsSelfOrAdmin(request, userId, "credit report");
     return this.fintechService.getCreditReport(userId);
   }
 
@@ -472,7 +558,9 @@ export class AppController {
     @Req() req: any,
     @Body(ValidationPipe) body: RequestLoanDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    // SECURITY (2026-04-21 audit #3): JWT-only tenant resolution — a loan
+    // is a money-moving write, no header fallback allowed.
+    const tenantId = this.requireTenantId(req);
     return this.fintechService.requestLoan(body, tenantId);
   }
 

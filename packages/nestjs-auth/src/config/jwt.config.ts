@@ -6,9 +6,11 @@
  * RS256 with RSA keys has been deprecated.
  */
 
+import type { Algorithm } from 'jsonwebtoken';
+
 export interface JWTConfigInterface {
   secret: string;
-  algorithm: string;
+  algorithm: Algorithm;
   accessTokenExpireMinutes: number;
   refreshTokenExpireDays: number;
   issuer: string;
@@ -34,7 +36,7 @@ export class JWTConfig {
   /**
    * JWT Algorithm - HS256 only (RS256 deprecated)
    */
-  static readonly ALGORITHM: string = 'HS256';
+  static readonly ALGORITHM: Algorithm = 'HS256';
 
   /**
    * Access token expiration time in minutes

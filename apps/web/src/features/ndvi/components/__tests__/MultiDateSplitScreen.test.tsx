@@ -26,6 +26,10 @@ function compare(rowCount: number): MultiDateCompare {
       },
     };
   });
+  // min/max/overall_delta are typed `number | null` — fall back to null when
+  // the fixture has no rows (used by the empty-state test).
+  const first = rows[0];
+  const last = rows[rowCount - 1];
   return {
     fieldId: 'field-1',
     indexName: 'ndvi',
@@ -34,9 +38,9 @@ function compare(rowCount: number): MultiDateCompare {
     summary: {
       count_dates: rowCount,
       count_with_data: rowCount,
-      min: rows[0]!.value,
-      max: rows[rowCount - 1]!.value,
-      overall_delta: (rowCount - 1) * 0.1,
+      min: first?.value ?? null,
+      max: last?.value ?? null,
+      overall_delta: rowCount > 0 ? (rowCount - 1) * 0.1 : null,
     },
     dataSource: 'simulated',
   };

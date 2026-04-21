@@ -108,9 +108,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('filmstrip-pageview')), findsOneWidget);
-    expect(find.byKey(const Key('filmstrip-frame-2026-03-01')), findsOneWidget);
-    // Later frames are off-screen but still in the builder; PageView
-    // lazily builds, so we only assert on the first.
+    // The carousel's PageController starts at the **last** frame (the most
+    // recent acquisition — see `_resolveInitialPage` in
+    // satellite_filmstrip_sheet.dart). With a 7-day step and 3 frames
+    // beginning at 2026-03-01, the visible frame is 2026-03-15.
+    // Earlier frames are off-screen and lazily built by PageView, so
+    // we assert only on the initially-rendered (latest) one.
+    expect(find.byKey(const Key('filmstrip-frame-2026-03-15')), findsOneWidget);
     expect(find.byKey(const Key('filmstrip-carousel')), findsOneWidget);
   });
 

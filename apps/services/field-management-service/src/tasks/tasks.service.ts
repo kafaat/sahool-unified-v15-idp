@@ -124,7 +124,7 @@ export class TasksService {
     actualMinutes?: number,
   ) {
     const task = await this.prisma.task.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       select: { fieldId: true, tenantId: true },
     });
 
@@ -138,7 +138,7 @@ export class TasksService {
     }
 
     const updated = await this.prisma.task.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         status,
         completedAt: status === TaskState.completed ? new Date() : null,

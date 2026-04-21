@@ -184,7 +184,7 @@ export class FieldReportsService {
    */
   async getById(id: string, tenantId: string) {
     const row = await this.prisma.fieldReport.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
     if (!row || row.tenantId !== tenantId) {
       throw new NotFoundException({
@@ -358,7 +358,7 @@ export class FieldReportsService {
     periodTo: Date | null;
   }): Promise<ReportInputSnapshot> {
     const field = await this.prisma.field.findUnique({
-      where: { id: row.fieldId },
+      where: { id_tenantId: { id: row.fieldId, tenantId: row.tenantId } },
       select: {
         id: true,
         name: true,
@@ -517,7 +517,7 @@ export class FieldReportsService {
 
   private async assertFieldOwnership(fieldId: string, tenantId: string) {
     const field = await this.prisma.field.findUnique({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       select: { id: true, tenantId: true, isDeleted: true },
     });
     if (!field || field.isDeleted || field.tenantId !== tenantId) {
@@ -534,7 +534,7 @@ export class FieldReportsService {
     tenantId: string,
   ) {
     const season = await this.prisma.cropSeason.findUnique({
-      where: { id: cropSeasonId },
+      where: { id_tenantId: { id: cropSeasonId, tenantId } },
       select: { id: true, tenantId: true, fieldId: true, deletedAt: true },
     });
     if (

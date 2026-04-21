@@ -28,6 +28,7 @@ describe("ScientificLockGuard", () => {
       const tenantId = "tenant-001";
       const reason = "Data review";
 
+      prisma.experiment.findFirst.mockResolvedValue({ tenantId });
       prisma.experiment.update.mockResolvedValue({
         id: experimentId,
         tenantId,
@@ -39,6 +40,11 @@ describe("ScientificLockGuard", () => {
 
       await guard.lockExperiment(experimentId, userId, reason);
 
+      expect(prisma.experiment.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id_tenantId: { id: experimentId, tenantId } },
+        }),
+      );
       expect(prisma.experimentAuditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           tenantId,
@@ -53,6 +59,7 @@ describe("ScientificLockGuard", () => {
 
     it("should pass lock reason in newValues", async () => {
       const reason = "Final review";
+      prisma.experiment.findFirst.mockResolvedValue({ tenantId: "tenant-001" });
       prisma.experiment.update.mockResolvedValue({
         id: "exp-001",
         tenantId: "tenant-001",
@@ -70,6 +77,7 @@ describe("ScientificLockGuard", () => {
     });
 
     it("should use select to limit returned fields from experiment.update", async () => {
+      prisma.experiment.findFirst.mockResolvedValue({ tenantId: "tenant-001" });
       prisma.experiment.update.mockResolvedValue({
         id: "exp-001",
         tenantId: "tenant-001",
@@ -83,6 +91,15 @@ describe("ScientificLockGuard", () => {
           select: { id: true, tenantId: true },
         }),
       );
+    });
+
+    it("should throw ForbiddenException when experiment does not exist", async () => {
+      prisma.experiment.findFirst.mockResolvedValue(null);
+
+      await expect(
+        guard.lockExperiment("missing", "user-001"),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.experiment.update).not.toHaveBeenCalled();
     });
   });
 

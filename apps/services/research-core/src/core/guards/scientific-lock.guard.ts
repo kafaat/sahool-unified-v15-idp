@@ -180,8 +180,22 @@ export class ScientificLockGuard implements CanActivate {
     userId: string,
     reason?: string,
   ): Promise<void> {
-    const experiment = await this.prisma.experiment.update({
+    // Pre-fetch tenantId so the mutation can bind via the id_tenantId
+    // composite unique. Skipping this and relying on {id} alone would let
+    // a cross-tenant caller (should one ever slip past upstream auth)
+    // flip an unrelated experiment to locked.
+    const existing = await this.prisma.experiment.findFirst({
       where: { id: experimentId },
+      select: { tenantId: true },
+    });
+    if (!existing) {
+      throw new ForbiddenException("Experiment not found");
+    }
+
+    const experiment = await this.prisma.experiment.update({
+      where: {
+        id_tenantId: { id: experimentId, tenantId: existing.tenantId },
+      },
       data: {
         status: "locked",
         lockedAt: new Date(),
@@ -228,7 +242,9 @@ export class ScientificLockGuard implements CanActivate {
     }
 
     await this.prisma.experiment.update({
-      where: { id: experimentId },
+      where: {
+        id_tenantId: { id: experimentId, tenantId: experiment.tenantId },
+      },
       data: {
         status: "active",
         lockedAt: null,

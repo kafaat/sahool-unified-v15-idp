@@ -241,10 +241,16 @@ export class FieldReportsService {
       return;
     }
 
-    const row = await this.prisma.fieldReport.findUnique({
+    const row = await this.prisma.fieldReport.findFirst({
       where: { id: reportId },
     });
     if (!row) return;
+
+    // tenantId is captured from the row we just locked above — subsequent
+    // mutations bind it via id_tenantId so a stale reportId from a different
+    // tenant (should one ever leak into the worker queue) can't mutate the
+    // wrong row.
+    const tenantId = row.tenantId;
 
     try {
       const snapshot = await this.buildSnapshot(row);
@@ -264,7 +270,7 @@ export class FieldReportsService {
       });
 
       await this.prisma.fieldReport.update({
-        where: { id: reportId },
+        where: { id_tenantId: { id: reportId, tenantId } },
         data: {
           status: "ready",
           renderedAt: new Date(),
@@ -308,7 +314,7 @@ export class FieldReportsService {
       const msg = e instanceof Error ? e.message : String(e);
       this.logger.error(`Render failed for ${reportId}: ${msg}`);
       await this.prisma.fieldReport.update({
-        where: { id: reportId },
+        where: { id_tenantId: { id: reportId, tenantId } },
         data: {
           status: "failed",
           errorMessage: msg.slice(0, 2000),

@@ -181,12 +181,17 @@ export class UsersService {
   }
 
   /**
-   * Get a single user by ID
+   * Get a single user by ID.
    * الحصول على مستخدم واحد بواسطة المعرف
+   *
+   * SECURITY: when `tenantId` is provided the lookup is scoped to that
+   * tenant via the `id_tenantId` composite unique — cross-tenant access
+   * returns 404. Callers invoking without `tenantId` (e.g. SUPER_ADMIN
+   * platform operations) retain the original unscoped behaviour.
    */
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string, tenantId?: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: tenantId ? { id_tenantId: { id, tenantId } } : { id },
       select: {
         ...CommonSelects.userBasic,
         phone: true,
@@ -259,12 +264,22 @@ export class UsersService {
   /**
    * Update a user
    * تحديث مستخدم
+   *
+   * SECURITY: when `tenantId` is provided both the existence pre-check and
+   * the subsequent UPDATE are scoped via the `id_tenantId` composite unique.
+   * SUPER_ADMIN callers can omit `tenantId` for cross-tenant operations.
    */
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    tenantId?: string,
+  ): Promise<User> {
+    const scopedWhere = tenantId ? { id_tenantId: { id, tenantId } } : { id };
+
     // Check if user exists — also fetch role/status so we can detect role or
     // status changes and emit the dedicated events.
     const existingUser = await this.prisma.user.findUnique({
-      where: { id },
+      where: scopedWhere,
       select: {
         id: true,
         email: true,
@@ -314,7 +329,7 @@ export class UsersService {
 
     // Update user
     const user = await this.prisma.user.update({
-      where: { id },
+      where: scopedWhere,
       data: updateData,
       select: {
         ...CommonSelects.userBasic,
@@ -380,12 +395,16 @@ export class UsersService {
   }
 
   /**
-   * Delete a user (soft delete by setting status to INACTIVE)
+   * Delete a user (soft delete by setting status to INACTIVE).
    * حذف مستخدم (حذف ناعم عن طريق تعيين الحالة إلى غير نشط)
+   *
+   * SECURITY: tenant-scoped via `id_tenantId` when `tenantId` is supplied.
    */
-  async remove(id: string): Promise<User> {
+  async remove(id: string, tenantId?: string): Promise<User> {
+    const scopedWhere = tenantId ? { id_tenantId: { id, tenantId } } : { id };
+
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: scopedWhere,
     });
 
     if (!user) {
@@ -394,7 +413,7 @@ export class UsersService {
 
     // Soft delete by setting status to INACTIVE
     const deactivated = (await this.prisma.user.update({
-      where: { id },
+      where: scopedWhere,
       data: {
         status: UserStatus.INACTIVE,
       },
@@ -414,12 +433,17 @@ export class UsersService {
   }
 
   /**
-   * Hard delete a user (permanent deletion)
+   * Hard delete a user (permanent deletion).
    * حذف صعب لمستخدم (حذف دائم)
+   *
+   * SECURITY: tenant-scoped via `id_tenantId` when `tenantId` is supplied.
+   * SUPER_ADMIN callers can omit `tenantId` for platform-wide purges.
    */
-  async hardDelete(id: string): Promise<void> {
+  async hardDelete(id: string, tenantId?: string): Promise<void> {
+    const scopedWhere = tenantId ? { id_tenantId: { id, tenantId } } : { id };
+
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: scopedWhere,
       select: { id: true, tenantId: true },
     });
 
@@ -428,7 +452,7 @@ export class UsersService {
     }
 
     await this.prisma.user.delete({
-      where: { id },
+      where: scopedWhere,
     });
 
     void this.events.publishUserDeleted({

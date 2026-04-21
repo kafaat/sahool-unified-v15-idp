@@ -221,6 +221,76 @@ MIGRATIONS = [
             DROP INDEX IF EXISTS idx_observations_field_zone;
         """,
     ),
+    Migration(
+        version=6,
+        description="Create calibration engine tables (calibration_run, parameter_set, parameter_change_log)",
+        up="""
+            CREATE TABLE IF NOT EXISTS calibration_run (
+                id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                tenant_id text NOT NULL,
+                field_id text NOT NULL,
+                season_id text NOT NULL,
+                crop_type text NOT NULL,
+                model_name text NOT NULL,
+                model_version text NOT NULL,
+                method text NOT NULL,
+                status text NOT NULL,
+                dataset_fingerprint text NOT NULL,
+                objective_value double precision NULL,
+                metrics jsonb NOT NULL DEFAULT '{}'::jsonb,
+                notes text NULL,
+                started_at timestamptz NOT NULL DEFAULT now(),
+                ended_at timestamptz NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_cal_run_tenant_field_season
+                ON calibration_run (tenant_id, field_id, season_id, model_name, started_at DESC);
+            CREATE INDEX IF NOT EXISTS idx_cal_run_fingerprint
+                ON calibration_run (dataset_fingerprint);
+
+            CREATE TABLE IF NOT EXISTS parameter_set (
+                id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                tenant_id text NOT NULL,
+                field_id text NOT NULL,
+                season_id text NOT NULL,
+                model_name text NOT NULL,
+                model_version text NOT NULL,
+                parameters jsonb NOT NULL DEFAULT '{}'::jsonb,
+                param_uncertainty jsonb NOT NULL DEFAULT '{}'::jsonb,
+                prior jsonb NOT NULL DEFAULT '{}'::jsonb,
+                posterior_summary jsonb NOT NULL DEFAULT '{}'::jsonb,
+                created_from_run_id uuid NULL REFERENCES calibration_run (id) ON DELETE SET NULL,
+                status text NOT NULL DEFAULT 'candidate',
+                created_at timestamptz NOT NULL DEFAULT now(),
+                activated_at timestamptz NULL,
+                deactivated_at timestamptz NULL
+            );
+            CREATE INDEX IF NOT EXISTS idx_param_set_lookup
+                ON parameter_set (tenant_id, field_id, season_id, model_name, created_at DESC);
+            CREATE UNIQUE INDEX IF NOT EXISTS ux_param_set_one_active
+                ON parameter_set (tenant_id, field_id, season_id, model_name)
+                WHERE status = 'active';
+
+            CREATE TABLE IF NOT EXISTS parameter_change_log (
+                id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                tenant_id text NOT NULL,
+                field_id text NOT NULL,
+                season_id text NOT NULL,
+                model_name text NOT NULL,
+                from_parameter_set_id uuid NULL,
+                to_parameter_set_id uuid NOT NULL REFERENCES parameter_set (id) ON DELETE RESTRICT,
+                actor text NOT NULL,
+                reason text NOT NULL,
+                created_at timestamptz NOT NULL DEFAULT now()
+            );
+            CREATE INDEX IF NOT EXISTS idx_param_change_tenant_field
+                ON parameter_change_log (tenant_id, field_id, season_id, model_name, created_at DESC);
+        """,
+        down="""
+            DROP TABLE IF EXISTS parameter_change_log;
+            DROP TABLE IF EXISTS parameter_set;
+            DROP TABLE IF EXISTS calibration_run;
+        """,
+    ),
 ]
 
 # ═══════════════════════════════════════════════════════════════════════════════

@@ -291,17 +291,16 @@ export default function RegisterClient() {
         });
 
         if (sessionResponse.ok) {
-          router.push('/dashboard');
+          // Hard redirect so the browser sends the freshly-set httpOnly cookie
+          // in a full HTTP request — router.push (RSC soft-nav) does not always
+          // carry cookies that were just set by the session API route.
+          window.location.href = '/dashboard';
           return;
         }
       }
 
-      // If no auto-login, redirect to login page
-      showToast({
-        type: 'info',
-        messageAr: 'يرجى تسجيل الدخول للمتابعة',
-        message: 'Please login to continue',
-      });
+      // If no auto-login (e.g. duplicate email returns success without tokens),
+      // redirect to login page.
       router.push('/login');
     } catch (error) {
       const errorMessage = getErrorMessage(error);

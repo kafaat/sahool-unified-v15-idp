@@ -2,9 +2,9 @@
 set -e
 
 # NestJS service entrypoint with Prisma migration support
-# Handles P3005 (non-empty database) by baselining existing migrations
-# Handles P3009 (failed migrations) by marking them as rolled back and retrying
-# Includes wait-for-db and retry logic for environments where postgres starts slowly
+# Handles P3005 (non-empty database) by creating empty _prisma_migrations table
+# Handles P3009/P3018 (failed migrations) by marking them as rolled back and retrying
+# Includes wait-for-db, self-healing sentinel check, and retry logic
 
 MAX_MIGRATION_ATTEMPTS=3
 DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-30}
@@ -47,17 +47,57 @@ wait_for_db() {
 }
 
 # ---------------------------------------------------------------------------
-# handle_p3005: baseline all existing migrations as applied
+# handle_p3005: create the empty migration-tracking table so Prisma can run
 # ---------------------------------------------------------------------------
+# P3005 means: the database has tables but no _prisma_migrations tracking
+# table. This happens when Python services (Alembic/raw SQL) create tables
+# before the first NestJS service runs. The OLD approach (baseline every
+# migration as "applied") is wrong — it permanently prevents Prisma from
+# running the SQL that actually creates this service's tables.
+#
+# The correct fix: create _prisma_migrations as an empty table and let
+# `prisma migrate deploy` run normally to create this service's tables.
 handle_p3005() {
-  echo 'Database not empty (P3005). Baselining existing migrations...'
-  for dir in prisma/migrations/*/; do
-    [ -d "$dir" ] || continue
-    migration_name=$(basename "$dir")
-    echo "Resolving migration as applied: $migration_name"
-    $PRISMA_CLI migrate resolve --applied "$migration_name" >>/tmp/prisma_migrate.log 2>&1 || true
-  done
-  echo 'Baseline complete.'
+  echo 'Database not empty (P3005). Creating empty migration tracking table...'
+  printf 'CREATE TABLE IF NOT EXISTS "_prisma_migrations" (
+    "id"                  VARCHAR(36)  NOT NULL,
+    "checksum"            VARCHAR(64)  NOT NULL,
+    "finished_at"         TIMESTAMPTZ  DEFAULT NULL,
+    "migration_name"      VARCHAR(255) NOT NULL,
+    "logs"                TEXT         DEFAULT NULL,
+    "rolled_back_at"      TIMESTAMPTZ  DEFAULT NULL,
+    "started_at"          TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    "applied_steps_count" INTEGER      NOT NULL DEFAULT 0,
+    PRIMARY KEY ("id")
+  );' | $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
+  echo 'Migration tracking table created. Prisma will now apply all pending migrations.'
+}
+
+# ---------------------------------------------------------------------------
+# verify_migration_state: self-heal falsely-baselined migrations
+# ---------------------------------------------------------------------------
+# When upgrading from the old buggy handle_p3005, _prisma_migrations may have
+# rows for every migration but the actual tables were never created. If
+# MIGRATION_SENTINEL_TABLE is set and that table is missing, clear the false
+# records so that `prisma migrate deploy` re-applies all migrations.
+verify_migration_state() {
+  [ -z "$MIGRATION_SENTINEL_TABLE" ] && return 0
+
+  # Try to SELECT from the sentinel table. If it fails, the table does not exist.
+  if printf 'SELECT 1 FROM "%s" LIMIT 1;' "$MIGRATION_SENTINEL_TABLE" | \
+       $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
+    return 0  # table exists — migrations are correct
+  fi
+
+  # Sentinel table missing. Check if _prisma_migrations has (false) records.
+  if printf 'SELECT 1 FROM "_prisma_migrations" LIMIT 1;' | \
+       $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
+    echo "WARNING: sentinel table '${MIGRATION_SENTINEL_TABLE}' is absent but _prisma_migrations has records."
+    echo "Clearing false migration records so Prisma will re-apply all SQL..."
+    printf 'DELETE FROM "_prisma_migrations";' | \
+      $PRISMA_CLI db execute --stdin >>/tmp/prisma_migrate.log 2>&1 || true
+    echo 'Migration records cleared.'
+  fi
 }
 
 # ---------------------------------------------------------------------------
@@ -172,6 +212,7 @@ if [ "$SKIP_DB_INIT" = "true" ]; then
   echo 'Skipping database migrations (SKIP_DB_INIT=true)'
 else
   wait_for_db
+  verify_migration_state
   run_migrations
 fi
 

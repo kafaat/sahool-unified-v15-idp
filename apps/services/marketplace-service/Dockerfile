@@ -155,7 +155,8 @@ COPY --from=builder /workspace/marketplace-service/node_modules/@prisma/client .
 # Copy built application
 COPY --from=builder /workspace/marketplace-service/dist ./dist
 
-ENV NODE_ENV=production
+ENV NODE_ENV=production \
+    MIGRATION_SENTINEL_TABLE=scheduled_payments
 
 # Expose port
 EXPOSE 3010

@@ -63,8 +63,9 @@ COPY --chown=sahool:sahool apps/services/shared/ ./shared/
 # Resolve module ambiguity: remove standalone errors_py.py when the package exists
 RUN rm -f /app/shared/errors_py.py
 
-# Copy source
+# Copy source and SQL migrations
 COPY --chown=sahool:sahool apps/services/audit-service/src/ ./src/
+COPY --chown=sahool:sahool apps/services/audit-service/migrations/ ./migrations/
 
 
 # Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)

@@ -75,6 +75,45 @@ class AgroRulesWorker:
         self._recent_weather: dict[str, dict] = {}  # field_id -> last weather data
         self._processed_events: set[str] = set()  # Deduplication
 
+    def _is_duplicate_event(self, event_id: str | None) -> bool:
+        """
+        Idempotency check for an incoming event.
+
+        Returns True iff `event_id` is a non-empty string we've already
+        seen (so the caller should drop the message). Returns False
+        otherwise — INCLUDING the case where `event_id` is None / empty.
+
+        Rationale: the previous inline pattern
+            if event_id in self._processed_events: return
+            self._processed_events.add(event_id)
+        poisoned the set on the first event with `event_id is None`,
+        after which `None in self._processed_events` evaluated True and
+        every subsequent event without an id was silently dropped —
+        a hard-to-diagnose event blackhole. Gating both branches on
+        `event_id` truthiness closes that trap: events without an id
+        are simply processed every time (best-effort), and the set
+        only ever contains real ids.
+        """
+        if not event_id:
+            return False
+        if event_id in self._processed_events:
+            return True
+        self._processed_events.add(event_id)
+        return False
+
+    @staticmethod
+    def _extract_routing(env: dict) -> tuple[str | None, str | None, str | None, dict]:
+        """
+        Pull the four fields every handler needs out of an event envelope,
+        whether they live at the envelope root or nested in `payload`.
+        Returns (tenant_id, field_id, correlation_id, payload_dict).
+        """
+        payload = env.get("payload", env)
+        tenant_id = env.get("tenant_id") or payload.get("tenant_id")
+        field_id = env.get("aggregate_id") or payload.get("field_id")
+        correlation_id = env.get("correlation_id")
+        return tenant_id, field_id, correlation_id, payload
+
     async def start(self):
         """Start the worker"""
         self.nc = NATS()
@@ -169,16 +208,18 @@ class AgroRulesWorker:
         try:
             env = json.loads(msg.data.decode())
 
-            # Deduplication
             event_id = env.get("event_id")
-            if event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id")
             field_id = env.get("aggregate_id")
             correlation_id = env.get("correlation_id")
             payload = env.get("payload", {})
+
+            if not tenant_id or not field_id:
+                print(f"⚠️ ndvi_computed: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
+                return
 
             print(f"📥 NDVI computed: field={field_id}, ndvi={payload.get('ndvi_mean')}")
 
@@ -215,14 +256,17 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id")
             field_id = env.get("aggregate_id")
             correlation_id = env.get("correlation_id")
             payload = env.get("payload", {})
+
+            if not tenant_id or not field_id:
+                print(f"⚠️ ndvi_anomaly: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
+                return
 
             anomaly_type = payload.get("anomaly_type")
             severity = payload.get("severity")
@@ -252,16 +296,18 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id and event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            if event_id:
-                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id")
             # AnalysisEvent uses `field_id`; ndvi-processor legacy events use `aggregate_id`.
             field_id = env.get("field_id") or env.get("aggregate_id")
             correlation_id = env.get("correlation_id") or event_id
             payload = env.get("data") or env.get("payload") or {}
+
+            if not tenant_id or not field_id:
+                print(f"⚠️ ndvi_trend: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
+                return
 
             trend_direction = payload.get("trend_direction", "")
             # Safe casts — Copilot review #1704 (round 2): a null or
@@ -302,16 +348,20 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id and event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            if event_id:
-                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id")
             field_id = env.get("field_id") or env.get("aggregate_id")
             correlation_id = env.get("correlation_id") or event_id
             payload = env.get("data") or env.get("payload") or {}
             action_template = env.get("action_template")
+
+            if not tenant_id or not field_id:
+                print(
+                    f"⚠️ phenology_stage: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                )
+                return
 
             current_stage = payload.get("current_stage", "")
             # Safe cast — per the trend handler above, a stray null
@@ -351,14 +401,17 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id")
             field_id = env.get("aggregate_id")
             correlation_id = env.get("correlation_id")
             payload = env.get("payload", {})
+
+            if not tenant_id or not field_id:
+                print(f"⚠️ weather_alert: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
+                return
 
             alert_type = payload.get("alert_type")
             severity = payload.get("severity")
@@ -388,14 +441,20 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id")
             field_id = env.get("aggregate_id")
             correlation_id = env.get("correlation_id")
             payload = env.get("payload", {})
+
+            if not tenant_id or not field_id:
+                print(
+                    f"⚠️ irrigation_adjustment: missing routing "
+                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                )
+                return
 
             adjustment_factor = payload.get("adjustment_factor", 1.0)
 
@@ -416,33 +475,25 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            # Guard: ``None in set`` returns True once a prior event added
-            # ``None``, dropping every subsequent no-event-id message. Only
-            # dedup when event_id is truthy — mirrors the NDVI/phenology
-            # handlers above.
-            if event_id and event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            if event_id:
-                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
             field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
-            correlation_id = env.get("correlation_id") or event_id
+            correlation_id = env.get("correlation_id")
             payload = env.get("payload", env)
+
+            if not tenant_id or not field_id:
+                print(
+                    f"⚠️ terrain_leveling: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                )
+                return
 
             slope = payload.get("slope_percent", 0)
             volume = payload.get("cut_fill_volume_m3", 0)
             cost = payload.get("estimated_cost")
 
-            _log.info(
-                "terrain_leveling_received",
-                extra={"field_id": field_id, "tenant_id": tenant_id, "slope": slope, "volume": volume},
-            )
-
-            # Require both tenant_id and field_id — ``_create_task`` would
-            # otherwise fire against FieldOps with ``None`` and 500 there.
-            if not tenant_id or not field_id:
-                return
+            print(f"🏔️ Terrain leveling recommended: field={field_id}, slope={slope}%")
 
             desc_ar = f"تسوية الأرض مطلوبة (ميل: {slope}%. حجم الحفر/الردم: {volume} م³)"
             desc_en = f"Field leveling required (slope: {slope}%, cut/fill volume: {volume} m³)"
@@ -462,7 +513,7 @@ class AgroRulesWorker:
             await self._create_task(tenant_id, field_id, task_rule, correlation_id)
 
         except Exception as e:
-            _log.exception("terrain_leveling_handler_failed", extra={"error": str(e)})
+            print(f"❌ Error handling terrain leveling event: {e}")
 
     async def _handle_terrain_drainage(self, msg):
         """Handle terrain drainage recommended events — create a drainage task"""
@@ -470,26 +521,24 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id and event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            if event_id:
-                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
             field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
-            correlation_id = env.get("correlation_id") or event_id
+            correlation_id = env.get("correlation_id")
             payload = env.get("payload", env)
+
+            if not tenant_id or not field_id:
+                print(
+                    f"⚠️ terrain_drainage: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                )
+                return
 
             drainage_type = payload.get("drainage_type", "surface")
             priority = payload.get("priority", "medium")
 
-            _log.info(
-                "terrain_drainage_received",
-                extra={"field_id": field_id, "tenant_id": tenant_id, "drainage_type": drainage_type},
-            )
-
-            if not tenant_id or not field_id:
-                return
+            print(f"🌊 Drainage recommended: field={field_id}, type={drainage_type}")
 
             task_rule = TaskRule(
                 title_ar=f"تحسين الصرف ({drainage_type})",
@@ -503,7 +552,7 @@ class AgroRulesWorker:
             await self._create_task(tenant_id, field_id, task_rule, correlation_id)
 
         except Exception as e:
-            _log.exception("terrain_drainage_handler_failed", extra={"error": str(e)})
+            print(f"❌ Error handling terrain drainage event: {e}")
 
     async def _handle_terrain_erosion(self, msg):
         """Handle high erosion risk events — create an urgent inspection task"""
@@ -511,25 +560,23 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id and event_id in self._processed_events:
+            if self._is_duplicate_event(event_id):
                 return
-            if event_id:
-                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
             field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
-            correlation_id = env.get("correlation_id") or event_id
+            correlation_id = env.get("correlation_id")
             payload = env.get("payload", env)
+
+            if not tenant_id or not field_id:
+                print(
+                    f"⚠️ terrain_erosion: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                )
+                return
 
             risk_level = payload.get("risk_level", "high")
 
-            _log.info(
-                "terrain_erosion_received",
-                extra={"field_id": field_id, "tenant_id": tenant_id, "risk_level": risk_level},
-            )
-
-            if not tenant_id or not field_id:
-                return
+            print(f"⚠️ High erosion risk: field={field_id}, level={risk_level}")
 
             task_rule = TaskRule(
                 title_ar="فحص خطر التآكل",
@@ -543,7 +590,7 @@ class AgroRulesWorker:
             await self._create_task(tenant_id, field_id, task_rule, correlation_id)
 
         except Exception as e:
-            _log.exception("terrain_erosion_handler_failed", extra={"error": str(e)})
+            print(f"❌ Error handling terrain erosion event: {e}")
 
     async def _create_task(
         self,

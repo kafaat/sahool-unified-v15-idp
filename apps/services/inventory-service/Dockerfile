@@ -76,12 +76,16 @@ RUN groupadd --system --gid 1000 sahool && \
 COPY --from=builder /root/.local /home/sahool/.local
 
 # Copy Prisma's engine-binary cache from the builder so the runtime user
-# (sahool) doesn't need a network round-trip on first query. If `prisma
-# generate` failed in the builder the directory is empty — `--chown` and
-# `--parents` still succeed. Wrap in a test-based fallback: use a shell RUN
-# after a bind-mount COPY isn't available, so we handle the empty case by
-# having the generator's `|| true` leave a directory behind (created via
-# the RUN below) even on failure.
+# (sahool) doesn't need a network round-trip on first query.
+#
+# The builder stage always creates `/root/.cache/prisma-python/` (see the
+# `mkdir -p` before `prisma generate` up there), so the source path is
+# guaranteed to exist — empty if the generator failed, populated if it
+# succeeded. Either way the COPY below completes. We then fix ownership
+# in a separate `chown` RUN because multi-stage `COPY --from=<stage>`
+# cannot take `--chown`; the source files are owned by root in the
+# builder and land here owned by root too, which sahool at runtime
+# cannot read without the chown.
 COPY --from=builder /root/.cache/prisma-python /home/sahool/.cache/prisma-python
 RUN chown -R sahool:sahool /home/sahool/.cache
 ENV PATH=/home/sahool/.local/bin:$PATH \

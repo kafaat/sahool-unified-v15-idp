@@ -16,6 +16,7 @@ import {
   Query,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
 import type { Response } from "express";
@@ -52,11 +53,24 @@ export class DisasterDeprecatedController {
     private readonly eventsService: EventsService,
   ) {}
 
+  /**
+   * Resolve tenantId STRICTLY from the authenticated JWT.
+   *
+   * SECURITY: the previous implementation fell through to
+   * `req.headers["x-tenant-id"]` and ultimately to the string
+   * `"unassigned"` — both paths let a client forge any tenant (or pool
+   * into a shared bucket). JwtAuthGuard is applied at the class level,
+   * so `req.user.tenantId` is always present for a valid token; a
+   * missing claim is a 401, not a silent default.
+   */
   private tenantId(req: any): string {
-    // Use ONLY JWT-bound tenant (set by JwtAuthGuard via strategy.validate).
-    // Header fallback removed: `x-tenant-id` is attacker-controlled and
-    // would let an authenticated user of tenant A read tenant B's data.
-    return req.user?.tenantId || req.tenantId || "unassigned";
+    const tenantId: unknown = req?.user?.tenantId ?? req?.user?.tid;
+    if (typeof tenantId !== "string" || tenantId.length === 0) {
+      throw new UnauthorizedException(
+        "tenantId missing from JWT — refresh your token",
+      );
+    }
+    return tenantId;
   }
 
   // ─────────────────────────────────────────────────────────────────────────

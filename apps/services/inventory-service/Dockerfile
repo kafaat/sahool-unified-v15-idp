@@ -26,6 +26,30 @@ COPY apps/services/inventory-service/requirements.txt .
 COPY constraints.txt .
 RUN pip-install.sh --user -c constraints.txt -r requirements.txt
 
+# ── Prisma client generation (runs in the builder stage) ──
+# Must run here (not in production stage) so that:
+#   1. pip / setuptools / wheel are still available (production strips them).
+#   2. The generated client lands in /root/.local/lib/python*/site-packages/prisma/
+#      which is then copied to /home/sahool/.local as part of the existing
+#      `COPY --from=builder /root/.local ...` line.
+#   3. The downloaded Prisma Query Engine binary (cached under ~/.cache/
+#      prisma-python/) can be explicitly copied into the runtime user's home
+#      below, so at runtime the sahool user finds it without a network round
+#      trip.
+#
+# The `|| true` on the generate step keeps the image build green in
+# network-restricted CI — main.py's try/except tolerates a missing client
+# and the warehouse / applications endpoints return 503 instead of crashing
+# the whole service. (SQLAlchemy analytics path stays fully functional.)
+COPY apps/services/inventory-service/prisma/schema.prisma /build/prisma/schema.prisma
+ENV PATH=/root/.local/bin:$PATH
+# Ensure the cache directory exists even if generate fails, so the
+# production stage's `COPY --from=builder /root/.cache/prisma-python` step
+# doesn't fail with a missing-source error.
+RUN mkdir -p /root/.cache/prisma-python && \
+    (prisma generate --schema=/build/prisma/schema.prisma || \
+     echo "WARN: prisma generate failed in builder — warehouse/application endpoints will return 503 at runtime")
+
 # Stage 2: Production
 FROM python:${PYTHON_VERSION}-slim-bookworm AS production
 
@@ -47,9 +71,21 @@ WORKDIR /app
 RUN groupadd --system --gid 1000 sahool && \
     useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
 
-# Copy installed Python packages from builder
+# Copy installed Python packages from builder (includes the generated
+# Prisma client under site-packages/prisma/).
 COPY --from=builder /root/.local /home/sahool/.local
-ENV PATH=/home/sahool/.local/bin:$PATH
+
+# Copy Prisma's engine-binary cache from the builder so the runtime user
+# (sahool) doesn't need a network round-trip on first query. If `prisma
+# generate` failed in the builder the directory is empty — `--chown` and
+# `--parents` still succeed. Wrap in a test-based fallback: use a shell RUN
+# after a bind-mount COPY isn't available, so we handle the empty case by
+# having the generator's `|| true` leave a directory behind (created via
+# the RUN below) even on failure.
+COPY --from=builder /root/.cache/prisma-python /home/sahool/.cache/prisma-python
+RUN chown -R sahool:sahool /home/sahool/.cache
+ENV PATH=/home/sahool/.local/bin:$PATH \
+    HOME=/home/sahool
 
 # Copy shared libraries
 COPY --chown=sahool:sahool shared/ ./shared/
@@ -65,8 +101,16 @@ RUN cp -r ./apps/services/shared/errors_py ./shared/ || true && \
 # Copy source
 COPY --chown=sahool:sahool apps/services/inventory-service/src/ ./src/
 
+# Copy Prisma schema + migrations into the image so Prisma migrate commands
+# (run as an init container / job, not on app startup) can find them at
+# /app/prisma/. The generated client itself is already in /home/sahool/.local
+# via the earlier COPY --from=builder.
+COPY --chown=sahool:sahool apps/services/inventory-service/prisma/ ./prisma/
 
-# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
+
+# Strip build tools from production image (CVE-2026-23949, CVE-2026-24049).
+# Must run AFTER prisma generate (done in the builder stage) since the
+# generator itself uses pip/setuptools to materialise its client package.
 RUN rm -rf /home/sahool/.local/lib/python*/site-packages/setuptools* \
            /home/sahool/.local/lib/python*/site-packages/pip* \
            /home/sahool/.local/lib/python*/site-packages/wheel* \

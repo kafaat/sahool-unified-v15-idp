@@ -1,70 +1,130 @@
 /**
  * Reviews Service
  * خدمة إدارة تقييمات المنتجات
+ *
+ * ─────────────────────────────────────────────────────────────────────────
+ * SECURITY MODEL
+ * ─────────────────────────────────────────────────────────────────────────
+ * Product reviews are user-generated *content* about a product and are
+ * therefore public-readable (stats, text, rating). The PII-sensitive
+ * pieces are the embedded buyer/seller profile joins, so every read/write
+ * is tenant-scoped via the `id_tenantId` composite unique so a foreign
+ * tenant's review rows (and their buyer/seller PII) can never be
+ * materialised.
+ *
+ * Ownership checks use the BuyerProfile.id / SellerProfile.id resolved
+ * from the *authenticated caller's* JWT `sub` — never from a URL
+ * parameter (URL params were trivially forgeable and let a user post
+ * reviews as any buyer profile before this commit).
  */
 
 import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
-  ConflictException,
-  BadRequestException,
-  ForbiddenException,
 } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import {
   CreateProductReviewDto,
-  UpdateProductReviewDto,
   CreateReviewResponseDto,
+  UpdateProductReviewDto,
   UpdateReviewResponseDto,
 } from "../dto/reviews.dto";
+
+/** RFC 4122 UUID regex (any version / variant). Used to validate ids
+ * that are interpolated into raw SQL — the `::uuid` cast would throw a
+ * Postgres error mid-transaction otherwise (audit item #13). */
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 @Injectable()
 export class ReviewsService {
   constructor(private readonly prisma: PrismaService) {}
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Internal helpers
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /**
+   * Resolve the caller's BuyerProfile.id from their JWT user id.
+   * Forces buyerId to the authenticated caller so `dto.buyerId` from the
+   * request body cannot be used to impersonate another buyer.
+   */
+  private async resolveCallerBuyerId(
+    callerUserId: string,
+    tenantId: string,
+  ): Promise<string> {
+    const profile = await this.prisma.buyerProfile.findFirst({
+      where: { userId: callerUserId, tenantId },
+      select: { id: true },
+    });
+    if (!profile) {
+      throw new ForbiddenException(
+        "You must have a buyer profile in this tenant to post a review",
+      );
+    }
+    return profile.id;
+  }
+
+  /** Same as resolveCallerBuyerId but for sellers. */
+  private async resolveCallerSellerId(
+    callerUserId: string,
+    tenantId: string,
+  ): Promise<string> {
+    const profile = await this.prisma.sellerProfile.findFirst({
+      where: { userId: callerUserId, tenantId },
+      select: { id: true },
+    });
+    if (!profile) {
+      throw new ForbiddenException(
+        "You must have a seller profile in this tenant to respond to a review",
+      );
+    }
+    return profile.id;
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Product Review Methods
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * إنشاء تقييم منتج جديد
+   * إنشاء تقييم منتج جديد.
+   *
+   * SECURITY: `callerUserId` is derived from the JWT by the controller.
+   * The service resolves the caller's BuyerProfile id from it and ignores
+   * any `dto.buyerId` the request might carry.
    */
-  async createProductReview(dto: CreateProductReviewDto, tenantId?: string) {
-    const tenant = tenantId || "unassigned";
-
-    // Verify the buyer profile exists
-    const buyerProfile = await this.prisma.buyerProfile.findUnique({
-      where: { id: dto.buyerId },
-    });
-
-    if (!buyerProfile) {
-      throw new NotFoundException("Buyer profile not found");
+  async createProductReview(
+    dto: CreateProductReviewDto,
+    tenantId: string,
+    callerUserId: string,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
     }
 
-    // Check if buyer has already reviewed this product for this order
-    const existingReview = await this.prisma.productReview.findFirst({
-      where: {
-        tenantId: tenant,
-        productId: dto.productId,
-        buyerId: dto.buyerId,
-        orderId: dto.orderId,
-      },
-    });
+    const buyerId = await this.resolveCallerBuyerId(callerUserId, tenantId);
 
-    if (existingReview) {
-      throw new ConflictException(
-        "You have already reviewed this product for this order",
-      );
-    }
-
-    // Verify the order exists and contains the product
+    // SECURITY / audit item #11: check order existence + ownership FIRST.
+    // The previous order (existing-review → order) leaked a 409 vs 404 on
+    // foreign-tenant orderIds. By loading and validating the order first,
+    // a spoofed orderId belonging to another tenant returns 404 and
+    // reveals nothing about whether a review already exists.
     const order = await this.prisma.order.findUnique({
-      where: { id: dto.orderId },
+      where: { id_tenantId: { id: dto.orderId, tenantId } },
       include: { items: true },
     });
 
     if (!order) {
       throw new NotFoundException("Order not found");
+    }
+
+    if (order.buyerId !== buyerId) {
+      throw new ForbiddenException(
+        "You may only review orders you placed yourself",
+      );
     }
 
     const orderContainsProduct = order.items.some(
@@ -75,43 +135,57 @@ export class ReviewsService {
       throw new BadRequestException("Product not found in this order");
     }
 
+    // Only after ownership is verified do we probe for a duplicate review.
+    const existingReview = await this.prisma.productReview.findFirst({
+      where: {
+        tenantId,
+        productId: dto.productId,
+        buyerId,
+        orderId: dto.orderId,
+      },
+    });
+
+    if (existingReview) {
+      throw new ConflictException(
+        "You have already reviewed this product for this order",
+      );
+    }
+
     // Create the review
     const review = await this.prisma.productReview.create({
       data: {
-        tenantId: tenant,
+        tenantId,
         productId: dto.productId,
-        buyerId: dto.buyerId,
+        buyerId,
         orderId: dto.orderId,
         rating: dto.rating,
         title: dto.title,
         comment: dto.comment,
         photos: dto.photos || [],
-        verified: order.status === "DELIVERED", // Verify if order is delivered
+        verified: order.status === "DELIVERED",
       },
-      include: {
-        buyer: true,
-      },
+      include: { buyer: true },
     });
 
     // Update product seller's rating
-    await this.updateProductSellerRating(dto.productId);
+    await this.updateProductSellerRating(dto.productId, tenantId);
 
     return review;
   }
 
   /**
-   * جلب تقييم بالمعرف
+   * جلب تقييم بالمعرف (tenant-scoped).
    */
-  async getReviewById(id: string) {
+  async getReviewById(id: string, tenantId: string) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+
     const review = await this.prisma.productReview.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       include: {
         buyer: true,
-        response: {
-          include: {
-            seller: true,
-          },
-        },
+        response: { include: { seller: true } },
       },
     });
 
@@ -123,24 +197,24 @@ export class ReviewsService {
   }
 
   /**
-   * جلب تقييمات منتج
+   * جلب تقييمات منتج (tenant-scoped).
    */
   async getProductReviews(
     productId: string,
+    tenantId: string,
     filters?: {
       minRating?: number;
       maxRating?: number;
       verified?: boolean;
       limit?: number;
       offset?: number;
-      tenantId?: string;
     },
   ) {
-    const where: any = { productId };
-
-    if (filters?.tenantId) {
-      where.tenantId = filters.tenantId;
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
     }
+
+    const where: any = { productId, tenantId };
 
     if (filters?.minRating) {
       where.rating = { ...where.rating, gte: filters.minRating };
@@ -158,19 +232,14 @@ export class ReviewsService {
       where,
       include: {
         buyer: true,
-        response: {
-          include: {
-            seller: true,
-          },
-        },
+        response: { include: { seller: true } },
       },
       orderBy: { createdAt: "desc" },
       take: filters?.limit || 20,
       skip: filters?.offset || 0,
     });
 
-    // Calculate review statistics
-    const stats = await this.getProductReviewStats(productId, filters?.tenantId);
+    const stats = await this.getProductReviewStats(productId, tenantId);
 
     return {
       reviews,
@@ -182,19 +251,15 @@ export class ReviewsService {
     };
   }
 
-  /**
-   * جلب إحصائيات تقييمات المنتج
-   */
-  async getProductReviewStats(productId: string, tenantId?: string) {
-    const where: any = { productId };
-    if (tenantId) {
-      where.tenantId = tenantId;
+  async getProductReviewStats(productId: string, tenantId: string) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
     }
 
     const reviews = await this.prisma.productReview.findMany({
-      where,
+      where: { productId, tenantId },
       select: { rating: true },
-      take: 100,
+      take: 1000,
     });
 
     if (reviews.length === 0) {
@@ -206,7 +271,10 @@ export class ReviewsService {
     }
 
     const totalReviews = reviews.length;
-    const sumRatings = reviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0);
+    const sumRatings = reviews.reduce(
+      (sum: number, r: { rating: number }) => sum + r.rating,
+      0,
+    );
     const averageRating = sumRatings / totalReviews;
 
     const ratingDistribution = reviews.reduce(
@@ -219,28 +287,25 @@ export class ReviewsService {
 
     return {
       totalReviews,
-      averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+      averageRating: Math.round(averageRating * 10) / 10,
       ratingDistribution,
     };
   }
 
-  /**
-   * جلب تقييمات المشتري
-   */
-  async getBuyerReviews(buyerId: string, limit = 20, offset = 0, tenantId?: string) {
-    const where: any = { buyerId };
-    if (tenantId) {
-      where.tenantId = tenantId;
+  async getBuyerReviews(
+    buyerId: string,
+    tenantId: string,
+    limit = 20,
+    offset = 0,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
     }
 
     return this.prisma.productReview.findMany({
-      where,
+      where: { buyerId, tenantId },
       include: {
-        response: {
-          include: {
-            seller: true,
-          },
-        },
+        response: { include: { seller: true } },
       },
       orderBy: { createdAt: "desc" },
       take: limit,
@@ -249,28 +314,41 @@ export class ReviewsService {
   }
 
   /**
-   * تحديث تقييم
+   * تحديث تقييم.
+   *
+   * SECURITY: resolves buyerId from caller's JWT (NOT from URL). Rejects
+   * if the review's buyerId doesn't match, so a forged reviewId still
+   * returns 403 rather than succeeding with a spoofed ownership claim.
    */
   async updateProductReview(
     id: string,
-    buyerId: string,
     dto: UpdateProductReviewDto,
+    tenantId: string,
+    callerUserId: string,
   ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+
+    const callerBuyerId = await this.resolveCallerBuyerId(
+      callerUserId,
+      tenantId,
+    );
+
     const review = await this.prisma.productReview.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
 
     if (!review) {
       throw new NotFoundException("Review not found");
     }
 
-    // Ensure the buyer owns this review
-    if (review.buyerId !== buyerId) {
+    if (review.buyerId !== callerBuyerId) {
       throw new ForbiddenException("You can only edit your own reviews");
     }
 
     const updatedReview = await this.prisma.productReview.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         ...(dto.rating && { rating: dto.rating }),
         ...(dto.title && { title: dto.title }),
@@ -279,100 +357,207 @@ export class ReviewsService {
       },
       include: {
         buyer: true,
-        response: {
-          include: {
-            seller: true,
-          },
-        },
+        response: { include: { seller: true } },
       },
     });
 
-    // Update product seller's rating if rating changed
     if (dto.rating) {
-      await this.updateProductSellerRating(review.productId);
+      await this.updateProductSellerRating(review.productId, tenantId);
     }
 
     return updatedReview;
   }
 
-  /**
-   * حذف تقييم
-   */
-  async deleteProductReview(id: string, buyerId: string) {
+  async deleteProductReview(
+    id: string,
+    tenantId: string,
+    callerUserId: string,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+
+    const callerBuyerId = await this.resolveCallerBuyerId(
+      callerUserId,
+      tenantId,
+    );
+
     const review = await this.prisma.productReview.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
 
     if (!review) {
       throw new NotFoundException("Review not found");
     }
 
-    // Ensure the buyer owns this review
-    if (review.buyerId !== buyerId) {
+    if (review.buyerId !== callerBuyerId) {
       throw new ForbiddenException("You can only delete your own reviews");
     }
 
     const productId = review.productId;
 
     await this.prisma.productReview.delete({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
 
-    // Update product seller's rating
-    await this.updateProductSellerRating(productId);
+    await this.updateProductSellerRating(productId, tenantId);
 
     return { message: "Review deleted successfully" };
   }
 
   /**
-   * وضع علامة على التقييم كمفيد
+   * Mark a review as helpful / not-helpful.
+   *
+   * SECURITY (audit item #4): backed by the `review_helpful_votes` join
+   * table with a tenant-scoped `@@unique([tenantId, reviewId, userId])`
+   * constraint. A caller clicking the button twice UPSERTs their own vote
+   * row — no vote stuffing. The denormalised `helpful` counter on the
+   * review is recomputed from a single aggregate query after every change,
+   * which also ensures it never goes negative (no more bare `decrement: 1`
+   * that could land at -1).
    */
-  async markReviewHelpful(id: string, helpful: boolean) {
+  async markReviewHelpful(
+    id: string,
+    helpful: boolean,
+    tenantId: string,
+    callerUserId: string,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+    if (!callerUserId) {
+      throw new BadRequestException("callerUserId required");
+    }
+
     const review = await this.prisma.productReview.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
+      select: { id: true },
     });
 
     if (!review) {
       throw new NotFoundException("Review not found");
     }
 
+    // Upsert the caller's vote. The composite unique guarantees at most
+    // one row per (tenant, review, user).
+    await this.prisma.reviewHelpfulVote.upsert({
+      where: {
+        uq_helpful_vote_tenant_review_user: {
+          tenantId,
+          reviewId: id,
+          userId: callerUserId,
+        },
+      },
+      create: {
+        tenantId,
+        reviewId: id,
+        userId: callerUserId,
+        helpful,
+      },
+      update: { helpful },
+    });
+
+    // Recompute the denormalised `helpful` counter from the aggregate.
+    // Counts only positive votes (helpful=true) so the column is always
+    // a non-negative integer regardless of toggles.
+    const helpfulCount = await this.prisma.reviewHelpfulVote.count({
+      where: { tenantId, reviewId: id, helpful: true },
+    });
+
     return this.prisma.productReview.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
+      data: { helpful: helpfulCount },
+    });
+  }
+
+  /**
+   * Report a review for moderator review.
+   *
+   * SECURITY (audit item #5): persists the full report (reporter id +
+   * reason + timestamp) in `review_reports` with a tenant-scoped
+   * `@@unique([tenantId, reviewId, reporterId])` so a single user can't
+   * inflate the counter via repeated submissions. `reported=true` is only
+   * set when the distinct-reporter count crosses the configured threshold.
+   */
+  async reportReview(
+    id: string,
+    reason: string,
+    tenantId: string,
+    callerUserId: string,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+    if (!callerUserId) {
+      throw new BadRequestException("callerUserId required");
+    }
+
+    const review = await this.prisma.productReview.findUnique({
+      where: { id_tenantId: { id, tenantId } },
+      select: { id: true },
+    });
+
+    if (!review) {
+      throw new NotFoundException("Review not found");
+    }
+
+    // Record the report. If the same reporter submits twice, the composite
+    // unique raises P2002 — swallow it as a no-op idempotent replay.
+    try {
+      await this.prisma.reviewReport.create({
+        data: {
+          tenantId,
+          reviewId: id,
+          reporterId: callerUserId,
+          reason: reason?.slice(0, 2000) ?? "",
+        },
+      });
+    } catch (err: any) {
+      if (err?.code !== "P2002") throw err;
+    }
+
+    // Recompute distinct-reporter count + flip `reported` above threshold.
+    const reportCount = await this.prisma.reviewReport.count({
+      where: { tenantId, reviewId: id },
+    });
+
+    const threshold = ReviewsService.REPORT_HIDE_THRESHOLD;
+    return this.prisma.productReview.update({
+      where: { id_tenantId: { id, tenantId } },
       data: {
-        helpful: helpful ? { increment: 1 } : { decrement: 1 },
+        reportCount,
+        reported: reportCount >= threshold,
       },
     });
   }
 
   /**
-   * الإبلاغ عن تقييم
+   * Number of distinct reporters required before a review is auto-hidden
+   * (`reported=true`). Kept as a static so tests can tweak it; production
+   * can wire this to a feature flag later.
    */
-  async reportReview(id: string, reason: string) {
-    const review = await this.prisma.productReview.findUnique({
-      where: { id },
-    });
-
-    if (!review) {
-      throw new NotFoundException("Review not found");
-    }
-
-    return this.prisma.productReview.update({
-      where: { id },
-      data: { reported: true },
-    });
-  }
+  static readonly REPORT_HIDE_THRESHOLD = 3;
 
   /**
-   * تحديث تقييم البائع (داخلي)
-   * Optimized to prevent N+1 queries using a single aggregation query
+   * تحديث تقييم البائع (داخلي) — tenant-scoped.
+   *
+   * SECURITY (audit item #13): `productId` is interpolated into a
+   * `::uuid` cast. Postgres raises an error mid-transaction on malformed
+   * input, so we validate the format upfront and no-op on a bad value
+   * rather than aborting the enclosing transaction.
    */
-  private async updateProductSellerRating(productId: string) {
-    // Use raw SQL for optimal performance with a single query
-    // This query:
-    // 1. Joins product to find seller
-    // 2. Gets all products by this seller
-    // 3. Aggregates all reviews for those products
-    // 4. Returns seller info and average rating
+  private async updateProductSellerRating(
+    productId: string,
+    tenantId: string,
+  ) {
+    if (!UUID_REGEX.test(productId)) {
+      // Bad input — bail silently. The public review workflow already
+      // validates productId at the API boundary; a bad id here means we
+      // were called from an internal path with a stale / test value, not
+      // an attacker-controlled URL.
+      return;
+    }
+
     const result = await this.prisma.$queryRaw<
       Array<{
         seller_id: string;
@@ -387,10 +572,10 @@ export class ReviewsService {
         AVG(pr.rating) as avg_rating,
         COUNT(pr.id)::int as review_count
       FROM products p
-      LEFT JOIN seller_profiles sp ON sp.user_id = p.seller_id
-      LEFT JOIN products seller_products ON seller_products.seller_id = p.seller_id
-      LEFT JOIN product_reviews pr ON pr.product_id = seller_products.id
-      WHERE p.id = ${productId}::uuid
+      LEFT JOIN seller_profiles sp ON sp.user_id = p.seller_id AND sp.tenant_id = ${tenantId}
+      LEFT JOIN products seller_products ON seller_products.seller_id = p.seller_id AND seller_products.tenant_id = ${tenantId}
+      LEFT JOIN product_reviews pr ON pr.product_id = seller_products.id AND pr.tenant_id = ${tenantId}
+      WHERE p.id = ${productId}::uuid AND p.tenant_id = ${tenantId}
       GROUP BY p.seller_id, sp.id
     `;
 
@@ -400,10 +585,11 @@ export class ReviewsService {
 
     const { seller_profile_id, avg_rating, review_count } = result[0];
 
-    // Only update if there are reviews
     if (review_count > 0 && avg_rating !== null) {
       await this.prisma.sellerProfile.update({
-        where: { id: seller_profile_id },
+        where: {
+          id_tenantId: { id: seller_profile_id, tenantId },
+        },
         data: { rating: Math.round(avg_rating * 10) / 10 },
       });
     }
@@ -414,19 +600,44 @@ export class ReviewsService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /**
-   * إنشاء رد على تقييم
+   * إنشاء رد على تقييم.
+   *
+   * SECURITY: resolves sellerId from caller's JWT — `dto.sellerId` is
+   * ignored. Verifies the target review is in the caller's tenant and
+   * that the product's seller matches the caller.
    */
-  async createReviewResponse(dto: CreateReviewResponseDto) {
-    // Verify the review exists
+  async createReviewResponse(
+    dto: CreateReviewResponseDto,
+    tenantId: string,
+    callerUserId: string,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+
+    const sellerId = await this.resolveCallerSellerId(callerUserId, tenantId);
+
     const review = await this.prisma.productReview.findUnique({
-      where: { id: dto.reviewId },
+      where: { id_tenantId: { id: dto.reviewId, tenantId } },
+      include: { product: true },
     });
 
     if (!review) {
       throw new NotFoundException("Review not found");
     }
 
-    // Check if response already exists
+    // Reject attempts to reply to a review on someone else's product.
+    const product = (review as any).product;
+    const sellerProfile = await this.prisma.sellerProfile.findFirst({
+      where: { id: sellerId, tenantId },
+      select: { userId: true },
+    });
+    if (!sellerProfile || product?.sellerId !== sellerProfile.userId) {
+      throw new ForbiddenException(
+        "You can only respond to reviews on your own products",
+      );
+    }
+
     const existingResponse = await this.prisma.reviewResponse.findUnique({
       where: { reviewId: dto.reviewId },
     });
@@ -435,19 +646,15 @@ export class ReviewsService {
       throw new ConflictException("Response already exists for this review");
     }
 
-    // Verify seller profile exists
-    const sellerProfile = await this.prisma.sellerProfile.findUnique({
-      where: { id: dto.sellerId },
-    });
-
-    if (!sellerProfile) {
-      throw new NotFoundException("Seller profile not found");
-    }
-
     return this.prisma.reviewResponse.create({
       data: {
+        // SECURITY (audit item #10): stamp tenantId on the row — without
+        // this, the `getSellerResponses` tenant filter would never match
+        // and the default "unassigned" bucket would pool responses from
+        // every tenant.
+        tenantId,
         reviewId: dto.reviewId,
-        sellerId: dto.sellerId,
+        sellerId,
         response: dto.response,
       },
       include: {
@@ -457,14 +664,21 @@ export class ReviewsService {
     });
   }
 
-  /**
-   * تحديث رد على تقييم
-   */
   async updateReviewResponse(
     id: string,
-    sellerId: string,
     dto: UpdateReviewResponseDto,
+    tenantId: string,
+    callerUserId: string,
   ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+
+    const callerSellerId = await this.resolveCallerSellerId(
+      callerUserId,
+      tenantId,
+    );
+
     const response = await this.prisma.reviewResponse.findUnique({
       where: { id },
     });
@@ -473,8 +687,7 @@ export class ReviewsService {
       throw new NotFoundException("Review response not found");
     }
 
-    // Ensure the seller owns this response
-    if (response.sellerId !== sellerId) {
+    if (response.sellerId !== callerSellerId) {
       throw new ForbiddenException("You can only edit your own responses");
     }
 
@@ -488,10 +701,20 @@ export class ReviewsService {
     });
   }
 
-  /**
-   * حذف رد على تقييم
-   */
-  async deleteReviewResponse(id: string, sellerId: string) {
+  async deleteReviewResponse(
+    id: string,
+    tenantId: string,
+    callerUserId: string,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+
+    const callerSellerId = await this.resolveCallerSellerId(
+      callerUserId,
+      tenantId,
+    );
+
     const response = await this.prisma.reviewResponse.findUnique({
       where: { id },
     });
@@ -500,8 +723,7 @@ export class ReviewsService {
       throw new NotFoundException("Review response not found");
     }
 
-    // Ensure the seller owns this response
-    if (response.sellerId !== sellerId) {
+    if (response.sellerId !== callerSellerId) {
       throw new ForbiddenException("You can only delete your own responses");
     }
 
@@ -512,22 +734,24 @@ export class ReviewsService {
     return { message: "Review response deleted successfully" };
   }
 
-  /**
-   * جلب ردود البائع
-   */
-  async getSellerResponses(sellerId: string, limit = 20, offset = 0, tenantId?: string) {
-    const where: any = { sellerId };
-    if (tenantId) {
-      where.tenantId = tenantId;
+  async getSellerResponses(
+    sellerId: string,
+    tenantId: string,
+    limit = 20,
+    offset = 0,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
     }
 
     return this.prisma.reviewResponse.findMany({
-      where,
+      where: {
+        sellerId,
+        review: { tenantId },
+      },
       include: {
         review: {
-          include: {
-            buyer: true,
-          },
+          include: { buyer: true },
         },
       },
       orderBy: { createdAt: "desc" },

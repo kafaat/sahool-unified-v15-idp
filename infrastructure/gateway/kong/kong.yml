@@ -200,6 +200,7 @@ services:
           - /api/v1/auth/forgot-password
           - /api/v1/auth/reset-password
           - /api/v1/auth/send-otp
+          - /api/v1/auth/resend-otp
           - /api/v1/auth/verify-otp
           - /api/v1/auth/refresh
         strip_path: false
@@ -232,6 +233,7 @@ services:
           - /api/v1/auth/logout
           - /api/v1/auth/logout-all
           - /api/v1/auth/me
+          - /api/v1/auth/activity
           - /api/v1/users
         strip_path: false
         protocols: ["http", "https"]
@@ -1734,6 +1736,26 @@ services:
         strip_path: false
         protocols: ["http", "https"]
         methods: ["POST"]
+      - name: vision-models-versions-route
+        paths: ["/api/v1/vision/models/versions"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET", "POST"]
+      - name: vision-models-loaded-route
+        paths: ["/api/v1/vision/models/loaded"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
+      - name: vision-models-warmup-route
+        paths: ["/api/v1/vision/models/warmup"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["POST"]
+      - name: vision-models-info-route
+        paths: ["/api/v1/vision/models"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
       - name: vision-base-route
         paths: ["/api/v1/vision"]
         strip_path: true
@@ -1786,6 +1808,11 @@ services:
         strip_path: false
         protocols: ["http", "https"]
         methods: ["POST"]
+      - name: terrain-dem-route
+        paths: ["/api/v1/terrain/dem"]
+        strip_path: false
+        protocols: ["http", "https"]
+        methods: ["GET"]
       - name: terrain-slope-route
         paths: ["/api/v1/terrain/slope"]
         strip_path: false

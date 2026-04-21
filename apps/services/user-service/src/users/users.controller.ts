@@ -374,4 +374,40 @@ export class UsersController {
       data: { count },
     };
   }
+
+  /**
+   * Block or unblock a user (used by mobile chat and admin moderation).
+   * حجب أو رفع الحجب عن مستخدم
+   */
+  @Post(":userId/block")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN", "MANAGER")
+  @ApiOperation({
+    summary: "Block or unblock a user",
+    description: "Toggle blocked status for the target user. Only ADMIN and MANAGER may call this.",
+  })
+  @ApiParam({ name: "userId", description: "UUID of the user to block/unblock" })
+  @ApiResponse({ status: 200, description: "User blocked/unblocked successfully" })
+  @ApiResponse({ status: 403, description: "Forbidden" })
+  @ApiResponse({ status: 404, description: "User not found" })
+  async blockUser(
+    @Param("userId", ParseUUIDPipe) userId: string,
+    @CurrentUser() currentUser: any,
+  ) {
+    // Prevent self-block
+    if (currentUser?.id === userId) {
+      throw new BadRequestException("You cannot block yourself");
+    }
+
+    const updated = await this.usersService.toggleBlock(userId, currentUser?.tenantId);
+    if (!updated) {
+      throw new NotFoundException("User not found");
+    }
+    return {
+      success: true,
+      data: { userId, blocked: updated.blocked ?? true },
+      message: updated.blocked ? "User blocked successfully" : "User unblocked successfully",
+    };
+  }
 }

@@ -874,3 +874,124 @@ async def add_evidence(
         captured_at=saved_evidence.captured_at,
         location=saved_evidence.location,
     )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# Status & Assignment Endpoints - نقاط الحالة والتعيين
+# ═══════════════════════════════════════════════════════════════════════════
+
+
+class TaskStatusUpdateRequest(BaseModel):
+    """Body for PATCH /{task_id}/status."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    status: str = Field(..., description="New status: pending|in_progress|completed|cancelled")
+    reason: str | None = Field(None, description="Optional reason (required for cancelled)")
+
+
+class TaskAssignRequest(BaseModel):
+    """Body for POST /{task_id}/assign."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    assignee_id: str = Field(..., description="User ID to assign the task to")
+    note: str | None = Field(None, max_length=500)
+
+
+@router.patch("/{task_id}/status", response_model=dict)
+async def update_task_status(
+    task_id: str,
+    body: TaskStatusUpdateRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Update the status of a task directly (admin / automation use-case).
+    تحديث حالة مهمة مباشرةً (للمشرفين والأتمتة)
+    """
+    allowed = {"pending", "in_progress", "completed", "cancelled"}
+    if body.status not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": f"Invalid status '{body.status}'. Allowed: {sorted(allowed)}",
+                "error_ar": "الحالة المطلوبة غير مدعومة",
+            },
+        )
+
+    repo = TaskRepository(db)
+    performed_by = current_user.id if current_user and current_user.id else "system"
+
+    task = repo.get_task_by_id(task_id, tenant_id)
+    if not task:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "Task not found", "error_ar": "المهمة غير موجودة"},
+        )
+
+    if body.status == "in_progress":
+        task = repo.start_task(task_id, tenant_id, performed_by)
+    elif body.status == "completed":
+        task = repo.complete_task(task_id, tenant_id, performed_by)
+    elif body.status == "cancelled":
+        task = repo.cancel_task(task_id, tenant_id, performed_by, body.reason)
+    else:
+        # pending — reset via direct ORM update
+        task.status = TaskStatus.PENDING
+        task.updated_at = datetime.now(UTC)
+        db.commit()
+        db.refresh(task)
+
+    logger.info(
+        "Task status updated to %s: %s by %s",
+        sanitize_for_log(body.status),
+        sanitize_for_log(task_id),
+        sanitize_for_log(performed_by),
+    )
+    return db_task_to_dict(task)
+
+
+@router.post("/{task_id}/assign", response_model=dict)
+async def assign_task(
+    task_id: str,
+    body: TaskAssignRequest,
+    tenant_id: str = Depends(get_tenant_id),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Assign a task to a specific user.
+    تعيين مهمة لمستخدم محدد
+    """
+    repo = TaskRepository(db)
+    performed_by = current_user.id if current_user and current_user.id else "system"
+
+    task = repo.get_task_by_id(task_id, tenant_id)
+    if not task:
+        raise HTTPException(
+            status_code=404,
+            detail={"error": "Task not found", "error_ar": "المهمة غير موجودة"},
+        )
+
+    # Validate assignee_id is a safe string before storing
+    validate_field_id(body.assignee_id)
+
+    task.assigned_to = body.assignee_id
+    task.updated_at = datetime.now(UTC)
+    if body.note:
+        validate_metadata_size({"note": body.note})
+        existing_meta = task.metadata or {}
+        existing_meta["last_assign_note"] = body.note
+        task.metadata = existing_meta
+    db.commit()
+    db.refresh(task)
+
+    logger.info(
+        "Task %s assigned to %s by %s",
+        sanitize_for_log(task_id),
+        sanitize_for_log(body.assignee_id),
+        sanitize_for_log(performed_by),
+    )
+    return db_task_to_dict(task)

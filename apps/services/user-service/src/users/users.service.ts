@@ -476,4 +476,37 @@ export class UsersService {
       },
     });
   }
+
+  /**
+   * Toggle blocked status for a user (used by mobile chat and admin moderation).
+   * تبديل حالة الحجب للمستخدم
+   */
+  async toggleBlock(userId: string, tenantId?: string): Promise<User | null> {
+    const where: any = { id: userId };
+    if (tenantId) where.tenantId = tenantId;
+
+    const existing = await this.prisma.user.findFirst({
+      where,
+      select: { id: true, status: true, tenantId: true },
+    });
+    if (!existing) return null;
+
+    const isCurrentlyBlocked = String(existing.status) === UserStatus.SUSPENDED;
+    const newStatus = isCurrentlyBlocked ? UserStatus.ACTIVE : UserStatus.SUSPENDED;
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { status: newStatus },
+      select: { id: true, status: true, tenantId: true },
+    });
+
+    void this.events.publishUserStatusChanged({
+      tenantId: updated.tenantId,
+      userId: updated.id,
+      oldStatus: String(existing.status),
+      newStatus: String(updated.status),
+    });
+
+    return { ...updated, blocked: !isCurrentlyBlocked } as unknown as User;
+  }
 }

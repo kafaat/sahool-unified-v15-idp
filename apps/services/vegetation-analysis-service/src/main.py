@@ -1530,7 +1530,6 @@ async def analyze_field(
     if tenant_id is None:
         tenant_id = _require_tenant_id(user)
 
-
     # Cache key includes request.start_date so historical queries
     # (start_date in the past) don't collide with "today" queries on the
     # same field+satellite (per Copilot review — real correctness bug).

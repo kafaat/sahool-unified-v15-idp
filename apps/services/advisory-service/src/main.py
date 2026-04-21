@@ -41,15 +41,26 @@ setup_logging(service_name="advisory-service")
 
 # Agricultural KPI metrics (STABILIZATION_PLAN_v16.1 PR7) — wraps the
 # import so a missing prometheus_client dependency (e.g., slim CI) leaves
-# recording as a no-op without hard-failing service startup.
+# recording as a no-op without hard-failing service startup. We catch
+# ImportError only — any *other* exception from `get_agricultural_metrics()`
+# indicates a real misconfiguration and must not be silently swallowed.
 try:
     from shared.monitoring.agricultural_metrics import get_agricultural_metrics
-
-    _agri_metrics = get_agricultural_metrics()
-    AGRI_METRICS_AVAILABLE = True
-except Exception:  # pragma: no cover — defensive, metrics are optional
+except ImportError:  # pragma: no cover — metrics deps not installed
     _agri_metrics = None
     AGRI_METRICS_AVAILABLE = False
+else:
+    try:
+        _agri_metrics = get_agricultural_metrics()
+        AGRI_METRICS_AVAILABLE = True
+    except Exception:  # pragma: no cover — defensive, but surface in logs
+        import logging as _agri_logging
+
+        _agri_logging.getLogger(__name__).exception(
+            "Failed to initialise agricultural metrics; continuing without them"
+        )
+        _agri_metrics = None
+        AGRI_METRICS_AVAILABLE = False
 from crops import (
     ALL_CROPS,
     CATEGORIES_COUNT,

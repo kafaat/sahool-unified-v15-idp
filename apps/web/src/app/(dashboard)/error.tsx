@@ -36,9 +36,11 @@ export default function DashboardError({
           عذراً، حدث خطأ أثناء تحميل هذه الصفحة. يمكنك المحاولة مرة أخرى أو العودة إلى الصفحة
           الرئيسية.
         </p>
-        {error.message && (
+        {error.digest && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6 text-left">
-            <p className="text-xs text-red-800 font-mono break-words">{error.message}</p>
+            <p className="text-xs text-red-800 font-mono break-words">
+              Error ID: {error.digest}
+            </p>
           </div>
         )}
         <div className="flex flex-col sm:flex-row gap-3">

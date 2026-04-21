@@ -699,7 +699,7 @@ export class AuthController {
    */
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute — refresh is sensitive; stolen tokens must not enable sustained token-minting
   @ApiOperation({
     summary: "Refresh access token with rotation",
     description:

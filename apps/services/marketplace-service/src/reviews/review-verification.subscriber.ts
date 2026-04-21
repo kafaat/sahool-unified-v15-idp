@@ -12,18 +12,31 @@
  * the order confirmation page), the review stayed `verified=false`
  * forever, even after delivery completed.
  *
- * This subscriber listens to `sahool.delivery.completed` on the NATS
- * event bus and back-fills `verified=true` on any review(s) attached to
- * the just-delivered order. Idempotent by design — re-delivery events
- * for the same orderId are no-ops.
+ * This subscriber listens to `sahool.marketplace.order.delivered` on the
+ * NATS event bus and back-fills `verified=true` on any review(s)
+ * attached to the just-delivered order. Idempotent by design —
+ * re-publishes for the same orderId are no-ops.
+ *
+ * Why `sahool.marketplace.order.delivered` and NOT
+ * `sahool.delivery.completed`? The latter fires from the delivery
+ * service BEFORE marketplace has reconciled its own Order row to
+ * status=DELIVERED. If we verified reviews on that upstream event we
+ * could race the Order update and flip reviews while
+ * `order.status !== 'DELIVERED'` is still true in the DB. Instead,
+ * `OrderDeliverySubscriber` (src/orders/order-delivery.subscriber.ts)
+ * owns the DB write, and re-publishes
+ * `sahool.marketplace.order.delivered` AFTER the write commits — so
+ * by the time this subscriber fires, the order is observably
+ * DELIVERED (2026-04-21 audit, item #15).
  *
  * ─────────────────────────────────────────────────────────────────────────
  * SECURITY
  * ─────────────────────────────────────────────────────────────────────────
  * All Prisma writes are tenant-scoped via `updateMany({where: {orderId,
- * tenantId}})` — the `tenantId` comes from the event payload (stamped by
- * the delivery service under its own authz). Without the filter, a
- * malicious delivery event could mutate reviews across tenants.
+ * tenantId}})` — the `tenantId` comes from the event payload (stamped
+ * by marketplace-service's own `publishOrderDelivered`, which inherits
+ * the tenantId from the tenant-validated Order row). A malicious or
+ * misrouted event can never mutate reviews across tenants.
  *
  * The subscriber is registered in a NestJS queue group
  * (`marketplace-service-review-verifier`) so multiple marketplace
@@ -34,7 +47,7 @@ import { Injectable, Logger, OnModuleInit } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
 
-const DELIVERY_COMPLETED_SUBJECT = "sahool.delivery.completed";
+const ORDER_DELIVERED_SUBJECT = "sahool.marketplace.order.delivered";
 const QUEUE_GROUP = "marketplace-service-review-verifier";
 
 @Injectable()
@@ -54,7 +67,7 @@ export class ReviewVerificationSubscriber implements OnModuleInit {
     setTimeout(() => {
       this.registerSubscription().catch((err) => {
         this.logger.warn(
-          `Failed to subscribe to ${DELIVERY_COMPLETED_SUBJECT}: ${
+          `Failed to subscribe to ${ORDER_DELIVERED_SUBJECT}: ${
             err instanceof Error ? err.message : String(err)
           }`,
         );
@@ -73,19 +86,20 @@ export class ReviewVerificationSubscriber implements OnModuleInit {
     }
 
     await this.events.subscribe(
-      DELIVERY_COMPLETED_SUBJECT,
+      ORDER_DELIVERED_SUBJECT,
       async (event) => {
-        await this.handleDeliveryCompleted(event);
+        await this.handleOrderDelivered(event);
       },
       { queue: QUEUE_GROUP },
     );
     this.logger.log(
-      `Subscribed to ${DELIVERY_COMPLETED_SUBJECT} (queue=${QUEUE_GROUP})`,
+      `Subscribed to ${ORDER_DELIVERED_SUBJECT} (queue=${QUEUE_GROUP})`,
     );
   }
 
-  private async handleDeliveryCompleted(event: any): Promise<void> {
-    const payload = (event?.payload ?? {}) as Record<string, unknown>;
+  private async handleOrderDelivered(event: unknown): Promise<void> {
+    const payload =
+      ((event as { payload?: unknown })?.payload ?? {}) as Record<string, unknown>;
     const orderId = typeof payload.orderId === "string" ? payload.orderId : undefined;
     const tenantId =
       typeof payload.tenantId === "string" ? payload.tenantId : undefined;
@@ -94,7 +108,7 @@ export class ReviewVerificationSubscriber implements OnModuleInit {
       // Missing routing — drop the event rather than fan it out across
       // tenants. Matches the pattern used by agro-rules worker.
       this.logger.warn(
-        `delivery.completed: missing routing (orderId=${orderId}, ` +
+        `order.delivered: missing routing (orderId=${orderId}, ` +
           `tenantId=${tenantId}) — skipping review verification back-fill`,
       );
       return;

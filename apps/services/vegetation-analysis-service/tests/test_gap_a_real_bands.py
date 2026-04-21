@@ -111,6 +111,16 @@ async def test_imagery_endpoint_uses_real_path_when_available(monkeypatch):
 
     monkeypatch.setattr(main_mod, "fetch_real_bands", _fake_fetch)
 
+    # Cross-service field-ownership verification is mocked — the handler
+    # now calls `_verify_field_owned_by_tenant` before the data-source
+    # path runs (2026-04-21 audit #7). Returning the caller's tenant_id
+    # simulates a successful ownership check against
+    # field-management-service.
+    async def _fake_verify(user, field_id, http_request=None):
+        return "t1"
+
+    monkeypatch.setattr(main_mod, "_verify_field_owned_by_tenant", _fake_verify)
+
     req = ImageryRequest(
         field_id="real-test-field",
         latitude=15.5,
@@ -119,8 +129,9 @@ async def test_imagery_endpoint_uses_real_path_when_available(monkeypatch):
     )
     response = Response()
     mock_user = MagicMock(tenant_id="t1")
+    mock_http_request = MagicMock()
 
-    result = await request_imagery(req, response, user=mock_user)
+    result = await request_imagery(req, response, mock_http_request, user=mock_user)
 
     # Bands must match the real payload exactly (not simulated)
     assert len(result.bands) == 3
@@ -145,6 +156,11 @@ async def test_imagery_endpoint_falls_back_to_simulated_when_eo_unavailable(monk
 
     monkeypatch.setattr(main_mod, "EO_LEARN_AVAILABLE", False)
 
+    async def _fake_verify(user, field_id, http_request=None):
+        return "t1"
+
+    monkeypatch.setattr(main_mod, "_verify_field_owned_by_tenant", _fake_verify)
+
     req = ImageryRequest(
         field_id="sim-fallback-test",
         latitude=15.5,
@@ -153,8 +169,9 @@ async def test_imagery_endpoint_falls_back_to_simulated_when_eo_unavailable(monk
     )
     response = Response()
     mock_user = MagicMock(tenant_id="t1")
+    mock_http_request = MagicMock()
 
-    result = await request_imagery(req, response, user=mock_user)
+    result = await request_imagery(req, response, mock_http_request, user=mock_user)
 
     # Must still produce a well-formed SatelliteImagery, with bands
     assert result.field_id == "sim-fallback-test"
@@ -180,6 +197,11 @@ async def test_imagery_endpoint_falls_back_when_fetch_returns_none(monkeypatch):
 
     monkeypatch.setattr(main_mod, "fetch_real_bands", _fetch_returns_none)
 
+    async def _fake_verify(user, field_id, http_request=None):
+        return "t1"
+
+    monkeypatch.setattr(main_mod, "_verify_field_owned_by_tenant", _fake_verify)
+
     req = ImageryRequest(
         field_id="fetch-none-test",
         latitude=15.5,
@@ -188,8 +210,9 @@ async def test_imagery_endpoint_falls_back_when_fetch_returns_none(monkeypatch):
     )
     response = Response()
     mock_user = MagicMock(tenant_id="t1")
+    mock_http_request = MagicMock()
 
-    result = await request_imagery(req, response, user=mock_user)
+    result = await request_imagery(req, response, mock_http_request, user=mock_user)
     assert result.field_id == "fetch-none-test"
     assert response.headers["X-Data-Source"] == "simulated"
 
@@ -215,6 +238,11 @@ async def test_imagery_endpoint_gates_real_path_on_sentinel2(monkeypatch):
 
     monkeypatch.setattr(main_mod, "fetch_real_bands", _fetch_should_not_be_called)
 
+    async def _fake_verify(user, field_id, http_request=None):
+        return "t1"
+
+    monkeypatch.setattr(main_mod, "_verify_field_owned_by_tenant", _fake_verify)
+
     req = ImageryRequest(
         field_id="landsat-test",
         latitude=15.5,
@@ -223,8 +251,9 @@ async def test_imagery_endpoint_gates_real_path_on_sentinel2(monkeypatch):
     )
     response = Response()
     mock_user = MagicMock(tenant_id="t1")
+    mock_http_request = MagicMock()
 
-    result = await request_imagery(req, response, user=mock_user)
+    result = await request_imagery(req, response, mock_http_request, user=mock_user)
 
     assert len(fetch_calls) == 0, "fetch_real_bands must NOT be called for non-Sentinel-2 satellites"
     assert response.headers["X-Data-Source"] == "simulated"
@@ -256,6 +285,11 @@ async def test_imagery_endpoint_uses_payload_acquisition_date(monkeypatch):
 
     monkeypatch.setattr(main_mod, "fetch_real_bands", _fake_fetch)
 
+    async def _fake_verify(user, field_id, http_request=None):
+        return "t1"
+
+    monkeypatch.setattr(main_mod, "_verify_field_owned_by_tenant", _fake_verify)
+
     req = ImageryRequest(
         field_id="payload-date-test",
         latitude=15.5,
@@ -264,8 +298,9 @@ async def test_imagery_endpoint_uses_payload_acquisition_date(monkeypatch):
     )
     response = Response()
     mock_user = MagicMock(tenant_id="t1")
+    mock_http_request = MagicMock()
 
-    result = await request_imagery(req, response, user=mock_user)
+    result = await request_imagery(req, response, mock_http_request, user=mock_user)
 
     # The acquisition_date must match the Sentinel Hub payload, not "now"
     assert result.acquisition_date.year == 2026
@@ -287,11 +322,14 @@ async def test_imagery_endpoint_requires_tenant(monkeypatch):
         satellite=SatelliteSource.SENTINEL2,
     )
     response = Response()
-    # User without tenant_id
+    mock_http_request = MagicMock()
+    # User without tenant_id — `_verify_field_owned_by_tenant` invokes
+    # `_require_tenant_id` first, so the 403 fires before any cross-
+    # service call. No need to patch the verify helper.
     bad_user = MagicMock(tenant_id="")
 
     with pytest.raises(HTTPException) as exc_info:
-        await request_imagery(req, response, user=bad_user)
+        await request_imagery(req, response, mock_http_request, user=bad_user)
     assert exc_info.value.status_code == 403
 
 

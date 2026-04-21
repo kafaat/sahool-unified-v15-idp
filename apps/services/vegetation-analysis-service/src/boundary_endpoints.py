@@ -121,7 +121,11 @@ def register_boundary_endpoints(app, boundary_detector):
             raise HTTPException(status_code=500, detail="Internal server error") from e
 
     @app.post("/v1/boundaries/refine", response_model=dict)
-    async def refine_boundary(request: RefineBoundaryRequest, _user: User = Depends(get_current_user)):
+    async def refine_boundary(
+        request: RefineBoundaryRequest,
+        http_request: Request,
+        _user: User = Depends(get_current_user),
+    ):
         """
         Refine a rough field boundary by snapping to NDVI edges.
 
@@ -147,7 +151,13 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
-        require_tenant_id(_user)
+        tenant_id = require_tenant_id(_user)
+        # When a field_id is supplied, verify the caller's tenant owns
+        # it BEFORE refinement runs; otherwise any authenticated user
+        # could supply an attacker-chosen field_id and wipe the victim
+        # tenant's NDVI cache (2026-04-21 audit #4).
+        if request.field_id:
+            tenant_id = await verify_field_owned_by_tenant(_user, request.field_id, http_request=http_request)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
@@ -168,13 +178,15 @@ def register_boundary_endpoints(app, boundary_detector):
 
             # Invalidate cached NDVI data for the field because the boundary has
             # changed; stale cache would produce incorrect analysis results.
+            # Tenant-scoped to prevent cross-tenant cache poisoning.
             if request.field_id:
-                invalidated = await cache_invalidate_field(request.field_id)
+                invalidated = await cache_invalidate_field(request.field_id, tenant_id=tenant_id)
                 if invalidated:
                     logger.info(
-                        "Invalidated %d NDVI cache entries for field %s after boundary refinement",
+                        "Invalidated %d NDVI cache entries for field %s (tenant=%s) after boundary refinement",
                         invalidated,
                         request.field_id,
+                        tenant_id,
                     )
 
             return {

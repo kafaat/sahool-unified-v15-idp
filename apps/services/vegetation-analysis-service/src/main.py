@@ -1423,6 +1423,7 @@ def _build_real_imagery_from_bands(request: "ImageryRequest", band_payload: dict
 async def request_imagery(
     request: ImageryRequest,
     response: Response,
+    http_request: Request,
     user: User = Depends(get_current_user),
 ):
     """طلب صور الأقمار الصناعية لحقل معين.
@@ -1437,7 +1438,10 @@ async def request_imagery(
     these markers will also be in the JSON body.
     """
     _validate_field_id(request.field_id)
-    _require_tenant_id(user)
+    # Raw satellite bands are sensitive (field location, harvest
+    # timing intel). Every caller must own the field — JWT tenant
+    # alone is not enough (2026-04-21 audit #7).
+    await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
 
     # Path 1: real bands via Sentinel Hub Process API.
     #
@@ -1476,7 +1480,30 @@ async def request_imagery(
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
-async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
+async def analyze_field_endpoint(
+    request: ImageryRequest,
+    http_request: Request,
+    user: User = Depends(get_current_user),
+) -> "FieldAnalysis":
+    """HTTP handler for /v1/analyze (audit #7).
+
+    Verifies field ownership cross-service against
+    field-management-service, then delegates to ``analyze_field``.
+    The internal helper is exposed separately so in-process callers
+    (``analyze_field_with_action``, ``analyze_field_real``) that
+    already verified ownership upstream can invoke it without a
+    request context.
+    """
+    _validate_field_id(request.field_id)
+    tenant_id = await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
+    return await analyze_field(request, tenant_id=tenant_id)
+
+
+async def analyze_field(
+    request: "ImageryRequest",
+    tenant_id: str | None = None,
+    user: "User | None" = None,
+) -> "FieldAnalysis":
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية.
 
     Fallback chain (EOSDA/OneSoil pattern):
@@ -1489,12 +1516,20 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
     Regardless of which path served the request, the response carries
     ``data_source`` ("real" | "simulated") and ``data_provider`` so that
     farmers never act on synthetic numbers unknowingly.
+
+    SECURITY: Internal helper — callers are responsible for verifying
+    that ``request.field_id`` belongs to ``tenant_id``. The HTTP
+    handler ``analyze_field_endpoint`` does this via
+    ``_verify_field_owned_by_tenant`` (audit #7). One of ``tenant_id``
+    or ``user`` must be supplied — ``tenant_id`` takes precedence; if
+    only ``user`` is passed it is extracted from the JWT.
     """
     _validate_field_id(request.field_id)
-    # Field-scoped cache access must always be tenant-scoped. Require the
-    # tenant identifier here so cache operations can never fall back to the
-    # shared "global" namespace when user context is incomplete.
-    tenant_id = _require_tenant_id(user)
+    # Field-scoped cache access must always be tenant-scoped. Resolve
+    # the tenant from the explicit argument, or fall back to JWT.
+    if tenant_id is None:
+        tenant_id = _require_tenant_id(user)
+
 
     # Cache key includes request.start_date so historical queries
     # (start_date in the past) don't collide with "today" queries on the
@@ -1617,11 +1652,16 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
 
 
 class AnalyzeWithActionRequest(BaseModel):
-    """Request for analysis with ActionTemplate output"""
+    """Request for analysis with ActionTemplate output.
+
+    SECURITY: ``farmer_id`` and ``tenant_id`` are NOT accepted from the
+    client — they are derived from the authenticated JWT. Accepting
+    them from the body created an IDOR where any caller could attribute
+    actions (and therefore events, notifications, and dashboards) to
+    another farmer / tenant (2026-04-21 audit #2, #3).
+    """
 
     field_id: str = Field(..., description="معرف الحقل")
-    farmer_id: str | None = Field(None, description="معرف المزارع")
-    tenant_id: str | None = Field(None, description="معرف المستأجر")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     satellite: SatelliteSource = SatelliteSource.SENTINEL2
@@ -1711,6 +1751,7 @@ def _create_satellite_action_template(
 async def analyze_field_with_action(
     request: AnalyzeWithActionRequest,
     background_tasks: BackgroundTasks,
+    http_request: Request,
     user: User = Depends(get_current_user),
 ):
     """
@@ -1721,9 +1762,11 @@ async def analyze_field_with_action(
     """
     _validate_field_id(request.field_id)
 
-    # Enforce tenant isolation
-    if request.tenant_id:
-        _enforce_tenant(user, request.tenant_id)
+    # Tenant + field-ownership enforcement (2026-04-21 audit #2, #7):
+    # tenant_id derived from JWT only, and field_id verified to belong
+    # to this tenant via field-management-service.
+    tenant_id = await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
+    farmer_id = user.id
 
     # Perform analysis
     imagery_request = ImageryRequest(
@@ -1736,13 +1779,15 @@ async def analyze_field_with_action(
         cloud_cover_max=request.cloud_cover_max,
     )
 
-    analysis = await analyze_field(imagery_request)
+    # Internal call — field ownership already verified above, so we
+    # hand the pre-resolved tenant_id directly to the helper.
+    analysis = await analyze_field(imagery_request, tenant_id=tenant_id)
 
     # Create ActionTemplate
     action_template = _create_satellite_action_template(
         analysis=analysis,
-        farmer_id=request.farmer_id,
-        tenant_id=request.tenant_id,
+        farmer_id=farmer_id,
+        tenant_id=tenant_id,
     )
 
     # Publish event to NATS (in background).
@@ -1764,11 +1809,11 @@ async def analyze_field_with_action(
                 data=action_template.get("data", {}),
                 action_template=action_template,
                 priority=action_template.get("urgency", "medium"),
-                farmer_id=request.farmer_id,
-                tenant_id=request.tenant_id,
+                farmer_id=farmer_id,
+                tenant_id=tenant_id,
             )
             logger.info(
-                f"NATS: Published satellite.ndvi.computed event for field {request.field_id} tenant={request.tenant_id}"
+                f"NATS: Published satellite.ndvi.computed event for field {request.field_id} tenant={tenant_id}"
             )
         except Exception as e:
             logger.error(f"Failed to publish NATS event: {e}")
@@ -1820,10 +1865,17 @@ async def analyze_field_with_action(
 
 
 class RealAnalysisRequest(BaseModel):
-    """Request model for real satellite analysis"""
+    """Request model for real satellite analysis.
+
+    SECURITY: ``tenant_id`` is NOT accepted from the client — it is
+    derived from the authenticated JWT. The previous
+    ``tenant_id: str = Field(default="default", ...)`` allowed any
+    caller to poison the ``default`` tenant cache namespace and
+    silently cross-fetch imagery under an attacker-supplied tenant
+    (2026-04-21 audit #6).
+    """
 
     field_id: str = Field(..., description="معرف الحقل")
-    tenant_id: str = Field(default="default", description="معرف المستأجر")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
     start_date: date = Field(default_factory=date.today)
@@ -1834,6 +1886,7 @@ class RealAnalysisRequest(BaseModel):
 @app.post("/v1/analyze/real")
 async def analyze_field_real(
     request: RealAnalysisRequest,
+    http_request: Request,
     user: User = Depends(get_current_user),
 ):
     """
@@ -1844,14 +1897,14 @@ async def analyze_field_real(
     """
     _validate_field_id(request.field_id)
 
-    # Enforce tenant isolation
-    _enforce_tenant(user, request.tenant_id)
+    # Tenant + field-ownership enforcement (audit #6, #7).
+    tenant_id = await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
 
     # Try real data first
     if EO_LEARN_AVAILABLE and SENTINEL_HUB_CONFIGURED:
         result = await fetch_real_satellite_data(
             field_id=request.field_id,
-            tenant_id=request.tenant_id,
+            tenant_id=tenant_id,
             latitude=request.latitude,
             longitude=request.longitude,
             start_date=request.start_date,
@@ -1875,7 +1928,8 @@ async def analyze_field_real(
         cloud_cover_max=request.cloud_cover_max,
     )
 
-    analysis = await analyze_field(simulated_request)
+    # Internal call — field ownership already verified above.
+    analysis = await analyze_field(simulated_request, tenant_id=tenant_id)
 
     return {
         "field_id": analysis.field_id,
@@ -2496,11 +2550,14 @@ async def list_supported_crops():
 
 
 class PhenologyActionRequest(BaseModel):
-    """Request for phenology detection with ActionTemplate output"""
+    """Request for phenology detection with ActionTemplate output.
+
+    SECURITY: ``farmer_id`` and ``tenant_id`` are NOT accepted from
+    the client — both are derived from the authenticated JWT
+    (2026-04-21 audit #2, #3).
+    """
 
     field_id: str = Field(..., description="معرف الحقل")
-    farmer_id: str | None = Field(None, description="معرف المزارع")
-    tenant_id: str | None = Field(None, description="معرف المستأجر")
     crop_type: str = Field(..., description="نوع المحصول")
     latitude: float = Field(..., ge=-90, le=90)
     longitude: float = Field(..., ge=-180, le=180)
@@ -2527,7 +2584,10 @@ async def analyze_phenology_with_action(
     3. Publishes event via NATS if enabled
     """
     _validate_field_id(field_id)
-    await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+    # Tenant + ownership verification (audit #2, #3) — capture the
+    # JWT-derived tenant_id for downstream propagation.
+    tenant_id = await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
+    farmer_id = user.id
     if request.field_id != field_id:
         raise HTTPException(
             status_code=400,
@@ -2535,10 +2595,6 @@ async def analyze_phenology_with_action(
         )
     _validate_field_id(request.field_id)
     _validate_crop_type(request.crop_type)
-
-    # Enforce tenant isolation
-    if request.tenant_id:
-        _enforce_tenant(user, request.tenant_id)
 
     if not _phenology_detector:
         raise HTTPException(status_code=500, detail="Phenology detector not initialized")
@@ -2573,8 +2629,8 @@ async def analyze_phenology_with_action(
     # Create ActionTemplate based on growth stage
     action_template = _create_phenology_action_template(
         result=result,
-        farmer_id=request.farmer_id,
-        tenant_id=request.tenant_id,
+        farmer_id=farmer_id,
+        tenant_id=tenant_id,
     )
 
     # Publish event to NATS (in background)
@@ -2595,8 +2651,8 @@ async def analyze_phenology_with_action(
                 },
                 action_template=action_template,
                 priority=action_template.get("urgency", "medium"),
-                farmer_id=request.farmer_id,
-                tenant_id=request.tenant_id,
+                farmer_id=farmer_id,
+                tenant_id=tenant_id,
             )
             logger.info(f"NATS: Published phenology event for field {request.field_id}")
         except Exception as e:
@@ -4745,6 +4801,7 @@ async def export_timeseries(
 
 @app.get("/v1/export/boundaries")
 async def export_boundaries(
+    http_request: Request,
     field_ids: str = Query(..., description="Comma-separated field IDs"),
     format: str = Query(default="geojson", description="Export format: geojson, json, kml"),
     user: User = Depends(get_current_user),
@@ -4777,6 +4834,14 @@ async def export_boundaries(
 
     if len(field_id_list) > 100:
         raise HTTPException(status_code=400, detail="Maximum 100 fields per export")
+
+    # Per-field ownership verification — a caller with a valid tenant
+    # must still prove each field_id in the batch belongs to its
+    # tenant (2026-04-21 audit #5). Without this, any authenticated
+    # user could dump every tenant's boundaries by enumerating IDs.
+    for field_id in field_id_list:
+        _validate_field_id(field_id)
+        await _verify_field_owned_by_tenant(user, field_id, http_request=http_request)
 
     # Collect boundary data for each field
     boundaries = []

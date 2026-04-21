@@ -12,7 +12,7 @@ from typing import Any
 import jwt
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 
-from .config import get_auth_config
+from .config import AuthConfig, get_auth_config
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,23 @@ def generate_jti() -> str:
         Cryptographically secure random token ID
     """
     return secrets.token_urlsafe(32)
+
+
+def _require_signing_key(config: AuthConfig) -> str:
+    """Ensure a non-empty signing/verification key is configured.
+
+    Fails closed when ``config.secret_key`` is empty — this happens in
+    ``production``/``staging`` when no ``AUTH_SECRET_KEY`` / ``JWT_SECRET_KEY``
+    env var is set (see ``config._resolve_secret_key``). Without this guard,
+    ``jwt.encode``/``jwt.decode`` would accept an empty key, allowing token
+    forgery.
+    """
+    if not config.secret_key:
+        raise RuntimeError(
+            "JWT secret key is not configured. "
+            "Set AUTH_SECRET_KEY or JWT_SECRET_KEY environment variable."
+        )
+    return config.secret_key
 
 
 @dataclass
@@ -115,7 +132,7 @@ def create_access_token(
     if additional_claims:
         payload.update(additional_claims)
 
-    token = jwt.encode(payload, config.secret_key, algorithm=config.algorithm)
+    token = jwt.encode(payload, _require_signing_key(config), algorithm=config.algorithm)
     logger.debug(f"Created access token for user {user_id}, jti={jti[:8]}..., expires at {expire}")
 
     return token, jti
@@ -170,7 +187,7 @@ def create_refresh_token(
     if tenant_id:
         payload["tenant_id"] = tenant_id
 
-    token = jwt.encode(payload, config.secret_key, algorithm=config.algorithm)
+    token = jwt.encode(payload, _require_signing_key(config), algorithm=config.algorithm)
     logger.debug(
         f"Created refresh token for user {user_id}, jti={jti[:8]}..., family={family_id[:8]}..., expires at {expire}"
     )
@@ -231,7 +248,7 @@ def decode_token(token: str, verify_audience: bool = True) -> TokenData:
 
         payload = jwt.decode(
             token,
-            config.secret_key,
+            _require_signing_key(config),
             **decode_kwargs,
         )
 

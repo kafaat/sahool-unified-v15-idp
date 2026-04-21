@@ -281,7 +281,12 @@ class VRAGenerator:
             multi_provider: MultiSatelliteService instance for fetching NDVI data
         """
         self.multi_provider = multi_provider
-        self._prescription_store: dict[str, PrescriptionMap] = {}  # In-memory store
+        # SECURITY (2026-04-21 audit): keyed on (tenant_id, prescription_id)
+        # — not prescription_id alone — so a guessed/leaked prescription UUID
+        # from tenant A cannot be read or deleted by tenant B via
+        # get_prescription / delete_prescription / export endpoints.
+        # Callers MUST supply tenant_id (derived from JWT at the router).
+        self._prescription_store: dict[tuple[str, str], PrescriptionMap] = {}
 
     async def generate_prescription(
         self,
@@ -291,6 +296,7 @@ class VRAGenerator:
         vra_type: VRAType,
         target_rate: float,
         unit: str,
+        tenant_id: str,
         num_zones: int = 3,
         zone_method: ZoneMethod = ZoneMethod.NDVI_BASED,
         min_rate: float | None = None,
@@ -426,10 +432,14 @@ class VRAGenerator:
             data_warning_ar=warning_ar,
         )
 
-        # Store prescription
-        self._prescription_store[prescription.id] = prescription
+        # Store prescription under the (tenant_id, prescription_id) composite
+        # key so cross-tenant reads are impossible at the dict layer.
+        self._prescription_store[(tenant_id, prescription.id)] = prescription
 
-        logger.info(f"VRA prescription generated: {prescription.id}, savings={savings_percent:.1f}%")
+        logger.info(
+            f"VRA prescription generated: tenant={tenant_id}, "
+            f"id={prescription.id}, savings={savings_percent:.1f}%"
+        )
 
         return prescription
 
@@ -787,47 +797,46 @@ class VRAGenerator:
 
         return xml
 
-    async def get_prescription(self, prescription_id: str) -> PrescriptionMap | None:
+    async def get_prescription(
+        self, prescription_id: str, tenant_id: str
+    ) -> PrescriptionMap | None:
         """
-        Get a prescription by ID
+        Get a prescription by ID, scoped to the caller's tenant.
 
-        Args:
-            prescription_id: Prescription identifier
-
-        Returns:
-            PrescriptionMap if found, None otherwise
+        Returns None when the prescription either doesn't exist OR
+        belongs to a different tenant — same 404 either way, no
+        enumeration oracle.
         """
-        return self._prescription_store.get(prescription_id)
+        return self._prescription_store.get((tenant_id, prescription_id))
 
-    async def get_field_prescriptions(self, field_id: str, limit: int = 10) -> list[PrescriptionMap]:
+    async def get_field_prescriptions(
+        self, field_id: str, tenant_id: str, limit: int = 10
+    ) -> list[PrescriptionMap]:
         """
-        Get all prescriptions for a field
-
-        Args:
-            field_id: Field identifier
-            limit: Maximum number of results
-
-        Returns:
-            List of PrescriptionMaps for the field
+        Get all prescriptions for a field, scoped to the caller's tenant.
         """
-        prescriptions = [p for p in self._prescription_store.values() if p.field_id == field_id]
+        prescriptions = [
+            p
+            for (t, _pid), p in self._prescription_store.items()
+            if t == tenant_id and p.field_id == field_id
+        ]
 
         # Sort by creation date (newest first)
         prescriptions.sort(key=lambda p: p.created_at, reverse=True)
 
         return prescriptions[:limit]
 
-    async def delete_prescription(self, prescription_id: str) -> bool:
+    async def delete_prescription(
+        self, prescription_id: str, tenant_id: str
+    ) -> bool:
         """
-        Delete a prescription
+        Delete a prescription, scoped to the caller's tenant.
 
-        Args:
-            prescription_id: Prescription identifier
-
-        Returns:
-            True if deleted, False if not found
+        Returns False when the prescription is missing OR belongs to a
+        different tenant — no cross-tenant delete, no enumeration oracle.
         """
-        if prescription_id in self._prescription_store:
-            del self._prescription_store[prescription_id]
+        key = (tenant_id, prescription_id)
+        if key in self._prescription_store:
+            del self._prescription_store[key]
             return True
         return False

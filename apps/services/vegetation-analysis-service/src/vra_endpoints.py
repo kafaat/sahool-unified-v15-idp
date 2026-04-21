@@ -164,8 +164,12 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         # prescription against a field owned by a different tenant.
         # Switch to the composed guard that verifies the field belongs
         # to this tenant via field-management-service, forwarding the
-        # Bearer token from `http_request`.
-        await verify_field_owned_by_tenant(_user, request.field_id, http_request=http_request)
+        # Bearer token from `http_request`. Also capture the returned
+        # `tenant_id` so it can be stamped on the prescription store
+        # key — see 2026-04-21 deep audit finding #1.
+        tenant_id = await verify_field_owned_by_tenant(
+            _user, request.field_id, http_request=http_request
+        )
         try:
             # Parse VRA type
             try:
@@ -185,7 +189,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                     detail=f"Invalid zone method. Must be one of: {', '.join([m.value for m in ZoneMethod])}",
                 )
 
-            # Generate prescription map
+            # Generate prescription map (tenant-scoped in the store).
             prescription = await vra_generator.generate_prescription(
                 field_id=request.field_id,
                 latitude=request.latitude,
@@ -193,6 +197,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 vra_type=vra_type,
                 target_rate=request.target_rate,
                 unit=request.unit,
+                tenant_id=tenant_id,
                 num_zones=request.num_zones,
                 zone_method=zone_method,
                 min_rate=request.min_rate,
@@ -334,12 +339,16 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescriptions/field_123?limit=10
         """
-        # Ownership gate — return value unused; prescriptions are keyed
-        # on field_id, not tenant_id (same rationale as zones handler).
-        await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
+        # Ownership gate + tenant capture — post-audit the prescription
+        # store is keyed on (tenant_id, id), so get_field_prescriptions
+        # requires the tenant to filter correctly.
+        tenant_id = await verify_field_owned_by_tenant(
+            _user, field_id, http_request=http_request
+        )
         try:
             prescriptions = await vra_generator.get_field_prescriptions(
                 field_id=field_id,
+                tenant_id=tenant_id,
                 limit=limit,
             )
 
@@ -380,9 +389,16 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescription/abc-123-def
         """
-        require_tenant_id(_user)
+        # SECURITY (2026-04-21 audit #1): the prescription store is now
+        # keyed on (tenant_id, prescription_id). `get_prescription` returns
+        # None for a prescription owned by a different tenant, so
+        # cross-tenant guess-the-UUID reads surface as 404 with no
+        # enumeration oracle.
+        tenant_id = require_tenant_id(_user)
         try:
-            prescription = await vra_generator.get_prescription(prescription_id)
+            prescription = await vra_generator.get_prescription(
+                prescription_id, tenant_id
+            )
 
             if not prescription:
                 raise HTTPException(status_code=404, detail="Prescription not found")
@@ -458,9 +474,12 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/export/abc-123-def?format=geojson
         """
-        require_tenant_id(_user)
+        # Tenant-scoped lookup (audit #1).
+        tenant_id = require_tenant_id(_user)
         try:
-            prescription = await vra_generator.get_prescription(prescription_id)
+            prescription = await vra_generator.get_prescription(
+                prescription_id, tenant_id
+            )
 
             if not prescription:
                 raise HTTPException(status_code=404, detail="Prescription not found")
@@ -505,9 +524,13 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             DELETE /v1/vra/prescription/abc-123-def
         """
-        require_tenant_id(_user)
+        # Tenant-scoped delete (audit #1): returns False — surfaced as 404
+        # — both for missing and for cross-tenant prescription ids.
+        tenant_id = require_tenant_id(_user)
         try:
-            deleted = await vra_generator.delete_prescription(prescription_id)
+            deleted = await vra_generator.delete_prescription(
+                prescription_id, tenant_id
+            )
 
             if not deleted:
                 raise HTTPException(status_code=404, detail="Prescription not found")

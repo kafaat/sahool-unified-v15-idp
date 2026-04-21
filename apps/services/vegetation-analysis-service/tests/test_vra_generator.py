@@ -32,6 +32,7 @@ async def test_generate_fertilizer_prescription():
         vra_type=VRAType.FERTILIZER,
         target_rate=100.0,
         unit="kg/ha",
+        tenant_id="test-tenant-001",
         num_zones=3,
         zone_method=ZoneMethod.NDVI_BASED,
         product_price_per_unit=2.5,
@@ -70,6 +71,7 @@ async def test_generate_seed_prescription():
         vra_type=VRAType.SEED,
         target_rate=50000,  # 50k seeds/ha
         unit="seeds/ha",
+        tenant_id="test-tenant-001",
         num_zones=5,
         zone_method=ZoneMethod.NDVI_BASED,
         min_rate=40000,
@@ -137,6 +139,7 @@ async def test_geojson_export():
         vra_type=VRAType.IRRIGATION,
         target_rate=25.0,  # mm/ha
         unit="mm/ha",
+        tenant_id="test-tenant-001",
         num_zones=3,
     )
 
@@ -172,6 +175,7 @@ async def test_isoxml_export():
         vra_type=VRAType.FERTILIZER,
         target_rate=100.0,
         unit="kg/ha",
+        tenant_id="test-tenant-001",
         num_zones=3,
     )
 
@@ -193,6 +197,7 @@ async def test_prescription_storage():
     """Test prescription storage and retrieval"""
     generator = VRAGenerator(multi_provider=None)
 
+    tenant_id = "test-tenant-storage"
     # Create prescription
     prescription = await generator.generate_prescription(
         field_id="test_field_006",
@@ -201,28 +206,36 @@ async def test_prescription_storage():
         vra_type=VRAType.LIME,
         target_rate=500.0,
         unit="kg/ha",
+        tenant_id=tenant_id,
         num_zones=3,
     )
 
     prescription_id = prescription.id
 
-    # Retrieve prescription
-    retrieved = await generator.get_prescription(prescription_id)
+    # Retrieve prescription (must pass tenant_id).
+    retrieved = await generator.get_prescription(prescription_id, tenant_id)
     assert retrieved is not None
     assert retrieved.id == prescription_id
     assert retrieved.field_id == "test_field_006"
 
-    # Get field prescriptions
-    field_prescriptions = await generator.get_field_prescriptions("test_field_006")
+    # Get field prescriptions (tenant-scoped).
+    field_prescriptions = await generator.get_field_prescriptions(
+        "test_field_006", tenant_id
+    )
     assert len(field_prescriptions) == 1
     assert field_prescriptions[0].id == prescription_id
 
-    # Delete prescription
-    deleted = await generator.delete_prescription(prescription_id)
+    # SECURITY regression guard (2026-04-21 audit #1): cross-tenant read
+    # must return None; cross-tenant delete must return False.
+    assert await generator.get_prescription(prescription_id, "other-tenant") is None
+    assert await generator.delete_prescription(prescription_id, "other-tenant") is False
+
+    # Delete prescription (owner tenant) succeeds.
+    deleted = await generator.delete_prescription(prescription_id, tenant_id)
     assert deleted is True
 
-    # Verify deletion
-    retrieved_after = await generator.get_prescription(prescription_id)
+    # Verify deletion (owner tenant also gets None now).
+    retrieved_after = await generator.get_prescription(prescription_id, tenant_id)
     assert retrieved_after is None
 
     print("\n✅ Prescription Storage:")

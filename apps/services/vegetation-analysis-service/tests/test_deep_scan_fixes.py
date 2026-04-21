@@ -93,6 +93,7 @@ async def test_vra_prescription_marked_synthetic_when_no_real_ndvi():
         vra_type=VRAType.FERTILIZER,
         target_rate=100.0,
         unit="kg/ha",
+        tenant_id="test-tenant-synth",
         num_zones=3,
     )
 

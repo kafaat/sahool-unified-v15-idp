@@ -72,6 +72,7 @@ model InventoryItem {
   alerts    InventoryAlert[]
   transfers StockTransfer[]
 
+  @@unique([id, tenantId], map: "uq_inventory_item_id_tenant")
   @@index([tenantId])
   @@index([category])
   @@index([quantity])
@@ -128,6 +129,7 @@ model InventoryMovement {
   // Relations
   item InventoryItem @relation(fields: [itemId], references: [id])
 
+  @@unique([id, tenantId], map: "uq_inventory_movement_id_tenant")
   @@index([itemId])
   @@index([tenantId])
   @@index([type])
@@ -192,6 +194,7 @@ model InventoryAlert {
   // Relations
   item InventoryItem @relation(fields: [itemId], references: [id])
 
+  @@unique([id, tenantId], map: "uq_inventory_alert_id_tenant")
   @@index([tenantId])
   @@index([status, priority])
   @@index([itemId])
@@ -296,6 +299,7 @@ model Warehouse {
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_warehouse_id_tenant")
   @@unique([tenantId, name], name: "uq_warehouse_tenant_name")
   @@index([tenantId])
   @@index([isActive], name: "idx_warehouse_active")
@@ -338,6 +342,7 @@ model Zone {
   createdAt DateTime          @default(now()) @map("created_at")
   updatedAt DateTime          @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_zone_id_tenant")
   @@unique([warehouseId, name], name: "uq_zone_warehouse_name")
   @@index([tenantId])
   @@index([warehouseId])
@@ -362,6 +367,7 @@ model StorageLocation {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_storage_location_id_tenant")
   @@index([tenantId])
   @@index([zoneId])
   @@index([locationCode])
@@ -399,6 +405,7 @@ model StockTransfer {
 
   notes String?
 
+  @@unique([id, tenantId], map: "uq_stock_transfer_id_tenant")
   @@index([tenantId])
   @@index([itemId])
   @@index([fromWarehouseId])

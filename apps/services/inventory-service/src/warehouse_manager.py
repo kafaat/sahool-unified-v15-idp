@@ -158,10 +158,14 @@ class WarehouseManager:
             Warehouse object or None
         """
         if tenant_id:
-            warehouse = await self.db.warehouse.find_first(
-                where={"id": warehouse_id, "tenantId": tenant_id}, include={"zones": True}
+            warehouse = await self.db.warehouse.find_unique(
+                where={"id_tenantId": {"id": warehouse_id, "tenantId": tenant_id}},
+                include={"zones": True},
             )
         else:
+            # SECURITY: retained for SUPER_ADMIN / platform-level operations that
+            # intentionally span tenants. Tenant-aware callers must supply
+            # tenant_id so the composite unique path (above) is taken.
             warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
 
         if not warehouse:
@@ -169,17 +173,24 @@ class WarehouseManager:
 
         return self._warehouse_to_dataclass(warehouse)
 
-    async def get_warehouse_utilization(self, warehouse_id: str) -> dict:
+    async def get_warehouse_utilization(self, warehouse_id: str, tenant_id: str) -> dict:
         """
-        Get current capacity usage by zone
+        Get current capacity usage by zone.
+
+        SECURITY: tenant-scoped via the id_tenantId composite unique so a
+        warehouse_id from a different tenant silently returns "not found".
 
         Args:
             warehouse_id: Warehouse ID
+            tenant_id: Tenant ID for isolation (required)
 
         Returns:
             Dictionary with utilization metrics
         """
-        warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
+        warehouse = await self.db.warehouse.find_unique(
+            where={"id_tenantId": {"id": warehouse_id, "tenantId": tenant_id}},
+            include={"zones": True},
+        )
 
         if not warehouse:
             return {"error": "Warehouse not found"}
@@ -321,19 +332,24 @@ class WarehouseManager:
             "requested_by": requested_by,
         }
 
-    async def approve_transfer(self, transfer_id: str, approved_by: str) -> dict:
+    async def approve_transfer(self, transfer_id: str, approved_by: str, tenant_id: str) -> dict:
         """
-        Approve a pending transfer
+        Approve a pending transfer.
+
+        SECURITY: the update is bound to (transfer_id, tenant_id) via the
+        id_tenantId composite unique. A cross-tenant transfer_id raises
+        Prisma's RecordNotFound rather than mutating a foreign row.
 
         Args:
             transfer_id: Transfer ID
             approved_by: User ID approving transfer
+            tenant_id: Tenant ID for isolation (required)
 
         Returns:
             Updated transfer record
         """
         transfer = await self.db.stocktransfer.update(
-            where={"id": transfer_id},
+            where={"id_tenantId": {"id": transfer_id, "tenantId": tenant_id}},
             data={
                 "status": "APPROVED",
                 "approvedBy": approved_by,
@@ -348,19 +364,23 @@ class WarehouseManager:
             "approved_at": (transfer.approvedAt.isoformat() if transfer.approvedAt else None),
         }
 
-    async def complete_transfer(self, transfer_id: str, performed_by: str) -> dict:
+    async def complete_transfer(self, transfer_id: str, performed_by: str, tenant_id: str) -> dict:
         """
-        Mark transfer as completed
+        Mark transfer as completed.
+
+        SECURITY: tenant-scoped via the id_tenantId composite unique —
+        see approve_transfer for the rationale.
 
         Args:
             transfer_id: Transfer ID
             performed_by: User ID performing transfer
+            tenant_id: Tenant ID for isolation (required)
 
         Returns:
             Updated transfer record
         """
         transfer = await self.db.stocktransfer.update(
-            where={"id": transfer_id},
+            where={"id_tenantId": {"id": transfer_id, "tenantId": tenant_id}},
             data={
                 "status": "COMPLETED",
                 "performedBy": performed_by,
@@ -412,17 +432,22 @@ class WarehouseManager:
 
         return result
 
-    async def check_storage_conditions(self, warehouse_id: str) -> dict:
+    async def check_storage_conditions(self, warehouse_id: str, tenant_id: str) -> dict:
         """
-        Check if current conditions match required conditions
+        Check if current conditions match required conditions.
+
+        SECURITY: tenant-scoped via the id_tenantId composite unique.
 
         Args:
             warehouse_id: Warehouse ID
+            tenant_id: Tenant ID for isolation (required)
 
         Returns:
             Condition check results
         """
-        warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id})
+        warehouse = await self.db.warehouse.find_unique(
+            where={"id_tenantId": {"id": warehouse_id, "tenantId": tenant_id}}
+        )
 
         if not warehouse:
             return {"error": "Warehouse not found"}

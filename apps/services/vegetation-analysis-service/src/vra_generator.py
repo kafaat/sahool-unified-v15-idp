@@ -316,6 +316,13 @@ class VRAGenerator:
             vra_type: Type of VRA (fertilizer, seed, etc.)
             target_rate: Average target application rate
             unit: Unit of measurement (kg/ha, seeds/ha, L/ha, mm/ha)
+            tenant_id: **Required.** Owning tenant for this prescription.
+                Must come from the authenticated caller's JWT
+                (``user.tenant_id``) — never accepted from the
+                request body or a query parameter. Used as half of
+                the ``(tenant_id, prescription_id)`` composite
+                storage key so cross-tenant reads are impossible
+                at the dict layer (2026-04-21 audit #1).
             num_zones: Number of management zones (3 or 5)
             zone_method: Method for zone creation
             min_rate: Minimum application rate (optional)

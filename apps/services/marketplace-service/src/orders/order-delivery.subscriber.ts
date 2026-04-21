@@ -50,9 +50,22 @@ import { EventsService } from "../events/events.service";
 const DELIVERY_COMPLETED_SUBJECT = "sahool.delivery.completed";
 const QUEUE_GROUP = "marketplace-service-order-delivery";
 
+// Retry loop parameters for the initial NATS subscribe.
+// EventsService auto-reconnects internally once the connection is alive
+// (see events.service.ts::monitorConnectionStatus), but the VERY FIRST
+// subscription call must still be made on a live connection. If NATS
+// is slow to come up (k8s pod startup order, lame-duck drain, transient
+// auth failure), a single 500 ms deferred attempt would permanently
+// disable this subscriber until the pod was restarted — Copilot review
+// on PR #1727 flagged exactly that failure mode.
+const SUBSCRIBE_INITIAL_DELAY_MS = 500;
+const SUBSCRIBE_MAX_RETRY_DELAY_MS = 30_000;
+const SUBSCRIBE_MAX_ATTEMPTS = 20;
+
 @Injectable()
 export class OrderDeliverySubscriber implements OnModuleInit {
   private readonly logger = new Logger(OrderDeliverySubscriber.name);
+  private subscribed = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -60,38 +73,62 @@ export class OrderDeliverySubscriber implements OnModuleInit {
   ) {}
 
   async onModuleInit(): Promise<void> {
-    // Defer until EventsService has connected (EventsService.onModuleInit
-    // runs `connect()` but the NATS handshake isn't synchronous).
-    setTimeout(() => {
-      this.registerSubscription().catch((err) => {
+    // Kick off the retry loop without awaiting (onModuleInit must return
+    // quickly or it blocks NestJS bootstrap for every other provider).
+    void this.subscribeWithBackoff();
+  }
+
+  /**
+   * Subscribe to `sahool.delivery.completed`, retrying with exponential
+   * backoff while NATS is unavailable. Gives up after
+   * ``SUBSCRIBE_MAX_ATTEMPTS`` tries (~10 min at capped 30 s); once the
+   * subscription lands, ``EventsService``'s built-in reconnect keeps
+   * it alive across NATS blips.
+   */
+  private async subscribeWithBackoff(): Promise<void> {
+    for (let attempt = 0; attempt < SUBSCRIBE_MAX_ATTEMPTS; attempt++) {
+      // Exponential: 0.5s, 1s, 2s, 4s, 8s, 16s, 30s, 30s, …
+      const delay = Math.min(
+        SUBSCRIBE_INITIAL_DELAY_MS * 2 ** attempt,
+        SUBSCRIBE_MAX_RETRY_DELAY_MS,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
+
+      if (this.subscribed) return; // another path already succeeded
+
+      if (!this.events.isConnected()) {
+        this.logger.debug(
+          `NATS not yet connected — retrying subscribe attempt ${attempt + 1}/${SUBSCRIBE_MAX_ATTEMPTS} in ${delay}ms`,
+        );
+        continue;
+      }
+
+      try {
+        await this.events.subscribe(
+          DELIVERY_COMPLETED_SUBJECT,
+          async (event: unknown) => {
+            await this.handleDeliveryCompleted(event);
+          },
+          { queue: QUEUE_GROUP },
+        );
+        this.subscribed = true;
+        this.logger.log(
+          `Subscribed to ${DELIVERY_COMPLETED_SUBJECT} (queue=${QUEUE_GROUP}) after ${attempt + 1} attempt(s)`,
+        );
+        return;
+      } catch (err) {
         this.logger.warn(
-          `Failed to subscribe to ${DELIVERY_COMPLETED_SUBJECT}: ${
+          `Subscribe attempt ${attempt + 1} failed: ${
             err instanceof Error ? err.message : String(err)
           }`,
         );
-      });
-    }, 500);
-  }
-
-  private async registerSubscription(): Promise<void> {
-    if (!this.events.isConnected()) {
-      this.logger.warn(
-        `NATS not connected — delivery.completed subscriber disabled. ` +
-          `Order.status will stay on its pre-delivery value until this ` +
-          `marketplace replica reconnects.`,
-      );
-      return;
+      }
     }
 
-    await this.events.subscribe(
-      DELIVERY_COMPLETED_SUBJECT,
-      async (event) => {
-        await this.handleDeliveryCompleted(event);
-      },
-      { queue: QUEUE_GROUP },
-    );
-    this.logger.log(
-      `Subscribed to ${DELIVERY_COMPLETED_SUBJECT} (queue=${QUEUE_GROUP})`,
+    this.logger.error(
+      `Gave up subscribing to ${DELIVERY_COMPLETED_SUBJECT} after ` +
+        `${SUBSCRIBE_MAX_ATTEMPTS} attempts. Order.status will not ` +
+        `transition to DELIVERED on this replica until it is restarted.`,
     );
   }
 
@@ -112,7 +149,28 @@ export class OrderDeliverySubscriber implements OnModuleInit {
       typeof payload.deliveredAt === "number"
         ? payload.deliveredAt
         : undefined;
-    const deliveredAt = deliveredAtRaw ? new Date(deliveredAtRaw) : new Date();
+    // Fall back to "now" when the upstream event either omits
+    // ``deliveredAt`` or ships a value that ``new Date(...)`` cannot
+    // parse (unknown format, malformed unix timestamp, string
+    // coercion produced an Invalid Date). Without this guard Prisma
+    // would reject the update with a constraint error at best and
+    // silently persist ``NaN`` at worst (Copilot review on PR #1727).
+    let deliveredAt: Date;
+    if (deliveredAtRaw !== undefined) {
+      const parsed = new Date(deliveredAtRaw);
+      if (Number.isNaN(parsed.getTime())) {
+        this.logger.warn(
+          `delivery.completed: invalid deliveredAt=${String(deliveredAtRaw)} ` +
+            `for orderId=${typeof payload.orderId === "string" ? payload.orderId : "unknown"}; ` +
+            `using current time as fallback`,
+        );
+        deliveredAt = new Date();
+      } else {
+        deliveredAt = parsed;
+      }
+    } else {
+      deliveredAt = new Date();
+    }
 
     if (!orderId || !tenantId) {
       // Missing routing — drop the event rather than fan it out across

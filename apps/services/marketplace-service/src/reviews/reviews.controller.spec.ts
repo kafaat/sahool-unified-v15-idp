@@ -179,7 +179,7 @@ describe("ReviewsController", () => {
   });
 
   describe("markReviewHelpful", () => {
-    it("threads tenantId", async () => {
+    it("threads (id, helpful, tenantId, userId) — audit item #4 regression guard", async () => {
       const dto: MarkReviewHelpfulDto = { helpful: true };
       mockReviewsService.markReviewHelpful.mockResolvedValue({ id: "r1" });
       await controller.markReviewHelpful(mockReq, "r1", dto);
@@ -187,12 +187,13 @@ describe("ReviewsController", () => {
         "r1",
         true,
         MOCK_TENANT,
+        MOCK_USER,
       );
     });
   });
 
   describe("reportReview", () => {
-    it("threads tenantId", async () => {
+    it("threads (id, reason, tenantId, userId) — audit item #5 regression guard", async () => {
       mockReviewsService.reportReview.mockResolvedValue({ id: "r1" });
       await controller.reportReview(mockReq, "r1", {
         reason: "spam",
@@ -201,6 +202,7 @@ describe("ReviewsController", () => {
         "r1",
         "spam",
         MOCK_TENANT,
+        MOCK_USER,
       );
     });
   });

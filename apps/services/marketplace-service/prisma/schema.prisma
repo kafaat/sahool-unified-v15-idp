@@ -682,17 +682,29 @@ model ProductReview {
   photos Json? // قائمة روابط الصور
 
   // التحقق والحالة
-  verified Boolean @default(false) // تم التحقق من الشراء
-  helpful  Int     @default(0) // عدد التصويتات المفيدة
-  reported Boolean @default(false) // تم الإبلاغ عن التقييم
+  verified     Boolean @default(false) // تم التحقق من الشراء
+  // Denormalised count of distinct users who marked this review as
+  // helpful. Source of truth is the `review_helpful_votes` table —
+  // this column is maintained via an SQL aggregate after each vote
+  // upsert so reads stay O(1). NEVER assume this count can be
+  // incremented without the join-table insert succeeding first.
+  helpful      Int     @default(0)
+  // Denormalised count of reports. Source of truth is the
+  // `review_reports` table. When this crosses the configurable
+  // threshold, `reported` flips to true and the review is hidden
+  // from public listings.
+  reportCount  Int     @default(0) @map("report_count")
+  reported     Boolean @default(false) // تم الإبلاغ عن التقييم
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // Restrict: reviews are reputational data — a buyer profile can't
   // be hard-deleted while reviews still reference it.
-  buyer    BuyerProfile    @relation(fields: [buyerId], references: [id], onDelete: Restrict)
-  response ReviewResponse?
+  buyer         BuyerProfile        @relation(fields: [buyerId], references: [id], onDelete: Restrict)
+  response      ReviewResponse?
+  helpfulVotes  ReviewHelpfulVote[]
+  reports       ReviewReport[]
 
   @@index([tenantId], name: "idx_review_tenant")
   @@index([productId])
@@ -702,6 +714,65 @@ model ProductReview {
   @@index([rating])
   @@index([verified])
   @@map("product_reviews")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// ReviewHelpfulVote — (reviewId, userId) join table
+// Enforces "one helpful vote per user per review" so the `helpful` counter
+// on ProductReview can't be abused by repeated-click vote stuffing. The
+// denormalised counter on the parent review is recomputed from this table.
+// ───────────────────────────────────────────────────────────────────────────
+model ReviewHelpfulVote {
+  id       String @id @default(uuid()) @db.Uuid
+  tenantId String @map("tenant_id")
+  reviewId String @map("review_id") @db.Uuid
+  userId   String @map("user_id")
+  // `true` → "helpful", `false` → "not helpful". Toggling a vote UPDATES
+  // this row; the unique constraint below prevents duplicates.
+  helpful  Boolean
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  review ProductReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  // Tenant-scoped one-vote-per-user-per-review invariant.
+  @@unique([tenantId, reviewId, userId], name: "uq_helpful_vote_tenant_review_user")
+  @@unique([id, tenantId], map: "uq_review_helpful_vote_id_tenant")
+  @@index([tenantId, reviewId])
+  @@index([userId])
+  @@map("review_helpful_votes")
+}
+
+// ───────────────────────────────────────────────────────────────────────────
+// ReviewReport — an abuse-report per (reviewId, reporterUserId) pair
+// Logs who reported what and why. When `report_count` on the parent review
+// crosses a threshold (configurable at the service layer), the review is
+// flagged `reported=true` and filtered from public listings.
+// ───────────────────────────────────────────────────────────────────────────
+model ReviewReport {
+  id         String @id @default(uuid()) @db.Uuid
+  tenantId   String @map("tenant_id")
+  reviewId   String @map("review_id") @db.Uuid
+  reporterId String @map("reporter_id") // JWT.sub of the reporter
+  reason     String @db.Text
+
+  // Reviewed / acknowledged by moderation? Kept simple for v1.
+  acknowledged   Boolean   @default(false)
+  acknowledgedBy String?   @map("acknowledged_by")
+  acknowledgedAt DateTime? @map("acknowledged_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  review ProductReview @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  // Tenant-scoped one-report-per-user-per-review invariant — prevents a
+  // single user from inflating the report counter via repeat submissions.
+  @@unique([tenantId, reviewId, reporterId], name: "uq_report_tenant_review_reporter")
+  @@unique([id, tenantId], map: "uq_review_report_id_tenant")
+  @@index([tenantId, reviewId])
+  @@index([acknowledged])
+  @@map("review_reports")
 }
 
 model ReviewResponse {

@@ -33,6 +33,12 @@ import {
   UpdateReviewResponseDto,
 } from "../dto/reviews.dto";
 
+/** RFC 4122 UUID regex (any version / variant). Used to validate ids
+ * that are interpolated into raw SQL — the `::uuid` cast would throw a
+ * Postgres error mid-transaction otherwise (audit item #13). */
+const UUID_REGEX =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 @Injectable()
 export class ReviewsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -101,24 +107,11 @@ export class ReviewsService {
 
     const buyerId = await this.resolveCallerBuyerId(callerUserId, tenantId);
 
-    // Check if buyer has already reviewed this product for this order
-    const existingReview = await this.prisma.productReview.findFirst({
-      where: {
-        tenantId,
-        productId: dto.productId,
-        buyerId,
-        orderId: dto.orderId,
-      },
-    });
-
-    if (existingReview) {
-      throw new ConflictException(
-        "You have already reviewed this product for this order",
-      );
-    }
-
-    // Verify the order exists in this tenant AND contains the product AND
-    // belongs to the caller's buyer profile.
+    // SECURITY / audit item #11: check order existence + ownership FIRST.
+    // The previous order (existing-review → order) leaked a 409 vs 404 on
+    // foreign-tenant orderIds. By loading and validating the order first,
+    // a spoofed orderId belonging to another tenant returns 404 and
+    // reveals nothing about whether a review already exists.
     const order = await this.prisma.order.findUnique({
       where: { id_tenantId: { id: dto.orderId, tenantId } },
       include: { items: true },
@@ -140,6 +133,22 @@ export class ReviewsService {
 
     if (!orderContainsProduct) {
       throw new BadRequestException("Product not found in this order");
+    }
+
+    // Only after ownership is verified do we probe for a duplicate review.
+    const existingReview = await this.prisma.productReview.findFirst({
+      where: {
+        tenantId,
+        productId: dto.productId,
+        buyerId,
+        orderId: dto.orderId,
+      },
+    });
+
+    if (existingReview) {
+      throw new ConflictException(
+        "You have already reviewed this product for this order",
+      );
     }
 
     // Create the review
@@ -396,53 +405,159 @@ export class ReviewsService {
     return { message: "Review deleted successfully" };
   }
 
-  async markReviewHelpful(id: string, helpful: boolean, tenantId: string) {
+  /**
+   * Mark a review as helpful / not-helpful.
+   *
+   * SECURITY (audit item #4): backed by the `review_helpful_votes` join
+   * table with a tenant-scoped `@@unique([tenantId, reviewId, userId])`
+   * constraint. A caller clicking the button twice UPSERTs their own vote
+   * row — no vote stuffing. The denormalised `helpful` counter on the
+   * review is recomputed from a single aggregate query after every change,
+   * which also ensures it never goes negative (no more bare `decrement: 1`
+   * that could land at -1).
+   */
+  async markReviewHelpful(
+    id: string,
+    helpful: boolean,
+    tenantId: string,
+    callerUserId: string,
+  ) {
     if (!tenantId) {
       throw new BadRequestException("tenantId required");
+    }
+    if (!callerUserId) {
+      throw new BadRequestException("callerUserId required");
     }
 
     const review = await this.prisma.productReview.findUnique({
       where: { id_tenantId: { id, tenantId } },
+      select: { id: true },
     });
 
     if (!review) {
       throw new NotFoundException("Review not found");
     }
 
-    return this.prisma.productReview.update({
-      where: { id_tenantId: { id, tenantId } },
-      data: {
-        helpful: helpful ? { increment: 1 } : { decrement: 1 },
+    // Upsert the caller's vote. The composite unique guarantees at most
+    // one row per (tenant, review, user).
+    await this.prisma.reviewHelpfulVote.upsert({
+      where: {
+        uq_helpful_vote_tenant_review_user: {
+          tenantId,
+          reviewId: id,
+          userId: callerUserId,
+        },
       },
-    });
-  }
-
-  async reportReview(id: string, _reason: string, tenantId: string) {
-    if (!tenantId) {
-      throw new BadRequestException("tenantId required");
-    }
-
-    const review = await this.prisma.productReview.findUnique({
-      where: { id_tenantId: { id, tenantId } },
+      create: {
+        tenantId,
+        reviewId: id,
+        userId: callerUserId,
+        helpful,
+      },
+      update: { helpful },
     });
 
-    if (!review) {
-      throw new NotFoundException("Review not found");
-    }
+    // Recompute the denormalised `helpful` counter from the aggregate.
+    // Counts only positive votes (helpful=true) so the column is always
+    // a non-negative integer regardless of toggles.
+    const helpfulCount = await this.prisma.reviewHelpfulVote.count({
+      where: { tenantId, reviewId: id, helpful: true },
+    });
 
     return this.prisma.productReview.update({
       where: { id_tenantId: { id, tenantId } },
-      data: { reported: true },
+      data: { helpful: helpfulCount },
     });
   }
 
   /**
+   * Report a review for moderator review.
+   *
+   * SECURITY (audit item #5): persists the full report (reporter id +
+   * reason + timestamp) in `review_reports` with a tenant-scoped
+   * `@@unique([tenantId, reviewId, reporterId])` so a single user can't
+   * inflate the counter via repeated submissions. `reported=true` is only
+   * set when the distinct-reporter count crosses the configured threshold.
+   */
+  async reportReview(
+    id: string,
+    reason: string,
+    tenantId: string,
+    callerUserId: string,
+  ) {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+    if (!callerUserId) {
+      throw new BadRequestException("callerUserId required");
+    }
+
+    const review = await this.prisma.productReview.findUnique({
+      where: { id_tenantId: { id, tenantId } },
+      select: { id: true },
+    });
+
+    if (!review) {
+      throw new NotFoundException("Review not found");
+    }
+
+    // Record the report. If the same reporter submits twice, the composite
+    // unique raises P2002 — swallow it as a no-op idempotent replay.
+    try {
+      await this.prisma.reviewReport.create({
+        data: {
+          tenantId,
+          reviewId: id,
+          reporterId: callerUserId,
+          reason: reason?.slice(0, 2000) ?? "",
+        },
+      });
+    } catch (err: any) {
+      if (err?.code !== "P2002") throw err;
+    }
+
+    // Recompute distinct-reporter count + flip `reported` above threshold.
+    const reportCount = await this.prisma.reviewReport.count({
+      where: { tenantId, reviewId: id },
+    });
+
+    const threshold = ReviewsService.REPORT_HIDE_THRESHOLD;
+    return this.prisma.productReview.update({
+      where: { id_tenantId: { id, tenantId } },
+      data: {
+        reportCount,
+        reported: reportCount >= threshold,
+      },
+    });
+  }
+
+  /**
+   * Number of distinct reporters required before a review is auto-hidden
+   * (`reported=true`). Kept as a static so tests can tweak it; production
+   * can wire this to a feature flag later.
+   */
+  static readonly REPORT_HIDE_THRESHOLD = 3;
+
+  /**
    * تحديث تقييم البائع (داخلي) — tenant-scoped.
+   *
+   * SECURITY (audit item #13): `productId` is interpolated into a
+   * `::uuid` cast. Postgres raises an error mid-transaction on malformed
+   * input, so we validate the format upfront and no-op on a bad value
+   * rather than aborting the enclosing transaction.
    */
   private async updateProductSellerRating(
     productId: string,
     tenantId: string,
   ) {
+    if (!UUID_REGEX.test(productId)) {
+      // Bad input — bail silently. The public review workflow already
+      // validates productId at the API boundary; a bad id here means we
+      // were called from an internal path with a stale / test value, not
+      // an attacker-controlled URL.
+      return;
+    }
+
     const result = await this.prisma.$queryRaw<
       Array<{
         seller_id: string;
@@ -533,6 +648,11 @@ export class ReviewsService {
 
     return this.prisma.reviewResponse.create({
       data: {
+        // SECURITY (audit item #10): stamp tenantId on the row — without
+        // this, the `getSellerResponses` tenant filter would never match
+        // and the default "unassigned" bucket would pool responses from
+        // every tenant.
+        tenantId,
         reviewId: dto.reviewId,
         sellerId,
         response: dto.response,

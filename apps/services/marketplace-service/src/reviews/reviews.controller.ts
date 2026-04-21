@@ -28,6 +28,7 @@ import {
   UseGuards,
   ValidationPipe,
 } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -163,6 +164,11 @@ export class ReviewsController {
   }
 
   @Patch(":id/helpful")
+  // Tight per-user throttle — 10 helpful-toggles per minute is plenty for
+  // humans and blocks automated vote-stuffing. The service additionally
+  // enforces the one-vote-per-(tenant,review,user) invariant at the DB
+  // layer via `review_helpful_votes.uq_helpful_vote_tenant_review_user`.
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: "Mark a review as helpful or not helpful" })
   @ApiParam({ name: "id", description: "Review ID" })
   async markReviewHelpful(
@@ -171,10 +177,18 @@ export class ReviewsController {
     @Body(ValidationPipe) dto: MarkReviewHelpfulDto,
   ) {
     const tenantId = this.requireTenantId(req);
-    return this.reviewsService.markReviewHelpful(id, dto.helpful, tenantId);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.markReviewHelpful(id, dto.helpful, tenantId, userId);
   }
 
   @Post(":id/report")
+  // Looser but still protective throttle for abuse-reports — 5 per minute
+  // is enough for a concerned buyer reporting a cluster of spam reviews
+  // while blocking mass-report denial-of-reputation attacks. A second
+  // line of defence is `review_reports.uq_report_tenant_review_reporter`
+  // — a single reporter can't inflate the counter past +1 no matter how
+  // often they POST.
+  @Throttle({ default: { limit: 5, ttl: 60_000 } })
   @ApiOperation({ summary: "Report a review for inappropriate content" })
   @ApiParam({ name: "id", description: "Review ID" })
   async reportReview(
@@ -183,7 +197,8 @@ export class ReviewsController {
     @Body(ValidationPipe) dto: ReportReviewDto,
   ) {
     const tenantId = this.requireTenantId(req);
-    return this.reviewsService.reportReview(id, dto.reason, tenantId);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.reportReview(id, dto.reason, tenantId, userId);
   }
 
   // ─── review response endpoints ──────────────────────────────────────────

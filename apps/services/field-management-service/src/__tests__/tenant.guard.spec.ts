@@ -125,13 +125,97 @@ describe("TenantGuard", () => {
       ).toThrow(ForbiddenException);
     });
 
-    it("allows admin to override tenant via X-Tenant-ID header", () => {
+    it("allows admin to override tenant via X-Tenant-ID header (lowercase legacy)", () => {
       const guard = new TenantGuard(makeReflector(false, false));
       const req = makeRequest(
         { id: "admin-1", tenantId: "tenant-abc", roles: ["admin"] },
         { "x-tenant-id": "tenant-xyz" },
         "GET",
         "/api/v1/fields",
+      );
+      const ctx = {
+        getHandler: () => ({}),
+        getClass: () => ({}),
+        switchToHttp: () => ({ getRequest: () => req }),
+      } as unknown as ExecutionContext;
+
+      expect(guard.canActivate(ctx)).toBe(true);
+      expect(req.tenantId).toBe("tenant-xyz");
+    });
+
+    // Prisma UserRole enum emits uppercase values; the platform JWT carries
+    // [user.role] verbatim. The previous guard used lowercase-only matching
+    // which silently forbade every real production admin.
+    it("allows ADMIN (uppercase from Prisma enum) to override tenant", () => {
+      const guard = new TenantGuard(makeReflector(false, false));
+      const req = makeRequest(
+        { id: "admin-1", tenantId: "tenant-abc", roles: ["ADMIN"] },
+        { "x-tenant-id": "tenant-xyz" },
+      );
+      const ctx = {
+        getHandler: () => ({}),
+        getClass: () => ({}),
+        switchToHttp: () => ({ getRequest: () => req }),
+      } as unknown as ExecutionContext;
+
+      expect(guard.canActivate(ctx)).toBe(true);
+      expect(req.tenantId).toBe("tenant-xyz");
+    });
+
+    it("allows SUPER_ADMIN to override tenant", () => {
+      const guard = new TenantGuard(makeReflector(false, false));
+      const req = makeRequest(
+        { id: "admin-1", tenantId: "tenant-abc", roles: ["SUPER_ADMIN"] },
+        { "x-tenant-id": "tenant-xyz" },
+      );
+      const ctx = {
+        getHandler: () => ({}),
+        getClass: () => ({}),
+        switchToHttp: () => ({ getRequest: () => req }),
+      } as unknown as ExecutionContext;
+
+      expect(guard.canActivate(ctx)).toBe(true);
+      expect(req.tenantId).toBe("tenant-xyz");
+    });
+
+    it("emits audit log when admin overrides tenant (privileged cross-tenant access)", () => {
+      const guard = new TenantGuard(makeReflector(false, false));
+      const warnSpy = jest
+        .spyOn((guard as unknown as { logger: { warn: (msg: string) => void } }).logger, "warn")
+        .mockImplementation(() => {});
+      const req = makeRequest(
+        { id: "admin-42", tenantId: "tenant-abc", roles: ["ADMIN"] },
+        { "x-tenant-id": "tenant-xyz" },
+        "POST",
+        "/api/v1/fields",
+      );
+      const ctx = {
+        getHandler: () => ({}),
+        getClass: () => ({}),
+        switchToHttp: () => ({ getRequest: () => req }),
+      } as unknown as ExecutionContext;
+
+      expect(guard.canActivate(ctx)).toBe(true);
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("admin_tenant_override"),
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("userId=admin-42"),
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining("toTenant=tenant-xyz"),
+      );
+    });
+
+    it("normalizes duplicated X-Tenant-ID header (array from proxy)", () => {
+      const guard = new TenantGuard(makeReflector(false, false));
+      // Express represents duplicated headers as arrays. Without
+      // normalization, comparing `[“tenant-xyz”] !== "tenant-abc"` still
+      // triggers the override path but request.tenantId would be an array,
+      // polluting every downstream tenant-scoped query.
+      const req = makeRequest(
+        { id: "admin-1", tenantId: "tenant-abc", roles: ["ADMIN"] },
+        { "x-tenant-id": ["tenant-xyz", "tenant-abc"] as unknown as string },
       );
       const ctx = {
         getHandler: () => ({}),

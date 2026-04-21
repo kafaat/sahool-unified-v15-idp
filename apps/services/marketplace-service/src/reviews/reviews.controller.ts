@@ -1,310 +1,238 @@
 /**
  * Reviews Controller
  * وحدة التحكم في تقييمات المنتجات
+ *
+ * Security hardening (2026-04-21):
+ * - All endpoints require JwtAuthGuard (read endpoints expose PII-joined
+ *   buyer/seller profiles, so anonymous access is blocked).
+ * - tenantId from JWT only (no `x-tenant-id` header, no `?tenantId=`).
+ * - Write endpoints derive buyerId/sellerId from the caller's JWT via
+ *   the service helpers; the previous URL-param ownership checks were
+ *   trivially forgeable.
  */
 
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
-  Patch,
   Body,
-  Param,
-  Query,
+  Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Put,
+  Query,
+  Req,
+  UnauthorizedException,
   UseGuards,
   ValidationPipe,
-  Req,
 } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
-  ApiQuery,
   ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from "@nestjs/swagger";
-import { ReviewsService } from "./reviews.service";
-import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   CreateProductReviewDto,
-  UpdateProductReviewDto,
-  MarkReviewHelpfulDto,
-  ReportReviewDto,
   CreateReviewResponseDto,
-  UpdateReviewResponseDto,
   GetProductReviewsQueryDto,
+  MarkReviewHelpfulDto,
   PaginationQueryDto,
+  ReportReviewDto,
+  UpdateProductReviewDto,
+  UpdateReviewResponseDto,
 } from "../dto/reviews.dto";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { ReviewsService } from "./reviews.service";
 
 @ApiTags("Product Reviews")
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller("reviews")
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Product Review Endpoints
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ─── auth helpers ───────────────────────────────────────────────────────
 
-  /**
-   * إنشاء تقييم منتج جديد
-   * POST /api/v1/reviews
-   */
+  private requireTenantId(req: any): string {
+    const tenantId = req?.user?.tenantId ?? req?.user?.tid;
+    if (!tenantId) {
+      throw new UnauthorizedException("tenantId missing from JWT");
+    }
+    return String(tenantId);
+  }
+
+  private requireUserId(req: any): string {
+    const userId = req?.user?.id;
+    if (!userId) {
+      throw new UnauthorizedException("user id missing from JWT");
+    }
+    return String(userId);
+  }
+
+  // ─── product review endpoints ───────────────────────────────────────────
+
   @Post()
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Create a new product review" })
   @ApiResponse({ status: 201, description: "Review created successfully" })
-  @ApiResponse({ status: 404, description: "Buyer profile or order not found" })
-  @ApiResponse({
-    status: 409,
-    description: "Review already exists for this product and order",
-  })
   async createProductReview(
     @Req() req: any,
     @Body(ValidationPipe) dto: CreateProductReviewDto,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
-    return this.reviewsService.createProductReview(dto, tenantId);
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.createProductReview(dto, tenantId, userId);
   }
 
-  /**
-   * جلب إحصائيات تقييمات المنتج
-   * GET /api/v1/reviews/product/:productId/stats
-   */
   @Get("product/:productId/stats")
-  @ApiOperation({ summary: "Get review statistics for a product" })
+  @ApiOperation({ summary: "Get review statistics for a product (tenant-scoped)" })
   @ApiParam({ name: "productId", description: "Product ID" })
-  @ApiResponse({ status: 200, description: "Review statistics" })
-  async getProductReviewStats(@Param("productId") productId: string) {
-    return this.reviewsService.getProductReviewStats(productId);
+  async getProductReviewStats(
+    @Req() req: any,
+    @Param("productId") productId: string,
+  ) {
+    const tenantId = this.requireTenantId(req);
+    return this.reviewsService.getProductReviewStats(productId, tenantId);
   }
 
-  /**
-   * جلب تقييمات منتج
-   * GET /api/v1/reviews/product/:productId
-   */
   @Get("product/:productId")
-  @ApiOperation({ summary: "Get all reviews for a product" })
+  @ApiOperation({ summary: "Get all reviews for a product (tenant-scoped)" })
   @ApiParam({ name: "productId", description: "Product ID" })
-  @ApiResponse({ status: 200, description: "List of reviews" })
   async getProductReviews(
+    @Req() req: any,
     @Param("productId") productId: string,
     @Query() query: GetProductReviewsQueryDto,
   ) {
-    return this.reviewsService.getProductReviews(productId, query);
+    const tenantId = this.requireTenantId(req);
+    return this.reviewsService.getProductReviews(productId, tenantId, query);
   }
 
-  /**
-   * جلب تقييم بالمعرف
-   * GET /api/v1/reviews/:id
-   */
   @Get(":id")
-  @ApiOperation({ summary: "Get review by ID" })
+  @ApiOperation({ summary: "Get review by ID (tenant-scoped)" })
   @ApiParam({ name: "id", description: "Review ID" })
-  @ApiResponse({ status: 200, description: "Review found" })
-  @ApiResponse({ status: 404, description: "Review not found" })
-  async getReviewById(@Param("id") id: string) {
-    return this.reviewsService.getReviewById(id);
+  async getReviewById(@Req() req: any, @Param("id") id: string) {
+    const tenantId = this.requireTenantId(req);
+    return this.reviewsService.getReviewById(id, tenantId);
   }
 
-  /**
-   * جلب تقييمات المشتري
-   * GET /api/v1/reviews/buyer/:buyerId
-   */
   @Get("buyer/:buyerId")
-  @ApiOperation({ summary: "Get all reviews by a buyer" })
+  @ApiOperation({ summary: "Get all reviews by a buyer (tenant-scoped)" })
   @ApiParam({ name: "buyerId", description: "Buyer profile ID" })
-  @ApiResponse({ status: 200, description: "List of buyer reviews" })
   async getBuyerReviews(
+    @Req() req: any,
     @Param("buyerId") buyerId: string,
     @Query() query: PaginationQueryDto,
   ) {
+    const tenantId = this.requireTenantId(req);
     return this.reviewsService.getBuyerReviews(
       buyerId,
+      tenantId,
       query.limit,
       query.offset,
     );
   }
 
   /**
-   * تحديث تقييم
-   * PUT /api/v1/reviews/:id/buyer/:buyerId
+   * تحديث تقييم. Route simplified to PUT /:id — ownership is derived
+   * from the JWT (no URL :buyerId to forge).
    */
-  @Put(":id/buyer/:buyerId")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Update a product review" })
+  @Put(":id")
+  @ApiOperation({ summary: "Update a product review (owner only)" })
   @ApiParam({ name: "id", description: "Review ID" })
-  @ApiParam({ name: "buyerId", description: "Buyer profile ID" })
-  @ApiResponse({ status: 200, description: "Review updated successfully" })
-  @ApiResponse({ status: 404, description: "Review not found" })
-  @ApiResponse({
-    status: 403,
-    description: "You can only edit your own reviews",
-  })
   async updateProductReview(
+    @Req() req: any,
     @Param("id") id: string,
-    @Param("buyerId") buyerId: string,
     @Body(ValidationPipe) dto: UpdateProductReviewDto,
   ) {
-    return this.reviewsService.updateProductReview(id, buyerId, dto);
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.updateProductReview(id, dto, tenantId, userId);
   }
 
-  /**
-   * حذف تقييم
-   * DELETE /api/v1/reviews/:id/buyer/:buyerId
-   */
-  @Delete(":id/buyer/:buyerId")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Delete a product review" })
+  @Delete(":id")
+  @ApiOperation({ summary: "Delete a product review (owner only)" })
   @ApiParam({ name: "id", description: "Review ID" })
-  @ApiParam({ name: "buyerId", description: "Buyer profile ID" })
-  @ApiResponse({ status: 200, description: "Review deleted successfully" })
-  @ApiResponse({ status: 404, description: "Review not found" })
-  @ApiResponse({
-    status: 403,
-    description: "You can only delete your own reviews",
-  })
-  async deleteProductReview(
-    @Param("id") id: string,
-    @Param("buyerId") buyerId: string,
-  ) {
-    return this.reviewsService.deleteProductReview(id, buyerId);
+  async deleteProductReview(@Req() req: any, @Param("id") id: string) {
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.deleteProductReview(id, tenantId, userId);
   }
 
-  /**
-   * وضع علامة على التقييم كمفيد
-   * PATCH /api/v1/reviews/:id/helpful
-   */
   @Patch(":id/helpful")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ summary: "Mark a review as helpful or not helpful" })
   @ApiParam({ name: "id", description: "Review ID" })
-  @ApiResponse({ status: 200, description: "Review helpfulness updated" })
-  @ApiResponse({ status: 404, description: "Review not found" })
   async markReviewHelpful(
+    @Req() req: any,
     @Param("id") id: string,
     @Body(ValidationPipe) dto: MarkReviewHelpfulDto,
   ) {
-    return this.reviewsService.markReviewHelpful(id, dto.helpful);
+    const tenantId = this.requireTenantId(req);
+    return this.reviewsService.markReviewHelpful(id, dto.helpful, tenantId);
   }
 
-  /**
-   * الإبلاغ عن تقييم
-   * POST /api/v1/reviews/:id/report
-   */
   @Post(":id/report")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @ApiOperation({ summary: "Report a review for inappropriate content" })
   @ApiParam({ name: "id", description: "Review ID" })
-  @ApiResponse({ status: 200, description: "Review reported successfully" })
-  @ApiResponse({ status: 404, description: "Review not found" })
   async reportReview(
+    @Req() req: any,
     @Param("id") id: string,
     @Body(ValidationPipe) dto: ReportReviewDto,
   ) {
-    return this.reviewsService.reportReview(id, dto.reason);
+    const tenantId = this.requireTenantId(req);
+    return this.reviewsService.reportReview(id, dto.reason, tenantId);
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // Review Response Endpoints
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ─── review response endpoints ──────────────────────────────────────────
 
-  /**
-   * إنشاء رد على تقييم
-   * POST /api/v1/reviews/responses
-   */
   @Post("responses")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: "Create a response to a review (seller only)" })
-  @ApiResponse({ status: 201, description: "Response created successfully" })
-  @ApiResponse({
-    status: 404,
-    description: "Review or seller profile not found",
-  })
-  @ApiResponse({
-    status: 409,
-    description: "Response already exists for this review",
-  })
   async createReviewResponse(
+    @Req() req: any,
     @Body(ValidationPipe) dto: CreateReviewResponseDto,
   ) {
-    return this.reviewsService.createReviewResponse(dto);
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.createReviewResponse(dto, tenantId, userId);
   }
 
-  /**
-   * جلب ردود البائع
-   * GET /api/v1/reviews/responses/seller/:sellerId
-   */
   @Get("responses/seller/:sellerId")
-  @ApiOperation({ summary: "Get all responses by a seller" })
-  @ApiParam({ name: "sellerId", description: "Seller profile ID" })
-  @ApiResponse({ status: 200, description: "List of seller responses" })
+  @ApiOperation({ summary: "Get all responses by a seller (tenant-scoped)" })
   async getSellerResponses(
+    @Req() req: any,
     @Param("sellerId") sellerId: string,
     @Query() query: PaginationQueryDto,
   ) {
+    const tenantId = this.requireTenantId(req);
     return this.reviewsService.getSellerResponses(
       sellerId,
+      tenantId,
       query.limit,
       query.offset,
     );
   }
 
-  /**
-   * تحديث رد على تقييم
-   * PUT /api/v1/reviews/responses/:id/seller/:sellerId
-   */
-  @Put("responses/:id/seller/:sellerId")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Update a review response" })
-  @ApiParam({ name: "id", description: "Response ID" })
-  @ApiParam({ name: "sellerId", description: "Seller profile ID" })
-  @ApiResponse({ status: 200, description: "Response updated successfully" })
-  @ApiResponse({ status: 404, description: "Response not found" })
-  @ApiResponse({
-    status: 403,
-    description: "You can only edit your own responses",
-  })
+  @Put("responses/:id")
+  @ApiOperation({ summary: "Update a review response (owner only)" })
   async updateReviewResponse(
+    @Req() req: any,
     @Param("id") id: string,
-    @Param("sellerId") sellerId: string,
     @Body(ValidationPipe) dto: UpdateReviewResponseDto,
   ) {
-    return this.reviewsService.updateReviewResponse(id, sellerId, dto);
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.updateReviewResponse(id, dto, tenantId, userId);
   }
 
-  /**
-   * حذف رد على تقييم
-   * DELETE /api/v1/reviews/responses/:id/seller/:sellerId
-   */
-  @Delete("responses/:id/seller/:sellerId")
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Delete a review response" })
-  @ApiParam({ name: "id", description: "Response ID" })
-  @ApiParam({ name: "sellerId", description: "Seller profile ID" })
-  @ApiResponse({ status: 200, description: "Response deleted successfully" })
-  @ApiResponse({ status: 404, description: "Response not found" })
-  @ApiResponse({
-    status: 403,
-    description: "You can only delete your own responses",
-  })
-  async deleteReviewResponse(
-    @Param("id") id: string,
-    @Param("sellerId") sellerId: string,
-  ) {
-    return this.reviewsService.deleteReviewResponse(id, sellerId);
+  @Delete("responses/:id")
+  @ApiOperation({ summary: "Delete a review response (owner only)" })
+  async deleteReviewResponse(@Req() req: any, @Param("id") id: string) {
+    const tenantId = this.requireTenantId(req);
+    const userId = this.requireUserId(req);
+    return this.reviewsService.deleteReviewResponse(id, tenantId, userId);
   }
 }

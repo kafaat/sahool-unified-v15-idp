@@ -1,6 +1,12 @@
 /**
  * Reviews Controller Tests
  * اختبارات وحدة التحكم في تقييمات المنتجات
+ *
+ * Rewritten for the 2026-04-21 security hardening:
+ *   - Every endpoint requires JwtAuthGuard.
+ *   - tenantId + userId come from `req.user` (JWT) only.
+ *   - Ownership is resolved server-side; URL `:buyerId` / `:sellerId`
+ *     parameters are gone. The spec asserts the new service signatures.
  */
 
 import { Test, TestingModule } from "@nestjs/testing";
@@ -9,11 +15,17 @@ import { ReviewsService } from "./reviews.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import {
   CreateProductReviewDto,
-  UpdateProductReviewDto,
-  MarkReviewHelpfulDto,
+  CreateReviewResponseDto,
   GetProductReviewsQueryDto,
+  MarkReviewHelpfulDto,
   PaginationQueryDto,
+  UpdateProductReviewDto,
+  UpdateReviewResponseDto,
 } from "../dto/reviews.dto";
+
+const MOCK_TENANT = "tenant-1";
+const MOCK_USER = "user-42";
+const mockReq: any = { user: { id: MOCK_USER, tenantId: MOCK_TENANT } };
 
 describe("ReviewsController", () => {
   let controller: ReviewsController;
@@ -35,22 +47,14 @@ describe("ReviewsController", () => {
     getSellerResponses: jest.fn(),
   };
 
-  const mockJwtAuthGuard = {
-    canActivate: jest.fn(() => true),
-  };
+  const mockJwtAuthGuard = { canActivate: jest.fn(() => true) };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ReviewsController],
       providers: [
-        {
-          provide: ReviewsService,
-          useValue: mockReviewsService,
-        },
-        {
-          provide: JwtAuthGuard,
-          useValue: mockJwtAuthGuard,
-        },
+        { provide: ReviewsService, useValue: mockReviewsService },
+        { provide: JwtAuthGuard, useValue: mockJwtAuthGuard },
       ],
     }).compile();
 
@@ -58,62 +62,49 @@ describe("ReviewsController", () => {
     service = module.get<ReviewsService>(ReviewsService);
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+  afterEach(() => jest.clearAllMocks());
 
   it("should be defined", () => {
     expect(controller).toBeDefined();
   });
 
   describe("createProductReview", () => {
-    it("should create a new review", async () => {
+    it("passes (dto, tenantId, userId) to the service", async () => {
       const dto: CreateProductReviewDto = {
         productId: "prod-123",
-        buyerId: "buyer-456",
+        buyerId: "buyer-456", // ignored by the service
         orderId: "order-789",
         rating: 5,
         title: "منتج ممتاز",
         comment: "جودة عالية",
       };
+      mockReviewsService.createProductReview.mockResolvedValue({ id: "r1" });
 
-      const expectedResult = {
-        id: "review-123",
-        ...dto,
-        createdAt: new Date(),
-      };
+      await controller.createProductReview(mockReq, dto);
 
-      mockReviewsService.createProductReview.mockResolvedValue(expectedResult);
-
-      const mockReq = { user: { tenantId: 'tenant-1' }, headers: {} };
-      const result = await controller.createProductReview(mockReq, dto);
-
-      expect(result).toEqual(expectedResult);
-      expect(service.createProductReview).toHaveBeenCalledWith(dto, 'tenant-1');
+      expect(service.createProductReview).toHaveBeenCalledWith(
+        dto,
+        MOCK_TENANT,
+        MOCK_USER,
+      );
     });
   });
 
   describe("getProductReviewStats", () => {
-    it("should return review statistics before getting reviews", async () => {
-      const productId = "prod-123";
-      const expectedStats = {
-        totalReviews: 10,
-        averageRating: 4.5,
-        ratingDistribution: { 1: 0, 2: 1, 3: 2, 4: 3, 5: 4 },
-      };
-
-      mockReviewsService.getProductReviewStats.mockResolvedValue(expectedStats);
-
-      const result = await controller.getProductReviewStats(productId);
-
-      expect(result).toEqual(expectedStats);
-      expect(service.getProductReviewStats).toHaveBeenCalledWith(productId);
+    it("threads tenantId from JWT", async () => {
+      mockReviewsService.getProductReviewStats.mockResolvedValue({
+        totalReviews: 0,
+      });
+      await controller.getProductReviewStats(mockReq, "prod-123");
+      expect(service.getProductReviewStats).toHaveBeenCalledWith(
+        "prod-123",
+        MOCK_TENANT,
+      );
     });
   });
 
   describe("getProductReviews", () => {
-    it("should return product reviews with filters", async () => {
-      const productId = "prod-123";
+    it("threads tenantId from JWT + passes the query", async () => {
       const query: GetProductReviewsQueryDto = {
         minRating: 3,
         maxRating: 5,
@@ -121,207 +112,160 @@ describe("ReviewsController", () => {
         limit: 20,
         offset: 0,
       };
+      mockReviewsService.getProductReviews.mockResolvedValue({ reviews: [] });
 
-      const expectedResult = {
-        reviews: [
-          {
-            id: "review-123",
-            productId,
-            rating: 4,
-            title: "جيد",
-            verified: true,
-          },
-        ],
-        stats: {
-          totalReviews: 1,
-          averageRating: 4.0,
-        },
-        pagination: {
-          limit: 20,
-          offset: 0,
-        },
-      };
+      await controller.getProductReviews(mockReq, "prod-123", query);
 
-      mockReviewsService.getProductReviews.mockResolvedValue(expectedResult);
-
-      const result = await controller.getProductReviews(productId, query);
-
-      expect(result).toEqual(expectedResult);
-      expect(service.getProductReviews).toHaveBeenCalledWith(productId, query);
+      expect(service.getProductReviews).toHaveBeenCalledWith(
+        "prod-123",
+        MOCK_TENANT,
+        query,
+      );
     });
   });
 
   describe("getReviewById", () => {
-    it("should return a single review by ID", async () => {
-      const reviewId = "review-123";
-      const expectedReview = {
-        id: reviewId,
-        productId: "prod-123",
-        rating: 5,
-        title: "ممتاز",
-      };
-
-      mockReviewsService.getReviewById.mockResolvedValue(expectedReview);
-
-      const result = await controller.getReviewById(reviewId);
-
-      expect(result).toEqual(expectedReview);
-      expect(service.getReviewById).toHaveBeenCalledWith(reviewId);
+    it("threads tenantId from JWT", async () => {
+      mockReviewsService.getReviewById.mockResolvedValue({ id: "r1" });
+      await controller.getReviewById(mockReq, "r1");
+      expect(service.getReviewById).toHaveBeenCalledWith("r1", MOCK_TENANT);
     });
   });
 
   describe("getBuyerReviews", () => {
-    it("should return buyer reviews with pagination", async () => {
-      const buyerId = "buyer-456";
-      const query: PaginationQueryDto = {
-        limit: 10,
-        offset: 0,
-      };
+    it("threads tenantId + pagination", async () => {
+      const query: PaginationQueryDto = { limit: 10, offset: 0 };
+      mockReviewsService.getBuyerReviews.mockResolvedValue([]);
 
-      const expectedReviews = [
-        {
-          id: "review-123",
-          buyerId,
-          rating: 4,
-        },
-      ];
+      await controller.getBuyerReviews(mockReq, "buyer-456", query);
 
-      mockReviewsService.getBuyerReviews.mockResolvedValue(expectedReviews);
-
-      const result = await controller.getBuyerReviews(buyerId, query);
-
-      expect(result).toEqual(expectedReviews);
       expect(service.getBuyerReviews).toHaveBeenCalledWith(
-        buyerId,
-        query.limit,
-        query.offset,
+        "buyer-456",
+        MOCK_TENANT,
+        10,
+        0,
       );
     });
   });
 
   describe("updateProductReview", () => {
-    it("should update a review", async () => {
-      const reviewId = "review-123";
-      const buyerId = "buyer-456";
-      const dto: UpdateProductReviewDto = {
-        rating: 5,
-        title: "ممتاز جداً",
-      };
+    it("derives ownership from JWT (no URL :buyerId)", async () => {
+      const dto: UpdateProductReviewDto = { rating: 5, title: "ممتاز" };
+      mockReviewsService.updateProductReview.mockResolvedValue({ id: "r1" });
 
-      const expectedResult = {
-        id: reviewId,
-        buyerId,
-        ...dto,
-        updatedAt: new Date(),
-      };
+      await controller.updateProductReview(mockReq, "r1", dto);
 
-      mockReviewsService.updateProductReview.mockResolvedValue(expectedResult);
-
-      const result = await controller.updateProductReview(
-        reviewId,
-        buyerId,
-        dto,
-      );
-
-      expect(result).toEqual(expectedResult);
       expect(service.updateProductReview).toHaveBeenCalledWith(
-        reviewId,
-        buyerId,
+        "r1",
         dto,
+        MOCK_TENANT,
+        MOCK_USER,
       );
     });
   });
 
   describe("deleteProductReview", () => {
-    it("should delete a review", async () => {
-      const reviewId = "review-123";
-      const buyerId = "buyer-456";
-      const expectedResult = { message: "Review deleted successfully" };
-
-      mockReviewsService.deleteProductReview.mockResolvedValue(expectedResult);
-
-      const result = await controller.deleteProductReview(reviewId, buyerId);
-
-      expect(result).toEqual(expectedResult);
+    it("derives ownership from JWT", async () => {
+      mockReviewsService.deleteProductReview.mockResolvedValue({
+        message: "ok",
+      });
+      await controller.deleteProductReview(mockReq, "r1");
       expect(service.deleteProductReview).toHaveBeenCalledWith(
-        reviewId,
-        buyerId,
+        "r1",
+        MOCK_TENANT,
+        MOCK_USER,
       );
     });
   });
 
   describe("markReviewHelpful", () => {
-    it("should mark review as helpful", async () => {
-      const reviewId = "review-123";
-      const dto: MarkReviewHelpfulDto = {
-        helpful: true,
-      };
-
-      const expectedResult = {
-        id: reviewId,
-        helpful: 5,
-      };
-
-      mockReviewsService.markReviewHelpful.mockResolvedValue(expectedResult);
-
-      const result = await controller.markReviewHelpful(reviewId, dto);
-
-      expect(result).toEqual(expectedResult);
+    it("threads tenantId", async () => {
+      const dto: MarkReviewHelpfulDto = { helpful: true };
+      mockReviewsService.markReviewHelpful.mockResolvedValue({ id: "r1" });
+      await controller.markReviewHelpful(mockReq, "r1", dto);
       expect(service.markReviewHelpful).toHaveBeenCalledWith(
-        reviewId,
-        dto.helpful,
+        "r1",
+        true,
+        MOCK_TENANT,
       );
     });
   });
 
   describe("reportReview", () => {
-    it("should report a review", async () => {
-      const reviewId = "review-123";
-      const dto = {
-        reason: "محتوى غير مناسب",
+    it("threads tenantId", async () => {
+      mockReviewsService.reportReview.mockResolvedValue({ id: "r1" });
+      await controller.reportReview(mockReq, "r1", {
+        reason: "spam",
+      } as any);
+      expect(service.reportReview).toHaveBeenCalledWith(
+        "r1",
+        "spam",
+        MOCK_TENANT,
+      );
+    });
+  });
+
+  describe("createReviewResponse", () => {
+    it("passes (dto, tenantId, userId) and ignores dto.sellerId", async () => {
+      const dto: CreateReviewResponseDto = {
+        reviewId: "r1",
+        sellerId: "seller-999", // ignored by the service
+        response: "شكراً",
       };
+      mockReviewsService.createReviewResponse.mockResolvedValue({
+        id: "resp1",
+      });
 
-      const expectedResult = {
-        id: reviewId,
-        reported: true,
-      };
+      await controller.createReviewResponse(mockReq, dto);
 
-      mockReviewsService.reportReview.mockResolvedValue(expectedResult);
-
-      const result = await controller.reportReview(reviewId, dto);
-
-      expect(result).toEqual(expectedResult);
-      expect(service.reportReview).toHaveBeenCalledWith(reviewId, dto.reason);
+      expect(service.createReviewResponse).toHaveBeenCalledWith(
+        dto,
+        MOCK_TENANT,
+        MOCK_USER,
+      );
     });
   });
 
   describe("getSellerResponses", () => {
-    it("should return seller responses with pagination", async () => {
-      const sellerId = "seller-789";
-      const query: PaginationQueryDto = {
-        limit: 20,
-        offset: 0,
-      };
-
-      const expectedResponses = [
-        {
-          id: "response-123",
-          sellerId,
-          response: "شكراً لتقييمك",
-        },
-      ];
-
-      mockReviewsService.getSellerResponses.mockResolvedValue(
-        expectedResponses,
-      );
-
-      const result = await controller.getSellerResponses(sellerId, query);
-
-      expect(result).toEqual(expectedResponses);
+    it("threads tenantId + pagination", async () => {
+      const query: PaginationQueryDto = { limit: 20, offset: 0 };
+      mockReviewsService.getSellerResponses.mockResolvedValue([]);
+      await controller.getSellerResponses(mockReq, "seller-789", query);
       expect(service.getSellerResponses).toHaveBeenCalledWith(
-        sellerId,
-        query.limit,
-        query.offset,
+        "seller-789",
+        MOCK_TENANT,
+        20,
+        0,
+      );
+    });
+  });
+
+  describe("updateReviewResponse", () => {
+    it("derives ownership from JWT", async () => {
+      const dto: UpdateReviewResponseDto = { response: "شكراً مرة أخرى" };
+      mockReviewsService.updateReviewResponse.mockResolvedValue({
+        id: "resp1",
+      });
+      await controller.updateReviewResponse(mockReq, "resp1", dto);
+      expect(service.updateReviewResponse).toHaveBeenCalledWith(
+        "resp1",
+        dto,
+        MOCK_TENANT,
+        MOCK_USER,
+      );
+    });
+  });
+
+  describe("deleteReviewResponse", () => {
+    it("derives ownership from JWT", async () => {
+      mockReviewsService.deleteReviewResponse.mockResolvedValue({
+        message: "ok",
+      });
+      await controller.deleteReviewResponse(mockReq, "resp1");
+      expect(service.deleteReviewResponse).toHaveBeenCalledWith(
+        "resp1",
+        MOCK_TENANT,
+        MOCK_USER,
       );
     });
   });

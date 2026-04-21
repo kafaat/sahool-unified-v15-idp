@@ -21,10 +21,7 @@ from .application_tracker import ApplicationMethod, ApplicationPurpose
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
-
-    _AUTH_AVAILABLE = True
 except ImportError:  # pragma: no cover
-    _AUTH_AVAILABLE = False
 
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""

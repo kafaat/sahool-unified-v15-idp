@@ -24,7 +24,7 @@
     },
     "devDependencies": {
         "@sentry/nextjs": "^9.5.0",
-        "@types/node": "^20.19.37",
+        "@types/node": "^20.19.39",
         "tsup": "^8.0.1",
         "typescript": "5.9.3",
         "vitest": "3.2.4"

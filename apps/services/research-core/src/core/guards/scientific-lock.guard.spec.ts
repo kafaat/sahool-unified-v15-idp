@@ -1,4 +1,7 @@
-import { BadRequestException, ForbiddenException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { ScientificLockGuard } from "./scientific-lock.guard";
 
@@ -38,8 +41,17 @@ describe("ScientificLockGuard", () => {
       });
       prisma.experimentAuditLog.create.mockResolvedValue({ id: "audit-001" });
 
-      await guard.lockExperiment(experimentId, userId, reason);
+      await guard.lockExperiment(experimentId, userId, tenantId, reason);
 
+      // SECURITY: the pre-fetch MUST filter by tenantId — not just id —
+      // otherwise the returned tenantId leaks a foreign tenant's row and
+      // is then used to bind the update, which was the 2026-04-21
+      // regression.
+      expect(prisma.experiment.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: experimentId, tenantId },
+        }),
+      );
       expect(prisma.experiment.update).toHaveBeenCalledWith(
         expect.objectContaining({
           where: { id_tenantId: { id: experimentId, tenantId } },
@@ -67,7 +79,7 @@ describe("ScientificLockGuard", () => {
       });
       prisma.experimentAuditLog.create.mockResolvedValue({ id: "audit-001" });
 
-      await guard.lockExperiment("exp-001", "user-001", reason);
+      await guard.lockExperiment("exp-001", "user-001", "tenant-001", reason);
 
       expect(prisma.experimentAuditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -84,7 +96,7 @@ describe("ScientificLockGuard", () => {
       });
       prisma.experimentAuditLog.create.mockResolvedValue({ id: "audit-001" });
 
-      await guard.lockExperiment("exp-001", "user-001");
+      await guard.lockExperiment("exp-001", "user-001", "tenant-001");
 
       expect(prisma.experiment.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -93,12 +105,20 @@ describe("ScientificLockGuard", () => {
       );
     });
 
-    it("should throw ForbiddenException when experiment does not exist", async () => {
+    it("should throw ForbiddenException when experiment does not exist for tenant", async () => {
       prisma.experiment.findFirst.mockResolvedValue(null);
 
       await expect(
-        guard.lockExperiment("missing", "user-001"),
+        guard.lockExperiment("missing", "user-001", "tenant-001"),
       ).rejects.toThrow(ForbiddenException);
+      expect(prisma.experiment.update).not.toHaveBeenCalled();
+    });
+
+    it("should throw ForbiddenException when tenantId is empty", async () => {
+      await expect(
+        guard.lockExperiment("exp-001", "user-001", ""),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.experiment.findFirst).not.toHaveBeenCalled();
       expect(prisma.experiment.update).not.toHaveBeenCalled();
     });
   });
@@ -119,8 +139,14 @@ describe("ScientificLockGuard", () => {
       prisma.experiment.update.mockResolvedValue({ id: experimentId });
       prisma.experimentAuditLog.create.mockResolvedValue({ id: "audit-002" });
 
-      await guard.unlockExperiment(experimentId, userId, "Review complete");
+      await guard.unlockExperiment(experimentId, userId, "Review complete", tenantId);
 
+      // Pre-fetch must include tenantId to prevent the IDOR regression.
+      expect(prisma.experiment.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: experimentId, tenantId },
+        }),
+      );
       expect(prisma.experimentAuditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
           tenantId,
@@ -144,7 +170,12 @@ describe("ScientificLockGuard", () => {
       prisma.experiment.update.mockResolvedValue({ id: "exp-001" });
       prisma.experimentAuditLog.create.mockResolvedValue({ id: "audit-001" });
 
-      await guard.unlockExperiment("exp-001", "user-002", "Correction needed");
+      await guard.unlockExperiment(
+        "exp-001",
+        "user-002",
+        "Correction needed",
+        "tenant-001",
+      );
 
       expect(prisma.experimentAuditLog.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -158,7 +189,7 @@ describe("ScientificLockGuard", () => {
       });
     });
 
-    it("should select tenantId from experiment", async () => {
+    it("should select tenantId from experiment and scope the pre-fetch to caller's tenant", async () => {
       prisma.experiment.findFirst.mockResolvedValue({
         tenantId: "tenant-001",
         status: "locked",
@@ -168,10 +199,10 @@ describe("ScientificLockGuard", () => {
       prisma.experiment.update.mockResolvedValue({ id: "exp-001" });
       prisma.experimentAuditLog.create.mockResolvedValue({ id: "audit-001" });
 
-      await guard.unlockExperiment("exp-001", "user-002", "Done");
+      await guard.unlockExperiment("exp-001", "user-002", "Done", "tenant-001");
 
       expect(prisma.experiment.findFirst).toHaveBeenCalledWith({
-        where: { id: "exp-001" },
+        where: { id: "exp-001", tenantId: "tenant-001" },
         select: expect.objectContaining({ tenantId: true }),
       });
     });
@@ -185,16 +216,23 @@ describe("ScientificLockGuard", () => {
       });
 
       await expect(
-        guard.unlockExperiment("exp-001", "user-001", "reason"),
+        guard.unlockExperiment("exp-001", "user-001", "reason", "tenant-001"),
       ).rejects.toThrow(ForbiddenException);
     });
 
-    it("should throw ForbiddenException if experiment not found", async () => {
+    it("should throw ForbiddenException if experiment not found in caller's tenant", async () => {
       prisma.experiment.findFirst.mockResolvedValue(null);
 
       await expect(
-        guard.unlockExperiment("exp-999", "user-001", "reason"),
+        guard.unlockExperiment("exp-999", "user-001", "reason", "tenant-001"),
       ).rejects.toThrow(ForbiddenException);
+    });
+
+    it("should throw ForbiddenException when tenantId is empty", async () => {
+      await expect(
+        guard.unlockExperiment("exp-001", "user-001", "reason", ""),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.experiment.findFirst).not.toHaveBeenCalled();
     });
   });
 
@@ -215,7 +253,9 @@ describe("ScientificLockGuard", () => {
       expect(result).toBe(true);
     });
 
-    it("should throw BadRequestException when tenantId is missing", async () => {
+    it("should throw UnauthorizedException when tenantId is missing from JWT", async () => {
+      // extractTenantId() throws UnauthorizedException when req.user has no
+      // `tid` / `tenantId` claim — canActivate surfaces that unchanged.
       const context = createMockContext("POST", {
         params: { experimentId: "exp-001" },
         user: { id: "user-001" },
@@ -223,7 +263,7 @@ describe("ScientificLockGuard", () => {
       jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
 
       await expect(guard.canActivate(context)).rejects.toThrow(
-        BadRequestException,
+        UnauthorizedException,
       );
     });
 

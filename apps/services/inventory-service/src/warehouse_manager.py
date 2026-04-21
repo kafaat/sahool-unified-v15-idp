@@ -89,18 +89,24 @@ class WarehouseManager:
         """
         self.db = db
 
-    async def create_warehouse(self, data: dict) -> Warehouse:
+    async def create_warehouse(self, data: dict, tenant_id: str) -> Warehouse:
         """
-        Create a new warehouse
+        Create a new warehouse.
 
         Args:
             data: Warehouse data including name, type, location, capacity
+            tenant_id: Tenant ID for isolation (required — the underlying
+                Prisma model has a NOT NULL tenantId column).
 
         Returns:
             Created Warehouse object
         """
+        if not tenant_id:
+            raise ValueError("create_warehouse requires a non-empty tenant_id")
+
         warehouse = await self.db.warehouse.create(
             data={
+                "tenantId": tenant_id,
                 "name": data["name"],
                 "nameAr": data["name_ar"],
                 "warehouseType": data["warehouse_type"],
@@ -323,11 +329,12 @@ class WarehouseManager:
         to_warehouse: str,
         quantity: float,
         requested_by: str,
+        tenant_id: str,
         transfer_type: str = "INTER_WAREHOUSE",
         notes: str | None = None,
     ) -> dict:
         """
-        Transfer stock between warehouses
+        Transfer stock between warehouses.
 
         Args:
             item_id: Inventory item ID
@@ -335,15 +342,21 @@ class WarehouseManager:
             to_warehouse: Destination warehouse ID
             quantity: Quantity to transfer
             requested_by: User ID requesting transfer
+            tenant_id: Tenant ID for isolation (required — the underlying
+                StockTransfer row carries a NOT NULL tenant_id).
             transfer_type: Type of transfer
             notes: Optional notes
 
         Returns:
             Transfer record
         """
+        if not tenant_id:
+            raise ValueError("transfer_stock requires a non-empty tenant_id")
+
         # Create transfer record
         transfer = await self.db.stocktransfer.create(
             data={
+                "tenantId": tenant_id,
                 "itemId": item_id,
                 "fromWarehouseId": from_warehouse,
                 "toWarehouseId": to_warehouse,
@@ -553,23 +566,30 @@ class WarehouseManager:
         name: str,
         name_ar: str,
         capacity: float,
+        tenant_id: str,
         condition: str | None = None,
     ) -> dict:
         """
-        Create a zone within a warehouse
+        Create a zone within a warehouse.
 
         Args:
             warehouse_id: Warehouse ID
             name: Zone name (English)
             name_ar: Zone name (Arabic)
             capacity: Zone capacity
+            tenant_id: Tenant ID for isolation (required — the underlying
+                Zone row carries a NOT NULL tenant_id).
             condition: Storage condition
 
         Returns:
             Created zone
         """
+        if not tenant_id:
+            raise ValueError("create_zone requires a non-empty tenant_id")
+
         zone = await self.db.zone.create(
             data={
+                "tenantId": tenant_id,
                 "warehouseId": warehouse_id,
                 "name": name,
                 "nameAr": name_ar,
@@ -588,9 +608,17 @@ class WarehouseManager:
             "condition": zone.condition,
         }
 
-    async def create_storage_location(self, zone_id: str, aisle: str, shelf: str, bin: str, capacity: float) -> dict:
+    async def create_storage_location(
+        self,
+        zone_id: str,
+        aisle: str,
+        shelf: str,
+        bin: str,
+        capacity: float,
+        tenant_id: str,
+    ) -> dict:
         """
-        Create a storage location within a zone
+        Create a storage location within a zone.
 
         Args:
             zone_id: Zone ID
@@ -598,14 +626,20 @@ class WarehouseManager:
             shelf: Shelf identifier
             bin: Bin identifier
             capacity: Location capacity
+            tenant_id: Tenant ID for isolation (required — the underlying
+                StorageLocation row carries a NOT NULL tenant_id).
 
         Returns:
             Created storage location
         """
+        if not tenant_id:
+            raise ValueError("create_storage_location requires a non-empty tenant_id")
+
         location_code = f"{aisle}-{shelf}-{bin}"
 
         location = await self.db.storagelocation.create(
             data={
+                "tenantId": tenant_id,
                 "zoneId": zone_id,
                 "aisle": aisle,
                 "shelf": shelf,

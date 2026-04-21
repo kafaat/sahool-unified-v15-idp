@@ -152,18 +152,15 @@ async def create_transfer(
     user: User = Depends(get_current_user),
 ) -> dict:
     """Create a stock transfer request (PENDING status)."""
-    _require_tenant_id(user)  # authz guard — tenant will be carried on the row
+    tenant_id = _require_tenant_id(user)
     wm = _require_warehouse_manager(request)
-    # transfer_stock inherits tenant via the underlying rows it references;
-    # the Prisma model requires tenantId in the create payload, so pass it
-    # via the manager once it supports it. For now the manager exposes a
-    # minimal surface; downstream enrichment is the caller's responsibility.
     return await wm.transfer_stock(
         item_id=dto.item_id,
         from_warehouse=dto.from_warehouse,
         to_warehouse=dto.to_warehouse,
         quantity=dto.quantity,
         requested_by=str(getattr(user, "id", "unknown")),
+        tenant_id=tenant_id,
         transfer_type=dto.transfer_type,
         notes=dto.notes,
     )

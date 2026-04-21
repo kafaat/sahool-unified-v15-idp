@@ -331,6 +331,29 @@ describe("UsersService", () => {
         }),
       });
     });
+
+    // SECURITY: the controller always passes `currentUser.tenantId` (except
+    // for verified SUPER_ADMIN). These tests exercise that branch — the
+    // production path — not the legacy `{id}` branch the older tests
+    // above cover. If these break, the IDOR mitigation is broken.
+    it("should use id_tenantId composite when tenantId is provided", async () => {
+      prismaService.user.findUnique.mockResolvedValue(mockUser);
+
+      await service.findOne(mockUserId, "tenant-001");
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith({
+        where: { id_tenantId: { id: mockUserId, tenantId: "tenant-001" } },
+        select: expect.any(Object),
+      });
+    });
+
+    it("should return 404 for cross-tenant id when tenantId provided", async () => {
+      prismaService.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.findOne(mockUserId, "tenant-other")).rejects.toThrow(
+        NotFoundException,
+      );
+    });
   });
 
   describe("findByEmail", () => {
@@ -397,6 +420,29 @@ describe("UsersService", () => {
         }),
         select: expect.any(Object),
       });
+    });
+
+    // SECURITY: production path — controller threads `currentUser.tenantId`
+    // so BOTH the pre-check and the UPDATE bind via the id_tenantId
+    // composite unique. If this coverage breaks, cross-tenant ADMIN users
+    // can mutate foreign rows again.
+    it("should bind id_tenantId on both the pre-check and the update when tenantId is provided", async () => {
+      const updatedUser = { ...mockUser, firstName: "Updated" };
+      prismaService.user.findUnique.mockResolvedValue(mockUser);
+      prismaService.user.update.mockResolvedValue(updatedUser);
+
+      await service.update(mockUserId, updateUserDto, "tenant-001");
+
+      expect(prismaService.user.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id_tenantId: { id: mockUserId, tenantId: "tenant-001" } },
+        }),
+      );
+      expect(prismaService.user.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id_tenantId: { id: mockUserId, tenantId: "tenant-001" } },
+        }),
+      );
     });
 
     it("should throw NotFoundException if user not found", async () => {

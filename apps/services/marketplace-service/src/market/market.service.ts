@@ -300,21 +300,23 @@ export class MarketService {
    */
   async createOrder(
     data: CreateOrderDto,
-    tenantId?: string,
+    tenantId: string,
     idempotencyKey?: string,
     userId?: string,
   ) {
-    const effectiveTenant = tenantId ?? "unassigned";
+    if (!tenantId) {
+      throw new Error("createOrder: tenantId is required");
+    }
     const effectiveUser = userId ?? data.buyerId;
 
     return this.idempotencyService
       .executeIdempotent(
         idempotencyKey,
-        effectiveTenant,
+        tenantId,
         effectiveUser,
         "market.createOrder",
         data,
-        () => this.createOrderInternal(data),
+        () => this.createOrderInternal(data, tenantId),
       )
       .then((result) => result.value);
   }
@@ -323,7 +325,7 @@ export class MarketService {
    * Inner implementation split out so IdempotencyService can wrap it.
    * No idempotency concerns live here — this is the pure domain logic.
    */
-  private async createOrderInternal(data: CreateOrderDto) {
+  private async createOrderInternal(data: CreateOrderDto, tenantId: string) {
     // Use transaction with timeout to ensure atomic stock check and decrement
     return this.prisma.$transaction(async (tx) => {
       // Batch fetch all products at once to avoid N+1 queries
@@ -390,6 +392,7 @@ export class MarketService {
           const LOW_STOCK_THRESHOLD = parseInt(process.env.LOW_STOCK_THRESHOLD || "10", 10);
           if (product.stock <= LOW_STOCK_THRESHOLD && product.stock > 0) {
             await this.eventsService.publishInventoryLowStock({
+              tenantId,
               productId: product.id,
               productName: product.nameAr || product.name,
               currentStock: product.stock,
@@ -430,8 +433,11 @@ export class MarketService {
         include: { items: true },
       });
 
-      // Publish order.placed event to NATS
+      // Publish order.placed event to NATS (tenantId required for
+      // downstream cross-tenant isolation in notification-service,
+      // billing-core, traceability-service).
       await this.eventsService.publishOrderPlaced({
+        tenantId,
         orderId: order.id,
         userId: order.buyerId,
         items: orderItems.map((item) => ({

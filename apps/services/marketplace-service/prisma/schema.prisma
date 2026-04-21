@@ -69,6 +69,7 @@ model Product {
   @@index([category, status]) // Optimize category filtering
   @@index([status, featured]) // Optimize featured product queries
   @@index([id, stock]) // Optimize stock check queries
+  @@unique([id, tenantId], map: "uq_product_id_tenant")
   @@index([deletedAt]) // Optimize soft delete queries
   @@map("products")
 }
@@ -142,6 +143,7 @@ model Order {
   @@index([status, createdAt]) // Optimize order filtering and sorting
   @@index([paymentStatus]) // Optimize payment status filtering
   @@index([createdAt]) // Optimize time-based queries
+  @@unique([id, tenantId], map: "uq_order_id_tenant")
   @@index([deletedAt]) // Optimize soft delete queries
   @@map("orders")
 }
@@ -161,6 +163,7 @@ model OrderItem {
 
   @@index([tenantId], name: "idx_order_item_tenant")
   @@index([orderId])
+  @@unique([id, tenantId], map: "uq_order_item_id_tenant")
   @@index([productId])
   @@map("order_items")
 }
@@ -238,6 +241,7 @@ model Wallet {
   @@index([deletedAt]) // Optimize soft delete queries
   @@index([creditTier], name: "idx_wallet_credit_tier")
   @@index([isVerified], name: "idx_wallet_verified")
+  @@unique([id, tenantId], map: "uq_wallet_id_tenant")
   @@index([kycStatus], name: "idx_wallet_kyc_status")
   @@map("wallets")
 }
@@ -291,6 +295,7 @@ model Transaction {
   @@index([type], name: "idx_transaction_type")
   @@index([status], name: "idx_transaction_status")
   @@index([walletId, createdAt], name: "idx_transaction_wallet_date")
+  @@unique([id, tenantId], map: "uq_transaction_id_tenant")
   @@index([idempotencyKey])
   @@map("transactions")
 }
@@ -366,6 +371,7 @@ model Loan {
   @@index([walletId], name: "idx_loan_wallet")
   @@index([status], name: "idx_loan_status")
   @@index([walletId, status], name: "idx_loan_wallet_status")
+  @@unique([id, tenantId], map: "uq_loan_id_tenant")
   @@index([deletedAt]) // Optimize soft delete queries
   @@map("loans")
 }
@@ -411,6 +417,7 @@ model CreditEvent {
 
   @@index([tenantId], name: "idx_credit_event_tenant")
   @@index([walletId])
+  @@unique([id, tenantId], map: "uq_credit_event_id_tenant")
   @@index([eventType])
   @@map("credit_events")
 }
@@ -464,6 +471,7 @@ model Escrow {
   @@index([tenantId], name: "idx_escrow_tenant")
   @@index([buyerWalletId])
   @@index([sellerWalletId])
+  @@unique([id, tenantId], map: "uq_escrow_id_tenant")
   @@index([status])
   @@map("escrows")
 }
@@ -513,6 +521,7 @@ model ScheduledPayment {
   @@index([walletId])
   @@index([nextPaymentDate])
   @@index([isActive])
+  @@unique([id, tenantId], map: "uq_scheduled_payment_id_tenant")
   @@index([loanId])
   @@map("scheduled_payments")
 }
@@ -570,6 +579,7 @@ model WalletAuditLog {
   @@index([tenantId], name: "idx_wallet_audit_tenant")
   @@index([walletId])
   @@index([transactionId])
+  @@unique([id, tenantId], map: "uq_wallet_audit_log_id_tenant")
   @@index([createdAt])
   @@index([idempotencyKey])
   @@map("wallet_audit_logs")
@@ -611,6 +621,7 @@ model SellerProfile {
 
   @@index([userId])
   @@index([tenantId])
+  @@unique([id, tenantId], map: "uq_seller_profile_id_tenant")
   @@index([businessType])
   @@index([verified])
   @@map("seller_profiles")
@@ -645,6 +656,7 @@ model BuyerProfile {
 
   reviews ProductReview[]
 
+  @@unique([id, tenantId], map: "uq_buyer_profile_id_tenant")
   @@index([userId])
   @@index([tenantId])
   @@map("buyer_profiles")
@@ -686,6 +698,7 @@ model ProductReview {
   @@index([productId])
   @@index([buyerId])
   @@index([orderId])
+  @@unique([id, tenantId], map: "uq_product_review_id_tenant")
   @@index([rating])
   @@index([verified])
   @@map("product_reviews")
@@ -708,6 +721,7 @@ model ReviewResponse {
   seller SellerProfile @relation(fields: [sellerId], references: [id], onDelete: Restrict)
 
   @@index([tenantId], name: "idx_review_response_tenant")
+  @@unique([id, tenantId], map: "uq_review_response_id_tenant")
   @@index([reviewId])
   @@index([sellerId])
   @@map("review_responses")
@@ -736,6 +750,11 @@ model IdempotencyKey {
   statusCode   Int?     @map("status_code")
   createdAt    DateTime @default(now()) @map("created_at")
 
+  // Defense-in-depth: IdempotencyService filters lookups by tenantId so
+  // a cross-tenant collision on the `key` PK surfaces as a 422 instead
+  // of a silent replay. This composite unique pins the guarantee at the
+  // DB level for any future raw-SQL caller.
+  @@unique([tenantId, key, operation], name: "uq_idempotency_tenant_key_op")
   @@index([tenantId, createdAt(sort: Desc)], name: "idx_idempotency_keys_tenant_created")
   @@index([operation], name: "idx_idempotency_keys_operation")
   @@map("idempotency_keys")

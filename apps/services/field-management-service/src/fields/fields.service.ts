@@ -216,8 +216,8 @@ export class FieldsService {
       return created;
     });
 
-    // Fetch updated field
-    const createdField = await this.findById(field.id);
+    // Fetch updated field (tenant is the same one we just wrote).
+    const createdField = await this.findById(field.id, dto.tenantId);
 
     // Invalidate related caches
     await this.cacheService.invalidateTenant(dto.tenantId);
@@ -236,12 +236,30 @@ export class FieldsService {
   }
 
   /**
-   * Find field by ID with tenant isolation
+   * Find field by ID with mandatory tenant isolation.
    *
-   * @param id - Field UUID
-   * @param tenantId - If provided, enforces tenant ownership check
+   * SECURITY (PR #1724 review / 2026-04-21):
+   * Previously took an OPTIONAL ``tenantId`` and silently fell back
+   * to ``findUnique({ where: { id } })`` when the caller passed
+   * ``undefined`` / ``""``. A controller forwarding an unsanitized
+   * header value (``req.headers["x-tenant-id"]``) could therefore
+   * resolve any field by UUID across tenants — a cross-tenant IDOR.
+   *
+   * ``tenantId`` is now REQUIRED and must be non-empty; every
+   * DB lookup uses the composite ``@@unique([id, tenantId])`` key
+   * ``id_tenantId``. No un-scoped path remains.
+   *
+   * @param id       - Field UUID
+   * @param tenantId - Caller's verified tenant (non-empty); raises
+   *                   ``BadRequestException`` on falsy values.
    */
-  async findById(id: string, tenantId?: string): Promise<FieldResponseDto> {
+  async findById(id: string, tenantId: string): Promise<FieldResponseDto> {
+    if (!tenantId) {
+      throw new BadRequestException(
+        "tenantId is required — no un-scoped field lookup path exists",
+      );
+    }
+
     // Try cache first
     const cached = await this.cacheService.get<FieldResponseDto>(
       CACHE_KEYS.FIELD(id),
@@ -252,14 +270,12 @@ export class FieldsService {
     // new field on next read without a manual cache flush.
     if (cached && 'bbox' in cached) {
       // Verify tenant ownership even for cached results
-      if (tenantId) {
-        assertTenantOwnership(cached.tenantId, tenantId, "field");
-      }
+      assertTenantOwnership(cached.tenantId, tenantId, "field");
       return cached;
     }
 
     const field = await this.prisma.field.findUnique({
-      where: tenantId ? { id_tenantId: { id, tenantId } } : { id },
+      where: { id_tenantId: { id, tenantId } },
       select: {
         id: true,
         name: true,
@@ -283,12 +299,10 @@ export class FieldsService {
     });
 
     if (!field) {
+      // Composite-key miss covers both "no such id" AND
+      // "row exists but belongs to a different tenant" — both
+      // indistinguishable to the caller (no enumeration oracle).
       throw new NotFoundException("Field not found - الحقل غير موجود");
-    }
-
-    // Enforce tenant isolation: prevent cross-tenant data access
-    if (tenantId) {
-      assertTenantOwnership(field.tenantId, tenantId, "field");
     }
 
     // Fetch centroid + bbox from PostGIS (neither is representable via the
@@ -586,7 +600,7 @@ export class FieldsService {
     // Invalidate caches
     await this.cacheService.invalidateField(id, current.tenantId);
 
-    const result = await this.findById(id);
+    const result = await this.findById(id, tenantId);
 
     // Publish field updated event (non-blocking)
     this.fieldEvents.publishFieldUpdated(tenantId, id, {
@@ -748,7 +762,7 @@ export class FieldsService {
       changeSource: dto.deviceId ? 'mobile' : 'api',
     }).catch((e) => this.logger.error(`Event publish failed: ${e}`));
 
-    return this.findById(id) as Promise<FieldResponseDto & { etag: string }>;
+    return this.findById(id, tenantId) as Promise<FieldResponseDto & { etag: string }>;
   }
 
   /**
@@ -884,7 +898,7 @@ export class FieldsService {
     // Invalidate caches
     await this.cacheService.invalidateField(id, field.tenantId);
 
-    return this.findById(id) as Promise<FieldResponseDto & { etag: string }>;
+    return this.findById(id, field.tenantId) as Promise<FieldResponseDto & { etag: string }>;
   }
 
   /**

@@ -319,7 +319,7 @@ describe('FieldsService', () => {
     it('should return a field from the database when cache misses', async () => {
       prisma.field.findUnique.mockResolvedValue(makeFieldRow());
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(result.id).toBe(FIELD_ID);
       expect(result.name).toBe('North Wheat Field');
@@ -347,7 +347,7 @@ describe('FieldsService', () => {
       };
       cache.get.mockResolvedValue(cachedField);
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(result.name).toBe('Cached Field');
       expect(prisma.field.findUnique).not.toHaveBeenCalled();
@@ -356,8 +356,19 @@ describe('FieldsService', () => {
     it('should throw NotFoundException when field does not exist', async () => {
       prisma.field.findUnique.mockResolvedValue(null);
 
-      await expect(service.findById('nonexistent-id')).rejects.toThrow(
+      await expect(service.findById('nonexistent-id', TENANT_A)).rejects.toThrow(
         NotFoundException,
+      );
+    });
+
+    it('should throw BadRequestException when tenantId is empty', async () => {
+      // Regression guard (PR #1724 review): an empty-string tenantId
+      // used to fall through to the un-scoped { id } path enabling a
+      // cross-tenant IDOR. The method must now reject falsy values
+      // explicitly so a controller that forwards an unsanitized
+      // x-tenant-id header (coerced to "") cannot leak data.
+      await expect(service.findById(FIELD_ID, '')).rejects.toThrow(
+        BadRequestException,
       );
     });
 
@@ -387,7 +398,7 @@ describe('FieldsService', () => {
         },
       ]);
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(result.centroidLng).toBeCloseTo(46.75);
       expect(result.centroidLat).toBeCloseTo(24.75);
@@ -436,7 +447,7 @@ describe('FieldsService', () => {
       });
       prisma.field.findUnique.mockResolvedValue(row);
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(typeof result.areaHectares).toBe('number');
     });

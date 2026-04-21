@@ -80,7 +80,15 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('index-picker-lai')));
+    // LAI is the 6th chip and sits past the 800-px test viewport width
+    // (empirically at x≈1423). Scroll the horizontal chip strip so the
+    // hit-test registers; without this, `tester.tap` logs
+    // "Offset (…, …) is outside the bounds of the root of the render
+    // tree" and silently drops the event.
+    final laiChip = find.byKey(const Key('index-picker-lai'));
+    await tester.ensureVisible(laiChip);
+    await tester.pumpAndSettle();
+    await tester.tap(laiChip);
     await tester.pumpAndSettle();
 
     expect(calls, 1);

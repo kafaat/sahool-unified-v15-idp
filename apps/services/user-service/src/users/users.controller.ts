@@ -72,6 +72,31 @@ export class UsersController {
     }
   }
 
+  /**
+   * Resolve which tenant scope a service call should enforce.
+   *
+   * Returns `undefined` only for platform-wide SUPER_ADMIN callers, in
+   * which case the downstream Prisma query runs without a tenantId
+   * predicate — this is how legitimate cross-tenant admin operations
+   * (e.g. platform-level user audits) stay possible. For every other
+   * caller — including regular ADMIN, MANAGER, and self-service — the
+   * caller's own `tenantId` is passed so `id_tenantId` composite-key
+   * lookups silently return 404 for cross-tenant access.
+   */
+  private resolveTenantScope(currentUser: any): string | undefined {
+    const rawRoles: string[] = Array.isArray(currentUser?.roles)
+      ? currentUser.roles
+      : [];
+    // Match both canonical "SUPER_ADMIN" and the legacy lowercase
+    // representation some upstream token issuers still emit.
+    const isSuperAdmin = rawRoles.some((r) => {
+      const s = String(r ?? "").toLowerCase();
+      return s === "super_admin" || s === "superadmin" || s === "super-admin";
+    });
+    if (isSuperAdmin) return undefined;
+    return currentUser?.tenantId;
+  }
+
   @Post()
   @UseGuards(RolesGuard)
   @Roles("ADMIN", "MANAGER")
@@ -170,7 +195,10 @@ export class UsersController {
     // Validate resource ownership - users can only access their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
-    const user = await this.usersService.findOne(id);
+    const user = await this.usersService.findOne(
+      id,
+      this.resolveTenantScope(currentUser),
+    );
     const { passwordHash, ...userWithoutPassword } = user;
     return {
       success: true,
@@ -246,7 +274,11 @@ export class UsersController {
       delete updateUserDto.status;
     }
 
-    const user = await this.usersService.update(id, updateUserDto);
+    const user = await this.usersService.update(
+      id,
+      updateUserDto,
+      this.resolveTenantScope(currentUser),
+    );
     const { passwordHash, ...userWithoutPassword } = user;
     return {
       success: true,
@@ -278,7 +310,7 @@ export class UsersController {
     // Validate resource ownership - users can only delete their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
-    await this.usersService.remove(id);
+    await this.usersService.remove(id, this.resolveTenantScope(currentUser));
     return {
       success: true,
       message: "User deleted successfully",
@@ -311,8 +343,11 @@ export class UsersController {
     status: 404,
     description: "User not found",
   })
-  async hardDelete(@Param("id", ParseUUIDPipe) id: string) {
-    await this.usersService.hardDelete(id);
+  async hardDelete(
+    @Param("id", ParseUUIDPipe) id: string,
+    @CurrentUser() currentUser: any,
+  ) {
+    await this.usersService.hardDelete(id, this.resolveTenantScope(currentUser));
     return {
       success: true,
       message: "User permanently deleted",
@@ -372,6 +407,42 @@ export class UsersController {
     return {
       success: true,
       data: { count },
+    };
+  }
+
+  /**
+   * Block or unblock a user (used by mobile chat and admin moderation).
+   * حجب أو رفع الحجب عن مستخدم
+   */
+  @Post(":userId/block")
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles("ADMIN", "MANAGER")
+  @ApiOperation({
+    summary: "Block or unblock a user",
+    description: "Toggle blocked status for the target user. Only ADMIN and MANAGER may call this.",
+  })
+  @ApiParam({ name: "userId", description: "UUID of the user to block/unblock" })
+  @ApiResponse({ status: 200, description: "User blocked/unblocked successfully" })
+  @ApiResponse({ status: 403, description: "Forbidden" })
+  @ApiResponse({ status: 404, description: "User not found" })
+  async blockUser(
+    @Param("userId", ParseUUIDPipe) userId: string,
+    @CurrentUser() currentUser: any,
+  ) {
+    // Prevent self-block
+    if (currentUser?.id === userId) {
+      throw new BadRequestException("You cannot block yourself");
+    }
+
+    const updated = await this.usersService.toggleBlock(userId, currentUser?.tenantId);
+    if (!updated) {
+      throw new NotFoundException("User not found");
+    }
+    return {
+      success: true,
+      data: { userId, blocked: updated.blocked },
+      message: updated.blocked ? "User blocked successfully" : "User unblocked successfully",
     };
   }
 }

@@ -59,8 +59,11 @@ class TestGetDeficiencyByNutrient:
 class TestDiagnoseFromNdvi:
     """Tests for diagnose_from_ndvi function"""
 
-    def test_severe_ndvi_below_03(self):
-        diagnoses = diagnose_from_ndvi(0.2)
+    def test_severe_ndvi_below_poor_cutoff(self):
+        """NDVI below the poor cutoff (0.2) = vegetation "poor" status
+        = severe nitrogen deficiency hypothesis. Cutoff aligned with
+        vegetation-analysis-service status_for_ndvi in PR #1704."""
+        diagnoses = diagnose_from_ndvi(0.15)
         assert len(diagnoses) > 0
         ids = [d["id"] for d in diagnoses]
         assert "nitrogen_deficiency" in ids
@@ -68,16 +71,21 @@ class TestDiagnoseFromNdvi:
         n_diag = next(d for d in diagnoses if d["id"] == "nitrogen_deficiency")
         assert n_diag["confidence"] == 0.7
 
-    def test_moderate_ndvi_between_03_05(self):
-        diagnoses = diagnose_from_ndvi(0.4)
+    def test_moderate_ndvi_between_poor_and_moderate_cutoffs(self):
+        """NDVI between 0.2 and 0.4 = vegetation "moderate" status
+        = possible N or K deficiency."""
+        diagnoses = diagnose_from_ndvi(0.3)
         assert len(diagnoses) >= 2
         ids = [d["id"] for d in diagnoses]
         assert "nitrogen_deficiency" in ids
         assert "potassium_deficiency" in ids
 
-    def test_healthy_ndvi_above_05(self):
-        diagnoses = diagnose_from_ndvi(0.7)
-        assert len(diagnoses) == 0
+    def test_healthy_ndvi_above_moderate_cutoff(self):
+        """NDVI 0.4+ = vegetation "good"/"excellent" — advisory must
+        NOT hypothesise a nutrient deficiency on a field the health
+        badge shows as good."""
+        assert diagnose_from_ndvi(0.5) == []
+        assert diagnose_from_ndvi(0.7) == []
 
     def test_declining_trend_adds_phosphorus(self):
         # Declining trend: 0.6 -> 0.5 -> 0.45 (trend = -0.15)

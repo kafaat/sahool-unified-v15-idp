@@ -16,9 +16,16 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   // Prevent open redirect — only allow relative paths starting with /
+  // Also prevent redirect loops back to auth pages
   const rawReturnTo = searchParams.get('returnTo') || '/dashboard';
+  const authPages = ['/login', '/register', '/forgot-password', '/reset-password', '/verify-otp'];
   const returnTo =
-    rawReturnTo.startsWith('/') && !rawReturnTo.startsWith('//') ? rawReturnTo : '/dashboard';
+    rawReturnTo.startsWith('/') &&
+    !rawReturnTo.startsWith('//') &&
+    !rawReturnTo.startsWith('/\\') &&
+    !authPages.some((page) => rawReturnTo.startsWith(page))
+      ? rawReturnTo
+      : '/dashboard';
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');

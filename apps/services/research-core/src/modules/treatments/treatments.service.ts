@@ -163,7 +163,7 @@ export class TreatmentsService {
     const { parameters, ...restDto } = dto;
 
     return this.prisma.treatment.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         ...restDto,
         startDate: dto.startDate ? new Date(dto.startDate) : undefined,
@@ -196,7 +196,7 @@ export class TreatmentsService {
     await this.findOne(id, tenantId);
 
     return this.prisma.treatment.delete({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
   }
 

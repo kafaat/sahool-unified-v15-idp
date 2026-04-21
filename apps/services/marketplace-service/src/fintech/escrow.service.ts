@@ -28,6 +28,15 @@ export class EscrowService {
   constructor(private prisma: PrismaService) {}
 
   /**
+   * Guard: every tenant-scoped public method must receive a tenantId.
+   */
+  private ensureTenantId(tenantId: string): void {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+  }
+
+  /**
    * إنشاء إسكرو جديد للطلب (مع حماية من الصرف المزدوج)
    */
   async createEscrow(
@@ -35,11 +44,14 @@ export class EscrowService {
     buyerWalletId: string,
     sellerWalletId: string,
     amount: number,
-    notes?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
+    notes: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (amount <= 0) {
       throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
@@ -49,8 +61,8 @@ export class EscrowService {
         where: { idempotencyKey },
       });
       if (existingTransaction) {
-        const escrow = await this.prisma.escrow.findUnique({
-          where: { orderId },
+        const escrow = await this.prisma.escrow.findFirst({
+          where: { orderId, tenantId },
         });
         if (!escrow) {
           throw new NotFoundException("الإسكرو غير موجود للطلب المكرر");
@@ -61,16 +73,25 @@ export class EscrowService {
 
     return await this.prisma.$transaction(
       async (tx) => {
-        const existingEscrow = await tx.escrow.findUnique({
-          where: { orderId },
+        const existingEscrow = await tx.escrow.findFirst({
+          where: { orderId, tenantId },
         });
 
         if (existingEscrow) {
           throw new BadRequestException("يوجد إسكرو لهذا الطلب بالفعل");
         }
 
+        // Tenant-scope buyer wallet: id comes from request payload.
+        const buyerWalletTenantCheck = await tx.wallet.findUnique({
+          where: { id_tenantId: { id: buyerWalletId, tenantId } },
+          select: { id: true },
+        });
+        if (!buyerWalletTenantCheck) {
+          throw new NotFoundException("محفظة المشتري غير موجودة");
+        }
+
         const buyerWalletRows = await tx.$queryRaw<any[]>`
-          SELECT * FROM wallets WHERE id = ${buyerWalletId}::uuid FOR UPDATE
+          SELECT * FROM wallets WHERE id = ${buyerWalletId}::uuid AND tenant_id = ${tenantId} FOR UPDATE
         `;
 
         if (!buyerWalletRows || buyerWalletRows.length === 0) {
@@ -92,8 +113,9 @@ export class EscrowService {
         const newEscrowBalance = escrowBalanceBefore + amount;
         const newVersion = versionBefore + 1;
 
+        // Tenant-scope seller wallet: id comes from request payload.
         const sellerWalletExists = await tx.wallet.findUnique({
-          where: { id: sellerWalletId },
+          where: { id_tenantId: { id: sellerWalletId, tenantId } },
         });
         if (!sellerWalletExists) {
           throw new NotFoundException("محفظة البائع غير موجودة");
@@ -101,6 +123,7 @@ export class EscrowService {
 
         const escrow = await tx.escrow.create({
           data: {
+            tenantId,
             orderId,
             buyerWalletId,
             sellerWalletId,
@@ -112,7 +135,7 @@ export class EscrowService {
 
         const updatedBuyerWallet = await tx.wallet.update({
           where: {
-            id: buyerWalletId,
+            id_tenantId: { id: buyerWalletId, tenantId },
             version: versionBefore,
           },
           data: {
@@ -124,6 +147,7 @@ export class EscrowService {
 
         const transaction = await tx.transaction.create({
           data: {
+            tenantId,
             walletId: buyerWalletId,
             type: "ESCROW_HOLD",
             amount: -amount,
@@ -142,6 +166,7 @@ export class EscrowService {
 
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId: buyerWalletId,
             transactionId: transaction.id,
             userId,
@@ -183,18 +208,21 @@ export class EscrowService {
    */
   async releaseEscrow(
     escrowId: string,
-    notes?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
+    notes: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (idempotencyKey) {
       const existingTransaction = await this.prisma.transaction.findUnique({
         where: { idempotencyKey },
       });
       if (existingTransaction) {
         const escrow = await this.prisma.escrow.findUnique({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
           include: {
             buyerWallet: true,
             sellerWallet: true,
@@ -210,7 +238,7 @@ export class EscrowService {
     return await this.prisma.$transaction(
       async (tx) => {
         const escrow = await tx.escrow.findUnique({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
         });
 
         if (!escrow) {
@@ -225,10 +253,10 @@ export class EscrowService {
 
         const [buyerWalletRows, sellerWalletRows] = await Promise.all([
           tx.$queryRaw<any[]>`
-            SELECT * FROM wallets WHERE id = ${escrow.buyerWalletId}::uuid FOR UPDATE
+            SELECT * FROM wallets WHERE id = ${escrow.buyerWalletId}::uuid AND tenant_id = ${tenantId} FOR UPDATE
           `,
           tx.$queryRaw<any[]>`
-            SELECT * FROM wallets WHERE id = ${escrow.sellerWalletId}::uuid FOR UPDATE
+            SELECT * FROM wallets WHERE id = ${escrow.sellerWalletId}::uuid AND tenant_id = ${tenantId} FOR UPDATE
           `,
         ]);
 
@@ -260,7 +288,7 @@ export class EscrowService {
         const sellerBalanceAfter = sellerBalanceBefore + escrowAmount;
 
         const updatedEscrow = await tx.escrow.update({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
           data: {
             status: "RELEASED",
             releasedAt: now,
@@ -270,7 +298,7 @@ export class EscrowService {
 
         const updatedBuyerWallet = await tx.wallet.update({
           where: {
-            id: escrow.buyerWalletId,
+            id_tenantId: { id: escrow.buyerWalletId, tenantId },
             version: buyerVersionBefore,
           },
           data: {
@@ -281,7 +309,7 @@ export class EscrowService {
 
         const updatedSellerWallet = await tx.wallet.update({
           where: {
-            id: escrow.sellerWalletId,
+            id_tenantId: { id: escrow.sellerWalletId, tenantId },
             version: sellerVersionBefore,
           },
           data: {
@@ -293,6 +321,7 @@ export class EscrowService {
         const buyerBalanceNum = toNum(buyerWallet.balance);
         const buyerTx = await tx.transaction.create({
           data: {
+            tenantId,
             walletId: escrow.buyerWalletId,
             type: "ESCROW_RELEASE",
             amount: 0,
@@ -313,6 +342,7 @@ export class EscrowService {
 
         const sellerTx = await tx.transaction.create({
           data: {
+            tenantId,
             walletId: escrow.sellerWalletId,
             type: "MARKETPLACE_SALE",
             amount: escrowAmount,
@@ -332,6 +362,7 @@ export class EscrowService {
         await Promise.all([
           tx.walletAuditLog.create({
             data: {
+              tenantId,
               walletId: escrow.buyerWalletId,
               transactionId: buyerTx.id,
               userId,
@@ -353,6 +384,7 @@ export class EscrowService {
           }),
           tx.walletAuditLog.create({
             data: {
+              tenantId,
               walletId: escrow.sellerWalletId,
               transactionId: sellerTx.id,
               userId,
@@ -373,6 +405,7 @@ export class EscrowService {
 
         await tx.creditEvent.create({
           data: {
+            tenantId,
             walletId: escrow.sellerWalletId,
             eventType: "ORDER_COMPLETED",
             amount: escrowAmount,
@@ -403,18 +436,21 @@ export class EscrowService {
    */
   async refundEscrow(
     escrowId: string,
-    reason?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
+    reason: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (idempotencyKey) {
       const existingTransaction = await this.prisma.transaction.findUnique({
         where: { idempotencyKey },
       });
       if (existingTransaction) {
         const escrow = await this.prisma.escrow.findUnique({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
           include: { buyerWallet: true },
         });
         if (!escrow) {
@@ -427,7 +463,7 @@ export class EscrowService {
     return await this.prisma.$transaction(
       async (tx) => {
         const escrow = await tx.escrow.findUnique({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
         });
 
         if (!escrow) {
@@ -441,7 +477,7 @@ export class EscrowService {
         }
 
         const buyerWalletRows = await tx.$queryRaw<any[]>`
-          SELECT * FROM wallets WHERE id = ${escrow.buyerWalletId}::uuid FOR UPDATE
+          SELECT * FROM wallets WHERE id = ${escrow.buyerWalletId}::uuid AND tenant_id = ${tenantId} FOR UPDATE
         `;
 
         if (!buyerWalletRows || buyerWalletRows.length === 0) {
@@ -466,7 +502,7 @@ export class EscrowService {
         const newVersion = versionBefore + 1;
 
         const updatedEscrow = await tx.escrow.update({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
           data: {
             status: "REFUNDED",
             refundedAt: now,
@@ -476,7 +512,7 @@ export class EscrowService {
 
         const updatedBuyerWallet = await tx.wallet.update({
           where: {
-            id: escrow.buyerWalletId,
+            id_tenantId: { id: escrow.buyerWalletId, tenantId },
             version: versionBefore,
           },
           data: {
@@ -488,6 +524,7 @@ export class EscrowService {
 
         const transaction = await tx.transaction.create({
           data: {
+            tenantId,
             walletId: escrow.buyerWalletId,
             type: "ESCROW_REFUND",
             amount: refundAmount,
@@ -506,6 +543,7 @@ export class EscrowService {
 
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId: escrow.buyerWalletId,
             transactionId: transaction.id,
             userId,
@@ -529,6 +567,7 @@ export class EscrowService {
 
         await tx.creditEvent.create({
           data: {
+            tenantId,
             walletId: escrow.sellerWalletId,
             eventType: "ORDER_CANCELLED",
             amount: refundAmount,
@@ -560,9 +599,12 @@ export class EscrowService {
   async disputeEscrow(
     escrowId: string,
     reason: string,
-    userId?: string,
-    ipAddress?: string,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (!reason || reason.trim().length < 10) {
       throw new BadRequestException(
         "سبب النزاع يجب أن يكون 10 أحرف على الأقل",
@@ -572,7 +614,7 @@ export class EscrowService {
     return await this.prisma.$transaction(
       async (tx) => {
         const escrow = await tx.escrow.findUnique({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
         });
 
         if (!escrow) {
@@ -586,7 +628,7 @@ export class EscrowService {
         }
 
         const updatedEscrow = await tx.escrow.update({
-          where: { id: escrowId },
+          where: { id_tenantId: { id: escrowId, tenantId } },
           data: {
             status: "DISPUTED",
             disputeReason: reason.trim(),
@@ -596,6 +638,7 @@ export class EscrowService {
         // Audit log for buyer wallet
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId: escrow.buyerWalletId,
             userId,
             operation: "ESCROW_DISPUTED",
@@ -633,11 +676,14 @@ export class EscrowService {
     escrowId: string,
     resolution: "release" | "refund",
     adminNotes: string,
-    userId?: string,
-    ipAddress?: string,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     const escrow = await this.prisma.escrow.findUnique({
-      where: { id: escrowId },
+      where: { id_tenantId: { id: escrowId, tenantId } },
     });
 
     if (!escrow) {
@@ -653,18 +699,21 @@ export class EscrowService {
     const notes = `[تم حل النزاع: ${resolution === "release" ? "إطلاق للبائع" : "استرداد للمشتري"}] ${adminNotes}`;
 
     if (resolution === "release") {
-      return this.releaseEscrow(escrowId, notes, undefined, userId, ipAddress);
+      return this.releaseEscrow(escrowId, notes, undefined, userId, ipAddress, tenantId);
     } else {
-      return this.refundEscrow(escrowId, notes, undefined, userId, ipAddress);
+      return this.refundEscrow(escrowId, notes, undefined, userId, ipAddress, tenantId);
     }
   }
 
   /**
    * الحصول على إسكرو بالطلب
    */
-  async getEscrowByOrder(orderId: string) {
-    return this.prisma.escrow.findUnique({
-      where: { orderId },
+  async getEscrowByOrder(orderId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
+    // orderId is unique globally but we still tenant-scope to prevent
+    // cross-tenant leakage if a tenant uses another tenant's order id.
+    return this.prisma.escrow.findFirst({
+      where: { orderId, tenantId },
       include: {
         buyerWallet: true,
         sellerWallet: true,
@@ -675,15 +724,16 @@ export class EscrowService {
   /**
    * الحصول على جميع إسكرو المحفظة
    */
-  async getWalletEscrows(walletId: string) {
+  async getWalletEscrows(walletId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
     const [asBuyer, asSeller] = await Promise.all([
       this.prisma.escrow.findMany({
-        where: { buyerWalletId: walletId },
+        where: { buyerWalletId: walletId, tenantId },
         orderBy: { createdAt: "desc" },
         take: 100,
       }),
       this.prisma.escrow.findMany({
-        where: { sellerWalletId: walletId },
+        where: { sellerWalletId: walletId, tenantId },
         orderBy: { createdAt: "desc" },
         take: 100,
       }),

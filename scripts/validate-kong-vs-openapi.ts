@@ -114,25 +114,44 @@ function parseYAML(content: string): unknown {
 }
 
 function extractKongRoutesRegex(content: string): KongConfig {
+  const TOP_LEVEL_KEY_PATTERN = /^[_a-zA-Z][\w-]*:\s*/;
+  const PATH_BLOCK_END_KEYS = /^(methods|protocols|strip_path|name):/;
+
   const services: KongService[] = [];
   let currentService: KongService | null = null;
   let currentRoute: KongRoute | null = null;
+  let inServices = false;
   let inRoutes = false;
   let inPaths = false;
 
   const lines = content.split("\n");
 
   for (const line of lines) {
-    const trimmed = line.trimEnd();
+    const lineTrimmed = line.trimEnd();
+    const trimmed = lineTrimmed.trimStart();
+    const indent = line.length - line.trimStart().length;
+
+    if (/^services:\s*$/.test(trimmed)) {
+      inServices = true;
+      inRoutes = false;
+      inPaths = false;
+      currentRoute = null;
+      continue;
+    }
+
+    if (!inServices) continue;
+
+    if (indent <= 1 && TOP_LEVEL_KEY_PATTERN.test(trimmed) && !/^services:\s*$/.test(trimmed)) {
+      inServices = false;
+      inRoutes = false;
+      inPaths = false;
+      currentRoute = null;
+      continue;
+    }
 
     // Detect service name
-    const serviceNameMatch = trimmed.match(
-      /^\s{4}- name:\s*(.+)/
-    );
-    if (
-      serviceNameMatch &&
-      !inRoutes
-    ) {
+    const serviceNameMatch = trimmed.match(/^- name:\s*(.+)/);
+    if (serviceNameMatch && indent <= 2) {
       if (currentService) {
         services.push(currentService);
       }
@@ -147,43 +166,44 @@ function extractKongRoutesRegex(content: string): KongConfig {
     }
 
     // Detect routes section
-    if (trimmed.match(/^\s{6}routes:/) && currentService) {
+    if (trimmed === "routes:" && currentService) {
       inRoutes = true;
       continue;
     }
 
     // Detect route entry
-    if (inRoutes && trimmed.match(/^\s{8}- /)) {
+    if (inRoutes && !inPaths && /^- /.test(trimmed) && indent >= 4) {
       currentRoute = { paths: [] };
       currentService?.routes?.push(currentRoute);
+      inPaths = false;
       continue;
     }
 
     // Detect paths within route
-    if (inRoutes && trimmed.match(/^\s{10}paths:/)) {
+    if (inRoutes && trimmed === "paths:") {
       inPaths = true;
       continue;
     }
 
     // Extract path
     if (inPaths && currentRoute) {
-      const pathMatch = trimmed.match(/^\s{12}- (.+)/);
+      const pathMatch = trimmed.match(/^- (\/.+)/);
       if (pathMatch) {
         currentRoute.paths?.push(pathMatch[1].trim());
-      } else if (!trimmed.match(/^\s{12}/)) {
+      } else if (!/^[-\s]/.test(trimmed) || PATH_BLOCK_END_KEYS.test(trimmed)) {
         inPaths = false;
       }
     }
 
     // Detect host/port
     if (currentService) {
-      const hostMatch = trimmed.match(/^\s{6}host:\s*(.+)/);
+      const hostMatch = trimmed.match(/^host:\s*(.+)/);
       if (hostMatch) currentService.host = hostMatch[1].trim();
 
-      const portMatch = trimmed.match(/^\s{6}port:\s*(\d+)/);
+      const portMatch = trimmed.match(/^port:\s*(\d+)/);
       if (portMatch) currentService.port = parseInt(portMatch[1]);
 
-      const urlMatch = trimmed.match(/^\s{6}url:\s*(.+)/);
+      const urlMatch = trimmed.match(/^url:\s*(.+)/);
       if (urlMatch) currentService.url = urlMatch[1].trim();
     }
   }
@@ -333,6 +353,10 @@ function validate(): ValidationResult {
   const kongRoutes = extractKongRoutes(kongConfig);
   result.kongRoutes = kongRoutes.size;
   result.info.push(`Found ${kongRoutes.size} Kong routes`);
+  if (kongRoutes.size === 0 && kongContent.includes("services:")) {
+    result.errors.push("No Kong routes were parsed from kong.yml; check YAML parser/dependencies");
+    return result;
+  }
 
   // 2. Load OpenAPI specs
   const openapiPaths = extractOpenAPIPaths(OPENAPI_DIR);

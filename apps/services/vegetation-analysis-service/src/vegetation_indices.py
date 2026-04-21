@@ -88,6 +88,11 @@ class VegetationIndex(Enum):
     SOC = "soc"  # Soil Organic Carbon estimation from SWIR (Bartholomeus 2008)
     VCI = "vci"  # Vegetation Condition Index (Kogan 1990) — drought monitoring
 
+    # Phase 5 - Productivity proxies (Planet NICFI / Copernicus Global Land standard)
+    # المرحلة الخامسة - مؤشرات الإنتاجية الأساسية
+    FPAR = "fpar"  # Fraction of PAR absorbed by canopy (Myneni 1997) — biomass/NPP
+    FAPAR = "fapar"  # Fraction of absorbed PAR (ESA/Copernicus) — photosynthesis proxy
+
 
 class CropType(Enum):
     """Crop types for Yemen agriculture"""
@@ -246,6 +251,11 @@ class AllIndices:
     soc: float | None = None  # Soil Organic Carbon (% estimation from SWIR)
     vci: float | None = None  # Vegetation Condition Index (drought)
 
+    # Phase 5 - Productivity proxies (Planet NICFI / Copernicus Global Land)
+    # المرحلة الخامسة - مؤشرات الإنتاجية
+    fpar: float | None = None  # Fraction of PAR absorbed (0-1)
+    fapar: float | None = None  # Fraction of absorbed PAR (ESA convention)
+
     # Valid ranges for normalized difference indices (all follow [-1, 1] range)
     _NORMALIZED_INDICES = frozenset(
         {
@@ -389,6 +399,10 @@ class VegetationIndicesCalculator:
             # المرحلة الرابعة - التربة والحرارة
             soc=self.soc(bands),
             vci=self.vci(ndvi),
+            # Phase 5 - Productivity proxies (Planet NICFI / Copernicus)
+            # المرحلة الخامسة - مؤشرات الإنتاجية
+            fpar=self.fpar(ndvi),
+            fapar=self.fapar(ndvi),
         )
 
     # =========================================================================
@@ -1275,6 +1289,62 @@ class VegetationIndicesCalculator:
         vci_val = ((ndvi - ndvi_min) / (ndvi_max - ndvi_min)) * 100
         return round(max(0, min(vci_val, 100)), 1)
 
+    # =========================================================================
+    # Phase 5 - Productivity Proxies (Planet NICFI / Copernicus Global Land)
+    # المرحلة الخامسة - مؤشرات الإنتاجية
+    # =========================================================================
+
+    def fpar(self, ndvi: float) -> float:
+        """
+        FPAR - Fraction of Photosynthetically Active Radiation absorbed
+        النسبة الممتصة من الإشعاع الضوئي (للإنتاجية)
+
+        Range: 0.0 - 1.0
+        Best for: Biomass estimation, Net Primary Productivity (NPP),
+        gross primary production (GPP), yield modelling.
+
+        Formula: FPAR ≈ 1.24 × NDVI - 0.168  (Myneni & Williams 1994,
+        validated against MODIS MOD15A2H product — the same linear form
+        used by Planet NICFI and Copernicus Global Land FPAR time series).
+
+        Interpretation:
+        - FPAR < 0.2: Bare soil / sparse vegetation → تربة مكشوفة أو نبات مبعثر
+        - 0.2-0.5: Developing crop → محصول في النمو
+        - 0.5-0.8: Dense canopy → غطاء نباتي كثيف
+        - > 0.8: Peak absorption → امتصاص ذروي (نضج)
+
+        Use case: Feeds NPP / yield-prediction models and drought
+        impact assessments (CCI Biomass / Copernicus LAI-FPAR V2 workflow).
+        """
+        value = 1.24 * ndvi - 0.168
+        return round(max(0.0, min(value, 1.0)), 4)
+
+    def fapar(self, ndvi: float) -> float:
+        """
+        fAPAR - fraction of Absorbed Photosynthetically Active Radiation
+        النسبة الممتصة من الإشعاع الضوئي النشط (معيار ESA)
+
+        Range: 0.0 - 1.0
+        Best for: Photosynthesis-efficiency proxy, carbon-flux models,
+        ESA Copernicus Global Land Service LAI-fAPAR workflow.
+
+        Formula (ESA Sentinel-2 Biophysical Processor / SNAP):
+            fAPAR ≈ 1.08 × NDVI - 0.10  (calibrated against ground
+            PAR measurements; mirrors the slope used in the SNAP
+            BiophysicalOp default weights).
+
+        Technical note: FPAR and fAPAR are often used interchangeably,
+        but ESA convention reserves fAPAR for the *instantaneous*
+        absorbed fraction and FPAR for the daily-integrated value.
+        Both expose the same biological signal and accept the same
+        NDVI input — we surface both for interoperability with EOSDA,
+        Copernicus, and MODIS-compatible pipelines.
+
+        Interpretation matches FPAR scale (see above).
+        """
+        value = 1.08 * ndvi - 0.10
+        return round(max(0.0, min(value, 1.0)), 4)
+
 
 # =============================================================================
 # Crop-Specific Thresholds and Interpretation
@@ -1502,8 +1572,47 @@ class IndexInterpreter:
             return self._interpret_gdvi(value)
         elif index_name_lower == "tsavi":
             return self._interpret_tsavi(value)
+        # Chlorophyll / pigment family
+        elif index_name_lower == "cvi":
+            return self._interpret_cvi(value)
+        elif index_name_lower == "mcari":
+            return self._interpret_mcari(value)
+        elif index_name_lower == "tcari":
+            return self._interpret_tcari(value)
+        elif index_name_lower == "sipi":
+            return self._interpret_sipi(value)
+        elif index_name_lower == "pri":
+            return self._interpret_pri(value)
+        elif index_name_lower == "cri":
+            return self._interpret_cri(value)
+        elif index_name_lower == "ari":
+            return self._interpret_ari(value)
+        elif index_name_lower == "psri":
+            return self._interpret_psri(value)
+        elif index_name_lower == "rep":
+            return self._interpret_rep(value)
+        # Early stress / visible-band family
+        elif index_name_lower == "vari":
+            return self._interpret_vari(value)
+        elif index_name_lower == "gli":
+            return self._interpret_gli(value)
+        elif index_name_lower == "grvi":
+            return self._interpret_grvi(value)
+        # Soil-adjusted family
+        elif index_name_lower == "msavi":
+            return self._interpret_msavi(value)
+        elif index_name_lower == "osavi":
+            return self._interpret_osavi(value)
+        elif index_name_lower == "arvi":
+            return self._interpret_arvi(value)
+        # Soil condition
+        elif index_name_lower == "soc":
+            return self._interpret_soc(value)
+        # Productivity proxies (Planet NICFI / Copernicus)
+        elif index_name_lower in ("fpar", "fapar"):
+            return self._interpret_fpar(index_name_lower, value)
         else:
-            # Generic interpretation
+            # Generic interpretation (fallback for any index not listed above)
             return self._interpret_generic(index_name, value)
 
     def _interpret_ndvi(self, value: float, crop_type: CropType, growth_stage: GrowthStage) -> IndexInterpretation:
@@ -2422,6 +2531,363 @@ class IndexInterpreter:
             description_en=desc_en,
             confidence=confidence,
             threshold_info=self.TSAVI_THRESHOLDS,
+        )
+
+    # =========================================================================
+    # Chlorophyll / Pigment family (dedicated interpretations)
+    # =========================================================================
+
+    def _interpret_cvi(self, value: float) -> IndexInterpretation:
+        """CVI (Chlorophyll Vegetation Index, Hunt 2011) — 0..15+, higher = more chlorophyll."""
+        if value >= 10:
+            status, ar, en = HealthStatus.EXCELLENT, "كلوروفيل ممتاز", "Excellent chlorophyll"
+        elif value >= 5:
+            status, ar, en = HealthStatus.GOOD, "كلوروفيل جيد", "Good chlorophyll"
+        elif value >= 2:
+            status, ar, en = HealthStatus.FAIR, "كلوروفيل متوسط", "Moderate chlorophyll"
+        elif value >= 0.5:
+            status, ar, en = HealthStatus.POOR, "نقص كلوروفيل", "Low chlorophyll"
+        else:
+            status, ar, en = HealthStatus.CRITICAL, "نقص حاد — فحص نيتروجين", "Critical — check nitrogen"
+        return IndexInterpretation(
+            index_name="CVI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.80,
+            threshold_info={"excellent": ">10", "good": "5-10", "fair": "2-5", "poor": "<2"},
+        )
+
+    def _interpret_mcari(self, value: float) -> IndexInterpretation:
+        """MCARI (Daughtry 2000) — 0..2+, chlorophyll absorption magnitude."""
+        if value >= 1.0:
+            status, ar, en = HealthStatus.EXCELLENT, "امتصاص عالٍ للكلوروفيل", "High chlorophyll absorption"
+        elif value >= 0.5:
+            status, ar, en = HealthStatus.GOOD, "امتصاص جيد", "Good absorption"
+        elif value >= 0.2:
+            status, ar, en = HealthStatus.FAIR, "امتصاص متوسط", "Moderate absorption"
+        else:
+            status, ar, en = HealthStatus.POOR, "امتصاص منخفض — إجهاد", "Low absorption — stress"
+        return IndexInterpretation(
+            index_name="MCARI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.78,
+            threshold_info={"excellent": ">1.0", "good": "0.5-1.0", "fair": "0.2-0.5"},
+        )
+
+    def _interpret_tcari(self, value: float) -> IndexInterpretation:
+        """TCARI (Haboudane 2002) — corrects MCARI for soil background; same scale."""
+        if value >= 0.8:
+            status, ar, en = HealthStatus.EXCELLENT, "كلوروفيل مع تصحيح التربة ممتاز", "Excellent (soil-corrected)"
+        elif value >= 0.4:
+            status, ar, en = HealthStatus.GOOD, "كلوروفيل جيد (مصحَّح)", "Good (soil-corrected)"
+        elif value >= 0.15:
+            status, ar, en = HealthStatus.FAIR, "كلوروفيل متوسط", "Moderate chlorophyll"
+        else:
+            status, ar, en = HealthStatus.POOR, "نقص كلوروفيل حقيقي", "Genuine chlorophyll deficit"
+        return IndexInterpretation(
+            index_name="TCARI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.82,
+            threshold_info={"excellent": ">0.8", "good": "0.4-0.8"},
+        )
+
+    def _interpret_sipi(self, value: float) -> IndexInterpretation:
+        """SIPI (Peñuelas 1995) — 0.8..1.8 typical; >1.8 indicates stress (reverse scale)."""
+        if value > 1.8:
+            status, ar, en = (
+                HealthStatus.CRITICAL,
+                "إجهاد شديد (نسبة أصباغ مرتفعة)",
+                "Severe stress (high pigment ratio)",
+            )
+        elif value > 1.3:
+            status, ar, en = HealthStatus.POOR, "إجهاد متزايد", "Increasing stress"
+        elif value > 1.0:
+            status, ar, en = HealthStatus.FAIR, "اعتدال", "Moderate"
+        elif value > 0.9:
+            status, ar, en = HealthStatus.GOOD, "صحيح", "Healthy"
+        else:
+            status, ar, en = HealthStatus.EXCELLENT, "ممتاز (أصباغ متوازنة)", "Excellent (balanced pigments)"
+        return IndexInterpretation(
+            index_name="SIPI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.75,
+            threshold_info={"healthy": "0.9-1.3", "stressed": ">1.3"},
+        )
+
+    def _interpret_pri(self, value: float) -> IndexInterpretation:
+        """PRI (Gamon 1992) — -0.2..0.2, higher = better photosynthesis efficiency."""
+        if value >= 0.05:
+            status, ar, en = HealthStatus.EXCELLENT, "كفاءة بناء ضوئي ممتازة", "Excellent photosynthetic efficiency"
+        elif value >= 0:
+            status, ar, en = HealthStatus.GOOD, "كفاءة جيدة", "Good efficiency"
+        elif value >= -0.05:
+            status, ar, en = HealthStatus.FAIR, "كفاءة متوسطة", "Moderate efficiency"
+        else:
+            status, ar, en = HealthStatus.POOR, "إجهاد ضوئي — احتمال نقص مياه", "Light stress — possible water deficit"
+        return IndexInterpretation(
+            index_name="PRI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.80,
+            threshold_info={"range": "-0.2..0.2", "healthy": ">0"},
+        )
+
+    def _interpret_cri(self, value: float) -> IndexInterpretation:
+        """CRI (Gitelson 2002) — 0..10+, higher = more carotenoids (stress response)."""
+        if value >= 8:
+            status, ar, en = HealthStatus.POOR, "كاروتينويد عالٍ — استجابة إجهاد", "High carotenoids — stress response"
+        elif value >= 5:
+            status, ar, en = HealthStatus.FAIR, "بداية تراكم كاروتينويد", "Rising carotenoids"
+        elif value >= 2:
+            status, ar, en = HealthStatus.GOOD, "مستوى طبيعي", "Normal level"
+        else:
+            status, ar, en = HealthStatus.EXCELLENT, "مستوى كاروتينويد منخفض (صحي)", "Low carotenoids (healthy)"
+        return IndexInterpretation(
+            index_name="CRI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.70,
+            threshold_info={"normal": "<5", "stress_response": ">5"},
+        )
+
+    def _interpret_ari(self, value: float) -> IndexInterpretation:
+        """ARI (Gitelson 2001) — 0..5+, higher = more anthocyanin (abiotic stress)."""
+        if value >= 3:
+            status, ar, en = (
+                HealthStatus.CRITICAL,
+                "أنثوسيانين عالٍ — إجهاد بارد/ملوحة",
+                "High anthocyanin — cold/salinity stress",
+            )
+        elif value >= 1.5:
+            status, ar, en = HealthStatus.POOR, "تراكم أنثوسيانين", "Anthocyanin accumulating"
+        elif value >= 0.5:
+            status, ar, en = HealthStatus.FAIR, "طبيعي", "Normal"
+        else:
+            status, ar, en = HealthStatus.EXCELLENT, "لا إجهاد ملحوظ", "No measurable stress"
+        return IndexInterpretation(
+            index_name="ARI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.72,
+            threshold_info={"normal": "<1.5", "stress": ">1.5"},
+        )
+
+    def _interpret_psri(self, value: float) -> IndexInterpretation:
+        """PSRI (Merzlyak 1999) — -0.2..0.5, higher = more senescence/maturation."""
+        if value >= 0.2:
+            status, ar, en = HealthStatus.POOR, "شيخوخة/نضج متقدم", "Advanced senescence / maturation"
+        elif value >= 0.1:
+            status, ar, en = HealthStatus.FAIR, "بداية شيخوخة", "Early senescence"
+        elif value >= 0:
+            status, ar, en = HealthStatus.GOOD, "نشط", "Active"
+        else:
+            status, ar, en = HealthStatus.EXCELLENT, "نمو نشط (مرحلة خضرية)", "Active growth (vegetative)"
+        return IndexInterpretation(
+            index_name="PSRI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.75,
+            threshold_info={"active": "<0.1", "senescing": ">0.1"},
+        )
+
+    def _interpret_rep(self, value: float) -> IndexInterpretation:
+        """REP - Red Edge Position (nm). Typical healthy range 720-735nm; shift down = stress."""
+        if value >= 730:
+            status, ar, en = (
+                HealthStatus.EXCELLENT,
+                "حافة حمراء صحية (كلوروفيل عالٍ)",
+                "Healthy red edge (high chlorophyll)",
+            )
+        elif value >= 725:
+            status, ar, en = HealthStatus.GOOD, "طبيعي", "Normal"
+        elif value >= 720:
+            status, ar, en = HealthStatus.FAIR, "انزياح خفيف — فحص مبكر", "Slight shift — early check"
+        elif value >= 715:
+            status, ar, en = HealthStatus.POOR, "انزياح للأزرق — إجهاد", "Blue shift — stress"
+        else:
+            status, ar, en = (
+                HealthStatus.CRITICAL,
+                "انزياح شديد — نقص كلوروفيل حاد",
+                "Severe blue shift — acute chlorophyll loss",
+            )
+        return IndexInterpretation(
+            index_name="REP",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.78,
+            threshold_info={"healthy": ">=725nm", "stressed": "<720nm"},
+        )
+
+    # =========================================================================
+    # Early stress / visible-band family
+    # =========================================================================
+
+    def _interpret_vari(self, value: float) -> IndexInterpretation:
+        """VARI (Gitelson 2002) — -1..1, atmospheric-resistant visible greenness."""
+        return self._interpret_visible_band_generic("VARI", value, healthy=0.2, good=0.05, fair=-0.05)
+
+    def _interpret_gli(self, value: float) -> IndexInterpretation:
+        """GLI (Louhaichi 2001) — -1..1, green leaf coverage."""
+        return self._interpret_visible_band_generic("GLI", value, healthy=0.3, good=0.1, fair=-0.05)
+
+    def _interpret_grvi(self, value: float) -> IndexInterpretation:
+        """GRVI — -1..1, positive = vegetation, negative = bare soil/senescence."""
+        if value >= 0.15:
+            status, ar, en = HealthStatus.EXCELLENT, "غطاء نباتي كثيف", "Dense vegetation"
+        elif value >= 0.05:
+            status, ar, en = HealthStatus.GOOD, "غطاء جيد", "Good cover"
+        elif value >= 0:
+            status, ar, en = HealthStatus.FAIR, "غطاء خفيف", "Light cover"
+        elif value >= -0.1:
+            status, ar, en = HealthStatus.POOR, "تربة مكشوفة / شيخوخة", "Bare soil / senescence"
+        else:
+            status, ar, en = HealthStatus.CRITICAL, "لا غطاء نباتي فعَّال", "No effective vegetation"
+        return IndexInterpretation(
+            index_name="GRVI",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.72,
+            threshold_info={"vegetation": ">0", "bare": "<0"},
+        )
+
+    def _interpret_visible_band_generic(
+        self, name: str, value: float, *, healthy: float, good: float, fair: float
+    ) -> IndexInterpretation:
+        """Shared shape for VARI/GLI/similar visible-band indices."""
+        if value >= healthy:
+            status, ar, en = HealthStatus.EXCELLENT, "غطاء نباتي ممتاز", "Excellent vegetation cover"
+        elif value >= good:
+            status, ar, en = HealthStatus.GOOD, "غطاء جيد", "Good cover"
+        elif value >= fair:
+            status, ar, en = HealthStatus.FAIR, "غطاء محدود", "Limited cover"
+        else:
+            status, ar, en = HealthStatus.POOR, "تربة مكشوفة/إجهاد", "Bare soil / stress"
+        return IndexInterpretation(
+            index_name=name,
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.70,
+            threshold_info={"healthy": f">={healthy}", "good": f"{good}..{healthy}", "fair": f"{fair}..{good}"},
+        )
+
+    # =========================================================================
+    # Soil-adjusted family
+    # =========================================================================
+
+    def _interpret_msavi(self, value: float) -> IndexInterpretation:
+        """MSAVI (Qi 1994) — same scale as NDVI, optimised for sparse vegetation."""
+        return self._interpret_soil_adjusted_generic("MSAVI", value)
+
+    def _interpret_osavi(self, value: float) -> IndexInterpretation:
+        """OSAVI (Rondeaux 1996) — optimised SAVI; better for moderate cover."""
+        return self._interpret_soil_adjusted_generic("OSAVI", value)
+
+    def _interpret_arvi(self, value: float) -> IndexInterpretation:
+        """ARVI (Kaufman & Tanre 1992) — atmospheric resistant; same scale as NDVI."""
+        return self._interpret_soil_adjusted_generic("ARVI", value)
+
+    def _interpret_soil_adjusted_generic(self, name: str, value: float) -> IndexInterpretation:
+        """Shared interpretation for NDVI-scale soil-adjusted indices."""
+        if value >= 0.5:
+            status, ar, en = HealthStatus.EXCELLENT, "غطاء نباتي ممتاز", "Excellent vegetation"
+        elif value >= 0.3:
+            status, ar, en = HealthStatus.GOOD, "غطاء جيد", "Good vegetation"
+        elif value >= 0.15:
+            status, ar, en = HealthStatus.FAIR, "غطاء خفيف", "Sparse vegetation"
+        elif value >= 0.05:
+            status, ar, en = HealthStatus.POOR, "غطاء قليل — تربة بارزة", "Very sparse — soil dominant"
+        else:
+            status, ar, en = HealthStatus.CRITICAL, "تربة مكشوفة", "Bare soil"
+        return IndexInterpretation(
+            index_name=name,
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.80,
+            threshold_info={"excellent": ">=0.5", "good": "0.3-0.5", "fair": "0.15-0.3"},
+        )
+
+    # =========================================================================
+    # Soil condition
+    # =========================================================================
+
+    def _interpret_soc(self, value: float) -> IndexInterpretation:
+        """SOC — soil organic carbon %, higher = better soil health (Bartholomeus 2008)."""
+        if value >= 2.5:
+            status, ar, en = HealthStatus.EXCELLENT, "تربة غنية عضوياً", "Rich organic soil"
+        elif value >= 1.5:
+            status, ar, en = HealthStatus.GOOD, "تربة جيدة", "Good soil"
+        elif value >= 1.0:
+            status, ar, en = HealthStatus.FAIR, "تربة متوسطة — تحسين بالسماد العضوي", "Moderate — add organic matter"
+        elif value >= 0.5:
+            status, ar, en = HealthStatus.POOR, "تربة فقيرة", "Poor soil"
+        else:
+            status, ar, en = HealthStatus.CRITICAL, "تربة مُستنزفة — تسميد عاجل", "Depleted — urgent fertilisation"
+        return IndexInterpretation(
+            index_name="SOC",
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.65,
+            threshold_info={"rich": ">=2.5%", "good": "1.5-2.5%", "moderate": "1.0-1.5%", "poor": "<1.0%"},
+        )
+
+    # =========================================================================
+    # Productivity proxies (Planet NICFI / Copernicus)
+    # =========================================================================
+
+    def _interpret_fpar(self, index_name: str, value: float) -> IndexInterpretation:
+        """FPAR/fAPAR — fraction of PAR absorbed by canopy. Scale 0..1."""
+        name_upper = index_name.upper()
+        if value >= 0.8:
+            status, ar, en = (
+                HealthStatus.EXCELLENT,
+                "امتصاص ضوئي ذروي — إنتاجية مرتفعة",
+                "Peak absorption — high productivity",
+            )
+        elif value >= 0.5:
+            status, ar, en = HealthStatus.GOOD, "غطاء كثيف — إنتاجية جيدة", "Dense canopy — good productivity"
+        elif value >= 0.2:
+            status, ar, en = HealthStatus.FAIR, "غطاء متوسط", "Developing canopy"
+        elif value >= 0.05:
+            status, ar, en = HealthStatus.POOR, "غطاء نباتي محدود", "Sparse canopy"
+        else:
+            status, ar, en = HealthStatus.CRITICAL, "لا نشاط ضوئي فعَّال", "No effective photosynthesis"
+        return IndexInterpretation(
+            index_name=name_upper,
+            value=value,
+            status=status,
+            description_ar=ar,
+            description_en=en,
+            confidence=0.82,
+            threshold_info={"peak": ">=0.8", "good": "0.5-0.8", "developing": "0.2-0.5", "sparse": "<0.2"},
         )
 
     def _interpret_generic(self, index_name: str, value: float) -> IndexInterpretation:

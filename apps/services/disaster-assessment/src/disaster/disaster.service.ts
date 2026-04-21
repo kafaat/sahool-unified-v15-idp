@@ -361,6 +361,7 @@ export class DisasterService {
     const recommendations = await this.generateRecommendations(
       dto.disasterId,
       damageLevel.level,
+      tenantId,
     );
 
     // Store assessment in database
@@ -386,7 +387,7 @@ export class DisasterService {
     });
 
     // Update disaster statistics
-    await this.updateDisasterStats(dto.disasterId);
+    await this.updateDisasterStats(dto.disasterId, tenantId);
 
     return {
       fieldId,
@@ -413,9 +414,9 @@ export class DisasterService {
   // Update Disaster Statistics after assessment
   // ─────────────────────────────────────────────────────────────────────────────
 
-  private async updateDisasterStats(disasterId: string) {
+  private async updateDisasterStats(disasterId: string, tenantId: string) {
     const assessments = await this.prisma.fieldAssessment.findMany({
-      where: { disasterId },
+      where: { disasterId, tenantId },
       take: 1000,
     });
 
@@ -429,7 +430,7 @@ export class DisasterService {
     );
 
     await this.prisma.disasterReport.update({
-      where: { id: disasterId },
+      where: { id_tenantId: { id: disasterId, tenantId } },
       data: {
         affectedFieldsCount: assessments.length,
         totalAffectedAreaHectares: totalArea,
@@ -685,9 +686,13 @@ export class DisasterService {
     }));
   }
 
-  private async generateRecommendations(disasterId: string, damageLevel: string) {
+  private async generateRecommendations(
+    disasterId: string,
+    damageLevel: string,
+    tenantId: string,
+  ) {
     const disaster = await this.prisma.disasterReport.findUnique({
-      where: { id: disasterId },
+      where: { id_tenantId: { id: disasterId, tenantId } },
       select: { type: true },
     });
 

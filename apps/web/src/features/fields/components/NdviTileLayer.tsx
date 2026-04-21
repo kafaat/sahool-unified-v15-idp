@@ -10,7 +10,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Map as MaplibreMap } from 'maplibre-gl';
-import { useNDVIMap } from '@/features/ndvi';
+import { useIndexMap } from '@/features/ndvi';
 import { logger } from '@/lib/logger';
 
 /** نوع المؤشر النباتي - Vegetation index type */
@@ -146,16 +146,13 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   // تنسيق التاريخ للـ API - Format date for API
   const dateString = date ? date.toISOString().split('T')[0] : undefined;
 
-  // جلب بيانات خريطة المؤشر - Fetch vegetation index map data
-  // Only fetch NDVI tiles when the active index is "ndvi"; other index types
-  // use different data sources and should not trigger this query.
-  const { data: rawNdviMapData, error: rawError } = useNDVIMap(fieldId, dateString, {
-    enabled: indexType === 'ndvi',
-  });
-  // Guard against stale React Query cache: never pass NDVI data or a stale error
-  // to the layer effects when the active index has already switched away from "ndvi".
-  const ndviMapData = indexType === 'ndvi' ? rawNdviMapData : undefined;
-  const error = indexType === 'ndvi' ? rawError : undefined;
+  // جلب بيانات الطبقة النقطية للمؤشر المحدد
+  // Fetch tile data for whichever index is currently selected. The unified
+  // `useIndexMap` hook (vs the old NDVI-only one) returns `{rasterUrl,
+  // bounds, colorScale}` for all 6 mappable indices — NDVI, NDRE, NDWI,
+  // EVI, SAVI, LAI — so switching indices no longer re-mounts the layer
+  // or strands us on a stale NDVI tile.
+  const { data: ndviMapData, error } = useIndexMap(fieldId, indexType, { date: dateString });
 
   // تتبع حالة التحميل - Track loading state
   const [isLayerLoaded, setIsLayerLoaded] = useState(false);

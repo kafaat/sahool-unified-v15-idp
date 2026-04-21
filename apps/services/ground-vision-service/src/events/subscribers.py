@@ -21,17 +21,22 @@ class GroundVisionSubscriber:
     Subscribe to relevant events from other SAHOOL services.
 
     Subscribed events:
-    - sahool.*.satellite.ndvi_computed - Correlate with satellite NDVI
-    - sahool.*.weather.forecast_updated - Adjust detection thresholds
-    - sahool.*.fields.boundary_updated - Update camera-field mapping
+    - sahool.satellite.ndvi.computed   - Correlate with satellite NDVI
+    - sahool.weather.forecast          - Adjust detection thresholds
+    - sahool.field.boundary.changed    - Update camera-field mapping
+    - sahool.field.created             - Register new field
+    - sahool.iot.sensor.reading        - Correlate with soil/weather sensors
     """
 
-    # Subscription subjects (tenant-scoped wildcard)
-    SUBJECT_NDVI_COMPUTED = "sahool.tenant.*.satellite.ndvi_computed"
-    SUBJECT_WEATHER_UPDATED = "sahool.tenant.*.weather.forecast_updated"
-    SUBJECT_FIELD_BOUNDARY = "sahool.tenant.*.field.boundary_updated"
-    SUBJECT_FIELD_CREATED = "sahool.tenant.*.field.created"
-    SUBJECT_IOT_READING = "sahool.tenant.*.iot.sensor_reading"
+    # Subscription subjects — must match shared/events/subjects.py constants.
+    # Previously these used legacy tenant-scoped paths
+    # (e.g. "sahool.tenant.*.satellite.ndvi_computed") that do not match any
+    # publisher, causing the subscriber to silently receive nothing.
+    SUBJECT_NDVI_COMPUTED = "sahool.satellite.ndvi.computed"
+    SUBJECT_WEATHER_UPDATED = "sahool.weather.forecast"
+    SUBJECT_FIELD_BOUNDARY = "sahool.field.boundary.changed"
+    SUBJECT_FIELD_CREATED = "sahool.field.created"
+    SUBJECT_IOT_READING = "sahool.iot.sensor.reading"
 
     # Idempotency configuration
     _DEDUP_MAX_SIZE = 50_000

@@ -119,7 +119,7 @@ export class ProtocolsService {
     const { variables, measurementSchedule, ...restDto } = dto;
 
     return this.prisma.researchProtocol.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         ...restDto,
         approvedAt: dto.approvedAt ? new Date(dto.approvedAt) : undefined,
@@ -148,7 +148,7 @@ export class ProtocolsService {
     await this.findOne(id, tenantId);
 
     return this.prisma.researchProtocol.delete({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
   }
 
@@ -156,7 +156,7 @@ export class ProtocolsService {
     await this.findOne(id, tenantId);
 
     return this.prisma.researchProtocol.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         approvedBy,
         approvedAt: new Date(),

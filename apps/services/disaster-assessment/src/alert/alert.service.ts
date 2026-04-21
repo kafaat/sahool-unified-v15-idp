@@ -528,7 +528,7 @@ export class AlertService {
     }
 
     const alert = await this.prisma.disasterAlert.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: { isActive: false },
     });
 

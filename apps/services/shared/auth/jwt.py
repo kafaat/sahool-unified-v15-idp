@@ -38,8 +38,7 @@ def _require_signing_key(config: AuthConfig) -> str:
     """
     if not config.secret_key:
         raise RuntimeError(
-            "JWT secret key is not configured. "
-            "Set AUTH_SECRET_KEY or JWT_SECRET_KEY environment variable."
+            "JWT secret key is not configured. Set AUTH_SECRET_KEY or JWT_SECRET_KEY environment variable."
         )
     return config.secret_key
 

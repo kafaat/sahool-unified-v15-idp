@@ -26,11 +26,7 @@ def _resolve_secret_key(prefix: str = "AUTH") -> str:
        error is logged — downstream validation is expected to reject empty
        secrets, mirroring the behavior of ``shared/auth/config.py``.
     """
-    value = (
-        os.getenv(f"{prefix}_SECRET_KEY")
-        or os.getenv("JWT_SECRET_KEY")
-        or os.getenv("JWT_SECRET")
-    )
+    value = os.getenv(f"{prefix}_SECRET_KEY") or os.getenv("JWT_SECRET_KEY") or os.getenv("JWT_SECRET")
     if value:
         return value
 

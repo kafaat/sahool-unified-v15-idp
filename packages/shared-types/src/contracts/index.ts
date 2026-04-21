@@ -103,7 +103,7 @@
 //          Purely additive; no existing exports removed.
 export const CONTRACT_VERSION = "4.19.0" as const;
 
-export * from './service-ports';
-export * from './error-codes';
-export * from './api-endpoints';
-export * from './api-responses';
+export * from './service-ports.js';
+export * from './error-codes.js';
+export * from './api-endpoints.js';
+export * from './api-responses.js';

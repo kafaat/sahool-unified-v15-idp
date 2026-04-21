@@ -4526,6 +4526,7 @@ asyncio.run(main())
     build:
       context: .
       dockerfile: apps/services/edge-orchestrator-service/Dockerfile
+      target: production
     container_name: sahool-edge-orchestrator-service
     environment:
       - PORT=8180

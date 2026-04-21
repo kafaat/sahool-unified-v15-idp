@@ -127,7 +127,11 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     """
 
     @app.post("/v1/vra/generate", response_model=PrescriptionMapResponse)
-    async def generate_vra_prescription(request: VRARequest, _user=Depends(get_current_user)):
+    async def generate_vra_prescription(
+        request: VRARequest,
+        http_request: Request,
+        _user=Depends(get_current_user),
+    ):
         """
         توليد خريطة وصفة التطبيق المتغير | Generate VRA Prescription Map
 
@@ -154,7 +158,14 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 "product_price_per_unit": 2.5
             }
         """
-        require_tenant_id(_user)
+        # Ownership-aware gate (Copilot review #1704 round 3): tenant
+        # presence alone is insufficient for a field-scoped mutation —
+        # a caller with a valid JWT could previously generate a VRA
+        # prescription against a field owned by a different tenant.
+        # Switch to the composed guard that verifies the field belongs
+        # to this tenant via field-management-service, forwarding the
+        # Bearer token from `http_request`.
+        await verify_field_owned_by_tenant(_user, request.field_id, http_request=http_request)
         try:
             # Parse VRA type
             try:
@@ -263,7 +274,10 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
         """
-        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
+        # Ownership gate — return value unused (zones are keyed on
+        # field_id, not tenant_id). Kept as a bare `await` to silence
+        # the unused-variable lint flagged by Copilot review round 3.
+        await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             zones_stats = await vra_generator.classify_zones(
                 field_id=field_id,
@@ -320,7 +334,9 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescriptions/field_123?limit=10
         """
-        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
+        # Ownership gate — return value unused; prescriptions are keyed
+        # on field_id, not tenant_id (same rationale as zones handler).
+        await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             prescriptions = await vra_generator.get_field_prescriptions(
                 field_id=field_id,

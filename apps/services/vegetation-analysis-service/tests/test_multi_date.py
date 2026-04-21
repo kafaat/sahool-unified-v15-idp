@@ -137,6 +137,35 @@ def test_bucket_falls_back_to_min_max_when_few_samples():
     assert b["p75"] == b["max"] == 0.7
 
 
+def test_bucket_does_not_crash_on_exactly_four_samples():
+    """Regression pin (Copilot review #1704 round 3):
+    ``statistics.quantiles(..., n=4)`` defaults to ``method='exclusive'``
+    which requires >4 data points; at EXACTLY 4 it raised
+    ``StatisticsError`` and took down the whole composite response.
+    Bucketing must fall back to min/max for n==4 instead of crashing."""
+    points = _synthetic_points([0.1, 0.4, 0.6, 0.9], start="2026-01-01")
+    # Should not raise StatisticsError.
+    buckets = bucket_into_composites(points, index_name="ndvi", step_days=7)
+    assert len(buckets) == 1
+    b = buckets[0]
+    assert b["count"] == 4
+    assert b["p25"] == b["min"] == 0.1
+    assert b["p75"] == b["max"] == 0.9
+
+
+def test_bucket_uses_quantiles_when_five_or_more_samples():
+    """With >=5 samples, the real exclusive-mode quantile is available
+    and should be preferred over the min/max fallback."""
+    points = _synthetic_points([0.1, 0.3, 0.5, 0.7, 0.9], start="2026-01-01")
+    buckets = bucket_into_composites(points, index_name="ndvi", step_days=7)
+    assert len(buckets) == 1
+    b = buckets[0]
+    # Real quantile, not collapsed to min/max.
+    assert b["p25"] != b["min"]
+    assert b["p75"] != b["max"]
+    assert b["min"] < b["p25"] < b["p75"] < b["max"]
+
+
 def test_bucket_status_uses_chosen_stat():
     """With stat='median', the status classification must be driven by
     the median value, not the mean — so a skewed outlier can't move

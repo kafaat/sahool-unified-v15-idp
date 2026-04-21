@@ -25,7 +25,6 @@ contract stays honest.
 from __future__ import annotations
 
 import ast
-import os
 from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
@@ -166,15 +165,39 @@ async def test_fetch_ndvi_series_degrades_on_network_timeout():
 # =============================================================================
 
 _ADVISORY_MAIN = Path(__file__).parent.parent / "src" / "main.py"
+_ADVISORY_MAIN_TREE = ast.parse(_ADVISORY_MAIN.read_text(encoding="utf-8"))
 
 
-def _handler_body(handler_name: str) -> str:
-    src = _ADVISORY_MAIN.read_text(encoding="utf-8")
-    tree = ast.parse(src)
-    for node in ast.walk(tree):
+def _handler_node(handler_name: str) -> ast.AsyncFunctionDef:
+    for node in ast.walk(_ADVISORY_MAIN_TREE):
         if isinstance(node, ast.AsyncFunctionDef) and node.name == handler_name:
-            return ast.get_source_segment(src, node) or ""
-    pytest.fail(f"Handler {handler_name} not found in main.py")
+            return node
+    # `pytest.fail` raises unconditionally (NoReturn-like) so control
+    # never reaches past this line — return a clean TypeError for any
+    # static analyser that doesn't follow pytest.fail's non-returning
+    # behaviour, and CodeQL's "mixed explicit/implicit returns" note.
+    raise pytest.fail.Exception(f"Handler {handler_name} not found in main.py")
+
+
+def _call_target_name(call: ast.Call) -> str | None:
+    """Return the function name being invoked (last segment of the
+    attribute chain, or the bare name for plain function calls)."""
+    func = call.func
+    if isinstance(func, ast.Name):
+        return func.id
+    if isinstance(func, ast.Attribute):
+        return func.attr
+    return None
+
+
+def _awaited_calls(node: ast.AST) -> list[ast.Call]:
+    """Collect every ``await <expr>(...)`` call inside *node* — the
+    gate is always awaited, so this is what we check."""
+    out: list[ast.Call] = []
+    for child in ast.walk(node):
+        if isinstance(child, ast.Await) and isinstance(child.value, ast.Call):
+            out.append(child.value)
+    return out
 
 
 @pytest.mark.parametrize(
@@ -182,16 +205,50 @@ def _handler_body(handler_name: str) -> str:
     ["comprehensive_advisory", "verify_crop_loan"],
 )
 def test_field_scoped_handlers_call_ownership_verifier(handler: str):
-    """Regression pin (Copilot audit round 1): both field-scoped
-    advisory endpoints must call ``verify_field_owned_by_tenant``
-    BEFORE running the downstream orchestrator / engine. Otherwise
-    a valid JWT for tenant A can harvest data for tenant B's fields
-    via advisory — downstream services enforce their own gates, but
-    advisory has to refuse early as defense-in-depth."""
-    body = _handler_body(handler)
-    assert "verify_field_owned_by_tenant" in body, (
-        f"{handler}: missing verify_field_owned_by_tenant call. Cross-tenant field_id access is possible without it."
+    """Regression pin (Copilot audit round 1, tightened in round 4):
+    both field-scoped advisory endpoints must call
+    ``verify_field_owned_by_tenant`` BEFORE running the downstream
+    orchestrator / engine. This test walks the parsed AST for a
+    real ``await verify_field_owned_by_tenant(...)`` ``Call`` node —
+    not a substring match — so a gate accidentally moved into a
+    comment, docstring, or dead conditional branch still fails."""
+    node = _handler_node(handler)
+    calls = _awaited_calls(node)
+    names = [_call_target_name(c) for c in calls]
+    assert "verify_field_owned_by_tenant" in names, (
+        f"{handler}: no `await verify_field_owned_by_tenant(...)` call "
+        f"found in function body. Awaited calls found: {names}. "
+        "Cross-tenant field_id access is possible without it."
     )
+
+
+@pytest.mark.parametrize(
+    "handler",
+    ["comprehensive_advisory", "verify_crop_loan"],
+)
+def test_field_scoped_handlers_gate_runs_before_downstream(handler: str):
+    """Defense-in-depth: the gate must execute BEFORE we touch the
+    orchestrator / loan engine. If someone reorders the calls so the
+    downstream fan-out runs first, this test fails."""
+    node = _handler_node(handler)
+    # Walk the statements in source order and find the first awaited
+    # call whose target is either the gate or a downstream.
+    DOWNSTREAM = {"collect", "verify"}  # orchestrator.collect / engine.verify
+    first_gate_idx: int | None = None
+    first_downstream_idx: int | None = None
+    for idx, call in enumerate(_awaited_calls(node)):
+        name = _call_target_name(call)
+        if name == "verify_field_owned_by_tenant" and first_gate_idx is None:
+            first_gate_idx = idx
+        if name in DOWNSTREAM and first_downstream_idx is None:
+            first_downstream_idx = idx
+    assert first_gate_idx is not None, f"{handler}: ownership gate not awaited at all — re-check."
+    if first_downstream_idx is not None:
+        assert first_gate_idx < first_downstream_idx, (
+            f"{handler}: ownership gate runs AFTER downstream call "
+            f"(gate={first_gate_idx}, downstream={first_downstream_idx}). "
+            "Reorder so the gate fails closed before any fan-out."
+        )
 
 
 @pytest.mark.parametrize(
@@ -202,17 +259,11 @@ def test_field_scoped_handlers_accept_request_for_bearer_forwarding(handler: str
     """The ownership verifier needs the inbound Bearer JWT to prove
     identity to field-management-service. The handler must accept a
     ``request`` parameter for that forwarding."""
-    src = _ADVISORY_MAIN.read_text(encoding="utf-8")
-    tree = ast.parse(src)
-    for node in ast.walk(tree):
-        if isinstance(node, ast.AsyncFunctionDef) and node.name == handler:
-            arg_names = [a.arg for a in node.args.args]
-            assert "request" in arg_names, (
-                f"{handler}: missing `request: Request` parameter. "
-                "Bearer JWT can't be forwarded to field-management-service."
-            )
-            return
-    pytest.fail(f"Handler {handler} not found")
+    node = _handler_node(handler)
+    arg_names = [a.arg for a in node.args.args]
+    assert "request" in arg_names, (
+        f"{handler}: missing `request: Request` parameter. Bearer JWT can't be forwarded to field-management-service."
+    )
 
 
 # =============================================================================
@@ -221,7 +272,7 @@ def test_field_scoped_handlers_accept_request_for_bearer_forwarding(handler: str
 
 
 @pytest.mark.asyncio
-async def test_ownership_verifier_raises_403_without_tenant(monkeypatch):
+async def test_ownership_verifier_raises_403_without_tenant():
     from fastapi import HTTPException
     from src.field_ownership import verify_field_owned_by_tenant
 
@@ -289,7 +340,7 @@ async def test_ownership_verifier_raises_404_when_fms_says_404():
 
 
 @pytest.mark.asyncio
-async def test_ownership_verifier_forwards_bearer_token(monkeypatch):
+async def test_ownership_verifier_forwards_bearer_token():
     """The Bearer JWT from the inbound request must reach field-
     management-service so FMS's own tenant guard has what it needs."""
     from src.field_ownership import verify_field_owned_by_tenant
@@ -442,3 +493,233 @@ def test_diagnose_from_ndvi_above_moderate_cutoff_no_nutrient_hypothesis():
     # a deficiency on the same field.
     assert diagnose_from_ndvi(0.5) == []
     assert diagnose_from_ndvi(0.8) == []
+
+
+# =============================================================================
+# Copilot review round 4 pins
+# =============================================================================
+
+
+@pytest.mark.asyncio
+async def test_ownership_verifier_401_passes_through_as_401():
+    """Regression pin: FMS returning 401 (bad/missing Bearer) must
+    surface as 401 to the caller — not 503 (which blames a service
+    outage) nor 400 (which blames field_id format). Copilot review
+    round 4."""
+    from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    async def fake_get(url, *, headers=None):
+        m = MagicMock()
+        m.status_code = 401
+        return m
+
+    client = MagicMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(side_effect=fake_get)
+
+    with pytest.raises(HTTPException) as exc:
+        await verify_field_owned_by_tenant(
+            tenant_id="t1",
+            field_id="field-1",
+            http_client=client,
+        )
+    assert exc.value.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_ownership_verifier_429_preserved():
+    """Regression pin: FMS rate-limit (429) must propagate so upstream
+    clients can back off, not get swallowed into a generic 503."""
+    from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    async def fake_get(url, *, headers=None):
+        m = MagicMock()
+        m.status_code = 429
+        return m
+
+    client = MagicMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(side_effect=fake_get)
+
+    with pytest.raises(HTTPException) as exc:
+        await verify_field_owned_by_tenant(
+            tenant_id="t1",
+            field_id="field-1",
+            http_client=client,
+        )
+    assert exc.value.status_code == 429
+
+
+@pytest.mark.asyncio
+async def test_ownership_verifier_400_tenant_message_maps_to_403():
+    """FMS's TenantGuard can return 400 when X-Tenant-Id is missing.
+    The old code labelled every 400 "Invalid field_id", which hid the
+    real cause. Now we peek at the error body and surface 403 for
+    tenant-shaped 400s (Copilot review round 4)."""
+    from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    async def fake_get(url, *, headers=None):
+        m = MagicMock()
+        m.status_code = 400
+        m.json = MagicMock(return_value={"message": "Tenant ID is required"})
+        return m
+
+    client = MagicMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(side_effect=fake_get)
+
+    with pytest.raises(HTTPException) as exc:
+        await verify_field_owned_by_tenant(
+            tenant_id="t1",
+            field_id="field-1",
+            http_client=client,
+        )
+    assert exc.value.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_ownership_verifier_400_field_message_stays_400():
+    """A real field_id validation 400 from FMS should still surface
+    as 400 (same as before)."""
+    from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    async def fake_get(url, *, headers=None):
+        m = MagicMock()
+        m.status_code = 400
+        m.json = MagicMock(return_value={"message": "Validation failed (uuid is expected)"})
+        return m
+
+    client = MagicMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(side_effect=fake_get)
+
+    with pytest.raises(HTTPException) as exc:
+        await verify_field_owned_by_tenant(
+            tenant_id="t1",
+            field_id="not-a-uuid",
+            http_client=client,
+        )
+    assert exc.value.status_code == 400
+
+
+def test_comprehensive_advisory_fails_closed_when_user_has_no_tenant():
+    """Regression pin (Copilot review round 4): the old
+    ``tenant_id = user.tenant_id or "default"`` silently mapped
+    anonymous JWTs to the "default" tenant, which then PASSED the
+    ownership gate (FMS happily returned a row for that synthetic
+    tenant). The handler must now reject 403 before touching FMS.
+
+    We assert on the ASSIGNMENT form specifically — the anti-pattern
+    name may still appear in docstrings explaining *why* it's gone.
+    """
+    import re
+
+    src = _ADVISORY_MAIN.read_text(encoding="utf-8")
+    # Match:  tenant_id = user.tenant_id or "default"   (assignment form)
+    # Don't match:  # ``user.tenant_id or "default"``   (docstring mention)
+    anti_pattern = re.compile(
+        r"^\s*tenant_id\s*=\s*user\.tenant_id\s+or\s+[\"']default[\"']",
+        re.MULTILINE,
+    )
+    assert not anti_pattern.search(src), (
+        "Default-tenant fallback reintroduced. Use `(user.tenant_id or "
+        "'').strip()` and raise 403 when empty, so the ownership gate "
+        "fails closed instead of silently using a synthetic tenant."
+    )
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "bogus",
+    [
+        "../etc/passwd",
+        "field/with/slashes",
+        "field%2e%2e",
+        "field?injection=1",
+        "field with space",
+        "field\nwith\nnewline",
+        "field;DROP TABLE",
+        "a" * 101,  # too long
+    ],
+)
+async def test_ownership_verifier_rejects_ssrf_prone_field_ids(bogus: str):
+    """Regression pin (CodeQL: partial SSRF on URL construction):
+    the helper must reject field_ids that contain path-separators,
+    URL-escape characters, control characters, or are too long —
+    BEFORE building the outbound URL. FastAPIPath on the endpoint
+    would normally reject these, but the helper is reusable and must
+    not rely on its callers."""
+    from fastapi import HTTPException
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    # Use a client that would blow up if reached — the validator must
+    # fail before any HTTP call happens.
+    reached = {"called": False}
+
+    async def fail_if_reached(url, **kwargs):
+        reached["called"] = True
+        raise AssertionError(f"validator bypassed; reached HTTP call with url={url!r}")
+
+    client = MagicMock(spec=httpx.AsyncClient)
+    client.get = AsyncMock(side_effect=fail_if_reached)
+
+    with pytest.raises(HTTPException) as exc:
+        await verify_field_owned_by_tenant(
+            tenant_id="t1",
+            field_id=bogus,
+            http_client=client,
+        )
+    assert exc.value.status_code == 400, (
+        f"bogus field_id {bogus!r} must be rejected with 400 before the HTTP call; got {exc.value.status_code}"
+    )
+    assert reached["called"] is False, f"field_id {bogus!r} reached the outbound HTTP call — SSRF gate failed"
+
+
+@pytest.mark.asyncio
+async def test_ownership_verifier_sanitises_field_id_in_logs(caplog):
+    """Regression pin (CodeQL: log injection, medium): a CRLF-crafted
+    field_id must not end up verbatim in a log record — the sanitiser
+    strips \\r and \\n so an attacker can't forge separate log lines.
+
+    Note: this test does NOT use a CRLF-containing field_id to trigger
+    the log, because the shape gate (added for the SSRF fix) rejects
+    those up-front. Instead we prove the sanitiser works in isolation.
+    """
+    from src.field_ownership import _safe_for_log
+
+    crafted = "field-1\r\nFAKE LOG ENTRY x-user=admin"
+    sanitised = _safe_for_log(crafted)
+    assert "\r" not in sanitised
+    assert "\n" not in sanitised
+    # The dangerous substring should still be visible (it's not about
+    # deleting content, just preventing newline-based separation).
+    assert "FAKE LOG ENTRY" in sanitised
+
+
+@pytest.mark.parametrize(
+    "handler",
+    ["comprehensive_advisory", "verify_crop_loan"],
+)
+def test_field_id_is_path_validated(handler: str):
+    """Both handlers must declare ``field_id`` with an ``Annotated[...,
+    FastAPIPath(pattern=..., max_length=...)]`` so path-traversal and
+    URL-escape characters are rejected at the framework boundary —
+    BEFORE the engine interpolates field_id into downstream URLs."""
+    node = _handler_node(handler)
+    for arg in node.args.args:
+        if arg.arg != "field_id":
+            continue
+        ann = arg.annotation
+        # Expect ``Annotated[str, FastAPIPath(...)]`` — the subscript
+        # node must contain a Call to FastAPIPath.
+        if not isinstance(ann, ast.Subscript):
+            pytest.fail(f"{handler}: field_id annotation is not Annotated[...]; path validation missing.")
+        calls = [c for c in ast.walk(ann) if isinstance(c, ast.Call)]
+        call_names = [_call_target_name(c) for c in calls]
+        assert "FastAPIPath" in call_names, (
+            f"{handler}: field_id missing FastAPIPath(...) validator "
+            f"(calls found: {call_names}). Path traversal / URL-escape "
+            "characters won't be rejected at the framework boundary."
+        )
+        return
+    pytest.fail(f"{handler}: no field_id parameter found")

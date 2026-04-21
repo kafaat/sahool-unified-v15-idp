@@ -491,14 +491,17 @@ resource "aws_security_group" "rds" {
     description     = "PostgreSQL access from EKS cluster"
   }
 
-  # TODO(security): In production, restrict egress to specific CIDR ranges
-  # (e.g., VPC CIDR, S3 gateway endpoint) instead of 0.0.0.0/0.
+  # Egress restricted to the VPC CIDR. RDS does not initiate outbound
+  # internet connections in SAHOOL — response traffic to EKS/Redis/S3-VPC-
+  # endpoint stays stateful within the VPC. Blocks exfiltration paths that
+  # would otherwise be open under the previous `0.0.0.0/0` rule
+  # (STABILIZATION_PLAN_v16.1 PR4).
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
+    cidr_blocks = [aws_vpc.main.cidr_block]
+    description = "VPC-internal traffic only"
   }
 
   tags = merge(
@@ -636,14 +639,17 @@ resource "aws_security_group" "redis" {
     description     = "Redis access from EKS cluster"
   }
 
-  # TODO(security): In production, restrict egress to specific CIDR ranges
-  # (e.g., VPC CIDR, S3 gateway endpoint) instead of 0.0.0.0/0.
+  # Egress restricted to the VPC CIDR. ElastiCache nodes do not initiate
+  # outbound internet connections in SAHOOL — response traffic to EKS
+  # clients is stateful and stays within the VPC. Blocks exfiltration
+  # paths that would otherwise be open under the previous `0.0.0.0/0` rule
+  # (STABILIZATION_PLAN_v16.1 PR4).
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
+    cidr_blocks = [aws_vpc.main.cidr_block]
+    description = "VPC-internal traffic only"
   }
 
   tags = merge(

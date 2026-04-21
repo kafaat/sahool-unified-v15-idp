@@ -462,14 +462,16 @@ resource "aws_security_group" "vpc_endpoints" {
     description = "HTTPS from VPC CIDR"
   }
 
-  # TODO(security): In production, restrict egress to specific CIDR ranges
-  # (e.g., VPC CIDR for interface endpoints) instead of 0.0.0.0/0.
+  # Egress restricted to the VPC CIDR — interface endpoints terminate
+  # AWS-service traffic inside the VPC, so no public-internet egress is
+  # required. Eliminates the previous `0.0.0.0/0` data-exfil path
+  # (STABILIZATION_PLAN_v16.1 PR4 — "VPC endpoint egress restriction").
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound"
+    cidr_blocks = [var.cidr_block]
+    description = "VPC-internal traffic only"
   }
 
   tags = merge(

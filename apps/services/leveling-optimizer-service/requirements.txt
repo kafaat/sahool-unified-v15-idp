@@ -8,7 +8,6 @@ pydantic==2.13.1
 pydantic-settings==2.13.1
 # Async support
 anyio==4.7.0
-starlette==1.0.0
 # HTTP client (for potential external calls)
 httpx==0.28.1
 # Database (optional)

@@ -37,10 +37,10 @@ WORKDIR /workspace/partner-auth-service
 RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
     (echo 'ERROR: package.json is invalid JSON. Check for merge conflict markers.' && exit 1)
 
-# Point @sahool/shared-types at the local build instead of the public registry,
-# then drop the lock file so npm generates a fresh one (avoids registry hang
-# caused by lock file mismatch with the patched package.json).
-RUN sed -i 's|"@sahool/shared-types": "\*"|"@sahool/shared-types": "file:../packages/shared-types"|g' package.json && \
+# Point @sahool/shared-types at the local build instead of the public registry.
+# npm pkg set is used (not sed) so the replacement always works regardless of
+# what version range is declared in package.json (e.g. "^16.0.0", "*", etc.).
+RUN npm pkg set dependencies.'@sahool/shared-types'='file:../packages/shared-types' && \
     rm -f package-lock.json
 
 # Resilient install (multi-mirror fallback)
@@ -93,7 +93,7 @@ COPY --from=builder /workspace/partner-auth-service/package.json ./
 COPY --from=builder /workspace/partner-auth-service/package-lock.json ./
 
 # Re-point file: path to match /app layout (builder used ../packages, we have ./packages)
-RUN sed -i 's|"@sahool/shared-types": "file:\.\./packages/shared-types"|"@sahool/shared-types": "file:./packages/shared-types"|g' package.json
+RUN npm pkg set dependencies.'@sahool/shared-types'='file:./packages/shared-types'
 
 RUN --mount=type=cache,target=/root/.npm \
     npm config set registry https://registry.npmmirror.com && \

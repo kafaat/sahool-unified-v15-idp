@@ -19,7 +19,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY docker/apt-update.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/apt-update.sh && \
+    apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*

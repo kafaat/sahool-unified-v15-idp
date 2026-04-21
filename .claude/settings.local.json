@@ -107,7 +107,8 @@
       "Bash(kill %1)",
       "Bash(Get-Content \"D:/tmp/user_schema.sql\")",
       "Bash(grep -n \"apply_migrations\\\\|def apply\" D:/projects/v91/sahoo-adel-full/apps/services/audit-service/src/*.py)",
-      "Bash(grep -rn \"apps/web\\\\|web-app\\\\|web-dashboard\" D:/projects/v91/sahoo-adel-full/docker-compose*.yml)"
+      "Bash(grep -rn \"apps/web\\\\|web-app\\\\|web-dashboard\" D:/projects/v91/sahoo-adel-full/docker-compose*.yml)",
+      "Bash(grep:*)"
     ]
   }
 }

@@ -28,10 +28,11 @@ RUN groupadd --system sahool && \
     useradd --system --gid sahool --shell /bin/bash --create-home sahool
 
 COPY docker/pip-install.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/pip-install.sh
+COPY docker/apt-update.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh /usr/local/bin/apt-update.sh
 
 # Install tini for proper PID 1 signal handling
-RUN apt-get update && apt-get install -y --no-install-recommends tini build-essential gcc libffi-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-update.sh && apt-get install -y --no-install-recommends tini build-essential gcc libffi-dev && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip, setuptools, wheel (CVE-2024-6345, PYSEC-2025-49, CVE-2026-24049)
 RUN pip-install.sh --upgrade "pip>=24.3.1" "setuptools>=78.1.1" "wheel>=0.46.2"

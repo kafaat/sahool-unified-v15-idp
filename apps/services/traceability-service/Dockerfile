@@ -11,10 +11,11 @@ FROM python:${PYTHON_VERSION}-slim-bookworm AS builder
 WORKDIR /build
 
 COPY docker/pip-install.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/pip-install.sh
+COPY docker/apt-update.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/pip-install.sh /usr/local/bin/apt-update.sh
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-update.sh && apt-get install -y --no-install-recommends \
     build-essential gcc \
     && rm -rf /var/lib/apt/lists/*
 

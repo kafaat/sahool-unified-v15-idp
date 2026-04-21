@@ -219,9 +219,7 @@ async def test_prescription_storage():
     assert retrieved.field_id == "test_field_006"
 
     # Get field prescriptions (tenant-scoped).
-    field_prescriptions = await generator.get_field_prescriptions(
-        "test_field_006", tenant_id
-    )
+    field_prescriptions = await generator.get_field_prescriptions("test_field_006", tenant_id)
     assert len(field_prescriptions) == 1
     assert field_prescriptions[0].id == prescription_id
 

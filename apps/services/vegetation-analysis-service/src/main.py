@@ -1495,9 +1495,7 @@ async def analyze_field_endpoint(
     request context.
     """
     _validate_field_id(request.field_id)
-    tenant_id = await _verify_field_owned_by_tenant(
-        user, request.field_id, http_request=http_request
-    )
+    tenant_id = await _verify_field_owned_by_tenant(user, request.field_id, http_request=http_request)
     return await analyze_field(request, tenant_id=tenant_id)
 
 

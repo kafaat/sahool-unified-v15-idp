@@ -157,9 +157,7 @@ def register_boundary_endpoints(app, boundary_detector):
         # could supply an attacker-chosen field_id and wipe the victim
         # tenant's NDVI cache (2026-04-21 audit #4).
         if request.field_id:
-            tenant_id = await verify_field_owned_by_tenant(
-                _user, request.field_id, http_request=http_request
-            )
+            tenant_id = await verify_field_owned_by_tenant(_user, request.field_id, http_request=http_request)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 

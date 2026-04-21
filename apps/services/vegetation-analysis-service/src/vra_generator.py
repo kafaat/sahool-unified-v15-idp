@@ -437,8 +437,7 @@ class VRAGenerator:
         self._prescription_store[(tenant_id, prescription.id)] = prescription
 
         logger.info(
-            f"VRA prescription generated: tenant={tenant_id}, "
-            f"id={prescription.id}, savings={savings_percent:.1f}%"
+            f"VRA prescription generated: tenant={tenant_id}, id={prescription.id}, savings={savings_percent:.1f}%"
         )
 
         return prescription
@@ -797,9 +796,7 @@ class VRAGenerator:
 
         return xml
 
-    async def get_prescription(
-        self, prescription_id: str, tenant_id: str
-    ) -> PrescriptionMap | None:
+    async def get_prescription(self, prescription_id: str, tenant_id: str) -> PrescriptionMap | None:
         """
         Get a prescription by ID, scoped to the caller's tenant.
 
@@ -809,16 +806,12 @@ class VRAGenerator:
         """
         return self._prescription_store.get((tenant_id, prescription_id))
 
-    async def get_field_prescriptions(
-        self, field_id: str, tenant_id: str, limit: int = 10
-    ) -> list[PrescriptionMap]:
+    async def get_field_prescriptions(self, field_id: str, tenant_id: str, limit: int = 10) -> list[PrescriptionMap]:
         """
         Get all prescriptions for a field, scoped to the caller's tenant.
         """
         prescriptions = [
-            p
-            for (t, _pid), p in self._prescription_store.items()
-            if t == tenant_id and p.field_id == field_id
+            p for (t, _pid), p in self._prescription_store.items() if t == tenant_id and p.field_id == field_id
         ]
 
         # Sort by creation date (newest first)
@@ -826,9 +819,7 @@ class VRAGenerator:
 
         return prescriptions[:limit]
 
-    async def delete_prescription(
-        self, prescription_id: str, tenant_id: str
-    ) -> bool:
+    async def delete_prescription(self, prescription_id: str, tenant_id: str) -> bool:
         """
         Delete a prescription, scoped to the caller's tenant.
 

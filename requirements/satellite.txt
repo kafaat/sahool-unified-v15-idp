@@ -1,0 +1,26 @@
+# SAHOOL Satellite & Earth-Observation Requirements
+# ==================================================
+# Python dependencies for services that query satellite providers
+# (Sentinel Hub, NASA Earthdata, USGS) and compute vegetation indices.
+#
+# Consuming services pin these via:
+#     pip install -c constraints.txt -r requirements/base.txt -r requirements/satellite.txt
+#
+# Matches the runtime expectations of:
+#   - shared/satellite/sentinel_ndvi.py
+#   - apps/services/vegetation-analysis-service/
+#
+# Required environment variables (resolved from Vault at
+# `secret/${SECRETS_PREFIX}/external/sentinel`, see
+# infrastructure/core/vault/vault-init.sh):
+#   - SENTINEL_HUB_CLIENT_ID
+#   - SENTINEL_HUB_CLIENT_SECRET
+#   - SENTINEL_HUB_INSTANCE_ID  (optional; only for WMS/WCS endpoints)
+#
+# Without these, Sentinel Hub adapters return None in production
+# (ENVIRONMENT=production) and fall back to mock data only in dev/test.
+#
+# Version: 16.0.0
+
+# Sentinel Hub Python SDK — OAuth client + catalog/process API wrapper
+sentinelhub>=3.10.0,<4.0.0

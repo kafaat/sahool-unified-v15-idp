@@ -225,8 +225,8 @@ export class SyncService {
           etag: generateETag(updated.id, updated.version),
         });
 
-        // Invalidate cache
-        await this.cacheService.del(CACHE_KEYS.FIELD(id));
+        // Invalidate cache (tenant-scoped key)
+        await this.cacheService.del(CACHE_KEYS.FIELD(id, tenantId));
       } catch (error) {
         results.push({
           clientId: clientField.id || "unknown",

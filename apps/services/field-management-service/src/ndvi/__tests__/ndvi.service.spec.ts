@@ -212,7 +212,7 @@ describe('NdviService', () => {
         }),
       });
       expect(cache.del).toHaveBeenCalledWith(CACHE_KEYS.NDVI(FIELD_ID));
-      expect(cache.del).toHaveBeenCalledWith(CACHE_KEYS.FIELD(FIELD_ID));
+      expect(cache.del).toHaveBeenCalledWith(CACHE_KEYS.FIELD(FIELD_ID, TENANT_A));
     });
 
     it('should throw BadRequestException for NDVI value > 1', async () => {

@@ -22,7 +22,15 @@ export const CACHE_TTL = {
 
 // Cache key patterns
 export const CACHE_KEYS = {
-  FIELD: (id: string) => `field:${id}`,
+  /**
+   * Tenant-scoped field cache key. Taking ``tenantId`` as a key
+   * component is load-bearing: otherwise the same ``id`` across two
+   * tenants collides on a single cache slot, producing cross-tenant
+   * hits (PR #1729 review, comment 4150593669/2). With the tenant
+   * embedded, a cache HIT is guaranteed to belong to the caller's
+   * tenant, so consumers no longer need a cross-tenant fallback.
+   */
+  FIELD: (id: string, tenantId: string) => `field:${tenantId}:${id}`,
   FIELD_STATS: (tenantId: string) => `field-stats:${tenantId}`,
   NDVI: (fieldId: string) => `ndvi:${fieldId}`,
   NDVI_SUMMARY: (tenantId: string) => `ndvi-summary:${tenantId}`,
@@ -139,7 +147,7 @@ export class CacheService {
    */
   async invalidateField(fieldId: string, tenantId: string): Promise<void> {
     await Promise.all([
-      this.del(CACHE_KEYS.FIELD(fieldId)),
+      this.del(CACHE_KEYS.FIELD(fieldId, tenantId)),
       this.del(CACHE_KEYS.NDVI(fieldId)),
       this.del(CACHE_KEYS.TASK_LIST(fieldId)),
       this.delByPattern(`fields:${tenantId}:*`),

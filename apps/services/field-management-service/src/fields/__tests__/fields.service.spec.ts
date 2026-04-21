@@ -325,7 +325,7 @@ describe('FieldsService', () => {
       expect(result.name).toBe('North Wheat Field');
       expect(result.etag).toBeDefined();
       expect(cache.set).toHaveBeenCalledWith(
-        CACHE_KEYS.FIELD(FIELD_ID),
+        CACHE_KEYS.FIELD(FIELD_ID, TENANT_A),
         expect.any(Object),
         CACHE_TTL.MEDIUM,
       );
@@ -354,6 +354,12 @@ describe('FieldsService', () => {
 
       expect(result.name).toBe('Cached Field');
       expect(prisma.field.findUnique).not.toHaveBeenCalled();
+      // PR #1729 review (comment 3 on pullrequestreview-4150593669):
+      // the internal `_cacheSchemaVersion` marker must not leak to
+      // API callers — the DB path produces DTOs without it, so
+      // exposing it on the cache-hit path would create a subtly
+      // inconsistent response shape.
+      expect('_cacheSchemaVersion' in result).toBe(false);
     });
 
     it('should ignore cached entries without the current schema version', async () => {
@@ -452,28 +458,33 @@ describe('FieldsService', () => {
       expect(sql).toMatch(/ST_Y\s*\(\s*centroid/);
     });
 
-    it('cross-tenant cache hit must fall through to DB and return NotFoundException', async () => {
-      // PR #1729 review (comment #4): The cache is keyed by field id
-      // alone, so a cached entry for tenant A may be served on a
-      // request from tenant B. Previously this was guarded by
-      // `assertTenantOwnership` on the cache-hit path, which threw
-      // `ForbiddenException` (403). But the DB composite-key miss
-      // for the same cross-tenant request throws `NotFoundException`
-      // (404). The different status codes reintroduce the enumeration
-      // oracle the composite-key query was meant to close.
-      //
-      // New behaviour: cross-tenant cache hits are treated as misses
-      // and the method falls through to the composite-key DB path,
-      // which returns a uniform 404 — no 403 observable, no oracle.
-      cache.get.mockResolvedValue({
+    it('cross-tenant lookup is a natural cache miss (tenant-scoped key)', async () => {
+      // PR #1729 review (pullrequestreview-4150593669 / comment 2):
+      // Cache keys now embed the tenantId — `field:{tenantId}:{id}`
+      // — so a TENANT_A cached entry lives under a different key
+      // than a TENANT_B lookup would probe. A cross-tenant request
+      // therefore misses the cache by construction, falls through
+      // to the composite-key DB path, and surfaces a uniform
+      // `NotFoundException` — no 403 observable, no enumeration
+      // oracle. This test simulates that by returning the cached
+      // entry ONLY for the TENANT_A key.
+      const tenantACachedField = {
         id: FIELD_ID,
+        name: 'North Wheat Field',
         tenantId: TENANT_A,
         version: 1,
         etag: `"${FIELD_ID}-v1"`,
         bbox: [46.7, 24.7, 46.8, 24.8] as [number, number, number, number],
         _cacheSchemaVersion: 2,
-      });
-      // DB path returns null for the TENANT_B composite-key query.
+      };
+      cache.get.mockImplementation((key: string) =>
+        Promise.resolve(
+          key === CACHE_KEYS.FIELD(FIELD_ID, TENANT_A) ? tenantACachedField : null,
+        ),
+      );
+      // DB path returns null for the TENANT_B composite-key query
+      // (TENANT_B cannot own this field; the row belongs to
+      // TENANT_A).
       prisma.field.findUnique.mockResolvedValue(null);
 
       await expect(

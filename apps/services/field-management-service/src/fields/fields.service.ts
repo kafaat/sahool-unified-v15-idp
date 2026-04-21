@@ -261,16 +261,14 @@ export class FieldsService {
    * ``@@unique([id, tenantId])`` key ``id_tenantId``. No un-scoped
    * path remains.
    *
-   * Cache-hit enumeration oracle (PR #1729 review):
-   * The cache is keyed by field id alone (``CACHE_KEYS.FIELD(id)``),
-   * so a cached entry may belong to a different tenant than the
-   * caller. A naive ``assertTenantOwnership`` on the cached row
-   * throws ``ForbiddenException`` (403) on mismatch, but the DB
-   * composite-key path throws ``NotFoundException`` (404) on the
-   * same mismatch — distinguishable status codes reintroduce the
-   * enumeration oracle the composite-key query was meant to close.
-   * Cross-tenant cache hits are therefore treated as MISSES and
-   * fall through to the DB path, which returns the uniform 404.
+   * Cache isolation (PR #1729 review, pullrequestreview-4150593669):
+   * The cache key itself is tenant-scoped — ``CACHE_KEYS.FIELD(id,
+   * tenantId)`` produces ``field:{tenantId}:{id}`` — so tenant A
+   * can never read tenant B's cached entry regardless of what
+   * arrives in the object body. That closes the enumeration oracle
+   * (cache HIT 403 vs DB MISS 404) by construction: cross-tenant
+   * reads miss the cache, fall through to the composite-key DB
+   * query, and surface a uniform ``NotFoundException``.
    *
    * @param id       - Field UUID
    * @param tenantId - Caller's verified tenant; must be a
@@ -288,28 +286,27 @@ export class FieldsService {
       );
     }
 
-    // Try cache first
-    const cached = await this.cacheService.get<FieldResponseDto>(
-      CACHE_KEYS.FIELD(id),
-    );
+    // Try cache first. Key is tenant-scoped, so a HIT is guaranteed
+    // to belong to the caller's tenant.
+    const cached = await this.cacheService.get<
+      FieldResponseDto & { _cacheSchemaVersion?: number }
+    >(CACHE_KEYS.FIELD(id, tenantId));
     // Schema-version marker: `_cacheSchemaVersion` is set on every
-    // write (see CACHE_SCHEMA_VERSION below). An older entry without
+    // write (see CACHE_SCHEMA_VERSION above). An older entry without
     // it is ignored so clients pick up the new shape on next read.
     // The previous `'bbox' in cached` probe was unreliable because
     // JSON serialization drops keys whose value is `undefined`, so
     // entries for fields with no bbox would lose the marker on round-
     // trip and never hit the cache (PR #1729 review).
-    if (
-      cached &&
-      (cached as FieldResponseDto & { _cacheSchemaVersion?: number })
-        ._cacheSchemaVersion === CACHE_SCHEMA_VERSION
-    ) {
-      // Cross-tenant cache hit → treat as a miss (no 403 oracle) and
-      // fall through to the composite-key DB path, which returns a
-      // uniform 404 for both "wrong tenant" and "no such row".
-      if (cached.tenantId === tenantId) {
-        return cached;
-      }
+    if (cached && cached._cacheSchemaVersion === CACHE_SCHEMA_VERSION) {
+      // Strip the internal marker before returning so callers never
+      // observe `_cacheSchemaVersion` on cached reads when the DB
+      // path would not include it — prevents a subtle response-
+      // shape inconsistency (PR #1729 review, comment 1 on
+      // pullrequestreview-4150593669).
+      const { _cacheSchemaVersion: _ignored, ...publicShape } = cached;
+      void _ignored;
+      return publicShape;
     }
 
     const field = await this.prisma.field.findUnique({
@@ -405,13 +402,15 @@ export class FieldsService {
       bbox,
     });
 
-    // Cache the result. The `_cacheSchemaVersion` marker survives
-    // JSON round-tripping (unlike `undefined`-valued keys such as
-    // `bbox`), so the short-circuit in `findById` detects this as
-    // a current-schema entry regardless of whether the field has
-    // a PostGIS boundary populated.
+    // Cache the result under a tenant-scoped key. The
+    // `_cacheSchemaVersion` marker survives JSON round-tripping
+    // (unlike `undefined`-valued keys such as `bbox`), so the
+    // short-circuit in `findById` detects this as a current-
+    // schema entry regardless of whether the field has a PostGIS
+    // boundary populated. The marker is stripped from the
+    // response on the cache-hit path.
     await this.cacheService.set(
-      CACHE_KEYS.FIELD(id),
+      CACHE_KEYS.FIELD(id, tenantId),
       { ...result, _cacheSchemaVersion: CACHE_SCHEMA_VERSION },
       CACHE_TTL.MEDIUM,
     );

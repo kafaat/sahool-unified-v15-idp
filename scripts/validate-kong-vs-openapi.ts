@@ -114,6 +114,9 @@ function parseYAML(content: string): unknown {
 }
 
 function extractKongRoutesRegex(content: string): KongConfig {
+  const TOP_LEVEL_KEY_PATTERN = /^[_a-zA-Z][\w-]*:\s*/;
+  const PATH_BLOCK_END_KEYS = /^(methods|protocols|strip_path|name):/;
+
   const services: KongService[] = [];
   let currentService: KongService | null = null;
   let currentRoute: KongRoute | null = null;
@@ -124,7 +127,8 @@ function extractKongRoutesRegex(content: string): KongConfig {
   const lines = content.split("\n");
 
   for (const line of lines) {
-    const trimmed = line.trim();
+    const lineTrimmed = line.trimEnd();
+    const trimmed = lineTrimmed.trimStart();
     const indent = line.length - line.trimStart().length;
 
     if (/^services:\s*$/.test(trimmed)) {
@@ -137,7 +141,7 @@ function extractKongRoutesRegex(content: string): KongConfig {
 
     if (!inServices) continue;
 
-    if (indent <= 1 && /^[_a-zA-Z][\w-]*:\s*/.test(trimmed) && !/^services:\s*$/.test(trimmed)) {
+    if (indent <= 1 && TOP_LEVEL_KEY_PATTERN.test(trimmed) && !/^services:\s*$/.test(trimmed)) {
       inServices = false;
       inRoutes = false;
       inPaths = false;
@@ -186,7 +190,7 @@ function extractKongRoutesRegex(content: string): KongConfig {
       const pathMatch = trimmed.match(/^- (\/.+)/);
       if (pathMatch) {
         currentRoute.paths?.push(pathMatch[1].trim());
-      } else if (!/^[-\s]/.test(trimmed) || /^(methods|protocols|strip_path|name):/.test(trimmed)) {
+      } else if (!/^[-\s]/.test(trimmed) || PATH_BLOCK_END_KEYS.test(trimmed)) {
         inPaths = false;
       }
     }

@@ -15,6 +15,11 @@ MIGRATIONS_DIR="${MIGRATIONS_DIR:-/migrations}"
 MIGRATIONS_TABLE="${MIGRATIONS_TABLE:-schema_migrations}"
 MIGRATIONS_STRICT="${MIGRATIONS_STRICT:-false}"
 
+if ! [[ "$MIGRATIONS_TABLE" =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+    echo "❌ Invalid MIGRATIONS_TABLE value: $MIGRATIONS_TABLE"
+    exit 1
+fi
+
 echo "╔══════════════════════════════════════════════════════════════════════╗"
 echo "║       SAHOOL Database Migration Script                               ║"
 echo "║       سكريبت ترحيل قاعدة بيانات سهول                                  ║"
@@ -46,8 +51,14 @@ if [ -d "$MIGRATIONS_DIR" ]; then
     for f in $(find "$MIGRATIONS_DIR" -maxdepth 1 -type f -name "*.sql" | sort); do
         if [ -f "$f" ]; then
             MIGRATION_NAME="$(basename "$f")"
+            if ! [[ "$MIGRATION_NAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+                echo "⚠️ Skipping migration with unsupported filename characters: ${MIGRATION_NAME}"
+                FAILED_COUNT=$((FAILED_COUNT + 1))
+                continue
+            fi
+            MIGRATION_NAME_ESCAPED="${MIGRATION_NAME//\'/\'\'}"
             EXISTS=$(PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tA -c \
-              "SELECT 1 FROM ${MIGRATIONS_TABLE} WHERE migration_name = '${MIGRATION_NAME}' LIMIT 1;")
+              "SELECT 1 FROM ${MIGRATIONS_TABLE} WHERE migration_name = '${MIGRATION_NAME_ESCAPED}' LIMIT 1;")
 
             if [ "$EXISTS" = "1" ]; then
                 echo "Skipping (already applied): ${MIGRATION_NAME}"
@@ -58,7 +69,7 @@ if [ -d "$MIGRATIONS_DIR" ]; then
             echo "Executing: ${MIGRATION_NAME}..."
             if PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -f "$f"; then
                 PGPASSWORD="$POSTGRES_PASSWORD" psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -v ON_ERROR_STOP=1 -c \
-                  "INSERT INTO ${MIGRATIONS_TABLE} (migration_name) VALUES ('${MIGRATION_NAME}') ON CONFLICT DO NOTHING;"
+                  "INSERT INTO ${MIGRATIONS_TABLE} (migration_name) VALUES ('${MIGRATION_NAME_ESCAPED}') ON CONFLICT DO NOTHING;"
                 APPLIED_COUNT=$((APPLIED_COUNT + 1))
             else
                 echo "⚠️ Warning: Migration ${MIGRATION_NAME} failed"

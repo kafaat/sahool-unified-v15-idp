@@ -73,32 +73,45 @@ export class UsersService {
     }
 
     // Create user
-    const user = await this.prisma.user.create({
-      data: {
-        tenantId,
-        email,
-        phone: createUserDto.phone,
-        passwordHash,
-        firstName,
-        lastName,
-        role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
-        status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
-        emailVerified: createUserDto.emailVerified || false,
-        phoneVerified: createUserDto.phoneVerified || false,
-      },
-      select: {
-        ...CommonSelects.userBasic,
-        profile: {
-          select: {
-            id: true,
-            avatarUrl: true,
-            address: true,
-            city: true,
-            region: true,
+    // RACE-CONDITION FIX: the findUnique + create sequence is not atomic.
+    // Two concurrent requests for the same email can both pass the findUnique
+    // check.  Wrap the create call and re-map Prisma's unique-constraint error
+    // (P2002) to ConflictException so the API always returns 409 rather than 500.
+    let user: User;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          tenantId,
+          email,
+          phone: createUserDto.phone,
+          passwordHash,
+          firstName,
+          lastName,
+          role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
+          status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
+          emailVerified: createUserDto.emailVerified || false,
+          phoneVerified: createUserDto.phoneVerified || false,
+        },
+        select: {
+          ...CommonSelects.userBasic,
+          profile: {
+            select: {
+              id: true,
+              avatarUrl: true,
+              address: true,
+              city: true,
+              region: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (err: any) {
+      // Prisma unique constraint violation code
+      if (err?.code === "P2002") {
+        throw new ConflictException("User with this email already exists");
+      }
+      throw err;
+    }
 
     // Fire-and-forget NATS publish — downstream services (audit, notification)
     // react to `sahool.user.created`. Do not block user-creation on event bus

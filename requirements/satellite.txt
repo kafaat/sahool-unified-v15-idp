@@ -1,0 +1,19 @@
+# SAHOOL Satellite / Remote-Sensing Requirements
+# ================================================
+# Include this file in any service that imports shared.satellite.sentinel_ndvi
+# (e.g. vegetation-analysis-service, indicators-service).
+#
+# Usage in service requirements.txt:
+#   -r ../../requirements/satellite.txt
+#
+# Updated: April 2026
+# PR1 — Satellite NDVI Production Guard
+
+# Sentinel Hub Python client (free registration at https://sentinelhub.com)
+# Used by shared/satellite/sentinel_ndvi.py.  Without this package the module
+# falls back to mock data; in production (ENVIRONMENT=production) mock data
+# is rejected entirely — see sentinel_ndvi.py for details.
+sentinelhub>=3.10.0,<4.0.0
+
+# Optional: eo-learn integration for time-series workflows
+# eo-learn>=1.5.0,<2.0.0

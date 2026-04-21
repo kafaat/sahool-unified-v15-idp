@@ -74,6 +74,16 @@ try:
 except ImportError:
     HAS_PROMETHEUS = False
 
+# Agricultural domain metrics (PR7)
+try:
+    from shared.monitoring.agricultural_metrics import get_agricultural_metrics as _get_agri_metrics
+
+    _AGRI_METRICS = _get_agri_metrics()
+    HAS_AGRI_METRICS = True
+except Exception:
+    _AGRI_METRICS = None
+    HAS_AGRI_METRICS = False
+
 # Prometheus metric definitions
 if HAS_PROMETHEUS:
     REQUEST_COUNT = Counter(
@@ -294,6 +304,12 @@ async def lifespan(app: FastAPI):
                     }
                     await save_indicator(field_id, "ndvi", indicator_data, tenant_id)
                     logger.info("ndvi_indicator_updated", field_id=field_id, ndvi_value=ndvi_value, status=status)
+                    # PR7 — emit NDVI KPI to Prometheus agricultural metrics
+                    if HAS_AGRI_METRICS and _AGRI_METRICS is not None:
+                        try:
+                            _AGRI_METRICS.record_ndvi_calculation(ndvi_value=ndvi_value)
+                        except Exception:
+                            pass  # metrics are best-effort
             except Exception as e:
                 logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
 

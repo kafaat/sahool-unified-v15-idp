@@ -1155,7 +1155,7 @@ app.add_middleware(
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type", "X-Tenant-ID", "X-Request-ID", "Accept", "Origin"],
 )
 
 # Add tenant context middleware

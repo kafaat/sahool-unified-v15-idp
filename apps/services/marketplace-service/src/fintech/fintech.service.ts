@@ -75,22 +75,21 @@ export class FintechService {
   async deposit(
     walletId: string,
     amount: number,
-    description?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
-    tenantId?: string,
+    description: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
     currency?: string,
   ) {
     // Wrap in the idempotency cache so a retry with the same
     // `Idempotency-Key` header returns the exact same response body.
     // The wallet-level uniqueness constraint on `transactions.idempotency_key`
     // still provides a second line of defence inside the SQL transaction.
-    const effectiveTenant = tenantId ?? "unassigned";
     const effectiveUser = userId ?? "system";
     const result = await this.idempotencyService.executeIdempotent(
       idempotencyKey,
-      effectiveTenant,
+      tenantId,
       effectiveUser,
       "wallet.deposit",
       { walletId, amount, description, currency },
@@ -102,6 +101,7 @@ export class FintechService {
           idempotencyKey,
           userId,
           ipAddress,
+          tenantId,
         ),
     );
     return result.value;
@@ -110,19 +110,18 @@ export class FintechService {
   async withdraw(
     walletId: string,
     amount: number,
-    description?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
-    pin?: string,
-    tenantId?: string,
+    description: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    pin: string | undefined,
+    tenantId: string,
     currency?: string,
   ) {
-    const effectiveTenant = tenantId ?? "unassigned";
     const effectiveUser = userId ?? "system";
     const result = await this.idempotencyService.executeIdempotent(
       idempotencyKey,
-      effectiveTenant,
+      tenantId,
       effectiveUser,
       "wallet.withdraw",
       { walletId, amount, description, currency },
@@ -135,6 +134,7 @@ export class FintechService {
           userId,
           ipAddress,
           pin,
+          tenantId,
         ),
     );
     return result.value;
@@ -144,19 +144,18 @@ export class FintechService {
     fromWalletId: string,
     toWalletId: string,
     amount: number,
-    description?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
-    pin?: string,
-    tenantId?: string,
+    description: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    pin: string | undefined,
+    tenantId: string,
     currency?: string,
   ) {
-    const effectiveTenant = tenantId ?? "unassigned";
     const effectiveUser = userId ?? "system";
     const result = await this.idempotencyService.executeIdempotent(
       idempotencyKey,
-      effectiveTenant,
+      tenantId,
       effectiveUser,
       "wallet.transfer",
       { fromWalletId, toWalletId, amount, description, currency },
@@ -170,54 +169,56 @@ export class FintechService {
           userId,
           ipAddress,
           pin,
+          tenantId,
         ),
     );
     return result.value;
   }
 
-  async getTransactions(walletId: string, limit: number = 20) {
-    return this.walletService.getTransactions(walletId, limit);
+  async getTransactions(walletId: string, tenantId: string, limit: number = 20) {
+    return this.walletService.getTransactions(walletId, tenantId, limit);
   }
 
-  async getWalletLimits(walletId: string) {
-    return this.walletService.getWalletLimits(walletId);
+  async getWalletLimits(walletId: string, tenantId: string) {
+    return this.walletService.getWalletLimits(walletId, tenantId);
   }
 
-  async updateWalletLimits(walletId: string) {
-    return this.walletService.updateWalletLimits(walletId);
+  async updateWalletLimits(walletId: string, tenantId: string) {
+    return this.walletService.updateWalletLimits(walletId, tenantId);
   }
 
   /**
    * Get wallet by ID for authorization checks
    * Returns wallet with userId for ownership verification
    */
-  async getWalletById(walletId: string) {
+  async getWalletById(walletId: string, tenantId: string) {
     return this.prisma.wallet.findUnique({
-      where: { id: walletId },
-      select: { id: true, userId: true },
+      where: { id_tenantId: { id: walletId, tenantId } },
+      select: { id: true, userId: true, tenantId: true },
     });
   }
 
-  async getWalletDashboard(walletId: string) {
-    return this.walletService.getWalletDashboard(walletId);
+  async getWalletDashboard(walletId: string, tenantId: string) {
+    return this.walletService.getWalletDashboard(walletId, tenantId);
   }
 
   // PIN Management
-  async setPin(walletId: string, pin: string, userId?: string) {
-    return this.walletService.setPin(walletId, pin, userId);
+  async setPin(walletId: string, pin: string, tenantId: string, userId?: string) {
+    return this.walletService.setPin(walletId, pin, tenantId, userId);
   }
 
-  async verifyPin(walletId: string, pin: string) {
-    return this.walletService.verifyPin(walletId, pin);
+  async verifyPin(walletId: string, pin: string, tenantId: string) {
+    return this.walletService.verifyPin(walletId, pin, tenantId);
   }
 
   async changePin(
     walletId: string,
     oldPin: string,
     newPin: string,
+    tenantId: string,
     userId?: string,
   ) {
-    return this.walletService.changePin(walletId, oldPin, newPin, userId);
+    return this.walletService.changePin(walletId, oldPin, newPin, tenantId, userId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -236,8 +237,8 @@ export class FintechService {
     return this.creditService.getCreditFactors(userId);
   }
 
-  async recordCreditEvent(data: RecordCreditEventDto, tenantId?: string) {
-    return this.creditService.recordCreditEvent(data);
+  async recordCreditEvent(data: RecordCreditEventDto, tenantId: string) {
+    return this.creditService.recordCreditEvent(data, tenantId);
   }
 
   async getCreditReport(userId: string): Promise<CreditReport> {
@@ -248,17 +249,18 @@ export class FintechService {
   // القروض - Loans (delegated to LoanService)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  async requestLoan(data: CreateLoanDto, tenantId?: string) {
-    return this.loanService.requestLoan(data);
+  async requestLoan(data: CreateLoanDto, tenantId: string) {
+    return this.loanService.requestLoan(data, tenantId);
   }
 
-  async approveLoan(loanId: string) {
-    return this.loanService.approveLoan(loanId);
+  async approveLoan(loanId: string, tenantId: string) {
+    return this.loanService.approveLoan(loanId, tenantId);
   }
 
   async repayLoan(
     loanId: string,
     amount: number,
+    tenantId: string,
     idempotencyKey?: string,
     userId?: string,
     ipAddress?: string,
@@ -269,11 +271,12 @@ export class FintechService {
       idempotencyKey,
       userId,
       ipAddress,
+      tenantId,
     );
   }
 
-  async getUserLoans(walletId: string) {
-    return this.loanService.getUserLoans(walletId);
+  async getUserLoans(walletId: string, tenantId: string) {
+    return this.loanService.getUserLoans(walletId, tenantId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -285,6 +288,7 @@ export class FintechService {
     amount: number,
     frequency: string,
     nextPaymentDate: Date,
+    tenantId: string,
     loanId?: string,
     description?: string,
     descriptionAr?: string,
@@ -297,19 +301,20 @@ export class FintechService {
       loanId,
       description,
       descriptionAr,
+      tenantId,
     );
   }
 
-  async getScheduledPayments(walletId: string, activeOnly: boolean = true) {
-    return this.loanService.getScheduledPayments(walletId, activeOnly);
+  async getScheduledPayments(walletId: string, tenantId: string, activeOnly: boolean = true) {
+    return this.loanService.getScheduledPayments(walletId, tenantId, activeOnly);
   }
 
-  async cancelScheduledPayment(paymentId: string) {
-    return this.loanService.cancelScheduledPayment(paymentId);
+  async cancelScheduledPayment(paymentId: string, tenantId: string) {
+    return this.loanService.cancelScheduledPayment(paymentId, tenantId);
   }
 
-  async executeScheduledPayment(paymentId: string) {
-    return this.loanService.executeScheduledPayment(paymentId);
+  async executeScheduledPayment(paymentId: string, tenantId: string) {
+    return this.loanService.executeScheduledPayment(paymentId, tenantId);
   }
 
   async processDuePayments() {
@@ -320,9 +325,9 @@ export class FintechService {
    * Get scheduled payment by ID for authorization checks
    * Returns payment with wallet info for ownership verification
    */
-  async getScheduledPaymentById(paymentId: string) {
+  async getScheduledPaymentById(paymentId: string, tenantId: string) {
     return this.prisma.scheduledPayment.findUnique({
-      where: { id: paymentId },
+      where: { id_tenantId: { id: paymentId, tenantId } },
       select: {
         id: true,
         walletId: true,
@@ -342,6 +347,7 @@ export class FintechService {
     buyerWalletId: string,
     sellerWalletId: string,
     amount: number,
+    tenantId: string,
     notes?: string,
     idempotencyKey?: string,
     userId?: string,
@@ -356,11 +362,13 @@ export class FintechService {
       idempotencyKey,
       userId,
       ipAddress,
+      tenantId,
     );
   }
 
   async releaseEscrow(
     escrowId: string,
+    tenantId: string,
     notes?: string,
     idempotencyKey?: string,
     userId?: string,
@@ -372,11 +380,13 @@ export class FintechService {
       idempotencyKey,
       userId,
       ipAddress,
+      tenantId,
     );
   }
 
   async refundEscrow(
     escrowId: string,
+    tenantId: string,
     reason?: string,
     idempotencyKey?: string,
     userId?: string,
@@ -388,12 +398,14 @@ export class FintechService {
       idempotencyKey,
       userId,
       ipAddress,
+      tenantId,
     );
   }
 
   async disputeEscrow(
     escrowId: string,
     reason: string,
+    tenantId: string,
     userId?: string,
     ipAddress?: string,
   ) {
@@ -402,6 +414,7 @@ export class FintechService {
       reason,
       userId,
       ipAddress,
+      tenantId,
     );
   }
 
@@ -409,6 +422,7 @@ export class FintechService {
     escrowId: string,
     resolution: "release" | "refund",
     adminNotes: string,
+    tenantId: string,
     userId?: string,
     ipAddress?: string,
   ) {
@@ -418,15 +432,16 @@ export class FintechService {
       adminNotes,
       userId,
       ipAddress,
+      tenantId,
     );
   }
 
-  async getEscrowByOrder(orderId: string) {
-    return this.escrowService.getEscrowByOrder(orderId);
+  async getEscrowByOrder(orderId: string, tenantId: string) {
+    return this.escrowService.getEscrowByOrder(orderId, tenantId);
   }
 
-  async getWalletEscrows(walletId: string) {
-    return this.escrowService.getWalletEscrows(walletId);
+  async getWalletEscrows(walletId: string, tenantId: string) {
+    return this.escrowService.getWalletEscrows(walletId, tenantId);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -463,12 +478,12 @@ export class FintechService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   // Wallet Freeze/Unfreeze
-  async freezeWallet(walletId: string, userId: string, reason?: string) {
-    return this.walletService.freezeWallet(walletId, userId, reason);
+  async freezeWallet(walletId: string, userId: string, tenantId: string, reason?: string) {
+    return this.walletService.freezeWallet(walletId, userId, tenantId, reason);
   }
 
-  async unfreezeWallet(walletId: string, userId: string, reason?: string) {
-    return this.walletService.unfreezeWallet(walletId, userId, reason);
+  async unfreezeWallet(walletId: string, userId: string, tenantId: string, reason?: string) {
+    return this.walletService.unfreezeWallet(walletId, userId, tenantId, reason);
   }
 
   /**

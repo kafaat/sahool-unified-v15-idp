@@ -163,7 +163,7 @@ export class SyncService {
 
         // Update existing field - validate tenant ownership
         const existingField = await this.prisma.field.findUnique({
-          where: { id },
+          where: { id_tenantId: { id, tenantId } },
           select: { id: true, version: true, tenantId: true },
         });
 
@@ -189,7 +189,7 @@ export class SyncService {
         // Version conflict check
         if (client_version !== undefined && client_version < existingField.version) {
           const serverData = await this.prisma.field.findUnique({
-            where: { id },
+            where: { id_tenantId: { id, tenantId } },
           });
 
           results.push({
@@ -205,7 +205,7 @@ export class SyncService {
 
         // Apply update with version increment for optimistic locking
         const updated = await this.prisma.field.update({
-          where: { id, version: existingField.version },
+          where: { id_tenantId: { id, tenantId }, version: existingField.version },
           data: {
             version: { increment: 1 },
             ...(fieldData.name && { name: fieldData.name }),

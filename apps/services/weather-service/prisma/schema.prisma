@@ -59,6 +59,7 @@ model WeatherObservation {
   // التوقيت
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@unique([id, tenantId], map: "uq_weather_observation_id_tenant")
   @@index([locationId, timestamp(sort: Desc)]) // للاستعلام عن آخر الأرصاد لموقع معين
   @@index([tenantId, timestamp(sort: Desc)]) // للاستعلام عن بيانات مستأجر معين
   @@index([timestamp(sort: Desc)]) // للاستعلامات الزمنية
@@ -94,6 +95,7 @@ model WeatherForecast {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_weather_forecast_id_tenant")
   @@unique([locationId, forecastFor, provider]) // تنبؤ واحد لكل موقع وتاريخ ومزود
   @@index([locationId, forecastFor(sort: Desc)]) // للاستعلام عن التنبؤات لموقع معين
   @@index([tenantId, forecastFor(sort: Desc)]) // للاستعلام عن تنبؤات مستأجر معين
@@ -133,6 +135,7 @@ model WeatherAlert {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_weather_alert_id_tenant")
   @@index([locationId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات موقع معين
   @@index([tenantId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات مستأجر معين
   @@index([alertType, severity]) // للتصفية حسب النوع والخطورة
@@ -185,6 +188,7 @@ model LocationConfig {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_location_config_id_tenant")
   @@unique([tenantId, latitude, longitude]) // موقع واحد لكل مستأجر وإحداثيات
   @@index([tenantId, isActive]) // للاستعلام عن المواقع النشطة لمستأجر
   @@index([isActive]) // للمواقع النشطة

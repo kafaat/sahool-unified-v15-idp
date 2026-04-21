@@ -218,12 +218,13 @@ app.add_exception_handler(VisionError, vision_error_handler)
 
 
 # CORS Middleware
+# SECURITY: Restrict to explicit methods and headers (no wildcards)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Tenant-ID", "X-Request-ID", "Accept", "Origin"],
 )
 
 # Tenant context middleware

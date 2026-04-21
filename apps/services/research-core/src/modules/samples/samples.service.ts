@@ -226,7 +226,7 @@ export class SamplesService {
     const { analysisResults, metadata, ...restDto } = dto;
 
     return this.prisma.labSample.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         ...restDto,
         collectionDate: dto.collectionDate
@@ -272,7 +272,7 @@ export class SamplesService {
     await this.findOne(id, tenantId);
 
     return this.prisma.labSample.delete({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
   }
 
@@ -286,7 +286,7 @@ export class SamplesService {
     await this.findOne(id, tenantId);
 
     return this.prisma.labSample.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         analysisStatus: status,
         analyzedBy: analyzedBy || undefined,

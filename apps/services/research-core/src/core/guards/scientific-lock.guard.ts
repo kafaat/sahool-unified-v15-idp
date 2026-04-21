@@ -172,16 +172,41 @@ export class ScientificLockGuard implements CanActivate {
   }
 
   /**
-   * Lock an experiment
+   * Lock an experiment.
    * قفل تجربة
+   *
+   * SECURITY
+   * --------
+   * `tenantId` is REQUIRED. Both the existence pre-check and the mutation
+   * bind it via the id_tenantId composite unique — a cross-tenant
+   * `experimentId` guess returns null from findFirst and throws
+   * ForbiddenException before any write. Do NOT remove `tenantId` from the
+   * signature or you reintroduce the IDOR documented in the 2026-04-21
+   * regression audit (reading the foreign row's tenantId and then using
+   * it on the update binds to the *wrong* tenant's row).
    */
   async lockExperiment(
     experimentId: string,
     userId: string,
+    tenantId: string,
     reason?: string,
   ): Promise<void> {
+    if (!tenantId) {
+      throw new ForbiddenException("tenantId required to lock experiment");
+    }
+
+    const existing = await this.prisma.experiment.findFirst({
+      where: { id: experimentId, tenantId },
+      select: { tenantId: true },
+    });
+    if (!existing) {
+      throw new ForbiddenException("Experiment not found");
+    }
+
     const experiment = await this.prisma.experiment.update({
-      where: { id: experimentId },
+      where: {
+        id_tenantId: { id: experimentId, tenantId },
+      },
       data: {
         status: "locked",
         lockedAt: new Date(),
@@ -210,16 +235,23 @@ export class ScientificLockGuard implements CanActivate {
   }
 
   /**
-   * Unlock an experiment (requires admin privileges)
+   * Unlock an experiment (requires admin privileges).
    * فتح قفل تجربة (يتطلب صلاحيات المسؤول)
+   *
+   * SECURITY: `tenantId` required — same rationale as lockExperiment.
    */
   async unlockExperiment(
     experimentId: string,
     userId: string,
     reason: string,
+    tenantId: string,
   ): Promise<void> {
+    if (!tenantId) {
+      throw new ForbiddenException("tenantId required to unlock experiment");
+    }
+
     const experiment = await this.prisma.experiment.findFirst({
-      where: { id: experimentId },
+      where: { id: experimentId, tenantId },
       select: { tenantId: true, status: true, lockedAt: true, lockedBy: true },
     });
 
@@ -228,7 +260,9 @@ export class ScientificLockGuard implements CanActivate {
     }
 
     await this.prisma.experiment.update({
-      where: { id: experimentId },
+      where: {
+        id_tenantId: { id: experimentId, tenantId },
+      },
       data: {
         status: "active",
         lockedAt: null,

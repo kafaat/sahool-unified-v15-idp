@@ -542,7 +542,7 @@ export class FieldSubZonesService {
   /** Verify field exists + belongs to the tenant. */
   private async assertFieldOwnership(fieldId: string, tenantId: string) {
     const field = await this.prisma.field.findUnique({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       select: { id: true, tenantId: true, isDeleted: true },
     });
     if (!field || field.isDeleted || field.tenantId !== tenantId) {

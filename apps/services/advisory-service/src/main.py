@@ -38,6 +38,18 @@ if str(SHARED_PATH) not in sys.path:
 from shared.logging_config import get_logger, setup_logging
 
 setup_logging(service_name="advisory-service")
+
+# Agricultural KPI metrics (STABILIZATION_PLAN_v16.1 PR7) — wraps the
+# import so a missing prometheus_client dependency (e.g., slim CI) leaves
+# recording as a no-op without hard-failing service startup.
+try:
+    from shared.monitoring.agricultural_metrics import get_agricultural_metrics
+
+    _agri_metrics = get_agricultural_metrics()
+    AGRI_METRICS_AVAILABLE = True
+except Exception:  # pragma: no cover — defensive, metrics are optional
+    _agri_metrics = None
+    AGRI_METRICS_AVAILABLE = False
 from crops import (
     ALL_CROPS,
     CATEGORIES_COUNT,
@@ -615,6 +627,24 @@ def health():
     return {"status": "ok", "service": "advisory_service", "version": VERSION}
 
 
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus scrape endpoint — exposes agricultural KPIs
+    (STABILIZATION_PLAN_v16.1 PR7). Returns `text/plain; version=0.0.4`
+    compatible with the platform-wide Prometheus + Grafana stack in
+    `infrastructure/monitoring/`.
+    """
+    if not AGRI_METRICS_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="prometheus_client not installed or metrics init failed",
+        )
+    from fastapi.responses import Response
+    from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
@@ -695,6 +725,16 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
             "result": None,
             "message": "Confidence too low or unknown condition",
         }
+
+    # Prometheus KPI — aggregated by disease category/crop/severity,
+    # no tenant_id/field_id labels (high-cardinality guard).
+    if _agri_metrics is not None:
+        _agri_metrics.record_disease_detection(
+            disease_type=assessment.category or "unknown",
+            crop_type=req.crop or "unknown",
+            severity=assessment.severity or "medium",
+            confidence=assessment.confidence,
+        )
 
     # Publish event
     # TODO: migrate remaining publishers to outbox (see /api/v1/fertilizer/plan exemplar)
@@ -1307,8 +1347,40 @@ async def comprehensive_advisory(
     The endpoint is tenant-scoped: the caller's JWT provides the
     tenant id, which is propagated to every downstream call via
     the X-Tenant-Id header so cross-tenant access is impossible.
+
+    Ownership gate (defense-in-depth, added post-audit round 1):
+    before fanning out to 8 downstream services we confirm the caller
+    actually owns ``field_id`` by asking field-management-service.
+    Downstream services enforce their own gates too, but rejecting
+    an unauthorised field here cuts 8 parallel calls down to zero
+    and avoids leaking service topology to a probing attacker.
     """
-    tenant_id = user.tenant_id or "default"
+    # Fail-closed on missing tenant (Copilot review round 4): the old
+    # ``user.tenant_id or "default"`` silently tagged anonymous / no-
+    # tenant JWTs as "default", which then passed the ownership gate
+    # because FMS happily returned the row for that synthetic tenant.
+    # Require a real tenant up-front; verify_field_owned_by_tenant
+    # also rejects empty tenant_id but doing it here produces a
+    # clearer error + saves a network hop.
+    tenant_id = (user.tenant_id or "").strip()
+    if not tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "Tenant context required",
+                "error_ar": "سياق المستأجر مطلوب",
+            },
+        )
+    # Ownership verification — mirrors vegetation-analysis-service's
+    # pattern (see PR #1704). The helper talks to field-management-
+    # service and forwards the Bearer JWT from the inbound request.
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    await verify_field_owned_by_tenant(
+        tenant_id=tenant_id,
+        field_id=field_id,
+        http_request=request,
+    )
 
     # Lazy-init the orchestrator once per process (not per request)
     # — ServiceUrls resolves env vars which don't change at runtime.
@@ -1367,7 +1439,21 @@ class CropLoanVerificationPayload(BaseModel):
 
 @app.post("/api/v1/loans/crop-loan-verification/{field_id}")
 async def verify_crop_loan(
-    field_id: str,
+    field_id: Annotated[
+        str,
+        # SECURITY: mirror comprehensive_advisory's validation — reject
+        # path-traversal + URL-escape characters at the framework
+        # boundary (Copilot review round 4) so a malicious field_id
+        # can't change which downstream URL gets hit when the loan
+        # engine interpolates it into the field-management / vegetation /
+        # crop-intelligence URLs.
+        FastAPIPath(
+            min_length=1,
+            max_length=100,
+            pattern=r"^[A-Za-z0-9_-]+$",
+            description="Opaque field identifier (alphanumeric, _ or -).",
+        ),
+    ],
     payload: CropLoanVerificationPayload,
     request: Request,
     user: User = Depends(get_current_user),
@@ -1401,8 +1487,35 @@ async def verify_crop_loan(
     Tenant-scoped: the caller's JWT drives the tenant id, which is
     propagated to every downstream call via ``X-Tenant-Id`` so cross-
     tenant access is impossible.
+
+    Ownership gate (defense-in-depth, added post-audit round 1):
+    same rationale as comprehensive_advisory — verify the caller
+    owns this field before the engine starts fetching field data,
+    NDVI history, and risk signals in parallel. High-stakes endpoint
+    (loans) gets explicit per-request verification instead of relying
+    solely on each downstream's own tenant gate.
     """
-    tenant_id = user.tenant_id or "default"
+    # Fail-closed on missing tenant — same fix as comprehensive_advisory.
+    # See that handler's docstring for why "default" is a security hole.
+    tenant_id = (user.tenant_id or "").strip()
+    if not tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "error": "Tenant context required",
+                "error_ar": "سياق المستأجر مطلوب",
+            },
+        )
+    # Ownership verification — see comprehensive_advisory for the
+    # rationale. Fail closed before touching vegetation / FMS / crop-
+    # intelligence in parallel.
+    from src.field_ownership import verify_field_owned_by_tenant
+
+    await verify_field_owned_by_tenant(
+        tenant_id=tenant_id,
+        field_id=field_id,
+        http_request=request,
+    )
 
     if not hasattr(app.state, "loan_verification_engine"):
         app.state.loan_verification_engine = CropLoanVerificationEngine(

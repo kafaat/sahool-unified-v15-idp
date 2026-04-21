@@ -68,10 +68,14 @@ model InventoryItem {
   lastRestocked DateTime? @map("last_restocked")
 
   // Relations
-  movements InventoryMovement[]
-  alerts    InventoryAlert[]
-  transfers StockTransfer[]
+  movements         InventoryMovement[]
+  alerts            InventoryAlert[]
+  transfers         StockTransfer[]
+  batchLots         BatchLot[]
+  stockMovements    StockMovement[]
+  inputApplications InputApplication[]
 
+  @@unique([id, tenantId], map: "uq_inventory_item_id_tenant")
   @@index([tenantId])
   @@index([category])
   @@index([quantity])
@@ -128,6 +132,7 @@ model InventoryMovement {
   // Relations
   item InventoryItem @relation(fields: [itemId], references: [id])
 
+  @@unique([id, tenantId], map: "uq_inventory_movement_id_tenant")
   @@index([itemId])
   @@index([tenantId])
   @@index([type])
@@ -192,6 +197,7 @@ model InventoryAlert {
   // Relations
   item InventoryItem @relation(fields: [itemId], references: [id])
 
+  @@unique([id, tenantId], map: "uq_inventory_alert_id_tenant")
   @@index([tenantId])
   @@index([status, priority])
   @@index([itemId])
@@ -296,6 +302,7 @@ model Warehouse {
   createdAt     DateTime        @default(now()) @map("created_at")
   updatedAt     DateTime        @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_warehouse_id_tenant")
   @@unique([tenantId, name], name: "uq_warehouse_tenant_name")
   @@index([tenantId])
   @@index([isActive], name: "idx_warehouse_active")
@@ -338,6 +345,7 @@ model Zone {
   createdAt DateTime          @default(now()) @map("created_at")
   updatedAt DateTime          @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_zone_id_tenant")
   @@unique([warehouseId, name], name: "uq_zone_warehouse_name")
   @@index([tenantId])
   @@index([warehouseId])
@@ -362,6 +370,7 @@ model StorageLocation {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_storage_location_id_tenant")
   @@index([tenantId])
   @@index([zoneId])
   @@index([locationCode])
@@ -399,6 +408,7 @@ model StockTransfer {
 
   notes String?
 
+  @@unique([id, tenantId], map: "uq_stock_transfer_id_tenant")
   @@index([tenantId])
   @@index([itemId])
   @@index([fromWarehouseId])
@@ -419,4 +429,165 @@ enum TransferStatus {
   IN_TRANSIT // قيد النقل
   COMPLETED // مكتمل
   CANCELLED // ملغي
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 6. Batch Lots - دفعات الإنتاج
+// FIFO-tracked inventory batches (used by application_tracker.py)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model BatchLot {
+  id       String @id @default(uuid())
+  tenantId String @map("tenant_id")
+  itemId   String @map("item_id")
+
+  batchNumber    String?  @map("batch_number")
+  receivedDate   DateTime @map("received_date")
+  expiryDate     DateTime? @map("expiry_date")
+  initialQty     Float    @map("initial_qty")
+  remainingQty   Float    @map("remaining_qty")
+  unitCost       Float?   @map("unit_cost")
+  supplier       String?
+  supplierBatch  String?  @map("supplier_batch")
+  notes          String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  item         InventoryItem      @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  applications InputApplication[]
+
+  @@unique([id, tenantId], map: "uq_batch_lot_id_tenant")
+  @@index([tenantId])
+  @@index([itemId])
+  @@index([itemId, receivedDate], name: "idx_batch_item_received")
+  @@index([expiryDate], name: "idx_batch_expiry")
+  @@map("batch_lots")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 7. Stock Movements - حركات المخزون التفصيلية
+// Fine-grained ledger (complement to inventory_movements) recorded by the
+// ApplicationTracker when inputs are applied to fields.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model StockMovement {
+  id       String @id @default(uuid())
+  tenantId String @map("tenant_id")
+  itemId   String @map("item_id")
+
+  movementType  String  @map("movement_type") // FIELD_APPLICATION, TRANSFER, ADJUSTMENT, ...
+  quantity      Float   // negative for outgoing, positive for incoming
+  previousQty   Float   @map("previous_qty")
+  newQty        Float   @map("new_qty")
+  unitCost      Float?  @map("unit_cost")
+  totalCost     Float?  @map("total_cost")
+  referenceType String? @map("reference_type") // application, transfer, purchase, sale, adjustment
+  referenceId   String? @map("reference_id")
+  fieldId       String? @map("field_id")
+  cropSeasonId  String? @map("crop_season_id")
+  performedBy   String  @map("performed_by")
+  notes         String?
+  notesAr       String? @map("notes_ar")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  item InventoryItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+
+  @@unique([id, tenantId], map: "uq_stock_movement_id_tenant")
+  @@index([tenantId])
+  @@index([itemId])
+  @@index([itemId, createdAt], name: "idx_stock_movement_item_date")
+  @@index([fieldId])
+  @@index([cropSeasonId])
+  @@index([movementType])
+  @@index([createdAt])
+  @@map("stock_movements")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 8. Input Applications - سجل تطبيقات المدخلات الزراعية
+// Append-only ledger of fertilizer/pesticide/seed applications per field.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model InputApplication {
+  id           String @id @default(uuid())
+  tenantId     String @map("tenant_id")
+  fieldId      String @map("field_id")
+  cropSeasonId String @map("crop_season_id")
+  itemId       String @map("item_id")
+  batchLotId   String? @map("batch_lot_id")
+
+  applicationDate  DateTime @map("application_date")
+  method           String // BROADCAST, SPRAY, BAND, DRIP, FOLIAR, ...
+  purpose          String // BASAL, TOP_DRESSING, PREVENTIVE, CURATIVE, ...
+  quantityApplied  Float    @map("quantity_applied")
+  unit             String
+  areaCoveredHa    Float    @map("area_covered_ha")
+  ratePerHa        Float    @map("rate_per_ha")
+  appliedBy        String   @map("applied_by")
+  withholdingDays  Int?     @map("withholding_days")
+  safeHarvestDate  DateTime? @map("safe_harvest_date") @db.Date
+  unitCost         Float?   @map("unit_cost")
+  totalCost        Float?   @map("total_cost")
+
+  // Environmental / operational context
+  temperature      Float?
+  humidity         Float?
+  windSpeed        Float?  @map("wind_speed")
+  growthStage      String? @map("growth_stage")
+  equipmentUsed    String? @map("equipment_used")
+  ppeUsed          String[] @default([]) @map("ppe_used")
+  targetPest       String? @map("target_pest")
+  efficacyRating   Int?    @map("efficacy_rating") // 1-5
+  notes            String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  item     InventoryItem @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  batchLot BatchLot?     @relation(fields: [batchLotId], references: [id], onDelete: SetNull)
+
+  @@unique([id, tenantId], map: "uq_input_application_id_tenant")
+  @@index([tenantId])
+  @@index([fieldId])
+  @@index([cropSeasonId])
+  @@index([itemId])
+  @@index([batchLotId])
+  @@index([applicationDate])
+  @@index([fieldId, applicationDate(sort: Desc)], name: "idx_input_app_field_date")
+  @@index([cropSeasonId, applicationDate(sort: Desc)], name: "idx_input_app_season_date")
+  @@index([safeHarvestDate])
+  @@map("input_applications")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 9. Application Plans - خطط التطبيقات الموصى بها
+// Generated (templated or AI-recommended) application plans per crop season.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+model ApplicationPlan {
+  id           String @id @default(uuid())
+  tenantId     String @map("tenant_id")
+  fieldId      String @map("field_id")
+  cropSeasonId String @map("crop_season_id")
+
+  cropType             String  @map("crop_type")
+  plannedApplications  Json    @map("planned_applications") // Array of planned-application dicts
+  totalFertilizerKg    Float   @default(0) @map("total_fertilizer_kg")
+  totalPesticideL      Float   @default(0) @map("total_pesticide_l")
+  estimatedCost        Float   @default(0) @map("estimated_cost")
+  status               String  @default("DRAFT") // DRAFT, APPROVED, ACTIVE, COMPLETED, CANCELLED
+  approvedBy           String? @map("approved_by")
+  approvedAt           DateTime? @map("approved_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([id, tenantId], map: "uq_application_plan_id_tenant")
+  @@index([tenantId])
+  @@index([fieldId])
+  @@index([cropSeasonId])
+  @@index([status])
+  @@map("application_plans")
 }

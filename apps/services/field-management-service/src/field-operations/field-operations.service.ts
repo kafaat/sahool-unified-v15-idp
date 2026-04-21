@@ -89,7 +89,7 @@ export class FieldOperationsService {
    */
   async rollupForCropSeason(cropSeasonId: string, tenantId: string) {
     const season = await this.prisma.cropSeason.findUnique({
-      where: { id: cropSeasonId },
+      where: { id_tenantId: { id: cropSeasonId, tenantId } },
       select: { id: true, tenantId: true },
     });
     if (!season || season.tenantId !== tenantId) {
@@ -224,7 +224,7 @@ export class FieldOperationsService {
    * Fetch a single operation by id (tenant-scoped).
    */
   async getById(id: string, tenantId: string) {
-    const row = await this.prisma.fieldOperation.findUnique({ where: { id } });
+    const row = await this.prisma.fieldOperation.findUnique({ where: { id_tenantId: { id, tenantId } } });
     if (!row || row.tenantId !== tenantId || row.deletedAt) {
       throw new NotFoundException({
         message: "Field operation not found",
@@ -251,7 +251,7 @@ export class FieldOperationsService {
 
     if (dto.cropSeasonId) {
       const season = await this.prisma.cropSeason.findUnique({
-        where: { id: dto.cropSeasonId },
+        where: { id_tenantId: { id: dto.cropSeasonId, tenantId } },
         select: { id: true, tenantId: true, fieldId: true },
       });
       if (
@@ -414,7 +414,7 @@ export class FieldOperationsService {
     }
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.fieldOperation.update({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         data: {
           approvalStatus: "approved",
           approvedBy: approvedBy ?? "system",
@@ -451,7 +451,7 @@ export class FieldOperationsService {
     if (existing.approvalStatus === "rejected") return existing;
     return this.prisma.$transaction(async (tx) => {
       const row = await tx.fieldOperation.update({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         data: {
           approvalStatus: "rejected",
           rejectionReason: reason,
@@ -540,7 +540,7 @@ export class FieldOperationsService {
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const row = await tx.fieldOperation.update({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         data: data as any,
       });
       await this.outbox.writeInTransaction(tx, {
@@ -582,7 +582,7 @@ export class FieldOperationsService {
     }
     await this.prisma.$transaction(async (tx) => {
       await tx.fieldOperation.update({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         data: {
           deletedAt: new Date(),
           deletedBy: deletedBy ?? "system",
@@ -611,7 +611,7 @@ export class FieldOperationsService {
    */
   private async assertFieldOwnership(fieldId: string, tenantId: string) {
     const field = await this.prisma.field.findUnique({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       select: { id: true, tenantId: true, isDeleted: true },
     });
     if (!field || field.isDeleted) {

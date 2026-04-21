@@ -73,32 +73,45 @@ export class UsersService {
     }
 
     // Create user
-    const user = await this.prisma.user.create({
-      data: {
-        tenantId,
-        email,
-        phone: createUserDto.phone,
-        passwordHash,
-        firstName,
-        lastName,
-        role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
-        status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
-        emailVerified: createUserDto.emailVerified || false,
-        phoneVerified: createUserDto.phoneVerified || false,
-      },
-      select: {
-        ...CommonSelects.userBasic,
-        profile: {
-          select: {
-            id: true,
-            avatarUrl: true,
-            address: true,
-            city: true,
-            region: true,
+    // RACE-CONDITION FIX: the findUnique + create sequence is not atomic.
+    // Two concurrent requests for the same email can both pass the findUnique
+    // check.  Wrap the create call and re-map Prisma's unique-constraint error
+    // (P2002) to ConflictException so the API always returns 409 rather than 500.
+    let user: User;
+    try {
+      user = await this.prisma.user.create({
+        data: {
+          tenantId,
+          email,
+          phone: createUserDto.phone,
+          passwordHash,
+          firstName,
+          lastName,
+          role: (createUserDto.role || UserRole.VIEWER) as any, // Cast to Prisma UserRole enum
+          status: (createUserDto.status || UserStatus.PENDING) as any, // Cast to Prisma UserStatus enum
+          emailVerified: createUserDto.emailVerified || false,
+          phoneVerified: createUserDto.phoneVerified || false,
+        },
+        select: {
+          ...CommonSelects.userBasic,
+          profile: {
+            select: {
+              id: true,
+              avatarUrl: true,
+              address: true,
+              city: true,
+              region: true,
+            },
           },
         },
-      },
-    });
+      });
+    } catch (err: any) {
+      // Prisma unique constraint violation code
+      if (err?.code === "P2002") {
+        throw new ConflictException("User with this email already exists");
+      }
+      throw err;
+    }
 
     // Fire-and-forget NATS publish — downstream services (audit, notification)
     // react to `sahool.user.created`. Do not block user-creation on event bus
@@ -168,12 +181,17 @@ export class UsersService {
   }
 
   /**
-   * Get a single user by ID
+   * Get a single user by ID.
    * الحصول على مستخدم واحد بواسطة المعرف
+   *
+   * SECURITY: when `tenantId` is provided the lookup is scoped to that
+   * tenant via the `id_tenantId` composite unique — cross-tenant access
+   * returns 404. Callers invoking without `tenantId` (e.g. SUPER_ADMIN
+   * platform operations) retain the original unscoped behaviour.
    */
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string, tenantId?: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: tenantId ? { id_tenantId: { id, tenantId } } : { id },
       select: {
         ...CommonSelects.userBasic,
         phone: true,
@@ -246,12 +264,22 @@ export class UsersService {
   /**
    * Update a user
    * تحديث مستخدم
+   *
+   * SECURITY: when `tenantId` is provided both the existence pre-check and
+   * the subsequent UPDATE are scoped via the `id_tenantId` composite unique.
+   * SUPER_ADMIN callers can omit `tenantId` for cross-tenant operations.
    */
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    tenantId?: string,
+  ): Promise<User> {
+    const scopedWhere = tenantId ? { id_tenantId: { id, tenantId } } : { id };
+
     // Check if user exists — also fetch role/status so we can detect role or
     // status changes and emit the dedicated events.
     const existingUser = await this.prisma.user.findUnique({
-      where: { id },
+      where: scopedWhere,
       select: {
         id: true,
         email: true,
@@ -301,7 +329,7 @@ export class UsersService {
 
     // Update user
     const user = await this.prisma.user.update({
-      where: { id },
+      where: scopedWhere,
       data: updateData,
       select: {
         ...CommonSelects.userBasic,
@@ -367,12 +395,16 @@ export class UsersService {
   }
 
   /**
-   * Delete a user (soft delete by setting status to INACTIVE)
+   * Delete a user (soft delete by setting status to INACTIVE).
    * حذف مستخدم (حذف ناعم عن طريق تعيين الحالة إلى غير نشط)
+   *
+   * SECURITY: tenant-scoped via `id_tenantId` when `tenantId` is supplied.
    */
-  async remove(id: string): Promise<User> {
+  async remove(id: string, tenantId?: string): Promise<User> {
+    const scopedWhere = tenantId ? { id_tenantId: { id, tenantId } } : { id };
+
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: scopedWhere,
     });
 
     if (!user) {
@@ -381,7 +413,7 @@ export class UsersService {
 
     // Soft delete by setting status to INACTIVE
     const deactivated = (await this.prisma.user.update({
-      where: { id },
+      where: scopedWhere,
       data: {
         status: UserStatus.INACTIVE,
       },
@@ -401,12 +433,17 @@ export class UsersService {
   }
 
   /**
-   * Hard delete a user (permanent deletion)
+   * Hard delete a user (permanent deletion).
    * حذف صعب لمستخدم (حذف دائم)
+   *
+   * SECURITY: tenant-scoped via `id_tenantId` when `tenantId` is supplied.
+   * SUPER_ADMIN callers can omit `tenantId` for platform-wide purges.
    */
-  async hardDelete(id: string): Promise<void> {
+  async hardDelete(id: string, tenantId?: string): Promise<void> {
+    const scopedWhere = tenantId ? { id_tenantId: { id, tenantId } } : { id };
+
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: scopedWhere,
       select: { id: true, tenantId: true },
     });
 
@@ -415,7 +452,7 @@ export class UsersService {
     }
 
     await this.prisma.user.delete({
-      where: { id },
+      where: scopedWhere,
     });
 
     void this.events.publishUserDeleted({
@@ -475,5 +512,38 @@ export class UsersService {
         tenantId,
       },
     });
+  }
+
+  /**
+   * Toggle blocked status for a user (used by mobile chat and admin moderation).
+   * تبديل حالة الحجب للمستخدم
+   */
+  async toggleBlock(userId: string, tenantId?: string): Promise<User | null> {
+    const where: any = { id: userId };
+    if (tenantId) where.tenantId = tenantId;
+
+    const existing = await this.prisma.user.findFirst({
+      where,
+      select: { id: true, status: true, tenantId: true },
+    });
+    if (!existing) return null;
+
+    const isCurrentlyBlocked = existing.status === UserStatus.SUSPENDED;
+    const newStatus = isCurrentlyBlocked ? UserStatus.ACTIVE : UserStatus.SUSPENDED;
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data: { status: newStatus },
+      select: { id: true, status: true, tenantId: true },
+    });
+
+    void this.events.publishUserStatusChanged({
+      tenantId: updated.tenantId,
+      userId: updated.id,
+      oldStatus: String(existing.status),
+      newStatus: String(updated.status),
+    });
+
+    return { ...updated, blocked: !isCurrentlyBlocked } as unknown as User;
   }
 }

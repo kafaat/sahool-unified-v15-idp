@@ -26,7 +26,12 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Apply labels based on changed files
-        uses: actions/labeler@v6
+        # actions/labeler@v5 is the current stable release. The previous
+        # pin to @v6 was invalid — that major version has no registered
+        # release tag on the actions/labeler repository, so the runner's
+        # "Prepare all required actions" step fails with "An action
+        # could not be found at the URI ...tarball/<sha>..." on every PR.
+        uses: actions/labeler@v5
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           configuration-path: .github/labeler.yml

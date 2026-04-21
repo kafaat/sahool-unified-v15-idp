@@ -33,6 +33,7 @@ from pydantic import BaseModel, Field
 
 try:
     import structlog as _structlog
+
     from shared.logging_config import setup_logging
 
     setup_logging("astronomical-calendar")

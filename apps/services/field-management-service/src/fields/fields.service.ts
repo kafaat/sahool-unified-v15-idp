@@ -36,6 +36,17 @@ function generateETag(id: string, version: number): string {
   return `"${id}-v${version}"`;
 }
 
+/**
+ * Bumped whenever the shape of a cached FieldResponseDto changes in a
+ * way that a subtle consumer (e.g. the `findById` short-circuit)
+ * depends on. Previously we probed ``'bbox' in cached`` as a
+ * schema-version marker, but JSON serialization drops `undefined`
+ * values — so fields WITHOUT a bbox round-tripped through Redis
+ * lost the marker and every read paid a DB round-trip (PR #1729
+ * review). The dedicated integer is resilient to serialization.
+ */
+const CACHE_SCHEMA_VERSION = 2;
+
 // Convert Prisma Decimal fields to numbers for DTO compatibility.
 // Prisma returns Decimal columns as objects with a `.toNumber()` method or
 // as strings (depending on configuration). The UI always expects `number`,
@@ -245,16 +256,33 @@ export class FieldsService {
    * header value (``req.headers["x-tenant-id"]``) could therefore
    * resolve any field by UUID across tenants — a cross-tenant IDOR.
    *
-   * ``tenantId`` is now REQUIRED and must be non-empty; every
-   * DB lookup uses the composite ``@@unique([id, tenantId])`` key
-   * ``id_tenantId``. No un-scoped path remains.
+   * ``tenantId`` is now REQUIRED and must be a non-empty, non-
+   * whitespace string; every DB lookup uses the composite
+   * ``@@unique([id, tenantId])`` key ``id_tenantId``. No un-scoped
+   * path remains.
+   *
+   * Cache-hit enumeration oracle (PR #1729 review):
+   * The cache is keyed by field id alone (``CACHE_KEYS.FIELD(id)``),
+   * so a cached entry may belong to a different tenant than the
+   * caller. A naive ``assertTenantOwnership`` on the cached row
+   * throws ``ForbiddenException`` (403) on mismatch, but the DB
+   * composite-key path throws ``NotFoundException`` (404) on the
+   * same mismatch — distinguishable status codes reintroduce the
+   * enumeration oracle the composite-key query was meant to close.
+   * Cross-tenant cache hits are therefore treated as MISSES and
+   * fall through to the DB path, which returns the uniform 404.
    *
    * @param id       - Field UUID
-   * @param tenantId - Caller's verified tenant (non-empty); raises
-   *                   ``BadRequestException`` on falsy values.
+   * @param tenantId - Caller's verified tenant; must be a
+   *                   non-empty, non-whitespace string. Throws
+   *                   ``BadRequestException`` otherwise.
    */
   async findById(id: string, tenantId: string): Promise<FieldResponseDto> {
-    if (!tenantId) {
+    // Treat whitespace-only tenantIds as empty — a controller that
+    // forwards `req.headers["x-tenant-id"]?.trim() ?? ""` might emit
+    // `" "` for a malformed header value, which the previous
+    // `!tenantId` guard accepted as truthy.
+    if (!tenantId || typeof tenantId !== "string" || tenantId.trim() === "") {
       throw new BadRequestException(
         "tenantId is required — no un-scoped field lookup path exists",
       );
@@ -264,14 +292,24 @@ export class FieldsService {
     const cached = await this.cacheService.get<FieldResponseDto>(
       CACHE_KEYS.FIELD(id),
     );
-    // Shortcut the DB round-trip only if the cached object was produced by
-    // this version of the code (i.e. contains the `bbox` key). Objects
-    // cached before the bbox rollout are ignored here so clients get the
-    // new field on next read without a manual cache flush.
-    if (cached && 'bbox' in cached) {
-      // Verify tenant ownership even for cached results
-      assertTenantOwnership(cached.tenantId, tenantId, "field");
-      return cached;
+    // Schema-version marker: `_cacheSchemaVersion` is set on every
+    // write (see CACHE_SCHEMA_VERSION below). An older entry without
+    // it is ignored so clients pick up the new shape on next read.
+    // The previous `'bbox' in cached` probe was unreliable because
+    // JSON serialization drops keys whose value is `undefined`, so
+    // entries for fields with no bbox would lose the marker on round-
+    // trip and never hit the cache (PR #1729 review).
+    if (
+      cached &&
+      (cached as FieldResponseDto & { _cacheSchemaVersion?: number })
+        ._cacheSchemaVersion === CACHE_SCHEMA_VERSION
+    ) {
+      // Cross-tenant cache hit → treat as a miss (no 403 oracle) and
+      // fall through to the composite-key DB path, which returns a
+      // uniform 404 for both "wrong tenant" and "no such row".
+      if (cached.tenantId === tenantId) {
+        return cached;
+      }
     }
 
     const field = await this.prisma.field.findUnique({
@@ -367,8 +405,16 @@ export class FieldsService {
       bbox,
     });
 
-    // Cache the result
-    await this.cacheService.set(CACHE_KEYS.FIELD(id), result, CACHE_TTL.MEDIUM);
+    // Cache the result. The `_cacheSchemaVersion` marker survives
+    // JSON round-tripping (unlike `undefined`-valued keys such as
+    // `bbox`), so the short-circuit in `findById` detects this as
+    // a current-schema entry regardless of whether the field has
+    // a PostGIS boundary populated.
+    await this.cacheService.set(
+      CACHE_KEYS.FIELD(id),
+      { ...result, _cacheSchemaVersion: CACHE_SCHEMA_VERSION },
+      CACHE_TTL.MEDIUM,
+    );
 
     return result;
   }

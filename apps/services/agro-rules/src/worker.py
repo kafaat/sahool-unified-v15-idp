@@ -211,10 +211,7 @@ class AgroRulesWorker:
             payload = env.get("payload", {})
 
             if not tenant_id or not field_id:
-                print(
-                    f"⚠️ ndvi_computed: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
-                )
+                print(f"⚠️ ndvi_computed: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
                 return
 
             print(f"📥 NDVI computed: field={field_id}, ndvi={payload.get('ndvi_mean')}")
@@ -261,10 +258,7 @@ class AgroRulesWorker:
             payload = env.get("payload", {})
 
             if not tenant_id or not field_id:
-                print(
-                    f"⚠️ ndvi_anomaly: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
-                )
+                print(f"⚠️ ndvi_anomaly: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
                 return
 
             anomaly_type = payload.get("anomaly_type")
@@ -305,10 +299,7 @@ class AgroRulesWorker:
             payload = env.get("data") or env.get("payload") or {}
 
             if not tenant_id or not field_id:
-                print(
-                    f"⚠️ ndvi_trend: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
-                )
+                print(f"⚠️ ndvi_trend: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
                 return
 
             trend_direction = payload.get("trend_direction", "")
@@ -361,8 +352,7 @@ class AgroRulesWorker:
 
             if not tenant_id or not field_id:
                 print(
-                    f"⚠️ phenology_stage: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                    f"⚠️ phenology_stage: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
                 )
                 return
 
@@ -413,10 +403,7 @@ class AgroRulesWorker:
             payload = env.get("payload", {})
 
             if not tenant_id or not field_id:
-                print(
-                    f"⚠️ weather_alert: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
-                )
+                print(f"⚠️ weather_alert: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event")
                 return
 
             alert_type = payload.get("alert_type")
@@ -491,8 +478,7 @@ class AgroRulesWorker:
 
             if not tenant_id or not field_id:
                 print(
-                    f"⚠️ terrain_leveling: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                    f"⚠️ terrain_leveling: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
                 )
                 return
 
@@ -538,8 +524,7 @@ class AgroRulesWorker:
 
             if not tenant_id or not field_id:
                 print(
-                    f"⚠️ terrain_drainage: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                    f"⚠️ terrain_drainage: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
                 )
                 return
 
@@ -578,8 +563,7 @@ class AgroRulesWorker:
 
             if not tenant_id or not field_id:
                 print(
-                    f"⚠️ terrain_erosion: missing routing "
-                    f"(tenant_id={tenant_id}, field_id={field_id}) — dropping event"
+                    f"⚠️ terrain_erosion: missing routing (tenant_id={tenant_id}, field_id={field_id}) — dropping event"
                 )
                 return
 

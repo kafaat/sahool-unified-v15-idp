@@ -38,6 +38,18 @@ if str(SHARED_PATH) not in sys.path:
 from shared.logging_config import get_logger, setup_logging
 
 setup_logging(service_name="advisory-service")
+
+# Agricultural KPI metrics (STABILIZATION_PLAN_v16.1 PR7) — wraps the
+# import so a missing prometheus_client dependency (e.g., slim CI) leaves
+# recording as a no-op without hard-failing service startup.
+try:
+    from shared.monitoring.agricultural_metrics import get_agricultural_metrics
+
+    _agri_metrics = get_agricultural_metrics()
+    AGRI_METRICS_AVAILABLE = True
+except Exception:  # pragma: no cover — defensive, metrics are optional
+    _agri_metrics = None
+    AGRI_METRICS_AVAILABLE = False
 from crops import (
     ALL_CROPS,
     CATEGORIES_COUNT,
@@ -615,6 +627,24 @@ def health():
     return {"status": "ok", "service": "advisory_service", "version": VERSION}
 
 
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus scrape endpoint — exposes agricultural KPIs
+    (STABILIZATION_PLAN_v16.1 PR7). Returns `text/plain; version=0.0.4`
+    compatible with the platform-wide Prometheus + Grafana stack in
+    `infrastructure/monitoring/`.
+    """
+    if not AGRI_METRICS_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="prometheus_client not installed or metrics init failed",
+        )
+    from fastapi.responses import Response
+    from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?"""
@@ -695,6 +725,16 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
             "result": None,
             "message": "Confidence too low or unknown condition",
         }
+
+    # Prometheus KPI — aggregated by disease category/crop/severity,
+    # no tenant_id/field_id labels (high-cardinality guard).
+    if _agri_metrics is not None:
+        _agri_metrics.record_disease_detection(
+            disease_type=assessment.category or "unknown",
+            crop_type=req.crop or "unknown",
+            severity=assessment.severity or "medium",
+            confidence=assessment.confidence,
+        )
 
     # Publish event
     # TODO: migrate remaining publishers to outbox (see /api/v1/fertilizer/plan exemplar)

@@ -199,9 +199,7 @@ class WarehouseManager:
             )
 
         if allow_cross_tenant:
-            warehouse = await self.db.warehouse.find_unique(
-                where={"id": warehouse_id}, include={"zones": True}
-            )
+            warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
         else:
             warehouse = await self.db.warehouse.find_unique(
                 where={"id_tenantId": {"id": warehouse_id, "tenantId": tenant_id}},

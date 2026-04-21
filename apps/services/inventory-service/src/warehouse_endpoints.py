@@ -44,6 +44,7 @@ router = APIRouter(prefix="/v1/warehouses", tags=["warehouses"])
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _require_tenant_id(user: User | None) -> str:
     """Extract tenant_id strictly from the authenticated user."""
     tenant_id = getattr(user, "tenant_id", None) if user is not None else None
@@ -76,6 +77,7 @@ def _require_warehouse_manager(request: Request) -> Any:
 # DTOs
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class TransferStockRequest(BaseModel):
     item_id: str
     to_warehouse: str
@@ -88,6 +90,7 @@ class TransferStockRequest(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @router.get("/{warehouse_id}")
 async def get_warehouse(

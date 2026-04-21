@@ -207,9 +207,7 @@ class ApplicationTracker:
             ValueError: If item not found or insufficient stock
         """
         # Step 1: Validate item exists (tenant-scoped via id_tenantId composite)
-        item = await self.db.inventoryitem.find_unique(
-            where={"id_tenantId": {"id": item_id, "tenantId": tenant_id}}
-        )
+        item = await self.db.inventoryitem.find_unique(where={"id_tenantId": {"id": item_id, "tenantId": tenant_id}})
         if not item:
             raise ValueError(f"Inventory item {item_id} not found")
 
@@ -308,9 +306,7 @@ class ApplicationTracker:
         # Convert to dataclass
         return self._db_to_dataclass(application_record)
 
-    async def _deduct_from_batches(
-        self, item_id: str, quantity: float, tenant_id: str
-    ) -> str | None:
+    async def _deduct_from_batches(self, item_id: str, quantity: float, tenant_id: str) -> str | None:
         """
         Deduct quantity from batches using FIFO (First In, First Out).
 
@@ -417,9 +413,7 @@ class ApplicationTracker:
 
         return [self._db_to_dataclass(app) for app in applications]
 
-    async def get_application_summary(
-        self, field_id: str, crop_season_id: str, tenant_id: str
-    ) -> dict:
+    async def get_application_summary(self, field_id: str, crop_season_id: str, tenant_id: str) -> dict:
         """
         Get summary of all inputs applied to a crop season.
 
@@ -434,9 +428,7 @@ class ApplicationTracker:
         - Total cost
         - Application timeline
         """
-        applications = await self.get_field_applications(
-            field_id, tenant_id, crop_season_id=crop_season_id
-        )
+        applications = await self.get_field_applications(field_id, tenant_id, crop_season_id=crop_season_id)
 
         # Initialize summary
         summary = {
@@ -677,9 +669,7 @@ class ApplicationTracker:
         if harvest_date is None:
             harvest_date = date.today()
 
-        applications = await self.get_field_applications(
-            field_id, tenant_id, crop_season_id=crop_season_id
-        )
+        applications = await self.get_field_applications(field_id, tenant_id, crop_season_id=crop_season_id)
 
         blocking = []
         max_wait_days = 0
@@ -715,9 +705,7 @@ class ApplicationTracker:
             ),
         }
 
-    async def calculate_input_costs(
-        self, field_id: str, crop_season_id: str, tenant_id: str
-    ) -> dict:
+    async def calculate_input_costs(self, field_id: str, crop_season_id: str, tenant_id: str) -> dict:
         """
         Calculate total input costs for a crop season.
 
@@ -740,9 +728,7 @@ class ApplicationTracker:
             ),
         }
 
-    async def get_application_by_id(
-        self, application_id: str, tenant_id: str
-    ) -> InputApplication | None:
+    async def get_application_by_id(self, application_id: str, tenant_id: str) -> InputApplication | None:
         """Get a single application by ID, tenant-scoped via id_tenantId."""
         app = await self.db.inputapplication.find_unique(
             where={"id_tenantId": {"id": application_id, "tenantId": tenant_id}}

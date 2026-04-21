@@ -42,6 +42,7 @@ router = APIRouter(prefix="/v1/applications", tags=["applications"])
 # Helpers
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 def _require_tenant_id(user: User | None) -> str:
     tenant_id = getattr(user, "tenant_id", None) if user is not None else None
     if not tenant_id:
@@ -72,6 +73,7 @@ def _require_tracker(request: Request) -> Any:
 # DTOs
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class RecordApplicationRequest(BaseModel):
     field_id: str
     crop_season_id: str
@@ -97,6 +99,7 @@ class RecordApplicationRequest(BaseModel):
 # ─────────────────────────────────────────────────────────────────────────────
 # Endpoints
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 @router.post("", status_code=status.HTTP_201_CREATED)
 async def record_application(
@@ -230,6 +233,7 @@ async def check_harvest_safety(
 # ─────────────────────────────────────────────────────────────────────────────
 # Serialization helper
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def _input_application_to_dict(record) -> dict:
     """Convert InputApplication dataclass → FastAPI-serialisable dict.

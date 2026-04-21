@@ -1,3 +1,4 @@
+-- drift:safe reason=Adds `report_count` column (with default 0, safe under row-level lock) + creates two new tables; no CONCURRENTLY needed because new rows don't exist yet and the ALTER TABLE fills on an empty column default without a table rewrite.
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: review abuse-controls (helpful-vote + report join tables)
 -- جداول الربط لمنع الإساءة في نظام التقييمات

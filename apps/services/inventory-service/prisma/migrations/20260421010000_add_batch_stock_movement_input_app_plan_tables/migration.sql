@@ -1,3 +1,4 @@
+-- drift:safe reason=CREATE TABLE statements on tables that do not yet exist in any environment; no existing rows means no lock contention, so CONCURRENTLY is not required (and not possible inside a Prisma-managed DDL transaction).
 -- ═══════════════════════════════════════════════════════════════════════════════
 -- Migration: Materialise the 4 dormant tables referenced by application_tracker
 -- إضافة جداول batch_lots / stock_movements / input_applications / application_plans

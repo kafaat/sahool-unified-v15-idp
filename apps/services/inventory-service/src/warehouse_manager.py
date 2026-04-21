@@ -146,27 +146,61 @@ class WarehouseManager:
 
         return [self._warehouse_to_dataclass(w) for w in warehouses]
 
-    async def get_warehouse(self, warehouse_id: str, tenant_id: str = "") -> Warehouse | None:
+    async def get_warehouse(
+        self,
+        warehouse_id: str,
+        tenant_id: str,
+        *,
+        allow_cross_tenant: bool = False,
+    ) -> Warehouse | None:
         """
-        Get a specific warehouse by ID with tenant isolation
+        Get a specific warehouse by ID with tenant isolation.
+
+        SECURITY
+        --------
+        By default the lookup binds (warehouse_id, tenant_id) via the
+        id_tenantId composite unique — a cross-tenant warehouse_id silently
+        returns None (Prisma's `find_unique` semantics).
+
+        The `allow_cross_tenant=True` escape hatch is reserved for verified
+        SUPER_ADMIN / platform operations (e.g. a global audit job). Callers
+        MUST assert that the authenticated principal holds SUPER_ADMIN
+        *before* passing this flag; the manager itself cannot distinguish
+        "SUPER_ADMIN" from "buggy caller that forgot to pass tenant_id".
 
         Args:
             warehouse_id: Warehouse ID
-            tenant_id: Tenant ID for isolation (required for proper tenant scoping)
+            tenant_id: Tenant ID for isolation (required — empty string
+                rejected). Pass the authenticated tenant even for
+                SUPER_ADMIN; it's still used as a hint and recorded in
+                audit logs upstream.
+            allow_cross_tenant: Keyword-only flag. When True, the query
+                ignores tenant_id and returns the warehouse regardless of
+                which tenant owns it. Default False.
 
         Returns:
             Warehouse object or None
+
+        Raises:
+            ValueError: if tenant_id is falsy and allow_cross_tenant is
+                False — fails loud rather than silently leaking cross-
+                tenant rows.
         """
-        if tenant_id:
+        if not tenant_id and not allow_cross_tenant:
+            raise ValueError(
+                "get_warehouse requires tenant_id; pass allow_cross_tenant=True "
+                "only for verified SUPER_ADMIN / platform operations",
+            )
+
+        if allow_cross_tenant:
+            warehouse = await self.db.warehouse.find_unique(
+                where={"id": warehouse_id}, include={"zones": True}
+            )
+        else:
             warehouse = await self.db.warehouse.find_unique(
                 where={"id_tenantId": {"id": warehouse_id, "tenantId": tenant_id}},
                 include={"zones": True},
             )
-        else:
-            # SECURITY: retained for SUPER_ADMIN / platform-level operations that
-            # intentionally span tenants. Tenant-aware callers must supply
-            # tenant_id so the composite unique path (above) is taken.
-            warehouse = await self.db.warehouse.find_unique(where={"id": warehouse_id}, include={"zones": True})
 
         if not warehouse:
             return None

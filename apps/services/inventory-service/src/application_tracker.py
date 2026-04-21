@@ -222,14 +222,13 @@ class ApplicationTracker:
         # Step 2: Calculate rate per hectare
         rate_per_ha = quantity / area_ha if area_ha > 0 else 0
 
-        # Step 3: Deduct from inventory using FIFO (tenant threaded for the
-        # batch query — batch_lots is not yet in schema.prisma so the
-        # compound-unique path is unavailable there; see _deduct_from_batches).
+        # Step 3: Deduct from inventory using FIFO.
         batch_lot_id = await self._deduct_from_batches(item_id, quantity, tenant_id)
 
-        # Step 4: Create stock movement record
+        # Step 4: Create stock movement record (tenant-stamped).
         await self.db.stockmovement.create(
             data={
+                "tenantId": tenant_id,
                 "itemId": item_id,
                 "movementType": "FIELD_APPLICATION",
                 "quantity": -quantity,  # Negative for outgoing
@@ -274,8 +273,9 @@ class ApplicationTracker:
         # Remove None values
         weather_conditions = {k: v for k, v in weather_conditions.items() if v is not None}
 
-        # Step 6: Create application record
+        # Step 6: Create application record (tenant-stamped).
         application_data = {
+            "tenantId": tenant_id,
             "fieldId": field_id,
             "cropSeasonId": crop_season_id,
             "itemId": item_id,
@@ -314,11 +314,10 @@ class ApplicationTracker:
         """
         Deduct quantity from batches using FIFO (First In, First Out).
 
-        SECURITY: batch_lots is not yet defined in schema.prisma so we cannot
-        bind by the id_tenantId compound key here. Instead the query carries
-        tenantId alongside itemId so the batch rows returned are still
-        restricted to the caller's tenant once batch_lots gains a tenant_id
-        column + matching composite unique.
+        SECURITY: the batch query carries tenantId + itemId so the FIFO
+        rows returned are scoped to the caller's tenant. Per-batch updates
+        below rebind tenantId via the id_tenantId composite unique so a
+        batch id sourced from a different tenant cannot overwrite ours.
 
         Args:
             item_id: Item ID
@@ -328,7 +327,7 @@ class ApplicationTracker:
         Returns:
             Batch lot ID if single batch used, None if multiple
         """
-        # Get batches ordered by received date (FIFO)
+        # Get batches ordered by received date (FIFO) — tenant-scoped.
         batches = await self.db.batchlot.find_many(
             where={"itemId": item_id, "tenantId": tenant_id, "remainingQty": {"gt": 0}},
             order_by={"receivedDate": "asc"},
@@ -348,7 +347,10 @@ class ApplicationTracker:
             deduct = min(remaining, batch.remainingQty)
             new_remaining = batch.remainingQty - deduct
 
-            await self.db.batchlot.update(where={"id": batch.id}, data={"remainingQty": new_remaining})
+            await self.db.batchlot.update(
+                where={"id_tenantId": {"id": batch.id, "tenantId": tenant_id}},
+                data={"remainingQty": new_remaining},
+            )
 
             remaining -= deduct
             used_batch_id = batch.id
@@ -573,6 +575,7 @@ class ApplicationTracker:
                         total_cost += item.unitCost * quantity
 
         plan_data = {
+            "tenantId": tenant_id,
             "fieldId": field_id,
             "cropSeasonId": crop_season_id,
             "cropType": crop_type,
@@ -740,16 +743,9 @@ class ApplicationTracker:
     async def get_application_by_id(
         self, application_id: str, tenant_id: str
     ) -> InputApplication | None:
-        """Get a single application by ID, tenant-scoped.
-
-        SECURITY: input_applications is not yet in schema.prisma so the
-        id_tenantId compound-unique path is unavailable. We fall back to
-        find_first with an explicit tenantId filter; once the table is
-        migrated with an @@unique([id, tenantId]) this should be upgraded
-        to find_unique({"id_tenantId": ...}) for consistency.
-        """
-        app = await self.db.inputapplication.find_first(
-            where={"id": application_id, "tenantId": tenant_id}
+        """Get a single application by ID, tenant-scoped via id_tenantId."""
+        app = await self.db.inputapplication.find_unique(
+            where={"id_tenantId": {"id": application_id, "tenantId": tenant_id}}
         )
         if not app:
             return None

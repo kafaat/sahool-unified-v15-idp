@@ -65,6 +65,18 @@ RUN cp -r ./apps/services/shared/errors_py ./shared/ || true && \
 # Copy source
 COPY --chown=sahool:sahool apps/services/inventory-service/src/ ./src/
 
+# Copy Prisma schema & migrations so `prisma generate` has something to read.
+# We keep the generated client in /home/sahool/.local (same site-packages
+# the non-root runtime user uses) so the generate step doesn't need root.
+COPY --chown=sahool:sahool apps/services/inventory-service/prisma/ ./prisma/
+
+# Generate the Prisma Python client. If this fails the service still boots
+# (main.py's try/except around the import tolerates a missing client and the
+# warehouse / applications endpoints return 503); the `|| true` guard keeps
+# the image build green in network-restricted CI.
+RUN PATH=/home/sahool/.local/bin:$PATH prisma generate --schema=/app/prisma/schema.prisma || \
+    echo "WARN: prisma generate failed — warehouse/application endpoints will return 503 at runtime"
+
 
 # Strip build tools from production image (CVE-2026-23949, CVE-2026-24049)
 RUN rm -rf /home/sahool/.local/lib/python*/site-packages/setuptools* \

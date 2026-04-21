@@ -276,11 +276,25 @@ export class FieldsService {
    *                   ``BadRequestException`` otherwise.
    */
   async findById(id: string, tenantId: string): Promise<FieldResponseDto> {
-    // Treat whitespace-only tenantIds as empty — a controller that
-    // forwards `req.headers["x-tenant-id"]?.trim() ?? ""` might emit
-    // `" "` for a malformed header value, which the previous
-    // `!tenantId` guard accepted as truthy.
-    if (!tenantId || typeof tenantId !== "string" || tenantId.trim() === "") {
+    // Normalize once, use the normalized value everywhere — otherwise
+    // a caller forwarding `req.headers["x-tenant-id"] ?? ""` without
+    // trimming (common in Express middleware that strips nothing)
+    // passes the `.trim() !== ""` check but then goes on to probe
+    // the cache/DB with `"  tenant-a  "` → guaranteed miss → 404
+    // on what should be a valid read (PR #1729 review,
+    // pullrequestreview-4150736205). The previous `!tenantId` guard
+    // also accepted whitespace-only values as truthy — closed here
+    // by the trimmed comparison below.
+    if (typeof tenantId !== "string") {
+      throw new BadRequestException({
+        message:
+          "tenantId is required — no un-scoped field lookup path exists",
+        messageAr:
+          "معرّف المستأجر (tenantId) مطلوب — لا يوجد مسار بحث عن الحقل غير مقيّد بالمستأجر",
+      });
+    }
+    const normalizedTenantId = tenantId.trim();
+    if (normalizedTenantId === "") {
       // Bilingual envelope to match the `create()` flow above (farmId
       // check) and the service's general error-response convention
       // (PR #1729 review, comment on pullrequestreview-4150593669).
@@ -296,7 +310,7 @@ export class FieldsService {
     // to belong to the caller's tenant.
     const cached = await this.cacheService.get<
       FieldResponseDto & { _cacheSchemaVersion?: number }
-    >(CACHE_KEYS.FIELD(tenantId, id));
+    >(CACHE_KEYS.FIELD(normalizedTenantId, id));
     // Schema-version marker: `_cacheSchemaVersion` is set on every
     // write (see CACHE_SCHEMA_VERSION above). An older entry without
     // it is ignored so clients pick up the new shape on next read.
@@ -316,7 +330,7 @@ export class FieldsService {
     }
 
     const field = await this.prisma.field.findUnique({
-      where: { id_tenantId: { id, tenantId } },
+      where: { id_tenantId: { id, tenantId: normalizedTenantId } },
       select: {
         id: true,
         name: true,
@@ -416,7 +430,7 @@ export class FieldsService {
     // boundary populated. The marker is stripped from the
     // response on the cache-hit path.
     await this.cacheService.set(
-      CACHE_KEYS.FIELD(tenantId, id),
+      CACHE_KEYS.FIELD(normalizedTenantId, id),
       { ...result, _cacheSchemaVersion: CACHE_SCHEMA_VERSION },
       CACHE_TTL.MEDIUM,
     );

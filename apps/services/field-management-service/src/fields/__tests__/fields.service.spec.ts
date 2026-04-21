@@ -388,6 +388,32 @@ describe('FieldsService', () => {
       );
     });
 
+    it('should accept tenantId with surrounding whitespace (normalize once)', async () => {
+      // PR #1729 review (pullrequestreview-4150736205 / comment 2):
+      // a caller that forwards `req.headers["x-tenant-id"] ?? ""`
+      // without trimming may send `"  tenant-aaa-1111  "`. The guard
+      // used to pass (because `.trim() !== ""`) but then the
+      // untrimmed value was used as the Prisma composite-key value
+      // and the cache key — guaranteeing a cache/DB miss on an
+      // otherwise-valid request. findById now normalizes once and
+      // threads the normalized value through every lookup.
+      prisma.field.findUnique.mockResolvedValue(makeFieldRow());
+
+      const result = await service.findById(FIELD_ID, `  ${TENANT_A}  `);
+
+      expect(result.id).toBe(FIELD_ID);
+      expect(prisma.field.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id_tenantId: { id: FIELD_ID, tenantId: TENANT_A } },
+        }),
+      );
+      expect(cache.set).toHaveBeenCalledWith(
+        CACHE_KEYS.FIELD(TENANT_A, FIELD_ID),
+        expect.any(Object),
+        CACHE_TTL.MEDIUM,
+      );
+    });
+
     it('should throw BadRequestException when tenantId is empty', async () => {
       // Regression guard (PR #1724 review): an empty-string tenantId
       // used to fall through to the un-scoped { id } path enabling a

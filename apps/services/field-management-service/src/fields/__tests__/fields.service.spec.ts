@@ -325,7 +325,7 @@ describe('FieldsService', () => {
       expect(result.name).toBe('North Wheat Field');
       expect(result.etag).toBeDefined();
       expect(cache.set).toHaveBeenCalledWith(
-        CACHE_KEYS.FIELD(FIELD_ID, TENANT_A),
+        CACHE_KEYS.FIELD(TENANT_A, FIELD_ID),
         expect.any(Object),
         CACHE_TTL.MEDIUM,
       );
@@ -479,7 +479,7 @@ describe('FieldsService', () => {
       };
       cache.get.mockImplementation((key: string) =>
         Promise.resolve(
-          key === CACHE_KEYS.FIELD(FIELD_ID, TENANT_A) ? tenantACachedField : null,
+          key === CACHE_KEYS.FIELD(TENANT_A, FIELD_ID) ? tenantACachedField : null,
         ),
       );
       // DB path returns null for the TENANT_B composite-key query

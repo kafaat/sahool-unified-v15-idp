@@ -178,7 +178,7 @@ export class NdviService {
 
     // Invalidate caches
     await this.cacheService.del(CACHE_KEYS.NDVI(fieldId));
-    await this.cacheService.del(CACHE_KEYS.FIELD(fieldId, field.tenantId));
+    await this.cacheService.del(CACHE_KEYS.FIELD(field.tenantId, fieldId));
     await this.cacheService.del(CACHE_KEYS.NDVI_SUMMARY(field.tenantId));
 
     return {

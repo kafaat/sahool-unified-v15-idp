@@ -226,7 +226,7 @@ export class SyncService {
         });
 
         // Invalidate cache (tenant-scoped key)
-        await this.cacheService.del(CACHE_KEYS.FIELD(id, tenantId));
+        await this.cacheService.del(CACHE_KEYS.FIELD(tenantId, id));
       } catch (error) {
         results.push({
           clientId: clientField.id || "unknown",

@@ -262,9 +262,9 @@ export class FieldsService {
    * path remains.
    *
    * Cache isolation (PR #1729 review, pullrequestreview-4150593669):
-   * The cache key itself is tenant-scoped — ``CACHE_KEYS.FIELD(id,
-   * tenantId)`` produces ``field:{tenantId}:{id}`` — so tenant A
-   * can never read tenant B's cached entry regardless of what
+   * The cache key itself is tenant-scoped — ``CACHE_KEYS.FIELD(
+   * tenantId, id)`` produces ``field:{tenantId}:{id}`` — so tenant
+   * A can never read tenant B's cached entry regardless of what
    * arrives in the object body. That closes the enumeration oracle
    * (cache HIT 403 vs DB MISS 404) by construction: cross-tenant
    * reads miss the cache, fall through to the composite-key DB
@@ -281,16 +281,22 @@ export class FieldsService {
     // `" "` for a malformed header value, which the previous
     // `!tenantId` guard accepted as truthy.
     if (!tenantId || typeof tenantId !== "string" || tenantId.trim() === "") {
-      throw new BadRequestException(
-        "tenantId is required — no un-scoped field lookup path exists",
-      );
+      // Bilingual envelope to match the `create()` flow above (farmId
+      // check) and the service's general error-response convention
+      // (PR #1729 review, comment on pullrequestreview-4150593669).
+      throw new BadRequestException({
+        message:
+          "tenantId is required — no un-scoped field lookup path exists",
+        messageAr:
+          "معرّف المستأجر (tenantId) مطلوب — لا يوجد مسار بحث عن الحقل غير مقيّد بالمستأجر",
+      });
     }
 
     // Try cache first. Key is tenant-scoped, so a HIT is guaranteed
     // to belong to the caller's tenant.
     const cached = await this.cacheService.get<
       FieldResponseDto & { _cacheSchemaVersion?: number }
-    >(CACHE_KEYS.FIELD(id, tenantId));
+    >(CACHE_KEYS.FIELD(tenantId, id));
     // Schema-version marker: `_cacheSchemaVersion` is set on every
     // write (see CACHE_SCHEMA_VERSION above). An older entry without
     // it is ignored so clients pick up the new shape on next read.
@@ -410,7 +416,7 @@ export class FieldsService {
     // boundary populated. The marker is stripped from the
     // response on the cache-hit path.
     await this.cacheService.set(
-      CACHE_KEYS.FIELD(id, tenantId),
+      CACHE_KEYS.FIELD(tenantId, id),
       { ...result, _cacheSchemaVersion: CACHE_SCHEMA_VERSION },
       CACHE_TTL.MEDIUM,
     );

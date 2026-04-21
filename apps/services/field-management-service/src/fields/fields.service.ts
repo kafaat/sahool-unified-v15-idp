@@ -36,6 +36,17 @@ function generateETag(id: string, version: number): string {
   return `"${id}-v${version}"`;
 }
 
+/**
+ * Bumped whenever the shape of a cached FieldResponseDto changes in a
+ * way that a subtle consumer (e.g. the `findById` short-circuit)
+ * depends on. Previously we probed ``'bbox' in cached`` as a
+ * schema-version marker, but JSON serialization drops `undefined`
+ * values — so fields WITHOUT a bbox round-tripped through Redis
+ * lost the marker and every read paid a DB round-trip (PR #1729
+ * review). The dedicated integer is resilient to serialization.
+ */
+const CACHE_SCHEMA_VERSION = 2;
+
 // Convert Prisma Decimal fields to numbers for DTO compatibility.
 // Prisma returns Decimal columns as objects with a `.toNumber()` method or
 // as strings (depending on configuration). The UI always expects `number`,
@@ -216,8 +227,8 @@ export class FieldsService {
       return created;
     });
 
-    // Fetch updated field
-    const createdField = await this.findById(field.id);
+    // Fetch updated field (tenant is the same one we just wrote).
+    const createdField = await this.findById(field.id, dto.tenantId);
 
     // Invalidate related caches
     await this.cacheService.invalidateTenant(dto.tenantId);
@@ -236,30 +247,90 @@ export class FieldsService {
   }
 
   /**
-   * Find field by ID with tenant isolation
+   * Find field by ID with mandatory tenant isolation.
    *
-   * @param id - Field UUID
-   * @param tenantId - If provided, enforces tenant ownership check
+   * SECURITY (PR #1724 review / 2026-04-21):
+   * Previously took an OPTIONAL ``tenantId`` and silently fell back
+   * to ``findUnique({ where: { id } })`` when the caller passed
+   * ``undefined`` / ``""``. A controller forwarding an unsanitized
+   * header value (``req.headers["x-tenant-id"]``) could therefore
+   * resolve any field by UUID across tenants — a cross-tenant IDOR.
+   *
+   * ``tenantId`` is now REQUIRED and must be a non-empty, non-
+   * whitespace string; every DB lookup uses the composite
+   * ``@@unique([id, tenantId])`` key ``id_tenantId``. No un-scoped
+   * path remains.
+   *
+   * Cache isolation (PR #1729 review, pullrequestreview-4150593669):
+   * The cache key itself is tenant-scoped — ``CACHE_KEYS.FIELD(
+   * tenantId, id)`` produces ``field:{tenantId}:{id}`` — so tenant
+   * A can never read tenant B's cached entry regardless of what
+   * arrives in the object body. That closes the enumeration oracle
+   * (cache HIT 403 vs DB MISS 404) by construction: cross-tenant
+   * reads miss the cache, fall through to the composite-key DB
+   * query, and surface a uniform ``NotFoundException``.
+   *
+   * @param id       - Field UUID
+   * @param tenantId - Caller's verified tenant; must be a
+   *                   non-empty, non-whitespace string. Throws
+   *                   ``BadRequestException`` otherwise.
    */
-  async findById(id: string, tenantId?: string): Promise<FieldResponseDto> {
-    // Try cache first
-    const cached = await this.cacheService.get<FieldResponseDto>(
-      CACHE_KEYS.FIELD(id),
-    );
-    // Shortcut the DB round-trip only if the cached object was produced by
-    // this version of the code (i.e. contains the `bbox` key). Objects
-    // cached before the bbox rollout are ignored here so clients get the
-    // new field on next read without a manual cache flush.
-    if (cached && 'bbox' in cached) {
-      // Verify tenant ownership even for cached results
-      if (tenantId) {
-        assertTenantOwnership(cached.tenantId, tenantId, "field");
-      }
-      return cached;
+  async findById(id: string, tenantId: string): Promise<FieldResponseDto> {
+    // Normalize once, use the normalized value everywhere — otherwise
+    // a caller forwarding `req.headers["x-tenant-id"] ?? ""` without
+    // trimming (common in Express middleware that strips nothing)
+    // passes the `.trim() !== ""` check but then goes on to probe
+    // the cache/DB with `"  tenant-a  "` → guaranteed miss → 404
+    // on what should be a valid read (PR #1729 review,
+    // pullrequestreview-4150736205). The previous `!tenantId` guard
+    // also accepted whitespace-only values as truthy — closed here
+    // by the trimmed comparison below.
+    if (typeof tenantId !== "string") {
+      throw new BadRequestException({
+        message:
+          "tenantId is required — no un-scoped field lookup path exists",
+        messageAr:
+          "معرّف المستأجر (tenantId) مطلوب — لا يوجد مسار بحث عن الحقل غير مقيّد بالمستأجر",
+      });
+    }
+    const normalizedTenantId = tenantId.trim();
+    if (normalizedTenantId === "") {
+      // Bilingual envelope to match the `create()` flow above (farmId
+      // check) and the service's general error-response convention
+      // (PR #1729 review, comment on pullrequestreview-4150593669).
+      throw new BadRequestException({
+        message:
+          "tenantId is required — no un-scoped field lookup path exists",
+        messageAr:
+          "معرّف المستأجر (tenantId) مطلوب — لا يوجد مسار بحث عن الحقل غير مقيّد بالمستأجر",
+      });
+    }
+
+    // Try cache first. Key is tenant-scoped, so a HIT is guaranteed
+    // to belong to the caller's tenant.
+    const cached = await this.cacheService.get<
+      FieldResponseDto & { _cacheSchemaVersion?: number }
+    >(CACHE_KEYS.FIELD(normalizedTenantId, id));
+    // Schema-version marker: `_cacheSchemaVersion` is set on every
+    // write (see CACHE_SCHEMA_VERSION above). An older entry without
+    // it is ignored so clients pick up the new shape on next read.
+    // The previous `'bbox' in cached` probe was unreliable because
+    // JSON serialization drops keys whose value is `undefined`, so
+    // entries for fields with no bbox would lose the marker on round-
+    // trip and never hit the cache (PR #1729 review).
+    if (cached && cached._cacheSchemaVersion === CACHE_SCHEMA_VERSION) {
+      // Strip the internal marker before returning so callers never
+      // observe `_cacheSchemaVersion` on cached reads when the DB
+      // path would not include it — prevents a subtle response-
+      // shape inconsistency (PR #1729 review, comment 1 on
+      // pullrequestreview-4150593669).
+      const { _cacheSchemaVersion: _ignored, ...publicShape } = cached;
+      void _ignored;
+      return publicShape;
     }
 
     const field = await this.prisma.field.findUnique({
-      where: tenantId ? { id_tenantId: { id, tenantId } } : { id },
+      where: { id_tenantId: { id, tenantId: normalizedTenantId } },
       select: {
         id: true,
         name: true,
@@ -283,12 +354,10 @@ export class FieldsService {
     });
 
     if (!field) {
+      // Composite-key miss covers both "no such id" AND
+      // "row exists but belongs to a different tenant" — both
+      // indistinguishable to the caller (no enumeration oracle).
       throw new NotFoundException("Field not found - الحقل غير موجود");
-    }
-
-    // Enforce tenant isolation: prevent cross-tenant data access
-    if (tenantId) {
-      assertTenantOwnership(field.tenantId, tenantId, "field");
     }
 
     // Fetch centroid + bbox from PostGIS (neither is representable via the
@@ -353,8 +422,18 @@ export class FieldsService {
       bbox,
     });
 
-    // Cache the result
-    await this.cacheService.set(CACHE_KEYS.FIELD(id), result, CACHE_TTL.MEDIUM);
+    // Cache the result under a tenant-scoped key. The
+    // `_cacheSchemaVersion` marker survives JSON round-tripping
+    // (unlike `undefined`-valued keys such as `bbox`), so the
+    // short-circuit in `findById` detects this as a current-
+    // schema entry regardless of whether the field has a PostGIS
+    // boundary populated. The marker is stripped from the
+    // response on the cache-hit path.
+    await this.cacheService.set(
+      CACHE_KEYS.FIELD(normalizedTenantId, id),
+      { ...result, _cacheSchemaVersion: CACHE_SCHEMA_VERSION },
+      CACHE_TTL.MEDIUM,
+    );
 
     return result;
   }
@@ -586,7 +665,7 @@ export class FieldsService {
     // Invalidate caches
     await this.cacheService.invalidateField(id, current.tenantId);
 
-    const result = await this.findById(id);
+    const result = await this.findById(id, tenantId);
 
     // Publish field updated event (non-blocking)
     this.fieldEvents.publishFieldUpdated(tenantId, id, {
@@ -748,7 +827,7 @@ export class FieldsService {
       changeSource: dto.deviceId ? 'mobile' : 'api',
     }).catch((e) => this.logger.error(`Event publish failed: ${e}`));
 
-    return this.findById(id) as Promise<FieldResponseDto & { etag: string }>;
+    return this.findById(id, tenantId) as Promise<FieldResponseDto & { etag: string }>;
   }
 
   /**
@@ -884,7 +963,7 @@ export class FieldsService {
     // Invalidate caches
     await this.cacheService.invalidateField(id, field.tenantId);
 
-    return this.findById(id) as Promise<FieldResponseDto & { etag: string }>;
+    return this.findById(id, field.tenantId) as Promise<FieldResponseDto & { etag: string }>;
   }
 
   /**

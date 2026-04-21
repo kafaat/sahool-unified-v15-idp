@@ -167,7 +167,7 @@ export class KpiSnapshotService {
         },
       });
       // Invalidate service-level cache and HTTP interceptor cache keys
-      await this.cacheService.del(CACHE_KEYS.FIELD(fieldId));
+      await this.cacheService.del(CACHE_KEYS.FIELD(tenantId, fieldId));
       // HTTP interceptor key format: {tenantId}:{path}:{hash("{}") = "31e"}
       await this.cacheService.del(`${tenantId}:/api/v1/fields/${fieldId}:31e`);
       await this.cacheService.del(`${tenantId}:/api/v1/fields/${fieldId}/kpi-snapshot:31e`);

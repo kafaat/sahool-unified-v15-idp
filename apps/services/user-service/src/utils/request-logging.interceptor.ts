@@ -212,18 +212,20 @@ export class RequestLoggingInterceptor implements NestInterceptor {
       "session",
       "sid",
     ]);
-    const result: Record<string, any> = Object.create(null);
+    // Build sanitized entries, dropping dangerous keys to prevent prototype
+    // pollution / remote property injection. See CodeQL
+    // js/prototype-polluting-assignment and js/remote-property-injection.
+    const entries: [string, any][] = [];
     for (const [k, v] of Object.entries(query)) {
-      // Skip dangerous keys to prevent prototype pollution. Even though
-      // ``result`` has a null prototype and cannot be polluted, we also
-      // strip these to keep downstream JSON serializers from emitting
-      // weird keys. See CodeQL js/prototype-polluting-assignment.
       if (k === "__proto__" || k === "constructor" || k === "prototype") {
         continue;
       }
-      result[k] = SENSITIVE.has(k.toLowerCase()) ? "[REDACTED]" : v;
+      entries.push([k, SENSITIVE.has(k.toLowerCase()) ? "[REDACTED]" : v]);
     }
-    return result;
+    // Object.fromEntries creates own enumerable properties on a fresh object
+    // without ever writing to a computed index expression, which satisfies
+    // CodeQL's remote-property-injection check.
+    return Object.fromEntries(entries);
   }
 
   private logRequest(

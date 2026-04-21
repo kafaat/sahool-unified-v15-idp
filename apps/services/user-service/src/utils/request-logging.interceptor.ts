@@ -212,8 +212,15 @@ export class RequestLoggingInterceptor implements NestInterceptor {
       "session",
       "sid",
     ]);
-    const result: Record<string, any> = {};
+    const result: Record<string, any> = Object.create(null);
     for (const [k, v] of Object.entries(query)) {
+      // Skip dangerous keys to prevent prototype pollution. Even though
+      // ``result`` has a null prototype and cannot be polluted, we also
+      // strip these to keep downstream JSON serializers from emitting
+      // weird keys. See CodeQL js/prototype-polluting-assignment.
+      if (k === "__proto__" || k === "constructor" || k === "prototype") {
+        continue;
+      }
       result[k] = SENSITIVE.has(k.toLowerCase()) ? "[REDACTED]" : v;
     }
     return result;

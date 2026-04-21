@@ -51,7 +51,14 @@ export class TenantGuard implements CanActivate {
     // Take the first non-empty value so the comparison below never does a
     // reference-equality check against an array and accidentally passes.
     const rawHeader = request.headers["x-tenant-id"];
-    const headerTenantId = Array.isArray(rawHeader) ? rawHeader[0] : rawHeader;
+    const headerTenantId = Array.isArray(rawHeader)
+      ? rawHeader.find(
+          (value): value is string =>
+            typeof value === "string" && value.trim() !== "",
+        )?.trim()
+      : typeof rawHeader === "string" && rawHeader.trim() !== ""
+        ? rawHeader.trim()
+        : undefined;
 
     // Require authenticated user for all non-public routes
     if (!user) {

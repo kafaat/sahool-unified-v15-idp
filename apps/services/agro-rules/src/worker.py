@@ -6,6 +6,7 @@ Event-driven worker that generates tasks from NDVI/Weather events
 import asyncio
 import json
 import logging
+import math
 import os
 
 from nats.aio.client import Client as NATS
@@ -49,9 +50,15 @@ def _safe_float(value, default: float = 0.0) -> float:
     if value is None or value == "":
         return default
     try:
-        return float(value)
+        result = float(value)
     except (TypeError, ValueError):
         return default
+    # Reject NaN/Infinity — downstream comparisons like ``confidence < 0.5``
+    # silently evaluate to ``False`` for NaN, so a poisoned payload could
+    # create tasks with garbage confidence values.
+    if not math.isfinite(result):
+        return default
+    return result
 
 
 class AgroRulesWorker:
@@ -409,20 +416,33 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id in self._processed_events:
+            # Guard: ``None in set`` returns True once a prior event added
+            # ``None``, dropping every subsequent no-event-id message. Only
+            # dedup when event_id is truthy — mirrors the NDVI/phenology
+            # handlers above.
+            if event_id and event_id in self._processed_events:
                 return
-            self._processed_events.add(event_id)
+            if event_id:
+                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
             field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
-            correlation_id = env.get("correlation_id")
+            correlation_id = env.get("correlation_id") or event_id
             payload = env.get("payload", env)
 
             slope = payload.get("slope_percent", 0)
             volume = payload.get("cut_fill_volume_m3", 0)
             cost = payload.get("estimated_cost")
 
-            print(f"🏔️ Terrain leveling recommended: field={field_id}, slope={slope}%")
+            _log.info(
+                "terrain_leveling_received",
+                extra={"field_id": field_id, "tenant_id": tenant_id, "slope": slope, "volume": volume},
+            )
+
+            # Require both tenant_id and field_id — ``_create_task`` would
+            # otherwise fire against FieldOps with ``None`` and 500 there.
+            if not tenant_id or not field_id:
+                return
 
             desc_ar = f"تسوية الأرض مطلوبة (ميل: {slope}%. حجم الحفر/الردم: {volume} م³)"
             desc_en = f"Field leveling required (slope: {slope}%, cut/fill volume: {volume} m³)"
@@ -442,7 +462,7 @@ class AgroRulesWorker:
             await self._create_task(tenant_id, field_id, task_rule, correlation_id)
 
         except Exception as e:
-            print(f"❌ Error handling terrain leveling event: {e}")
+            _log.exception("terrain_leveling_handler_failed", extra={"error": str(e)})
 
     async def _handle_terrain_drainage(self, msg):
         """Handle terrain drainage recommended events — create a drainage task"""
@@ -450,19 +470,26 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id in self._processed_events:
+            if event_id and event_id in self._processed_events:
                 return
-            self._processed_events.add(event_id)
+            if event_id:
+                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
             field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
-            correlation_id = env.get("correlation_id")
+            correlation_id = env.get("correlation_id") or event_id
             payload = env.get("payload", env)
 
             drainage_type = payload.get("drainage_type", "surface")
             priority = payload.get("priority", "medium")
 
-            print(f"🌊 Drainage recommended: field={field_id}, type={drainage_type}")
+            _log.info(
+                "terrain_drainage_received",
+                extra={"field_id": field_id, "tenant_id": tenant_id, "drainage_type": drainage_type},
+            )
+
+            if not tenant_id or not field_id:
+                return
 
             task_rule = TaskRule(
                 title_ar=f"تحسين الصرف ({drainage_type})",
@@ -476,7 +503,7 @@ class AgroRulesWorker:
             await self._create_task(tenant_id, field_id, task_rule, correlation_id)
 
         except Exception as e:
-            print(f"❌ Error handling terrain drainage event: {e}")
+            _log.exception("terrain_drainage_handler_failed", extra={"error": str(e)})
 
     async def _handle_terrain_erosion(self, msg):
         """Handle high erosion risk events — create an urgent inspection task"""
@@ -484,18 +511,25 @@ class AgroRulesWorker:
             env = json.loads(msg.data.decode())
 
             event_id = env.get("event_id")
-            if event_id in self._processed_events:
+            if event_id and event_id in self._processed_events:
                 return
-            self._processed_events.add(event_id)
+            if event_id:
+                self._processed_events.add(event_id)
 
             tenant_id = env.get("tenant_id") or env.get("payload", {}).get("tenant_id")
             field_id = env.get("aggregate_id") or env.get("payload", {}).get("field_id")
-            correlation_id = env.get("correlation_id")
+            correlation_id = env.get("correlation_id") or event_id
             payload = env.get("payload", env)
 
             risk_level = payload.get("risk_level", "high")
 
-            print(f"⚠️ High erosion risk: field={field_id}, level={risk_level}")
+            _log.info(
+                "terrain_erosion_received",
+                extra={"field_id": field_id, "tenant_id": tenant_id, "risk_level": risk_level},
+            )
+
+            if not tenant_id or not field_id:
+                return
 
             task_rule = TaskRule(
                 title_ar="فحص خطر التآكل",
@@ -509,7 +543,7 @@ class AgroRulesWorker:
             await self._create_task(tenant_id, field_id, task_rule, correlation_id)
 
         except Exception as e:
-            print(f"❌ Error handling terrain erosion event: {e}")
+            _log.exception("terrain_erosion_handler_failed", extra={"error": str(e)})
 
     async def _create_task(
         self,

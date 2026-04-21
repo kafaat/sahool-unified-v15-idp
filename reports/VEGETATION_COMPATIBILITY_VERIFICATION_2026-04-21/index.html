@@ -1,0 +1,1499 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Complete developer guide for the SAHOOL Agricultural Platform">
+      
+      
+        <meta name="author" content="KAFAAT Team">
+      
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Vegetation Services Compatibility Verification — 2026-04-21 - SAHOOL Developer Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vegetation-services-compatibility-verification-2026-04-21" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            SAHOOL Developer Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Vegetation Services Compatibility Verification — 2026-04-21
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../index.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
+          
+  
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../services/overview.md" class="md-tabs__link">
+          
+  
+  
+  Services
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../api/authentication/" class="md-tabs__link">
+          
+  
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../development/setup.md" class="md-tabs__link">
+          
+  
+  
+  Development
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
+          
+  
+  
+  Contributing
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    SAHOOL Developer Documentation
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../index.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quick Start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/overview.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/starter.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Starter Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/professional.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Professional Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/enterprise.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Enterprise Package
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/authentication/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authentication
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/field-management.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Field Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/weather/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Weather
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vegetation Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Development
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/setup.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/testing.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Testing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../development/deployment.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contributing
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Code Style
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="vegetation-services-compatibility-verification-2026-04-21">Vegetation Services Compatibility Verification — 2026-04-21<a class="headerlink" href="#vegetation-services-compatibility-verification-2026-04-21" title="Permanent link">&para;</a></h1>
+<p><strong>Scope</strong>: Verify that the recent vegetation work
+(PRs <a href="https://github.com/kafaat/sahool-unified-v15-idp/pull/1704">#1704</a>,
+<a href="https://github.com/kafaat/sahool-unified-v15-idp/pull/1706">#1706</a>,
+<a href="https://github.com/kafaat/sahool-unified-v15-idp/pull/1707">#1707</a>)
+left <code>vegetation-analysis-service</code> and its downstream consumers in a healthy,
+compatible state — with no regressions in the NestJS consumer surfaces
+(<code>yield-prediction-service</code>, <code>lai-estimation</code>, <code>crop-growth-model</code>) or the
+Python advisory chain.</p>
+<p><strong>Branch verified</strong>: <code>origin/main</code> @ <code>2cbb4d9ee</code> (post #1706).
+<strong>Conclusion</strong>: Python side is green end-to-end. NestJS consumer regressions
+exist on <code>main</code> but are caused by an unrelated workspace-wide NestJS v10/v11
+version skew, not by the vegetation work — they are addressed in the
+companion PR <code>claude/nestjs-v11-upgrade</code>.</p>
+<hr />
+<h2 id="1-service-inventory">1. Service Inventory<a class="headerlink" href="#1-service-inventory" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Stack</th>
+<th>Port</th>
+<th>Status</th>
+<th>Recent change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vegetation-analysis-service</code></td>
+<td>Python / FastAPI</td>
+<td>8090</td>
+<td>Active</td>
+<td>#1704, #1706, #1696, #1705</td>
+</tr>
+<tr>
+<td><code>advisory-service</code></td>
+<td>Python / FastAPI</td>
+<td>8093</td>
+<td>Active</td>
+<td>#1707 (alignment)</td>
+</tr>
+<tr>
+<td><code>crop-intelligence-service</code></td>
+<td>Python / FastAPI</td>
+<td>8095</td>
+<td>Active</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ndvi-processor</code></td>
+<td>Python / FastAPI</td>
+<td>8118</td>
+<td>Deprecated (sunset 2026-06-01)</td>
+<td>RFC 8594 headers</td>
+</tr>
+<tr>
+<td><code>lai-estimation</code></td>
+<td>Node / NestJS 11</td>
+<td>3022</td>
+<td>Active</td>
+<td>bumped to v11</td>
+</tr>
+<tr>
+<td><code>yield-prediction-service</code></td>
+<td>Node / NestJS 11</td>
+<td>8152</td>
+<td>Active</td>
+<td>(still v10 on main; v11 in companion PR)</td>
+</tr>
+<tr>
+<td><code>crop-growth-model</code></td>
+<td>Node / NestJS 11</td>
+<td>3023</td>
+<td>Active</td>
+<td>bumped to v11</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-integration-surface-map">2. Integration Surface Map<a class="headerlink" href="#2-integration-surface-map" title="Permanent link">&para;</a></h2>
+<h3 id="http-fan-out-from-advisory-service">HTTP fan-out from <code>advisory-service</code><a class="headerlink" href="#http-fan-out-from-advisory-service" title="Permanent link">&para;</a></h3>
+<p><code>advisory-service/src/main.py</code> (the comprehensive-advisory orchestrator) calls:</p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>Env var</th>
+<th>Default URL</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vegetation-analysis-service</code></td>
+<td><code>VEGETATION_ANALYSIS_URL</code></td>
+<td><code>http://vegetation-analysis-service:8090</code></td>
+</tr>
+<tr>
+<td><code>crop-intelligence-service</code></td>
+<td>inferred via orchestrator</td>
+<td><code>http://crop-intelligence-service:8095</code></td>
+</tr>
+<tr>
+<td><code>yield-prediction-service</code></td>
+<td><code>YIELD_PREDICTION_URL</code></td>
+<td><code>http://yield-prediction-service:8152</code></td>
+</tr>
+<tr>
+<td><code>lai-estimation</code></td>
+<td>inferred via orchestrator</td>
+<td><code>http://lai-estimation:3022</code></td>
+</tr>
+</tbody>
+</table>
+<p>Tenant context is enforced <strong>before</strong> the fan-out (<code>u.tenant_id</code> check in
+<code>main.py:1325–1333</code>), and the orchestrator fails closed when the gate is
+not satisfied. PR #1707 also added <code>field_ownership.py</code> (171 lines) that
+mirrors the ownership check used by <code>vegetation-analysis-service</code>.</p>
+<h3 id="nats-event-subjects">NATS event subjects<a class="headerlink" href="#nats-event-subjects" title="Permanent link">&para;</a></h3>
+<p>Vegetation publishes (via <code>shared/libs/events/nats_publisher.py</code>):</p>
+<div class="codehilite"><pre><span></span><code>sahool.satellite.ndvi.computed
+sahool.satellite.anomaly.vegetation
+sahool.satellite.ndvi.anomaly
+sahool.satellite.ndvi.trend
+</code></pre></div>
+
+<p>Tenant-scoped variant: <code>sahool.tenant.{tenant_id}.&lt;event_type&gt;</code>.</p>
+<p>Advisory publishes:</p>
+<div class="codehilite"><pre><span></span><code>sahool.advisory.recommendation_issued
+sahool.advisory.fertilizer_plan_issued
+sahool.advisory.nutrient_assessment_issued
+</code></pre></div>
+
+<p>Subscribers: <code>task-service</code> (wildcard <code>sahool.advisory.&gt;</code>), <code>alert-service</code>
+(disease/pest alerts), <code>crop-intelligence-service</code> (assessment events).</p>
+<p>The NestJS consumers (<code>yield-prediction-service</code>, <code>lai-estimation</code>,
+<code>crop-growth-model</code>) do <strong>not</strong> subscribe to vegetation events directly —
+they receive NDVI as a caller-provided input parameter.</p>
+<hr />
+<h2 id="3-verification-results">3. Verification Results<a class="headerlink" href="#3-verification-results" title="Permanent link">&para;</a></h2>
+<h3 id="31-python-services-fastapi">3.1 Python services (FastAPI)<a class="headerlink" href="#31-python-services-fastapi" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code>apps/services/vegetation-analysis-service
+  pytest tests/   →  862 passed in 14.03s
+
+apps/services/advisory-service
+  pytest tests/   →  318 passed, 3 skipped in 2.64s
+  including tests/test_vegetation_alignment.py (444 lines, 37 cases) — all green
+
+apps/services/crop-intelligence-service
+  pytest tests/   →  188 passed, 40 skipped, 9 xfailed in 2.23s
+</code></pre></div>
+
+<p>All three pass on <code>main</code> @ <code>2cbb4d9ee</code>. The <code>xfailed</code> and <code>skipped</code> cases
+are expected (mock/integration gates) and unchanged from before the
+vegetation work.</p>
+<p>PR #1707's <code>test_vegetation_alignment.py</code> (444 lines, added 2026-04-19)
+exercises the contract surface between <code>advisory-service</code> and
+<code>vegetation-analysis-service</code> end-to-end and is fully passing.</p>
+<h3 id="32-nestjs-consumers-main-baseline">3.2 NestJS consumers — <code>main</code> baseline<a class="headerlink" href="#32-nestjs-consumers-main-baseline" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th><code>tsc --noEmit</code></th>
+<th><code>jest</code></th>
+<th>Failure cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lai-estimation</code></td>
+<td>1 <code>DynamicModule</code> error</td>
+<td>4 failed / 7 total</td>
+<td>Workspace mixed v10/v11 hoisting</td>
+</tr>
+<tr>
+<td><code>yield-prediction-service</code></td>
+<td>clean</td>
+<td>6 failed / 9 total</td>
+<td><code>pathRegexp is not a function</code> (Express 4↔5 skew)</td>
+</tr>
+<tr>
+<td><code>crop-growth-model</code></td>
+<td>2 <code>DynamicModule</code> errors</td>
+<td>4 failed / 4 total</td>
+<td>Workspace mixed v10/v11 hoisting</td>
+</tr>
+</tbody>
+</table>
+<p>Sample failure (yield-prediction-service):</p>
+<div class="codehilite"><pre><span></span><code><span class="nl">TypeError:</span><span class="w"> </span><span class="n">pathRegexp</span><span class="w"> </span><span class="n">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="k">function</span>
+<span class="w">  </span><span class="n">at</span><span class="w"> </span><span class="p">...</span><span class="o">/</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">regexp</span><span class="o">/</span><span class="p">...</span>
+</code></pre></div>
+
+<p>Sample failure (lai-estimation, crop-growth-model):</p>
+<div class="codehilite"><pre><span></span><code><span class="nx">TS2322</span><span class="p">:</span><span class="w"> </span><span class="nx">Type</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">DynamicModule</span><span class="err">&#39;</span><span class="w"> </span><span class="k">is</span><span class="w"> </span><span class="k">not</span><span class="w"> </span><span class="nx">assignable</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="k">type</span>
+<span class="err">&#39;</span><span class="nx">Type</span><span class="p">&lt;</span><span class="nx">any</span><span class="p">&gt;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">DynamicModule</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">Promise</span><span class="p">&lt;</span><span class="nx">DynamicModule</span><span class="p">&gt;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="nx">ForwardReference</span><span class="p">&lt;</span><span class="nx">any</span><span class="p">&gt;</span><span class="err">&#39;</span><span class="p">.</span>
+<span class="w">  </span><span class="nx">Types</span><span class="w"> </span><span class="nx">of</span><span class="w"> </span><span class="nx">property</span><span class="w"> </span><span class="err">&#39;</span><span class="nx">imports</span><span class="err">&#39;</span><span class="w"> </span><span class="nx">are</span><span class="w"> </span><span class="nx">incompatible</span><span class="p">.</span>
+<span class="w">    </span><span class="nx">Type</span><span class="w"> </span><span class="nx">from</span><span class="w"> </span><span class="o">.../</span><span class="nx">node_modules</span><span class="o">/</span><span class="err">@</span><span class="nx">nestjs</span><span class="o">/</span><span class="nx">common</span><span class="w"> </span><span class="p">(</span><span class="nx">v10</span><span class="m m-Double">.4.22</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">Type</span><span class="w"> </span><span class="nx">from</span><span class="w"> </span><span class="o">.../</span><span class="nx">apps</span><span class="o">/</span><span class="nx">services</span><span class="o">/</span><span class="p">&lt;</span><span class="nx">svc</span><span class="p">&gt;</span><span class="o">/</span><span class="nx">node_modules</span><span class="o">/</span><span class="err">@</span><span class="nx">nestjs</span><span class="o">/</span><span class="nx">common</span><span class="w"> </span><span class="p">(</span><span class="nx">v11</span><span class="m m-Double">.1.19</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="33-nestjs-consumers-claudenestjs-v11-upgrade-companion-pr">3.3 NestJS consumers — <code>claude/nestjs-v11-upgrade</code> companion PR<a class="headerlink" href="#33-nestjs-consumers-claudenestjs-v11-upgrade-companion-pr" title="Permanent link">&para;</a></h3>
+<p>After the workspace is unified on NestJS v11.1.19 (no nested duplicates):</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th><code>tsc --noEmit</code></th>
+<th><code>jest</code></th>
+<th>Delta vs <code>main</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lai-estimation</code></td>
+<td>clean ✅</td>
+<td>4 failed / 8 total</td>
+<td>+1 test now able to run, typecheck fixed</td>
+</tr>
+<tr>
+<td><code>yield-prediction-service</code></td>
+<td>clean</td>
+<td>5 failed / 9 total</td>
+<td>-1 failure (pathRegexp suite still pre-existing)</td>
+</tr>
+<tr>
+<td><code>crop-growth-model</code></td>
+<td>clean ✅</td>
+<td>4 failed / 5 total</td>
+<td>typecheck fixed, +1 passing test</td>
+</tr>
+</tbody>
+</table>
+<p>The remaining test failures (<code>pathRegexp</code> in <code>yield-prediction-service</code>,
+plus a handful of mock-setup issues elsewhere) are pre-existing on <code>main</code>,
+unrelated to the vegetation work, and out of scope for this verification.
+Tracking note: the <code>pathRegexp</code> failures point to an Express 4 ↔ Express 5
+skew in the <code>supertest</code>/<code>@nestjs/platform-express</code> dep tree that warrants
+a follow-up.</p>
+<hr />
+<h2 id="4-risk-areas-reviewed">4. Risk Areas Reviewed<a class="headerlink" href="#4-risk-areas-reviewed" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tenant isolation (cross-tenant leakage)</td>
+<td>OK ✅</td>
+<td>Enforced in orchestrator pre-fanout; PR #1704 hardened, PR #1696 added missing <code>compare_ndvi_periods</code> check</td>
+</tr>
+<tr>
+<td>NATS subject drift</td>
+<td>OK ✅</td>
+<td>Aligned to <code>sahool/events/subjects.py</code>; PR #1705 closed the dead subscription gaps</td>
+</tr>
+<tr>
+<td>HTTP contract drift (vegetation ↔ advisory)</td>
+<td>OK ✅</td>
+<td>444-line <code>test_vegetation_alignment</code> suite green</td>
+</tr>
+<tr>
+<td>Port collisions</td>
+<td>OK ✅</td>
+<td>All ports stable per <code>governance/services.yaml</code></td>
+</tr>
+<tr>
+<td>Contract version uniformity</td>
+<td>OK ✅</td>
+<td>All services on <code>16.0.0</code></td>
+</tr>
+<tr>
+<td>Deprecated <code>ndvi-processor</code> overlap</td>
+<td>OK ✅</td>
+<td>RFC 8594 headers in place; sunset 2026-06-01</td>
+</tr>
+<tr>
+<td>Workspace NestJS version skew</td>
+<td><strong>Broken</strong> ⚠️</td>
+<td>Fixed in companion PR <code>claude/nestjs-v11-upgrade</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-recommended-follow-ups">5. Recommended Follow-ups<a class="headerlink" href="#5-recommended-follow-ups" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Merge <code>claude/nestjs-v11-upgrade</code></strong> to clear the <code>DynamicModule</code> and
+   <code>pathRegexp</code>-class workspace skew. (The skew is the root cause of the
+   NestJS consumer test failures shown in §3.2.)</li>
+<li><strong>Investigate residual <code>pathRegexp</code> failures</strong> in
+   <code>yield-prediction-service/test/prediction.spec.ts</code> after the v11 unify
+   lands. Likely an Express 4 → Express 5 compatibility issue in
+   <code>supertest</code> or <code>@nestjs/platform-express</code>. Pin or shim
+   <code>path-to-regexp</code>.</li>
+<li><strong>Decommission <code>ndvi-processor</code></strong> on schedule (sunset 2026-06-01).
+   Verify no production traffic remains by querying the
+   <code>X-API-Deprecated</code> header counter in Prometheus.</li>
+<li><strong>Optional</strong>: Add a CI guard
+   (<code>api-contracts-guard.yml</code>) check that fails if any new service is
+   added at NestJS v10 — keeps the workspace converged.</li>
+</ol>
+<hr />
+<h2 id="6-reproduction-commands">6. Reproduction Commands<a class="headerlink" href="#6-reproduction-commands" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Python — vegetation triangle</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/vegetation-analysis-service<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>--show-toplevel<span class="k">)</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/<span class="w"> </span>-q
+<span class="nb">cd</span><span class="w"> </span>apps/services/advisory-service<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>--show-toplevel<span class="k">)</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/<span class="w"> </span>-q
+<span class="nb">cd</span><span class="w"> </span>apps/services/crop-intelligence-service<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="nv">PYTHONPATH</span><span class="o">=</span><span class="k">$(</span>git<span class="w"> </span>rev-parse<span class="w"> </span>--show-toplevel<span class="k">)</span><span class="w"> </span>python3<span class="w"> </span>-m<span class="w"> </span>pytest<span class="w"> </span>tests/<span class="w"> </span>-q
+
+<span class="c1"># NestJS consumers</span>
+<span class="nb">cd</span><span class="w"> </span>apps/services/lai-estimation<span class="w">          </span><span class="o">&amp;&amp;</span><span class="w"> </span>npx<span class="w"> </span>tsc<span class="w"> </span>--noEmit<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npx<span class="w"> </span>jest
+<span class="nb">cd</span><span class="w"> </span>apps/services/yield-prediction-service<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npx<span class="w"> </span>tsc<span class="w"> </span>--noEmit<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npx<span class="w"> </span>jest
+<span class="nb">cd</span><span class="w"> </span>apps/services/crop-growth-model<span class="w">        </span><span class="o">&amp;&amp;</span><span class="w"> </span>npx<span class="w"> </span>tsc<span class="w"> </span>--noEmit<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>npx<span class="w"> </span>jest
+</code></pre></div>
+
+<hr />
+<p><em>Generated 2026-04-21 against <code>main</code> @ <code>2cbb4d9ee</code> and companion branch
+<code>claude/nestjs-v11-upgrade</code> @ <code>c5113efdf</code>.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -184,7 +184,16 @@ export class UsersService {
    * Get a single user by ID
    * الحصول على مستخدم واحد بواسطة المعرف
    */
-  async findOne(id: string): Promise<User> {
+  /**
+   * Get a single user by ID.
+   *
+   * SECURITY: when `tenantId` is provided, the lookup is scoped to that
+   * tenant and a cross-tenant id returns 404 (no existence oracle). The
+   * parameter is optional for backward compatibility and for admin/system
+   * callers who legitimately need to reach across tenants; every
+   * end-user-facing controller MUST pass the caller's tenantId.
+   */
+  async findOne(id: string, tenantId?: string): Promise<User> {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
@@ -220,7 +229,7 @@ export class UsersService {
       },
     });
 
-    if (!user) {
+    if (!user || (tenantId && user.tenantId !== tenantId)) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
 

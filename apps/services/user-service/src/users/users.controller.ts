@@ -170,7 +170,15 @@ export class UsersController {
     // Validate resource ownership - users can only access their own data (unless admin)
     this.validateResourceOwnership(currentUser, id);
 
-    const user = await this.usersService.findOne(id);
+    // Scope the DB lookup to the caller's tenant for non-admins so that an
+    // internal bug cannot return a cross-tenant row. Admins intentionally
+    // skip the tenant filter (cross-tenant admin tooling).
+    const roles = Array.isArray(currentUser?.roles)
+      ? currentUser.roles.map((r: string) => r.toLowerCase())
+      : [];
+    const tenantScope = roles.includes("admin") ? undefined : currentUser?.tenantId;
+
+    const user = await this.usersService.findOne(id, tenantScope);
     const { passwordHash, ...userWithoutPassword } = user;
     return {
       success: true,

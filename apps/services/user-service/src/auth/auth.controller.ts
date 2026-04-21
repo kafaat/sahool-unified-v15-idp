@@ -422,7 +422,10 @@ export class AuthController {
    */
   @Post("forgot-password")
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute to prevent abuse
+  // Strict limit (1 per 5 min per IP): the endpoint triggers outbound email
+  // delivery and always 200s to avoid enumeration, so without a tight limit
+  // an attacker can email-bomb a victim's inbox with reset links.
+  @Throttle({ default: { limit: 1, ttl: 300000 } })
   @ApiOperation({
     summary: "Request password reset",
     description:

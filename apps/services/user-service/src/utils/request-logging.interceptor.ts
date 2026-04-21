@@ -182,6 +182,43 @@ export class RequestLoggingInterceptor implements NestInterceptor {
     return userId;
   }
 
+  /**
+   * Redact well-known sensitive keys before emitting a log entry.
+   * Keeps operational visibility over unusual traffic while preventing
+   * accidental disclosure of secrets passed in the query string.
+   */
+  private sanitizeQuery(
+    query: Record<string, any> | undefined,
+  ): Record<string, any> | undefined {
+    if (!query || Object.keys(query).length === 0) {
+      return undefined;
+    }
+    const SENSITIVE = new Set([
+      "password",
+      "pass",
+      "pwd",
+      "token",
+      "access_token",
+      "refresh_token",
+      "id_token",
+      "secret",
+      "api_key",
+      "apikey",
+      "authorization",
+      "auth",
+      "code",
+      "state",
+      "otp",
+      "session",
+      "sid",
+    ]);
+    const result: Record<string, any> = {};
+    for (const [k, v] of Object.entries(query)) {
+      result[k] = SENSITIVE.has(k.toLowerCase()) ? "[REDACTED]" : v;
+    }
+    return result;
+  }
+
   private logRequest(
     request: ExtendedRequest,
     correlationId: string,
@@ -196,8 +233,7 @@ export class RequestLoggingInterceptor implements NestInterceptor {
       http: {
         method: request.method,
         path: request.path,
-        query:
-          Object.keys(request.query).length > 0 ? request.query : undefined,
+        query: this.sanitizeQuery(request.query),
         user_agent: request.headers["user-agent"] as string | undefined,
       },
       tenant_id: tenantId,

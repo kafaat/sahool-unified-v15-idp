@@ -11,12 +11,27 @@
 /**
  * Number of bcrypt salt rounds for password hashing.
  * Configurable via BCRYPT_ROUNDS environment variable.
- * Default: 12 (OWASP recommended minimum)
+ * Default: 12 (OWASP recommended minimum). A misconfigured value fails
+ * the module load rather than silently falling back to the default —
+ * silent fallback once shipped a production deployment with weakened
+ * hashing that went undetected.
  *
  * عدد جولات تشفير كلمة المرور - الحد الأدنى الموصى به من OWASP هو 12
  */
-const parsed = parseInt(process.env.BCRYPT_ROUNDS || '12', 10);
-export const BCRYPT_ROUNDS = Number.isFinite(parsed) && parsed >= 12 ? parsed : 12;
+function resolveBcryptRounds(): number {
+  const raw = process.env.BCRYPT_ROUNDS;
+  if (raw === undefined || raw === "") {
+    return 12;
+  }
+  const parsed = Number.parseInt(raw, 10);
+  if (!Number.isFinite(parsed) || parsed < 12 || parsed > 15) {
+    throw new Error(
+      `Invalid BCRYPT_ROUNDS=${raw}: must be an integer between 12 and 15 (OWASP recommends >=12; >15 is impractically slow).`,
+    );
+  }
+  return parsed;
+}
+export const BCRYPT_ROUNDS = resolveBcryptRounds();
 
 /**
  * Default tenant ID for users created without explicit tenant.

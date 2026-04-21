@@ -1480,11 +1480,32 @@ async def request_imagery(
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
-async def analyze_field(
+async def analyze_field_endpoint(
     request: ImageryRequest,
-    http_request: Request | None = None,
+    http_request: Request,
     user: User = Depends(get_current_user),
-):
+) -> "FieldAnalysis":
+    """HTTP handler for /v1/analyze (audit #7).
+
+    Verifies field ownership cross-service against
+    field-management-service, then delegates to ``analyze_field``.
+    The internal helper is exposed separately so in-process callers
+    (``analyze_field_with_action``, ``analyze_field_real``) that
+    already verified ownership upstream can invoke it without a
+    request context.
+    """
+    _validate_field_id(request.field_id)
+    tenant_id = await _verify_field_owned_by_tenant(
+        user, request.field_id, http_request=http_request
+    )
+    return await analyze_field(request, tenant_id=tenant_id)
+
+
+async def analyze_field(
+    request: "ImageryRequest",
+    tenant_id: str | None = None,
+    user: "User | None" = None,
+) -> "FieldAnalysis":
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية.
 
     Fallback chain (EOSDA/OneSoil pattern):
@@ -1498,23 +1519,17 @@ async def analyze_field(
     ``data_source`` ("real" | "simulated") and ``data_provider`` so that
     farmers never act on synthetic numbers unknowingly.
 
-    SECURITY (2026-04-21 audit #7): HTTP callers (``http_request`` is
-    present) must own ``request.field_id`` — verified cross-service
-    against field-management-service. Internal in-process callers
-    (that already verified ownership upstream) may invoke this
-    function without ``http_request``; they still get JWT tenant
-    enforcement.
+    SECURITY: Internal helper — callers are responsible for verifying
+    that ``request.field_id`` belongs to ``tenant_id``. The HTTP
+    handler ``analyze_field_endpoint`` does this via
+    ``_verify_field_owned_by_tenant`` (audit #7). One of ``tenant_id``
+    or ``user`` must be supplied — ``tenant_id`` takes precedence; if
+    only ``user`` is passed it is extracted from the JWT.
     """
     _validate_field_id(request.field_id)
-    # HTTP callers: enforce field ownership cross-service. Internal
-    # callers (http_request=None) are trusted to have verified
-    # ownership before calling — `_require_tenant_id` still guards
-    # cache scoping below.
-    if http_request is not None:
-        tenant_id = await _verify_field_owned_by_tenant(
-            user, request.field_id, http_request=http_request
-        )
-    else:
+    # Field-scoped cache access must always be tenant-scoped. Resolve
+    # the tenant from the explicit argument, or fall back to JWT.
+    if tenant_id is None:
         tenant_id = _require_tenant_id(user)
 
     # Cache key includes request.start_date so historical queries
@@ -1765,9 +1780,9 @@ async def analyze_field_with_action(
         cloud_cover_max=request.cloud_cover_max,
     )
 
-    # Internal call — field ownership already verified above, so pass
-    # http_request=None to skip the cross-service re-check.
-    analysis = await analyze_field(imagery_request, http_request=None, user=user)
+    # Internal call — field ownership already verified above, so we
+    # hand the pre-resolved tenant_id directly to the helper.
+    analysis = await analyze_field(imagery_request, tenant_id=tenant_id)
 
     # Create ActionTemplate
     action_template = _create_satellite_action_template(
@@ -1915,7 +1930,7 @@ async def analyze_field_real(
     )
 
     # Internal call — field ownership already verified above.
-    analysis = await analyze_field(simulated_request, http_request=None, user=user)
+    analysis = await analyze_field(simulated_request, tenant_id=tenant_id)
 
     return {
         "field_id": analysis.field_id,

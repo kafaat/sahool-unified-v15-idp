@@ -410,9 +410,7 @@ async def analyze_field_leveling(
         # Create cut/fill volume model
         net_volume = cut_fill_result.cut_volume - cut_fill_result.fill_volume
         balance_ratio = (
-            cut_fill_result.cut_volume / cut_fill_result.fill_volume
-            if cut_fill_result.fill_volume > 0
-            else 999.0
+            cut_fill_result.cut_volume / cut_fill_result.fill_volume if cut_fill_result.fill_volume > 0 else 999.0
         )
 
         cut_fill = CutFillVolume(

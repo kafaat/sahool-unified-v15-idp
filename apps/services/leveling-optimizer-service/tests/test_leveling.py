@@ -419,9 +419,7 @@ class TestDesignPlaneFormulas:
     ``|a|·ΔX + |b|·ΔY`` (the Z span across the field extent).
     """
 
-    def test_analyze_centroid_elevation_matches_plane_at_centroid(
-        self, client, sample_elevation_data, auth_headers
-    ):
+    def test_analyze_centroid_elevation_matches_plane_at_centroid(self, client, sample_elevation_data, auth_headers):
         """centroid_elevation must equal a·x̄ + b·ȳ + c, not plane.c alone."""
         response = client.post(
             "/api/v1/leveling/analyze",
@@ -445,9 +443,7 @@ class TestDesignPlaneFormulas:
 
         assert design_plane["centroid_elevation"] == pytest.approx(expected, abs=1e-3)
 
-    def test_analyze_leveled_elevation_range_uses_both_axes(
-        self, client, sample_elevation_data, auth_headers
-    ):
+    def test_analyze_leveled_elevation_range_uses_both_axes(self, client, sample_elevation_data, auth_headers):
         """leveled_elevation_range must be |a|·ΔX + |b|·ΔY (not max of grades · max x)."""
         response = client.post(
             "/api/v1/leveling/analyze",

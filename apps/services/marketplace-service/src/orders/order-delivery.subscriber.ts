@@ -27,11 +27,16 @@
  * ─────────────────────────────────────────────────────────────────────────
  * IDEMPOTENCY
  * ─────────────────────────────────────────────────────────────────────────
- * NATS re-delivers on consumer error (and on stream replay). The Prisma
- * `updateMany` is gated on `status: { not: DELIVERED }`, so a replayed
- * delivery.completed for an already-DELIVERED order matches zero rows —
- * we skip the re-publish and exit silently. First delivery wins; replays
- * are no-ops.
+ * This subscriber uses core NATS via `EventsService.subscribe()` (see
+ * events.service.ts — `connection.subscribe(...)`, not JetStream), so
+ * handler errors in this implementation do NOT trigger broker-managed
+ * redelivery or replay. Duplicates can still happen — e.g. if an upstream
+ * service re-publishes the same `delivery.completed` event, or if a
+ * reconciliation job replays a missed event. The Prisma `updateMany` is
+ * gated on `status: { not: DELIVERED }`, so a duplicate delivery.completed
+ * for an already-DELIVERED order matches zero rows — we skip the
+ * re-publish and exit silently. First delivery wins; duplicates are
+ * no-ops.
  *
  * ─────────────────────────────────────────────────────────────────────────
  * SECURITY
@@ -104,13 +109,27 @@ export class OrderDeliverySubscriber implements OnModuleInit {
       }
 
       try {
-        await this.events.subscribe(
+        const sub = await this.events.subscribe(
           DELIVERY_COMPLETED_SUBJECT,
           async (event: unknown) => {
             await this.handleDeliveryCompleted(event);
           },
           { queue: QUEUE_GROUP },
         );
+        // `EventsService.subscribe()` returns `Promise<Subscription | null>`
+        // and silently yields `null` when `isConnected()` flips false
+        // between our own check above and the subscribe call (NATS drop in
+        // the race window). Without this guard we would set
+        // `this.subscribed = true` and permanently disable retries with
+        // NO active subscription — the replica would stop processing
+        // `delivery.completed` until it was restarted.
+        if (!sub) {
+          this.logger.warn(
+            `Subscribe attempt ${attempt + 1} returned null (NATS ` +
+              `disconnected in race window) — retrying`,
+          );
+          continue;
+        }
         this.subscribed = true;
         this.logger.log(
           `Subscribed to ${DELIVERY_COMPLETED_SUBJECT} (queue=${QUEUE_GROUP}) after ${attempt + 1} attempt(s)`,
@@ -236,8 +255,11 @@ export class OrderDeliverySubscriber implements OnModuleInit {
           err instanceof Error ? err.message : String(err)
         }`,
       );
-      // Do NOT rethrow: NATS would redeliver and we'd loop on a persistent
-      // DB error. A separate reconciliation job can pick up any misses.
+      // Do NOT rethrow. Under core NATS (see module header), handler
+      // errors are not broker-redelivered; swallowing keeps the
+      // subscription loop alive for subsequent events. A separate
+      // reconciliation job picks up any misses caused by persistent
+      // DB errors.
     }
   }
 }

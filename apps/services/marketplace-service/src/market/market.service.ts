@@ -300,21 +300,23 @@ export class MarketService {
    */
   async createOrder(
     data: CreateOrderDto,
-    tenantId?: string,
+    tenantId: string,
     idempotencyKey?: string,
     userId?: string,
   ) {
-    const effectiveTenant = tenantId ?? "unassigned";
+    if (!tenantId) {
+      throw new Error("createOrder: tenantId is required");
+    }
     const effectiveUser = userId ?? data.buyerId;
 
     return this.idempotencyService
       .executeIdempotent(
         idempotencyKey,
-        effectiveTenant,
+        tenantId,
         effectiveUser,
         "market.createOrder",
         data,
-        () => this.createOrderInternal(data),
+        () => this.createOrderInternal(data, tenantId),
       )
       .then((result) => result.value);
   }
@@ -323,14 +325,31 @@ export class MarketService {
    * Inner implementation split out so IdempotencyService can wrap it.
    * No idempotency concerns live here — this is the pure domain logic.
    */
-  private async createOrderInternal(data: CreateOrderDto) {
+  private async createOrderInternal(data: CreateOrderDto, tenantId: string) {
     // Use transaction with timeout to ensure atomic stock check and decrement
     return this.prisma.$transaction(async (tx) => {
-      // Batch fetch all products at once to avoid N+1 queries
+      // Batch fetch all products at once to avoid N+1 queries.
+      // SECURITY (2026-04-21 audit #1): tenantId MUST be in the WHERE
+      // clause — otherwise a buyer in tenant A can reference tenant B's
+      // productIds via the request body and we'd happily read the prices
+      // and later decrement tenant B's stock below.
       const productIds = data.items.map((item) => item.productId);
       const products = await tx.product.findMany({
-        where: { id: { in: productIds } },
+        where: { id: { in: productIds }, tenantId },
       });
+
+      // If any requested productId didn't land in the result set the
+      // caller referenced a product that either doesn't exist or lives
+      // in a different tenant. Fail fast with a clear error instead of
+      // letting the "product not found" fire per-item below (which is
+      // also fine, but this pre-check avoids a partial order).
+      if (products.length !== productIds.length) {
+        const foundIds = new Set(products.map((p) => p.id));
+        const missing = productIds.filter((id) => !foundIds.has(id));
+        throw new Error(
+          `Product(s) not found in tenant scope: ${missing.join(", ")}`,
+        );
+      }
 
       // Create a typed map for quick lookup
       type ProductType = (typeof products)[number];
@@ -373,11 +392,14 @@ export class MarketService {
         });
       }
 
-      // Batch update stock atomically within transaction
+      // Batch update stock atomically within transaction. Bind the
+      // id_tenantId composite so a stock decrement can't silently
+      // target a foreign tenant's product row (the pre-fetch above
+      // already validated ownership, but defense-in-depth).
       const updatedProducts = await Promise.all(
         stockUpdates.map((update) =>
           tx.product.update({
-            where: { id: update.id },
+            where: { id_tenantId: { id: update.id, tenantId } },
             data: { stock: { decrement: update.quantity } },
           }),
         ),
@@ -390,6 +412,7 @@ export class MarketService {
           const LOW_STOCK_THRESHOLD = parseInt(process.env.LOW_STOCK_THRESHOLD || "10", 10);
           if (product.stock <= LOW_STOCK_THRESHOLD && product.stock > 0) {
             await this.eventsService.publishInventoryLowStock({
+              tenantId,
               productId: product.id,
               productName: product.nameAr || product.name,
               currentStock: product.stock,
@@ -430,8 +453,11 @@ export class MarketService {
         include: { items: true },
       });
 
-      // Publish order.placed event to NATS
+      // Publish order.placed event to NATS (tenantId required for
+      // downstream cross-tenant isolation in notification-service,
+      // billing-core, traceability-service).
       await this.eventsService.publishOrderPlaced({
+        tenantId,
         orderId: order.id,
         userId: order.buyerId,
         items: orderItems.map((item) => ({

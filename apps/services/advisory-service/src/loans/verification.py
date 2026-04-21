@@ -303,16 +303,59 @@ class CropLoanVerificationEngine:
         return await self._safe_get(client, url, headers)
 
     async def _fetch_ndvi_series(self, client: httpx.AsyncClient, headers: dict, field_id: str) -> dict[str, Any]:
-        url = f"{self.vegetation_analysis_url}/api/v1/vegetation/fields/{field_id}/ndvi/history"
-        return await self._safe_get(client, url, headers)
+        """Fetch NDVI history from vegetation-analysis-service.
+
+        Uses the canonical ``/v1/timeseries/{field_id}`` endpoint. The
+        legacy ``/api/v1/vegetation/fields/{field_id}/ndvi/history``
+        path never existed in vegetation-analysis-service — calls to
+        it silently returned 404, and the loan engine treated that as
+        a soft-degraded signal, yielding low-confidence verdicts.
+        Fetching the correct endpoint restores NDVI evidence for loan
+        decisions.
+
+        The vegetation response ships the history under ``timeseries``
+        (list of ``{date, ndvi, ndwi, evi, cloud_cover}``); the loan
+        engine's ``_summarise_ndvi`` expects the key ``series``. Map
+        here so the rest of the pipeline is untouched.
+
+        NOTE: ``lat``/``lon`` are intentionally omitted. Vegetation
+        falls back to the in-process simulated NDVI generator without
+        them, which is the best we can do before refactoring the
+        ``asyncio.gather`` two-stage fetch (field first, then NDVI
+        with its coordinates). Calls still tag ``data_source`` so the
+        loan verdict can downweight simulated evidence.
+        """
+        url = f"{self.vegetation_analysis_url}/v1/timeseries/{field_id}"
+        params = {"days": 365}
+        resp = await self._safe_get(client, url, headers, params=params)
+        if resp.get("_degraded"):
+            return resp
+        # Vegetation returns {timeseries: [...]} at top level (not
+        # wrapped in `data`), so `_safe_get` surfaces it under `_raw`.
+        raw = resp.get("_raw") if "_raw" in resp else resp
+        if isinstance(raw, dict) and "timeseries" in raw:
+            return {
+                "_degraded": False,
+                "series": raw.get("timeseries", []),
+                "data_source": raw.get("data_source"),
+                "period_days": raw.get("period_days"),
+            }
+        return resp
 
     async def _fetch_risk(self, client: httpx.AsyncClient, headers: dict, field_id: str) -> dict[str, Any]:
         url = f"{self.crop_intelligence_url}/api/v1/crop-intelligence/fields/{field_id}/risk"
         return await self._safe_get(client, url, headers)
 
-    async def _safe_get(self, client: httpx.AsyncClient, url: str, headers: dict) -> dict[str, Any]:
+    async def _safe_get(
+        self,
+        client: httpx.AsyncClient,
+        url: str,
+        headers: dict,
+        *,
+        params: dict | None = None,
+    ) -> dict[str, Any]:
         try:
-            resp = await client.get(url, headers=headers)
+            resp = await client.get(url, headers=headers, params=params)
             if resp.status_code == 200:
                 body = resp.json()
                 if isinstance(body, dict) and "data" in body:

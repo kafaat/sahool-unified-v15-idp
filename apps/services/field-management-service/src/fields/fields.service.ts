@@ -130,7 +130,7 @@ export class FieldsService {
     // Validate farmId belongs to the same tenant (prevent cross-tenant reference)
     if (dto.farmId) {
       const farm = await this.prisma.farm.findUnique({
-        where: { id: dto.farmId },
+        where: { id_tenantId: { id: dto.farmId, tenantId: dto.tenantId } },
         select: { tenantId: true },
       });
       if (!farm) {
@@ -259,7 +259,7 @@ export class FieldsService {
     }
 
     const field = await this.prisma.field.findUnique({
-      where: { id },
+      where: tenantId ? { id_tenantId: { id, tenantId } } : { id },
       select: {
         id: true,
         name: true,
@@ -506,7 +506,7 @@ export class FieldsService {
   ): Promise<FieldResponseDto & { etag: string }> {
     // Get current field
     const current = await this.prisma.field.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       select: { id: true, version: true, tenantId: true },
     });
 
@@ -546,7 +546,7 @@ export class FieldsService {
     // Update field and boundary atomically
     await this.prisma.$transaction(async (tx) => {
       await tx.field.update({
-        where: { id, version: current.version },
+        where: { id_tenantId: { id, tenantId }, version: current.version },
         data: {
           ...(dto.name && { name: dto.name }),
           ...(dto.cropType && { cropType: dto.cropType }),
@@ -603,7 +603,7 @@ export class FieldsService {
    */
   async delete(id: string, tenantId: string): Promise<void> {
     const field = await this.prisma.field.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       select: { tenantId: true },
     });
 
@@ -615,7 +615,7 @@ export class FieldsService {
     assertTenantOwnership(field.tenantId, tenantId, "field");
 
     await this.prisma.field.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: { isDeleted: true, status: "inactive" },
     });
 
@@ -673,7 +673,7 @@ export class FieldsService {
     tenantId: string,
   ): Promise<FieldResponseDto & { etag: string }> {
     const field = await this.prisma.field.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       select: { id: true, version: true, tenantId: true },
     });
 
@@ -818,11 +818,11 @@ export class FieldsService {
   ): Promise<FieldResponseDto & { etag: string }> {
     const [field, historyEntry] = await Promise.all([
       this.prisma.field.findUnique({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         select: { id: true, version: true, tenantId: true },
       }),
       this.prisma.fieldBoundaryHistory.findUnique({
-        where: { id: dto.historyId },
+        where: { id_tenantId: { id: dto.historyId, tenantId } },
       }),
     ]);
 

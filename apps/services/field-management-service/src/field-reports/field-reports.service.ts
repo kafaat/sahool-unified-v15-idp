@@ -184,7 +184,7 @@ export class FieldReportsService {
    */
   async getById(id: string, tenantId: string) {
     const row = await this.prisma.fieldReport.findUnique({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
     });
     if (!row || row.tenantId !== tenantId) {
       throw new NotFoundException({
@@ -241,10 +241,16 @@ export class FieldReportsService {
       return;
     }
 
-    const row = await this.prisma.fieldReport.findUnique({
+    const row = await this.prisma.fieldReport.findFirst({
       where: { id: reportId },
     });
     if (!row) return;
+
+    // tenantId is captured from the row we just locked above — subsequent
+    // mutations bind it via id_tenantId so a stale reportId from a different
+    // tenant (should one ever leak into the worker queue) can't mutate the
+    // wrong row.
+    const tenantId = row.tenantId;
 
     try {
       const snapshot = await this.buildSnapshot(row);
@@ -264,7 +270,7 @@ export class FieldReportsService {
       });
 
       await this.prisma.fieldReport.update({
-        where: { id: reportId },
+        where: { id_tenantId: { id: reportId, tenantId } },
         data: {
           status: "ready",
           renderedAt: new Date(),
@@ -308,7 +314,7 @@ export class FieldReportsService {
       const msg = e instanceof Error ? e.message : String(e);
       this.logger.error(`Render failed for ${reportId}: ${msg}`);
       await this.prisma.fieldReport.update({
-        where: { id: reportId },
+        where: { id_tenantId: { id: reportId, tenantId } },
         data: {
           status: "failed",
           errorMessage: msg.slice(0, 2000),
@@ -358,7 +364,7 @@ export class FieldReportsService {
     periodTo: Date | null;
   }): Promise<ReportInputSnapshot> {
     const field = await this.prisma.field.findUnique({
-      where: { id: row.fieldId },
+      where: { id_tenantId: { id: row.fieldId, tenantId: row.tenantId } },
       select: {
         id: true,
         name: true,
@@ -517,7 +523,7 @@ export class FieldReportsService {
 
   private async assertFieldOwnership(fieldId: string, tenantId: string) {
     const field = await this.prisma.field.findUnique({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       select: { id: true, tenantId: true, isDeleted: true },
     });
     if (!field || field.isDeleted || field.tenantId !== tenantId) {
@@ -534,7 +540,7 @@ export class FieldReportsService {
     tenantId: string,
   ) {
     const season = await this.prisma.cropSeason.findUnique({
-      where: { id: cropSeasonId },
+      where: { id_tenantId: { id: cropSeasonId, tenantId } },
       select: { id: true, tenantId: true, fieldId: true, deletedAt: true },
     });
     if (

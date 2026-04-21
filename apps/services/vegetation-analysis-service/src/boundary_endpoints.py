@@ -9,7 +9,7 @@ import json
 import logging
 from datetime import datetime
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from shared.auth.dependencies import get_current_user
@@ -17,6 +17,7 @@ from shared.auth.models import User
 
 from .cache import cache_invalidate_field
 from .field_boundary_detector import BoundaryChange
+from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
+        require_tenant_id(_user)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
@@ -145,6 +147,7 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
+        require_tenant_id(_user)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 
@@ -195,6 +198,7 @@ def register_boundary_endpoints(app, boundary_detector):
     @app.get("/v1/boundaries/{field_id}/changes", response_model=dict)
     async def get_boundary_changes(
         field_id: str,
+        http_request: Request,
         since_date: str = Query(..., description="Compare to this date (ISO format)"),
         previous_coords: str = Query(..., description="Previous boundary coordinates (JSON array)"),
         _user: User = Depends(get_current_user),
@@ -222,6 +226,12 @@ def register_boundary_endpoints(app, boundary_detector):
                 }
             }
         """
+        # Access-control gate — raises 403 if the caller's tenant does not
+        # own `field_id`. The return value is discarded because the
+        # subsequent `detect_boundary_change(field_id=...)` call inherits
+        # the tenant boundary via the already-verified field_id, matching
+        # the pattern used by sibling endpoints at lines ~80 and ~150.
+        await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         if not boundary_detector:
             raise HTTPException(status_code=503, detail="Field boundary detector not initialized")
 

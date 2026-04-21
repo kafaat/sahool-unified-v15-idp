@@ -61,7 +61,7 @@ export class ErpSyncService {
     tenantId: string,
   ): Promise<{ [source: string]: ErpPostingResult }> {
     const row = await this.prisma.fieldOperation.findUnique({
-      where: { id: operationId },
+      where: { id_tenantId: { id: operationId, tenantId } },
       include: {
         field: { select: { name: true } },
         cropSeason: { select: { cropType: true, cropTypeAr: true } },
@@ -112,7 +112,7 @@ export class ErpSyncService {
     const anyError = Object.values(results).find((r) => !r.success);
 
     await this.prisma.fieldOperation.update({
-      where: { id: operationId },
+      where: { id_tenantId: { id: operationId, tenantId } },
       data: {
         postedToErp: !!firstSuccess,
         postedAt: firstSuccess ? new Date() : undefined,

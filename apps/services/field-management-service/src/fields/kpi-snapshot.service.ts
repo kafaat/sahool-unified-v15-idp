@@ -159,7 +159,7 @@ export class KpiSnapshotService {
     // Update field ndvi_value and health_score from ndvi
     if (dto.ndvi != null) {
       await this.prisma.field.update({
-        where: { id: fieldId },
+        where: { id_tenantId: { id: fieldId, tenantId } },
         data: {
           ndviValue: dto.ndvi,
           healthScore: dto.ndvi, // Use NDVI as health proxy

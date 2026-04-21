@@ -1301,9 +1301,9 @@ and Platform Infrastructure — <strong>before</strong> any production deploymen
 <td>DONE</td>
 </tr>
 <tr>
-<td><strong>Remaining</strong>: Add <code>sentinelhub&gt;=3.10.0</code> to requirements</td>
+<td>Add <code>sentinelhub&gt;=3.10.0</code> to requirements</td>
 <td><code>requirements/satellite.txt</code></td>
-<td>TODO</td>
+<td>DONE</td>
 </tr>
 <tr>
 <td><strong>Remaining</strong>: Configure Sentinel Hub credentials</td>
@@ -1447,24 +1447,24 @@ and Platform Infrastructure — <strong>before</strong> any production deploymen
 <td>DONE</td>
 </tr>
 <tr>
-<td><strong>Remaining</strong>: IDOR in marketplace service</td>
-<td><code>marketplace-service</code></td>
-<td>TODO</td>
+<td>IDOR in marketplace service</td>
+<td><code>marketplace-service/src/app.controller.ts</code></td>
+<td>DONE</td>
 </tr>
 <tr>
-<td><strong>Remaining</strong>: Race condition user creation</td>
-<td><code>user-service</code></td>
-<td>TODO</td>
+<td>Race condition user creation (P2002)</td>
+<td><code>user-service/src/users/users.service.ts</code></td>
+<td>DONE</td>
 </tr>
 <tr>
-<td><strong>Remaining</strong>: CORS wildcard enforcement</td>
-<td><code>shared/cors_config.py</code></td>
-<td>TODO</td>
+<td>CORS wildcard enforcement (4 services)</td>
+<td><code>astronomical-calendar, globalgap-compliance, virtual-sensors, yolo26-vision-service</code></td>
+<td>DONE</td>
 </tr>
 <tr>
-<td><strong>Remaining</strong>: Token revocation race condition</td>
+<td>Token revocation race condition (Redis-first write order)</td>
 <td><code>shared/security/token_revocation.py</code></td>
-<td>TODO</td>
+<td>DONE</td>
 </tr>
 </tbody>
 </table>
@@ -1516,8 +1516,18 @@ and Platform Infrastructure — <strong>before</strong> any production deploymen
 </thead>
 <tbody>
 <tr>
-<td><strong>All remaining</strong>: Connect agricultural KPIs to Prometheus</td>
-<td><code>shared/monitoring/</code></td>
+<td>Connect agricultural KPIs to Prometheus (vegetation-analysis-service)</td>
+<td><code>vegetation-analysis-service/src/main.py</code></td>
+<td>DONE</td>
+</tr>
+<tr>
+<td>Connect agricultural KPIs to Prometheus (indicators-service)</td>
+<td><code>indicators-service/src/main.py</code></td>
+<td>DONE</td>
+</tr>
+<tr>
+<td><strong>Remaining</strong>: Wire KPIs into crop-intelligence-service and advisory-service</td>
+<td>Deferred to PR7 follow-up</td>
 <td>TODO</td>
 </tr>
 </tbody>
@@ -1538,13 +1548,13 @@ and Platform Infrastructure — <strong>before</strong> any production deploymen
 <td>DONE</td>
 </tr>
 <tr>
-<td><strong>Remaining</strong>: Kong YAML consolidation</td>
-<td><code>infrastructure/gateway/kong/</code></td>
-<td>TODO</td>
+<td>NATS Redis-based cross-instance dedup</td>
+<td><code>shared/events/subscriber.py</code></td>
+<td>DONE</td>
 </tr>
 <tr>
-<td><strong>Remaining</strong>: NATS Redis-based dedup</td>
-<td><code>shared/events/subscriber.py</code></td>
+<td><strong>Remaining</strong>: Kong YAML consolidation</td>
+<td><code>infrastructure/gateway/kong/</code></td>
 <td>TODO</td>
 </tr>
 </tbody>

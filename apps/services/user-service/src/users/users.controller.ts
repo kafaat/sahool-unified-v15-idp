@@ -406,7 +406,7 @@ export class UsersController {
     }
     return {
       success: true,
-      data: { userId, blocked: updated.blocked ?? true },
+      data: { userId, blocked: updated.blocked },
       message: updated.blocked ? "User blocked successfully" : "User unblocked successfully",
     };
   }

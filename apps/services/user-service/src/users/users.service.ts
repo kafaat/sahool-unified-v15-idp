@@ -491,7 +491,7 @@ export class UsersService {
     });
     if (!existing) return null;
 
-    const isCurrentlyBlocked = String(existing.status) === UserStatus.SUSPENDED;
+    const isCurrentlyBlocked = existing.status === UserStatus.SUSPENDED;
     const newStatus = isCurrentlyBlocked ? UserStatus.ACTIVE : UserStatus.SUSPENDED;
 
     const updated = await this.prisma.user.update({

@@ -647,9 +647,8 @@ async def get_gpu_info(
 # shared-types contracts package:
 #   MODEL_INFO   = /api/v1/vision/models/{variant}/info
 #   MODELS_WARMUP = /api/v1/vision/models/warmup
-# The models router is mounted without a /vision prefix in main.py, so we
-# expose these under the /api/v1/models/ tree.  Kong's vision base-route
-# (/api/v1/vision → strip_path:true) transparently proxies them.
+# The models router prefix was updated to /api/v1/vision/models so Kong can
+# forward requests with strip_path: false directly to the service.
 # ---------------------------------------------------------------------------
 
 

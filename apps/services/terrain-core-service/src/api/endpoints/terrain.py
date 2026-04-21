@@ -749,12 +749,14 @@ async def get_dem_base(
             dem_processor=dem_processor,
             current_user=current_user,
         )
-    # Without a field_id return the list of available DEM sources
-    return {
-        "message": "Digital Elevation Model endpoint. Provide ?field_id=<uuid> or use /terrain/dem/{fieldId}.",
-        "message_ar": "نقطة نهاية نموذج الارتفاع الرقمي. أضف ?field_id=<uuid> أو استخدم /terrain/dem/{fieldId}.",
-        "available_sources": [s.value for s in DEMSourceType],
-    }
+    raise HTTPException(
+        status_code=400,
+        detail={
+            "error": "field_id query parameter is required",
+            "error_ar": "معامل field_id مطلوب",
+            "hint": "Use ?field_id=<uuid> or /terrain/dem/{fieldId}",
+        },
+    )
 
 
 @router.get(
@@ -784,11 +786,14 @@ async def get_slope_base(
             terrain_calculator=terrain_calculator,
             current_user=current_user,
         )
-    return {
-        "message": "Slope analysis endpoint. Provide ?field_id=<uuid> or use /terrain/slope/{fieldId}.",
-        "message_ar": "نقطة نهاية تحليل الميل. أضف ?field_id=<uuid> أو استخدم /terrain/slope/{fieldId}.",
-        "slope_units": [u.value for u in SlopeUnit],
-    }
+    raise HTTPException(
+        status_code=400,
+        detail={
+            "error": "field_id query parameter is required",
+            "error_ar": "معامل field_id مطلوب",
+            "hint": "Use ?field_id=<uuid> or /terrain/slope/{fieldId}",
+        },
+    )
 
 
 @router.get(

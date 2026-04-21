@@ -53,12 +53,10 @@ export class DisasterDeprecatedController {
   ) {}
 
   private tenantId(req: any): string {
-    return (
-      req.user?.tenantId ||
-      req.tenantId ||
-      req.headers["x-tenant-id"] ||
-      "unassigned"
-    );
+    // Use ONLY JWT-bound tenant (set by JwtAuthGuard via strategy.validate).
+    // Header fallback removed: `x-tenant-id` is attacker-controlled and
+    // would let an authenticated user of tenant A read tenant B's data.
+    return req.user?.tenantId || req.tenantId || "unassigned";
   }
 
   // ─────────────────────────────────────────────────────────────────────────

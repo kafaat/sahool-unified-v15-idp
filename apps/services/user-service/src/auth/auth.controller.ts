@@ -490,8 +490,10 @@ export class AuthController {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.warn(`Password reset attempt from IP: ${ip}`);
 
-    // Tenant context from request body or x-tenant-id header
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    // Tenant context from request body only. Header fallback removed:
+    // this is an unauthenticated route, so `x-tenant-id` is attacker-
+    // controlled and must not scope a password reset.
+    const tenantId = dto.tenantId || undefined;
     return this.authService.resetPassword(dto.token, dto.newPassword, tenantId, {
       ipAddress: ip,
     });
@@ -534,8 +536,8 @@ export class AuthController {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP send request from IP: ${ip}`);
 
-    // Tenant context from request body or x-tenant-id header
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    // Tenant context from request body only (unauthenticated route).
+    const tenantId = dto.tenantId || undefined;
     return this.authService.sendOtp(dto, tenantId);
   }
 
@@ -580,8 +582,8 @@ export class AuthController {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP verification attempt from IP: ${ip}`);
 
-    // Tenant context from request body or x-tenant-id header
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    // Tenant context from request body only (unauthenticated route).
+    const tenantId = dto.tenantId || undefined;
     return this.authService.verifyOtp(dto, tenantId);
   }
 
@@ -778,7 +780,7 @@ export class AuthController {
   @ApiResponse({ status: 400, description: "Invalid request parameters" })
   @ApiResponse({ status: 429, description: "Too many resend attempts" })
   async resendOtp(@Body() dto: SendOtpRequestDto, @Req() request: AuthenticatedRequest) {
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    const tenantId = dto.tenantId || undefined;
     return this.authService.sendOtp(dto, tenantId);
   }
 

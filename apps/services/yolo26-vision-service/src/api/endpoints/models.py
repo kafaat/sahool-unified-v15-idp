@@ -679,10 +679,10 @@ async def get_variant_info(
 
     # Static variant metadata
     variant_meta: dict[str, Any] = {
-        "n": {"params_m": 3.2,  "vram_mb": 512,  "latency_ms": 2.2,  "map50": 0.78},
-        "s": {"params_m": 11.2, "vram_mb": 1024, "latency_ms": 3.6,  "map50": 0.84},
-        "m": {"params_m": 25.9, "vram_mb": 2048, "latency_ms": 5.5,  "map50": 0.88},
-        "l": {"params_m": 43.7, "vram_mb": 3072, "latency_ms": 8.3,  "map50": 0.91},
+        "n": {"params_m": 3.2, "vram_mb": 512, "latency_ms": 2.2, "map50": 0.78},
+        "s": {"params_m": 11.2, "vram_mb": 1024, "latency_ms": 3.6, "map50": 0.84},
+        "m": {"params_m": 25.9, "vram_mb": 2048, "latency_ms": 5.5, "map50": 0.88},
+        "l": {"params_m": 43.7, "vram_mb": 3072, "latency_ms": 8.3, "map50": 0.91},
         "x": {"params_m": 68.2, "vram_mb": 4096, "latency_ms": 12.5, "map50": 0.93},
     }[variant]
 
@@ -693,11 +693,7 @@ async def get_variant_info(
         active_versions[task.value] = active.version if active else None
 
     loaded_keys = manager.get_loaded_models()
-    loaded_tasks = [
-        k.rsplit("_", 1)[0]
-        for k in loaded_keys
-        if k.endswith(f"_{variant}")
-    ]
+    loaded_tasks = [k.rsplit("_", 1)[0] for k in loaded_keys if k.endswith(f"_{variant}")]
 
     return {
         "variant": variant,

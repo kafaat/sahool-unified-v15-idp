@@ -649,9 +649,7 @@ class EventSubscriber:
                     _redis_hit = False
                     if self._dedup_redis is not None:
                         try:
-                            _redis_hit = bool(
-                                await self._dedup_redis.exists(f"{self._dedup_redis_prefix}{eid}")
-                            )
+                            _redis_hit = bool(await self._dedup_redis.exists(f"{self._dedup_redis_prefix}{eid}"))
                         except Exception as _re:
                             logger.debug("dedup_redis_check_failed", error=str(_re))
                     # Fall back to local in-memory cache

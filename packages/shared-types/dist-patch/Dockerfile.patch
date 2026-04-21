@@ -1,2 +1,9 @@
-FROM sahool-partner-auth-service
+# `sahool-partner-auth-service` is a LOCAL image built earlier in the
+# docker-compose graph, not a DockerHub reference — there is no semantic
+# version to pin. `:latest` is the canonical tag for local builds. The
+# inline hadolint directive below silences DL3006 (missing tag) AND
+# DL3007 (latest considered harmful) together, both of which only make
+# sense for remote registry images.
+# hadolint ignore=DL3006,DL3007
+FROM sahool-partner-auth-service:latest
 COPY contracts/service-ports.js /app/packages/shared-types/dist/contracts/service-ports.js

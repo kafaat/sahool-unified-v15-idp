@@ -76,6 +76,26 @@ interface OrderCompletedEvent extends BaseEvent {
   };
 }
 
+/**
+ * `sahool.marketplace.order.delivered` — published by
+ * `OrderDeliverySubscriber` after the delivery-service's
+ * `sahool.delivery.completed` event is consumed AND the Order row's
+ * status has been transitioned to DELIVERED. This is the event
+ * downstream consumers (review verifier, loyalty, returns window,
+ * fulfillment analytics) should subscribe to — they must NOT
+ * subscribe to `sahool.delivery.completed` directly, because that
+ * event fires BEFORE the marketplace has reconciled its state.
+ */
+interface OrderDeliveredEvent extends BaseEvent {
+  eventType: "sahool.marketplace.order.delivered";
+  payload: {
+    tenantId: string;
+    orderId: string;
+    buyerId: string;
+    deliveredAt: Date;
+  };
+}
+
 interface OrderCancelledEvent extends BaseEvent {
   eventType: "sahool.marketplace.order.cancelled";
   payload: {
@@ -119,6 +139,7 @@ type MarketplaceEvent =
   | OrderPlacedEvent
   | OrderCompletedEvent
   | OrderCancelledEvent
+  | OrderDeliveredEvent
   | InventoryLowStockEvent
   | InventoryMovementEvent;
 
@@ -130,6 +151,7 @@ const EventSubjects = {
   ORDER_CREATED: "sahool.marketplace.order.created",
   ORDER_COMPLETED: "sahool.marketplace.order.completed",
   ORDER_CANCELLED: "sahool.marketplace.order.cancelled",
+  ORDER_DELIVERED: "sahool.marketplace.order.delivered",
   INVENTORY_LOW_STOCK: "sahool.marketplace.inventory.low_stock",
   INVENTORY_MOVEMENT: "sahool.marketplace.inventory.movement",
 
@@ -203,18 +225,12 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
 
     const queueGroup = "marketplace-service";
 
-    // Listen for order completion events from delivery/fulfillment
-    await this.subscribe(
-      "sahool.delivery.completed",
-      async (event) => {
-        const payload = event.payload as Record<string, unknown>;
-        this.logger.log(`Processing delivery.completed event`, { orderId: payload?.orderId });
-        // TODO: Update order status to DELIVERED when delivery is confirmed
-        // TODO: Trigger buyer notification via notification-service
-        // TODO: Auto-release escrow after delivery confirmation period
-      },
-      { queue: queueGroup },
-    );
+    // `sahool.delivery.completed` is consumed by
+    // `OrderDeliverySubscriber` (src/orders/order-delivery.subscriber.ts)
+    // — it owns the DB write that flips Order.status → DELIVERED and
+    // re-publishes `sahool.marketplace.order.delivered`. Keeping the
+    // subscription there (with Prisma injected) avoids double-handling
+    // and keeps the review-verification flow single-sourced.
 
     // Listen for inventory restock events
     await this.subscribe(
@@ -593,6 +609,37 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
 
     await this.publishEvent<OrderCompletedEvent>(
       EventSubjects.ORDER_COMPLETED,
+      orderData,
+    );
+  }
+
+  /**
+   * Publish `sahool.marketplace.order.delivered` after the Order row
+   * has been transitioned to status=DELIVERED. Called by
+   * `OrderDeliverySubscriber` as the last step of the
+   * delivery.completed → order.delivered chain — must NOT be
+   * called on the optimistic path (i.e. before the DB write has
+   * committed), because subscribers (review verifier, loyalty,
+   * returns window) assume the order is observably DELIVERED when
+   * this event fires.
+   */
+  async publishOrderDelivered(orderData: {
+    tenantId: string;
+    orderId: string;
+    buyerId: string;
+    deliveredAt: Date;
+  }): Promise<void> {
+    if (!orderData.tenantId) {
+      throw new Error("publishOrderDelivered: tenantId required in payload");
+    }
+
+    this.logger.log(`Publishing order.delivered event`, {
+      orderId: this.sanitizeForLog(orderData.orderId),
+      tenantId: this.sanitizeForLog(orderData.tenantId),
+    });
+
+    await this.publishEvent<OrderDeliveredEvent>(
+      EventSubjects.ORDER_DELIVERED,
       orderData,
     );
   }

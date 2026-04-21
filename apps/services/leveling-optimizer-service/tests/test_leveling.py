@@ -408,3 +408,64 @@ class TestBilingualOutput:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestDesignPlaneFormulas:
+    """Regression tests for the ``/analyze`` design-plane formulas.
+
+    These assert the two formulas that were wrong on ``main`` until this fix:
+    ``centroid_elevation`` must be ``a·x̄ + b·ȳ + c`` (design-plane Z at the
+    field centroid), and ``leveled_elevation_range`` must be
+    ``|a|·ΔX + |b|·ΔY`` (the Z span across the field extent).
+    """
+
+    def test_analyze_centroid_elevation_matches_plane_at_centroid(
+        self, client, sample_elevation_data, auth_headers
+    ):
+        """centroid_elevation must equal a·x̄ + b·ȳ + c, not plane.c alone."""
+        response = client.post(
+            "/api/v1/leveling/analyze",
+            json={
+                "field_id": "FIELD-CENTROID-TEST",
+                "elevation_points": sample_elevation_data,
+                "method": "single_plane",
+                "priority": "minimize_earthwork",
+            },
+            headers=auth_headers,
+        )
+        assert response.status_code == 200, response.text
+        design_plane = response.json()["plan"]["design_plane"]
+        a = design_plane["coefficient_a"]
+        b = design_plane["coefficient_b"]
+        c = design_plane["coefficient_c"]
+
+        x_c = sum(p["x"] for p in sample_elevation_data) / len(sample_elevation_data)
+        y_c = sum(p["y"] for p in sample_elevation_data) / len(sample_elevation_data)
+        expected = a * x_c + b * y_c + c
+
+        assert design_plane["centroid_elevation"] == pytest.approx(expected, abs=1e-3)
+
+    def test_analyze_leveled_elevation_range_uses_both_axes(
+        self, client, sample_elevation_data, auth_headers
+    ):
+        """leveled_elevation_range must be |a|·ΔX + |b|·ΔY (not max of grades · max x)."""
+        response = client.post(
+            "/api/v1/leveling/analyze",
+            json={
+                "field_id": "FIELD-RANGE-TEST",
+                "elevation_points": sample_elevation_data,
+                "method": "single_plane",
+                "priority": "minimize_earthwork",
+            },
+            headers=auth_headers,
+        )
+        assert response.status_code == 200, response.text
+        body = response.json()["plan"]
+        a = body["design_plane"]["coefficient_a"]
+        b = body["design_plane"]["coefficient_b"]
+
+        xs = [p["x"] for p in sample_elevation_data]
+        ys = [p["y"] for p in sample_elevation_data]
+        expected = abs(a) * (max(xs) - min(xs)) + abs(b) * (max(ys) - min(ys))
+
+        assert body["leveled_elevation_range"] == pytest.approx(expected, abs=1e-3)

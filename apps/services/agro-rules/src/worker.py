@@ -6,6 +6,7 @@ Event-driven worker that generates tasks from NDVI/Weather events
 import asyncio
 import json
 import logging
+import math
 import os
 
 from nats.aio.client import Client as NATS
@@ -49,9 +50,15 @@ def _safe_float(value, default: float = 0.0) -> float:
     if value is None or value == "":
         return default
     try:
-        return float(value)
+        result = float(value)
     except (TypeError, ValueError):
         return default
+    # Reject NaN/Infinity — downstream comparisons like ``confidence < 0.5``
+    # silently evaluate to ``False`` for NaN, so a poisoned payload could
+    # create tasks with garbage confidence values.
+    if not math.isfinite(result):
+        return default
+    return result
 
 
 class AgroRulesWorker:

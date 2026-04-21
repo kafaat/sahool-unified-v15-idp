@@ -35,9 +35,18 @@ export default function AdminDashboardError({
           عذراً، حدث خطأ أثناء تحميل هذه الصفحة. يمكنك المحاولة مرة أخرى أو العودة إلى الصفحة
           الرئيسية.
         </p>
-        {error.message && (
+        {/*
+          Intentionally do NOT render `error.message`: in production builds it
+          can contain internal paths, module names, or stack fragments, which
+          leaks implementation detail to end users. The `digest` is a stable
+          hash produced by Next.js that operators can correlate with server
+          logs without exposing the raw error string.
+        */}
+        {error.digest && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6 text-left">
-            <p className="text-xs text-red-800 font-mono break-words">{error.message}</p>
+            <p className="text-xs text-red-800 font-mono break-words">
+              Error ID: {error.digest}
+            </p>
           </div>
         )}
         <div className="flex flex-col sm:flex-row gap-3">

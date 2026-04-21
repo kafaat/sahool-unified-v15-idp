@@ -33,9 +33,9 @@ export default function Error({
         <p className="text-sm text-gray-500 mb-6">
           Sorry, an unexpected error occurred. Please try again.
         </p>
-        {error.message && (
+        {error.digest && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-6 text-left">
-            <p className="text-xs text-red-800 font-mono">{error.message}</p>
+            <p className="text-xs text-red-800 font-mono">Error ID: {error.digest}</p>
           </div>
         )}
         <button

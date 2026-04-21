@@ -25,6 +25,9 @@ concurrency:
   group: pre-deploy-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   validate-no-placeholders:
     name: Check for deployment placeholders

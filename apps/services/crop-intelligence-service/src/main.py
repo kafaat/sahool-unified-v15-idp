@@ -31,14 +31,26 @@ from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 # Prometheus counters/gauges/histograms for disease/pest/NDVI/crop-health
 # events. The import is wrapped so that a missing prometheus_client
 # dependency (e.g., in slim CI test runs) leaves recording as a no-op.
+# We catch ImportError only — any *other* exception from
+# ``get_agricultural_metrics()`` indicates a real misconfiguration and
+# must not be silently swallowed.
 try:
     from shared.monitoring.agricultural_metrics import get_agricultural_metrics
-
-    _agri_metrics = get_agricultural_metrics()
-    AGRI_METRICS_AVAILABLE = True
-except Exception:  # pragma: no cover — defensive, metrics are optional
+except ImportError:  # pragma: no cover — metrics deps not installed
     _agri_metrics = None
     AGRI_METRICS_AVAILABLE = False
+else:
+    try:
+        _agri_metrics = get_agricultural_metrics()
+        AGRI_METRICS_AVAILABLE = True
+    except Exception:  # pragma: no cover — defensive, but surface in logs
+        import logging as _agri_logging
+
+        _agri_logging.getLogger(__name__).exception(
+            "Failed to initialise agricultural metrics; continuing without them"
+        )
+        _agri_metrics = None
+        AGRI_METRICS_AVAILABLE = False
 
 # Authentication imports - مصادقة JWT
 try:

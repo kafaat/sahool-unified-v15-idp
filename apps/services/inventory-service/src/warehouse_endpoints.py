@@ -15,10 +15,13 @@ available even when Prisma isn't generated in the image.
 
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 try:
     from shared.auth.dependencies import get_current_user
@@ -182,7 +185,25 @@ async def approve_transfer(
             tenant_id=tenant_id,
         )
     except Exception as e:  # Prisma RecordNotFound etc.
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+        # Do NOT leak internal error details (Prisma messages can include
+        # schema/column names — OWASP A04:2021 Insecure Design). Log the
+        # full exception server-side and return a generic, bilingual error.
+        logger.warning(
+            "approve_transfer failed",
+            extra={
+                "transfer_id": transfer_id,
+                "tenant_id": tenant_id,
+                "error_type": type(e).__name__,
+            },
+            exc_info=True,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": "Transfer not found or cannot be approved",
+                "errorAr": "طلب النقل غير موجود أو لا يمكن الموافقة عليه",
+            },
+        ) from e
 
 
 @router.post("/transfers/{transfer_id}/complete")
@@ -201,4 +222,21 @@ async def complete_transfer(
             tenant_id=tenant_id,
         )
     except Exception as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+        # See note in ``approve_transfer`` — never echo the Prisma/ORM
+        # error string back to the client.
+        logger.warning(
+            "complete_transfer failed",
+            extra={
+                "transfer_id": transfer_id,
+                "tenant_id": tenant_id,
+                "error_type": type(e).__name__,
+            },
+            exc_info=True,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": "Transfer not found or cannot be completed",
+                "errorAr": "طلب النقل غير موجود أو لا يمكن إكماله",
+            },
+        ) from e

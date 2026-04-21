@@ -74,13 +74,15 @@ try:
 except ImportError:
     HAS_PROMETHEUS = False
 
-# Agricultural domain metrics (PR7)
+# Agricultural domain metrics (PR7) — tolerate missing optional dependency,
+# not bugs in the module itself. Narrow to ImportError so genuine errors
+# (AttributeError, syntax errors on reload, etc.) fail loud during startup.
 try:
     from shared.monitoring.agricultural_metrics import get_agricultural_metrics as _get_agri_metrics
 
     _AGRI_METRICS = _get_agri_metrics()
     HAS_AGRI_METRICS = True
-except Exception:
+except ImportError:
     _AGRI_METRICS = None
     HAS_AGRI_METRICS = False
 

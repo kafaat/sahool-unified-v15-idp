@@ -373,7 +373,12 @@ export class AuthService {
     // Generate new family if not provided (initial login)
     const tokenFamily = family || uuidv4();
 
-    // Access token payload
+    // Access token payload.
+    // NOTE: `family` is carried on the access token too so that a single-
+    // device logout can invalidate the matching refresh-token family. The
+    // family id is a UUID with no standalone authority — possession of it
+    // does not let an attacker mint tokens — so exposing it inside the
+    // signed JWT is safe. See `logout()` for the revocation path.
     const accessPayload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -381,6 +386,7 @@ export class AuthService {
       tid: user.tenantId,
       jti: accessJti,
       type: "access",
+      family: tokenFamily,
     };
 
     // Refresh token payload
@@ -444,8 +450,22 @@ export class AuthService {
    */
   async logout(token: string, userId: string): Promise<void> {
     try {
-      // Decode token to get JTI and expiration
-      const payload = this.jwtService.decode(token) as JwtPayload;
+      // Defense-in-depth: verify the token signature here even though the
+      // controller's JwtAuthGuard already did. `decode()` trusts whatever
+      // is in the base64 body; if routing is ever misconfigured and the
+      // guard is dropped, a forged token could otherwise revoke an
+      // arbitrary JTI. `verify()` throws on bad signature/issuer/audience.
+      let payload: JwtPayload;
+      try {
+        payload = this.jwtService.verify(token, {
+          secret: JWTConfig.SECRET,
+          issuer: JWTConfig.ISSUER,
+          audience: JWTConfig.AUDIENCE,
+        }) as JwtPayload;
+      } catch {
+        this.logger.warn("Logout attempt with token that failed verification");
+        throw new UnauthorizedException("Invalid token");
+      }
 
       if (!payload || !payload.jti) {
         this.logger.warn("Logout attempt with invalid token (no JTI)");
@@ -459,7 +479,7 @@ export class AuthService {
         ttl = expiresIn > 0 ? expiresIn : 60; // Minimum 60 seconds
       }
 
-      // Revoke token in Redis
+      // Revoke access-token JTI in Redis
       const success = await this.revocationStore.revokeToken(payload.jti, {
         expiresIn: ttl,
         reason: "user_logout",
@@ -468,6 +488,30 @@ export class AuthService {
       });
 
       if (success) {
+        // Single-device logout must also invalidate the paired refresh-token
+        // family, otherwise the refresh token survives for its full TTL
+        // (up to 7 days) and `/auth/refresh` can keep minting fresh access
+        // tokens after the user thought they logged out. Best-effort: a
+        // failure here is logged but does not undo the access-token
+        // revocation above.
+        if (payload.family) {
+          try {
+            await this.invalidateTokenFamily(payload.family);
+          } catch (familyErr) {
+            const msg = familyErr instanceof Error ? familyErr.message : String(familyErr);
+            this.logger.warn(
+              `Logout: refresh-family revocation failed (access token still revoked): family=${payload.family.substring(0, 8)}..., err=${msg}`,
+            );
+          }
+        } else {
+          // Pre-fix access tokens (issued before `family` was added to the
+          // access payload) land here. Log so the gap is observable while
+          // the old tokens drain out of the system.
+          this.logger.warn(
+            `Logout: access token has no 'family' claim — refresh family not revoked for user=${userId}`,
+          );
+        }
+
         this.logger.log(
           `User logged out successfully: ${userId} (jti: ${payload.jti.substring(0, 8)}...)`,
         );
@@ -514,7 +558,20 @@ export class AuthService {
       );
 
       if (success) {
-        this.logger.log(`User logged out from all devices: ${userId}`);
+        // Redis stores a user-level revocation marker keyed by `userId`
+        // which the JwtStrategy consults on every request, but refresh
+        // tokens are validated against the DB (`tokenRecord.revoked`) in
+        // `refreshToken()`. Mirror the revocation into the DB so a Redis
+        // flush, key eviction, or TTL expiry cannot silently restore
+        // previously-killed sessions. updateMany returns count for the log.
+        const dbRevoke = await this.prisma.refreshToken.updateMany({
+          where: { userId, revoked: false },
+          data: { revoked: true },
+        });
+
+        this.logger.log(
+          `User logged out from all devices: ${userId} (db_rows_revoked=${dbRevoke.count})`,
+        );
         if (tenantId) {
           this.fireAndForget(this.userEvents?.publishUserLoggedOutAll({
             tenantId,

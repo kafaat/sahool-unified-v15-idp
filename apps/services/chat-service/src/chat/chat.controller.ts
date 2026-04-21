@@ -37,6 +37,26 @@ export class ChatController {
   constructor(private readonly chatService: ChatService) {}
 
   /**
+   * Extract the JWT-bound tenant id from the authenticated request.
+   *
+   * Previously each handler resolved tenant as
+   *   `req.user?.tenantId || req.headers['x-tenant-id']`
+   * which let an authenticated caller of tenant A read/write tenant B's
+   * conversations by setting the header whenever the JWT tenant claim
+   * was missing. The header fallback is removed: with `JwtAuthGuard`
+   * mounted on every route, `req.user.tenantId` must be present, and
+   * requests without it are rejected as 401 rather than silently
+   * accepting an attacker-controlled value.
+   */
+  private requireTenantId(req: any): string {
+    const tenantId = req.user?.tenantId;
+    if (!tenantId) {
+      throw new UnauthorizedException("Missing tenant context in token");
+    }
+    return tenantId;
+  }
+
+  /**
    * Verify user is a participant in the conversation
    */
   private async verifyConversationAccess(
@@ -95,7 +115,7 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     // Security: Ensure the authenticated user is one of the participants
     if (!createConversationDto.participantIds.includes(userId)) {
       throw new UnauthorizedException(
@@ -125,7 +145,7 @@ export class ChatController {
     description: "Unauthorized - Valid JWT token required",
   })
   async getUserConversations(@UserId() userId: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     return this.chatService.getUserConversations(userId, tenantId);
   }
 
@@ -158,7 +178,7 @@ export class ChatController {
     description: "Conversation not found",
   })
   async getConversation(@Param("id") id: string, @UserId() userId: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     await this.verifyConversationAccess(id, userId, tenantId);
     return this.chatService.getConversationById(id, tenantId);
   }
@@ -206,7 +226,7 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     await this.verifyConversationAccess(conversationId, userId, tenantId);
     return this.chatService.getMessages(
       conversationId,
@@ -249,7 +269,7 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     // Ensure the senderId matches the authenticated user
     sendMessageDto.senderId = userId;
     return this.chatService.sendMessage(sendMessageDto, tenantId);
@@ -285,7 +305,7 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     return this.chatService.markMessageAsRead(messageId, userId, tenantId);
   }
 
@@ -319,7 +339,7 @@ export class ChatController {
     @UserId() userId: string,
     @Req() req: any,
   ) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     await this.verifyConversationAccess(conversationId, userId, tenantId);
     return this.chatService.markConversationAsRead(conversationId, userId, tenantId);
   }
@@ -344,7 +364,7 @@ export class ChatController {
     description: "Unauthorized - Valid JWT token required",
   })
   async getUnreadCount(@UserId() userId: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.headers['x-tenant-id'];
+    const tenantId = this.requireTenantId(req);
     const count = await this.chatService.getUnreadCount(userId, tenantId);
     return { userId, unreadCount: count };
   }

@@ -925,8 +925,6 @@ describe('4. Deprecated Path Detection | كشف المسارات المهملة'
   // ── 4.1 Web app — no hardcoded deprecated paths ───────────────────────
   describe('4.1 Web App Deprecated Path Scan | فحص مسارات الويب المهملة', () => {
     for (const depPath of DEPRECATED_PATHS) {
-      const label = depPath.replace('/api/v1/', '').replace(/\/$/, '');
-
       it(`should not hardcode ${depPath} in web app production source`, () => {
         if (!dirExists(WEB_SRC)) return; // skip if web src doesn't exist
         // Exclude test files — they're allowed to reference deprecated paths for migration assertions
@@ -951,8 +949,6 @@ describe('4. Deprecated Path Detection | كشف المسارات المهملة'
   // ── 4.2 Admin app — no hardcoded deprecated paths ─────────────────────
   describe('4.2 Admin App Deprecated Path Scan | فحص مسارات لوحة الإدارة المهملة', () => {
     for (const depPath of DEPRECATED_PATHS) {
-      const label = depPath.replace('/api/v1/', '').replace(/\/$/, '');
-
       it(`should not hardcode ${depPath} in admin app production source`, () => {
         if (!dirExists(ADMIN_SRC)) return;
         const tsFiles = collectFiles(ADMIN_SRC, '.ts', 6, { skipTests: true }).concat(

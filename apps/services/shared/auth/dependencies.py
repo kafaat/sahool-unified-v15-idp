@@ -3,6 +3,7 @@ FastAPI Authentication Dependencies
 اعتماديات المصادقة لـ FastAPI
 """
 
+import hmac
 import logging
 from collections.abc import Callable
 
@@ -240,7 +241,16 @@ async def api_key_auth(
 
     config = get_auth_config()
 
-    if api_key not in config.api_keys:
+    # Constant-time comparison to prevent timing attacks on API key validation.
+    # Using ``in`` on a list leaks timing information about how many keys
+    # were compared before a match/mismatch.
+    is_valid = False
+    for valid_key in config.api_keys:
+        if hmac.compare_digest(api_key, valid_key):
+            is_valid = True
+            # Do not break early: continue to keep timing uniform across
+            # the full list regardless of match position.
+    if not is_valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid API key",

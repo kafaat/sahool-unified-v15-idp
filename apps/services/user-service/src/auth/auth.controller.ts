@@ -422,7 +422,10 @@ export class AuthController {
    */
   @Post("forgot-password")
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute to prevent abuse
+  // Strict limit (1 per 5 min per IP): the endpoint triggers outbound email
+  // delivery and always 200s to avoid enumeration, so without a tight limit
+  // an attacker can email-bomb a victim's inbox with reset links.
+  @Throttle({ default: { limit: 1, ttl: 300000 } })
   @ApiOperation({
     summary: "Request password reset",
     description:
@@ -487,8 +490,10 @@ export class AuthController {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.warn(`Password reset attempt from IP: ${ip}`);
 
-    // Tenant context from request body or x-tenant-id header
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    // Tenant context from request body only. Header fallback removed:
+    // this is an unauthenticated route, so `x-tenant-id` is attacker-
+    // controlled and must not scope a password reset.
+    const tenantId = dto.tenantId || undefined;
     return this.authService.resetPassword(dto.token, dto.newPassword, tenantId, {
       ipAddress: ip,
     });
@@ -531,8 +536,8 @@ export class AuthController {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP send request from IP: ${ip}`);
 
-    // Tenant context from request body or x-tenant-id header
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    // Tenant context from request body only (unauthenticated route).
+    const tenantId = dto.tenantId || undefined;
     return this.authService.sendOtp(dto, tenantId);
   }
 
@@ -577,8 +582,8 @@ export class AuthController {
     const ip = request.ip || request.socket.remoteAddress;
     this.logger.log(`OTP verification attempt from IP: ${ip}`);
 
-    // Tenant context from request body or x-tenant-id header
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+    // Tenant context from request body only (unauthenticated route).
+    const tenantId = dto.tenantId || undefined;
     return this.authService.verifyOtp(dto, tenantId);
   }
 
@@ -694,7 +699,7 @@ export class AuthController {
    */
   @Post("refresh")
   @HttpCode(HttpStatus.OK)
-  @Throttle({ default: { limit: 10, ttl: 60000 } }) // 10 requests per minute
+  @Throttle({ default: { limit: 3, ttl: 60000 } }) // 3 requests per minute — refresh is sensitive; stolen tokens must not enable sustained token-minting
   @ApiOperation({
     summary: "Refresh access token with rotation",
     description:
@@ -774,8 +779,12 @@ export class AuthController {
   @ApiResponse({ status: 200, description: "OTP resent successfully" })
   @ApiResponse({ status: 400, description: "Invalid request parameters" })
   @ApiResponse({ status: 429, description: "Too many resend attempts" })
-  async resendOtp(@Body() dto: SendOtpRequestDto, @Req() request: AuthenticatedRequest) {
-    const tenantId = dto.tenantId || (request.headers["x-tenant-id"] as string) || undefined;
+  async resendOtp(@Body() dto: SendOtpRequestDto, @Req() _request: AuthenticatedRequest) {
+    // Tenant context from request body only. Header fallback removed:
+    // this is an unauthenticated route, so `x-tenant-id` is attacker-
+    // controlled and must not scope OTP delivery (matches sibling
+    // `resetPassword` hardening).
+    const tenantId = dto.tenantId || undefined;
     return this.authService.sendOtp(dto, tenantId);
   }
 

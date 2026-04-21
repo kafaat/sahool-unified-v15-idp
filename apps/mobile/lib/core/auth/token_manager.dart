@@ -423,13 +423,33 @@ class TokenManager {
     return timeUntil.isNegative ? Duration.zero : timeUntil;
   }
 
-  /// Logout and clear all tokens
+  /// Logout and clear all tokens.
+  ///
+  /// Best-effort server-side revocation is attempted BEFORE local clearance
+  /// so that the refresh token is invalidated on the backend (blacklisted in
+  /// Redis and its family marked revoked in the DB). If the server call fails
+  /// — offline, 401, 5xx — we still clear local state: a failed revoke must
+  /// never leave a user stuck in a logged-in UI with bad credentials.
   Future<void> logout() async {
     AppLogger.i('Logging out', tag: 'TOKEN_MANAGER');
 
     // Cancel background refresh
     _backgroundRefreshTimer?.cancel();
     _backgroundRefreshTimer = null;
+
+    // Server-side revoke (best effort). The access token is already attached
+    // to the ApiClient via the auth interceptor (setAuthToken on login), so
+    // the server's JwtAuthGuard can identify the session to revoke.
+    if (_apiClient != null) {
+      try {
+        await _apiClient!.post(AuthEndpoints.logout, const <String, dynamic>{});
+      } catch (e) {
+        AppLogger.w(
+          'Server-side logout failed, proceeding with local clear',
+          tag: 'TOKEN_MANAGER',
+        );
+      }
+    }
 
     // Clear all stored data
     await _secureStorage.clearAll();

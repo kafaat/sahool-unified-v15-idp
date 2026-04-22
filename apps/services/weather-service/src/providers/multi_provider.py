@@ -15,7 +15,7 @@ credential leakage in logs (see _sanitize_error_msg helper calls below).
 import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -24,6 +24,69 @@ import httpx
 # Query parameter names that may carry API keys; used to redact URLs in error messages.
 # Stored without "=" so the literal strings don't trigger secret-scanning heuristics.
 _API_QUERY_PARAMS = ("appid", "key", "apikey")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Arabic translation of weather condition strings (shared by providers)
+# يعمل مع صيغ OpenWeatherMap القصيرة (Clear, Clouds...) ومع نصوص WeatherAPI
+# الحرة مثل "Partly cloudy", "Light rain", "Thundery outbreaks possible".
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Order matters: longer/more-specific phrases MUST come before shorter ones
+# (e.g. "thunderstorm" before "storm"; "light rain" before "rain") so that
+# the first substring match wins.
+_CONDITION_AR_RULES: tuple[tuple[str, str], ...] = (
+    # Thunderstorms / severe
+    ("thunderstorm", "عاصفة رعدية"),
+    ("thunder", "عاصفة رعدية"),
+    ("storm", "عاصفة"),
+    # Snow / ice
+    ("blizzard", "عاصفة ثلجية"),
+    ("sleet", "مطر ثلجي"),
+    ("snow", "ثلج"),
+    ("ice", "صقيع"),
+    # Rain intensities (most specific first)
+    ("heavy rain", "أمطار غزيرة"),
+    ("moderate rain", "أمطار متوسطة"),
+    ("light rain", "أمطار خفيفة"),
+    ("patchy rain", "أمطار متفرقة"),
+    ("drizzle", "رذاذ"),
+    ("shower", "زخات مطر"),
+    ("rain", "مطر"),
+    # Cloud coverage
+    ("overcast", "غائم كلياً"),
+    ("partly cloudy", "غائم جزئياً"),
+    ("mostly cloudy", "غائم في الغالب"),
+    ("cloudy", "غائم"),
+    ("clouds", "غائم"),
+    # Visibility / fog family
+    ("fog", "ضباب"),
+    ("mist", "ضباب خفيف"),
+    ("haze", "ضباب دخاني"),
+    ("smoke", "دخان"),
+    ("dust", "غبار"),
+    ("sand", "عاصفة رملية"),
+    # Clear / sunny
+    ("sunny", "مشمس"),
+    ("clear", "صافي"),
+)
+
+
+def condition_to_ar(condition: str | None) -> str:
+    """
+    Translate a provider-supplied weather condition string to Arabic.
+
+    Accepts both OpenWeatherMap-style tokens ("Clear", "Rain") and
+    WeatherAPI-style phrases ("Partly cloudy", "Light rain shower").
+    Falls back to the original string when no rule matches.
+    """
+    if not condition:
+        return "غير معروف"
+    lowered = condition.lower()
+    for needle, arabic in _CONDITION_AR_RULES:
+        if needle in lowered:
+            return arabic
+    return condition
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models
@@ -598,7 +661,7 @@ class WeatherAPIProvider(WeatherProvider):
             pressure_hpa=current.get("pressure_mb", 1013),
             uv_index=current.get("uv", 0),
             condition=current.get("condition", {}).get("text", "Unknown"),
-            condition_ar=current.get("condition", {}).get("text", "غير معروف"),
+            condition_ar=condition_to_ar(current.get("condition", {}).get("text")),
             icon=current.get("condition", {}).get("icon", ""),
             timestamp=datetime.now(UTC).isoformat(),
             provider=self.name,
@@ -635,7 +698,7 @@ class WeatherAPIProvider(WeatherProvider):
                     wind_speed_max_kmh=day_data.get("maxwind_kph", 0),
                     uv_index_max=day_data.get("uv", 0),
                     condition=day_data.get("condition", {}).get("text", "Unknown"),
-                    condition_ar=day_data.get("condition", {}).get("text", "غير معروف"),
+                    condition_ar=condition_to_ar(day_data.get("condition", {}).get("text")),
                     icon=day_data.get("condition", {}).get("icon", ""),
                     sunrise=day.get("astro", {}).get("sunrise"),
                     sunset=day.get("astro", {}).get("sunset"),
@@ -672,7 +735,7 @@ class WeatherAPIProvider(WeatherProvider):
                         wind_speed_kmh=hour.get("wind_kph", 0),
                         cloud_cover_pct=hour.get("cloud", 0),
                         condition=hour.get("condition", {}).get("text", "Unknown"),
-                        condition_ar=hour.get("condition", {}).get("text", "غير معروف"),
+                        condition_ar=condition_to_ar(hour.get("condition", {}).get("text")),
                     )
                 )
 
@@ -711,6 +774,25 @@ class MultiWeatherService:
         self._cache: dict[str, tuple] = {}
         self._cache_duration = timedelta(minutes=10)
 
+        # Optional metrics hook - populated by the host app at startup.
+        # Signature: (event, provider, from_provider=None, to_provider=None,
+        #             duration_seconds=None, status=None) -> None
+        # Kept as a loose callable so providers module stays framework-agnostic.
+        self._metrics_hook = None
+
+    def set_metrics_hook(self, hook) -> None:
+        """Register an optional metrics callback used to record provider events."""
+        self._metrics_hook = hook
+
+    def _emit_metric(self, event: str, **kwargs) -> None:
+        hook = self._metrics_hook
+        if hook is None:
+            return
+        try:
+            hook(event, **kwargs)
+        except Exception:  # pragma: no cover - metrics must never break serving
+            pass
+
     async def close(self):
         """Close all provider connections"""
         for provider in self.providers:
@@ -731,6 +813,8 @@ class MultiWeatherService:
 
     async def get_current(self, lat: float, lon: float, tenant_id: str = "") -> WeatherResult:
         """Get current weather with automatic fallback"""
+        import time as _time
+
         cache_key = f"current_{tenant_id}_{lat:.2f}_{lon:.2f}"
 
         # Check cache
@@ -738,23 +822,44 @@ class MultiWeatherService:
         if cached:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
-        failed_providers = []
+        failed_providers: list[str] = []
+        previous_provider: str | None = None
 
         for provider in self.providers:
             if not provider.is_configured:
                 continue
 
+            started = _time.monotonic()
             try:
                 data = await provider.get_current(lat, lon)
                 self._set_cached(cache_key, data)
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="success",
+                    duration_seconds=_time.monotonic() - started,
+                )
+                if previous_provider is not None:
+                    self._emit_metric(
+                        "fallback",
+                        from_provider=previous_provider,
+                        to_provider=provider.name,
+                    )
                 return WeatherResult(data=data, provider=provider.name, failed_providers=failed_providers)
             except Exception as e:
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="failure",
+                    duration_seconds=_time.monotonic() - started,
+                )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
                 # Remove any query parameters that might contain API keys
                 if any(f"{p}=" in error_msg for p in _API_QUERY_PARAMS):
                     error_msg = error_msg.split("?")[0] + " [query params redacted]"
                 failed_providers.append(f"{provider.name}: {error_msg}")
+                previous_provider = provider.name
 
         return WeatherResult(
             data=None,
@@ -766,34 +871,57 @@ class MultiWeatherService:
 
     async def get_daily_forecast(self, lat: float, lon: float, days: int = 7, tenant_id: str = "") -> WeatherResult:
         """Get daily forecast with automatic fallback"""
+        import time as _time
+
         cache_key = f"daily_{tenant_id}_{lat:.2f}_{lon:.2f}_{days}"
 
         cached = self._get_cached(cache_key)
         if cached:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
-        failed_providers = []
+        failed_providers: list[str] = []
+        previous_provider: str | None = None
 
         for provider in self.providers:
             if not provider.is_configured:
                 continue
 
+            started = _time.monotonic()
             try:
                 data = await provider.get_daily_forecast(lat, lon, days)
                 if data:
                     self._set_cached(cache_key, data)
+                    self._emit_metric(
+                        "request",
+                        provider=provider.name,
+                        status="success",
+                        duration_seconds=_time.monotonic() - started,
+                    )
+                    if previous_provider is not None:
+                        self._emit_metric(
+                            "fallback",
+                            from_provider=previous_provider,
+                            to_provider=provider.name,
+                        )
                     return WeatherResult(
                         data=data,
                         provider=provider.name,
                         failed_providers=failed_providers,
                     )
             except Exception as e:
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="failure",
+                    duration_seconds=_time.monotonic() - started,
+                )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
                 # Remove any query parameters that might contain API keys
                 if any(f"{p}=" in error_msg for p in _API_QUERY_PARAMS):
                     error_msg = error_msg.split("?")[0] + " [query params redacted]"
                 failed_providers.append(f"{provider.name}: {error_msg}")
+                previous_provider = provider.name
 
         return WeatherResult(
             data=None,
@@ -805,34 +933,57 @@ class MultiWeatherService:
 
     async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24, tenant_id: str = "") -> WeatherResult:
         """Get hourly forecast with automatic fallback"""
+        import time as _time
+
         cache_key = f"hourly_{tenant_id}_{lat:.2f}_{lon:.2f}_{hours}"
 
         cached = self._get_cached(cache_key)
         if cached:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
-        failed_providers = []
+        failed_providers: list[str] = []
+        previous_provider: str | None = None
 
         for provider in self.providers:
             if not provider.is_configured:
                 continue
 
+            started = _time.monotonic()
             try:
                 data = await provider.get_hourly_forecast(lat, lon, hours)
                 if data:
                     self._set_cached(cache_key, data)
+                    self._emit_metric(
+                        "request",
+                        provider=provider.name,
+                        status="success",
+                        duration_seconds=_time.monotonic() - started,
+                    )
+                    if previous_provider is not None:
+                        self._emit_metric(
+                            "fallback",
+                            from_provider=previous_provider,
+                            to_provider=provider.name,
+                        )
                     return WeatherResult(
                         data=data,
                         provider=provider.name,
                         failed_providers=failed_providers,
                     )
             except Exception as e:
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="failure",
+                    duration_seconds=_time.monotonic() - started,
+                )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
                 # Remove any query parameters that might contain API keys
                 if any(f"{p}=" in error_msg for p in _API_QUERY_PARAMS):
                     error_msg = error_msg.split("?")[0] + " [query params redacted]"
                 failed_providers.append(f"{provider.name}: {error_msg}")
+                previous_provider = provider.name
 
         return WeatherResult(
             data=None,

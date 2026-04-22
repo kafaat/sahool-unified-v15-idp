@@ -23,7 +23,6 @@ Unified agricultural weather service providing weather data, risk assessment, fo
 - Current conditions (الأحوال الحالية)
 - Hourly forecast (48 hours) (توقعات كل ساعة)
 - Daily forecast (7-14 days) (توقعات يومية)
-- Historical data (بيانات تاريخية)
 
 ### Risk Assessment | تقييم المخاطر
 
@@ -59,12 +58,12 @@ Unified agricultural weather service providing weather data, risk assessment, fo
 - `POST /weather/assess` - Agricultural risk assessment
 - `POST /weather/irrigation` - Irrigation recommendations
 
-### Yemen Locations (New)
+### Yemen Locations
 
-- `GET /v1/locations` - List all Yemen governorates
+- `GET /v1/locations` - List all Yemen governorates (optional `?region=` filter: `highland`, `coastal`, `desert`, `island`)
 - `GET /v1/current/{location_id}` - Current weather by location
-- `GET /v1/forecast/{location_id}` - Forecast by location
-- `GET /v1/alerts/{location_id}` - Weather alerts
+- `GET /v1/forecast/{location_id}` - Forecast by location (optional `?days=N`, max 16)
+- `GET /v1/alerts/{location_id}` - Current-condition-driven weather alerts
 
 ### Quick Checks
 
@@ -73,14 +72,16 @@ Unified agricultural weather service providing weather data, risk assessment, fo
 
 ## Environment Variables
 
-| Variable                 | Default | Description                    |
-| ------------------------ | ------- | ------------------------------ |
-| `PORT`                   | 8092    | Service port                   |
-| `USE_MOCK_WEATHER`       | false   | Use mock data for testing      |
-| `USE_MULTI_PROVIDER`     | true    | Enable multi-provider fallback |
-| `OPENWEATHERMAP_API_KEY` | -       | OpenWeatherMap API key         |
-| `WEATHERAPI_KEY`         | -       | WeatherAPI key                 |
-| `NATS_URL`               | -       | NATS server URL for events     |
+| Variable                         | Default | Description                                                                                                 |
+| -------------------------------- | ------- | ----------------------------------------------------------------------------------------------------------- |
+| `PORT`                           | 8092    | Service port                                                                                                |
+| `USE_MOCK_WEATHER`               | false   | Use mock data for testing                                                                                   |
+| `USE_MULTI_PROVIDER`             | true    | Enable multi-provider fallback                                                                              |
+| `OPENWEATHERMAP_API_KEY`         | -       | OpenWeatherMap API key                                                                                      |
+| `WEATHERAPI_KEY`                 | -       | WeatherAPI key                                                                                              |
+| `NATS_URL`                       | -       | NATS server URL for events                                                                                  |
+| `ENVIRONMENT`                    | development | Deployment environment (`development`, `staging`, `production`). The service refuses to start in `staging`/`production` unless the graph signing secret below is set to a non-default value. |
+| `WEATHER_GRAPH_SIGNING_SECRET`   | -       | HMAC secret used to sign `/api/v1/weather/graphs/{id}` URLs. **Required** in staging/production; a default development placeholder is rejected at startup. |
 
 ## Weather Providers
 

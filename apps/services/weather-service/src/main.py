@@ -180,9 +180,7 @@ async def lifespan(app: FastAPI):
 
     _environment = os.getenv("ENVIRONMENT", "development").lower()
     _graph_secret = os.getenv("WEATHER_GRAPH_SIGNING_SECRET", "")
-    if _environment in ("staging", "production") and (
-        not _graph_secret or _graph_secret == DEV_GRAPH_SIGNING_SECRET
-    ):
+    if _environment in ("staging", "production") and (not _graph_secret or _graph_secret == DEV_GRAPH_SIGNING_SECRET):
         raise RuntimeError(
             "WEATHER_GRAPH_SIGNING_SECRET must be set to a non-default value "
             f"when ENVIRONMENT={_environment!r}. Refusing to start with the "
@@ -827,9 +825,7 @@ async def get_forecast_by_location(
             forecast = result.data
             provider = result.provider
         else:
-            forecast = await app.state.weather_provider.get_daily_forecast(
-                location["lat"], location["lon"], days
-            )
+            forecast = await app.state.weather_provider.get_daily_forecast(location["lat"], location["lon"], days)
             provider = "Open-Meteo"
     except (ExternalServiceException, InternalServerException):
         raise

@@ -94,6 +94,7 @@ def condition_to_ar(condition: str | None) -> str:
             return arabic
     return condition
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -799,9 +800,7 @@ class MultiWeatherService:
         except Exception as exc:  # pragma: no cover - metrics must never break serving
             # Log at debug so a broken metrics sink doesn't spam production logs
             # but troubleshooting stays possible with LOG_LEVEL=DEBUG.
-            _logging.getLogger(__name__).debug(
-                "metrics_hook_failed", extra={"event": event, "error": str(exc)}
-            )
+            _logging.getLogger(__name__).debug("metrics_hook_failed", extra={"event": event, "error": str(exc)})
 
     async def close(self):
         """Close all provider connections"""
@@ -823,7 +822,6 @@ class MultiWeatherService:
 
     async def get_current(self, lat: float, lon: float, tenant_id: str = "") -> WeatherResult:
         """Get current weather with automatic fallback"""
-
 
         cache_key = f"current_{tenant_id}_{lat:.2f}_{lon:.2f}"
 
@@ -881,7 +879,6 @@ class MultiWeatherService:
 
     async def get_daily_forecast(self, lat: float, lon: float, days: int = 7, tenant_id: str = "") -> WeatherResult:
         """Get daily forecast with automatic fallback"""
-
 
         cache_key = f"daily_{tenant_id}_{lat:.2f}_{lon:.2f}_{days}"
 
@@ -943,7 +940,6 @@ class MultiWeatherService:
 
     async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24, tenant_id: str = "") -> WeatherResult:
         """Get hourly forecast with automatic fallback"""
-
 
         cache_key = f"hourly_{tenant_id}_{lat:.2f}_{lon:.2f}_{hours}"
 

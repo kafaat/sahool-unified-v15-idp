@@ -173,12 +173,15 @@ async def lifespan(app: FastAPI):
     logger.info("service_starting", service="weather-service")
 
     # Fail-fast guard: the graph-signing secret MUST NOT remain at its
-    # development default in staging/production. Matches the hard-coded
-    # fallback inside GraphStore.__init__ so the two are kept in sync.
+    # development default in staging/production. The sentinel string is
+    # defined in graph.renderer (DEV_GRAPH_SIGNING_SECRET) so both sites
+    # stay in sync even if the placeholder ever changes.
+    from .graph.renderer import DEV_GRAPH_SIGNING_SECRET
+
     _environment = os.getenv("ENVIRONMENT", "development").lower()
     _graph_secret = os.getenv("WEATHER_GRAPH_SIGNING_SECRET", "")
     if _environment in ("staging", "production") and (
-        not _graph_secret or _graph_secret == "dev-change-me-in-production"
+        not _graph_secret or _graph_secret == DEV_GRAPH_SIGNING_SECRET
     ):
         raise RuntimeError(
             "WEATHER_GRAPH_SIGNING_SECRET must be set to a non-default value "

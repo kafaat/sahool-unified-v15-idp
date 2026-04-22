@@ -12,7 +12,9 @@ Sanitizes API key query parameters from provider error messages to prevent
 credential leakage in logs (see _sanitize_error_msg helper calls below).
 """
 
+import logging as _logging
 import os
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -78,7 +80,11 @@ def condition_to_ar(condition: str | None) -> str:
 
     Accepts both OpenWeatherMap-style tokens ("Clear", "Rain") and
     WeatherAPI-style phrases ("Partly cloudy", "Light rain shower").
-    Falls back to the original string when no rule matches.
+
+    Returns:
+        Arabic translation if a rule matches. ``"غير معروف"`` if the input
+        is ``None`` or an empty string. Otherwise the original string
+        unchanged (so upstream callers see exactly what the provider sent).
     """
     if not condition:
         return "غير معروف"
@@ -790,8 +796,12 @@ class MultiWeatherService:
             return
         try:
             hook(event, **kwargs)
-        except Exception:  # pragma: no cover - metrics must never break serving
-            pass
+        except Exception as exc:  # pragma: no cover - metrics must never break serving
+            # Log at debug so a broken metrics sink doesn't spam production logs
+            # but troubleshooting stays possible with LOG_LEVEL=DEBUG.
+            _logging.getLogger(__name__).debug(
+                "metrics_hook_failed", extra={"event": event, "error": str(exc)}
+            )
 
     async def close(self):
         """Close all provider connections"""
@@ -813,7 +823,7 @@ class MultiWeatherService:
 
     async def get_current(self, lat: float, lon: float, tenant_id: str = "") -> WeatherResult:
         """Get current weather with automatic fallback"""
-        import time as _time
+
 
         cache_key = f"current_{tenant_id}_{lat:.2f}_{lon:.2f}"
 
@@ -829,7 +839,7 @@ class MultiWeatherService:
             if not provider.is_configured:
                 continue
 
-            started = _time.monotonic()
+            started = time.monotonic()
             try:
                 data = await provider.get_current(lat, lon)
                 self._set_cached(cache_key, data)
@@ -837,7 +847,7 @@ class MultiWeatherService:
                     "request",
                     provider=provider.name,
                     status="success",
-                    duration_seconds=_time.monotonic() - started,
+                    duration_seconds=time.monotonic() - started,
                 )
                 if previous_provider is not None:
                     self._emit_metric(
@@ -851,7 +861,7 @@ class MultiWeatherService:
                     "request",
                     provider=provider.name,
                     status="failure",
-                    duration_seconds=_time.monotonic() - started,
+                    duration_seconds=time.monotonic() - started,
                 )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
@@ -871,7 +881,7 @@ class MultiWeatherService:
 
     async def get_daily_forecast(self, lat: float, lon: float, days: int = 7, tenant_id: str = "") -> WeatherResult:
         """Get daily forecast with automatic fallback"""
-        import time as _time
+
 
         cache_key = f"daily_{tenant_id}_{lat:.2f}_{lon:.2f}_{days}"
 
@@ -886,7 +896,7 @@ class MultiWeatherService:
             if not provider.is_configured:
                 continue
 
-            started = _time.monotonic()
+            started = time.monotonic()
             try:
                 data = await provider.get_daily_forecast(lat, lon, days)
                 if data:
@@ -895,7 +905,7 @@ class MultiWeatherService:
                         "request",
                         provider=provider.name,
                         status="success",
-                        duration_seconds=_time.monotonic() - started,
+                        duration_seconds=time.monotonic() - started,
                     )
                     if previous_provider is not None:
                         self._emit_metric(
@@ -913,7 +923,7 @@ class MultiWeatherService:
                     "request",
                     provider=provider.name,
                     status="failure",
-                    duration_seconds=_time.monotonic() - started,
+                    duration_seconds=time.monotonic() - started,
                 )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
@@ -933,7 +943,7 @@ class MultiWeatherService:
 
     async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24, tenant_id: str = "") -> WeatherResult:
         """Get hourly forecast with automatic fallback"""
-        import time as _time
+
 
         cache_key = f"hourly_{tenant_id}_{lat:.2f}_{lon:.2f}_{hours}"
 
@@ -948,7 +958,7 @@ class MultiWeatherService:
             if not provider.is_configured:
                 continue
 
-            started = _time.monotonic()
+            started = time.monotonic()
             try:
                 data = await provider.get_hourly_forecast(lat, lon, hours)
                 if data:
@@ -957,7 +967,7 @@ class MultiWeatherService:
                         "request",
                         provider=provider.name,
                         status="success",
-                        duration_seconds=_time.monotonic() - started,
+                        duration_seconds=time.monotonic() - started,
                     )
                     if previous_provider is not None:
                         self._emit_metric(
@@ -975,7 +985,7 @@ class MultiWeatherService:
                     "request",
                     provider=provider.name,
                     status="failure",
-                    duration_seconds=_time.monotonic() - started,
+                    duration_seconds=time.monotonic() - started,
                 )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)

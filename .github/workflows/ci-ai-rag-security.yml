@@ -346,12 +346,15 @@ jobs:
           for dockerfile in "${DOCKERFILES[@]}"; do
             echo "Checking: $dockerfile"
             
-            # Check for non-root user
-            if ! grep -q "USER.*sahool\|USER.*[^r]" "$dockerfile"; then
-              echo "❌ ERROR: No non-root USER directive in $dockerfile"
+            # Check for non-root user — accept any non-root USER directive
+            # (USER sahool, USER node, USER appuser, USER 1000, etc.).
+            # The last USER directive must not be `root` or `0`.
+            last_user=$(grep -E '^USER[[:space:]]+' "$dockerfile" | tail -n1 | awk '{print $2}')
+            if [[ -z "$last_user" || "$last_user" == "root" || "$last_user" == "0" ]]; then
+              echo "❌ ERROR: No non-root USER directive in $dockerfile (last USER: '${last_user:-<none>}')"
               ISSUES=$((ISSUES + 1))
             else
-              echo "✅ Non-root user found"
+              echo "✅ Non-root user found: $last_user"
             fi
             
             # Check for multi-stage build

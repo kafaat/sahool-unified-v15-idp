@@ -9,7 +9,8 @@ Verifies that:
 4. readyz reflects degraded state when a critical resource is missing.
 5. In-flight business logic (assess, irrigation) completes even when the
    publisher is torn down (NATS-publisher is the "killable" component).
-6. The graph renderer / store are initialised on startup and cleared on shutdown.
+6. The graph renderer / store are initialised on startup; shutdown assertions
+   cover the resources currently closed by the lifespan cleanup implementation.
 
 These tests do NOT require a real NATS server or internet access; all external
 connections are mocked.
@@ -75,7 +76,12 @@ class TestLifespanCleanup:
         """
         After the lifespan context exits, provider.close() must have been called.
         Simulates SIGTERM → uvicorn stops accepting new requests → lifespan exits.
+
+        Startup I/O (NATS, provider constructors, graph imports) is patched so
+        the test runs without any network access.
         """
+        import src.main as main_module
+
         close_order = []
 
         mock_provider = AsyncMock()
@@ -88,10 +94,17 @@ class TestLifespanCleanup:
         mock_publisher.close = AsyncMock(side_effect=lambda: close_order.append("publisher"))
 
         async def run_lifespan():
-            async with app.router.lifespan_context(app):
-                app.state.weather_provider = mock_provider
-                app.state.multi_provider = mock_multi
-                app.state.publisher = mock_publisher
+            with (
+                patch.object(main_module, "get_publisher", new=AsyncMock(return_value=mock_publisher)),
+                patch.object(main_module, "MultiWeatherService", return_value=mock_multi),
+                patch.object(main_module, "OpenMeteoProvider", return_value=mock_provider),
+                patch("src.main.USE_MULTI_PROVIDER", True),
+            ):
+                async with app.router.lifespan_context(app):
+                    # Overwrite with our tracked mocks so shutdown assertions work
+                    app.state.weather_provider = mock_provider
+                    app.state.multi_provider = mock_multi
+                    app.state.publisher = mock_publisher
 
         asyncio.run(run_lifespan())
 

@@ -393,7 +393,8 @@ _METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
 async def metrics(authorization: str | None = Header(default=None, alias="Authorization")):
     """Prometheus metrics endpoint"""
     if _METRICS_TOKEN:
-        bearer = (authorization or "").removeprefix("Bearer ").strip()
+        parts = (authorization or "").split(None, 1)
+        bearer = parts[1].strip() if len(parts) == 2 and parts[0].lower() == "bearer" else ""
         if bearer != _METRICS_TOKEN:
             from starlette.responses import Response as _Resp
 

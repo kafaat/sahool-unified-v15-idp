@@ -30,7 +30,9 @@ import httpx
 _API_QUERY_PARAMS = ("appid", "key", "apikey")
 
 # Maximum number of entries kept in the in-process cache.
-# Beyond this limit the oldest entry is evicted (FIFO via OrderedDict).
+# Beyond this limit the least-recently-written entry is evicted; updates
+# refresh an existing key's position via move_to_end(), so eviction order
+# is based on write recency (not strict FIFO).
 _CACHE_MAX_SIZE = 512
 
 

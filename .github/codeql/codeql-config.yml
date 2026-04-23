@@ -38,6 +38,15 @@ paths-ignore:
   # These tests are not part of the production surface, so we exclude
   # them from CodeQL analysis.
   - "apps/services/*/tests/**"
+  # The top-level `tests/` directory has the same module-resolution
+  # problem: e.g. `tests/unit/shared/test_auth_dependencies.py` imports
+  # `shared.auth.dependencies.get_current_user` (signature
+  # `credentials, request`), but the analyser sometimes binds the call
+  # to a legacy helper at `apps/services/shared/auth/dependencies.py`
+  # (signature `token_data`) and reports spurious argument-name errors.
+  # Excluding the test tree removes these false positives; production
+  # code is still fully analysed.
+  - "tests/**"
   - "**/node_modules/**"
   - "**/__pycache__/**"
   - "**/.venv/**"

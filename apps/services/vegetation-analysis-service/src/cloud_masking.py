@@ -19,11 +19,24 @@ References:
 """
 
 import logging
+import re
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 
 logger = logging.getLogger(__name__)
+
+# CodeQL py/log-injection: strip CR/LF/control chars from user-supplied
+# values (field_id, date strings) before logging.
+_LOG_UNSAFE_RE = re.compile(r"[\r\n\x00-\x1f\x7f]")
+
+
+def _safe_log(value: object, max_len: int = 128) -> str:
+    s = str(value) if value is not None else ""
+    s = _LOG_UNSAFE_RE.sub("?", s)
+    if len(s) > max_len:
+        s = s[: max_len - 1] + "…"
+    return s
 
 
 # =============================================================================
@@ -246,8 +259,11 @@ class CloudMasker:
         clear_observations.sort(key=lambda x: x.quality_score, reverse=True)
 
         logger.info(
-            f"Found {len(clear_observations)} clear observations for {field_id} "
-            f"from {start_date.date()} to {end_date.date()}"
+            "Found %d clear observations for %s from %s to %s",
+            len(clear_observations),
+            _safe_log(field_id),
+            _safe_log(start_date.date()),
+            _safe_log(end_date.date()),
         )
 
         return clear_observations
@@ -281,7 +297,10 @@ class CloudMasker:
 
         if not observations:
             logger.warning(
-                f"No clear observations found for {field_id} within {days_tolerance} days of {target_date.date()}"
+                "No clear observations found for %s within %d days of %s",
+                _safe_log(field_id),
+                days_tolerance,
+                _safe_log(target_date.date()),
             )
             return None
 
@@ -289,9 +308,12 @@ class CloudMasker:
         best = observations[0]
 
         logger.info(
-            f"Best observation for {field_id} near {target_date.date()}: "
-            f"{best.date.date()} (quality={best.quality_score:.3f}, "
-            f"cloud={best.cloud_cover:.1f}%)"
+            "Best observation for %s near %s: %s (quality=%.3f, cloud=%.1f%%)",
+            _safe_log(field_id),
+            _safe_log(target_date.date()),
+            _safe_log(best.date.date()),
+            best.quality_score,
+            best.cloud_cover,
         )
 
         return best

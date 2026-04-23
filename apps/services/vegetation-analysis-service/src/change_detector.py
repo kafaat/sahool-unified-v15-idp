@@ -17,12 +17,25 @@ References:
 
 import logging
 import math
+import re
 import statistics
 from dataclasses import asdict, dataclass
 from datetime import date
 from enum import Enum, StrEnum
 
 logger = logging.getLogger(__name__)
+
+# CodeQL py/log-injection: strip CR/LF/control chars from user-supplied
+# values (field_id, crop_type, date strings) before logging.
+_LOG_UNSAFE_RE = re.compile(r"[\r\n\x00-\x1f\x7f]")
+
+
+def _safe_log(value: object, max_len: int = 128) -> str:
+    s = str(value) if value is not None else ""
+    s = _LOG_UNSAFE_RE.sub("?", s)
+    if len(s) > max_len:
+        s = s[: max_len - 1] + "…"
+    return s
 
 
 # =============================================================================
@@ -239,7 +252,12 @@ class ChangeDetector:
         Returns:
             ChangeReport with all detected changes and recommendations
         """
-        logger.info(f"Detecting changes for field {field_id} from {start_date} to {end_date}")
+        logger.info(
+            "Detecting changes for field %s from %s to %s",
+            _safe_log(field_id),
+            _safe_log(start_date),
+            _safe_log(end_date),
+        )
 
         # If no time series provided, would fetch from satellite service
         # For now, we'll work with provided data or return mock
@@ -252,7 +270,11 @@ class ChangeDetector:
         clean_data = [point for point in ndvi_timeseries if point.cloud_cover <= self.THRESHOLDS["max_cloud_cover"]]
 
         if len(clean_data) < 3:
-            logger.warning(f"Insufficient clean data points ({len(clean_data)}) for field {field_id}")
+            logger.warning(
+                "Insufficient clean data points (%d) for field %s",
+                len(clean_data),
+                _safe_log(field_id),
+            )
             return self._create_empty_report(field_id, start_date, end_date)
 
         # Calculate expected pattern if crop type is known
@@ -338,7 +360,12 @@ class ChangeDetector:
         Returns:
             ChangeEvent describing the change
         """
-        logger.info(f"Comparing dates {date1} and {date2} for field {field_id}")
+        logger.info(
+            "Comparing dates %s and %s for field %s",
+            _safe_log(date1),
+            _safe_log(date2),
+            _safe_log(field_id),
+        )
 
         # Calculate change metrics
         ndvi_change = ndvi2 - ndvi1

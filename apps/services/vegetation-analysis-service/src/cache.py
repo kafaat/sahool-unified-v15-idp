@@ -14,11 +14,26 @@ import hashlib
 import json
 import logging
 import os
+import re
 from datetime import UTC, datetime, timezone
 from functools import wraps
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
+# CodeQL py/log-injection: neutralise CR/LF and other control characters
+# from user-supplied values (field_id, tenant_id, ...) before emitting
+# them to the logger. Keeps printable ASCII + unicode letters/digits.
+_LOG_UNSAFE_RE = re.compile(r"[\r\n\x00-\x1f\x7f]")
+
+
+def _safe_log(value: object, max_len: int = 128) -> str:
+    """Escape control chars and truncate a value for safe logging."""
+    s = str(value) if value is not None else ""
+    s = _LOG_UNSAFE_RE.sub("?", s)
+    if len(s) > max_len:
+        s = s[: max_len - 1] + "…"
+    return s
 
 # Async Redis client - lazy initialization
 _redis_client = None
@@ -250,8 +265,8 @@ async def cache_invalidate_field(
             logger.info(
                 "Cache INVALIDATE: %d keys for field %s (tenant=%s)",
                 deleted,
-                field_id,
-                tenant_id or "*",
+                _safe_log(field_id),
+                _safe_log(tenant_id) if tenant_id else "*",
             )
         return deleted
     except Exception as e:

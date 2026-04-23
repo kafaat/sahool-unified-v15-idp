@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    // Tests live in `tests/` which is *outside* the production `rootDir`
+    // (`./src`).  Override to the package root so ts-jest / tsc project
+    // builds don't fail with TS6059 when compiling test sources.
+    "rootDir": ".",
+    "paths": {
+      "@sahool/field-shared": ["../../../packages/field-shared/src/index.ts"],
+      "@sahool/shared-events": ["../../../packages/shared-events/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

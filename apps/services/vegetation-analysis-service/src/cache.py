@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 from ._log_safety import safe_log as _safe_log  # noqa: E402 — keep close to logger setup
 
-
 # Async Redis client - lazy initialization
 _redis_client = None
 _redis_available = False

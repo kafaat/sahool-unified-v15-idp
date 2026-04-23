@@ -27,7 +27,6 @@ if os.getenv("WEATHER_E2E", "").lower() != "true":
 try:
     from unittest.mock import MagicMock
 
-    import httpx
     from fastapi.testclient import TestClient
 except ImportError as exc:
     pytest.skip(f"missing dependency: {exc}", allow_module_level=True)

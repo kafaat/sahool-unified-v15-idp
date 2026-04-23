@@ -81,83 +81,69 @@ def client(app):
 
 
 class TestLifespanCleanup:
-    """Verify the shutdown block in main.py lifespan calls close() on resources."""
+    """Verify the real lifespan teardown in main.py closes runtime resources."""
 
-    def test_multi_provider_close_called_on_shutdown(self):
-        """_multi_provider.close() is awaited during the lifespan shutdown phase."""
-        mock_provider = AsyncMock()
-        mock_provider.close = AsyncMock()
+    @staticmethod
+    def _load_main_module():
+        import importlib
+
+        try:
+            return importlib.import_module("src.main")
+        except ImportError:
+            return importlib.import_module("main")
+
+    def _run_real_lifespan_shutdown(self, multi_provider, sar_processor):
+        main_module = self._load_main_module()
 
         async def _run():
-            # Replicate lifespan shutdown block from main.py lines 551-559
-            resources = [("multi_provider", mock_provider), ("sar_processor", None)]
-            for name, resource in resources:
-                if resource:
-                    try:
-                        await resource.close()
-                    except Exception as e:
-                        pass  # matches the logger.warning in main.py
+            with patch.object(main_module, "_multi_provider", multi_provider), patch.object(
+                main_module, "_sar_processor", sar_processor
+            ):
+                async with main_module.lifespan(MagicMock()):
+                    pass
 
         asyncio.run(_run())
-        mock_provider.close.assert_called_once()
+
+    def test_multi_provider_close_called_on_shutdown(self):
+        """_multi_provider.close() is awaited during the real lifespan shutdown phase."""
+        mock_provider = MagicMock()
+        mock_provider.close = AsyncMock()
+
+        self._run_real_lifespan_shutdown(mock_provider, None)
+
+        mock_provider.close.assert_awaited_once()
 
     def test_sar_processor_close_called_on_shutdown(self):
         """Both multi_provider and sar_processor are closed when both are set."""
-        mock_multi = AsyncMock()
-        mock_sar = AsyncMock()
+        mock_multi = MagicMock()
+        mock_sar = MagicMock()
         mock_multi.close = AsyncMock()
         mock_sar.close = AsyncMock()
 
-        async def _run():
-            resources = [("multi_provider", mock_multi), ("sar_processor", mock_sar)]
-            for name, resource in resources:
-                if resource:
-                    try:
-                        await resource.close()
-                    except Exception:
-                        pass
+        self._run_real_lifespan_shutdown(mock_multi, mock_sar)
 
-        asyncio.run(_run())
-        mock_multi.close.assert_called_once()
-        mock_sar.close.assert_called_once()
+        mock_multi.close.assert_awaited_once()
+        mock_sar.close.assert_awaited_once()
 
     def test_cleanup_continues_when_multi_provider_close_raises(self):
         """
         If _multi_provider.close() raises, the sar_processor is still closed.
-        Mirrors the try/except in main.py lines 553-558.
+        Exercises the real lifespan try/except teardown path in main.py.
         """
-        mock_multi = AsyncMock()
-        mock_sar = AsyncMock()
+        mock_multi = MagicMock()
+        mock_sar = MagicMock()
         mock_multi.close = AsyncMock(side_effect=RuntimeError("network gone"))
         mock_sar.close = AsyncMock()
 
-        async def _run():
-            resources = [("multi_provider", mock_multi), ("sar_processor", mock_sar)]
-            for name, resource in resources:
-                if resource:
-                    try:
-                        await resource.close()
-                    except Exception:
-                        pass  # matches main.py logger.warning + continue
+        self._run_real_lifespan_shutdown(mock_multi, mock_sar)
 
-        asyncio.run(_run())
-        mock_multi.close.assert_called_once()
-        mock_sar.close.assert_called_once()
+        mock_multi.close.assert_awaited_once()
+        mock_sar.close.assert_awaited_once()
 
     def test_shutdown_with_no_resources_is_safe(self):
-        """When both _multi_provider and _sar_processor are None, shutdown is a no-op."""
-
-        async def _run():
-            resources = [("multi_provider", None), ("sar_processor", None)]
-            for name, resource in resources:
-                if resource:
-                    await resource.close()
-            return True
-
-        result = asyncio.run(_run())
-        assert result is True
-
-
+        """When both _multi_provider and _sar_processor are None, real shutdown is a no-op."""
+        self._run_real_lifespan_shutdown(None, None)
+        assert True
 # ---------------------------------------------------------------------------
 # 2. readyz Behaviour After Shutdown
 # ---------------------------------------------------------------------------

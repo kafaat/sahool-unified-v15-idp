@@ -23,10 +23,10 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 
+from ._log_safety import safe_log as _safe_log
+
 logger = logging.getLogger(__name__)
 
-
-from ._log_safety import safe_log as _safe_log  # noqa: E402
 
 # =============================================================================
 # Enums

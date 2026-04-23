@@ -15,10 +15,10 @@ import os
 from datetime import UTC, date, datetime, timezone
 from typing import Any
 
+from ._log_safety import safe_log as _safe_log
+
 logger = logging.getLogger(__name__)
 
-
-from ._log_safety import safe_log as _safe_log  # noqa: E402
 
 # =============================================================================
 # Check for eo-learn availability

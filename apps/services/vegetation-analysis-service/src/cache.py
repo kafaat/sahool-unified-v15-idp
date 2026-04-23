@@ -18,10 +18,10 @@ from datetime import UTC, datetime, timezone
 from functools import wraps
 from typing import Any
 
+from ._log_safety import safe_log as _safe_log
+
 logger = logging.getLogger(__name__)
 
-
-from ._log_safety import safe_log as _safe_log  # noqa: E402 — keep close to logger setup
 
 # Async Redis client - lazy initialization
 _redis_client = None

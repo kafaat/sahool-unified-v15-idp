@@ -16,10 +16,10 @@ from typing import Any
 
 import httpx
 
+from ._log_safety import safe_log as _safe_log
+
 logger = logging.getLogger(__name__)
 
-
-from ._log_safety import safe_log as _safe_log  # noqa: E402
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models

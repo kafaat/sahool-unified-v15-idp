@@ -16,6 +16,17 @@
 import { SahoolApiClient } from '@sahool/api-client';
 import Cookies from 'js-cookie';
 
+// In-memory bearer token — populated after login and after each token refresh.
+// Kong JWT plugin reads from the Authorization header (not cookies), so we
+// must send the token explicitly. httpOnly cookies cannot be read by JS, so we
+// cache the token here. It is cleared on logout and repopulated on refresh.
+let _bearerToken: string | null = null;
+
+/** Call this from auth.store after login / logout to seed or clear the token. */
+export function setSahoolClientToken(token: string | null): void {
+  _bearerToken = token;
+}
+
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
   (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:8000');
@@ -32,10 +43,10 @@ export const sahoolClient = new SahoolApiClient({
   errorHandling: 'throw',
   logLevel: IS_PRODUCTION ? 'error' : 'info',
 
-  // getToken returns null for httpOnly cookies — auth is handled by the
-  // browser automatically sending cookies with withCredentials: true.
-  // The backend reads the token from the cookie, not from Authorization header.
-  getToken: () => null,
+  // Kong JWT plugin reads from the Authorization header, not from cookies.
+  // Return the in-memory token so every request includes Bearer <token>.
+  // _bearerToken is seeded after login and after each refresh cycle.
+  getToken: () => _bearerToken,
 
   onUnauthorized: async () => {
     if (typeof window !== 'undefined') {
@@ -57,9 +68,10 @@ export const sahoolClient = new SahoolApiClient({
         if (!res.ok) return null;
 
         const data = await res.json();
-        // The proxy route already set the new httpOnly cookie.
-        // Return the token so the shared client can retry the failed request.
-        return data?.access_token ?? null;
+        const token = data?.access_token ?? null;
+        // Persist the new token so subsequent requests don't hit 401 again.
+        if (token) _bearerToken = token;
+        return token;
       } catch {
         return null;
       }

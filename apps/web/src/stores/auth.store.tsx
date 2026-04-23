@@ -2,6 +2,7 @@
 import * as React from 'react';
 import Cookies from 'js-cookie';
 import { authApiClient } from '@/lib/api/auth-client';
+import { setSahoolClientToken } from '@/lib/api/unified-client';
 import { logger } from '@/lib/logger';
 
 /**
@@ -140,9 +141,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         throw new Error('Failed to create secure session');
       }
 
-      // Set token in API client for immediate use
-      // Note: Subsequent requests will use the httpOnly cookie automatically
+      // Set token in API clients for immediate use
       authApiClient.setToken(access_token);
+      // Seed the shared sahoolClient so it sends Authorization: Bearer on first
+      // domain API call (fields, irrigation, etc.) without a 401 round-trip.
+      setSahoolClientToken(access_token);
 
       // Set readable tenant_id cookie so unified-client.ts can inject X-Tenant-ID header
       // API returns tenantId (camelCase) or tenant_id (snake_case)
@@ -227,6 +230,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Clear client-side state
     authApiClient.clearToken();
+    setSahoolClientToken(null);
     setUser(null);
   }, []);
 
@@ -245,6 +249,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         setIsLoading(false);
         return;
+      }
+
+      // Proactively refresh the token so sahoolClient has a Bearer token before
+      // the first domain API call. Without this, every page reload would trigger
+      // a 401 → refresh → retry cycle on the first field/irrigation request.
+      try {
+        const refreshRes = await fetch('/api/auth/refresh', {
+          method: 'POST',
+          credentials: 'same-origin',
+        });
+        if (refreshRes.ok) {
+          const refreshData = await refreshRes.json();
+          if (refreshData.access_token) setSahoolClientToken(refreshData.access_token);
+        }
+      } catch {
+        // Non-blocking — the client's built-in 401 handler will recover.
       }
 
       // Attempt to get current user - httpOnly cookie will be sent automatically

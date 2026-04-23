@@ -2456,6 +2456,6 @@ services:
 consumers:
 - username: sahool-platform-service
   jwt_secrets:
-  - key: sahool-platform
+  - key: sahool
     algorithm: HS256
-    secret: a536c02289731f8bdeeff26a9057ce44
+    secret: change_this_jwt_secret_min_32_characters

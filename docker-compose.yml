@@ -1940,7 +1940,7 @@ asyncio.run(main())
       - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
       # Explicit JWT claims so web middleware and user-service always agree.
       # Default values match user-service built-in defaults (jwt.config.ts).
-      - JWT_ISSUER=${JWT_ISSUER:-sahool-platform}
+      - JWT_ISSUER=${JWT_ISSUER:-sahool}
       - JWT_AUDIENCE=${JWT_AUDIENCE:-sahool-api}
       - NOTIFICATION_SERVICE_URL=http://notification-service:8110
       - NATS_URL=nats://${NATS_USER:?NATS_USER is required}:${NATS_PASSWORD:?NATS_PASSWORD is required}@nats:4222

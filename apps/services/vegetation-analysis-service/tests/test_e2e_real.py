@@ -174,6 +174,7 @@ class TestSimulatedProviderE2E:
     def test_analyze_simulated_returns_valid_shape(self):
         """POST /v1/analyze with simulated provider returns the full FieldAnalysis shape."""
         from src.main import app
+
         from shared.auth.dependencies import get_current_user
 
         app.dependency_overrides[get_current_user] = lambda: _make_fake_user()
@@ -208,6 +209,7 @@ class TestSimulatedProviderE2E:
     def test_imagery_request_simulated_returns_bands(self):
         """POST /v1/imagery/request (simulated path) returns bands list."""
         from src.main import app
+
         from shared.auth.dependencies import get_current_user
 
         app.dependency_overrides[get_current_user] = lambda: _make_fake_user()
@@ -238,6 +240,7 @@ class TestSimulatedProviderE2E:
     def test_analyze_invalid_field_id_returns_400(self):
         """POST /v1/analyze with empty field_id must return 400."""
         from src.main import app
+
         from shared.auth.dependencies import get_current_user
 
         app.dependency_overrides[get_current_user] = lambda: _make_fake_user()
@@ -260,6 +263,7 @@ class TestSimulatedProviderE2E:
     def test_tenant_mismatch_returns_403(self):
         """Requesting imagery for a tenant that doesn't match the JWT returns 403."""
         from src.main import app
+
         from shared.auth.dependencies import get_current_user
 
         # Caller has tenant A, but field-management-service would report tenant B

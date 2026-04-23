@@ -314,9 +314,7 @@ class TestNATSTeardown:
         and the response is still 200 — NATS failure must not break the endpoint.
         """
         mock_publisher = AsyncMock()
-        mock_publisher.publish_weather_alert = AsyncMock(
-            side_effect=Exception("NATS: connection reset by peer")
-        )
+        mock_publisher.publish_weather_alert = AsyncMock(side_effect=Exception("NATS: connection reset by peer"))
 
         mock_multi = AsyncMock()
         mock_result = MagicMock()

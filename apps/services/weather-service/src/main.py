@@ -667,7 +667,9 @@ async def get_hourly_forecast(
 
     try:
         if app.state.multi_provider:
-            result = await app.state.multi_provider.get_hourly_forecast(req.lat, req.lon, hours, tenant_id=req.tenant_id)
+            result = await app.state.multi_provider.get_hourly_forecast(
+                req.lat, req.lon, hours, tenant_id=req.tenant_id
+            )
             if not result.success:
                 raise ExternalServiceException.weather_service(
                     details={
@@ -1626,7 +1628,7 @@ async def generate_weather_graph(
     # already exposes get_daily_forecast; for past data we use the
     # provider's history method when available, else we gracefully
     # fall back to an empty series so the SVG still renders.
-    daily_points: list["DailyPoint"] = []
+    daily_points: list[DailyPoint] = []
     if app.state.multi_provider and hasattr(app.state.multi_provider, "get_historical_daily"):
         try:
             history_result = await app.state.multi_provider.get_historical_daily(

@@ -62,6 +62,7 @@ def _make_fake_user(tenant_id: str = TENANT_ID):
 @pytest.fixture
 def app():
     from src.main import app as veg_app
+
     from shared.auth.dependencies import get_current_user
 
     veg_app.dependency_overrides[get_current_user] = lambda: _make_fake_user()
@@ -145,6 +146,7 @@ class TestLifespanCleanup:
 
     def test_shutdown_with_no_resources_is_safe(self):
         """When both _multi_provider and _sar_processor are None, shutdown is a no-op."""
+
         async def _run():
             resources = [("multi_provider", None), ("sar_processor", None)]
             for name, resource in resources:
@@ -192,6 +194,7 @@ class TestReadyzOnShutdown:
             with patch("src.main._publisher_instance", mock_publisher, create=True):
                 try:
                     from shared.libs.events import nats_publisher as _np
+
                     with patch.object(_np, "_publisher_instance", mock_publisher):
                         resp = client.get("/readyz")
                 except Exception:
@@ -297,8 +300,9 @@ class TestNATSTeardownMidAnalysis:
 
     def test_analyze_field_completes_when_nats_publish_fails(self):
         """analyze_field() returns a valid FieldAnalysis even when NATS is unavailable."""
-        import src.main as m
         from datetime import date
+
+        import src.main as m
 
         # Patch publish_analysis_completed_sync to raise (NATS dead)
         async def _fake_analyze(*args, **kwargs):

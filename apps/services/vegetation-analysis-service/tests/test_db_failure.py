@@ -67,6 +67,7 @@ def _make_fake_user(tenant_id: str = TENANT_A):
 @pytest.fixture
 def app():
     from src.main import app as veg_app
+
     from shared.auth.dependencies import get_current_user
 
     veg_app.dependency_overrides[get_current_user] = lambda: _make_fake_user()
@@ -234,9 +235,7 @@ class TestCacheTenantIsolation:
         from src.cache import _analysis_cache_key
 
         today_key = _analysis_cache_key(FIELD_ID, "sentinel-2", tenant_id=TENANT_A, acquisition_date=None)
-        hist_key = _analysis_cache_key(
-            FIELD_ID, "sentinel-2", tenant_id=TENANT_A, acquisition_date="2025-06-01"
-        )
+        hist_key = _analysis_cache_key(FIELD_ID, "sentinel-2", tenant_id=TENANT_A, acquisition_date="2025-06-01")
 
         assert today_key != hist_key, (
             "Historical acquisition_date must produce a different cache key than 'today' "
@@ -317,17 +316,20 @@ class TestReadyzDatabaseFailures:
 
     def test_readyz_db_disconnected_when_pool_raises(self, client):
         """When db_pool.acquire() raises, readyz shows 'disconnected' for database."""
-        import src.main as m
         import types
+
+        import src.main as m
 
         mock_pool = MagicMock()
         # Simulate the async context manager `async with pool.acquire() as conn:` failing
         mock_conn = AsyncMock()
         mock_conn.fetchval = AsyncMock(side_effect=OSError("connection refused"))
-        mock_pool.acquire = MagicMock(return_value=AsyncMock(
-            __aenter__=AsyncMock(return_value=mock_conn),
-            __aexit__=AsyncMock(return_value=None),
-        ))
+        mock_pool.acquire = MagicMock(
+            return_value=AsyncMock(
+                __aenter__=AsyncMock(return_value=mock_conn),
+                __aexit__=AsyncMock(return_value=None),
+            )
+        )
 
         m.app.state.db_pool = mock_pool
         try:
@@ -347,10 +349,12 @@ class TestReadyzDatabaseFailures:
         mock_conn = AsyncMock()
         mock_conn.fetchval = AsyncMock(return_value=1)
         mock_pool = MagicMock()
-        mock_pool.acquire = MagicMock(return_value=AsyncMock(
-            __aenter__=AsyncMock(return_value=mock_conn),
-            __aexit__=AsyncMock(return_value=None),
-        ))
+        mock_pool.acquire = MagicMock(
+            return_value=AsyncMock(
+                __aenter__=AsyncMock(return_value=mock_conn),
+                __aexit__=AsyncMock(return_value=None),
+            )
+        )
 
         m.app.state.db_pool = mock_pool
         try:
@@ -385,6 +389,7 @@ class TestCacheModuleUnavailable:
 
     def test_stub_get_cached_analysis_returns_none(self):
         """The fallback stub for get_cached_analysis returns None."""
+
         async def _stub_get_cached_analysis(
             field_id: str,
             satellite: str,
@@ -393,13 +398,12 @@ class TestCacheModuleUnavailable:
         ) -> dict | None:
             return None
 
-        result = asyncio.run(
-            _stub_get_cached_analysis(FIELD_ID, "sentinel-2", tenant_id=TENANT_A)
-        )
+        result = asyncio.run(_stub_get_cached_analysis(FIELD_ID, "sentinel-2", tenant_id=TENANT_A))
         assert result is None
 
     def test_stub_cache_analysis_returns_false(self):
         """The fallback stub for cache_analysis returns False."""
+
         async def _stub_cache_analysis(
             field_id: str,
             satellite: str,
@@ -409,13 +413,12 @@ class TestCacheModuleUnavailable:
         ) -> bool:
             return False
 
-        result = asyncio.run(
-            _stub_cache_analysis(FIELD_ID, "sentinel-2", {"ndvi": 0.6}, tenant_id=TENANT_A)
-        )
+        result = asyncio.run(_stub_cache_analysis(FIELD_ID, "sentinel-2", {"ndvi": 0.6}, tenant_id=TENANT_A))
         assert result is False
 
     def test_stub_get_cached_timeseries_returns_none(self):
         """The fallback stub for get_cached_timeseries returns None."""
+
         async def _stub_get_cached_timeseries(
             field_id: str,
             days: int,
@@ -424,9 +427,7 @@ class TestCacheModuleUnavailable:
         ) -> dict | None:
             return None
 
-        result = asyncio.run(
-            _stub_get_cached_timeseries(FIELD_ID, 30, "sentinel-2", tenant_id=TENANT_A)
-        )
+        result = asyncio.run(_stub_get_cached_timeseries(FIELD_ID, 30, "sentinel-2", tenant_id=TENANT_A))
         assert result is None
 
     def test_cache_health_check_returns_unhealthy_when_no_redis(self):
@@ -466,7 +467,7 @@ class TestCacheInvalidation:
         When tenant_id is provided, cache_invalidate_field uses a pattern
         that includes the tenant, not a wildcard cross-tenant pattern.
         """
-        from src.cache import cache_invalidate_field, _ns
+        from src.cache import _ns, cache_invalidate_field
 
         keys_deleted = []
 
@@ -517,9 +518,7 @@ class TestCacheInvalidation:
         if patterns:
             # When no tenant is provided, the pattern must contain '*'
             # in the tenant position to support the admin/background path
-            assert any("*" in p for p in patterns), (
-                f"Admin invalidation must use a wildcard pattern; got: {patterns}"
-            )
+            assert any("*" in p for p in patterns), f"Admin invalidation must use a wildcard pattern; got: {patterns}"
 
     def test_cache_invalidate_returns_zero_when_redis_unavailable(self):
         """cache_invalidate_field() returns 0 (not raises) when Redis is down."""

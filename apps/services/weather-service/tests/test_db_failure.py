@@ -469,6 +469,7 @@ class TestMissingStateAttributes:
         getattr(app.state, 'multi_provider', None) — it must not raise if the
         attribute is absent (half-started service).
         """
+
         # Patch the app.state to an object without publisher attr
         class _BareSate:
             multi_provider = MagicMock()  # provider present

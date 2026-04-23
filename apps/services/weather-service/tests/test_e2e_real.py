@@ -25,9 +25,10 @@ if os.getenv("WEATHER_E2E", "").lower() != "true":
     pytest.skip("WEATHER_E2E=true required to run real E2E tests", allow_module_level=True)
 
 try:
+    from unittest.mock import MagicMock
+
     import httpx
     from fastapi.testclient import TestClient
-    from unittest.mock import MagicMock
 except ImportError as exc:
     pytest.skip(f"missing dependency: {exc}", allow_module_level=True)
 
@@ -162,9 +163,11 @@ class TestFullStackE2E:
         from src.providers.open_meteo import OpenMeteoProvider
 
         real_provider = OpenMeteoProvider()
-        with patch.object(app.state, "multi_provider", None), patch.object(
-            app.state, "weather_provider", real_provider
-        ), patch.object(app.state, "publisher", None):
+        with (
+            patch.object(app.state, "multi_provider", None),
+            patch.object(app.state, "weather_provider", real_provider),
+            patch.object(app.state, "publisher", None),
+        ):
             response = client.post(
                 "/weather/current",
                 json={
@@ -201,9 +204,11 @@ class TestFullStackE2E:
         from src.providers.open_meteo import OpenMeteoProvider
 
         real_provider = OpenMeteoProvider()
-        with patch.object(app.state, "multi_provider", None), patch.object(
-            app.state, "weather_provider", real_provider
-        ), patch.object(app.state, "publisher", None):
+        with (
+            patch.object(app.state, "multi_provider", None),
+            patch.object(app.state, "weather_provider", real_provider),
+            patch.object(app.state, "publisher", None),
+        ):
             response = client.post(
                 "/weather/forecast?days=3",
                 json={
@@ -238,9 +243,11 @@ class TestFullStackE2E:
         from src.providers.open_meteo import OpenMeteoProvider
 
         real_provider = OpenMeteoProvider()
-        with patch.object(app.state, "multi_provider", None), patch.object(
-            app.state, "weather_provider", real_provider
-        ), patch.object(app.state, "publisher", None):
+        with (
+            patch.object(app.state, "multi_provider", None),
+            patch.object(app.state, "weather_provider", real_provider),
+            patch.object(app.state, "publisher", None),
+        ):
             response = client.post(
                 "/weather/hourly?hours=24",
                 json={

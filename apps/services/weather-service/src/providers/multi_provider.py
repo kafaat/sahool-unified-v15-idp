@@ -851,7 +851,7 @@ class MultiWeatherService:
 
         # Check cache
         cached = self._get_cached(cache_key)
-        if cached:
+        if cached is not None:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
         failed_providers: list[str] = []
@@ -907,7 +907,7 @@ class MultiWeatherService:
         cache_key = f"daily_{tenant_id}_{lat:.2f}_{lon:.2f}_{days}"
 
         cached = self._get_cached(cache_key)
-        if cached:
+        if cached is not None:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
         failed_providers: list[str] = []
@@ -920,7 +920,7 @@ class MultiWeatherService:
             started = time.monotonic()
             try:
                 data = await provider.get_daily_forecast(lat, lon, days)
-                if data:
+                if data is not None:
                     self._set_cached(cache_key, data)
                     self._emit_metric(
                         "request",
@@ -968,7 +968,7 @@ class MultiWeatherService:
         cache_key = f"hourly_{tenant_id}_{lat:.2f}_{lon:.2f}_{hours}"
 
         cached = self._get_cached(cache_key)
-        if cached:
+        if cached is not None:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
         failed_providers: list[str] = []
@@ -981,7 +981,7 @@ class MultiWeatherService:
             started = time.monotonic()
             try:
                 data = await provider.get_hourly_forecast(lat, lon, hours)
-                if data:
+                if data is not None:
                     self._set_cached(cache_key, data)
                     self._emit_metric(
                         "request",

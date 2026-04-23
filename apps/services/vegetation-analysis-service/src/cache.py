@@ -21,21 +21,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
-def _safe_log(value: object, max_len: int = 128) -> str:
-    """Sanitize a value for safe logging.
-
-    Strips CR/LF and other control characters from user-supplied values
-    (field_id, tenant_id, Redis keys, ...) before emitting them to the
-    logger. Uses explicit ``str.replace`` calls that CodeQL's
-    ``py/log-injection`` query recognises as sanitisers.
-    """
-    s = str(value) if value is not None else ""
-    # Explicit CR/LF/NUL/tab removal — recognised by CodeQL as a
-    # log-injection sanitiser (see `LogInjectionQuery.qll`).
-    s = s.replace("\r", "").replace("\n", "").replace("\x00", "").replace("\t", " ")
-    if len(s) > max_len:
-        s = s[:max_len]
-    return s
+from ._log_safety import safe_log as _safe_log  # noqa: E402 — keep close to logger setup
 
 
 # Async Redis client - lazy initialization

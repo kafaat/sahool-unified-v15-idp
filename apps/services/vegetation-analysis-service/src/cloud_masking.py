@@ -26,18 +26,7 @@ from enum import Enum
 logger = logging.getLogger(__name__)
 
 
-def _safe_log(value: object, max_len: int = 128) -> str:
-    """Sanitise a value for safe logging (CR/LF stripped).
-
-    Uses explicit ``str.replace`` so CodeQL's ``py/log-injection`` query
-    recognises this function as a sanitiser for user-supplied values
-    (field_id, date strings, interpolation method, ...).
-    """
-    s = str(value) if value is not None else ""
-    s = s.replace("\r", "").replace("\n", "").replace("\x00", "").replace("\t", " ")
-    if len(s) > max_len:
-        s = s[:max_len]
-    return s
+from ._log_safety import safe_log as _safe_log  # noqa: E402
 
 
 # =============================================================================

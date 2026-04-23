@@ -20,6 +20,19 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+
+def _safe_log(value: Any) -> str:
+    """Strip CR/LF from values before logging to prevent log injection.
+
+    Cache keys and IDs are built from user-provided ``field_id`` / ``tenant_id``
+    values; without sanitization an attacker could forge extra log lines by
+    embedding newlines. Mirrors the helper in ``repository.py``.
+    """
+    if value is None:
+        return ""
+    return str(value).replace("\n", "").replace("\r", "")[:200]
+
+
 # Async Redis client - lazy initialization
 _redis_client = None
 _redis_available = False
@@ -167,9 +180,9 @@ async def cache_get(key: str) -> dict[str, Any] | None:
     try:
         data = await client.get(key)
         if data:
-            logger.debug(f"Cache HIT: {key}")
+            logger.debug("Cache HIT: %s", _safe_log(key))
             return json.loads(data)
-        logger.debug(f"Cache MISS: {key}")
+        logger.debug("Cache MISS: %s", _safe_log(key))
         return None
     except Exception as e:
         logger.error(f"Cache get error: {e}")
@@ -189,7 +202,7 @@ async def cache_set(
     try:
         data = json.dumps(value, default=str)
         await client.setex(key, ttl, data)
-        logger.debug(f"Cache SET: {key} (TTL: {ttl}s)")
+        logger.debug("Cache SET: %s (TTL: %ds)", _safe_log(key), ttl)
         return True
     except Exception as e:
         logger.error(f"Cache set error: {e}")
@@ -250,8 +263,8 @@ async def cache_invalidate_field(
             logger.info(
                 "Cache INVALIDATE: %d keys for field %s (tenant=%s)",
                 deleted,
-                field_id,
-                tenant_id or "*",
+                _safe_log(field_id),
+                _safe_log(tenant_id) if tenant_id else "*",
             )
         return deleted
     except Exception as e:

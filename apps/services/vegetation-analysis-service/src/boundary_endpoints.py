@@ -22,6 +22,13 @@ from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 logger = logging.getLogger(__name__)
 
 
+def _safe_log(value) -> str:
+    """Strip CR/LF from values before logging to prevent log injection."""
+    if value is None:
+        return ""
+    return str(value).replace("\n", "").replace("\r", "")[:200]
+
+
 class RefineBoundaryRequest(BaseModel):
     """Request model for boundary refinement"""
 
@@ -185,8 +192,8 @@ def register_boundary_endpoints(app, boundary_detector):
                     logger.info(
                         "Invalidated %d NDVI cache entries for field %s (tenant=%s) after boundary refinement",
                         invalidated,
-                        request.field_id,
-                        tenant_id,
+                        _safe_log(request.field_id),
+                        _safe_log(tenant_id),
                     )
 
             return {

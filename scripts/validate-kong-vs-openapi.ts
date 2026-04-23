@@ -403,8 +403,6 @@ function validate(): ValidationResult {
 
   // 5. Validate: Contract endpoints should exist in Kong
   for (const [contractPath, constName] of contractEndpoints) {
-    // Normalize: replace {param} placeholders for matching
-    const normalizedContract = normalizePath(contractPath);
     let matched = false;
 
     for (const [kongPath] of kongRoutes) {

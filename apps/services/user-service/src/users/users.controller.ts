@@ -18,8 +18,6 @@ import {
   NotFoundException,
   BadRequestException,
   UseGuards,
-  ParseIntPipe,
-  DefaultValuePipe,
   ParseUUIDPipe,
 } from "@nestjs/common";
 import { Throttle } from "@nestjs/throttler";

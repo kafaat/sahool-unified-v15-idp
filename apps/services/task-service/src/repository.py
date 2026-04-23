@@ -8,7 +8,7 @@ Provides database operations for tasks and evidence.
 import logging
 from datetime import UTC, datetime, timezone
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session, selectinload
 
@@ -84,12 +84,17 @@ class TaskRepository:
         assigned_to: str | None = None,
         due_before: datetime | None = None,
         due_after: datetime | None = None,
+        search: str | None = None,
         limit: int = 50,
         offset: int = 0,
     ) -> tuple[list[Task], int]:
         """
         List tasks with filters and pagination
         قائمة المهام مع الفلاتر والترقيم
+
+        Args:
+            search: Optional case-insensitive ILIKE match on
+                ``title`` / ``title_ar`` / ``description``.
 
         Returns:
             Tuple of (tasks, total_count)
@@ -111,6 +116,16 @@ class TaskRepository:
             query = query.filter(Task.due_date <= due_before)
         if due_after:
             query = query.filter(Task.due_date >= due_after)
+        if search:
+            # Parameterized ILIKE — no SQL injection risk.
+            pattern = f"%{search}%"
+            query = query.filter(
+                or_(
+                    Task.title.ilike(pattern),
+                    Task.title_ar.ilike(pattern),
+                    Task.description.ilike(pattern),
+                )
+            )
 
         # Get total count before pagination
         total = query.count()

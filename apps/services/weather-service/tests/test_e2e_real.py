@@ -111,7 +111,7 @@ class TestOpenMeteoProviderDirect:
         for day in forecast:
             assert isinstance(day, DailyForecast)
             assert day.date  # Non-empty date string
-            assert isinstance(day.temp_max_c, float | int)
+            assert isinstance(day.temp_max_c, (float, int))
             assert day.temp_max_c >= day.temp_min_c
 
         asyncio.run(provider.close())

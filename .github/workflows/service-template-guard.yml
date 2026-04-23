@@ -5,6 +5,9 @@ on:
     paths:
       - "apps/services/**/src/main.py"
 
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Verify new/changed service main.py follows template

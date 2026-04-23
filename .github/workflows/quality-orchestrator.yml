@@ -170,6 +170,9 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: python, javascript-typescript
+          # Exclude archive/ and legacy/ to avoid cross-module name
+          # collisions with deprecated service copies.
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: Autobuild for CodeQL
         uses: github/codeql-action/autobuild@v4

@@ -34,12 +34,17 @@ from tests.container.service_registry import (
     ALL_BUILT_SERVICES,
     ALL_HTTP_SERVICES,
     INFRA_SERVICES,
+    INIT_SERVICES,
     NODE_SERVICES,
     PORTLESS_SERVICES,
     PYTHON_SERVICES,
 )
 
 pytestmark = [pytest.mark.container, pytest.mark.smoke]
+
+# Init containers are infrastructure support – treat them as part of the infra
+# group for dependency isolation checks.
+_INFRA_AND_INIT: set[str] = INFRA_SERVICES | INIT_SERVICES
 
 # ---------------------------------------------------------------------------
 # Paths
@@ -846,11 +851,11 @@ class TestInfrastructureDependencyIsolation:
             pytest.skip(f"{infra_svc} not defined in docker-compose.yml")
 
         deps = set(dependency_graph.get(infra_svc, []))
-        non_infra_deps = deps - INFRA_SERVICES
+        non_infra_deps = deps - _INFRA_AND_INIT
         assert not non_infra_deps, (
             f"Infrastructure service '{infra_svc}' depends on "
             f"non-infrastructure service(s): {sorted(non_infra_deps)}. "
-            f"Infra services must only depend on other infra services."
+            f"Infra services must only depend on other infra/init services."
         )
 
     def test_no_infra_depends_on_any_app(
@@ -867,7 +872,8 @@ class TestInfrastructureDependencyIsolation:
             if infra_svc not in dependency_graph:
                 continue
             deps = set(dependency_graph.get(infra_svc, []))
-            app_deps = deps & application_services
+            # Init containers are not application services
+            app_deps = deps & application_services - INIT_SERVICES
             if app_deps:
                 violations.append(
                     f"  {infra_svc} -> {sorted(app_deps)}"
@@ -892,7 +898,7 @@ class TestInfrastructureDependencyIsolation:
         external_refs: list[str] = []
         for infra_svc in sorted(infra_in_compose):
             for dep in dependency_graph.get(infra_svc, []):
-                if dep not in INFRA_SERVICES:
+                if dep not in _INFRA_AND_INIT:
                     external_refs.append(f"  {infra_svc} -> {dep}")
 
         assert not external_refs, (

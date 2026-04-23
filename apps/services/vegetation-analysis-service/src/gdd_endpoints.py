@@ -16,12 +16,13 @@ Similar to OneSoil's GDD tracking feature.
 import logging
 from datetime import date as date_class
 
-from fastapi import Depends, HTTPException, Query
+from fastapi import Depends, HTTPException, Query, Request
 
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
 from .gdd_tracker import get_gdd_tracker
+from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ def register_gdd_endpoints(app):
     @app.get("/v1/gdd/chart/{field_id}")
     async def get_gdd_chart(
         field_id: str,
+        http_request: Request,
         crop_code: str = Query(..., description="Crop code (e.g., 'WHEAT', 'TOMATO')"),
         planting_date: str = Query(..., description="Planting date (YYYY-MM-DD)"),
         lat: float = Query(..., description="Field latitude", ge=-90, le=90),
@@ -113,6 +115,7 @@ def register_gdd_endpoints(app):
         - Optimize harvest timing
         - Mobile app charts and progress bars
         """
+        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             # Parse dates
             plant_date = date_class.fromisoformat(planting_date)
@@ -224,6 +227,7 @@ def register_gdd_endpoints(app):
         - Push notifications when stages reached
         - Update field task scheduling
         """
+        require_tenant_id(_user)
         try:
             # Validate
             if current_gdd >= target_gdd:
@@ -321,6 +325,7 @@ def register_gdd_endpoints(app):
 
         **40+ crops total!**
         """
+        require_tenant_id(_user)
         try:
             # Get tracker
             tracker = get_gdd_tracker()
@@ -392,6 +397,7 @@ def register_gdd_endpoints(app):
         - Alert generation
         - Task recommendations
         """
+        require_tenant_id(_user)
         try:
             # Get tracker
             tracker = get_gdd_tracker()

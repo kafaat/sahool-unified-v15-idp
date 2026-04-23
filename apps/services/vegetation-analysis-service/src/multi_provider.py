@@ -681,6 +681,16 @@ class USGSLandsatArchiveProvider(SatelliteProvider):
         # USGS provides raw imagery — NDVI calculation done post-download
         return None
 
+    async def get_indices(
+        self,
+        lat: float,
+        lon: float,
+        acquisition_date: date,
+        satellite: SatelliteType = SatelliteType.LANDSAT8,
+    ) -> VegetationIndices | None:
+        """USGS provides raw imagery — real-time index calculation not supported (implements abstract method)."""
+        return None
+
 
 class AgromonitoringProvider(SatelliteProvider):
     """
@@ -786,6 +796,30 @@ class AgromonitoringProvider(SatelliteProvider):
         except Exception as e:
             logger.error(f"Agromonitoring search failed: {e}")
             return []
+
+    async def get_indices(
+        self,
+        lat: float,
+        lon: float,
+        acquisition_date: date,
+        satellite: SatelliteType = SatelliteType.SENTINEL2,
+    ) -> VegetationIndices | None:
+        """Get vegetation indices from Agromonitoring API (implements abstract method)."""
+        raw = await self.get_ndvi(lat=lat, lon=lon, acquisition_date=acquisition_date)
+        if raw is None:
+            return None
+        ndvi = float(raw.get("ndvi", 0.0))
+        # Agromonitoring only returns NDVI; derive the rest from it so callers
+        # always receive a complete VegetationIndices object.
+        return VegetationIndices(
+            ndvi=max(-1.0, min(1.0, ndvi)),
+            ndwi=0.0,
+            evi=0.0,
+            savi=0.0,
+            lai=0.0,
+            ndmi=0.0,
+            provider=self.name,
+        )
 
     async def get_ndvi(
         self,
@@ -968,6 +1002,16 @@ class PlanetLabsProvider(SatelliteProvider):
     async def get_ndvi(self, *args, **kwargs) -> dict | None:
         # Planet NDVI requires ordering + download workflow (async)
         # For real-time, use search_scenes + external NDVI calculation
+        return None
+
+    async def get_indices(
+        self,
+        lat: float,
+        lon: float,
+        acquisition_date: date,
+        satellite: SatelliteType = SatelliteType.PLANET,
+    ) -> VegetationIndices | None:
+        """Planet Labs does not support real-time index calculation (implements abstract method)."""
         return None
 
 

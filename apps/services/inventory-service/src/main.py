@@ -74,7 +74,22 @@ Base = declarative_base()
 from .alert_endpoints import init_alert_manager
 from .alert_endpoints import router as alert_router
 from .alert_manager import AlertManager
+from .application_tracker import ApplicationTracker
 from .inventory_analytics import InventoryAnalytics
+from .warehouse_manager import WarehouseManager
+
+# Prisma client is optional — if the generated client is missing (e.g. CI
+# image built with `prisma generate` failing under a network block), the
+# service still boots on the SQLAlchemy analytics surface and the
+# warehouse / applications routers return 503. Don't import prisma at
+# module top-level: keep the name unbound when unavailable.
+try:
+    from prisma import Prisma as _PrismaClient  # type: ignore[import-not-found]
+
+    PRISMA_AVAILABLE = True
+except ImportError:
+    PRISMA_AVAILABLE = False
+    _PrismaClient = None  # type: ignore[assignment,misc]
 
 # Import v2 ORM models so their tables are registered on the shared Base
 # metadata and created by tests / create_all calls. The binding is not
@@ -175,8 +190,43 @@ async def lifespan(app: FastAPI):
     init_alert_manager(app.state.alert_manager)
     logger.info("Alert Manager initialized")
 
+    # ── Prisma subsystem (warehouses, transfers, field applications) ──
+    # Kept optional so a missing generated client or unreachable DB cannot
+    # take the whole service down: the warehouse / applications routers
+    # check `app.state.prisma_ready` and return 503 if it's False.
+    app.state.prisma_ready = False
+    app.state.prisma = None
+    app.state.warehouse_manager = None
+    app.state.tracker = None
+    if PRISMA_AVAILABLE and _PrismaClient is not None:
+        try:
+            prisma_client = _PrismaClient(auto_register=True)
+            await prisma_client.connect()
+            app.state.prisma = prisma_client
+            app.state.warehouse_manager = WarehouseManager(prisma_client)
+            app.state.tracker = ApplicationTracker(prisma_client)
+            app.state.prisma_ready = True
+            logger.info("Prisma subsystem ready (warehouse + applications)")
+        except Exception as e:  # pragma: no cover — safety net
+            logger.warning(
+                "Prisma subsystem unavailable: %s — warehouse/application "
+                "endpoints will return 503 until the generated client is "
+                "present and the DB is reachable",
+                e,
+            )
+    else:
+        logger.info(
+            "Prisma Python client not installed — warehouse/application "
+            "endpoints disabled; run `prisma generate` to enable them"
+        )
+
     logger.info("Inventory Service ready on port 8116")
     yield
+    if app.state.prisma is not None:
+        try:
+            await app.state.prisma.disconnect()
+        except Exception as e:  # pragma: no cover
+            logger.warning("Prisma disconnect failed: %s", e)
     await engine.dispose()
     logger.info("Inventory Service shutting down")
 
@@ -202,6 +252,15 @@ import importlib as _importlib  # noqa: E402
 
 _inventory_v1_module = _importlib.import_module("src.api.v1.inventory")
 app.include_router(_inventory_v1_module.router)
+
+# Warehouse + applications routers (Prisma-backed). These import their own
+# router instance; if the Prisma client failed to initialise at startup the
+# endpoints inside return 503 via a shared dependency guard.
+from .application_endpoints import router as _applications_router  # noqa: E402
+from .warehouse_endpoints import router as _warehouse_router  # noqa: E402
+
+app.include_router(_warehouse_router)
+app.include_router(_applications_router)
 
 # Setup unified error handling
 setup_exception_handlers(app)

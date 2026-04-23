@@ -6,10 +6,20 @@
 # Each event must be documented with schema, producers, and consumers.
 # ═══════════════════════════════════════════════════════════════════════════════
 
-version: "2.0.0"
-last_updated: "2026-04-13"
+version: "2.1.0"
+last_updated: "2026-04-20"
 
 # Versioning history
+# v2.1.0  (2026-04-20) — align event keys to actual NATS subjects in
+#                        shared/events/subjects.py:
+#                          sahool.ndvi.calculated        → sahool.satellite.ndvi.computed
+#                          sahool.ndvi.anomaly_detected  → sahool.satellite.ndvi.anomaly
+#                          sahool.ndvi.trend_changed     → sahool.satellite.ndvi.trend
+#                          sahool.crop_health.assessment → sahool.crop.health_assessed
+#                          sahool.crop_health.disease_detected → sahool.crop.disease_detected
+#                        Add missing categories: iot, advisory, terrain.
+#                        Add missing events: iot sensor, advisory tenant-scoped,
+#                          terrain leveling/drainage recommendations.
 # v2.0.0  (2026-04-13) — migrate all event keys to `sahool.<domain>.<action>`
 #                        convention to match shared/events/subjects.py and the
 #                        @sahool/shared-events TS package. Replace stale
@@ -28,12 +38,15 @@ last_updated: "2026-04-13"
 # ─────────────────────────────────────────────────────────────────────────────
 categories:
   field: "Field management events / أحداث إدارة الحقول"
-  ndvi: "NDVI analysis events / أحداث تحليل NDVI"
+  satellite: "Satellite & NDVI analysis events / أحداث الأقمار الصناعية وتحليل NDVI"
   alert: "Alert and notification events / أحداث التنبيهات"
   weather: "Weather data events / أحداث الطقس"
   irrigation: "Irrigation events / أحداث الري"
-  crop_health: "Crop health events / أحداث صحة المحصول"
+  crop: "Crop health and lifecycle events / أحداث صحة المحاصيل ودورة حياتها"
   yield: "Yield prediction events / أحداث توقع الإنتاج"
+  iot: "IoT sensor events / أحداث مستشعرات إنترنت الأشياء"
+  advisory: "Agricultural advisory events / أحداث الاستشارات الزراعية"
+  terrain: "Terrain analysis and recommendation events / أحداث تحليل التضاريس"
   system: "System events / أحداث النظام"
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -118,10 +131,12 @@ events:
       - vegetation-analysis-service
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # NDVI EVENTS
+  # SATELLITE / NDVI EVENTS
   # ═══════════════════════════════════════════════════════════════════════════
-  sahool.ndvi.calculated:
-    category: ndvi
+  # Keys match SAHOOL_NDVI_COMPUTED / SAHOOL_NDVI_ANOMALY / SAHOOL_SATELLITE_NDVI_TREND
+  # constants in shared/events/subjects.py.
+  sahool.satellite.ndvi.computed:
+    category: satellite
     description: "Emitted when NDVI is calculated for a field / يُرسل عند حساب NDVI للحقل"
     schema:
       $ref: "./schemas/ndvi-calculated.json"
@@ -134,6 +149,8 @@ events:
     consumers:
       - alert-service
       - analytics-service
+      - crop-intelligence-service
+      - agro-rules
       - frontend-sse
     examples:
       - field_id: "fld_abc123"
@@ -144,8 +161,8 @@ events:
           max: 0.82
           std: 0.08
 
-  sahool.ndvi.anomaly_detected:
-    category: ndvi
+  sahool.satellite.ndvi.anomaly:
+    category: satellite
     description: "Emitted when NDVI anomaly is detected / يُرسل عند اكتشاف شذوذ في NDVI"
     schema:
       properties:
@@ -158,6 +175,7 @@ events:
     consumers:
       - alert-service
       - notification-service
+      - agro-rules
     examples:
       - field_id: "fld_abc123"
         anomaly_type: "sudden_drop"
@@ -165,8 +183,8 @@ events:
         current_value: 0.45
         drop_percent: 37.5
 
-  sahool.ndvi.trend_changed:
-    category: ndvi
+  sahool.satellite.ndvi.trend:
+    category: satellite
     description: "Emitted when NDVI trend changes / يُرسل عند تغير اتجاه NDVI"
     schema:
       properties:
@@ -328,10 +346,12 @@ events:
       - notification-service
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # CROP HEALTH EVENTS
+  # CROP EVENTS
   # ═══════════════════════════════════════════════════════════════════════════
-  sahool.crop_health.assessment:
-    category: crop_health
+  # Keys match SAHOOL_CROP_HEALTH_ASSESSED / SAHOOL_CROP_DISEASE_DETECTED
+  # in shared/events/subjects.py.
+  sahool.crop.health_assessed:
+    category: crop
     description: "Emitted with crop health assessment / يُرسل مع تقييم صحة المحصول"
     schema:
       properties:
@@ -345,8 +365,8 @@ events:
       - advisory-service
       - analytics-service
 
-  sahool.crop_health.disease_detected:
-    category: crop_health
+  sahool.crop.disease_detected:
+    category: crop
     description: "Emitted when crop disease is detected / يُرسل عند اكتشاف مرض في المحصول"
     schema:
       properties:
@@ -390,6 +410,153 @@ events:
     consumers:
       - yield-prediction-service
       - analytics-service
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # IOT EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Keys match SAHOOL_IOT_SENSOR_READING / SAHOOL_IOT_THRESHOLD in subjects.py.
+  sahool.iot.sensor.reading:
+    category: iot
+    description: "Emitted when an IoT sensor reports a reading / يُرسل عند إرسال قراءة من مستشعر"
+    schema:
+      properties:
+        sensor_id: { type: string }
+        field_id: { type: string }
+        sensor_type: { type: string }
+        value: { type: number }
+        unit: { type: string }
+        timestamp: { type: string }
+    producers:
+      - iot-gateway
+      - iot-service
+    consumers:
+      - irrigation-smart
+      - agro-rules
+      - virtual-sensors
+      - ground-vision-service
+
+  sahool.iot.threshold:
+    category: iot
+    description: "Emitted when an IoT sensor crosses a threshold / يُرسل عند تجاوز الحد"
+    schema:
+      properties:
+        sensor_id: { type: string }
+        field_id: { type: string }
+        threshold_type: { type: string }
+        value: { type: number }
+        threshold: { type: number }
+    producers:
+      - iot-gateway
+      - iot-sensor-hub
+    consumers:
+      - alert-service
+      - agro-rules
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # ADVISORY EVENTS (tenant-scoped)
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Published on sahool.tenant.{tenant_id}.advisory.{action} by advisory-service.
+  # The task-automation hook subscribes with wildcard sahool.tenant.*.advisory.*
+  # and creates FieldOps tasks for each recommendation.
+  sahool.tenant.{tenant_id}.advisory.recommendation_issued:
+    category: advisory
+    description: "Agricultural recommendation issued for a tenant / توصية زراعية لمستأجر"
+    schema:
+      required: [tenant_id, field_id, actions, severity, confidence]
+      properties:
+        tenant_id: { type: string }
+        field_id: { type: string }
+        actions: { type: array }
+        severity: { type: string }
+        confidence: { type: number }
+    producers:
+      - advisory-service
+    consumers:
+      - advisory-service (task_automation hook → FieldOps)
+    notes: >
+      tenant_id is embedded in the subject token; consumers subscribe via
+      sahool.tenant.*.advisory.recommendation_issued wildcard.
+
+  sahool.tenant.{tenant_id}.advisory.fertilizer_plan_issued:
+    category: advisory
+    description: "Fertilizer plan issued / خطة التسميد"
+    schema:
+      required: [tenant_id, field_id, plan, crop]
+      properties:
+        tenant_id: { type: string }
+        field_id: { type: string }
+        plan: { type: array }
+        crop: { type: string }
+    producers:
+      - advisory-service
+    consumers:
+      - advisory-service (task_automation hook → FieldOps)
+
+  sahool.tenant.{tenant_id}.advisory.nutrient_assessment_issued:
+    category: advisory
+    description: "Nutrient deficiency assessment issued / تقييم نقص العناصر الغذائية"
+    schema:
+      required: [tenant_id, field_id, nutrient, severity]
+      properties:
+        tenant_id: { type: string }
+        field_id: { type: string }
+        nutrient: { type: string }
+        severity: { type: string }
+        corrections: { type: array }
+    producers:
+      - advisory-service
+    consumers:
+      - advisory-service (task_automation hook → FieldOps)
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # TERRAIN EVENTS
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Keys match SAHOOL_TERRAIN_LEVELING_RECOMMENDED / SAHOOL_TERRAIN_DRAINAGE_RECOMMENDED
+  # in shared/events/subjects.py.
+  sahool.terrain.leveling_recommended:
+    category: terrain
+    description: "Field leveling recommended after terrain analysis / يُنصح بتسوية الأرض"
+    schema:
+      properties:
+        field_id: { type: string }
+        tenant_id: { type: string }
+        cut_fill_volume_m3: { type: number }
+        slope_percent: { type: number }
+        estimated_cost: { type: number }
+    producers:
+      - terrain-core-service
+      - leveling-optimizer-service
+    consumers:
+      - agro-rules
+
+  sahool.terrain.drainage_recommended:
+    category: terrain
+    description: "Drainage improvement recommended / يُنصح بتحسين الصرف"
+    schema:
+      properties:
+        field_id: { type: string }
+        tenant_id: { type: string }
+        drainage_type: { type: string }
+        priority: { type: string }
+    producers:
+      - terrain-core-service
+      - hydrology-service
+    consumers:
+      - agro-rules
+
+  sahool.terrain.high_erosion_risk:
+    category: terrain
+    description: "High erosion risk detected / خطر تآكل مرتفع"
+    schema:
+      properties:
+        field_id: { type: string }
+        tenant_id: { type: string }
+        risk_level: { type: string }
+    producers:
+      - terrain-core-service
+    consumers:
+      - alert-service
+      - agro-rules
 
   # ═══════════════════════════════════════════════════════════════════════════
   # SYSTEM EVENTS

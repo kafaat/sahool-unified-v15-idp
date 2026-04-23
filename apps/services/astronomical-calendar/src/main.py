@@ -31,6 +31,18 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
+try:
+    import structlog as _structlog
+
+    from shared.logging_config import setup_logging
+
+    setup_logging("astronomical-calendar")
+    logger = _structlog.get_logger()
+except Exception:
+    import logging as _logging
+
+    logger = _logging.getLogger("astronomical-calendar")  # type: ignore[assignment]
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # التطبيق الرئيسي
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -89,7 +101,7 @@ app.add_middleware(
     allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "PATCH"],
-    allow_headers=["*"],
+    allow_headers=["Authorization", "Content-Type", "X-Tenant-ID", "X-Request-ID", "Accept", "Origin"],
 )
 
 if _has_tenant_middleware:

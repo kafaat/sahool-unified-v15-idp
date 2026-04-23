@@ -375,9 +375,9 @@ async def forgot_password(
 
     if token:
         logger.info(f"Password reset requested: {data.email} (token: {token[:8]}...)")
-        # In production: Send email with reset link
-        # For development: Log the token
-        logger.debug(f"Reset token for {data.email}: {token}")
+        # Never log the full reset token: it grants account takeover if leaked
+        # into log aggregation, backups, or shared dev environments.
+        # Only the short prefix above is emitted, and only at INFO level.
     else:
         logger.info(f"Password reset requested for non-existent user: {data.email}")
 

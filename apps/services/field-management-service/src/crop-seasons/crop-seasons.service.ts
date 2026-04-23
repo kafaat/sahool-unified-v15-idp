@@ -83,7 +83,7 @@ export class CropSeasonsService {
    * Fetch a single crop season by id, enforcing tenant ownership.
    */
   async getById(id: string, tenantId: string) {
-    const row = await this.prisma.cropSeason.findUnique({ where: { id } });
+    const row = await this.prisma.cropSeason.findUnique({ where: { id_tenantId: { id, tenantId } } });
     if (!row || row.tenantId !== tenantId || row.deletedAt) {
       throw new NotFoundException({
         message: "Crop season not found",
@@ -139,7 +139,7 @@ export class CropSeasonsService {
       });
       if (previous) {
         await tx.cropSeason.update({
-          where: { id: previous.id },
+          where: { id_tenantId: { id: previous.id, tenantId } },
           data: { isCurrent: false, endedAt: new Date() },
         });
         await this.outbox.writeInTransaction(tx, {
@@ -180,7 +180,7 @@ export class CropSeasonsService {
       // existing consumers of `field.cropType` (legacy code, NDVI
       // pipeline baseline, advisory cache) keep working unchanged.
       await tx.field.update({
-        where: { id: fieldId },
+        where: { id_tenantId: { id: fieldId, tenantId } },
         data: {
           cropType: dto.cropType,
           plantingDate: sowingDate,
@@ -277,7 +277,7 @@ export class CropSeasonsService {
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const row = await tx.cropSeason.update({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         data: data as any,
       });
       await this.outbox.writeInTransaction(tx, {
@@ -317,7 +317,7 @@ export class CropSeasonsService {
 
     const updated = await this.prisma.$transaction(async (tx) => {
       const row = await tx.cropSeason.update({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         data: {
           isCurrent: false,
           endedAt,
@@ -362,7 +362,7 @@ export class CropSeasonsService {
     const existing = await this.getById(id, tenantId);
     await this.prisma.$transaction(async (tx) => {
       await tx.cropSeason.update({
-        where: { id },
+        where: { id_tenantId: { id, tenantId } },
         data: {
           deletedAt: new Date(),
           deletedBy: deletedBy ?? "system",
@@ -392,7 +392,7 @@ export class CropSeasonsService {
    */
   private async assertFieldOwnership(fieldId: string, tenantId: string) {
     const field = await this.prisma.field.findUnique({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       select: { id: true, tenantId: true, isDeleted: true },
     });
     if (!field || field.isDeleted) {

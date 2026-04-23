@@ -19,6 +19,19 @@ generator client {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
+// Shared enumerations used across models
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Provider identifiers used in WeatherForecast and WeatherObservation.
+/// Adding a new provider requires a schema migration.
+enum WeatherProviderSource {
+  OPEN_METEO     @map("open-meteo")
+  OPENWEATHERMAP @map("openweathermap")
+  WEATHERAPI     @map("weatherapi")
+  MOCK           @map("mock")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
 // 1. الأرصاد الجوية - Weather Observations
 // البيانات الفعلية المرصودة للطقس
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -52,13 +65,14 @@ model WeatherObservation {
   cloudCover Float? // الغطاء السحابي (%)
   visibility Float? // مدى الرؤية (meters)
 
-  // المصدر
-  source  String // المصدر (open-meteo, openweathermap, weatherapi)
-  rawData Json?  @map("raw_data") // البيانات الخام من المزود
+  // المصدر — مقيّد بالقيم المسموح بها عبر WeatherProviderSource enum
+  source  WeatherProviderSource // المصدر (open-meteo, openweathermap, weatherapi, mock)
+  rawData Json?                 @map("raw_data") // البيانات الخام من المزود
 
   // التوقيت
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@unique([id, tenantId], map: "uq_weather_observation_id_tenant")
   @@index([locationId, timestamp(sort: Desc)]) // للاستعلام عن آخر الأرصاد لموقع معين
   @@index([tenantId, timestamp(sort: Desc)]) // للاستعلام عن بيانات مستأجر معين
   @@index([timestamp(sort: Desc)]) // للاستعلامات الزمنية
@@ -83,8 +97,8 @@ model WeatherForecast {
   forecastFor DateTime @map("forecast_for") // التاريخ المتنبأ له
   fetchedAt   DateTime @map("fetched_at") // وقت جلب التنبؤ
 
-  // المزود
-  provider String // المزود (open-meteo, openweathermap, weatherapi)
+  // المزود — مقيّد بالقيم المسموح بها عبر WeatherProviderSource enum
+  provider WeatherProviderSource // المزود (open-meteo, openweathermap, weatherapi, mock)
 
   // البيانات
   hourlyData Json @map("hourly_data") // بيانات التنبؤ الساعي (48 ساعة)
@@ -94,6 +108,7 @@ model WeatherForecast {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_weather_forecast_id_tenant")
   @@unique([locationId, forecastFor, provider]) // تنبؤ واحد لكل موقع وتاريخ ومزود
   @@index([locationId, forecastFor(sort: Desc)]) // للاستعلام عن التنبؤات لموقع معين
   @@index([tenantId, forecastFor(sort: Desc)]) // للاستعلام عن تنبؤات مستأجر معين
@@ -133,6 +148,7 @@ model WeatherAlert {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_weather_alert_id_tenant")
   @@index([locationId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات موقع معين
   @@index([tenantId, startTime(sort: Desc)]) // للاستعلام عن تنبيهات مستأجر معين
   @@index([alertType, severity]) // للتصفية حسب النوع والخطورة
@@ -185,6 +201,7 @@ model LocationConfig {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
+  @@unique([id, tenantId], map: "uq_location_config_id_tenant")
   @@unique([tenantId, latitude, longitude]) // موقع واحد لكل مستأجر وإحداثيات
   @@index([tenantId, isActive]) // للاستعلام عن المواقع النشطة لمستأجر
   @@index([isActive]) // للمواقع النشطة

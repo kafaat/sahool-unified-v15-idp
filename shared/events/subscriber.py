@@ -198,8 +198,32 @@ class EventSubscriber:
         self._dlq_initialized = False
 
         # In-memory event_id deduplication (LRU, bounded)
+        # Used as a fast local cache when Redis is unavailable.
         self._processed_event_ids: dict[str, float] = {}
         self._dedup_max_size: int = 50_000
+
+        # PR8 — Redis-based cross-instance dedup
+        # Key prefix: sahool:nats:dedup:<event_id>  TTL: 24 h
+        # Falls back to in-memory when Redis is unavailable.
+        self._dedup_redis: Any = None
+        self._dedup_redis_prefix = "sahool:nats:dedup:"
+        self._dedup_redis_ttl = 86_400  # 24 hours
+        _redis_url = os.getenv("REDIS_URL") or os.getenv("REDIS_DEDUP_URL")
+        if _redis_url:
+            try:
+                import redis.asyncio as aioredis  # type: ignore[import]
+
+                self._dedup_redis = aioredis.from_url(
+                    _redis_url,
+                    decode_responses=True,
+                    socket_connect_timeout=2,
+                    socket_timeout=1,
+                )
+                logger.info("NATS dedup: Redis-backed cross-instance deduplication enabled")
+            except Exception as _e:
+                logger.warning("NATS dedup: Redis unavailable (%s); using in-memory fallback", _e)
+        else:
+            logger.info("NATS dedup: no REDIS_URL configured; using in-memory fallback")
 
     @property
     def is_connected(self) -> bool:
@@ -620,12 +644,21 @@ class EventSubscriber:
 
                 # ── 3. Idempotency guard: skip already-processed event_ids ──
                 eid = getattr(event, "event_id", None) if not isinstance(event, dict) else event.get("event_id")
-                if eid and eid in self._processed_event_ids:
-                    self._dedup_hit_count += 1
-                    logger.debug(f"⏭️  Duplicate event_id skipped: {eid} on {subject}")
-                    if subscription.auto_ack:
-                        await self._acknowledge_message(msg)
-                    return
+                if eid:
+                    # Check Redis first (cross-instance dedup)
+                    _redis_hit = False
+                    if self._dedup_redis is not None:
+                        try:
+                            _redis_hit = bool(await self._dedup_redis.exists(f"{self._dedup_redis_prefix}{eid}"))
+                        except Exception as _re:
+                            logger.debug("dedup_redis_check_failed", error=str(_re))
+                    # Fall back to local in-memory cache
+                    if _redis_hit or eid in self._processed_event_ids:
+                        self._dedup_hit_count += 1
+                        logger.debug(f"⏭️  Duplicate event_id skipped: {eid} on {subject}")
+                        if subscription.auto_ack:
+                            await self._acknowledge_message(msg)
+                        return
 
                 # Inject inbound correlation context into event if missing
                 if not isinstance(event, dict):
@@ -646,7 +679,18 @@ class EventSubscriber:
 
                 # ── 5. Record processed event_id ───────────────────────
                 if eid:
-                    self._processed_event_ids[eid] = asyncio.get_event_loop().time()
+                    now_ts = asyncio.get_event_loop().time()
+                    self._processed_event_ids[eid] = now_ts
+                    # Persist to Redis for cross-instance dedup (fire-and-forget)
+                    if self._dedup_redis is not None:
+                        try:
+                            await self._dedup_redis.set(
+                                f"{self._dedup_redis_prefix}{eid}",
+                                "1",
+                                ex=self._dedup_redis_ttl,
+                            )
+                        except Exception as _re:
+                            logger.debug("dedup_redis_set_failed", error=str(_re))
                     # Evict entries with oldest timestamp when over limit
                     if len(self._processed_event_ids) > self._dedup_max_size:
                         excess = len(self._processed_event_ids) - self._dedup_max_size

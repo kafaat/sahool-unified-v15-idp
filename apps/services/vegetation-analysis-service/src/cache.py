@@ -18,7 +18,13 @@ from datetime import UTC, datetime, timezone
 from functools import wraps
 from typing import Any
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
+
 logger = logging.getLogger(__name__)
+
 
 # Async Redis client - lazy initialization
 _redis_client = None
@@ -55,10 +61,10 @@ async def _get_redis_client():
             # Test connection
             await _redis_client.ping()
             _redis_available = True
-            logger.info(f"Redis connected (async): {redis_url}")
+            logger.info("Redis connected (async): %s", _safe_log(redis_url))
             return _redis_client
         except Exception as e:
-            logger.warning(f"Redis not available: {e}. Caching disabled.")
+            logger.warning("Redis not available: %s. Caching disabled.", _safe_log(e))
             _redis_available = False
             return None
 
@@ -115,9 +121,16 @@ def _analysis_cache_key(
     field_id: str,
     satellite: str,
     tenant_id: str | None = None,
+    acquisition_date: str | None = None,
 ) -> str:
-    """Generate cache key for field analysis."""
-    date_str = datetime.now(UTC).strftime("%Y-%m-%d")
+    """Generate cache key for field analysis.
+
+    ``acquisition_date`` (ISO-8601, e.g. ``"2026-03-15"``) must be supplied
+    when the caller requests historical imagery — otherwise the key falls
+    back to "today" and historical queries collide with live ones on the
+    same field+satellite. Per Copilot review on PR #1697.
+    """
+    date_str = acquisition_date or datetime.now(UTC).strftime("%Y-%m-%d")
     return f"satellite:t:{_ns(tenant_id)}:analysis:{field_id}:{date_str}:{satellite}"
 
 
@@ -160,12 +173,12 @@ async def cache_get(key: str) -> dict[str, Any] | None:
     try:
         data = await client.get(key)
         if data:
-            logger.debug(f"Cache HIT: {key}")
+            logger.debug("Cache HIT: %s", _safe_log(key))
             return json.loads(data)
-        logger.debug(f"Cache MISS: {key}")
+        logger.debug("Cache MISS: %s", _safe_log(key))
         return None
     except Exception as e:
-        logger.error(f"Cache get error: {e}")
+        logger.error("Cache get error: %s", _safe_log(e))
         return None
 
 
@@ -182,10 +195,10 @@ async def cache_set(
     try:
         data = json.dumps(value, default=str)
         await client.setex(key, ttl, data)
-        logger.debug(f"Cache SET: {key} (TTL: {ttl}s)")
+        logger.debug("Cache SET: %s (TTL: %ds)", _safe_log(key), ttl)
         return True
     except Exception as e:
-        logger.error(f"Cache set error: {e}")
+        logger.error("Cache set error: %s", _safe_log(e))
         return False
 
 
@@ -197,10 +210,10 @@ async def cache_delete(key: str) -> bool:
 
     try:
         await client.delete(key)
-        logger.debug(f"Cache DELETE: {key}")
+        logger.debug("Cache DELETE: %s", _safe_log(key))
         return True
     except Exception as e:
-        logger.error(f"Cache delete error: {e}")
+        logger.error("Cache delete error: %s", _safe_log(e))
         return False
 
 
@@ -243,12 +256,12 @@ async def cache_invalidate_field(
             logger.info(
                 "Cache INVALIDATE: %d keys for field %s (tenant=%s)",
                 deleted,
-                field_id,
-                tenant_id or "*",
+                _safe_log(field_id),
+                _safe_log(tenant_id) if tenant_id else "*",
             )
         return deleted
     except Exception as e:
-        logger.error(f"Cache invalidate error: {e}")
+        logger.error("Cache invalidate error: %s", _safe_log(e))
         return 0
 
 
@@ -288,9 +301,15 @@ async def cache_ndvi(
 async def get_cached_analysis(
     field_id: str,
     satellite: str,
+    tenant_id: str | None = None,
+    acquisition_date: str | None = None,
 ) -> dict[str, Any] | None:
-    """Get cached field analysis."""
-    key = _analysis_cache_key(field_id, satellite)
+    """Get cached field analysis. Key is tenant-scoped + date-scoped.
+
+    ``acquisition_date`` (ISO-8601) must be supplied when the caller requests
+    historical imagery to avoid collisions with the default "today" key.
+    """
+    key = _analysis_cache_key(field_id, satellite, tenant_id=tenant_id, acquisition_date=acquisition_date)
     return await cache_get(key)
 
 
@@ -298,9 +317,11 @@ async def cache_analysis(
     field_id: str,
     satellite: str,
     analysis_data: dict[str, Any],
+    tenant_id: str | None = None,
+    acquisition_date: str | None = None,
 ) -> bool:
-    """Cache field analysis results."""
-    key = _analysis_cache_key(field_id, satellite)
+    """Cache field analysis results. Key is tenant-scoped + date-scoped."""
+    key = _analysis_cache_key(field_id, satellite, tenant_id=tenant_id, acquisition_date=acquisition_date)
     return await cache_set(key, analysis_data, CacheTTL.ANALYSIS)
 
 
@@ -313,9 +334,10 @@ async def get_cached_timeseries(
     field_id: str,
     days: int,
     satellite: str,
+    tenant_id: str | None = None,
 ) -> dict[str, Any] | None:
-    """Get cached time series data."""
-    key = _timeseries_cache_key(field_id, days, satellite)
+    """Get cached time series data. Key is tenant-scoped to prevent cross-tenant leakage."""
+    key = _timeseries_cache_key(field_id, days, satellite, tenant_id=tenant_id)
     return await cache_get(key)
 
 
@@ -324,9 +346,10 @@ async def cache_timeseries(
     days: int,
     satellite: str,
     timeseries_data: dict[str, Any],
+    tenant_id: str | None = None,
 ) -> bool:
-    """Cache time series data."""
-    key = _timeseries_cache_key(field_id, days, satellite)
+    """Cache time series data. Key is tenant-scoped to prevent cross-tenant leakage."""
+    key = _timeseries_cache_key(field_id, days, satellite, tenant_id=tenant_id)
     return await cache_set(key, timeseries_data, CacheTTL.TIMESERIES)
 
 

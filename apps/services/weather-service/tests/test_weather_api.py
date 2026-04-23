@@ -273,27 +273,18 @@ class TestForecastEndpoint:
                 assert response.status_code == 200
 
     def test_get_forecast_max_days_limit(self, client):
-        """Test forecast respects maximum days limit"""
-        with patch("src.main.app.state") as mock_state:
-            mock_provider = AsyncMock()
-            mock_provider.get_daily_forecast = AsyncMock(return_value=[])
-            mock_state.weather_provider = mock_provider
-            mock_state.multi_provider = None
-            mock_state.publisher = None
-
-            # Request more than 16 days (API limit)
-            response = client.post(
-                "/weather/forecast?days=30",
-                json={
-                    "tenant_id": "00000000-0000-0000-0000-000000000123",
-                    "field_id": "field-456",
-                    "lat": 15.35,
-                    "lon": 44.20,
-                },
-            )
-
-            assert response.status_code == 200
-            # Should be clamped to 16 days max
+        """Test forecast rejects days > 16 with 422"""
+        response = client.post(
+            "/weather/forecast?days=30",
+            json={
+                "tenant_id": "00000000-0000-0000-0000-000000000123",
+                "field_id": "field-456",
+                "lat": 15.35,
+                "lon": 44.20,
+            },
+        )
+        # days=30 exceeds le=16 → Pydantic rejects with 422
+        assert response.status_code == 422
 
 
 class TestWeatherAssessEndpoint:

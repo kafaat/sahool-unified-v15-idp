@@ -7,7 +7,7 @@ API endpoints for Variable Rate Application prescription maps.
 
 import logging
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from .vra_generator import (
@@ -32,6 +32,8 @@ except ImportError:
             raise HTTPException(status_code=401, detail="Authentication required")
         return {"token": credentials.credentials}
 
+
+from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +104,12 @@ class PrescriptionMapResponse(BaseModel):
     geojson_url: str | None
     shapefile_url: str | None
     isoxml_url: str | None
+    # Data-source transparency (OneSoil / Climate FieldView convention).
+    # When true, the prescription was built from synthetic NDVI zones
+    # and must not be blindly applied — the UI should surface data_warning_*.
+    is_synthetic: bool = False
+    data_warning_en: str | None = None
+    data_warning_ar: str | None = None
 
 
 # =============================================================================
@@ -119,7 +127,11 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     """
 
     @app.post("/v1/vra/generate", response_model=PrescriptionMapResponse)
-    async def generate_vra_prescription(request: VRARequest):
+    async def generate_vra_prescription(
+        request: VRARequest,
+        http_request: Request,
+        _user=Depends(get_current_user),
+    ):
         """
         توليد خريطة وصفة التطبيق المتغير | Generate VRA Prescription Map
 
@@ -146,6 +158,16 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 "product_price_per_unit": 2.5
             }
         """
+        # Ownership-aware gate (Copilot review #1704 round 3): tenant
+        # presence alone is insufficient for a field-scoped mutation —
+        # a caller with a valid JWT could previously generate a VRA
+        # prescription against a field owned by a different tenant.
+        # Switch to the composed guard that verifies the field belongs
+        # to this tenant via field-management-service, forwarding the
+        # Bearer token from `http_request`. Also capture the returned
+        # `tenant_id` so it can be stamped on the prescription store
+        # key — see 2026-04-21 deep audit finding #1.
+        tenant_id = await verify_field_owned_by_tenant(_user, request.field_id, http_request=http_request)
         try:
             # Parse VRA type
             try:
@@ -165,7 +187,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                     detail=f"Invalid zone method. Must be one of: {', '.join([m.value for m in ZoneMethod])}",
                 )
 
-            # Generate prescription map
+            # Generate prescription map (tenant-scoped in the store).
             prescription = await vra_generator.generate_prescription(
                 field_id=request.field_id,
                 latitude=request.latitude,
@@ -173,6 +195,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 vra_type=vra_type,
                 target_rate=request.target_rate,
                 unit=request.unit,
+                tenant_id=tenant_id,
                 num_zones=request.num_zones,
                 zone_method=zone_method,
                 min_rate=request.min_rate,
@@ -225,6 +248,9 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 geojson_url=f"/v1/vra/export/{prescription.id}?format=geojson",
                 shapefile_url=f"/v1/vra/export/{prescription.id}?format=shapefile",
                 isoxml_url=f"/v1/vra/export/{prescription.id}?format=isoxml",
+                is_synthetic=getattr(prescription, "is_synthetic", False),
+                data_warning_en=getattr(prescription, "data_warning_en", None),
+                data_warning_ar=getattr(prescription, "data_warning_ar", None),
             )
 
         except ValueError as e:
@@ -236,9 +262,11 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     @app.get("/v1/vra/zones/{field_id}")
     async def get_management_zones(
         field_id: str,
+        http_request: Request,
         lat: float = Query(..., description="Field latitude", ge=-90, le=90),
         lon: float = Query(..., description="Field longitude", ge=-180, le=180),
         num_zones: int = Query(3, description="Number of management zones", ge=3, le=5),
+        _user=Depends(get_current_user),
     ):
         """
         تحليل مناطق الإدارة | Get Management Zones
@@ -249,6 +277,10 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/zones/field_123?lat=15.5&lon=44.2&num_zones=3
         """
+        # Ownership gate — return value unused (zones are keyed on
+        # field_id, not tenant_id). Kept as a bare `await` to silence
+        # the unused-variable lint flagged by Copilot review round 3.
+        await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             zones_stats = await vra_generator.classify_zones(
                 field_id=field_id,
@@ -293,7 +325,9 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     @app.get("/v1/vra/prescriptions/{field_id}")
     async def get_field_prescriptions(
         field_id: str,
+        http_request: Request,
         limit: int = Query(10, description="Maximum number of prescriptions to return", ge=1, le=50),
+        _user=Depends(get_current_user),
     ):
         """
         سجل الوصفات | Get Prescription History
@@ -303,9 +337,14 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescriptions/field_123?limit=10
         """
+        # Ownership gate + tenant capture — post-audit the prescription
+        # store is keyed on (tenant_id, id), so get_field_prescriptions
+        # requires the tenant to filter correctly.
+        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             prescriptions = await vra_generator.get_field_prescriptions(
                 field_id=field_id,
+                tenant_id=tenant_id,
                 limit=limit,
             )
 
@@ -337,7 +376,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise HTTPException(status_code=500, detail="Failed to fetch prescriptions")
 
     @app.get("/v1/vra/prescription/{prescription_id}")
-    async def get_prescription_details(prescription_id: str):
+    async def get_prescription_details(prescription_id: str, _user=Depends(get_current_user)):
         """
         تفاصيل الوصفة | Get Prescription Details
 
@@ -346,8 +385,14 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/prescription/abc-123-def
         """
+        # SECURITY (2026-04-21 audit #1): the prescription store is now
+        # keyed on (tenant_id, prescription_id). `get_prescription` returns
+        # None for a prescription owned by a different tenant, so
+        # cross-tenant guess-the-UUID reads surface as 404 with no
+        # enumeration oracle.
+        tenant_id = require_tenant_id(_user)
         try:
-            prescription = await vra_generator.get_prescription(prescription_id)
+            prescription = await vra_generator.get_prescription(prescription_id, tenant_id)
 
             if not prescription:
                 raise HTTPException(status_code=404, detail="Prescription not found")
@@ -395,6 +440,9 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
                 geojson_url=f"/v1/vra/export/{prescription.id}?format=geojson",
                 shapefile_url=f"/v1/vra/export/{prescription.id}?format=shapefile",
                 isoxml_url=f"/v1/vra/export/{prescription.id}?format=isoxml",
+                is_synthetic=getattr(prescription, "is_synthetic", False),
+                data_warning_en=getattr(prescription, "data_warning_en", None),
+                data_warning_ar=getattr(prescription, "data_warning_ar", None),
             )
 
         except HTTPException:
@@ -407,6 +455,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
     async def export_prescription(
         prescription_id: str,
         format: str = Query("geojson", description="Export format (geojson, shapefile, isoxml)"),
+        _user=Depends(get_current_user),
     ):
         """
         تصدير الوصفة | Export Prescription
@@ -419,8 +468,10 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             GET /v1/vra/export/abc-123-def?format=geojson
         """
+        # Tenant-scoped lookup (audit #1).
+        tenant_id = require_tenant_id(_user)
         try:
-            prescription = await vra_generator.get_prescription(prescription_id)
+            prescription = await vra_generator.get_prescription(prescription_id, tenant_id)
 
             if not prescription:
                 raise HTTPException(status_code=404, detail="Prescription not found")
@@ -465,8 +516,11 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
         Example:
             DELETE /v1/vra/prescription/abc-123-def
         """
+        # Tenant-scoped delete (audit #1): returns False — surfaced as 404
+        # — both for missing and for cross-tenant prescription ids.
+        tenant_id = require_tenant_id(_user)
         try:
-            deleted = await vra_generator.delete_prescription(prescription_id)
+            deleted = await vra_generator.delete_prescription(prescription_id, tenant_id)
 
             if not deleted:
                 raise HTTPException(status_code=404, detail="Prescription not found")

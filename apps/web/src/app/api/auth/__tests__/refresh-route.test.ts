@@ -209,11 +209,15 @@ describe('Token Refresh Proxy Route', () => {
     const { POST } = await import('../refresh/route');
     await POST(createRequest());
 
+    // NestJS RefreshTokenDto uses `whitelist: true` + camelCase: the
+    // proxy route serializes the body as `refreshToken`, not the
+    // snake_case cookie/header name. See apps/web/src/app/api/auth/
+    // refresh/route.ts.
     expect(mockFetch).toHaveBeenCalledWith(
       'http://localhost:8000/api/v1/auth/refresh',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ refresh_token: 'my-refresh-token' }),
+        body: JSON.stringify({ refreshToken: 'my-refresh-token' }),
       })
     );
   });

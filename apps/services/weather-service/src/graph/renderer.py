@@ -27,6 +27,11 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
 from typing import Literal
 
+# Sentinel value used when WEATHER_GRAPH_SIGNING_SECRET is unset in dev.
+# `main.py`'s startup guard rejects this exact string in staging/production,
+# so both sites MUST reference the same constant.
+DEV_GRAPH_SIGNING_SECRET = "dev-change-me-in-production"  # nosec B105 - sentinel, not a real secret
+
 # ---------------------------------------------------------------------------
 # Data models
 # ---------------------------------------------------------------------------
@@ -300,7 +305,7 @@ class GraphStore:
         self._store: dict[str, tuple[str, datetime, str, str]] = {}
         self._secret = signing_secret or os.getenv(
             "WEATHER_GRAPH_SIGNING_SECRET",
-            "dev-change-me-in-production",  # nosec B105 - dev fallback only
+            DEV_GRAPH_SIGNING_SECRET,
         )
 
     def store(self, svg: str, field_id: str, tenant_id: str) -> tuple[str, str, datetime]:

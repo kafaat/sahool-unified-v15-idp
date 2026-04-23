@@ -58,6 +58,131 @@ export interface NDVIMapData {
   };
 }
 
+/**
+ * Raster-tile metadata for any mappable vegetation index (NDVI, NDRE, NDWI,
+ * EVI, SAVI, LAI). Returned by `GET /v1/indices/{fieldId}/{indexName}/map`.
+ * Mirrors the backend `_MAPPABLE_INDICES` shape.
+ */
+export interface IndexMapData {
+  fieldId: string;
+  indexName: string;
+  date: string;
+  rasterUrl: string;
+  bounds: [[number, number], [number, number]];
+  colorScale: {
+    min: number;
+    max: number;
+    colors: string[];
+  };
+  label: {
+    en: string;
+    ar: string;
+  };
+  unit: string;
+  dataSource: 'sentinel_hub' | 'simulated';
+}
+
+/** Every computed index at one (lat, lon) point — powers click-to-inspect. */
+export interface PixelInspection {
+  fieldId: string;
+  location: {
+    latitude: number;
+    longitude: number;
+  };
+  date: string;
+  satellite: string;
+  indices: Record<string, number | null>;
+  mappable: string[];
+  dataSource: 'sentinel_hub' | 'simulated';
+}
+
+/** Bilingual health-status bucket used across composite/filmstrip/compare. */
+export interface IndexStatus {
+  key: 'excellent' | 'good' | 'moderate' | 'poor' | 'unknown';
+  en: string;
+  ar: string;
+}
+
+/** Single bucket in a composite response. */
+export interface CompositeWindow {
+  window_start: string;
+  window_end: string;
+  count: number;
+  mean: number;
+  median: number;
+  min: number;
+  max: number;
+  p25: number;
+  p75: number;
+  status: IndexStatus;
+}
+
+export interface IndexComposite {
+  fieldId: string;
+  indexName: string;
+  stat: 'median' | 'mean';
+  stepDays: number;
+  start: string;
+  end: string;
+  windows: CompositeWindow[];
+  count: number;
+  dataSource: 'sentinel_hub' | 'simulated';
+}
+
+/** Single frame in a filmstrip. */
+export interface FilmstripFrame {
+  date: string;
+  rasterUrl: string;
+  value: number | null;
+  status: IndexStatus;
+  cloudCover?: number | null;
+}
+
+export interface IndexFilmstripData {
+  fieldId: string;
+  indexName: string;
+  stepDays: number;
+  colorScale: {
+    min: number;
+    max: number;
+    colors: string[];
+  };
+  label: {
+    en: string;
+    ar: string;
+  };
+  frames: FilmstripFrame[];
+  count: number;
+  dataSource: 'sentinel_hub' | 'simulated';
+}
+
+/** Single row of a multi-date-compare response. */
+export interface MultiDateCompareRow {
+  date: string;
+  value: number | null;
+  delta_from_previous: number | null;
+  status: IndexStatus;
+}
+
+export interface MultiDateCompare {
+  fieldId: string;
+  indexName: string;
+  dates: string[];
+  rows: MultiDateCompareRow[];
+  summary: {
+    count_dates: number;
+    count_with_data: number;
+    min: number | null;
+    max: number | null;
+    overall_delta: number | null;
+  };
+  dataSource: 'sentinel_hub' | 'simulated';
+}
+
+export type MultiDateCompareRequest =
+  | { dates: string[] }
+  | { start: string; end: string; step_days: number };
+
 export interface NDVIFilters {
   fieldId?: string;
   governorate?: string;
@@ -314,6 +439,150 @@ export const vegetationIndicesApi = {
       const qs = params.toString();
 
       const response = await api.get(`${url}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    });
+  },
+
+  /**
+   * Get raster-tile metadata for a mappable vegetation index.
+   * جلب بيانات الطبقة النقطية لمؤشر نباتي قابل للعرض على الخريطة
+   *
+   * Returns a `{rasterUrl, bounds, colorScale}` envelope that the MapLibre
+   * layer can render. The rasterUrl is a Sentinel Hub WMS template when
+   * the instance is configured, or a simulated `/tile/{z}/{x}/{y}` path
+   * otherwise — same shape either way.
+   *
+   * @param fieldId - Field identifier
+   * @param indexName - One of ndvi|ndre|ndwi|evi|savi|lai
+   * @param date - Optional ISO date (YYYY-MM-DD); defaults to today
+   */
+  getIndexMap: async (
+    fieldId: string,
+    indexName: VegetationIndex | string,
+    date?: string
+  ): Promise<IndexMapData> => {
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_MAP, {
+      fieldId,
+      indexName: String(indexName).toLowerCase(),
+    });
+    return safeFetch(url, async () => {
+      const params = date ? `?date=${date}` : '';
+      const response = await api.get(`${url}${params}`);
+      return response.data;
+    });
+  },
+
+  /**
+   * Click-to-inspect: get every computed index at a lat/lon point.
+   * الحصول على جميع المؤشرات عند نقطة محددة (click-to-inspect)
+   *
+   * EOSDA/OneSoil UX parity — user clicks the map, popup shows NDVI +
+   * NDRE + NDWI + SAVI + LAI + 39 more at that exact coordinate.
+   */
+  getPixelInspection: async (
+    fieldId: string,
+    lat: number,
+    lon: number,
+    options?: {
+      date?: string;
+      indices?: Array<VegetationIndex | string>;
+    }
+  ): Promise<PixelInspection> => {
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_PIXEL, { fieldId });
+    return safeFetch(url, async () => {
+      const params = new URLSearchParams();
+      params.set('lat', String(lat));
+      params.set('lon', String(lon));
+      if (options?.date) params.set('date', options.date);
+      if (options?.indices?.length) {
+        params.set('indices', options.indices.map(String).join(','));
+      }
+      const response = await api.get(`${url}?${params.toString()}`);
+      return response.data;
+    });
+  },
+
+  /**
+   * N-day composite (median/mean per window) for a mappable index.
+   * جلب تركيب زمني لكل N يوم
+   *
+   * EOSDA "weekly/monthly composite" — smooths cloud artefacts without
+   * losing the trend. Returns p25/p75 envelopes so the client can draw
+   * confidence bands.
+   */
+  getIndexComposite: async (
+    fieldId: string,
+    indexName: VegetationIndex | string,
+    options?: {
+      stepDays?: number;
+      start?: string;
+      end?: string;
+      stat?: 'median' | 'mean';
+    }
+  ): Promise<IndexComposite> => {
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_COMPOSITE, {
+      fieldId,
+      indexName: String(indexName).toLowerCase(),
+    });
+    return safeFetch(url, async () => {
+      const params = new URLSearchParams();
+      if (options?.stepDays) params.set('step_days', String(options.stepDays));
+      if (options?.start) params.set('start', options.start);
+      if (options?.end) params.set('end', options.end);
+      if (options?.stat) params.set('stat', options.stat);
+      const qs = params.toString();
+      const response = await api.get(`${url}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    });
+  },
+
+  /**
+   * Filmstrip — per-date thumbnail metadata for a carousel UI.
+   * شريط الصور - بيانات المصغّرات لعرض carousel
+   */
+  getIndexFilmstrip: async (
+    fieldId: string,
+    indexName: VegetationIndex | string,
+    options?: {
+      stepDays?: number;
+      start?: string;
+      end?: string;
+    }
+  ): Promise<IndexFilmstripData> => {
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_FILMSTRIP, {
+      fieldId,
+      indexName: String(indexName).toLowerCase(),
+    });
+    return safeFetch(url, async () => {
+      const params = new URLSearchParams();
+      if (options?.stepDays) params.set('step_days', String(options.stepDays));
+      if (options?.start) params.set('start', options.start);
+      if (options?.end) params.set('end', options.end);
+      const qs = params.toString();
+      const response = await api.get(`${url}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    });
+  },
+
+  /**
+   * Multi-date compare — N (up to 12) dates, same index.
+   * مقارنة متعددة التواريخ لنفس المؤشر
+   *
+   * Supersedes the legacy 2-date compare for all mappable indices. Each
+   * row includes `delta_from_previous` so the UI can render arrows
+   * without doing client-side math.
+   */
+  multiDateCompare: async (
+    fieldId: string,
+    indexName: VegetationIndex | string,
+    body: MultiDateCompareRequest
+  ): Promise<MultiDateCompare> => {
+    const url = buildUrl(SATELLITE_ENDPOINTS.INDEX_MULTI_COMPARE, {
+      fieldId,
+      indexName: String(indexName).toLowerCase(),
+    });
+    return safeFetch(url, async () => {
+      const response = await api.post(url, body);
       return response.data;
     });
   },

@@ -12,10 +12,14 @@ Sanitizes API key query parameters from provider error messages to prevent
 credential leakage in logs (see _sanitize_error_msg helper calls below).
 """
 
+import asyncio
+import logging as _logging
 import os
+import time
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from dataclasses import dataclass, field
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from typing import Any
 
@@ -24,6 +28,80 @@ import httpx
 # Query parameter names that may carry API keys; used to redact URLs in error messages.
 # Stored without "=" so the literal strings don't trigger secret-scanning heuristics.
 _API_QUERY_PARAMS = ("appid", "key", "apikey")
+
+# Maximum number of entries kept in the in-process cache.
+# Beyond this limit the least-recently-written entry is evicted; updates
+# refresh an existing key's position via move_to_end(), so eviction order
+# is based on write recency (not strict FIFO).
+_CACHE_MAX_SIZE = 512
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# Arabic translation of weather condition strings (shared by providers)
+# يعمل مع صيغ OpenWeatherMap القصيرة (Clear, Clouds...) ومع نصوص WeatherAPI
+# الحرة مثل "Partly cloudy", "Light rain", "Thundery outbreaks possible".
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# Order matters: longer/more-specific phrases MUST come before shorter ones
+# (e.g. "thunderstorm" before "storm"; "light rain" before "rain") so that
+# the first substring match wins.
+_CONDITION_AR_RULES: tuple[tuple[str, str], ...] = (
+    # Thunderstorms / severe
+    ("thunderstorm", "عاصفة رعدية"),
+    ("thunder", "عاصفة رعدية"),
+    ("storm", "عاصفة"),
+    # Snow / ice
+    ("blizzard", "عاصفة ثلجية"),
+    ("sleet", "مطر ثلجي"),
+    ("snow", "ثلج"),
+    ("ice", "صقيع"),
+    # Rain intensities (most specific first)
+    ("heavy rain", "أمطار غزيرة"),
+    ("moderate rain", "أمطار متوسطة"),
+    ("light rain", "أمطار خفيفة"),
+    ("patchy rain", "أمطار متفرقة"),
+    ("drizzle", "رذاذ"),
+    ("shower", "زخات مطر"),
+    ("rain", "مطر"),
+    # Cloud coverage
+    ("overcast", "غائم كلياً"),
+    ("partly cloudy", "غائم جزئياً"),
+    ("mostly cloudy", "غائم في الغالب"),
+    ("cloudy", "غائم"),
+    ("clouds", "غائم"),
+    # Visibility / fog family
+    ("fog", "ضباب"),
+    ("mist", "ضباب خفيف"),
+    ("haze", "ضباب دخاني"),
+    ("smoke", "دخان"),
+    ("dust", "غبار"),
+    ("sand", "عاصفة رملية"),
+    # Clear / sunny
+    ("sunny", "مشمس"),
+    ("clear", "صافي"),
+)
+
+
+def condition_to_ar(condition: str | None) -> str:
+    """
+    Translate a provider-supplied weather condition string to Arabic.
+
+    Accepts both OpenWeatherMap-style tokens ("Clear", "Rain") and
+    WeatherAPI-style phrases ("Partly cloudy", "Light rain shower").
+
+    Returns:
+        Arabic translation if a rule matches. ``"غير معروف"`` if the input
+        is ``None`` or an empty string. Otherwise the original string
+        unchanged (so upstream callers see exactly what the provider sent).
+    """
+    if not condition:
+        return "غير معروف"
+    lowered = condition.lower()
+    for needle, arabic in _CONDITION_AR_RULES:
+        if needle in lowered:
+            return arabic
+    return condition
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models
@@ -136,6 +214,26 @@ class WeatherProvider(ABC):
             self._client = httpx.AsyncClient(timeout=30.0)
         return self._client
 
+    async def _request_with_retry(self, method: str, url: str, **kwargs) -> httpx.Response:
+        """Issue an HTTP request with up to 3 attempts on transient network errors.
+
+        Only ``httpx.TransportError`` (connection resets, timeouts at the socket
+        level, etc.) triggers a retry.  HTTP-level errors (4xx, 5xx) are raised
+        immediately so that a bad API key doesn't cause unnecessary retries.
+        Back-off: 0.5 s → 1 s between attempts.
+        """
+        client = await self._get_client()
+        for attempt in range(3):
+            try:
+                resp = await getattr(client, method)(url, **kwargs)
+                resp.raise_for_status()
+                return resp
+            except httpx.TransportError:
+                if attempt < 2:
+                    await asyncio.sleep(0.5 * (2**attempt))
+                else:
+                    raise
+
     async def close(self):
         if self._client:
             await self._client.aclose()
@@ -196,8 +294,6 @@ class OpenMeteoProvider(WeatherProvider):
         super().__init__("Open-Meteo")
 
     async def get_current(self, lat: float, lon: float) -> WeatherData:
-        client = await self._get_client()
-
         params = {
             "latitude": lat,
             "longitude": lon,
@@ -215,8 +311,7 @@ class OpenMeteoProvider(WeatherProvider):
             "timezone": "auto",
         }
 
-        response = await client.get(self.BASE_URL, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", self.BASE_URL, params=params)
         data = response.json()
         current = data.get("current", {})
 
@@ -241,8 +336,6 @@ class OpenMeteoProvider(WeatherProvider):
         )
 
     async def get_daily_forecast(self, lat: float, lon: float, days: int = 7) -> list[DailyForecast]:
-        client = await self._get_client()
-
         params = {
             "latitude": lat,
             "longitude": lon,
@@ -261,8 +354,7 @@ class OpenMeteoProvider(WeatherProvider):
             "forecast_days": min(days, 16),
         }
 
-        response = await client.get(self.BASE_URL, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", self.BASE_URL, params=params)
         data = response.json()
         daily = data.get("daily", {})
 
@@ -291,8 +383,6 @@ class OpenMeteoProvider(WeatherProvider):
         return forecasts
 
     async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24) -> list[HourlyForecast]:
-        client = await self._get_client()
-
         params = {
             "latitude": lat,
             "longitude": lon,
@@ -309,8 +399,7 @@ class OpenMeteoProvider(WeatherProvider):
             "forecast_hours": min(hours, 168),
         }
 
-        response = await client.get(self.BASE_URL, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", self.BASE_URL, params=params)
         data = response.json()
         hourly = data.get("hourly", {})
 
@@ -421,17 +510,29 @@ class OpenWeatherMapProvider(WeatherProvider):
         if not self.is_configured:
             raise ValueError("OpenWeatherMap API key not configured")
 
-        client = await self._get_client()
         url = f"{self.BASE_URL}/weather"
-
         params = {"lat": lat, "lon": lon, "appid": self.api_key, "units": "metric"}
 
-        response = await client.get(url, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", url, params=params)
         data = response.json()
 
         wind_deg = data.get("wind", {}).get("deg", 0)
         condition = data.get("weather", [{}])[0].get("main", "Unknown")
+
+        # OWM basic endpoint doesn't include UV; try the dedicated UV endpoint
+        # (best-effort — falls back to 0 if the call fails or the key tier doesn't allow it).
+        uv_index = 0.0
+        try:
+            client = await self._get_client()
+            uv_resp = await client.get(
+                f"{self.BASE_URL}/uvi",
+                params={"lat": lat, "lon": lon, "appid": self.api_key},
+                timeout=5.0,
+            )
+            if uv_resp.status_code == 200:
+                uv_index = float(uv_resp.json().get("value", 0))
+        except Exception:
+            pass  # UV is best-effort; not available on all OWM subscription tiers
 
         return WeatherData(
             temperature_c=data.get("main", {}).get("temp", 0),
@@ -442,7 +543,7 @@ class OpenWeatherMapProvider(WeatherProvider):
             precipitation_mm=data.get("rain", {}).get("1h", 0),
             cloud_cover_pct=data.get("clouds", {}).get("all", 0),
             pressure_hpa=data.get("main", {}).get("pressure", 1013),
-            uv_index=0,  # Not available in basic API
+            uv_index=uv_index,
             condition=condition,
             condition_ar=self._condition_to_ar(condition),
             icon=data.get("weather", [{}])[0].get("icon", "01d"),
@@ -454,9 +555,7 @@ class OpenWeatherMapProvider(WeatherProvider):
         if not self.is_configured:
             raise ValueError("OpenWeatherMap API key not configured")
 
-        client = await self._get_client()
         url = f"{self.BASE_URL}/forecast"
-
         params = {
             "lat": lat,
             "lon": lon,
@@ -465,8 +564,7 @@ class OpenWeatherMapProvider(WeatherProvider):
             "cnt": days * 8,  # 3-hour intervals
         }
 
-        response = await client.get(url, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", url, params=params)
         data = response.json()
 
         # Group by day
@@ -502,9 +600,7 @@ class OpenWeatherMapProvider(WeatherProvider):
         if not self.is_configured:
             raise ValueError("OpenWeatherMap API key not configured")
 
-        client = await self._get_client()
         url = f"{self.BASE_URL}/forecast"
-
         params = {
             "lat": lat,
             "lon": lon,
@@ -513,8 +609,7 @@ class OpenWeatherMapProvider(WeatherProvider):
             "cnt": min(hours // 3, 40),  # 3-hour intervals, max 5 days
         }
 
-        response = await client.get(url, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", url, params=params)
         data = response.json()
 
         forecasts = []
@@ -577,13 +672,10 @@ class WeatherAPIProvider(WeatherProvider):
         if not self.is_configured:
             raise ValueError("WeatherAPI key not configured")
 
-        client = await self._get_client()
         url = f"{self.BASE_URL}/current.json"
-
         params = {"key": self.api_key, "q": f"{lat},{lon}", "aqi": "no"}
 
-        response = await client.get(url, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", url, params=params)
         data = response.json()
         current = data.get("current", {})
 
@@ -598,7 +690,7 @@ class WeatherAPIProvider(WeatherProvider):
             pressure_hpa=current.get("pressure_mb", 1013),
             uv_index=current.get("uv", 0),
             condition=current.get("condition", {}).get("text", "Unknown"),
-            condition_ar=current.get("condition", {}).get("text", "غير معروف"),
+            condition_ar=condition_to_ar(current.get("condition", {}).get("text")),
             icon=current.get("condition", {}).get("icon", ""),
             timestamp=datetime.now(UTC).isoformat(),
             provider=self.name,
@@ -608,9 +700,7 @@ class WeatherAPIProvider(WeatherProvider):
         if not self.is_configured:
             raise ValueError("WeatherAPI key not configured")
 
-        client = await self._get_client()
         url = f"{self.BASE_URL}/forecast.json"
-
         params = {
             "key": self.api_key,
             "q": f"{lat},{lon}",
@@ -618,8 +708,7 @@ class WeatherAPIProvider(WeatherProvider):
             "aqi": "no",
         }
 
-        response = await client.get(url, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", url, params=params)
         data = response.json()
 
         forecasts = []
@@ -635,7 +724,7 @@ class WeatherAPIProvider(WeatherProvider):
                     wind_speed_max_kmh=day_data.get("maxwind_kph", 0),
                     uv_index_max=day_data.get("uv", 0),
                     condition=day_data.get("condition", {}).get("text", "Unknown"),
-                    condition_ar=day_data.get("condition", {}).get("text", "غير معروف"),
+                    condition_ar=condition_to_ar(day_data.get("condition", {}).get("text")),
                     icon=day_data.get("condition", {}).get("icon", ""),
                     sunrise=day.get("astro", {}).get("sunrise"),
                     sunset=day.get("astro", {}).get("sunset"),
@@ -648,13 +737,10 @@ class WeatherAPIProvider(WeatherProvider):
         if not self.is_configured:
             raise ValueError("WeatherAPI key not configured")
 
-        client = await self._get_client()
         url = f"{self.BASE_URL}/forecast.json"
-
         params = {"key": self.api_key, "q": f"{lat},{lon}", "days": 2, "aqi": "no"}
 
-        response = await client.get(url, params=params)
-        response.raise_for_status()
+        response = await self._request_with_retry("get", url, params=params)
         data = response.json()
 
         forecasts = []
@@ -672,7 +758,7 @@ class WeatherAPIProvider(WeatherProvider):
                         wind_speed_kmh=hour.get("wind_kph", 0),
                         cloud_cover_pct=hour.get("cloud", 0),
                         condition=hour.get("condition", {}).get("text", "Unknown"),
-                        condition_ar=hour.get("condition", {}).get("text", "غير معروف"),
+                        condition_ar=condition_to_ar(hour.get("condition", {}).get("text")),
                     )
                 )
 
@@ -707,9 +793,35 @@ class MultiWeatherService:
         if os.getenv("WEATHERAPI_KEY"):
             self.providers.append(WeatherAPIProvider())
 
-        # Simple in-memory cache
-        self._cache: dict[str, tuple] = {}
+        # Bounded in-memory cache (max _CACHE_MAX_SIZE entries, write-recency eviction).
+        # Existing keys are refreshed to the end on update; the oldest-by-last-write
+        # entry is evicted when the limit is reached.
+        # Each worker process holds its own copy; this is intentional for simplicity.
+        # For cross-worker sharing, configure a Redis sidecar and add a Redis-backed
+        # cache layer (redis>=7.1.0 is already in requirements.txt).
+        self._cache: OrderedDict[str, tuple] = OrderedDict()
         self._cache_duration = timedelta(minutes=10)
+
+        # Optional metrics hook - populated by the host app at startup.
+        # Signature: (event, provider, from_provider=None, to_provider=None,
+        #             duration_seconds=None, status=None) -> None
+        # Kept as a loose callable so providers module stays framework-agnostic.
+        self._metrics_hook = None
+
+    def set_metrics_hook(self, hook) -> None:
+        """Register an optional metrics callback used to record provider events."""
+        self._metrics_hook = hook
+
+    def _emit_metric(self, event: str, **kwargs) -> None:
+        hook = self._metrics_hook
+        if hook is None:
+            return
+        try:
+            hook(event, **kwargs)
+        except Exception as exc:  # pragma: no cover - metrics must never break serving
+            # Log at debug so a broken metrics sink doesn't spam production logs
+            # but troubleshooting stays possible with LOG_LEVEL=DEBUG.
+            _logging.getLogger(__name__).debug("metrics_hook_failed", extra={"event": event, "error": str(exc)})
 
     async def close(self):
         """Close all provider connections"""
@@ -726,35 +838,63 @@ class MultiWeatherService:
         return None
 
     def _set_cached(self, key: str, data: Any):
-        """Cache a result"""
+        """Cache a result, evicting the oldest entry when the cache is full."""
+        if key in self._cache:
+            # Refresh insertion order so key goes to the end (most-recent).
+            self._cache.move_to_end(key)
         self._cache[key] = (data, datetime.now(UTC))
+        # Evict oldest entries until we are within the size limit.
+        while len(self._cache) > _CACHE_MAX_SIZE:
+            self._cache.popitem(last=False)
 
     async def get_current(self, lat: float, lon: float, tenant_id: str = "") -> WeatherResult:
         """Get current weather with automatic fallback"""
+
         cache_key = f"current_{tenant_id}_{lat:.2f}_{lon:.2f}"
 
         # Check cache
         cached = self._get_cached(cache_key)
-        if cached:
+        if cached is not None:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
-        failed_providers = []
+        failed_providers: list[str] = []
+        previous_provider: str | None = None
 
         for provider in self.providers:
             if not provider.is_configured:
                 continue
 
+            started = time.monotonic()
             try:
                 data = await provider.get_current(lat, lon)
                 self._set_cached(cache_key, data)
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="success",
+                    duration_seconds=time.monotonic() - started,
+                )
+                if previous_provider is not None:
+                    self._emit_metric(
+                        "fallback",
+                        from_provider=previous_provider,
+                        to_provider=provider.name,
+                    )
                 return WeatherResult(data=data, provider=provider.name, failed_providers=failed_providers)
             except Exception as e:
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="failure",
+                    duration_seconds=time.monotonic() - started,
+                )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
                 # Remove any query parameters that might contain API keys
                 if any(f"{p}=" in error_msg for p in _API_QUERY_PARAMS):
                     error_msg = error_msg.split("?")[0] + " [query params redacted]"
                 failed_providers.append(f"{provider.name}: {error_msg}")
+                previous_provider = provider.name
 
         return WeatherResult(
             data=None,
@@ -766,34 +906,56 @@ class MultiWeatherService:
 
     async def get_daily_forecast(self, lat: float, lon: float, days: int = 7, tenant_id: str = "") -> WeatherResult:
         """Get daily forecast with automatic fallback"""
+
         cache_key = f"daily_{tenant_id}_{lat:.2f}_{lon:.2f}_{days}"
 
         cached = self._get_cached(cache_key)
-        if cached:
+        if cached is not None:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
-        failed_providers = []
+        failed_providers: list[str] = []
+        previous_provider: str | None = None
 
         for provider in self.providers:
             if not provider.is_configured:
                 continue
 
+            started = time.monotonic()
             try:
                 data = await provider.get_daily_forecast(lat, lon, days)
-                if data:
+                if data is not None:
                     self._set_cached(cache_key, data)
+                    self._emit_metric(
+                        "request",
+                        provider=provider.name,
+                        status="success",
+                        duration_seconds=time.monotonic() - started,
+                    )
+                    if previous_provider is not None:
+                        self._emit_metric(
+                            "fallback",
+                            from_provider=previous_provider,
+                            to_provider=provider.name,
+                        )
                     return WeatherResult(
                         data=data,
                         provider=provider.name,
                         failed_providers=failed_providers,
                     )
             except Exception as e:
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="failure",
+                    duration_seconds=time.monotonic() - started,
+                )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
                 # Remove any query parameters that might contain API keys
                 if any(f"{p}=" in error_msg for p in _API_QUERY_PARAMS):
                     error_msg = error_msg.split("?")[0] + " [query params redacted]"
                 failed_providers.append(f"{provider.name}: {error_msg}")
+                previous_provider = provider.name
 
         return WeatherResult(
             data=None,
@@ -805,34 +967,56 @@ class MultiWeatherService:
 
     async def get_hourly_forecast(self, lat: float, lon: float, hours: int = 24, tenant_id: str = "") -> WeatherResult:
         """Get hourly forecast with automatic fallback"""
+
         cache_key = f"hourly_{tenant_id}_{lat:.2f}_{lon:.2f}_{hours}"
 
         cached = self._get_cached(cache_key)
-        if cached:
+        if cached is not None:
             return WeatherResult(data=cached, provider="cache", is_cached=True)
 
-        failed_providers = []
+        failed_providers: list[str] = []
+        previous_provider: str | None = None
 
         for provider in self.providers:
             if not provider.is_configured:
                 continue
 
+            started = time.monotonic()
             try:
                 data = await provider.get_hourly_forecast(lat, lon, hours)
-                if data:
+                if data is not None:
                     self._set_cached(cache_key, data)
+                    self._emit_metric(
+                        "request",
+                        provider=provider.name,
+                        status="success",
+                        duration_seconds=time.monotonic() - started,
+                    )
+                    if previous_provider is not None:
+                        self._emit_metric(
+                            "fallback",
+                            from_provider=previous_provider,
+                            to_provider=provider.name,
+                        )
                     return WeatherResult(
                         data=data,
                         provider=provider.name,
                         failed_providers=failed_providers,
                     )
             except Exception as e:
+                self._emit_metric(
+                    "request",
+                    provider=provider.name,
+                    status="failure",
+                    duration_seconds=time.monotonic() - started,
+                )
                 # Sanitize error message to prevent API key leakage
                 error_msg = str(e)
                 # Remove any query parameters that might contain API keys
                 if any(f"{p}=" in error_msg for p in _API_QUERY_PARAMS):
                     error_msg = error_msg.split("?")[0] + " [query params redacted]"
                 failed_providers.append(f"{provider.name}: {error_msg}")
+                previous_provider = provider.name
 
         return WeatherResult(
             data=None,

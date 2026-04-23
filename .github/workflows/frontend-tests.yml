@@ -10,6 +10,12 @@ permissions:
 on:
   push:
     branches: [main, develop, 'claude/**']
+    # Negative patterns (!) exclude auto-generated Dart contract files —
+    # content is only `Contract version: X.Y.Z` comment bumps, safe to
+    # skip the full frontend matrix (Web + Admin + Flutter Android build).
+    # NOTE: `paths` + `paths-ignore` on the same event is rejected by
+    # GitHub Actions ("you may only define one of"), so we fold the
+    # ignores into `paths` using `!` negative patterns.
     paths:
       - 'apps/web/**'
       - 'apps/admin/**'
@@ -18,12 +24,8 @@ on:
       - '.github/workflows/frontend-tests.yml'
       - '.github/actions/flutter-codegen/**'
       - '.github/actions/setup-node-packages/**'
-    paths-ignore:
-      # Auto-generated Dart contract files — content is only
-      # `Contract version: X.Y.Z` comment bumps, safe to skip the
-      # full frontend matrix (Web + Admin + Flutter Android build).
-      - 'apps/mobile/lib/core/contracts/**'
-      - 'apps/mobile/**/*.md'
+      - '!apps/mobile/lib/core/contracts/**'
+      - '!apps/mobile/**/*.md'
   pull_request:
     branches: [main, develop]
     paths:
@@ -31,9 +33,8 @@ on:
       - 'apps/admin/**'
       - 'apps/mobile/**'
       - 'packages/**'
-    paths-ignore:
-      - 'apps/mobile/lib/core/contracts/**'
-      - 'apps/mobile/**/*.md'
+      - '!apps/mobile/lib/core/contracts/**'
+      - '!apps/mobile/**/*.md'
 
 concurrency:
   group: frontend-tests-${{ github.ref }}

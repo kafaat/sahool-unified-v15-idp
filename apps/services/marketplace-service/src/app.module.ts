@@ -20,6 +20,7 @@ import { IdempotencyService } from "./fintech/idempotency.service";
 import { JwtAuthGuard, OptionalJwtAuthGuard } from "./auth/jwt-auth.guard";
 import { ProfilesModule } from "./profiles/profiles.module";
 import { ReviewsModule } from "./reviews/reviews.module";
+import { OrdersModule } from "./orders/orders.module";
 import { EventsModule } from "./events/events.module";
 import { CacheModule } from "./cache/cache.module";
 // NOTE: AuditModule requires @sahool/shared-audit package
@@ -53,6 +54,7 @@ import { CacheModule } from "./cache/cache.module";
     // Feature modules
     ProfilesModule,
     ReviewsModule,
+    OrdersModule,
     // NOTE: Enable when Docker build supports shared packages
     // AuditModule,
   ],

@@ -9,7 +9,7 @@
  * - Credit report generation with recommendations
  */
 
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
 import { Prisma } from "../../prisma/generated/client";
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -403,11 +403,24 @@ export class CreditService {
   }
 
   /**
+   * Guard: every tenant-scoped public method must receive a tenantId.
+   */
+  private ensureTenantId(tenantId: string): void {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+  }
+
+  /**
    * تسجيل حدث ائتماني جديد
    */
-  async recordCreditEvent(data: RecordCreditEventDto) {
-    const wallet = await this.prisma.wallet.findUnique({
-      where: { id: data.walletId },
+  async recordCreditEvent(data: RecordCreditEventDto, tenantId: string) {
+    this.ensureTenantId(tenantId);
+
+    // walletId is sourced from the request body — tenant-scope the lookup
+    // to prevent cross-tenant spoofing before mutating credit state.
+    const wallet = await this.prisma.wallet.findFirst({
+      where: { id: data.walletId, tenantId },
     });
 
     if (!wallet) {
@@ -430,6 +443,7 @@ export class CreditService {
 
     const event = await this.prisma.creditEvent.create({
       data: {
+        tenantId,
         walletId: data.walletId,
         eventType: data.eventType as any,
         amount: data.amount,
@@ -442,14 +456,14 @@ export class CreditService {
     const newScore = Math.min(850, Math.max(300, wallet.creditScore + impact));
 
     type CreditTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
-    let newTier: CreditTier = wallet.creditTier as CreditTier;
+    let newTier: CreditTier;
     if (newScore >= 750) newTier = "PLATINUM";
     else if (newScore >= 650) newTier = "GOLD";
     else if (newScore >= 500) newTier = "SILVER";
     else newTier = "BRONZE";
 
     const updatedWallet = await this.prisma.wallet.update({
-      where: { id: data.walletId },
+      where: { id_tenantId: { id: data.walletId, tenantId } },
       data: {
         creditScore: newScore,
         creditTier: newTier,

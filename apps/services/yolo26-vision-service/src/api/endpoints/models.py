@@ -46,7 +46,7 @@ from src.models.yolo26_manager import (
 
 logger = structlog.get_logger(__name__)
 
-router = APIRouter(prefix="/api/v1/models", tags=["models"])
+router = APIRouter(prefix="/api/v1/vision/models", tags=["models"])
 
 
 # =============================================================================
@@ -638,4 +638,118 @@ async def get_gpu_info(
         "memory": manager.gpu_memory_info,
         "half_precision": settings.half_precision,
         "tensorrt_enabled": settings.enable_tensorrt,
+    }
+
+
+# ---------------------------------------------------------------------------
+# CONTRACT-ALIGNED ENDPOINTS
+# The routes below match the path shapes declared in VISION_ENDPOINTS of the
+# shared-types contracts package:
+#   MODEL_INFO   = /api/v1/vision/models/{variant}/info
+#   MODELS_WARMUP = /api/v1/vision/models/warmup
+# The models router prefix was updated to /api/v1/vision/models so Kong can
+# forward requests with strip_path: false directly to the service.
+# ---------------------------------------------------------------------------
+
+
+@router.get(
+    "/{variant}/info",
+    summary="Get model variant info",
+    description=(
+        "Return high-level information about a specific model variant "
+        "(n / s / m / l / x), including parameter count, GPU VRAM requirement, "
+        "typical latency, and the currently active version for each task."
+    ),
+)
+async def get_variant_info(
+    variant: str,
+    manager: YOLO26ModelManager = Depends(get_manager),
+    registry: ModelVersionRegistry = Depends(get_registry),
+) -> dict[str, Any]:
+    """Return variant metadata keyed by task."""
+    valid_variants = {"n", "s", "m", "l", "x"}
+    if variant not in valid_variants:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": f"Unknown variant '{variant}'. Valid: {sorted(valid_variants)}",
+                "error_ar": "نوع النموذج غير معروف",
+            },
+        )
+
+    # Static variant metadata
+    variant_meta: dict[str, Any] = {
+        "n": {"params_m": 3.2, "vram_mb": 512, "latency_ms": 2.2, "map50": 0.78},
+        "s": {"params_m": 11.2, "vram_mb": 1024, "latency_ms": 3.6, "map50": 0.84},
+        "m": {"params_m": 25.9, "vram_mb": 2048, "latency_ms": 5.5, "map50": 0.88},
+        "l": {"params_m": 43.7, "vram_mb": 3072, "latency_ms": 8.3, "map50": 0.91},
+        "x": {"params_m": 68.2, "vram_mb": 4096, "latency_ms": 12.5, "map50": 0.93},
+    }[variant]
+
+    # Active versions per task
+    active_versions: dict[str, Any] = {}
+    for task in ModelTask:
+        active = registry.get_active_version(task.value, variant)
+        active_versions[task.value] = active.version if active else None
+
+    loaded_keys = manager.get_loaded_models()
+    loaded_tasks = [k.rsplit("_", 1)[0] for k in loaded_keys if k.endswith(f"_{variant}")]
+
+    return {
+        "variant": variant,
+        "is_default": variant == settings.default_model_variant,
+        "loaded_tasks": loaded_tasks,
+        "active_versions": active_versions,
+        **variant_meta,
+    }
+
+
+@router.post(
+    "/warmup",
+    summary="Warm up models",
+    description=(
+        "Pre-load one or more task/variant combinations into GPU memory so the "
+        "first real inference request is not delayed by model loading. "
+        "Equivalent to the internal /preload endpoint but named to match the "
+        "MODELS_WARMUP contract constant."
+    ),
+)
+async def warmup_models(
+    task: str = Query(default="pest_detection", description="Model task to warm up"),
+    variant: str = Query(default="m", description="Model variant: n|s|m|l|x"),
+    manager: YOLO26ModelManager = Depends(get_manager),
+    current_user: User = Depends(get_current_user),
+) -> dict[str, Any]:
+    """Warm up (pre-load) a model — contract alias for /preload."""
+    try:
+        model_task = ModelTask(task)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": f"Unknown task '{task}'",
+                "error_ar": "المهمة غير معروفة",
+                "valid_tasks": [t.value for t in ModelTask],
+            },
+        )
+
+    try:
+        await manager.get_model(model_task, variant)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={
+                "error": "Model warmup failed",
+                "message": str(exc),
+                "error_ar": "فشل التدفئة المسبقة للنموذج",
+            },
+        ) from exc
+
+    logger.info("model_warmed_up", task=task, variant=variant)
+    return {
+        "status": "success",
+        "task": task,
+        "variant": variant,
+        "message": f"Model {task}/{variant} is warm and ready",
+        "message_ar": f"النموذج {task}/{variant} جاهز للاستخدام",
     }

@@ -256,7 +256,7 @@ export class FarmsService {
     }
 
     const updated = await this.prisma.farm.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         ...(dto.name !== undefined && { name: dto.name }),
         ...(dto.nameAr !== undefined && { nameAr: dto.nameAr }),
@@ -311,7 +311,7 @@ export class FarmsService {
     }
 
     await this.prisma.farm.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         isDeleted: true,
         status: "archived",

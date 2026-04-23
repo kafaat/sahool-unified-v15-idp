@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.19.0
+/// Contract version: 4.21.0
 library;
 
 /// API version prefix
@@ -822,6 +822,11 @@ abstract final class SatelliteEndpoints {
   static String analyzeField(String fieldId) => '\$apiPrefix/satellite/analyze/${Uri.encodeComponent(fieldId)}';
   static String timeseries(String fieldId) => '\$apiPrefix/satellite/v1/timeseries/${Uri.encodeComponent(fieldId)}';
   static String indices(String fieldId) => '\$apiPrefix/satellite/v1/indices/${Uri.encodeComponent(fieldId)}';
+  static String indexMap(String fieldId, String indexName) => '\$apiPrefix/satellite/v1/indices/${Uri.encodeComponent(fieldId)}/${Uri.encodeComponent(indexName)}/map';
+  static String indexPixel(String fieldId) => '\$apiPrefix/satellite/v1/indices/${Uri.encodeComponent(fieldId)}/pixel';
+  static String indexComposite(String fieldId, String indexName) => '\$apiPrefix/satellite/v1/indices/${Uri.encodeComponent(fieldId)}/${Uri.encodeComponent(indexName)}/composite';
+  static String indexFilmstrip(String fieldId, String indexName) => '\$apiPrefix/satellite/v1/indices/${Uri.encodeComponent(fieldId)}/${Uri.encodeComponent(indexName)}/filmstrip';
+  static String indexMultiCompare(String fieldId, String indexName) => '\$apiPrefix/satellite/v1/indices/${Uri.encodeComponent(fieldId)}/${Uri.encodeComponent(indexName)}/multi-date-compare';
   static const String satellites = '\$apiPrefix/satellite/v1/satellites';
   static String health(String fieldId) => '\$apiPrefix/satellite/health/${Uri.encodeComponent(fieldId)}';
   static String phenology(String fieldId) => '\$apiPrefix/satellite/phenology/${Uri.encodeComponent(fieldId)}';

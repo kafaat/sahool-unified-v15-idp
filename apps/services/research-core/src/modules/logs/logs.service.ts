@@ -138,7 +138,7 @@ export class LogsService {
     const { experimentId, measurements, weatherConditions, ...restDto } = dto;
 
     return this.prisma.researchDailyLog.update({
-      where: { id },
+      where: { id_tenantId: { id, tenantId } },
       data: {
         ...restDto,
         logDate: dto.logDate ? new Date(dto.logDate) : undefined,
@@ -157,7 +157,9 @@ export class LogsService {
 
   async delete(id: string, tenantId: string) {
     await this.findOne(id, tenantId);
-    return this.prisma.researchDailyLog.delete({ where: { id } });
+    return this.prisma.researchDailyLog.delete({
+      where: { id_tenantId: { id, tenantId } },
+    });
   }
 
   /**

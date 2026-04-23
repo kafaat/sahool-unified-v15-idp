@@ -18,6 +18,7 @@ Usage:
         ...
 """
 
+import ipaddress
 import logging
 from dataclasses import dataclass
 
@@ -30,6 +31,25 @@ from ..middleware.rate_limiter import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def _extract_client_ip(request: Request) -> str:
+    """Extract and validate the client IP for rate-limit keying.
+
+    The first ``X-Forwarded-For`` hop is only trusted when it parses as a
+    valid IP address. Otherwise we fall back to the direct peer address.
+    This prevents attackers from rotating spoofed ``X-Forwarded-For``
+    values to bypass per-IP rate limits on login and password-reset.
+    """
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        candidate = forwarded.split(",")[0].strip()
+        try:
+            ipaddress.ip_address(candidate)
+            return candidate
+        except ValueError:
+            logger.warning("Ignoring invalid X-Forwarded-For header for rate limiting")
+    return request.client.host if request.client else "unknown"
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -125,12 +145,8 @@ class AuthRateLimiter:
         Returns:
             Unique key for rate limiting
         """
-        # Get client IP
-        forwarded = request.headers.get("X-Forwarded-For")
-        if forwarded:
-            client_ip = forwarded.split(",")[0].strip()
-        else:
-            client_ip = request.client.host if request.client else "unknown"
+        # Get client IP (validates X-Forwarded-For to prevent spoofing)
+        client_ip = _extract_client_ip(request)
 
         # Combine IP with identifier if provided (rate limit key, not HTML - not a Flask route)
         # This is NOT a Flask route - it's a rate limit key function

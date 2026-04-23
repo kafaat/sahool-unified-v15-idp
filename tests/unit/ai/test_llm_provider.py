@@ -249,50 +249,36 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_generate_text_function(self):
         """Test generate_text convenience function."""
-        # Reset global manager to ensure mock is used
-        with patch("shared.ai.llm_provider._global_manager", None), \
-             patch("shared.ai.llm_provider.get_llm_manager") as mock_get_manager:
-            mock_manager = MagicMock()
-            mock_manager.generate = AsyncMock(
-                return_value=LLMResponse(
-                    text="Generated text",
-                    provider=LLMProvider.OLLAMA,
-                    model="codellama:7b",
-                    tokens_input=10,
-                    tokens_output=5,
-                    latency_ms=100,
-                    cost_usd=0.0,
-                )
-            )
-            mock_get_manager.return_value = mock_manager
-
+        mock_response = LLMResponse(
+            text="Generated text",
+            provider=LLMProvider.OLLAMA,
+            model="codellama:7b",
+            tokens_input=10,
+            tokens_output=5,
+            latency_ms=100,
+            cost_usd=0.0,
+        )
+        with patch.object(LLMProviderManager, "generate", new=AsyncMock(return_value=mock_response)):
             response = await generate_text("Test prompt")
 
-            assert response.text == "Generated text"
+        assert response.text == "Generated text"
 
     @pytest.mark.asyncio
     async def test_generate_with_ollama_fallback(self):
         """Test generate_with_ollama_fallback function."""
-        # Reset global manager to ensure mock is used
-        with patch("shared.ai.llm_provider._global_manager", None), \
-             patch("shared.ai.llm_provider.get_llm_manager") as mock_get_manager:
-            mock_manager = MagicMock()
-            mock_manager.generate = AsyncMock(
-                return_value=LLMResponse(
-                    text="Ollama response",
-                    provider=LLMProvider.OLLAMA,
-                    model="codellama:7b",
-                    tokens_input=10,
-                    tokens_output=5,
-                    latency_ms=100,
-                    cost_usd=0.0,
-                )
-            )
-            mock_get_manager.return_value = mock_manager
-
+        mock_response = LLMResponse(
+            text="Ollama response",
+            provider=LLMProvider.OLLAMA,
+            model="codellama:7b",
+            tokens_input=10,
+            tokens_output=5,
+            latency_ms=100,
+            cost_usd=0.0,
+        )
+        with patch.object(LLMProviderManager, "generate", new=AsyncMock(return_value=mock_response)):
             response = await generate_with_ollama_fallback("Test prompt")
 
-            assert response.text == "Ollama response"
+        assert response.text == "Ollama response"
 
 
 # ═══════════════════════════════════════════════════════════════════════════

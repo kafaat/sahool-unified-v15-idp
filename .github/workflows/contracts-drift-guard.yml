@@ -8,6 +8,9 @@ on:
       - "scripts/sync-contracts-to-python.ts"
       - "scripts/check-contracts-drift.ts"
 
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Verify Python contracts mirror TS source of truth

@@ -27,6 +27,31 @@ from pydantic import BaseModel, Field
 from shared.db.simple_migrations import Migration, SimpleMigrationRunner
 from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
+# Agricultural KPI metrics (STABILIZATION_PLAN_v16.1 PR7) — exposes
+# Prometheus counters/gauges/histograms for disease/pest/NDVI/crop-health
+# events. The import is wrapped so that a missing prometheus_client
+# dependency (e.g., in slim CI test runs) leaves recording as a no-op.
+# We catch ImportError only — any *other* exception from
+# ``get_agricultural_metrics()`` indicates a real misconfiguration and
+# must not be silently swallowed.
+try:
+    from shared.monitoring.agricultural_metrics import get_agricultural_metrics
+except ImportError:  # pragma: no cover — metrics deps not installed
+    _agri_metrics = None
+    AGRI_METRICS_AVAILABLE = False
+else:
+    try:
+        _agri_metrics = get_agricultural_metrics()
+        AGRI_METRICS_AVAILABLE = True
+    except Exception:  # pragma: no cover — defensive, but surface in logs
+        import logging as _agri_logging
+
+        _agri_logging.getLogger(__name__).exception(
+            "Failed to initialise agricultural metrics; continuing without them"
+        )
+        _agri_metrics = None
+        AGRI_METRICS_AVAILABLE = False
+
 # Authentication imports - مصادقة JWT
 try:
     from shared.auth.dependencies import get_current_user
@@ -1003,6 +1028,24 @@ def health():
     }
 
 
+@app.get("/metrics")
+def prometheus_metrics():
+    """Prometheus scrape endpoint — exposes agricultural KPIs
+    (STABILIZATION_PLAN_v16.1 PR7). Returns `text/plain; version=0.0.4`
+    compatible with the global Prometheus + Grafana stack defined in
+    `infrastructure/monitoring/`.
+    """
+    if not AGRI_METRICS_AVAILABLE:
+        raise HTTPException(
+            status_code=503,
+            detail="prometheus_client not installed or metrics init failed",
+        )
+    from fastapi.responses import Response
+    from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
+
+    return Response(content=generate_latest(), media_type=CONTENT_TYPE_LATEST)
+
+
 @app.get("/readyz")
 def readiness():
     """Kubernetes readiness probe - is the service ready to accept traffic?
@@ -1770,6 +1813,15 @@ async def detect_crop_diseases(
                 severity=detection.severity.value if detection.severity else None,
                 tenant_id=tenant_id,
             )
+            # Prometheus KPI — aggregated by disease/crop/severity, no
+            # tenant_id/field_id labels (high-cardinality guard).
+            if _agri_metrics is not None:
+                _agri_metrics.record_disease_detection(
+                    disease_type=detection.disease_type.value,
+                    crop_type=body.crop_type or "unknown",
+                    severity=detection.severity.value if detection.severity else "medium",
+                    confidence=detection.confidence,
+                )
 
         # Publish health assessment event
         issues = [d.disease_type.value for d in detections]

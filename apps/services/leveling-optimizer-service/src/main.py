@@ -16,8 +16,7 @@ Port: 8170
 
 import os
 from contextlib import asynccontextmanager
-from datetime import datetime
-from typing import Optional
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import FastAPI, Request
@@ -169,12 +168,15 @@ Agricultural field leveling optimization service for the SAHOOL platform.
 )
 _tracer.instrument_fastapi(app)
 
-# Setup unified error handling
+# Setup unified error handling (also installs the shared X-Request-ID middleware,
+# which populates ``request.state.request_id`` and echoes the header on responses).
+_SHARED_REQUEST_ID_INSTALLED = False
 try:
     from shared.errors_py import add_request_id_middleware, setup_exception_handlers
 
     setup_exception_handlers(app)
     add_request_id_middleware(app)
+    _SHARED_REQUEST_ID_INSTALLED = True
 except ImportError:
     pass
 
@@ -197,19 +199,22 @@ if TENANT_MIDDLEWARE_AVAILABLE:
     app.add_middleware(TenantContextMiddleware)
 
 
-# Request ID middleware
-@app.middleware("http")
-async def add_request_id(request: Request, call_next):
-    """Add request ID to all requests for tracing."""
-    import uuid
+# Request ID middleware (only installed when the shared helper is unavailable;
+# otherwise ``shared.errors_py.add_request_id_middleware`` above already runs).
+if not _SHARED_REQUEST_ID_INSTALLED:
 
-    request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
-    request.state.request_id = request_id
+    @app.middleware("http")
+    async def add_request_id(request: Request, call_next):
+        """Add request ID to all requests for tracing."""
+        import uuid
 
-    response = await call_next(request)
-    response.headers["X-Request-ID"] = request_id
+        request_id = request.headers.get("X-Request-ID", str(uuid.uuid4()))
+        request.state.request_id = request_id
 
-    return response
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+
+        return response
 
 
 # Global exception handler
@@ -263,7 +268,7 @@ async def health():
         status="ok",
         service=settings.SERVICE_NAME,
         version=settings.VERSION,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(UTC),
     )
 
 
@@ -322,7 +327,7 @@ async def combined_health(request: Request):
         "service": settings.SERVICE_NAME,
         "service_ar": settings.SERVICE_NAME_AR,
         "version": settings.VERSION,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "components": {
             "database": "connected" if db_connected else "not_configured",
             "nats": "connected" if nats_connected else "not_configured",

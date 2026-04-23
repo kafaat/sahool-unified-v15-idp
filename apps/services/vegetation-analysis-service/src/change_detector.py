@@ -22,6 +22,11 @@ from dataclasses import asdict, dataclass
 from datetime import date
 from enum import Enum, StrEnum
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
+
 logger = logging.getLogger(__name__)
 
 
@@ -239,7 +244,12 @@ class ChangeDetector:
         Returns:
             ChangeReport with all detected changes and recommendations
         """
-        logger.info(f"Detecting changes for field {field_id} from {start_date} to {end_date}")
+        logger.info(
+            "Detecting changes for field %s from %s to %s",
+            _safe_log(field_id),
+            _safe_log(start_date),
+            _safe_log(end_date),
+        )
 
         # If no time series provided, would fetch from satellite service
         # For now, we'll work with provided data or return mock
@@ -252,7 +262,11 @@ class ChangeDetector:
         clean_data = [point for point in ndvi_timeseries if point.cloud_cover <= self.THRESHOLDS["max_cloud_cover"]]
 
         if len(clean_data) < 3:
-            logger.warning(f"Insufficient clean data points ({len(clean_data)}) for field {field_id}")
+            logger.warning(
+                "Insufficient clean data points (%d) for field %s",
+                len(clean_data),
+                _safe_log(field_id),
+            )
             return self._create_empty_report(field_id, start_date, end_date)
 
         # Calculate expected pattern if crop type is known
@@ -338,7 +352,12 @@ class ChangeDetector:
         Returns:
             ChangeEvent describing the change
         """
-        logger.info(f"Comparing dates {date1} and {date2} for field {field_id}")
+        logger.info(
+            "Comparing dates %s and %s for field %s",
+            _safe_log(date1),
+            _safe_log(date2),
+            _safe_log(field_id),
+        )
 
         # Calculate change metrics
         ndvi_change = ndvi2 - ndvi1

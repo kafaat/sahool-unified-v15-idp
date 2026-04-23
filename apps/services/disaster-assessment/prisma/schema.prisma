@@ -76,6 +76,7 @@ model DisasterReport {
   fieldAssessments FieldAssessment[]
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_disaster_report_id_tenant")
   @@index([tenantId], name: "idx_disaster_tenant")
   @@index([governorate], name: "idx_disaster_governorate")
   @@index([type], name: "idx_disaster_type")
@@ -142,6 +143,7 @@ model DisasterAlert {
   subscriptions AlertSubscription[]
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_disaster_alert_id_tenant")
   @@index([tenantId], name: "idx_alert_tenant")
   @@index([governorate], name: "idx_alert_governorate")
   @@index([alertType], name: "idx_alert_type")
@@ -196,6 +198,7 @@ model FieldAssessment {
   updatedAt  DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_field_assessment_id_tenant")
   @@index([fieldId], name: "idx_assessment_field")
   @@index([disasterId], name: "idx_assessment_disaster")
   @@index([tenantId], name: "idx_assessment_tenant")
@@ -233,6 +236,7 @@ model AlertSubscription {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_alert_subscription_id_tenant")
   @@unique([userId, governorate], name: "idx_subscription_user_gov")
   @@index([tenantId], name: "idx_subscription_tenant")
   @@index([alertId], name: "idx_subscription_alert")

@@ -212,7 +212,7 @@ describe('NdviService', () => {
         }),
       });
       expect(cache.del).toHaveBeenCalledWith(CACHE_KEYS.NDVI(FIELD_ID));
-      expect(cache.del).toHaveBeenCalledWith(CACHE_KEYS.FIELD(FIELD_ID));
+      expect(cache.del).toHaveBeenCalledWith(CACHE_KEYS.FIELD(TENANT_A, FIELD_ID));
     });
 
     it('should throw BadRequestException for NDVI value > 1', async () => {
@@ -263,8 +263,13 @@ describe('NdviService', () => {
       // NDVI 0.5 => healthScore = (0.5 - 0.2) / 0.6 = 0.5
       await service.updateFieldNdvi(FIELD_ID, TENANT_A, 0.5);
 
+      // Service uses the composite `@@unique([id, tenantId])` key
+      // `id_tenantId` on every update to enforce tenant isolation.
+      // The previous `where: { id: FIELD_ID }` expectation here did
+      // not match the production query shape (Copilot review flag
+      // on PR #1729).
       expect(prisma.field.update).toHaveBeenCalledWith({
-        where: { id: FIELD_ID },
+        where: { id_tenantId: { id: FIELD_ID, tenantId: TENANT_A } },
         data: expect.objectContaining({
           healthScore: 0.5,
         }),

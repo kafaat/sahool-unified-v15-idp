@@ -1360,12 +1360,15 @@ SAHOOL - National Agricultural Intelligence Platform
     // For password_reset, verify user exists (but don't reveal if not found)
     if (purpose === "password_reset") {
       // Check if identifier is email or phone
-      // SECURITY: Filter by tenantId to prevent cross-tenant user enumeration
+      // SECURITY: Always filter by tenantId to prevent cross-tenant user enumeration.
+      // Fall back to DEFAULT_TENANT_ID so the filter is never bypassed by an absent/empty value
+      // (CWE-807 / CWE-290: user-controlled bypass of security check).
+      const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
       const isEmail = identifier.includes("@");
       const user = await this.prisma.user.findFirst({
         where: {
           ...(isEmail ? { email: identifier } : { phone: identifier }),
-          ...(tenantId && { tenantId }),
+          tenantId: effectiveTenantId,
         },
       });
 

@@ -500,6 +500,9 @@ class TestGraphRendererLifecycle:
       B. Graph initialisation fails → both are set to None (graceful fallback)
     """
 
+    # Matches src/graph/renderer.py so both test and production code stay in sync
+    _DEV_GRAPH_SIGNING_SECRET = "dev-change-me-in-production"
+
     def test_lifespan_sets_graph_renderer_when_module_available(self):
         """
         When the graph module imports successfully, the real lifespan startup
@@ -523,7 +526,7 @@ class TestGraphRendererLifecycle:
 
         # Fake renderer module provides DEV_GRAPH_SIGNING_SECRET (lifespan line 179)
         fake_renderer = types.ModuleType("src.graph.renderer")
-        fake_renderer.DEV_GRAPH_SIGNING_SECRET = "dev-change-me-in-production"
+        fake_renderer.DEV_GRAPH_SIGNING_SECRET = self._DEV_GRAPH_SIGNING_SECRET
 
         # Fake graph package whose constructors return our tracked mocks (line 228)
         fake_graph = types.ModuleType("src.graph")
@@ -555,7 +558,7 @@ class TestGraphRendererLifecycle:
 
         # Fake renderer module provides DEV_GRAPH_SIGNING_SECRET (lifespan line 179)
         fake_renderer = types.ModuleType("src.graph.renderer")
-        fake_renderer.DEV_GRAPH_SIGNING_SECRET = "dev-change-me-in-production"
+        fake_renderer.DEV_GRAPH_SIGNING_SECRET = self._DEV_GRAPH_SIGNING_SECRET
 
         # Fake graph package whose constructor raises so the except branch runs
         fake_graph = types.ModuleType("src.graph")

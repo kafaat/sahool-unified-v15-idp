@@ -471,11 +471,11 @@ class TestMissingStateAttributes:
         """
 
         # Patch the app.state to an object without publisher attr
-        class _BareSate:
+        class _BareState:
             multi_provider = MagicMock()  # provider present
             weather_provider = None
 
-        with patch("src.main.app.state", _BareSate()):
+        with patch("src.main.app.state", _BareState()):
             resp = client.get("/readyz")
 
         # Should return 200 or 503 — but must NOT return 500

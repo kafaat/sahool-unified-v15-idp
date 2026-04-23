@@ -31,7 +31,7 @@
     "jsonwebtoken": "^9.0.3",
     "reflect-metadata": "^0.2.2",
     "@sahool/shared-events": "^16.0.0",
-    "uuid": "^11.0.3",
+    "uuid": "^14.0.0",
     "prisma": "~5.22.0"
   },
   "devDependencies": {

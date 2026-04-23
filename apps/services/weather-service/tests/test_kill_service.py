@@ -87,8 +87,9 @@ class TestLifespanCleanup:
         mock_provider = AsyncMock()
         mock_provider.close = AsyncMock(side_effect=lambda: close_order.append("weather_provider"))
 
-        mock_multi = AsyncMock()
+        mock_multi = MagicMock()
         mock_multi.close = AsyncMock(side_effect=lambda: close_order.append("multi_provider"))
+        mock_multi.get_available_providers.return_value = []
 
         mock_publisher = AsyncMock()
         mock_publisher.close = AsyncMock(side_effect=lambda: close_order.append("publisher"))
@@ -491,36 +492,28 @@ class TestProviderTeardown:
 class TestGraphRendererLifecycle:
     """
     Verify the graph_renderer / graph_store lifespan initialisation paths
-    (fix 4.5) without requiring the full ASGI lifespan to run.
+    (fix 4.5) using sys.modules patching to precisely control which module
+    each import resolves to.
 
-    The lifespan code (main.py lines 225-236) has two branches:
+    The lifespan code (main.py) has two branches:
       A. Graph module available  → graph_renderer and graph_store are set
-      B. Graph module unavailable → both are set to None (graceful fallback)
-
-    We test these branches in isolation to avoid relying on DNS / NATS being
-    available (which would happen if we used `with TestClient(app):`).
+      B. Graph initialisation fails → both are set to None (graceful fallback)
     """
-
-    @staticmethod
-    def _graph_import_side_effect(real_import, fake_module=None, import_error=None):
-        def _side_effect(name, globals=None, locals=None, fromlist=(), level=0):
-            if "graph" in name.lower():
-                if import_error is not None:
-                    raise import_error
-                if fake_module is not None:
-                    return fake_module
-            return real_import(name, globals, locals, fromlist, level)
-
-        return _side_effect
 
     def test_lifespan_sets_graph_renderer_when_module_available(self):
         """
         When the graph module imports successfully, the real lifespan startup
         assigns app.state.graph_renderer and app.state.graph_store from the
         graph constructors.
+
+        Uses sys.modules patching to precisely control which module each import
+        statement resolves to, avoiding builtins.__import__ interception which
+        cannot distinguish between `from .graph.renderer import ...` (line 179,
+        outside try/except) and `from .graph import ...` (line 228, inside
+        try/except).
         """
-        import builtins
         import importlib
+        import sys
         import types
 
         main_module = importlib.import_module("src.main")
@@ -528,57 +521,48 @@ class TestGraphRendererLifecycle:
         mock_renderer = MagicMock(name="graph_renderer")
         mock_store = MagicMock(name="graph_store")
 
-        fake_graph_module = types.ModuleType("fake_graph_module")
-        fake_graph_module.WeatherGraphRenderer = MagicMock(return_value=mock_renderer)
-        fake_graph_module.GraphStore = MagicMock(return_value=mock_store)
+        # Fake renderer module provides DEV_GRAPH_SIGNING_SECRET (lifespan line 179)
+        fake_renderer = types.ModuleType("src.graph.renderer")
+        fake_renderer.DEV_GRAPH_SIGNING_SECRET = "dev-change-me-in-production"
 
-        real_import = builtins.__import__
-        real_import_module = importlib.import_module
+        # Fake graph package whose constructors return our tracked mocks (line 228)
+        fake_graph = types.ModuleType("src.graph")
+        fake_graph.WeatherGraphRenderer = MagicMock(return_value=mock_renderer)
+        fake_graph.GraphStore = MagicMock(return_value=mock_store)
 
-        def _import_module(name, package=None):
-            if "graph" in name.lower():
-                return fake_graph_module
-            return real_import_module(name, package)
-
-        with (
-            patch(
-                "builtins.__import__",
-                side_effect=self._graph_import_side_effect(real_import, fake_module=fake_graph_module),
-            ),
-            patch("importlib.import_module", side_effect=_import_module),
-        ):
+        with patch.dict(sys.modules, {"src.graph": fake_graph, "src.graph.renderer": fake_renderer}):
             with TestClient(main_module.app):
                 assert main_module.app.state.graph_renderer is mock_renderer
                 assert main_module.app.state.graph_store is mock_store
 
     def test_lifespan_sets_graph_renderer_none_on_import_failure(self):
         """
-        When graph import/initialisation fails during real lifespan startup,
-        app.state.graph_renderer and app.state.graph_store are explicitly set
-        to None as a graceful fallback.
+        When graph initialisation fails during real lifespan startup, the
+        except branch (lifespan line 233) sets app.state.graph_renderer and
+        app.state.graph_store to None as a graceful fallback.
+
+        Uses sys.modules patching so that:
+        - `from .graph.renderer import DEV_GRAPH_SIGNING_SECRET` (line 179,
+          outside try/except) succeeds via the fake renderer module.
+        - `WeatherGraphRenderer()` (line 230, inside try/except) raises
+          RuntimeError, which the except clause catches to set both to None.
         """
-        import builtins
         import importlib
+        import sys
+        import types
 
         main_module = importlib.import_module("src.main")
-        real_import = builtins.__import__
-        real_import_module = importlib.import_module
 
-        def _import_module(name, package=None):
-            if "graph" in name.lower():
-                raise ImportError("graph module not available")
-            return real_import_module(name, package)
+        # Fake renderer module provides DEV_GRAPH_SIGNING_SECRET (lifespan line 179)
+        fake_renderer = types.ModuleType("src.graph.renderer")
+        fake_renderer.DEV_GRAPH_SIGNING_SECRET = "dev-change-me-in-production"
 
-        with (
-            patch(
-                "builtins.__import__",
-                side_effect=self._graph_import_side_effect(
-                    real_import,
-                    import_error=ImportError("graph module not available"),
-                ),
-            ),
-            patch("importlib.import_module", side_effect=_import_module),
-        ):
+        # Fake graph package whose constructor raises so the except branch runs
+        fake_graph = types.ModuleType("src.graph")
+        fake_graph.WeatherGraphRenderer = MagicMock(side_effect=RuntimeError("graph module not available"))
+        fake_graph.GraphStore = MagicMock(return_value=MagicMock())
+
+        with patch.dict(sys.modules, {"src.graph": fake_graph, "src.graph.renderer": fake_renderer}):
             with TestClient(main_module.app):
                 assert hasattr(main_module.app.state, "graph_renderer")
                 assert hasattr(main_module.app.state, "graph_store")

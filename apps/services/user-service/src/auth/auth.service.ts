@@ -1496,16 +1496,6 @@ SAHOOL - National Agricultural Intelligence Platform
     // never `dto.purpose` directly.
     const safePurpose: OtpPurpose = sanitizeOtpPurpose(dto.purpose);
 
-    // Defense-in-depth: validate `purpose` against a strict whitelist before
-    // any branching. TypeScript's union type on the DTO is compile-time only;
-    // at runtime the value is attacker-controlled JSON, so an unexpected
-    // string could reach a privileged branch (e.g. "login") if validation
-    // pipes were ever bypassed. Fail closed here.
-    const ALLOWED_PURPOSES = new Set(["password_reset", "verify_phone", "login"]);
-    if (!ALLOWED_PURPOSES.has(purpose)) {
-      throw new BadRequestException("Invalid OTP purpose.");
-    }
-
     // OTP brute-force protection: max 5 attempts per identifier per 15 minutes
     const otpAttemptKey = `otp_attempts:${identifier}`;
     try {

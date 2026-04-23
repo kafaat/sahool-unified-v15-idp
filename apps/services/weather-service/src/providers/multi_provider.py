@@ -223,17 +223,16 @@ class WeatherProvider(ABC):
         Back-off: 0.5 s → 1 s between attempts.
         """
         client = await self._get_client()
-        last_exc: Exception = RuntimeError("retry loop not entered")
         for attempt in range(3):
             try:
                 resp = await getattr(client, method)(url, **kwargs)
                 resp.raise_for_status()
                 return resp
-            except httpx.TransportError as exc:
-                last_exc = exc
+            except httpx.TransportError:
                 if attempt < 2:
                     await asyncio.sleep(0.5 * (2**attempt))
-        raise last_exc
+                else:
+                    raise
 
     async def close(self):
         if self._client:
@@ -794,7 +793,9 @@ class MultiWeatherService:
         if os.getenv("WEATHERAPI_KEY"):
             self.providers.append(WeatherAPIProvider())
 
-        # Bounded in-memory cache (max _CACHE_MAX_SIZE entries, FIFO eviction).
+        # Bounded in-memory cache (max _CACHE_MAX_SIZE entries, write-recency eviction).
+        # Existing keys are refreshed to the end on update; the oldest-by-last-write
+        # entry is evicted when the limit is reached.
         # Each worker process holds its own copy; this is intentional for simplicity.
         # For cross-worker sharing, configure a Redis sidecar and add a Redis-backed
         # cache layer (redis>=7.1.0 is already in requirements.txt).

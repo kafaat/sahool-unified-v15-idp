@@ -20,8 +20,7 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
-from contextlib import asynccontextmanager
-from unittest.mock import AsyncMock, MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 

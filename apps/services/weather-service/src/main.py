@@ -393,12 +393,18 @@ _METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
 async def metrics(authorization: str | None = Header(default=None, alias="Authorization")):
     """Prometheus metrics endpoint"""
     if _METRICS_TOKEN:
+        import secrets
+
         parts = (authorization or "").split(None, 1)
         bearer = parts[1].strip() if len(parts) == 2 and parts[0].lower() == "bearer" else ""
-        if bearer != _METRICS_TOKEN:
+        if not secrets.compare_digest(bearer, _METRICS_TOKEN):
             from starlette.responses import Response as _Resp
 
-            return _Resp(content="Unauthorized", status_code=401)
+            return _Resp(
+                content="Unauthorized",
+                status_code=401,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     if not HAS_PROMETHEUS:
         from starlette.responses import Response
 
@@ -667,7 +673,7 @@ async def get_hourly_forecast(
     _enforce_tenant(user, req.tenant_id)
 
     try:
-        if app.state.multi_provider:
+        if getattr(app.state, "multi_provider", None):
             result = await app.state.multi_provider.get_hourly_forecast(
                 req.lat, req.lon, hours, tenant_id=req.tenant_id
             )
@@ -682,7 +688,12 @@ async def get_hourly_forecast(
             forecast = result.data
             provider = result.provider
         else:
-            forecast = await app.state.weather_provider.get_hourly_forecast(req.lat, req.lon, hours)
+            weather_provider = getattr(app.state, "weather_provider", None)
+            if weather_provider is None:
+                raise ExternalServiceException.weather_service(
+                    details={"error": "Weather provider not available", "error_ar": "مزود الطقس غير متاح"}
+                )
+            forecast = await weather_provider.get_hourly_forecast(req.lat, req.lon, hours)
             provider = "Open-Meteo"
 
         return {

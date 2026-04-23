@@ -22,7 +22,6 @@ All tests run without network access.
 """
 
 import asyncio
-import time
 from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock, patch
 

@@ -1622,7 +1622,11 @@ async def generate_weather_graph(
     """
     _enforce_tenant(user, req.tenant_id)
 
-    if not _GRAPH_AVAILABLE or not getattr(app.state, "graph_renderer", None):
+    if (
+        not _GRAPH_AVAILABLE
+        or not getattr(app.state, "graph_renderer", None)
+        or not getattr(app.state, "graph_store", None)
+    ):
         raise HTTPException(status_code=503, detail="Graph renderer not available")
 
     # Pull historical daily weather

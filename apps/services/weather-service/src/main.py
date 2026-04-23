@@ -230,8 +230,10 @@ async def lifespan(app: FastAPI):
         app.state.graph_renderer = WeatherGraphRenderer()
         app.state.graph_store = GraphStore()
         logger.info("graph_renderer_initialized")
-    except Exception as e:  # pragma: no cover
+    except Exception as e:
         logger.warning("graph_renderer_unavailable", error=str(e))
+        app.state.graph_renderer = None
+        app.state.graph_store = None
 
     yield
 

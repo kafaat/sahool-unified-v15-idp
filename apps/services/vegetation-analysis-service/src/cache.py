@@ -35,6 +35,7 @@ def _safe_log(value: object, max_len: int = 128) -> str:
         s = s[: max_len - 1] + "…"
     return s
 
+
 # Async Redis client - lazy initialization
 _redis_client = None
 _redis_available = False

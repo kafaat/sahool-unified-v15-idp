@@ -13,7 +13,6 @@ import {
   Injectable,
   Optional,
   UnauthorizedException,
-  NotFoundException,
   BadRequestException,
   Logger,
 } from "@nestjs/common";
@@ -1249,14 +1248,15 @@ SAHOOL - National Agricultural Intelligence Platform
       .digest("hex");
 
     // Find user with matching token that hasn't expired
-    // SECURITY: Filter by tenantId to prevent cross-tenant password reset
+    // SECURITY: Always filter by tenantId to prevent cross-tenant password reset.
+    // Fall back to DEFAULT_TENANT_ID so the check is never bypassed.
     const user = await this.prisma.user.findFirst({
       where: {
         passwordResetToken: tokenHash,
         passwordResetExpiry: {
           gt: new Date(),
         },
-        ...(tenantId && { tenantId }),
+        tenantId: tenantId || DEFAULT_TENANT_ID,
       },
     });
 
@@ -1530,12 +1530,14 @@ SAHOOL - National Agricultural Intelligence Platform
       // For password_reset, generate a reset token
       if (purpose === "password_reset") {
         // Find user by identifier
-        // SECURITY: Filter by tenantId to prevent cross-tenant password reset via OTP
+        // SECURITY: Always filter by tenantId to prevent cross-tenant password reset via OTP.
+        // Fall back to DEFAULT_TENANT_ID so the filter is never bypassed by an absent/empty value.
+        const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const isEmail = identifier.includes("@");
         const user = await this.prisma.user.findFirst({
           where: {
             ...(isEmail ? { email: identifier } : { phone: identifier }),
-            ...(tenantId && { tenantId }),
+            tenantId: effectiveTenantId,
           },
         });
 
@@ -1577,13 +1579,14 @@ SAHOOL - National Agricultural Intelligence Platform
       }
 
       // For login, find user by identifier and issue tokens (passwordless OTP login)
-      // SECURITY: Filter by tenantId to prevent cross-tenant login via OTP
+      // SECURITY: Always filter by tenantId to prevent cross-tenant login via OTP.
       if (purpose === "login") {
+        const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const isEmail = identifier.includes("@");
         const user = await this.prisma.user.findFirst({
           where: {
             ...(isEmail ? { email: identifier } : { phone: identifier }),
-            ...(tenantId && { tenantId }),
+            tenantId: effectiveTenantId,
           },
         });
 
@@ -1634,12 +1637,13 @@ SAHOOL - National Agricultural Intelligence Platform
       }
 
       // For verify_phone, update user's phone verification status
-      // SECURITY: Filter by tenantId to prevent cross-tenant phone verification
+      // SECURITY: Always filter by tenantId to prevent cross-tenant phone verification.
       if (purpose === "verify_phone") {
+        const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const user = await this.prisma.user.findFirst({
           where: {
             phone: identifier,
-            ...(tenantId && { tenantId }),
+            tenantId: effectiveTenantId,
           },
         });
 

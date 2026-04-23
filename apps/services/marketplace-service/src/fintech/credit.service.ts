@@ -456,7 +456,7 @@ export class CreditService {
     const newScore = Math.min(850, Math.max(300, wallet.creditScore + impact));
 
     type CreditTier = "BRONZE" | "SILVER" | "GOLD" | "PLATINUM";
-    let newTier: CreditTier = wallet.creditTier as CreditTier;
+    let newTier: CreditTier;
     if (newScore >= 750) newTier = "PLATINUM";
     else if (newScore >= 650) newTier = "GOLD";
     else if (newScore >= 500) newTier = "SILVER";

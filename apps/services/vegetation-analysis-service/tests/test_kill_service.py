@@ -96,9 +96,27 @@ class TestLifespanCleanup:
         main_module = self._load_main_module()
 
         async def _run():
+            # Patch constructors so that the lifespan startup code assigns our
+            # tracked mocks to the module-level globals (_multi_provider,
+            # _sar_processor). Patching the globals directly does not work
+            # because the lifespan function re-declares them via `global` and
+            # overwrites the patched values before cleanup runs.
+            multi_ctor = MagicMock(return_value=multi_provider) if multi_provider is not None else None
+            sar_ctor = MagicMock(return_value=sar_processor) if sar_processor is not None else None
+
             with (
-                patch.object(main_module, "_multi_provider", multi_provider),
-                patch.object(main_module, "_sar_processor", sar_processor),
+                patch.object(main_module, "USE_MULTI_PROVIDER", multi_provider is not None),
+                patch.object(main_module, "MultiSatelliteService", multi_ctor),
+                patch.object(main_module, "SARProcessor", sar_ctor),
+                # Stub remaining startup dependencies to avoid network I/O
+                patch.object(main_module, "PhenologyDetector", MagicMock()),
+                patch.object(main_module, "FieldBoundaryDetector", MagicMock()),
+                patch.object(main_module, "ChangeDetector", MagicMock()),
+                patch.object(main_module, "get_cloud_masker", MagicMock()),
+                patch.object(main_module, "YieldPredictor", None),
+                patch.object(main_module, "VRAGenerator", None),
+                patch.object(main_module, "AgriculturalLandDetector", None),
+                patch.object(main_module, "register_boundary_endpoints", MagicMock()),
             ):
                 async with main_module.lifespan(MagicMock()):
                     pass

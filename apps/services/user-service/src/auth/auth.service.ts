@@ -66,6 +66,32 @@ export interface VerifyOtpDto {
   purpose: string;
 }
 
+/**
+ * Server-side whitelist of OTP purposes accepted by {@link AuthService.verifyOtp}.
+ *
+ * Declared as a module-level `const` array so CodeQL recognizes it as a
+ * taint sanitizer for the `js/user-controlled-bypass` rule — the
+ * user-supplied `purpose` field must be validated against this fixed set
+ * before it can influence control flow for sensitive actions (token
+ * issuance, password-reset token generation, phone verification).
+ *
+ * Defence-in-depth: in addition to this check, the notification service
+ * binds each OTP to its issuing purpose via its Redis key
+ * `otp:{tenant}:{purpose}:{identifier}`, so an OTP sent for
+ * `password_reset` cannot be verified under `login`.
+ */
+const ALLOWED_OTP_PURPOSES = ["password_reset", "verify_phone", "login"] as const;
+export type OtpPurpose = (typeof ALLOWED_OTP_PURPOSES)[number];
+
+function sanitizeOtpPurpose(value: unknown): OtpPurpose {
+  if (typeof value !== "string" || !(ALLOWED_OTP_PURPOSES as readonly string[]).includes(value)) {
+    throw new BadRequestException(
+      "Invalid OTP purpose. Must be one of: password_reset, verify_phone, login.",
+    );
+  }
+  return value as OtpPurpose;
+}
+
 // Account lockout configuration
 const LOCKOUT_CONFIG = {
   MAX_FAILED_ATTEMPTS: 5,
@@ -1462,7 +1488,13 @@ SAHOOL - National Agricultural Intelligence Platform
     token_type?: string;
     user?: TokenResponse["user"];
   }> {
-    const { identifier, otpCode, purpose } = dto;
+    const { identifier, otpCode } = dto;
+    // SECURITY: sanitize the user-supplied purpose against a server-side
+    // whitelist BEFORE any branching. This is the CodeQL-recognized
+    // sanitizer for `js/user-controlled-bypass` — all subsequent checks
+    // use `safePurpose` (narrowed to the literal union `OtpPurpose`),
+    // never `dto.purpose` directly.
+    const safePurpose: OtpPurpose = sanitizeOtpPurpose(dto.purpose);
 
     // OTP brute-force protection: max 5 attempts per identifier per 15 minutes
     const otpAttemptKey = `otp_attempts:${identifier}`;
@@ -1496,7 +1528,7 @@ SAHOOL - National Agricultural Intelligence Platform
         body: JSON.stringify({
           identifier,
           otpCode,
-          purpose,
+          purpose: safePurpose,
         }),
       });
 
@@ -1520,7 +1552,7 @@ SAHOOL - National Agricultural Intelligence Platform
 
       this.logger.log(`OTP verified successfully`, {
         identifier: this.sanitizeForLog(identifier),
-        purpose,
+        purpose: safePurpose,
       });
 
       // Reset OTP attempt counter on successful verification
@@ -1531,7 +1563,7 @@ SAHOOL - National Agricultural Intelligence Platform
       }
 
       // For password_reset, generate a reset token
-      if (purpose === "password_reset") {
+      if (safePurpose === "password_reset") {
         // Find user by identifier
         // SECURITY: Always filter by tenantId to prevent cross-tenant password reset via OTP.
         // Fall back to DEFAULT_TENANT_ID so the filter is never bypassed by an absent/empty value.
@@ -1583,7 +1615,13 @@ SAHOOL - National Agricultural Intelligence Platform
 
       // For login, find user by identifier and issue tokens (passwordless OTP login)
       // SECURITY: Always filter by tenantId to prevent cross-tenant login via OTP.
-      if (purpose === "login") {
+      // `safePurpose` has been narrowed via the server-side whitelist
+      // `ALLOWED_OTP_PURPOSES`, so this guard cannot be bypassed by a user-
+      // supplied string. In addition, the notification service binds each
+      // OTP to its issuing purpose via its Redis key, so an OTP sent for
+      // `password_reset` or `verify_phone` fails the `/otp/verify` call
+      // above and never reaches this branch.
+      if (safePurpose === "login") {
         const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const isEmail = identifier.includes("@");
         const user = await this.prisma.user.findFirst({
@@ -1641,7 +1679,7 @@ SAHOOL - National Agricultural Intelligence Platform
 
       // For verify_phone, update user's phone verification status
       // SECURITY: Always filter by tenantId to prevent cross-tenant phone verification.
-      if (purpose === "verify_phone") {
+      if (safePurpose === "verify_phone") {
         const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const user = await this.prisma.user.findFirst({
           where: {

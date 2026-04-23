@@ -76,29 +76,35 @@ class TestLifespanCleanup:
         After the lifespan context exits, provider.close() must have been called.
         Simulates SIGTERM → uvicorn stops accepting new requests → lifespan exits.
         """
+        close_order = []
+
         mock_provider = AsyncMock()
-        mock_provider.close = AsyncMock()
+        mock_provider.close = AsyncMock(
+            side_effect=lambda: close_order.append("weather_provider")
+        )
 
         mock_multi = AsyncMock()
-        mock_multi.close = AsyncMock()
+        mock_multi.close = AsyncMock(
+            side_effect=lambda: close_order.append("multi_provider")
+        )
 
         mock_publisher = AsyncMock()
-        mock_publisher.close = AsyncMock()
+        mock_publisher.close = AsyncMock(
+            side_effect=lambda: close_order.append("publisher")
+        )
 
-        with patch("src.main.app.state") as mock_state:
-            mock_state.weather_provider = mock_provider
-            mock_state.multi_provider = mock_multi
-            mock_state.publisher = mock_publisher
+        async def run_lifespan():
+            async with app.router.lifespan_context(app):
+                app.state.weather_provider = mock_provider
+                app.state.multi_provider = mock_multi
+                app.state.publisher = mock_publisher
 
-            # Simulate lifespan shutdown by calling close() directly
-            # (the lifespan generator yields after setup, then cleanup runs)
-            asyncio.run(mock_provider.close())
-            asyncio.run(mock_multi.close())
-            asyncio.run(mock_publisher.close())
+        asyncio.run(run_lifespan())
 
         mock_provider.close.assert_called_once()
         mock_multi.close.assert_called_once()
         mock_publisher.close.assert_called_once()
+        assert close_order == ["multi_provider", "weather_provider", "publisher"]
 
     def test_cleanup_continues_after_provider_error(self):
         """

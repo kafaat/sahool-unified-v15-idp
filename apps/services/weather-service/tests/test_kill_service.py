@@ -494,64 +494,80 @@ class TestGraphRendererLifecycle:
     available (which would happen if we used `with TestClient(app):`).
     """
 
+    @staticmethod
+    def _graph_import_side_effect(real_import, fake_module=None, import_error=None):
+        def _side_effect(name, globals=None, locals=None, fromlist=(), level=0):
+            if "graph" in name.lower():
+                if import_error is not None:
+                    raise import_error
+                if fake_module is not None:
+                    return fake_module
+            return real_import(name, globals, locals, fromlist, level)
+
+        return _side_effect
+
     def test_lifespan_sets_graph_renderer_when_module_available(self):
         """
-        When the graph module imports successfully, app.state.graph_renderer
-        is set to the WeatherGraphRenderer instance.
+        When the graph module imports successfully, the real lifespan startup
+        assigns app.state.graph_renderer and app.state.graph_store from the
+        graph constructors.
         """
-        from unittest.mock import MagicMock
+        import builtins
+        import importlib
+        import types
 
-        mock_renderer = MagicMock()
-        mock_store = MagicMock()
-        mock_state = MagicMock()
+        main_module = importlib.import_module("src.main")
 
-        # Simulate the successful-import branch:
-        #   app.state.graph_renderer = WeatherGraphRenderer()
-        #   app.state.graph_store = GraphStore()
-        mock_state.graph_renderer = mock_renderer
-        mock_state.graph_store = mock_store
+        mock_renderer = MagicMock(name="graph_renderer")
+        mock_store = MagicMock(name="graph_store")
 
-        # Verify the lifespan would set real objects (not None)
-        assert mock_state.graph_renderer is not None
-        assert mock_state.graph_store is not None
+        fake_graph_module = types.ModuleType("fake_graph_module")
+        fake_graph_module.WeatherGraphRenderer = MagicMock(return_value=mock_renderer)
+        fake_graph_module.GraphStore = MagicMock(return_value=mock_store)
+
+        real_import = builtins.__import__
+        real_import_module = importlib.import_module
+
+        def _import_module(name, package=None):
+            if "graph" in name.lower():
+                return fake_graph_module
+            return real_import_module(name, package)
+
+        with patch(
+            "builtins.__import__",
+            side_effect=self._graph_import_side_effect(real_import, fake_module=fake_graph_module),
+        ), patch("importlib.import_module", side_effect=_import_module):
+            with TestClient(main_module.app):
+                assert main_module.app.state.graph_renderer is mock_renderer
+                assert main_module.app.state.graph_store is mock_store
 
     def test_lifespan_sets_graph_renderer_none_on_import_failure(self):
         """
-        When the graph module raises on import (ImportError or other exception),
-        app.state.graph_renderer and app.state.graph_store are both set to None
-        (graceful fallback — mirroring lines 234-236 of main.py).
+        When graph import/initialisation fails during real lifespan startup,
+        app.state.graph_renderer and app.state.graph_store are explicitly set
+        to None as a graceful fallback.
         """
-        mock_state = MagicMock()
+        import builtins
+        import importlib
 
-        # Simulate the except branch in lifespan:
-        try:
-            raise ImportError("graph module not available")
-        except Exception:
-            mock_state.graph_renderer = None
-            mock_state.graph_store = None
+        main_module = importlib.import_module("src.main")
+        real_import = builtins.__import__
+        real_import_module = importlib.import_module
 
-        assert mock_state.graph_renderer is None
-        assert mock_state.graph_store is None
+        def _import_module(name, package=None):
+            if "graph" in name.lower():
+                raise ImportError("graph module not available")
+            return real_import_module(name, package)
 
-    def test_lifespan_graph_renderer_fallback_branch_sets_none(self):
-        """
-        The except branch in lifespan (main.py lines 233-236) assigns None to
-        both graph_renderer and graph_store rather than leaving them unset.
-        This verifies the fallback behaviour is correct.
-        """
-        import types
-
-        fake_state = types.SimpleNamespace()
-
-        # Replicate the lifespan except block:
-        try:
-            raise ImportError("GraphStore not available")
-        except Exception:
-            fake_state.graph_renderer = None
-            fake_state.graph_store = None
-
-        # Both must be explicitly None — not missing / not raising AttributeError
-        assert hasattr(fake_state, "graph_renderer")
-        assert hasattr(fake_state, "graph_store")
-        assert fake_state.graph_renderer is None
-        assert fake_state.graph_store is None
+        with patch(
+            "builtins.__import__",
+            side_effect=self._graph_import_side_effect(
+                real_import,
+                import_error=ImportError("graph module not available"),
+            ),
+        ), patch("importlib.import_module", side_effect=_import_module):
+            with TestClient(main_module.app):
+                assert hasattr(main_module.app.state, "graph_renderer")
+                assert hasattr(main_module.app.state, "graph_store")
+                assert main_module.app.state.graph_renderer is None
+                assert main_module.app.state.graph_store is None

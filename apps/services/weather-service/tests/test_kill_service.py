@@ -79,19 +79,13 @@ class TestLifespanCleanup:
         close_order = []
 
         mock_provider = AsyncMock()
-        mock_provider.close = AsyncMock(
-            side_effect=lambda: close_order.append("weather_provider")
-        )
+        mock_provider.close = AsyncMock(side_effect=lambda: close_order.append("weather_provider"))
 
         mock_multi = AsyncMock()
-        mock_multi.close = AsyncMock(
-            side_effect=lambda: close_order.append("multi_provider")
-        )
+        mock_multi.close = AsyncMock(side_effect=lambda: close_order.append("multi_provider"))
 
         mock_publisher = AsyncMock()
-        mock_publisher.close = AsyncMock(
-            side_effect=lambda: close_order.append("publisher")
-        )
+        mock_publisher.close = AsyncMock(side_effect=lambda: close_order.append("publisher"))
 
         async def run_lifespan():
             async with app.router.lifespan_context(app):
@@ -533,10 +527,13 @@ class TestGraphRendererLifecycle:
                 return fake_graph_module
             return real_import_module(name, package)
 
-        with patch(
-            "builtins.__import__",
-            side_effect=self._graph_import_side_effect(real_import, fake_module=fake_graph_module),
-        ), patch("importlib.import_module", side_effect=_import_module):
+        with (
+            patch(
+                "builtins.__import__",
+                side_effect=self._graph_import_side_effect(real_import, fake_module=fake_graph_module),
+            ),
+            patch("importlib.import_module", side_effect=_import_module),
+        ):
             with TestClient(main_module.app):
                 assert main_module.app.state.graph_renderer is mock_renderer
                 assert main_module.app.state.graph_store is mock_store
@@ -559,13 +556,16 @@ class TestGraphRendererLifecycle:
                 raise ImportError("graph module not available")
             return real_import_module(name, package)
 
-        with patch(
-            "builtins.__import__",
-            side_effect=self._graph_import_side_effect(
-                real_import,
-                import_error=ImportError("graph module not available"),
+        with (
+            patch(
+                "builtins.__import__",
+                side_effect=self._graph_import_side_effect(
+                    real_import,
+                    import_error=ImportError("graph module not available"),
+                ),
             ),
-        ), patch("importlib.import_module", side_effect=_import_module):
+            patch("importlib.import_module", side_effect=_import_module),
+        ):
             with TestClient(main_module.app):
                 assert hasattr(main_module.app.state, "graph_renderer")
                 assert hasattr(main_module.app.state, "graph_store")

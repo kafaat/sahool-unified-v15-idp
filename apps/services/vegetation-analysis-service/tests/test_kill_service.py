@@ -96,8 +96,9 @@ class TestLifespanCleanup:
         main_module = self._load_main_module()
 
         async def _run():
-            with patch.object(main_module, "_multi_provider", multi_provider), patch.object(
-                main_module, "_sar_processor", sar_processor
+            with (
+                patch.object(main_module, "_multi_provider", multi_provider),
+                patch.object(main_module, "_sar_processor", sar_processor),
             ):
                 async with main_module.lifespan(MagicMock()):
                     pass
@@ -144,6 +145,8 @@ class TestLifespanCleanup:
         """When both _multi_provider and _sar_processor are None, real shutdown is a no-op."""
         self._run_real_lifespan_shutdown(None, None)
         assert True
+
+
 # ---------------------------------------------------------------------------
 # 2. readyz Behaviour After Shutdown
 # ---------------------------------------------------------------------------

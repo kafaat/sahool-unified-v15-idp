@@ -18,19 +18,12 @@ from datetime import UTC, datetime, timezone
 from functools import wraps
 from typing import Any
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
+
 logger = logging.getLogger(__name__)
-
-
-def _safe_log(value: Any) -> str:
-    """Strip CR/LF from values before logging to prevent log injection.
-
-    Cache keys and IDs are built from user-provided ``field_id`` / ``tenant_id``
-    values; without sanitization an attacker could forge extra log lines by
-    embedding newlines. Mirrors the helper in ``repository.py``.
-    """
-    if value is None:
-        return ""
-    return str(value).replace("\n", "").replace("\r", "")[:200]
 
 
 # Async Redis client - lazy initialization
@@ -68,10 +61,10 @@ async def _get_redis_client():
             # Test connection
             await _redis_client.ping()
             _redis_available = True
-            logger.info(f"Redis connected (async): {redis_url}")
+            logger.info("Redis connected (async): %s", _safe_log(redis_url))
             return _redis_client
         except Exception as e:
-            logger.warning(f"Redis not available: {e}. Caching disabled.")
+            logger.warning("Redis not available: %s. Caching disabled.", _safe_log(e))
             _redis_available = False
             return None
 
@@ -185,7 +178,7 @@ async def cache_get(key: str) -> dict[str, Any] | None:
         logger.debug("Cache MISS: %s", _safe_log(key))
         return None
     except Exception as e:
-        logger.error(f"Cache get error: {e}")
+        logger.error("Cache get error: %s", _safe_log(e))
         return None
 
 
@@ -205,7 +198,7 @@ async def cache_set(
         logger.debug("Cache SET: %s (TTL: %ds)", _safe_log(key), ttl)
         return True
     except Exception as e:
-        logger.error(f"Cache set error: {e}")
+        logger.error("Cache set error: %s", _safe_log(e))
         return False
 
 
@@ -217,10 +210,10 @@ async def cache_delete(key: str) -> bool:
 
     try:
         await client.delete(key)
-        logger.debug(f"Cache DELETE: {key}")
+        logger.debug("Cache DELETE: %s", _safe_log(key))
         return True
     except Exception as e:
-        logger.error(f"Cache delete error: {e}")
+        logger.error("Cache delete error: %s", _safe_log(e))
         return False
 
 
@@ -268,7 +261,7 @@ async def cache_invalidate_field(
             )
         return deleted
     except Exception as e:
-        logger.error(f"Cache invalidate error: {e}")
+        logger.error("Cache invalidate error: %s", _safe_log(e))
         return 0
 
 

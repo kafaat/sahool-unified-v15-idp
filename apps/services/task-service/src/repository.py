@@ -93,8 +93,9 @@ class TaskRepository:
         قائمة المهام مع الفلاتر والترقيم
 
         Args:
-            search: Optional case-insensitive ILIKE match on
-                ``title`` / ``title_ar`` / ``description``.
+            search: Case-insensitive ILIKE match against title / title_ar /
+                description. Empty/whitespace-only values are treated as
+                "no filter" by the caller.
 
         Returns:
             Tuple of (tasks, total_count)
@@ -117,7 +118,8 @@ class TaskRepository:
         if due_after:
             query = query.filter(Task.due_date >= due_after)
         if search:
-            # Parameterized ILIKE — no SQL injection risk.
+            # Case-insensitive ILIKE across bilingual title + description.
+            # The route layer already strips whitespace and drops empty strings.
             pattern = f"%{search}%"
             query = query.filter(
                 or_(

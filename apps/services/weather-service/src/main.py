@@ -16,7 +16,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -222,6 +222,19 @@ async def lifespan(app: FastAPI):
         logger.warning("nats_connection_failed", error=str(e))
         app.state.publisher = None
 
+    # Initialise graph singletons eagerly in lifespan to avoid race conditions
+    # under concurrent ASGI tasks (4.5).
+    try:
+        from .graph import GraphStore, WeatherGraphRenderer
+
+        app.state.graph_renderer = WeatherGraphRenderer()
+        app.state.graph_store = GraphStore()
+        logger.info("graph_renderer_initialized")
+    except Exception as e:
+        logger.warning("graph_renderer_unavailable", error=str(e))
+        app.state.graph_renderer = None
+        app.state.graph_store = None
+
     yield
 
     # Cleanup
@@ -338,6 +351,8 @@ def health():
 
 @app.get("/readyz")
 def readiness():
+    from starlette.responses import JSONResponse
+
     checks = {}
 
     # Check NATS connection
@@ -357,17 +372,39 @@ def readiness():
 
     all_ready = all(v not in ("disconnected", "not_initialized") for v in checks.values())
 
-    return {
+    body = {
         "status": "ready" if all_ready else "degraded",
         "service": "weather-service",
         "version": "16.0.0",
         "checks": checks,
     }
+    # Return 503 when degraded so Kubernetes readiness probe removes the pod
+    # from the Service endpoint slice until all dependencies recover.
+    return JSONResponse(content=body, status_code=200 if all_ready else 503)
+
+
+# Tokens allowed to scrape /metrics.  When empty (the default) the endpoint
+# is open, preserving backward compatibility with existing Prometheus configs.
+# Set METRICS_TOKEN to a shared secret to require Bearer auth.
+_METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
 
 
 @app.get("/metrics")
-async def metrics():
+async def metrics(authorization: str | None = Header(default=None, alias="Authorization")):
     """Prometheus metrics endpoint"""
+    if _METRICS_TOKEN:
+        import secrets
+
+        parts = (authorization or "").split(None, 1)
+        bearer = parts[1].strip() if len(parts) == 2 and parts[0].lower() == "bearer" else ""
+        if not secrets.compare_digest(bearer, _METRICS_TOKEN):
+            from starlette.responses import Response as _Resp
+
+            return _Resp(
+                content="Unauthorized",
+                status_code=401,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     if not HAS_PROMETHEUS:
         from starlette.responses import Response
 
@@ -444,7 +481,8 @@ async def assess(req: WeatherAssessRequest, user: User = Depends(get_current_use
                     title_en=alert.title_en,
                     correlation_id=req.correlation_id,
                 )
-                event_ids.append(event_id)
+                if event_id is not None:
+                    event_ids.append(event_id)
             except Exception as e:
                 logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
@@ -512,7 +550,8 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
                         title_en=alert.title_en,
                         correlation_id=req.correlation_id,
                     )
-                    event_ids.append(event_id)
+                    if event_id is not None:
+                        event_ids.append(event_id)
                 except Exception as e:
                     logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
@@ -545,7 +584,11 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
 
 
 @app.post("/weather/forecast")
-async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends(get_current_user)):
+async def get_forecast(
+    req: LocationRequest,
+    days: int = Query(default=7, ge=1, le=16, description="Number of forecast days (1–16)"),
+    user: User = Depends(get_current_user),
+):
     """
     Get weather forecast
 
@@ -553,7 +596,6 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
         days: Number of forecast days (1-16)
     """
     _enforce_tenant(user, req.tenant_id)
-    days = max(1, min(days, 16))
 
     try:
         # Use multi-provider service if available
@@ -610,6 +652,69 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
             ],
             "days": len(forecast),
             "event_id": event_id,
+        }
+
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        raise ExternalServiceException.weather_service(e) from e
+
+
+@app.post("/weather/hourly")
+async def get_hourly_forecast(
+    req: LocationRequest,
+    hours: int = Query(default=24, ge=1, le=168, description="Number of forecast hours (1–168)"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Get hourly weather forecast (up to 7 days / 168 hours).
+    التوقعات الساعية للطقس (حتى 7 أيام / 168 ساعة).
+    """
+    _enforce_tenant(user, req.tenant_id)
+
+    try:
+        if getattr(app.state, "multi_provider", None):
+            result = await app.state.multi_provider.get_hourly_forecast(
+                req.lat, req.lon, hours, tenant_id=req.tenant_id
+            )
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            forecast = result.data
+            provider = result.provider
+        else:
+            weather_provider = getattr(app.state, "weather_provider", None)
+            if weather_provider is None:
+                raise ExternalServiceException.weather_service(
+                    details={"error": "Weather provider not available", "error_ar": "مزود الطقس غير متاح"}
+                )
+            forecast = await weather_provider.get_hourly_forecast(req.lat, req.lon, hours)
+            provider = "Open-Meteo"
+
+        return {
+            "field_id": req.field_id,
+            "location": {"lat": req.lat, "lon": req.lon},
+            "provider": provider,
+            "hours": len(forecast),
+            "forecast": [
+                {
+                    "datetime": h.datetime,
+                    "temperature_c": h.temperature_c,
+                    "humidity_pct": h.humidity_pct,
+                    "precipitation_mm": h.precipitation_mm,
+                    "precipitation_probability_pct": h.precipitation_probability_pct,
+                    "wind_speed_kmh": h.wind_speed_kmh,
+                    "cloud_cover_pct": h.cloud_cover_pct,
+                    "condition": h.condition,
+                    "condition_ar": h.condition_ar,
+                }
+                for h in forecast
+            ],
         }
 
     except (ExternalServiceException, InternalServerException):
@@ -690,6 +795,13 @@ async def get_providers(user: User = Depends(get_current_user)):
             "providers": providers,
             "total": len(providers),
             "configured": len([p for p in providers if p["configured"]]),
+        }
+    elif USE_MOCK_WEATHER:
+        return {
+            "multi_provider_enabled": False,
+            "providers": [{"name": "Mock", "configured": True, "type": "MockWeatherProvider"}],
+            "total": 1,
+            "configured": 1,
         }
     else:
         return {
@@ -1085,7 +1197,7 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                 }
             )
         weather = result.data
-        provider = getattr(result, "provider", "Open-Meteo")
+        provider = result.provider
     else:
         weather = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
         provider = "Open-Meteo"
@@ -1142,7 +1254,8 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                     title_en=alert.title_en,
                     correlation_id=req.correlation_id,
                 )
-                event_ids.append(event_id)
+                if event_id is not None:
+                    event_ids.append(event_id)
             except Exception as e:
                 logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
@@ -1473,12 +1586,12 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
 # نقاط نهاية رسم الطقس — يعيد رابط URL للرسم بدل JSON
 # ---------------------------------------------------------------------------
 
-from src.graph import (  # noqa: E402
-    DailyPoint,
-    GraphRequest,
-    GraphStore,
-    WeatherGraphRenderer,
-)
+try:
+    from .graph import DailyPoint, GraphRequest, GraphStore, WeatherGraphRenderer
+
+    _GRAPH_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _GRAPH_AVAILABLE = False
 
 
 class WeatherGraphGenerateRequest(BaseModel):
@@ -1520,13 +1633,14 @@ async def generate_weather_graph(
     """
     _enforce_tenant(user, req.tenant_id)
 
-    # Initialise lazy singletons on first call (one per process).
-    if not hasattr(app.state, "graph_renderer"):
-        app.state.graph_renderer = WeatherGraphRenderer()
-    if not hasattr(app.state, "graph_store"):
-        app.state.graph_store = GraphStore()
+    if (
+        not _GRAPH_AVAILABLE
+        or not getattr(app.state, "graph_renderer", None)
+        or not getattr(app.state, "graph_store", None)
+    ):
+        raise HTTPException(status_code=503, detail="Graph renderer not available")
 
-    # Pull historical daily weather — the multi-provider service
+    # Pull historical daily weather
     # already exposes get_daily_forecast; for past data we use the
     # provider's history method when available, else we gracefully
     # fall back to an empty series so the SVG still renders.

@@ -15,6 +15,11 @@ import os
 from datetime import UTC, date, datetime, timezone
 from typing import Any
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
+
 logger = logging.getLogger(__name__)
 
 
@@ -147,17 +152,17 @@ async def fetch_real_satellite_data(
             )
 
         if result.get("status") == "completed":
-            logger.info(f"Real satellite data fetched for {field_id}")
+            logger.info("Real satellite data fetched for %s", _safe_log(field_id))
             return result
         else:
-            logger.warning(f"Workflow failed: {result.get('error')}")
+            logger.warning("Workflow failed: %s", _safe_log(result.get("error")))
             return None
 
     except TimeoutError:
         logger.error(
             "Satellite data fetch timed out after %ss for field %s. Falling back to simulation.",
             timeout_seconds,
-            field_id,
+            _safe_log(field_id),
         )
         return None
     except Exception as e:

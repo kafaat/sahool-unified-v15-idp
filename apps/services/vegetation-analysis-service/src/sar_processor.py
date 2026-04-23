@@ -16,6 +16,11 @@ from typing import Any
 
 import httpx
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
+
 logger = logging.getLogger(__name__)
 
 
@@ -419,7 +424,11 @@ class SARProcessor:
                 )
             )
 
-        logger.info(f"Detected {len(events)} irrigation events for field {field_id}")
+        logger.info(
+            "Detected %d irrigation events for field %s",
+            len(events),
+            _safe_log(field_id),
+        )
         return events
 
     async def get_sar_timeseries(

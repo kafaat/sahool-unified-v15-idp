@@ -15,18 +15,15 @@ from pydantic import BaseModel, Field
 from shared.auth.dependencies import get_current_user
 from shared.auth.models import User
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
 from .cache import cache_invalidate_field
 from .field_boundary_detector import BoundaryChange
 from .tenant_guard import require_tenant_id, verify_field_owned_by_tenant
 
 logger = logging.getLogger(__name__)
-
-
-def _safe_log(value) -> str:
-    """Strip CR/LF from values before logging to prevent log injection."""
-    if value is None:
-        return ""
-    return str(value).replace("\n", "").replace("\r", "")[:200]
 
 
 class RefineBoundaryRequest(BaseModel):

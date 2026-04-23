@@ -812,7 +812,7 @@ class VegetationIndicesCalculator:
 
         # Calculate REP using linear interpolation
         denominator = b.B06_red_edge2 - b.B05_red_edge1
-        if denominator == 0 or denominator == 0.0:
+        if denominator == 0:
             return None
 
         try:

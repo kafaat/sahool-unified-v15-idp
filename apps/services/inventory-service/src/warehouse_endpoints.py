@@ -31,7 +31,7 @@ except ImportError:  # pragma: no cover — dev environment without shared auth
     class User(BaseModel):  # type: ignore[no-redef]
         id: str = ""
         tenant_id: str | None = None
-        roles: list[str] = []
+        roles: list[str] = Field(default_factory=list)
 
     async def get_current_user() -> User:  # type: ignore[no-redef]
         raise HTTPException(status_code=503, detail="Authentication backend unavailable")

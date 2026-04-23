@@ -23,6 +23,11 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
+
 logger = logging.getLogger(__name__)
 
 
@@ -246,8 +251,11 @@ class CloudMasker:
         clear_observations.sort(key=lambda x: x.quality_score, reverse=True)
 
         logger.info(
-            f"Found {len(clear_observations)} clear observations for {field_id} "
-            f"from {start_date.date()} to {end_date.date()}"
+            "Found %d clear observations for %s from %s to %s",
+            len(clear_observations),
+            _safe_log(field_id),
+            _safe_log(start_date.date()),
+            _safe_log(end_date.date()),
         )
 
         return clear_observations
@@ -281,7 +289,10 @@ class CloudMasker:
 
         if not observations:
             logger.warning(
-                f"No clear observations found for {field_id} within {days_tolerance} days of {target_date.date()}"
+                "No clear observations found for %s within %d days of %s",
+                _safe_log(field_id),
+                days_tolerance,
+                _safe_log(target_date.date()),
             )
             return None
 
@@ -289,9 +300,12 @@ class CloudMasker:
         best = observations[0]
 
         logger.info(
-            f"Best observation for {field_id} near {target_date.date()}: "
-            f"{best.date.date()} (quality={best.quality_score:.3f}, "
-            f"cloud={best.cloud_cover:.1f}%)"
+            "Best observation for %s near %s: %s (quality=%.3f, cloud=%.1f%%)",
+            _safe_log(field_id),
+            _safe_log(target_date.date()),
+            _safe_log(best.date.date()),
+            best.quality_score,
+            best.cloud_cover,
         )
 
         return best
@@ -398,11 +412,15 @@ class CloudMasker:
         cloudy_obs = [obs for obs in ndvi_series if obs.get("cloudy", False)]
 
         if not cloudy_obs:
-            logger.info(f"No cloudy observations to interpolate for {field_id}")
+            logger.info("No cloudy observations to interpolate for %s", _safe_log(field_id))
             return ndvi_series
 
         if len(valid_obs) < 2:
-            logger.warning(f"Not enough valid observations ({len(valid_obs)}) to interpolate for {field_id}")
+            logger.warning(
+                "Not enough valid observations (%d) to interpolate for %s",
+                len(valid_obs),
+                _safe_log(field_id),
+            )
             return ndvi_series
 
         # Interpolate each cloudy observation
@@ -421,7 +439,7 @@ class CloudMasker:
             elif method == "previous":
                 interp_value = self._previous_interpolate(obs_date, valid_obs)
             else:
-                logger.error(f"Unknown interpolation method: {method}")
+                logger.error("Unknown interpolation method: %s", _safe_log(method))
                 interp_value = None
 
             if interp_value is not None:
@@ -429,7 +447,12 @@ class CloudMasker:
                 interpolated[i]["interpolated"] = True
                 interpolated[i]["interpolation_method"] = method
 
-        logger.info(f"Interpolated {len(cloudy_obs)} cloudy observations for {field_id} using {method} method")
+        logger.info(
+            "Interpolated %d cloudy observations for %s using %s method",
+            len(cloudy_obs),
+            _safe_log(field_id),
+            _safe_log(method),
+        )
 
         return interpolated
 

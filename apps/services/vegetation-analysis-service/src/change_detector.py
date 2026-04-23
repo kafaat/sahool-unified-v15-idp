@@ -22,14 +22,12 @@ from dataclasses import asdict, dataclass
 from datetime import date
 from enum import Enum, StrEnum
 
+try:
+    from ._log_safety import safe_log as _safe_log
+except ImportError:  # Fallback when imported as top-level module (e.g. in tests)
+    from _log_safety import safe_log as _safe_log  # type: ignore[no-redef]
+
 logger = logging.getLogger(__name__)
-
-
-def _safe_log(value) -> str:
-    """Strip CR/LF from values before logging to prevent log injection."""
-    if value is None:
-        return ""
-    return str(value).replace("\n", "").replace("\r", "")[:200]
 
 
 # =============================================================================

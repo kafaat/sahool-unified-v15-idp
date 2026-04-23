@@ -260,21 +260,21 @@ describe("Field Management Service — Resilience / Kill Tests", () => {
     });
 
     it("handles concurrent ETag conflicts correctly — only one winner", async () => {
-      // Simulate two concurrent updates to the same field (version 1).
-      // The first update succeeds; subsequent calls see version 1 still
-      // (mock doesn't auto-increment), triggering 409 for the rest.
-      let callCount = 0;
+      // Simulate real optimistic-locking semantics at the mock layer:
+      // the first request sees version=1 (matches "v1" ETag → allowed to
+      // update), and every subsequent findUnique returns version=2
+      // (the post-winner state), so the "v1" If-Match header no longer
+      // matches → service throws ConflictException → HTTP 409.
+      let findCalls = 0;
       mockPrisma.field.findUnique.mockImplementation(() => {
-        callCount++;
-        // Alternate between returning version 1 (will conflict if updated)
-        // and returning null (404 path — to reduce noise)
-        return Promise.resolve({ id: FIELD_ID, version: 1, tenantId: TENANT_A });
+        findCalls += 1;
+        const currentVersion = findCalls === 1 ? 1 : 2;
+        return Promise.resolve({ id: FIELD_ID, version: currentVersion, tenantId: TENANT_A });
       });
 
-      // Make the tx update succeed for the first call, then reject
-      let txCalls = 0;
+      // Transaction only runs for the winner (losers short-circuit with 409
+      // before reaching $transaction), but we still stub it defensively.
       mockPrisma.$transaction.mockImplementation((cb: (tx: any) => Promise<unknown>) => {
-        txCalls++;
         const tx = {
           field: {
             update: jest.fn().mockResolvedValue(makeFieldRow({ version: 2 })),
@@ -300,8 +300,17 @@ describe("Field Management Service — Resilience / Kill Tests", () => {
         .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled")
         .map((r) => r.value.status);
 
-      // Service must not crash (no 500s expected)
+      // Service must not crash
+      expect(statuses).toHaveLength(5);
       expect(statuses.some((s) => s === 500)).toBe(false);
+
+      // Exactly one winner (200) and the rest must be 409 Conflict.
+      // This is the real assertion that guards against regressions in
+      // optimistic-locking / ETag enforcement.
+      const winners = statuses.filter((s) => s === 200);
+      const conflicts = statuses.filter((s) => s === 409);
+      expect(winners).toHaveLength(1);
+      expect(conflicts).toHaveLength(4);
     });
   });
 

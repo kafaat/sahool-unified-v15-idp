@@ -263,7 +263,9 @@ describe("DB Failure — Service starts in degraded mode", () => {
         .send({ name: "Test Field", tenantId: TENANT_A, cropType: "wheat" });
 
       expect(res.status).toBe(500);
-      // Must not expose internal DB error details
+      // Response body must not include a stack trace. (HttpExceptionFilter
+      // still surfaces `exception.message` for generic Errors — tightening
+      // that is a separate concern tracked outside this test PR.)
       expect(res.body).not.toHaveProperty("stack");
     });
 
@@ -594,7 +596,11 @@ describe("DB Failure — Specific error type handling", () => {
 // Suite 4: PrismaService unit tests (connection state machine)
 // ---------------------------------------------------------------------------
 describe("PrismaService — Unit: connection state machine", () => {
-  const realDbUrl = "postgresql://test:test@localhost:5432/test_nonexistent";
+  // Use 127.0.0.1:1 with an explicit 1-second connect timeout so this
+  // suite fails fast and deterministically regardless of what happens to
+  // be running on the host's 5432.  Port 1 is reserved/unassigned and
+  // `connect_timeout=1` caps Prisma's wait.
+  const realDbUrl = "postgresql://test:test@127.0.0.1:1/test_nonexistent?connect_timeout=1";
 
   beforeAll(() => {
     process.env.NODE_ENV = "test";

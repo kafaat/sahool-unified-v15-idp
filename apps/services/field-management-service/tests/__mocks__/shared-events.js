@@ -11,18 +11,17 @@
  * field-events.service.ts.
  */
 
+// Mirror the real `EventSubjects` registry exported from
+// packages/shared-events/src/events.ts.  Only the keys that actually exist
+// in the real package are kept here: domain-specific subjects (boundary,
+// crop season, field operations) are declared locally inside
+// field-events.service.ts (FIELD_SUBJECTS) and do NOT go through this
+// registry, so mirroring them here would only cause silent drift if a
+// future test starts importing `EventSubjects.BOUNDARY_CHANGED`.
 const EventSubjects = {
   FIELD_CREATED: "sahool.field.created",
   FIELD_UPDATED: "sahool.field.updated",
   FIELD_DELETED: "sahool.field.deleted",
-  BOUNDARY_CHANGED: "sahool.field.boundary_changed",
-  CROP_SEASON_STARTED: "sahool.field.crop_season.started",
-  CROP_SEASON_UPDATED: "sahool.field.crop_season.updated",
-  CROP_SEASON_ENDED: "sahool.field.crop_season.ended",
-  CROP_SEASON_DELETED: "sahool.field.crop_season.deleted",
-  FIELD_OPERATION_RECORDED: "sahool.field.operation.recorded",
-  FIELD_OPERATION_UPDATED: "sahool.field.operation.updated",
-  FIELD_OPERATION_DELETED: "sahool.field.operation.deleted",
 };
 
 module.exports = {

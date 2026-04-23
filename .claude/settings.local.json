@@ -109,7 +109,8 @@
       "Bash(grep -n \"apply_migrations\\\\|def apply\" D:/projects/v91/sahoo-adel-full/apps/services/audit-service/src/*.py)",
       "Bash(grep -rn \"apps/web\\\\|web-app\\\\|web-dashboard\" D:/projects/v91/sahoo-adel-full/docker-compose*.yml)",
       "Bash(grep:*)",
-      "Bash(wait)"
+      "Bash(wait)",
+      "Bash(cat /d/projects/v91/sahoo-adel-full/apps/web/next.config.*)"
     ]
   }
 }

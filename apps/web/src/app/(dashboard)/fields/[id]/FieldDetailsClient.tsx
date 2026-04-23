@@ -77,19 +77,29 @@ export default function FieldDetailsClient({ fieldId }: FieldDetailsClientProps)
   );
   const kpiRefresh = useTriggerKpiRefresh(fieldId);
 
-  // Auto-trigger KPI fetch when the field loads and has no saved snapshot yet
+  // A snapshot is considered empty when all its KPI values are null/undefined.
+  // This happens when a previous fetch failed (e.g. auth error) — the snapshot
+  // row was saved with no actual data, so we should re-fetch automatically.
+  const isEmptySnapshot =
+    kpiSnapshot != null &&
+    kpiSnapshot.ndvi == null &&
+    kpiSnapshot.temperature == null &&
+    kpiSnapshot.humidity == null &&
+    kpiSnapshot.windSpeed == null;
+
+  // Auto-trigger KPI fetch when: (a) no snapshot yet, or (b) snapshot is empty
   useEffect(() => {
     if (
       field &&
       !kpiSnapshotLoading &&
-      kpiSnapshot === null &&
+      (kpiSnapshot === null || isEmptySnapshot) &&
       fieldLat != null &&
       fieldLng != null &&
       !kpiRefresh.isPending
     ) {
       kpiRefresh.mutate({ lat: fieldLat, lng: fieldLng, polygonCoordinates });
     }
-  }, [field, kpiSnapshotLoading, kpiSnapshot, fieldLat, fieldLng]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [field, kpiSnapshotLoading, kpiSnapshot, isEmptySnapshot, fieldLat, fieldLng]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDelete = async () => {
     try {

@@ -260,12 +260,28 @@ export function FieldKPITiles({ fieldId, centroidLat, centroidLng, polygonCoordi
   const { data: kpi, isLoading } = useFieldKpiSnapshot(fieldId);
   const refresh = useTriggerKpiRefresh(fieldId);
 
-  // Auto-trigger when no snapshot and centroid is available (unless parent handles it)
+  // A snapshot saved during a failed fetch (auth error etc.) has all-null values.
+  // Treat it as missing so we re-fetch automatically once the service is healthy.
+  const isEmptySnapshot =
+    kpi != null &&
+    kpi.ndvi == null &&
+    kpi.temperature == null &&
+    kpi.humidity == null &&
+    kpi.windSpeed == null;
+
+  // Auto-trigger when no snapshot (or empty snapshot) and centroid is available
   useEffect(() => {
-    if (!disableAutoTrigger && !isLoading && kpi === null && centroidLat != null && centroidLng != null && !refresh.isPending) {
+    if (
+      !disableAutoTrigger &&
+      !isLoading &&
+      (kpi === null || isEmptySnapshot) &&
+      centroidLat != null &&
+      centroidLng != null &&
+      !refresh.isPending
+    ) {
       refresh.mutate({ lat: centroidLat, lng: centroidLng, polygonCoordinates });
     }
-  }, [isLoading, kpi, centroidLat, centroidLng, disableAutoTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isLoading, kpi, isEmptySnapshot, centroidLat, centroidLng, disableAutoTrigger]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleRefresh = () => {
     if (centroidLat != null && centroidLng != null) {
@@ -276,7 +292,7 @@ export function FieldKPITiles({ fieldId, centroidLat, centroidLng, polygonCoordi
   const isWorking = isLoading || refresh.isPending;
 
   // No centroid — show a prompt instead of silent empty tiles
-  if (!isWorking && kpi === null && (centroidLat == null || centroidLng == null)) {
+  if (!isWorking && (kpi === null || isEmptySnapshot) && (centroidLat == null || centroidLng == null)) {
     return (
       <div className="text-center py-8 text-gray-500 text-sm">
         <p>لا تتوفر بيانات KPI — يرجى رسم حدود الحقل أولاً لتفعيل التحليل.</p>

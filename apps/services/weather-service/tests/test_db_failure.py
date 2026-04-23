@@ -87,7 +87,7 @@ def multi_service():
 
 
 class TestCacheBoundedSize:
-    """Verify the 512-entry FIFO eviction introduced in fix 3.3."""
+    """Verify the 512-entry bounded cache with oldest-by-write eviction."""
 
     def test_cache_never_exceeds_max_size(self, multi_service):
         """Inserting 600 entries keeps len(cache) ≤ 512."""

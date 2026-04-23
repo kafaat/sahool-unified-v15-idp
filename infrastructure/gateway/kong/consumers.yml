@@ -546,6 +546,24 @@ consumers:
         enabled: false  # يمكن تفعيله لإنهاء الفترة التجريبية
 
 # ============================================================================
+# مستهلك خدمة JWT الداخلية - Internal JWT Issuer Consumer
+# يطابق قيمة المُصدر في رموز user-service (JWT_ISSUER=sahool)
+# Kong uses iss claim to look up this consumer and validate the signature
+# ============================================================================
+
+  - username: sahool-platform-issuer
+    custom_id: internal-issuer-001
+    tags:
+      - internal
+      - jwt-issuer
+    jwt_secrets:
+      - key: sahool
+        algorithm: HS256
+        secret: ${JWT_SECRET_KEY}
+    groups:
+      - name: internal-services
+
+# ============================================================================
 # مجموعات التحكم في الوصول - ACL Groups
 # ============================================================================
 
@@ -624,6 +642,8 @@ acls:
 
   # Internal Services ACLs
   - consumer: internal-service
+    group: internal-services
+  - consumer: sahool-platform-issuer
     group: internal-services
 
   # Trial ACLs

@@ -54,10 +54,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [commandPaletteOpen]);
 
   React.useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  React.useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push('/login');
     }

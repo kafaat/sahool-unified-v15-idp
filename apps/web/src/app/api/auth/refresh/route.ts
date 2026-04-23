@@ -76,6 +76,7 @@ export async function POST(request: NextRequest) {
 
     const data = await backendResponse.json();
     const newAccessToken = data?.access_token ?? data?.data?.access_token ?? null;
+    const newRefreshToken = data?.refresh_token ?? data?.data?.refresh_token ?? null;
 
     if (!newAccessToken) {
       return NextResponse.json(
@@ -84,17 +85,38 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse env var for cookie maxAge
-    const maxAge = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || '1800', 10);
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // Parse env vars for cookie maxAge
+    const accessMaxAge = parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRE_SECONDS || '1800', 10);
+    const refreshMaxAge = parseInt(
+      process.env.JWT_REFRESH_TOKEN_EXPIRE_SECONDS ||
+        String((parseInt(process.env.JWT_REFRESH_TOKEN_EXPIRE_DAYS || '7', 10) * 86400)),
+      10
+    );
 
     // Set new httpOnly access_token cookie
     cookieStore.set('access_token', newAccessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: isProduction,
       sameSite: 'strict',
-      maxAge: Number.isFinite(maxAge) && maxAge > 0 ? maxAge : 1800,
+      maxAge: Number.isFinite(accessMaxAge) && accessMaxAge > 0 ? accessMaxAge : 1800,
       path: '/',
     });
+
+    // Set new httpOnly refresh_token cookie — this is the critical step.
+    // The backend rotates the refresh token on every use; if we don't persist
+    // the new token here the old (now-invalidated) token stays in the cookie
+    // and the next refresh attempt triggers "token reuse detected".
+    if (newRefreshToken) {
+      cookieStore.set('refresh_token', newRefreshToken, {
+        httpOnly: true,
+        secure: isProduction,
+        sameSite: 'strict',
+        maxAge: Number.isFinite(refreshMaxAge) && refreshMaxAge > 0 ? refreshMaxAge : 604800,
+        path: '/',
+      });
+    }
 
     return NextResponse.json({
       success: true,

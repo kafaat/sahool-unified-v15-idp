@@ -16,7 +16,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 
-from fastapi import Depends, FastAPI, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -390,7 +390,7 @@ _METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
 
 
 @app.get("/metrics")
-async def metrics(authorization: str | None = None):
+async def metrics(authorization: str | None = Header(default=None, alias="Authorization")):
     """Prometheus metrics endpoint"""
     if _METRICS_TOKEN:
         bearer = (authorization or "").removeprefix("Bearer ").strip()

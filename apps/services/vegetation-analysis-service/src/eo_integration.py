@@ -18,6 +18,20 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+def _safe_log(value: object, max_len: int = 128) -> str:
+    """Sanitise a value for safe logging (CR/LF stripped).
+
+    Uses explicit ``str.replace`` so CodeQL's ``py/log-injection`` query
+    recognises this function as a sanitiser for user-supplied values
+    (field_id, tenant_id, error messages, ...).
+    """
+    s = str(value) if value is not None else ""
+    s = s.replace("\r", "").replace("\n", "").replace("\x00", "").replace("\t", " ")
+    if len(s) > max_len:
+        s = s[:max_len]
+    return s
+
+
 # =============================================================================
 # Check for eo-learn availability
 # =============================================================================
@@ -147,17 +161,17 @@ async def fetch_real_satellite_data(
             )
 
         if result.get("status") == "completed":
-            logger.info(f"Real satellite data fetched for {field_id}")
+            logger.info("Real satellite data fetched for %s", _safe_log(field_id))
             return result
         else:
-            logger.warning(f"Workflow failed: {result.get('error')}")
+            logger.warning("Workflow failed: %s", _safe_log(result.get("error")))
             return None
 
     except TimeoutError:
         logger.error(
             "Satellite data fetch timed out after %ss for field %s. Falling back to simulation.",
             timeout_seconds,
-            field_id,
+            _safe_log(field_id),
         )
         return None
     except Exception as e:

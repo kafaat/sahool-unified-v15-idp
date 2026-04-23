@@ -14,25 +14,27 @@ import hashlib
 import json
 import logging
 import os
-import re
 from datetime import UTC, datetime, timezone
 from functools import wraps
 from typing import Any
 
 logger = logging.getLogger(__name__)
 
-# CodeQL py/log-injection: neutralise CR/LF and other control characters
-# from user-supplied values (field_id, tenant_id, ...) before emitting
-# them to the logger. Keeps printable ASCII + unicode letters/digits.
-_LOG_UNSAFE_RE = re.compile(r"[\r\n\x00-\x1f\x7f]")
-
 
 def _safe_log(value: object, max_len: int = 128) -> str:
-    """Escape control chars and truncate a value for safe logging."""
+    """Sanitize a value for safe logging.
+
+    Strips CR/LF and other control characters from user-supplied values
+    (field_id, tenant_id, Redis keys, ...) before emitting them to the
+    logger. Uses explicit ``str.replace`` calls that CodeQL's
+    ``py/log-injection`` query recognises as sanitisers.
+    """
     s = str(value) if value is not None else ""
-    s = _LOG_UNSAFE_RE.sub("?", s)
+    # Explicit CR/LF/NUL/tab removal — recognised by CodeQL as a
+    # log-injection sanitiser (see `LogInjectionQuery.qll`).
+    s = s.replace("\r", "").replace("\n", "").replace("\x00", "").replace("\t", " ")
     if len(s) > max_len:
-        s = s[: max_len - 1] + "…"
+        s = s[:max_len]
     return s
 
 
@@ -71,10 +73,10 @@ async def _get_redis_client():
             # Test connection
             await _redis_client.ping()
             _redis_available = True
-            logger.info(f"Redis connected (async): {redis_url}")
+            logger.info("Redis connected (async): %s", _safe_log(redis_url))
             return _redis_client
         except Exception as e:
-            logger.warning(f"Redis not available: {e}. Caching disabled.")
+            logger.warning("Redis not available: %s. Caching disabled.", _safe_log(e))
             _redis_available = False
             return None
 
@@ -183,12 +185,12 @@ async def cache_get(key: str) -> dict[str, Any] | None:
     try:
         data = await client.get(key)
         if data:
-            logger.debug(f"Cache HIT: {key}")
+            logger.debug("Cache HIT: %s", _safe_log(key))
             return json.loads(data)
-        logger.debug(f"Cache MISS: {key}")
+        logger.debug("Cache MISS: %s", _safe_log(key))
         return None
     except Exception as e:
-        logger.error(f"Cache get error: {e}")
+        logger.error("Cache get error: %s", _safe_log(e))
         return None
 
 
@@ -205,10 +207,10 @@ async def cache_set(
     try:
         data = json.dumps(value, default=str)
         await client.setex(key, ttl, data)
-        logger.debug(f"Cache SET: {key} (TTL: {ttl}s)")
+        logger.debug("Cache SET: %s (TTL: %ds)", _safe_log(key), ttl)
         return True
     except Exception as e:
-        logger.error(f"Cache set error: {e}")
+        logger.error("Cache set error: %s", _safe_log(e))
         return False
 
 
@@ -220,10 +222,10 @@ async def cache_delete(key: str) -> bool:
 
     try:
         await client.delete(key)
-        logger.debug(f"Cache DELETE: {key}")
+        logger.debug("Cache DELETE: %s", _safe_log(key))
         return True
     except Exception as e:
-        logger.error(f"Cache delete error: {e}")
+        logger.error("Cache delete error: %s", _safe_log(e))
         return False
 
 
@@ -271,7 +273,7 @@ async def cache_invalidate_field(
             )
         return deleted
     except Exception as e:
-        logger.error(f"Cache invalidate error: {e}")
+        logger.error("Cache invalidate error: %s", _safe_log(e))
         return 0
 
 

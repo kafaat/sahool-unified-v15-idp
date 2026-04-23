@@ -19,6 +19,20 @@ import httpx
 logger = logging.getLogger(__name__)
 
 
+def _safe_log(value: object, max_len: int = 128) -> str:
+    """Sanitise a value for safe logging (CR/LF stripped).
+
+    Uses explicit ``str.replace`` so CodeQL's ``py/log-injection`` query
+    recognises this function as a sanitiser for user-supplied values
+    (field_id, scene identifiers, ...).
+    """
+    s = str(value) if value is not None else ""
+    s = s.replace("\r", "").replace("\n", "").replace("\x00", "").replace("\t", " ")
+    if len(s) > max_len:
+        s = s[:max_len]
+    return s
+
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Models
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -419,7 +433,11 @@ class SARProcessor:
                 )
             )
 
-        logger.info(f"Detected {len(events)} irrigation events for field {field_id}")
+        logger.info(
+            "Detected %d irrigation events for field %s",
+            len(events),
+            _safe_log(field_id),
+        )
         return events
 
     async def get_sar_timeseries(

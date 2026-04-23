@@ -27,6 +27,17 @@ paths-ignore:
   - "archive/**"
   - "legacy/**"
   - "idp/templates/**"
+  # Per-service test folders use `from src.main import ...` which is
+  # ambiguous to CodeQL's Python import resolver: the repository contains
+  # 17+ files at `apps/services/*/src/main.py` each defining a
+  # `publish_event` helper with a different signature (2, 3 or 4
+  # parameters). The analyser binds call sites at random across those
+  # overloads and raises spurious `Wrong number of arguments in a call`
+  # errors on perfectly valid test code (e.g.
+  # `apps/services/skills-service/tests/test_comprehensive.py`).
+  # These tests are not part of the production surface, so we exclude
+  # them from CodeQL analysis.
+  - "apps/services/*/tests/**"
   - "**/node_modules/**"
   - "**/__pycache__/**"
   - "**/.venv/**"

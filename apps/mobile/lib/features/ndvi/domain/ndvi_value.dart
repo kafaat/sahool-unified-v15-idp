@@ -55,11 +55,16 @@ class NdviValue {
 }
 
 /// NDVI Health Categories
+///
+/// Colours are aligned with [NdviLegend.items] and [NdviColormap.yemenStops]
+/// so the badge/icon shown next to a numeric NDVI value matches what the
+/// raster overlay actually paints on the map. Do not change a colour here
+/// without updating the corresponding entry in `ndvi_colormap.dart`.
 enum NdviHealthCategory {
   nonVegetation(
     minValue: -1.0,
     maxValue: 0.0,
-    color: Color(0xFF1565C0), // Blue
+    color: Color(0xFF0066CC), // Deep Blue — water / cloud
     labelAr: 'غير نباتي',
     labelEn: 'Non-Vegetation',
     icon: Icons.water_drop,
@@ -67,7 +72,7 @@ enum NdviHealthCategory {
   bareSoil(
     minValue: 0.0,
     maxValue: 0.2,
-    color: Color(0xFF8D6E63), // Brown
+    color: Color(0xFFD4A76A), // Buff — bare/dry soil
     labelAr: 'تربة جرداء',
     labelEn: 'Bare Soil',
     icon: Icons.terrain,
@@ -75,7 +80,7 @@ enum NdviHealthCategory {
   stressed(
     minValue: 0.2,
     maxValue: 0.4,
-    color: Color(0xFFFF5722), // Deep Orange
+    color: Color(0xFFDAA520), // Goldenrod — stressed / sparse
     labelAr: 'إجهاد',
     labelEn: 'Stressed',
     icon: Icons.warning_amber,
@@ -83,7 +88,7 @@ enum NdviHealthCategory {
   moderate(
     minValue: 0.4,
     maxValue: 0.6,
-    color: Color(0xFFFFEB3B), // Yellow
+    color: Color(0xFF7FFF00), // Chartreuse — moderate growth
     labelAr: 'متوسط',
     labelEn: 'Moderate',
     icon: Icons.trending_flat,
@@ -91,7 +96,7 @@ enum NdviHealthCategory {
   healthy(
     minValue: 0.6,
     maxValue: 0.8,
-    color: Color(0xFF8BC34A), // Light Green
+    color: Color(0xFF32CD32), // Lime Green — healthy
     labelAr: 'صحي',
     labelEn: 'Healthy',
     icon: Icons.check_circle,
@@ -99,7 +104,7 @@ enum NdviHealthCategory {
   veryHealthy(
     minValue: 0.8,
     maxValue: 1.0,
-    color: Color(0xFF2E7D32), // Dark Green
+    color: Color(0xFF006400), // Dark Green — very healthy
     labelAr: 'ممتاز',
     labelEn: 'Very Healthy',
     icon: Icons.eco,

@@ -54,3 +54,28 @@ export {
   useIndexTimeSeries,
   indicesKeys,
 } from './hooks/useNDVI';
+
+// Unified spectral colormaps (single source of truth for all 6 displayable indices)
+// مصدر حقيقة موحّد لخرائط ألوان جميع المؤشرات الستة المعروضة على الخريطة
+export {
+  SPECTRAL_INDEX_METADATA,
+  SPECTRAL_INDEX_ORDER,
+  buildCssGradient,
+  buildInterpolateExpression,
+  getIndexBand,
+  getIndexColor,
+  getIndexColorStops,
+  getIndexHealthLabel,
+  getIndexLegend,
+  getIndexMetadata,
+} from './lib/spectral-colormaps';
+export type {
+  ColorStop,
+  LegendItem,
+  SpectralIndexId,
+  SpectralIndexMetadata,
+} from './lib/spectral-colormaps';
+
+// UI components
+export { SpectralIndexSwitcher } from './components/SpectralIndexSwitcher';
+export type { SpectralIndexSwitcherProps } from './components/SpectralIndexSwitcher';

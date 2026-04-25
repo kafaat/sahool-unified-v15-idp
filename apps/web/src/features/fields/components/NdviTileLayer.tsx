@@ -11,10 +11,23 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Map as MaplibreMap } from 'maplibre-gl';
 import { useNDVIMap } from '@/features/ndvi';
+import {
+  buildCssGradient,
+  getIndexColorStops,
+  getIndexLegend,
+  getIndexMetadata,
+  type SpectralIndexId,
+} from '@/features/ndvi/lib/spectral-colormaps';
 import { logger } from '@/lib/logger';
 
-/** نوع المؤشر النباتي - Vegetation index type */
-export type VegetationIndexType = 'ndvi' | 'ndwi' | 'evi' | 'savi' | 'ndre' | 'lai';
+/**
+ * نوع المؤشر النباتي - Vegetation index type
+ *
+ * Alias of {@link SpectralIndexId}. The unified module is the source of
+ * truth; this alias is preserved for backward compatibility with existing
+ * imports of `VegetationIndexType`.
+ */
+export type VegetationIndexType = SpectralIndexId;
 
 /**
  * خصائص مكون طبقة NDVI
@@ -47,73 +60,12 @@ export interface NdviTileLayerProps {
 }
 
 /**
- * تدرج الألوان حسب نوع المؤشر
- * Color gradient mapping per index type
+ * تدرج الألوان حسب نوع المؤشر — يُستورد من المصدر الموحّد
+ * Color stops live in {@link ../../ndvi/lib/spectral-colormaps}.
+ * All callers MUST go through `getIndexColorStops()` so a single
+ * source-of-truth governs every rendering surface (raster overlay,
+ * polygon paint, legend chip, comparison view).
  */
-const INDEX_COLOR_STOPS: Record<VegetationIndexType, Array<{ value: number; color: string }>> = {
-  ndvi: [
-    { value: -1.0, color: '#8B4513' }, // تربة جافة / Bare soil
-    { value: 0.0, color: '#FF0000' }, // بدون غطاء نباتي / No vegetation
-    { value: 0.2, color: '#FF6600' },
-    { value: 0.3, color: '#FFAA00' },
-    { value: 0.4, color: '#FFFF00' },
-    { value: 0.5, color: '#AAFF00' },
-    { value: 0.6, color: '#55FF00' },
-    { value: 0.7, color: '#00FF00' },
-    { value: 0.8, color: '#00CC00' },
-    { value: 1.0, color: '#006600' },
-  ],
-  ndwi: [
-    { value: -1.0, color: '#8B0000' }, // جفاف شديد / Severe drought
-    { value: -0.3, color: '#FF4500' },
-    { value: -0.1, color: '#FF8C00' }, // إجهاد مائي / Water stress
-    { value: 0.0, color: '#FFD700' },
-    { value: 0.1, color: '#87CEEB' },
-    { value: 0.2, color: '#4169E1' }, // محتوى مائي كافٍ / Adequate
-    { value: 0.4, color: '#0000CD' },
-    { value: 1.0, color: '#00008B' }, // مشبّع / Saturated
-  ],
-  evi: [
-    { value: -1.0, color: '#8B4513' },
-    { value: 0.0, color: '#FF0000' },
-    { value: 0.15, color: '#FF6600' },
-    { value: 0.3, color: '#FFFF00' },
-    { value: 0.45, color: '#AAFF00' },
-    { value: 0.6, color: '#00CC00' },
-    { value: 1.0, color: '#006600' },
-  ],
-  savi: [
-    { value: -1.0, color: '#8B4513' }, // تربة عارية / Bare soil
-    { value: 0.0, color: '#D2691E' },
-    { value: 0.1, color: '#FF6600' },
-    { value: 0.25, color: '#FFAA00' },
-    { value: 0.4, color: '#FFFF00' }, // غطاء متناثر / Sparse vegetation
-    { value: 0.5, color: '#AAFF00' },
-    { value: 0.6, color: '#55FF00' },
-    { value: 0.8, color: '#00CC00' },
-    { value: 1.0, color: '#006600' },
-  ],
-  ndre: [
-    { value: -1.0, color: '#4B0082' },
-    { value: 0.0, color: '#FF0000' }, // نقص كلوروفيل / Chlorophyll deficiency
-    { value: 0.1, color: '#FF6600' },
-    { value: 0.2, color: '#FFAA00' },
-    { value: 0.3, color: '#FFFF00' },
-    { value: 0.4, color: '#7FFF00' },
-    { value: 0.5, color: '#00CC00' },
-    { value: 1.0, color: '#006400' },
-  ],
-  lai: [
-    { value: 0.0, color: '#F5DEB3' }, // تربة عارية / Bare
-    { value: 1.0, color: '#FFD700' },
-    { value: 2.0, color: '#ADFF2F' },
-    { value: 3.0, color: '#7CFC00' },
-    { value: 4.0, color: '#32CD32' },
-    { value: 5.0, color: '#228B22' },
-    { value: 6.0, color: '#006400' },
-    { value: 8.0, color: '#003300' },
-  ],
-};
 
 /**
  * معرفات ديناميكية حسب نوع المؤشر
@@ -226,6 +178,7 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
           : undefined,
       });
 
+      const stops = getIndexColorStops(indexType);
       // إضافة طبقة العرض النقطي مع تدرج لوني حسب نوع المؤشر
       // Add raster layer with index-specific color gradient
       mapInstance.addLayer({
@@ -247,11 +200,11 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
               ['linear'],
               ['raster-value'],
               colorScale.min,
-              colorScale.colors[0] ?? INDEX_COLOR_STOPS[indexType]?.[0]?.color ?? '#FF0000',
+              colorScale.colors[0] ?? stops[0]?.color ?? '#a50026',
               colorScale.max,
               colorScale.colors[colorScale.colors.length - 1] ??
-                INDEX_COLOR_STOPS[indexType]?.[INDEX_COLOR_STOPS[indexType]!.length - 1]?.color ??
-                '#00FF00',
+                stops[stops.length - 1]?.color ??
+                '#1a9850',
             ],
           }),
         },
@@ -365,107 +318,75 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   return null;
 };
 
-/** تسميات المؤشرات - Index labels */
-const INDEX_LABELS: Record<
-  VegetationIndexType,
-  {
-    title: string;
-    description: string;
-    lowLabel: string;
-    midLabel: string;
-    highLabel: string;
-  }
-> = {
-  ndvi: {
-    title: 'مؤشر NDVI',
-    description: 'كثافة الغطاء النباتي',
-    lowLabel: 'ضعيف',
-    midLabel: 'متوسط',
-    highLabel: 'كثيف',
-  },
-  ndwi: {
-    title: 'مؤشر NDWI',
-    description: 'محتوى الماء في النبات',
-    lowLabel: 'جفاف',
-    midLabel: 'متوسط',
-    highLabel: 'مشبّع',
-  },
-  evi: {
-    title: 'مؤشر EVI',
-    description: 'الغطاء المحسّن',
-    lowLabel: 'ضعيف',
-    midLabel: 'متوسط',
-    highLabel: 'كثيف',
-  },
-  savi: {
-    title: 'مؤشر SAVI',
-    description: 'الغطاء المعدّل للتربة',
-    lowLabel: 'تربة عارية',
-    midLabel: 'متناثر',
-    highLabel: 'كثيف',
-  },
-  ndre: {
-    title: 'مؤشر NDRE',
-    description: 'تركيز الكلوروفيل',
-    lowLabel: 'نقص',
-    midLabel: 'متوسط',
-    highLabel: 'ممتاز',
-  },
-  lai: {
-    title: 'مؤشر LAI',
-    description: 'مساحة الأوراق (m²/m²)',
-    lowLabel: '0',
-    midLabel: '4',
-    highLabel: '8',
-  },
-};
-
 /**
  * مكون مساعد لعرض مفتاح التدرج اللوني
- * Helper component to display vegetation index color legend
+ * Helper component to display vegetation index color legend.
+ *
+ * Renders the bilingual legend bands and a continuous gradient bar driven
+ * by the unified colormap module so the legend never drifts from the
+ * actual map paint.
  */
-export const NdviColorLegend: React.FC<{ className?: string; indexType?: VegetationIndexType }> = ({
-  className = '',
-  indexType = 'ndvi',
-}) => {
-  const colorStops = INDEX_COLOR_STOPS[indexType];
-  const labels = INDEX_LABELS[indexType];
+export const NdviColorLegend: React.FC<{
+  className?: string;
+  indexType?: VegetationIndexType;
+  /** Display language for legend band labels. Defaults to Arabic. */
+  language?: 'en' | 'ar';
+}> = ({ className = '', indexType = 'ndvi', language = 'ar' }) => {
+  const meta = getIndexMetadata(indexType);
+  const legend = getIndexLegend(indexType);
+  const stops = getIndexColorStops(indexType);
+  const isArabic = language === 'ar';
+  const dir = isArabic ? 'rtl' : 'ltr';
 
   return (
-    <div className={`bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 ${className}`}>
-      <h4 className="text-xs font-bold text-gray-700 mb-2 text-right">{labels.title}</h4>
+    <div
+      className={`bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-3 ${className}`}
+      dir={dir}
+    >
+      <h4 className="text-xs font-bold text-gray-700 mb-1">
+        {isArabic ? `مؤشر ${meta.code}` : meta.code} &mdash; {isArabic ? meta.nameAr : meta.nameEn}
+      </h4>
 
       {/* شريط التدرج اللوني - Color gradient bar */}
-      <div className="relative h-4 rounded overflow-hidden mb-2">
-        <div
-          className="absolute inset-0"
-          style={{
-            background: `linear-gradient(to right, ${colorStops
-              .map((stop) => stop.color)
-              .join(', ')})`,
-          }}
-        />
+      <div
+        className="relative h-4 rounded overflow-hidden mb-2"
+        role="img"
+        aria-label={isArabic ? `تدرّج ألوان ${meta.code}` : `${meta.code} colour ramp`}
+      >
+        <div className="absolute inset-0" style={{ background: buildCssGradient(indexType) }} />
       </div>
 
-      {/* تسميات القيم - Value labels */}
-      <div className="flex justify-between text-xs text-gray-600">
-        <span className="text-left">
-          {colorStops[colorStops.length - 1]?.value ?? 1.0}
-          <br />
-          {labels.highLabel}
-        </span>
-        <span className="text-center">{labels.midLabel}</span>
-        <span className="text-right">
-          {colorStops[0]?.value ?? 0}
-          <br />
-          {labels.lowLabel}
-        </span>
+      {/* تسميات النطاقات - Band labels */}
+      <ul className="grid grid-cols-1 gap-1 text-xs text-gray-600">
+        {legend.map((band) => (
+          <li
+            key={`${meta.code}-${band.min}-${band.max}`}
+            className="flex items-center gap-2"
+          >
+            <span
+              className="inline-block h-3 w-4 rounded-sm border border-gray-200"
+              style={{ backgroundColor: band.color }}
+              aria-hidden="true"
+            />
+            <span className="font-mono text-[10px] text-gray-500" dir="ltr">
+              {band.min.toFixed(band.min >= 1 || band.min <= -1 ? 0 : 1)}–
+              {band.max.toFixed(band.max >= 1 || band.max <= -1 ? 0 : 1)}
+            </span>
+            <span className="truncate">{isArabic ? band.labelAr : band.labelEn}</span>
+          </li>
+        ))}
+      </ul>
+
+      {/* القيم الطرفية - Range endpoints */}
+      <div className="mt-2 flex justify-between border-t border-gray-200 pt-1 font-mono text-[10px] text-gray-400" dir="ltr">
+        <span>{stops[0]?.value ?? meta.minValue}</span>
+        <span>{stops[stops.length - 1]?.value ?? meta.maxValue}</span>
       </div>
 
       {/* وصف - Description */}
-      <div className="mt-2 pt-2 border-t border-gray-200">
-        <p className="text-xs text-gray-500 text-right">{labels.description}</p>
-      </div>
+      <p className="mt-1 text-xs text-gray-500">
+        {isArabic ? meta.descriptionAr : meta.descriptionEn}
+      </p>
     </div>
   );
 };

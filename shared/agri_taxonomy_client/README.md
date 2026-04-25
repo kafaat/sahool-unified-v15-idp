@@ -23,9 +23,9 @@ In-process client used by every consumer of agricultural taxonomy
 
 ## Boundaries
 
-- **No write methods.** Mutations go through the service's REST/gRPC API.
+- **No write methods.** Mutations go through the service's REST API.
 - **UUIDv4 keys are stable.** Display labels (Arabic / English / Latin)
   are mutable; identifiers are not.
-- Service-side scaffold (`apps/services/agri-taxonomy-service/`) is
-  intentionally deferred to Phase 3.5 (IDP scaffold) — ADRs are agreed
-  before bytes are written.
+- The service-side scaffold lives at
+  [`apps/services/agri-taxonomy-service/`](../../apps/services/agri-taxonomy-service/)
+  (Phase 4 — fully implemented).

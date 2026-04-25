@@ -69,7 +69,9 @@ class KDTree:
         """Return the ``k`` nearest neighbours as ``(distance, lut_index)``.
 
         Distances are Euclidean (matches the brute-force baseline).
-        Ties broken by node identity, so results are deterministic.
+        Ties between equidistant points are broken by **insertion order**
+        via an internal counter — the same target always yields the same
+        ordering, but it is *not* a function of the LUT index value.
         """
 
         if k < 1:

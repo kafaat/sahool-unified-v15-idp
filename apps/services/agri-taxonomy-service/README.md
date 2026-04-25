@@ -1,8 +1,9 @@
 # agri-taxonomy-service — Agricultural Taxonomy Service (ADR-012)
 
-> **Status:** Phase 3.5 scaffold. The service boots, exposes health/metrics,
-> and registers placeholder routes. Domain logic, persistence, and the
-> `knowledge-graph` adapter land in Phase 4.
+> **Status:** Phase 4 — implemented. The service exposes the full release
+> pipeline (`/api/v1/taxonomy/nodes`, `/search`, `/version`, `/releases`,
+> `/fertilizers/{id}/forbidden`), publishes `sahool.taxonomy.released.v{N}`
+> on every release, and persists snapshots in-process via `TaxonomyStore`.
 
 Single source of truth for agricultural taxonomy across the SAHOOL
 platform: crops, varieties, diseases, pests, weeds, fertilizers, and the
@@ -16,7 +17,7 @@ relations between them.
 
 ## Responsibilities
 
-| Capability                                | Endpoint (planned)                       |
+| Capability                                | Endpoint                                 |
 | ----------------------------------------- | ---------------------------------------- |
 | Get one node by stable UUIDv4             | `GET  /api/v1/taxonomy/nodes/{id}`       |
 | List nodes by kind / parent               | `GET  /api/v1/taxonomy/nodes?kind=crop`  |

@@ -18,8 +18,12 @@ class SensorFrame:
         timestamp:   UTC timestamp of the observation.
         position:    (lat, lon, alt_m) tuple. ``alt_m`` may be ``None``.
         values:      Sensor-specific payload (e.g., ``{"ndvi": 0.72}``).
-        covariance:  Diagonal covariance for the values, in the same order
-                     as ``values``. Empty dict means "unknown — use prior".
+        covariance:  Diagonal measurement noise keyed by the same channel
+                     names as ``values`` (e.g., ``{"ndvi": 0.01}``).
+                     Channels missing from this dict fall back to
+                     ``_DEFAULT_MEASUREMENT_NOISE``. Empty dict means
+                     "unknown — use prior". Off-diagonal entries belong
+                     in ``cross_covariance``.
         tenant_id:   UUID string from JWT ``tid`` claim.
     """
 

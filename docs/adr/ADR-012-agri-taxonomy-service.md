@@ -36,8 +36,9 @@ Create a new service `agri-taxonomy-service` (Python FastAPI) that:
 - Publishes `sahool.taxonomy.released.v{N}` (tenant-scoped where applicable)
   on every release
 - Exposes a SemVer-aligned `Taxonomy-Version` HTTP header on every response
-- Provides a polling client in `shared/agri_taxonomy_client/` with a 30 s
-  refresh window and an in-process LRU cache
+- Provides a polling client in `shared/agri_taxonomy_client/` with a
+  configurable refresh window and atomic snapshot swap (the snapshot
+  itself is the cache — no separate LRU layer)
 
 Existing consumers (advisory-service, agro-rules, crop-intelligence-service,
 yolo26-vision-service) will be migrated incrementally behind a feature flag,

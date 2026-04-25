@@ -251,12 +251,8 @@ class TaxonomyStore:
             # mutations always produces the same released snapshot ordering
             # (and the same ``/nodes`` response order), regardless of the
             # order callers staged them in.
-            new_nodes = tuple(
-                sorted(self._pending.nodes.values(), key=lambda n: n.id)
-            )
-            new_edges = tuple(
-                sorted(self._pending.edges, key=lambda e: (e.parent_id, e.child_id))
-            )
+            new_nodes = tuple(sorted(self._pending.nodes.values(), key=lambda n: n.id))
+            new_edges = tuple(sorted(self._pending.edges, key=lambda e: (e.parent_id, e.child_id)))
             checksum = self._checksum(new_nodes, new_edges)
             semver = self._bump(self._current.version.semver, bump)
             version = TaxonomyVersion(

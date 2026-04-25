@@ -22,7 +22,7 @@ event_architecture:
 
     intelligence:
       description: "Feature extraction & AI layer - طبقة الذكاء"
-      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek]  # ndvi-processor is deprecated → vegetation-analysis-service
+      services: [vegetation-analysis-service, indicators-service, lai-estimation, crop-intelligence-service, disaster-assessment, agro-rules, ndvi-processor, field-intelligence, skills-service, ai-agents-service, ai-agents-core, code-fix-agent, code-review-agent, knowledge-graph, yolo26-vision-service, terrain-core-service, hydrology-service, soil-analysis-service, pest-detection-service, digital-twin-engine, vllm-deepseek, agri-taxonomy-service]  # ndvi-processor is deprecated → vegetation-analysis-service
       rules:
         - "Consumes from Acquisition"
         - "Produces computed features/assessments"
@@ -3076,7 +3076,34 @@ services:
       replicas: 1
 
   # ═══════════════════════════════════════════════════════════════════════════
-  # SUPPLY CHAIN SERVICE - خدمة سلسلة التوريد
+  # AGRICULTURAL TAXONOMY SERVICE - خدمة التصنيف الزراعي (ADR-012)
+  # ═══════════════════════════════════════════════════════════════════════════
+  agri-taxonomy-service:
+    name: "Agricultural Taxonomy Service"
+    name_ar: "خدمة التصنيف الزراعي"
+    description: "Source of truth for agricultural taxonomy (crops, varieties, diseases, pests, weeds, fertilizers). See ADR-012."
+    description_ar: "المصدر الموثوق للتصنيف الزراعي (المحاصيل، الأصناف، الأمراض، الآفات، الأعشاب، الأسمدة). راجع ADR-012."
+    type: python
+    category: intelligence
+    layer: intelligence
+    path: "apps/services/agri-taxonomy-service"
+    port: 8265
+    protocol: http
+    health_endpoint: "/healthz"
+    status: experimental
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: experimental
+    tier: tier-2
+    adr: ADR-012
+    events:
+      produces:
+        - TaxonomyReleased.v1
+      consumes: []
+    dependencies:
+      - knowledge-graph
+
+
   # ═══════════════════════════════════════════════════════════════════════════
   supply-chain-service:
     name: "Supply Chain Service"

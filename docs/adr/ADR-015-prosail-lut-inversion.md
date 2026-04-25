@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-04-25, Phase 4 complete: generate_lut + invert with k-NN uncertainty + 6 unit tests)
 
 ## Context
 

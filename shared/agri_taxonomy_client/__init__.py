@@ -4,12 +4,21 @@
 shared.agri_taxonomy_client — Client for ``agri-taxonomy-service`` (ADR-012)
 ============================================================================
 
-Skeleton package. See ``README.md`` and
-``docs/adr/ADR-012-agri-taxonomy-service.md``.
+Phase 4 implementation. Exposes the taxonomy value objects and the
+``TaxonomyClient`` polling client with atomic snapshot swap.
 """
 
 from __future__ import annotations
 
+from .client import Snapshot, TaxonomyClient, TaxonomyFetcher
 from .models import Synonym, TaxonomyEdge, TaxonomyNode, TaxonomyVersion
 
-__all__ = ["Synonym", "TaxonomyEdge", "TaxonomyNode", "TaxonomyVersion"]
+__all__ = [
+    "Snapshot",
+    "Synonym",
+    "TaxonomyClient",
+    "TaxonomyEdge",
+    "TaxonomyFetcher",
+    "TaxonomyNode",
+    "TaxonomyVersion",
+]

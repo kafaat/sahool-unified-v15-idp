@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-04-25, Phase 4 complete: TaxonomyClient with atomic snapshot swap + 8 unit tests; service implementation deferred)
 
 ## Context
 

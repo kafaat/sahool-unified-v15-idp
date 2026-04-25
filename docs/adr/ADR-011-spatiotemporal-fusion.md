@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-04-25, Phase 4 complete: align_streams + resample_cubic + EKF + FactorGraph + 22 unit tests)
 
 ## Context
 

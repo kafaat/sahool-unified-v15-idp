@@ -26,11 +26,11 @@ See [ADR-000-template.md](./ADR-000-template.md) for the template.
 | [ADR-008](./ADR-008-ai-architecture.md)            | AI Architecture & Model Selection  | Accepted | 2026-03-06 |
 | [ADR-009](./ADR-009-claude-code-workflow-integration.md) | Claude Code Workflow Integration | Accepted | 2026-03-11 |
 | [ADR-010](./ADR-010-skill-runtime.md)              | Incremental Skill Runtime (Registry + Router) | Proposed | 2026-04-14 |
-| [ADR-011](./ADR-011-spatiotemporal-fusion.md)      | Spatio-Temporal Fusion via Digital-Twin Extension | Proposed | 2026-04-25 |
-| [ADR-012](./ADR-012-agri-taxonomy-service.md)      | Agricultural Taxonomy Service (versioned, hot-reloadable) | Proposed | 2026-04-25 |
+| [ADR-011](./ADR-011-spatiotemporal-fusion.md)      | Spatio-Temporal Fusion via Digital-Twin Extension | Accepted | 2026-04-25 |
+| [ADR-012](./ADR-012-agri-taxonomy-service.md)      | Agricultural Taxonomy Service (versioned, hot-reloadable) | Accepted | 2026-04-25 |
 | [ADR-013](./ADR-013-prescription-safety-gateway.md) | Prescription Safety Gateway (thin aggregator) | Accepted | 2026-04-25 |
 | [ADR-014](./ADR-014-edge-hardware-resilience.md)   | Edge Hardware Resilience (supercap + crash-safe WAL) | Accepted | 2026-04-25 |
-| [ADR-015](./ADR-015-prosail-lut-inversion.md)      | PROSAIL LUT Inversion via Digital-Twin Engine | Proposed | 2026-04-25 |
+| [ADR-015](./ADR-015-prosail-lut-inversion.md)      | PROSAIL LUT Inversion via Digital-Twin Engine | Accepted | 2026-04-25 |
 | [ADR-016](./ADR-016-compliance-plugin-interface.md) | Region-Aware Compliance Plug-in Interface | Accepted | 2026-04-25 |
 
 ## Status Definitions

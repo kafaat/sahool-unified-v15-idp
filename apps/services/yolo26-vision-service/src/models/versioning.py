@@ -153,9 +153,7 @@ class ModelVersionRegistry:
         try:
             resolved.relative_to(self.models_base_path)
         except ValueError as exc:
-            raise ValueError(
-                f"Model file_path must be inside {self.models_base_path}: {file_path!r}"
-            ) from exc
+            raise ValueError(f"Model file_path must be inside {self.models_base_path}: {file_path!r}") from exc
         return resolved
 
     def _load_registry(self) -> None:

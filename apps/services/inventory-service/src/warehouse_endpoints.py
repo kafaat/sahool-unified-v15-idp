@@ -36,6 +36,7 @@ def _safe_for_log(value: object, max_len: int = 200) -> str:
         text = text[:max_len] + "…"
     return text.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
 
+
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User

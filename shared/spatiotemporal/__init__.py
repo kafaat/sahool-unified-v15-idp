@@ -11,7 +11,7 @@ resampling, an EKF, and a factor-graph batch optimizer.
 from __future__ import annotations
 
 from .alignment import align_streams
-from .ekf import EKF
+from .ekf import EKF, ObservationJacobian
 from .factor_graph import FactorGraph
 from .interpolation import resample_cubic
 from .models import FusedState, FusionConfig, SensorFrame
@@ -21,6 +21,7 @@ __all__ = [
     "FactorGraph",
     "FusedState",
     "FusionConfig",
+    "ObservationJacobian",
     "SensorFrame",
     "align_streams",
     "resample_cubic",

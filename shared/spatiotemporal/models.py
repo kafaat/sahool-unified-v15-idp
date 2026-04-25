@@ -28,6 +28,15 @@ class SensorFrame:
     position: tuple[float, float, float | None]
     values: dict[str, float]
     covariance: dict[str, float] = field(default_factory=dict)
+    cross_covariance: dict[tuple[str, str], float] = field(default_factory=dict)
+    """Optional off-diagonal noise covariance entries.
+
+    Keys are unordered ``(channel_a, channel_b)`` pairs; the joint
+    measurement-noise matrix ``R`` is symmetric, so ``(a, b)`` and
+    ``(b, a)`` are equivalent. Empty dict (the default) means the
+    measurement noise is purely diagonal — that is the v3.1 contract
+    and keeps backward compatibility with every existing call site.
+    """
     tenant_id: str = ""
 
 
@@ -53,3 +62,14 @@ class FusionConfig:
     alignment_window_ms: int = 500
     process_noise: dict[str, float] = field(default_factory=dict)
     max_iters: int = 25
+    solver: str = "auto"
+    """Factor-graph solver backend.
+
+    * ``"auto"`` (default) — closed-form information-weighted mean if every
+      frame in the bundle has diagonal covariance, otherwise Cholesky.
+    * ``"closed_form"`` — always use the per-channel closed form. Fails
+      loudly if a frame supplies ``cross_covariance``.
+    * ``"cholesky"`` — always assemble the joint information matrix and
+      solve via dense Cholesky. Bit-equivalent to ``"closed_form"`` on
+      diagonal inputs.
+    """

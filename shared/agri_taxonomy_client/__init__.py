@@ -10,7 +10,7 @@ Phase 4 implementation. Exposes the taxonomy value objects and the
 
 from __future__ import annotations
 
-from .client import Snapshot, TaxonomyClient, TaxonomyFetcher
+from .client import Snapshot, TaxonomyClient, TaxonomyFetcher, TaxonomyNotifier
 from .models import Synonym, TaxonomyEdge, TaxonomyNode, TaxonomyVersion
 
 __all__ = [
@@ -20,5 +20,6 @@ __all__ = [
     "TaxonomyEdge",
     "TaxonomyFetcher",
     "TaxonomyNode",
+    "TaxonomyNotifier",
     "TaxonomyVersion",
 ]

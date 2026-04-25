@@ -8,15 +8,23 @@ half-updated taxonomy. The ``fetcher`` callable is injected so production
 can use HTTP/NATS while tests stay deterministic and offline.
 
 The taxonomy service emits ``sahool.taxonomy.released.v{N}`` whenever a
-new release is published; subscribing to that subject is reserved for a
-follow-up — the ``refresh_seconds`` polling loop is sufficient for the
-30 s freshness budget specified in ADR-012.
+new release is published. The client can either:
+
+* Poll on ``refresh_seconds`` cadence (always-on path, default).
+* **And/or** wake up the polling loop early when a NATS notification
+  arrives, via the optional ``notifier`` injected at construction. The
+  notifier is a generic async iterator of "release" events so production
+  can plug NATS while tests use a plain ``asyncio.Queue``.
+
+Both paths are belt-and-braces — the polling cadence remains the
+authoritative freshness budget, the notifier just lets clients react
+within milliseconds instead of seconds when the release is broadcast.
 """
 
 from __future__ import annotations
 
 import asyncio
-from collections.abc import Awaitable, Callable
+from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
@@ -25,6 +33,12 @@ from .models import TaxonomyEdge, TaxonomyNode, TaxonomyVersion
 
 #: Type alias for the injectable fetcher. Returns the next snapshot on each call.
 TaxonomyFetcher = Callable[[], Awaitable["Snapshot"]]
+
+#: Type alias for the optional release-notifier. Production wires this to a
+#: NATS subscription on ``sahool.taxonomy.released.v{N}``; tests pass a
+#: plain async generator. Yielded values are opaque — the client treats
+#: every event as "refresh now".
+TaxonomyNotifier = Callable[[], AsyncIterator[Any]]
 
 
 @dataclass(frozen=True)
@@ -40,9 +54,10 @@ class Snapshot:
 class TaxonomyClient:
     """In-process client with a configurable refresh window and atomic snapshot swap.
 
-    Phase 4 implements the polling loop and an LRU-bounded lookup cache.
-    NATS subscription (``sahool.taxonomy.released.v{N}``) is reserved for
-    a follow-up.
+    Phase 4 implements the polling loop, an optional NATS-style
+    ``notifier`` that triggers an immediate refresh on
+    ``sahool.taxonomy.released.v{N}`` events, and an LRU-bounded lookup
+    cache.
     """
 
     def __init__(
@@ -51,15 +66,20 @@ class TaxonomyClient:
         refresh_seconds: int = 30,
         *,
         fetcher: TaxonomyFetcher | None = None,
+        notifier: TaxonomyNotifier | None = None,
     ) -> None:
         if refresh_seconds <= 0:
             raise ValueError("refresh_seconds must be positive")
         self.base_url = base_url
         self.refresh_seconds = refresh_seconds
         self._fetcher: TaxonomyFetcher | None = fetcher
+        self._notifier: TaxonomyNotifier | None = notifier
         self._snapshot: Snapshot | None = None
         self._task: asyncio.Task[Any] | None = None
+        self._notifier_task: asyncio.Task[Any] | None = None
         self._stop_event: asyncio.Event | None = None
+        self._wake_event: asyncio.Event | None = None
+        self._fetch_lock: asyncio.Lock | None = None
 
     # -- lifecycle -------------------------------------------------------
 
@@ -80,21 +100,35 @@ class TaxonomyClient:
         # being populated immediately after ``start()`` returns.
         self._snapshot = await self._fetcher()
         self._stop_event = asyncio.Event()
+        self._wake_event = asyncio.Event()
+        self._fetch_lock = asyncio.Lock()
         self._task = asyncio.create_task(self._refresh_loop(), name="taxonomy-refresh")
+        if self._notifier is not None:
+            self._notifier_task = asyncio.create_task(
+                self._notifier_loop(), name="taxonomy-notifier"
+            )
 
     async def stop(self) -> None:
-        """Stop the refresh loop. Idempotent."""
+        """Stop the refresh loop and the optional notifier loop. Idempotent."""
 
         if self._stop_event is not None:
             self._stop_event.set()
-        if self._task is not None:
-            self._task.cancel()
+        if self._wake_event is not None:
+            # Unblock any pending wait in the polling loop so it can exit.
+            self._wake_event.set()
+        for task_attr in ("_task", "_notifier_task"):
+            task = getattr(self, task_attr)
+            if task is None:
+                continue
+            task.cancel()
             try:
-                await self._task
+                await task
             except (asyncio.CancelledError, Exception):  # pragma: no cover
                 pass
-            self._task = None
+            setattr(self, task_attr, None)
         self._stop_event = None
+        self._wake_event = None
+        self._fetch_lock = None
 
     # -- read-side -------------------------------------------------------
 
@@ -130,21 +164,47 @@ class TaxonomyClient:
     async def _refresh_loop(self) -> None:
         assert self._fetcher is not None
         assert self._stop_event is not None
+        assert self._wake_event is not None
         while not self._stop_event.is_set():
+            # Wait for either the refresh interval to elapse or the
+            # notifier to fire (``_wake_event`` is set by
+            # ``_notifier_loop``). ``stop()`` also sets the wake event,
+            # which lets us exit promptly.
             try:
-                # ``wait_for`` lets ``stop()`` interrupt the sleep promptly.
                 await asyncio.wait_for(
-                    self._stop_event.wait(),
+                    self._wake_event.wait(),
                     timeout=self.refresh_seconds,
                 )
-                # Stop event was set during the sleep window.
-                return
             except TimeoutError:
                 pass
+            if self._stop_event.is_set():
+                return
+            self._wake_event.clear()
+            await self._fetch_and_swap()
+
+    async def _notifier_loop(self) -> None:
+        assert self._notifier is not None
+        assert self._wake_event is not None
+        assert self._stop_event is not None
+        try:
+            async for _event in self._notifier():
+                if self._stop_event.is_set():
+                    return
+                # Wake the polling loop. The actual fetch happens there
+                # so we never have two concurrent fetches racing on the
+                # snapshot swap.
+                self._wake_event.set()
+        except (asyncio.CancelledError, Exception):  # pragma: no cover
+            return
+
+    async def _fetch_and_swap(self) -> None:
+        assert self._fetcher is not None
+        assert self._fetch_lock is not None
+        async with self._fetch_lock:
             try:
                 snap = await self._fetcher()
-            except Exception:  # pragma: no cover - defensive: keep last good snapshot
-                continue
+            except Exception:  # pragma: no cover - keep last good snapshot
+                return
             # Atomic single-attribute swap is the snapshot guarantee
             # callers rely on; readers always see a fully-formed Snapshot.
             self._snapshot = snap

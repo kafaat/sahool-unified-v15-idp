@@ -30,17 +30,17 @@ if _SERVICE_ROOT not in sys.path:
 
 
 def test_vra_endpoints_have_auth_dependency():
-    """The 6 sensitive VRA routes (generate / zones / prescriptions /
-    prescription details / export / delete) must take a `_user=Depends(get_current_user)`
-    argument — without it, any network-adjacent caller can exfiltrate
-    prescriptions or cause the generator to spend compute budget."""
+    """Every VRA route (generate / zones / prescriptions /
+    prescription details / export / delete / info) must take a
+    `_user=Depends(get_current_user)` argument — without it, any
+    network-adjacent caller can exfiltrate prescriptions or cause the
+    generator to spend compute budget."""
     src_path = os.path.join(os.path.dirname(__file__), "..", "src", "vra_endpoints.py")
     with open(src_path) as f:
         src = f.read()
 
-    # For each sensitive route decorator, verify the next `async def` block
-    # includes Depends(get_current_user). /v1/vra/info is reference-only
-    # (public OK) so it's excluded.
+    # For each VRA route decorator, verify the next `async def` block
+    # includes Depends(get_current_user).
     protected_routes = [
         '@app.post("/v1/vra/generate"',
         '@app.get("/v1/vra/zones/{field_id}")',
@@ -48,6 +48,7 @@ def test_vra_endpoints_have_auth_dependency():
         '@app.get("/v1/vra/prescription/{prescription_id}")',
         '@app.get("/v1/vra/export/{prescription_id}")',
         '@app.delete("/v1/vra/prescription/{prescription_id}")',
+        '@app.get("/v1/vra/info")',
     ]
 
     for route in protected_routes:

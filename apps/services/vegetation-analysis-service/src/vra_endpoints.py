@@ -539,7 +539,7 @@ def register_vra_endpoints(app: FastAPI, vra_generator: VRAGenerator):
             raise HTTPException(status_code=500, detail="Failed to delete prescription")
 
     @app.get("/v1/vra/info")
-    async def get_vra_info():
+    async def get_vra_info(_user=Depends(get_current_user)):
         """
         معلومات VRA | VRA Information
 

@@ -97,3 +97,41 @@ def test_invert_rejects_invalid_top_k() -> None:
     lut = generate_lut({"LAI": (0.5, 6.0)}, density=4, geometry=_GEOM)
     with pytest.raises(ValueError):
         invert(lut.reflectances[0], _GEOM, lut=lut, top_k=0)
+
+
+def test_invert_kd_tree_and_brute_force_agree() -> None:
+    """Switching backends must not change the retrieval result — the
+    KD-tree is a pure performance optimisation.
+    """
+
+    lut = generate_lut(
+        {"LAI": (0.5, 6.0), "Cab": (10.0, 60.0)},
+        density=10,
+        geometry=_GEOM,
+    )
+    truth = _forward_truth(lai=2.7, cab=42.0)
+    kd = invert(truth, _GEOM, lut=lut, top_k=5, backend="kd_tree")
+    bf = invert(truth, _GEOM, lut=lut, top_k=5, backend="brute_force")
+    assert kd.parameters["LAI"] == pytest.approx(bf.parameters["LAI"], abs=1e-9)
+    assert kd.parameters["Cab"] == pytest.approx(bf.parameters["Cab"], abs=1e-9)
+    assert kd.uncertainty["LAI"] == pytest.approx(bf.uncertainty["LAI"], abs=1e-9)
+    assert kd.diagnostics["backend"] == "kd_tree"
+    assert bf.diagnostics["backend"] == "brute_force"
+
+
+def test_invert_rejects_unknown_backend() -> None:
+    lut = generate_lut({"LAI": (0.5, 6.0)}, density=4, geometry=_GEOM)
+    with pytest.raises(ValueError, match="backend"):
+        invert(lut.reflectances[0], _GEOM, lut=lut, backend="annoy")
+
+
+def test_lut_kd_tree_is_cached_after_first_call() -> None:
+    lut = generate_lut(
+        {"LAI": (0.5, 6.0)},
+        density=4,
+        geometry=_GEOM,
+        build_index=False,
+    )
+    first = lut.kd_tree()
+    second = lut.kd_tree()
+    assert first is second  # cache hit

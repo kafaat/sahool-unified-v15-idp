@@ -32,7 +32,7 @@ Implement spatio-temporal fusion as an **extension of `digital-twin-engine`**,
 backed by a new module `shared/spatiotemporal/`. No new service.
 
 - `shared/spatiotemporal/ekf.py` — full EKF (state, covariance, process & obs Jacobians)
-- `shared/spatiotemporal/factor_graph.py` — factor-graph optimizer (sparse Cholesky)
+- `shared/spatiotemporal/factor_graph.py` — factor-graph batch optimizer (dense pure-Python Cholesky; see Consequences for the dependency rationale)
 - `shared/spatiotemporal/alignment.py` — sliding-window time alignment ±500 ms
 - `shared/spatiotemporal/interpolation.py` — cubic-spline resampling
 - `digital-twin-engine` exposes new endpoints under `/api/v1/twin/fusion/*` and

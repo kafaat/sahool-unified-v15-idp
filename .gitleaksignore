@@ -100,3 +100,41 @@ d9f8937a12f9795c78131f198d9f37a7697f88f0:scripts/run-migrations.sh:generic-secre
 d9f8937a12f9795c78131f198d9f37a7697f88f0:scripts/run-migrations.sh:generic-secret:60
 d9f8937a12f9795c78131f198d9f37a7697f88f0:scripts/run-migrations.sh:generic-secret:70
 d9f8937a12f9795c78131f198d9f37a7697f88f0:scripts/run-migrations.sh:generic-secret:71
+
+# ── Phase-4 reposted FPs (commit 95817f8 — gitleaks rescan after refactor) ──
+# All re-flagged lines are previously-triaged false positives; same rationale
+# as the matching entries above. Re-listed here so the bot can match against
+# the new commit SHA in addition to the original triage commits.
+
+# auth/config.py — _resolve_jwt_secret() reads env var NAMES via os.getenv()
+95817f86e68aa0897c49463e50c0415e93b0e14b:apps/services/shared/auth/config.py:generic-secret:29
+
+# user-service auth.service.ts — ALLOWED_OTP_PURPOSES is a string-tuple of
+# OTP purpose IDENTIFIERS (`password_reset`, `verify_phone`, `login`), not
+# secret material. The token "password_reset" matches the generic-secret rule.
+95817f86e68aa0897c49463e50c0415e93b0e14b:apps/services/user-service/src/auth/auth.service.ts:generic-secret:83
+
+# weather-service graph/renderer.py — DEV-ONLY sentinel labelled
+# "dev-change-me-in-production" with `# nosec B105` annotation.
+95817f86e68aa0897c49463e50c0415e93b0e14b:apps/services/weather-service/src/graph/renderer.py:generic-secret:33
+
+# weather-service main.py — os.getenv("WEATHER_GRAPH_SIGNING_SECRET", "")
+# reads an env var name; no literal secret in source.
+95817f86e68aa0897c49463e50c0415e93b0e14b:apps/services/weather-service/src/main.py:generic-secret:182
+
+# run-migrations.sh — same shell-variable-expansion rationale as the
+# d9f8937 entries above; re-flagged on the 95817f8 rescan.
+95817f86e68aa0897c49463e50c0415e93b0e14b:scripts/run-migrations.sh:generic-secret:41
+95817f86e68aa0897c49463e50c0415e93b0e14b:scripts/run-migrations.sh:generic-secret:60
+95817f86e68aa0897c49463e50c0415e93b0e14b:scripts/run-migrations.sh:generic-secret:70
+95817f86e68aa0897c49463e50c0415e93b0e14b:scripts/run-migrations.sh:generic-secret:71
+
+# generate_infra.py — Helm chart key NAMES (`existingSecret`,
+# `adminPasswordKey`, `userPasswordKey`, `existingSecretPasswordKey`)
+# rendered into a generated values.yaml. The values are *names of fields
+# in a Kubernetes Secret resource*, not secret material — the actual
+# secret data lives in the referenced K8s Secret at runtime.
+f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:generic-secret:297
+f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:generic-secret:299
+f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:generic-secret:300
+f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:generic-secret:310

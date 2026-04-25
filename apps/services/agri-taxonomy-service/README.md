@@ -28,9 +28,11 @@ relations between them.
 
 ## Boundaries
 
-- **Persistence:** delegated to `knowledge-graph` (port 8140). This service
-  is *not* a graph DB itself — it owns the **schema** and the **release
-  process**, then queries `knowledge-graph` for the data.
+- **Persistence:** snapshots are currently stored in-process via
+  `TaxonomyStore` (the released snapshot is the runtime source of truth
+  served by the API). This service owns the **schema** and the **release
+  process**; it does not query `knowledge-graph` for taxonomy reads or
+  writes today. A persistent backend is tracked as Phase-5 work.
 - **Hot-reload SLA:** new releases must converge across all consumers
   within 30 s. The service publishes `sahool.taxonomy.released.v{N}` to
   NATS; consumers also poll as a backstop.

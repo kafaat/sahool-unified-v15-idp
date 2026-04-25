@@ -81,13 +81,10 @@ COPY --from=builder /root/.local /home/sahool/.local
 # The builder stage always creates `/root/.cache/prisma-python/` (see the
 # `mkdir -p` before `prisma generate` up there), so the source path is
 # guaranteed to exist — empty if the generator failed, populated if it
-# succeeded. Either way the COPY below completes. We then fix ownership
-# in a separate `chown` RUN because multi-stage `COPY --from=<stage>`
-# cannot take `--chown`; the source files are owned by root in the
-# builder and land here owned by root too, which sahool at runtime
-# cannot read without the chown.
-COPY --from=builder /root/.cache/prisma-python /home/sahool/.cache/prisma-python
-RUN chown -R sahool:sahool /home/sahool/.cache
+# succeeded. Either way the COPY below completes. Set ownership at copy
+# time so the runtime user can read the cache without an extra recursive
+# `chown` layer (which is slow on large caches).
+COPY --from=builder --chown=sahool:sahool /root/.cache/prisma-python /home/sahool/.cache/prisma-python
 ENV PATH=/home/sahool/.local/bin:$PATH \
     HOME=/home/sahool
 

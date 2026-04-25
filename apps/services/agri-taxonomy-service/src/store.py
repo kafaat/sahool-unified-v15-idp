@@ -256,9 +256,7 @@ class TaxonomyStore:
                 released_at=datetime.now(UTC),
                 checksum_sha256=checksum,
             )
-            new_snapshot = Snapshot(
-                version=version, nodes=new_nodes, edges=new_edges
-            )
+            new_snapshot = Snapshot(version=version, nodes=new_nodes, edges=new_edges)
             # Atomic single-attribute swap — readers either observe the
             # old snapshot or the new one, never a half-built state.
             self._current = new_snapshot
@@ -290,29 +288,20 @@ class TaxonomyStore:
         # 1. No edge references an unknown node.
         for edge in self._pending.edges:
             if edge.parent_id not in node_ids:
-                raise TaxonomyValidationError(
-                    f"edge references unknown parent: {edge.parent_id}"
-                )
+                raise TaxonomyValidationError(f"edge references unknown parent: {edge.parent_id}")
             if edge.child_id not in node_ids:
-                raise TaxonomyValidationError(
-                    f"edge references unknown child: {edge.child_id}"
-                )
+                raise TaxonomyValidationError(f"edge references unknown child: {edge.child_id}")
         # 2. No node has a parent that isn't staged.
         for node in self._pending.nodes.values():
             if node.parent_id is not None and node.parent_id not in node_ids:
-                raise TaxonomyValidationError(
-                    f"node {node.id} parent {node.parent_id} not staged"
-                )
+                raise TaxonomyValidationError(f"node {node.id} parent {node.parent_id} not staged")
         # 3. No duplicate (language, label) synonym per node.
         for node in self._pending.nodes.values():
             seen: set[tuple[str, str]] = set()
             for syn in node.synonyms:
                 key = (syn.language, syn.label.lower())
                 if key in seen:
-                    raise TaxonomyValidationError(
-                        f"duplicate synonym {syn.label!r} ({syn.language}) "
-                        f"on node {node.id}"
-                    )
+                    raise TaxonomyValidationError(f"duplicate synonym {syn.label!r} ({syn.language}) on node {node.id}")
                 seen.add(key)
         # 4. No cycles in the parent_id chain.
         self._assert_acyclic()
@@ -324,16 +313,12 @@ class TaxonomyStore:
             node: TaxonomyNode | None = start
             while node is not None and node.parent_id is not None:
                 if node.id in seen:
-                    raise TaxonomyValidationError(
-                        f"cycle detected at node {node.id}"
-                    )
+                    raise TaxonomyValidationError(f"cycle detected at node {node.id}")
                 seen.add(node.id)
                 node = self._pending.nodes.get(node.parent_id)
 
     @staticmethod
-    def _checksum(
-        nodes: Iterable[TaxonomyNode], edges: Iterable[TaxonomyEdge]
-    ) -> str:
+    def _checksum(nodes: Iterable[TaxonomyNode], edges: Iterable[TaxonomyEdge]) -> str:
         # Canonical JSON: stable key order + sorted node / edge lists so
         # the same graph always produces the same checksum.
         def node_dict(n: TaxonomyNode) -> dict:
@@ -342,10 +327,7 @@ class TaxonomyStore:
                 "kind": n.kind,
                 "parent_id": str(n.parent_id) if n.parent_id else None,
                 "synonyms": sorted(
-                    [
-                        {"language": s.language, "label": s.label, "preferred": s.is_preferred}
-                        for s in n.synonyms
-                    ],
+                    [{"language": s.language, "label": s.label, "preferred": s.is_preferred} for s in n.synonyms],
                     key=lambda s: (s["language"], s["label"]),
                 ),
                 "cross_refs": sorted(n.cross_refs),
@@ -355,16 +337,11 @@ class TaxonomyStore:
         payload = {
             "nodes": sorted([node_dict(n) for n in nodes], key=lambda n: n["id"]),
             "edges": sorted(
-                [
-                    {"parent": str(e.parent_id), "child": str(e.child_id)}
-                    for e in edges
-                ],
+                [{"parent": str(e.parent_id), "child": str(e.child_id)} for e in edges],
                 key=lambda e: (e["parent"], e["child"]),
             ),
         }
-        return hashlib.sha256(
-            json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
-        ).hexdigest()
+        return hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
     @staticmethod
     def _bump(semver: str, kind: Literal["major", "minor", "patch"]) -> str:
@@ -389,10 +366,7 @@ def node_to_response(node: TaxonomyNode) -> dict:
         "id": str(node.id),
         "kind": node.kind,
         "parent_id": str(node.parent_id) if node.parent_id else None,
-        "synonyms": [
-            {"language": s.language, "label": s.label, "is_preferred": s.is_preferred}
-            for s in node.synonyms
-        ],
+        "synonyms": [{"language": s.language, "label": s.label, "is_preferred": s.is_preferred} for s in node.synonyms],
         "cross_refs": dict(node.cross_refs),
     }
 

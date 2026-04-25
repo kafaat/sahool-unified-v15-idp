@@ -99,9 +99,7 @@ def test_observation_jacobian_falls_back_to_identity() -> None:
     f = _frame(0, 0.6, var=0.01)
     ekf_default.update(f)
     ekf_explicit_identity.update(f)
-    assert ekf_default.state().state["ndvi"] == pytest.approx(
-        ekf_explicit_identity.state().state["ndvi"], abs=1e-12
-    )
+    assert ekf_default.state().state["ndvi"] == pytest.approx(ekf_explicit_identity.state().state["ndvi"], abs=1e-12)
     assert ekf_default.state().covariance[("ndvi", "ndvi")] == pytest.approx(
         ekf_explicit_identity.state().covariance[("ndvi", "ndvi")], abs=1e-12
     )

@@ -70,9 +70,7 @@ class ComplianceRegistry:
         previous = self._plugins.get(plugin.name)
         self._plugins[plugin.name] = plugin
         if previous is not None and previous is not plugin:
-            self._cache = {
-                k: v for k, v in self._cache.items() if v.plugin is not previous
-            }
+            self._cache = {k: v for k, v in self._cache.items() if v.plugin is not previous}
 
     def available(self) -> list[str]:
         """Return the names of currently registered plug-ins (sorted)."""

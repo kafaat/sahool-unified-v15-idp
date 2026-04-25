@@ -159,9 +159,7 @@ class WriteAheadLog:
                 header = fh.read(_HEADER_SIZE)
                 if len(header) < _HEADER_SIZE:
                     break  # torn header — drop trailing partial frame
-                magic, sequence, ts_us, crc, payload_len = struct.unpack(
-                    _HEADER_FMT, header
-                )
+                magic, sequence, ts_us, crc, payload_len = struct.unpack(_HEADER_FMT, header)
                 if magic != _MAGIC:
                     break  # corruption — drop the rest
                 payload = fh.read(payload_len)

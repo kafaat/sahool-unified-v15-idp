@@ -22,9 +22,7 @@ class BackpressureController:
 
     def __init__(self, config: ResilienceConfig) -> None:
         if not 0.0 <= config.backpressure_low < config.backpressure_high <= 1.0:
-            raise ValueError(
-                "backpressure_low must be < backpressure_high and both in [0, 1]"
-            )
+            raise ValueError("backpressure_low must be < backpressure_high and both in [0, 1]")
         self.config = config
         self._level: BackpressureLevel = BackpressureLevel.NORMAL
 

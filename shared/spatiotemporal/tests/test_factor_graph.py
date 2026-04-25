@@ -35,9 +35,7 @@ def test_single_bundle_information_weighted_mean() -> None:
     expected = (0.6 / 0.04 + 0.8 / 0.01) / (1 / 0.04 + 1 / 0.01)
     assert solutions[0].state["ndvi"] == pytest.approx(expected, abs=1e-9)
     # Posterior variance is 1 / sum-of-information.
-    assert solutions[0].covariance[("ndvi", "ndvi")] == pytest.approx(
-        1 / (1 / 0.04 + 1 / 0.01), abs=1e-9
-    )
+    assert solutions[0].covariance[("ndvi", "ndvi")] == pytest.approx(1 / (1 / 0.04 + 1 / 0.01), abs=1e-9)
 
 
 def test_multiple_windows_emit_one_state_each() -> None:
@@ -77,9 +75,7 @@ def test_cholesky_solver_matches_closed_form_on_diagonal_inputs() -> None:
     a = fg_closed.optimize()[0]
     b = fg_cholesky.optimize()[0]
     assert a.state["ndvi"] == pytest.approx(b.state["ndvi"], abs=1e-12)
-    assert a.covariance[("ndvi", "ndvi")] == pytest.approx(
-        b.covariance[("ndvi", "ndvi")], abs=1e-12
-    )
+    assert a.covariance[("ndvi", "ndvi")] == pytest.approx(b.covariance[("ndvi", "ndvi")], abs=1e-12)
 
 
 def test_cholesky_solver_handles_correlated_two_band_measurement() -> None:

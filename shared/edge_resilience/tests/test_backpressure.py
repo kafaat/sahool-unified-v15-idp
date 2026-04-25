@@ -50,13 +50,9 @@ def test_hysteresis_avoids_thrash_between_thresholds() -> None:
 
 def test_invalid_thresholds_rejected() -> None:
     with pytest.raises(ValueError):
-        BackpressureController(
-            ResilienceConfig(backpressure_high=0.5, backpressure_low=0.5)
-        )
+        BackpressureController(ResilienceConfig(backpressure_high=0.5, backpressure_low=0.5))
     with pytest.raises(ValueError):
-        BackpressureController(
-            ResilienceConfig(backpressure_high=0.4, backpressure_low=0.6)
-        )
+        BackpressureController(ResilienceConfig(backpressure_high=0.4, backpressure_low=0.6))
 
 
 def test_invalid_fill_ratio_rejected() -> None:

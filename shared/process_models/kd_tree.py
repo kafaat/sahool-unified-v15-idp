@@ -65,9 +65,7 @@ class KDTree:
     def dimensions(self) -> int:
         return self._dimensions
 
-    def query(
-        self, target: Sequence[float], k: int
-    ) -> list[tuple[float, int]]:
+    def query(self, target: Sequence[float], k: int) -> list[tuple[float, int]]:
         """Return the ``k`` nearest neighbours as ``(distance, lut_index)``.
 
         Distances are Euclidean (matches the brute-force baseline).
@@ -78,9 +76,7 @@ class KDTree:
             raise ValueError("k must be >= 1")
         if len(target) != self._dimensions:
             raise ValueError(
-                "target dimensionality "
-                f"{len(target)} does not match tree dimensionality "
-                f"{self._dimensions}"
+                f"target dimensionality {len(target)} does not match tree dimensionality {self._dimensions}"
             )
 
         target_tuple = tuple(target)
@@ -136,9 +132,7 @@ class KDTree:
             counter += 1
 
         diff = target[node.axis] - node.point[node.axis]
-        first, second = (
-            (node.left, node.right) if diff < 0 else (node.right, node.left)
-        )
+        first, second = (node.left, node.right) if diff < 0 else (node.right, node.left)
         counter = self._search(first, target, k, heap, counter)
         # Only descend the "far" branch if a closer neighbour might still
         # exist there, i.e. the perpendicular distance to the splitting

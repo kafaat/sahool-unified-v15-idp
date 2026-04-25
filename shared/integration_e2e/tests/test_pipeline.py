@@ -59,9 +59,7 @@ from shared.spatiotemporal import (
     SensorFrame,
 )
 
-_GEOM = ProsailGeometry(
-    sun_zenith_deg=30.0, view_zenith_deg=0.0, relative_azimuth_deg=0.0
-)
+_GEOM = ProsailGeometry(sun_zenith_deg=30.0, view_zenith_deg=0.0, relative_azimuth_deg=0.0)
 _BANDS = ("blue", "green", "red", "red_edge", "nir", "swir")
 
 
@@ -101,9 +99,7 @@ async def test_e2e_wal_fusion_prosail_safety_pipeline() -> None:
 
     # ---- 1. Edge WAL: persist two miscalibrated reflectance frames -----
     with tempfile.TemporaryDirectory() as wal_dir:
-        wal = WriteAheadLog(
-            ResilienceConfig(wal_path=str(Path(wal_dir)), fsync_batch_size=1)
-        )
+        wal = WriteAheadLog(ResilienceConfig(wal_path=str(Path(wal_dir)), fsync_batch_size=1))
         try:
             for sensor_id, offset, dt_ms in (
                 ("multispec-A", +0.005, 0),
@@ -113,9 +109,7 @@ async def test_e2e_wal_fusion_prosail_safety_pipeline() -> None:
                 payload = json.dumps(
                     {
                         "sensor_id": sensor_id,
-                        "timestamp": (
-                            base_ts + timedelta(milliseconds=dt_ms)
-                        ).isoformat(),
+                        "timestamp": (base_ts + timedelta(milliseconds=dt_ms)).isoformat(),
                         "values": obs,
                         # Sensor noise covariance — drives the
                         # information-weighted fusion downstream.
@@ -134,9 +128,7 @@ async def test_e2e_wal_fusion_prosail_safety_pipeline() -> None:
                         timestamp=datetime.fromisoformat(record["timestamp"]),
                         position=(0.0, 0.0, None),
                         values={k: float(v) for k, v in record["values"].items()},
-                        covariance={
-                            k: float(v) for k, v in record["covariance"].items()
-                        },
+                        covariance={k: float(v) for k, v in record["covariance"].items()},
                     )
                 )
                 # Ack the entry so a subsequent run starts from a clean WAL.
@@ -172,9 +164,7 @@ async def test_e2e_wal_fusion_prosail_safety_pipeline() -> None:
             assert len(fused) == 1
             fused_reflectance = fused[0].state
             for band, truth_value in truth_reflectance.items():
-                assert fused_reflectance[band] == pytest.approx(
-                    truth_value, abs=1e-6
-                )
+                assert fused_reflectance[band] == pytest.approx(truth_value, abs=1e-6)
 
             # ---- 4. PROSAIL inversion ----------------------------------
             lut = generate_lut(
@@ -182,9 +172,7 @@ async def test_e2e_wal_fusion_prosail_safety_pipeline() -> None:
                 density=10,
                 geometry=_GEOM,
             )
-            retrieval = invert(
-                fused_reflectance, _GEOM, lut=lut, top_k=5, backend="kd_tree"
-            )
+            retrieval = invert(fused_reflectance, _GEOM, lut=lut, top_k=5, backend="kd_tree")
             # Grid step: LAI ≈ 0.61, Cab ≈ 5.6. Recovery within those
             # tolerances is the contract ADR-015 commits to.
             assert retrieval.parameters["LAI"] == pytest.approx(truth_lai, abs=0.7)
@@ -214,14 +202,10 @@ async def test_e2e_wal_fusion_prosail_safety_pipeline() -> None:
             )
             gateway = PrescriptionGateway(
                 checkers=[
-                    ForbiddenSubstanceChecker.from_iterable(
-                        ["paraquat", "endosulfan"]
-                    ),
+                    ForbiddenSubstanceChecker.from_iterable(["paraquat", "endosulfan"]),
                     DosageToleranceChecker(
                         rates={
-                            ("wheat", "freshwater"): RateRange(
-                                min_rate=10.0, max_rate=50.0, unit="mm"
-                            ),
+                            ("wheat", "freshwater"): RateRange(min_rate=10.0, max_rate=50.0, unit="mm"),
                         }
                     ),
                 ]
@@ -268,9 +252,7 @@ async def test_e2e_pipeline_blocks_forbidden_substance() -> None:
                         timestamp=datetime.fromisoformat(record["timestamp"]),
                         position=(0.0, 0.0, None),
                         values={k: float(v) for k, v in record["values"].items()},
-                        covariance={
-                            k: float(v) for k, v in record["covariance"].items()
-                        },
+                        covariance={k: float(v) for k, v in record["covariance"].items()},
                     )
                 )
 
@@ -298,9 +280,7 @@ async def test_e2e_pipeline_blocks_forbidden_substance() -> None:
             )
             gateway = PrescriptionGateway(
                 checkers=[
-                    ForbiddenSubstanceChecker.from_iterable(
-                        ["paraquat", "endosulfan"]
-                    ),
+                    ForbiddenSubstanceChecker.from_iterable(["paraquat", "endosulfan"]),
                 ]
             )
             decision = await gateway.check(request)

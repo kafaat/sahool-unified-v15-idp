@@ -118,9 +118,7 @@ class DosageToleranceChecker:
                         message_en=(
                             f"No recommended rate range for crop='{request.crop}' product='{request.product}'."
                         ),
-                        message_ar=(
-                            f"لا توجد جرعة مرجعية للمحصول '{request.crop}' والمنتج '{request.product}'."
-                        ),
+                        message_ar=(f"لا توجد جرعة مرجعية للمحصول '{request.crop}' والمنتج '{request.product}'."),
                         severity="warning",
                         source_checker=self.name,
                     )
@@ -135,12 +133,8 @@ class DosageToleranceChecker:
                 reasons=[
                     Reason(
                         code="DOSAGE_UNIT_MISMATCH",
-                        message_en=(
-                            f"Rate unit '{request.rate_unit}' does not match expected '{rate_range.unit}'."
-                        ),
-                        message_ar=(
-                            f"وحدة الجرعة '{request.rate_unit}' لا تطابق المتوقع '{rate_range.unit}'."
-                        ),
+                        message_en=(f"Rate unit '{request.rate_unit}' does not match expected '{rate_range.unit}'."),
+                        message_ar=(f"وحدة الجرعة '{request.rate_unit}' لا تطابق المتوقع '{rate_range.unit}'."),
                         severity="critical",
                         source_checker=self.name,
                     )
@@ -202,8 +196,7 @@ class DosageToleranceChecker:
                         f"[{hard_lo:.2f}, {hard_hi:.2f}]."
                     ),
                     message_ar=(
-                        f"الجرعة {request.rate} {request.rate_unit} تجاوزت الحد الآمن "
-                        f"[{hard_lo:.2f}, {hard_hi:.2f}]."
+                        f"الجرعة {request.rate} {request.rate_unit} تجاوزت الحد الآمن [{hard_lo:.2f}, {hard_hi:.2f}]."
                     ),
                     severity="critical",
                     source_checker=self.name,

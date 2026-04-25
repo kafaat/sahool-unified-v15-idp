@@ -48,10 +48,7 @@ def cholesky(matrix: Matrix) -> Matrix:
             if i == j:
                 radicand = matrix[i][i] - s
                 if radicand <= 0.0:
-                    raise ValueError(
-                        "matrix is not positive-definite "
-                        f"(diagonal radicand {radicand!r} at row {i})"
-                    )
+                    raise ValueError(f"matrix is not positive-definite (diagonal radicand {radicand!r} at row {i})")
                 lower[i][j] = math.sqrt(radicand)
             else:
                 lower[i][j] = (matrix[i][j] - s) / lower[j][j]

@@ -46,9 +46,7 @@ def test_solve_cholesky_recovers_known_solution() -> None:
     # Given a = [[4, 2], [2, 3]] and x_true = [1, 2], rhs = a @ x_true.
     matrix = [[4.0, 2.0], [2.0, 3.0]]
     expected = [1.0, 2.0]
-    rhs = [
-        sum(matrix[i][j] * expected[j] for j in range(2)) for i in range(2)
-    ]
+    rhs = [sum(matrix[i][j] * expected[j] for j in range(2)) for i in range(2)]
     lower = cholesky(matrix)
     solution = solve_cholesky(lower, rhs)
     assert solution[0] == pytest.approx(expected[0], abs=1e-12)

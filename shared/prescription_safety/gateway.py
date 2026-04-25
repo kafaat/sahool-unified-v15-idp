@@ -123,12 +123,10 @@ class PrescriptionGateway:
                     Reason(
                         code="UNCHECKED_BAD_RETURN_TYPE",
                         message_en=(
-                            f"Checker '{checker_name}' returned {type(result).__name__}, "
-                            "expected CheckerResult."
+                            f"Checker '{checker_name}' returned {type(result).__name__}, expected CheckerResult."
                         ),
                         message_ar=(
-                            f"أرجع الفاحص '{checker_name}' نوع {type(result).__name__} "
-                            "بينما المتوقع CheckerResult."
+                            f"أرجع الفاحص '{checker_name}' نوع {type(result).__name__} بينما المتوقع CheckerResult."
                         ),
                         severity="warning",
                         source_checker=checker_name,

@@ -8,7 +8,6 @@ import asyncio
 from uuid import UUID
 
 import pytest
-
 from src.store import (
     ReleaseEvent,
     Synonym,
@@ -18,7 +17,6 @@ from src.store import (
     TaxonomyValidationError,
     make_default_seed_store,
 )
-
 
 _WHEAT_ID = UUID("11111111-1111-4111-8111-111111111111")
 _VAR_ID = UUID("22222222-2222-4222-8222-222222222222")
@@ -181,8 +179,6 @@ async def test_seeded_store_emits_one_event_per_release() -> None:
     assert captured[0].node_count == 5
     assert captured[0].edge_count == 1
     # The forbidden flag survived the round-trip.
-    forbidden, reason_en, _reason_ar = store.is_forbidden(
-        UUID("44444444-4444-4444-8444-444444444444")
-    )
+    forbidden, reason_en, _reason_ar = store.is_forbidden(UUID("44444444-4444-4444-8444-444444444444"))
     assert forbidden is True
     assert reason_en is not None

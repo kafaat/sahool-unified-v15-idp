@@ -8,7 +8,6 @@ from collections.abc import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
-
 from src.main import app
 
 
@@ -105,9 +104,7 @@ def test_check_rejected_for_extreme_dose(client: TestClient) -> None:
 
 @pytest.mark.smoke
 def test_check_rejects_invalid_prescription_type(client: TestClient) -> None:
-    resp = client.post(
-        "/api/v1/prescription/check", json=_payload(prescription_type="cosmic")
-    )
+    resp = client.post("/api/v1/prescription/check", json=_payload(prescription_type="cosmic"))
     assert resp.status_code == 422
 
 

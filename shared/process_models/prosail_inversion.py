@@ -87,9 +87,7 @@ class ProsailLUT:
         """
 
         if self._kd_tree is None:
-            self._kd_tree = KDTree(
-                [self._reflectance_vector(r) for r in self.reflectances]
-            )
+            self._kd_tree = KDTree([self._reflectance_vector(r) for r in self.reflectances])
         return self._kd_tree
 
     def _reflectance_vector(self, ref: dict[str, float]) -> tuple[float, ...]:
@@ -186,9 +184,7 @@ def generate_lut(
         if key not in _PARAMETER_AXES:
             raise ValueError(f"unsupported PROSAIL parameter: {key}")
 
-    geom = geometry or ProsailGeometry(
-        sun_zenith_deg=30.0, view_zenith_deg=0.0, relative_azimuth_deg=0.0
-    )
+    geom = geometry or ProsailGeometry(sun_zenith_deg=30.0, view_zenith_deg=0.0, relative_azimuth_deg=0.0)
 
     grid = _grid(parameter_ranges, density)
     reflectances = [_forward(p, geom) for p in grid]
@@ -245,10 +241,7 @@ def invert(
     if top_k < 1:
         raise ValueError("top_k must be >= 1")
     if backend not in {"kd_tree", "brute_force"}:
-        raise ValueError(
-            "backend must be 'kd_tree' or 'brute_force', "
-            f"got {backend!r}"
-        )
+        raise ValueError(f"backend must be 'kd_tree' or 'brute_force', got {backend!r}")
     if (
         abs(lut.geometry.sun_zenith_deg - geometry.sun_zenith_deg) > 1e-6
         or abs(lut.geometry.view_zenith_deg - geometry.view_zenith_deg) > 1e-6

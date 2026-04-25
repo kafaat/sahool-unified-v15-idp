@@ -52,9 +52,7 @@ class FactorGraph:
     def __init__(self, config: FusionConfig) -> None:
         if config.solver not in {"auto", "closed_form", "cholesky"}:
             raise ValueError(
-                "FusionConfig.solver must be one of "
-                "'auto', 'closed_form', 'cholesky' — "
-                f"got {config.solver!r}"
+                f"FusionConfig.solver must be one of 'auto', 'closed_form', 'cholesky' — got {config.solver!r}"
             )
         self.config = config
         self._frames: list[SensorFrame] = []
@@ -148,10 +146,7 @@ class FactorGraph:
                     global_b = index[key_b]
                     info_matrix[global_a][global_b] += r_inv[local_a][local_b]
                 # η contribution: R⁻¹ z restricted to present channels.
-                rhs_a = sum(
-                    r_inv[local_a][local_b] * frame.values[present[local_b]]
-                    for local_b in range(len(present))
-                )
+                rhs_a = sum(r_inv[local_a][local_b] * frame.values[present[local_b]] for local_b in range(len(present)))
                 info_vector[global_a] += rhs_a
 
         lower = cholesky(info_matrix)

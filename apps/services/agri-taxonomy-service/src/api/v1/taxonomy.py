@@ -145,9 +145,7 @@ async def search(
     "/fertilizers/{fertilizer_id}/forbidden",
     response_model=ForbiddenCheckOut,
 )
-async def check_forbidden(
-    fertilizer_id: UUID, request: Request
-) -> ForbiddenCheckOut:
+async def check_forbidden(fertilizer_id: UUID, request: Request) -> ForbiddenCheckOut:
     """Forbidden-substance check used by ADR-013 (Prescription Safety Gateway)."""
 
     forbidden, reason_en, reason_ar = _store(request).is_forbidden(fertilizer_id)

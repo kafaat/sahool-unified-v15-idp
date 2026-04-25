@@ -18,7 +18,6 @@ from shared.process_models.radiative_transfer import (
     sail_canopy_reflectance,
 )
 
-
 _GEOM = ProsailGeometry(sun_zenith_deg=30.0, view_zenith_deg=0.0, relative_azimuth_deg=0.0)
 
 

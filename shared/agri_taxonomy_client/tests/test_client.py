@@ -180,9 +180,7 @@ async def test_notifier_triggers_immediate_refresh() -> None:
             yield event
 
     # Long polling interval means only the notifier can drive the refresh.
-    client = TaxonomyClient(
-        "http://t", refresh_seconds=3600, fetcher=fetcher, notifier=notifier
-    )
+    client = TaxonomyClient("http://t", refresh_seconds=3600, fetcher=fetcher, notifier=notifier)
     try:
         await client.start()
         assert client.version().semver == "1.0.0"
@@ -238,9 +236,7 @@ async def test_notifier_does_not_break_normal_polling() -> None:
         if False:  # pragma: no cover
             yield None
 
-    client = TaxonomyClient(
-        "http://t", refresh_seconds=1, fetcher=fetcher, notifier=notifier
-    )
+    client = TaxonomyClient("http://t", refresh_seconds=1, fetcher=fetcher, notifier=notifier)
     try:
         await client.start()
         await asyncio.wait_for(fetched.wait(), timeout=3.0)

@@ -28,11 +28,45 @@ from ..models import (
 # EEA + countries with EU adequacy decisions (subset; see eur-lex.europa.eu).
 _GDPR_ADEQUACY_REGIONS: frozenset[str] = frozenset(
     {
-        "AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
-        "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK",
-        "SI", "ES", "SE",  # EU
-        "IS", "LI", "NO",  # EEA
-        "GB", "CH", "JP", "KR", "IL", "CA", "NZ", "UY", "AR",  # adequacy
+        "AT",
+        "BE",
+        "BG",
+        "HR",
+        "CY",
+        "CZ",
+        "DK",
+        "EE",
+        "FI",
+        "FR",
+        "DE",
+        "GR",
+        "HU",
+        "IE",
+        "IT",
+        "LV",
+        "LT",
+        "LU",
+        "MT",
+        "NL",
+        "PL",
+        "PT",
+        "RO",
+        "SK",
+        "SI",
+        "ES",
+        "SE",  # EU
+        "IS",
+        "LI",
+        "NO",  # EEA
+        "GB",
+        "CH",
+        "JP",
+        "KR",
+        "IL",
+        "CA",
+        "NZ",
+        "UY",
+        "AR",  # adequacy
     }
 )
 

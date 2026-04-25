@@ -12,12 +12,9 @@ import pytest
 from shared.process_models.kd_tree import KDTree
 
 
-def _brute_force_knn(
-    points: list[tuple[float, ...]], target: tuple[float, ...], k: int
-) -> list[tuple[float, int]]:
+def _brute_force_knn(points: list[tuple[float, ...]], target: tuple[float, ...], k: int) -> list[tuple[float, int]]:
     distances = [
-        (math.sqrt(sum((a - b) ** 2 for a, b in zip(p, target, strict=True))), i)
-        for i, p in enumerate(points)
+        (math.sqrt(sum((a - b) ** 2 for a, b in zip(p, target, strict=True))), i) for i, p in enumerate(points)
     ]
     distances.sort(key=lambda entry: entry[0])
     return distances[:k]

@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
-
 from src.main import app
 
 
@@ -68,17 +67,12 @@ def test_list_nodes_returns_seeded_data(client: TestClient) -> None:
     resp = client.get("/api/v1/taxonomy/nodes?kind=crop")
     assert resp.status_code == 200
     body = resp.json()
-    assert any(
-        any(s["label"].lower() == "wheat" for s in node["synonyms"])
-        for node in body
-    )
+    assert any(any(s["label"].lower() == "wheat" for s in node["synonyms"]) for node in body)
 
 
 @pytest.mark.smoke
 def test_get_node_404_for_unknown_uuid(client: TestClient) -> None:
-    resp = client.get(
-        "/api/v1/taxonomy/nodes/00000000-0000-4000-8000-000000000000"
-    )
+    resp = client.get("/api/v1/taxonomy/nodes/00000000-0000-4000-8000-000000000000")
     assert resp.status_code == 404
 
 
@@ -88,18 +82,12 @@ def test_search_finds_arabic_label(client: TestClient) -> None:
     assert resp.status_code == 200
     body = resp.json()
     assert len(body) >= 1
-    assert any(
-        any(s["language"] == "ar" and "قمح" in s["label"] for s in node["synonyms"])
-        for node in body
-    )
+    assert any(any(s["language"] == "ar" and "قمح" in s["label"] for s in node["synonyms"]) for node in body)
 
 
 @pytest.mark.smoke
 def test_forbidden_endpoint_flags_paraquat(client: TestClient) -> None:
-    resp = client.get(
-        "/api/v1/taxonomy/fertilizers/"
-        "44444444-4444-4444-8444-444444444444/forbidden"
-    )
+    resp = client.get("/api/v1/taxonomy/fertilizers/44444444-4444-4444-8444-444444444444/forbidden")
     assert resp.status_code == 200
     body = resp.json()
     assert body["forbidden"] is True
@@ -109,10 +97,7 @@ def test_forbidden_endpoint_flags_paraquat(client: TestClient) -> None:
 
 @pytest.mark.smoke
 def test_forbidden_endpoint_does_not_flag_urea(client: TestClient) -> None:
-    resp = client.get(
-        "/api/v1/taxonomy/fertilizers/"
-        "55555555-5555-4555-8555-555555555555/forbidden"
-    )
+    resp = client.get("/api/v1/taxonomy/fertilizers/55555555-5555-4555-8555-555555555555/forbidden")
     assert resp.status_code == 200
     assert resp.json()["forbidden"] is False
 

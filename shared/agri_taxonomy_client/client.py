@@ -92,10 +92,7 @@ class TaxonomyClient:
         if self._task is not None and not self._task.done():
             return
         if self._fetcher is None:
-            raise RuntimeError(
-                "TaxonomyClient requires a fetcher (injected for tests, "
-                "HTTP/NATS in production)"
-            )
+            raise RuntimeError("TaxonomyClient requires a fetcher (injected for tests, HTTP/NATS in production)")
         # First refresh is awaited so callers can rely on the snapshot
         # being populated immediately after ``start()`` returns.
         self._snapshot = await self._fetcher()
@@ -104,9 +101,7 @@ class TaxonomyClient:
         self._fetch_lock = asyncio.Lock()
         self._task = asyncio.create_task(self._refresh_loop(), name="taxonomy-refresh")
         if self._notifier is not None:
-            self._notifier_task = asyncio.create_task(
-                self._notifier_loop(), name="taxonomy-notifier"
-            )
+            self._notifier_task = asyncio.create_task(self._notifier_loop(), name="taxonomy-notifier")
 
     async def stop(self) -> None:
         """Stop the refresh loop and the optional notifier loop. Idempotent."""

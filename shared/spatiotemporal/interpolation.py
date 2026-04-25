@@ -30,9 +30,7 @@ def _natural_cubic_coeffs(
     # with m_0 = m_{n-1} = 0 (natural).
     alpha = [0.0] * n
     for i in range(1, n - 1):
-        alpha[i] = 3.0 * (
-            (ys[i + 1] - ys[i]) / h[i] - (ys[i] - ys[i - 1]) / h[i - 1]
-        )
+        alpha[i] = 3.0 * ((ys[i + 1] - ys[i]) / h[i] - (ys[i] - ys[i - 1]) / h[i - 1])
 
     # Thomas algorithm for the symmetric tridiagonal system.
     l = [1.0] + [0.0] * (n - 1)  # noqa: E741 - matches Numerical Recipes notation

@@ -131,9 +131,7 @@ class TestDosageToleranceChecker:
         assert result.passed is True
 
     @pytest.mark.asyncio
-    async def test_outside_soft_within_hard_emits_review(
-        self, dosage_checker: DosageToleranceChecker
-    ) -> None:
+    async def test_outside_soft_within_hard_emits_review(self, dosage_checker: DosageToleranceChecker) -> None:
         # max 60 → soft hi = 66, hard hi = 72
         result = await dosage_checker.check(_request(rate=70.0))
         assert result.passed is False
@@ -142,9 +140,7 @@ class TestDosageToleranceChecker:
         assert result.reasons[0].severity == "warning"
 
     @pytest.mark.asyncio
-    async def test_beyond_hard_window_blocks(
-        self, dosage_checker: DosageToleranceChecker
-    ) -> None:
+    async def test_beyond_hard_window_blocks(self, dosage_checker: DosageToleranceChecker) -> None:
         result = await dosage_checker.check(_request(rate=100.0))
         assert result.passed is False
         assert result.blocking is True
@@ -214,9 +210,7 @@ class TestPrescriptionGateway:
     @pytest.mark.asyncio
     async def test_blocking_failure_short_circuits_to_rejected(self) -> None:
         third = _ok("c")
-        gateway = PrescriptionGateway(
-            checkers=[_ok("a"), _fail("b", blocking=True, severity="critical"), third]
-        )
+        gateway = PrescriptionGateway(checkers=[_ok("a"), _fail("b", blocking=True, severity="critical"), third])
         decision = await gateway.check(_request())
         assert decision.decision == DecisionEnum.REJECTED
         assert {e.checker for e in decision.evidence} == {"a", "b"}

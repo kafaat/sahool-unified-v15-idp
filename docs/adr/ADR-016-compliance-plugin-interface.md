@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-04-25, Phase 4 complete: 4 plug-ins + registry + 30 unit tests)
 
 ## Context
 

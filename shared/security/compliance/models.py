@@ -5,11 +5,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class ComplianceOp(str, Enum):
+class ComplianceOp(StrEnum):
     """Operations that compliance plug-ins gate."""
 
     EXPORT_PII = "EXPORT_PII"
@@ -19,7 +19,7 @@ class ComplianceOp(str, Enum):
     USE_FOR_TRAINING = "USE_FOR_TRAINING"
 
 
-class DataClass(str, Enum):
+class DataClass(StrEnum):
     """Data classification tier (aligns with ``docs/security/data-classification``)."""
 
     PUBLIC = "PUBLIC"
@@ -28,7 +28,7 @@ class DataClass(str, Enum):
     RESTRICTED = "RESTRICTED"
 
 
-class PIIField(str, Enum):
+class PIIField(StrEnum):
     """PII field types subject to per-region rules."""
 
     EMAIL = "EMAIL"
@@ -38,7 +38,7 @@ class PIIField(str, Enum):
     BIOMETRIC = "BIOMETRIC"
 
 
-class SignatureAlgo(str, Enum):
+class SignatureAlgo(StrEnum):
     """Cryptographic signature algorithms (FIPS-mode restricts this set)."""
 
     RSA_PSS_SHA256 = "RSA_PSS_SHA256"

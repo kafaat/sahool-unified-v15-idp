@@ -238,8 +238,8 @@ class WeatherProvider(ABC):
         # Defensive: the loop above either returns or raises on the last
         # attempt. This re-raise keeps the function's return type honest
         # (no implicit ``None`` fall-through) for static analysers.
-        raise last_error if last_error is not None else RuntimeError(
-            "_request_with_retry exited loop without resolving"
+        raise (
+            last_error if last_error is not None else RuntimeError("_request_with_retry exited loop without resolving")
         )
 
     async def close(self):

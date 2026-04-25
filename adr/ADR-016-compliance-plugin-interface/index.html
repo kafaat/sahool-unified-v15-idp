@@ -18,19 +18,19 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Architecture Decision Records (ADRs) - SAHOOL Developer Documentation</title>
+        <title>ADR-016: Region-Aware Compliance Plug-in Interface - SAHOOL Developer Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,7 +49,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture-decision-records-adrs" class="md-skip">
+        <a href="#adr-016-region-aware-compliance-plug-in-interface" class="md-skip">
           Skip to content
         </a>
       
@@ -86,7 +86,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture Decision Records (ADRs)
+              ADR-016: Region-Aware Compliance Plug-in Interface
             
           </span>
         </div>
@@ -181,7 +181,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../index.md" class="md-tabs__link">
+      <a href="../../index.md" class="md-tabs__link">
         
   
   
@@ -202,7 +202,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../getting-started/installation.md" class="md-tabs__link">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
           
   
   
@@ -222,7 +222,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../services/overview.md" class="md-tabs__link">
+        <a href="../../services/overview.md" class="md-tabs__link">
           
   
   
@@ -242,7 +242,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../api/authentication/" class="md-tabs__link">
+        <a href="../../api/authentication/" class="md-tabs__link">
           
   
   
@@ -262,7 +262,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../development/setup.md" class="md-tabs__link">
+        <a href="../../development/setup.md" class="md-tabs__link">
           
   
   
@@ -282,7 +282,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../contributing/guidelines.md" class="md-tabs__link">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
           
   
   
@@ -318,7 +318,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -336,7 +336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../index.md" class="md-nav__link">
+      <a href="../../index.md" class="md-nav__link">
         
   
   
@@ -415,7 +415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/installation.md" class="md-nav__link">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
         
   
   
@@ -443,7 +443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/quickstart.md" class="md-nav__link">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
         
   
   
@@ -471,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/architecture.md" class="md-nav__link">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
         
   
   
@@ -558,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/overview.md" class="md-nav__link">
+      <a href="../../services/overview.md" class="md-nav__link">
         
   
   
@@ -586,7 +586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/starter.md" class="md-nav__link">
+      <a href="../../services/starter.md" class="md-nav__link">
         
   
   
@@ -614,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/professional.md" class="md-nav__link">
+      <a href="../../services/professional.md" class="md-nav__link">
         
   
   
@@ -642,7 +642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/enterprise.md" class="md-nav__link">
+      <a href="../../services/enterprise.md" class="md-nav__link">
         
   
   
@@ -729,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/authentication/" class="md-nav__link">
+      <a href="../../api/authentication/" class="md-nav__link">
         
   
   
@@ -757,7 +757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/field-management.md" class="md-nav__link">
+      <a href="../../api/field-management.md" class="md-nav__link">
         
   
   
@@ -785,7 +785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/weather/" class="md-nav__link">
+      <a href="../../api/weather/" class="md-nav__link">
         
   
   
@@ -813,7 +813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
         
   
   
@@ -900,7 +900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/setup.md" class="md-nav__link">
+      <a href="../../development/setup.md" class="md-nav__link">
         
   
   
@@ -928,7 +928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/testing.md" class="md-nav__link">
+      <a href="../../development/testing.md" class="md-nav__link">
         
   
   
@@ -956,7 +956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/deployment.md" class="md-nav__link">
+      <a href="../../development/deployment.md" class="md-nav__link">
         
   
   
@@ -1043,7 +1043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/guidelines.md" class="md-nav__link">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
         
   
   
@@ -1071,7 +1071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/code-style.md" class="md-nav__link">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
         
   
   
@@ -1116,128 +1116,100 @@
 
 
 
-<h1 id="architecture-decision-records-adrs">Architecture Decision Records (ADRs)<a class="headerlink" href="#architecture-decision-records-adrs" title="Permanent link">&para;</a></h1>
-<h2 id="_1">سجلات القرارات المعمارية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>This directory contains Architecture Decision Records (ADRs) for the SAHOOL platform.</p>
-<h2 id="what-is-an-adr">What is an ADR?<a class="headerlink" href="#what-is-an-adr" title="Permanent link">&para;</a></h2>
-<p>An ADR is a document that captures an important architectural decision made along with its context and consequences.</p>
-<h2 id="adr-template">ADR Template<a class="headerlink" href="#adr-template" title="Permanent link">&para;</a></h2>
-<p>See <a href="ADR-000-template/">ADR-000-template.md</a> for the template.</p>
-<h2 id="index-of-adrs">Index of ADRs<a class="headerlink" href="#index-of-adrs" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>ADR</th>
-<th>Title</th>
-<th>Status</th>
-<th>Date</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="ADR-001-offline-first-architecture/">ADR-001</a></td>
-<td>Offline-First Mobile Architecture</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-002-riverpod-state-management/">ADR-002</a></td>
-<td>Riverpod for State Management</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-003-drift-local-database/">ADR-003</a></td>
-<td>Drift for Local Database</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-004-kong-api-gateway/">ADR-004</a></td>
-<td>Kong as API Gateway</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-005-nats-event-bus/">ADR-005</a></td>
-<td>NATS for Event-Driven Architecture</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-006-circuit-breaker/">ADR-006</a></td>
-<td>Circuit Breaker Pattern</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-007-redis-caching/">ADR-007</a></td>
-<td>Redis for Caching</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-008-ai-architecture/">ADR-008</a></td>
-<td>AI Architecture &amp; Model Selection</td>
-<td>Accepted</td>
-<td>2026-03-06</td>
-</tr>
-<tr>
-<td><a href="ADR-009-claude-code-workflow-integration/">ADR-009</a></td>
-<td>Claude Code Workflow Integration</td>
-<td>Accepted</td>
-<td>2026-03-11</td>
-</tr>
-<tr>
-<td><a href="ADR-010-skill-runtime/">ADR-010</a></td>
-<td>Incremental Skill Runtime (Registry + Router)</td>
-<td>Proposed</td>
-<td>2026-04-14</td>
-</tr>
-<tr>
-<td><a href="ADR-011-spatiotemporal-fusion/">ADR-011</a></td>
-<td>Spatio-Temporal Fusion via Digital-Twin Extension</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-012-agri-taxonomy-service/">ADR-012</a></td>
-<td>Agricultural Taxonomy Service (versioned, hot-reloadable)</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-013-prescription-safety-gateway/">ADR-013</a></td>
-<td>Prescription Safety Gateway (thin aggregator)</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-014-edge-hardware-resilience/">ADR-014</a></td>
-<td>Edge Hardware Resilience (supercap + crash-safe WAL)</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-015-prosail-lut-inversion/">ADR-015</a></td>
-<td>PROSAIL LUT Inversion via Digital-Twin Engine</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-016-compliance-plugin-interface/">ADR-016</a></td>
-<td>Region-Aware Compliance Plug-in Interface</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-</tbody>
-</table>
-<h2 id="status-definitions">Status Definitions<a class="headerlink" href="#status-definitions" title="Permanent link">&para;</a></h2>
+<h1 id="adr-016-region-aware-compliance-plug-in-interface">ADR-016: Region-Aware Compliance Plug-in Interface<a class="headerlink" href="#adr-016-region-aware-compliance-plug-in-interface" title="Permanent link">&para;</a></h1>
+<h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
+<p>Accepted (2026-04-25, Phase 4 complete: 4 plug-ins + registry + 30 unit tests)</p>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>SAHOOL is deployed across multiple jurisdictions (KSA / NESA, GCC, EU / GDPR,
+US / FIPS-mode for federal partners). v3.1 requires a <strong>plug-in abstraction</strong>
+so that compliance constraints (data residency, encryption-at-rest algorithms,
+audit-log retention, PII handling, signature algorithms) can be swapped per
+tenant or per region without code changes in business services.</p>
+<p>v16 has:</p>
 <ul>
-<li><strong>Proposed</strong>: Under discussion</li>
-<li><strong>Accepted</strong>: Approved and implemented</li>
-<li><strong>Deprecated</strong>: No longer valid</li>
-<li><strong>Superseded</strong>: Replaced by another ADR</li>
+<li><code>shared/security/</code> — RBAC, JWT, policy engine</li>
+<li><code>shared/secrets/</code> — Vault integration</li>
+<li><code>governance/policies/</code> — Kyverno policies</li>
+<li><code>shared/audit_trail/</code> — audit primitives</li>
+</ul>
+<p>But no unified <strong>compliance plug-in interface</strong> that lets a service ask
+"is this operation allowed under tenant X's compliance profile?" and receive
+a deterministic answer with evidence.</p>
+<p>Phase 1 (row #13) flagged this as 🟡 (no region-aware plug-in abstraction).</p>
+<h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p>Define a Python <code>Protocol</code>-based plug-in interface in
+<code>shared/security/compliance/</code>:</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">CompliancePlugin</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>                        <span class="c1"># &quot;fips&quot; | &quot;nesa&quot; | &quot;gdpr&quot; | ...</span>
+    <span class="n">region</span><span class="p">:</span> <span class="nb">str</span>                      <span class="c1"># ISO 3166-1 alpha-2 or &quot;GLOBAL&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">allow_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">op</span><span class="p">:</span> <span class="n">ComplianceOp</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">TenantContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Decision</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">encryption_requirements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EncryptionPolicy</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">retention_policy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_class</span><span class="p">:</span> <span class="n">DataClass</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">RetentionPolicy</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pii_handling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">PIIField</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PIIPolicy</span><span class="p">:</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">signature_algorithms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">SignatureAlgo</span><span class="p">]:</span> <span class="o">...</span>
+</code></pre></div>
+
+<p>Initial plug-ins (one file each, no external deps beyond what we already use):</p>
+<ul>
+<li><code>shared/security/compliance/plugins/fips.py</code> — FIPS 140-3 mode</li>
+<li><code>shared/security/compliance/plugins/nesa.py</code> — KSA NESA / SDAIA</li>
+<li><code>shared/security/compliance/plugins/gdpr.py</code> — EU GDPR</li>
+<li><code>shared/security/compliance/plugins/default.py</code> — permissive default</li>
+</ul>
+<p>A <code>ComplianceRegistry</code> resolves the active plug-in from the JWT <code>tid</code> claim →
+tenant config (<code>region</code>, <code>compliance_profile</code>) → plug-in instance, with an
+in-memory cache (TTL 60 s) keyed by <code>(tenant_id, profile)</code>.</p>
+<p>Services consume it via a single FastAPI dependency:</p>
+<div class="codehilite"><pre><span></span><code><span class="nd">@router</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s2">&quot;/something&quot;</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="n">compliance</span><span class="p">:</span> <span class="n">ComplianceContext</span> <span class="o">=</span> <span class="n">Depends</span><span class="p">(</span><span class="n">get_compliance_context</span><span class="p">)):</span>
+    <span class="n">decision</span> <span class="o">=</span> <span class="n">compliance</span><span class="o">.</span><span class="n">allow</span><span class="p">(</span><span class="n">ComplianceOp</span><span class="o">.</span><span class="n">EXPORT_PII</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">decision</span><span class="o">.</span><span class="n">allowed</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">403</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="n">decision</span><span class="o">.</span><span class="n">reason</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
+<h3 id="positive">Positive<a class="headerlink" href="#positive" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New regions are added by writing one plug-in, not by editing dozens of services</li>
+<li>Compliance decisions are auditable (every <code>Decision</code> carries <code>reason</code> + <code>evidence</code>)</li>
+<li>Aligns with the existing tenant-scoped JWT and <code>get_tenant_subject</code> model</li>
+<li>Lets FIPS-mode tenants restrict to FIPS-approved signature algorithms without
+  forking the codebase</li>
+</ul>
+<h3 id="negative">Negative<a class="headerlink" href="#negative" title="Permanent link">&para;</a></h3>
+<ul>
+<li>All services must adopt the dependency to benefit; a migration window is needed</li>
+<li>Plug-ins can drift from the underlying regulations if not reviewed periodically
+  (mitigation: link each plug-in to a documented review cadence in
+  <code>governance/policies/</code>)</li>
+</ul>
+<h3 id="neutral">Neutral<a class="headerlink" href="#neutral" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New shared module under <code>shared/security/compliance/</code></li>
+<li>Tenant config schema gains <code>compliance_profile</code> and <code>region</code> fields</li>
+</ul>
+<h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
+<h3 id="alternative-1-hard-code-per-region-branches-in-each-service">Alternative 1: Hard-code per-region branches in each service<a class="headerlink" href="#alternative-1-hard-code-per-region-branches-in-each-service" title="Permanent link">&para;</a></h3>
+<p>Rejected. Already producing drift between <code>audit-service</code>, <code>user-service</code>, and
+<code>marketplace-service</code>. The whole point of v3.1's plug-in system is to remove
+this branching.</p>
+<h3 id="alternative-2-use-open-policy-agent-opa-for-compliance-decisions">Alternative 2: Use Open Policy Agent (OPA) for compliance decisions<a class="headerlink" href="#alternative-2-use-open-policy-agent-opa-for-compliance-decisions" title="Permanent link">&para;</a></h3>
+<p>Considered. Adds an external service dependency on every request. Rejected for
+the first iteration because Python <code>Protocol</code> plug-ins are sufficient for the
+decision types we need and avoid a network hop. OPA can be wrapped behind the
+same <code>CompliancePlugin</code> interface in a future iteration without changing
+callers.</p>
+<h3 id="alternative-3-reuse-agro-rules-8151-for-compliance-rules">Alternative 3: Reuse <code>agro-rules</code> (8151) for compliance rules<a class="headerlink" href="#alternative-3-reuse-agro-rules-8151-for-compliance-rules" title="Permanent link">&para;</a></h3>
+<p>Rejected. <code>agro-rules</code> is for <strong>agronomic</strong> rules (crop, pest, dosage) and has
+a different evaluator and audience. Mixing regulatory compliance there would
+blur the boundary and complicate audits.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../architecture/GAP_ANALYSIS_v3.1_vs_v16/">Phase 1 Gap Analysis row #13</a></li>
+<li><code>shared/security/</code>, <code>shared/secrets/</code>, <code>shared/audit_trail/</code></li>
+<li><code>governance/policies/</code></li>
+<li>ADR-008: AI Architecture &amp; Model Selection (for tenant context patterns)</li>
 </ul>
 
 
@@ -1288,10 +1260,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

@@ -18,19 +18,19 @@
         
       
       
-      <link rel="icon" href="../assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Architecture Decision Records (ADRs) - SAHOOL Developer Documentation</title>
+        <title>ADR-013: Prescription Safety Gateway (thin aggregator) - SAHOOL Developer Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,7 +49,7 @@
       
     
     
-    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture-decision-records-adrs" class="md-skip">
+        <a href="#adr-013-prescription-safety-gateway-thin-aggregator" class="md-skip">
           Skip to content
         </a>
       
@@ -86,7 +86,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href=".." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-header__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,7 +106,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture Decision Records (ADRs)
+              ADR-013: Prescription Safety Gateway (thin aggregator)
             
           </span>
         </div>
@@ -181,7 +181,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../index.md" class="md-tabs__link">
+      <a href="../../index.md" class="md-tabs__link">
         
   
   
@@ -202,7 +202,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../getting-started/installation.md" class="md-tabs__link">
+        <a href="../../getting-started/installation.md" class="md-tabs__link">
           
   
   
@@ -222,7 +222,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../services/overview.md" class="md-tabs__link">
+        <a href="../../services/overview.md" class="md-tabs__link">
           
   
   
@@ -242,7 +242,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../api/authentication/" class="md-tabs__link">
+        <a href="../../api/authentication/" class="md-tabs__link">
           
   
   
@@ -262,7 +262,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../development/setup.md" class="md-tabs__link">
+        <a href="../../development/setup.md" class="md-tabs__link">
           
   
   
@@ -282,7 +282,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../contributing/guidelines.md" class="md-tabs__link">
+        <a href="../../contributing/guidelines.md" class="md-tabs__link">
           
   
   
@@ -318,7 +318,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href=".." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
+    <a href="../.." title="SAHOOL Developer Documentation" class="md-nav__button md-logo" aria-label="SAHOOL Developer Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -336,7 +336,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../index.md" class="md-nav__link">
+      <a href="../../index.md" class="md-nav__link">
         
   
   
@@ -415,7 +415,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/installation.md" class="md-nav__link">
+      <a href="../../getting-started/installation.md" class="md-nav__link">
         
   
   
@@ -443,7 +443,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/quickstart.md" class="md-nav__link">
+      <a href="../../getting-started/quickstart.md" class="md-nav__link">
         
   
   
@@ -471,7 +471,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../getting-started/architecture.md" class="md-nav__link">
+      <a href="../../getting-started/architecture.md" class="md-nav__link">
         
   
   
@@ -558,7 +558,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/overview.md" class="md-nav__link">
+      <a href="../../services/overview.md" class="md-nav__link">
         
   
   
@@ -586,7 +586,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/starter.md" class="md-nav__link">
+      <a href="../../services/starter.md" class="md-nav__link">
         
   
   
@@ -614,7 +614,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/professional.md" class="md-nav__link">
+      <a href="../../services/professional.md" class="md-nav__link">
         
   
   
@@ -642,7 +642,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../services/enterprise.md" class="md-nav__link">
+      <a href="../../services/enterprise.md" class="md-nav__link">
         
   
   
@@ -729,7 +729,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/authentication/" class="md-nav__link">
+      <a href="../../api/authentication/" class="md-nav__link">
         
   
   
@@ -757,7 +757,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/field-management.md" class="md-nav__link">
+      <a href="../../api/field-management.md" class="md-nav__link">
         
   
   
@@ -785,7 +785,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/weather/" class="md-nav__link">
+      <a href="../../api/weather/" class="md-nav__link">
         
   
   
@@ -813,7 +813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/vegetation-analysis.md" class="md-nav__link">
+      <a href="../../api/vegetation-analysis.md" class="md-nav__link">
         
   
   
@@ -900,7 +900,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/setup.md" class="md-nav__link">
+      <a href="../../development/setup.md" class="md-nav__link">
         
   
   
@@ -928,7 +928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/testing.md" class="md-nav__link">
+      <a href="../../development/testing.md" class="md-nav__link">
         
   
   
@@ -956,7 +956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../development/deployment.md" class="md-nav__link">
+      <a href="../../development/deployment.md" class="md-nav__link">
         
   
   
@@ -1043,7 +1043,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/guidelines.md" class="md-nav__link">
+      <a href="../../contributing/guidelines.md" class="md-nav__link">
         
   
   
@@ -1071,7 +1071,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../contributing/code-style.md" class="md-nav__link">
+      <a href="../../contributing/code-style.md" class="md-nav__link">
         
   
   
@@ -1116,128 +1116,96 @@
 
 
 
-<h1 id="architecture-decision-records-adrs">Architecture Decision Records (ADRs)<a class="headerlink" href="#architecture-decision-records-adrs" title="Permanent link">&para;</a></h1>
-<h2 id="_1">سجلات القرارات المعمارية<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
-<p>This directory contains Architecture Decision Records (ADRs) for the SAHOOL platform.</p>
-<h2 id="what-is-an-adr">What is an ADR?<a class="headerlink" href="#what-is-an-adr" title="Permanent link">&para;</a></h2>
-<p>An ADR is a document that captures an important architectural decision made along with its context and consequences.</p>
-<h2 id="adr-template">ADR Template<a class="headerlink" href="#adr-template" title="Permanent link">&para;</a></h2>
-<p>See <a href="ADR-000-template/">ADR-000-template.md</a> for the template.</p>
-<h2 id="index-of-adrs">Index of ADRs<a class="headerlink" href="#index-of-adrs" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>ADR</th>
-<th>Title</th>
-<th>Status</th>
-<th>Date</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="ADR-001-offline-first-architecture/">ADR-001</a></td>
-<td>Offline-First Mobile Architecture</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-002-riverpod-state-management/">ADR-002</a></td>
-<td>Riverpod for State Management</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-003-drift-local-database/">ADR-003</a></td>
-<td>Drift for Local Database</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-004-kong-api-gateway/">ADR-004</a></td>
-<td>Kong as API Gateway</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-005-nats-event-bus/">ADR-005</a></td>
-<td>NATS for Event-Driven Architecture</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-006-circuit-breaker/">ADR-006</a></td>
-<td>Circuit Breaker Pattern</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-007-redis-caching/">ADR-007</a></td>
-<td>Redis for Caching</td>
-<td>Accepted</td>
-<td>2024-12-22</td>
-</tr>
-<tr>
-<td><a href="ADR-008-ai-architecture/">ADR-008</a></td>
-<td>AI Architecture &amp; Model Selection</td>
-<td>Accepted</td>
-<td>2026-03-06</td>
-</tr>
-<tr>
-<td><a href="ADR-009-claude-code-workflow-integration/">ADR-009</a></td>
-<td>Claude Code Workflow Integration</td>
-<td>Accepted</td>
-<td>2026-03-11</td>
-</tr>
-<tr>
-<td><a href="ADR-010-skill-runtime/">ADR-010</a></td>
-<td>Incremental Skill Runtime (Registry + Router)</td>
-<td>Proposed</td>
-<td>2026-04-14</td>
-</tr>
-<tr>
-<td><a href="ADR-011-spatiotemporal-fusion/">ADR-011</a></td>
-<td>Spatio-Temporal Fusion via Digital-Twin Extension</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-012-agri-taxonomy-service/">ADR-012</a></td>
-<td>Agricultural Taxonomy Service (versioned, hot-reloadable)</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-013-prescription-safety-gateway/">ADR-013</a></td>
-<td>Prescription Safety Gateway (thin aggregator)</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-014-edge-hardware-resilience/">ADR-014</a></td>
-<td>Edge Hardware Resilience (supercap + crash-safe WAL)</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-015-prosail-lut-inversion/">ADR-015</a></td>
-<td>PROSAIL LUT Inversion via Digital-Twin Engine</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-<tr>
-<td><a href="ADR-016-compliance-plugin-interface/">ADR-016</a></td>
-<td>Region-Aware Compliance Plug-in Interface</td>
-<td>Accepted</td>
-<td>2026-04-25</td>
-</tr>
-</tbody>
-</table>
-<h2 id="status-definitions">Status Definitions<a class="headerlink" href="#status-definitions" title="Permanent link">&para;</a></h2>
+<h1 id="adr-013-prescription-safety-gateway-thin-aggregator">ADR-013: Prescription Safety Gateway (thin aggregator)<a class="headerlink" href="#adr-013-prescription-safety-gateway-thin-aggregator" title="Permanent link">&para;</a></h1>
+<h2 id="status">Status<a class="headerlink" href="#status" title="Permanent link">&para;</a></h2>
+<p>Accepted (2026-04-25) — Phase 4 first cut implemented.</p>
+<p>The library (<code>shared/prescription_safety/</code>) ships the full <code>PrescriptionGateway</code>
+and three default checkers (forbidden-substance, dosage tolerance ±10 %,
+pesticide PHI/REI adapter). The standalone service
+<code>apps/services/prescription-safety-gateway/</code> (port 8275) exposes the
+contract over HTTP. Phase 4.1 will wire the dosage table to <code>agro-rules</code>
+over HTTP and add the GlobalGAP / forbidden-substance checkers from their
+respective services.</p>
+<h2 id="context">Context<a class="headerlink" href="#context" title="Permanent link">&para;</a></h2>
+<p>v3.1 requires a single decision endpoint for any prescription (pesticide,
+fertilizer, irrigation) that returns one of <code>APPROVED | REVIEW | REJECTED</code>,
+backed by:</p>
 <ul>
-<li><strong>Proposed</strong>: Under discussion</li>
-<li><strong>Accepted</strong>: Approved and implemented</li>
-<li><strong>Deprecated</strong>: No longer valid</li>
-<li><strong>Superseded</strong>: Replaced by another ADR</li>
+<li>PHI / REI / PPE checks</li>
+<li>Tank-mix and drift checks</li>
+<li>Forbidden-substance blacklist</li>
+<li>Dosage tolerance gate (±10 %)</li>
+<li>GlobalGAP / regional registration check</li>
+</ul>
+<p>v16 already implements <strong>all the underlying checks</strong>:</p>
+<ul>
+<li><code>shared/pesticide_compliance/PesticideComplianceChecker</code> — PHI, REI, PPE,
+  tank-mix, drift</li>
+<li><code>apps/services/agro-rules/</code> (port 8151) — agronomic rules engine</li>
+<li><code>apps/services/globalgap-compliance/</code> (port 8128) — GlobalGAP IFA v6</li>
+</ul>
+<p>What is missing is <strong>the decision endpoint</strong> that aggregates them and returns
+a single contract. Phase 1 (row #11) reclassified this from 🔴 (new heavy
+service) to 🟠 (thin gateway, optionally hosted inside <code>agro-rules</code>).</p>
+<h2 id="decision">Decision<a class="headerlink" href="#decision" title="Permanent link">&para;</a></h2>
+<p>Add a thin <strong>prescription-safety-gateway</strong> as a new lightweight Python FastAPI
+service whose <strong>only job</strong> is to fan out to the existing checkers and return
+the unified decision contract.</p>
+<p>Endpoint:</p>
+<div class="codehilite"><pre><span></span><code>POST /api/v1/prescription/check
+→ { decision: APPROVED|REVIEW|REJECTED, reasons: [...], evidence: {...} }
+</code></pre></div>
+
+<p>Internal flow (sequential short-circuit on REJECTED):</p>
+<ol>
+<li>Forbidden-substance blacklist (in-process, hot-reloaded from <code>agri-taxonomy-service</code>)</li>
+<li><code>PesticideComplianceChecker</code> (PHI / REI / PPE / tank-mix / drift)</li>
+<li>Dosage ±10 % gate (against <code>agro-rules</code>)</li>
+<li><code>globalgap-compliance</code> registration check</li>
+<li>Audit-log emit on every decision (<code>sahool.prescription.decided</code>, tenant-scoped)</li>
+</ol>
+<p>If operational footprint is a concern, the same router can be <strong>embedded inside
+<code>agro-rules</code></strong> as a sub-router under <code>/api/v1/prescription/*</code> — both options
+share the same code in <code>shared/prescription_safety/</code>.</p>
+<h2 id="consequences">Consequences<a class="headerlink" href="#consequences" title="Permanent link">&para;</a></h2>
+<h3 id="positive">Positive<a class="headerlink" href="#positive" title="Permanent link">&para;</a></h3>
+<ul>
+<li>One contract for callers (mobile, advisory-service, drone-service,
+  marketplace-service)</li>
+<li>Zero duplication of compliance logic — all existing checkers are reused</li>
+<li>Auditable: every decision is logged with the underlying evidence</li>
+<li>Easy to add new checks (e.g., regional pesticide blacklists) without
+  touching callers</li>
+</ul>
+<h3 id="negative">Negative<a class="headerlink" href="#negative" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Adds one network hop per prescription decision (negligible at our scale)</li>
+<li>Two deployment options means we must pick one and document it; for now we
+  default to a standalone gateway with an embed-mode flag</li>
+</ul>
+<h3 id="neutral">Neutral<a class="headerlink" href="#neutral" title="Permanent link">&para;</a></h3>
+<ul>
+<li>New port (TBD) and Kong route</li>
+<li>New error codes for prescription decisions</li>
+</ul>
+<h2 id="alternatives-considered">Alternatives Considered<a class="headerlink" href="#alternatives-considered" title="Permanent link">&para;</a></h2>
+<h3 id="alternative-1-new-heavy-prescription-safety-service-that-re-implements-checks">Alternative 1: New heavy <code>prescription-safety-service</code> that re-implements checks<a class="headerlink" href="#alternative-1-new-heavy-prescription-safety-service-that-re-implements-checks" title="Permanent link">&para;</a></h3>
+<p>Rejected. Duplicates <code>pesticide_compliance</code> and <code>globalgap-compliance</code>; creates
+drift risk between the new service and the existing checkers.</p>
+<h3 id="alternative-2-each-caller-orchestrates-the-checks-itself">Alternative 2: Each caller orchestrates the checks itself<a class="headerlink" href="#alternative-2-each-caller-orchestrates-the-checks-itself" title="Permanent link">&para;</a></h3>
+<p>Rejected. Today this is what happens partially in <code>advisory-service</code> and
+<code>drone-service</code>; it has caused inconsistent decisions. Centralizing the
+aggregation is the whole point of the gateway.</p>
+<h3 id="alternative-3-embed-in-agro-rules-only-no-separate-gateway">Alternative 3: Embed in <code>agro-rules</code> only (no separate gateway)<a class="headerlink" href="#alternative-3-embed-in-agro-rules-only-no-separate-gateway" title="Permanent link">&para;</a></h3>
+<p>Acceptable; documented as an embed mode toggled by <code>PRESCRIPTION_GATEWAY_MODE</code>.
+Default deployment is standalone for blast-radius isolation; embed mode is
+available for resource-constrained tenants.</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../../architecture/GAP_ANALYSIS_v3.1_vs_v16/">Phase 1 Gap Analysis row #11</a></li>
+<li><code>shared/pesticide_compliance/checker.py::PesticideComplianceChecker</code></li>
+<li><code>apps/services/agro-rules/</code></li>
+<li><code>apps/services/globalgap-compliance/</code></li>
 </ul>
 
 
@@ -1288,10 +1256,10 @@
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "toc.integrate", "search.suggest", "search.highlight"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

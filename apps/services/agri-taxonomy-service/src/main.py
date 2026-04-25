@@ -2,8 +2,11 @@
 # Copyright (c) 2026 KAFAAT - SAHOOL Platform
 """agri-taxonomy-service — FastAPI entry point.
 
-Phase 3.5 scaffold per ADR-012. Boots cleanly, exposes health / metrics,
-and registers the v1 router. Domain handlers raise 501 until Phase 4.
+Phase 4 implementation per ADR-012. Boots a seeded in-memory taxonomy
+store, exposes the v1 routes (``/version``, ``/nodes``, ``/search``,
+``/fertilizers/.../forbidden``, ``/releases``), publishes release
+events on NATS ``sahool.taxonomy.released.v{major}``, and serves the
+standard ``/healthz`` / ``/readyz`` / ``/metrics`` endpoints.
 """
 
 from __future__ import annotations
@@ -16,10 +19,13 @@ from fastapi import FastAPI, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from .api.v1.taxonomy import router as taxonomy_router
+from .nats_publisher import build_release_publisher
+from .store import make_default_seed_store
 
 SERVICE_NAME = os.getenv("SERVICE_NAME", "agri-taxonomy-service")
 SERVICE_LAYER = os.getenv("SERVICE_LAYER", "intelligence")
 SERVICE_VERSION = os.getenv("SERVICE_VERSION", "0.1.0")
+NATS_URL = os.getenv("NATS_URL", "")
 
 log = structlog.get_logger()
 
@@ -31,10 +37,18 @@ async def lifespan(app: FastAPI):
         service=SERVICE_NAME,
         layer=SERVICE_LAYER,
         version=SERVICE_VERSION,
+        nats_configured=bool(NATS_URL),
     )
-    # Phase 4: connect to knowledge-graph (8140), NATS, load latest taxonomy snapshot.
-    yield
-    log.info("service.shutdown", service=SERVICE_NAME)
+    publisher = build_release_publisher(NATS_URL or None)
+    store = make_default_seed_store(publisher=publisher)
+    # Cut the initial "seeded" release so reads return non-empty data.
+    await store.publish_release(bump="minor")
+    app.state.taxonomy_store = store
+    app.state.release_publisher = publisher
+    try:
+        yield
+    finally:
+        log.info("service.shutdown", service=SERVICE_NAME)
 
 
 app = FastAPI(
@@ -55,18 +69,15 @@ def healthz() -> dict[str, str]:
 
 @app.get("/readyz")
 def readyz() -> dict[str, object]:
-    """Readiness probe.
+    """Readiness probe — reports whether the in-memory store is initialised."""
 
-    Phase 4: replace the placeholder values with real checks against
-    ``knowledge-graph`` (8140) and NATS.
-    """
-
+    store = getattr(app.state, "taxonomy_store", None)
     return {
-        "status": "ready",
+        "status": "ready" if store is not None else "starting",
         "service": SERVICE_NAME,
         "checks": {
-            "knowledge_graph": True,  # placeholder (Phase 4)
-            "nats": True,  # placeholder (Phase 4)
+            "taxonomy_store": store is not None,
+            "nats": bool(NATS_URL),
         },
     }
 

@@ -119,7 +119,7 @@ async def test_e2e_wal_fusion_prosail_safety_pipeline() -> None:
                         "values": obs,
                         # Sensor noise covariance — drives the
                         # information-weighted fusion downstream.
-                        "covariance": {b: 0.0001 for b in obs},
+                        "covariance": dict.fromkeys(obs, 0.0001),
                     }
                 ).encode()
                 await wal.append(payload)
@@ -255,7 +255,7 @@ async def test_e2e_pipeline_blocks_forbidden_substance() -> None:
                         "sensor_id": "multispec-A",
                         "timestamp": base_ts.isoformat(),
                         "values": _add_noise(truth_reflectance, 0.0),
-                        "covariance": {b: 0.0001 for b in truth_reflectance},
+                        "covariance": dict.fromkeys(truth_reflectance, 0.0001),
                     }
                 ).encode()
             )

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: Proprietary
 # Copyright (c) 2026 KAFAAT - SAHOOL Platform
-"""Smoke tests for agri-taxonomy-service scaffold (ADR-012)."""
+"""Smoke tests for agri-taxonomy-service Phase-4 wiring (ADR-012)."""
 
 from __future__ import annotations
 
@@ -12,7 +12,10 @@ from src.main import app
 
 @pytest.fixture()
 def client() -> TestClient:
-    return TestClient(app)
+    # ``TestClient`` as a context manager runs the lifespan, which
+    # seeds the in-memory store and cuts the initial release.
+    with TestClient(app) as c:
+        yield c
 
 
 @pytest.mark.smoke
@@ -30,7 +33,7 @@ def test_readyz_reports_checks(client: TestClient) -> None:
     assert resp.status_code == 200
     body = resp.json()
     assert body["status"] == "ready"
-    assert "knowledge_graph" in body["checks"]
+    assert body["checks"]["taxonomy_store"] is True
     assert "nats" in body["checks"]
 
 
@@ -51,25 +54,75 @@ def test_metrics_endpoint_serves_prometheus(client: TestClient) -> None:
 
 
 @pytest.mark.smoke
-@pytest.mark.parametrize(
-    "path",
-    [
-        "/api/v1/taxonomy/version",
-        "/api/v1/taxonomy/nodes/00000000-0000-4000-8000-000000000000",
-        "/api/v1/taxonomy/nodes",
-        "/api/v1/taxonomy/search?q=wheat",
-        "/api/v1/taxonomy/fertilizers/00000000-0000-4000-8000-000000000000/forbidden",
-    ],
-)
-def test_phase4_routes_return_501(client: TestClient, path: str) -> None:
-    """All domain routes are scaffolded but not implemented yet."""
-
-    resp = client.get(path)
-    assert resp.status_code == 501
-    assert "ADR-012" in resp.json()["detail"]
+def test_version_returns_seeded_release(client: TestClient) -> None:
+    resp = client.get("/api/v1/taxonomy/version")
+    assert resp.status_code == 200
+    body = resp.json()
+    # The seed bump in lifespan is "minor" from 0.0.0 → 0.1.0.
+    assert body["semver"] == "0.1.0"
+    assert len(body["checksum_sha256"]) == 64
 
 
 @pytest.mark.smoke
-def test_publish_release_returns_501(client: TestClient) -> None:
-    resp = client.post("/api/v1/taxonomy/releases")
-    assert resp.status_code == 501
+def test_list_nodes_returns_seeded_data(client: TestClient) -> None:
+    resp = client.get("/api/v1/taxonomy/nodes?kind=crop")
+    assert resp.status_code == 200
+    body = resp.json()
+    assert any(
+        any(s["label"].lower() == "wheat" for s in node["synonyms"])
+        for node in body
+    )
+
+
+@pytest.mark.smoke
+def test_get_node_404_for_unknown_uuid(client: TestClient) -> None:
+    resp = client.get(
+        "/api/v1/taxonomy/nodes/00000000-0000-4000-8000-000000000000"
+    )
+    assert resp.status_code == 404
+
+
+@pytest.mark.smoke
+def test_search_finds_arabic_label(client: TestClient) -> None:
+    resp = client.get("/api/v1/taxonomy/search", params={"q": "قمح"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert len(body) >= 1
+    assert any(
+        any(s["language"] == "ar" and "قمح" in s["label"] for s in node["synonyms"])
+        for node in body
+    )
+
+
+@pytest.mark.smoke
+def test_forbidden_endpoint_flags_paraquat(client: TestClient) -> None:
+    resp = client.get(
+        "/api/v1/taxonomy/fertilizers/"
+        "44444444-4444-4444-8444-444444444444/forbidden"
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["forbidden"] is True
+    assert body["reason_en"]
+    assert body["reason_ar"]
+
+
+@pytest.mark.smoke
+def test_forbidden_endpoint_does_not_flag_urea(client: TestClient) -> None:
+    resp = client.get(
+        "/api/v1/taxonomy/fertilizers/"
+        "55555555-5555-4555-8555-555555555555/forbidden"
+    )
+    assert resp.status_code == 200
+    assert resp.json()["forbidden"] is False
+
+
+@pytest.mark.smoke
+def test_publish_release_rejects_when_no_pending(client: TestClient) -> None:
+    """Lifespan already drained the seeded staging area, so a second
+    release with nothing pending must be rejected with 409.
+    """
+
+    resp = client.post("/api/v1/taxonomy/releases", json={"bump": "patch"})
+    assert resp.status_code == 409
+    assert "no staged" in resp.json()["detail"].lower()

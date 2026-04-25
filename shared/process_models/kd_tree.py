@@ -33,8 +33,8 @@ class _Node:
     point: tuple[float, ...]
     index: int  # back-reference into the original LUT
     axis: int
-    left: "_Node | None" = None
-    right: "_Node | None" = None
+    left: _Node | None = None
+    right: _Node | None = None
 
 
 class KDTree:
@@ -84,11 +84,13 @@ class KDTree:
             )
 
         target_tuple = tuple(target)
-        # Max-heap of (-distance, counter, index). Python's heapq is a
+        # Max-heap of (-distance², counter, index). Python's heapq is a
         # min-heap, so we negate the distance to get max-pop semantics.
+        # ``counter`` breaks ties between equidistant points so the heap
+        # ordering stays deterministic — it's threaded through recursion
+        # purely as state, the post-search value is uninteresting.
         heap: list[tuple[float, int, int]] = []
-        counter = 0
-        self._search(self._root, target_tuple, k, heap, counter)
+        self._search(self._root, target_tuple, k, heap, counter=0)
         # Pop into ascending-distance order.
         ordered = sorted((-neg_d, idx) for neg_d, _, idx in heap)
         return [(math.sqrt(d2), idx) for d2, idx in ordered]

@@ -2,7 +2,15 @@
 
 ## Status
 
-Proposed
+Accepted (2026-04-25) — Phase 4 first cut implemented.
+
+The library (`shared/prescription_safety/`) ships the full `PrescriptionGateway`
+and three default checkers (forbidden-substance, dosage tolerance ±10 %,
+pesticide PHI/REI adapter). The standalone service
+`apps/services/prescription-safety-gateway/` (port 8275) exposes the
+contract over HTTP. Phase 4.1 will wire the dosage table to `agro-rules`
+over HTTP and add the GlobalGAP / forbidden-substance checkers from their
+respective services.
 
 ## Context
 

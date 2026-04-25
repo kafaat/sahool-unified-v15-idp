@@ -126,7 +126,7 @@
 //          Purely additive; no existing exports removed. The legacy
 //          `/v1/ndvi-timeseries/compare` stays in place for backwards
 //          compatibility but new callers should use INDEX_MULTI_COMPARE.
-export const CONTRACT_VERSION = "4.22.0" as const;
+export const CONTRACT_VERSION = "4.23.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

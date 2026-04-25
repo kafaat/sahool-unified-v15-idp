@@ -1,0 +1,5 @@
+fastapi==0.128.5
+uvicorn[standard]==0.41.0
+pydantic==2.12.5
+prometheus-client==0.24.1
+structlog==24.4.0

@@ -3104,6 +3104,34 @@ services:
       - knowledge-graph
 
 
+  prescription-safety-gateway:
+    name: "Prescription Safety Gateway"
+    name_ar: "بوابة سلامة الوصفات"
+    description: "Thin aggregator over compliance checkers (PHI/REI, dosage tolerance, forbidden substances, GlobalGAP). Returns APPROVED | REVIEW | REJECTED. See ADR-013."
+    description_ar: "بوابة تجميع لفحوصات الامتثال (PHI/REI، تحمّل الجرعات، المواد المحظورة، GlobalGAP). تُرجع موافقة | مراجعة | رفض. راجع ADR-013."
+    type: python
+    category: decision
+    layer: decision
+    path: "apps/services/prescription-safety-gateway"
+    port: 8275
+    protocol: http
+    health_endpoint: "/healthz"
+    status: experimental
+    owner: "platform-team@sahool.io"
+    team: platform
+    lifecycle: experimental
+    tier: tier-2
+    adr: ADR-013
+    events:
+      produces:
+        - PrescriptionDecided.v1
+      consumes: []
+    dependencies:
+      - agro-rules
+      - globalgap-compliance
+      - agri-taxonomy-service
+
+
   # ═══════════════════════════════════════════════════════════════════════════
   supply-chain-service:
     name: "Supply Chain Service"

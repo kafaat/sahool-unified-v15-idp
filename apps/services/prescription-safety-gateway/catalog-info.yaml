@@ -1,0 +1,26 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: prescription-safety-gateway
+  description: |
+    Thin aggregator over the v16 compliance checkers. Returns one decision
+    (APPROVED | REVIEW | REJECTED) for any prescription. See ADR-013.
+  tags:
+    - sahool
+    - microservice
+    - fastapi
+    - decision
+    - safety
+  annotations:
+    sahool.io/adr: ADR-013
+    sahool.io/port: "8275"
+    sahool.io/kong-route: /api/v1/prescription
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:sahool-platform
+  system: sahool-platform
+  dependsOn:
+    - component:agro-rules
+    - component:globalgap-compliance
+    - component:agri-taxonomy-service

@@ -76,7 +76,6 @@ export {
   indicesKeys,
 } from './hooks/useNDVI';
 
-<<<<<<< HEAD
 // Unified spectral colormaps (single source of truth for all 6 displayable indices)
 // مصدر حقيقة موحّد لخرائط ألوان جميع المؤشرات الستة المعروضة على الخريطة
 export {
@@ -105,7 +104,7 @@ export { GoogleMapsIndexOverlay } from './components/GoogleMapsIndexOverlay';
 export type { GoogleMapsIndexOverlayProps } from './components/GoogleMapsIndexOverlay';
 export { HybridIndicesView } from './components/HybridIndicesView';
 export type { HybridIndicesViewProps } from './components/HybridIndicesView';
-=======
+
 // Map visualization components (Phase 1 + 2)
 export { IndexPicker, MAPPABLE_INDICES } from './components/IndexPicker';
 export type { IndexPickerProps } from './components/IndexPicker';
@@ -133,4 +132,3 @@ export type {
   MultiDateSplitScreenProps,
   PanelCount,
 } from './components/MultiDateSplitScreen';
->>>>>>> origin/main

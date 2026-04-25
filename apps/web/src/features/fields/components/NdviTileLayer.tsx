@@ -10,8 +10,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { Map as MaplibreMap } from 'maplibre-gl';
-<<<<<<< HEAD
-import { useNDVIMap } from '@/features/ndvi';
+import { useIndexMap } from '@/features/ndvi';
 import {
   buildCssGradient,
   getIndexColorStops,
@@ -19,9 +18,6 @@ import {
   getIndexMetadata,
   type SpectralIndexId,
 } from '@/features/ndvi/lib/spectral-colormaps';
-=======
-import { useIndexMap } from '@/features/ndvi';
->>>>>>> origin/main
 import { logger } from '@/lib/logger';
 
 /**

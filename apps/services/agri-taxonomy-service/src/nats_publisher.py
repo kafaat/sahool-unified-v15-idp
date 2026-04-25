@@ -26,7 +26,7 @@ from __future__ import annotations
 import json
 import logging
 from collections.abc import Awaitable, Callable
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 
 from .store import ReleaseEvent
 
@@ -36,11 +36,28 @@ log = logging.getLogger(__name__)
 ReleasePublisher = Callable[[ReleaseEvent], Awaitable[None]]
 
 
-def build_release_publisher(nats_url: str | None) -> ReleasePublisher:
-    """Return a publisher bound to ``nats_url`` (or a no-op when unset)."""
+@dataclass
+class PublisherHandle:
+    """Bundle of (publish callable, close callable) returned from the factory.
+
+    The lifespan owns both handles so the cached connection can be drained
+    cleanly during shutdown. ``close`` is always safe to call (idempotent
+    and a no-op when no connection was ever established).
+    """
+
+    publish: ReleasePublisher
+    close: Callable[[], Awaitable[None]]
+
+
+def build_release_publisher(nats_url: str | None) -> PublisherHandle:
+    """Return a (publish, close) pair bound to ``nats_url``.
+
+    When ``nats_url`` is empty/``None`` the publisher drops events and the
+    closer is a no-op.
+    """
 
     if not nats_url:
-        return _noop_publisher
+        return PublisherHandle(publish=_noop_publisher, close=_noop_close)
 
     state: dict[str, object] = {"connection": None}
 
@@ -61,12 +78,33 @@ def build_release_publisher(nats_url: str | None) -> ReleasePublisher:
         payload = json.dumps(_serialize(event)).encode()
         await connection.publish(subject, payload)
 
-    return publish
+    async def close() -> None:
+        connection = state.get("connection")
+        if connection is None:
+            return
+        # Drain flushes pending publishes then closes the socket — preferred
+        # over `.close()` to avoid losing buffered taxonomy release events.
+        try:
+            drain = getattr(connection, "drain", None)
+            if drain is not None:
+                await drain()
+            else:  # pragma: no cover - older nats-py without drain()
+                await connection.close()
+        except Exception:  # pragma: no cover - shutdown best-effort
+            log.exception("taxonomy.nats_close_failed")
+        finally:
+            state["connection"] = None
+
+    return PublisherHandle(publish=publish, close=close)
 
 
 async def _noop_publisher(event: ReleaseEvent) -> None:  # noqa: ARG001
     """Drops the event; used when NATS isn't configured."""
 
+    return None
+
+
+async def _noop_close() -> None:
     return None
 
 

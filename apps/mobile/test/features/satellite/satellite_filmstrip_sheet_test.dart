@@ -3,6 +3,8 @@
 /// through to `selectedDateProvider` + pops the sheet with the date.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,7 +56,7 @@ Future<void> _pumpSheet(
           return filmstripState.when(
             data: (d) => d,
             error: (e, st) => throw e,
-            loading: () => Future.any([]),
+            loading: () => Completer<IndexFilmstrip>().future,
           );
         }),
         if (selectedDate != null)

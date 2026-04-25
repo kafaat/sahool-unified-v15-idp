@@ -115,7 +115,10 @@ def register_gdd_endpoints(app):
         - Optimize harvest timing
         - Mobile app charts and progress bars
         """
-        tenant_id = await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
+        # Side-effect call: raises HTTPException(403/404) when the field
+        # isn't owned by the JWT tenant. Return value (the resolved tenant
+        # id) is not needed here.
+        await verify_field_owned_by_tenant(_user, field_id, http_request=http_request)
         try:
             # Parse dates
             plant_date = date_class.fromisoformat(planting_date)

@@ -175,6 +175,8 @@ class TaxonomyClient:
                     timeout=self.refresh_seconds,
                 )
             except TimeoutError:
+                # Normal path: ``refresh_seconds`` elapsed without a notifier
+                # event. Fall through to the periodic re-fetch below.
                 pass
             if self._stop_event.is_set():
                 return
@@ -193,7 +195,17 @@ class TaxonomyClient:
                 # so we never have two concurrent fetches racing on the
                 # snapshot swap.
                 self._wake_event.set()
-        except (asyncio.CancelledError, Exception):  # pragma: no cover
+        except asyncio.CancelledError:
+            # Normal shutdown path — propagate cooperative cancellation.
+            raise
+        except Exception:  # pragma: no cover - defensive
+            # Notifier failures must never kill the client; log and let the
+            # polling loop keep refreshing on its interval.
+            log.warning(
+                "taxonomy_client.notifier_loop_failed",
+                extra={"base_url": self.base_url},
+                exc_info=True,
+            )
             return
 
     async def _fetch_and_swap(self) -> None:

@@ -69,4 +69,3 @@ class PrescriptionChecker(Protocol):
         caught by the gateway and surfaced as a non-blocking ``UNCHECKED_*``
         reason so the caller sees that a checker was unavailable.
         """
-        ...

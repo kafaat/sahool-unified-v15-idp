@@ -293,6 +293,8 @@ try:
             allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
         )
 except ImportError:
+    # Optional shared.middleware.cors module — fall back to whatever CORS
+    # configuration was already applied earlier in this file.
     pass
 
 # Security headers - رؤوس الأمان
@@ -305,6 +307,9 @@ try:
 
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
+    # Optional shared.middleware.tenant_context — service still functions
+    # without it; tenant enforcement happens at endpoint level via
+    # `_enforce_tenant` helpers.
     pass
 
 

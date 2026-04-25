@@ -12,10 +12,11 @@ standard ``/healthz`` / ``/readyz`` / ``/metrics`` endpoints.
 from __future__ import annotations
 
 import os
+import secrets
 from contextlib import asynccontextmanager
 
 import structlog
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Header, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from shared.logging_config import setup_logging
@@ -28,6 +29,10 @@ SERVICE_NAME = os.getenv("SERVICE_NAME", "agri-taxonomy-service")
 SERVICE_LAYER = os.getenv("SERVICE_LAYER", "intelligence")
 SERVICE_VERSION = os.getenv("SERVICE_VERSION", "0.1.0")
 NATS_URL = os.getenv("NATS_URL", "")
+
+# When set, /metrics requires `Authorization: Bearer ${METRICS_TOKEN}`.
+# Empty (default) preserves backwards-compatible open scrapes.
+_METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
 
 setup_logging(service_name=SERVICE_NAME)
 log = structlog.get_logger()
@@ -42,15 +47,19 @@ async def lifespan(app: FastAPI):
         version=SERVICE_VERSION,
         nats_configured=bool(NATS_URL),
     )
-    publisher = build_release_publisher(NATS_URL or None)
-    store = make_default_seed_store(publisher=publisher)
+    handle = build_release_publisher(NATS_URL or None)
+    store = make_default_seed_store(publisher=handle.publish)
     # Cut the initial "seeded" release so reads return non-empty data.
     await store.publish_release(bump="minor")
     app.state.taxonomy_store = store
-    app.state.release_publisher = publisher
+    app.state.release_publisher = handle
     try:
         yield
     finally:
+        try:
+            await handle.close()
+        except Exception:  # pragma: no cover - shutdown best-effort
+            log.exception("service.publisher_close_failed")
         log.info("service.shutdown", service=SERVICE_NAME)
 
 
@@ -86,7 +95,18 @@ def readyz() -> dict[str, object]:
 
 
 @app.get("/metrics")
-def metrics() -> Response:
+def metrics(authorization: str | None = Header(default=None, alias="Authorization")) -> Response:
+    """Prometheus metrics — gated by ``METRICS_TOKEN`` when set."""
+
+    if _METRICS_TOKEN:
+        parts = (authorization or "").split(None, 1)
+        bearer = parts[1].strip() if len(parts) == 2 and parts[0].lower() == "bearer" else ""
+        if not secrets.compare_digest(bearer, _METRICS_TOKEN):
+            return Response(
+                content="Unauthorized",
+                status_code=401,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 

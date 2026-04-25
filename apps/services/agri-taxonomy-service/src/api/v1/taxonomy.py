@@ -10,11 +10,13 @@ can inject a fixture-built store without monkey-patching globals.
 
 from __future__ import annotations
 
+import os
+import secrets as _secrets_mod
 from datetime import datetime
 from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Query, Request, status
+from fastapi import APIRouter, Header, HTTPException, Query, Request, status
 from pydantic import BaseModel, Field
 
 from ...store import TaxonomyStore, TaxonomyValidationError, node_to_response
@@ -22,6 +24,31 @@ from ...store import TaxonomyStore, TaxonomyValidationError, node_to_response
 router = APIRouter()
 
 NodeKind = Literal["crop", "variety", "disease", "pest", "weed", "fertilizer"]
+
+# Admin Bearer token guarding mutating endpoints (POST /releases). When unset,
+# the endpoint refuses with 503 to avoid silent privilege escalation in
+# production deployments that forgot to provision the token.
+_TAXONOMY_ADMIN_TOKEN: str = os.getenv("TAXONOMY_ADMIN_TOKEN", "")
+
+
+def _require_admin(authorization: str | None) -> None:
+    """Constant-time Bearer-token check for admin-only routes."""
+
+    if not _TAXONOMY_ADMIN_TOKEN:
+        # Fail closed: requiring the operator to set the secret explicitly
+        # is safer than serving an unauthenticated mutating endpoint.
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="admin endpoint disabled: TAXONOMY_ADMIN_TOKEN not configured",
+        )
+    parts = (authorization or "").split(None, 1)
+    bearer = parts[1].strip() if len(parts) == 2 and parts[0].lower() == "bearer" else ""
+    if not _secrets_mod.compare_digest(bearer, _TAXONOMY_ADMIN_TOKEN):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="invalid or missing admin token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -165,13 +192,16 @@ async def check_forbidden(fertilizer_id: UUID, request: Request) -> ForbiddenChe
 async def publish_release(
     request: Request,
     body: PublishReleaseIn | None = None,
+    authorization: str | None = Header(default=None, alias="Authorization"),
 ) -> PublishReleaseOut:
     """Admin-only: publish a new taxonomy release.
 
-    Triggers the release pipeline (validation → checksum → NATS publish on
+    Requires ``Authorization: Bearer ${TAXONOMY_ADMIN_TOKEN}``. Triggers the
+    release pipeline (validation → checksum → NATS publish on
     ``sahool.taxonomy.released.v{major}``).
     """
 
+    _require_admin(authorization)
     bump = (body or PublishReleaseIn()).bump
     try:
         version = await _store(request).publish_release(bump=bump)

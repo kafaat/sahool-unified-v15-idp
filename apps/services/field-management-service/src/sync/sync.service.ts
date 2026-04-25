@@ -203,9 +203,12 @@ export class SyncService {
           continue;
         }
 
-        // Apply update with version increment for optimistic locking
-        const updated = await this.prisma.field.update({
-          where: { id_tenantId: { id, tenantId }, version: existingField.version },
+        // Apply update with version increment for optimistic locking.
+        // Prisma's `update({ where })` only accepts `WhereUniqueInput`, so we use
+        // `updateMany` to combine the unique selector with the `version` guard
+        // (preventing TOCTOU races between the conflict-check and the write).
+        const updateResult = await this.prisma.field.updateMany({
+          where: { id, tenantId, version: existingField.version },
           data: {
             version: { increment: 1 },
             ...(fieldData.name && { name: fieldData.name }),
@@ -215,6 +218,26 @@ export class SyncService {
             ...(fieldData.soilType && { soilType: fieldData.soilType }),
             ...(fieldData.metadata && { metadata: fieldData.metadata }),
           },
+        });
+
+        if (updateResult.count !== 1) {
+          // Race: another writer bumped the version between our check and write.
+          const current = await this.prisma.field.findUnique({
+            where: { id_tenantId: { id, tenantId } },
+          });
+          results.push({
+            clientId: id,
+            serverId: id,
+            status: "conflict",
+            server_version: current?.version ?? existingField.version,
+            etag: current ? generateETag(current.id, current.version) : undefined,
+            serverData: current,
+          });
+          continue;
+        }
+
+        const updated = await this.prisma.field.findUniqueOrThrow({
+          where: { id_tenantId: { id, tenantId } },
         });
 
         results.push({

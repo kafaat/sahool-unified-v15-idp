@@ -223,16 +223,24 @@ class WeatherProvider(ABC):
         Back-off: 0.5 s → 1 s between attempts.
         """
         client = await self._get_client()
+        last_error: httpx.TransportError | None = None
         for attempt in range(3):
             try:
                 resp = await getattr(client, method)(url, **kwargs)
                 resp.raise_for_status()
                 return resp
-            except httpx.TransportError:
+            except httpx.TransportError as exc:
+                last_error = exc
                 if attempt < 2:
                     await asyncio.sleep(0.5 * (2**attempt))
                 else:
                     raise
+        # Defensive: the loop above either returns or raises on the last
+        # attempt. This re-raise keeps the function's return type honest
+        # (no implicit ``None`` fall-through) for static analysers.
+        raise last_error if last_error is not None else RuntimeError(
+            "_request_with_retry exited loop without resolving"
+        )
 
     async def close(self):
         if self._client:

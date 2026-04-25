@@ -103,11 +103,36 @@ def test_forbidden_endpoint_does_not_flag_urea(client: TestClient) -> None:
 
 
 @pytest.mark.smoke
-def test_publish_release_rejects_when_no_pending(client: TestClient) -> None:
+def test_publish_release_requires_admin_token(client: TestClient, monkeypatch) -> None:
+    """No token configured → endpoint refuses (fail-closed)."""
+
+    monkeypatch.setattr("src.api.v1.taxonomy._TAXONOMY_ADMIN_TOKEN", "")
+    resp = client.post("/api/v1/taxonomy/releases", json={"bump": "patch"})
+    assert resp.status_code == 503
+
+
+@pytest.mark.smoke
+def test_publish_release_rejects_invalid_admin_token(client: TestClient, monkeypatch) -> None:
+    monkeypatch.setattr("src.api.v1.taxonomy._TAXONOMY_ADMIN_TOKEN", "secret-admin")
+    resp = client.post(
+        "/api/v1/taxonomy/releases",
+        json={"bump": "patch"},
+        headers={"Authorization": "Bearer wrong"},
+    )
+    assert resp.status_code == 401
+
+
+@pytest.mark.smoke
+def test_publish_release_rejects_when_no_pending(client: TestClient, monkeypatch) -> None:
     """Lifespan already drained the seeded staging area, so a second
     release with nothing pending must be rejected with 409.
     """
 
-    resp = client.post("/api/v1/taxonomy/releases", json={"bump": "patch"})
+    monkeypatch.setattr("src.api.v1.taxonomy._TAXONOMY_ADMIN_TOKEN", "secret-admin")
+    resp = client.post(
+        "/api/v1/taxonomy/releases",
+        json={"bump": "patch"},
+        headers={"Authorization": "Bearer secret-admin"},
+    )
     assert resp.status_code == 409
     assert "no staged" in resp.json()["detail"].lower()

@@ -49,7 +49,7 @@ import hashlib
 import json
 import logging
 from collections.abc import Awaitable, Callable, Iterable
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
 from uuid import UUID

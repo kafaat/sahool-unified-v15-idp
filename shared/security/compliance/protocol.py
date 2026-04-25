@@ -29,12 +29,17 @@ class CompliancePlugin(Protocol):
     name: str  # e.g. "fips" | "nesa" | "gdpr" | "default"
     region: str  # ISO 3166-1 alpha-2 or "GLOBAL"
 
-    def allow_operation(self, op: ComplianceOp, ctx: TenantContext) -> Decision: ...
+    def allow_operation(self, op: ComplianceOp, ctx: TenantContext) -> Decision:
+        """Decide whether ``op`` is permitted under this regulatory profile."""
 
-    def encryption_requirements(self) -> EncryptionPolicy: ...
+    def encryption_requirements(self) -> EncryptionPolicy:
+        """Return the minimum encryption policy mandated by this profile."""
 
-    def retention_policy(self, data_class: DataClass) -> RetentionPolicy: ...
+    def retention_policy(self, data_class: DataClass) -> RetentionPolicy:
+        """Return the retention rules for ``data_class``."""
 
-    def pii_handling(self, field: PIIField) -> PIIPolicy: ...
+    def pii_handling(self, field: PIIField) -> PIIPolicy:
+        """Return the handling rules for a single PII field."""
 
-    def signature_algorithms(self) -> list[SignatureAlgo]: ...
+    def signature_algorithms(self) -> list[SignatureAlgo]:
+        """Return the cryptographic signature algorithms accepted here."""

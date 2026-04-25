@@ -86,6 +86,11 @@ except ImportError:
     _AGRI_METRICS = None
     HAS_AGRI_METRICS = False
 
+# Track which agricultural-metric emissions have already been logged as
+# failed, so we report misconfiguration once per process and not on every
+# event. Keys are the logical metric name; value is whether we've warned.
+_AGRI_METRICS_FAILURE_LOGGED: dict[str, bool] = {"ndvi": False}
+
 # Prometheus metric definitions
 if HAS_PROMETHEUS:
     REQUEST_COUNT = Counter(
@@ -310,8 +315,19 @@ async def lifespan(app: FastAPI):
                     if HAS_AGRI_METRICS and _AGRI_METRICS is not None:
                         try:
                             _AGRI_METRICS.record_ndvi_calculation(ndvi_value=ndvi_value)
-                        except Exception:
-                            pass  # metrics are best-effort
+                        except Exception as metrics_exc:
+                            # Metrics emission is best-effort, but a broken
+                            # registry / cardinality issue would otherwise be
+                            # silent. Log once per process lifetime so
+                            # operators can detect misconfiguration without
+                            # spamming the log on every event.
+                            if not _AGRI_METRICS_FAILURE_LOGGED["ndvi"]:
+                                _AGRI_METRICS_FAILURE_LOGGED["ndvi"] = True
+                                logger.warning(
+                                    "agri_metrics_emit_failed",
+                                    metric="ndvi_calculation",
+                                    error=str(metrics_exc),
+                                )
             except Exception as e:
                 logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
 

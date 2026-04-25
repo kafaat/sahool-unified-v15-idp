@@ -8,7 +8,7 @@ RUN groupadd --system --gid 1000 sahool && \
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl tini && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY apps/services/agri-taxonomy-service/requirements.txt .
 RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --index-url https://pypi.org/simple \
     --trusted-host pypi.org \
@@ -25,9 +25,12 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
 
 # Copy shared libraries (imported at runtime via PYTHONPATH=/app) + service code.
 # Without `shared/` the container fails to import `shared.logging_config` on startup.
-COPY shared/logging_config.py /app/shared/logging_config.py
+# NOTE: docker build context MUST be the repository root (not this directory) so
+# that the `shared/` paths below resolve. e.g.
+#   docker build -f apps/services/agri-taxonomy-service/Dockerfile .
 COPY shared/__init__.py /app/shared/__init__.py
-COPY src ./src
+COPY shared/logging_config.py /app/shared/logging_config.py
+COPY apps/services/agri-taxonomy-service/src ./src
 
 RUN chown -R sahool:sahool /app
 

@@ -13,9 +13,15 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 from .models import PrescriptionRequest, Reason
 from .protocols import CheckerResult, PrescriptionChecker
+
+if TYPE_CHECKING:
+    from shared.pesticide_compliance import (  # type: ignore[import-not-found]
+        PesticideApplication,
+    )
 
 # ---------------------------------------------------------------------------
 # 1. Forbidden-substance blocklist
@@ -229,7 +235,7 @@ class PesticideComplianceCheckerAdapter:
     name: str = "pesticide_compliance"
     planned_harvest_lookahead_days: int = 30
 
-    def _build_application(self, request: PrescriptionRequest):  # type: ignore[no-untyped-def]
+    def _build_application(self, request: PrescriptionRequest) -> PesticideApplication:
         # Local import keeps `shared.prescription_safety` importable even
         # in environments where pesticide_compliance is not installed.
         from shared.pesticide_compliance import (  # type: ignore[import-not-found]

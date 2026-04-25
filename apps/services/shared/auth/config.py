@@ -41,7 +41,9 @@ def _resolve_secret_key(prefix: str = "AUTH") -> str:
         )
         return ""
 
-    logger.warning(
+    logger.warning(  # nosemgrep: python-logger-credential-disclosure
+        # The format string mentions environment-variable *names*, not their
+        # values. No actual secret material is interpolated here.
         "%s_SECRET_KEY not set - using random per-process fallback. "
         "Tokens will NOT survive restarts. Set %s_SECRET_KEY or JWT_SECRET_KEY.",
         prefix,

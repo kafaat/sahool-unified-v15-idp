@@ -35,6 +35,9 @@ from .models import ResilienceConfig, WALEntry
 _MAGIC = b"SAHW"
 _HEADER_FMT = "<4sQQII"  # magic, sequence, ts_us, crc32, payload_len
 _HEADER_SIZE = struct.calcsize(_HEADER_FMT)
+# Hard cap on a single frame payload — protects recovery from interpreting
+# garbage bytes as an absurdly long payload length on torn writes.
+_MAX_PAYLOAD_BYTES = 64 * 1024 * 1024  # 64 MiB
 
 
 class WriteAheadLog:
@@ -184,7 +187,40 @@ class WriteAheadLog:
         return entries
 
     def _scan_max_sequence(self) -> int:
-        return max((e.sequence for e in self._read_all_sync()), default=0)
+        """Recover the highest sequence number from the on-disk log.
+
+        Optimisation over a full :meth:`_read_all_sync`: this only reads
+        each frame's fixed-size header and ``seek``s past the payload, so
+        recovery cost is O(frames) header reads instead of O(total bytes).
+        Stops at the first torn header / bad magic, mirroring replay
+        semantics so a power-cut tail does not bump the sequence past the
+        last durable frame.
+        """
+
+        if not self._log_path.exists():
+            return 0
+        max_seq = 0
+        try:
+            with self._log_path.open("rb") as fh:
+                while True:
+                    header = fh.read(_HEADER_SIZE)
+                    if len(header) < _HEADER_SIZE:
+                        break  # torn header — drop trailing partial frame
+                    magic, sequence, _ts_us, _crc, payload_len = struct.unpack(_HEADER_FMT, header)
+                    if magic != _MAGIC:
+                        break  # corruption — stop scanning
+                    if payload_len < 0 or payload_len > _MAX_PAYLOAD_BYTES:
+                        break  # impossible length — torn write
+                    # Skip the payload bytes without copying them into RAM.
+                    new_pos = fh.seek(payload_len, os.SEEK_CUR)
+                    # Verify we did not seek past EOF mid-frame (torn payload).
+                    if new_pos > self._log_path.stat().st_size:
+                        break
+                    if sequence > max_seq:
+                        max_seq = sequence
+        except OSError:  # pragma: no cover - defensive
+            return 0
+        return max_seq
 
     def _read_cursor(self) -> int:
         try:

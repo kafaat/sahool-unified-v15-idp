@@ -13,6 +13,24 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timezone
 from typing import Optional
 
+# Canonical subject constants — single source of truth in shared/events/.
+# Importing them here (instead of duplicating string literals) prevents
+# silent drift if a subject is renamed in the broker contract later.
+try:
+    from shared.events.subjects import (
+        SAHOOL_FIELD_BOUNDARY_CHANGED,
+        SAHOOL_FIELD_CREATED,
+        SAHOOL_IOT_SENSOR_READING,
+        SAHOOL_NDVI_COMPUTED,
+        SAHOOL_WEATHER_FORECAST,
+    )
+except ImportError:  # pragma: no cover - fallback when shared module unavailable
+    SAHOOL_NDVI_COMPUTED = "sahool.satellite.ndvi.computed"
+    SAHOOL_WEATHER_FORECAST = "sahool.weather.forecast"
+    SAHOOL_FIELD_BOUNDARY_CHANGED = "sahool.field.boundary.changed"
+    SAHOOL_FIELD_CREATED = "sahool.field.created"
+    SAHOOL_IOT_SENSOR_READING = "sahool.iot.sensor.reading"
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,15 +46,15 @@ class GroundVisionSubscriber:
     - sahool.iot.sensor.reading        - Correlate with soil/weather sensors
     """
 
-    # Subscription subjects — must match shared/events/subjects.py constants.
-    # Previously these used legacy tenant-scoped paths
-    # (e.g. "sahool.tenant.*.satellite.ndvi_computed") that do not match any
-    # publisher, causing the subscriber to silently receive nothing.
-    SUBJECT_NDVI_COMPUTED = "sahool.satellite.ndvi.computed"
-    SUBJECT_WEATHER_UPDATED = "sahool.weather.forecast"
-    SUBJECT_FIELD_BOUNDARY = "sahool.field.boundary.changed"
-    SUBJECT_FIELD_CREATED = "sahool.field.created"
-    SUBJECT_IOT_READING = "sahool.iot.sensor.reading"
+    # Subscription subjects — sourced from shared/events/subjects.py to keep
+    # the broker contract centralised. Previously these used legacy
+    # tenant-scoped paths that did not match any publisher and the
+    # subscriber silently received nothing.
+    SUBJECT_NDVI_COMPUTED = SAHOOL_NDVI_COMPUTED
+    SUBJECT_WEATHER_UPDATED = SAHOOL_WEATHER_FORECAST
+    SUBJECT_FIELD_BOUNDARY = SAHOOL_FIELD_BOUNDARY_CHANGED
+    SUBJECT_FIELD_CREATED = SAHOOL_FIELD_CREATED
+    SUBJECT_IOT_READING = SAHOOL_IOT_SENSOR_READING
 
     # Idempotency configuration
     _DEDUP_MAX_SIZE = 50_000

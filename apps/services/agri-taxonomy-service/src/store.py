@@ -163,17 +163,26 @@ class TaxonomyStore:
         self._current = Snapshot(version=empty_version)
         self._release_lock = asyncio.Lock()
         self._publisher = release_publisher
+        # Lazy O(1) lookup index, rebuilt the first time we observe a new
+        # snapshot (atomic identity check). Avoids paying the index cost
+        # for tests that never touch ``get_node``.
+        self._indexed_snapshot: Snapshot | None = None
+        self._node_index: dict[UUID, TaxonomyNode] = {}
 
     # -- read API (synchronous; backed by an immutable snapshot) ---------
 
     def snapshot(self) -> Snapshot:
         return self._current
 
+    def _current_node_index(self) -> dict[UUID, TaxonomyNode]:
+        snapshot = self._current
+        if self._indexed_snapshot is not snapshot:
+            self._node_index = {node.id: node for node in snapshot.nodes}
+            self._indexed_snapshot = snapshot
+        return self._node_index
+
     def get_node(self, node_id: UUID) -> TaxonomyNode | None:
-        for node in self._current.nodes:
-            if node.id == node_id:
-                return node
-        return None
+        return self._current_node_index().get(node_id)
 
     def list_nodes(
         self,

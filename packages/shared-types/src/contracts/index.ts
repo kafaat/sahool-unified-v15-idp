@@ -101,7 +101,7 @@
 //            — same skip+limit-only constraint, user-scoped.
 //          * CHAIN_VALIDATE (/audit/chain/validate)
 //          Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.19.0" as const;
+export const CONTRACT_VERSION = "4.20.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

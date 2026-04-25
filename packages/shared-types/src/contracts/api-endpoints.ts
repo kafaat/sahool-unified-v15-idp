@@ -285,6 +285,16 @@ export const SATELLITE_ENDPOINTS = {
   ANALYZE_FIELD: `${API_PREFIX}/satellite/analyze/{fieldId}`,
   TIMESERIES: `${API_PREFIX}/satellite/v1/timeseries/{fieldId}`,
   INDICES: `${API_PREFIX}/satellite/v1/indices/{fieldId}`,
+  /**
+   * Raster-overlay metadata for any spectral index (NDVI/EVI/SAVI/NDRE/NDWI/LAI).
+   * Returns ``{rasterUrl, bounds, colorScale, simulated, dataSource}``.
+   * Backed by ``vegetation-analysis-service::GET /v1/index-map/{field_id}``.
+   *
+   * Note: the path uses ``index-map`` (hyphenated) rather than ``indices/.../map``
+   * to avoid a routing collision with the existing
+   * ``/v1/indices/{field_id}/{index_name}`` wildcard route on the service.
+   */
+  INDICES_MAP: `${API_PREFIX}/satellite/v1/index-map/{fieldId}`,
   SATELLITES: `${API_PREFIX}/satellite/v1/satellites`,
   HEALTH: `${API_PREFIX}/satellite/health/{fieldId}`,
   PHENOLOGY: `${API_PREFIX}/satellite/phenology/{fieldId}`,

@@ -40,6 +40,7 @@ export {
   useFieldNDVI,
   useNDVITimeSeries,
   useNDVIMap,
+  useIndexMap,
   useRegionalNDVIStats,
   useRequestNDVIAnalysis,
   useNDVIComparison,
@@ -79,3 +80,7 @@ export type {
 // UI components
 export { SpectralIndexSwitcher } from './components/SpectralIndexSwitcher';
 export type { SpectralIndexSwitcherProps } from './components/SpectralIndexSwitcher';
+export { GoogleMapsIndexOverlay } from './components/GoogleMapsIndexOverlay';
+export type { GoogleMapsIndexOverlayProps } from './components/GoogleMapsIndexOverlay';
+export { HybridIndicesView } from './components/HybridIndicesView';
+export type { HybridIndicesViewProps } from './components/HybridIndicesView';

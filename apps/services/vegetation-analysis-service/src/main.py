@@ -2618,6 +2618,186 @@ async def get_specific_index(
     }
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Vegetation index map (raster overlay)
+# ─────────────────────────────────────────────────────────────────────────────
+# Unified colour stops mirroring apps/web/src/features/ndvi/lib/spectral-colormaps.ts.
+# Kept in sync manually — the web module is the authoritative source for UI;
+# this dict is used only when the service must hand a colour ramp back to the
+# client (e.g. when no real raster provider is configured).
+_INDEX_MAP_COLOR_STOPS: dict[str, list[tuple[float, str]]] = {
+    "ndvi": [
+        (-1.0, "#0000FF"), (0.0, "#A52A2A"), (0.1, "#DEB887"),
+        (0.2, "#DAA520"), (0.4, "#9ACD32"), (0.6, "#7CFC00"), (0.8, "#006400"), (1.0, "#003200"),
+    ],
+    "evi": [
+        (-1.0, "#0000FF"), (0.0, "#8B4513"), (0.2, "#DAA520"),
+        (0.4, "#FFFF00"), (0.6, "#9ACD32"), (0.8, "#228B22"), (1.0, "#006400"),
+    ],
+    "savi": [
+        (-1.0, "#0000FF"), (0.0, "#8B4513"), (0.2, "#D2691E"),
+        (0.4, "#DAA520"), (0.6, "#9ACD32"), (0.8, "#228B22"), (1.0, "#006400"),
+    ],
+    "ndre": [
+        (-1.0, "#0000FF"), (0.0, "#8B0000"), (0.1, "#FF4500"),
+        (0.2, "#FFA500"), (0.3, "#FFFF00"), (0.4, "#9ACD32"), (0.6, "#228B22"), (1.0, "#006400"),
+    ],
+    "ndwi": [
+        (-1.0, "#FFD700"), (-0.3, "#F4A460"), (0.0, "#FFFFFF"),
+        (0.2, "#87CEEB"), (0.5, "#4682B4"), (1.0, "#0000CD"),
+    ],
+    "lai": [
+        (0.0, "#8B4513"), (1.0, "#DAA520"), (2.0, "#FFFF00"),
+        (3.0, "#9ACD32"), (5.0, "#228B22"), (8.0, "#006400"),
+    ],
+}
+
+_INDEX_VALUE_RANGES: dict[str, tuple[float, float]] = {
+    "ndvi": (-1.0, 1.0), "evi": (-1.0, 1.0), "savi": (-1.0, 1.0),
+    "ndre": (-1.0, 1.0), "ndwi": (-1.0, 1.0), "lai": (0.0, 8.0),
+}
+
+
+def _build_sentinel_hub_wms_url(
+    instance_id: str,
+    index_name: str,
+    bbox: tuple[float, float, float, float],
+    target_date: str,
+    width: int = 512,
+    height: int = 512,
+) -> str:
+    """
+    Build a Sentinel Hub WMS URL for a vegetation index layer.
+
+    Layers must be pre-configured in the Sentinel Hub instance with names
+    matching ``UPPER(index_name)`` (e.g. NDVI, EVI). When the layer is missing
+    Sentinel Hub returns an exception XML — callers should treat the URL as
+    "best-effort" and surface the resulting error inline.
+    """
+    layer = index_name.upper()
+    minx, miny, maxx, maxy = bbox
+    return (
+        f"https://services.sentinel-hub.com/ogc/wms/{instance_id}"
+        f"?REQUEST=GetMap&BBOX={minx},{miny},{maxx},{maxy}"
+        f"&CRS=EPSG:4326&WIDTH={width}&HEIGHT={height}"
+        f"&LAYERS={layer}&FORMAT=image/png&TIME={target_date}"
+        "&MAXCC=20&TRANSPARENT=true"
+    )
+
+
+def _placeholder_raster_data_url(index_name: str) -> str:
+    """
+    Build a 1×1 transparent PNG data URL as a deterministic placeholder when
+    no real raster provider is configured. Returning a syntactically-valid
+    URL avoids broken-image flicker in the UI; the ``simulated`` flag in the
+    response body tells callers to render their own legend / fill instead.
+    """
+    # 1x1 transparent PNG (base64-encoded)
+    transparent_png = (
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNgAAIAAAUAAen63NgAAAAASUVORK5CYII="
+    )
+    return f"data:image/png;base64,{transparent_png}#index={index_name}"
+
+
+@app.get("/v1/index-map/{field_id}")
+async def get_index_map(
+    field_id: str,
+    index: str = Query(default="ndvi", description="Vegetation index name (ndvi, evi, savi, ndre, ndwi, lai)"),
+    target_date: str | None = Query(default=None, alias="date", description="ISO 8601 date (YYYY-MM-DD)"),
+    bbox: str | None = Query(
+        default=None,
+        description="Bounding box minLon,minLat,maxLon,maxLat — defaults to a Yemen sample tile when omitted",
+    ),
+    user: User = Depends(get_current_user),
+):
+    """
+    Return raster overlay metadata for a vegetation index.
+    إرجاع بيانات تراكب الراستر لمؤشر نباتي معيّن
+
+    Response shape::
+
+        {
+          "fieldId": "...",
+          "indexType": "ndvi",
+          "date": "2026-01-15",
+          "rasterUrl": "https://services.sentinel-hub.com/ogc/wms/...",
+          "bounds": [[minLat, minLon], [maxLat, maxLon]],
+          "colorScale": { "min": -1.0, "max": 1.0, "stops": [{value, color}, ...] },
+          "simulated": false,
+          "dataSource": "sentinel-hub-wms" | "simulated"
+        }
+
+    When the ``SENTINEL_HUB_INSTANCE_ID`` env is configured a real WMS URL is
+    returned; otherwise a placeholder URL + ``simulated: true`` is returned so
+    the client renders its own colour-mapped polygon fill from the colour stops.
+    Implements the previously-missing route that ``ndviApi.getNDVIMap`` and the
+    new unified ``vegetationIndicesApi.getIndexMap`` both depend on.
+    """
+    _validate_field_id(field_id)
+    _require_tenant_id(user)
+
+    index_name = index.lower()
+    if index_name not in _INDEX_MAP_COLOR_STOPS:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": f"Unknown index '{index}'. Supported: {sorted(_INDEX_MAP_COLOR_STOPS.keys())}",
+                "error_ar": f"مؤشر غير معروف '{index}'.",
+            },
+        )
+
+    # Parse bbox or fall back to a Yemen sample tile
+    if bbox:
+        try:
+            parts = [float(p) for p in bbox.split(",")]
+            if len(parts) != 4:
+                raise ValueError("expected 4 components")
+            min_lon, min_lat, max_lon, max_lat = parts
+        except (ValueError, TypeError):
+            raise HTTPException(
+                status_code=400,
+                detail={"error": "bbox must be 'minLon,minLat,maxLon,maxLat'", "error_ar": "صيغة bbox غير صحيحة"},
+            )
+    else:
+        # Default sample tile (Sana'a region) — keeps the endpoint useful without a field lookup
+        min_lon, min_lat, max_lon, max_lat = 44.18, 15.34, 44.21, 15.37
+
+    iso_date = target_date or date.today().isoformat()
+
+    # Pick provider based on env
+    instance_id = os.getenv("SENTINEL_HUB_INSTANCE_ID", "").strip()
+    if instance_id:
+        raster_url = _build_sentinel_hub_wms_url(
+            instance_id=instance_id,
+            index_name=index_name,
+            bbox=(min_lon, min_lat, max_lon, max_lat),
+            target_date=iso_date,
+        )
+        data_source = "sentinel-hub-wms"
+        simulated = False
+    else:
+        raster_url = _placeholder_raster_data_url(index_name)
+        data_source = "simulated"
+        simulated = True
+
+    val_min, val_max = _INDEX_VALUE_RANGES[index_name]
+    return {
+        "fieldId": field_id,
+        "indexType": index_name,
+        "date": iso_date,
+        "rasterUrl": raster_url,
+        # GeoJSON-ish [[south, west], [north, east]] for Leaflet/MapLibre/Google Maps consumers
+        "bounds": [[min_lat, min_lon], [max_lat, max_lon]],
+        "colorScale": {
+            "min": val_min,
+            "max": val_max,
+            "stops": [{"value": v, "color": c} for v, c in _INDEX_MAP_COLOR_STOPS[index_name]],
+        },
+        "simulated": simulated,
+        "dataSource": data_source,
+    }
+
+
 @app.post("/v1/indices/interpret")
 async def interpret_indices(request: InterpretRequest, user: User = Depends(get_current_user)):
     """

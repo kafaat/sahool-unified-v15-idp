@@ -18,6 +18,8 @@ import structlog
 from fastapi import FastAPI, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
+from shared.logging_config import setup_logging
+
 from .api.v1.taxonomy import router as taxonomy_router
 from .nats_publisher import build_release_publisher
 from .store import make_default_seed_store
@@ -27,6 +29,7 @@ SERVICE_LAYER = os.getenv("SERVICE_LAYER", "intelligence")
 SERVICE_VERSION = os.getenv("SERVICE_VERSION", "0.1.0")
 NATS_URL = os.getenv("NATS_URL", "")
 
+setup_logging(service_name=SERVICE_NAME)
 log = structlog.get_logger()
 
 

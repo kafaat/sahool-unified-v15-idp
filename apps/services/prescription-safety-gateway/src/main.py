@@ -11,6 +11,7 @@ import structlog
 from fastapi import FastAPI, Response
 from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
+from shared.logging_config import setup_logging
 from shared.prescription_safety import (
     DosageToleranceChecker,
     ForbiddenSubstanceChecker,
@@ -27,6 +28,7 @@ SERVICE_VERSION = os.getenv("SERVICE_VERSION", "0.1.0")
 GATEWAY_MODE = os.getenv("PRESCRIPTION_GATEWAY_MODE", "standalone")
 FORBIDDEN_SUBSTANCES = os.getenv("FORBIDDEN_SUBSTANCES", "")
 
+setup_logging(service_name=SERVICE_NAME)
 log = structlog.get_logger()
 
 

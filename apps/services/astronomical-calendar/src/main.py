@@ -38,7 +38,7 @@ try:
 
     setup_logging("astronomical-calendar")
     logger = _structlog.get_logger()
-except Exception:
+except ImportError:
     import logging as _logging
 
     logger = _logging.getLogger("astronomical-calendar")  # type: ignore[assignment]

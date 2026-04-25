@@ -37,10 +37,11 @@ RUN pip-install.sh --user -c constraints.txt -r requirements.txt
 #      below, so at runtime the sahool user finds it without a network round
 #      trip.
 #
-# The `|| true` on the generate step keeps the image build green in
-# network-restricted CI — main.py's try/except tolerates a missing client
-# and the warehouse / applications endpoints return 503 instead of crashing
-# the whole service. (SQLAlchemy analytics path stays fully functional.)
+# The `|| echo "WARN: ..."` fallback on the generate step keeps the image
+# build green in network-restricted CI — main.py's try/except tolerates a
+# missing client and the warehouse / applications endpoints return 503
+# instead of crashing the whole service. (SQLAlchemy analytics path stays
+# fully functional.)
 COPY apps/services/inventory-service/prisma/schema.prisma /build/prisma/schema.prisma
 ENV PATH=/root/.local/bin:$PATH
 # Ensure the cache directory exists even if generate fails, so the

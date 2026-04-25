@@ -39,11 +39,7 @@ def _weather_scoped(event_type: str, tenant_id: str | None) -> str:
     if tenant_id:
         # Preserve the "alert" / "forecast.issued" / "irrigation.adjustment" action suffix.
         prefix_with_dot = f"{SUBJECT_PREFIX}."
-        action = (
-            global_subject[len(prefix_with_dot) :]
-            if global_subject.startswith(prefix_with_dot)
-            else event_type
-        )
+        action = global_subject[len(prefix_with_dot) :] if global_subject.startswith(prefix_with_dot) else event_type
         return get_tenant_subject(tenant_id, "weather", action)
     logger.warning(
         "nats_publish_missing_tenant_id subject=%s (falling back to global; TODO plumb tenant_id)",

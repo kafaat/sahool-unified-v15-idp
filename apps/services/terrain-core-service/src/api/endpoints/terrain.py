@@ -713,6 +713,89 @@ async def analyze_terrain(
         )
 
 
+# ---------------------------------------------------------------------------
+# CONTRACT BASE ENDPOINTS
+# The TERRAIN_ENDPOINTS contract declares /terrain/dem and /terrain/slope
+# without a path parameter.  These endpoints accept field_id as a query
+# parameter and delegate to the field-scoped variants, providing a
+# consistent entry point for callers that do not yet have a field_id or
+# want to query by bounding box.
+# ---------------------------------------------------------------------------
+
+
+@router.get(
+    "/dem",
+    summary="Get DEM data (query-param form) | بيانات الارتفاع",
+    description=(
+        "Return Digital Elevation Model metadata for a field (by field_id query "
+        "parameter) or a bounding box. Use /terrain/dem/{fieldId} for the field-"
+        "scoped path variant."
+    ),
+)
+async def get_dem_base(
+    field_id: str | None = Query(None, description="Optional field ID to scope the DEM query"),
+    dem_source: DEMSourceType = Query(default=DEMSourceType.COPERNICUS),
+    dem_processor: DEMProcessor = Depends(get_dem_processor),
+    current_user: User = Depends(get_current_user),
+):
+    """Base /dem endpoint — delegates to /dem/{field_id} when field_id is given."""
+    if field_id:
+        # Reuse the field-scoped handler via direct function call
+        return await get_dem_data(
+            field_id=field_id,
+            dem_source=dem_source,
+            resolution_m=settings.DEFAULT_RESOLUTION_M,
+            include_data=False,
+            dem_processor=dem_processor,
+            current_user=current_user,
+        )
+    raise HTTPException(
+        status_code=400,
+        detail={
+            "error": "field_id query parameter is required",
+            "error_ar": "معامل field_id مطلوب",
+            "hint": "Use ?field_id=<uuid> or /terrain/dem/{fieldId}",
+        },
+    )
+
+
+@router.get(
+    "/slope",
+    summary="Get slope analysis (query-param form) | تحليل الميل",
+    description=(
+        "Return slope analysis for a field (by field_id query parameter). "
+        "Use /terrain/slope/{fieldId} for the field-scoped path variant."
+    ),
+)
+async def get_slope_base(
+    field_id: str | None = Query(None, description="Optional field ID to scope the slope query"),
+    dem_source: DEMSourceType = Query(default=DEMSourceType.COPERNICUS),
+    slope_unit: SlopeUnit = Query(default=SlopeUnit.DEGREES),
+    dem_processor: DEMProcessor = Depends(get_dem_processor),
+    terrain_calculator: TerrainIndicatorCalculator = Depends(get_terrain_calculator),
+    current_user: User = Depends(get_current_user),
+):
+    """Base /slope endpoint — delegates to /slope/{field_id} when field_id is given."""
+    if field_id:
+        return await get_slope_analysis(
+            field_id=field_id,
+            dem_source=dem_source,
+            slope_unit=slope_unit,
+            classify=True,
+            dem_processor=dem_processor,
+            terrain_calculator=terrain_calculator,
+            current_user=current_user,
+        )
+    raise HTTPException(
+        status_code=400,
+        detail={
+            "error": "field_id query parameter is required",
+            "error_ar": "معامل field_id مطلوب",
+            "hint": "Use ?field_id=<uuid> or /terrain/slope/{fieldId}",
+        },
+    )
+
+
 @router.get(
     "/slope/{field_id}",
     response_model=SlopeAnalysisResponse,

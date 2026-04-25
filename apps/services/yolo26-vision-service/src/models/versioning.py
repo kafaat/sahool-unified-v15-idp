@@ -125,12 +125,36 @@ class ModelVersionRegistry:
         self,
         registry_path: str | Path = "/models/registry",
         max_versions_per_model: int = 10,
+        models_base_path: str | Path = "/models",
     ):
         self.registry_path = Path(registry_path)
         self.max_versions_per_model = max_versions_per_model
+        # Resolve once so symlink games at registration time can't escape.
+        self.models_base_path = Path(models_base_path).resolve()
         self._versions: dict[str, list[ModelVersion]] = {}
         self._active_versions: dict[str, ModelVersion] = {}
         self._load_registry()
+
+    def _validate_model_path(self, file_path: str | Path) -> Path:
+        """Resolve and validate that ``file_path`` lives under the trusted base.
+
+        Defends against CWE-22 (Path Traversal): the ``file_path`` argument
+        flows in from the public ``POST /api/v1/models/versions`` endpoint
+        and was previously passed straight to ``open()`` and ``Path.stat()``
+        without bounds checking, so a caller could probe (or hash) any
+        readable file on the container's filesystem.
+        """
+        candidate = Path(file_path)
+        # Reject explicit traversal tokens before resolving so we surface a
+        # clear error rather than silently normalising ``../`` away.
+        if ".." in candidate.parts:
+            raise ValueError(f"Invalid model file_path: {file_path!r}")
+        resolved = candidate.resolve(strict=False)
+        try:
+            resolved.relative_to(self.models_base_path)
+        except ValueError as exc:
+            raise ValueError(f"Model file_path must be inside {self.models_base_path}: {file_path!r}") from exc
+        return resolved
 
     def _load_registry(self) -> None:
         """Load registry from disk if exists."""
@@ -239,7 +263,9 @@ class ModelVersionRegistry:
             Registered ModelVersion
         """
         task_variant = f"{task}_{variant}"
-        path = Path(file_path)
+        # Validate that the user-supplied path is rooted under the trusted
+        # models base directory before we open or stat it.
+        path = self._validate_model_path(file_path)
 
         # Compute file info
         file_hash = self._compute_file_hash(path)

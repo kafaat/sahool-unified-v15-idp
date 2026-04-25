@@ -136,6 +136,7 @@ describe("AuthService", () => {
       publishUserLoggedOutAll: jest.fn().mockResolvedValue(undefined),
       publishUserAccountLocked: jest.fn().mockResolvedValue(undefined),
       publishUserPasswordChanged: jest.fn().mockResolvedValue(undefined),
+      publishPasswordReset: jest.fn().mockResolvedValue(undefined),
     } as any;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -305,15 +306,21 @@ describe("AuthService", () => {
       type: "access",
       exp: Math.floor(Date.now() / 1000) + 3600,
       tid: mockTenantId,
+      family: "fam-1234",
     };
 
     it("should successfully logout and revoke token", async () => {
-      jwtService.decode.mockReturnValue(mockDecodedPayload);
+      jwtService.verify.mockReturnValue(mockDecodedPayload);
       revocationStore.revokeToken.mockResolvedValue(true);
+      prismaService.refreshToken.updateMany.mockResolvedValue({ count: 1 });
+      prismaService.refreshToken.findMany.mockResolvedValue([]);
 
       await service.logout(mockToken, mockUserId);
 
-      expect(jwtService.decode).toHaveBeenCalledWith(mockToken);
+      expect(jwtService.verify).toHaveBeenCalledWith(
+        mockToken,
+        expect.objectContaining({ secret: expect.any(String) }),
+      );
       expect(revocationStore.revokeToken).toHaveBeenCalledWith(
         mockJti,
         expect.objectContaining({
@@ -322,11 +329,28 @@ describe("AuthService", () => {
           tenantId: mockTenantId,
         }),
       );
+      // L1 fix: refresh-family must be invalidated on single-device logout
+      expect(prismaService.refreshToken.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { family: "fam-1234" },
+          data: { revoked: true },
+        }),
+      );
     });
 
     it("should throw UnauthorizedException for invalid token (no JTI)", async () => {
       const invalidPayload = { ...mockDecodedPayload, jti: undefined };
-      jwtService.decode.mockReturnValue(invalidPayload);
+      jwtService.verify.mockReturnValue(invalidPayload);
+
+      await expect(service.logout(mockToken, mockUserId)).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it("should throw UnauthorizedException when verify fails", async () => {
+      jwtService.verify.mockImplementation(() => {
+        throw new Error("invalid signature");
+      });
 
       await expect(service.logout(mockToken, mockUserId)).rejects.toThrow(
         UnauthorizedException,
@@ -334,7 +358,7 @@ describe("AuthService", () => {
     });
 
     it("should throw error if revocation fails", async () => {
-      jwtService.decode.mockReturnValue(mockDecodedPayload);
+      jwtService.verify.mockReturnValue(mockDecodedPayload);
       revocationStore.revokeToken.mockResolvedValue(false);
 
       await expect(service.logout(mockToken, mockUserId)).rejects.toThrow(
@@ -347,8 +371,10 @@ describe("AuthService", () => {
         ...mockDecodedPayload,
         exp: Math.floor(Date.now() / 1000) - 3600, // Expired 1 hour ago
       };
-      jwtService.decode.mockReturnValue(expiredPayload);
+      jwtService.verify.mockReturnValue(expiredPayload);
       revocationStore.revokeToken.mockResolvedValue(true);
+      prismaService.refreshToken.updateMany.mockResolvedValue({ count: 0 });
+      prismaService.refreshToken.findMany.mockResolvedValue([]);
 
       await service.logout(mockToken, mockUserId);
 
@@ -362,14 +388,22 @@ describe("AuthService", () => {
   });
 
   describe("logoutAll", () => {
-    it("should successfully logout from all devices", async () => {
+    it("should successfully logout from all devices and revoke DB rows", async () => {
       revocationStore.revokeAllUserTokens.mockResolvedValue(true);
+      prismaService.refreshToken.updateMany.mockResolvedValue({ count: 3 });
 
       await service.logoutAll(mockUserId);
 
       expect(revocationStore.revokeAllUserTokens).toHaveBeenCalledWith(
         mockUserId,
         "user_logout_all",
+      );
+      // L2 fix: DB-level revocation so Redis flush cannot resurrect tokens
+      expect(prismaService.refreshToken.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { userId: mockUserId, revoked: false },
+          data: { revoked: true },
+        }),
       );
     });
 
@@ -483,6 +517,9 @@ describe("AuthService", () => {
     });
 
     it("publishes UserAccountLocked when invalid_password trips the final retry", async () => {
+      // Bypass the progressive login delay (up to 16s for 4 prior attempts)
+      // so the test doesn't exceed Jest's 5s default timeout.
+      jest.spyOn(service as any, "getProgressiveDelay").mockReturnValue(0);
       jest.spyOn(bcrypt, "compare").mockResolvedValue(false as never);
       // First findUnique (login): user exists and not locked.
       // Second findUnique (checkAccountLockout): same user, not locked.
@@ -539,8 +576,10 @@ describe("AuthService", () => {
         type: "access",
         exp: Math.floor(Date.now() / 1000) + 3600,
       };
-      jwtService.decode.mockReturnValue(payload as any);
+      jwtService.verify.mockReturnValue(payload as any);
       revocationStore.revokeToken.mockResolvedValue(true);
+      prismaService.refreshToken.updateMany.mockResolvedValue({ count: 0 });
+      prismaService.refreshToken.findMany.mockResolvedValue([]);
 
       await service.logout("mock.jwt.token", mockUserId);
 
@@ -551,6 +590,7 @@ describe("AuthService", () => {
 
     it("publishes UserLoggedOutAll when the revoke-all path succeeds with a tenantId", async () => {
       revocationStore.revokeAllUserTokens.mockResolvedValue(true);
+      prismaService.refreshToken.updateMany.mockResolvedValue({ count: 0 });
 
       await service.logoutAll(mockUserId, mockTenantId);
 
@@ -873,7 +913,7 @@ describe("AuthService", () => {
         exp: Math.floor(Date.now() / 1000) + 3600,
       };
 
-      jwtService.decode.mockReturnValue(mockDecodedPayload);
+      jwtService.verify.mockReturnValue(mockDecodedPayload);
       revocationStore.revokeToken.mockRejectedValue(
         new Error("Redis connection error"),
       );

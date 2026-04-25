@@ -13,6 +13,24 @@ from collections.abc import Callable
 from datetime import UTC, datetime, timezone
 from typing import Optional
 
+# Canonical subject constants — single source of truth in shared/events/.
+# Importing them here (instead of duplicating string literals) prevents
+# silent drift if a subject is renamed in the broker contract later.
+try:
+    from shared.events.subjects import (
+        SAHOOL_FIELD_BOUNDARY_CHANGED,
+        SAHOOL_FIELD_CREATED,
+        SAHOOL_IOT_SENSOR_READING,
+        SAHOOL_NDVI_COMPUTED,
+        SAHOOL_WEATHER_FORECAST,
+    )
+except ImportError:  # pragma: no cover - fallback when shared module unavailable
+    SAHOOL_NDVI_COMPUTED = "sahool.satellite.ndvi.computed"
+    SAHOOL_WEATHER_FORECAST = "sahool.weather.forecast"
+    SAHOOL_FIELD_BOUNDARY_CHANGED = "sahool.field.boundary.changed"
+    SAHOOL_FIELD_CREATED = "sahool.field.created"
+    SAHOOL_IOT_SENSOR_READING = "sahool.iot.sensor.reading"
+
 logger = logging.getLogger(__name__)
 
 
@@ -21,17 +39,22 @@ class GroundVisionSubscriber:
     Subscribe to relevant events from other SAHOOL services.
 
     Subscribed events:
-    - sahool.*.satellite.ndvi_computed - Correlate with satellite NDVI
-    - sahool.*.weather.forecast_updated - Adjust detection thresholds
-    - sahool.*.fields.boundary_updated - Update camera-field mapping
+    - sahool.satellite.ndvi.computed   - Correlate with satellite NDVI
+    - sahool.weather.forecast          - Adjust detection thresholds
+    - sahool.field.boundary.changed    - Update camera-field mapping
+    - sahool.field.created             - Register new field
+    - sahool.iot.sensor.reading        - Correlate with soil/weather sensors
     """
 
-    # Subscription subjects (tenant-scoped wildcard)
-    SUBJECT_NDVI_COMPUTED = "sahool.tenant.*.satellite.ndvi_computed"
-    SUBJECT_WEATHER_UPDATED = "sahool.tenant.*.weather.forecast_updated"
-    SUBJECT_FIELD_BOUNDARY = "sahool.tenant.*.field.boundary_updated"
-    SUBJECT_FIELD_CREATED = "sahool.tenant.*.field.created"
-    SUBJECT_IOT_READING = "sahool.tenant.*.iot.sensor_reading"
+    # Subscription subjects — sourced from shared/events/subjects.py to keep
+    # the broker contract centralised. Previously these used legacy
+    # tenant-scoped paths that did not match any publisher and the
+    # subscriber silently received nothing.
+    SUBJECT_NDVI_COMPUTED = SAHOOL_NDVI_COMPUTED
+    SUBJECT_WEATHER_UPDATED = SAHOOL_WEATHER_FORECAST
+    SUBJECT_FIELD_BOUNDARY = SAHOOL_FIELD_BOUNDARY_CHANGED
+    SUBJECT_FIELD_CREATED = SAHOOL_FIELD_CREATED
+    SUBJECT_IOT_READING = SAHOOL_IOT_SENSOR_READING
 
     # Idempotency configuration
     _DEDUP_MAX_SIZE = 50_000

@@ -37,6 +37,11 @@ LOCAL_GET_CURRENT_USER = re.compile(
 )
 OPT_OUT_LOGGING = re.compile(r"#\s*LINT-OPT-OUT:\s*logging", re.IGNORECASE)
 OPT_OUT_AUTH = re.compile(r"#\s*LINT-OPT-OUT:\s*auth", re.IGNORECASE)
+# Services that mount health endpoints via an included router (e.g.
+# copilot-api keeps them in `api/v1/health.py`) can opt out of the
+# inline-routes requirement with this marker — the routes still exist,
+# the checker just can't follow `app.include_router(...)` across files.
+OPT_OUT_HEALTH = re.compile(r"#\s*LINT-OPT-OUT:\s*health", re.IGNORECASE)
 HEALTHZ_ROUTE = re.compile(r"""@(?:app|router)\.get\(\s*['"]/healthz['"]""")
 READYZ_ROUTE = re.compile(r"""@(?:app|router)\.get\(\s*['"]/readyz['"]""")
 
@@ -77,14 +82,17 @@ def check(path: Path) -> list[str]:
                 "Prefer the shared dependency."
             )
 
-    if not HEALTHZ_ROUTE.search(text):
-        errors.append(
-            f"{path}: missing `@app.get('/healthz')` (or `@router.get('/healthz')`) endpoint"
-        )
-    if not READYZ_ROUTE.search(text):
-        errors.append(
-            f"{path}: missing `@app.get('/readyz')` (or `@router.get('/readyz')`) endpoint"
-        )
+    if not OPT_OUT_HEALTH.search(text):
+        if not HEALTHZ_ROUTE.search(text):
+            errors.append(
+                f"{path}: missing `@app.get('/healthz')` (or `@router.get('/healthz')`) endpoint "
+                "(or add `# LINT-OPT-OUT: health` when the route is mounted via a router)"
+            )
+        if not READYZ_ROUTE.search(text):
+            errors.append(
+                f"{path}: missing `@app.get('/readyz')` (or `@router.get('/readyz')`) endpoint "
+                "(or add `# LINT-OPT-OUT: health` when the route is mounted via a router)"
+            )
     return errors
 
 

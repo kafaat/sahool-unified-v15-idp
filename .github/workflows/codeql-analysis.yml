@@ -46,6 +46,10 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          # Exclude archive/ and legacy/ to avoid cross-module name
+          # collisions with deprecated service copies (see
+          # .github/codeql/codeql-config.yml for details).
+          config-file: ./.github/codeql/codeql-config.yml
           # Use extended queries for more comprehensive security coverage
           queries: +security-extended,security-and-quality
           # Specify source root for better analysis

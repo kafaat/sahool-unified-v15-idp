@@ -13,6 +13,13 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
+# Mock user with a valid tenant_id — every handler now passes through
+# `require_tenant_id(_user)` (defense-in-depth even when Kong hasn't
+# stripped the call, e.g., a unit-test direct call). Tests that want to
+# exercise the tenant-missing 403 path should pass None / MagicMock()
+# without the tenant_id attribute instead of this fixture.
+_MOCK_USER = MagicMock(tenant_id="test-tenant")
+
 from src.parcel_endpoints import (
     BatchAssignRequest,
     ParcelClassifyRequest,
@@ -400,7 +407,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await auto_gen_func(lat=15.5, lon=44.2)
+            await auto_gen_func(lat=15.5, lon=44.2, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -413,7 +420,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await detect_func(req)
+            await detect_func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -425,7 +432,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await classify_func(req)
+            await classify_func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -437,7 +444,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -449,7 +456,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -461,7 +468,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -473,7 +480,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -485,7 +492,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -497,7 +504,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -509,7 +516,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -521,7 +528,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -533,7 +540,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
@@ -547,7 +554,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await detect_func(req)
+            await detect_func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400
 
     @pytest.mark.asyncio
@@ -560,7 +567,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await detect_func(req)
+            await detect_func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400
 
     @pytest.mark.asyncio
@@ -573,7 +580,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await classify_func(req)
+            await classify_func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400
 
     @pytest.mark.asyncio
@@ -599,7 +606,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400
 
     @pytest.mark.asyncio
@@ -615,7 +622,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400
 
     @pytest.mark.asyncio
@@ -637,7 +644,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400
 
     @pytest.mark.asyncio
@@ -664,7 +671,7 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400
 
     @pytest.mark.asyncio
@@ -688,5 +695,5 @@ class TestRegisterParcelEndpoints:
         from fastapi import HTTPException
 
         with pytest.raises(HTTPException) as exc_info:
-            await func(req)
+            await func(req, _user=_MOCK_USER)
         assert exc_info.value.status_code == 400

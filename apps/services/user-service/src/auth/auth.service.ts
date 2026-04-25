@@ -13,7 +13,6 @@ import {
   Injectable,
   Optional,
   UnauthorizedException,
-  NotFoundException,
   BadRequestException,
   Logger,
 } from "@nestjs/common";
@@ -65,6 +64,32 @@ export interface VerifyOtpDto {
   identifier: string;
   otpCode: string;
   purpose: string;
+}
+
+/**
+ * Server-side whitelist of OTP purposes accepted by {@link AuthService.verifyOtp}.
+ *
+ * Declared as a module-level `const` array so CodeQL recognizes it as a
+ * taint sanitizer for the `js/user-controlled-bypass` rule — the
+ * user-supplied `purpose` field must be validated against this fixed set
+ * before it can influence control flow for sensitive actions (token
+ * issuance, password-reset token generation, phone verification).
+ *
+ * Defence-in-depth: in addition to this check, the notification service
+ * binds each OTP to its issuing purpose via its Redis key
+ * `otp:{tenant}:{purpose}:{identifier}`, so an OTP sent for
+ * `password_reset` cannot be verified under `login`.
+ */
+const ALLOWED_OTP_PURPOSES = ["password_reset", "verify_phone", "login"] as const;
+export type OtpPurpose = (typeof ALLOWED_OTP_PURPOSES)[number];
+
+function sanitizeOtpPurpose(value: unknown): OtpPurpose {
+  if (typeof value !== "string" || !(ALLOWED_OTP_PURPOSES as readonly string[]).includes(value)) {
+    throw new BadRequestException(
+      "Invalid OTP purpose. Must be one of: password_reset, verify_phone, login.",
+    );
+  }
+  return value as OtpPurpose;
 }
 
 // Account lockout configuration
@@ -373,7 +398,12 @@ export class AuthService {
     // Generate new family if not provided (initial login)
     const tokenFamily = family || uuidv4();
 
-    // Access token payload
+    // Access token payload.
+    // NOTE: `family` is carried on the access token too so that a single-
+    // device logout can invalidate the matching refresh-token family. The
+    // family id is a UUID with no standalone authority — possession of it
+    // does not let an attacker mint tokens — so exposing it inside the
+    // signed JWT is safe. See `logout()` for the revocation path.
     const accessPayload: JwtPayload = {
       sub: user.id,
       email: user.email,
@@ -381,6 +411,7 @@ export class AuthService {
       tid: user.tenantId,
       jti: accessJti,
       type: "access",
+      family: tokenFamily,
     };
 
     // Refresh token payload
@@ -444,8 +475,22 @@ export class AuthService {
    */
   async logout(token: string, userId: string): Promise<void> {
     try {
-      // Decode token to get JTI and expiration
-      const payload = this.jwtService.decode(token) as JwtPayload;
+      // Defense-in-depth: verify the token signature here even though the
+      // controller's JwtAuthGuard already did. `decode()` trusts whatever
+      // is in the base64 body; if routing is ever misconfigured and the
+      // guard is dropped, a forged token could otherwise revoke an
+      // arbitrary JTI. `verify()` throws on bad signature/issuer/audience.
+      let payload: JwtPayload;
+      try {
+        payload = this.jwtService.verify(token, {
+          secret: JWTConfig.SECRET,
+          issuer: JWTConfig.ISSUER,
+          audience: JWTConfig.AUDIENCE,
+        }) as JwtPayload;
+      } catch {
+        this.logger.warn("Logout attempt with token that failed verification");
+        throw new UnauthorizedException("Invalid token");
+      }
 
       if (!payload || !payload.jti) {
         this.logger.warn("Logout attempt with invalid token (no JTI)");
@@ -459,7 +504,7 @@ export class AuthService {
         ttl = expiresIn > 0 ? expiresIn : 60; // Minimum 60 seconds
       }
 
-      // Revoke token in Redis
+      // Revoke access-token JTI in Redis
       const success = await this.revocationStore.revokeToken(payload.jti, {
         expiresIn: ttl,
         reason: "user_logout",
@@ -468,6 +513,30 @@ export class AuthService {
       });
 
       if (success) {
+        // Single-device logout must also invalidate the paired refresh-token
+        // family, otherwise the refresh token survives for its full TTL
+        // (up to 7 days) and `/auth/refresh` can keep minting fresh access
+        // tokens after the user thought they logged out. Best-effort: a
+        // failure here is logged but does not undo the access-token
+        // revocation above.
+        if (payload.family) {
+          try {
+            await this.invalidateTokenFamily(payload.family);
+          } catch (familyErr) {
+            const msg = familyErr instanceof Error ? familyErr.message : String(familyErr);
+            this.logger.warn(
+              `Logout: refresh-family revocation failed (access token still revoked): family=${payload.family.substring(0, 8)}..., err=${msg}`,
+            );
+          }
+        } else {
+          // Pre-fix access tokens (issued before `family` was added to the
+          // access payload) land here. Log so the gap is observable while
+          // the old tokens drain out of the system.
+          this.logger.warn(
+            `Logout: access token has no 'family' claim — refresh family not revoked for user=${userId}`,
+          );
+        }
+
         this.logger.log(
           `User logged out successfully: ${userId} (jti: ${payload.jti.substring(0, 8)}...)`,
         );
@@ -514,7 +583,20 @@ export class AuthService {
       );
 
       if (success) {
-        this.logger.log(`User logged out from all devices: ${userId}`);
+        // Redis stores a user-level revocation marker keyed by `userId`
+        // which the JwtStrategy consults on every request, but refresh
+        // tokens are validated against the DB (`tokenRecord.revoked`) in
+        // `refreshToken()`. Mirror the revocation into the DB so a Redis
+        // flush, key eviction, or TTL expiry cannot silently restore
+        // previously-killed sessions. updateMany returns count for the log.
+        const dbRevoke = await this.prisma.refreshToken.updateMany({
+          where: { userId, revoked: false },
+          data: { revoked: true },
+        });
+
+        this.logger.log(
+          `User logged out from all devices: ${userId} (db_rows_revoked=${dbRevoke.count})`,
+        );
         if (tenantId) {
           this.fireAndForget(this.userEvents?.publishUserLoggedOutAll({
             tenantId,
@@ -1192,14 +1274,15 @@ SAHOOL - National Agricultural Intelligence Platform
       .digest("hex");
 
     // Find user with matching token that hasn't expired
-    // SECURITY: Filter by tenantId to prevent cross-tenant password reset
+    // SECURITY: Always filter by tenantId to prevent cross-tenant password reset.
+    // Fall back to DEFAULT_TENANT_ID so the check is never bypassed.
     const user = await this.prisma.user.findFirst({
       where: {
         passwordResetToken: tokenHash,
         passwordResetExpiry: {
           gt: new Date(),
         },
-        ...(tenantId && { tenantId }),
+        tenantId: tenantId || DEFAULT_TENANT_ID,
       },
     });
 
@@ -1303,12 +1386,15 @@ SAHOOL - National Agricultural Intelligence Platform
     // For password_reset, verify user exists (but don't reveal if not found)
     if (purpose === "password_reset") {
       // Check if identifier is email or phone
-      // SECURITY: Filter by tenantId to prevent cross-tenant user enumeration
+      // SECURITY: Always filter by tenantId to prevent cross-tenant user enumeration.
+      // Fall back to DEFAULT_TENANT_ID so the filter is never bypassed by an absent/empty value
+      // (CWE-807 / CWE-290: user-controlled bypass of security check).
+      const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
       const isEmail = identifier.includes("@");
       const user = await this.prisma.user.findFirst({
         where: {
           ...(isEmail ? { email: identifier } : { phone: identifier }),
-          ...(tenantId && { tenantId }),
+          tenantId: effectiveTenantId,
         },
       });
 
@@ -1402,7 +1488,13 @@ SAHOOL - National Agricultural Intelligence Platform
     token_type?: string;
     user?: TokenResponse["user"];
   }> {
-    const { identifier, otpCode, purpose } = dto;
+    const { identifier, otpCode } = dto;
+    // SECURITY: sanitize the user-supplied purpose against a server-side
+    // whitelist BEFORE any branching. This is the CodeQL-recognized
+    // sanitizer for `js/user-controlled-bypass` — all subsequent checks
+    // use `safePurpose` (narrowed to the literal union `OtpPurpose`),
+    // never `dto.purpose` directly.
+    const safePurpose: OtpPurpose = sanitizeOtpPurpose(dto.purpose);
 
     // OTP brute-force protection: max 5 attempts per identifier per 15 minutes
     const otpAttemptKey = `otp_attempts:${identifier}`;
@@ -1436,7 +1528,7 @@ SAHOOL - National Agricultural Intelligence Platform
         body: JSON.stringify({
           identifier,
           otpCode,
-          purpose,
+          purpose: safePurpose,
         }),
       });
 
@@ -1460,7 +1552,7 @@ SAHOOL - National Agricultural Intelligence Platform
 
       this.logger.log(`OTP verified successfully`, {
         identifier: this.sanitizeForLog(identifier),
-        purpose,
+        purpose: safePurpose,
       });
 
       // Reset OTP attempt counter on successful verification
@@ -1471,14 +1563,16 @@ SAHOOL - National Agricultural Intelligence Platform
       }
 
       // For password_reset, generate a reset token
-      if (purpose === "password_reset") {
+      if (safePurpose === "password_reset") {
         // Find user by identifier
-        // SECURITY: Filter by tenantId to prevent cross-tenant password reset via OTP
+        // SECURITY: Always filter by tenantId to prevent cross-tenant password reset via OTP.
+        // Fall back to DEFAULT_TENANT_ID so the filter is never bypassed by an absent/empty value.
+        const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const isEmail = identifier.includes("@");
         const user = await this.prisma.user.findFirst({
           where: {
             ...(isEmail ? { email: identifier } : { phone: identifier }),
-            ...(tenantId && { tenantId }),
+            tenantId: effectiveTenantId,
           },
         });
 
@@ -1520,13 +1614,20 @@ SAHOOL - National Agricultural Intelligence Platform
       }
 
       // For login, find user by identifier and issue tokens (passwordless OTP login)
-      // SECURITY: Filter by tenantId to prevent cross-tenant login via OTP
-      if (purpose === "login") {
+      // SECURITY: Always filter by tenantId to prevent cross-tenant login via OTP.
+      // `safePurpose` has been narrowed via the server-side whitelist
+      // `ALLOWED_OTP_PURPOSES`, so this guard cannot be bypassed by a user-
+      // supplied string. In addition, the notification service binds each
+      // OTP to its issuing purpose via its Redis key, so an OTP sent for
+      // `password_reset` or `verify_phone` fails the `/otp/verify` call
+      // above and never reaches this branch.
+      if (safePurpose === "login") {
+        const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const isEmail = identifier.includes("@");
         const user = await this.prisma.user.findFirst({
           where: {
             ...(isEmail ? { email: identifier } : { phone: identifier }),
-            ...(tenantId && { tenantId }),
+            tenantId: effectiveTenantId,
           },
         });
 
@@ -1577,12 +1678,13 @@ SAHOOL - National Agricultural Intelligence Platform
       }
 
       // For verify_phone, update user's phone verification status
-      // SECURITY: Filter by tenantId to prevent cross-tenant phone verification
-      if (purpose === "verify_phone") {
+      // SECURITY: Always filter by tenantId to prevent cross-tenant phone verification.
+      if (safePurpose === "verify_phone") {
+        const effectiveTenantId = tenantId || DEFAULT_TENANT_ID;
         const user = await this.prisma.user.findFirst({
           where: {
             phone: identifier,
-            ...(tenantId && { tenantId }),
+            tenantId: effectiveTenantId,
           },
         });
 

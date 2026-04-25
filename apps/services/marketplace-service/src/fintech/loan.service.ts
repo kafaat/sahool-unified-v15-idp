@@ -54,6 +54,15 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
+   * Guard: every tenant-scoped public method must receive a tenantId.
+   */
+  private ensureTenantId(tenantId: string): void {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+  }
+
+  /**
    * بدء جدولة الدفعات التلقائية
    */
   private startPaymentScheduler() {
@@ -83,8 +92,8 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   /**
    * معالجة الدفعات المستحقة
    * NOTE: This is a system-level scheduled job (cron) that intentionally
-   * processes due payments across all tenants. Tenant isolation is not
-   * applied here because the scheduler must handle payments globally.
+   * processes due payments across all tenants. Each row's tenantId is
+   * used to scope the downstream updates via id_tenantId composite keys.
    */
   async processDuePayments(): Promise<{ processed: number; failed: number }> {
     const now = new Date();
@@ -110,7 +119,8 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
     for (const payment of duePayments) {
       try {
-        await this.executeScheduledPayment(payment.id);
+        // tenantId sourced from the row itself for cron-safe tenancy binding.
+        await this.executeScheduledPayment(payment.id, payment.tenantId);
         processed++;
       } catch (error) {
         failed++;
@@ -118,13 +128,13 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
           `Failed to execute scheduled payment ${payment.id}: ${error instanceof Error ? error.message : String(error)}`,
         );
 
-        // Auto-deactivate if max attempts exceeded
+        // Auto-deactivate if max attempts exceeded — bind via id_tenantId.
         const updated = await this.prisma.scheduledPayment.findUnique({
-          where: { id: payment.id },
+          where: { id_tenantId: { id: payment.id, tenantId: payment.tenantId } },
         });
         if (updated && updated.failedAttempts >= this.MAX_FAILED_ATTEMPTS) {
           await this.prisma.scheduledPayment.update({
-            where: { id: payment.id },
+            where: { id_tenantId: { id: payment.id, tenantId: payment.tenantId } },
             data: {
               isActive: false,
               lastFailureReason: `تم تعطيل الدفعة بعد ${this.MAX_FAILED_ATTEMPTS} محاولات فاشلة`,
@@ -162,9 +172,11 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   /**
    * طلب قرض جديد
    */
-  async requestLoan(data: CreateLoanDto) {
+  async requestLoan(data: CreateLoanDto, tenantId: string) {
+    this.ensureTenantId(tenantId);
+
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: data.walletId },
+      where: { id_tenantId: { id: data.walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -189,6 +201,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
     const loan = await this.prisma.loan.create({
       data: {
+        tenantId,
         walletId: data.walletId,
         amount: data.amount,
         interestRate: 0,
@@ -218,9 +231,11 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   /**
    * الموافقة على القرض (للإدارة)
    */
-  async approveLoan(loanId: string) {
+  async approveLoan(loanId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
+
     const loan = await this.prisma.loan.findUnique({
-      where: { id: loanId },
+      where: { id_tenantId: { id: loanId, tenantId } },
       include: { wallet: true },
     });
 
@@ -235,11 +250,11 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
     const [updatedLoan, updatedWallet, transaction] =
       await this.prisma.$transaction([
         this.prisma.loan.update({
-          where: { id: loanId },
+          where: { id_tenantId: { id: loanId, tenantId } },
           data: { status: "ACTIVE" },
         }),
         this.prisma.wallet.update({
-          where: { id: loan.walletId },
+          where: { id_tenantId: { id: loan.walletId, tenantId } },
           data: {
             balance: { increment: loan.amount },
             currentLoan: { increment: loan.totalDue },
@@ -247,6 +262,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
         }),
         this.prisma.transaction.create({
           data: {
+            tenantId,
             walletId: loan.walletId,
             type: "LOAN",
             amount: loan.amount,
@@ -269,10 +285,13 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   async repayLoan(
     loanId: string,
     amount: number,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (amount <= 0) {
       throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
@@ -283,7 +302,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
       });
       if (existingTransaction) {
         const loan = await this.prisma.loan.findUnique({
-          where: { id: loanId },
+          where: { id_tenantId: { id: loanId, tenantId } },
           include: { wallet: true },
         });
         if (!loan) {
@@ -301,7 +320,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
     return await this.prisma.$transaction(
       async (tx) => {
         const loan = await tx.loan.findUnique({
-          where: { id: loanId },
+          where: { id_tenantId: { id: loanId, tenantId } },
           include: { wallet: true },
         });
 
@@ -314,7 +333,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
         }
 
         const walletRows = await tx.$queryRaw<any[]>`
-          SELECT * FROM wallets WHERE id = ${loan.walletId}::uuid FOR UPDATE
+          SELECT * FROM wallets WHERE id = ${loan.walletId}::uuid AND tenant_id = ${tenantId} FOR UPDATE
         `;
 
         if (!walletRows || walletRows.length === 0) {
@@ -342,7 +361,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
         const newVersion = versionBefore + 1;
 
         const updatedLoan = await tx.loan.update({
-          where: { id: loanId },
+          where: { id_tenantId: { id: loanId, tenantId } },
           data: {
             paidAmount: newPaidAmount,
             status: isFullyPaid ? "PAID" : "ACTIVE",
@@ -351,7 +370,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
         const updatedWallet = await tx.wallet.update({
           where: {
-            id: loan.walletId,
+            id_tenantId: { id: loan.walletId, tenantId },
             version: versionBefore,
           },
           data: {
@@ -363,6 +382,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
         const transaction = await tx.transaction.create({
           data: {
+            tenantId,
             walletId: loan.walletId,
             type: "REPAYMENT",
             amount: -paymentAmount,
@@ -381,6 +401,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId: loan.walletId,
             transactionId: transaction.id,
             userId,
@@ -408,6 +429,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
           await tx.creditEvent.create({
             data: {
+              tenantId,
               walletId: loan.walletId,
               eventType: isOnTime ? "LOAN_REPAID_ONTIME" : "LOAN_REPAID_LATE",
               amount: loanTotalDue,
@@ -441,9 +463,10 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   /**
    * الحصول على قروض المستخدم
    */
-  async getUserLoans(walletId: string) {
+  async getUserLoans(walletId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
     return this.prisma.loan.findMany({
-      where: { walletId },
+      where: { walletId, tenantId },
       orderBy: { createdAt: "desc" },
       take: 100,
     });
@@ -457,12 +480,15 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
     amount: number,
     frequency: string,
     nextPaymentDate: Date,
-    loanId?: string,
-    description?: string,
-    descriptionAr?: string,
+    loanId: string | undefined,
+    description: string | undefined,
+    descriptionAr: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -471,6 +497,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
     const scheduledPayment = await this.prisma.scheduledPayment.create({
       data: {
+        tenantId,
         walletId,
         amount,
         frequency: frequency as any,
@@ -491,10 +518,12 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   /**
    * الحصول على الدفعات المجدولة للمحفظة
    */
-  async getScheduledPayments(walletId: string, activeOnly: boolean = true) {
+  async getScheduledPayments(walletId: string, tenantId: string, activeOnly: boolean = true) {
+    this.ensureTenantId(tenantId);
     return this.prisma.scheduledPayment.findMany({
       where: {
         walletId,
+        tenantId,
         ...(activeOnly && { isActive: true }),
       },
       orderBy: { nextPaymentDate: "asc" },
@@ -503,11 +532,23 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   }
 
   /**
+   * الحصول على دفعة مجدولة حسب المعرف
+   */
+  async getScheduledPaymentById(paymentId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
+    return this.prisma.scheduledPayment.findUnique({
+      where: { id_tenantId: { id: paymentId, tenantId } },
+    });
+  }
+
+  /**
    * إلغاء دفعة مجدولة
    */
-  async cancelScheduledPayment(paymentId: string) {
+  async cancelScheduledPayment(paymentId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
+
     const payment = await this.prisma.scheduledPayment.findUnique({
-      where: { id: paymentId },
+      where: { id_tenantId: { id: paymentId, tenantId } },
     });
 
     if (!payment) {
@@ -515,7 +556,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
     }
 
     return this.prisma.scheduledPayment.update({
-      where: { id: paymentId },
+      where: { id_tenantId: { id: paymentId, tenantId } },
       data: { isActive: false },
     });
   }
@@ -523,9 +564,11 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
   /**
    * تنفيذ دفعة مجدولة
    */
-  async executeScheduledPayment(paymentId: string) {
+  async executeScheduledPayment(paymentId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
+
     const payment = await this.prisma.scheduledPayment.findUnique({
-      where: { id: paymentId },
+      where: { id_tenantId: { id: paymentId, tenantId } },
       include: { wallet: true },
     });
 
@@ -539,7 +582,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
 
     if (toNum(payment.wallet.balance) < toNum(payment.amount)) {
       await this.prisma.scheduledPayment.update({
-        where: { id: paymentId },
+        where: { id_tenantId: { id: paymentId, tenantId } },
         data: {
           failedAttempts: { increment: 1 },
           lastFailureReason: "الرصيد غير كافي",
@@ -576,7 +619,7 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
     const [updatedPayment, updatedWallet, transaction] =
       await this.prisma.$transaction([
         this.prisma.scheduledPayment.update({
-          where: { id: paymentId },
+          where: { id_tenantId: { id: paymentId, tenantId } },
           data: {
             lastPaymentDate: new Date(),
             nextPaymentDate: nextDate,
@@ -585,11 +628,12 @@ export class LoanService implements OnModuleInit, OnModuleDestroy {
           },
         }),
         this.prisma.wallet.update({
-          where: { id: payment.walletId },
+          where: { id_tenantId: { id: payment.walletId, tenantId } },
           data: { balance: newBalance },
         }),
         this.prisma.transaction.create({
           data: {
+            tenantId,
             walletId: payment.walletId,
             type: "SCHEDULED_PAYMENT",
             amount: -paymentAmountNum,

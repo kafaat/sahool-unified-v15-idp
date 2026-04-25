@@ -987,7 +987,15 @@ class TestHealthSummaryStatistics:
         """At least 95% of long-running services should have healthchecks.
         يجب أن يكون لدى 95% على الأقل من الخدمات طويلة التشغيل فحوصات صحية."""
         # Exclude one-shot init/loader containers that exit after completion
-        init_containers = {"etcd-init", "mongo-init-replica", "ollama-model-loader"}
+        # (these use restart: no and don't serve traffic)
+        init_containers = {
+            "etcd-init",
+            "etcd-perms-init",
+            "mongo-init-replica",
+            "mongo-keyfile-init",
+            "nats-stream-init",
+            "ollama-model-loader",
+        }
         long_running = {
             name: svc for name, svc in compose_data["services"].items()
             if name not in init_containers

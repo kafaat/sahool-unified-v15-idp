@@ -32,7 +32,22 @@ export type {
 
 // API
 export { ndviApi, vegetationIndicesApi } from './api';
-export type { NDVIData, NDVITimeSeries, NDVIMapData, NDVIFilters } from './api';
+export type {
+  NDVIData,
+  NDVITimeSeries,
+  NDVIMapData,
+  NDVIFilters,
+  IndexMapData,
+  PixelInspection,
+  IndexStatus,
+  CompositeWindow,
+  IndexComposite,
+  FilmstripFrame,
+  IndexFilmstripData,
+  MultiDateCompareRow,
+  MultiDateCompare,
+  MultiDateCompareRequest,
+} from './api';
 
 // Hooks - NDVI (legacy, still supported)
 export {
@@ -53,9 +68,15 @@ export {
   useSpecificIndex,
   useInterpretIndices,
   useIndexTimeSeries,
+  useIndexMap,
+  usePixelInspection,
+  useIndexComposite,
+  useIndexFilmstrip,
+  useMultiDateCompare,
   indicesKeys,
 } from './hooks/useNDVI';
 
+<<<<<<< HEAD
 // Unified spectral colormaps (single source of truth for all 6 displayable indices)
 // مصدر حقيقة موحّد لخرائط ألوان جميع المؤشرات الستة المعروضة على الخريطة
 export {
@@ -84,3 +105,32 @@ export { GoogleMapsIndexOverlay } from './components/GoogleMapsIndexOverlay';
 export type { GoogleMapsIndexOverlayProps } from './components/GoogleMapsIndexOverlay';
 export { HybridIndicesView } from './components/HybridIndicesView';
 export type { HybridIndicesViewProps } from './components/HybridIndicesView';
+=======
+// Map visualization components (Phase 1 + 2)
+export { IndexPicker, MAPPABLE_INDICES } from './components/IndexPicker';
+export type { IndexPickerProps } from './components/IndexPicker';
+export { PixelInspectorPopup } from './components/PixelInspectorPopup';
+export type { PixelInspectorPopupProps } from './components/PixelInspectorPopup';
+export { IndexTimeSlider } from './components/IndexTimeSlider';
+export type { IndexTimeSliderProps } from './components/IndexTimeSlider';
+
+// Multi-date components (Phase 3)
+export {
+  IntervalStepSelector,
+  INTERVAL_PRESETS,
+} from './components/IntervalStepSelector';
+export type {
+  IntervalStepSelectorProps,
+  IntervalDays,
+} from './components/IntervalStepSelector';
+export { IndexFilmstrip } from './components/IndexFilmstrip';
+export type { IndexFilmstripProps } from './components/IndexFilmstrip';
+export {
+  MultiDateSplitScreen,
+  PANEL_COUNTS,
+} from './components/MultiDateSplitScreen';
+export type {
+  MultiDateSplitScreenProps,
+  PanelCount,
+} from './components/MultiDateSplitScreen';
+>>>>>>> origin/main

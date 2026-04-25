@@ -4,7 +4,7 @@ Free weather API integration for Yemen
 """
 
 from dataclasses import dataclass
-from datetime import UTC, date, datetime, timezone
+from datetime import UTC, date, datetime
 
 import httpx
 import structlog

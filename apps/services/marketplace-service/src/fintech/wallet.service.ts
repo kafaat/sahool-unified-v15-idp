@@ -29,16 +29,32 @@ export class WalletService {
   constructor(private prisma: PrismaService) {}
 
   /**
-   * الحصول على محفظة المستخدم (إنشاء إذا لم توجد)
+   * Guard: every tenant-scoped public method must receive a tenantId.
    */
-  async getWallet(userId: string, userType: string = "farmer") {
+  private ensureTenantId(tenantId: string): void {
+    if (!tenantId) {
+      throw new BadRequestException("tenantId required");
+    }
+  }
+
+  /**
+   * الحصول على محفظة المستخدم (إنشاء إذا لم توجد)
+   *
+   * NOTE: userId lookup is SAFE (user is authenticated caller; @unique global).
+   * On create, stamp tenantId so the new wallet lands in the correct tenant.
+   */
+  async getWallet(userId: string, userType: string = "farmer", tenantId?: string) {
     let wallet = await this.prisma.wallet.findUnique({
       where: { userId },
     });
 
     if (!wallet) {
+      if (!tenantId) {
+        throw new BadRequestException("tenantId required for wallet creation");
+      }
       wallet = await this.prisma.wallet.create({
         data: {
+          tenantId,
           userId,
           userType,
           balance: 0,
@@ -75,11 +91,14 @@ export class WalletService {
   async deposit(
     walletId: string,
     amount: number,
-    description?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
+    description: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (amount <= 0) {
       throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
@@ -91,7 +110,7 @@ export class WalletService {
       });
       if (existingTransaction) {
         const wallet = await this.prisma.wallet.findUnique({
-          where: { id: walletId },
+          where: { id_tenantId: { id: walletId, tenantId } },
         });
         if (!wallet) {
           throw new NotFoundException("المحفظة غير موجودة");
@@ -104,8 +123,10 @@ export class WalletService {
     return await this.prisma.$transaction(
       async (tx) => {
         // Lock wallet row then fetch with Prisma for proper field names
-        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE`;
-        const currentWallet = await tx.wallet.findUnique({ where: { id: walletId } });
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${walletId}::uuid AND tenant_id = ${tenantId} FOR UPDATE`;
+        const currentWallet = await tx.wallet.findUnique({
+          where: { id_tenantId: { id: walletId, tenantId } },
+        });
 
         if (!currentWallet) {
           throw new NotFoundException("المحفظة غير موجودة");
@@ -123,7 +144,7 @@ export class WalletService {
         // Update wallet balance and version atomically
         const updatedWallet = await tx.wallet.update({
           where: {
-            id: walletId,
+            id_tenantId: { id: walletId, tenantId },
             version: versionBefore,
           },
           data: {
@@ -135,6 +156,7 @@ export class WalletService {
         // Create transaction record with idempotency key
         const transaction = await tx.transaction.create({
           data: {
+            tenantId,
             walletId,
             type: "DEPOSIT",
             amount,
@@ -152,6 +174,7 @@ export class WalletService {
         // Create audit log entry
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId,
             transactionId: transaction.id,
             userId,
@@ -183,12 +206,15 @@ export class WalletService {
   async withdraw(
     walletId: string,
     amount: number,
-    description?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
-    pin?: string,
+    description: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    pin: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (amount <= 0) {
       throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
@@ -200,7 +226,7 @@ export class WalletService {
       });
       if (existingTransaction) {
         const wallet = await this.prisma.wallet.findUnique({
-          where: { id: walletId },
+          where: { id_tenantId: { id: walletId, tenantId } },
         });
         if (!wallet) {
           throw new NotFoundException("المحفظة غير موجودة");
@@ -210,14 +236,16 @@ export class WalletService {
     }
 
     // Pre-check: PIN enforcement for large amounts
-    await this.enforcePinForAmount(walletId, amount, pin);
+    await this.enforcePinForAmount(walletId, amount, pin, tenantId);
 
     // Use SERIALIZABLE isolation level to prevent race conditions
     return await this.prisma.$transaction(
       async (tx) => {
         // CRITICAL: Lock wallet row then fetch with Prisma for proper field names
-        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${walletId}::uuid FOR UPDATE`;
-        const wallet = await tx.wallet.findUnique({ where: { id: walletId } });
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${walletId}::uuid AND tenant_id = ${tenantId} FOR UPDATE`;
+        const wallet = await tx.wallet.findUnique({
+          where: { id_tenantId: { id: walletId, tenantId } },
+        });
 
         if (!wallet) {
           throw new NotFoundException("المحفظة غير موجودة");
@@ -246,7 +274,7 @@ export class WalletService {
         // Update wallet with optimistic locking check
         const updatedWallet = await tx.wallet.update({
           where: {
-            id: walletId,
+            id_tenantId: { id: walletId, tenantId },
             version: versionBefore,
           },
           data: {
@@ -260,6 +288,7 @@ export class WalletService {
         // Create transaction record with audit trail
         const transaction = await tx.transaction.create({
           data: {
+            tenantId,
             walletId,
             type: "WITHDRAWAL",
             amount: -amount,
@@ -277,6 +306,7 @@ export class WalletService {
         // Create audit log entry
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId,
             transactionId: transaction.id,
             userId,
@@ -365,9 +395,10 @@ export class WalletService {
   /**
    * الحصول على سجل المعاملات
    */
-  async getTransactions(walletId: string, limit: number = 20) {
+  async getTransactions(walletId: string, tenantId: string, limit: number = 20) {
+    this.ensureTenantId(tenantId);
     return this.prisma.transaction.findMany({
-      where: { walletId },
+      where: { walletId, tenantId },
       orderBy: { createdAt: "desc" },
       take: limit,
     });
@@ -376,9 +407,10 @@ export class WalletService {
   /**
    * الحصول على حدود المحفظة
    */
-  async getWalletLimits(walletId: string) {
+  async getWalletLimits(walletId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -405,9 +437,10 @@ export class WalletService {
   /**
    * تحديث حدود المحفظة (بناءً على التصنيف الائتماني)
    */
-  async updateWalletLimits(walletId: string) {
+  async updateWalletLimits(walletId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -441,7 +474,7 @@ export class WalletService {
     }
 
     return this.prisma.wallet.update({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
       data: {
         dailyWithdrawLimit: dailyLimit,
         singleTransactionLimit: singleLimit,
@@ -488,7 +521,9 @@ export class WalletService {
   /**
    * تعيين رمز PIN للمحفظة
    */
-  async setPin(walletId: string, pin: string, userId?: string) {
+  async setPin(walletId: string, pin: string, tenantId: string, userId?: string) {
+    this.ensureTenantId(tenantId);
+
     if (!/^\d{4,6}$/.test(pin)) {
       throw new BadRequestException(
         "رمز PIN يجب أن يكون 4-6 أرقام",
@@ -496,7 +531,7 @@ export class WalletService {
     }
 
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -512,12 +547,13 @@ export class WalletService {
     const hashedPin = this.hashPin(pin);
 
     await this.prisma.wallet.update({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
       data: { pin: hashedPin },
     });
 
     await this.prisma.walletAuditLog.create({
       data: {
+        tenantId,
         walletId,
         userId,
         operation: "PIN_SET",
@@ -538,9 +574,11 @@ export class WalletService {
   /**
    * التحقق من رمز PIN
    */
-  async verifyPin(walletId: string, pin: string): Promise<boolean> {
+  async verifyPin(walletId: string, pin: string, tenantId: string): Promise<boolean> {
+    this.ensureTenantId(tenantId);
+
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -561,8 +599,11 @@ export class WalletService {
     walletId: string,
     oldPin: string,
     newPin: string,
+    tenantId: string,
     userId?: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (!/^\d{4,6}$/.test(newPin)) {
       throw new BadRequestException(
         "رمز PIN الجديد يجب أن يكون 4-6 أرقام",
@@ -570,7 +611,7 @@ export class WalletService {
     }
 
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -588,12 +629,13 @@ export class WalletService {
     const hashedPin = this.hashPin(newPin);
 
     await this.prisma.wallet.update({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
       data: { pin: hashedPin },
     });
 
     await this.prisma.walletAuditLog.create({
       data: {
+        tenantId,
         walletId,
         userId,
         operation: "PIN_CHANGED",
@@ -632,10 +674,11 @@ export class WalletService {
   private async enforcePinForAmount(
     walletId: string,
     amount: number,
-    pin?: string,
+    pin: string | undefined,
+    tenantId: string,
   ): Promise<void> {
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
       select: {
         requiresPinForAmount: true,
         pin: true,
@@ -665,7 +708,7 @@ export class WalletService {
         );
       }
 
-      await this.checkPinLockout(walletId);
+      await this.checkPinLockout(walletId, tenantId);
 
       if (!pin) {
         throw new BadRequestException(
@@ -674,7 +717,7 @@ export class WalletService {
       }
 
       const valid = this.verifyPinHash(pin, wallet.pin);
-      await this.recordPinAttempt(walletId, valid);
+      await this.recordPinAttempt(walletId, valid, tenantId);
 
       if (!valid) {
         throw new BadRequestException("رمز PIN غير صحيح");
@@ -685,12 +728,13 @@ export class WalletService {
   /**
    * التحقق من قفل PIN بسبب محاولات فاشلة متكررة
    */
-  private async checkPinLockout(walletId: string): Promise<void> {
+  private async checkPinLockout(walletId: string, tenantId: string): Promise<void> {
     const windowStart = new Date(Date.now() - this.PIN_LOCKOUT_WINDOW_MS);
 
     const recentFailures = await this.prisma.walletAuditLog.count({
       where: {
         walletId,
+        tenantId,
         operation: "PIN_FAILED",
         createdAt: { gte: windowStart },
       },
@@ -709,15 +753,17 @@ export class WalletService {
   private async recordPinAttempt(
     walletId: string,
     success: boolean,
+    tenantId: string,
   ): Promise<void> {
     if (!success) {
       const wallet = await this.prisma.wallet.findUnique({
-        where: { id: walletId },
+        where: { id_tenantId: { id: walletId, tenantId } },
         select: { balance: true, version: true },
       });
 
       await this.prisma.walletAuditLog.create({
         data: {
+          tenantId,
           walletId,
           operation: "PIN_FAILED",
           balanceBefore: wallet?.balance ?? 0,
@@ -733,17 +779,13 @@ export class WalletService {
   /**
    * الحصول على إحصائيات لوحة تحكم المحفظة
    */
-  async getWalletDashboard(walletId: string, tenantId?: string) {
+  async getWalletDashboard(walletId: string, tenantId: string) {
+    this.ensureTenantId(tenantId);
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
-      throw new NotFoundException("المحفظة غير موجودة");
-    }
-
-    // Validate tenant isolation
-    if (tenantId && wallet.tenantId && wallet.tenantId !== tenantId) {
       throw new NotFoundException("المحفظة غير موجودة");
     }
 
@@ -751,6 +793,7 @@ export class WalletService {
       this.prisma.escrow.findMany({
         where: {
           buyerWalletId: walletId,
+          tenantId,
           status: "HELD",
         },
         take: 100,
@@ -758,6 +801,7 @@ export class WalletService {
       this.prisma.escrow.findMany({
         where: {
           sellerWalletId: walletId,
+          tenantId,
           status: "HELD",
         },
         take: 100,
@@ -770,6 +814,7 @@ export class WalletService {
     const pendingPayments = await this.prisma.scheduledPayment.findMany({
       where: {
         walletId,
+        tenantId,
         isActive: true,
         nextPaymentDate: {
           lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
@@ -786,6 +831,7 @@ export class WalletService {
     const transactions = await this.prisma.transaction.findMany({
       where: {
         walletId,
+        tenantId,
         createdAt: { gte: thirtyDaysAgo },
       },
       orderBy: { createdAt: "asc" },
@@ -865,12 +911,15 @@ export class WalletService {
     fromWalletId: string,
     toWalletId: string,
     amount: number,
-    description?: string,
-    idempotencyKey?: string,
-    userId?: string,
-    ipAddress?: string,
-    pin?: string,
+    description: string | undefined,
+    idempotencyKey: string | undefined,
+    userId: string | undefined,
+    ipAddress: string | undefined,
+    pin: string | undefined,
+    tenantId: string,
   ) {
+    this.ensureTenantId(tenantId);
+
     if (amount <= 0) {
       throw new BadRequestException("المبلغ يجب أن يكون أكبر من صفر");
     }
@@ -890,21 +939,26 @@ export class WalletService {
     }
 
     // PIN + KYC enforcement on sender
-    await this.enforcePinForAmount(fromWalletId, amount, pin);
+    await this.enforcePinForAmount(fromWalletId, amount, pin, tenantId);
 
     return await this.prisma.$transaction(
       async (tx) => {
-        // Lock both wallets ordered by ID to prevent deadlocks
+        // Lock both wallets ordered by ID to prevent deadlocks.
+        // Tenant-scope each lock so cross-tenant wallet ids cannot be locked.
         const [firstId, secondId] =
           fromWalletId < toWalletId
             ? [fromWalletId, toWalletId]
             : [toWalletId, fromWalletId];
 
-        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${firstId}::uuid FOR UPDATE`;
-        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${secondId}::uuid FOR UPDATE`;
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${firstId}::uuid AND tenant_id = ${tenantId} FOR UPDATE`;
+        await tx.$executeRaw`SELECT 1 FROM wallets WHERE id = ${secondId}::uuid AND tenant_id = ${tenantId} FOR UPDATE`;
 
-        const fromWallet = await tx.wallet.findUnique({ where: { id: fromWalletId } });
-        const toWallet = await tx.wallet.findUnique({ where: { id: toWalletId } });
+        const fromWallet = await tx.wallet.findUnique({
+          where: { id_tenantId: { id: fromWalletId, tenantId } },
+        });
+        const toWallet = await tx.wallet.findUnique({
+          where: { id_tenantId: { id: toWalletId, tenantId } },
+        });
 
         if (!fromWallet || !toWallet) {
           throw new NotFoundException("إحدى المحفظتين غير موجودة");
@@ -930,7 +984,7 @@ export class WalletService {
 
         // Update sender
         await tx.wallet.update({
-          where: { id: fromWalletId, version: fromWallet.version },
+          where: { id_tenantId: { id: fromWalletId, tenantId }, version: fromWallet.version },
           data: {
             balance: fromNewBalance,
             version: fromNewVersion,
@@ -941,7 +995,7 @@ export class WalletService {
 
         // Update receiver
         await tx.wallet.update({
-          where: { id: toWalletId, version: toWallet.version },
+          where: { id_tenantId: { id: toWalletId, tenantId }, version: toWallet.version },
           data: {
             balance: toNewBalance,
             version: toNewVersion,
@@ -951,6 +1005,7 @@ export class WalletService {
         // Create outbound transaction
         const outTransaction = await tx.transaction.create({
           data: {
+            tenantId,
             walletId: fromWalletId,
             type: "TRANSFER_OUT",
             amount: -amount,
@@ -968,6 +1023,7 @@ export class WalletService {
         // Create inbound transaction
         await tx.transaction.create({
           data: {
+            tenantId,
             walletId: toWalletId,
             type: "TRANSFER_IN",
             amount,
@@ -984,6 +1040,7 @@ export class WalletService {
         // Audit logs
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId: fromWalletId,
             transactionId: outTransaction.id,
             userId,
@@ -1001,6 +1058,7 @@ export class WalletService {
 
         await tx.walletAuditLog.create({
           data: {
+            tenantId,
             walletId: toWalletId,
             userId,
             operation: "TRANSFER_IN",
@@ -1031,9 +1089,11 @@ export class WalletService {
   /**
    * تجميد المحفظة (للإدارة فقط)
    */
-  async freezeWallet(walletId: string, userId: string, reason?: string) {
+  async freezeWallet(walletId: string, userId: string, tenantId: string, reason?: string) {
+    this.ensureTenantId(tenantId);
+
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -1045,7 +1105,7 @@ export class WalletService {
     }
 
     await this.prisma.wallet.update({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
       data: {
         deletedAt: new Date(),
         deletedBy: userId,
@@ -1054,6 +1114,7 @@ export class WalletService {
 
     await this.prisma.walletAuditLog.create({
       data: {
+        tenantId,
         walletId,
         userId,
         operation: "WALLET_FROZEN",
@@ -1076,9 +1137,11 @@ export class WalletService {
   /**
    * إلغاء تجميد المحفظة (للإدارة فقط)
    */
-  async unfreezeWallet(walletId: string, userId: string, reason?: string) {
+  async unfreezeWallet(walletId: string, userId: string, tenantId: string, reason?: string) {
+    this.ensureTenantId(tenantId);
+
     const wallet = await this.prisma.wallet.findUnique({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
     });
 
     if (!wallet) {
@@ -1090,7 +1153,7 @@ export class WalletService {
     }
 
     await this.prisma.wallet.update({
-      where: { id: walletId },
+      where: { id_tenantId: { id: walletId, tenantId } },
       data: {
         deletedAt: null,
         deletedBy: null,
@@ -1099,6 +1162,7 @@ export class WalletService {
 
     await this.prisma.walletAuditLog.create({
       data: {
+        tenantId,
         walletId,
         userId,
         operation: "WALLET_UNFROZEN",

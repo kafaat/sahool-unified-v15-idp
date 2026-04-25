@@ -163,7 +163,7 @@ export class SyncService {
 
         // Update existing field - validate tenant ownership
         const existingField = await this.prisma.field.findUnique({
-          where: { id },
+          where: { id_tenantId: { id, tenantId } },
           select: { id: true, version: true, tenantId: true },
         });
 
@@ -189,7 +189,7 @@ export class SyncService {
         // Version conflict check
         if (client_version !== undefined && client_version < existingField.version) {
           const serverData = await this.prisma.field.findUnique({
-            where: { id },
+            where: { id_tenantId: { id, tenantId } },
           });
 
           results.push({
@@ -203,9 +203,12 @@ export class SyncService {
           continue;
         }
 
-        // Apply update with version increment for optimistic locking
-        const updated = await this.prisma.field.update({
-          where: { id, version: existingField.version },
+        // Apply update with version increment for optimistic locking.
+        // Prisma's `update({ where })` only accepts `WhereUniqueInput`, so we use
+        // `updateMany` to combine the unique selector with the `version` guard
+        // (preventing TOCTOU races between the conflict-check and the write).
+        const updateResult = await this.prisma.field.updateMany({
+          where: { id, tenantId, version: existingField.version },
           data: {
             version: { increment: 1 },
             ...(fieldData.name && { name: fieldData.name }),
@@ -217,6 +220,26 @@ export class SyncService {
           },
         });
 
+        if (updateResult.count !== 1) {
+          // Race: another writer bumped the version between our check and write.
+          const current = await this.prisma.field.findUnique({
+            where: { id_tenantId: { id, tenantId } },
+          });
+          results.push({
+            clientId: id,
+            serverId: id,
+            status: "conflict",
+            server_version: current?.version ?? existingField.version,
+            etag: current ? generateETag(current.id, current.version) : undefined,
+            serverData: current,
+          });
+          continue;
+        }
+
+        const updated = await this.prisma.field.findUniqueOrThrow({
+          where: { id_tenantId: { id, tenantId } },
+        });
+
         results.push({
           clientId: id,
           serverId: updated.id,
@@ -225,8 +248,8 @@ export class SyncService {
           etag: generateETag(updated.id, updated.version),
         });
 
-        // Invalidate cache
-        await this.cacheService.del(CACHE_KEYS.FIELD(id));
+        // Invalidate cache (tenant-scoped key)
+        await this.cacheService.del(CACHE_KEYS.FIELD(tenantId, id));
       } catch (error) {
         results.push({
           clientId: clientField.id || "unknown",

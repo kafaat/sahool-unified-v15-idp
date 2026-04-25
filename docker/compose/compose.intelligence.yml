@@ -505,6 +505,27 @@ services:
         limits:
           cpus: '0.008'
           memory: 32Gi
+  agri-taxonomy-service:
+    build:
+      context: ../../apps/services/agri-taxonomy-service
+      dockerfile: Dockerfile
+    ports:
+    - 8265:8265
+    environment:
+    - PORT=8265
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8265/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+    - knowledge-graph
   soil-analysis-service:
     build:
       context: ../../apps/services/soil-analysis-service

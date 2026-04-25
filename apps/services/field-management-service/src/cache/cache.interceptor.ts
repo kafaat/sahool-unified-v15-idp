@@ -115,8 +115,13 @@ export class CacheInterceptor implements NestInterceptor {
       return this.interpolateKey(customKey, request);
     }
 
-    // Generate default key from URL and query params
-    const tenantId = request.headers["x-tenant-id"] || "default";
+    // Generate default key from URL and query params. Use the tenantId
+    // resolved by TenantGuard (JWT-bound, attached to request) rather than
+    // the raw `x-tenant-id` header — a spoofed header would otherwise let a
+    // caller poison/read another tenant's cache entries. Falls back to
+    // "default" only when the guard has not attached a tenant (e.g. public
+    // routes).
+    const tenantId = request.tenantId || "default";
     const path = request.path;
     const query = JSON.stringify(request.query || {});
 

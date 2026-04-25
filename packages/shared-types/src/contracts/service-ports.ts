@@ -150,6 +150,19 @@ export const SERVICE_PORTS = {
   EDGE_ORCHESTRATOR: 8180,
   /** vLLM DeepSeek inference server - خادم استدلال vLLM ديب سيك */
   VLLM_DEEPSEEK: 8270,
+  /**
+   * Agricultural taxonomy service - خدمة التصنيف الزراعي.
+   * Source of truth for crops/varieties/diseases/pests/weeds/fertilizers.
+   * Hot-reloads to all consumers within 30 s. @since 16.1.0 (ADR-012)
+   */
+  AGRI_TAXONOMY: 8265,
+  /**
+   * Prescription Safety Gateway - بوابة سلامة الوصفات.
+   * Thin aggregator over PHI/REI, dosage tolerance, forbidden-substance,
+   * and GlobalGAP checks. Returns APPROVED | REVIEW | REJECTED.
+   * @since 16.1.0 (ADR-013)
+   */
+  PRESCRIPTION_SAFETY_GATEWAY: 8275,
 
   // ── Agriculture Domain ───────────────────────────────────────────────
   /** Soil analysis - تحليل التربة */
@@ -441,6 +454,24 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
     kongRoute: '/api/v1/vllm',
     type: 'python',
     layer: 'intelligence',
+  },
+  'agri-taxonomy-service': {
+    key: 'AGRI_TAXONOMY',
+    port: SERVICE_PORTS.AGRI_TAXONOMY,
+    name: 'Agricultural Taxonomy Service',
+    nameAr: 'خدمة التصنيف الزراعي',
+    kongRoute: '/api/v1/taxonomy',
+    type: 'python',
+    layer: 'intelligence',
+  },
+  'prescription-safety-gateway': {
+    key: 'PRESCRIPTION_SAFETY_GATEWAY',
+    port: SERVICE_PORTS.PRESCRIPTION_SAFETY_GATEWAY,
+    name: 'Prescription Safety Gateway',
+    nameAr: 'بوابة سلامة الوصفات',
+    kongRoute: '/api/v1/prescription',
+    type: 'python',
+    layer: 'decision',
   },
 
   // ── Intelligence Layer ────────────────────────────────────────────────────
@@ -948,6 +979,8 @@ export const SERVICE_PORT_ALIASES = {
   astronomicalCalendar: SERVICE_PORTS.ASTRONOMICAL_CALENDAR,
   cropIntelligence: SERVICE_PORTS.CROP_INTELLIGENCE,
   audit: SERVICE_PORTS.AUDIT_SERVICE,
+  agriTaxonomy: SERVICE_PORTS.AGRI_TAXONOMY,
+  prescriptionSafetyGateway: SERVICE_PORTS.PRESCRIPTION_SAFETY_GATEWAY,
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -7,7 +7,7 @@ import json
 import logging
 import os
 import uuid
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 
 try:
     from nats.aio.client import Client as NATS
@@ -105,7 +105,7 @@ class EventEnvelope:
 class WeatherPublisher:
     """Publisher for Weather events"""
 
-    def __init__(self, nats_url: str = None):
+    def __init__(self, nats_url: str | None = None):
         self.nats_url = nats_url or NATS_URL
         self.nc = None
         self._connected = False
@@ -158,17 +158,17 @@ class WeatherPublisher:
         alert_type: str,
         severity: str,
         window_hours: int,
-        title_ar: str = None,
-        title_en: str = None,
-        correlation_id: str = None,
-    ) -> str:
-        """Publish weather alert event"""
+        title_ar: str | None = None,
+        title_en: str | None = None,
+        correlation_id: str | None = None,
+    ) -> str | None:
+        """Publish weather alert event. Returns event_id if published, None if NATS unavailable."""
         if not self._connected:
             await self.connect()
 
         if not self._is_available:
             logger.debug("NATS unavailable, skipping weather_alert publish for field=%s", field_id)
-            return str(uuid.uuid4())
+            return None
 
         payload = {
             "field_id": field_id,
@@ -212,15 +212,15 @@ class WeatherPublisher:
         field_id: str,
         provider: str,
         days: int,
-        correlation_id: str = None,
-    ) -> str:
-        """Publish forecast issued event"""
+        correlation_id: str | None = None,
+    ) -> str | None:
+        """Publish forecast issued event. Returns event_id if published, None if NATS unavailable."""
         if not self._connected:
             await self.connect()
 
         if not self._is_available:
             logger.debug("NATS unavailable, skipping forecast_issued publish for field=%s", field_id)
-            return str(uuid.uuid4())
+            return None
 
         payload = {
             "field_id": field_id,
@@ -259,15 +259,15 @@ class WeatherPublisher:
         adjustment_factor: float,
         recommendation_ar: str,
         recommendation_en: str,
-        correlation_id: str = None,
-    ) -> str:
-        """Publish irrigation adjustment event"""
+        correlation_id: str | None = None,
+    ) -> str | None:
+        """Publish irrigation adjustment event. Returns event_id if published, None if NATS unavailable."""
         if not self._connected:
             await self.connect()
 
         if not self._is_available:
             logger.debug("NATS unavailable, skipping irrigation_adjustment publish for field=%s", field_id)
-            return str(uuid.uuid4())
+            return None
 
         payload = {
             "field_id": field_id,

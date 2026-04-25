@@ -1,0 +1,50 @@
+FROM python:3.11-slim-bookworm
+
+WORKDIR /app
+
+RUN groupadd --system --gid 1000 sahool && \
+    useradd --system --uid 1000 --gid sahool --shell /bin/bash --create-home sahool
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl tini && rm -rf /var/lib/apt/lists/*
+
+COPY apps/services/agri-taxonomy-service/requirements.txt .
+RUN pip install --no-cache-dir --timeout=600 --retries=5 \
+    --index-url https://pypi.org/simple \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.aliyun.com/pypi/simple/ \
+    --trusted-host mirrors.aliyun.com \
+    -r requirements.txt || \
+    pip install --no-cache-dir --timeout=600 --retries=5 \
+    -i https://mirrors.cloud.tencent.com/pypi/simple \
+    --trusted-host mirrors.cloud.tencent.com \
+    -r requirements.txt
+
+# Copy shared libraries (imported at runtime via PYTHONPATH=/app) + service code.
+# Without `shared/` the container fails to import `shared.logging_config` on startup.
+# NOTE: docker build context MUST be the repository root (not this directory) so
+# that the `shared/` paths below resolve. e.g.
+#   docker build -f apps/services/agri-taxonomy-service/Dockerfile .
+COPY shared/__init__.py /app/shared/__init__.py
+COPY shared/logging_config.py /app/shared/logging_config.py
+COPY apps/services/agri-taxonomy-service/src ./src
+
+RUN chown -R sahool:sahool /app
+
+ENV PYTHONPATH=/app \
+    PORT=8265 \
+    SERVICE_NAME=agri-taxonomy-service \
+    SERVICE_LAYER=intelligence \
+    SERVICE_VERSION=0.1.0
+
+USER sahool
+EXPOSE 8265
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:8265/healthz || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8265"]

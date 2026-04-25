@@ -132,6 +132,7 @@ model Germplasm {
   seedLots  SeedLot[]
   plantings Planting[]
 
+  @@unique([id, tenantId], map: "uq_germplasm_id_tenant")
   @@unique([tenantId, accessionNumber], name: "uq_germplasm_tenant_accession")
   @@index([tenantId], name: "idx_germplasm_tenant")
   @@index([tenantId, isAvailable], name: "idx_germplasm_tenant_available")
@@ -197,6 +198,7 @@ model SeedLot {
   germplasm Germplasm  @relation(fields: [germplasmId], references: [id], onDelete: Cascade)
   plantings Planting[]
 
+  @@unique([id, tenantId], map: "uq_seed_lot_id_tenant")
   @@unique([tenantId, lotNumber], name: "uq_seed_lot_tenant_number")
   @@index([tenantId], name: "idx_seed_lot_tenant")
   @@index([germplasmId], name: "idx_seed_lot_germplasm")
@@ -258,6 +260,7 @@ model Planting {
   germplasm  Germplasm  @relation(fields: [germplasmId], references: [id])
   seedLot    SeedLot?   @relation(fields: [seedLotId], references: [id])
 
+  @@unique([id, tenantId], map: "uq_planting_id_tenant")
   @@index([tenantId], name: "idx_planting_tenant")
   @@index([experimentId], name: "idx_planting_experiment")
   @@index([plotId], name: "idx_planting_plot")
@@ -300,6 +303,7 @@ model Experiment {
   auditLogs     ExperimentAuditLog[]
   plantings     Planting[]
 
+  @@unique([id, tenantId], map: "uq_experiment_id_tenant")
   @@index([tenantId], name: "idx_experiment_tenant")
   @@index([tenantId, status], name: "idx_experiment_tenant_status")
   @@index([status], name: "idx_experiment_status")
@@ -334,6 +338,7 @@ model ResearchProtocol {
 
   experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_research_protocol_id_tenant")
   @@index([tenantId], name: "idx_protocol_tenant")
   @@index([experimentId], name: "idx_protocol_experiment")
   @@map("research_protocols")
@@ -363,6 +368,7 @@ model ResearchPlot {
   logs       ResearchDailyLog[]
   samples    LabSample[]
 
+  @@unique([id, tenantId], map: "uq_research_plot_id_tenant")
   @@unique([experimentId, plotCode])
   @@index([tenantId], name: "idx_plot_tenant")
   @@map("research_plots")
@@ -394,6 +400,7 @@ model Treatment {
   plot       ResearchPlot?      @relation(fields: [plotId], references: [id], onDelete: SetNull)
   logs       ResearchDailyLog[]
 
+  @@unique([id, tenantId], map: "uq_treatment_id_tenant")
   @@index([tenantId], name: "idx_treatment_tenant")
   @@index([experimentId], name: "idx_treatment_experiment")
   @@index([plotId], name: "idx_treatment_plot")
@@ -432,6 +439,7 @@ model ResearchDailyLog {
   treatment  Treatment?    @relation(fields: [treatmentId], references: [id], onDelete: SetNull)
   samples    LabSample[]
 
+  @@unique([id, tenantId], map: "uq_research_daily_log_id_tenant")
   @@unique([tenantId, offlineId], name: "uq_daily_log_tenant_offline")
   @@index([tenantId], name: "idx_daily_log_tenant")
   @@index([experimentId], name: "idx_daily_log_experiment")
@@ -474,6 +482,7 @@ model LabSample {
   plot       ResearchPlot?     @relation(fields: [plotId], references: [id], onDelete: SetNull)
   log        ResearchDailyLog? @relation(fields: [logId], references: [id], onDelete: SetNull)
 
+  @@unique([id, tenantId], map: "uq_lab_sample_id_tenant")
   @@unique([tenantId, sampleCode], name: "uq_lab_sample_tenant_code")
   @@index([tenantId], name: "idx_lab_sample_tenant")
   @@index([experimentId], name: "idx_lab_sample_experiment")
@@ -504,6 +513,7 @@ model DigitalSignature {
   invalidatedReason String?   @map("invalidated_reason") @db.Text
   createdAt         DateTime  @default(now()) @map("created_at")
 
+  @@unique([id, tenantId], map: "uq_digital_signature_id_tenant")
   @@unique([tenantId, entityType, entityId, signerId, purpose])
   @@index([tenantId], name: "idx_signature_tenant")
   @@index([entityType, entityId], name: "idx_signature_entity")
@@ -525,6 +535,7 @@ model ExperimentCollaborator {
 
   experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_experiment_collaborator_id_tenant")
   @@unique([experimentId, userId])
   @@index([tenantId], name: "idx_collaborator_tenant")
   @@map("experiment_collaborators")
@@ -546,6 +557,7 @@ model ExperimentAuditLog {
 
   experiment Experiment? @relation(fields: [experimentId], references: [id], onDelete: SetNull)
 
+  @@unique([id, tenantId], map: "uq_experiment_audit_log_id_tenant")
   @@index([tenantId], name: "idx_audit_log_tenant")
   @@index([experimentId], name: "idx_audit_log_experiment")
   @@index([entityType, entityId], name: "idx_audit_log_entity")

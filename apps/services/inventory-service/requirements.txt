@@ -14,6 +14,12 @@ sqlalchemy==2.0.49
 asyncpg>=0.30.0
 greenlet>=3.0.0
 
+# Prisma client (powers WarehouseManager + ApplicationTracker). Kept optional
+# at runtime: if the generated client is missing, main.py falls back to a
+# SQLAlchemy-only surface and the warehouse / applications endpoints report
+# 503 instead of crashing the whole service.
+prisma>=0.15.0,<1.0.0
+
 # NATS messaging
 nats-py>=2.6.0,<3.0.0
 

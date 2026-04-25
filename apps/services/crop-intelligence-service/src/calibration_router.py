@@ -110,11 +110,17 @@ def _get_repo(request: Request) -> CalibrationRepository:
 
 
 def _get_tenant_id(request: Request) -> str:
-    """Extract tenant_id from JWT or header. استخراج معرف المستأجر."""
+    """Extract tenant_id from the verified JWT only. استخراج معرف المستأجر.
+
+    The router mounts ``Depends(get_current_user)`` so ``request.state.user``
+    is guaranteed to be populated on every authenticated request. The
+    previous header fallback let a caller override their tenant by sending
+    ``x-tenant-id`` and is removed.
+    """
     user = getattr(request.state, "user", None)
-    if user and hasattr(user, "tenant_id"):
+    if user and hasattr(user, "tenant_id") and user.tenant_id:
         return str(user.tenant_id)
-    return request.headers.get("x-tenant-id", "default")
+    raise HTTPException(status_code=401, detail="Missing tenant context")
 
 
 def _get_actor(request: Request) -> str:

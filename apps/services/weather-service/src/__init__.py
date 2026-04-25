@@ -1,6 +1,6 @@
 """SAHOOL Weather Core Service"""
 
-__version__ = "15.3.3"
+__version__ = "16.0.0"
 
 # Export main modules
 from .config import WeatherServiceConfig, get_config

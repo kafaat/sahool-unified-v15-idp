@@ -8,16 +8,19 @@ on:
       - "scripts/sync-contracts-to-python.ts"
       - "scripts/check-contracts-drift.ts"
 
+permissions:
+  contents: read
+
 jobs:
   check:
     name: Verify Python contracts mirror TS source of truth
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "20"
           cache: "npm"

@@ -22,7 +22,17 @@ export const CACHE_TTL = {
 
 // Cache key patterns
 export const CACHE_KEYS = {
-  FIELD: (id: string) => `field:${id}`,
+  /**
+   * Tenant-scoped field cache key. Parameter order mirrors the
+   * output format (``field:${tenantId}:${id}``) so that accidental
+   * argument swaps are visually obvious at call sites (PR #1729
+   * review, comment on pullrequestreview-4150593669). Also matches
+   * ``SYNC_STATUS(deviceId, tenantId)``'s left-to-right-as-in-key
+   * convention. Without the tenant component, two tenants holding
+   * fields with the same ``id`` would fight for one cache slot,
+   * enabling cross-tenant hits.
+   */
+  FIELD: (tenantId: string, id: string) => `field:${tenantId}:${id}`,
   FIELD_STATS: (tenantId: string) => `field-stats:${tenantId}`,
   NDVI: (fieldId: string) => `ndvi:${fieldId}`,
   NDVI_SUMMARY: (tenantId: string) => `ndvi-summary:${tenantId}`,
@@ -139,7 +149,7 @@ export class CacheService {
    */
   async invalidateField(fieldId: string, tenantId: string): Promise<void> {
     await Promise.all([
-      this.del(CACHE_KEYS.FIELD(fieldId)),
+      this.del(CACHE_KEYS.FIELD(tenantId, fieldId)),
       this.del(CACHE_KEYS.NDVI(fieldId)),
       this.del(CACHE_KEYS.TASK_LIST(fieldId)),
       this.delByPattern(`fields:${tenantId}:*`),

@@ -173,6 +173,7 @@ class ApplicationTracker:
         purpose: ApplicationPurpose,
         applied_by: str,
         area_ha: float,
+        tenant_id: str,
         application_date: datetime | None = None,
         **kwargs,
     ) -> InputApplication:
@@ -205,8 +206,8 @@ class ApplicationTracker:
         Raises:
             ValueError: If item not found or insufficient stock
         """
-        # Step 1: Validate item exists
-        item = await self.db.inventoryitem.find_unique(where={"id": item_id})
+        # Step 1: Validate item exists (tenant-scoped via id_tenantId composite)
+        item = await self.db.inventoryitem.find_unique(where={"id_tenantId": {"id": item_id, "tenantId": tenant_id}})
         if not item:
             raise ValueError(f"Inventory item {item_id} not found")
 
@@ -219,12 +220,13 @@ class ApplicationTracker:
         # Step 2: Calculate rate per hectare
         rate_per_ha = quantity / area_ha if area_ha > 0 else 0
 
-        # Step 3: Deduct from inventory using FIFO
-        batch_lot_id = await self._deduct_from_batches(item_id, quantity)
+        # Step 3: Deduct from inventory using FIFO.
+        batch_lot_id = await self._deduct_from_batches(item_id, quantity, tenant_id)
 
-        # Step 4: Create stock movement record
+        # Step 4: Create stock movement record (tenant-stamped).
         await self.db.stockmovement.create(
             data={
+                "tenantId": tenant_id,
                 "itemId": item_id,
                 "movementType": "FIELD_APPLICATION",
                 "quantity": -quantity,  # Negative for outgoing
@@ -240,9 +242,9 @@ class ApplicationTracker:
             }
         )
 
-        # Update item quantities
+        # Update item quantities (tenant-scoped)
         await self.db.inventoryitem.update(
-            where={"id": item_id},
+            where={"id_tenantId": {"id": item_id, "tenantId": tenant_id}},
             data={
                 "currentQuantity": item.currentQuantity - quantity,
                 "availableQuantity": item.availableQuantity - quantity,
@@ -269,8 +271,9 @@ class ApplicationTracker:
         # Remove None values
         weather_conditions = {k: v for k, v in weather_conditions.items() if v is not None}
 
-        # Step 6: Create application record
+        # Step 6: Create application record (tenant-stamped).
         application_data = {
+            "tenantId": tenant_id,
             "fieldId": field_id,
             "cropSeasonId": crop_season_id,
             "itemId": item_id,
@@ -303,20 +306,26 @@ class ApplicationTracker:
         # Convert to dataclass
         return self._db_to_dataclass(application_record)
 
-    async def _deduct_from_batches(self, item_id: str, quantity: float) -> str | None:
+    async def _deduct_from_batches(self, item_id: str, quantity: float, tenant_id: str) -> str | None:
         """
-        Deduct quantity from batches using FIFO (First In, First Out)
+        Deduct quantity from batches using FIFO (First In, First Out).
+
+        SECURITY: the batch query carries tenantId + itemId so the FIFO
+        rows returned are scoped to the caller's tenant. Per-batch updates
+        below rebind tenantId via the id_tenantId composite unique so a
+        batch id sourced from a different tenant cannot overwrite ours.
 
         Args:
             item_id: Item ID
             quantity: Quantity to deduct
+            tenant_id: Tenant ID for isolation (required)
 
         Returns:
             Batch lot ID if single batch used, None if multiple
         """
-        # Get batches ordered by received date (FIFO)
+        # Get batches ordered by received date (FIFO) — tenant-scoped.
         batches = await self.db.batchlot.find_many(
-            where={"itemId": item_id, "remainingQty": {"gt": 0}},
+            where={"itemId": item_id, "tenantId": tenant_id, "remainingQty": {"gt": 0}},
             order_by={"receivedDate": "asc"},
         )
 
@@ -334,7 +343,10 @@ class ApplicationTracker:
             deduct = min(remaining, batch.remainingQty)
             new_remaining = batch.remainingQty - deduct
 
-            await self.db.batchlot.update(where={"id": batch.id}, data={"remainingQty": new_remaining})
+            await self.db.batchlot.update(
+                where={"id_tenantId": {"id": batch.id, "tenantId": tenant_id}},
+                data={"remainingQty": new_remaining},
+            )
 
             remaining -= deduct
             used_batch_id = batch.id
@@ -346,16 +358,23 @@ class ApplicationTracker:
     async def get_field_applications(
         self,
         field_id: str,
+        tenant_id: str,
         crop_season_id: str | None = None,
         category: str | None = None,  # fertilizer, pesticide
         start_date: date | None = None,
         end_date: date | None = None,
     ) -> list[InputApplication]:
         """
-        Get all applications for a field
+        Get all applications for a field.
+
+        SECURITY: tenantId is required and added to the input_applications
+        filter so cross-tenant field_id guesses yield an empty list. The
+        category join below also binds tenantId on the inventory_items
+        lookup via the id_tenantId composite unique.
 
         Args:
             field_id: Field ID
+            tenant_id: Tenant ID for isolation (required)
             crop_season_id: Optional crop season filter
             category: Optional item category filter
             start_date: Optional start date filter
@@ -364,7 +383,7 @@ class ApplicationTracker:
         Returns:
             List of InputApplication objects
         """
-        where_clause = {"fieldId": field_id}
+        where_clause: dict = {"fieldId": field_id, "tenantId": tenant_id}
 
         if crop_season_id:
             where_clause["cropSeasonId"] = crop_season_id
@@ -385,16 +404,23 @@ class ApplicationTracker:
         if category:
             filtered = []
             for app in applications:
-                item = await self.db.inventoryitem.find_unique(where={"id": app.itemId})
+                item = await self.db.inventoryitem.find_unique(
+                    where={"id_tenantId": {"id": app.itemId, "tenantId": tenant_id}}
+                )
                 if item and item.category.upper() == category.upper():
                     filtered.append(app)
             applications = filtered
 
         return [self._db_to_dataclass(app) for app in applications]
 
-    async def get_application_summary(self, field_id: str, crop_season_id: str) -> dict:
+    async def get_application_summary(self, field_id: str, crop_season_id: str, tenant_id: str) -> dict:
         """
         Get summary of all inputs applied to a crop season.
+
+        Args:
+            field_id: Field ID
+            crop_season_id: Crop season ID
+            tenant_id: Tenant ID for isolation (required)
 
         Returns:
         - Total fertilizer by type (NPK breakdown)
@@ -402,7 +428,7 @@ class ApplicationTracker:
         - Total cost
         - Application timeline
         """
-        applications = await self.get_field_applications(field_id, crop_season_id)
+        applications = await self.get_field_applications(field_id, tenant_id, crop_season_id=crop_season_id)
 
         # Initialize summary
         summary = {
@@ -419,8 +445,10 @@ class ApplicationTracker:
         }
 
         for app in applications:
-            # Get item details
-            item = await self.db.inventoryitem.find_unique(where={"id": app.item_id})
+            # Get item details (tenant-scoped via id_tenantId composite)
+            item = await self.db.inventoryitem.find_unique(
+                where={"id_tenantId": {"id": app.item_id, "tenantId": tenant_id}}
+            )
             if not item:
                 continue
 
@@ -491,6 +519,7 @@ class ApplicationTracker:
         field_id: str,
         crop_season_id: str,
         crop_type: str,
+        tenant_id: str,
         custom_applications: list[dict] | None = None,
     ) -> ApplicationPlan:
         """
@@ -504,6 +533,7 @@ class ApplicationTracker:
             field_id: Field ID
             crop_season_id: Crop season ID
             crop_type: Type of crop
+            tenant_id: Tenant ID for isolation (required)
             custom_applications: Custom list of planned applications
 
         Returns:
@@ -520,10 +550,12 @@ class ApplicationTracker:
         total_cost = 0.0
 
         for app in planned_apps:
-            # Look up item to get category and cost
+            # Look up item to get category and cost (tenant-scoped)
             item_id = app.get("item_id")
             if item_id:
-                item = await self.db.inventoryitem.find_unique(where={"id": item_id})
+                item = await self.db.inventoryitem.find_unique(
+                    where={"id_tenantId": {"id": item_id, "tenantId": tenant_id}}
+                )
                 if item:
                     quantity = app.get("quantity", 0)
                     if item.category == "FERTILIZER":
@@ -535,6 +567,7 @@ class ApplicationTracker:
                         total_cost += item.unitCost * quantity
 
         plan_data = {
+            "tenantId": tenant_id,
             "fieldId": field_id,
             "cropSeasonId": crop_season_id,
             "cropType": crop_type,
@@ -612,7 +645,11 @@ class ApplicationTracker:
         return templates.get(crop_type.lower(), [])
 
     async def check_withholding_period(
-        self, field_id: str, crop_season_id: str, harvest_date: date | None = None
+        self,
+        field_id: str,
+        crop_season_id: str,
+        tenant_id: str,
+        harvest_date: date | None = None,
     ) -> dict:
         """
         Check if harvest is safe based on pesticide withholding periods.
@@ -620,6 +657,7 @@ class ApplicationTracker:
         Args:
             field_id: Field ID
             crop_season_id: Crop season ID
+            tenant_id: Tenant ID for isolation (required)
             harvest_date: Planned harvest date (defaults to today)
 
         Returns:
@@ -631,7 +669,7 @@ class ApplicationTracker:
         if harvest_date is None:
             harvest_date = date.today()
 
-        applications = await self.get_field_applications(field_id, crop_season_id)
+        applications = await self.get_field_applications(field_id, tenant_id, crop_season_id=crop_season_id)
 
         blocking = []
         max_wait_days = 0
@@ -641,8 +679,10 @@ class ApplicationTracker:
                 days_remaining = (app.safe_harvest_date - harvest_date).days
                 max_wait_days = max(max_wait_days, days_remaining)
 
-                # Get item details
-                item = await self.db.inventoryitem.find_unique(where={"id": app.item_id})
+                # Get item details (tenant-scoped via id_tenantId composite)
+                item = await self.db.inventoryitem.find_unique(
+                    where={"id_tenantId": {"id": app.item_id, "tenantId": tenant_id}}
+                )
 
                 blocking.append(
                     {
@@ -665,13 +705,18 @@ class ApplicationTracker:
             ),
         }
 
-    async def calculate_input_costs(self, field_id: str, crop_season_id: str) -> dict:
+    async def calculate_input_costs(self, field_id: str, crop_season_id: str, tenant_id: str) -> dict:
         """
-        Calculate total input costs for a crop season
+        Calculate total input costs for a crop season.
+
+        Args:
+            field_id: Field ID
+            crop_season_id: Crop season ID
+            tenant_id: Tenant ID for isolation (required)
 
         Returns breakdown by category and item
         """
-        summary = await self.get_application_summary(field_id, crop_season_id)
+        summary = await self.get_application_summary(field_id, crop_season_id, tenant_id)
 
         return {
             "field_id": field_id,
@@ -683,9 +728,11 @@ class ApplicationTracker:
             ),
         }
 
-    async def get_application_by_id(self, application_id: str) -> InputApplication | None:
-        """Get a single application by ID"""
-        app = await self.db.inputapplication.find_unique(where={"id": application_id})
+    async def get_application_by_id(self, application_id: str, tenant_id: str) -> InputApplication | None:
+        """Get a single application by ID, tenant-scoped via id_tenantId."""
+        app = await self.db.inputapplication.find_unique(
+            where={"id_tenantId": {"id": application_id, "tenantId": tenant_id}}
+        )
         if not app:
             return None
         return self._db_to_dataclass(app)

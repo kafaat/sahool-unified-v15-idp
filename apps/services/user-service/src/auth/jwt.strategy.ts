@@ -92,6 +92,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException("User not found");
     }
 
+    // Cross-check tenant binding: if the token carries a tenant id, it MUST
+    // match the persisted user row. Protects against a user that was moved
+    // between tenants: the pre-move tokens must not be usable against the
+    // new tenant's data.
+    if (payload.tid && user.tenantId && payload.tid !== user.tenantId) {
+      this.logger.warn(
+        `Token tenant mismatch: jti=${payload.jti?.substring(0, 8)}..., token_tid=${payload.tid}, user_tid=${user.tenantId}`,
+      );
+      throw new UnauthorizedException("Token tenant mismatch");
+    }
+
     // Check if user is active
     if (user.status !== "ACTIVE") {
       throw new UnauthorizedException("User account is not active");

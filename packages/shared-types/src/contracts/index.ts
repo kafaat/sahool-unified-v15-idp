@@ -101,7 +101,38 @@
 //            — same skip+limit-only constraint, user-scoped.
 //          * CHAIN_VALIDATE (/audit/chain/validate)
 //          Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.20.0" as const;
+// 4.20.0 - SATELLITE_ENDPOINTS extended with two endpoints that back the
+//          map-visualization upgrade (Phase 1 + 2):
+//          * INDEX_MAP  (/satellite/v1/indices/{fieldId}/{indexName}/map)
+//            — raster-tile metadata per index so the MapLibre layer can
+//            render any of NDVI / NDRE / NDWI / EVI / SAVI / LAI, not
+//            just hard-coded NDVI. Returns `{rasterUrl, bounds,
+//            colorScale, label, unit, dataSource}`.
+//          * INDEX_PIXEL (/satellite/v1/indices/{fieldId}/pixel)
+//            — all 44 computed indices at a given lat/lon, powering the
+//            EOSDA/OneSoil-style click-to-inspect popup.
+//          Purely additive; no existing exports removed.
+// 4.21.0 - SATELLITE_ENDPOINTS extended with three multi-date endpoints
+//          (Phase 3) that close the "no N-date comparison" gap vs
+//          EOSDA / OneSoil:
+//          * INDEX_COMPOSITE (/satellite/v1/indices/{fieldId}/{indexName}/composite)
+//            — N-day median/mean composite with p25/p75 envelopes.
+//          * INDEX_FILMSTRIP (/satellite/v1/indices/{fieldId}/{indexName}/filmstrip)
+//            — thumbnail carousel metadata (date + rasterUrl + value +
+//            status), cadence-controlled + capped at ~20 frames.
+//          * INDEX_MULTI_COMPARE (/satellite/v1/indices/{fieldId}/{indexName}/multi-date-compare)
+//            — compare the same index across up to 12 dates, with
+//            `delta_from_previous` computed server-side.
+//          Purely additive; no existing exports removed. The legacy
+//          `/v1/ndvi-timeseries/compare` stays in place for backwards
+//          compatibility but new callers should use INDEX_MULTI_COMPARE.
+// 4.22.0 - ADR-012 agri-taxonomy contracts: TAXONOMY_PORT (8265) added
+//          to SERVICE_PORTS and TAXONOMY_ENDPOINTS module exposing the
+//          six v1 endpoints (`/taxonomy/v1/{nodes,nodes/{id},nodes/{id}/synonyms,
+//          nodes/{id}/edges,search,release}`). Purely additive.
+// 4.23.0 - ADR-013 prescription-safety contracts: PRESCRIPTION_SAFETY_PORT
+//          and PRESCRIPTION_SAFETY_ENDPOINTS added. Purely additive.
+export const CONTRACT_VERSION = "4.23.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

@@ -130,6 +130,29 @@ INFRA_SERVICES: set[str] = {
     "etcd",
     "etcd-perms-init",
     "nats-prometheus-exporter",
+    "mongo",
+    "rocketchat",
+}
+
+# ---------------------------------------------------------------------------
+# Init containers – run once then exit (restart: no)
+# ---------------------------------------------------------------------------
+
+INIT_SERVICES: set[str] = {
+    "etcd-init",
+    "etcd-perms-init",
+    "mongo-init-replica",
+    "mongo-keyfile-init",
+    "nats-stream-init",
+    "ollama-model-loader",
+}
+
+# ---------------------------------------------------------------------------
+# GPU / special containers
+# ---------------------------------------------------------------------------
+
+GPU_SERVICES: dict[str, int] = {
+    "vllm-deepseek": 8270,
 }
 
 # ---------------------------------------------------------------------------
@@ -145,3 +168,14 @@ ALL_BUILT_SERVICES: dict[str, int | None] = {
     **NODE_SERVICES,
     **dict.fromkeys(PORTLESS_SERVICES),
 }
+
+#: Every container expected in docker-compose.yml (union of all categories).
+ALL_COMPOSE_SERVICES: set[str] = (
+    set(PYTHON_SERVICES)
+    | set(NODE_SERVICES)
+    | PORTLESS_SERVICES
+    | INFRA_SERVICES
+    | INIT_SERVICES
+    | set(GPU_SERVICES)
+    | set(DEPRECATED_SERVICES)
+)

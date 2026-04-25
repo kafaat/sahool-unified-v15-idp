@@ -48,6 +48,7 @@ model Conversation {
   messages     Message[]
   participants Participant[]
 
+  @@unique([id, tenantId], map: "uq_conversation_id_tenant")
   @@index([tenantId], name: "idx_conversation_tenant")
   @@index([tenantId, isActive], name: "idx_conversation_tenant_active")
   @@index([productId])
@@ -92,6 +93,7 @@ model Message {
   // العلاقات
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_message_id_tenant")
   @@index([tenantId], name: "idx_message_tenant")
   @@index([conversationId])
   @@index([senderId])
@@ -143,6 +145,7 @@ model Participant {
   // العلاقات
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_participant_id_tenant")
   @@unique([conversationId, userId])
   @@index([tenantId], name: "idx_participant_tenant")
   @@index([userId])

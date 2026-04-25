@@ -6,9 +6,20 @@
  * RS256 with RSA keys has been deprecated.
  */
 
+import type { Algorithm } from 'jsonwebtoken';
+
+/**
+ * Narrowed JWT algorithm type. This config only supports HS256 (RS256
+ * with RSA keys has been deprecated platform-wide) — the narrow literal
+ * type prevents callers from accidentally configuring an unsafe
+ * algorithm such as `none` while still satisfying `passport-jwt`'s
+ * `Algorithm[]` option typings at call sites.
+ */
+export type SupportedJwtAlgorithm = Extract<Algorithm, 'HS256'>;
+
 export interface JWTConfigInterface {
   secret: string;
-  algorithm: string;
+  algorithm: SupportedJwtAlgorithm;
   accessTokenExpireMinutes: number;
   refreshTokenExpireDays: number;
   issuer: string;
@@ -34,7 +45,7 @@ export class JWTConfig {
   /**
    * JWT Algorithm - HS256 only (RS256 deprecated)
    */
-  static readonly ALGORITHM: string = 'HS256';
+  static readonly ALGORITHM: SupportedJwtAlgorithm = 'HS256';
 
   /**
    * Access token expiration time in minutes

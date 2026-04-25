@@ -81,6 +81,7 @@ model Farm {
   fields Field[]
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_farm_id_tenant")
   @@index([tenantId], name: "idx_farm_tenant")
   @@index([tenantId, isDeleted], name: "idx_farm_tenant_active")
   @@index([tenantId, status], name: "idx_farm_tenant_status")
@@ -151,6 +152,7 @@ model Field {
   reports         FieldReport[]
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_field_id_tenant")
   @@index([tenantId], name: "idx_field_tenant")
   @@index([serverUpdatedAt], name: "idx_field_sync")
   @@index([status], name: "idx_field_status")
@@ -202,6 +204,7 @@ model FieldBoundaryHistory {
   field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_field_boundary_history_id_tenant")
   @@index([tenantId], name: "idx_history_tenant")
   @@index([fieldId], name: "idx_history_field")
   @@index([createdAt], name: "idx_history_date")
@@ -242,6 +245,7 @@ model SyncStatus {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_sync_status_id_tenant")
   @@unique([deviceId, userId], name: "idx_sync_device_user")
   @@index([tenantId], name: "idx_sync_tenant")
   @@map("sync_status")
@@ -295,6 +299,7 @@ model Task {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_task_id_tenant")
   @@index([tenantId], name: "idx_task_tenant")
   @@index([tenantId, status], name: "idx_task_tenant_status")
   @@index([fieldId], name: "idx_task_field")
@@ -358,6 +363,7 @@ model NdviReading {
   // Replaying the same satellite scene must NOT create duplicate rows —
   // upserts in the write path should ON CONFLICT on this key.
   @@unique([fieldId, capturedAt, satelliteName], name: "uq_ndvi_field_source_date")
+  @@unique([id, tenantId], map: "uq_ndvi_reading_id_tenant")
   // Indexes
   @@index([tenantId], name: "idx_ndvi_tenant")
   @@index([fieldId, capturedAt], name: "idx_ndvi_field_date")
@@ -398,6 +404,7 @@ model FieldKpiSnapshot {
 
   field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_field_kpi_snapshot_id_tenant")
   @@index([fieldId, fetchedAt(sort: Desc)], name: "idx_kpi_field_date")
   @@index([tenantId], name: "idx_kpi_tenant")
   @@map("field_kpi_snapshots")
@@ -489,6 +496,7 @@ model CropSeason {
   operations FieldOperation[]
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_crop_season_id_tenant")
   @@index([tenantId], name: "idx_crop_season_tenant")
   @@index([fieldId], name: "idx_crop_season_field")
   @@index([fieldId, sowingDate(sort: Desc)], name: "idx_crop_season_field_sown")
@@ -614,6 +622,7 @@ model FieldOperation {
   cropSeason CropSeason? @relation(fields: [cropSeasonId], references: [id], onDelete: SetNull)
 
   // Indexes
+  @@unique([id, tenantId], map: "uq_field_operation_id_tenant")
   @@index([tenantId], name: "idx_field_op_tenant")
   @@index([fieldId], name: "idx_field_op_field")
   @@index([fieldId, performedAt(sort: Desc)], name: "idx_field_op_field_date")
@@ -656,6 +665,7 @@ model OutboxEvent {
   lastError     String?   @map("last_error") @db.Text
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz
 
+  @@unique([id, tenantId], map: "uq_outbox_event_id_tenant")
   @@index([published, createdAt], name: "ix_outbox_published_created")
   @@index([tenantId, createdAt], name: "ix_outbox_tenant_created")
   @@index([aggregateType, aggregateId], name: "ix_outbox_aggregate")
@@ -685,6 +695,7 @@ model IdempotencyKey {
   expiresAt      DateTime @map("expires_at") @db.Timestamptz
   createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  @@unique([id, tenantId], map: "uq_idempotency_key_id_tenant")
   @@unique([tenantId, key, method, path], name: "uq_idempotency_tenant_key_method_path")
   @@index([expiresAt], name: "ix_idempotency_expires")
   @@map("idempotency_keys")
@@ -713,6 +724,7 @@ model FieldOperationAudit {
   userAgent     String?  @map("user_agent") @db.VarChar(500)
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
 
+  @@unique([id, tenantId], map: "uq_field_operation_audit_id_tenant")
   @@index([tenantId], name: "idx_field_op_audit_tenant")
   @@index([operationId, createdAt(sort: Desc)], name: "idx_field_op_audit_op")
   @@index([tenantId, action, createdAt], name: "idx_field_op_audit_action")
@@ -802,6 +814,7 @@ model FieldSubZone {
   // Relations
   field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_field_sub_zone_id_tenant")
   @@index([tenantId], name: "idx_field_sub_zone_tenant")
   @@index([fieldId, displayOrder], name: "idx_field_sub_zone_field")
   @@map("field_sub_zones")
@@ -851,6 +864,7 @@ model FieldReport {
   // Relations
   field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
 
+  @@unique([id, tenantId], map: "uq_field_report_id_tenant")
   @@index([tenantId], name: "idx_field_report_tenant")
   @@index([fieldId, createdAt(sort: Desc)], name: "idx_field_report_field")
   @@index([cropSeasonId], name: "idx_field_report_crop_season")

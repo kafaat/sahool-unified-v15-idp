@@ -1,0 +1,56 @@
+name: "SAHOOL CodeQL Configuration"
+
+# Extended security queries — matches existing workflow behaviour.
+queries:
+  - uses: security-extended
+  - uses: security-and-quality
+
+# Exclude archived and legacy code from analysis.
+#
+# These directories contain deprecated copies of services that are no
+# longer deployed but are kept for migration reference (see
+# `governance/DEDUP_MATRIX.md` and `archive/deprecated-services/README.md`).
+#
+# Because they re-declare module-level names that exist in the active
+# services (e.g. `publish_event`, `_ndvi_cache_key`, `_analysis_cache_key`,
+# `_timeseries_cache_key`, `get_cached_analysis`, `get_cached_timeseries`,
+# `cache_timeseries`) with *older* signatures, CodeQL's Python import
+# resolver may bind call sites in active code to the archived definitions
+# and emit spurious `Wrong name for an argument in a call` /
+# `Wrong number of arguments in a call` errors. Excluding these paths
+# eliminates the collision without affecting real analysis of shipped
+# code.
+#
+# `idp/templates/` and `legacy/` contain skeleton / historical code that
+# is also not part of the production surface.
+paths-ignore:
+  - "archive/**"
+  - "legacy/**"
+  - "idp/templates/**"
+  # Per-service test folders use `from src.main import ...` which is
+  # ambiguous to CodeQL's Python import resolver: the repository contains
+  # 17+ files at `apps/services/*/src/main.py` each defining a
+  # `publish_event` helper with a different signature (2, 3 or 4
+  # parameters). The analyser binds call sites at random across those
+  # overloads and raises spurious `Wrong number of arguments in a call`
+  # errors on perfectly valid test code (e.g.
+  # `apps/services/skills-service/tests/test_comprehensive.py`).
+  # These tests are not part of the production surface, so we exclude
+  # them from CodeQL analysis.
+  - "apps/services/*/tests/**"
+  # The top-level `tests/` directory has the same module-resolution
+  # problem: e.g. `tests/unit/shared/test_auth_dependencies.py` imports
+  # `shared.auth.dependencies.get_current_user` (signature
+  # `credentials, request`), but the analyser sometimes binds the call
+  # to a legacy helper at `apps/services/shared/auth/dependencies.py`
+  # (signature `token_data`) and reports spurious argument-name errors.
+  # Excluding the test tree removes these false positives; production
+  # code is still fully analysed.
+  - "tests/**"
+  - "**/node_modules/**"
+  - "**/__pycache__/**"
+  - "**/.venv/**"
+  - "**/venv/**"
+  - "**/build/**"
+  - "**/dist/**"
+  - "**/coverage_html/**"

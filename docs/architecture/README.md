@@ -15,6 +15,7 @@ Architecture proposals, principles, and service maps for the SAHOOL platform.
 | [FIELD_FIRST_ARCHITECTURE.md](./FIELD_FIRST_ARCHITECTURE.md) | Field-first architecture pattern |
 | [FIELD_FIRST_ASSESSMENT.md](./FIELD_FIRST_ASSESSMENT.md) | Field-first readiness assessment |
 | [FIELD_FIRST_IMPLEMENTATION_PLAN.md](./FIELD_FIRST_IMPLEMENTATION_PLAN.md) | Field-first implementation plan |
+| [GAP_ANALYSIS_v3.1_vs_v16.md](./GAP_ANALYSIS_v3.1_vs_v16.md) | Phase 1 gap analysis: SAHOOL v3.1 target vs v16 implementation |
 | [SERVICE_ACTIVATION_MAP.md](./SERVICE_ACTIVATION_MAP.md) | Service activation and dependency map |
 | [frontend-governance.md](./frontend-governance.md) | Frontend governance standards |
 

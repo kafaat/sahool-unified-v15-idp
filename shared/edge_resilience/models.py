@@ -6,10 +6,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
+from enum import StrEnum
 
 
-class PowerState(str, Enum):
+class PowerState(StrEnum):
     """Discrete power-supply states reported by ``PowerMonitor``."""
 
     NORMAL = "NORMAL"
@@ -17,7 +17,7 @@ class PowerState(str, Enum):
     UNKNOWN = "UNKNOWN"  # no GPIO configured (best-effort mode)
 
 
-class BackpressureLevel(str, Enum):
+class BackpressureLevel(StrEnum):
     """Discrete backpressure states (80 / 60 % hysteresis)."""
 
     NORMAL = "NORMAL"

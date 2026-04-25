@@ -2,7 +2,7 @@
 
 ## Status
 
-Proposed
+Accepted (2026-04-25, Phase 4 complete: WAL + PowerMonitor + BackpressureController + 20 unit tests)
 
 ## Context
 

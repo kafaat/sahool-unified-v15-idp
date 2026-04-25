@@ -126,6 +126,12 @@
 //          Purely additive; no existing exports removed. The legacy
 //          `/v1/ndvi-timeseries/compare` stays in place for backwards
 //          compatibility but new callers should use INDEX_MULTI_COMPARE.
+// 4.22.0 - ADR-012 agri-taxonomy contracts: TAXONOMY_PORT (8265) added
+//          to SERVICE_PORTS and TAXONOMY_ENDPOINTS module exposing the
+//          six v1 endpoints (`/taxonomy/v1/{nodes,nodes/{id},nodes/{id}/synonyms,
+//          nodes/{id}/edges,search,release}`). Purely additive.
+// 4.23.0 - ADR-013 prescription-safety contracts: PRESCRIPTION_SAFETY_PORT
+//          and PRESCRIPTION_SAFETY_ENDPOINTS added. Purely additive.
 export const CONTRACT_VERSION = "4.23.0" as const;
 
 export * from './service-ports';

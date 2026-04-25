@@ -29,14 +29,22 @@ class Synonym:
 
 @dataclass(frozen=True)
 class TaxonomyNode:
-    """A node in the taxonomy graph (crop, variety, disease, pest, weed, fertilizer)."""
+    """A node in the taxonomy graph (crop, variety, disease, pest, weed, fertilizer).
 
-    id: UUID  # UUIDv4 — stable identifier (ADR-012 invariant)
-    kind: str  # "crop" | "variety" | "disease" | "pest" | "weed" | "fertilizer"
+    Fields:
+        id: UUIDv4 — stable identifier (ADR-012 invariant).
+        kind: One of ``"crop" | "variety" | "disease" | "pest" | "weed" | "fertilizer"``.
+        parent_id: Parent node id (``None`` for roots).
+        synonyms: Localised aliases per ISO 639-1 language code.
+        cross_refs: External authority codes keyed by registry name.
+            Example: ``{"AGROVOC": "c_8389", "EPPO": "TRZAX"}``.
+    """
+
+    id: UUID
+    kind: str
     parent_id: UUID | None
     synonyms: list[Synonym] = field(default_factory=list)
     cross_refs: dict[str, str] = field(default_factory=dict)
-    # cross_refs example: {"AGROVOC": "c_8389", "EPPO": "TRZAX"}
 
 
 @dataclass(frozen=True)

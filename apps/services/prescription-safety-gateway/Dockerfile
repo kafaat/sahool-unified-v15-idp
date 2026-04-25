@@ -23,8 +23,15 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --trusted-host mirrors.cloud.tencent.com \
     -r requirements.txt
 
-# Copy shared library + service code
+# Copy shared libraries + service code.
+# `shared.pesticide_compliance` is imported at runtime by
+# PesticideComplianceCheckerAdapter; without it the checker silently degrades
+# to an UNCHECKED warning (review feedback #6).
+# `shared.logging_config` is imported in src/main.py for structured logging.
 COPY shared/prescription_safety /app/shared/prescription_safety
+COPY shared/pesticide_compliance /app/shared/pesticide_compliance
+COPY shared/logging_config.py /app/shared/logging_config.py
+COPY shared/__init__.py /app/shared/__init__.py
 COPY src ./src
 
 RUN chown -R sahool:sahool /app

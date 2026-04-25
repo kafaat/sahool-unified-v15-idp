@@ -24,12 +24,15 @@ within milliseconds instead of seconds when the release is broadcast.
 from __future__ import annotations
 
 import asyncio
+import logging
 from collections.abc import AsyncIterator, Awaitable, Callable
 from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
 from .models import TaxonomyEdge, TaxonomyNode, TaxonomyVersion
+
+log = logging.getLogger(__name__)
 
 #: Type alias for the injectable fetcher. Returns the next snapshot on each call.
 TaxonomyFetcher = Callable[[], Awaitable["Snapshot"]]
@@ -54,10 +57,11 @@ class Snapshot:
 class TaxonomyClient:
     """In-process client with a configurable refresh window and atomic snapshot swap.
 
-    Phase 4 implements the polling loop, an optional NATS-style
+    Phase 4 implements the polling loop and an optional NATS-style
     ``notifier`` that triggers an immediate refresh on
-    ``sahool.taxonomy.released.v{N}`` events, and an LRU-bounded lookup
-    cache.
+    ``sahool.taxonomy.released.v{N}`` events. Lookups read directly from
+    the latest snapshot — there is no separate LRU cache because the
+    snapshot itself is the cache and is swapped atomically on refresh.
     """
 
     def __init__(
@@ -198,7 +202,16 @@ class TaxonomyClient:
         async with self._fetch_lock:
             try:
                 snap = await self._fetcher()
-            except Exception:  # pragma: no cover - keep last good snapshot
+            except Exception:
+                # Keep the last good snapshot but surface the failure so
+                # operators can tell when the taxonomy has stopped
+                # refreshing. Silent failure here masks staleness in
+                # production (review feedback #10).
+                log.warning(
+                    "taxonomy_client.fetch_failed",
+                    extra={"base_url": self.base_url},
+                    exc_info=True,
+                )
                 return
             # Atomic single-attribute swap is the snapshot guarantee
             # callers rely on; readers always see a fully-formed Snapshot.

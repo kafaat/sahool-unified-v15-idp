@@ -128,11 +128,17 @@ class WriteAheadLog:
         ts_us = int(ts.timestamp() * 1_000_000)
         crc = zlib.crc32(payload) & 0xFFFFFFFF
         header = struct.pack(_HEADER_FMT, _MAGIC, self._seq, ts_us, crc, len(payload))
-        # Single write() of header+payload keeps a power-cut from leaving
-        # an aligned-but-empty header on disk; the kernel either commits
-        # the whole buffer or none of it for sizes well under the page
-        # cache threshold (we cap payload_len in higher layers).
-        os.write(self._fd, header + payload)
+        # ``os.write`` is not guaranteed to write the full buffer in a
+        # single call; a short write would leave a torn frame on disk and
+        # break replay/CRC checks. Loop until the entire header+payload
+        # is written so the WAL stays internally consistent.
+        buf = header + payload
+        offset = 0
+        while offset < len(buf):
+            written = os.write(self._fd, buf[offset:])
+            if written <= 0:  # pragma: no cover - kernel returns 0 on EOF/full disk
+                raise OSError("WAL short write: refusing to leave a torn frame on disk")
+            offset += written
         self._pending_since_fsync += 1
         if self._pending_since_fsync >= self.config.fsync_batch_size:
             self._fsync()

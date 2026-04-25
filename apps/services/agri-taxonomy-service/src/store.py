@@ -247,8 +247,16 @@ class TaxonomyStore:
 
         async with self._release_lock:
             self._validate_pending()
-            new_nodes = tuple(self._pending.nodes.values())
-            new_edges = tuple(self._pending.edges)
+            # Sort nodes/edges deterministically so a given set of staged
+            # mutations always produces the same released snapshot ordering
+            # (and the same ``/nodes`` response order), regardless of the
+            # order callers staged them in.
+            new_nodes = tuple(
+                sorted(self._pending.nodes.values(), key=lambda n: n.id)
+            )
+            new_edges = tuple(
+                sorted(self._pending.edges, key=lambda e: (e.parent_id, e.child_id))
+            )
             checksum = self._checksum(new_nodes, new_edges)
             semver = self._bump(self._current.version.semver, bump)
             version = TaxonomyVersion(
@@ -332,6 +340,12 @@ class TaxonomyStore:
                 ),
                 "cross_refs": sorted(n.cross_refs),
                 "forbidden": n.forbidden,
+                # Include the user-visible reason fields so two snapshots
+                # that differ only in their reason text produce different
+                # checksums (clients use the checksum as an ETag and would
+                # otherwise skip a real refresh).
+                "forbidden_reason_en": n.forbidden_reason_en,
+                "forbidden_reason_ar": n.forbidden_reason_ar,
             }
 
         payload = {

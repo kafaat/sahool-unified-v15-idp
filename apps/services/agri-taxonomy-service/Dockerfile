@@ -23,6 +23,10 @@ RUN pip install --no-cache-dir --timeout=600 --retries=5 \
     --trusted-host mirrors.cloud.tencent.com \
     -r requirements.txt
 
+# Copy shared libraries (imported at runtime via PYTHONPATH=/app) + service code.
+# Without `shared/` the container fails to import `shared.logging_config` on startup.
+COPY shared/logging_config.py /app/shared/logging_config.py
+COPY shared/__init__.py /app/shared/__init__.py
 COPY src ./src
 
 RUN chown -R sahool:sahool /app

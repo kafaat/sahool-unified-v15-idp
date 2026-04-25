@@ -18,7 +18,7 @@ which is exactly the EKF generalisation point ADR-011 reserved.
 from __future__ import annotations
 
 from collections.abc import Callable
-from datetime import datetime
+from datetime import UTC, datetime
 
 from .models import FusedState, FusionConfig, SensorFrame
 
@@ -115,7 +115,9 @@ class EKF:
     def state(self) -> FusedState:
         """Return the current fused state snapshot."""
 
-        ts = self._last_ts or datetime.fromtimestamp(0)
+        # UTC-aware epoch keeps FusedState.timestamp consistent with the rest
+        # of the fusion stack, which uses tz-aware datetimes throughout.
+        ts = self._last_ts or datetime.fromtimestamp(0, tz=UTC)
         cov = {(k, k): v for k, v in self._var.items()}
         return FusedState(
             timestamp=ts,

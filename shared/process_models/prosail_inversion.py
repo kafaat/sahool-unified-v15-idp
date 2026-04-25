@@ -205,10 +205,13 @@ def generate_lut(
 
 
 def _distance(a: dict[str, float], b: dict[str, float], bands: tuple[str, ...]) -> float:
+    # Treat missing bands as 0.0 in BOTH dicts so brute_force matches the
+    # KD-tree backend, which always builds fixed-length vectors with 0.0
+    # for absent bands. Without this, the two backends could pick different
+    # nearest neighbours and break the "backends agree" contract.
     total = 0.0
     for band in bands:
-        if band in a and band in b:
-            total += (a[band] - b[band]) ** 2
+        total += (a.get(band, 0.0) - b.get(band, 0.0)) ** 2
     return math.sqrt(total)
 
 

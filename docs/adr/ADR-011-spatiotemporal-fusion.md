@@ -59,8 +59,9 @@ backed by a new module `shared/spatiotemporal/`. No new service.
 
 ### Neutral
 
-- Adds `scipy.sparse` and a sparse-Cholesky dependency (`scikit-sparse` or
-  `sksparse`) to the digital-twin-engine container
+- Factor-graph optimization and KD-tree nearest-neighbor support are
+  implemented in pure Python in this phase, so no new `scipy.sparse`,
+  `scikit-sparse`, or `sksparse` container dependencies are introduced
 - Public API surface grows but no existing endpoint changes
 
 ## Alternatives Considered

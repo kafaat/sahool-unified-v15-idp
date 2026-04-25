@@ -1,6 +1,7 @@
 # shared/agri_taxonomy_client — Polling client for `agri-taxonomy-service` (ADR-012)
 
-> **Status:** Skeleton (Phase 3). No runtime logic yet. See
+> **Status:** Phase 4 — implemented. Polling client, optional NATS-style
+> notifier-driven wakeups, and atomic snapshot swap are live. See
 > [ADR-012](../../docs/adr/ADR-012-agri-taxonomy-service.md).
 
 In-process client used by every consumer of agricultural taxonomy
@@ -11,7 +12,7 @@ In-process client used by every consumer of agricultural taxonomy
 | File          | Responsibility                                                |
 | ------------- | ------------------------------------------------------------- |
 | `models.py`   | `TaxonomyNode`, `TaxonomyVersion`, `TaxonomyEdge`, `Synonym`  |
-| `client.py`   | Polling client with 30 s refresh + in-process LRU cache       |
+| `client.py`   | Polling client with configurable refresh + atomic snapshot swap |
 
 ## Hot-reload contract
 

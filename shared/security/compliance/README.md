@@ -1,6 +1,7 @@
 # shared/security/compliance — Region-Aware Compliance Plug-ins (ADR-016)
 
-> **Status:** Skeleton (Phase 3). No runtime logic yet. See
+> **Status:** Phase 4 — implemented. TTL-cached registry and
+> default/FIPS/NESA/GDPR plug-ins are live with unit tests. See
 > [ADR-016](../../../docs/adr/ADR-016-compliance-plugin-interface.md).
 
 `Protocol`-based plug-in abstraction so business services can ask

@@ -1,6 +1,8 @@
 # shared/edge_resilience — Edge Hardware Resilience (ADR-014)
 
-> **Status:** Skeleton (Phase 3). No runtime logic yet. See
+> **Status:** Phase 4 — implemented. WAL (append-only, fdatasync barriers),
+> power-good monitor, and 80/60 % hysteresis backpressure controller are
+> live with unit tests. See
 > [ADR-014](../../docs/adr/ADR-014-edge-hardware-resilience.md).
 
 Reusable primitives for edge devices (Jetson Orin and similar) consumed by

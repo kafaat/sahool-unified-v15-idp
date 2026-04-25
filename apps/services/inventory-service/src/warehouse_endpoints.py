@@ -23,6 +23,19 @@ from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 
+
+def _safe_for_log(value: object, max_len: int = 200) -> str:
+    """Strip CR/LF/tab from user-influenced strings before logging.
+
+    The ``transfer_id`` and ``tenant_id`` values flow in from the path /
+    JWT claim and are therefore caller-controlled; embedding ``\\n``
+    would otherwise let a caller forge log lines (CodeQL CWE-117).
+    """
+    text = str(value) if value is not None else ""
+    if len(text) > max_len:
+        text = text[:max_len] + "…"
+    return text.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
+
 try:
     from shared.auth.dependencies import get_current_user
     from shared.auth.models import User
@@ -191,8 +204,8 @@ async def approve_transfer(
         logger.warning(
             "approve_transfer failed",
             extra={
-                "transfer_id": transfer_id,
-                "tenant_id": tenant_id,
+                "transfer_id": _safe_for_log(transfer_id),
+                "tenant_id": _safe_for_log(tenant_id),
                 "error_type": type(e).__name__,
             },
             exc_info=True,
@@ -227,8 +240,8 @@ async def complete_transfer(
         logger.warning(
             "complete_transfer failed",
             extra={
-                "transfer_id": transfer_id,
-                "tenant_id": tenant_id,
+                "transfer_id": _safe_for_log(transfer_id),
+                "tenant_id": _safe_for_log(tenant_id),
                 "error_type": type(e).__name__,
             },
             exc_info=True,

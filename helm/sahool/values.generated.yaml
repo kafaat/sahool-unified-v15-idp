@@ -2792,7 +2792,10 @@ infrastructure:
   postgresql:
     enabled: true
     auth:
-      postgresPassword: ''
+      existingSecret: sahool-postgresql-auth
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: password
       database: sahool
     primary:
       persistence:
@@ -2800,7 +2803,8 @@ infrastructure:
   redis:
     enabled: true
     auth:
-      password: ''
+      existingSecret: sahool-redis-auth
+      existingSecretPasswordKey: redis-password
     master:
       persistence:
         size: 5Gi

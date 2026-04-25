@@ -186,7 +186,7 @@ class TaxonomyClient:
         assert self._wake_event is not None
         assert self._stop_event is not None
         try:
-            async for _event in self._notifier():
+            async for _ in self._notifier():
                 if self._stop_event.is_set():
                     return
                 # Wake the polling loop. The actual fetch happens there

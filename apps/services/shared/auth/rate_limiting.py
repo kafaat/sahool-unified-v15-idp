@@ -33,6 +33,19 @@ from ..middleware.rate_limiter import (
 logger = logging.getLogger(__name__)
 
 
+def _safe_for_log(value: object, max_len: int = 200) -> str:
+    """Strip CR/LF/tab from user-influenced strings before logging.
+
+    Defends against CodeQL ``py/log-injection`` (CWE-117): the
+    ``username``, ``email`` and client-host values flow in from public
+    endpoints, so a caller could embed ``\\n`` to forge log lines.
+    """
+    text = str(value) if value is not None else ""
+    if len(text) > max_len:
+        text = text[:max_len] + "…"
+    return text.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
+
+
 def _extract_client_ip(request: Request) -> str:
     """Extract and validate the client IP for rate-limit keying.
 
@@ -177,7 +190,11 @@ class AuthRateLimiter:
         allowed, remaining, limit, reset = self._limiter._in_memory.check_rate_limit(key, AUTH_RATE_CONFIGS.LOGIN)
 
         if not allowed:
-            logger.warning(f"Login rate limit exceeded for {username} from {request.client.host}")
+            logger.warning(
+                "Login rate limit exceeded for %s from %s",
+                _safe_for_log(username),
+                _safe_for_log(request.client.host if request.client else "unknown"),
+            )
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={
@@ -215,8 +232,8 @@ class AuthRateLimiter:
         if not allowed:
             logger.warning(  # nosemgrep: python-logger-credential-disclosure -- logs email and IP for rate limit monitoring, no credentials
                 "Password reset rate limit exceeded for %s from %s",
-                str(email).replace("\n", " ").replace("\r", " "),
-                str(request.client.host if request.client else "unknown").replace("\n", " ").replace("\r", " "),
+                _safe_for_log(email),
+                _safe_for_log(request.client.host if request.client else "unknown"),
             )
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -253,7 +270,10 @@ class AuthRateLimiter:
         )
 
         if not allowed:
-            logger.warning(f"Registration rate limit exceeded from {request.client.host}")
+            logger.warning(
+                "Registration rate limit exceeded from %s",
+                _safe_for_log(request.client.host if request.client else "unknown"),
+            )
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={
@@ -289,7 +309,11 @@ class AuthRateLimiter:
         )
 
         if not allowed:
-            logger.warning(f"Token refresh rate limit exceeded for user {user_id} from {request.client.host}")
+            logger.warning(
+                "Token refresh rate limit exceeded for user %s from %s",
+                _safe_for_log(user_id),
+                _safe_for_log(request.client.host if request.client else "unknown"),
+            )
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail={

@@ -245,19 +245,31 @@ async def register_version(
             memory_mb=request.metrics.memory_mb,
         )
 
-    version = registry.register_version(
-        task=request.task,
-        variant=request.variant,
-        version=request.version,
-        file_path=request.file_path,
-        metrics=metrics,
-        description=request.description,
-        description_ar=request.description_ar,
-        changelog=request.changelog,
-        tags=request.tags,
-        stage=stage,
-        activate=request.activate,
-    )
+    try:
+        version = registry.register_version(
+            task=request.task,
+            variant=request.variant,
+            version=request.version,
+            file_path=request.file_path,
+            metrics=metrics,
+            description=request.description,
+            description_ar=request.description_ar,
+            changelog=request.changelog,
+            tags=request.tags,
+            stage=stage,
+            activate=request.activate,
+        )
+    except ValueError as exc:
+        # ValueError is raised by ``_validate_model_path`` for path traversal
+        # or paths outside the trusted models base directory.
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={
+                "error": "Invalid file_path",
+                "message": str(exc),
+                "message_ar": "مسار الملف غير صالح",
+            },
+        ) from exc
 
     logger.info(
         "model_version_registered",

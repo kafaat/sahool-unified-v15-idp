@@ -327,9 +327,6 @@ class AgroRulesWorker:
                 },
             )
 
-            if not tenant_id or not field_id:
-                return
-
             task_rule = rule_from_ndvi_trend(
                 trend_direction=trend_direction,
                 anomaly_count=anomaly_count,
@@ -378,9 +375,6 @@ class AgroRulesWorker:
                     "confidence": round(confidence, 3),
                 },
             )
-
-            if not tenant_id or not field_id:
-                return
 
             task_rule = rule_from_phenology(
                 current_stage=current_stage,

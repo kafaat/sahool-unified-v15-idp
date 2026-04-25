@@ -27,6 +27,19 @@ from .password import hash_password, verify_password
 
 logger = logging.getLogger(__name__)
 
+
+def _safe_for_log(value: Any, max_len: int = 200) -> str:
+    """Strip CR/LF/tab from user-influenced strings before logging.
+
+    Defends against CodeQL ``py/log-injection``: ``email`` and ``host``
+    flow in from the public auth endpoints, so a caller could embed
+    ``\\n`` to forge additional log lines (CWE-117).
+    """
+    text = str(value) if value is not None else ""
+    if len(text) > max_len:
+        text = text[:max_len] + "…"
+    return text.replace("\r", "\\r").replace("\n", "\\n").replace("\t", "\\t")
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # Request/Response Models
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -266,7 +279,7 @@ async def login(
     user = store.get_user_by_email(credentials.email)
 
     if not user:
-        logger.warning(f"Login failed - user not found: {credentials.email}")
+        logger.warning("Login failed - user not found: %s", _safe_for_log(credentials.email))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -277,7 +290,7 @@ async def login(
     is_valid = verify_password(credentials.password, user["password_hash"])
 
     if not is_valid:
-        logger.warning(f"Login failed - invalid password: {credentials.email}")
+        logger.warning("Login failed - invalid password: %s", _safe_for_log(credentials.email))
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
@@ -286,7 +299,7 @@ async def login(
 
     # Check if user is active
     if not user.get("is_active", False):
-        logger.warning(f"Login failed - user inactive: {credentials.email}")
+        logger.warning("Login failed - user inactive: %s", _safe_for_log(credentials.email))
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account is deactivated",
@@ -305,7 +318,11 @@ async def login(
         tenant_id=user.get("tenant_id"),
     )
 
-    logger.info(f"Login successful: {credentials.email} (IP: {request.client.host})")
+    logger.info(
+        "Login successful: %s (IP: %s)",
+        _safe_for_log(credentials.email),
+        _safe_for_log(request.client.host if request.client else "unknown"),
+    )
 
     return AuthResponse(
         access_token=access_token,
@@ -330,7 +347,7 @@ async def register(
     # Check if email exists
     existing_user = store.get_user_by_email(user_data.email)
     if existing_user:
-        logger.warning(f"Registration failed - email exists: {user_data.email}")
+        logger.warning("Registration failed - email exists: %s", _safe_for_log(user_data.email))
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Email already registered",
@@ -374,12 +391,16 @@ async def forgot_password(
     token = store.create_reset_token(data.email)
 
     if token:
-        logger.info(f"Password reset requested: {data.email} (token: {token[:8]}...)")
+        logger.info(
+            "Password reset requested: %s (token: %s...)",
+            _safe_for_log(data.email),
+            _safe_for_log(token[:8]),
+        )
         # Never log the full reset token: it grants account takeover if leaked
         # into log aggregation, backups, or shared dev environments.
         # Only the short prefix above is emitted, and only at INFO level.
     else:
-        logger.info(f"Password reset requested for non-existent user: {data.email}")
+        logger.info("Password reset requested for non-existent user: %s", _safe_for_log(data.email))
 
     # Always return success to prevent email enumeration
     return MessageResponse(

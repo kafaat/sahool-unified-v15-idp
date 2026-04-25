@@ -327,7 +327,7 @@ class SARProcessor:
         # Check cache
         cached = self._get_cached(cache_key)
         if cached:
-            logger.info(f"Returning cached soil moisture for {field_id}")
+            logger.info("Returning cached soil moisture for %s", _safe_log(field_id))
             return cached
 
         # Try to fetch real Sentinel-1 data

@@ -93,12 +93,15 @@ validate_dockerfile_best_practices() {
         log_success "Multi-stage build found"
     fi
     
-    # Check for non-root user
-    if ! grep -q "USER.*sahool" "$dockerfile"; then
-        log_error "No non-root USER directive in $service"
+    # Check for non-root user — accept any non-root USER directive
+    # (USER sahool, USER node, USER appuser, USER 1000, etc.).
+    # The last USER directive must not be `root` or `0`.
+    last_user=$(grep -E '^USER[[:space:]]+' "$dockerfile" | tail -n1 | awk '{print $2}')
+    if [[ -z "$last_user" || "$last_user" == "root" || "$last_user" == "0" ]]; then
+        log_error "No non-root USER directive in $service (last USER: '${last_user:-<none>}')"
         issues=$((issues + 1))
     else
-        log_success "Non-root user found"
+        log_success "Non-root user found: $last_user"
     fi
     
     # Check for health check

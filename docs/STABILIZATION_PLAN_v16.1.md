@@ -72,7 +72,7 @@ PR3 (Vault) → PR1 (Satellite) → PR2 (Webhooks) → PR4 (Terraform)
 |------|------|--------|
 | Reject mock data in production | `shared/satellite/sentinel_ndvi.py` | DONE |
 | Clear data_source="mock" flag | `shared/satellite/sentinel_ndvi.py` | DONE |
-| **Remaining**: Add `sentinelhub>=3.10.0` to requirements | `requirements/satellite.txt` | TODO |
+| Add `sentinelhub>=3.10.0` to requirements | `requirements/satellite.txt` | DONE |
 | **Remaining**: Configure Sentinel Hub credentials | Vault / env vars | TODO |
 
 ### PR2 — Webhook HMAC Verification
@@ -106,10 +106,10 @@ PR3 (Vault) → PR1 (Satellite) → PR2 (Webhooks) → PR4 (Terraform)
 | Admin send-otp PUBLIC_ROUTES | `admin/src/lib/auth/route-protection.ts` | DONE |
 | Admin NaN guard (refresh route) | `admin/src/app/api/auth/refresh/route.ts` | DONE |
 | Admin middleware production logging | `admin/src/middleware.ts` | DONE |
-| **Remaining**: IDOR in marketplace service | `marketplace-service` | TODO |
-| **Remaining**: Race condition user creation | `user-service` | TODO |
-| **Remaining**: CORS wildcard enforcement | `shared/cors_config.py` | TODO |
-| **Remaining**: Token revocation race condition | `shared/security/token_revocation.py` | TODO |
+| IDOR in marketplace service | `marketplace-service/src/app.controller.ts` | DONE |
+| Race condition user creation (P2002) | `user-service/src/users/users.service.ts` | DONE |
+| CORS wildcard enforcement (4 services) | `astronomical-calendar, globalgap-compliance, virtual-sensors, yolo26-vision-service` | DONE |
+| Token revocation race condition (Redis-first write order) | `shared/security/token_revocation.py` | DONE |
 
 ### PR6 — Billing Hardening (HIGHEST RISK)
 | Item | File | Status |
@@ -123,14 +123,16 @@ PR3 (Vault) → PR1 (Satellite) → PR2 (Webhooks) → PR4 (Terraform)
 ### PR7 — KPI Observability
 | Item | File | Status |
 |------|------|--------|
-| **All remaining**: Connect agricultural KPIs to Prometheus | `shared/monitoring/` | TODO |
+| Connect agricultural KPIs to Prometheus (vegetation-analysis-service) | `vegetation-analysis-service/src/main.py` | DONE |
+| Connect agricultural KPIs to Prometheus (indicators-service) | `indicators-service/src/main.py` | DONE |
+| **Remaining**: Wire KPIs into crop-intelligence-service and advisory-service | Deferred to PR7 follow-up | TODO |
 
 ### PR8 — Data Flow Integration
 | Item | File | Status |
 |------|------|--------|
 | Kong metrics port localhost binding | `infrastructure/gateway/kong/docker-compose.yml` | DONE |
+| NATS Redis-based cross-instance dedup | `shared/events/subscriber.py` | DONE |
 | **Remaining**: Kong YAML consolidation | `infrastructure/gateway/kong/` | TODO |
-| **Remaining**: NATS Redis-based dedup | `shared/events/subscriber.py` | TODO |
 
 ## 5. Definition of Done (per PR) | شروط الإنجاز
 

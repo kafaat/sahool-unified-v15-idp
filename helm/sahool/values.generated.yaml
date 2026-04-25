@@ -2251,6 +2251,70 @@ services:
       prometheus.io/scrape: 'true'
       prometheus.io/port: '8270'
       prometheus.io/path: /metrics
+  agri-taxonomy-service:
+    enabled: false
+    name: agri-taxonomy-service
+    image:
+      repository: ghcr.io/kafaat/sahool-agri-taxonomy-service
+      tag: 16.0.0
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8265
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8265'
+    serviceAccount:
+      create: true
+      name: sahool-agri-taxonomy-service
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8265'
+      prometheus.io/path: /metrics
+  prescription-safety-gateway:
+    enabled: false
+    name: prescription-safety-gateway
+    image:
+      repository: ghcr.io/kafaat/sahool-prescription-safety-gateway
+      tag: 16.0.0
+      pullPolicy: IfNotPresent
+    replicaCount: 1
+    port: 8275
+    healthCheck:
+      path: /healthz
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    env:
+    - name: NODE_ENV
+      value: production
+    - name: PORT
+      value: '8275'
+    serviceAccount:
+      create: true
+      name: sahool-prescription-safety-gateway
+    podAnnotations:
+      prometheus.io/scrape: 'true'
+      prometheus.io/port: '8275'
+      prometheus.io/path: /metrics
   supply-chain-service:
     enabled: true
     name: supply-chain-service
@@ -2728,7 +2792,10 @@ infrastructure:
   postgresql:
     enabled: true
     auth:
-      postgresPassword: ''
+      existingSecret: sahool-postgresql-auth
+      secretKeys:
+        adminPasswordKey: postgres-password
+        userPasswordKey: password
       database: sahool
     primary:
       persistence:
@@ -2736,7 +2803,8 @@ infrastructure:
   redis:
     enabled: true
     auth:
-      password: ''
+      existingSecret: sahool-redis-auth
+      existingSecretPasswordKey: redis-password
     master:
       persistence:
         size: 5Gi
@@ -3037,6 +3105,14 @@ ingress:
       pathType: Prefix
       service: vllm-deepseek
       port: 8270
+    - path: /api/v1/agri/taxonomy/service
+      pathType: Prefix
+      service: agri-taxonomy-service
+      port: 8265
+    - path: /api/v1/prescription/safety/gateway
+      pathType: Prefix
+      service: prescription-safety-gateway
+      port: 8275
     - path: /api/v1/supply/chain/service
       pathType: Prefix
       service: supply-chain-service

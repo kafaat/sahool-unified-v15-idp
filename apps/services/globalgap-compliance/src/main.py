@@ -36,10 +36,11 @@ except ImportError:
         cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:8080").split(",")
         app.add_middleware(
             CORSMiddleware,
-            allow_origins=cors_origins,  # nosemgrep: python.fastapi.security.wildcard-cors
+            allow_origins=cors_origins,
             allow_credentials=True,
             allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            allow_headers=["*"],
+            # SECURITY: enumerate allowed headers instead of wildcard
+            allow_headers=["Authorization", "Content-Type", "X-Tenant-ID", "X-Request-ID", "Accept", "Origin"],
         )
 
 

@@ -283,19 +283,39 @@ def get_deficiency_by_nutrient(nutrient: str) -> dict | None:
     return None
 
 
+# NDVI health-status thresholds — aligned with vegetation-analysis-service's
+# ``status_for_ndvi`` in ``apps/services/vegetation-analysis-service/src/
+# multi_date.py`` (PR #1704). Keeping the boundaries identical means
+# advisory's nutrient diagnosis and vegetation's health badge always
+# agree on "moderate" vs "good" for the same field. If you change these,
+# update ``multi_date.py`` in lockstep (or accept UX drift between the
+# health badge and the nutrient advisory).
+#
+#   NDVI >= 0.6 → vegetation "excellent" — no nutrient issue suspected
+#   0.4 <= NDVI < 0.6 → vegetation "good" — no nutrient issue suspected
+#   0.2 <= NDVI < 0.4 → vegetation "moderate" — N/K deficiency possible
+#   NDVI < 0.2       → vegetation "poor"     — severe N deficiency likely
+_NDVI_POOR_CUTOFF = 0.2
+_NDVI_MODERATE_CUTOFF = 0.4
+
+
 def diagnose_from_ndvi(ndvi: float, ndvi_history: list[float] | None = None) -> list[dict]:
     """
     Diagnose potential nutrient issues from NDVI readings.
     Returns list of possible deficiencies ordered by likelihood.
     Returns empty list if NDVI is out of valid range.
+
+    Thresholds mirror vegetation-analysis-service's ``status_for_ndvi``
+    so farmers don't see a "good" health badge next to a "nitrogen
+    deficiency" advisory on the same field (Copilot review #1704).
     """
     if not isinstance(ndvi, (int, float)) or not (-1 <= ndvi <= 1):
         return []
 
     diagnoses = []
 
-    if ndvi < 0.3:
-        # Severe stress - likely nitrogen
+    if ndvi < _NDVI_POOR_CUTOFF:
+        # Severe stress (vegetation "poor") — likely nitrogen
         diagnoses.append(
             {
                 "id": "nitrogen_deficiency",
@@ -303,8 +323,8 @@ def diagnose_from_ndvi(ndvi: float, ndvi_history: list[float] | None = None) -> 
                 "reason": "severe_ndvi_drop",
             }
         )
-    elif ndvi < 0.5:
-        # Moderate stress - could be multiple
+    elif ndvi < _NDVI_MODERATE_CUTOFF:
+        # Moderate stress (vegetation "moderate") — N or K
         diagnoses.extend(
             [
                 {

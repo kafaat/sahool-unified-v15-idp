@@ -101,6 +101,12 @@ class RequestContext:
     client_ip: str | None = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
     claims: dict[str, Any] = field(default_factory=dict)
+    # True when tenant_id/user_id/role were derived from a verified JWT (or a
+    # trusted system source). False when populated from raw HTTP headers via
+    # `from_headers()` — such values are attacker-controlled until proven
+    # otherwise and must NOT be trusted for authorization decisions.
+    # Default True preserves backward compatibility for existing call sites.
+    auth_verified: bool = True
 
     def __post_init__(self):
         if not self.tenant_id:
@@ -135,6 +141,12 @@ class RequestContext:
 
     @classmethod
     def from_headers(cls, headers: dict[str, str], service_name: str | None = None) -> "RequestContext":
+        # SECURITY: values read from raw HTTP headers are attacker-controlled
+        # until validated by an upstream proxy (mTLS + signed envelope). We
+        # therefore mark the resulting context as unverified. Downstream
+        # tenant-scoped operations should reject unverified contexts or treat
+        # them as public-only. See `ContextMiddleware.dispatch` which logs a
+        # [UNVERIFIED_TENANT] warning when this path is used.
         return cls(
             tenant_id=headers.get("X-Tenant-ID") or headers.get("x-tenant-id"),
             user_id=headers.get("X-User-ID") or headers.get("x-user-id") or None,
@@ -145,6 +157,7 @@ class RequestContext:
             span_id=headers.get("X-Span-ID") or headers.get("x-span-id"),
             service_name=service_name or headers.get("X-Service-Name"),
             client_ip=headers.get("X-Forwarded-For") or headers.get("X-Real-IP"),
+            auth_verified=False,
         )
 
     @classmethod
@@ -401,6 +414,18 @@ class ContextMiddleware(BaseHTTPMiddleware):
                 context = RequestContext.from_jwt_payload(payload, self.service_name)
             else:
                 context = RequestContext.from_headers(dict(request.headers), self.service_name)
+                # Surface the unverified path so operators can audit unexpected
+                # tenant-scoped requests that arrive without a Bearer token.
+                # Log only when a tenant was asserted, to avoid noise on the
+                # truly-anonymous traffic (health checks, docs, etc.).
+                if context.tenant_id:
+                    logger.warning(
+                        "[UNVERIFIED_TENANT] request context populated from raw headers "
+                        "(no Bearer token); tenant_id=%s path=%s service=%s",
+                        context.tenant_id,
+                        request.url.path,
+                        self.service_name,
+                    )
         except Exception as e:
             logger.warning("Authentication failed: %s", e)
             raise HTTPException(status_code=401, detail="Invalid or missing authentication credentials") from e

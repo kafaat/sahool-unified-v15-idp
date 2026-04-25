@@ -45,7 +45,7 @@ jobs:
           fetch-depth: 0
 
       - name: TruffleHog Secrets Scan
-        uses: trufflesecurity/trufflehog@v3.94.3
+        uses: trufflesecurity/trufflehog@v3.95.2
         # Secrets detection must fail the pipeline
         with:
           path: ./
@@ -346,6 +346,9 @@ jobs:
         uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
+          # Exclude archive/ and legacy/ to avoid cross-module name
+          # collisions with deprecated service copies.
+          config-file: ./.github/codeql/codeql-config.yml
           queries: security-extended,security-and-quality
           trap-caching: false
 

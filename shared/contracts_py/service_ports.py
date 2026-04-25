@@ -3,7 +3,7 @@ SAHOOL Unified Service Ports Registry (Python mirror).
 
 AUTO-GENERATED — DO NOT EDIT BY HAND.
 Source: packages/shared-types/src/contracts/service-ports.ts
-Generated: 2026-04-18T12:46:28Z
+Generated: 2026-04-25T14:58:08Z
 Regenerate via: npx tsx scripts/sync-contracts-to-python.ts
 """
 
@@ -69,6 +69,8 @@ class ServicePorts:
     LEVELING_OPTIMIZER: int = 8170
     EDGE_ORCHESTRATOR: int = 8180
     VLLM_DEEPSEEK: int = 8270
+    AGRI_TAXONOMY: int = 8265
+    PRESCRIPTION_SAFETY_GATEWAY: int = 8275
     SOIL_ANALYSIS: int = 8134
     PEST_DETECTION: int = 8125
     DRONE_SERVICE: int = 8126

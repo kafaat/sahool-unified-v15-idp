@@ -58,12 +58,20 @@ export const UserRoles = createParamDecorator(
 );
 
 /**
- * Tenant ID decorator - extract the tenant ID from the authenticated user
+ * Tenant ID decorator - extract the tenant ID from the authenticated user.
+ *
+ * SECURITY: Only the tenant bound to the verified JWT (`request.user.tenantId`)
+ * is returned. The `X-Tenant-ID` HTTP header is intentionally NOT consulted
+ * here: trusting a client-supplied header as a fallback would let any caller
+ * override the tenant context of their session and read/write data belonging
+ * to another tenant (cross-tenant IDOR). For unauthenticated flows
+ * (login/register) the header is still read explicitly inside the relevant
+ * controllers where that is a legitimate identifier of the target tenant.
  */
 export const TenantId = createParamDecorator(
   (data: unknown, ctx: ExecutionContext): string | undefined => {
     const request = ctx.switchToHttp().getRequest();
-    return request.user?.tenantId || request.headers["x-tenant-id"];
+    return request.user?.tenantId;
   },
 );
 

@@ -74,6 +74,23 @@ try:
 except ImportError:
     HAS_PROMETHEUS = False
 
+# Agricultural domain metrics (PR7) — tolerate missing optional dependency,
+# not bugs in the module itself. Narrow to ImportError so genuine errors
+# (AttributeError, syntax errors on reload, etc.) fail loud during startup.
+try:
+    from shared.monitoring.agricultural_metrics import get_agricultural_metrics as _get_agri_metrics
+
+    _AGRI_METRICS = _get_agri_metrics()
+    HAS_AGRI_METRICS = True
+except ImportError:
+    _AGRI_METRICS = None
+    HAS_AGRI_METRICS = False
+
+# Track which agricultural-metric emissions have already been logged as
+# failed, so we report misconfiguration once per process and not on every
+# event. Keys are the logical metric name; value is whether we've warned.
+_AGRI_METRICS_FAILURE_LOGGED: dict[str, bool] = {"ndvi": False}
+
 # Prometheus metric definitions
 if HAS_PROMETHEUS:
     REQUEST_COUNT = Counter(
@@ -294,6 +311,23 @@ async def lifespan(app: FastAPI):
                     }
                     await save_indicator(field_id, "ndvi", indicator_data, tenant_id)
                     logger.info("ndvi_indicator_updated", field_id=field_id, ndvi_value=ndvi_value, status=status)
+                    # PR7 — emit NDVI KPI to Prometheus agricultural metrics
+                    if HAS_AGRI_METRICS and _AGRI_METRICS is not None:
+                        try:
+                            _AGRI_METRICS.record_ndvi_calculation(ndvi_value=ndvi_value)
+                        except Exception as metrics_exc:
+                            # Metrics emission is best-effort, but a broken
+                            # registry / cardinality issue would otherwise be
+                            # silent. Log once per process lifetime so
+                            # operators can detect misconfiguration without
+                            # spamming the log on every event.
+                            if not _AGRI_METRICS_FAILURE_LOGGED["ndvi"]:
+                                _AGRI_METRICS_FAILURE_LOGGED["ndvi"] = True
+                                logger.warning(
+                                    "agri_metrics_emit_failed",
+                                    metric="ndvi_calculation",
+                                    error=str(metrics_exc),
+                                )
             except Exception as e:
                 logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))
 

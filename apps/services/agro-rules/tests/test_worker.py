@@ -539,3 +539,151 @@ class TestWorkerStartStop:
 
         await worker.stop()
         assert worker._running is False
+
+
+class TestAgroRulesWorkerTerrainHandlers:
+    """Tests for terrain advisory event handlers"""
+
+    @pytest.mark.asyncio
+    async def test_handle_terrain_leveling_creates_task(self):
+        """Test terrain leveling event creates a planning task"""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
+
+        msg = _make_msg(
+            {
+                "event_id": "terrain-1",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "correlation_id": "corr-1",
+                "payload": {
+                    "slope_percent": 3.5,
+                    "cut_fill_volume_m3": 450,
+                    "estimated_cost": 15000,
+                },
+            }
+        )
+
+        await worker._handle_terrain_leveling(msg)
+        worker.fieldops.create_task.assert_called_once()
+        call_kwargs = worker.fieldops.create_task.call_args[1]
+        assert call_kwargs["task_type"] == "planning"
+        assert call_kwargs["tenant_id"] == "tenant-1"
+        assert call_kwargs["field_id"] == "field-1"
+
+    @pytest.mark.asyncio
+    async def test_handle_terrain_leveling_dedup(self):
+        """Test duplicate terrain leveling event is skipped"""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t1"})
+        worker._processed_events.add("terrain-dup")
+
+        msg = _make_msg(
+            {
+                "event_id": "terrain-dup",
+                "tenant_id": "tenant-1",
+                "aggregate_id": "field-1",
+                "payload": {"slope_percent": 2.0},
+            }
+        )
+
+        await worker._handle_terrain_leveling(msg)
+        worker.fieldops.create_task.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_handle_terrain_drainage_creates_task(self):
+        """Test terrain drainage event creates a planning task"""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t2"})
+
+        msg = _make_msg(
+            {
+                "event_id": "drain-1",
+                "tenant_id": "tenant-2",
+                "aggregate_id": "field-2",
+                "correlation_id": "corr-2",
+                "payload": {
+                    "drainage_type": "subsurface",
+                    "priority": "high",
+                },
+            }
+        )
+
+        await worker._handle_terrain_drainage(msg)
+        worker.fieldops.create_task.assert_called_once()
+        call_kwargs = worker.fieldops.create_task.call_args[1]
+        assert call_kwargs["task_type"] == "planning"
+        assert call_kwargs["priority"] == "high"
+
+    @pytest.mark.asyncio
+    async def test_handle_terrain_drainage_invalid_priority_defaults_to_medium(self):
+        """Test unknown priority value falls back to medium"""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t3"})
+
+        msg = _make_msg(
+            {
+                "event_id": "drain-2",
+                "tenant_id": "t",
+                "aggregate_id": "f",
+                "payload": {"drainage_type": "open_channel", "priority": "unknown_value"},
+            }
+        )
+
+        await worker._handle_terrain_drainage(msg)
+        call_kwargs = worker.fieldops.create_task.call_args[1]
+        assert call_kwargs["priority"] == "medium"
+
+    @pytest.mark.asyncio
+    async def test_handle_terrain_erosion_high_risk_creates_high_priority_task(self):
+        """Test high erosion risk event creates high-priority inspection task"""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t4"})
+
+        msg = _make_msg(
+            {
+                "event_id": "erosion-1",
+                "tenant_id": "tenant-3",
+                "aggregate_id": "field-3",
+                "payload": {"risk_level": "high"},
+            }
+        )
+
+        await worker._handle_terrain_erosion(msg)
+        worker.fieldops.create_task.assert_called_once()
+        call_kwargs = worker.fieldops.create_task.call_args[1]
+        assert call_kwargs["task_type"] == "inspection"
+        assert call_kwargs["priority"] == "high"
+
+    @pytest.mark.asyncio
+    async def test_handle_terrain_erosion_medium_risk(self):
+        """Test medium erosion risk creates medium-priority task"""
+        worker = AgroRulesWorker()
+        worker.fieldops.create_task = AsyncMock(return_value={"id": "t5"})
+
+        msg = _make_msg(
+            {
+                "event_id": "erosion-2",
+                "tenant_id": "t",
+                "aggregate_id": "f",
+                "payload": {"risk_level": "medium"},
+            }
+        )
+
+        await worker._handle_terrain_erosion(msg)
+        call_kwargs = worker.fieldops.create_task.call_args[1]
+        assert call_kwargs["priority"] == "medium"
+
+    @pytest.mark.asyncio
+    async def test_handle_terrain_handlers_bad_json_do_not_crash(self):
+        """Test invalid JSON does not raise in terrain handlers"""
+        worker = AgroRulesWorker()
+        bad_msg = MagicMock()
+        bad_msg.data = b"not valid json"
+
+        for handler in (
+            worker._handle_terrain_leveling,
+            worker._handle_terrain_drainage,
+            worker._handle_terrain_erosion,
+        ):
+            await handler(bad_msg)  # Should not raise

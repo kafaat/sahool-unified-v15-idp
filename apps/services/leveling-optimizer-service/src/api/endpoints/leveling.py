@@ -11,7 +11,7 @@ for authorization — if you need the tenant identifier, read it from
 
 import re
 import uuid
-from datetime import datetime
+from datetime import UTC, datetime
 
 import structlog
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, Request
@@ -391,9 +391,14 @@ async def analyze_field_leveling(
             cut_fill_result.fill_points,
         )
 
-        # Create design plane model
+        # Create design plane model.
+        # centroid_elevation = design-plane Z at the field centroid =
+        # a·x̄ + b·ȳ + c (the earlier ``plane.c + plane.a * (min_z + max_z) / 2``
+        # mixed the raw elevation range with the X coefficient and dropped ``b``).
+        x_centroid = sum(p.x for p in points) / len(points)
+        y_centroid = sum(p.y for p in points) / len(points)
         design_plane = DesignPlane(
-            centroid_elevation=plane.c + plane.a * (stats.get("min_elevation", 0) + stats.get("max_elevation", 0)) / 2,
+            centroid_elevation=round(plane.a * x_centroid + plane.b * y_centroid + plane.c, 3),
             grade_x_percent=round(plane.a * 100, 3),
             grade_y_percent=round(plane.b * 100, 3),
             plane_equation=f"z = {plane.a:.6f}*x + {plane.b:.6f}*y + {plane.c:.3f}",
@@ -405,9 +410,7 @@ async def analyze_field_leveling(
         # Create cut/fill volume model
         net_volume = cut_fill_result.cut_volume - cut_fill_result.fill_volume
         balance_ratio = (
-            cut_fill_result.cut_volume / cut_fill_result.fill_volume
-            if cut_fill_result.fill_volume > 0
-            else float("inf")
+            cut_fill_result.cut_volume / cut_fill_result.fill_volume if cut_fill_result.fill_volume > 0 else 999.0
         )
 
         cut_fill = CutFillVolume(
@@ -416,7 +419,7 @@ async def analyze_field_leveling(
             net_volume_m3=round(net_volume, 2),
             cut_area_m2=round(cut_fill_result.cut_area, 2),
             fill_area_m2=round(cut_fill_result.fill_area, 2),
-            balance_ratio=round(balance_ratio, 3) if balance_ratio != float("inf") else 999.0,
+            balance_ratio=round(balance_ratio, 3),
             max_cut_depth_m=round(cut_fill_result.max_cut_depth, 3),
             max_fill_depth_m=round(cut_fill_result.max_fill_depth, 3),
             avg_cut_depth_m=round(cut_fill_result.avg_cut_depth, 3),
@@ -472,23 +475,29 @@ async def analyze_field_leveling(
             )
             recommendations_ar.append(f"أقصى عمق قطع ({cut_fill.max_cut_depth_m:.2f} م) قد يتطلب معدات ثقيلة.")
 
+        # Leveled elevation range = span of design-plane Z across the field
+        # extent = |a|·ΔX + |b|·ΔY (the previous form took
+        # max(grade_x%, grade_y%)·max(x) which ignored ΔY and double-converted
+        # percent → fraction).
+        if points:
+            xs = [p.x for p in points]
+            ys = [p.y for p in points]
+            leveled_range = abs(plane.a) * (max(xs) - min(xs)) + abs(plane.b) * (max(ys) - min(ys))
+        else:
+            leveled_range = 0.0
+
         # Create leveling plan
         plan = LevelingPlan(
             plan_id=str(uuid.uuid4()),
             field_id=request.field_id,
-            created_at=datetime.utcnow(),
+            created_at=datetime.now(UTC),
             design_plane=design_plane,
             method=request.method,
             cut_fill=cut_fill,
             field_area_m2=round(field_area_m2, 2),
             field_area_hectares=round(field_area_hectares, 4),
             original_elevation_range=round(elevation_range, 3),
-            leveled_elevation_range=round(
-                max(design_plane.grade_x_percent, design_plane.grade_y_percent) / 100 * max(p.x for p in points)
-                if points
-                else 0,
-                3,
-            ),
+            leveled_elevation_range=round(leveled_range, 3),
             avg_haul_distance_m=round(haul_distance, 1),
             equipment_recommendations=equipment_recommendations,
             cost_estimate=cost_estimate,
@@ -522,7 +531,7 @@ async def analyze_field_leveling(
                         "field_area_hectares": round(field_area_hectares, 4),
                         "total_cost_sar": cost_estimate.total_cost_sar if cost_estimate else None,
                         "plan_id": plan.plan_id,
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                     },
                     default=str,
                 ).encode()
@@ -541,19 +550,27 @@ async def analyze_field_leveling(
         return LevelingAnalysisResponse(
             success=True,
             field_id=request.field_id,
-            analysis_timestamp=datetime.utcnow(),
+            analysis_timestamp=datetime.now(UTC),
             plan=plan,
             message_en="Leveling analysis completed successfully.",
             message_ar="تم إكمال تحليل التسوية بنجاح.",
         )
 
     except Exception as e:
-        logger.error("leveling_analysis_failed", field_id=request.field_id, error=str(e))
+        logger.error(
+            "leveling_analysis_failed",
+            field_id=request.field_id,
+            error=str(e),
+            request_id=getattr(http_request.state, "request_id", None),
+        )
+        # Do not embed ``str(e)`` in the response: the shared
+        # ``global_exception_handler`` decides what reaches the client based on
+        # ``settings.DEBUG``. Leaking exception text here bypasses that gate.
         raise HTTPException(
             status_code=500,
             detail={
-                "error": f"Analysis failed: {str(e)}",
-                "error_ar": f"فشل التحليل: {str(e)}",
+                "error": "Analysis failed",
+                "error_ar": "فشل التحليل",
             },
         )
 
@@ -614,7 +631,7 @@ async def get_leveling_plan(
     return LevelingPlan(
         plan_id=str(uuid.uuid4()),
         field_id=field_id,
-        created_at=datetime.utcnow(),
+        created_at=datetime.now(UTC),
         design_plane=design_plane,
         method=LevelingMethod.SINGLE_PLANE,
         cut_fill=cut_fill,
@@ -862,9 +879,14 @@ async def simulate_leveling(
             (original_std_dev - simulated_std_dev) / original_std_dev * 100 if original_std_dev > 0 else 0
         )
 
-        # Create design plane model
+        # Create design plane model.
+        # centroid_elevation = design-plane Z at the field centroid =
+        # a·x̄ + b·ȳ + c (``plane.c`` alone is the intercept at the origin, not
+        # the elevation at the field centroid).
+        x_centroid = sum(p.x for p in points) / len(points)
+        y_centroid = sum(p.y for p in points) / len(points)
         design_plane = DesignPlane(
-            centroid_elevation=round(plane.c, 3),
+            centroid_elevation=round(plane.a * x_centroid + plane.b * y_centroid + plane.c, 3),
             grade_x_percent=round(plane.a * 100, 3),
             grade_y_percent=round(plane.b * 100, 3),
             plane_equation=f"z = {plane.a:.6f}*x + {plane.b:.6f}*y + {plane.c:.3f}",
@@ -928,7 +950,7 @@ async def simulate_leveling(
                         "cut_volume_m3": cut_fill.cut_volume_m3,
                         "fill_volume_m3": cut_fill.fill_volume_m3,
                         "uniformity_improvement": round(uniformity_improvement, 2),
-                        "timestamp": datetime.utcnow().isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                     },
                     default=str,
                 ).encode()
@@ -941,7 +963,7 @@ async def simulate_leveling(
 
         return SimulationResult(
             field_id=request.field_id,
-            simulation_timestamp=datetime.utcnow(),
+            simulation_timestamp=datetime.now(UTC),
             original_points=request.elevation_points,
             simulated_points=simulated_points,
             cut_points=cut_points,
@@ -956,11 +978,16 @@ async def simulate_leveling(
         )
 
     except Exception as e:
-        logger.error("leveling_simulation_failed", field_id=request.field_id, error=str(e))
+        logger.error(
+            "leveling_simulation_failed",
+            field_id=request.field_id,
+            error=str(e),
+            request_id=getattr(http_request.state, "request_id", None),
+        )
         raise HTTPException(
             status_code=500,
             detail={
-                "error": f"Simulation failed: {str(e)}",
-                "error_ar": f"فشلت المحاكاة: {str(e)}",
+                "error": "Simulation failed",
+                "error_ar": "فشلت المحاكاة",
             },
         )

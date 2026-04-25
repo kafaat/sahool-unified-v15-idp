@@ -1,0 +1,24 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: agri-taxonomy-service
+  description: |
+    Source of truth for agricultural taxonomy (crops, varieties, diseases,
+    pests, weeds, fertilizers). See ADR-012.
+  tags:
+    - sahool
+    - microservice
+    - fastapi
+    - intelligence
+    - taxonomy
+  annotations:
+    sahool.io/adr: ADR-012
+    sahool.io/port: "8265"
+    sahool.io/kong-route: /api/v1/taxonomy
+spec:
+  type: service
+  lifecycle: experimental
+  owner: group:sahool-platform
+  system: sahool-platform
+  dependsOn:
+    - component:knowledge-graph

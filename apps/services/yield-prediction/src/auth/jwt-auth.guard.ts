@@ -32,14 +32,11 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException("JWT secret not configured");
       }
 
-      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = [
-        "HS256",
-        "HS384",
-        "HS512",
-        "RS256",
-        "RS384",
-        "RS512",
-      ];
+      const ALLOWED_ALGORITHMS: jwt.Algorithm[] = ["HS256"]; // Platform policy: HS256 only.
+      // Including both HS* and RS* enables a classic algorithm-confusion
+      // attack where a token signed with an RSA public key as HMAC secret
+      // would verify under HS256. See shared/auth/jwt_handler.py and
+      // shared/auth/config.ts for the canonical platform policy.
 
       const header = jwt.decode(token, { complete: true })?.header;
       if (!header || !header.alg) {

@@ -159,7 +159,7 @@ export class KpiSnapshotService {
     // Update field ndvi_value and health_score from ndvi
     if (dto.ndvi != null) {
       await this.prisma.field.update({
-        where: { id: fieldId },
+        where: { id_tenantId: { id: fieldId, tenantId } },
         data: {
           ndviValue: dto.ndvi,
           healthScore: dto.ndvi, // Use NDVI as health proxy
@@ -167,7 +167,7 @@ export class KpiSnapshotService {
         },
       });
       // Invalidate service-level cache and HTTP interceptor cache keys
-      await this.cacheService.del(CACHE_KEYS.FIELD(fieldId));
+      await this.cacheService.del(CACHE_KEYS.FIELD(tenantId, fieldId));
       // HTTP interceptor key format: {tenantId}:{path}:{hash("{}") = "31e"}
       await this.cacheService.del(`${tenantId}:/api/v1/fields/${fieldId}:31e`);
       await this.cacheService.del(`${tenantId}:/api/v1/fields/${fieldId}/kpi-snapshot:31e`);

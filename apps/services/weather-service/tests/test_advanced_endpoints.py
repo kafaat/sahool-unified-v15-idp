@@ -569,7 +569,21 @@ class TestInputValidation:
         assert response.status_code == 422
 
     def test_forecast_days_clamped(self, client):
-        """Test days parameter clamped to 1-16"""
+        """Test days parameter is validated: out-of-range values return 422"""
+        response = client.post(
+            "/weather/forecast?days=50",
+            json={
+                "tenant_id": TENANT_ID,
+                "field_id": FIELD_ID,
+                "lat": 15.35,
+                "lon": 44.20,
+            },
+        )
+        # days=50 exceeds le=16 → Pydantic rejects with 422
+        assert response.status_code == 422
+
+    def test_forecast_days_valid_boundary(self, client):
+        """Test valid boundary values for days parameter are accepted"""
         with patch("src.main.app.state") as mock_state:
             mock_provider = MagicMock()
             mock_provider.get_daily_forecast = AsyncMock(return_value=[])
@@ -578,7 +592,7 @@ class TestInputValidation:
             mock_state.publisher = None
 
             response = client.post(
-                "/weather/forecast?days=50",
+                "/weather/forecast?days=16",
                 json={
                     "tenant_id": TENANT_ID,
                     "field_id": FIELD_ID,
@@ -587,7 +601,6 @@ class TestInputValidation:
                 },
             )
 
-        # The endpoint clamps to 16, does not reject
         assert response.status_code == 200
 
     def test_correlation_id_too_long(self, client):

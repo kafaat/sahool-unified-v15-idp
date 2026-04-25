@@ -114,16 +114,34 @@ export class IdempotencyService {
       return { value, replayed: false, statusCode: 200 };
     }
 
+    if (!tenantId || tenantId.trim() === "") {
+      throw new UnprocessableEntityException({
+        message: "tenantId is required for idempotent operations",
+        messageAr: "معرّف المستأجر مطلوب لعمليات منع التكرار",
+        code: "IDEMPOTENCY_TENANT_MISSING",
+      });
+    }
+
     const trimmedKey = key.trim();
     const requestHash = this.hashRequest(requestPayload);
 
-    // Look up existing idempotency row for (key, operation).
+    // Look up existing idempotency row for THIS TENANT only. The
+    // `idempotency_keys` table uses `key` as a global PK for historical
+    // reasons, which meant a client in tenant A picking the same key as
+    // tenant B would fall through to the replay branch and return tenant
+    // A's cached response body — a cross-tenant data leak. Filtering by
+    // tenant_id here + the cross-tenant collision detection below is the
+    // application-level guard; a defense-in-depth `@@unique([tenantId,
+    // key, operation])` is enforced by the schema.
+    //
     // NOTE: parameterized via tagged template — no SQL injection surface.
     const existingRows = await this.prisma.$queryRaw<IdempotencyRow[]>`
       SELECT key, tenant_id, user_id, operation, request_hash,
              response_body, status_code
         FROM idempotency_keys
-       WHERE key = ${trimmedKey} AND operation = ${operation}
+       WHERE key = ${trimmedKey}
+         AND operation = ${operation}
+         AND tenant_id = ${tenantId}::uuid
        LIMIT 1
     `;
 
@@ -158,9 +176,15 @@ export class IdempotencyService {
       });
     }
 
-    // Insert placeholder row. ON CONFLICT DO NOTHING handles the race
-    // where two concurrent requests with the same key arrive at once —
-    // the losing insert becomes a no-op and we recurse once.
+    // Insert placeholder row. ON CONFLICT DO NOTHING handles two cases:
+    //   (a) the intra-tenant race where two concurrent requests arrive
+    //       with the same (tenantId, key, operation) — one wins the
+    //       insert, the other recurses and replays.
+    //   (b) a CROSS-TENANT collision on the historical global `key` PK
+    //       — we DID NOT find a row for our own tenant above, yet the
+    //       insert returned 0 rows, so some other tenant already owns
+    //       the raw key. This used to silently replay their response;
+    //       we now throw a 422 so nothing leaks.
     const inserted = await this.prisma.$executeRaw`
       INSERT INTO idempotency_keys
         (key, tenant_id, user_id, operation, request_hash)
@@ -171,7 +195,31 @@ export class IdempotencyService {
     `;
 
     if (inserted === 0) {
-      // Lost the race — another request won. Re-fetch and replay.
+      // Re-select strictly by tenant. If a row exists for our tenant the
+      // intra-tenant race case applies — recurse and replay. If not, the
+      // cross-tenant collision has fired — fail loudly.
+      const selfCheck = await this.prisma.$queryRaw<IdempotencyRow[]>`
+        SELECT 1 as key, tenant_id, user_id, operation, request_hash,
+               response_body, status_code
+          FROM idempotency_keys
+         WHERE key = ${trimmedKey}
+           AND operation = ${operation}
+           AND tenant_id = ${tenantId}::uuid
+         LIMIT 1
+      `;
+
+      if (selfCheck.length === 0) {
+        this.logger.warn(
+          `Idempotency-Key cross-tenant collision: key=${trimmedKey} op=${operation} tenant=${tenantId}`,
+        );
+        throw new UnprocessableEntityException({
+          message: "Idempotency key collision across tenants — choose a different key",
+          messageAr: "تعارض مفتاح منع التكرار بين المستأجرين — اختر مفتاحاً مختلفاً",
+          code: "IDEMPOTENCY_CROSS_TENANT_COLLISION",
+        });
+      }
+
+      // Intra-tenant race — recurse and replay.
       return this.executeIdempotent(
         trimmedKey,
         tenantId,

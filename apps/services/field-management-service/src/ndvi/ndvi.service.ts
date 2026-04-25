@@ -31,7 +31,7 @@ export class NdviService {
     if (cached) return cached;
 
     const field = await this.prisma.field.findUnique({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       select: {
         id: true,
         name: true,
@@ -142,7 +142,7 @@ export class NdviService {
     }
 
     const field = await this.prisma.field.findUnique({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       select: { id: true, tenantId: true },
     });
 
@@ -169,7 +169,7 @@ export class NdviService {
     // Update field NDVI and health score
     const healthScore = this.calculateHealthScore(value);
     await this.prisma.field.update({
-      where: { id: fieldId },
+      where: { id_tenantId: { id: fieldId, tenantId } },
       data: {
         ndviValue: value,
         healthScore,
@@ -178,7 +178,7 @@ export class NdviService {
 
     // Invalidate caches
     await this.cacheService.del(CACHE_KEYS.NDVI(fieldId));
-    await this.cacheService.del(CACHE_KEYS.FIELD(fieldId));
+    await this.cacheService.del(CACHE_KEYS.FIELD(field.tenantId, fieldId));
     await this.cacheService.del(CACHE_KEYS.NDVI_SUMMARY(field.tenantId));
 
     return {

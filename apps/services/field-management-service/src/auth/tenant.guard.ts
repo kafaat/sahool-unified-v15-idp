@@ -47,7 +47,18 @@ export class TenantGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    const headerTenantId = request.headers["x-tenant-id"];
+    // Normalize header: some proxies duplicate headers producing `string[]`.
+    // Take the first non-empty value so the comparison below never does a
+    // reference-equality check against an array and accidentally passes.
+    const rawHeader = request.headers["x-tenant-id"];
+    const headerTenantId = Array.isArray(rawHeader)
+      ? rawHeader.find(
+          (value): value is string =>
+            typeof value === "string" && value.trim() !== "",
+        )?.trim()
+      : typeof rawHeader === "string" && rawHeader.trim() !== ""
+        ? rawHeader.trim()
+        : undefined;
 
     // Require authenticated user for all non-public routes
     if (!user) {
@@ -61,16 +72,35 @@ export class TenantGuard implements CanActivate {
 
     const userTenantId = user.tenantId;
 
-    // If X-Tenant-ID header is provided, it can only be used as override by admins
+    // If X-Tenant-ID header is provided, it can only be used as override by admins.
+    // Role match is case-insensitive and covers the canonical Prisma enum values
+    // (`ADMIN`, `SUPER_ADMIN`) as well as lower-case legacy spellings. Platform
+    // JWTs mint uppercase roles (see user-service UserRole enum), so the previous
+    // lowercase-only check `includes("admin")` silently forbade every real admin
+    // override in production while accidentally passing in test fixtures.
     if (headerTenantId && headerTenantId !== userTenantId) {
-      const isAdmin = user.roles?.includes("admin");
+      const roles: string[] = Array.isArray(user.roles) ? user.roles : [];
+      const normalizedRoles = roles
+        .filter((r): r is string => typeof r === "string")
+        .map((r) => r.toUpperCase());
+      const isAdmin =
+        normalizedRoles.includes("ADMIN") ||
+        normalizedRoles.includes("SUPER_ADMIN");
       if (!isAdmin) {
         this.logger.warn(
           `Tenant mismatch [${request.method} ${request.url}]: user=${userTenantId} requested=${headerTenantId}`,
         );
         throw new ForbiddenException("Access denied: tenant mismatch");
       }
-      // Admin can override tenant
+      // Admin can override tenant. Emit a structured audit line so the
+      // privileged cross-tenant access is visible in log aggregation / SIEM.
+      // An admin impersonating a tenant is a sensitive operation and must
+      // never happen silently. The downstream audit-service can correlate
+      // on `admin_tenant_override` to build a compliance trail even if the
+      // individual handler forgets to emit its own event.
+      this.logger.warn(
+        `admin_tenant_override: userId=${user.id ?? "unknown"} fromTenant=${userTenantId ?? "none"} toTenant=${headerTenantId} method=${request.method} url=${request.url}`,
+      );
       request.tenantId = headerTenantId;
       return true;
     }

@@ -275,6 +275,29 @@ services:
     - irrigation-smart
     - pest-detection-service
     - yolo26-vision-service
+  prescription-safety-gateway:
+    build:
+      context: ../../apps/services/prescription-safety-gateway
+      dockerfile: Dockerfile
+    ports:
+    - 8275:8275
+    environment:
+    - PORT=8275
+    - ENVIRONMENT=production
+    healthcheck:
+      test:
+      - CMD
+      - curl
+      - -f
+      - http://localhost:8275/healthz
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    depends_on:
+    - agro-rules
+    - globalgap-compliance
+    - agri-taxonomy-service
   drone-service:
     build:
       context: ../../apps/services/drone-service

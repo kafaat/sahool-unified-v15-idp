@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.19.0
+/// Contract version: 4.23.0
 library;
 
 /// Single source of truth for all microservice ports.
@@ -60,6 +60,8 @@ abstract final class ServicePorts {
   static const int levelingOptimizer = 8170;
   static const int edgeOrchestrator = 8180;
   static const int vllmDeepseek = 8270;
+  static const int agriTaxonomy = 8265;
+  static const int prescriptionSafetyGateway = 8275;
   static const int soilAnalysis = 8134;
   static const int pestDetection = 8125;
   static const int droneService = 8126;

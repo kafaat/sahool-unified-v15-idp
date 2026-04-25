@@ -319,24 +319,26 @@ describe('FieldsService', () => {
     it('should return a field from the database when cache misses', async () => {
       prisma.field.findUnique.mockResolvedValue(makeFieldRow());
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(result.id).toBe(FIELD_ID);
       expect(result.name).toBe('North Wheat Field');
       expect(result.etag).toBeDefined();
       expect(cache.set).toHaveBeenCalledWith(
-        CACHE_KEYS.FIELD(FIELD_ID),
+        CACHE_KEYS.FIELD(TENANT_A, FIELD_ID),
         expect.any(Object),
         CACHE_TTL.MEDIUM,
       );
     });
 
     it('should return cached field on cache hit', async () => {
-      // The `bbox` key signals that this cache entry was written by the
-      // current version of the service. findById short-circuits the DB
-      // round-trip only when the entry contains `bbox`; entries cached
-      // before the bbox rollout are intentionally ignored so the next
-      // read produces a fresh, bbox-populated object.
+      // The `_cacheSchemaVersion` marker signals the entry was written
+      // by the current version of the service. findById short-circuits
+      // the DB round-trip only when the entry carries the current
+      // version; entries written by older code are intentionally
+      // ignored so the next read produces a fresh, fully-shaped object.
+      // (The previous `bbox`-key probe lost the marker for fields
+      // without a boundary after JSON serialization — PR #1729 review.)
       const cachedField = {
         id: FIELD_ID,
         name: 'Cached Field',
@@ -344,29 +346,106 @@ describe('FieldsService', () => {
         version: 1,
         etag: `"${FIELD_ID}-v1"`,
         bbox: [46.7, 24.7, 46.8, 24.8] as [number, number, number, number],
+        _cacheSchemaVersion: 2,
       };
       cache.get.mockResolvedValue(cachedField);
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(result.name).toBe('Cached Field');
       expect(prisma.field.findUnique).not.toHaveBeenCalled();
+      // PR #1729 review (comment 3 on pullrequestreview-4150593669):
+      // the internal `_cacheSchemaVersion` marker must not leak to
+      // API callers — the DB path produces DTOs without it, so
+      // exposing it on the cache-hit path would create a subtly
+      // inconsistent response shape.
+      expect('_cacheSchemaVersion' in result).toBe(false);
+    });
+
+    it('should ignore cached entries without the current schema version', async () => {
+      // Regression guard: an old cache entry that LOOKS field-shaped
+      // but pre-dates `_cacheSchemaVersion` must NOT short-circuit the
+      // DB path. Otherwise a latent schema change could serve
+      // malformed data indefinitely.
+      cache.get.mockResolvedValue({
+        id: FIELD_ID,
+        tenantId: TENANT_A,
+        version: 1,
+        // No `_cacheSchemaVersion` — pre-v2 entry.
+      });
+      prisma.field.findUnique.mockResolvedValue(makeFieldRow());
+
+      await service.findById(FIELD_ID, TENANT_A);
+
+      expect(prisma.field.findUnique).toHaveBeenCalledTimes(1);
     });
 
     it('should throw NotFoundException when field does not exist', async () => {
       prisma.field.findUnique.mockResolvedValue(null);
 
-      await expect(service.findById('nonexistent-id')).rejects.toThrow(
+      await expect(service.findById('nonexistent-id', TENANT_A)).rejects.toThrow(
         NotFoundException,
       );
     });
 
-    it('should enforce tenant isolation when tenantId is provided', async () => {
-      prisma.field.findUnique.mockResolvedValue(makeFieldRow({ tenantId: TENANT_A }));
+    it('should accept tenantId with surrounding whitespace (normalize once)', async () => {
+      // PR #1729 review (pullrequestreview-4150736205 / comment 2):
+      // a caller that forwards `req.headers["x-tenant-id"] ?? ""`
+      // without trimming may send `"  tenant-aaa-1111  "`. The guard
+      // used to pass (because `.trim() !== ""`) but then the
+      // untrimmed value was used as the Prisma composite-key value
+      // and the cache key — guaranteeing a cache/DB miss on an
+      // otherwise-valid request. findById now normalizes once and
+      // threads the normalized value through every lookup.
+      prisma.field.findUnique.mockResolvedValue(makeFieldRow());
+
+      const result = await service.findById(FIELD_ID, `  ${TENANT_A}  `);
+
+      expect(result.id).toBe(FIELD_ID);
+      expect(prisma.field.findUnique).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id_tenantId: { id: FIELD_ID, tenantId: TENANT_A } },
+        }),
+      );
+      expect(cache.set).toHaveBeenCalledWith(
+        CACHE_KEYS.FIELD(TENANT_A, FIELD_ID),
+        expect.any(Object),
+        CACHE_TTL.MEDIUM,
+      );
+    });
+
+    it('should throw BadRequestException when tenantId is empty', async () => {
+      // Regression guard (PR #1724 review): an empty-string tenantId
+      // used to fall through to the un-scoped { id } path enabling a
+      // cross-tenant IDOR. The method must now reject falsy values
+      // explicitly so a controller that forwards an unsanitized
+      // x-tenant-id header (coerced to "") cannot leak data.
+      await expect(service.findById(FIELD_ID, '')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should throw BadRequestException when tenantId is whitespace-only', async () => {
+      // PR #1729 review: the original guard was `if (!tenantId)`, which
+      // accepts `" "` as truthy and would have hit the composite-key
+      // path with a bogus tenant. Trimming closes that gap.
+      await expect(service.findById(FIELD_ID, '   ')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('should return NotFoundException (not ForbiddenException) on cross-tenant request', async () => {
+      // In production, the Prisma composite-key query
+      // `{ id_tenantId: { id, tenantId: TENANT_B } }` matches zero rows
+      // when the field belongs to TENANT_A — the mock emulates that.
+      // The service no longer post-queries with `assertTenantOwnership`,
+      // so a cross-tenant request and a missing row are observably
+      // identical (uniform 404, no enumeration oracle).
+      prisma.field.findUnique.mockResolvedValue(null);
 
       await expect(
         service.findById(FIELD_ID, TENANT_B),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(NotFoundException);
     });
 
     it('exposes bbox + centroid from PostGIS when present on the row', async () => {
@@ -387,7 +466,7 @@ describe('FieldsService', () => {
         },
       ]);
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(result.centroidLng).toBeCloseTo(46.75);
       expect(result.centroidLat).toBeCloseTo(24.75);
@@ -405,19 +484,39 @@ describe('FieldsService', () => {
       expect(sql).toMatch(/ST_Y\s*\(\s*centroid/);
     });
 
-    it('should enforce tenant isolation on cached results', async () => {
-      cache.get.mockResolvedValue({
+    it('cross-tenant lookup is a natural cache miss (tenant-scoped key)', async () => {
+      // PR #1729 review (pullrequestreview-4150593669 / comment 2):
+      // Cache keys now embed the tenantId — `field:{tenantId}:{id}`
+      // — so a TENANT_A cached entry lives under a different key
+      // than a TENANT_B lookup would probe. A cross-tenant request
+      // therefore misses the cache by construction, falls through
+      // to the composite-key DB path, and surfaces a uniform
+      // `NotFoundException` — no 403 observable, no enumeration
+      // oracle. This test simulates that by returning the cached
+      // entry ONLY for the TENANT_A key.
+      const tenantACachedField = {
         id: FIELD_ID,
+        name: 'North Wheat Field',
         tenantId: TENANT_A,
         version: 1,
         etag: `"${FIELD_ID}-v1"`,
-        // Present so findById uses the cache-hit short-circuit path.
         bbox: [46.7, 24.7, 46.8, 24.8] as [number, number, number, number],
-      });
+        _cacheSchemaVersion: 2,
+      };
+      cache.get.mockImplementation((key: string) =>
+        Promise.resolve(
+          key === CACHE_KEYS.FIELD(TENANT_A, FIELD_ID) ? tenantACachedField : null,
+        ),
+      );
+      // DB path returns null for the TENANT_B composite-key query
+      // (TENANT_B cannot own this field; the row belongs to
+      // TENANT_A).
+      prisma.field.findUnique.mockResolvedValue(null);
 
       await expect(
         service.findById(FIELD_ID, TENANT_B),
-      ).rejects.toThrow(ForbiddenException);
+      ).rejects.toThrow(NotFoundException);
+      expect(prisma.field.findUnique).toHaveBeenCalledTimes(1);
     });
 
     it('should pass tenant check when tenantIds match', async () => {
@@ -436,7 +535,7 @@ describe('FieldsService', () => {
       });
       prisma.field.findUnique.mockResolvedValue(row);
 
-      const result = await service.findById(FIELD_ID);
+      const result = await service.findById(FIELD_ID, TENANT_A);
 
       expect(typeof result.areaHectares).toBe('number');
     });

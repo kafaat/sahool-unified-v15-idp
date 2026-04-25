@@ -291,14 +291,23 @@ def generate_helm_values(data: dict[str, Any]) -> dict[str, Any]:
             "postgresql": {
                 "enabled": True,
                 "auth": {
-                    "postgresPassword": "",  # Set via secrets
+                    # Bitnami chart pulls the password from this Secret rather
+                    # than the values file. Empty strings here previously
+                    # tripped CodeQL "Empty password in configuration file".
+                    "existingSecret": "sahool-postgresql-auth",
+                    "secretKeys": {
+                        "adminPasswordKey": "postgres-password",
+                        "userPasswordKey": "password",
+                    },
                     "database": "sahool",
                 },
                 "primary": {"persistence": {"size": "20Gi"}},
             },
             "redis": {
                 "enabled": True,
-                "auth": {"password": ""},  # Set via secrets
+                # Same rationale as postgresql.auth: Redis password is
+                # supplied via the referenced Kubernetes Secret.
+                "auth": {"existingSecret": "sahool-redis-auth", "existingSecretPasswordKey": "redis-password"},
                 "master": {"persistence": {"size": "5Gi"}},
             },
             "nats": {

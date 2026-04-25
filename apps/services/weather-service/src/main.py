@@ -16,7 +16,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Literal
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 
 # Shared middleware imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -121,6 +121,34 @@ if HAS_PROMETHEUS:
         "Weather provider fallback events",
         ["from_provider", "to_provider"],
     )
+    PROVIDER_REQUESTS = Counter(
+        "weather_provider_requests_total",
+        "Weather provider upstream requests",
+        ["provider", "status"],
+    )
+    PROVIDER_LATENCY = Histogram(
+        "weather_provider_duration_seconds",
+        "Weather provider upstream request latency",
+        ["provider"],
+    )
+
+
+def _multi_provider_metrics_hook(event: str, **kwargs) -> None:
+    """Record metrics emitted by MultiWeatherService."""
+    if not HAS_PROMETHEUS:
+        return
+    if event == "request":
+        provider = kwargs.get("provider", "unknown")
+        status = kwargs.get("status", "unknown")
+        duration = kwargs.get("duration_seconds")
+        PROVIDER_REQUESTS.labels(provider=provider, status=status).inc()
+        if duration is not None:
+            PROVIDER_LATENCY.labels(provider=provider).observe(duration)
+    elif event == "fallback":
+        PROVIDER_FALLBACK.labels(
+            from_provider=kwargs.get("from_provider", "unknown"),
+            to_provider=kwargs.get("to_provider", "unknown"),
+        ).inc()
 
 
 # Prometheus middleware to record metrics per request
@@ -144,6 +172,22 @@ if HAS_PROMETHEUS:
 async def lifespan(app: FastAPI):
     logger.info("service_starting", service="weather-service")
 
+    # Fail-fast guard: the graph-signing secret MUST NOT remain at its
+    # development default in staging/production. The sentinel string is
+    # defined in graph.renderer (DEV_GRAPH_SIGNING_SECRET) so both sites
+    # stay in sync even if the placeholder ever changes.
+    from .graph.renderer import DEV_GRAPH_SIGNING_SECRET
+
+    _environment = os.getenv("ENVIRONMENT", "development").lower()
+    _graph_secret = os.getenv("WEATHER_GRAPH_SIGNING_SECRET", "")
+    if _environment in ("staging", "production") and (not _graph_secret or _graph_secret == DEV_GRAPH_SIGNING_SECRET):
+        raise RuntimeError(
+            "WEATHER_GRAPH_SIGNING_SECRET must be set to a non-default value "
+            f"when ENVIRONMENT={_environment!r}. Refusing to start with the "
+            "development placeholder, which would allow anyone who guesses "
+            "the default to forge signed graph URLs."
+        )
+
     # Initialize weather provider
     if USE_MOCK_WEATHER:
         app.state.weather_provider = MockWeatherProvider()
@@ -152,6 +196,7 @@ async def lifespan(app: FastAPI):
     elif USE_MULTI_PROVIDER:
         app.state.multi_provider = MultiWeatherService()
         app.state.weather_provider = OpenMeteoProvider()  # Fallback
+        app.state.multi_provider.set_metrics_hook(_multi_provider_metrics_hook)
         providers = app.state.multi_provider.get_available_providers()
         provider_names = [p["name"] for p in providers if p["configured"]]
         logger.info("weather_provider_initialized", provider="multi", providers=provider_names)
@@ -176,6 +221,19 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning("nats_connection_failed", error=str(e))
         app.state.publisher = None
+
+    # Initialise graph singletons eagerly in lifespan to avoid race conditions
+    # under concurrent ASGI tasks (4.5).
+    try:
+        from .graph import GraphStore, WeatherGraphRenderer
+
+        app.state.graph_renderer = WeatherGraphRenderer()
+        app.state.graph_store = GraphStore()
+        logger.info("graph_renderer_initialized")
+    except Exception as e:
+        logger.warning("graph_renderer_unavailable", error=str(e))
+        app.state.graph_renderer = None
+        app.state.graph_store = None
 
     yield
 
@@ -235,6 +293,8 @@ try:
             allow_headers=["Authorization", "Content-Type", "Accept", "X-Tenant-Id"],
         )
 except ImportError:
+    # Optional shared.middleware.cors module — fall back to whatever CORS
+    # configuration was already applied earlier in this file.
     pass
 
 # Security headers - رؤوس الأمان
@@ -247,6 +307,9 @@ try:
 
     app.add_middleware(TenantContextMiddleware)
 except ImportError:
+    # Optional shared.middleware.tenant_context — service still functions
+    # without it; tenant enforcement happens at endpoint level via
+    # `_enforce_tenant` helpers.
     pass
 
 
@@ -281,7 +344,7 @@ def _enforce_tenant(user: User, requested_tenant_id: str) -> None:
 @app.get("/healthz")
 def health():
     """Health check endpoint (liveness probe)"""
-    from datetime import datetime, timezone
+    from datetime import datetime
 
     return {
         "status": "healthy",
@@ -293,6 +356,8 @@ def health():
 
 @app.get("/readyz")
 def readiness():
+    from starlette.responses import JSONResponse
+
     checks = {}
 
     # Check NATS connection
@@ -312,17 +377,39 @@ def readiness():
 
     all_ready = all(v not in ("disconnected", "not_initialized") for v in checks.values())
 
-    return {
+    body = {
         "status": "ready" if all_ready else "degraded",
         "service": "weather-service",
         "version": "16.0.0",
         "checks": checks,
     }
+    # Return 503 when degraded so Kubernetes readiness probe removes the pod
+    # from the Service endpoint slice until all dependencies recover.
+    return JSONResponse(content=body, status_code=200 if all_ready else 503)
+
+
+# Tokens allowed to scrape /metrics.  When empty (the default) the endpoint
+# is open, preserving backward compatibility with existing Prometheus configs.
+# Set METRICS_TOKEN to a shared secret to require Bearer auth.
+_METRICS_TOKEN: str = os.getenv("METRICS_TOKEN", "")
 
 
 @app.get("/metrics")
-async def metrics():
+async def metrics(authorization: str | None = Header(default=None, alias="Authorization")):
     """Prometheus metrics endpoint"""
+    if _METRICS_TOKEN:
+        import secrets
+
+        parts = (authorization or "").split(None, 1)
+        bearer = parts[1].strip() if len(parts) == 2 and parts[0].lower() == "bearer" else ""
+        if not secrets.compare_digest(bearer, _METRICS_TOKEN):
+            from starlette.responses import Response as _Resp
+
+            return _Resp(
+                content="Unauthorized",
+                status_code=401,
+                headers={"WWW-Authenticate": "Bearer"},
+            )
     if not HAS_PROMETHEUS:
         from starlette.responses import Response
 
@@ -399,7 +486,8 @@ async def assess(req: WeatherAssessRequest, user: User = Depends(get_current_use
                     title_en=alert.title_en,
                     correlation_id=req.correlation_id,
                 )
-                event_ids.append(event_id)
+                if event_id is not None:
+                    event_ids.append(event_id)
             except Exception as e:
                 logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
@@ -467,7 +555,8 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
                         title_en=alert.title_en,
                         correlation_id=req.correlation_id,
                     )
-                    event_ids.append(event_id)
+                    if event_id is not None:
+                        event_ids.append(event_id)
                 except Exception as e:
                     logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
@@ -500,7 +589,11 @@ async def get_current_weather(req: LocationRequest, user: User = Depends(get_cur
 
 
 @app.post("/weather/forecast")
-async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends(get_current_user)):
+async def get_forecast(
+    req: LocationRequest,
+    days: int = Query(default=7, ge=1, le=16, description="Number of forecast days (1–16)"),
+    user: User = Depends(get_current_user),
+):
     """
     Get weather forecast
 
@@ -508,7 +601,6 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
         days: Number of forecast days (1-16)
     """
     _enforce_tenant(user, req.tenant_id)
-    days = max(1, min(days, 16))
 
     try:
         # Use multi-provider service if available
@@ -565,6 +657,69 @@ async def get_forecast(req: LocationRequest, days: int = 7, user: User = Depends
             ],
             "days": len(forecast),
             "event_id": event_id,
+        }
+
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        raise ExternalServiceException.weather_service(e) from e
+
+
+@app.post("/weather/hourly")
+async def get_hourly_forecast(
+    req: LocationRequest,
+    hours: int = Query(default=24, ge=1, le=168, description="Number of forecast hours (1–168)"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Get hourly weather forecast (up to 7 days / 168 hours).
+    التوقعات الساعية للطقس (حتى 7 أيام / 168 ساعة).
+    """
+    _enforce_tenant(user, req.tenant_id)
+
+    try:
+        if getattr(app.state, "multi_provider", None):
+            result = await app.state.multi_provider.get_hourly_forecast(
+                req.lat, req.lon, hours, tenant_id=req.tenant_id
+            )
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            forecast = result.data
+            provider = result.provider
+        else:
+            weather_provider = getattr(app.state, "weather_provider", None)
+            if weather_provider is None:
+                raise ExternalServiceException.weather_service(
+                    details={"error": "Weather provider not available", "error_ar": "مزود الطقس غير متاح"}
+                )
+            forecast = await weather_provider.get_hourly_forecast(req.lat, req.lon, hours)
+            provider = "Open-Meteo"
+
+        return {
+            "field_id": req.field_id,
+            "location": {"lat": req.lat, "lon": req.lon},
+            "provider": provider,
+            "hours": len(forecast),
+            "forecast": [
+                {
+                    "datetime": h.datetime,
+                    "temperature_c": h.temperature_c,
+                    "humidity_pct": h.humidity_pct,
+                    "precipitation_mm": h.precipitation_mm,
+                    "precipitation_probability_pct": h.precipitation_probability_pct,
+                    "wind_speed_kmh": h.wind_speed_kmh,
+                    "cloud_cover_pct": h.cloud_cover_pct,
+                    "condition": h.condition,
+                    "condition_ar": h.condition_ar,
+                }
+                for h in forecast
+            ],
         }
 
     except (ExternalServiceException, InternalServerException):
@@ -646,6 +801,13 @@ async def get_providers(user: User = Depends(get_current_user)):
             "total": len(providers),
             "configured": len([p for p in providers if p["configured"]]),
         }
+    elif USE_MOCK_WEATHER:
+        return {
+            "multi_provider_enabled": False,
+            "providers": [{"name": "Mock", "configured": True, "type": "MockWeatherProvider"}],
+            "total": 1,
+            "configured": 1,
+        }
     else:
         return {
             "multi_provider_enabled": False,
@@ -653,6 +815,217 @@ async def get_providers(user: User = Depends(get_current_user)):
             "total": 1,
             "configured": 1,
         }
+
+
+# ============== Yemen Locations Endpoints ==============
+# نقاط الوصول لمواقع اليمن - 22 محافظة
+# Provides weather keyed by a human-readable location_id
+# (e.g. "sanaa", "aden") rather than raw coordinates.
+from .locations import get_all_locations, get_location  # noqa: E402
+
+
+@app.get("/v1/locations")
+def list_yemen_locations(region: str | None = None):
+    """
+    List Yemen governorates with coordinates and elevation.
+    قائمة المحافظات اليمنية مع الإحداثيات والارتفاع.
+
+    Query params:
+        region: Optional filter — highland | coastal | desert | island
+    """
+    locations = get_all_locations()
+    if region:
+        wanted = region.lower()
+        locations = [loc for loc in locations if loc.get("region") == wanted]
+    return {
+        "total": len(locations),
+        "region_filter": region,
+        "locations": locations,
+    }
+
+
+@app.get("/v1/current/{location_id}")
+async def get_current_by_location(location_id: str, user: User = Depends(get_current_user)):
+    """
+    Current weather for a Yemen governorate by location_id.
+    الطقس الحالي لمحافظة يمنية بواسطة معرف الموقع.
+    """
+    location = get_location(location_id)
+    if not location:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "location_not_found",
+                "message_en": f"Unknown Yemen location_id: {location_id}",
+                "message_ar": f"معرف موقع غير معروف: {location_id}",
+            },
+        )
+
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_current(
+                location["lat"], location["lon"], tenant_id=user.tenant_id or ""
+            )
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            weather = result.data
+            provider = result.provider
+        else:
+            weather = await app.state.weather_provider.get_current(location["lat"], location["lon"])
+            provider = "Open-Meteo"
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        raise ExternalServiceException.weather_service(e) from e
+
+    return {
+        "location_id": location_id,
+        "location": location,
+        "provider": provider,
+        "current": {
+            "temperature_c": weather.temperature_c,
+            "humidity_pct": weather.humidity_pct,
+            "wind_speed_kmh": weather.wind_speed_kmh,
+            "wind_direction_deg": weather.wind_direction_deg,
+            "precipitation_mm": weather.precipitation_mm,
+            "cloud_cover_pct": weather.cloud_cover_pct,
+            "pressure_hpa": weather.pressure_hpa,
+            "uv_index": weather.uv_index,
+            "condition": getattr(weather, "condition", None),
+            "condition_ar": getattr(weather, "condition_ar", None),
+            "timestamp": weather.timestamp,
+        },
+    }
+
+
+@app.get("/v1/forecast/{location_id}")
+async def get_forecast_by_location(
+    location_id: str,
+    days: int = 7,
+    user: User = Depends(get_current_user),
+):
+    """
+    Daily forecast for a Yemen governorate by location_id.
+    التوقعات اليومية لمحافظة يمنية بواسطة معرف الموقع.
+    """
+    location = get_location(location_id)
+    if not location:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "location_not_found",
+                "message_en": f"Unknown Yemen location_id: {location_id}",
+                "message_ar": f"معرف موقع غير معروف: {location_id}",
+            },
+        )
+    days = max(1, min(days, 16))
+
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_daily_forecast(
+                location["lat"], location["lon"], days, tenant_id=user.tenant_id or ""
+            )
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            forecast = result.data
+            provider = result.provider
+        else:
+            forecast = await app.state.weather_provider.get_daily_forecast(location["lat"], location["lon"], days)
+            provider = "Open-Meteo"
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        raise ExternalServiceException.weather_service(e) from e
+
+    return {
+        "location_id": location_id,
+        "location": location,
+        "provider": provider,
+        "days": len(forecast),
+        "forecast": [
+            {
+                "date": f.date,
+                "temp_max_c": f.temp_max_c,
+                "temp_min_c": f.temp_min_c,
+                "precipitation_mm": f.precipitation_mm,
+                "precipitation_probability_pct": f.precipitation_probability_pct,
+                "wind_speed_max_kmh": f.wind_speed_max_kmh,
+                "uv_index_max": f.uv_index_max,
+                "condition": getattr(f, "condition", None),
+                "condition_ar": getattr(f, "condition_ar", None),
+            }
+            for f in forecast
+        ],
+    }
+
+
+@app.get("/v1/alerts/{location_id}")
+async def get_alerts_by_location(location_id: str, user: User = Depends(get_current_user)):
+    """
+    Current-condition-driven weather alerts for a Yemen governorate.
+    التنبيهات الجوية المستخلصة من الظروف الحالية لمحافظة يمنية.
+
+    Fetches current weather for the location and runs it through the
+    same `assess_weather` risk engine used by POST /weather/assess.
+    """
+    location = get_location(location_id)
+    if not location:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                "error": "location_not_found",
+                "message_en": f"Unknown Yemen location_id: {location_id}",
+                "message_ar": f"معرف موقع غير معروف: {location_id}",
+            },
+        )
+
+    try:
+        if app.state.multi_provider:
+            result = await app.state.multi_provider.get_current(
+                location["lat"], location["lon"], tenant_id=user.tenant_id or ""
+            )
+            if not result.success:
+                raise ExternalServiceException.weather_service(
+                    details={
+                        "error": result.error,
+                        "error_ar": result.error_ar,
+                        "failed_providers": result.failed_providers,
+                    }
+                )
+            weather = result.data
+        else:
+            weather = await app.state.weather_provider.get_current(location["lat"], location["lon"])
+    except (ExternalServiceException, InternalServerException):
+        raise
+    except Exception as e:
+        raise ExternalServiceException.weather_service(e) from e
+
+    alerts = assess_weather(
+        temp_c=weather.temperature_c,
+        humidity_pct=weather.humidity_pct,
+        wind_speed_kmh=weather.wind_speed_kmh,
+        precipitation_mm=weather.precipitation_mm,
+        uv_index=weather.uv_index,
+    )
+
+    return {
+        "location_id": location_id,
+        "location": location,
+        "alert_count": len(alerts),
+        "alerts": [a.to_dict() for a in alerts],
+    }
 
 
 # ============== Advanced Agricultural Endpoints ==============
@@ -715,9 +1088,11 @@ async def calculate_et(req: ETRequest, user: User = Depends(get_current_user)):
         solar_radiation_mj=req.solar_radiation_mj,
     )
 
-    # Publish event for high ET conditions
-    et0_mm = result.get("et0_mm", 0)
-    if app.state.publisher and et0_mm > 7.0:
+    # Publish event for high ET conditions.
+    # NOTE: calculate_evapotranspiration returns the key "et0_mm_day" (mm/day).
+    # Historically this used the wrong key "et0_mm", so the alert never fired.
+    et0_mm_day = result.get("et0_mm_day", 0)
+    if app.state.publisher and et0_mm_day > 7.0:
         try:
             await app.state.publisher.publish_weather_alert(
                 tenant_id=req.tenant_id,
@@ -817,7 +1192,7 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
 
     # Get current weather
     if app.state.multi_provider:
-        result = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
+        result = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon, tenant_id=req.tenant_id)
         if not result.success:
             raise ExternalServiceException.weather_service(
                 details={
@@ -827,7 +1202,7 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                 }
             )
         weather = result.data
-        provider = getattr(result, "provider", "Open-Meteo")
+        provider = result.provider
     else:
         weather = await app.state.weather_provider.get_current(lat=req.lat, lon=req.lon)
         provider = "Open-Meteo"
@@ -884,7 +1259,8 @@ async def get_agricultural_report(req: LocationRequest, user: User = Depends(get
                     title_en=alert.title_en,
                     correlation_id=req.correlation_id,
                 )
-                event_ids.append(event_id)
+                if event_id is not None:
+                    event_ids.append(event_id)
             except Exception as e:
                 logger.error("nats_publish_failed", subject="weather_alert", error=str(e), exc_info=True)
 
@@ -1143,7 +1519,7 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
 
     # Get current weather
     if app.state.multi_provider:
-        result = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon)
+        result = await app.state.multi_provider.get_current(lat=req.lat, lon=req.lon, tenant_id=req.tenant_id)
         if not result.success:
             raise ExternalServiceException.weather_service(
                 details={
@@ -1215,12 +1591,12 @@ async def get_stress_report(req: LocationRequest, user: User = Depends(get_curre
 # نقاط نهاية رسم الطقس — يعيد رابط URL للرسم بدل JSON
 # ---------------------------------------------------------------------------
 
-from src.graph import (  # noqa: E402
-    DailyPoint,
-    GraphRequest,
-    GraphStore,
-    WeatherGraphRenderer,
-)
+try:
+    from .graph import DailyPoint, GraphRequest, GraphStore, WeatherGraphRenderer
+
+    _GRAPH_AVAILABLE = True
+except ImportError:  # pragma: no cover
+    _GRAPH_AVAILABLE = False
 
 
 class WeatherGraphGenerateRequest(BaseModel):
@@ -1262,13 +1638,14 @@ async def generate_weather_graph(
     """
     _enforce_tenant(user, req.tenant_id)
 
-    # Initialise lazy singletons on first call (one per process).
-    if not hasattr(app.state, "graph_renderer"):
-        app.state.graph_renderer = WeatherGraphRenderer()
-    if not hasattr(app.state, "graph_store"):
-        app.state.graph_store = GraphStore()
+    if (
+        not _GRAPH_AVAILABLE
+        or not getattr(app.state, "graph_renderer", None)
+        or not getattr(app.state, "graph_store", None)
+    ):
+        raise HTTPException(status_code=503, detail="Graph renderer not available")
 
-    # Pull historical daily weather — the multi-provider service
+    # Pull historical daily weather
     # already exposes get_daily_forecast; for past data we use the
     # provider's history method when available, else we gracefully
     # fall back to an empty series so the SVG still renders.

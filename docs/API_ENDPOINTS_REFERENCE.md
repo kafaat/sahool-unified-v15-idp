@@ -1,8 +1,8 @@
 # SAHOOL Platform - API Endpoints Reference
 
 **Version**: 16.0.0
-**Last Updated**: 2026-01-25
-**Total Services**: 57+
+**Last Updated**: 2026-04-27
+**Total Services**: 62+
 **API Gateway**: Kong
 
 ---
@@ -89,9 +89,9 @@ All endpoints (except health checks) require JWT authentication.
 
 | Layer | Services | Purpose |
 |-------|----------|---------|
-| **Acquisition** | IoT Gateway, Weather Service, Satellite Service | Data ingestion |
-| **Intelligence** | Vegetation Analysis, Crop Intelligence, NDVI Processor | Feature extraction |
-| **Decision** | Advisory Service, Irrigation Smart, Yield Engine | Recommendations |
+| **Acquisition** | IoT Gateway, Weather Service, Satellite Service, Edge Orchestrator | Data ingestion |
+| **Intelligence** | Vegetation Analysis, Crop Intelligence, NDVI Processor, YOLO26 Vision, Terrain Core, Hydrology | Feature extraction |
+| **Decision** | Advisory Service, Irrigation Smart, Yield Engine, Leveling Optimizer | Recommendations |
 | **Business** | Notification, Marketplace, Billing, Task | User operations |
 
 ---
@@ -479,6 +479,73 @@ All endpoints (except health checks) require JWT authentication.
 
 ---
 
+### YOLO26 Vision Service
+
+- **Port**: 8150
+- **Base Path**: `/api/v1/detect`, `/api/v1/count`, `/api/v1/classify`, `/api/v1/segment`, `/api/v1/track`, `/api/v1/batch`, `/api/v1/models`
+- **Technology**: Python (FastAPI, CUDA 12.1)
+- **Rate Limit**: 500/min
+- **Note**: Requires GPU for optimal performance; CPU-only variant available
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/healthz` | Liveness probe | No |
+| `GET` | `/readyz` | Readiness probe | No |
+| `GET` | `/metrics` | Prometheus metrics | No |
+| `POST` | `/api/v1/detect/pest` | Detect agricultural pests | Yes |
+| `POST` | `/api/v1/detect/disease` | Detect crop diseases | Yes |
+| `POST` | `/api/v1/detect/weed` | Detect weeds | Yes |
+| `POST` | `/api/v1/count/plants` | Count plants with density map | Yes |
+| `POST` | `/api/v1/classify/ripeness` | Classify fruit ripeness (5 stages) | Yes |
+| `POST` | `/api/v1/segment/leaf` | Leaf instance segmentation + LAI | Yes |
+| `POST` | `/api/v1/track/objects` | Object tracking (ByteTrack/BoT-SORT) | Yes |
+| `DELETE` | `/api/v1/track/{tracker_id}` | Clear tracking session | Yes |
+| `POST` | `/api/v1/batch/detect/pest` | Batch pest detection | Yes |
+| `POST` | `/api/v1/batch/detect/disease` | Batch disease detection | Yes |
+| `GET` | `/api/v1/batch/status` | Batch queue status | Yes |
+| `GET` | `/api/v1/batch/performance` | Batch performance statistics | Yes |
+| `GET` | `/api/v1/batch/cache/stats` | Cache statistics | Yes |
+| `POST` | `/api/v1/batch/cache/clear` | Clear result cache | Yes |
+| `GET` | `/api/v1/models/versions` | List all model versions | Yes |
+| `GET` | `/api/v1/models/versions/{task}/{variant}` | Get version history | Yes |
+| `GET` | `/api/v1/models/versions/{task}/{variant}/active` | Get active version | Yes |
+| `GET` | `/api/v1/models/versions/{task}/{variant}/{version}` | Get specific version | Yes |
+| `POST` | `/api/v1/models/versions` | Register new model version | Yes |
+| `POST` | `/api/v1/models/versions/{task}/{variant}/{version}/activate` | Activate version | Yes |
+| `POST` | `/api/v1/models/versions/{task}/{variant}/rollback` | Rollback to previous version | Yes |
+| `PUT` | `/api/v1/models/versions/{task}/{variant}/{version}/metrics` | Update version metrics | Yes |
+| `POST` | `/api/v1/models/versions/{task}/{variant}/{version}/deprecate` | Deprecate version | Yes |
+| `POST` | `/api/v1/models/versions/{task}/{variant}/{version}/promote` | Promote to production | Yes |
+
+---
+
+### Terrain Core Service
+
+- **Port**: 8185
+- **Base Path**: `/api/v1/terrain`
+- **Technology**: Python (FastAPI)
+- **Rate Limit**: 500/min
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/healthz` | Liveness probe | No |
+| `GET` | `/readyz` | Readiness probe | No |
+| `GET` | `/metrics` | Prometheus metrics | No |
+| `POST` | `/api/v1/terrain/analyze` | Full terrain analysis for a field | Yes |
+| `GET` | `/api/v1/terrain/slope/{field_id}` | Slope analysis | Yes |
+| `GET` | `/api/v1/terrain/aspect/{field_id}` | Aspect analysis | Yes |
+| `GET` | `/api/v1/terrain/flow/{field_id}` | Flow accumulation analysis | Yes |
+| `GET` | `/api/v1/terrain/twi/{field_id}` | Topographic Wetness Index (TWI) | Yes |
+| `GET` | `/api/v1/terrain/contours/{field_id}` | Contour lines analysis | Yes |
+| `GET` | `/api/v1/terrain/sources` | List available DEM data sources | Yes |
+| `GET` | `/api/v1/terrain/dem/{field_id}` | Get DEM data for a field | Yes |
+| `POST` | `/api/v1/terrain/erosion` | Water erosion assessment (RUSLE) | Yes |
+| `POST` | `/api/v1/terrain/erosion/wind` | Wind erosion assessment | Yes |
+| `POST` | `/api/v1/terrain/erosion/combined` | Combined erosion assessment | Yes |
+| `POST` | `/api/v1/terrain/erosion/yemen` | Yemen-specific erosion assessment | Yes |
+
+---
+
 ## Decision & Advisory Services
 
 ### Advisory Service
@@ -629,6 +696,47 @@ All endpoints (except health checks) require JWT authentication.
 | `GET` | `/v1/recommendations/recent` | Get recent recommendations | Yes |
 | `POST` | `/v1/soil-analysis/compress` | Compress soil data | Yes |
 | `GET` | `/v1/context-engineering/status` | Get context status | Yes |
+
+---
+
+### Hydrology Service
+
+- **Port**: 8165
+- **Base Path**: `/api/v1/hydrology`
+- **Technology**: Python (FastAPI)
+- **Rate Limit**: 500/min
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/healthz` | Liveness probe | No |
+| `GET` | `/readyz` | Readiness probe | No |
+| `GET` | `/metrics` | Prometheus metrics | No |
+| `POST` | `/api/v1/hydrology/analyze` | Full hydrology analysis for a field | Yes |
+| `GET` | `/api/v1/hydrology/drainage/{field_id}` | Drainage network analysis | Yes |
+| `GET` | `/api/v1/hydrology/wetness/{field_id}` | Soil wetness analysis | Yes |
+| `GET` | `/api/v1/hydrology/depressions/{field_id}` | Depression/waterlogging detection | Yes |
+| `GET` | `/api/v1/hydrology/streams/{field_id}` | Stream network delineation | Yes |
+| `GET` | `/api/v1/hydrology/basins/{field_id}` | Basin delineation | Yes |
+
+---
+
+### Leveling Optimizer Service
+
+- **Port**: 8170
+- **Base Path**: `/api/v1/leveling`
+- **Technology**: Python (FastAPI)
+- **Rate Limit**: 500/min
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/healthz` | Liveness probe | No |
+| `GET` | `/readyz` | Readiness probe | No |
+| `GET` | `/metrics` | Prometheus metrics | No |
+| `POST` | `/api/v1/leveling/analyze` | Leveling analysis with cut/fill calculation | Yes |
+| `GET` | `/api/v1/leveling/plan/{field_id}` | Get optimized leveling plan | Yes |
+| `GET` | `/api/v1/leveling/cost/{field_id}` | Get cost estimate | Yes |
+| `GET` | `/api/v1/leveling/equipment/{field_id}` | Get equipment recommendations | Yes |
+| `POST` | `/api/v1/leveling/simulate` | Simulate leveling scenarios | Yes |
 
 ---
 
@@ -1069,6 +1177,45 @@ All endpoints (except health checks) require JWT authentication.
 
 ---
 
+### Edge Orchestrator Service
+
+- **Port**: 8180
+- **Base Path**: `/api/v1/edge`
+- **Technology**: Python (FastAPI)
+- **Rate Limit**: 1000/min
+- **Note**: Also exposes WebSocket endpoints for real-time device communication
+
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| `GET` | `/healthz` | Liveness probe | No |
+| `GET` | `/health/live` | Liveness (alias) | No |
+| `GET` | `/readyz` | Readiness probe | No |
+| `GET` | `/health/ready` | Readiness (alias) | No |
+| `GET` | `/health` | Combined health status | No |
+| `GET` | `/api/v1/edge/devices` | List registered edge devices | Yes |
+| `GET` | `/api/v1/edge/devices/{device_id}` | Get device details | Yes |
+| `POST` | `/api/v1/edge/devices` | Register new edge device | Yes |
+| `PUT` | `/api/v1/edge/devices/{device_id}` | Update device configuration | Yes |
+| `DELETE` | `/api/v1/edge/devices/{device_id}` | Remove device | Yes |
+| `POST` | `/api/v1/edge/devices/{device_id}/reconnect` | Reconnect device | Yes |
+| `GET` | `/api/v1/edge/devices/{device_id}/metrics` | Device telemetry metrics | Yes |
+| `POST` | `/api/v1/edge/jobs` | Create edge inference job | Yes |
+| `GET` | `/api/v1/edge/jobs` | List jobs | Yes |
+| `GET` | `/api/v1/edge/jobs/{job_id}` | Get job status | Yes |
+| `GET` | `/api/v1/edge/devices/{device_id}/jobs` | List device jobs | Yes |
+| `POST` | `/api/v1/edge/jobs/{job_id}/cancel` | Cancel job | Yes |
+| `POST` | `/api/v1/edge/jobs/{job_id}/retry` | Retry failed job | Yes |
+| `POST` | `/api/v1/edge/sync/{device_id}` | Trigger data sync for device | Yes |
+| `GET` | `/api/v1/edge/sync/{sync_id}/status` | Get sync session status | Yes |
+| `POST` | `/api/v1/edge/deploy/{device_id}` | Deploy AI model to edge device | Yes |
+| `GET` | `/api/v1/edge/deploy/{deploy_id}/status` | Get deployment status | Yes |
+| `POST` | `/api/v1/edge/deploy/{deploy_id}/cancel` | Cancel deployment | Yes |
+| `GET` | `/api/v1/edge/models` | List models available for edge deployment | Yes |
+| `WS` | `/ws` | WebSocket hub (all devices) | Yes |
+| `WS` | `/ws/device/{device_id}` | Device-specific WebSocket channel | Yes |
+
+---
+
 ## AI & Agent Services
 
 ### AI Advisor
@@ -1141,7 +1288,7 @@ All endpoints (except health checks) require JWT authentication.
 
 ### Agent Registry
 
-- **Port**: 8150
+- **Port**: 8160
 - **Base Path**: `/api/v1/registry`
 - **Technology**: Python (FastAPI)
 - **Rate Limit**: 500/min
@@ -1684,6 +1831,12 @@ The following services are deprecated and should be migrated to their replacemen
 | `weather-advanced` | `weather-service` | 2026-01-11 |
 | `crop-health-ai` | `crop-intelligence-service` | 2026-01-11 |
 | `fertilizer-advisor` | `advisory-service` | 2026-01-11 |
+| `agro-advisor` | `advisory-service` | 2026-01-06 |
+| `ndvi-engine` | `vegetation-analysis-service` | 2026-01-06 |
+| `ndvi-processor` | `vegetation-analysis-service` | 2026-01-15 |
+| `community-chat` | `chat-service` | 2026-01-15 |
+| `field-chat` | `chat-service` | 2026-01-15 |
+| `yield-engine` | `yield-prediction-service` | 2026-01-15 |
 | `field-ops` | `field-management-service` | Legacy |
 | `field-core` | `field-management-service` | Legacy |
 | `field-service` | `field-management-service` | Legacy |
@@ -1748,4 +1901,4 @@ All endpoints return standardized error responses:
 
 ---
 
-_Generated: 2026-01-25_
+_Generated: 2026-04-27_

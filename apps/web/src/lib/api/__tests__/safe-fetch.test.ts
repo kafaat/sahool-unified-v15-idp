@@ -408,5 +408,72 @@ describe('safeFetchWithRetry', () => {
     expect(result).toBe('allowed');
     expect(calls).toBe(2);
   });
+
+  it('jitter: delay is within [0.5×base, 1×base] × 2^(attempt-1)', async () => {
+    // Spy on setTimeout to capture the actual delay passed to sleep().
+    const delays: number[] = [];
+    const originalSetTimeout = globalThis.setTimeout;
+    vi.spyOn(globalThis, 'setTimeout').mockImplementation((fn, ms) => {
+      delays.push(ms as number);
+      return originalSetTimeout(fn, 0); // fire immediately so test stays fast
+    });
+
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      if (calls < 3) throw makeAxiosError(500);
+      return 'done';
+    };
+
+    await safeFetchWithRetry('/api/jitter', fn, { maxAttempts: 3, baseDelayMs: 100 });
+    vi.restoreAllMocks();
+
+    // Two retries → two delay values (attempt 1 base=100, attempt 2 base=200)
+    expect(delays).toHaveLength(2);
+    expect(delays[0]!).toBeGreaterThanOrEqual(50);   // ≥ 0.5 × 100
+    expect(delays[0]!).toBeLessThanOrEqual(100);     // ≤ 1.0 × 100
+    expect(delays[1]!).toBeGreaterThanOrEqual(100);  // ≥ 0.5 × 200
+    expect(delays[1]!).toBeLessThanOrEqual(200);     // ≤ 1.0 × 200
+  });
+
+  it('AbortSignal: rejects immediately when signal is already aborted', async () => {
+    const controller = new AbortController();
+    controller.abort();
+
+    let calls = 0;
+    const fn = async () => { calls++; return 'ok'; };
+
+    await expect(
+      safeFetchWithRetry('/api/abort-pre', fn, { maxAttempts: 3, signal: controller.signal })
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    expect(calls).toBe(0); // fn never called
+  });
+
+  it('AbortSignal: rejects after first failure when signal is aborted during sleep', async () => {
+    const controller = new AbortController();
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      // Abort during the first failed attempt (before sleep)
+      if (calls === 1) {
+        throw makeAxiosError(500);
+      }
+      return 'ok';
+    };
+
+    // Abort after fn throws but before sleep resolves
+    const promise = safeFetchWithRetry('/api/abort-mid', fn, {
+      maxAttempts: 3,
+      baseDelayMs: 50,
+      signal: controller.signal,
+    });
+
+    // Small tick to let attempt 1 execute and enter sleep
+    await new Promise((r) => setTimeout(r, 0));
+    controller.abort();
+
+    await expect(promise).rejects.toMatchObject({ name: 'AbortError' });
+    expect(calls).toBe(1); // only one attempt before abort
+  });
 });
 

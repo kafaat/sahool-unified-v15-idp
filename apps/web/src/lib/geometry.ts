@@ -14,6 +14,14 @@ export const MIN_POLYGON_VERTICES = 3;
 /** Maximum number of vertices accepted (protects against degenerate inputs) */
 export const MAX_POLYGON_VERTICES = 2000;
 
+/**
+ * Floating-point epsilon for orientation comparisons.
+ * Cross-product values below this threshold are treated as zero (collinear)
+ * to prevent false positive self-intersection reports for very small polygons
+ * (e.g. field boundaries where adjacent vertices differ by < 1 mm in WGS84).
+ */
+const EPS = 1e-9;
+
 export interface PolygonValidationResult {
   valid: boolean;
   /** English error messages */
@@ -28,19 +36,22 @@ export interface PolygonValidationResult {
 
 /**
  * Cross product of vectors (pj − pi) × (pk − pi).
- * Positive → counter-clockwise, negative → clockwise, zero → collinear.
+ * Positive → counter-clockwise, negative → clockwise, near-zero → collinear.
  * Uses (lat, lng) as (y, x) — orientation is preserved for WGS84 coordinates
  * when the area is small enough that projection distortion is negligible.
+ *
+ * Values with |result| < EPS are treated as zero to handle floating-point
+ * imprecision in small polygons.
  */
 function crossProduct(
   pi: FieldBoundary,
   pj: FieldBoundary,
   pk: FieldBoundary,
 ): number {
-  return (
+  const val =
     (pj.lng - pi.lng) * (pk.lat - pi.lat) -
-    (pj.lat - pi.lat) * (pk.lng - pi.lng)
-  );
+    (pj.lat - pi.lat) * (pk.lng - pi.lng);
+  return Math.abs(val) < EPS ? 0 : val;
 }
 
 /** Returns true if q lies on segment p→r (all three collinear, assumed). */
@@ -75,7 +86,7 @@ function segmentsIntersect(
     return true; // proper intersection
   }
 
-  // Collinear / degenerate cases
+  // Collinear / degenerate cases (crossProduct returns exactly 0 after EPS clamp)
   if (d1 === 0 && onSegment(p3, p1, p4)) return true;
   if (d2 === 0 && onSegment(p3, p2, p4)) return true;
   if (d3 === 0 && onSegment(p1, p3, p2)) return true;
@@ -112,13 +123,42 @@ function hasSelfIntersection(points: FieldBoundary[]): boolean {
 // ---------------------------------------------------------------------------
 
 /**
+ * Ensures a polygon ring is explicitly closed (first vertex === last vertex).
+ * GeoJSON and PostGIS both require closed rings.
+ *
+ * If the polygon is already closed (first === last by coordinate value) it is
+ * returned unchanged. Otherwise the first vertex is appended.
+ *
+ * Call this **after** `validatePolygon` — the validator works on open rings
+ * (the closing edge is implicit). Pass the result to the API submission.
+ *
+ * @example
+ * const closed = ensureClosedPolygon(boundaryPoints);
+ * await api.createField({ boundary: closed });
+ */
+export function ensureClosedPolygon(points: FieldBoundary[]): FieldBoundary[] {
+  if (points.length === 0) return points;
+  const first = points[0]!;
+  const last = points[points.length - 1]!;
+  if (first.lat === last.lat && first.lng === last.lng) {
+    return points; // already closed
+  }
+  return [...points, first];
+}
+
+/**
  * Validates a list of boundary points that define a field polygon.
  *
  * Checks performed (in order):
  * 1. Minimum vertex count (≥ 3)
  * 2. Maximum vertex count (≤ 2000)
  * 3. All coordinates within WGS84 bounds
- * 4. Self-intersection (no edges cross each other)
+ * 4. Self-intersection (no edges cross each other), using EPS-clamped
+ *    orientation to handle floating-point imprecision
+ *
+ * The input is treated as an **open ring** (the closing edge is implicit).
+ * After validation succeeds, call `ensureClosedPolygon()` before sending to
+ * the backend.
  *
  * @example
  * const result = validatePolygon(boundaryPoints);
@@ -174,3 +214,4 @@ export function validatePolygon(points: FieldBoundary[]): PolygonValidationResul
 
   return { valid: errors.length === 0, errors, errorsAr };
 }
+

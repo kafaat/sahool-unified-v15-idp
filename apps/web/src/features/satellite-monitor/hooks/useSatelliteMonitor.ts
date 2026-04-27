@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { satelliteMonitorApi } from '../api';
 import type { SatelliteFilters, TimePeriod, ReportFormat, MapLayerType, FieldSetupData } from '../types';
 
@@ -76,6 +76,9 @@ export function useSatelliteMonitorTimeSeries(fieldId: string, period: TimePerio
     // NDVI time-series data points are immutable once computed; keep them
     // in memory for 1 hour so switching between time periods is instant.
     gcTime: 1000 * 60 * 60,
+    // Show the previous period's data while the new period loads so the
+    // chart does not flash empty / loading state on period switch.
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -159,6 +162,9 @@ export function useSatelliteMonitorHistorical(fieldId: string, layerType: MapLay
     // Historical snapshots are immutable; keep cached for 2 hours so
     // timelapse scrubbing does not re-fetch already-downloaded frames.
     gcTime: 1000 * 60 * 120,
+    // Show previous date range while the new range loads so the timelapse
+    // viewer does not flash empty during date-range changes.
+    placeholderData: keepPreviousData,
   });
 }
 

@@ -134,8 +134,18 @@ export type ApiResult<T> =
 // ---------------------------------------------------------------------------
 
 /** Pause for `ms` milliseconds (used by the retry loop). */
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'));
+      return;
+    }
+    const id = setTimeout(resolve, ms);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(id);
+      reject(new DOMException('Aborted', 'AbortError'));
+    }, { once: true });
+  });
 }
 
 export interface RetryOptions {
@@ -146,10 +156,15 @@ export interface RetryOptions {
   maxAttempts?: number;
   /**
    * Base delay in milliseconds before the first retry.
-   * Each subsequent retry doubles the delay (exponential backoff).
+   * Each subsequent retry doubles the delay (exponential backoff with jitter).
    * Defaults to 500 ms.
    */
   baseDelayMs?: number;
+  /**
+   * Optional AbortSignal to cancel the retry loop mid-flight.
+   * When aborted, the promise rejects immediately with a DOMException('AbortError').
+   */
+  signal?: AbortSignal;
 }
 
 /**
@@ -178,13 +193,21 @@ export async function safeFetchWithRetry<T>(
 ): Promise<T> {
   const maxAttempts = Math.max(1, options.maxAttempts ?? 3);
   const baseDelayMs = options.baseDelayMs ?? 500;
+  const { signal } = options;
 
   let lastError: ApiError | undefined;
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
+
     try {
       return await fn();
     } catch (error) {
+      // Propagate abort errors immediately — never retry on cancellation.
+      if (error instanceof DOMException && error.name === 'AbortError') throw error;
+
       const apiError = toApiError(error, endpoint);
       lastError = apiError;
 
@@ -198,14 +221,16 @@ export async function safeFetchWithRetry<T>(
         throw apiError;
       }
 
-      const delay = baseDelayMs * 2 ** (attempt - 1);
+      // Exponential backoff with full jitter: delay ∈ [0.5×base, 1×base] × 2^(attempt−1)
+      // Jitter prevents thundering herd when many clients retry simultaneously.
+      const delay = baseDelayMs * 2 ** (attempt - 1) * (0.5 + Math.random() * 0.5);
       logger.production(`API call failed (attempt ${attempt}/${maxAttempts}): ${endpoint}`, {
         statusCode: apiError.statusCode,
         retryable: true,
         willRetry: true,
-        nextRetryMs: delay,
+        nextRetryMs: Math.round(delay),
       });
-      await sleep(delay);
+      await sleep(delay, signal);
     }
   }
 

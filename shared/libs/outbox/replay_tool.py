@@ -107,11 +107,16 @@ WHERE dead_lettered_at IS NOT NULL
 """
 
 # Transaction-level advisory lock — automatically released on commit/rollback.
-# The two-argument form uses (int4, int4): namespace=1 (SAHOOL outbox),
-# key=hashtext('outbox-replay').  This serializes concurrent replay callers
-# so that two operators or automated processes cannot reset the same rows
-# simultaneously, preventing wasted load and audit log confusion.
-_ADVISORY_LOCK_SQL = "SELECT pg_advisory_xact_lock(1, hashtext('outbox-replay'))"
+# Two-argument form uses (int4, int4): namespace=1 (SAHOOL outbox advisory-lock
+# namespace), key=_ADVISORY_LOCK_KEY.
+#
+# A pre-computed literal integer is used instead of hashtext('outbox-replay')
+# to avoid any dependency on the hashtext() function and to make the lock
+# identity fully transparent in code review without requiring a DB query.
+# The value 20290 was chosen as a stable, unique identifier for the outbox
+# replay operation (hex 0x4F42 = "OB" for OutBox).
+_ADVISORY_LOCK_KEY: int = 20290  # stable int4 key for "outbox-replay" within namespace 1
+_ADVISORY_LOCK_SQL = f"SELECT pg_advisory_xact_lock(1, {_ADVISORY_LOCK_KEY})"
 
 _LIST_DLQ_SQL = """
 SELECT id, subject, tenant_id, retry_count, dead_lettered_at

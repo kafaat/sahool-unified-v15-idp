@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AxiosError, AxiosHeaders } from 'axios';
-import { safeFetch, safeFetchResult, ApiError } from '../safe-fetch';
+import { safeFetch, safeFetchResult, safeFetchWithRetry, ApiError } from '../safe-fetch';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Mocks
@@ -281,3 +281,132 @@ describe('safeFetchResult', () => {
     ).resolves.toBeDefined();
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// safeFetchWithRetry tests
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('safeFetchWithRetry', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('returns resolved value on first attempt (no retry needed)', async () => {
+    const result = await safeFetchWithRetry('/api/test', async () => ({ id: 42 }), {
+      maxAttempts: 3,
+      baseDelayMs: 0,
+    });
+    expect(result).toEqual({ id: 42 });
+  });
+
+  it('retries on retryable error (500) and succeeds on second attempt', async () => {
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      if (calls < 2) throw makeAxiosError(500);
+      return 'ok';
+    };
+
+    const result = await safeFetchWithRetry('/api/retry', fn, {
+      maxAttempts: 3,
+      baseDelayMs: 0,
+    });
+    expect(result).toBe('ok');
+    expect(calls).toBe(2);
+  });
+
+  it('retries on network error (status 0) and succeeds on third attempt', async () => {
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      if (calls < 3) throw makeNetworkError();
+      return 'recovered';
+    };
+
+    const result = await safeFetchWithRetry('/api/network', fn, {
+      maxAttempts: 3,
+      baseDelayMs: 0,
+    });
+    expect(result).toBe('recovered');
+    expect(calls).toBe(3);
+  });
+
+  it('throws ApiError after exhausting all attempts', async () => {
+    const fn = async () => {
+      throw makeAxiosError(503);
+    };
+
+    await expect(
+      safeFetchWithRetry('/api/unavailable', fn, { maxAttempts: 3, baseDelayMs: 0 })
+    ).rejects.toMatchObject({ statusCode: 503 });
+  });
+
+  it('does NOT retry on non-retryable error (401)', async () => {
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      throw makeAxiosError(401);
+    };
+
+    await expect(
+      safeFetchWithRetry('/api/protected', fn, { maxAttempts: 3, baseDelayMs: 0 })
+    ).rejects.toMatchObject({ statusCode: 401 });
+    expect(calls).toBe(1); // no retry for 401
+  });
+
+  it('does NOT retry on non-retryable error (403)', async () => {
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      throw makeAxiosError(403);
+    };
+
+    await expect(
+      safeFetchWithRetry('/api/admin', fn, { maxAttempts: 3, baseDelayMs: 0 })
+    ).rejects.toMatchObject({ statusCode: 403 });
+    expect(calls).toBe(1);
+  });
+
+  it('does NOT retry on 404 (non-retryable)', async () => {
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      throw makeAxiosError(404);
+    };
+
+    await expect(
+      safeFetchWithRetry('/api/missing', fn, { maxAttempts: 3, baseDelayMs: 0 })
+    ).rejects.toMatchObject({ statusCode: 404 });
+    expect(calls).toBe(1);
+  });
+
+  it('respects maxAttempts = 1 (no retry at all)', async () => {
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      throw makeAxiosError(500);
+    };
+
+    await expect(
+      safeFetchWithRetry('/api/once', fn, { maxAttempts: 1, baseDelayMs: 0 })
+    ).rejects.toBeInstanceOf(ApiError);
+    expect(calls).toBe(1);
+  });
+
+  it('retries on 429 (rate limit, retryable)', async () => {
+    let calls = 0;
+    const fn = async () => {
+      calls++;
+      if (calls < 2) throw makeAxiosError(429);
+      return 'allowed';
+    };
+
+    const result = await safeFetchWithRetry('/api/rate-limited', fn, {
+      maxAttempts: 3,
+      baseDelayMs: 0,
+    });
+    expect(result).toBe('allowed');
+    expect(calls).toBe(2);
+  });
+});
+

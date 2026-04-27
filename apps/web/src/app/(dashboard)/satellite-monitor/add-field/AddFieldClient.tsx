@@ -22,6 +22,7 @@ import { useCreateField } from '@/features/satellite-monitor';
 import { useAuth } from '@/stores/auth.store';
 import { buildInitialCropHistory } from '@/features/fields/components/CropHistoryTimeline';
 import { buildInitialFieldAlerts } from '@/features/fields/components/FieldAlertsLinkCard';
+import { validatePolygon } from '@/lib/geometry';
 
 // Dynamically load the Google Maps drawing surface — it pulls in
 // `@react-google-maps/api` which requires a browser `window`, so SSR
@@ -112,6 +113,16 @@ export default function AddFieldClient() {
       }
       if ((boundaryMethod === 'kml' || boundaryMethod === 'shapefile') && !uploadedFile) {
         errors.push('يرجى رفع ملف الحدود');
+      }
+      // Run geometry validation when we have enough drawn/coordinate points
+      if (
+        (boundaryMethod === 'draw' || boundaryMethod === 'coordinates') &&
+        boundaryPoints.length >= 3
+      ) {
+        const geomResult = validatePolygon(boundaryPoints);
+        if (!geomResult.valid) {
+          errors.push(...geomResult.errorsAr);
+        }
       }
     }
     if (currentStep === 3) {

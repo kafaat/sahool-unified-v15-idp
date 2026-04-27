@@ -35,6 +35,7 @@ export function useSatelliteMonitorFields(filters?: SatelliteFilters) {
     queryKey: satelliteMonitorKeys.fieldList(filters),
     queryFn: () => satelliteMonitorApi.getFields(filters),
     staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 20,
   });
 }
 
@@ -44,6 +45,7 @@ export function useSatelliteMonitorField(id: string) {
     queryFn: () => satelliteMonitorApi.getFieldById(id),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
   });
 }
 
@@ -52,6 +54,7 @@ export function useSatelliteMonitorStats() {
     queryKey: satelliteMonitorKeys.stats(),
     queryFn: () => satelliteMonitorApi.getStats(),
     staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 20,
   });
 }
 
@@ -60,6 +63,7 @@ export function useSatelliteMonitorAlerts(fieldId?: string) {
     queryKey: satelliteMonitorKeys.alerts(fieldId),
     queryFn: () => satelliteMonitorApi.getAlerts(fieldId),
     staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 }
 
@@ -69,6 +73,9 @@ export function useSatelliteMonitorTimeSeries(fieldId: string, period: TimePerio
     queryFn: () => satelliteMonitorApi.getTimeSeries(fieldId, period),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 30,
+    // NDVI time-series data points are immutable once computed; keep them
+    // in memory for 1 hour so switching between time periods is instant.
+    gcTime: 1000 * 60 * 60,
   });
 }
 
@@ -78,6 +85,7 @@ export function useSatelliteMonitorWeather(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getWeatherForecast(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -87,6 +95,7 @@ export function useSatelliteMonitorZones(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getFieldZones(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -96,6 +105,7 @@ export function useSatelliteMonitorDirectionGrid(fieldId: string, layerType: Map
     queryFn: () => satelliteMonitorApi.getDirectionGrid(fieldId, layerType),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -105,6 +115,7 @@ export function useSatelliteMonitorSoilAnalysis(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getSoilAnalysis(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
   });
 }
 
@@ -114,6 +125,7 @@ export function useSatelliteMonitorPestPredictions(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getPestPredictions(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -123,6 +135,7 @@ export function useSatelliteMonitorIrrigationSchedule(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getIrrigationSchedule(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 20,
   });
 }
 
@@ -132,6 +145,8 @@ export function useSatelliteMonitorYieldPrediction(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getYieldPrediction(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 30,
+    // Yield predictions change infrequently; keep in memory for 1 hour.
+    gcTime: 1000 * 60 * 60,
   });
 }
 
@@ -141,6 +156,9 @@ export function useSatelliteMonitorHistorical(fieldId: string, layerType: MapLay
     queryFn: () => satelliteMonitorApi.getHistoricalData(fieldId, startDate, endDate, layerType),
     enabled: !!fieldId && !!startDate && !!endDate,
     staleTime: 1000 * 60 * 60,
+    // Historical snapshots are immutable; keep cached for 2 hours so
+    // timelapse scrubbing does not re-fetch already-downloaded frames.
+    gcTime: 1000 * 60 * 120,
   });
 }
 

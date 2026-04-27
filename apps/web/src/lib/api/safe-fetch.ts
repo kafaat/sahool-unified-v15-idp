@@ -129,6 +129,90 @@ export type ApiResult<T> =
   | { ok: true; data: T; error?: never }
   | { ok: false; data?: never; error: ApiError };
 
+// ---------------------------------------------------------------------------
+// Retry helpers
+// ---------------------------------------------------------------------------
+
+/** Pause for `ms` milliseconds (used by the retry loop). */
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export interface RetryOptions {
+  /**
+   * Maximum number of total attempts (first call + retries).
+   * Defaults to 3.
+   */
+  maxAttempts?: number;
+  /**
+   * Base delay in milliseconds before the first retry.
+   * Each subsequent retry doubles the delay (exponential backoff).
+   * Defaults to 500 ms.
+   */
+  baseDelayMs?: number;
+}
+
+/**
+ * Executes a **read-only / idempotent** API call, retrying on transient
+ * errors (network failures, 429 rate-limit, 5xx server errors) with
+ * exponential backoff.
+ *
+ * ⚠️  Do NOT use this for POST/PATCH/DELETE mutations — retrying
+ * non-idempotent requests can cause duplicate writes. For mutations,
+ * rely on React Query's built-in `retry` option instead.
+ *
+ * @example
+ * // In a React Query hook:
+ * const { data } = useQuery({
+ *   queryKey: ['fields'],
+ *   queryFn: () => safeFetchWithRetry(
+ *     '/api/satellite/fields',
+ *     () => api.get(ENDPOINT).then(r => r.data),
+ *   ),
+ * });
+ */
+export async function safeFetchWithRetry<T>(
+  endpoint: string,
+  fn: () => Promise<T>,
+  options: RetryOptions = {},
+): Promise<T> {
+  const maxAttempts = options.maxAttempts ?? 3;
+  const baseDelayMs = options.baseDelayMs ?? 500;
+
+  let lastError: ApiError | undefined;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      const apiError = toApiError(error, endpoint);
+      lastError = apiError;
+
+      const isLastAttempt = attempt === maxAttempts;
+      if (isLastAttempt || !apiError.retryable) {
+        logger.production(`API call failed (attempt ${attempt}/${maxAttempts}): ${endpoint}`, {
+          statusCode: apiError.statusCode,
+          retryable: apiError.retryable,
+          willRetry: false,
+        });
+        throw apiError;
+      }
+
+      const delay = baseDelayMs * 2 ** (attempt - 1);
+      logger.production(`API call failed (attempt ${attempt}/${maxAttempts}): ${endpoint}`, {
+        statusCode: apiError.statusCode,
+        retryable: true,
+        willRetry: true,
+        nextRetryMs: delay,
+      });
+      await sleep(delay);
+    }
+  }
+
+  // Unreachable — the loop always throws or returns, but TypeScript needs it.
+  throw lastError!;
+}
+
 /**
  * Executes an API call and returns a Result instead of throwing.
  * Use this when you want to handle errors explicitly in the component.

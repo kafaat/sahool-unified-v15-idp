@@ -58,3 +58,40 @@ CREATE INDEX IF NOT EXISTS idx_outbox_unpublished
 -- Secondary path: tenant-scoped inspection / replay.
 CREATE INDEX IF NOT EXISTS idx_outbox_tenant
     ON outbox_messages (tenant_id, created_at);
+
+-- ---------------------------------------------------------------------------
+-- Distributed Replay Ledger
+-- جدول سجل إعادة التشغيل الموزّع
+-- ---------------------------------------------------------------------------
+--
+-- Tracks every successful ``reset_dead_lettered()`` call across ALL service
+-- instances.  ``DistributedReplayGovernor`` queries this table to enforce a
+-- cluster-wide sliding-window rate limit per NATS subject, preventing replay
+-- storms even when multiple processes run concurrently.
+--
+-- Design notes:
+--   • TIMESTAMPTZ is used so timezone differences between replicas cannot
+--     corrupt window comparisons.
+--   • ``instance_id`` records which pod/process triggered the replay for
+--     forensic tracing (pairs with the ``replayed_by`` in outbox_published
+--     log records).
+--   • Rows are never updated — only inserted.  Old rows outside the longest
+--     possible window are safe to purge periodically:
+--       DELETE FROM outbox_replay_ledger
+--       WHERE replayed_at < NOW() - INTERVAL '7 days';
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS outbox_replay_ledger (
+    id           BIGSERIAL    PRIMARY KEY,
+    subject      TEXT         NOT NULL,
+    replayed_at  TIMESTAMPTZ  NOT NULL DEFAULT NOW(),
+    replayed_by  TEXT         NOT NULL DEFAULT 'system',
+    instance_id  TEXT
+);
+
+-- Index for the sliding-window COUNT query executed by
+-- DistributedReplayGovernor.check():
+--   SELECT COUNT(*) FROM outbox_replay_ledger
+--   WHERE subject = $1 AND replayed_at > NOW() - $2 * INTERVAL '1 second'
+CREATE INDEX IF NOT EXISTS idx_replay_ledger_subject_time
+    ON outbox_replay_ledger (subject, replayed_at DESC);

@@ -1104,3 +1104,154 @@ class TestReplayGuardIntegration:
             mock_counter.inc.assert_called_once()
         finally:
             m._replay_blocked_counter = original
+
+
+# ---------------------------------------------------------------------------
+# 13. DistributedReplayGovernor — DB-backed cluster-wide rate limiter
+# ---------------------------------------------------------------------------
+
+from shared.libs.outbox.replay_tool import DistributedReplayGovernor
+
+
+def _make_governor_pool(count: int = 0):
+    """Pool whose fetchrow returns {"n": count} and execute is a no-op."""
+    conn = AsyncMock()
+    tx = MagicMock()
+    tx.__aenter__ = AsyncMock(return_value=None)
+    tx.__aexit__ = AsyncMock(return_value=False)
+    conn.transaction = MagicMock(return_value=tx)
+    conn.fetchrow = AsyncMock(return_value={"n": count})
+    conn.execute = AsyncMock(return_value=None)
+    pool = MagicMock()
+    ctx = MagicMock()
+    ctx.__aenter__ = AsyncMock(return_value=conn)
+    ctx.__aexit__ = AsyncMock(return_value=False)
+    pool.acquire = MagicMock(return_value=ctx)
+    return pool, conn
+
+
+class TestDistributedReplayGovernor:
+    """DistributedReplayGovernor must enforce cluster-wide rate limits via DB."""
+
+    @pytest.mark.asyncio
+    async def test_check_allows_when_under_limit(self):
+        pool, _ = _make_governor_pool(count=2)
+        gov = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600)
+        await gov.check("sahool.ndvi.computed")  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_check_raises_when_at_limit(self):
+        pool, _ = _make_governor_pool(count=5)
+        gov = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600)
+        with pytest.raises(ReplayRateLimitExceeded) as exc_info:
+            await gov.check("sahool.ndvi.computed")
+        assert exc_info.value.replays_in_window == 5
+        assert exc_info.value.max_replays == 5
+
+    @pytest.mark.asyncio
+    async def test_check_raises_when_over_limit(self):
+        pool, _ = _make_governor_pool(count=10)
+        gov = DistributedReplayGovernor(pool, max_replays=3, window_seconds=60)
+        with pytest.raises(ReplayRateLimitExceeded):
+            await gov.check("sahool.weather.updated")
+
+    @pytest.mark.asyncio
+    async def test_check_acquires_advisory_lock(self):
+        """check() must call pg_advisory_xact_lock inside a transaction."""
+        from shared.libs.outbox.replay_tool import _GOVERNOR_LOCK_SQL
+        pool, conn = _make_governor_pool(count=0)
+        gov = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600)
+        await gov.check("sahool.ndvi.computed")
+        conn.execute.assert_awaited_once_with(_GOVERNOR_LOCK_SQL)
+
+    @pytest.mark.asyncio
+    async def test_check_passes_window_to_query(self):
+        """check() must pass the configured window_seconds to the COUNT query."""
+        from shared.libs.outbox.replay_tool import _GOVERNOR_COUNT_SQL
+        pool, conn = _make_governor_pool(count=0)
+        gov = DistributedReplayGovernor(pool, max_replays=5, window_seconds=1800)
+        await gov.check("sahool.ndvi.computed")
+        conn.fetchrow.assert_awaited_once_with(
+            _GOVERNOR_COUNT_SQL, "sahool.ndvi.computed", 1800
+        )
+
+    @pytest.mark.asyncio
+    async def test_record_inserts_ledger_row(self):
+        """record() must INSERT into outbox_replay_ledger."""
+        from shared.libs.outbox.replay_tool import _GOVERNOR_INSERT_SQL
+        pool, conn = _make_governor_pool(count=0)
+        gov = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600,
+                                        instance_id="pod-0")
+        await gov.record("sahool.ndvi.computed", replayed_by="ops")
+        conn.execute.assert_awaited_once_with(
+            _GOVERNOR_INSERT_SQL, "sahool.ndvi.computed", "ops", "pod-0"
+        )
+
+    @pytest.mark.asyncio
+    async def test_count_in_window_returns_db_count(self):
+        pool, _ = _make_governor_pool(count=3)
+        gov = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600)
+        result = await gov.count_in_window("sahool.ndvi.computed")
+        assert result == 3
+
+    @pytest.mark.asyncio
+    async def test_count_in_window_returns_zero_on_empty(self):
+        pool, conn = _make_governor_pool(count=0)
+        conn.fetchrow = AsyncMock(return_value=None)  # fetchrow returns None for no rows
+        gov = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600)
+        result = await gov.count_in_window("sahool.ndvi.computed")
+        assert result == 0
+
+    def test_invalid_max_replays_raises(self):
+        pool, _ = _make_governor_pool()
+        with pytest.raises(ValueError, match="max_replays"):
+            DistributedReplayGovernor(pool, max_replays=0, window_seconds=60)
+
+    def test_invalid_window_seconds_raises(self):
+        pool, _ = _make_governor_pool()
+        with pytest.raises(ValueError, match="window_seconds"):
+            DistributedReplayGovernor(pool, max_replays=3, window_seconds=0)
+
+    def test_properties_exposed(self):
+        pool, _ = _make_governor_pool()
+        gov = DistributedReplayGovernor(pool, max_replays=10, window_seconds=7200)
+        assert gov.max_replays == 10
+        assert gov.window_seconds == 7200
+
+    @pytest.mark.asyncio
+    async def test_integration_with_reset_dead_lettered_blocked(self):
+        """reset_dead_lettered() must not touch DLQ when governor rejects."""
+        dlq_pool, dlq_conn = _make_db_pool()
+        dlq_conn.execute = AsyncMock(return_value="UPDATE 3")
+
+        gov_pool, _ = _make_governor_pool(count=5)
+        gov = DistributedReplayGovernor(gov_pool, max_replays=5, window_seconds=3600)
+
+        with pytest.raises(ReplayRateLimitExceeded):
+            await OutboxReplay.reset_dead_lettered(
+                dlq_pool, subject="sahool.ndvi.computed", guard=gov
+            )
+
+        # DLQ UPDATE must not have been called
+        dlq_conn.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_integration_record_called_with_replayed_by(self):
+        """governor.record() must receive the replayed_by from reset_dead_lettered."""
+        dlq_pool, dlq_conn = _make_db_pool()
+        dlq_conn.execute = AsyncMock(return_value="UPDATE 2")
+
+        gov_pool, _ = _make_governor_pool(count=1)
+        gov = DistributedReplayGovernor(gov_pool, max_replays=5, window_seconds=3600)
+        gov.record = AsyncMock()
+
+        await OutboxReplay.reset_dead_lettered(
+            dlq_pool,
+            subject="sahool.ndvi.computed",
+            replayed_by="automated-recovery",
+            guard=gov,
+        )
+
+        gov.record.assert_awaited_once_with(
+            "sahool.ndvi.computed", replayed_by="automated-recovery"
+        )

@@ -76,6 +76,33 @@ State is scoped to the guard instance lifetime — create one long-lived guard
 per process (e.g. in service lifespan) and pass it everywhere.  If the process
 restarts the window resets, which is acceptable for operator-triggered replays
 but means automated-recovery callers should share the same guard instance.
+
+⚠️  Distributed replay governor (multi-instance)
+==================================================
+When multiple service replicas run concurrently each ``OutboxReplayGuard``
+instance is isolated — one process cannot see the replay history of another.
+Two replicas each configured with ``max_replays=5`` would allow up to 10
+replays cluster-wide before any guard fires.
+
+Use ``DistributedReplayGovernor`` instead to enforce cluster-wide limits
+backed by the ``outbox_replay_ledger`` PostgreSQL table (see
+``migration.sql``):
+
+    from shared.libs.outbox.replay_tool import DistributedReplayGovernor
+
+    governor = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600)
+
+    await OutboxReplay.reset_dead_lettered(
+        pool,
+        subject="sahool.ndvi.computed",
+        replayed_by="automated-recovery",
+        guard=governor,          # ← same guard= parameter, DB-backed
+    )
+
+``DistributedReplayGovernor`` implements the same ``check()`` / ``record()``
+interface as ``OutboxReplayGuard`` so callers are identical; swap is a one-line
+change.  It requires no external cache (no Redis); only the PostgreSQL
+connection pool that every outbox service already holds.
 """
 
 from __future__ import annotations
@@ -221,11 +248,16 @@ class OutboxReplayGuard:
                     window_seconds=self._window_seconds,
                 )
 
-    async def record(self, subject: str) -> None:
+    async def record(self, subject: str, replayed_by: str = "system") -> None:
         """Record one successful replay for *subject*.
 
         Called by ``reset_dead_lettered()`` **after** the UPDATE commits so
         that the counter only advances when rows were actually reset.
+
+        Args:
+            subject: NATS subject (or ``"*"`` / ``"(ids)"``).
+            replayed_by: Ignored for the in-process guard (state is anonymous).
+                Accepted for API compatibility with ``DistributedReplayGovernor``.
         """
         import time
 
@@ -258,9 +290,165 @@ class OutboxReplayGuard:
         else:
             self._history.pop(subject, None)
 
+
 # ---------------------------------------------------------------------------
-# SQL
+# SQL for DistributedReplayGovernor
 # ---------------------------------------------------------------------------
+
+_GOVERNOR_COUNT_SQL = """
+SELECT COUNT(*) AS n
+FROM outbox_replay_ledger
+WHERE subject = $1
+  AND replayed_at > NOW() - ($2 * INTERVAL '1 second')
+"""
+
+_GOVERNOR_INSERT_SQL = """
+INSERT INTO outbox_replay_ledger (subject, replayed_at, replayed_by, instance_id)
+VALUES ($1, NOW(), $2, $3)
+"""
+
+# Transaction-level advisory lock for the governor: prevents two concurrent
+# check+insert pairs from racing inside the same DB transaction.  Uses a
+# different namespace key (1, 20291) to avoid colliding with the replay-tool
+# advisory lock (1, 20290 = "OB" for OutBox replay).
+# 20291 = 0x4F43 → "OC" for OutBox Coordination.
+_GOVERNOR_LOCK_SQL = "SELECT pg_advisory_xact_lock(1, 20291)"
+
+
+class DistributedReplayGovernor:
+    """
+    Cluster-wide sliding-window rate limiter for outbox replay operations.
+
+    Enforces ``max_replays`` per NATS subject within a rolling
+    ``window_seconds`` window **across all service instances** by recording
+    every successful replay into the ``outbox_replay_ledger`` PostgreSQL table
+    and querying it before each new replay attempt.
+
+    This is the distributed successor to ``OutboxReplayGuard``.  Both classes
+    implement the same ``check()`` / ``record()`` interface so they are
+    interchangeable as the ``guard=`` argument to ``reset_dead_lettered()``.
+
+    Design:
+        * **No Redis / no external cache** — only the asyncpg pool already
+          held by every outbox service.
+        * ``check()`` opens a short transaction, acquires advisory lock
+          ``pg_advisory_xact_lock(1, 20291)`` (OC = OutBox Coordination),
+          counts rows in ``outbox_replay_ledger`` for the subject within the
+          window, and raises ``ReplayRateLimitExceeded`` if the limit is
+          reached.  The advisory lock serialises concurrent checkers so the
+          count is always fresh before any insert.
+        * ``record()`` inserts one row into ``outbox_replay_ledger`` after a
+          successful ``reset_dead_lettered()`` commit.  ``check()`` does NOT
+          insert — only ``record()`` does — so aborted or blocked replays
+          never consume rate-limit budget.
+        * Old ledger rows can be purged safely:
+          ``DELETE FROM outbox_replay_ledger WHERE replayed_at < NOW() - INTERVAL '7 days'``
+
+    Args:
+        db_pool: asyncpg connection pool (shared with the outbox relay).
+        max_replays: Maximum replays allowed per subject per *window_seconds*.
+            Defaults to ``5``.
+        window_seconds: Rolling window size in seconds.  Defaults to ``3600``.
+        instance_id: Human-readable identifier for the current process (e.g.
+            pod name, hostname).  Stored in ``outbox_replay_ledger.instance_id``
+            for forensic tracing.  Defaults to ``None``.
+
+    Usage::
+
+        governor = DistributedReplayGovernor(pool, max_replays=5,
+                                             window_seconds=3600,
+                                             instance_id="worker-pod-0")
+
+        try:
+            n = await OutboxReplay.reset_dead_lettered(
+                pool,
+                subject="sahool.ndvi.computed",
+                replayed_by="automated-recovery",
+                guard=governor,
+            )
+        except ReplayRateLimitExceeded as exc:
+            logger.warning("replay_blocked_cluster_wide",
+                           extra={"reason": str(exc)})
+    """
+
+    def __init__(
+        self,
+        db_pool,
+        max_replays: int = 5,
+        window_seconds: int = 3600,
+        instance_id: str | None = None,
+    ) -> None:
+        if max_replays < 1:
+            raise ValueError("max_replays must be >= 1")
+        if window_seconds < 1:
+            raise ValueError("window_seconds must be >= 1")
+        self._db_pool = db_pool
+        self._max_replays = max_replays
+        self._window_seconds = window_seconds
+        self._instance_id = instance_id
+
+    @property
+    def max_replays(self) -> int:
+        return self._max_replays
+
+    @property
+    def window_seconds(self) -> int:
+        return self._window_seconds
+
+    async def check(self, subject: str) -> None:
+        """Assert the cluster-wide rate limit has not been exceeded for *subject*.
+
+        Acquires ``pg_advisory_xact_lock(1, 20291)`` inside a transaction to
+        serialise concurrent callers, then counts rows in
+        ``outbox_replay_ledger`` for *subject* within the sliding window.
+
+        Raises:
+            ReplayRateLimitExceeded: if the count equals or exceeds
+                ``max_replays``.
+
+        The transaction is committed (or rolled back) before the method
+        returns, so the lock is released immediately after the count is taken.
+        This method never writes to the ledger — only ``record()`` does.
+        """
+        async with self._db_pool.acquire() as conn:
+            async with conn.transaction():
+                await conn.execute(_GOVERNOR_LOCK_SQL)
+                row = await conn.fetchrow(
+                    _GOVERNOR_COUNT_SQL, subject, self._window_seconds
+                )
+                in_window = int(row["n"]) if row else 0
+                if in_window >= self._max_replays:
+                    raise ReplayRateLimitExceeded(
+                        subject=subject,
+                        replays_in_window=in_window,
+                        max_replays=self._max_replays,
+                        window_seconds=self._window_seconds,
+                    )
+
+    async def record(self, subject: str, replayed_by: str = "system") -> None:
+        """Insert one ledger row for *subject* after a successful replay.
+
+        Called by ``reset_dead_lettered()`` **after** the UPDATE commits so
+        that only rows that were actually reset are counted against the limit.
+
+        Args:
+            subject: NATS subject (or ``"*"`` / ``"(ids)"``).
+            replayed_by: Same ``replayed_by`` passed to ``reset_dead_lettered()``.
+                Stored in the ledger for forensic tracing.
+        """
+        async with self._db_pool.acquire() as conn:
+            await conn.execute(
+                _GOVERNOR_INSERT_SQL, subject, replayed_by, self._instance_id
+            )
+
+    async def count_in_window(self, subject: str) -> int:
+        """Return the current cluster-wide replay count for *subject* within
+        the sliding window.  Read-only; safe to call at any time."""
+        async with self._db_pool.acquire() as conn:
+            row = await conn.fetchrow(
+                _GOVERNOR_COUNT_SQL, subject, self._window_seconds
+            )
+            return int(row["n"]) if row else 0
 
 _RESET_ALL_SQL = """
 UPDATE outbox_messages
@@ -419,7 +607,7 @@ class OutboxReplay:
         subject: str | None = None,
         ids: Sequence[str | UUID] | None = None,
         replayed_by: str = "system",
-        guard: OutboxReplayGuard | None = None,
+        guard: OutboxReplayGuard | DistributedReplayGovernor | None = None,
     ) -> int:
         """
         Reset dead-lettered rows so the relay retries them.
@@ -433,13 +621,13 @@ class OutboxReplay:
                 replay.  Stored in the structured audit log record for forensic
                 tracing.  Examples: ``"ops-team"``, ``"admin-ui"``,
                 ``"automated-recovery"``.
-            guard: Optional ``OutboxReplayGuard`` instance.  When provided,
-                the rate limit is checked **before** any DB interaction.  If
-                the rate limit is exceeded a ``ReplayRateLimitExceeded``
+            guard: Optional rate-limit guard.  Accepts either an
+                ``OutboxReplayGuard`` (in-process, single-instance) or a
+                ``DistributedReplayGovernor`` (DB-backed, cluster-wide).  When
+                provided, the rate limit is checked **before** any DLQ UPDATE.
+                If the rate limit is exceeded a ``ReplayRateLimitExceeded``
                 exception is raised immediately — no rows are modified and the
-                ``outbox_replay_blocked_total`` metric is incremented.  Pass
-                the same long-lived guard instance from every caller in the
-                process to share the sliding window.
+                ``outbox_replay_blocked_total`` metric is incremented.
 
         Returns:
             Number of rows reset.
@@ -501,7 +689,7 @@ class OutboxReplay:
             # Advance the guard window only when rows were actually reset so
             # no-op replays (count == 0) do not consume rate-limit budget.
             if guard is not None:
-                await guard.record(metric_subject)
+                await guard.record(metric_subject, replayed_by=replayed_by)
 
         # Forensic audit log — every replay is permanently traceable.
         logger.info(

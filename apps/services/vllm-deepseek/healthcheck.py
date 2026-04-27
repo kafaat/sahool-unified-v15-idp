@@ -16,9 +16,8 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import http.client
 import sys
-import urllib.error
-import urllib.request
 
 
 def check(port: int, timeout: int) -> bool:
@@ -26,13 +25,18 @@ def check(port: int, timeout: int) -> bool:
     Probe GET /health on the vLLM HTTP server.
 
     Returns True when the server responds with HTTP 200, False otherwise.
+    Uses http.client.HTTPConnection (plain TCP to localhost) instead of
+    urllib so that no URL-scheme handling (including file://) is involved.
     """
-    url = f"http://localhost:{port}/health"
+    conn = http.client.HTTPConnection("localhost", port, timeout=timeout)
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as resp:  # noqa: S310  # nosec B310
-            return resp.status == 200
-    except (urllib.error.URLError, OSError):
+        conn.request("GET", "/health")
+        resp = conn.getresponse()
+        return resp.status == 200
+    except OSError:
         return False
+    finally:
+        conn.close()
 
 
 def main() -> None:

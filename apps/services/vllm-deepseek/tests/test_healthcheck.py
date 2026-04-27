@@ -6,8 +6,8 @@ All tests are fully offline — HTTP calls are mocked.
 
 from __future__ import annotations
 
-import sys
 import os
+import sys
 import urllib.error
 from unittest.mock import MagicMock, patch
 
@@ -75,8 +75,7 @@ def test_main_exits_0_when_healthy():
     """main() must sys.exit(0) when the server is healthy."""
     import healthcheck
 
-    with patch.object(healthcheck, "check", return_value=True), \
-         patch("sys.argv", ["healthcheck.py"]):
+    with patch.object(healthcheck, "check", return_value=True), patch("sys.argv", ["healthcheck.py"]):
         with pytest.raises(SystemExit) as exc_info:
             healthcheck.main()
     assert exc_info.value.code == 0
@@ -86,8 +85,7 @@ def test_main_exits_1_when_unhealthy():
     """main() must sys.exit(1) when the server is unhealthy."""
     import healthcheck
 
-    with patch.object(healthcheck, "check", return_value=False), \
-         patch("sys.argv", ["healthcheck.py"]):
+    with patch.object(healthcheck, "check", return_value=False), patch("sys.argv", ["healthcheck.py"]):
         with pytest.raises(SystemExit) as exc_info:
             healthcheck.main()
     assert exc_info.value.code == 1

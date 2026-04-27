@@ -14,8 +14,8 @@ Field-First Architecture:
 """
 
 import io
-import logging
 import json
+import logging
 import os
 import sys
 import uuid
@@ -505,11 +505,7 @@ async def lifespan(app: FastAPI):
 
             # Apply the outbox_messages DDL (idempotent — uses IF NOT EXISTS)
             _migration_sql_path = (
-                Path(__file__).parent.parent.parent.parent.parent
-                / "shared"
-                / "libs"
-                / "outbox"
-                / "migration.sql"
+                Path(__file__).parent.parent.parent.parent.parent / "shared" / "libs" / "outbox" / "migration.sql"
             )
             if _migration_sql_path.exists():
                 _migration_ddl = _migration_sql_path.read_text()

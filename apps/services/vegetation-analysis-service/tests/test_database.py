@@ -176,9 +176,7 @@ async def test_persist_ndvi_reading_tenant_id_in_insert():
         )
 
     # Find the INSERT call args
-    insert_call = next(
-        c for c in conn.execute.call_args_list if c[0] and "INSERT INTO ndvi_readings" in c[0][0]
-    )
+    insert_call = next(c for c in conn.execute.call_args_list if c[0] and "INSERT INTO ndvi_readings" in c[0][0])
     insert_args = insert_call[0]
     assert "tenant-xyz" in insert_args
     assert "field-abc" in insert_args

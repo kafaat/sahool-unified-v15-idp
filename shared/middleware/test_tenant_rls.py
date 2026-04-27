@@ -6,8 +6,8 @@ set_app_tenant() and acquire_tenant_conn() are mocked so no real DB is needed.
 
 from __future__ import annotations
 
-import sys
 import os
+import sys
 from unittest.mock import AsyncMock, MagicMock, call
 
 import pytest

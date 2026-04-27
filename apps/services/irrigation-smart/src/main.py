@@ -263,9 +263,7 @@ async def lifespan(app: FastAPI):
 
                 try:
                     _raw_nc = getattr(app.state, "nc", None)
-                    _js = getattr(app.state, "js", None) or (
-                        _raw_nc.jetstream() if _raw_nc is not None else None
-                    )
+                    _js = getattr(app.state, "js", None) or (_raw_nc.jetstream() if _raw_nc is not None else None)
                     if _js is None:
                         raise RuntimeError("JetStream and NATS connection both unavailable")
                     weather_sub = await _js.subscribe(
@@ -275,7 +273,11 @@ async def lifespan(app: FastAPI):
                         cb=_handle_weather_update,
                     )
                     app.state.weather_sub = weather_sub
-                    logger.info("jetstream_consumer_ready", subject="sahool.weather.forecast.issued", durable="irrigation-smart-weather")
+                    logger.info(
+                        "jetstream_consumer_ready",
+                        subject="sahool.weather.forecast.issued",
+                        durable="irrigation-smart-weather",
+                    )
                 except Exception as ws_exc:
                     # Fall back to ephemeral core NATS subscribe
                     logger.debug("jetstream_consumer_fallback", error=str(ws_exc))

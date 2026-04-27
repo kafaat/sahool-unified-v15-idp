@@ -111,8 +111,9 @@ import argparse
 import asyncio
 import collections
 import logging
-from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Sequence
+from collections.abc import Sequence
+from datetime import UTC, datetime, timezone
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from shared.libs.outbox.metrics import OUTBOX_METRICS
@@ -475,9 +476,7 @@ class DistributedReplayGovernor:
         async with self._db_pool.acquire() as conn:
             async with conn.transaction():
                 await conn.execute(_GOVERNOR_LOCK_SQL)
-                row = await conn.fetchrow(
-                    _GOVERNOR_COUNT_SQL, subject, self._window_seconds
-                )
+                row = await conn.fetchrow(_GOVERNOR_COUNT_SQL, subject, self._window_seconds)
                 in_window = int(row["n"]) if row else 0
                 if in_window >= self._max_replays:
                     raise ReplayRateLimitExceeded(
@@ -499,18 +498,15 @@ class DistributedReplayGovernor:
                 Stored in the ledger for forensic tracing.
         """
         async with self._db_pool.acquire() as conn:
-            await conn.execute(
-                _GOVERNOR_INSERT_SQL, subject, replayed_by, self._instance_id
-            )
+            await conn.execute(_GOVERNOR_INSERT_SQL, subject, replayed_by, self._instance_id)
 
     async def count_in_window(self, subject: str) -> int:
         """Return the current cluster-wide replay count for *subject* within
         the sliding window.  Read-only; safe to call at any time."""
         async with self._db_pool.acquire() as conn:
-            row = await conn.fetchrow(
-                _GOVERNOR_COUNT_SQL, subject, self._window_seconds
-            )
+            row = await conn.fetchrow(_GOVERNOR_COUNT_SQL, subject, self._window_seconds)
             return int(row["n"]) if row else 0
+
 
 _RESET_ALL_SQL = """
 UPDATE outbox_messages
@@ -658,7 +654,7 @@ class OutboxReplay:
             if dt is None:
                 return None
             if dt.tzinfo is None:
-                dt = dt.replace(tzinfo=timezone.utc)
+                dt = dt.replace(tzinfo=UTC)
             return dt.isoformat()
 
         is_blocked: bool | None = None
@@ -738,13 +734,13 @@ class OutboxReplay:
 
         oldest_age: float | None = None
         if oldest is not None:
-            now = datetime.now(tz=timezone.utc)
+            now = datetime.now(tz=UTC)
             # asyncpg returns timezone-aware datetimes for TIMESTAMPTZ columns
             # and naive datetimes for plain TIMESTAMP columns.  Both cases are
             # handled: timezone-aware values are compared directly; naive
             # values are assumed UTC and converted before computing the age.
             if oldest.tzinfo is None:
-                oldest = oldest.replace(tzinfo=timezone.utc)
+                oldest = oldest.replace(tzinfo=UTC)
             oldest_age = (now - oldest).total_seconds()
 
         return {
@@ -853,7 +849,7 @@ class OutboxReplay:
             extra={
                 "rows_reset": count,
                 "replayed_by": replayed_by,
-                "replayed_at": datetime.now(tz=timezone.utc).isoformat(),
+                "replayed_at": datetime.now(tz=UTC).isoformat(),
                 "filter_subject": subject,
                 "filter_ids": [str(i) for i in ids] if ids else None,
             },
@@ -985,14 +981,14 @@ async def _main(args: argparse.Namespace) -> None:
             if not rows:
                 print("No dead-lettered rows.")
                 return
-            now = datetime.now(tz=timezone.utc)
+            now = datetime.now(tz=UTC)
             print(f"{'ID':<38}  {'SUBJECT':<45}  {'RETRIES':>7}  {'AGE':>10}  DEAD_LETTERED_AT")
             print("-" * 120)
             for r in rows:
                 dlq_ts = r["dead_lettered_at"]
                 if dlq_ts is not None:
                     if dlq_ts.tzinfo is None:
-                        dlq_ts = dlq_ts.replace(tzinfo=timezone.utc)
+                        dlq_ts = dlq_ts.replace(tzinfo=UTC)
                     age_h = f"{(now - dlq_ts).total_seconds() / 3600:.1f}h"
                 else:
                     age_h = "?"

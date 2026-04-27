@@ -284,7 +284,7 @@ export const ndviApi = {
       colorScale: {
         min: data.colorScale.min,
         max: data.colorScale.max,
-        colors: data.colorScale.stops.map((s) => s.color),
+        colors: data.colorScale.colors,
       },
     };
   },
@@ -428,47 +428,6 @@ export const vegetationIndicesApi = {
         crop_type: cropType,
         growth_stage: growthStage,
       });
-      return response.data;
-    });
-  },
-
-  /**
-   * Get raster-overlay metadata for any spectral index (NDVI/EVI/SAVI/NDRE/NDWI/LAI).
-   * الحصول على بيانات تراكب الراستر لأي مؤشر طيفي
-   *
-   * Backed by ``vegetation-analysis-service::GET /v1/index-map/{fieldId}``.
-   * Returns a real Sentinel Hub WMS URL when the service is configured with
-   * ``SENTINEL_HUB_INSTANCE_ID``; otherwise returns a placeholder URL together
-   * with ``simulated: true`` so callers fall back to client-side colour-mapped
-   * polygon fills.
-   *
-   * @param fieldId   - Field identifier
-   * @param indexName - Spectral index id (defaults to ``ndvi``)
-   * @param date      - Optional acquisition date (ISO 8601 ``YYYY-MM-DD``)
-   * @param bbox      - Optional ``[minLon,minLat,maxLon,maxLat]`` bounding box
-   */
-  getIndexMap: async (
-    fieldId: string,
-    indexName: VegetationIndex | string = 'ndvi',
-    date?: string,
-    bbox?: [number, number, number, number],
-  ): Promise<{
-    fieldId: string;
-    indexType: string;
-    date: string;
-    rasterUrl: string;
-    bounds: [[number, number], [number, number]];
-    colorScale: { min: number; max: number; stops: Array<{ value: number; color: string }> };
-    simulated: boolean;
-    dataSource: string;
-  }> => {
-    const url = `${buildUrl(SATELLITE_ENDPOINTS.INDICES_MAP, { fieldId })}`;
-    return safeFetch(url, async () => {
-      const params = new URLSearchParams();
-      params.set('index', String(indexName).toLowerCase());
-      if (date) params.set('date', date);
-      if (bbox && bbox.length === 4) params.set('bbox', bbox.join(','));
-      const response = await api.get(`${url}?${params.toString()}`);
       return response.data;
     });
   },

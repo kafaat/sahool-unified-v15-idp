@@ -55,7 +55,6 @@ export {
   useFieldNDVI,
   useNDVITimeSeries,
   useNDVIMap,
-  useIndexMap,
   useRegionalNDVIStats,
   useRequestNDVIAnalysis,
   useNDVIComparison,

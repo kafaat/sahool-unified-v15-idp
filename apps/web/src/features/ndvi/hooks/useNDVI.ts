@@ -71,35 +71,6 @@ export function useNDVIMap(fieldId: string, date?: string, options?: { enabled?:
 }
 
 /**
- * Hook to fetch raster-overlay metadata for any spectral index.
- * خطّاف لجلب بيانات تراكب الراستر لأي مؤشر طيفي
- *
- * Generalises {@link useNDVIMap} to NDVI/EVI/SAVI/NDRE/NDWI/LAI by hitting
- * the unified ``/v1/indices/{fieldId}/map`` endpoint on
- * vegetation-analysis-service. Use this for the `SpectralIndexSwitcher`,
- * `GoogleMapsIndexOverlay`, and `HybridIndicesView` flows.
- *
- * @param fieldId   - Field identifier
- * @param indexType - Spectral index id (defaults to ``"ndvi"``)
- * @param date      - Optional acquisition date (ISO 8601 YYYY-MM-DD)
- * @param options.enabled - Override gate; defaults to ``!!fieldId``
- */
-export function useIndexMap(
-  fieldId: string,
-  indexType: VegetationIndex | string = 'ndvi',
-  date?: string,
-  options?: { enabled?: boolean },
-) {
-  const normalisedIndex = String(indexType).toLowerCase();
-  return useQuery({
-    queryKey: [...ndviKeys.all, 'index-map', fieldId, normalisedIndex, date] as const,
-    queryFn: () => vegetationIndicesApi.getIndexMap(fieldId, normalisedIndex, date),
-    enabled: !!fieldId && (options?.enabled ?? true),
-    staleTime: 1000 * 60 * 60, // 1 hour
-  });
-}
-
-/**
  * Hook to fetch regional NDVI statistics
  */
 export function useRegionalNDVIStats(governorate?: string) {

@@ -73,18 +73,18 @@ export function GoogleMapsIndexOverlay({
   onLoad,
   onError,
 }: GoogleMapsIndexOverlayProps) {
-  const { data, error } = useIndexMap(fieldId, indexType, date);
+  const { data, error } = useIndexMap(fieldId, indexType, { date });
   const [hasNotified, setHasNotified] = useState(false);
 
   useEffect(() => {
     if (data && !hasNotified) {
-      onLoad?.({ simulated: data.simulated, dataSource: data.dataSource });
+      onLoad?.({ simulated: data.dataSource === 'simulated', dataSource: data.dataSource });
       setHasNotified(true);
     }
     // Reset notification flag whenever the underlying query identity changes
     return () => setHasNotified(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.fieldId, data?.indexType, data?.date]);
+  }, [data?.fieldId, data?.indexName, data?.date]);
 
   useEffect(() => {
     if (error) {
@@ -113,7 +113,7 @@ export function GoogleMapsIndexOverlay({
     <>
       {/* Real raster (or transparent placeholder when simulated) */}
       <GroundOverlay
-        key={`${data.fieldId}-${data.indexType}-${data.date}`}
+        key={`${data.fieldId}-${data.indexName}-${data.date}`}
         url={data.rasterUrl}
         bounds={googleBounds}
         opacity={opacity}
@@ -125,7 +125,7 @@ export function GoogleMapsIndexOverlay({
         The chip lives outside the Google Maps DOM and is positioned by
         the parent via CSS — callers that don't want the chip can opt out.
       */}
-      {data.simulated && showLegendInSimulatedMode && (
+      {data.dataSource === 'simulated' && showLegendInSimulatedMode && (
         <div
           className="pointer-events-none absolute bottom-3 start-3 z-10 max-w-xs rounded-lg border border-gray-200 bg-white/95 p-2 shadow-md backdrop-blur-sm dark:border-gray-700 dark:bg-gray-900/95"
           dir={language === 'ar' ? 'rtl' : 'ltr'}

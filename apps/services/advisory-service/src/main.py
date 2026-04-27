@@ -422,6 +422,29 @@ async def lifespan(app: FastAPI):
         publisher = await get_publisher()
         app.state.publisher = publisher
         logger.info("service_ready", service="advisory-service", port=8093)
+
+        # Create durable JetStream stream for advisory events so messages
+        # are persisted even when downstream consumers are temporarily offline.
+        if publisher and publisher.is_connected and publisher._nc:
+            try:
+                from nats.js.api import RetentionPolicy, StorageType, StreamConfig
+
+                js = publisher._nc.jetstream()
+                app.state.js = js
+                await js.add_stream(
+                    StreamConfig(
+                        name="ADVISORY",
+                        subjects=["sahool.advisory.*", "sahool.advisory.*.>"],
+                        retention=RetentionPolicy.LIMITS,
+                        storage=StorageType.FILE,
+                        max_age=86400 * 30,  # 30 days
+                        max_msgs_per_subject=50_000,
+                        duplicate_window=60,
+                    )
+                )
+                logger.info("jetstream_stream_ready", stream="ADVISORY")
+            except Exception as js_exc:
+                logger.debug("jetstream_stream_setup", stream="ADVISORY", error=str(js_exc))
     except Exception as e:
         logger.warning("nats_connection_failed", error=str(e))
 

@@ -378,6 +378,16 @@ except ImportError:
     logger.info("ActionTemplate not available")
     ActionTemplateFactory = None
 
+# asyncpg (optional — for persisting NDVI results to ndvi_readings table)
+_asyncpg_available = False
+try:
+    import asyncpg as _asyncpg_module  # noqa: F401
+
+    _asyncpg_available = True
+except ImportError:
+    logger.info("asyncpg not installed — NDVI results will not be persisted to database")
+    _asyncpg_module = None  # type: ignore[assignment]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -394,6 +404,30 @@ async def lifespan(app: FastAPI):
         _boundary_detector
 
     logger.info("service_starting", service="vegetation-analysis-service")
+
+    # Initialize PostgreSQL connection pool for persisting NDVI results
+    app.state.db_pool = None
+    if _asyncpg_available:
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            try:
+                import asyncpg  # local import — already confirmed available
+
+                from shared.db.ssl import enforce_ssl_mode  # type: ignore[import]
+
+                db_url = enforce_ssl_mode(db_url)
+                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+                logger.info("db_pool_initialized", service="vegetation-analysis-service")
+            except ImportError:
+                # shared.db.ssl not available — connect without ssl helper
+                import asyncpg
+
+                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
+                logger.info("db_pool_initialized_no_ssl_helper", service="vegetation-analysis-service")
+            except Exception as exc:
+                logger.warning("db_pool_init_failed", error=str(exc), service="vegetation-analysis-service")
+        else:
+            logger.info("DATABASE_URL not set — NDVI persistence disabled")
 
     # Initialize multi-provider service
     if USE_MULTI_PROVIDER and MultiSatelliteService:
@@ -466,6 +500,12 @@ async def lifespan(app: FastAPI):
 
     # Cleanup
     logger.info("service_shutting_down", service="vegetation-analysis-service")
+    if getattr(app.state, "db_pool", None):
+        try:
+            await app.state.db_pool.close()
+            logger.info("db_pool_closed", service="vegetation-analysis-service")
+        except Exception as exc:
+            logger.warning("db_pool_close_error", error=str(exc))
     for name, resource in [
         ("multi_provider", _multi_provider),
         ("sar_processor", _sar_processor),
@@ -1195,8 +1235,61 @@ async def request_imagery(request: ImageryRequest, user: User = Depends(get_curr
     )
 
 
+async def _persist_ndvi_reading(
+    app: FastAPI,
+    field_id: str,
+    ndvi_value: float,
+    tenant_id: str,
+    satellite_name: str,
+    scene_id: str | None,
+    cloud_cover: float | None,
+    captured_at: datetime,
+) -> None:
+    """
+    Persist a computed NDVI reading to the ndvi_readings table.
+
+    Runs fire-and-forget inside the caller; failures are logged but never
+    bubble up to the HTTP response — so the endpoint is never blocked by a DB error.
+
+    The INSERT uses ON CONFLICT DO NOTHING to honour the unique index
+    ``uq_ndvi_field_source_date (field_id, captured_at, satellite_name)``.
+    """
+    pool = getattr(app.state, "db_pool", None)
+    if pool is None:
+        return
+    try:
+        async with pool.acquire() as conn:
+            await conn.execute(
+                """
+                INSERT INTO ndvi_readings
+                    (field_id, value, captured_at, source, cloud_cover,
+                     satellite_name, tenant_id, scene_id)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+                ON CONFLICT DO NOTHING
+                """,
+                field_id,
+                ndvi_value,
+                captured_at,
+                "satellite",
+                cloud_cover,
+                satellite_name,
+                tenant_id,
+                scene_id,
+            )
+    except Exception as exc:
+        logger.warning(
+            "ndvi_persist_failed",
+            field_id=field_id,
+            error=str(exc),
+        )
+
+
 @app.post("/v1/analyze", response_model=FieldAnalysis)
-async def analyze_field(request: ImageryRequest, user: User = Depends(get_current_user)):
+async def analyze_field(
+    request: ImageryRequest,
+    background_tasks: BackgroundTasks,
+    user: User = Depends(get_current_user),
+):
     """تحليل شامل للحقل باستخدام بيانات الأقمار الصناعية"""
     _validate_field_id(request.field_id)
 
@@ -1241,6 +1334,21 @@ async def analyze_field(request: ImageryRequest, user: User = Depends(get_curren
 
     # Generate recommendations
     recommendations_ar, recommendations_en = generate_recommendations(indices, anomalies)
+
+    # Persist NDVI reading to ndvi_readings table (fire-and-forget)
+    tenant_id = getattr(user, "tenant_id", "") if user else ""
+    if tenant_id:
+        background_tasks.add_task(
+            _persist_ndvi_reading,
+            app=app,
+            field_id=request.field_id,
+            ndvi_value=indices.ndvi,
+            tenant_id=tenant_id,
+            satellite_name=request.satellite.value,
+            scene_id=getattr(imagery, "scene_id", None),
+            cloud_cover=getattr(request, "cloud_cover_max", None),
+            captured_at=datetime.now(UTC),
+        )
 
     return FieldAnalysis(
         field_id=request.field_id,

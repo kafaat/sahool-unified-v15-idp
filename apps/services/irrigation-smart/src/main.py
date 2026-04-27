@@ -228,6 +228,29 @@ async def lifespan(app: FastAPI):
                 app.state.nc = await nats.connect(nats_url)
                 logger.info("Connected to NATS", nats_url=nats_url)
 
+                # Create durable JetStream stream for irrigation events so
+                # published messages are persisted even when consumers are offline.
+                try:
+                    from nats.js.api import RetentionPolicy, StorageType, StreamConfig
+
+                    js = app.state.nc.jetstream()
+                    app.state.js = js
+                    await js.add_stream(
+                        StreamConfig(
+                            name="IRRIGATION",
+                            subjects=["sahool.irrigation.*"],
+                            retention=RetentionPolicy.LIMITS,
+                            storage=StorageType.FILE,
+                            max_age=86400 * 7,  # 7 days
+                            max_msgs_per_subject=10_000,
+                            duplicate_window=60,  # 1-minute dedup window
+                        )
+                    )
+                    logger.info("jetstream_stream_ready", stream="IRRIGATION")
+                except Exception as js_exc:
+                    # Stream may already exist (expected in multi-replica setups)
+                    logger.debug("jetstream_stream_setup", stream="IRRIGATION", error=str(js_exc))
+
                 # Subscribe to weather forecast events for ET data
                 async def handle_weather_update(msg):
                     try:

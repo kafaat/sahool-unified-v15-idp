@@ -22,6 +22,7 @@ import {
   Target,
   Wheat,
   Download,
+  Loader2,
 } from 'lucide-react';
 import {
   useSatelliteMonitorField,
@@ -753,7 +754,9 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md border border-indigo-300 text-indigo-700 hover:bg-indigo-50 disabled:opacity-60"
                     title="تنزيل PNG"
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    {downloadImage.isPending
+                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      : <Download className="w-3.5 h-3.5" />}
                     PNG
                   </button>
                   <button
@@ -771,7 +774,9 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
                     className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md border border-indigo-300 text-indigo-700 hover:bg-indigo-50 disabled:opacity-60"
                     title="تنزيل GeoTIFF"
                   >
-                    <Download className="w-3.5 h-3.5" />
+                    {downloadImage.isPending
+                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      : <Download className="w-3.5 h-3.5" />}
                     GeoTIFF
                   </button>
                 </div>

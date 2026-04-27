@@ -47,6 +47,8 @@
     "vitest.config.ts",
     "playwright.config.ts",
     "sentry.*.ts",
+    "instrumentation.ts",
+    "instrumentation-client.ts",
     "**/*.test.ts",
     "**/*.test.tsx",
     "**/*.spec.ts",

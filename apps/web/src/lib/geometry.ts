@@ -91,14 +91,16 @@ function segmentsIntersect(
 function hasSelfIntersection(points: FieldBoundary[]): boolean {
   const n = points.length;
   for (let i = 0; i < n; i++) {
-    const p1 = points[i]!;
-    const p2 = points[(i + 1) % n]!;
+    const p1 = points[i];
+    const p2 = points[(i + 1) % n];
+    if (!p1 || !p2) continue;
     for (let j = i + 2; j < n; j++) {
       // Skip the wrap-around edge (n−1 → 0) when i === 0, because it
       // is adjacent to edge (0 → 1).
       if (i === 0 && j === n - 1) continue;
-      const p3 = points[j]!;
-      const p4 = points[(j + 1) % n]!;
+      const p3 = points[j];
+      const p4 = points[(j + 1) % n];
+      if (!p3 || !p4) continue;
       if (segmentsIntersect(p1, p2, p3, p4)) return true;
     }
   }

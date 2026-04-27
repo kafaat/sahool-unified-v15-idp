@@ -114,7 +114,11 @@ export default function AddFieldClient() {
       if ((boundaryMethod === 'kml' || boundaryMethod === 'shapefile') && !uploadedFile) {
         errors.push('يرجى رفع ملف الحدود');
       }
-      // Run geometry validation when we have enough drawn/coordinate points
+      // Run geometry validation when we have enough drawn/coordinate points.
+      // The outer length < 3 checks above add method-specific error messages;
+      // this block runs only when those pass (length >= 3) and checks geometry
+      // invariants (coordinate bounds, self-intersection) that those checks
+      // do not cover.
       if (
         (boundaryMethod === 'draw' || boundaryMethod === 'coordinates') &&
         boundaryPoints.length >= 3

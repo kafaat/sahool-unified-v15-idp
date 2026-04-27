@@ -176,7 +176,7 @@ export async function safeFetchWithRetry<T>(
   fn: () => Promise<T>,
   options: RetryOptions = {},
 ): Promise<T> {
-  const maxAttempts = options.maxAttempts ?? 3;
+  const maxAttempts = Math.max(1, options.maxAttempts ?? 3);
   const baseDelayMs = options.baseDelayMs ?? 500;
 
   let lastError: ApiError | undefined;
@@ -209,8 +209,14 @@ export async function safeFetchWithRetry<T>(
     }
   }
 
-  // Unreachable — the loop always throws or returns, but TypeScript needs it.
-  throw lastError!;
+  // Unreachable: the loop always returns or throws before this point.
+  // lastError is always set when maxAttempts >= 1 and fn() throws.
+  throw lastError ?? new ApiError({
+    message: 'No attempts were made.',
+    messageAr: 'لم تُجرَ أي محاولات.',
+    statusCode: 0,
+    endpoint,
+  });
 }
 
 /**

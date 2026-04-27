@@ -487,7 +487,6 @@ class OutboxReplay:
                     status = await conn.execute(_RESET_BY_SUBJECT_SQL, subject)
                 else:
                     status = await conn.execute(_RESET_ALL_SQL)
-                    status = await conn.execute(_RESET_ALL_SQL)
 
         # asyncpg returns a status string like "UPDATE 5"
         try:

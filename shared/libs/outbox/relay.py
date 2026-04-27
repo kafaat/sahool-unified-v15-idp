@@ -34,6 +34,8 @@ import asyncio
 import json
 import logging
 
+from .metrics import OUTBOX_METRICS
+
 logger = logging.getLogger(__name__)
 
 # Maximum publish attempts before a row is dead-lettered.
@@ -254,6 +256,10 @@ class OutboxRelay:
 
         Rows that exhaust ``_MAX_RETRIES`` attempts are dead-lettered so they
         do not spin in an infinite retry loop (poison-message protection).
+
+        Prometheus counters (``outbox_messages_published_total``,
+        ``outbox_publish_failures_total``, ``outbox_dead_lettered_total``)
+        and ``outbox_pending_rows`` gauge are updated on every drain tick.
         """
         # --- Step 1: claim batch atomically, release txn immediately ---
         # The SELECT ... FOR UPDATE SKIP LOCKED CTE + UPDATE writes
@@ -281,6 +287,10 @@ class OutboxRelay:
                 except (TypeError, ValueError):
                     headers = {}
 
+            # Extract event_id from headers for structured logging.
+            event_id = headers.get("X-Event-ID") or headers.get("event_id") or ""
+            tenant_id = row.get("tenant_id") or ""
+
             try:
                 await self._nats_publish(
                     nats_client,
@@ -292,8 +302,20 @@ class OutboxRelay:
                 async with db_pool.acquire() as mark_conn:
                     await mark_conn.execute(_MARK_SENT_SQL, row_id)
                 published_count += 1
+                OUTBOX_METRICS.published(subject=subject)
+                logger.debug(
+                    "outbox_published",
+                    extra={
+                        "outbox_id": str(row_id),
+                        "subject": subject,
+                        "event_id": event_id,
+                        "tenant_id": tenant_id,
+                        "worker_id": self._worker_id,
+                    },
+                )
             except Exception as exc:
                 current_retry = row["retry_count"] + 1
+                reason = type(exc).__name__
                 if current_retry >= _MAX_RETRIES:
                     # Poison message — dead-letter permanently
                     try:
@@ -302,15 +324,27 @@ class OutboxRelay:
                     except Exception as dlq_exc:
                         logger.error(
                             "outbox_dlq_mark_failed",
-                            extra={"outbox_id": str(row_id), "error": str(dlq_exc)},
+                            extra={
+                                "outbox_id": str(row_id),
+                                "event_id": event_id,
+                                "subject": subject,
+                                "tenant_id": tenant_id,
+                                "worker_id": self._worker_id,
+                                "error": str(dlq_exc),
+                            },
                         )
+                    OUTBOX_METRICS.dead_lettered(subject=subject)
                     logger.error(
                         "outbox_dead_lettered",
                         extra={
                             "outbox_id": str(row_id),
                             "subject": subject,
+                            "event_id": event_id,
+                            "tenant_id": tenant_id,
                             "retry_count": current_retry,
+                            "worker_id": self._worker_id,
                             "error": str(exc),
+                            "error_type": reason,
                         },
                     )
                 else:
@@ -321,15 +355,27 @@ class OutboxRelay:
                     except Exception as mark_exc:
                         logger.error(
                             "outbox_mark_failed_error",
-                            extra={"outbox_id": str(row_id), "error": str(mark_exc)},
+                            extra={
+                                "outbox_id": str(row_id),
+                                "event_id": event_id,
+                                "subject": subject,
+                                "tenant_id": tenant_id,
+                                "worker_id": self._worker_id,
+                                "error": str(mark_exc),
+                            },
                         )
+                    OUTBOX_METRICS.failed(subject=subject, reason=reason)
                     logger.warning(
                         "outbox_publish_failed",
                         extra={
                             "outbox_id": str(row_id),
                             "subject": subject,
+                            "event_id": event_id,
+                            "tenant_id": tenant_id,
                             "retry_count": current_retry,
+                            "worker_id": self._worker_id,
                             "error": str(exc),
+                            "error_type": reason,
                         },
                     )
 

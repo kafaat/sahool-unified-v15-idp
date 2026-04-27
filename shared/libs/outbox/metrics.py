@@ -40,6 +40,15 @@ Metrics exposed:
     Critical for SLOs: frequent replay indicates persistent delivery failures.
     Pair with ``outbox_dead_lettered_total`` to see: DLQ rate → replay rate.
 
+``outbox_replay_blocked_total``              counter    {subject, reason}
+    Replay attempts that were rejected by the rate-limiter guard.
+    ``reason`` = ``"rate_limit"`` (only value currently).
+    ``subject`` = NATS subject or ``"*"`` / ``"(ids)"`` (same conventions
+    as ``outbox_replay_total``).
+    A rising ``outbox_replay_blocked_total`` paired with a rising
+    ``outbox_dead_lettered_total`` indicates a replay loop — the system is
+    failing faster than replays are converging.
+
 Recommended alert rules (PromQL):
 
     # Critical — any DLQ activity in the last 5 minutes
@@ -115,6 +124,12 @@ try:
         ["subject", "reason"],
     )
 
+    _replay_blocked_counter = Counter(
+        "outbox_replay_blocked_total",
+        "Replay attempts rejected by the rate-limiter guard",
+        ["subject", "reason"],
+    )
+
 except ImportError:  # pragma: no cover
     _PROMETHEUS_AVAILABLE = False
     _published_counter = None
@@ -123,6 +138,7 @@ except ImportError:  # pragma: no cover
     _pending_gauge = None
     _latency_histogram = None
     _replay_counter = None
+    _replay_blocked_counter = None
 
 
 class _OutboxMetrics:
@@ -215,6 +231,27 @@ class _OutboxMetrics:
         if _replay_counter is not None:
             try:
                 _replay_counter.labels(subject=subject, reason=reason).inc(count)
+            except Exception:  # pragma: no cover
+                pass
+
+    def replay_blocked(self, subject: str, reason: str = "rate_limit") -> None:
+        """Increment the replay-blocked counter.
+
+        Called when ``OutboxReplayGuard`` rejects a replay attempt because
+        the per-subject rate limit has been exceeded.  Pair this with
+        ``outbox_replay_total`` and ``outbox_dead_lettered_total`` to detect
+        replay loops: if ``outbox_replay_blocked_total`` rises alongside
+        ``outbox_dead_lettered_total``, the system is failing faster than
+        replays are converging.
+
+        Args:
+            subject: same conventions as ``record_replay`` (actual subject,
+                ``"*"``, or ``"(ids)"``).
+            reason: rejection cause; currently always ``"rate_limit"``.
+        """
+        if _replay_blocked_counter is not None:
+            try:
+                _replay_blocked_counter.labels(subject=subject, reason=reason).inc()
             except Exception:  # pragma: no cover
                 pass
 

@@ -52,12 +52,37 @@ the relay re-delivers, the DB write is physically idempotent.  See
 Replay does NOT guarantee delivery to the same consumer instance — it
 re-enters the normal relay flow.  Ensure downstream consumers are idempotent
 before replaying.
+
+⚠️  Replay loop protection
+===========================
+A persistent delivery failure will cause an infinite replay loop unless
+replays are rate-limited:
+
+    DLQ grows → replay triggered → delivery fails again → DLQ grows again
+
+Use ``OutboxReplayGuard`` to cap the number of replay operations per subject
+within a rolling time window:
+
+    from shared.libs.outbox.replay_tool import OutboxReplayGuard
+
+    guard = OutboxReplayGuard(max_replays=5, window_seconds=3600)
+
+    # Will raise ReplayRateLimitExceeded if > 5 replays/h for this subject
+    await OutboxReplay.reset_dead_lettered(pool, subject="sahool.ndvi.computed",
+                                           replayed_by="ops", guard=guard)
+
+The guard is purely in-process (no extra DB table or external dependency).
+State is scoped to the guard instance lifetime — create one long-lived guard
+per process (e.g. in service lifespan) and pass it everywhere.  If the process
+restarts the window resets, which is acceptable for operator-triggered replays
+but means automated-recovery callers should share the same guard instance.
 """
 
 from __future__ import annotations
 
 import argparse
 import asyncio
+import collections
 import logging
 from datetime import datetime, timezone
 from typing import Sequence
@@ -66,6 +91,172 @@ from uuid import UUID
 from shared.libs.outbox.metrics import OUTBOX_METRICS
 
 logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Replay loop protection
+# ---------------------------------------------------------------------------
+
+
+class ReplayRateLimitExceeded(Exception):
+    """Raised by ``OutboxReplayGuard.check()`` when the per-subject replay
+    rate exceeds ``max_replays`` within ``window_seconds``.
+
+    Attributes:
+        subject: The NATS subject (or ``"*"`` / ``"(ids)"``) that was blocked.
+        replays_in_window: Number of replays already recorded in the window.
+        max_replays: Configured ceiling.
+        window_seconds: Window duration in seconds.
+    """
+
+    def __init__(
+        self,
+        subject: str,
+        replays_in_window: int,
+        max_replays: int,
+        window_seconds: int,
+    ) -> None:
+        self.subject = subject
+        self.replays_in_window = replays_in_window
+        self.max_replays = max_replays
+        self.window_seconds = window_seconds
+        super().__init__(
+            f"Replay rate limit exceeded for subject={subject!r}: "
+            f"{replays_in_window}/{max_replays} replays in the last "
+            f"{window_seconds}s.  Possible replay loop — inspect the DLQ "
+            f"before retrying."
+        )
+
+
+class OutboxReplayGuard:
+    """
+    In-process sliding-window rate limiter for outbox replay operations.
+
+    Caps the number of ``reset_dead_lettered()`` calls per NATS subject
+    within a rolling ``window_seconds`` window.  Prevents replay loops where
+    a persistent delivery failure causes automated-recovery to replay the same
+    dead-lettered rows indefinitely.
+
+    State is scoped to the guard instance — create **one** long-lived guard
+    per process (e.g. in the service lifespan) and pass it to every
+    ``reset_dead_lettered()`` call.  If the process restarts the window
+    resets, which is acceptable because operators can then re-assess the
+    situation before triggering another replay.
+
+    The guard is fully asyncio-safe: all internal state is protected by a
+    single ``asyncio.Lock``.  It has no external dependencies (no DB table,
+    no Redis, no network calls).
+
+    Args:
+        max_replays: Maximum number of replay operations allowed per subject
+            within *window_seconds*.  Defaults to ``5``.
+        window_seconds: Sliding window size in seconds.  Defaults to ``3600``
+            (one hour).
+
+    Usage::
+
+        guard = OutboxReplayGuard(max_replays=5, window_seconds=3600)
+
+        try:
+            n = await OutboxReplay.reset_dead_lettered(
+                pool,
+                subject="sahool.ndvi.computed",
+                replayed_by="ops",
+                guard=guard,
+            )
+        except ReplayRateLimitExceeded as exc:
+            logger.warning("replay_blocked", extra={"reason": str(exc)})
+    """
+
+    def __init__(self, max_replays: int = 5, window_seconds: int = 3600) -> None:
+        if max_replays < 1:
+            raise ValueError("max_replays must be >= 1")
+        if window_seconds < 1:
+            raise ValueError("window_seconds must be >= 1")
+        self._max_replays = max_replays
+        self._window_seconds = window_seconds
+        # subject → deque of monotonic timestamps (seconds) of recent replays
+        self._history: dict[str, collections.deque] = {}
+        self._lock = asyncio.Lock()
+
+    @property
+    def max_replays(self) -> int:
+        return self._max_replays
+
+    @property
+    def window_seconds(self) -> int:
+        return self._window_seconds
+
+    def _evict_expired(self, subject: str, now: float) -> None:
+        """Remove timestamps outside the rolling window (must hold lock)."""
+        cutoff = now - self._window_seconds
+        dq = self._history.get(subject)
+        if dq is not None:
+            while dq and dq[0] < cutoff:
+                dq.popleft()
+
+    async def check(self, subject: str) -> None:
+        """Assert the rate limit has not been exceeded for *subject*.
+
+        Raises:
+            ReplayRateLimitExceeded: if the number of replays recorded for
+                *subject* within the sliding window equals or exceeds
+                ``max_replays``.
+
+        This is called by ``reset_dead_lettered()`` **before** acquiring the
+        advisory lock and executing the UPDATE, so rejected calls never touch
+        the database.
+        """
+        import time  # lazy import — only used in the guard, not the whole module
+
+        async with self._lock:
+            now = time.monotonic()
+            self._evict_expired(subject, now)
+            in_window = len(self._history.get(subject, ()))
+            if in_window >= self._max_replays:
+                raise ReplayRateLimitExceeded(
+                    subject=subject,
+                    replays_in_window=in_window,
+                    max_replays=self._max_replays,
+                    window_seconds=self._window_seconds,
+                )
+
+    async def record(self, subject: str) -> None:
+        """Record one successful replay for *subject*.
+
+        Called by ``reset_dead_lettered()`` **after** the UPDATE commits so
+        that the counter only advances when rows were actually reset.
+        """
+        import time
+
+        async with self._lock:
+            now = time.monotonic()
+            self._evict_expired(subject, now)
+            if subject not in self._history:
+                self._history[subject] = collections.deque()
+            self._history[subject].append(now)
+
+    async def count_in_window(self, subject: str) -> int:
+        """Return the current number of replays recorded for *subject* within
+        the sliding window.  Safe to call at any time without side-effects."""
+        import time
+
+        async with self._lock:
+            now = time.monotonic()
+            self._evict_expired(subject, now)
+            return len(self._history.get(subject, ()))
+
+    def reset(self, subject: str | None = None) -> None:
+        """Clear the replay history for *subject* (or all subjects if None).
+
+        Intended for testing and for operator-triggered manual resets after
+        a confirmed system recovery.  Not async-safe — call from sync context
+        or wrap in ``asyncio.run_coroutine_threadsafe``.
+        """
+        if subject is None:
+            self._history.clear()
+        else:
+            self._history.pop(subject, None)
 
 # ---------------------------------------------------------------------------
 # SQL
@@ -228,6 +419,7 @@ class OutboxReplay:
         subject: str | None = None,
         ids: Sequence[str | UUID] | None = None,
         replayed_by: str = "system",
+        guard: OutboxReplayGuard | None = None,
     ) -> int:
         """
         Reset dead-lettered rows so the relay retries them.
@@ -241,12 +433,21 @@ class OutboxReplay:
                 replay.  Stored in the structured audit log record for forensic
                 tracing.  Examples: ``"ops-team"``, ``"admin-ui"``,
                 ``"automated-recovery"``.
+            guard: Optional ``OutboxReplayGuard`` instance.  When provided,
+                the rate limit is checked **before** any DB interaction.  If
+                the rate limit is exceeded a ``ReplayRateLimitExceeded``
+                exception is raised immediately — no rows are modified and the
+                ``outbox_replay_blocked_total`` metric is incremented.  Pass
+                the same long-lived guard instance from every caller in the
+                process to share the sliding window.
 
         Returns:
             Number of rows reset.
 
         Raises:
             ValueError: if both *subject* and *ids* are provided.
+            ReplayRateLimitExceeded: if *guard* is set and the per-subject
+                rate limit has been exceeded.
         """
         if subject is not None and ids is not None:
             raise ValueError("Provide either 'subject' or 'ids', not both.")
@@ -261,6 +462,14 @@ class OutboxReplay:
         else:
             reason = "all"
             metric_subject = "*"
+
+        # --- Rate-limit check (before advisory lock / DB round-trip) ---
+        if guard is not None:
+            try:
+                await guard.check(metric_subject)
+            except ReplayRateLimitExceeded:
+                OUTBOX_METRICS.replay_blocked(subject=metric_subject, reason="rate_limit")
+                raise
 
         # Acquire a transaction-level advisory lock before mutating rows.
         # This serializes concurrent replay callers (two ops-team members,
@@ -278,6 +487,7 @@ class OutboxReplay:
                     status = await conn.execute(_RESET_BY_SUBJECT_SQL, subject)
                 else:
                     status = await conn.execute(_RESET_ALL_SQL)
+                    status = await conn.execute(_RESET_ALL_SQL)
 
         # asyncpg returns a status string like "UPDATE 5"
         try:
@@ -289,6 +499,10 @@ class OutboxReplay:
         # the DLQ rate (outbox_dead_lettered_total) in dashboards and SLOs.
         if count > 0:
             OUTBOX_METRICS.record_replay(subject=metric_subject, reason=reason, count=count)
+            # Advance the guard window only when rows were actually reset so
+            # no-op replays (count == 0) do not consume rate-limit budget.
+            if guard is not None:
+                await guard.record(metric_subject)
 
         # Forensic audit log — every replay is permanently traceable.
         logger.info(

@@ -906,3 +906,201 @@ class TestDeliveryModeLog:
         debug_calls = [c for c in mock_log.debug.call_args_list if c[0][0] == "outbox_published"]
         assert debug_calls, "Expected outbox_published log after fallback"
         assert debug_calls[0][1]["extra"]["delivery_mode"] == "core_nats"
+
+
+# ---------------------------------------------------------------------------
+# 11. OutboxReplayGuard — sliding-window rate limiter
+# ---------------------------------------------------------------------------
+
+from shared.libs.outbox.replay_tool import OutboxReplayGuard, ReplayRateLimitExceeded
+
+
+class TestReplayRateLimiter:
+    """OutboxReplayGuard must enforce per-subject sliding-window limits."""
+
+    @pytest.mark.asyncio
+    async def test_allows_first_replay(self):
+        guard = OutboxReplayGuard(max_replays=3, window_seconds=60)
+        await guard.check("sahool.ndvi.computed")  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_records_and_counts(self):
+        guard = OutboxReplayGuard(max_replays=3, window_seconds=60)
+        await guard.record("sahool.ndvi.computed")
+        assert await guard.count_in_window("sahool.ndvi.computed") == 1
+
+    @pytest.mark.asyncio
+    async def test_blocks_after_max_replays(self):
+        guard = OutboxReplayGuard(max_replays=2, window_seconds=60)
+        await guard.record("sahool.ndvi.computed")
+        await guard.record("sahool.ndvi.computed")
+        with pytest.raises(ReplayRateLimitExceeded) as exc_info:
+            await guard.check("sahool.ndvi.computed")
+        err = exc_info.value
+        assert err.subject == "sahool.ndvi.computed"
+        assert err.replays_in_window == 2
+        assert err.max_replays == 2
+
+    @pytest.mark.asyncio
+    async def test_is_per_subject(self):
+        guard = OutboxReplayGuard(max_replays=1, window_seconds=60)
+        await guard.record("sahool.ndvi.computed")
+        # A different subject must still be allowed
+        await guard.check("sahool.weather.updated")  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_window_expiry_allows_replay(self):
+        """After the window expires the counter resets."""
+        import time
+
+        guard = OutboxReplayGuard(max_replays=1, window_seconds=1)
+        await guard.record("sahool.ndvi.computed")
+
+        # Manually back-date the only entry so it falls outside the window
+        async with guard._lock:
+            guard._history["sahool.ndvi.computed"][0] = time.monotonic() - 2
+
+        # Now the window should be clear
+        await guard.check("sahool.ndvi.computed")  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_reset_clears_subject(self):
+        guard = OutboxReplayGuard(max_replays=1, window_seconds=60)
+        await guard.record("sahool.ndvi.computed")
+        guard.reset("sahool.ndvi.computed")
+        await guard.check("sahool.ndvi.computed")  # must not raise after reset
+
+    @pytest.mark.asyncio
+    async def test_reset_all_clears_all_subjects(self):
+        guard = OutboxReplayGuard(max_replays=1, window_seconds=60)
+        await guard.record("sahool.ndvi.computed")
+        await guard.record("sahool.weather.updated")
+        guard.reset()
+        await guard.check("sahool.ndvi.computed")  # must not raise
+        await guard.check("sahool.weather.updated")  # must not raise
+
+    def test_invalid_max_replays_raises(self):
+        with pytest.raises(ValueError, match="max_replays"):
+            OutboxReplayGuard(max_replays=0, window_seconds=60)
+
+    def test_invalid_window_seconds_raises(self):
+        with pytest.raises(ValueError, match="window_seconds"):
+            OutboxReplayGuard(max_replays=3, window_seconds=0)
+
+    def test_properties_exposed(self):
+        guard = OutboxReplayGuard(max_replays=7, window_seconds=1800)
+        assert guard.max_replays == 7
+        assert guard.window_seconds == 1800
+
+    @pytest.mark.asyncio
+    async def test_count_in_window_empty_subject(self):
+        guard = OutboxReplayGuard(max_replays=3, window_seconds=60)
+        assert await guard.count_in_window("sahool.never.seen") == 0
+
+    @pytest.mark.asyncio
+    async def test_rate_limit_error_message_contains_subject(self):
+        guard = OutboxReplayGuard(max_replays=1, window_seconds=60)
+        await guard.record("sahool.ndvi.computed")
+        with pytest.raises(ReplayRateLimitExceeded, match="sahool.ndvi.computed"):
+            await guard.check("sahool.ndvi.computed")
+
+
+# ---------------------------------------------------------------------------
+# 12. ReplayGuard integration with reset_dead_lettered()
+# ---------------------------------------------------------------------------
+
+
+class TestReplayGuardIntegration:
+    """reset_dead_lettered() must check the guard before the DB, record after."""
+
+    @pytest.mark.asyncio
+    async def test_guard_check_called_before_db(self):
+        """DB must not be touched when the guard rejects the call."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 3")
+
+        guard = OutboxReplayGuard(max_replays=1, window_seconds=60)
+        await guard.record("sahool.ndvi.computed")  # exhaust limit
+
+        with pytest.raises(ReplayRateLimitExceeded):
+            await OutboxReplay.reset_dead_lettered(
+                pool, subject="sahool.ndvi.computed", guard=guard
+            )
+
+        # No DB calls should have been made
+        conn.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_guard_record_called_after_successful_reset(self):
+        """guard.record() must be awaited after a successful reset."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 2")
+
+        guard = OutboxReplayGuard(max_replays=5, window_seconds=3600)
+        await OutboxReplay.reset_dead_lettered(
+            pool, subject="sahool.ndvi.computed", guard=guard
+        )
+
+        assert await guard.count_in_window("sahool.ndvi.computed") == 1
+
+    @pytest.mark.asyncio
+    async def test_guard_not_recorded_when_zero_rows_reset(self):
+        """guard.record() must NOT be called when count == 0 (no-op replay)."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 0")
+
+        guard = OutboxReplayGuard(max_replays=5, window_seconds=3600)
+        await OutboxReplay.reset_dead_lettered(
+            pool, subject="sahool.ndvi.computed", guard=guard
+        )
+
+        assert await guard.count_in_window("sahool.ndvi.computed") == 0
+
+    @pytest.mark.asyncio
+    async def test_replay_blocked_metric_incremented_on_rate_limit(self):
+        """outbox_replay_blocked_total must be incremented when guard blocks."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+
+        guard = OutboxReplayGuard(max_replays=1, window_seconds=60)
+        await guard.record("*")  # exhaust limit for all-replays key
+
+        with patch("shared.libs.outbox.replay_tool.OUTBOX_METRICS") as mock_m:
+            mock_m.replay_blocked = MagicMock()
+            # reset_dead_lettered without subject/ids uses metric_subject="*"
+            with pytest.raises(ReplayRateLimitExceeded):
+                await OutboxReplay.reset_dead_lettered(pool, guard=guard)
+
+        mock_m.replay_blocked.assert_called_once_with(subject="*", reason="rate_limit")
+
+    @pytest.mark.asyncio
+    async def test_no_guard_means_unlimited_replays(self):
+        """Passing guard=None (default) must impose no rate limit."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+
+        # Call ten times with no guard — must all succeed
+        for _ in range(10):
+            await OutboxReplay.reset_dead_lettered(pool)
+
+    @pytest.mark.asyncio
+    async def test_replay_blocked_facade_does_not_raise(self):
+        """replay_blocked() must not raise even if Prometheus is absent."""
+        OUTBOX_METRICS.replay_blocked(subject="sahool.test", reason="rate_limit")
+
+    @pytest.mark.asyncio
+    async def test_replay_blocked_called_with_prometheus_mock(self):
+        """replay_blocked() must call the counter with correct labels."""
+        mock_counter = MagicMock()
+        mock_counter.labels.return_value = mock_counter
+
+        import shared.libs.outbox.metrics as m
+
+        original = m._replay_blocked_counter
+        m._replay_blocked_counter = mock_counter
+        try:
+            OUTBOX_METRICS.replay_blocked(subject="sahool.test", reason="rate_limit")
+            mock_counter.labels.assert_called_once_with(subject="sahool.test", reason="rate_limit")
+            mock_counter.inc.assert_called_once()
+        finally:
+            m._replay_blocked_counter = original

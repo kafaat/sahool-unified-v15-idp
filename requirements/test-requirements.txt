@@ -51,7 +51,7 @@ pydantic>=2.12.0,<3.0.0
 python-dotenv>=1.2.0
 
 # Code coverage
-coverage>=7.2.7
+coverage>=7.13.5
 
 # Performance testing
 pytest-benchmark>=4.0.0

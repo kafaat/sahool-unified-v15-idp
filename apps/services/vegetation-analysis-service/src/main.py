@@ -500,7 +500,7 @@ async def lifespan(app: FastAPI):
         try:
             from pathlib import Path
 
-            from shared.libs.events.nats_publisher import _publisher_instance
+            from shared.libs.events.nats_publisher import get_publisher
             from shared.libs.outbox import OutboxRelay
 
             # Apply the outbox_messages DDL (idempotent — uses IF NOT EXISTS)
@@ -514,7 +514,9 @@ async def lifespan(app: FastAPI):
                 logger.info("outbox_migration_applied", service="vegetation-analysis-service")
 
             # The relay needs the raw NATS client, not the wrapper.
-            _nats_raw = getattr(_publisher_instance, "_nc", None)
+            # Use the public .nc accessor instead of the private ._nc attribute.
+            _pub = await get_publisher()
+            _nats_raw = _pub.nc if _pub is not None else None
             if _nats_raw is not None:
                 app.state.outbox_relay = OutboxRelay(worker_id="vegetation-analysis-service")
                 await app.state.outbox_relay.start(

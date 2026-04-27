@@ -109,6 +109,11 @@ class NATSPublisher:
     def is_connected(self) -> bool:
         return self._connected and self._nc is not None
 
+    @property
+    def nc(self) -> NATSClient | None:
+        """Return the underlying raw NATS client (or None if not connected)."""
+        return self._nc
+
     async def connect(self) -> bool:
         """Connect to NATS server"""
         if not _nats_available:

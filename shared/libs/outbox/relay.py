@@ -365,9 +365,11 @@ class OutboxRelay:
                     # When the row was REPLAYING, mark it FAILED_FINAL so the
                     # persistent failure is visible in lifecycle metrics.
                     mark_dlq_sql = _MARK_DLQ_FAILED_FINAL_SQL if row_replay_state == "REPLAYING" else _MARK_DLQ_SQL
+                    _dlq_marked = False
                     try:
                         async with db_pool.acquire() as mark_conn:
                             await mark_conn.execute(mark_dlq_sql, row_id)
+                        _dlq_marked = True
                     except Exception as dlq_exc:
                         logger.error(
                             "outbox_dlq_mark_failed",
@@ -380,9 +382,12 @@ class OutboxRelay:
                                 "error": str(dlq_exc),
                             },
                         )
-                    OUTBOX_METRICS.dead_lettered(subject=subject)
-                    if row_replay_state == "REPLAYING":
-                        OUTBOX_METRICS.replay_failed_final(subject=subject)
+                    # Emit metrics only after a successful DB update to avoid
+                    # inflating DLQ counts when the row is still retryable.
+                    if _dlq_marked:
+                        OUTBOX_METRICS.dead_lettered(subject=subject)
+                        if row_replay_state == "REPLAYING":
+                            OUTBOX_METRICS.replay_failed_final(subject=subject)
                     logger.error(
                         "outbox_dead_lettered",
                         extra={
@@ -399,9 +404,11 @@ class OutboxRelay:
                     )
                 else:
                     # --- Step 3b: transient failure — increment and release claim ---
+                    _failed_marked = False
                     try:
                         async with db_pool.acquire() as mark_conn:
                             await mark_conn.execute(_MARK_FAILED_SQL, row_id)
+                        _failed_marked = True
                     except Exception as mark_exc:
                         logger.error(
                             "outbox_mark_failed_error",
@@ -414,7 +421,10 @@ class OutboxRelay:
                                 "error": str(mark_exc),
                             },
                         )
-                    OUTBOX_METRICS.failed(subject=subject, reason=reason)
+                    # Emit metric only after a successful DB update to avoid
+                    # inflating failure rates when the row may still be claimed.
+                    if _failed_marked:
+                        OUTBOX_METRICS.failed(subject=subject, reason=reason)
                     logger.warning(
                         "outbox_publish_failed",
                         extra={

@@ -243,7 +243,7 @@ async def lifespan(app: FastAPI):
                     logger.info("jetstream_streams_ready", count=n_ok)
                 except Exception as js_exc:
                     logger.debug("jetstream_streams_setup_skipped", error=str(js_exc))
-                    js = app.state.nc.jetstream() if app.state.nc else None
+                    js = None
                     app.state.js = js
 
                 # Durable JetStream consumer for weather forecast events.

@@ -150,48 +150,74 @@ export const satelliteMonitorApi = {
   },
 
   getPestPredictions: async (fieldId: string): Promise<PestPrediction[]> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/pest-predictions`, async () => {
-      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/pest-predictions`);
+    const url = SATELLITE_MONITOR_ENDPOINTS.FIELD_PEST_PREDICTIONS.replace('{fieldId}', fieldId);
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
 
   getIrrigationSchedule: async (fieldId: string): Promise<IrrigationSchedule> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/irrigation-schedule`, async () => {
-      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/irrigation-schedule`);
+    const url = SATELLITE_MONITOR_ENDPOINTS.FIELD_IRRIGATION_SCHEDULE.replace('{fieldId}', fieldId);
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
 
   getYieldPrediction: async (fieldId: string): Promise<YieldPrediction> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/yield-prediction`, async () => {
-      const response = await api.get(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/yield-prediction`);
+    const url = SATELLITE_MONITOR_ENDPOINTS.FIELD_YIELD_PREDICTION.replace('{fieldId}', fieldId);
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       return response.data.data || response.data;
     });
   },
 
   getHistoricalData: async (fieldId: string, startDate: string, endDate: string, layerType: MapLayerType): Promise<HistoricalSnapshot[]> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/historical`, async () => {
+    const base = SATELLITE_MONITOR_ENDPOINTS.FIELD_HISTORICAL.replace('{fieldId}', fieldId);
+    return safeFetch(base, async () => {
       const params = new URLSearchParams({ start: startDate, end: endDate, layer: layerType });
-      const response = await api.get(
-        `${API_PREFIX}/satellite-monitor/fields/${fieldId}/historical?${params.toString()}`
-      );
+      const response = await api.get(`${base}?${params.toString()}`);
       return response.data.data || response.data;
     });
   },
 
   createField: async (data: FieldSetupData): Promise<SatelliteField> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields`, async () => {
-      const response = await api.post(`${API_PREFIX}/satellite-monitor/fields`, data);
+    return safeFetch(SATELLITE_MONITOR_ENDPOINTS.FIELDS, async () => {
+      const response = await api.post(SATELLITE_MONITOR_ENDPOINTS.FIELDS, data);
       return response.data.data || response.data;
     });
   },
 
   updateField: async (fieldId: string, data: Partial<FieldSetupData>): Promise<SatelliteField> => {
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}`, async () => {
-      const response = await api.patch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}`, data);
+    const url = SATELLITE_MONITOR_ENDPOINTS.FIELD_GET.replace('{fieldId}', fieldId);
+    return safeFetch(url, async () => {
+      const response = await api.patch(url, data);
       return response.data.data || response.data;
     });
+  },
+
+  /**
+   * Download a raster indicator image (TIFF or PNG) for a field and layer.
+   *
+   * Supported formats:
+   *  • "tiff" → GeoTIFF (georeferenced, suitable for GIS software like QGIS)
+   *  • "png"  → PNG (web-friendly preview image)
+   *
+   * Follows patterns used by John Deere Operations Center, CropX, Farmonaut,
+   * and FieldView for exporting vegetation-index maps.
+   */
+  downloadIndicatorImage: async (
+    fieldId: string,
+    layerType: MapLayerType,
+    format: 'tiff' | 'png' = 'png',
+    date?: string,
+  ): Promise<Blob> => {
+    const base = SATELLITE_MONITOR_ENDPOINTS.FIELD_DOWNLOAD.replace('{fieldId}', fieldId);
+    const params = new URLSearchParams({ format, layer: layerType });
+    if (date) params.set('date', date);
+    const response = await api.get(`${base}?${params.toString()}`, { responseType: 'blob' });
+    return response.data as Blob;
   },
 
   /**
@@ -210,10 +236,9 @@ export const satelliteMonitorApi = {
     if (cloudCoverage <= SAR_FALLBACK_THRESHOLD) {
       return null; // Optical imagery is usable; no fallback needed.
     }
-    return safeFetch(`${API_PREFIX}/satellite-monitor/fields/${fieldId}/soil-moisture-sar`, async () => {
-      const response = await api.get(
-        `${API_PREFIX}/satellite-monitor/fields/${fieldId}/soil-moisture-sar`,
-      );
+    const url = SATELLITE_MONITOR_ENDPOINTS.FIELD_SOIL_MOISTURE_SAR.replace('{fieldId}', fieldId);
+    return safeFetch(url, async () => {
+      const response = await api.get(url);
       const data = response.data.data || response.data;
       return { ...data, source: 'sar' as const, cloudCoverage };
     });

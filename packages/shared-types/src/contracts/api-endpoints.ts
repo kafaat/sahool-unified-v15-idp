@@ -1228,6 +1228,21 @@ export const SATELLITE_MONITOR_ENDPOINTS = {
   FIELD_GET: `${API_PREFIX}/satellite-monitor/fields/{fieldId}`,
   STATS: `${API_PREFIX}/satellite-monitor/stats`,
   ALERTS: `${API_PREFIX}/satellite-monitor/alerts`,
+  /** Pest / disease risk predictions for a field */
+  FIELD_PEST_PREDICTIONS: `${API_PREFIX}/satellite-monitor/fields/{fieldId}/pest-predictions`,
+  /** Smart irrigation schedule for a field */
+  FIELD_IRRIGATION_SCHEDULE: `${API_PREFIX}/satellite-monitor/fields/{fieldId}/irrigation-schedule`,
+  /** Yield prediction for a field */
+  FIELD_YIELD_PREDICTION: `${API_PREFIX}/satellite-monitor/fields/{fieldId}/yield-prediction`,
+  /** Historical layer snapshots for a field */
+  FIELD_HISTORICAL: `${API_PREFIX}/satellite-monitor/fields/{fieldId}/historical`,
+  /** SAR-based soil moisture fallback when cloud coverage > 30 % */
+  FIELD_SOIL_MOISTURE_SAR: `${API_PREFIX}/satellite-monitor/fields/{fieldId}/soil-moisture-sar`,
+  /**
+   * Raster image download for a field and indicator layer.
+   * Supports ?format=tiff|png&layer=ndvi|evi|…&date=YYYY-MM-DD
+   */
+  FIELD_DOWNLOAD: `${API_PREFIX}/satellite-monitor/fields/{fieldId}/download`,
 } as const;
 
 // ---------------------------------------------------------------------------

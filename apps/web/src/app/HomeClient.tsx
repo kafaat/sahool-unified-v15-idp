@@ -12,7 +12,7 @@ export default function HomeClient() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/dashboard');
+    router.replace('/satellite-monitor');
   }, [router]);
 
   return (

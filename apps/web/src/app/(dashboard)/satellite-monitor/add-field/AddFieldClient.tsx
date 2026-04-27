@@ -118,9 +118,6 @@ export default function AddFieldClient() {
       if (!formData.nameAr.trim()) {
         errors.push('يرجى إدخال اسم الحقل بالعربية');
       }
-      if (!formData.cropType) {
-        errors.push('يرجى اختيار نوع المحصول');
-      }
     }
     setValidationErrors(errors);
     return errors.length === 0;
@@ -252,8 +249,8 @@ export default function AddFieldClient() {
   // Submit field creation
   const handleSubmit = useCallback(async () => {
     if (!validateStep(3)) return;
-    if (!formData.nameAr || !formData.cropType) {
-      setValidationErrors(['يرجى ملء اسم الحقل ونوع المحصول']);
+    if (!formData.nameAr) {
+      setValidationErrors(['يرجى ملء اسم الحقل بالعربية']);
       return;
     }
     if ((boundaryMethod === 'kml' || boundaryMethod === 'shapefile') && boundaryPoints.length === 0 && !uploadedFile) {
@@ -413,13 +410,24 @@ export default function AddFieldClient() {
             </div>
           </div>
 
-          {/* Map placeholder */}
-          <div className="aspect-video bg-gradient-to-br from-blue-50 via-green-50 to-green-100 rounded-lg border-2 border-dashed border-green-300 flex items-center justify-center">
-            <div className="text-center">
-              <MapPin className="w-12 h-12 text-green-500 mx-auto mb-2" />
-              <p className="text-green-700 font-medium">خريطة تفاعلية</p>
-              <p className="text-green-600 text-sm">حدد موقع مزرعتك على الخريطة</p>
-            </div>
+          {/* Interactive location-picker map */}
+          <div>
+            <p className="text-sm text-gray-600 mb-2">
+              أو انقر مباشرة على الخريطة لتحديد الموقع
+            </p>
+            <GoogleMapsFieldDrawer
+              height="340px"
+              initialCenter={drawInitialCenter}
+              initialZoom={drawInitialZoom}
+              readOnly
+              onLocationPick={(lat, lng) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  lat: lat.toFixed(6),
+                  lng: lng.toFixed(6),
+                }))
+              }
+            />
           </div>
 
           {validationErrors.length > 0 && step === 1 && (

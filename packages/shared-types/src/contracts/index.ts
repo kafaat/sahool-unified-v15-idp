@@ -101,7 +101,16 @@
 //            — same skip+limit-only constraint, user-scoped.
 //          * CHAIN_VALIDATE (/audit/chain/validate)
 //          Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.19.0" as const;
+// 4.20.0 — extend SATELLITE_MONITOR_ENDPOINTS with six endpoints that
+//          were previously hardcoded in satellite-monitor/api.ts:
+//          * FIELD_PEST_PREDICTIONS   (/satellite-monitor/fields/{fieldId}/pest-predictions)
+//          * FIELD_IRRIGATION_SCHEDULE(/satellite-monitor/fields/{fieldId}/irrigation-schedule)
+//          * FIELD_YIELD_PREDICTION   (/satellite-monitor/fields/{fieldId}/yield-prediction)
+//          * FIELD_HISTORICAL         (/satellite-monitor/fields/{fieldId}/historical)
+//          * FIELD_SOIL_MOISTURE_SAR  (/satellite-monitor/fields/{fieldId}/soil-moisture-sar)
+//          * FIELD_DOWNLOAD           (/satellite-monitor/fields/{fieldId}/download)
+//          Purely additive.
+export const CONTRACT_VERSION = "4.20.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

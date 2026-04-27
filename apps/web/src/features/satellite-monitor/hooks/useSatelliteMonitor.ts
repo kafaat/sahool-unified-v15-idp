@@ -194,3 +194,41 @@ export function useUpdateField() {
     },
   });
 }
+
+/**
+ * Download an indicator image (TIFF or PNG) for a field.
+ * Triggers a browser file download when the mutation resolves.
+ *
+ * نزّل صورة مؤشر نباتي (TIFF أو PNG) لحقل محدد.
+ * يُشغّل تنزيل ملف في المتصفح عند اكتمال العملية.
+ */
+export function useDownloadIndicatorImage() {
+  return useMutation({
+    mutationFn: ({
+      fieldId,
+      layerType,
+      format,
+      date,
+      fieldName,
+    }: {
+      fieldId: string;
+      layerType: MapLayerType;
+      format: 'tiff' | 'png';
+      date?: string;
+      fieldName?: string;
+    }) => satelliteMonitorApi.downloadIndicatorImage(fieldId, layerType, format, date),
+    onSuccess: (blob, { layerType, format, fieldName, date }) => {
+      // Trigger a browser download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const label = fieldName ? `${fieldName}_` : '';
+      const dateSuffix = date ? `_${date}` : '';
+      a.href = url;
+      a.download = `sahool_${label}${layerType}${dateSuffix}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    },
+  });
+}

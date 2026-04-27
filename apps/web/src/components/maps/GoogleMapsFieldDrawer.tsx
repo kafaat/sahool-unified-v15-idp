@@ -20,6 +20,9 @@ import { Trash2, Search, Loader2 } from 'lucide-react';
 
 export interface GoogleMapsFieldDrawerProps {
   onBoundaryChange?: (geojson: GeoJSON.Polygon | null) => void;
+  /** Called in pan mode (no drawing active) when the user clicks the map.
+   * Use this in location-picker contexts to let the user tap to set a point. */
+  onLocationPick?: (lat: number, lng: number) => void;
   initialCenter?: [number, number]; // [lat, lng]
   initialZoom?: number;
   height?: string;
@@ -206,6 +209,7 @@ function DrawingToolbar({ activeMode, onSetMode, completed, readOnly }: ToolbarP
 
 function Inner({
   onBoundaryChange,
+  onLocationPick,
   initialCenter = [15.5527, 48.5164],
   initialZoom = 7,
   height = '500px',
@@ -251,6 +255,15 @@ function Inner({
   const mapRef        = useRef<any>(null);
   const shapeRef      = useRef<any>(null);
   const listenersRef  = useRef<any[]>([]);
+
+  // ── Location-pick refs (for pan-mode click → lat/lng callback) ────────────
+  const activeModeRef       = useRef<DrawMode>(null);
+  const onLocationPickRef   = useRef(onLocationPick);
+  const locationMarkerRef   = useRef<any>(null);
+  onLocationPickRef.current = onLocationPick;
+  // Keep activeModeRef in sync so the click handler (closed over mapLoad)
+  // can read the current drawing mode without a stale closure.
+  useEffect(() => { activeModeRef.current = activeMode; }, [activeMode]);
 
   // ── Search ────────────────────────────────────────────────────────────────
   const [searchQ,   setSearchQ]   = useState('');
@@ -404,6 +417,35 @@ function Inner({
           ];
         }
       }
+
+      // ── Location-pick: fire onLocationPick when user clicks the map in pan mode ──
+      map.addListener('click', (e: any) => {
+        // Only respond when no drawing tool is active (pan mode)
+        if (activeModeRef.current !== null) return;
+        const lat: number = e.latLng.lat();
+        const lng: number = e.latLng.lng();
+
+        // Place or move a subtle green pin at the clicked location
+        if (locationMarkerRef.current) {
+          locationMarkerRef.current.setPosition({ lat, lng });
+        } else if (onLocationPickRef.current) {
+          locationMarkerRef.current = new window.google.maps.Marker({
+            position: { lat, lng },
+            map,
+            title: 'موقع الحقل',
+            icon: {
+              path: window.google.maps.SymbolPath.CIRCLE,
+              scale: 9,
+              fillColor: '#22c55e',
+              fillOpacity: 1,
+              strokeColor: '#15803d',
+              strokeWeight: 2,
+            },
+          });
+        }
+
+        onLocationPickRef.current?.(lat, lng);
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [initialCenter, initialZoom, initialPolygon, readOnly],

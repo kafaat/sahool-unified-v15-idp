@@ -14,7 +14,7 @@ All tests are fully offline — no real database or NATS connection needed.
 from __future__ import annotations
 
 import uuid
-from unittest.mock import AsyncMock, MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, call
 
 import pytest
 
@@ -92,7 +92,7 @@ async def test_nats_failure_marks_failed_not_sent():
     nats_client = AsyncMock()
     nats_client.publish = AsyncMock(side_effect=Exception("NATS connection refused"))
     # No jetstream() method — falls straight to nc.publish
-    del nats_client.jetstream
+    nats_client.jetstream = None
 
     relay = OutboxRelay(worker_id="test-worker")
     published = await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -129,7 +129,7 @@ async def test_max_retry_dead_letters_row():
 
     nats_client = AsyncMock()
     nats_client.publish = AsyncMock(side_effect=Exception("permanent NATS error"))
-    del nats_client.jetstream
+    nats_client.jetstream = None
 
     relay = OutboxRelay(worker_id="test-worker")
     published = await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -159,7 +159,7 @@ async def test_below_max_retry_uses_mark_failed():
 
     nats_client = AsyncMock()
     nats_client.publish = AsyncMock(side_effect=Exception("transient error"))
-    del nats_client.jetstream
+    nats_client.jetstream = None
 
     relay = OutboxRelay(worker_id="test-worker")
     await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -219,7 +219,7 @@ async def test_two_drain_batches_on_same_row_do_not_double_publish():
 
     nats_client = AsyncMock()
     nats_client.publish = AsyncMock(return_value=None)
-    del nats_client.jetstream
+    nats_client.jetstream = None
 
     relay1 = OutboxRelay(worker_id="worker-1")
     relay2 = OutboxRelay(worker_id="worker-2")
@@ -277,7 +277,7 @@ async def test_fallback_to_nc_publish_when_no_jetstream():
 
     nats_client = AsyncMock()
     nats_client.publish = AsyncMock(return_value=None)
-    del nats_client.jetstream  # simulate client without JetStream support
+    nats_client.jetstream = None  # simulate client without JetStream support
 
     relay = OutboxRelay(worker_id="test-worker")
     published = await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -328,7 +328,7 @@ async def test_empty_batch_returns_zero():
 
     nats_client = AsyncMock()
     nats_client.publish = AsyncMock()
-    del nats_client.jetstream
+    nats_client.jetstream = None
 
     relay = OutboxRelay(worker_id="test-worker")
     published = await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -350,7 +350,7 @@ async def test_successful_publish_marks_row_sent():
 
     nats_client = AsyncMock()
     nats_client.publish = AsyncMock(return_value=None)
-    del nats_client.jetstream
+    nats_client.jetstream = None
 
     relay = OutboxRelay(worker_id="test-worker")
     published = await relay._drain_batch(pool, nats_client, batch_size=10)

@@ -287,7 +287,7 @@ class OutboxRelay:
 
         Prometheus counters (``outbox_messages_published_total``,
         ``outbox_publish_failures_total``, ``outbox_dead_lettered_total``)
-        and ``outbox_pending_rows`` gauge are updated on every drain tick.
+        are updated on every drain tick.
         """
         # --- Step 1: claim batch atomically, release txn immediately ---
         # The SELECT ... FOR UPDATE SKIP LOCKED CTE + UPDATE writes

@@ -253,11 +253,14 @@ async def lifespan(app: FastAPI):
                     try:
                         data = json.loads(msg.data.decode())
                         logger.info("weather_update_received", field_id=data.get("field_id"))
-                        await msg.ack()
+                        # JetStream messages support ack/nak; core NATS messages do not.
+                        if hasattr(msg, "ack"):
+                            await msg.ack()
                     except Exception as e:
                         logger.error("weather_event_parse_failed", error=str(e))
                         try:
-                            await msg.nak()
+                            if hasattr(msg, "nak"):
+                                await msg.nak()
                         except Exception:
                             pass
 

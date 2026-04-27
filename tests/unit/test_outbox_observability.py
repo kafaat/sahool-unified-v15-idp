@@ -10,7 +10,7 @@ Unit tests for:
 from __future__ import annotations
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone, UTC
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -263,7 +263,7 @@ class TestRelayStructuredLogging:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.logger") as mock_log:
@@ -288,7 +288,7 @@ class TestRelayStructuredLogging:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("NATS down"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.logger") as mock_log:
@@ -315,7 +315,7 @@ class TestRelayStructuredLogging:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("permanent error"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.logger") as mock_log:
@@ -350,7 +350,7 @@ class TestRelayMetricsIntegration:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -367,7 +367,7 @@ class TestRelayMetricsIntegration:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("NATS unavailable"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -386,7 +386,7 @@ class TestRelayMetricsIntegration:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("permanent"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -404,7 +404,7 @@ class TestRelayMetricsIntegration:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=ConnectionRefusedError("refused"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -460,7 +460,7 @@ class TestRelayLatencyIntegration:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -480,7 +480,7 @@ class TestRelayLatencyIntegration:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("timeout"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -496,7 +496,7 @@ class TestRelayLatencyIntegration:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.logger") as mock_log:
@@ -614,7 +614,7 @@ class TestInspectDeadLettered:
     @pytest.mark.asyncio
     async def test_returns_correct_totals_and_by_subject(self):
         pool, conn = _make_db_pool()
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         older = now - timedelta(hours=3)
         rows = [
             {"subject": "sahool.ndvi.computed", "n": 5, "oldest_dead_lettered_at": older},
@@ -631,7 +631,7 @@ class TestInspectDeadLettered:
     @pytest.mark.asyncio
     async def test_oldest_age_seconds_reflects_oldest_row(self):
         pool, conn = _make_db_pool()
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         three_hours_ago = now - timedelta(hours=3)
         one_hour_ago = now - timedelta(hours=1)
         rows = [
@@ -839,7 +839,7 @@ class TestDeliveryModeLog:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.logger") as mock_log:
@@ -859,7 +859,7 @@ class TestDeliveryModeLog:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream  # force core NATS path
+        nats_client.jetstream = None  # force core NATS path
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.logger") as mock_log:
@@ -1315,7 +1315,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -1333,7 +1333,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -1352,7 +1352,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("permanent failure"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -1369,7 +1369,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("permanent"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         await relay._drain_batch(pool, nats_client, batch_size=10)
@@ -1387,7 +1387,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -1403,7 +1403,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(return_value=None)
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -1419,7 +1419,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("permanent"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -1435,7 +1435,7 @@ class TestReplayLifecycleStateMachine:
 
         nats_client = AsyncMock()
         nats_client.publish = AsyncMock(side_effect=Exception("permanent"))
-        del nats_client.jetstream
+        nats_client.jetstream = None
 
         relay = OutboxRelay(worker_id="w-test")
         with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
@@ -1529,7 +1529,6 @@ class TestNewMetricsFacade:
 # 15. inspect_governor — read-only governor snapshot (C)
 # ---------------------------------------------------------------------------
 
-from shared.libs.outbox.replay_tool import DistributedReplayGovernor
 
 
 def _make_governor_inspect_pool(
@@ -1576,7 +1575,7 @@ class TestInspectGovernor:
 
     @pytest.mark.asyncio
     async def test_returns_correct_replay_count(self):
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         pool, _ = _make_governor_inspect_pool(
             replays_in_window=3,
             oldest_replay_at=now - timedelta(hours=2),
@@ -1635,7 +1634,7 @@ class TestInspectGovernor:
 
     @pytest.mark.asyncio
     async def test_timestamps_returned_as_iso8601_strings(self):
-        now = datetime.now(tz=timezone.utc)
+        now = datetime.now(tz=UTC)
         pool, _ = _make_governor_inspect_pool(
             replays_in_window=1,
             oldest_replay_at=now - timedelta(hours=1),

@@ -253,7 +253,7 @@ def is_current_user_admin() -> bool:
 # ─────────────────────────────────────────────────────────────────────────────
 
 
-async def set_app_tenant(conn, tenant_id: str) -> None:
+async def set_app_tenant(conn, tenant_id: str | None) -> None:
     """
     Set the PostgreSQL session variable used by RLS policies.
 
@@ -265,9 +265,13 @@ async def set_app_tenant(conn, tenant_id: str) -> None:
     Must be called *inside* an open transaction — ``SET LOCAL`` is
     automatically rolled back when the transaction ends.
 
+    If ``tenant_id`` is ``None`` or an empty string, the function is a no-op
+    and the session variable is left unchanged.
+
     Args:
         conn:      An asyncpg connection (or compatible DB connection).
-        tenant_id: The tenant UUID string for the current request.
+        tenant_id: The tenant UUID string for the current request, or ``None``
+                   to skip setting the tenant (e.g. system-level operations).
 
     Example::
 
@@ -283,13 +287,14 @@ async def set_app_tenant(conn, tenant_id: str) -> None:
 
 
 @asynccontextmanager
-async def acquire_tenant_conn(pool, tenant_id: str):
+async def acquire_tenant_conn(pool, tenant_id: str | None):
     """
     Async context manager that acquires a pooled asyncpg connection and
     sets the session-level ``app.current_tenant`` variable for RLS.
 
     The tenant variable is set via ``SET LOCAL`` inside a transaction, so
-    it is automatically cleared when the transaction finishes.
+    it is automatically cleared when the transaction finishes.  If
+    ``tenant_id`` is ``None`` or empty, the session variable is not set.
 
     Usage::
 

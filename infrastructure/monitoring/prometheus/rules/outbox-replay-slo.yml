@@ -18,13 +18,13 @@
 #   CR = (recovered_rate + ε) / (recovered_rate + failed_final_rate + ε)
 #        [convergence ratio: 1 = all replays succeed, 0 = all replays fail]
 #
-#   FP = clamp(failed_final_rate / (replay_rate + ε), 0, 1)
+#   FP = clamp_max(failed_final_rate / (replay_rate + ε), 1)
 #        [failure pressure: fraction of replays that permanently fail]
 #
-#   SS = clamp((blocked_rate + suppressed_rate) / (replay_rate + ε), 0, 1)
-#        [system stress: fraction of replays the system had to suppress]
+#   SS = clamp_max((rate_limit_blocked_rate + suppressed_rate) / (replay_rate + ε), 1)
+#        [system stress: only rate-limit blocks + policy suppressions, no double-count]
 #
-#   Health = clamp(100·CR − 40·FP − 30·SS, 0, 100)
+#   Health = clamp_min(clamp_max(100·CR − 40·FP − 30·SS, 100), 0)
 #
 # Score interpretation:
 #   ≥ 80   Healthy    — system converging normally
@@ -74,11 +74,16 @@ groups:
       # System Stress — SS ∈ [0, 1]
       # Fraction of replay attempts the governance layer had to suppress.
       # SS > 0 means the policy engine is actively fighting a replay problem.
+      #
+      # Note: policy blocks increment BOTH outbox_replay_blocked_total{reason="policy"}
+      # AND outbox_replay_policy_suppressed_total.  To avoid double-counting, we count
+      # only rate-limit blocks (reason="rate_limit") from the blocked counter and
+      # add policy suppressions from the dedicated counter.
       - record: outbox:replay:system_stress:5m
         expr: |
           clamp_max(
             (
-              sum(rate(outbox_replay_blocked_total[5m]))
+              sum(rate(outbox_replay_blocked_total{reason="rate_limit"}[5m]))
               + sum(rate(outbox_replay_policy_suppressed_total[5m]))
             )
             /
@@ -97,32 +102,39 @@ groups:
       # Replay Health Score — ∈ [0, 100]
       # Single scalar that answers: "Is the system healing or deteriorating?"
       # Inlined expressions (not referencing Layer 1 names) for evaluation safety.
+      #
+      # Uses clamp_min/clamp_max (Prometheus-supported) instead of clamp().
+      # System Stress term uses only rate-limit blocks to avoid double-counting
+      # policy suppressions (see Layer 1 system_stress comment above).
       - record: outbox:replay:health_score:5m
         expr: |
-          clamp(
-            100 * (
-              (sum(rate(outbox_replay_recovered_total[5m])) + 0.001)
-              /
-              (
-                sum(rate(outbox_replay_recovered_total[5m]))
-                + sum(rate(outbox_replay_failed_final_total[5m]))
-                + 0.001
-              )
-            )
-            - 40 * clamp_max(
-                sum(rate(outbox_replay_failed_final_total[5m]))
-                / (sum(rate(outbox_replay_total[5m])) + 0.001),
-                1
-              )
-            - 30 * clamp_max(
+          clamp_min(
+            clamp_max(
+              100 * (
+                (sum(rate(outbox_replay_recovered_total[5m])) + 0.001)
+                /
                 (
-                  sum(rate(outbox_replay_blocked_total[5m]))
-                  + sum(rate(outbox_replay_policy_suppressed_total[5m]))
+                  sum(rate(outbox_replay_recovered_total[5m]))
+                  + sum(rate(outbox_replay_failed_final_total[5m]))
+                  + 0.001
                 )
-                / (sum(rate(outbox_replay_total[5m])) + 0.001),
-                1
-              ),
-            0, 100
+              )
+              - 40 * clamp_max(
+                  sum(rate(outbox_replay_failed_final_total[5m]))
+                  / (sum(rate(outbox_replay_total[5m])) + 0.001),
+                  1
+                )
+              - 30 * clamp_max(
+                  (
+                    sum(rate(outbox_replay_blocked_total{reason="rate_limit"}[5m]))
+                    + sum(rate(outbox_replay_policy_suppressed_total[5m]))
+                  )
+                  / (sum(rate(outbox_replay_total[5m])) + 0.001),
+                  1
+                ),
+              100
+            ),
+            0
           )
 
   # ─────────────────────────────────────────────────────────────────────────────
@@ -213,7 +225,7 @@ groups:
             المعدل: {{ printf "%.4f" $value }} صف/ثانية تدخل FAILED_FINAL.
             الموضوع: {{ $labels.subject }}.
             هذه الصفوف لن تُسلَّم تلقائياً أبداً. مطلوب إجراء يدوي.
-          action: "Query SELECT * FROM outbox_messages WHERE replay_state = 'FAILED_FINAL' ORDER BY updated_at DESC LIMIT 20"
+          action: "Query SELECT * FROM outbox_messages WHERE replay_state = 'FAILED_FINAL' ORDER BY dead_lettered_at DESC LIMIT 20"
           runbook_url: "https://docs.sahool.io/runbooks/outbox-failed-final"
 
       # ── (5) WARNING: Policy engine actively suppressing ──────────────────

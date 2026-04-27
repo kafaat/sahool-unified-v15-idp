@@ -29,7 +29,7 @@ def check(port: int, timeout: int) -> bool:
     """
     url = f"http://localhost:{port}/health"
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as resp:  # noqa: S310
+        with urllib.request.urlopen(url, timeout=timeout) as resp:  # noqa: S310  # nosec B310
             return resp.status == 200
     except (urllib.error.URLError, OSError):
         return False

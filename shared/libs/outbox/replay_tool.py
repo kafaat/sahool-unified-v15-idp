@@ -310,8 +310,8 @@ VALUES ($1, NOW(), $2, $3)
 # Transaction-level advisory lock for the governor: prevents two concurrent
 # check+insert pairs from racing inside the same DB transaction.  Uses a
 # different namespace key (1, 20291) to avoid colliding with the replay-tool
-# advisory lock (1, 20290 = "OB" for OutBox replay).
-# 20291 = 0x4F43 → "OC" for OutBox Coordination.
+# advisory lock (1, 20290).
+# Key mnemonics (hex → ASCII): 0x4F42 = "OB" (OutBox), 0x4F43 = "OC" (OutBox Coordination).
 _GOVERNOR_LOCK_SQL = "SELECT pg_advisory_xact_lock(1, 20291)"
 
 

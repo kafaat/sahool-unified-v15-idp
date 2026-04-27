@@ -193,8 +193,10 @@ class OutboxReplay:
         oldest_age: float | None = None
         if oldest is not None:
             now = datetime.now(tz=timezone.utc)
-            # asyncpg returns timezone-aware datetimes when the column has
-            # timezone; fall back gracefully for naive datetimes.
+            # asyncpg returns timezone-aware datetimes for TIMESTAMPTZ columns
+            # and naive datetimes for plain TIMESTAMP columns.  Both cases are
+            # handled: timezone-aware values are compared directly; naive
+            # values are assumed UTC and converted before computing the age.
             if oldest.tzinfo is None:
                 oldest = oldest.replace(tzinfo=timezone.utc)
             oldest_age = (now - oldest).total_seconds()

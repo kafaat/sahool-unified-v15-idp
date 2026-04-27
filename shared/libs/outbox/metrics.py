@@ -56,7 +56,11 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Latency histogram buckets (seconds): 1 ms → 5 s
+# Latency histogram buckets (seconds): 1 ms → 5 s.
+# These cover the full range of healthy NATS publish latency (≤ 50 ms in
+# a co-located cluster) through degraded/overloaded conditions (≤ 5 s).
+# Observations beyond 5 s are still recorded in Prometheus's implicit +Inf
+# bucket so no data is lost even during severe outages.
 _LATENCY_BUCKETS = (0.001, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0, 2.5, 5.0)
 
 try:

@@ -1255,7 +1255,9 @@ async def _persist_ndvi_reading(
     if pool is None:
         return
     try:
-        async with pool.acquire() as conn:
+        from shared.middleware.tenant_context import acquire_tenant_conn
+
+        async with acquire_tenant_conn(pool, tenant_id) as conn:
             await conn.execute(
                 """
                 INSERT INTO ndvi_readings
@@ -1279,6 +1281,70 @@ async def _persist_ndvi_reading(
             field_id=field_id,
             error=str(exc),
         )
+
+
+async def _publish_ndvi_event(
+    field_id: str,
+    ndvi_value: float,
+    tenant_id: str,
+    satellite_name: str,
+    scene_id: str | None,
+    cloud_cover: float | None,
+    captured_at: datetime,
+) -> None:
+    """
+    Publish ``sahool.satellite.ndvi.computed`` so Intelligence-layer consumers
+    (crop-intelligence-service, indicators-service) can react immediately.
+
+    Payload schema matches ``_handle_ndvi_computed`` in crop-intelligence:
+        - ``field_id``, ``tenant_id``          → routing
+        - ``mean_ndvi`` / ``value``             → NDVI value (dual keys for back-compat)
+        - ``event_id``, ``correlation_id``      → idempotency / tracing
+        - ``satellite_name``, ``scene_id``      → provenance
+
+    Failures are logged and silently swallowed so the HTTP response is never
+    blocked by a publishing error.
+    """
+    if not _nats_available:
+        return
+    try:
+        import json
+        import uuid
+
+        from shared.events.subjects import SAHOOL_NDVI_COMPUTED
+        from shared.libs.events.nats_publisher import get_publisher
+
+        publisher = await get_publisher()
+        if not publisher.is_connected:
+            return
+
+        event_id = str(uuid.uuid4())
+        payload = json.dumps(
+            {
+                "event_id": event_id,
+                "event_type": "satellite.ndvi.computed",
+                "source_service": "vegetation-analysis-service",
+                "timestamp": captured_at.isoformat(),
+                "field_id": field_id,
+                "tenant_id": tenant_id,
+                # Dual keys: crop-intelligence uses .get("mean_ndvi") or .get("value")
+                "mean_ndvi": ndvi_value,
+                "value": ndvi_value,
+                "satellite_name": satellite_name,
+                "scene_id": scene_id,
+                "cloud_cover": cloud_cover,
+                "correlation_id": event_id,
+            }
+        ).encode()
+        await publisher.publish(SAHOOL_NDVI_COMPUTED, payload)
+        logger.info(
+            "ndvi_event_published",
+            subject=SAHOOL_NDVI_COMPUTED,
+            field_id=field_id,
+            event_id=event_id,
+        )
+    except Exception as exc:
+        logger.warning("ndvi_event_publish_failed", field_id=field_id, error=str(exc))
 
 
 @app.post("/v1/analyze", response_model=FieldAnalysis)
@@ -1334,6 +1400,7 @@ async def analyze_field(
 
     # Persist NDVI reading to ndvi_readings table (fire-and-forget)
     tenant_id = getattr(user, "tenant_id", "") if user else ""
+    _captured_at = datetime.now(UTC)
     if tenant_id:
         background_tasks.add_task(
             _persist_ndvi_reading,
@@ -1344,7 +1411,19 @@ async def analyze_field(
             satellite_name=request.satellite.value,
             scene_id=getattr(imagery, "scene_id", None),
             cloud_cover=getattr(request, "cloud_cover_max", None),
-            captured_at=datetime.now(UTC),
+            captured_at=_captured_at,
+        )
+        # Publish sahool.satellite.ndvi.computed so Intelligence-layer consumers
+        # (crop-intelligence-service, indicators-service) can react without polling.
+        background_tasks.add_task(
+            _publish_ndvi_event,
+            field_id=request.field_id,
+            ndvi_value=indices.ndvi,
+            tenant_id=tenant_id,
+            satellite_name=request.satellite.value,
+            scene_id=getattr(imagery, "scene_id", None),
+            cloud_cover=getattr(request, "cloud_cover_max", None),
+            captured_at=_captured_at,
         )
 
     return FieldAnalysis(

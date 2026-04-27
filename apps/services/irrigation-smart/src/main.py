@@ -228,39 +228,53 @@ async def lifespan(app: FastAPI):
                 app.state.nc = await nats.connect(nats_url)
                 logger.info("Connected to NATS", nats_url=nats_url)
 
-                # Create durable JetStream stream for irrigation events so
-                # published messages are persisted even when consumers are offline.
+                # Ensure the platform-canonical JetStream streams exist.
+                # SAHOOL_WEATHER covers sahool.weather.> (where we subscribe)
+                # SAHOOL_INTELLIGENCE covers sahool.irrigation.> (where we publish).
+                # Using the shared ensure_streams() avoids stream-name conflicts
+                # with other services that own the same subjects.
                 try:
-                    from nats.js.api import RetentionPolicy, StorageType, StreamConfig
+                    from shared.events.streams import STREAMS, ensure_streams
 
                     js = app.state.nc.jetstream()
                     app.state.js = js
-                    await js.add_stream(
-                        StreamConfig(
-                            name="IRRIGATION",
-                            subjects=["sahool.irrigation.*"],
-                            retention=RetentionPolicy.LIMITS,
-                            storage=StorageType.FILE,
-                            max_age=86400 * 7,  # 7 days
-                            max_msgs_per_subject=10_000,
-                            duplicate_window=60,  # 1-minute dedup window
-                        )
-                    )
-                    logger.info("jetstream_stream_ready", stream="IRRIGATION")
+                    relevant = [sd for sd in STREAMS if sd.name in {"SAHOOL_WEATHER", "SAHOOL_INTELLIGENCE"}]
+                    n_ok = await ensure_streams(js, relevant)
+                    logger.info("jetstream_streams_ready", count=n_ok)
                 except Exception as js_exc:
-                    # Stream may already exist (expected in multi-replica setups)
-                    logger.debug("jetstream_stream_setup", stream="IRRIGATION", error=str(js_exc))
+                    logger.debug("jetstream_streams_setup_skipped", error=str(js_exc))
+                    js = app.state.nc.jetstream() if app.state.nc else None
+                    app.state.js = js
 
-                # Subscribe to weather forecast events for ET data
-                async def handle_weather_update(msg):
+                # Durable JetStream consumer for weather forecast events.
+                # Durable name survives service restarts; ack/nak provides
+                # at-least-once delivery with JetStream backoff on failure.
+                async def _handle_weather_update(msg) -> None:
                     try:
                         data = json.loads(msg.data.decode())
                         logger.info("weather_update_received", field_id=data.get("field_id"))
+                        await msg.ack()
                     except Exception as e:
                         logger.error("weather_event_parse_failed", error=str(e))
+                        try:
+                            await msg.nak()
+                        except Exception:
+                            pass
 
-                await app.state.nc.subscribe("sahool.weather.forecast.issued", cb=handle_weather_update)
-                logger.info("Subscribed to weather forecast events")
+                try:
+                    _js = getattr(app.state, "js", None) or app.state.nc.jetstream()
+                    weather_sub = await _js.subscribe(
+                        "sahool.weather.forecast.issued",
+                        durable="irrigation-smart-weather",
+                        queue="irrigation-smart",
+                        cb=_handle_weather_update,
+                    )
+                    app.state.weather_sub = weather_sub
+                    logger.info("jetstream_consumer_ready", subject="sahool.weather.forecast.issued", durable="irrigation-smart-weather")
+                except Exception as ws_exc:
+                    # Fall back to ephemeral core NATS subscribe
+                    logger.debug("jetstream_consumer_fallback", error=str(ws_exc))
+                    await app.state.nc.subscribe("sahool.weather.forecast.issued", cb=_handle_weather_update)
             except Exception as e:
                 logger.warning("Failed to connect to NATS", error=str(e))
                 app.state.nc = None

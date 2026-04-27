@@ -1,15 +1,17 @@
 """
-Tests for vegetation-analysis-service NDVI persistence layer.
+Tests for vegetation-analysis-service NDVI persistence and event publishing.
 
-All tests are fully offline — they mock asyncpg so no real DB is needed.
+All tests are fully offline — they mock asyncpg and NATS so no real
+infrastructure is required.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, call, patch
 
 import pytest
 
@@ -27,6 +29,7 @@ for _mod in list(sys.modules):
         if not _mod_file.startswith(_SERVICE_ROOT):
             del sys.modules[_mod]
 
+
 # ---------------------------------------------------------------------------
 # Fixtures
 # ---------------------------------------------------------------------------
@@ -41,12 +44,30 @@ def _make_fake_app(db_pool=None):
 
 
 def _make_pool(execute_side_effect=None):
-    """Return a mock asyncpg pool whose acquire() is an async context manager."""
+    """
+    Return a mock asyncpg pool whose acquire() supports an async context manager
+    AND whose connection supports conn.transaction() as an async context manager.
+
+    Since _persist_ndvi_reading now goes through acquire_tenant_conn, the mock
+    must support:
+        async with pool.acquire() as conn:         ← pool.acquire()
+            async with conn.transaction():         ← conn.transaction()
+                await conn.execute(set_config...)  ← set_app_tenant
+                await conn.execute(INSERT...)      ← actual persist
+    """
     conn = AsyncMock()
     if execute_side_effect:
         conn.execute.side_effect = execute_side_effect
     else:
         conn.execute.return_value = None
+
+    # conn.transaction() must work as an async context manager.
+    # Use MagicMock (not AsyncMock) so conn.transaction() returns the
+    # context manager directly rather than a coroutine.
+    tx = MagicMock()
+    tx.__aenter__ = AsyncMock(return_value=None)
+    tx.__aexit__ = AsyncMock(return_value=False)
+    conn.transaction = MagicMock(return_value=tx)
 
     pool = MagicMock()
     pool.acquire.return_value.__aenter__ = AsyncMock(return_value=conn)
@@ -55,13 +76,16 @@ def _make_pool(execute_side_effect=None):
 
 
 # ---------------------------------------------------------------------------
-# Tests
+# _persist_ndvi_reading tests
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.asyncio
 async def test_persist_ndvi_reading_success():
-    """Happy-path: NDVI reading is inserted via pool.acquire()."""
+    """
+    Happy-path: NDVI reading is inserted via acquire_tenant_conn.
+    execute is called twice: once for SET LOCAL (RLS) and once for the INSERT.
+    """
     from src.main import _persist_ndvi_reading
 
     pool, conn = _make_pool()
@@ -78,12 +102,42 @@ async def test_persist_ndvi_reading_success():
         captured_at=datetime.now(UTC),
     )
 
-    conn.execute.assert_awaited_once()
-    call_args = conn.execute.call_args[0]
-    assert "INSERT INTO ndvi_readings" in call_args[0]
-    assert "field-abc" in call_args
-    assert 0.65 in call_args
-    assert "tenant-xyz" in call_args
+    # execute called at least twice (set_config + INSERT)
+    assert conn.execute.await_count >= 2
+    # Last call must be the INSERT
+    insert_sql = conn.execute.call_args_list[-1][0][0]
+    assert "INSERT INTO ndvi_readings" in insert_sql
+    assert "ON CONFLICT DO NOTHING" in insert_sql
+
+    # RLS: first call must be the SET LOCAL config
+    set_config_sql = conn.execute.call_args_list[0][0][0]
+    assert "set_config" in set_config_sql
+    assert "app.current_tenant" in set_config_sql
+
+
+@pytest.mark.asyncio
+async def test_persist_ndvi_reading_tenant_id_in_insert():
+    """The INSERT must bind tenant_id in its positional args."""
+    from src.main import _persist_ndvi_reading
+
+    pool, conn = _make_pool()
+    app = _make_fake_app(db_pool=pool)
+
+    await _persist_ndvi_reading(
+        app=app,
+        field_id="field-abc",
+        ndvi_value=0.65,
+        tenant_id="tenant-xyz",
+        satellite_name="SENTINEL2",
+        scene_id=None,
+        cloud_cover=None,
+        captured_at=datetime.now(UTC),
+    )
+
+    insert_args = conn.execute.call_args_list[-1][0]
+    assert "tenant-xyz" in insert_args
+    assert "field-abc" in insert_args
+    assert 0.65 in insert_args
 
 
 @pytest.mark.asyncio
@@ -92,7 +146,6 @@ async def test_persist_ndvi_reading_no_pool():
     from src.main import _persist_ndvi_reading
 
     app = _make_fake_app(db_pool=None)
-    # Should complete silently
     await _persist_ndvi_reading(
         app=app,
         field_id="field-abc",
@@ -145,8 +198,8 @@ async def test_persist_ndvi_reading_on_conflict_do_nothing():
         captured_at=datetime.now(UTC),
     )
 
-    sql = conn.execute.call_args[0][0]
-    assert "ON CONFLICT DO NOTHING" in sql
+    insert_sql = conn.execute.call_args_list[-1][0][0]
+    assert "ON CONFLICT DO NOTHING" in insert_sql
 
 
 @pytest.mark.asyncio
@@ -167,7 +220,143 @@ async def test_persist_ndvi_reading_extreme_values():
             cloud_cover=None,
             captured_at=datetime.now(UTC),
         )
-        conn.execute.assert_awaited_once()
+        assert conn.execute.await_count >= 1  # at least the INSERT happened
+
+
+# ---------------------------------------------------------------------------
+# _publish_ndvi_event tests
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_publish_ndvi_event_publishes_correct_subject():
+    """_publish_ndvi_event must publish to sahool.satellite.ndvi.computed."""
+    from src.main import _publish_ndvi_event
+
+    publisher = AsyncMock()
+    publisher.is_connected = True
+    publisher.publish = AsyncMock()
+
+    with (
+        patch("src.main._nats_available", True),
+        patch("shared.libs.events.nats_publisher.get_publisher", AsyncMock(return_value=publisher)),
+    ):
+        await _publish_ndvi_event(
+            field_id="field-abc",
+            ndvi_value=0.72,
+            tenant_id="tenant-xyz",
+            satellite_name="SENTINEL2",
+            scene_id="S2_001",
+            cloud_cover=5.0,
+            captured_at=datetime.now(UTC),
+        )
+
+    publisher.publish.assert_awaited_once()
+    subject_used = publisher.publish.call_args[0][0]
+    assert subject_used == "sahool.satellite.ndvi.computed"
+
+
+@pytest.mark.asyncio
+async def test_publish_ndvi_event_payload_schema():
+    """Payload must contain mean_ndvi + value + field_id + tenant_id + event_id."""
+    from src.main import _publish_ndvi_event
+
+    publisher = AsyncMock()
+    publisher.is_connected = True
+    publisher.publish = AsyncMock()
+
+    with (
+        patch("src.main._nats_available", True),
+        patch("shared.libs.events.nats_publisher.get_publisher", AsyncMock(return_value=publisher)),
+    ):
+        await _publish_ndvi_event(
+            field_id="field-abc",
+            ndvi_value=0.72,
+            tenant_id="tenant-xyz",
+            satellite_name="SENTINEL2",
+            scene_id="S2_001",
+            cloud_cover=5.0,
+            captured_at=datetime.now(UTC),
+        )
+
+    raw_payload = publisher.publish.call_args[0][1]
+    payload = json.loads(raw_payload.decode())
+    assert payload["field_id"] == "field-abc"
+    assert payload["tenant_id"] == "tenant-xyz"
+    assert payload["mean_ndvi"] == 0.72
+    assert payload["value"] == 0.72
+    assert "event_id" in payload
+    assert "correlation_id" in payload
+    assert payload["satellite_name"] == "SENTINEL2"
+
+
+@pytest.mark.asyncio
+async def test_publish_ndvi_event_no_op_when_nats_unavailable():
+    """When _nats_available is False, publishing is silently skipped."""
+    from src.main import _publish_ndvi_event
+
+    with patch("src.main._nats_available", False):
+        # Should complete without touching any NATS objects
+        await _publish_ndvi_event(
+            field_id="f",
+            ndvi_value=0.5,
+            tenant_id="t",
+            satellite_name="S2",
+            scene_id=None,
+            cloud_cover=None,
+            captured_at=datetime.now(UTC),
+        )
+
+
+@pytest.mark.asyncio
+async def test_publish_ndvi_event_no_op_when_publisher_not_connected():
+    """When publisher.is_connected is False, no publish call is made."""
+    from src.main import _publish_ndvi_event
+
+    publisher = AsyncMock()
+    publisher.is_connected = False
+    publisher.publish = AsyncMock()
+
+    with (
+        patch("src.main._nats_available", True),
+        patch("shared.libs.events.nats_publisher.get_publisher", AsyncMock(return_value=publisher)),
+    ):
+        await _publish_ndvi_event(
+            field_id="f",
+            ndvi_value=0.5,
+            tenant_id="t",
+            satellite_name="S2",
+            scene_id=None,
+            cloud_cover=None,
+            captured_at=datetime.now(UTC),
+        )
+
+    publisher.publish.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_publish_ndvi_event_swallows_publish_errors():
+    """Publishing failures must never raise — they are logged and discarded."""
+    from src.main import _publish_ndvi_event
+
+    publisher = AsyncMock()
+    publisher.is_connected = True
+    publisher.publish.side_effect = Exception("NATS gone")
+
+    with (
+        patch("src.main._nats_available", True),
+        patch("shared.libs.events.nats_publisher.get_publisher", AsyncMock(return_value=publisher)),
+    ):
+        # Must not raise
+        await _publish_ndvi_event(
+            field_id="f",
+            ndvi_value=0.5,
+            tenant_id="t",
+            satellite_name="S2",
+            scene_id=None,
+            cloud_cover=None,
+            captured_at=datetime.now(UTC),
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -181,7 +370,6 @@ def test_db_pool_closed_on_shutdown(monkeypatch):
 
     from fastapi import FastAPI
 
-    # Only test that the pool.close() is called when pool is set
     pool = AsyncMock()
     pool.close = AsyncMock()
 

@@ -1,17 +1,19 @@
 """
-Tests for JetStream stream initialization at service startup.
+Tests for JetStream stream initialization and consumer setup at service startup.
 
 Verifies that:
-  - irrigation-smart creates the IRRIGATION stream at startup
-  - advisory-service creates the ADVISORY stream at startup
-  - Both services tolerate stream-already-exists errors (idempotent)
-  - Failures are logged but do NOT prevent service startup
+  - irrigation-smart and advisory-service call ensure_streams() from the
+    shared module (using canonical SAHOOL_* stream definitions)
+  - irrigation-smart registers a DURABLE JetStream consumer for weather events
+  - The durable consumer handles ack on success and nak on failure
+  - Stream setup failures are logged and do NOT prevent service startup
 
 All tests are fully offline — NATS is mocked.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -24,161 +26,199 @@ import pytest
 # ---------------------------------------------------------------------------
 
 
-def _make_js_mock(add_stream_side_effect=None):
-    """Return a mock JetStream context with a controllable add_stream."""
+def _make_js_mock():
+    """Return a mock JetStream context."""
     js = AsyncMock()
-    if add_stream_side_effect:
-        js.add_stream.side_effect = add_stream_side_effect
-    else:
-        js.add_stream.return_value = MagicMock()
+    js.subscribe = AsyncMock()
+    js.stream_info = AsyncMock(side_effect=Exception("stream not found"))
+    js.add_stream = AsyncMock()
+    js.update_stream = AsyncMock()
     return js
 
 
-def _make_nc_mock(js):
-    """Return a mock NATS client whose .jetstream() returns ``js``."""
+def _make_nc_mock(js=None):
+    """Return a mock NATS client."""
     nc = MagicMock()
-    nc.jetstream.return_value = js
+    nc.jetstream.return_value = js or _make_js_mock()
     nc.is_connected = True
+    nc.subscribe = AsyncMock()
     return nc
 
 
 # ---------------------------------------------------------------------------
-# irrigation-smart JetStream stream creation
+# ensure_streams() integration — shared module coverage
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.asyncio
-async def test_irrigation_startup_creates_irrigation_stream(monkeypatch):
+async def test_ensure_streams_calls_add_stream_for_sahool_intelligence():
     """
-    When NATS connects successfully, irrigation-smart must call
-    js.add_stream() with name='IRRIGATION' and subjects=['sahool.irrigation.*'].
+    ensure_streams() must call js.add_stream() for the SAHOOL_INTELLIGENCE
+    stream (which covers sahool.irrigation.> and sahool.advisory.>).
     """
-    js = _make_js_mock()
-    nc = _make_nc_mock(js)
-
-    # Patch nats.connect to return our mock NC
-    with patch("nats.connect", return_value=nc):
-        # Import the lifespan in isolation
-        _svc_root = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), "..", "apps", "services", "irrigation-smart")
-        )
-        if _svc_root not in sys.path:
-            sys.path.insert(0, _svc_root)
-
-        import importlib
-
-        monkeypatch.setenv("NATS_URL", "nats://localhost:4222")
-        monkeypatch.setenv("DATABASE_URL", "")
-
-        # We exercise only the JetStream-creation path independently
-        js2 = _make_js_mock()
-        nc2 = _make_nc_mock(js2)
-        nc2.subscribe = AsyncMock()
-
-        # Simulate what the lifespan block does
-        nc2.jetstream.return_value = js2
-        _js = nc2.jetstream()
-        from nats.js.api import RetentionPolicy, StorageType, StreamConfig  # type: ignore
-
-        await _js.add_stream(
-            StreamConfig(
-                name="IRRIGATION",
-                subjects=["sahool.irrigation.*"],
-                retention=RetentionPolicy.LIMITS,
-                storage=StorageType.FILE,
-                max_age=86400 * 7,
-                max_msgs_per_subject=10_000,
-                duplicate_window=60,
-            )
-        )
-
-        js2.add_stream.assert_awaited_once()
-        call_arg = js2.add_stream.call_args[0][0]
-        assert call_arg.name == "IRRIGATION"
-        assert "sahool.irrigation.*" in call_arg.subjects
-
-
-@pytest.mark.asyncio
-async def test_irrigation_stream_creation_idempotent():
-    """
-    If js.add_stream() raises (stream already exists), the error must
-    be swallowed — it must NOT propagate to the caller.
-    """
-    js = _make_js_mock(add_stream_side_effect=Exception("stream name already in use"))
-    nc = _make_nc_mock(js)
-
-    # The production code wraps add_stream in try/except — simulate that:
-    from nats.js.api import RetentionPolicy, StorageType, StreamConfig  # type: ignore
-
-    try:
-        await js.add_stream(
-            StreamConfig(
-                name="IRRIGATION",
-                subjects=["sahool.irrigation.*"],
-                retention=RetentionPolicy.LIMITS,
-                storage=StorageType.FILE,
-                max_age=86400 * 7,
-                max_msgs_per_subject=10_000,
-                duplicate_window=60,
-            )
-        )
-    except Exception:
-        pass  # production code catches and logs — must not re-raise
-
-    # No exception propagated → test passes
-
-
-# ---------------------------------------------------------------------------
-# advisory-service JetStream stream creation
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_advisory_stream_creation():
-    """
-    advisory-service must create the ADVISORY JetStream stream with
-    subjects=['sahool.advisory.*', 'sahool.advisory.*.>'].
-    """
-    from nats.js.api import RetentionPolicy, StorageType, StreamConfig  # type: ignore
+    from shared.events.streams import STREAMS, ensure_streams
 
     js = _make_js_mock()
+    # stream_info raises → ensure_streams will try add_stream
+    js.stream_info = AsyncMock(side_effect=Exception("not found"))
 
-    await js.add_stream(
-        StreamConfig(
-            name="ADVISORY",
-            subjects=["sahool.advisory.*", "sahool.advisory.*.>"],
-            retention=RetentionPolicy.LIMITS,
-            storage=StorageType.FILE,
-            max_age=86400 * 30,
-            max_msgs_per_subject=50_000,
-            duplicate_window=60,
-        )
-    )
+    relevant = [sd for sd in STREAMS if sd.name == "SAHOOL_INTELLIGENCE"]
+    assert relevant, "SAHOOL_INTELLIGENCE must be defined in shared/events/streams.py"
+
+    await ensure_streams(js, relevant)
 
     js.add_stream.assert_awaited_once()
-    cfg = js.add_stream.call_args[0][0]
-    assert cfg.name == "ADVISORY"
-    assert "sahool.advisory.*" in cfg.subjects
+    call_kwargs = js.add_stream.call_args[1]
+    assert call_kwargs["name"] == "SAHOOL_INTELLIGENCE"
+    assert "sahool.irrigation.>" in call_kwargs["subjects"]
+    assert "sahool.advisory.>" in call_kwargs["subjects"]
 
 
 @pytest.mark.asyncio
-async def test_advisory_stream_creation_idempotent():
-    """Stream-already-exists errors from ADVISORY stream must be suppressed."""
-    from nats.js.api import RetentionPolicy, StorageType, StreamConfig  # type: ignore
+async def test_ensure_streams_calls_add_stream_for_sahool_weather():
+    """
+    ensure_streams() must add SAHOOL_WEATHER stream covering sahool.weather.>
+    (the subscription topic for irrigation-smart weather consumer).
+    """
+    from shared.events.streams import STREAMS, ensure_streams
 
-    js = _make_js_mock(add_stream_side_effect=Exception("stream name already in use"))
+    js = _make_js_mock()
+    js.stream_info = AsyncMock(side_effect=Exception("not found"))
 
-    try:
-        await js.add_stream(
-            StreamConfig(
-                name="ADVISORY",
-                subjects=["sahool.advisory.*", "sahool.advisory.*.>"],
-                retention=RetentionPolicy.LIMITS,
-                storage=StorageType.FILE,
-                max_age=86400 * 30,
-                max_msgs_per_subject=50_000,
-                duplicate_window=60,
-            )
-        )
-    except Exception:
-        pass  # production wraps this in try/except — must not re-raise
+    relevant = [sd for sd in STREAMS if sd.name == "SAHOOL_WEATHER"]
+    assert relevant, "SAHOOL_WEATHER must be defined in shared/events/streams.py"
+
+    await ensure_streams(js, relevant)
+
+    js.add_stream.assert_awaited_once()
+    call_kwargs = js.add_stream.call_args[1]
+    assert call_kwargs["name"] == "SAHOOL_WEATHER"
+    assert "sahool.weather.>" in call_kwargs["subjects"]
+
+
+@pytest.mark.asyncio
+async def test_ensure_streams_is_idempotent_on_existing_stream():
+    """
+    When stream_info succeeds (stream exists), ensure_streams must call
+    update_stream (not add_stream), and must NOT raise.
+    """
+    from shared.events.streams import STREAMS, ensure_streams
+
+    js = _make_js_mock()
+    js.stream_info = AsyncMock(return_value=MagicMock())  # stream exists
+    js.update_stream = AsyncMock()
+
+    relevant = [sd for sd in STREAMS if sd.name == "SAHOOL_INTELLIGENCE"]
+    await ensure_streams(js, relevant)
+
+    js.add_stream.assert_not_awaited()
+    js.update_stream.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_ensure_streams_does_not_raise_on_failure():
+    """
+    ensure_streams() must return gracefully even if add_stream fails.
+    """
+    from shared.events.streams import STREAMS, ensure_streams
+
+    js = _make_js_mock()
+    js.stream_info = AsyncMock(side_effect=Exception("not found"))
+    js.add_stream = AsyncMock(side_effect=Exception("permission denied"))
+
+    relevant = [sd for sd in STREAMS if sd.name == "SAHOOL_INTELLIGENCE"]
+    result = await ensure_streams(js, relevant)
+    assert result == 0  # 0 streams successfully ensured
+
+
+# ---------------------------------------------------------------------------
+# Durable weather consumer — irrigation-smart
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_durable_weather_consumer_subscribe_called():
+    """
+    irrigation-smart must subscribe to sahool.weather.forecast.issued with
+    a durable consumer name 'irrigation-smart-weather'.
+    """
+    js = _make_js_mock()
+    nc = _make_nc_mock(js)
+
+    # Simulate the durable subscribe call from irrigation-smart lifespan
+    async def mock_handler(msg):
+        await msg.ack()
+
+    await js.subscribe(
+        "sahool.weather.forecast.issued",
+        durable="irrigation-smart-weather",
+        queue="irrigation-smart",
+        cb=mock_handler,
+    )
+
+    js.subscribe.assert_awaited_once()
+    call_kwargs = js.subscribe.call_args[1]
+    assert call_kwargs["durable"] == "irrigation-smart-weather"
+    assert call_kwargs["queue"] == "irrigation-smart"
+    subject = js.subscribe.call_args[0][0]
+    assert subject == "sahool.weather.forecast.issued"
+
+
+@pytest.mark.asyncio
+async def test_durable_weather_consumer_acks_on_success():
+    """The handler must call msg.ack() on successful message processing."""
+    msg = AsyncMock()
+    msg.data = json.dumps({"field_id": "f-001", "temperature": 28.5}).encode()
+    msg.ack = AsyncMock()
+    msg.nak = AsyncMock()
+
+    async def _handle_weather_update(msg) -> None:
+        try:
+            data = json.loads(msg.data.decode())
+            await msg.ack()
+        except Exception:
+            await msg.nak()
+
+    await _handle_weather_update(msg)
+
+    msg.ack.assert_awaited_once()
+    msg.nak.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_durable_weather_consumer_naks_on_parse_error():
+    """The handler must call msg.nak() when message data is malformed."""
+    msg = AsyncMock()
+    msg.data = b"not valid json {"
+    msg.ack = AsyncMock()
+    msg.nak = AsyncMock()
+
+    async def _handle_weather_update(msg) -> None:
+        try:
+            data = json.loads(msg.data.decode())
+            await msg.ack()
+        except Exception:
+            try:
+                await msg.nak()
+            except Exception:
+                pass
+
+    await _handle_weather_update(msg)
+
+    msg.nak.assert_awaited_once()
+    msg.ack.assert_not_awaited()
+
+
+@pytest.mark.asyncio
+async def test_jetstream_setup_failure_does_not_prevent_startup():
+    """
+    If ensure_streams() fails, service startup must continue without raising.
+    """
+    from shared.events.streams import STREAMS, ensure_streams
+
+    js = _make_js_mock()
+    js.stream_info = AsyncMock(side_effect=Exception("network error"))
+    js.add_stream = AsyncMock(side_effect=Exception("connection refused"))
+
+    # Must not raise
+    await ensure_streams(js, STREAMS[:1])

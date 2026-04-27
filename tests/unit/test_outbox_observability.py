@@ -1,15 +1,16 @@
 """
 Unit tests for:
 
-1. shared/libs/outbox/metrics.py — OUTBOX_METRICS façade
-2. shared/libs/outbox/replay_tool.py — OutboxReplay helpers
+1. shared/libs/outbox/metrics.py — OUTBOX_METRICS façade (incl. latency histogram)
+2. shared/libs/outbox/replay_tool.py — OutboxReplay helpers (incl. inspect + replayed_by)
 3. Relay structured logging — logs carry event_id, subject, tenant_id, worker_id
-4. Relay metrics integration — counters increment on publish/fail/DLQ
+4. Relay metrics integration — counters + latency histogram on publish/fail/DLQ
 """
 
 from __future__ import annotations
 
 import uuid
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -412,3 +413,259 @@ class TestRelayMetricsIntegration:
         mock_metrics.failed.assert_called_once_with(
             subject=row["subject"], reason="ConnectionRefusedError"
         )
+
+
+# ---------------------------------------------------------------------------
+# 5. Latency histogram — observe_publish_latency façade + relay integration
+# ---------------------------------------------------------------------------
+
+
+class TestLatencyHistogramFacade:
+    """The latency histogram façade must be safe in all environments."""
+
+    def test_observe_does_not_raise(self):
+        OUTBOX_METRICS.observe_publish_latency(subject="sahool.test", duration_seconds=0.042)
+
+    def test_observe_called_with_prometheus_mock(self):
+        mock_hist = MagicMock()
+        mock_hist.labels.return_value = mock_hist
+
+        import shared.libs.outbox.metrics as m
+
+        original = m._latency_histogram
+        m._latency_histogram = mock_hist
+        try:
+            OUTBOX_METRICS.observe_publish_latency(subject="sahool.ndvi", duration_seconds=0.015)
+            mock_hist.labels.assert_called_once_with(subject="sahool.ndvi")
+            mock_hist.observe.assert_called_once_with(0.015)
+        finally:
+            m._latency_histogram = original
+
+    def test_observe_zero_does_not_raise(self):
+        OUTBOX_METRICS.observe_publish_latency(subject="sahool.test", duration_seconds=0.0)
+
+    def test_observe_large_value_does_not_raise(self):
+        # Values outside bucket range are still valid observations
+        OUTBOX_METRICS.observe_publish_latency(subject="sahool.test", duration_seconds=60.0)
+
+
+class TestRelayLatencyIntegration:
+    """Relay calls observe_publish_latency on successful publish."""
+
+    @pytest.mark.asyncio
+    async def test_latency_observed_on_success(self):
+        """observe_publish_latency must be called exactly once on publish success."""
+        row = _make_row()
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        mock_metrics.observe_publish_latency.assert_called_once()
+        call_kwargs = mock_metrics.observe_publish_latency.call_args[1]
+        assert call_kwargs["subject"] == row["subject"]
+        assert isinstance(call_kwargs["duration_seconds"], float)
+        assert call_kwargs["duration_seconds"] >= 0
+
+    @pytest.mark.asyncio
+    async def test_latency_not_observed_on_failure(self):
+        """observe_publish_latency must NOT be called when publish fails."""
+        row = _make_row(retry_count=0)
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(side_effect=Exception("timeout"))
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        mock_metrics.observe_publish_latency.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_publish_latency_ms_in_log_on_success(self):
+        """Published log record must include publish_latency_ms field."""
+        row = _make_row()
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.logger") as mock_log:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        debug_calls = [c for c in mock_log.debug.call_args_list if c[0][0] == "outbox_published"]
+        assert debug_calls, "Expected outbox_published log"
+        extra = debug_calls[0][1]["extra"]
+        assert "publish_latency_ms" in extra
+        assert isinstance(extra["publish_latency_ms"], float)
+        assert extra["publish_latency_ms"] >= 0
+
+
+# ---------------------------------------------------------------------------
+# 6. replayed_by audit trail — forensic log fields on reset
+# ---------------------------------------------------------------------------
+
+
+class TestReplayAuditTrail:
+    """reset_dead_lettered() must include replayed_by in the audit log."""
+
+    @pytest.mark.asyncio
+    async def test_audit_log_contains_replayed_by(self):
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 2")
+
+        with patch("shared.libs.outbox.replay_tool.logger") as mock_log:
+            await OutboxReplay.reset_dead_lettered(pool, replayed_by="ops-team")
+
+        info_calls = [c for c in mock_log.info.call_args_list if c[0][0] == "outbox_replay_reset"]
+        assert info_calls, "Expected outbox_replay_reset log"
+        extra = info_calls[0][1]["extra"]
+        assert extra["replayed_by"] == "ops-team"
+
+    @pytest.mark.asyncio
+    async def test_audit_log_contains_replayed_at(self):
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+
+        with patch("shared.libs.outbox.replay_tool.logger") as mock_log:
+            await OutboxReplay.reset_dead_lettered(pool, replayed_by="automated-recovery")
+
+        info_calls = [c for c in mock_log.info.call_args_list if c[0][0] == "outbox_replay_reset"]
+        extra = info_calls[0][1]["extra"]
+        assert "replayed_at" in extra
+        # Must be a parseable ISO 8601 timestamp
+        from datetime import datetime
+        dt = datetime.fromisoformat(extra["replayed_at"])
+        assert dt is not None
+
+    @pytest.mark.asyncio
+    async def test_audit_log_contains_filter_subject(self):
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 3")
+
+        with patch("shared.libs.outbox.replay_tool.logger") as mock_log:
+            await OutboxReplay.reset_dead_lettered(
+                pool,
+                subject="sahool.satellite.ndvi.computed",
+                replayed_by="admin-ui",
+            )
+
+        info_calls = [c for c in mock_log.info.call_args_list if c[0][0] == "outbox_replay_reset"]
+        extra = info_calls[0][1]["extra"]
+        assert extra["filter_subject"] == "sahool.satellite.ndvi.computed"
+        assert extra["replayed_by"] == "admin-ui"
+
+    @pytest.mark.asyncio
+    async def test_audit_log_contains_filter_ids(self):
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+        id1 = str(uuid.uuid4())
+
+        with patch("shared.libs.outbox.replay_tool.logger") as mock_log:
+            await OutboxReplay.reset_dead_lettered(pool, ids=[id1], replayed_by="incident-response")
+
+        info_calls = [c for c in mock_log.info.call_args_list if c[0][0] == "outbox_replay_reset"]
+        extra = info_calls[0][1]["extra"]
+        assert id1 in extra["filter_ids"]
+        assert extra["replayed_by"] == "incident-response"
+
+    @pytest.mark.asyncio
+    async def test_default_replayed_by_is_system(self):
+        """When replayed_by is omitted, the audit log records 'system'."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 0")
+
+        with patch("shared.libs.outbox.replay_tool.logger") as mock_log:
+            await OutboxReplay.reset_dead_lettered(pool)
+
+        info_calls = [c for c in mock_log.info.call_args_list if c[0][0] == "outbox_replay_reset"]
+        extra = info_calls[0][1]["extra"]
+        assert extra["replayed_by"] == "system"
+
+
+# ---------------------------------------------------------------------------
+# 7. inspect_dead_lettered — dry-run summary
+# ---------------------------------------------------------------------------
+
+
+class TestInspectDeadLettered:
+    """inspect_dead_lettered() returns aggregated summary without modifying rows."""
+
+    @pytest.mark.asyncio
+    async def test_returns_zero_total_when_no_rows(self):
+        pool, conn = _make_db_pool()
+        conn.fetch = AsyncMock(return_value=[])
+
+        info = await OutboxReplay.inspect_dead_lettered(pool)
+
+        assert info["total"] == 0
+        assert info["by_subject"] == {}
+        assert info["oldest_age_seconds"] is None
+
+    @pytest.mark.asyncio
+    async def test_returns_correct_totals_and_by_subject(self):
+        pool, conn = _make_db_pool()
+        now = datetime.now(tz=timezone.utc)
+        older = now - timedelta(hours=3)
+        rows = [
+            {"subject": "sahool.ndvi.computed", "n": 5, "oldest_dead_lettered_at": older},
+            {"subject": "sahool.weather.updated", "n": 2, "oldest_dead_lettered_at": now - timedelta(hours=1)},
+        ]
+        conn.fetch = AsyncMock(return_value=rows)
+
+        info = await OutboxReplay.inspect_dead_lettered(pool)
+
+        assert info["total"] == 7
+        assert info["by_subject"]["sahool.ndvi.computed"] == 5
+        assert info["by_subject"]["sahool.weather.updated"] == 2
+
+    @pytest.mark.asyncio
+    async def test_oldest_age_seconds_reflects_oldest_row(self):
+        pool, conn = _make_db_pool()
+        now = datetime.now(tz=timezone.utc)
+        three_hours_ago = now - timedelta(hours=3)
+        one_hour_ago = now - timedelta(hours=1)
+        rows = [
+            {"subject": "sahool.ndvi.computed", "n": 2, "oldest_dead_lettered_at": three_hours_ago},
+            {"subject": "sahool.weather.updated", "n": 1, "oldest_dead_lettered_at": one_hour_ago},
+        ]
+        conn.fetch = AsyncMock(return_value=rows)
+
+        info = await OutboxReplay.inspect_dead_lettered(pool)
+
+        # Oldest row is 3h old; allow 10s tolerance for test execution time
+        assert abs(info["oldest_age_seconds"] - 3 * 3600) < 10
+
+    @pytest.mark.asyncio
+    async def test_does_not_call_execute(self):
+        """inspect must be read-only — must never call conn.execute."""
+        pool, conn = _make_db_pool()
+        conn.fetch = AsyncMock(return_value=[])
+        conn.execute = AsyncMock()
+
+        await OutboxReplay.inspect_dead_lettered(pool)
+
+        conn.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_handles_naive_datetime(self):
+        """inspect must handle naive datetimes returned by asyncpg gracefully."""
+        pool, conn = _make_db_pool()
+        naive_ts = datetime.now()  # no tzinfo
+        rows = [{"subject": "sahool.ndvi.computed", "n": 1, "oldest_dead_lettered_at": naive_ts}]
+        conn.fetch = AsyncMock(return_value=rows)
+
+        info = await OutboxReplay.inspect_dead_lettered(pool)
+
+        assert info["total"] == 1
+        assert info["oldest_age_seconds"] is not None
+        assert info["oldest_age_seconds"] >= 0

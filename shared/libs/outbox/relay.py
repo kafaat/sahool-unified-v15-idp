@@ -33,6 +33,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import time
 
 from .metrics import OUTBOX_METRICS
 
@@ -292,17 +293,20 @@ class OutboxRelay:
             tenant_id = row.get("tenant_id") or ""
 
             try:
+                t0 = time.monotonic()
                 await self._nats_publish(
                     nats_client,
                     subject,
                     payload if isinstance(payload, bytes) else bytes(payload),
                     headers,
                 )
+                publish_latency = time.monotonic() - t0
                 # --- Step 3a: mark sent (short, separate txn) ---
                 async with db_pool.acquire() as mark_conn:
                     await mark_conn.execute(_MARK_SENT_SQL, row_id)
                 published_count += 1
                 OUTBOX_METRICS.published(subject=subject)
+                OUTBOX_METRICS.observe_publish_latency(subject=subject, duration_seconds=publish_latency)
                 logger.debug(
                     "outbox_published",
                     extra={
@@ -311,6 +315,7 @@ class OutboxRelay:
                         "event_id": event_id,
                         "tenant_id": tenant_id,
                         "worker_id": self._worker_id,
+                        "publish_latency_ms": round(publish_latency * 1000, 2),
                     },
                 )
             except Exception as exc:

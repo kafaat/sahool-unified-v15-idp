@@ -1255,3 +1255,622 @@ class TestDistributedReplayGovernor:
         gov.record.assert_awaited_once_with(
             "sahool.ndvi.computed", replayed_by="automated-recovery"
         )
+
+
+# ---------------------------------------------------------------------------
+# 13. Replay Lifecycle State Machine — (A) REPLAYING / RECOVERED / FAILED_FINAL
+# ---------------------------------------------------------------------------
+
+from shared.libs.outbox.relay import _MARK_SENT_RECOVERED_SQL, _MARK_DLQ_FAILED_FINAL_SQL
+
+
+class TestReplayLifecycleStateMachine:
+    """Relay must transition replay_state correctly on publish success and DLQ."""
+
+    # --- reset_dead_lettered sets replay_state = 'REPLAYING' ---
+
+    @pytest.mark.asyncio
+    async def test_reset_all_sets_replay_state_replaying(self):
+        """reset_dead_lettered() must include replay_state = 'REPLAYING' in UPDATE."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 3")
+
+        await OutboxReplay.reset_dead_lettered(pool)
+
+        sql_used = conn.execute.call_args_list[1][0][0]  # second call = UPDATE
+        assert "replay_state" in sql_used
+        assert "'REPLAYING'" in sql_used
+
+    @pytest.mark.asyncio
+    async def test_reset_by_subject_sets_replay_state_replaying(self):
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+
+        await OutboxReplay.reset_dead_lettered(pool, subject="sahool.ndvi.computed")
+
+        sql_used = conn.execute.call_args_list[1][0][0]
+        assert "replay_state" in sql_used
+        assert "'REPLAYING'" in sql_used
+
+    @pytest.mark.asyncio
+    async def test_reset_by_ids_sets_replay_state_replaying(self):
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 2")
+        id1, id2 = str(uuid.uuid4()), str(uuid.uuid4())
+
+        await OutboxReplay.reset_dead_lettered(pool, ids=[id1, id2])
+
+        sql_used = conn.execute.call_args_list[1][0][0]
+        assert "replay_state" in sql_used
+        assert "'REPLAYING'" in sql_used
+
+    # --- relay uses RECOVERED SQL when replay_state == 'REPLAYING' ---
+
+    @pytest.mark.asyncio
+    async def test_relay_uses_recovered_sql_when_replaying(self):
+        """On publish success, REPLAYING row must be marked with RECOVERED SQL."""
+        row = _make_row()
+        row["replay_state"] = "REPLAYING"
+        pool, conn = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        # The execute call on the mark_conn must use the RECOVERED SQL
+        executed_sqls = [str(call[0][0]) for call in conn.execute.call_args_list]
+        assert any("RECOVERED" in sql for sql in executed_sqls)
+
+    @pytest.mark.asyncio
+    async def test_relay_uses_normal_sent_sql_when_not_replaying(self):
+        """On publish success, non-REPLAYING row must NOT set replay_state."""
+        row = _make_row()
+        row["replay_state"] = None
+        pool, conn = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        executed_sqls = [str(call[0][0]) for call in conn.execute.call_args_list]
+        assert not any("RECOVERED" in sql for sql in executed_sqls)
+
+    # --- relay uses FAILED_FINAL SQL when REPLAYING row hits max retries ---
+
+    @pytest.mark.asyncio
+    async def test_relay_uses_failed_final_sql_when_replaying_hits_max_retries(self):
+        """REPLAYING row that exhausts retries must use FAILED_FINAL DLQ SQL."""
+        row = _make_row(retry_count=_MAX_RETRIES - 1)
+        row["replay_state"] = "REPLAYING"
+        pool, conn = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(side_effect=Exception("permanent failure"))
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        executed_sqls = [str(call[0][0]) for call in conn.execute.call_args_list]
+        assert any("FAILED_FINAL" in sql for sql in executed_sqls)
+
+    @pytest.mark.asyncio
+    async def test_relay_uses_normal_dlq_sql_when_not_replaying(self):
+        """Non-REPLAYING row at max retries must use standard DLQ SQL (no FAILED_FINAL)."""
+        row = _make_row(retry_count=_MAX_RETRIES - 1)
+        row["replay_state"] = None
+        pool, conn = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(side_effect=Exception("permanent"))
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        executed_sqls = [str(call[0][0]) for call in conn.execute.call_args_list]
+        assert not any("FAILED_FINAL" in sql for sql in executed_sqls)
+
+    # --- metrics emitted for lifecycle transitions ---
+
+    @pytest.mark.asyncio
+    async def test_replay_recovered_metric_emitted_on_replaying_success(self):
+        row = _make_row()
+        row["replay_state"] = "REPLAYING"
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        mock_metrics.replay_recovered.assert_called_once_with(subject=row["subject"])
+
+    @pytest.mark.asyncio
+    async def test_replay_recovered_metric_not_emitted_for_normal_row(self):
+        row = _make_row()
+        row["replay_state"] = None
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        mock_metrics.replay_recovered.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_replay_failed_final_metric_emitted_on_replaying_dlq(self):
+        row = _make_row(retry_count=_MAX_RETRIES - 1)
+        row["replay_state"] = "REPLAYING"
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(side_effect=Exception("permanent"))
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        mock_metrics.replay_failed_final.assert_called_once_with(subject=row["subject"])
+
+    @pytest.mark.asyncio
+    async def test_replay_failed_final_metric_not_emitted_for_normal_dlq(self):
+        row = _make_row(retry_count=_MAX_RETRIES - 1)
+        row["replay_state"] = None
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(side_effect=Exception("permanent"))
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.OUTBOX_METRICS") as mock_metrics:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        mock_metrics.replay_failed_final.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# 14. New metrics façade — recovered / failed_final / policy_suppressed / gauge
+# ---------------------------------------------------------------------------
+
+
+class TestNewMetricsFacade:
+    """New metrics added by the vNext control plane must be safe in all envs."""
+
+    def test_replay_recovered_does_not_raise(self):
+        OUTBOX_METRICS.replay_recovered(subject="sahool.test")
+
+    def test_replay_failed_final_does_not_raise(self):
+        OUTBOX_METRICS.replay_failed_final(subject="sahool.test")
+
+    def test_replay_policy_suppressed_does_not_raise(self):
+        OUTBOX_METRICS.replay_policy_suppressed(reason="dlq_growth")
+
+    def test_set_governor_usage_does_not_raise(self):
+        OUTBOX_METRICS.set_governor_usage(subject="sahool.test", utilization_pct=75.0)
+
+    def test_replay_recovered_called_with_prometheus_mock(self):
+        mock_counter = MagicMock()
+        mock_counter.labels.return_value = mock_counter
+
+        import shared.libs.outbox.metrics as m
+
+        original = m._replay_recovered_counter
+        m._replay_recovered_counter = mock_counter
+        try:
+            OUTBOX_METRICS.replay_recovered(subject="sahool.ndvi")
+            mock_counter.labels.assert_called_once_with(subject="sahool.ndvi")
+            mock_counter.inc.assert_called_once()
+        finally:
+            m._replay_recovered_counter = original
+
+    def test_replay_failed_final_called_with_prometheus_mock(self):
+        mock_counter = MagicMock()
+        mock_counter.labels.return_value = mock_counter
+
+        import shared.libs.outbox.metrics as m
+
+        original = m._replay_failed_final_counter
+        m._replay_failed_final_counter = mock_counter
+        try:
+            OUTBOX_METRICS.replay_failed_final(subject="sahool.ndvi")
+            mock_counter.labels.assert_called_once_with(subject="sahool.ndvi")
+            mock_counter.inc.assert_called_once()
+        finally:
+            m._replay_failed_final_counter = original
+
+    def test_replay_policy_suppressed_called_with_prometheus_mock(self):
+        mock_counter = MagicMock()
+        mock_counter.labels.return_value = mock_counter
+
+        import shared.libs.outbox.metrics as m
+
+        original = m._replay_policy_suppressed_counter
+        m._replay_policy_suppressed_counter = mock_counter
+        try:
+            OUTBOX_METRICS.replay_policy_suppressed(reason="success_rate_too_low")
+            mock_counter.labels.assert_called_once_with(reason="success_rate_too_low")
+            mock_counter.inc.assert_called_once()
+        finally:
+            m._replay_policy_suppressed_counter = original
+
+    def test_set_governor_usage_called_with_prometheus_mock(self):
+        mock_gauge = MagicMock()
+        mock_gauge.labels.return_value = mock_gauge
+
+        import shared.libs.outbox.metrics as m
+
+        original = m._governor_usage_gauge
+        m._governor_usage_gauge = mock_gauge
+        try:
+            OUTBOX_METRICS.set_governor_usage(subject="sahool.ndvi", utilization_pct=60.0)
+            mock_gauge.labels.assert_called_once_with(subject="sahool.ndvi")
+            mock_gauge.set.assert_called_once_with(60.0)
+        finally:
+            m._governor_usage_gauge = original
+
+
+# ---------------------------------------------------------------------------
+# 15. inspect_governor — read-only governor snapshot (C)
+# ---------------------------------------------------------------------------
+
+from shared.libs.outbox.replay_tool import DistributedReplayGovernor
+
+
+def _make_governor_inspect_pool(
+    replays_in_window=0,
+    oldest_replay_at=None,
+    newest_replay_at=None,
+    instances_seen=None,
+):
+    """Build a mock pool that returns a single fetchrow result for inspect_governor."""
+    conn = AsyncMock()
+    tx = MagicMock()
+    tx.__aenter__ = AsyncMock(return_value=None)
+    tx.__aexit__ = AsyncMock(return_value=False)
+    conn.transaction = MagicMock(return_value=tx)
+    conn.fetchrow = AsyncMock(
+        return_value={
+            "replays_in_window": replays_in_window,
+            "oldest_replay_at": oldest_replay_at,
+            "newest_replay_at": newest_replay_at,
+            "instances_seen": instances_seen or [],
+        }
+    )
+    conn.execute = AsyncMock(return_value=None)
+    pool = MagicMock()
+    ctx = MagicMock()
+    ctx.__aenter__ = AsyncMock(return_value=conn)
+    ctx.__aexit__ = AsyncMock(return_value=False)
+    pool.acquire = MagicMock(return_value=ctx)
+    return pool, conn
+
+
+class TestInspectGovernor:
+    """inspect_governor() must return correct structured snapshot without modifying rows."""
+
+    @pytest.mark.asyncio
+    async def test_returns_zero_when_no_replays_in_window(self):
+        pool, _ = _make_governor_inspect_pool(replays_in_window=0)
+
+        info = await OutboxReplay.inspect_governor(pool, "sahool.ndvi.computed", 3600)
+
+        assert info["replays_in_window"] == 0
+        assert info["oldest_replay_at"] is None
+        assert info["newest_replay_at"] is None
+
+    @pytest.mark.asyncio
+    async def test_returns_correct_replay_count(self):
+        now = datetime.now(tz=timezone.utc)
+        pool, _ = _make_governor_inspect_pool(
+            replays_in_window=3,
+            oldest_replay_at=now - timedelta(hours=2),
+            newest_replay_at=now - timedelta(minutes=30),
+            instances_seen=["pod-0", "pod-1"],
+        )
+
+        info = await OutboxReplay.inspect_governor(pool, "sahool.ndvi.computed", 3600)
+
+        assert info["replays_in_window"] == 3
+        assert info["instances_seen"] == ["pod-0", "pod-1"]
+        assert info["oldest_replay_at"] is not None
+        assert info["newest_replay_at"] is not None
+
+    @pytest.mark.asyncio
+    async def test_computes_utilization_when_max_replays_given(self):
+        pool, _ = _make_governor_inspect_pool(replays_in_window=3)
+
+        info = await OutboxReplay.inspect_governor(
+            pool, "sahool.ndvi.computed", 3600, max_replays=5
+        )
+
+        assert info["limit"] == 5
+        assert info["utilization_pct"] == pytest.approx(60.0)
+        assert info["is_blocked"] is False
+
+    @pytest.mark.asyncio
+    async def test_is_blocked_true_when_at_limit(self):
+        pool, _ = _make_governor_inspect_pool(replays_in_window=5)
+
+        info = await OutboxReplay.inspect_governor(
+            pool, "sahool.ndvi.computed", 3600, max_replays=5
+        )
+
+        assert info["is_blocked"] is True
+        assert info["utilization_pct"] == pytest.approx(100.0)
+
+    @pytest.mark.asyncio
+    async def test_limit_and_utilization_none_when_max_replays_not_given(self):
+        pool, _ = _make_governor_inspect_pool(replays_in_window=2)
+
+        info = await OutboxReplay.inspect_governor(pool, "sahool.ndvi.computed", 3600)
+
+        assert info["limit"] is None
+        assert info["utilization_pct"] is None
+        assert info["is_blocked"] is None
+
+    @pytest.mark.asyncio
+    async def test_does_not_call_execute(self):
+        """inspect_governor must never write to the database."""
+        pool, conn = _make_governor_inspect_pool()
+
+        await OutboxReplay.inspect_governor(pool, "sahool.ndvi.computed", 3600)
+
+        conn.execute.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_timestamps_returned_as_iso8601_strings(self):
+        now = datetime.now(tz=timezone.utc)
+        pool, _ = _make_governor_inspect_pool(
+            replays_in_window=1,
+            oldest_replay_at=now - timedelta(hours=1),
+            newest_replay_at=now,
+        )
+
+        info = await OutboxReplay.inspect_governor(pool, "sahool.ndvi.computed", 3600)
+
+        assert isinstance(info["oldest_replay_at"], str)
+        assert isinstance(info["newest_replay_at"], str)
+        # Must be parseable ISO 8601
+        datetime.fromisoformat(info["oldest_replay_at"])
+        datetime.fromisoformat(info["newest_replay_at"])
+
+
+# ---------------------------------------------------------------------------
+# 16. Replay Governance Policy Engine — (B)
+# ---------------------------------------------------------------------------
+
+from shared.libs.outbox.replay_policy import ReplayPolicy, PolicyDecision, ReplayPolicyEngine
+
+
+def _make_policy_pool(dlq_count=0, recovered_count=0, failed_final_count=0):
+    """Build a mock pool returning three fetchrow results for policy evaluate().
+
+    The side_effect order matches ReplayPolicyEngine.evaluate()'s query order:
+    1. _POLICY_DLQ_COUNT_SQL  → {"n": dlq_count}
+    2. _POLICY_RECOVERED_COUNT_SQL → {"n": recovered_count}
+    3. _POLICY_FAILED_FINAL_COUNT_SQL → {"n": failed_final_count}
+    """
+    conn = AsyncMock()
+    tx = MagicMock()
+    tx.__aenter__ = AsyncMock(return_value=None)
+    tx.__aexit__ = AsyncMock(return_value=False)
+    conn.transaction = MagicMock(return_value=tx)
+    conn.fetchrow = AsyncMock(side_effect=[
+        {"n": dlq_count},
+        {"n": recovered_count},
+        {"n": failed_final_count},
+    ])
+    conn.execute = AsyncMock(return_value=None)
+    pool = MagicMock()
+    ctx = MagicMock()
+    ctx.__aenter__ = AsyncMock(return_value=conn)
+    ctx.__aexit__ = AsyncMock(return_value=False)
+    pool.acquire = MagicMock(return_value=ctx)
+    return pool
+
+
+class TestReplayPolicyEngine:
+    """ReplayPolicyEngine must correctly evaluate health signals and return decisions."""
+
+    @pytest.mark.asyncio
+    async def test_allows_when_no_dlq_and_no_history(self):
+        """With no DLQ rows and no replay outcomes, policy must allow."""
+        pool = _make_policy_pool(dlq_count=0, recovered_count=0, failed_final_count=0)
+        engine = ReplayPolicyEngine()
+
+        decision = await engine.evaluate(pool)
+
+        assert decision.allowed is True
+        assert decision.reason == "ok"
+
+    @pytest.mark.asyncio
+    async def test_allows_when_dlq_below_threshold(self):
+        """DLQ count below threshold (10/min * 5min window = 50 rows) must allow."""
+        # window=300s, threshold=10/min → 50 rows/window allowed before suppression
+        pool = _make_policy_pool(dlq_count=30, recovered_count=5, failed_final_count=1)
+        engine = ReplayPolicyEngine(ReplayPolicy(dlq_growth_threshold=10.0, evaluate_window_seconds=300))
+
+        decision = await engine.evaluate(pool)
+
+        assert decision.allowed is True
+
+    @pytest.mark.asyncio
+    async def test_suppresses_when_dlq_exceeds_threshold(self):
+        """DLQ growth rate >= threshold must suppress replay."""
+        # threshold=10/min, window=300s → 50 rows/window = exactly threshold
+        # Use 51 rows to exceed the threshold
+        pool = _make_policy_pool(dlq_count=51, recovered_count=0, failed_final_count=0)
+        engine = ReplayPolicyEngine(ReplayPolicy(dlq_growth_threshold=10.0, evaluate_window_seconds=300))
+
+        decision = await engine.evaluate(pool)
+
+        assert decision.allowed is False
+        assert decision.reason == "dlq_growth"
+
+    @pytest.mark.asyncio
+    async def test_suppresses_when_success_rate_below_floor(self):
+        """Success rate below floor must suppress replay."""
+        # 1 recovered, 9 failed_final → success_rate = 10% < 20% floor
+        pool = _make_policy_pool(dlq_count=0, recovered_count=1, failed_final_count=9)
+        engine = ReplayPolicyEngine(ReplayPolicy(dlq_growth_threshold=100.0, success_rate_floor=0.20))
+
+        decision = await engine.evaluate(pool)
+
+        assert decision.allowed is False
+        assert decision.reason == "success_rate_too_low"
+
+    @pytest.mark.asyncio
+    async def test_allows_when_success_rate_at_or_above_floor(self):
+        """Success rate >= floor must allow."""
+        # 2 recovered, 8 failed_final → success_rate = 20% == floor
+        pool = _make_policy_pool(dlq_count=0, recovered_count=2, failed_final_count=8)
+        engine = ReplayPolicyEngine(ReplayPolicy(dlq_growth_threshold=100.0, success_rate_floor=0.20))
+
+        decision = await engine.evaluate(pool)
+
+        assert decision.allowed is True
+
+    @pytest.mark.asyncio
+    async def test_skips_success_rate_check_when_no_terminal_outcomes(self):
+        """When total_terminal == 0, success rate check must be skipped (no false suppression)."""
+        pool = _make_policy_pool(dlq_count=0, recovered_count=0, failed_final_count=0)
+        engine = ReplayPolicyEngine(ReplayPolicy(success_rate_floor=1.0))  # impossible floor
+
+        decision = await engine.evaluate(pool)
+
+        assert decision.allowed is True
+
+    @pytest.mark.asyncio
+    async def test_dlq_check_takes_priority_over_success_rate(self):
+        """DLQ growth suppression is checked first; success_rate is only checked when DLQ is healthy."""
+        # Extremely high DLQ growth — should suppress with dlq_growth reason
+        pool = _make_policy_pool(dlq_count=999, recovered_count=10, failed_final_count=0)
+        engine = ReplayPolicyEngine(ReplayPolicy(dlq_growth_threshold=1.0, evaluate_window_seconds=60))
+
+        decision = await engine.evaluate(pool)
+
+        assert decision.allowed is False
+        assert decision.reason == "dlq_growth"  # not success_rate_too_low
+
+
+class TestGovernorPolicyIntegration:
+    """DistributedReplayGovernor must route through policy before the COUNT query."""
+
+    def _make_governor_db_pool(self, count_in_window=0):
+        """Pool that handles governor's own check() calls (advisory lock + COUNT)."""
+        conn = AsyncMock()
+        tx = MagicMock()
+        tx.__aenter__ = AsyncMock(return_value=None)
+        tx.__aexit__ = AsyncMock(return_value=False)
+        conn.transaction = MagicMock(return_value=tx)
+        conn.fetchrow = AsyncMock(return_value={"n": count_in_window})
+        conn.execute = AsyncMock(return_value=None)
+        pool = MagicMock()
+        ctx = MagicMock()
+        ctx.__aenter__ = AsyncMock(return_value=conn)
+        ctx.__aexit__ = AsyncMock(return_value=False)
+        pool.acquire = MagicMock(return_value=ctx)
+        return pool
+
+    @pytest.mark.asyncio
+    async def test_governor_raises_rate_limit_exceeded_with_policy_reason_when_policy_suppresses(self):
+        pool = self._make_governor_db_pool()
+        policy_engine = AsyncMock(spec=ReplayPolicyEngine)
+        policy_engine.evaluate = AsyncMock(
+            return_value=PolicyDecision(allowed=False, reason="dlq_growth")
+        )
+        governor = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600, policy=policy_engine)
+
+        with pytest.raises(ReplayRateLimitExceeded) as exc_info:
+            await governor.check("sahool.ndvi.computed")
+
+        err = exc_info.value
+        assert err.policy_reason == "dlq_growth"
+        assert "policy" in str(err).lower() or "suppressed" in str(err).lower()
+
+    @pytest.mark.asyncio
+    async def test_governor_proceeds_to_count_when_policy_allows(self):
+        """When policy allows, governor must still enforce the sliding-window count."""
+        pool = self._make_governor_db_pool(count_in_window=0)
+        policy_engine = AsyncMock(spec=ReplayPolicyEngine)
+        policy_engine.evaluate = AsyncMock(
+            return_value=PolicyDecision(allowed=True, reason="ok")
+        )
+        governor = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600, policy=policy_engine)
+
+        # Must not raise when count=0 and policy allows
+        await governor.check("sahool.ndvi.computed")  # no exception
+
+        policy_engine.evaluate.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_governor_skips_policy_when_none(self):
+        """When no policy is set, governor must only enforce the sliding-window count."""
+        pool = self._make_governor_db_pool(count_in_window=0)
+        governor = DistributedReplayGovernor(pool, max_replays=5, window_seconds=3600, policy=None)
+
+        await governor.check("sahool.ndvi.computed")  # must not raise
+
+    @pytest.mark.asyncio
+    async def test_reset_dead_lettered_emits_policy_suppressed_metric_on_policy_block(self):
+        """reset_dead_lettered must emit replay_policy_suppressed metric when policy blocks."""
+        dlq_pool, dlq_conn = _make_db_pool()
+        dlq_conn.execute = AsyncMock(return_value="UPDATE 0")
+
+        governor = AsyncMock(spec=DistributedReplayGovernor)
+        governor.check = AsyncMock(
+            side_effect=ReplayRateLimitExceeded(
+                subject="*",
+                replays_in_window=0,
+                max_replays=5,
+                window_seconds=3600,
+                policy_reason="success_rate_too_low",
+            )
+        )
+
+        with patch("shared.libs.outbox.replay_tool.OUTBOX_METRICS") as mock_m:
+            with pytest.raises(ReplayRateLimitExceeded):
+                await OutboxReplay.reset_dead_lettered(dlq_pool, guard=governor)
+
+        mock_m.replay_blocked.assert_called_once_with(subject="*", reason="policy")
+        mock_m.replay_policy_suppressed.assert_called_once_with(reason="success_rate_too_low")
+
+    @pytest.mark.asyncio
+    async def test_reset_dead_lettered_does_not_emit_policy_suppressed_for_rate_limit_block(self):
+        """When blocked by rate limit (not policy), policy_suppressed must NOT be emitted."""
+        dlq_pool, dlq_conn = _make_db_pool()
+        dlq_conn.execute = AsyncMock(return_value="UPDATE 0")
+
+        governor = AsyncMock(spec=DistributedReplayGovernor)
+        governor.check = AsyncMock(
+            side_effect=ReplayRateLimitExceeded(
+                subject="*",
+                replays_in_window=5,
+                max_replays=5,
+                window_seconds=3600,
+                policy_reason=None,  # rate-limit, not policy
+            )
+        )
+
+        with patch("shared.libs.outbox.replay_tool.OUTBOX_METRICS") as mock_m:
+            with pytest.raises(ReplayRateLimitExceeded):
+                await OutboxReplay.reset_dead_lettered(dlq_pool, guard=governor)
+
+        mock_m.replay_blocked.assert_called_once_with(subject="*", reason="rate_limit")
+        mock_m.replay_policy_suppressed.assert_not_called()

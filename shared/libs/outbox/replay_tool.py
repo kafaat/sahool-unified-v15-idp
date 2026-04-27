@@ -112,10 +112,13 @@ import asyncio
 import collections
 import logging
 from datetime import datetime, timezone
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 from uuid import UUID
 
 from shared.libs.outbox.metrics import OUTBOX_METRICS
+
+if TYPE_CHECKING:
+    from shared.libs.outbox.replay_policy import ReplayPolicyEngine
 
 logger = logging.getLogger(__name__)
 
@@ -127,13 +130,18 @@ logger = logging.getLogger(__name__)
 
 class ReplayRateLimitExceeded(Exception):
     """Raised by ``OutboxReplayGuard.check()`` when the per-subject replay
-    rate exceeds ``max_replays`` within ``window_seconds``.
+    rate exceeds ``max_replays`` within ``window_seconds``, or when
+    ``ReplayPolicyEngine`` suppresses replay due to system health signals.
 
     Attributes:
         subject: The NATS subject (or ``"*"`` / ``"(ids)"``) that was blocked.
         replays_in_window: Number of replays already recorded in the window.
+            Set to ``0`` for policy-driven suppressions.
         max_replays: Configured ceiling.
         window_seconds: Window duration in seconds.
+        policy_reason: When set, suppression originated from the policy engine
+            rather than the sliding-window counter.  Values: ``"dlq_growth"``,
+            ``"success_rate_too_low"``.
     """
 
     def __init__(
@@ -142,17 +150,27 @@ class ReplayRateLimitExceeded(Exception):
         replays_in_window: int,
         max_replays: int,
         window_seconds: int,
+        policy_reason: str | None = None,
     ) -> None:
         self.subject = subject
         self.replays_in_window = replays_in_window
         self.max_replays = max_replays
         self.window_seconds = window_seconds
-        super().__init__(
-            f"Replay rate limit exceeded for subject={subject!r}: "
-            f"{replays_in_window}/{max_replays} replays in the last "
-            f"{window_seconds}s.  Possible replay loop — inspect the DLQ "
-            f"before retrying."
-        )
+        self.policy_reason = policy_reason
+        if policy_reason:
+            msg = (
+                f"Replay suppressed by policy for subject={subject!r}: "
+                f"reason={policy_reason!r}.  Inspect DLQ growth and replay "
+                f"success rate before re-enabling."
+            )
+        else:
+            msg = (
+                f"Replay rate limit exceeded for subject={subject!r}: "
+                f"{replays_in_window}/{max_replays} replays in the last "
+                f"{window_seconds}s.  Possible replay loop — inspect the DLQ "
+                f"before retrying."
+            )
+        super().__init__(msg)
 
 
 class OutboxReplayGuard:
@@ -307,6 +325,18 @@ INSERT INTO outbox_replay_ledger (subject, replayed_at, replayed_by, instance_id
 VALUES ($1, NOW(), $2, $3)
 """
 
+# Read-only snapshot query for inspect_governor() — no advisory lock needed.
+_GOVERNOR_INSPECT_SQL = """
+SELECT
+    COUNT(*)                                                              AS replays_in_window,
+    MIN(replayed_at)                                                      AS oldest_replay_at,
+    MAX(replayed_at)                                                      AS newest_replay_at,
+    ARRAY_AGG(DISTINCT instance_id) FILTER (WHERE instance_id IS NOT NULL) AS instances_seen
+FROM outbox_replay_ledger
+WHERE subject = $1
+  AND replayed_at > NOW() - ($2 * INTERVAL '1 second')
+"""
+
 # Transaction-level advisory lock for the governor: prevents two concurrent
 # check+insert pairs from racing inside the same DB transaction.  Uses a
 # different namespace key (1, 20291) to avoid colliding with the replay-tool
@@ -337,6 +367,10 @@ class DistributedReplayGovernor:
           window, and raises ``ReplayRateLimitExceeded`` if the limit is
           reached.  The advisory lock serialises concurrent checkers so the
           count is always fresh before any insert.
+        * When an optional ``policy`` is provided, ``check()`` calls
+          ``await policy.evaluate(db_pool)`` **before** the advisory-lock
+          COUNT.  If the policy suppresses replay,
+          ``ReplayRateLimitExceeded`` is raised with ``policy_reason`` set.
         * ``record()`` inserts one row into ``outbox_replay_ledger`` after a
           successful ``reset_dead_lettered()`` commit.  ``check()`` does NOT
           insert — only ``record()`` does — so aborted or blocked replays
@@ -352,12 +386,22 @@ class DistributedReplayGovernor:
         instance_id: Human-readable identifier for the current process (e.g.
             pod name, hostname).  Stored in ``outbox_replay_ledger.instance_id``
             for forensic tracing.  Defaults to ``None``.
+        policy: Optional ``ReplayPolicyEngine`` for adaptive, SLO-driven
+            suppression.  When provided, ``check()`` evaluates system health
+            signals (DLQ growth rate, replay success rate) before the
+            sliding-window COUNT.  Defaults to ``None`` (disabled).
 
     Usage::
 
-        governor = DistributedReplayGovernor(pool, max_replays=5,
-                                             window_seconds=3600,
-                                             instance_id="worker-pod-0")
+        from shared.libs.outbox.replay_policy import ReplayPolicy, ReplayPolicyEngine
+
+        governor = DistributedReplayGovernor(
+            pool,
+            max_replays=5,
+            window_seconds=3600,
+            instance_id="worker-pod-0",
+            policy=ReplayPolicyEngine(ReplayPolicy(dlq_growth_threshold=5)),
+        )
 
         try:
             n = await OutboxReplay.reset_dead_lettered(
@@ -377,6 +421,7 @@ class DistributedReplayGovernor:
         max_replays: int = 5,
         window_seconds: int = 3600,
         instance_id: str | None = None,
+        policy: ReplayPolicyEngine | None = None,
     ) -> None:
         if max_replays < 1:
             raise ValueError("max_replays must be >= 1")
@@ -386,6 +431,7 @@ class DistributedReplayGovernor:
         self._max_replays = max_replays
         self._window_seconds = window_seconds
         self._instance_id = instance_id
+        self._policy = policy
 
     @property
     def max_replays(self) -> int:
@@ -398,18 +444,34 @@ class DistributedReplayGovernor:
     async def check(self, subject: str) -> None:
         """Assert the cluster-wide rate limit has not been exceeded for *subject*.
 
-        Acquires ``pg_advisory_xact_lock(1, 20291)`` inside a transaction to
-        serialise concurrent callers, then counts rows in
-        ``outbox_replay_ledger`` for *subject* within the sliding window.
+        When a ``policy`` was provided at construction time, the policy engine
+        is evaluated first.  If it suppresses replay,
+        ``ReplayRateLimitExceeded`` is raised with ``policy_reason`` set before
+        any advisory lock or COUNT query is executed.
+
+        Then acquires ``pg_advisory_xact_lock(1, 20291)`` inside a transaction
+        to serialise concurrent callers, counts rows in
+        ``outbox_replay_ledger`` for *subject* within the sliding window, and
+        raises ``ReplayRateLimitExceeded`` if the count equals or exceeds
+        ``max_replays``.
 
         Raises:
-            ReplayRateLimitExceeded: if the count equals or exceeds
-                ``max_replays``.
-
-        The transaction is committed (or rolled back) before the method
-        returns, so the lock is released immediately after the count is taken.
-        This method never writes to the ledger — only ``record()`` does.
+            ReplayRateLimitExceeded: if the policy engine suppresses replay,
+                or if the sliding-window count equals or exceeds ``max_replays``.
         """
+        # --- Policy check (no DB lock, read-only) ---
+        if self._policy is not None:
+            decision = await self._policy.evaluate(self._db_pool)
+            if not decision.allowed:
+                raise ReplayRateLimitExceeded(
+                    subject=subject,
+                    replays_in_window=0,
+                    max_replays=self._max_replays,
+                    window_seconds=self._window_seconds,
+                    policy_reason=decision.reason,
+                )
+
+        # --- Sliding-window rate-limit check (advisory lock) ---
         async with self._db_pool.acquire() as conn:
             async with conn.transaction():
                 await conn.execute(_GOVERNOR_LOCK_SQL)
@@ -455,7 +517,8 @@ UPDATE outbox_messages
 SET dead_lettered_at = NULL,
     retry_count      = 0,
     claimed_at       = NULL,
-    claimed_by       = NULL
+    claimed_by       = NULL,
+    replay_state     = 'REPLAYING'
 WHERE dead_lettered_at IS NOT NULL
 """
 
@@ -464,7 +527,8 @@ UPDATE outbox_messages
 SET dead_lettered_at = NULL,
     retry_count      = 0,
     claimed_at       = NULL,
-    claimed_by       = NULL
+    claimed_by       = NULL,
+    replay_state     = 'REPLAYING'
 WHERE dead_lettered_at IS NOT NULL
   AND subject = $1
 """
@@ -474,7 +538,8 @@ UPDATE outbox_messages
 SET dead_lettered_at = NULL,
     retry_count      = 0,
     claimed_at       = NULL,
-    claimed_by       = NULL
+    claimed_by       = NULL,
+    replay_state     = 'REPLAYING'
 WHERE dead_lettered_at IS NOT NULL
   AND id = ANY($1::uuid[])
 """
@@ -524,6 +589,94 @@ class OutboxReplay:
     All methods accept an asyncpg pool (or connection) and return the
     number of rows reset.
     """
+
+    @staticmethod
+    async def inspect_governor(
+        db_pool,
+        subject: str,
+        window_seconds: int,
+        max_replays: int | None = None,
+    ) -> dict:
+        """Return a read-only snapshot of governor state for *subject*.
+
+        Queries ``outbox_replay_ledger`` for replays in the given window and
+        returns a structured dict suitable for CLI display or Grafana JSON.
+
+        This method is **safe and read-only** — it acquires no advisory lock
+        and modifies nothing.
+
+        Args:
+            db_pool: asyncpg pool.
+            subject: NATS subject to inspect (use ``"*"`` for the global
+                all-subject wildcard if your governor uses that notation).
+            window_seconds: Sliding window size in seconds to examine.
+            max_replays: Optional ceiling from the governor configuration.
+                When provided, ``utilization_pct`` is computed.  Pass
+                ``governor.max_replays`` for an accurate reading.
+
+        Returns:
+            A dict with keys:
+            ``replays_in_window``   — count of replays in the window.
+            ``limit``               — *max_replays* if provided, else ``None``.
+            ``window_seconds``      — the requested window size.
+            ``is_blocked``          — ``True`` when
+                                     ``replays_in_window >= limit`` (and
+                                     *limit* is known).
+            ``utilization_pct``     — window fill % (0–100), or ``None``.
+            ``oldest_replay_at``    — ISO 8601 timestamp of the oldest ledger
+                                     row in window, or ``None``.
+            ``newest_replay_at``    — ISO 8601 timestamp of the most recent
+                                     ledger row in window, or ``None``.
+            ``instances_seen``      — list of distinct ``instance_id`` values
+                                     that recorded replays in the window.
+
+        Example::
+
+            info = await OutboxReplay.inspect_governor(
+                pool, "sahool.ndvi.computed", 3600, max_replays=5
+            )
+            # {
+            #   "replays_in_window": 3,
+            #   "limit": 5,
+            #   "window_seconds": 3600,
+            #   "is_blocked": False,
+            #   "utilization_pct": 60.0,
+            #   "oldest_replay_at": "2026-04-27T14:00:00+00:00",
+            #   "newest_replay_at": "2026-04-27T15:30:00+00:00",
+            #   "instances_seen": ["worker-pod-0", "worker-pod-1"],
+            # }
+        """
+        async with db_pool.acquire() as conn:
+            row = await conn.fetchrow(_GOVERNOR_INSPECT_SQL, subject, window_seconds)
+
+        replays_in_window = int(row["replays_in_window"]) if row else 0
+        oldest = row["oldest_replay_at"] if row else None
+        newest = row["newest_replay_at"] if row else None
+        instances = list(row["instances_seen"] or []) if row else []
+
+        def _ts(dt: datetime | None) -> str | None:
+            if dt is None:
+                return None
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            return dt.isoformat()
+
+        is_blocked: bool | None = None
+        utilization_pct: float | None = None
+        if max_replays is not None:
+            is_blocked = replays_in_window >= max_replays
+            utilization_pct = (replays_in_window / max_replays * 100) if max_replays > 0 else 0.0
+
+        return {
+            "replays_in_window": replays_in_window,
+            "limit": max_replays,
+            "window_seconds": window_seconds,
+            "is_blocked": is_blocked,
+            "utilization_pct": utilization_pct,
+            "oldest_replay_at": _ts(oldest),
+            "newest_replay_at": _ts(newest),
+            "instances_seen": instances,
+        }
 
     @staticmethod
     async def count_dead_lettered(db_pool) -> int:
@@ -655,8 +808,11 @@ class OutboxReplay:
         if guard is not None:
             try:
                 await guard.check(metric_subject)
-            except ReplayRateLimitExceeded:
-                OUTBOX_METRICS.replay_blocked(subject=metric_subject, reason="rate_limit")
+            except ReplayRateLimitExceeded as exc:
+                blocked_reason = "policy" if exc.policy_reason else "rate_limit"
+                OUTBOX_METRICS.replay_blocked(subject=metric_subject, reason=blocked_reason)
+                if exc.policy_reason:
+                    OUTBOX_METRICS.replay_policy_suppressed(reason=exc.policy_reason)
                 raise
 
         # Acquire a transaction-level advisory lock before mutating rows.
@@ -751,6 +907,30 @@ def _build_parser() -> argparse.ArgumentParser:
         default="cli",
         help="Identifier stored in the audit log for this replay operation (default: cli).",
     )
+    p.add_argument(
+        "--governor-status",
+        dest="governor_status",
+        action="store_true",
+        help=(
+            "Show the current governor state for --subject: replays in window, "
+            "utilisation %%, oldest/newest replay timestamps, and instances seen.  "
+            "Requires --subject and --window-seconds / --max-replays."
+        ),
+    )
+    p.add_argument(
+        "--window-seconds",
+        dest="window_seconds",
+        type=int,
+        default=3600,
+        help="Governor sliding-window size in seconds (default: 3600).  Used with --governor-status.",
+    )
+    p.add_argument(
+        "--max-replays",
+        dest="max_replays",
+        type=int,
+        default=None,
+        help="Governor ceiling (max_replays).  When given with --governor-status, shows utilisation %%.",
+    )
     return p
 
 
@@ -763,6 +943,28 @@ async def _main(args: argparse.Namespace) -> None:
 
     pool = await asyncpg.create_pool(args.dsn, min_size=1, max_size=2)
     try:
+        if args.governor_status:
+            subject = args.subject or "*"
+            info = await OutboxReplay.inspect_governor(
+                pool,
+                subject=subject,
+                window_seconds=args.window_seconds,
+                max_replays=args.max_replays,
+            )
+            print(f"Governor status for subject={subject!r}  window={args.window_seconds}s")
+            print("-" * 60)
+            print(f"  Replays in window : {info['replays_in_window']}")
+            if info["limit"] is not None:
+                blocked_str = "YES (blocking)" if info["is_blocked"] else "no"
+                print(f"  Limit             : {info['limit']}")
+                print(f"  Utilisation       : {info['utilization_pct']:.1f}%")
+                print(f"  Blocked           : {blocked_str}")
+            print(f"  Oldest replay     : {info['oldest_replay_at'] or 'n/a'}")
+            print(f"  Newest replay     : {info['newest_replay_at'] or 'n/a'}")
+            instances = info["instances_seen"]
+            print(f"  Instances seen    : {', '.join(instances) if instances else 'none'}")
+            return
+
         if args.dry_run:
             info = await OutboxReplay.inspect_dead_lettered(pool)
             if info["total"] == 0:

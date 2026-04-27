@@ -21,6 +21,7 @@ from .message import OutboxMessage
 from .metrics import OUTBOX_METRICS
 from .relay import OutboxRelay
 from .replay_tool import OutboxReplay, DistributedReplayGovernor, OutboxReplayGuard, ReplayRateLimitExceeded
+from .replay_policy import ReplayPolicy, ReplayPolicyEngine
 
 # Legacy SQLAlchemy API — preserved for existing services & tests. Importable
 # only when sqlalchemy is installed in the runtime; new asyncpg services
@@ -51,6 +52,8 @@ __all__ = [
     "OutboxReplayGuard",
     "DistributedReplayGovernor",
     "ReplayRateLimitExceeded",
+    "ReplayPolicy",
+    "ReplayPolicyEngine",
     "OUTBOX_METRICS",
 ]
 

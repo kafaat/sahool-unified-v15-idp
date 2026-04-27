@@ -60,6 +60,32 @@ CREATE INDEX IF NOT EXISTS idx_outbox_tenant
     ON outbox_messages (tenant_id, created_at);
 
 -- ---------------------------------------------------------------------------
+-- Replay Lifecycle State Machine
+-- آلة حالة دورة حياة إعادة التشغيل
+-- ---------------------------------------------------------------------------
+--
+-- Tracks the lifecycle of replayed rows through the relay pipeline.
+-- Values:
+--   NULL          — row has never been replayed (initial state / normal DLQ)
+--   'REPLAYING'   — dead_lettered_at cleared by reset_dead_lettered(); the
+--                   relay is attempting to re-publish this row.
+--   'RECOVERED'   — relay successfully published the row after a replay;
+--                   the row is fully healed.
+--   'FAILED_FINAL'— relay dead-lettered the row a second time after a replay
+--                   attempt; the failure is persistent and replay cannot fix it.
+--
+-- The partial index on 'REPLAYING' rows lets the relay quickly find rows
+-- currently in-flight under a replay attempt for forensic inspection.
+-- ---------------------------------------------------------------------------
+
+ALTER TABLE outbox_messages ADD COLUMN IF NOT EXISTS replay_state TEXT;
+
+-- Partial index: relay/ops tools can quickly locate in-flight replay attempts.
+CREATE INDEX IF NOT EXISTS idx_outbox_replaying
+    ON outbox_messages (id)
+    WHERE replay_state = 'REPLAYING';
+
+-- ---------------------------------------------------------------------------
 -- Distributed Replay Ledger
 -- جدول سجل إعادة التشغيل الموزّع
 -- ---------------------------------------------------------------------------

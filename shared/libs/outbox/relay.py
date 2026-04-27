@@ -71,10 +71,19 @@ UPDATE outbox_messages AS o
 SET claimed_at = NOW(), claimed_by = $3
 FROM claimable
 WHERE o.id = claimable.id
-RETURNING o.id, o.tenant_id, o.subject, o.payload, o.headers, o.retry_count
+RETURNING o.id, o.tenant_id, o.subject, o.payload, o.headers, o.retry_count, o.replay_state
 """
 
 _MARK_SENT_SQL = "UPDATE outbox_messages SET published_at = NOW(), claimed_at = NULL, claimed_by = NULL WHERE id = $1"
+
+# Used when the relay successfully publishes a row that was under a replay
+# attempt (replay_state = 'REPLAYING'): transition → 'RECOVERED'.
+_MARK_SENT_RECOVERED_SQL = (
+    "UPDATE outbox_messages"
+    " SET published_at = NOW(), claimed_at = NULL, claimed_by = NULL,"
+    "     replay_state = 'RECOVERED'"
+    " WHERE id = $1"
+)
 
 # On transient failure: bump retry_count AND release the claim so another
 # worker (or the same one on the next tick) can retry.
@@ -88,6 +97,16 @@ _MARK_DLQ_SQL = (
     "UPDATE outbox_messages"
     " SET dead_lettered_at = NOW(), retry_count = retry_count + 1,"
     "     claimed_at = NULL, claimed_by = NULL"
+    " WHERE id = $1"
+)
+
+# Used when a REPLAYING row exhausts retries a second time: transition →
+# 'FAILED_FINAL'.  This signals a persistent delivery failure that replay
+# cannot recover — operators must investigate the root cause.
+_MARK_DLQ_FAILED_FINAL_SQL = (
+    "UPDATE outbox_messages"
+    " SET dead_lettered_at = NOW(), retry_count = retry_count + 1,"
+    "     claimed_at = NULL, claimed_by = NULL, replay_state = 'FAILED_FINAL'"
     " WHERE id = $1"
 )
 
@@ -300,6 +319,11 @@ class OutboxRelay:
             event_id = headers.get("X-Event-ID") or headers.get("event_id") or ""
             tenant_id = row.get("tenant_id") or ""
 
+            # Replay lifecycle: rows reset by reset_dead_lettered() carry
+            # replay_state = 'REPLAYING'.  On success they transition to
+            # 'RECOVERED'; on final DLQ they transition to 'FAILED_FINAL'.
+            row_replay_state = row.get("replay_state")
+
             try:
                 t0 = time.monotonic()
                 delivery_mode = await self._nats_publish(
@@ -310,10 +334,15 @@ class OutboxRelay:
                 )
                 publish_latency = time.monotonic() - t0
                 # --- Step 3a: mark sent (short, separate txn) ---
+                # When the row was under a replay attempt transition state →
+                # RECOVERED so operators can track full lifecycle outcomes.
+                mark_sent_sql = _MARK_SENT_RECOVERED_SQL if row_replay_state == "REPLAYING" else _MARK_SENT_SQL
                 async with db_pool.acquire() as mark_conn:
-                    await mark_conn.execute(_MARK_SENT_SQL, row_id)
+                    await mark_conn.execute(mark_sent_sql, row_id)
                 published_count += 1
                 OUTBOX_METRICS.published(subject=subject)
+                if row_replay_state == "REPLAYING":
+                    OUTBOX_METRICS.replay_recovered(subject=subject)
                 OUTBOX_METRICS.observe_publish_latency(subject=subject, duration_seconds=publish_latency)
                 logger.debug(
                     "outbox_published",
@@ -325,16 +354,20 @@ class OutboxRelay:
                         "worker_id": self._worker_id,
                         "delivery_mode": delivery_mode,
                         "publish_latency_ms": round(publish_latency * 1000, 2),
+                        "replay_state": row_replay_state,
                     },
                 )
             except Exception as exc:
                 current_retry = row["retry_count"] + 1
                 reason = type(exc).__name__
                 if current_retry >= _MAX_RETRIES:
-                    # Poison message — dead-letter permanently
+                    # Poison message — dead-letter permanently.
+                    # When the row was REPLAYING, mark it FAILED_FINAL so the
+                    # persistent failure is visible in lifecycle metrics.
+                    mark_dlq_sql = _MARK_DLQ_FAILED_FINAL_SQL if row_replay_state == "REPLAYING" else _MARK_DLQ_SQL
                     try:
                         async with db_pool.acquire() as mark_conn:
-                            await mark_conn.execute(_MARK_DLQ_SQL, row_id)
+                            await mark_conn.execute(mark_dlq_sql, row_id)
                     except Exception as dlq_exc:
                         logger.error(
                             "outbox_dlq_mark_failed",
@@ -348,6 +381,8 @@ class OutboxRelay:
                             },
                         )
                     OUTBOX_METRICS.dead_lettered(subject=subject)
+                    if row_replay_state == "REPLAYING":
+                        OUTBOX_METRICS.replay_failed_final(subject=subject)
                     logger.error(
                         "outbox_dead_lettered",
                         extra={
@@ -359,6 +394,7 @@ class OutboxRelay:
                             "worker_id": self._worker_id,
                             "error": str(exc),
                             "error_type": reason,
+                            "replay_state": row_replay_state,
                         },
                     )
                 else:

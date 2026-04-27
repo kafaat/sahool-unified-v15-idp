@@ -492,12 +492,59 @@ async def lifespan(app: FastAPI):
     if _nats_available:
         logger.info("nats_publisher_available_via_shared_module")
 
+    # Start transactional outbox relay when both DB and NATS are available.
+    # The relay polls outbox_messages and publishes pending rows to NATS,
+    # ensuring events enqueued in _persist_ndvi_reading are delivered at-least-once.
+    app.state.outbox_relay = None
+    if app.state.db_pool is not None and _nats_available:
+        try:
+            from pathlib import Path
+
+            from shared.libs.events.nats_publisher import _publisher_instance
+            from shared.libs.outbox import OutboxRelay
+
+            # Apply the outbox_messages DDL (idempotent — uses IF NOT EXISTS)
+            _migration_sql_path = (
+                Path(__file__).parent.parent.parent.parent.parent
+                / "shared"
+                / "libs"
+                / "outbox"
+                / "migration.sql"
+            )
+            if _migration_sql_path.exists():
+                _migration_ddl = _migration_sql_path.read_text()
+                async with app.state.db_pool.acquire() as _conn:
+                    await _conn.execute(_migration_ddl)
+                logger.info("outbox_migration_applied", service="vegetation-analysis-service")
+
+            # The relay needs the raw NATS client, not the wrapper.
+            _nats_raw = getattr(_publisher_instance, "_nc", None)
+            if _nats_raw is not None:
+                app.state.outbox_relay = OutboxRelay(worker_id="vegetation-analysis-service")
+                await app.state.outbox_relay.start(
+                    db_pool=app.state.db_pool,
+                    nats_client=_nats_raw,
+                    poll_interval_seconds=1.0,
+                    batch_size=50,
+                )
+                logger.info("outbox_relay_started", service="vegetation-analysis-service")
+            else:
+                logger.info("outbox_relay_skipped_no_nats_connection")
+        except Exception as exc:
+            logger.warning("outbox_relay_init_failed", error=str(exc), service="vegetation-analysis-service")
+
     logger.info("service_ready", service="vegetation-analysis-service", port=8090)
 
     yield
 
     # Cleanup
     logger.info("service_shutting_down", service="vegetation-analysis-service")
+    if getattr(app.state, "outbox_relay", None):
+        try:
+            await app.state.outbox_relay.stop()
+            logger.info("outbox_relay_stopped", service="vegetation-analysis-service")
+        except Exception as exc:
+            logger.warning("outbox_relay_stop_error", error=str(exc))
     if getattr(app.state, "db_pool", None):
         try:
             await app.state.db_pool.close()
@@ -1244,19 +1291,51 @@ async def _persist_ndvi_reading(
     captured_at: datetime,
 ) -> None:
     """
-    Persist a computed NDVI reading to the ndvi_readings table.
+    Persist a computed NDVI reading to the ndvi_readings table **and**
+    atomically enqueue a ``sahool.satellite.ndvi.computed`` outbox event.
 
-    Runs fire-and-forget inside the caller; failures are logged but never
-    bubble up to the HTTP response — so the endpoint is never blocked by a DB error.
+    Both the ``ndvi_readings`` INSERT and the ``outbox_messages`` INSERT run
+    inside the same ``acquire_tenant_conn`` transaction, so either both
+    commit or neither does — eliminating the lost-event race that exists when
+    DB writes and NATS publishes are separate operations.
+
+    The ``OutboxRelay`` (started in the lifespan) picks up the outbox row and
+    publishes it to NATS after the transaction commits.  If NATS is
+    unavailable, the row stays pending and will be retried on the next relay
+    cycle.
 
     The INSERT uses ON CONFLICT DO NOTHING to honour the unique index
     ``uq_ndvi_field_source_date (field_id, captured_at, satellite_name)``.
+
+    Runs fire-and-forget; failures are logged but never bubble up to the HTTP
+    response so the endpoint is never blocked.
     """
     pool = getattr(app.state, "db_pool", None)
     if pool is None:
         return
     try:
+        from shared.events.subjects import SAHOOL_NDVI_COMPUTED
+        from shared.libs.outbox import OutboxPublisher
         from shared.middleware.tenant_context import acquire_tenant_conn
+
+        event_id = str(uuid.uuid4())
+        event_payload = {
+            "event_id": event_id,
+            "event_type": "satellite.ndvi.computed",
+            "source_service": "vegetation-analysis-service",
+            "timestamp": captured_at.isoformat(),
+            "field_id": field_id,
+            "tenant_id": tenant_id,
+            # Dual keys: crop-intelligence uses .get("mean_ndvi") or .get("value")
+            "mean_ndvi": ndvi_value,
+            "value": ndvi_value,
+            "satellite_name": satellite_name,
+            "scene_id": scene_id,
+            "cloud_cover": cloud_cover,
+            "correlation_id": event_id,
+        }
+
+        outbox = OutboxPublisher()
 
         async with acquire_tenant_conn(pool, tenant_id) as conn:
             await conn.execute(
@@ -1276,6 +1355,21 @@ async def _persist_ndvi_reading(
                 tenant_id,
                 scene_id,
             )
+            # Atomically enqueue the downstream event in the same transaction.
+            # The OutboxRelay publishes it to NATS after the commit.
+            await outbox.enqueue(
+                conn,
+                subject=SAHOOL_NDVI_COMPUTED,
+                payload=event_payload,
+                tenant_id=tenant_id,
+                headers={"X-Event-ID": event_id, "X-Tenant-ID": tenant_id},
+            )
+
+        logger.info(
+            "ndvi_persisted_and_enqueued",
+            field_id=field_id,
+            event_id=event_id,
+        )
     except Exception as exc:
         logger.warning(
             "ndvi_persist_failed",
@@ -1411,18 +1505,22 @@ async def analyze_field(
             cloud_cover=getattr(request, "cloud_cover_max", None),
             captured_at=_captured_at,
         )
-        # Publish sahool.satellite.ndvi.computed so Intelligence-layer consumers
-        # (crop-intelligence-service, indicators-service) can react without polling.
-        background_tasks.add_task(
-            _publish_ndvi_event,
-            field_id=request.field_id,
-            ndvi_value=indices.ndvi,
-            tenant_id=tenant_id,
-            satellite_name=request.satellite.value,
-            scene_id=getattr(imagery, "scene_id", None),
-            cloud_cover=getattr(request, "cloud_cover_max", None),
-            captured_at=_captured_at,
-        )
+        # Fallback: publish directly when no DB pool (outbox unavailable).
+        # When the DB pool is present, _persist_ndvi_reading enqueues the event
+        # transactionally via OutboxPublisher and the OutboxRelay delivers it —
+        # no separate background publish task is needed or wanted (it would
+        # double-publish).
+        if not getattr(app.state, "db_pool", None) and _nats_available:
+            background_tasks.add_task(
+                _publish_ndvi_event,
+                field_id=request.field_id,
+                ndvi_value=indices.ndvi,
+                tenant_id=tenant_id,
+                satellite_name=request.satellite.value,
+                scene_id=getattr(imagery, "scene_id", None),
+                cloud_cover=getattr(request, "cloud_cover_max", None),
+                captured_at=_captured_at,
+            )
 
     return FieldAnalysis(
         field_id=request.field_id,

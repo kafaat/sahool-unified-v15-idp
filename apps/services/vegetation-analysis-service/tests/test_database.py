@@ -83,36 +83,76 @@ def _make_pool(execute_side_effect=None):
 @pytest.mark.asyncio
 async def test_persist_ndvi_reading_success():
     """
-    Happy-path: NDVI reading is inserted via acquire_tenant_conn.
-    execute is called twice: once for SET LOCAL (RLS) and once for the INSERT.
+    Happy-path: NDVI reading is inserted via acquire_tenant_conn, and
+    OutboxPublisher.enqueue is called in the same transaction for atomicity.
+    execute is called at least twice: once for SET LOCAL (RLS) and once for
+    the ndvi_readings INSERT. The outbox enqueue is a separate execute call.
     """
     from src.main import _persist_ndvi_reading
 
     pool, conn = _make_pool()
     app = _make_fake_app(db_pool=pool)
 
-    await _persist_ndvi_reading(
-        app=app,
-        field_id="field-abc",
-        ndvi_value=0.65,
-        tenant_id="tenant-xyz",
-        satellite_name="SENTINEL2",
-        scene_id="S2_20260101_1234",
-        cloud_cover=10.0,
-        captured_at=datetime.now(UTC),
-    )
+    with patch("shared.libs.outbox.asyncpg_publisher.OutboxPublisher.enqueue", new_callable=AsyncMock) as mock_enqueue:
+        await _persist_ndvi_reading(
+            app=app,
+            field_id="field-abc",
+            ndvi_value=0.65,
+            tenant_id="tenant-xyz",
+            satellite_name="SENTINEL2",
+            scene_id="S2_20260101_1234",
+            cloud_cover=10.0,
+            captured_at=datetime.now(UTC),
+        )
 
     # execute called at least twice (set_config + INSERT)
     assert conn.execute.await_count >= 2
-    # Last call must be the INSERT
-    insert_sql = conn.execute.call_args_list[-1][0][0]
-    assert "INSERT INTO ndvi_readings" in insert_sql
-    assert "ON CONFLICT DO NOTHING" in insert_sql
+    # Second-to-last or last execute must be the INSERT (enqueue uses its own execute)
+    all_sqls = [c[0][0] for c in conn.execute.call_args_list if c[0]]
+    assert any("INSERT INTO ndvi_readings" in sql for sql in all_sqls)
+    assert any("ON CONFLICT DO NOTHING" in sql for sql in all_sqls)
 
-    # RLS: first call must be the SET LOCAL config
-    set_config_sql = conn.execute.call_args_list[0][0][0]
-    assert "set_config" in set_config_sql
-    assert "app.current_tenant" in set_config_sql
+    # RLS: first execute must be the SET LOCAL config
+    assert "set_config" in all_sqls[0]
+    assert "app.current_tenant" in all_sqls[0]
+
+    # Outbox: enqueue was called with the NDVI subject
+    mock_enqueue.assert_awaited_once()
+    enqueue_kwargs = mock_enqueue.call_args
+    assert enqueue_kwargs[1]["subject"] == "sahool.satellite.ndvi.computed"
+    assert enqueue_kwargs[1]["tenant_id"] == "tenant-xyz"
+
+
+@pytest.mark.asyncio
+async def test_persist_ndvi_reading_outbox_atomicity():
+    """
+    OutboxPublisher.enqueue is called with the correct event payload fields,
+    verifying that mean_ndvi, value, field_id, tenant_id, and event_id are all present.
+    """
+    from src.main import _persist_ndvi_reading
+
+    pool, conn = _make_pool()
+    app = _make_fake_app(db_pool=pool)
+
+    with patch("shared.libs.outbox.asyncpg_publisher.OutboxPublisher.enqueue", new_callable=AsyncMock) as mock_enqueue:
+        await _persist_ndvi_reading(
+            app=app,
+            field_id="field-abc",
+            ndvi_value=0.72,
+            tenant_id="tenant-xyz",
+            satellite_name="SENTINEL2",
+            scene_id="S2_001",
+            cloud_cover=5.0,
+            captured_at=datetime.now(UTC),
+        )
+
+    payload = mock_enqueue.call_args[1]["payload"]
+    assert payload["field_id"] == "field-abc"
+    assert payload["tenant_id"] == "tenant-xyz"
+    assert payload["mean_ndvi"] == 0.72
+    assert payload["value"] == 0.72
+    assert "event_id" in payload
+    assert "correlation_id" in payload
 
 
 @pytest.mark.asyncio
@@ -123,18 +163,23 @@ async def test_persist_ndvi_reading_tenant_id_in_insert():
     pool, conn = _make_pool()
     app = _make_fake_app(db_pool=pool)
 
-    await _persist_ndvi_reading(
-        app=app,
-        field_id="field-abc",
-        ndvi_value=0.65,
-        tenant_id="tenant-xyz",
-        satellite_name="SENTINEL2",
-        scene_id=None,
-        cloud_cover=None,
-        captured_at=datetime.now(UTC),
-    )
+    with patch("shared.libs.outbox.asyncpg_publisher.OutboxPublisher.enqueue", new_callable=AsyncMock):
+        await _persist_ndvi_reading(
+            app=app,
+            field_id="field-abc",
+            ndvi_value=0.65,
+            tenant_id="tenant-xyz",
+            satellite_name="SENTINEL2",
+            scene_id=None,
+            cloud_cover=None,
+            captured_at=datetime.now(UTC),
+        )
 
-    insert_args = conn.execute.call_args_list[-1][0]
+    # Find the INSERT call args
+    insert_call = next(
+        c for c in conn.execute.call_args_list if c[0] and "INSERT INTO ndvi_readings" in c[0][0]
+    )
+    insert_args = insert_call[0]
     assert "tenant-xyz" in insert_args
     assert "field-abc" in insert_args
     assert 0.65 in insert_args
@@ -187,19 +232,20 @@ async def test_persist_ndvi_reading_on_conflict_do_nothing():
     pool, conn = _make_pool()
     app = _make_fake_app(db_pool=pool)
 
-    await _persist_ndvi_reading(
-        app=app,
-        field_id="field-dup",
-        ndvi_value=0.70,
-        tenant_id="tenant-xyz",
-        satellite_name="SENTINEL2",
-        scene_id="S2_DUP",
-        cloud_cover=0.0,
-        captured_at=datetime.now(UTC),
-    )
+    with patch("shared.libs.outbox.asyncpg_publisher.OutboxPublisher.enqueue", new_callable=AsyncMock):
+        await _persist_ndvi_reading(
+            app=app,
+            field_id="field-dup",
+            ndvi_value=0.70,
+            tenant_id="tenant-xyz",
+            satellite_name="SENTINEL2",
+            scene_id="S2_DUP",
+            cloud_cover=0.0,
+            captured_at=datetime.now(UTC),
+        )
 
-    insert_sql = conn.execute.call_args_list[-1][0][0]
-    assert "ON CONFLICT DO NOTHING" in insert_sql
+    all_sqls = [c[0][0] for c in conn.execute.call_args_list if c[0]]
+    assert any("ON CONFLICT DO NOTHING" in sql for sql in all_sqls)
 
 
 @pytest.mark.asyncio
@@ -210,16 +256,17 @@ async def test_persist_ndvi_reading_extreme_values():
     for ndvi_value in (-1.0, 0.0, 1.0):
         pool, conn = _make_pool()
         app = _make_fake_app(db_pool=pool)
-        await _persist_ndvi_reading(
-            app=app,
-            field_id="f",
-            ndvi_value=ndvi_value,
-            tenant_id="t",
-            satellite_name="MODIS",
-            scene_id=None,
-            cloud_cover=None,
-            captured_at=datetime.now(UTC),
-        )
+        with patch("shared.libs.outbox.asyncpg_publisher.OutboxPublisher.enqueue", new_callable=AsyncMock):
+            await _persist_ndvi_reading(
+                app=app,
+                field_id="f",
+                ndvi_value=ndvi_value,
+                tenant_id="t",
+                satellite_name="MODIS",
+                scene_id=None,
+                cloud_cover=None,
+                captured_at=datetime.now(UTC),
+            )
         assert conn.execute.await_count >= 1  # at least the INSERT happened
 
 

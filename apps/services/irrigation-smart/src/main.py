@@ -262,7 +262,12 @@ async def lifespan(app: FastAPI):
                             pass
 
                 try:
-                    _js = getattr(app.state, "js", None) or app.state.nc.jetstream()
+                    _raw_nc = getattr(app.state, "nc", None)
+                    _js = getattr(app.state, "js", None) or (
+                        _raw_nc.jetstream() if _raw_nc is not None else None
+                    )
+                    if _js is None:
+                        raise RuntimeError("JetStream and NATS connection both unavailable")
                     weather_sub = await _js.subscribe(
                         "sahool.weather.forecast.issued",
                         durable="irrigation-smart-weather",

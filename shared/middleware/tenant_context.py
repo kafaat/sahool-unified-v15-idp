@@ -282,9 +282,6 @@ async def set_app_tenant(conn, tenant_id: str) -> None:
     await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
 
 
-from contextlib import asynccontextmanager
-
-
 @asynccontextmanager
 async def acquire_tenant_conn(pool, tenant_id: str):
     """

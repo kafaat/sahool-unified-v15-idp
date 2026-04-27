@@ -15,6 +15,7 @@ Field-First Architecture:
 
 import io
 import logging
+import json
 import os
 import sys
 import uuid
@@ -1308,9 +1309,6 @@ async def _publish_ndvi_event(
     if not _nats_available:
         return
     try:
-        import json
-        import uuid
-
         from shared.events.subjects import SAHOOL_NDVI_COMPUTED
         from shared.libs.events.nats_publisher import get_publisher
 

@@ -18,7 +18,10 @@ See ``README.md`` for usage and migration guidance.
 # Canonical asyncpg API — preferred for new services. Always importable.
 from .asyncpg_publisher import OutboxPublisher
 from .message import OutboxMessage
+from .metrics import OUTBOX_METRICS
 from .relay import OutboxRelay
+from .replay_policy import ReplayPolicy, ReplayPolicyEngine
+from .replay_tool import DistributedReplayGovernor, OutboxReplay, OutboxReplayGuard, ReplayRateLimitExceeded
 
 # Legacy SQLAlchemy API — preserved for existing services & tests. Importable
 # only when sqlalchemy is installed in the runtime; new asyncpg services
@@ -45,6 +48,13 @@ __all__ = [
     "OutboxMessage",
     "OutboxPublisher",
     "OutboxRelay",
+    "OutboxReplay",
+    "OutboxReplayGuard",
+    "DistributedReplayGovernor",
+    "ReplayRateLimitExceeded",
+    "ReplayPolicy",
+    "ReplayPolicyEngine",
+    "OUTBOX_METRICS",
 ]
 
 if _LEGACY_AVAILABLE:

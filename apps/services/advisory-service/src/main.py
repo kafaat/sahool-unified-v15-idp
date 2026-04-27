@@ -445,6 +445,21 @@ async def lifespan(app: FastAPI):
         publisher = await get_publisher()
         app.state.publisher = publisher
         logger.info("service_ready", service="advisory-service", port=8093)
+
+        # Ensure the platform-canonical JetStream stream for advisory events.
+        # SAHOOL_INTELLIGENCE covers sahool.advisory.> (our publish subjects).
+        # Using the shared ensure_streams() avoids stream-name conflicts.
+        if publisher and publisher.is_connected and publisher.nc:
+            try:
+                from shared.events.streams import STREAMS, ensure_streams
+
+                js = publisher.nc.jetstream()
+                app.state.js = js
+                relevant = [sd for sd in STREAMS if sd.name == "SAHOOL_INTELLIGENCE"]
+                n_ok = await ensure_streams(js, relevant)
+                logger.info("jetstream_streams_ready", count=n_ok)
+            except Exception as js_exc:
+                logger.debug("jetstream_streams_setup_skipped", error=str(js_exc))
     except Exception as e:
         logger.warning("nats_connection_failed", error=str(e))
 

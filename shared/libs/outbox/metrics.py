@@ -27,7 +27,18 @@ Metrics exposed:
 
 ``outbox_publish_latency_seconds``           histogram  {subject}
     End-to-end NATS publish duration per row.
-    Exposes NATS slowness, lock contention, and network jitter.
+    When JetStream is used this is the full round-trip time to receive a
+    server-side PubAck (durable delivery confirmed).  When falling back to
+    core NATS it is the socket-write time only (fire-and-forget at the
+    broker level).  The ``delivery_mode`` field in the published log record
+    indicates which semantic applies for each observation.
+
+``outbox_replay_total``                      counter    {subject, reason}
+    Rows reset by a replay operation (dead_lettered_at cleared, retry_count zeroed).
+    ``reason`` = ``"all"`` | ``"by_subject"`` | ``"by_ids"``
+    ``subject`` = actual NATS subject | ``"*"`` (all) | ``"(ids)"`` (by-ID list)
+    Critical for SLOs: frequent replay indicates persistent delivery failures.
+    Pair with ``outbox_dead_lettered_total`` to see: DLQ rate → replay rate.
 
 Recommended alert rules (PromQL):
 
@@ -98,6 +109,12 @@ try:
         buckets=_LATENCY_BUCKETS,
     )
 
+    _replay_counter = Counter(
+        "outbox_replay_total",
+        "Outbox rows reset by a replay operation",
+        ["subject", "reason"],
+    )
+
 except ImportError:  # pragma: no cover
     _PROMETHEUS_AVAILABLE = False
     _published_counter = None
@@ -105,6 +122,7 @@ except ImportError:  # pragma: no cover
     _dlq_counter = None
     _pending_gauge = None
     _latency_histogram = None
+    _replay_counter = None
 
 
 class _OutboxMetrics:
@@ -167,10 +185,36 @@ class _OutboxMetrics:
         - NATS broker slowness (high p99 across all subjects)
         - Per-subject hot spots (slow streams or large payloads)
         - Lock-contention spikes (latency spikes correlated with DB load)
+
+        Semantic note: when JetStream was used the observed duration covers
+        the full round-trip to receive a server-side PubAck (durable delivery
+        confirmed).  When the relay fell back to core NATS it covers only the
+        socket-write time (fire-and-forget at the broker level).  The
+        ``delivery_mode`` field in the published log record indicates which
+        applies for each row.
         """
         if _latency_histogram is not None:
             try:
                 _latency_histogram.labels(subject=subject).observe(duration_seconds)
+            except Exception:  # pragma: no cover
+                pass
+
+    def record_replay(self, subject: str, reason: str, count: int = 1) -> None:
+        """Increment the replay counter by *count* rows.
+
+        Args:
+            subject: NATS subject being replayed, or ``"*"`` for all-rows
+                replay, or ``"(ids)"`` for a by-ID-list replay.
+            reason: one of ``"all"``, ``"by_subject"``, ``"by_ids"``.
+            count: number of rows reset (default 1, usually the UPDATE count).
+
+        Pair this metric with ``outbox_dead_lettered_total`` in dashboards:
+        a rising replay rate relative to the DLQ rate indicates that replays
+        are not converging (stuck in a failure cycle).
+        """
+        if _replay_counter is not None:
+            try:
+                _replay_counter.labels(subject=subject, reason=reason).inc(count)
             except Exception:  # pragma: no cover
                 pass
 

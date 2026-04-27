@@ -209,7 +209,7 @@ class OutboxRelay:
                 continue
 
     @staticmethod
-    async def _nats_publish(nats_client, subject: str, payload: bytes, headers: dict) -> None:
+    async def _nats_publish(nats_client, subject: str, payload: bytes, headers: dict) -> str:
         """
         Publish to NATS, preferring JetStream ``js.publish`` (server-side PubAck)
         and falling back to core NATS ``nc.publish`` when JetStream is not
@@ -219,6 +219,13 @@ class OutboxRelay:
         stored in the matching stream before we mark the outbox row as sent.
         Using ``nc.publish`` is fire-and-forget at the server level but still
         raises on connection failure — keeping the retry guarantee intact.
+
+        Returns:
+            ``"jetstream"`` when a server-side PubAck was received — the
+            latency metric for this row measures full durable-delivery time.
+            ``"core_nats"`` when falling back to core publish — the latency
+            metric measures socket-write time only (fire-and-forget at broker
+            level, not a delivery guarantee).
         """
         js = None
         try:
@@ -231,7 +238,7 @@ class OutboxRelay:
         if js is not None:
             try:
                 await js.publish(subject, payload, headers=headers if headers else None)
-                return
+                return "jetstream"
             except Exception:
                 # JetStream publish failed (e.g. no matching stream for subject).
                 # Fall back to core NATS so the row is retried rather than lost.
@@ -242,6 +249,7 @@ class OutboxRelay:
             payload,
             headers=headers if headers else None,
         )
+        return "core_nats"
 
     async def _drain_batch(self, db_pool, nats_client, batch_size: int) -> int:
         """Fetch a claim batch in a short transaction, then publish outside.
@@ -294,7 +302,7 @@ class OutboxRelay:
 
             try:
                 t0 = time.monotonic()
-                await self._nats_publish(
+                delivery_mode = await self._nats_publish(
                     nats_client,
                     subject,
                     payload if isinstance(payload, bytes) else bytes(payload),
@@ -315,6 +323,7 @@ class OutboxRelay:
                         "event_id": event_id,
                         "tenant_id": tenant_id,
                         "worker_id": self._worker_id,
+                        "delivery_mode": delivery_mode,
                         "publish_latency_ms": round(publish_latency * 1000, 2),
                     },
                 )

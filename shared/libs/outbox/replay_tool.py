@@ -63,6 +63,8 @@ from datetime import datetime, timezone
 from typing import Sequence
 from uuid import UUID
 
+from shared.libs.outbox.metrics import OUTBOX_METRICS
+
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
@@ -103,6 +105,13 @@ SELECT COUNT(*) AS n
 FROM outbox_messages
 WHERE dead_lettered_at IS NOT NULL
 """
+
+# Transaction-level advisory lock — automatically released on commit/rollback.
+# The two-argument form uses (int4, int4): namespace=1 (SAHOOL outbox),
+# key=hashtext('outbox-replay').  This serializes concurrent replay callers
+# so that two operators or automated processes cannot reset the same rows
+# simultaneously, preventing wasted load and audit log confusion.
+_ADVISORY_LOCK_SQL = "SELECT pg_advisory_xact_lock(1, hashtext('outbox-replay'))"
 
 _LIST_DLQ_SQL = """
 SELECT id, subject, tenant_id, retry_count, dead_lettered_at
@@ -237,20 +246,44 @@ class OutboxReplay:
         if subject is not None and ids is not None:
             raise ValueError("Provide either 'subject' or 'ids', not both.")
 
+        # Determine metric labels before touching the DB.
+        if ids is not None:
+            reason = "by_ids"
+            metric_subject = "(ids)"
+        elif subject is not None:
+            reason = "by_subject"
+            metric_subject = subject
+        else:
+            reason = "all"
+            metric_subject = "*"
+
+        # Acquire a transaction-level advisory lock before mutating rows.
+        # This serializes concurrent replay callers (two ops-team members,
+        # automated-recovery + CLI) so they cannot reset the same DLQ rows
+        # simultaneously — which would produce wasted relay load and
+        # misleading audit log entries.  The lock is released automatically
+        # when the transaction commits or rolls back.
         async with db_pool.acquire() as conn:
-            if ids is not None:
-                str_ids = [str(i) for i in ids]
-                status = await conn.execute(_RESET_BY_IDS_SQL, str_ids)
-            elif subject is not None:
-                status = await conn.execute(_RESET_BY_SUBJECT_SQL, subject)
-            else:
-                status = await conn.execute(_RESET_ALL_SQL)
+            async with conn.transaction():
+                await conn.execute(_ADVISORY_LOCK_SQL)
+                if ids is not None:
+                    str_ids = [str(i) for i in ids]
+                    status = await conn.execute(_RESET_BY_IDS_SQL, str_ids)
+                elif subject is not None:
+                    status = await conn.execute(_RESET_BY_SUBJECT_SQL, subject)
+                else:
+                    status = await conn.execute(_RESET_ALL_SQL)
 
         # asyncpg returns a status string like "UPDATE 5"
         try:
             count = int(status.split()[-1])
         except (IndexError, ValueError):
             count = 0
+
+        # Record replay volume in Prometheus so it can be tracked alongside
+        # the DLQ rate (outbox_dead_lettered_total) in dashboards and SLOs.
+        if count > 0:
+            OUTBOX_METRICS.record_replay(subject=metric_subject, reason=reason, count=count)
 
         # Forensic audit log — every replay is permanently traceable.
         logger.info(

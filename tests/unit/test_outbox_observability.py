@@ -669,3 +669,240 @@ class TestInspectDeadLettered:
         assert info["total"] == 1
         assert info["oldest_age_seconds"] is not None
         assert info["oldest_age_seconds"] >= 0
+
+
+# ---------------------------------------------------------------------------
+# 8. Replay counter metric — record_replay() façade + integration
+# ---------------------------------------------------------------------------
+
+
+class TestReplayMetric:
+    """record_replay() must be safe in all environments and called on reset."""
+
+    def test_record_replay_does_not_raise(self):
+        OUTBOX_METRICS.record_replay(subject="sahool.ndvi.computed", reason="all", count=3)
+
+    def test_record_replay_zero_count_does_not_raise(self):
+        OUTBOX_METRICS.record_replay(subject="*", reason="all", count=0)
+
+    def test_record_replay_called_with_prometheus_mock(self):
+        mock_counter = MagicMock()
+        mock_counter.labels.return_value = mock_counter
+
+        import shared.libs.outbox.metrics as m
+
+        original = m._replay_counter
+        m._replay_counter = mock_counter
+        try:
+            OUTBOX_METRICS.record_replay(subject="sahool.test", reason="by_subject", count=5)
+            mock_counter.labels.assert_called_once_with(subject="sahool.test", reason="by_subject")
+            mock_counter.inc.assert_called_once_with(5)
+        finally:
+            m._replay_counter = original
+
+    @pytest.mark.asyncio
+    async def test_record_replay_called_on_reset_all(self):
+        """reset_dead_lettered() without filter: subject='*', reason='all'."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 4")
+
+        with patch("shared.libs.outbox.replay_tool.OUTBOX_METRICS") as mock_m:
+            await OutboxReplay.reset_dead_lettered(pool)
+
+        mock_m.record_replay.assert_called_once_with(subject="*", reason="all", count=4)
+
+    @pytest.mark.asyncio
+    async def test_record_replay_called_on_reset_by_subject(self):
+        """reset_dead_lettered(subject=...) : subject=actual, reason='by_subject'."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 2")
+
+        with patch("shared.libs.outbox.replay_tool.OUTBOX_METRICS") as mock_m:
+            await OutboxReplay.reset_dead_lettered(pool, subject="sahool.ndvi.computed")
+
+        mock_m.record_replay.assert_called_once_with(
+            subject="sahool.ndvi.computed", reason="by_subject", count=2
+        )
+
+    @pytest.mark.asyncio
+    async def test_record_replay_called_on_reset_by_ids(self):
+        """reset_dead_lettered(ids=[...]) : subject='(ids)', reason='by_ids'."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+        id1 = str(uuid.uuid4())
+
+        with patch("shared.libs.outbox.replay_tool.OUTBOX_METRICS") as mock_m:
+            await OutboxReplay.reset_dead_lettered(pool, ids=[id1])
+
+        mock_m.record_replay.assert_called_once_with(subject="(ids)", reason="by_ids", count=1)
+
+    @pytest.mark.asyncio
+    async def test_record_replay_not_called_when_zero_rows_reset(self):
+        """record_replay must be skipped when no rows were actually reset."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 0")
+
+        with patch("shared.libs.outbox.replay_tool.OUTBOX_METRICS") as mock_m:
+            await OutboxReplay.reset_dead_lettered(pool)
+
+        mock_m.record_replay.assert_not_called()
+
+
+# ---------------------------------------------------------------------------
+# 9. Advisory lock — serialization of concurrent replay operations
+# ---------------------------------------------------------------------------
+
+
+class TestAdvisoryLock:
+    """reset_dead_lettered() must acquire a pg_advisory_xact_lock before mutating rows."""
+
+    @pytest.mark.asyncio
+    async def test_advisory_lock_called_before_update(self):
+        """The advisory lock SQL must be the first execute call in the transaction."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+
+        await OutboxReplay.reset_dead_lettered(pool)
+
+        calls = conn.execute.call_args_list
+        # At least two execute calls: advisory lock + UPDATE
+        assert len(calls) >= 2
+        first_sql = calls[0][0][0]
+        assert "pg_advisory_xact_lock" in first_sql
+
+    @pytest.mark.asyncio
+    async def test_update_sql_called_after_advisory_lock(self):
+        """The UPDATE (or RESET) SQL must be the second execute call."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 3")
+
+        await OutboxReplay.reset_dead_lettered(pool)
+
+        calls = conn.execute.call_args_list
+        second_sql = calls[1][0][0]
+        # Should be the reset SQL (contains SET dead_lettered_at)
+        assert "dead_lettered_at" in second_sql
+
+    @pytest.mark.asyncio
+    async def test_advisory_lock_called_inside_transaction(self):
+        """Both the advisory lock and UPDATE must happen inside a transaction."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 2")
+
+        await OutboxReplay.reset_dead_lettered(pool)
+
+        # conn.transaction() must have been entered
+        conn.transaction.assert_called()
+
+    @pytest.mark.asyncio
+    async def test_advisory_lock_subject_filter_still_correct(self):
+        """Subject filter is still applied correctly even with the advisory lock."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+
+        await OutboxReplay.reset_dead_lettered(pool, subject="sahool.test")
+
+        calls = conn.execute.call_args_list
+        # Second call is the UPDATE with subject filter
+        update_call_args = calls[1][0]
+        assert "AND subject = $1" in update_call_args[0]
+        assert update_call_args[1] == "sahool.test"
+
+    @pytest.mark.asyncio
+    async def test_advisory_lock_ids_filter_still_correct(self):
+        """IDs filter is still applied correctly even with the advisory lock."""
+        pool, conn = _make_db_pool()
+        conn.execute = AsyncMock(return_value="UPDATE 1")
+        id1 = str(uuid.uuid4())
+
+        await OutboxReplay.reset_dead_lettered(pool, ids=[id1])
+
+        calls = conn.execute.call_args_list
+        update_call_args = calls[1][0]
+        assert "AND id = ANY($1::uuid[])" in update_call_args[0]
+        assert id1 in update_call_args[1]
+
+
+# ---------------------------------------------------------------------------
+# 10. Delivery mode in relay log — JetStream vs core NATS discrimination
+# ---------------------------------------------------------------------------
+
+
+class TestDeliveryModeLog:
+    """Published log record must carry delivery_mode to disambiguate latency semantics."""
+
+    @pytest.mark.asyncio
+    async def test_delivery_mode_present_in_published_log(self):
+        """outbox_published log must always carry delivery_mode field."""
+        row = _make_row()
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.logger") as mock_log:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        debug_calls = [c for c in mock_log.debug.call_args_list if c[0][0] == "outbox_published"]
+        assert debug_calls, "Expected outbox_published log"
+        extra = debug_calls[0][1]["extra"]
+        assert "delivery_mode" in extra
+        assert extra["delivery_mode"] in ("jetstream", "core_nats")
+
+    @pytest.mark.asyncio
+    async def test_delivery_mode_is_core_nats_when_jetstream_absent(self):
+        """When nats_client has no jetstream, delivery_mode must be 'core_nats'."""
+        row = _make_row()
+        pool, _ = _make_db_pool(rows=[row])
+
+        nats_client = AsyncMock()
+        nats_client.publish = AsyncMock(return_value=None)
+        del nats_client.jetstream  # force core NATS path
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.logger") as mock_log:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        debug_calls = [c for c in mock_log.debug.call_args_list if c[0][0] == "outbox_published"]
+        assert debug_calls[0][1]["extra"]["delivery_mode"] == "core_nats"
+
+    @pytest.mark.asyncio
+    async def test_delivery_mode_is_jetstream_when_js_publish_succeeds(self):
+        """When JetStream publish succeeds, delivery_mode must be 'jetstream'."""
+        row = _make_row()
+        pool, _ = _make_db_pool(rows=[row])
+
+        js_ctx = AsyncMock()
+        js_ctx.publish = AsyncMock(return_value=None)
+        nats_client = AsyncMock()
+        nats_client.jetstream = MagicMock(return_value=js_ctx)
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.logger") as mock_log:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        debug_calls = [c for c in mock_log.debug.call_args_list if c[0][0] == "outbox_published"]
+        assert debug_calls, "Expected outbox_published log"
+        assert debug_calls[0][1]["extra"]["delivery_mode"] == "jetstream"
+
+    @pytest.mark.asyncio
+    async def test_delivery_mode_falls_back_to_core_nats_when_js_publish_fails(self):
+        """When JetStream publish fails and falls back, delivery_mode must be 'core_nats'."""
+        row = _make_row()
+        pool, _ = _make_db_pool(rows=[row])
+
+        js_ctx = AsyncMock()
+        js_ctx.publish = AsyncMock(side_effect=Exception("stream not found"))
+        nats_client = AsyncMock()
+        nats_client.jetstream = MagicMock(return_value=js_ctx)
+        nats_client.publish = AsyncMock(return_value=None)
+
+        relay = OutboxRelay(worker_id="w-test")
+        with patch("shared.libs.outbox.relay.logger") as mock_log:
+            await relay._drain_batch(pool, nats_client, batch_size=10)
+
+        debug_calls = [c for c in mock_log.debug.call_args_list if c[0][0] == "outbox_published"]
+        assert debug_calls, "Expected outbox_published log after fallback"
+        assert debug_calls[0][1]["extra"]["delivery_mode"] == "core_nats"

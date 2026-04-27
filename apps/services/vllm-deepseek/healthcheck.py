@@ -41,6 +41,10 @@ def main() -> None:
     parser.add_argument("--timeout", type=int, default=10, help="Request timeout in seconds")
     args = parser.parse_args()
 
+    if not (1 <= args.port <= 65535):
+        print(f"invalid port: {args.port} (must be 1–65535)", file=sys.stderr)
+        sys.exit(1)
+
     if check(args.port, args.timeout):
         print(f"healthy: vLLM server responding on port {args.port}")
         sys.exit(0)

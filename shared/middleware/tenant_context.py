@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import logging
 import re
+from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 
@@ -281,7 +282,7 @@ async def set_app_tenant(conn, tenant_id: str) -> None:
     await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
 
 
-from contextlib import asynccontextmanager  # noqa: E402 — stdlib, safe to import here
+from contextlib import asynccontextmanager
 
 
 @asynccontextmanager

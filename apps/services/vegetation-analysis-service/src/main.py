@@ -381,12 +381,11 @@ except ImportError:
 # asyncpg (optional — for persisting NDVI results to ndvi_readings table)
 _asyncpg_available = False
 try:
-    import asyncpg as _asyncpg_module  # noqa: F401
+    import asyncpg as _asyncpg  # noqa: F401 — confirming availability; local import used in lifespan
 
     _asyncpg_available = True
 except ImportError:
     logger.info("asyncpg not installed — NDVI results will not be persisted to database")
-    _asyncpg_module = None  # type: ignore[assignment]
 
 
 @asynccontextmanager
@@ -411,19 +410,17 @@ async def lifespan(app: FastAPI):
         db_url = os.getenv("DATABASE_URL")
         if db_url:
             try:
-                import asyncpg  # local import — already confirmed available
+                import asyncpg  # local import — already confirmed available above
 
-                from shared.db.ssl import enforce_ssl_mode  # type: ignore[import]
+                try:
+                    from shared.db.ssl import enforce_ssl_mode  # type: ignore[import]
 
-                db_url = enforce_ssl_mode(db_url)
+                    db_url = enforce_ssl_mode(db_url)
+                except ImportError:
+                    pass  # shared.db.ssl not available — connect without SSL mode enforcement
+
                 app.state.db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
                 logger.info("db_pool_initialized", service="vegetation-analysis-service")
-            except ImportError:
-                # shared.db.ssl not available — connect without ssl helper
-                import asyncpg
-
-                app.state.db_pool = await asyncpg.create_pool(db_url, min_size=1, max_size=5)
-                logger.info("db_pool_initialized_no_ssl_helper", service="vegetation-analysis-service")
             except Exception as exc:
                 logger.warning("db_pool_init_failed", error=str(exc), service="vegetation-analysis-service")
         else:

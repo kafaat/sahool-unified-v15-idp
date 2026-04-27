@@ -217,7 +217,12 @@ export const satelliteMonitorApi = {
     const params = new URLSearchParams({ format, layer: layerType });
     if (date) params.set('date', date);
     const response = await api.get(`${base}?${params.toString()}`, { responseType: 'blob' });
-    return response.data as Blob;
+    // Guard: if the server returned an error body instead of a binary blob, surface it
+    const blob = response.data as Blob;
+    if (!blob || blob.size === 0) {
+      throw new Error('الصورة غير متاحة — The requested image is not available');
+    }
+    return blob;
   },
 
   /**

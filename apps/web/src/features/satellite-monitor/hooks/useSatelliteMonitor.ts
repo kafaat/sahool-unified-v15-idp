@@ -221,10 +221,10 @@ export function useDownloadIndicatorImage() {
       // Trigger a browser download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      const label = fieldName ? `${fieldName}_` : '';
+      const fieldNamePrefix = fieldName ? `${fieldName}_` : '';
       const dateSuffix = date ? `_${date}` : '';
       a.href = url;
-      a.download = `sahool_${label}${layerType}${dateSuffix}.${format}`;
+      a.download = `sahool_${fieldNamePrefix}${layerType}${dateSuffix}.${format}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

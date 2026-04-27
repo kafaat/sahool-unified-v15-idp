@@ -257,7 +257,7 @@ function Inner({
   const listenersRef  = useRef<any[]>([]);
 
   // ── Location-pick refs (for pan-mode click → lat/lng callback) ────────────
-  const activeModeRef       = useRef<DrawMode>(null);
+  const activeModeRef       = useRef<DrawMode | null>(null);
   const onLocationPickRef   = useRef(onLocationPick);
   const locationMarkerRef   = useRef<any>(null);
   onLocationPickRef.current = onLocationPick;

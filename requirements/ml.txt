@@ -11,7 +11,7 @@
 Pillow==12.2.0  # CVE-2026-25990, CVE-2026-40192 (FITS GZIP decompression bomb) fixed in 12.2.0
 
 # Numerical Computing
-numpy>=1.26.0,<2.0.0  # Pin <2.0 to prevent compiled module mismatch with torch/transformers built against 1.x
+numpy>=1.26.0,<3.0.0  # Pin <2.0 to prevent compiled module mismatch with torch/transformers built against 1.x
 
 # Machine Learning
 tensorflow-cpu==2.21.0

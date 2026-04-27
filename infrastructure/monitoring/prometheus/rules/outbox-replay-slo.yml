@@ -1,0 +1,263 @@
+# ═══════════════════════════════════════════════════════════════════════════════
+# SAHOOL Platform — Outbox Replay SLO Rules
+# قواعد أهداف مستوى الخدمة لإعادة إرسال الصندوق الصادر
+# ═══════════════════════════════════════════════════════════════════════════════
+# Version: 1.0.0
+# Date: 2026-04-27
+#
+# Translates 11 raw outbox metrics into a single observable narrative:
+#   "Is the replay system healing or deteriorating?"
+#
+# Architecture:
+#   Layer 1 — Component Recording Rules  (convergence_rate, failure_pressure, system_stress)
+#   Layer 2 — Health Score Recording Rule (composite 0–100 scalar)
+#   Layer 3 — Alert Rules                 (6 rules across 3 severity levels)
+#
+# Health Score Model (0–100):
+#
+#   CR = (recovered_rate + ε) / (recovered_rate + failed_final_rate + ε)
+#        [convergence ratio: 1 = all replays succeed, 0 = all replays fail]
+#
+#   FP = clamp(failed_final_rate / (replay_rate + ε), 0, 1)
+#        [failure pressure: fraction of replays that permanently fail]
+#
+#   SS = clamp((blocked_rate + suppressed_rate) / (replay_rate + ε), 0, 1)
+#        [system stress: fraction of replays the system had to suppress]
+#
+#   Health = clamp(100·CR − 40·FP − 30·SS, 0, 100)
+#
+# Score interpretation:
+#   ≥ 80   Healthy    — system converging normally
+#   50–79  Warning    — degraded convergence or elevated stress
+#   20–49  Critical   — persistent failures or high suppression load
+#    < 20  Emergency  — system cannot self-heal
+#
+# Quiescent state (no replay activity): all rates → 0, ε/ε = 1 → score = 100.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+groups:
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Layer 1: Component Recording Rules
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: outbox_replay_recording_components
+    interval: 30s
+    rules:
+
+      # Convergence Rate — CR ∈ [0, 1]
+      # Rising towards 1 means replays are succeeding.
+      # ε = 0.001 guarantees score = 100 when quiescent (no replay activity).
+      - record: outbox:replay:convergence_rate:5m
+        expr: |
+          (
+            sum(rate(outbox_replay_recovered_total[5m])) + 0.001
+          )
+          /
+          (
+            sum(rate(outbox_replay_recovered_total[5m]))
+            + sum(rate(outbox_replay_failed_final_total[5m]))
+            + 0.001
+          )
+
+      # Failure Pressure — FP ∈ [0, 1]
+      # Fraction of replay attempts that end up permanently failed.
+      # FP > 0.3 means replay is making things worse, not better.
+      - record: outbox:replay:failure_pressure:5m
+        expr: |
+          clamp_max(
+            sum(rate(outbox_replay_failed_final_total[5m]))
+            /
+            (sum(rate(outbox_replay_total[5m])) + 0.001),
+            1
+          )
+
+      # System Stress — SS ∈ [0, 1]
+      # Fraction of replay attempts the governance layer had to suppress.
+      # SS > 0 means the policy engine is actively fighting a replay problem.
+      - record: outbox:replay:system_stress:5m
+        expr: |
+          clamp_max(
+            (
+              sum(rate(outbox_replay_blocked_total[5m]))
+              + sum(rate(outbox_replay_policy_suppressed_total[5m]))
+            )
+            /
+            (sum(rate(outbox_replay_total[5m])) + 0.001),
+            1
+          )
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Layer 2: Health Score Recording Rule
+  # Runs after Layer 1 so it picks up the component values written above.
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: outbox_replay_recording_score
+    interval: 30s
+    rules:
+
+      # Replay Health Score — ∈ [0, 100]
+      # Single scalar that answers: "Is the system healing or deteriorating?"
+      # Inlined expressions (not referencing Layer 1 names) for evaluation safety.
+      - record: outbox:replay:health_score:5m
+        expr: |
+          clamp(
+            100 * (
+              (sum(rate(outbox_replay_recovered_total[5m])) + 0.001)
+              /
+              (
+                sum(rate(outbox_replay_recovered_total[5m]))
+                + sum(rate(outbox_replay_failed_final_total[5m]))
+                + 0.001
+              )
+            )
+            - 40 * clamp_max(
+                sum(rate(outbox_replay_failed_final_total[5m]))
+                / (sum(rate(outbox_replay_total[5m])) + 0.001),
+                1
+              )
+            - 30 * clamp_max(
+                (
+                  sum(rate(outbox_replay_blocked_total[5m]))
+                  + sum(rate(outbox_replay_policy_suppressed_total[5m]))
+                )
+                / (sum(rate(outbox_replay_total[5m])) + 0.001),
+                1
+              ),
+            0, 100
+          )
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Layer 3: Alert Rules
+  # ─────────────────────────────────────────────────────────────────────────────
+  - name: outbox_replay_alerts
+    rules:
+
+      # ── (1) EMERGENCY: System cannot self-heal ────────────────────────────
+      - alert: OutboxReplayHealthEmergency
+        expr: outbox:replay:health_score:5m < 20
+        for: 5m
+        labels:
+          severity: critical
+          category: outbox_slo
+          platform: sahool
+        annotations:
+          summary: "Outbox replay system is in emergency state (score < 20)"
+          summary_ar: "نظام إعادة إرسال الصندوق في حالة طوارئ (النتيجة < 20)"
+          description: |
+            Replay health score is {{ printf "%.1f" $value }}/100.
+            The system cannot self-heal: replay attempts are not converging.
+            Immediate manual investigation required.
+          description_ar: |
+            نتيجة صحة الإعادة هي {{ printf "%.1f" $value }}/100.
+            النظام لا يستطيع الاسترداد الذاتي: محاولات إعادة الإرسال لا تتقارب.
+            مطلوب تحقيق يدوي فوري.
+          action: "URGENT: Check NATS connectivity, inspect FAILED_FINAL rows, consider manual DLQ triage"
+          action_ar: "عاجل: تحقق من اتصال NATS، افحص صفوف FAILED_FINAL، فكر في فرز DLQ يدوياً"
+          runbook_url: "https://docs.sahool.io/runbooks/outbox-replay-emergency"
+
+      # ── (2) CRITICAL: Degraded convergence ───────────────────────────────
+      - alert: OutboxReplayHealthCritical
+        expr: outbox:replay:health_score:5m < 50
+        for: 10m
+        labels:
+          severity: critical
+          category: outbox_slo
+          platform: sahool
+        annotations:
+          summary: "Outbox replay health is critically degraded (score < 50)"
+          summary_ar: "صحة إعادة إرسال الصندوق متدهورة بشكل حرج (النتيجة < 50)"
+          description: |
+            Replay health score sustained below 50 for 10 minutes.
+            Current score: {{ printf "%.1f" $value }}/100.
+            Replay system is failing more than converging.
+          description_ar: |
+            نتيجة صحة الإعادة أقل من 50 لمدة 10 دقائق.
+            النتيجة الحالية: {{ printf "%.1f" $value }}/100.
+          runbook_url: "https://docs.sahool.io/runbooks/outbox-replay-slo"
+
+      # ── (3) WARNING: Degraded performance ────────────────────────────────
+      - alert: OutboxReplayHealthWarning
+        expr: outbox:replay:health_score:5m < 80
+        for: 15m
+        labels:
+          severity: warning
+          category: outbox_slo
+          platform: sahool
+        annotations:
+          summary: "Outbox replay health below healthy threshold (score < 80)"
+          summary_ar: "صحة إعادة إرسال الصندوق أقل من العتبة الصحية (النتيجة < 80)"
+          description: |
+            Replay health score: {{ printf "%.1f" $value }}/100.
+            System is degraded but functional. Monitor for worsening trend.
+          description_ar: |
+            نتيجة صحة الإعادة: {{ printf "%.1f" $value }}/100.
+            النظام متدهور لكنه يعمل. راقب الاتجاه المتفاقم.
+
+      # ── (4) CRITICAL: Permanent replay failure ───────────────────────────
+      # A row in FAILED_FINAL state means replay cannot recover it.
+      # Even one such row warrants immediate attention.
+      - alert: OutboxReplayPermanentFailure
+        expr: rate(outbox_replay_failed_final_total[5m]) > 0
+        for: 2m
+        labels:
+          severity: critical
+          category: outbox_slo
+          platform: sahool
+        annotations:
+          summary: "Outbox rows entering FAILED_FINAL state — replay cannot recover them"
+          summary_ar: "صفوف الصندوق تدخل حالة FAILED_FINAL — لا يمكن للإعادة استردادها"
+          description: |
+            Rate: {{ printf "%.4f" $value }} rows/sec entering FAILED_FINAL.
+            Subject: {{ $labels.subject }}.
+            These rows will never be automatically delivered. Manual action required.
+          description_ar: |
+            المعدل: {{ printf "%.4f" $value }} صف/ثانية تدخل FAILED_FINAL.
+            الموضوع: {{ $labels.subject }}.
+            هذه الصفوف لن تُسلَّم تلقائياً أبداً. مطلوب إجراء يدوي.
+          action: "Query SELECT * FROM outbox_messages WHERE replay_state = 'FAILED_FINAL' ORDER BY updated_at DESC LIMIT 20"
+          runbook_url: "https://docs.sahool.io/runbooks/outbox-failed-final"
+
+      # ── (5) WARNING: Policy engine actively suppressing ──────────────────
+      # Policy suppression means the system detected health was too low to
+      # allow replay. This is self-protection, but it needs operator awareness.
+      - alert: OutboxReplayPolicySuppressing
+        expr: rate(outbox_replay_policy_suppressed_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          category: outbox_slo
+          platform: sahool
+        annotations:
+          summary: "Outbox policy engine is suppressing replay attempts (reason={{ $labels.reason }})"
+          summary_ar: "محرك السياسة يمنع محاولات الإعادة (السبب={{ $labels.reason }})"
+          description: |
+            The ReplayPolicyEngine is blocking replay.
+            Reason: {{ $labels.reason }}.
+            This means system health signals indicate replay would worsen the situation.
+            Investigate root cause: dlq_growth = DLQ growing faster than replay can fix;
+            success_rate_too_low = too many replays are failing permanently.
+          description_ar: |
+            محرك سياسة الحوكمة يمنع الإعادة.
+            السبب: {{ $labels.reason }}.
+
+      # ── (6) WARNING: Governor window approaching hard block ───────────────
+      # Leading indicator — fires BEFORE governor hard-blocks replay.
+      # Alert at 80% to give operators reaction time.
+      - alert: OutboxGovernorWindowHigh
+        expr: outbox_governor_window_usage > 80
+        for: 5m
+        labels:
+          severity: warning
+          category: outbox_slo
+          platform: sahool
+        annotations:
+          summary: "Outbox governor window at {{ printf \"%.0f\" $value }}% for subject {{ $labels.subject }}"
+          summary_ar: "نافذة حاكم الصندوق عند {{ printf \"%.0f\" $value }}% للموضوع {{ $labels.subject }}"
+          description: |
+            The DistributedReplayGovernor sliding window is {{ printf "%.0f" $value }}% full
+            for subject {{ $labels.subject }}.
+            At 100% the governor will hard-block all replay for this subject.
+            Reduce replay frequency or investigate why so many DLQ rows are accumulating.
+          description_ar: |
+            نافذة حاكم الإعادة الموزعة ممتلئة بنسبة {{ printf "%.0f" $value }}%
+            للموضوع {{ $labels.subject }}.
+            عند 100% سيحجب الحاكم جميع محاولات الإعادة لهذا الموضوع.

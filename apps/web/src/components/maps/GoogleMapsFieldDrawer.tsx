@@ -432,7 +432,7 @@ function Inner({
           locationMarkerRef.current = new window.google.maps.Marker({
             position: { lat, lng },
             map,
-            title: 'موقع الحقل',
+            title: 'موقع الحقل — Field Location',
             icon: {
               path: window.google.maps.SymbolPath.CIRCLE,
               scale: 9,

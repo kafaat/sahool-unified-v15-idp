@@ -38,8 +38,19 @@ CREATE TABLE IF NOT EXISTS outbox_messages (
 ALTER TABLE outbox_messages ADD COLUMN IF NOT EXISTS claimed_at TIMESTAMPTZ;
 ALTER TABLE outbox_messages ADD COLUMN IF NOT EXISTS claimed_by TEXT;
 
--- Hot path: relay polls unpublished rows in insertion order, filtering
--- out rows currently claimed by a running worker.
+-- Dead-letter support: rows that have exhausted all relay retries are
+-- stamped with dead_lettered_at so the relay skips them permanently.
+-- A separate monitoring query / replay tool can inspect these rows.
+ALTER TABLE outbox_messages ADD COLUMN IF NOT EXISTS dead_lettered_at TIMESTAMPTZ;
+
+-- Hot path: relay polls rows that are pending (not published, not dead-lettered)
+-- in insertion order, filtering out rows currently claimed by a running worker.
+CREATE INDEX IF NOT EXISTS idx_outbox_pending
+    ON outbox_messages (created_at)
+    WHERE published_at IS NULL AND dead_lettered_at IS NULL;
+
+-- Legacy index kept for compatibility with existing deployments; the new
+-- idx_outbox_pending index is more selective.
 CREATE INDEX IF NOT EXISTS idx_outbox_unpublished
     ON outbox_messages (created_at)
     WHERE published_at IS NULL;

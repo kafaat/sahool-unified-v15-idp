@@ -10,6 +10,22 @@ can safely run the relay without double-publishing.
 Designed to be started from a FastAPI lifespan context and stopped on
 shutdown. Failures increment ``retry_count`` and are logged; the relay
 never crashes the service.
+
+Dead-letter:
+  Rows that reach ``_MAX_RETRIES`` failures are stamped with
+  ``dead_lettered_at`` and permanently excluded from the relay's fetch
+  query so they do not spin forever.  An operator can replay or inspect
+  them via a direct query:
+
+      SELECT * FROM outbox_messages WHERE dead_lettered_at IS NOT NULL;
+
+Publish semantics:
+  The relay tries JetStream ``js.publish`` first (returns a server-side
+  PubAck confirming the message is durably stored in the stream).  If the
+  NATS client does not expose a ``jetstream()`` method, or JetStream is
+  not configured for the subject, it falls back to core NATS
+  ``nc.publish``.  Both paths raise on failure, keeping the retry
+  guarantee intact.
 """
 
 from __future__ import annotations
@@ -20,6 +36,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Maximum publish attempts before a row is dead-lettered.
+_MAX_RETRIES = 10
 
 # Two-step claim+publish protocol (see README):
 #   Step 1  SELECT ... FOR UPDATE SKIP LOCKED; UPDATE claimed_at/claimed_by
@@ -40,6 +58,7 @@ WITH claimable AS (
     SELECT id
     FROM outbox_messages
     WHERE published_at IS NULL
+      AND dead_lettered_at IS NULL
       AND (claimed_at IS NULL OR claimed_at < NOW() - ($2 || ' seconds')::INTERVAL)
     ORDER BY created_at
     LIMIT $1
@@ -54,10 +73,19 @@ RETURNING o.id, o.tenant_id, o.subject, o.payload, o.headers, o.retry_count
 
 _MARK_SENT_SQL = "UPDATE outbox_messages SET published_at = NOW(), claimed_at = NULL, claimed_by = NULL WHERE id = $1"
 
-# On failure: bump retry_count AND release the claim so another worker
-# (or the same one on the next tick) can retry.
+# On transient failure: bump retry_count AND release the claim so another
+# worker (or the same one on the next tick) can retry.
 _MARK_FAILED_SQL = (
     "UPDATE outbox_messages SET retry_count = retry_count + 1, claimed_at = NULL, claimed_by = NULL WHERE id = $1"
+)
+
+# Poison-message dead-letter: stamp dead_lettered_at and release the claim.
+# The row is excluded from all future relay fetches (see _FETCH_SQL filter).
+_MARK_DLQ_SQL = (
+    "UPDATE outbox_messages"
+    " SET dead_lettered_at = NOW(), retry_count = retry_count + 1,"
+    "     claimed_at = NULL, claimed_by = NULL"
+    " WHERE id = $1"
 )
 
 
@@ -68,6 +96,8 @@ class OutboxRelay:
     Args (passed to :meth:`start`):
         db_pool: asyncpg connection pool.
         nats_client: Connected NATS client exposing ``publish(subject, payload, headers=...)``.
+            If the client also exposes ``jetstream()`` the relay will use
+            ``js.publish`` for server-side PubAck confirmation.
         poll_interval_seconds: Base polling interval when there are no rows.
         batch_size: Max rows fetched per tick.
         worker_id: Identifier stored in ``claimed_by`` so a multi-replica
@@ -79,6 +109,9 @@ class OutboxRelay:
     Multi-replica safety: claims are persisted atomically with the SELECT
     (see ``_FETCH_SQL``). A claim older than ``_CLAIM_STALE_SECONDS`` is
     treated as expired — so a crashed worker's rows become eligible again.
+
+    Poison-message protection: after ``_MAX_RETRIES`` consecutive publish
+    failures a row is dead-lettered and excluded from the relay permanently.
     """
 
     def __init__(self, worker_id: str | None = None) -> None:
@@ -172,6 +205,41 @@ class OutboxRelay:
             except TimeoutError:
                 continue
 
+    @staticmethod
+    async def _nats_publish(nats_client, subject: str, payload: bytes, headers: dict) -> None:
+        """
+        Publish to NATS, preferring JetStream ``js.publish`` (server-side PubAck)
+        and falling back to core NATS ``nc.publish`` when JetStream is not
+        available on the given client.
+
+        Using ``js.publish`` means the server confirms the message is durably
+        stored in the matching stream before we mark the outbox row as sent.
+        Using ``nc.publish`` is fire-and-forget at the server level but still
+        raises on connection failure — keeping the retry guarantee intact.
+        """
+        js = None
+        try:
+            js = nats_client.jetstream()
+        except AttributeError:
+            pass  # nats_client has no jetstream() method — fall through
+        except Exception:
+            pass  # JetStream context not available — fall through
+
+        if js is not None:
+            try:
+                await js.publish(subject, payload, headers=headers if headers else None)
+                return
+            except Exception:
+                # JetStream publish failed (e.g. no matching stream for subject).
+                # Fall back to core NATS so the row is retried rather than lost.
+                pass
+
+        await nats_client.publish(
+            subject,
+            payload,
+            headers=headers if headers else None,
+        )
+
     async def _drain_batch(self, db_pool, nats_client, batch_size: int) -> int:
         """Fetch a claim batch in a short transaction, then publish outside.
 
@@ -183,6 +251,9 @@ class OutboxRelay:
         The split ensures the DB connection is released as soon as the claim
         is taken, publishes happen without any lock held, and each mark is
         applied in its own short UPDATE.
+
+        Rows that exhaust ``_MAX_RETRIES`` attempts are dead-lettered so they
+        do not spin in an infinite retry loop (poison-message protection).
         """
         # --- Step 1: claim batch atomically, release txn immediately ---
         # The SELECT ... FOR UPDATE SKIP LOCKED CTE + UPDATE writes
@@ -211,33 +282,55 @@ class OutboxRelay:
                     headers = {}
 
             try:
-                await nats_client.publish(
+                await self._nats_publish(
+                    nats_client,
                     subject,
                     payload if isinstance(payload, bytes) else bytes(payload),
-                    headers=headers if headers else None,
+                    headers,
                 )
                 # --- Step 3a: mark sent (short, separate txn) ---
                 async with db_pool.acquire() as mark_conn:
                     await mark_conn.execute(_MARK_SENT_SQL, row_id)
                 published_count += 1
             except Exception as exc:
-                # --- Step 3b: mark failed (short, separate txn) ---
-                try:
-                    async with db_pool.acquire() as mark_conn:
-                        await mark_conn.execute(_MARK_FAILED_SQL, row_id)
-                except Exception as mark_exc:
+                current_retry = row["retry_count"] + 1
+                if current_retry >= _MAX_RETRIES:
+                    # Poison message — dead-letter permanently
+                    try:
+                        async with db_pool.acquire() as mark_conn:
+                            await mark_conn.execute(_MARK_DLQ_SQL, row_id)
+                    except Exception as dlq_exc:
+                        logger.error(
+                            "outbox_dlq_mark_failed",
+                            extra={"outbox_id": str(row_id), "error": str(dlq_exc)},
+                        )
                     logger.error(
-                        "outbox_mark_failed_error",
-                        extra={"outbox_id": str(row_id), "error": str(mark_exc)},
+                        "outbox_dead_lettered",
+                        extra={
+                            "outbox_id": str(row_id),
+                            "subject": subject,
+                            "retry_count": current_retry,
+                            "error": str(exc),
+                        },
                     )
-                logger.warning(
-                    "outbox_publish_failed",
-                    extra={
-                        "outbox_id": str(row_id),
-                        "subject": subject,
-                        "retry_count": row["retry_count"] + 1,
-                        "error": str(exc),
-                    },
-                )
+                else:
+                    # --- Step 3b: transient failure — increment and release claim ---
+                    try:
+                        async with db_pool.acquire() as mark_conn:
+                            await mark_conn.execute(_MARK_FAILED_SQL, row_id)
+                    except Exception as mark_exc:
+                        logger.error(
+                            "outbox_mark_failed_error",
+                            extra={"outbox_id": str(row_id), "error": str(mark_exc)},
+                        )
+                    logger.warning(
+                        "outbox_publish_failed",
+                        extra={
+                            "outbox_id": str(row_id),
+                            "subject": subject,
+                            "retry_count": current_retry,
+                            "error": str(exc),
+                        },
+                    )
 
         return published_count

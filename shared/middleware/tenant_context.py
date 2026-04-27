@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import logging
 import re
+from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 
@@ -244,3 +245,70 @@ def is_current_user_admin() -> bool:
     if ctx is None or ctx.roles is None:
         return False
     return "admin" in ctx.roles or "super_admin" in ctx.roles
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PostgreSQL session-level RLS enforcement
+# تطبيق عزل المستأجر على مستوى جلسة PostgreSQL
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+async def set_app_tenant(conn, tenant_id: str | None) -> None:
+    """
+    Set the PostgreSQL session variable used by RLS policies.
+
+    This calls ``SET LOCAL app.current_tenant = '<tenant_id>'`` which makes
+    the value visible to ``current_tenant_id()`` (defined in migration
+    010_row_level_security.sql) and therefore to all RLS policies on the
+    current transaction.
+
+    Must be called *inside* an open transaction — ``SET LOCAL`` is
+    automatically rolled back when the transaction ends.
+
+    If ``tenant_id`` is ``None`` or an empty string, the function is a no-op
+    and the session variable is left unchanged.
+
+    Args:
+        conn:      An asyncpg connection (or compatible DB connection).
+        tenant_id: The tenant UUID string for the current request, or ``None``
+                   to skip setting the tenant (e.g. system-level operations).
+
+    Example::
+
+        async with pool.acquire() as conn:
+            async with conn.transaction():
+                await set_app_tenant(conn, tenant_id)
+                rows = await conn.fetch("SELECT * FROM fields")
+    """
+    if not tenant_id:
+        return
+    # Use parameterized form to avoid any injection risk
+    await conn.execute("SELECT set_config('app.current_tenant', $1, true)", tenant_id)
+
+
+@asynccontextmanager
+async def acquire_tenant_conn(pool, tenant_id: str | None):
+    """
+    Async context manager that acquires a pooled asyncpg connection and
+    sets the session-level ``app.current_tenant`` variable for RLS.
+
+    The tenant variable is set via ``SET LOCAL`` inside a transaction, so
+    it is automatically cleared when the transaction finishes.  If
+    ``tenant_id`` is ``None`` or empty, the session variable is not set.
+
+    Usage::
+
+        async with acquire_tenant_conn(app.state.db_pool, tenant_id) as conn:
+            rows = await conn.fetch("SELECT * FROM fields WHERE ...")
+
+    Args:
+        pool:      An asyncpg connection pool (``asyncpg.Pool``).
+        tenant_id: Tenant UUID for the current request context.
+
+    Yields:
+        asyncpg connection with ``app.current_tenant`` already set.
+    """
+    async with pool.acquire() as conn:
+        async with conn.transaction():
+            await set_app_tenant(conn, tenant_id)
+            yield conn

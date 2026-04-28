@@ -233,7 +233,6 @@ export function useDownloadIndicatorImage() {
       layerType,
       format,
       date,
-      fieldName,
     }: {
       fieldId: string;
       layerType: MapLayerType;

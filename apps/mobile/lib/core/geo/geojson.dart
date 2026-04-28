@@ -204,7 +204,11 @@ class GeoJson {
   // Polygon Validation
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Minimum field area in hectares (100 m²)
+  /// Minimum field area in hectares (≈ 100 m²).
+  ///
+  /// Prevents degenerate or accidental tap-sized polygons from being saved.
+  /// Most agronomic operations (irrigation scheduling, NDVI analysis) are
+  /// only meaningful for fields larger than this threshold.
   static const double minAreaHectares = 0.01;
 
   /// Check whether a polygon's edges self-intersect.
@@ -218,7 +222,8 @@ class GeoJson {
     // Work in longitude/latitude degrees (good enough for field scale)
     for (int i = 0; i < n - 1; i++) {
       for (int j = i + 2; j < n - 1; j++) {
-        // Skip adjacent segments (share a vertex)
+        // Skip the pair (first segment, last segment) in a closed polygon —
+        // they share vertex 0 and are adjacent, not crossing.
         if (i == 0 && j == n - 2) continue;
         if (_segmentsIntersect(
           polygon[i], polygon[i + 1],

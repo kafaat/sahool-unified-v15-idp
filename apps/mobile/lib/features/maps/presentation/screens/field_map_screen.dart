@@ -68,6 +68,9 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   /// Field boundary coordinates (loaded from field data)
   List<LatLng> _fieldBoundary = [];
 
+  /// Base URL of the NDVI backend service, cached to avoid ref.read in build.
+  String _ndviBaseUrl = '';
+
   @override
   void initState() {
     super.initState();
@@ -75,6 +78,13 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     _loadFieldBoundary();
     // Load real vegetation index values from backend API
     _loadIndexValues();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Cache baseUrl once the ProviderScope is available.
+    _ndviBaseUrl = ref.read(ndviServiceProvider).baseUrl;
   }
 
   @override
@@ -122,7 +132,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   ///
   /// Calls [NdviServiceConnector.getIndices] which hits
   /// `/api/v1/satellite/indices/{fieldId}` via Kong.
-  /// Values are stored in [_indexValues] and the widget is rebuilt.
+  /// Values are stored in [_indexValues] keyed by uppercase index code
+  /// (e.g. 'NDVI', 'NDWI') and the widget is rebuilt.
   Future<void> _loadIndexValues() async {
     if (_indexLoading) return;
     setState(() => _indexLoading = true);
@@ -136,6 +147,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       if (indices != null) {
         final updated = <String, double>{};
         for (final idx in indices) {
+          // Normalise to uppercase so lookups using SpectralIndex.code match.
+          // Both the API name field and SpectralIndex.code use e.g. "NDVI".
           updated[idx.name.toUpperCase()] = idx.value;
         }
         setState(() {
@@ -420,9 +433,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     if (_showNdvi) {
       overlays.add(
         NdviTileLayerWidget(
-          config: NdviTileConfig.sahoolBackend(
-            baseUrl: ref.read(ndviServiceProvider).baseUrl,
-          ),
+          config: NdviTileConfig.sahoolBackend(baseUrl: _ndviBaseUrl),
           visible: true,
         ),
       );

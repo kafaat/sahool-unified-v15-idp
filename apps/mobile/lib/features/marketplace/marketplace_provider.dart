@@ -410,8 +410,15 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     loadProducts(category: category);
   }
 
-  /// إضافة إلى السلة
-  void addToCart(Product product, {double quantity = 1}) {
+  /// إضافة إلى السلة مع التحقق من توفر المخزون
+  /// يُرجع true عند النجاح وfalse عند رفض الإضافة (نفد المخزون أو تجاوز الكمية المتاحة)
+  bool addToCart(Product product, {double quantity = 1}) {
+    if (product.stock <= 0) {
+      AppLogger.w('Attempted to add out-of-stock product: ${product.id}', tag: 'MARKETPLACE');
+      state = state.copyWith(error: 'المنتج "${product.nameAr}" غير متاح حالياً (نفد المخزون)');
+      return false;
+    }
+
     final existingIndex = state.cart.indexWhere(
       (item) => item.product.id == product.id,
     );
@@ -419,14 +426,25 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     List<CartItem> newCart;
 
     if (existingIndex >= 0) {
-      // تحديث الكمية
+      // تحديث الكمية مع التحقق من المخزون
       newCart = [...state.cart];
       final existingItem = newCart[existingIndex];
-      newCart[existingIndex] = existingItem.copyWith(
-        quantity: existingItem.quantity + quantity,
-      );
+      final newQty = existingItem.quantity + quantity;
+      if (newQty > product.stock) {
+        state = state.copyWith(
+          error: 'لا يمكن إضافة أكثر من ${product.stock.toStringAsFixed(0)} ${product.unitAr} من "${product.nameAr}"',
+        );
+        return false;
+      }
+      newCart[existingIndex] = existingItem.copyWith(quantity: newQty);
     } else {
-      // إضافة عنصر جديد
+      // إضافة عنصر جديد مع التحقق من المخزون
+      if (quantity > product.stock) {
+        state = state.copyWith(
+          error: 'لا يمكن إضافة أكثر من ${product.stock.toStringAsFixed(0)} ${product.unitAr} من "${product.nameAr}"',
+        );
+        return false;
+      }
       newCart = [
         ...state.cart,
         CartItem(product: product, quantity: quantity),
@@ -434,6 +452,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     }
 
     state = state.copyWith(cart: newCart);
+    return true;
   }
 
   /// تحديث كمية في السلة

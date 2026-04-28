@@ -570,6 +570,84 @@ void main() {
       // Assert
       expect(order, isNull);
     });
+
+    // ─── Stock guard ────────────────────────────────────────────────────────
+
+    test('addToCart does NOT add out-of-stock product', () {
+      final outOfStock = Product(
+        id: 'OOS',
+        name: 'Out of stock',
+        nameAr: 'نفد المخزون',
+        category: ProductCategory.seeds,
+        price: 10.0,
+        stock: 0,
+        unit: 'kg',
+        sellerId: 'seller-test',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025, 6, 15),
+      );
+
+      final added = notifier.addToCart(outOfStock, quantity: 1);
+
+      expect(added, isFalse);
+      expect(notifier.state.cart, isEmpty);
+      expect(notifier.state.error, isNotNull);
+    });
+
+    test('addToCart does NOT add new item exceeding available stock', () {
+      final limited = Product(
+        id: 'NEW-EXCEED',
+        name: 'New Exceed',
+        nameAr: 'تجاوز جديد',
+        category: ProductCategory.seeds,
+        price: 10.0,
+        stock: 3,
+        unit: 'kg',
+        sellerId: 'seller-test',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025, 6, 15),
+      );
+
+      final added = notifier.addToCart(limited, quantity: 5);
+
+      expect(added, isFalse);
+      expect(notifier.state.cart, isEmpty);
+      expect(notifier.state.error, isNotNull);
+    });
+
+    test('addToCart does NOT exceed available stock when updating existing item', () {
+      final limited = Product(
+        id: 'LTD',
+        name: 'Limited',
+        nameAr: 'محدود',
+        category: ProductCategory.seeds,
+        price: 10.0,
+        stock: 10,
+        unit: 'kg',
+        sellerId: 'seller-test',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025, 6, 15),
+      );
+
+      notifier.addToCart(limited, quantity: 8);
+      expect(notifier.state.cart.first.quantity, 8);
+
+      final added = notifier.addToCart(limited, quantity: 5);
+
+      expect(added, isFalse);
+      expect(notifier.state.cart.first.quantity, 8);
+      expect(notifier.state.error, isNotNull);
+    });
+
+    test('addToCart returns true on successful add', () {
+      final product = _createProduct(ProductCategory.seeds, id: 'OK');
+
+      final added = notifier.addToCart(product, quantity: 1);
+
+      expect(added, isTrue);
+      expect(notifier.state.cart, hasLength(1));
+      expect(notifier.state.error, isNull);
+    });
   });
 }
 

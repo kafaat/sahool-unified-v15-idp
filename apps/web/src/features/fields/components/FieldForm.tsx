@@ -59,9 +59,8 @@ export const FieldForm: React.FC<FieldFormProps> = ({
     }
 
     const trimmedName = formData.name.trim();
-    if (!trimmedName) {
-      newErrors.name = 'Field name in English is required';
-    } else if (trimmedName.length < MIN_NAME_LENGTH) {
+    // English name is optional; only validate if the user provided something
+    if (trimmedName && trimmedName.length < MIN_NAME_LENGTH) {
       newErrors.name = `Name too short (minimum ${MIN_NAME_LENGTH} characters)`;
     } else if (trimmedName.length > MAX_NAME_LENGTH) {
       newErrors.name = `Name too long (maximum ${MAX_NAME_LENGTH} characters)`;
@@ -169,17 +168,16 @@ export const FieldForm: React.FC<FieldFormProps> = ({
             {errors.nameAr && <p className="mt-1 text-sm text-red-600">{errors.nameAr}</p>}
           </div>
 
-          {/* Name (English) */}
+          {/* Name (English) - optional */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Name (English) <span className="text-gray-400 text-xs font-normal">— اختياري</span></label>
             <input
               type="text"
-              required
               maxLength={MAX_NAME_LENGTH}
               value={formData.name}
               onChange={(e) => handleChange('name', e.target.value)}
               className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:border-blue-500 ${errors.name ? 'border-red-400' : 'border-gray-200'}`}
-              placeholder="Enter field name"
+              placeholder="Enter field name (optional)"
               dir="ltr"
             />
             {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name}</p>}

@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Satellite,
   TrendingUp,
@@ -78,6 +79,7 @@ const LAYER_GROUPS = [
 ];
 
 export default function SatelliteMonitorClient() {
+  const router = useRouter();
   const [selectedLayer, setSelectedLayer] = useState<MapLayerType>('hybrid');
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [timeSeriesPeriod, setTimeSeriesPeriod] = useState<TimePeriod>('90d');
@@ -87,6 +89,14 @@ export default function SatelliteMonitorClient() {
   const { data: fields = [], isLoading, error } = useSatelliteMonitorFields();
   const { data: stats } = useSatelliteMonitorStats();
   const { data: alerts = [] } = useSatelliteMonitorAlerts();
+
+  // Smart redirect: send new users straight to the field-creation wizard
+  // so they don't land on an empty dashboard.
+  useEffect(() => {
+    if (!isLoading && fields.length === 0 && !error) {
+      router.replace('/satellite-monitor/add-field');
+    }
+  }, [isLoading, fields.length, error, router]);
   const selectedField = selectedFieldId || (fields.length > 0 ? fields[0]!.id : '');
   const { data: timeSeries = [] } = useSatelliteMonitorTimeSeries(selectedField, timeSeriesPeriod);
   const { data: weather = [] } = useSatelliteMonitorWeather(selectedField);

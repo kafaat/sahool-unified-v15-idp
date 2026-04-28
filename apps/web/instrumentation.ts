@@ -15,8 +15,11 @@
  * This mirrors the stricter check used in next.config.js.
  */
 function isSentryMissing(err: unknown): boolean {
-  if (!(err instanceof Error) || !("code" in err)) return false;
-  const code = (err as NodeJS.ErrnoException).code;
+  if (!(err instanceof Error)) return false;
+  // `code` is set by Node.js on module-not-found errors; we access it via
+  // a property lookup rather than NodeJS.ErrnoException to keep this file
+  // valid in the app's browser-targeted tsconfig when not explicitly excluded.
+  const code = (err as Error & { code?: string }).code;
   return (
     (code === "MODULE_NOT_FOUND" || code === "ERR_MODULE_NOT_FOUND") &&
     /['"]@sentry\/nextjs['"]/.test(err.message)

@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { satelliteMonitorApi } from '../api';
 import type { SatelliteFilters, TimePeriod, ReportFormat, MapLayerType, FieldSetupData } from '../types';
 
@@ -35,6 +35,7 @@ export function useSatelliteMonitorFields(filters?: SatelliteFilters) {
     queryKey: satelliteMonitorKeys.fieldList(filters),
     queryFn: () => satelliteMonitorApi.getFields(filters),
     staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 20,
   });
 }
 
@@ -44,6 +45,7 @@ export function useSatelliteMonitorField(id: string) {
     queryFn: () => satelliteMonitorApi.getFieldById(id),
     enabled: !!id,
     staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 15,
   });
 }
 
@@ -52,6 +54,7 @@ export function useSatelliteMonitorStats() {
     queryKey: satelliteMonitorKeys.stats(),
     queryFn: () => satelliteMonitorApi.getStats(),
     staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 20,
   });
 }
 
@@ -60,6 +63,7 @@ export function useSatelliteMonitorAlerts(fieldId?: string) {
     queryKey: satelliteMonitorKeys.alerts(fieldId),
     queryFn: () => satelliteMonitorApi.getAlerts(fieldId),
     staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
   });
 }
 
@@ -69,6 +73,12 @@ export function useSatelliteMonitorTimeSeries(fieldId: string, period: TimePerio
     queryFn: () => satelliteMonitorApi.getTimeSeries(fieldId, period),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 30,
+    // NDVI time-series data points are immutable once computed; keep them
+    // in memory for 1 hour so switching between time periods is instant.
+    gcTime: 1000 * 60 * 60,
+    // Show the previous period's data while the new period loads so the
+    // chart does not flash empty / loading state on period switch.
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -78,6 +88,7 @@ export function useSatelliteMonitorWeather(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getWeatherForecast(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -87,6 +98,7 @@ export function useSatelliteMonitorZones(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getFieldZones(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -96,6 +108,7 @@ export function useSatelliteMonitorDirectionGrid(fieldId: string, layerType: Map
     queryFn: () => satelliteMonitorApi.getDirectionGrid(fieldId, layerType),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -105,6 +118,7 @@ export function useSatelliteMonitorSoilAnalysis(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getSoilAnalysis(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 30,
+    gcTime: 1000 * 60 * 60,
   });
 }
 
@@ -114,6 +128,7 @@ export function useSatelliteMonitorPestPredictions(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getPestPredictions(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 15,
+    gcTime: 1000 * 60 * 30,
   });
 }
 
@@ -123,6 +138,7 @@ export function useSatelliteMonitorIrrigationSchedule(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getIrrigationSchedule(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 20,
   });
 }
 
@@ -132,6 +148,8 @@ export function useSatelliteMonitorYieldPrediction(fieldId: string) {
     queryFn: () => satelliteMonitorApi.getYieldPrediction(fieldId),
     enabled: !!fieldId,
     staleTime: 1000 * 60 * 30,
+    // Yield predictions change infrequently; keep in memory for 1 hour.
+    gcTime: 1000 * 60 * 60,
   });
 }
 
@@ -141,6 +159,12 @@ export function useSatelliteMonitorHistorical(fieldId: string, layerType: MapLay
     queryFn: () => satelliteMonitorApi.getHistoricalData(fieldId, startDate, endDate, layerType),
     enabled: !!fieldId && !!startDate && !!endDate,
     staleTime: 1000 * 60 * 60,
+    // Historical snapshots are immutable; keep cached for 2 hours so
+    // timelapse scrubbing does not re-fetch already-downloaded frames.
+    gcTime: 1000 * 60 * 120,
+    // Show previous date range while the new range loads so the timelapse
+    // viewer does not flash empty during date-range changes.
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -191,6 +215,43 @@ export function useUpdateField() {
     onSuccess: (_, { fieldId }) => {
       queryClient.invalidateQueries({ queryKey: satelliteMonitorKeys.fieldDetail(fieldId) });
       queryClient.invalidateQueries({ queryKey: satelliteMonitorKeys.fields() });
+    },
+  });
+}
+
+/**
+ * Download an indicator image (TIFF or PNG) for a field.
+ * Triggers a browser file download when the mutation resolves.
+ *
+ * نزّل صورة مؤشر نباتي (TIFF أو PNG) لحقل محدد.
+ * يُشغّل تنزيل ملف في المتصفح عند اكتمال العملية.
+ */
+export function useDownloadIndicatorImage() {
+  return useMutation({
+    mutationFn: ({
+      fieldId,
+      layerType,
+      format,
+      date,
+    }: {
+      fieldId: string;
+      layerType: MapLayerType;
+      format: 'tiff' | 'png';
+      date?: string;
+      fieldName?: string;
+    }) => satelliteMonitorApi.downloadIndicatorImage(fieldId, layerType, format, date),
+    onSuccess: (blob, { layerType, format, fieldName, date }) => {
+      // Trigger a browser download
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const fieldNamePrefix = fieldName ? `${fieldName}_` : '';
+      const dateSuffix = date ? `_${date}` : '';
+      a.href = url;
+      a.download = `sahool_${fieldNamePrefix}${layerType}${dateSuffix}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     },
   });
 }

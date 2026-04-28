@@ -129,6 +129,123 @@ export type ApiResult<T> =
   | { ok: true; data: T; error?: never }
   | { ok: false; data?: never; error: ApiError };
 
+// ---------------------------------------------------------------------------
+// Retry helpers
+// ---------------------------------------------------------------------------
+
+/** Pause for `ms` milliseconds (used by the retry loop). */
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new DOMException('Aborted', 'AbortError'));
+      return;
+    }
+    const id = setTimeout(resolve, ms);
+    signal?.addEventListener('abort', () => {
+      clearTimeout(id);
+      reject(new DOMException('Aborted', 'AbortError'));
+    }, { once: true });
+  });
+}
+
+export interface RetryOptions {
+  /**
+   * Maximum number of total attempts (first call + retries).
+   * Defaults to 3.
+   */
+  maxAttempts?: number;
+  /**
+   * Base delay in milliseconds before the first retry.
+   * Each subsequent retry doubles the delay (exponential backoff with jitter).
+   * Defaults to 500 ms.
+   */
+  baseDelayMs?: number;
+  /**
+   * Optional AbortSignal to cancel the retry loop mid-flight.
+   * When aborted, the promise rejects immediately with a DOMException('AbortError').
+   */
+  signal?: AbortSignal;
+}
+
+/**
+ * Executes a **read-only / idempotent** API call, retrying on transient
+ * errors (network failures, 429 rate-limit, 5xx server errors) with
+ * exponential backoff.
+ *
+ * ⚠️  Do NOT use this for POST/PATCH/DELETE mutations — retrying
+ * non-idempotent requests can cause duplicate writes. For mutations,
+ * rely on React Query's built-in `retry` option instead.
+ *
+ * @example
+ * // In a React Query hook:
+ * const { data } = useQuery({
+ *   queryKey: ['fields'],
+ *   queryFn: () => safeFetchWithRetry(
+ *     '/api/satellite/fields',
+ *     () => api.get(ENDPOINT).then(r => r.data),
+ *   ),
+ * });
+ */
+export async function safeFetchWithRetry<T>(
+  endpoint: string,
+  fn: () => Promise<T>,
+  options: RetryOptions = {},
+): Promise<T> {
+  const maxAttempts = Math.max(1, options.maxAttempts ?? 3);
+  const baseDelayMs = options.baseDelayMs ?? 500;
+  const { signal } = options;
+
+  let lastError: ApiError | undefined;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    if (signal?.aborted) {
+      throw new DOMException('Aborted', 'AbortError');
+    }
+
+    try {
+      return await fn();
+    } catch (error) {
+      // Propagate abort errors immediately — never retry on cancellation.
+      if (error instanceof DOMException && error.name === 'AbortError') throw error;
+
+      const apiError = toApiError(error, endpoint);
+      lastError = apiError;
+
+      const isLastAttempt = attempt === maxAttempts;
+      if (isLastAttempt || !apiError.retryable) {
+        logger.production(`API call failed (attempt ${attempt}/${maxAttempts}): ${endpoint}`, {
+          statusCode: apiError.statusCode,
+          retryable: apiError.retryable,
+          willRetry: false,
+        });
+        throw apiError;
+      }
+
+      // Exponential backoff with full jitter: multiply base×2^(attempt-1) by a
+      // random factor in [0.5, 1.0], so actual delay ∈ [0.5×, 1.0×] the nominal
+      // backoff for that attempt. Jitter prevents thundering herd when many
+      // clients retry simultaneously.
+      const delay = baseDelayMs * 2 ** (attempt - 1) * (0.5 + Math.random() * 0.5);
+      logger.production(`API call failed (attempt ${attempt}/${maxAttempts}): ${endpoint}`, {
+        statusCode: apiError.statusCode,
+        retryable: true,
+        willRetry: true,
+        nextRetryMs: Math.round(delay),
+      });
+      await sleep(delay, signal);
+    }
+  }
+
+  // Unreachable: the loop always returns or throws before this point.
+  // lastError is always set when maxAttempts >= 1 and fn() throws.
+  throw lastError ?? new ApiError({
+    message: 'No attempts were made.',
+    messageAr: 'لم تُجرَ أي محاولات.',
+    statusCode: 0,
+    endpoint,
+  });
+}
+
 /**
  * Executes an API call and returns a Result instead of throwing.
  * Use this when you want to handle errors explicitly in the component.

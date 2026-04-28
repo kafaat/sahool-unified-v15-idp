@@ -21,6 +21,8 @@ import {
   MapPin,
   Target,
   Wheat,
+  Download,
+  Loader2,
 } from 'lucide-react';
 import {
   useSatelliteMonitorField,
@@ -34,6 +36,7 @@ import {
   useSatelliteMonitorYieldPrediction,
   useSatelliteMonitorHistorical,
   useUpdateField,
+  useDownloadIndicatorImage,
 } from '@/features/satellite-monitor';
 import { MAP_LAYERS } from '@/features/satellite-monitor/api';
 import type { MapLayerType, TimePeriod, CropHealthStatus, NutrientLevel } from '@/features/satellite-monitor';
@@ -84,6 +87,8 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
   // or edits the per-field phone override. The mutation only touches
   // `metadata` so we avoid clobbering other server-owned columns.
   const updateField = useUpdateField();
+  // Indicator image download (TIFF / PNG)
+  const downloadImage = useDownloadIndicatorImage();
   const handleAlertsChange = (next: FieldAlertsMetadata) => {
     if (!field) return;
     const mergedMetadata = {
@@ -731,7 +736,50 @@ export default function FieldDetailClient({ fieldId }: { fieldId: string }) {
                   <Calendar className="w-5 h-5 text-indigo-600" />
                   <h3 className="font-semibold text-gray-900">البيانات التاريخية منذ 2017</h3>
                 </div>
-                <p className="text-xs text-gray-400">Historical Data & Timelapse</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-xs text-gray-400">Historical Data & Timelapse</p>
+                  {/* Download indicator image — PNG (preview) or GeoTIFF (GIS) */}
+                  <button
+                    type="button"
+                    disabled={downloadImage.isPending}
+                    onClick={() =>
+                      downloadImage.mutate({
+                        fieldId,
+                        layerType: historicalLayer,
+                        format: 'png',
+                        date: historicalEndDate,
+                        fieldName: field?.nameAr || field?.name,
+                      })
+                    }
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md border border-indigo-300 text-indigo-700 hover:bg-indigo-50 disabled:opacity-60"
+                    title="تنزيل PNG"
+                  >
+                    {downloadImage.isPending
+                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      : <Download className="w-3.5 h-3.5" />}
+                    PNG
+                  </button>
+                  <button
+                    type="button"
+                    disabled={downloadImage.isPending}
+                    onClick={() =>
+                      downloadImage.mutate({
+                        fieldId,
+                        layerType: historicalLayer,
+                        format: 'tiff',
+                        date: historicalEndDate,
+                        fieldName: field?.nameAr || field?.name,
+                      })
+                    }
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-md border border-indigo-300 text-indigo-700 hover:bg-indigo-50 disabled:opacity-60"
+                    title="تنزيل GeoTIFF"
+                  >
+                    {downloadImage.isPending
+                      ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      : <Download className="w-3.5 h-3.5" />}
+                    GeoTIFF
+                  </button>
+                </div>
               </div>
 
               {/* Date Range + Layer Selector */}

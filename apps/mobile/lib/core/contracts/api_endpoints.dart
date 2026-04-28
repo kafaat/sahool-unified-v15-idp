@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.19.0
+/// Contract version: 4.20.0
 library;
 
 /// API version prefix
@@ -836,6 +836,12 @@ abstract final class SatelliteMonitorEndpoints {
   static String fieldGet(String fieldId) => '\$apiPrefix/satellite-monitor/fields/${Uri.encodeComponent(fieldId)}';
   static const String stats = '\$apiPrefix/satellite-monitor/stats';
   static const String alerts = '\$apiPrefix/satellite-monitor/alerts';
+  static String fieldPestPredictions(String fieldId) => '\$apiPrefix/satellite-monitor/fields/${Uri.encodeComponent(fieldId)}/pest-predictions';
+  static String fieldIrrigationSchedule(String fieldId) => '\$apiPrefix/satellite-monitor/fields/${Uri.encodeComponent(fieldId)}/irrigation-schedule';
+  static String fieldYieldPrediction(String fieldId) => '\$apiPrefix/satellite-monitor/fields/${Uri.encodeComponent(fieldId)}/yield-prediction';
+  static String fieldHistorical(String fieldId) => '\$apiPrefix/satellite-monitor/fields/${Uri.encodeComponent(fieldId)}/historical';
+  static String fieldSoilMoistureSar(String fieldId) => '\$apiPrefix/satellite-monitor/fields/${Uri.encodeComponent(fieldId)}/soil-moisture-sar';
+  static String fieldDownload(String fieldId) => '\$apiPrefix/satellite-monitor/fields/${Uri.encodeComponent(fieldId)}/download';
 }
 
 /// scouting

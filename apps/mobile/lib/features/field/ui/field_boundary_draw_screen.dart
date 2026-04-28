@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart' hide Path;
 
 import '../../../core/map/sahool_tile_provider.dart';
 import '../../../core/theme/sahool_theme.dart';
+import '../../../core/geo/geojson.dart';
 import '../../polygon_editor/domain/polygon_editor_state.dart';
 import '../../polygon_editor/ui/polygon_editor_widget.dart';
 import '../../polygon_editor/utils/geo_utils.dart';
@@ -99,6 +100,20 @@ class _FieldBoundaryDrawScreenState
 
   void _save() {
     final points = List<LatLng>.from(_editorState.points);
+
+    // Full geometric validation before returning
+    final error = GeoJson.validatePolygon(points);
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error),
+          backgroundColor: Colors.red.shade700,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
+
     context.pop(points);
   }
 

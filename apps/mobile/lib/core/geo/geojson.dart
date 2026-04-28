@@ -200,6 +200,96 @@ class GeoJson {
     return polygon;
   }
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // Polygon Validation
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Minimum field area in hectares (100 m²)
+  static const double minAreaHectares = 0.01;
+
+  /// Check whether a polygon's edges self-intersect.
+  ///
+  /// Uses a segment-intersection test on every pair of non-adjacent edges.
+  /// Returns `true` if any two non-adjacent edges cross.
+  static bool hasSelfIntersection(List<LatLng> polygon) {
+    final n = polygon.length;
+    if (n < 4) return false; // Triangle can't self-intersect
+
+    // Work in longitude/latitude degrees (good enough for field scale)
+    for (int i = 0; i < n - 1; i++) {
+      for (int j = i + 2; j < n - 1; j++) {
+        // Skip adjacent segments (share a vertex)
+        if (i == 0 && j == n - 2) continue;
+        if (_segmentsIntersect(
+          polygon[i], polygon[i + 1],
+          polygon[j], polygon[j + 1],
+        )) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Returns `true` if the polygon area is ≥ [minAreaHectares].
+  static bool meetsMinimumArea(List<LatLng> polygon) {
+    return calculateAreaHectares(polygon) >= minAreaHectares;
+  }
+
+  /// Validate a polygon for field creation.
+  ///
+  /// Returns a bilingual error message, or `null` if the polygon is valid.
+  static String? validatePolygon(List<LatLng> polygon) {
+    if (polygon.length < 3) {
+      return 'يجب أن يحتوي الحقل على 3 نقاط على الأقل\nField must have at least 3 points';
+    }
+    if (!meetsMinimumArea(polygon)) {
+      return 'مساحة الحقل صغيرة جداً (الحد الأدنى 0.01 هكتار)\nField area too small (minimum 0.01 ha)';
+    }
+    if (hasSelfIntersection(polygon)) {
+      return 'حدود الحقل غير صالحة: تتقاطع مع نفسها\nInvalid boundary: self-intersecting polygon';
+    }
+    return null;
+  }
+
+  // ── Private segment-intersection helper ─────────────────────────────────
+
+  /// Segment intersection test using the cross-product / orientation method.
+  static bool _segmentsIntersect(
+    LatLng p1, LatLng p2,
+    LatLng p3, LatLng p4,
+  ) {
+    final d1 = _cross(p3, p4, p1);
+    final d2 = _cross(p3, p4, p2);
+    final d3 = _cross(p1, p2, p3);
+    final d4 = _cross(p1, p2, p4);
+
+    if (((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0)) &&
+        ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0))) {
+      return true;
+    }
+
+    // Collinear cases
+    if (d1 == 0 && _onSegment(p3, p4, p1)) return true;
+    if (d2 == 0 && _onSegment(p3, p4, p2)) return true;
+    if (d3 == 0 && _onSegment(p1, p2, p3)) return true;
+    if (d4 == 0 && _onSegment(p1, p2, p4)) return true;
+
+    return false;
+  }
+
+  static double _cross(LatLng o, LatLng a, LatLng b) {
+    return (a.longitude - o.longitude) * (b.latitude - o.latitude) -
+        (a.latitude - o.latitude) * (b.longitude - o.longitude);
+  }
+
+  static bool _onSegment(LatLng p, LatLng q, LatLng r) {
+    return r.longitude <= math.max(p.longitude, q.longitude) &&
+        r.longitude >= math.min(p.longitude, q.longitude) &&
+        r.latitude <= math.max(p.latitude, q.latitude) &&
+        r.latitude >= math.min(p.latitude, q.latitude);
+  }
+
   /// Simplify polygon using Douglas-Peucker algorithm
   /// Useful for reducing data size before sync
   static List<LatLng> simplify(List<LatLng> polygon, double tolerance) {

@@ -102,6 +102,22 @@ function segmentsIntersect(
 }
 
 /**
+ * Returns an open-ring view of `points`, stripping the closing duplicate if the
+ * first and last vertices are identical.  All internal geometry algorithms
+ * (self-intersection, etc.) must operate on open rings; a closed ring would
+ * introduce a degenerate zero-length edge (first → first) that can trigger
+ * false collinear-path positives in the orientation test.
+ */
+function toOpenRing(points: FieldBoundary[]): FieldBoundary[] {
+  if (points.length < 2) return points;
+  const first = points[0]!;
+  const last = points[points.length - 1]!;
+  return first.lat === last.lat && first.lng === last.lng
+    ? points.slice(0, -1)
+    : points;
+}
+
+/**
  * O(n²) self-intersection check for a simple polygon.
  * Skips pairs of adjacent edges (they share a vertex by design).
  */
@@ -209,13 +225,19 @@ export function validatePolygon(points: FieldBoundary[]): PolygonValidationResul
   }
 
   // Only run the expensive self-intersection check when vertex count and
-  // coordinates are valid, and when we have at least 4 edges (a triangle
-  // cannot self-intersect).
-  if (errors.length === 0 && points.length >= 4 && hasSelfIntersection(points)) {
-    addError(
-      'The polygon boundary crosses itself (self-intersection). Please redraw the boundary.',
-      'حدود المضلع تتقاطع مع نفسها. يرجى إعادة رسم الحدود.',
-    );
+  // coordinates are valid.  Normalize to an open ring first so that a
+  // pre-closed input (first vertex === last vertex) does not introduce a
+  // degenerate zero-length edge that could produce false collinear positives.
+  if (errors.length === 0) {
+    const ring = toOpenRing(points);
+    // A triangle (3 edges) cannot self-intersect — skip to avoid O(n²) for
+    // the minimum-size case.
+    if (ring.length >= 4 && hasSelfIntersection(ring)) {
+      addError(
+        'The polygon boundary crosses itself (self-intersection). Please redraw the boundary.',
+        'حدود المضلع تتقاطع مع نفسها. يرجى إعادة رسم الحدود.',
+      );
+    }
   }
 
   return { valid: errors.length === 0, errors, errorsAr };

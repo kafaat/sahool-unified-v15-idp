@@ -256,3 +256,32 @@ describe('validatePolygon (floating-point precision)', () => {
     expect(result.errors[0]).toContain('self-intersection');
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// validatePolygon with pre-closed rings (defensive normalization)
+// ═══════════════════════════════════════════════════════════════════════════
+
+describe('validatePolygon (pre-closed ring input)', () => {
+  it('accepts a pre-closed square (first === last) without false self-intersection', () => {
+    // Callers may pass GeoJSON-style closed rings where points[0] === points[n-1].
+    // The zero-length closing edge must not trigger the collinear/intersection path.
+    const closedSquare: FieldBoundary[] = [...SQUARE, SQUARE[0]!];
+    const result = validatePolygon(closedSquare);
+    expect(result.valid).toBe(true);
+    expect(result.errors).toHaveLength(0);
+  });
+
+  it('still detects self-intersection in a pre-closed figure-eight', () => {
+    const closedFigureEight: FieldBoundary[] = [...FIGURE_EIGHT, FIGURE_EIGHT[0]!];
+    const result = validatePolygon(closedFigureEight);
+    expect(result.valid).toBe(false);
+    expect(result.errors[0]).toContain('self-intersection');
+  });
+
+  it('accepts a pre-closed triangle without false self-intersection', () => {
+    const triangle: FieldBoundary[] = [pt(0, 0), pt(0, 1), pt(1, 0)];
+    const closedTriangle: FieldBoundary[] = [...triangle, triangle[0]!];
+    const result = validatePolygon(closedTriangle);
+    expect(result.valid).toBe(true);
+  });
+});

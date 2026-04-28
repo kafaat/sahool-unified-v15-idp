@@ -120,6 +120,16 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         // فلتر الإجراءات
         SliverToBoxAdapter(
           child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: _buildPeriodPresets(),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+        // فلتر الإجراءات
+        SliverToBoxAdapter(
+          child: Padding(
             padding: const EdgeInsets.all(16),
             child: _buildActionFilters(),
           ),
@@ -240,6 +250,75 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       checkmarkColor: const Color(0xFF367C2B),
     );
   }
+
+  /// Period preset quick-select row.
+  /// أزرار الفترة الزمنية السريعة (اليوم / أسبوع / شهر / 3 أشهر).
+  Widget _buildPeriodPresets() {
+    final selectedDate = ref.watch(selectedDateProvider);
+    final now = DateTime.now();
+
+    final presets = <(String, DateTime)>[
+      ('اليوم', now),
+      ('أسبوع', now.subtract(const Duration(days: 7))),
+      ('شهر', now.subtract(const Duration(days: 30))),
+      ('3 أشهر', now.subtract(const Duration(days: 90))),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.history_toggle_off, size: 16, color: Color(0xFF367C2B)),
+            const SizedBox(width: 6),
+            Text(
+              'التاريخ: ${_formatDate(selectedDate)}',
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF367C2B),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: presets.map((preset) {
+              final (label, date) = preset;
+              final isActive = _isSameDay(selectedDate, date);
+              return Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: ChoiceChip(
+                  label: Text(label),
+                  selected: isActive,
+                  selectedColor: const Color(0xFF367C2B).withValues(alpha: 0.15),
+                  labelStyle: TextStyle(
+                    color: isActive ? const Color(0xFF367C2B) : Colors.grey[700],
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 13,
+                  ),
+                  onSelected: (_) async {
+                    ref.read(selectedDateProvider.notifier).state = date;
+                    await ref
+                        .read(diagnosisProvider.notifier)
+                        .loadDiagnosis(widget.fieldId, date);
+                  },
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  String _formatDate(DateTime dt) =>
+      '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
 
   Widget _buildErrorView(String error) {
     return Center(

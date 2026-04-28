@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/providers.dart';
+import '../../../../core/widgets/field_context_header.dart';
 import '../../domain/entities/field_entity.dart';
 import '../../../weather/presentation/providers/weather_provider.dart';
 
@@ -191,6 +192,23 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 10),
+
+                  // Data provenance timestamp
+                  Row(
+                    children: [
+                      const Icon(Icons.update, color: Colors.white70, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        'آخر تحديث: ${_formatTimestamp(widget.field.updatedAt)}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -266,6 +284,10 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Field context banner (data provenance – who/what/when)
+          FieldContextHeader(field: widget.field),
+          const SizedBox(height: 20),
+
           // Info cards
           _buildSectionTitle('معلومات الحقل'),
           _buildInfoCard(),
@@ -685,6 +707,12 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
             name,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
+          const SizedBox(width: 8),
+          if (value != null)
+            Text(
+              _indexInterpretation(name, value),
+              style: TextStyle(fontSize: 11, color: color.withValues(alpha: 0.8)),
+            ),
           const Spacer(),
           if (value != null) ...[
             SizedBox(
@@ -712,30 +740,141 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     );
   }
 
+  /// Returns a short agronomic interpretation for an index value.
+  /// يُعيد تفسيراً زراعياً مختصراً لقيمة المؤشر.
+  String _indexInterpretation(String name, double value) {
+    switch (name) {
+      case 'NDVI':
+        if (value >= 0.6) return '· نمو ممتاز';
+        if (value >= 0.4) return '· نمو جيد';
+        if (value >= 0.2) return '· نمو ضعيف';
+        return '· يحتاج تدخلاً';
+      case 'NDWI':
+        if (value >= 0.3) return '· مستوى مائي كافٍ';
+        if (value >= 0.15) return '· مراقبة الري';
+        return '· يحتاج ريّاً';
+      default:
+        return '';
+    }
+  }
+
+  /// Formats a DateTime as a short Arabic date+time string.
+  String _formatTimestamp(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} دقيقة';
+    if (diff.inHours < 24) return 'منذ ${diff.inHours} ساعة';
+    if (diff.inDays == 1) return 'البارحة';
+    if (diff.inDays < 7) return 'منذ ${diff.inDays} أيام';
+    return '${dt.day}/${dt.month}/${dt.year}';
+  }
+
   Widget _buildRecommendationsCard() {
+    final recs = _deriveRecommendations();
+
+    if (recs.isEmpty) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(Icons.check_circle_outline, color: Colors.green[400], size: 40),
+                const SizedBox(height: 8),
+                Text(
+                  'الحقل في حالة جيدة – لا توجد توصيات فورية',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
-          _buildRecommendationItem(
-            icon: Icons.water_drop,
-            color: Colors.blue,
-            title: 'زيادة الري',
-            description: 'قيمة NDWI منخفضة، يُنصح بزيادة معدل الري',
-            priority: 'متوسط',
-          ),
-          const Divider(height: 1),
-          _buildRecommendationItem(
-            icon: Icons.eco,
-            color: Colors.green,
-            title: 'تسميد نيتروجيني',
-            description: 'لتحسين مؤشر NDVI',
-            priority: 'منخفض',
-          ),
+          for (int i = 0; i < recs.length; i++) ...[
+            if (i > 0) const Divider(height: 1),
+            _buildRecommendationItem(
+              icon: recs[i].icon,
+              color: recs[i].color,
+              title: recs[i].title,
+              description: recs[i].description,
+              priority: recs[i].priority,
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  /// Derives recommendations from live NDVI / NDWI / health values.
+  /// يستخرج التوصيات من قيم NDVI و NDWI والصحة الفعلية.
+  List<_FieldRecommendation> _deriveRecommendations() {
+    final recs = <_FieldRecommendation>[];
+    final ndvi = widget.field.ndviValue;
+    final ndwi = widget.field.ndwiValue;
+    final health = widget.field.healthScore;
+
+    if (ndwi != null && ndwi < 0.15) {
+      recs.add(const _FieldRecommendation(
+        icon: Icons.water_drop,
+        color: Colors.blue,
+        title: 'زيادة الري',
+        description: 'قيمة NDWI منخفضة — يُنصح بزيادة معدل الري لتجنب إجهاد مائي',
+        priority: 'عاجل',
+        priorityColor: Colors.red,
+      ));
+    } else if (ndwi != null && ndwi < 0.3) {
+      recs.add(const _FieldRecommendation(
+        icon: Icons.water_drop,
+        color: Colors.blueAccent,
+        title: 'مراقبة الري',
+        description: 'قيمة NDWI في الحد الأدنى — راقب رطوبة التربة خلال 48 ساعة',
+        priority: 'متوسط',
+        priorityColor: Colors.orange,
+      ));
+    }
+
+    if (ndvi != null && ndvi < 0.35) {
+      recs.add(const _FieldRecommendation(
+        icon: Icons.eco,
+        color: Colors.green,
+        title: 'تسميد نيتروجيني',
+        description: 'قيمة NDVI منخفضة — يُشير إلى نقص كلوروفيل؛ يُنصح بجرعة نيتروجين',
+        priority: 'مهم',
+        priorityColor: Colors.deepOrange,
+      ));
+    } else if (ndvi != null && ndvi < 0.5) {
+      recs.add(const _FieldRecommendation(
+        icon: Icons.eco,
+        color: Colors.lightGreen,
+        title: 'متابعة النمو',
+        description: 'قيمة NDVI متوسطة — استمر في برنامج التسميد الحالي وراقب التحسن',
+        priority: 'منخفض',
+        priorityColor: Colors.green,
+      ));
+    }
+
+    if (health < 0.4) {
+      recs.add(const _FieldRecommendation(
+        icon: Icons.warning_amber,
+        color: Colors.red,
+        title: 'صحة الحقل منخفضة',
+        description: 'مؤشر الصحة العام ضعيف — يُنصح بمعاينة ميدانية فورية لتحديد السبب',
+        priority: 'عاجل',
+        priorityColor: Colors.red,
+      ));
+    }
+
+    return recs;
   }
 
   Widget _buildRecommendationItem({
@@ -744,6 +883,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     required String title,
     required String description,
     required String priority,
+    Color priorityColor = Colors.orange,
   }) {
     return ListTile(
       leading: Container(
@@ -760,12 +900,12 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.1),
+          color: priorityColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           priority,
-          style: const TextStyle(fontSize: 10, color: Colors.orange),
+          style: TextStyle(fontSize: 10, color: priorityColor),
         ),
       ),
     );
@@ -1006,4 +1146,24 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
+}
+
+/// Internal value-object for a data-derived agronomic recommendation.
+/// كائن داخلي يمثل توصية زراعية مستخرجة من البيانات الحقيقية.
+class _FieldRecommendation {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String description;
+  final String priority;
+  final Color priorityColor;
+
+  const _FieldRecommendation({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.description,
+    required this.priority,
+    required this.priorityColor,
+  });
 }

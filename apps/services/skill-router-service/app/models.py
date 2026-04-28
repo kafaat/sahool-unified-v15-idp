@@ -19,7 +19,7 @@ class Skill(BaseModel):
 
 
 class RouteRequest(BaseModel):
-    query: str = Field(..., min_length=1)
+    query: str = Field(..., min_length=1, max_length=2000)
     tenant_id: str = "default"
     top_k: int = Field(3, ge=1, le=10)
 

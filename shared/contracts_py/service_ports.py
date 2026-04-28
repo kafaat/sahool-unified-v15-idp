@@ -3,7 +3,7 @@ SAHOOL Unified Service Ports Registry (Python mirror).
 
 AUTO-GENERATED — DO NOT EDIT BY HAND.
 Source: packages/shared-types/src/contracts/service-ports.ts
-Generated: 2026-04-18T12:46:28Z
+Generated: 2026-04-28T17:49:14Z
 Regenerate via: npx tsx scripts/sync-contracts-to-python.ts
 """
 
@@ -62,6 +62,7 @@ class ServicePorts:
     KNOWLEDGE_GRAPH: int = 8140
     CODE_FIX_AGENT: int = 8162
     CODE_REVIEW_SERVICE: int = 8102
+    CODE_REVIEW_AGENT: int = 8145
     YOLO_VISION: int = 8150
     GROUND_VISION: int = 8182
     TERRAIN_CORE: int = 8185
@@ -77,6 +78,8 @@ class ServicePorts:
     TRACEABILITY: int = 8123
     CRM_SERVICE: int = 8131
     ASTRONOMICAL_CALENDAR: int = 8111
+    AGRO_RULES: int = 8151
+    DEMO_DATA: int = 8261
     LOGISTICS: int = 8167
     SUPPLY_CHAIN: int = 8230
     LOWCODE_ENGINE: int = 8132
@@ -89,6 +92,8 @@ class ServicePorts:
     DIGITAL_TWIN: int = 8253
     MCP_SERVER: int = 8201
     CARBON_SERVICE: int = 8195
+    SKILL_ROUTER: int = 8205
+    TEST_HARNESS_SIDECAR: int = 8299
     ADMIN: int = 3001
     WEB: int = 3002
     KONG_GATEWAY: int = 8000

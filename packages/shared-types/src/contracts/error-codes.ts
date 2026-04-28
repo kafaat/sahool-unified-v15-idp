@@ -1317,6 +1317,13 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     ar: 'حجم ملف الصورة كبير جداً. الحد الأقصى: 50 ميجابايت',
     retryable: false,
   },
+  [ERROR_CODES.VISION_INVALID_DIMENSIONS]: {
+    code: ERROR_CODES.VISION_INVALID_DIMENSIONS,
+    httpStatus: 400,
+    en: 'Image dimensions are invalid or outside the supported range',
+    ar: 'أبعاد الصورة غير صالحة أو خارج النطاق المدعوم',
+    retryable: false,
+  },
   [ERROR_CODES.VISION_INVALID_CONFIDENCE]: {
     code: ERROR_CODES.VISION_INVALID_CONFIDENCE,
     httpStatus: 400,
@@ -1324,11 +1331,25 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     ar: 'عتبة الثقة يجب أن تكون بين 0 و1',
     retryable: false,
   },
+  [ERROR_CODES.VISION_UNSUPPORTED_TYPE]: {
+    code: ERROR_CODES.VISION_UNSUPPORTED_TYPE,
+    httpStatus: 400,
+    en: 'Unsupported detection type for the requested task',
+    ar: 'نوع الكشف غير مدعوم لهذه المهمة',
+    retryable: false,
+  },
   [ERROR_CODES.VISION_INVALID_MODEL_VARIANT]: {
     code: ERROR_CODES.VISION_INVALID_MODEL_VARIANT,
     httpStatus: 400,
     en: 'Invalid model variant. Valid options: n, s, m, l, x',
     ar: 'نوع النموذج غير صالح. الخيارات الصالحة: n، s، m، l، x',
+    retryable: false,
+  },
+  [ERROR_CODES.VISION_EMPTY_IMAGE]: {
+    code: ERROR_CODES.VISION_EMPTY_IMAGE,
+    httpStatus: 400,
+    en: 'Uploaded image is empty or has zero size',
+    ar: 'الصورة المرفوعة فارغة أو حجمها صفر',
     retryable: false,
   },
   [ERROR_CODES.VISION_MISSING_REQUIRED_FIELD]: {
@@ -1343,6 +1364,13 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 400,
     en: 'Invalid bounding box coordinates',
     ar: 'إحداثيات المربع المحيط غير صالحة',
+    retryable: false,
+  },
+  [ERROR_CODES.VISION_CORRUPT_FILE]: {
+    code: ERROR_CODES.VISION_CORRUPT_FILE,
+    httpStatus: 400,
+    en: 'Image file is corrupted and cannot be processed',
+    ar: 'ملف الصورة تالف ولا يمكن معالجته',
     retryable: false,
   },
   [ERROR_CODES.VISION_MODEL_NOT_FOUND]: {
@@ -1366,6 +1394,13 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     ar: 'فشل استدلال الرؤية - يرجى المحاولة مرة أخرى',
     retryable: true,
   },
+  [ERROR_CODES.VISION_MODEL_INCOMPATIBLE]: {
+    code: ERROR_CODES.VISION_MODEL_INCOMPATIBLE,
+    httpStatus: 400,
+    en: 'Model is incompatible with the requested task',
+    ar: 'النموذج غير متوافق مع المهمة المطلوبة',
+    retryable: false,
+  },
   [ERROR_CODES.VISION_MODEL_VERSION_NOT_FOUND]: {
     code: ERROR_CODES.VISION_MODEL_VERSION_NOT_FOUND,
     httpStatus: 503,
@@ -1378,6 +1413,13 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 503,
     en: 'TensorRT optimization error in vision service',
     ar: 'خطأ في تحسين TensorRT في خدمة الرؤية',
+    retryable: true,
+  },
+  [ERROR_CODES.VISION_WARMUP_FAILED]: {
+    code: ERROR_CODES.VISION_WARMUP_FAILED,
+    httpStatus: 503,
+    en: 'Vision model warm-up failed - service is starting up',
+    ar: 'فشل تسخين نموذج الرؤية - الخدمة قيد التشغيل',
     retryable: true,
   },
   [ERROR_CODES.VISION_IMAGE_DECODE]: {
@@ -1399,6 +1441,13 @@ export const ERROR_MESSAGES: Record<string, ErrorMessage> = {
     httpStatus: 500,
     en: 'Result postprocessing failed - please try again',
     ar: 'فشلت معالجة النتائج اللاحقة - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  },
+  [ERROR_CODES.VISION_BATCH_FAILED]: {
+    code: ERROR_CODES.VISION_BATCH_FAILED,
+    httpStatus: 400,
+    en: 'Batch detection request failed',
+    ar: 'فشل طلب الكشف الدفعي',
     retryable: true,
   },
   [ERROR_CODES.VISION_BATCH_PROCESSING_FAILED]: {

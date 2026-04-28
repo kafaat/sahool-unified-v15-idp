@@ -119,7 +119,54 @@
 //            IndexTileType, IndexDataSource to api-responses.ts — canonical DTOs
 //            consumed identically by Web (useIndexMap) and Mobile (indexMapProvider).
 //            Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.21.0" as const;
+// 4.22.0 — Contract audit and gap-fill (purely additive):
+//          * SERVICE_PORTS: add AGRO_RULES (8151), DEMO_DATA (8261),
+//            CODE_REVIEW_AGENT (8145) — all referenced in endpoints /
+//            health checks but were missing from the ports map.
+//          * SERVICE_REGISTRY: add agro-rules, carbon-service,
+//            partner-auth-service, demo-data, code-review-agent entries.
+//          * SERVICE_PORT_ALIASES: add agroRules, partnerAuth,
+//            carbonService, codeReviewAgent, demoData.
+//          * SERVICE_HEALTH_ENDPOINTS: add VISION, TERRAIN, AUDIT, CARBON,
+//            COPILOT, SOIL, DRONE, EDGE, HYDROLOGY, LEVELING (were missing
+//            despite all having live kongRoutes in the registry).
+//          * CRM_ENDPOINTS (new): FARMERS, FARMER_CREATE/GET/UPDATE/DELETE,
+//            INTERACTIONS, SEGMENTS, NOTES, ANALYTICS — crm-service had a
+//            registered port + Kong route but no typed endpoint group.
+//          * ERROR_MESSAGES: add 7 missing Vision error entries:
+//            E1003 VISION_INVALID_DIMENSIONS,
+//            E1005 VISION_UNSUPPORTED_TYPE,
+//            E1007 VISION_EMPTY_IMAGE,
+//            E1009 VISION_CORRUPT_FILE,
+//            E2004 VISION_MODEL_INCOMPATIBLE,
+//            E2006 VISION_WARMUP_FAILED,
+//            E3004 VISION_BATCH_FAILED.
+// 4.23.0 — Direct code audit — real gaps fixed:
+//          * SERVICE_PORTS: add SKILL_ROUTER (8205) — skill-router-service
+//            exists at apps/services/skill-router-service/app/config.py but
+//            was entirely absent from the contract.
+//          * SERVICE_PORTS: add TEST_HARNESS_SIDECAR (8299) — test-only
+//            sidecar (refuses production start) at
+//            apps/services/test-harness-sidecar/src/config.py.
+//          * ServiceInfo interface: make kongRoute optional; add 'worker'
+//            to the type union — agro-rules is a pure NATS consumer worker
+//            with no HTTP interface and should NOT have a kongRoute.
+//          * SERVICE_REGISTRY['agro-rules']: remove incorrect kongRoute,
+//            change type 'python' → 'worker' (actual code: worker.py + NATS).
+//          * SERVICE_REGISTRY: add 'skill-router-service' entry.
+//          * SERVICE_PORT_ALIASES: add skillRouter, testHarnessSidecar.
+//          * CRM_ENDPOINTS: complete rewrite — previous version used wrong
+//            /crm prefix (service registers routes at /api/v1/farmers,
+//            /api/v1/deals, etc. — confirmed from crm-service/src/main.py).
+//            Added missing: DEAL_CREATE, DEALS, DEAL_STAGE_UPDATE,
+//            DEALS_PIPELINE, QUERY. Removed non-existent: FARMER_DELETE
+//            (no DELETE handler), INTERACTION_GET (no GET-by-ID handler),
+//            SEGMENTS, NOTES, ANALYTICS (all were incorrectly defined —
+//            no matching handlers exist in crm-service/src/main.py).
+//          * SKILL_ROUTER_ENDPOINTS (new): ROUTE, SKILLS — matches the
+//            actual router in skill-router-service/app/router.py.
+//          * SERVICE_HEALTH_ENDPOINTS: add SKILL_ROUTER, CRM.
+export const CONTRACT_VERSION = "4.23.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

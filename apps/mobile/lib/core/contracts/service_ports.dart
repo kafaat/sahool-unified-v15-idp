@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/service-ports.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.21.0
+/// Contract version: 4.23.0
 library;
 
 /// Single source of truth for all microservice ports.
@@ -53,6 +53,7 @@ abstract final class ServicePorts {
   static const int knowledgeGraph = 8140;
   static const int codeFixAgent = 8162;
   static const int codeReviewService = 8102;
+  static const int codeReviewAgent = 8145;
   static const int yoloVision = 8150;
   static const int groundVision = 8182;
   static const int terrainCore = 8185;
@@ -68,6 +69,8 @@ abstract final class ServicePorts {
   static const int traceability = 8123;
   static const int crmService = 8131;
   static const int astronomicalCalendar = 8111;
+  static const int agroRules = 8151;
+  static const int demoData = 8261;
   static const int logistics = 8167;
   static const int supplyChain = 8230;
   static const int lowcodeEngine = 8132;
@@ -80,6 +83,8 @@ abstract final class ServicePorts {
   static const int digitalTwin = 8253;
   static const int mcpServer = 8201;
   static const int carbonService = 8195;
+  static const int skillRouter = 8205;
+  static const int testHarnessSidecar = 8299;
   static const int admin = 3001;
   static const int web = 3002;
   static const int kongGateway = 8000;

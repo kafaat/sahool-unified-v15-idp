@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.21.0
+/// Contract version: 4.23.0
 library;
 
 /// API version prefix
@@ -39,6 +39,18 @@ abstract final class ServiceHealthEndpoints {
   static const String providers = '\$apiPrefix/providers/healthz';
   static const String agroRules = '\$apiPrefix/agro-rules/healthz';
   static const String intelligence = '\$apiPrefix/intelligence/healthz';
+  static const String vision = '\$apiPrefix/vision/healthz';
+  static const String terrain = '\$apiPrefix/terrain/healthz';
+  static const String audit = '\$apiPrefix/audit/healthz';
+  static const String carbon = '\$apiPrefix/carbon/healthz';
+  static const String copilot = '\$apiPrefix/copilot/healthz';
+  static const String soil = '\$apiPrefix/soil/healthz';
+  static const String drone = '\$apiPrefix/drones/healthz';
+  static const String edge = '\$apiPrefix/edge/healthz';
+  static const String hydrology = '\$apiPrefix/hydrology/healthz';
+  static const String leveling = '\$apiPrefix/leveling/healthz';
+  static const String skillRouter = '\$apiPrefix/skill-router/healthz';
+  static const String crm = '\$apiPrefix/crm/healthz';
 }
 
 /// auth
@@ -255,6 +267,21 @@ abstract final class CooperativeEndpoints {
   static const String purchaseOrders = '\$apiPrefix/cooperatives/purchase-orders';
   static const String revenue = '\$apiPrefix/cooperatives/revenue';
   static const String revenueCalculate = '\$apiPrefix/cooperatives/revenue/calculate';
+}
+
+/// crm
+abstract final class CrmEndpoints {
+  static const String farmerCreate = '\$apiPrefix/farmers';
+  static const String farmers = '\$apiPrefix/farmers';
+  static String farmerGet(String farmerId) => '\$apiPrefix/farmers/${Uri.encodeComponent(farmerId)}';
+  static String farmerUpdate(String farmerId) => '\$apiPrefix/farmers/${Uri.encodeComponent(farmerId)}';
+  static const String dealCreate = '\$apiPrefix/deals';
+  static const String deals = '\$apiPrefix/deals';
+  static String dealStageUpdate(String dealId) => '\$apiPrefix/deals/${Uri.encodeComponent(dealId)}/stage';
+  static const String dealsPipeline = '\$apiPrefix/deals/pipeline';
+  static const String interactionCreate = '\$apiPrefix/interactions';
+  static const String interactions = '\$apiPrefix/interactions';
+  static const String query = '\$apiPrefix/query';
 }
 
 /// crop
@@ -876,6 +903,12 @@ abstract final class SeedEndpoints {
   static const String list = '\$apiPrefix/seeds';
   static String getSeed(String seedId) => '\$apiPrefix/seeds/${Uri.encodeComponent(seedId)}';
   static const String recommendations = '\$apiPrefix/seeds/recommendations';
+}
+
+/// skill router
+abstract final class SkillRouterEndpoints {
+  static const String route = '\$apiPrefix/skill-router/route';
+  static const String skills = '\$apiPrefix/skill-router/skills';
 }
 
 /// soil

@@ -134,6 +134,8 @@ export const SERVICE_PORTS = {
   CODE_FIX_AGENT: 8162,
   /** Code review service - خدمة مراجعة الكود */
   CODE_REVIEW_SERVICE: 8102,
+  /** Code review agent (NestJS) - وكيل مراجعة الكود */
+  CODE_REVIEW_AGENT: 8145,
 
   // ── Vision & Terrain ─────────────────────────────────────────────────
   /** YOLO26 computer vision - الرؤية الحاسوبية */
@@ -170,6 +172,10 @@ export const SERVICE_PORTS = {
   ASTRONOMICAL_CALENDAR: 8111,
 
   // ── Specialized ──────────────────────────────────────────────────────
+  /** Agronomic rules engine - محرك القواعد الزراعية */
+  AGRO_RULES: 8151,
+  /** Demo data generator - مولّد البيانات التجريبية */
+  DEMO_DATA: 8261,
   /** Logistics management - إدارة اللوجستيات */
   LOGISTICS: 8167,
   /** Supply chain management - إدارة سلسلة التوريد */
@@ -194,6 +200,14 @@ export const SERVICE_PORTS = {
   MCP_SERVER: 8201,
   /** Carbon footprint (IPCC Tier 1) - البصمة الكربونية */
   CARBON_SERVICE: 8195,
+  /** Skill Router — ADR-010 skill-selection sidecar - موجّه المهارات */
+  SKILL_ROUTER: 8205,
+  /**
+   * Test harness sidecar (refuses to start in production).
+   * For development / CI seed-and-reset only.
+   * مقيّد ببيئات الاختبار
+   */
+  TEST_HARNESS_SIDECAR: 8299,
 
   // ── Applications ─────────────────────────────────────────────────────
   /** Admin portal - لوحة الإدارة */
@@ -891,6 +905,51 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
     type: 'python',
     layer: 'business',
   },
+  'carbon-service': {
+    key: 'CARBON_SERVICE',
+    port: SERVICE_PORTS.CARBON_SERVICE,
+    name: 'Carbon Service',
+    nameAr: 'خدمة البصمة الكربونية',
+    kongRoute: '/api/v1/carbon',
+    type: 'python',
+    layer: 'intelligence',
+  },
+  'partner-auth-service': {
+    key: 'PARTNER_AUTH',
+    port: SERVICE_PORTS.PARTNER_AUTH,
+    name: 'Partner Auth Service',
+    nameAr: 'خدمة مصادقة الشركاء',
+    kongRoute: '/partner/v1/oauth',
+    type: 'nodejs',
+    layer: 'core',
+  },
+  'demo-data': {
+    key: 'DEMO_DATA',
+    port: SERVICE_PORTS.DEMO_DATA,
+    name: 'Demo Data Generator',
+    nameAr: 'مولّد البيانات التجريبية',
+    kongRoute: '/api/v1/demo',
+    type: 'python',
+    layer: 'business',
+  },
+  'code-review-agent': {
+    key: 'CODE_REVIEW_AGENT',
+    port: SERVICE_PORTS.CODE_REVIEW_AGENT,
+    name: 'Code Review Agent',
+    nameAr: 'وكيل مراجعة الكود',
+    kongRoute: '/api/v1/code-review-agent',
+    type: 'nodejs',
+    layer: 'business',
+  },
+  'skill-router-service': {
+    key: 'SKILL_ROUTER',
+    port: SERVICE_PORTS.SKILL_ROUTER,
+    name: 'Skill Router Service',
+    nameAr: 'خدمة توجيه المهارات',
+    kongRoute: '/api/v1/skill-router',
+    type: 'python',
+    layer: 'business',
+  },
 };
 
 // ---------------------------------------------------------------------------
@@ -948,6 +1007,13 @@ export const SERVICE_PORT_ALIASES = {
   astronomicalCalendar: SERVICE_PORTS.ASTRONOMICAL_CALENDAR,
   cropIntelligence: SERVICE_PORTS.CROP_INTELLIGENCE,
   audit: SERVICE_PORTS.AUDIT_SERVICE,
+  agroRules: SERVICE_PORTS.AGRO_RULES,
+  partnerAuth: SERVICE_PORTS.PARTNER_AUTH,
+  carbonService: SERVICE_PORTS.CARBON_SERVICE,
+  codeReviewAgent: SERVICE_PORTS.CODE_REVIEW_AGENT,
+  demoData: SERVICE_PORTS.DEMO_DATA,
+  skillRouter: SERVICE_PORTS.SKILL_ROUTER,
+  testHarnessSidecar: SERVICE_PORTS.TEST_HARNESS_SIDECAR,
 } as const;
 
 // ---------------------------------------------------------------------------

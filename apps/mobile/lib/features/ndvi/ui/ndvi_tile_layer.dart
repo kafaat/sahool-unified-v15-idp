@@ -4,6 +4,10 @@ import 'package:latlong2/latlong.dart';
 import '../domain/ndvi_colormap.dart';
 import '../domain/spectral_index.dart';
 
+/// ISO-8601 date formatter (YYYY-MM-DD) without depending on intl package.
+String _formatDate(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
 /// NDVI Tile Layer Configuration
 /// Supports COG (Cloud Optimized GeoTIFF) and standard XYZ tiles
 class NdviTileConfig {
@@ -53,10 +57,24 @@ class NdviTileConfig {
     );
   }
 
-  /// Local SAHOOL backend tiles
-  static NdviTileConfig sahoolBackend({required String baseUrl}) {
+  /// Local SAHOOL backend tiles — field-scoped and index-aware.
+  ///
+  /// The backend is expected to render per-pixel raster tiles clipped to the
+  /// field geometry identified by [fieldId].  Query parameters:
+  ///   `field_id` — clips the raster to the field boundary (server-side masking)
+  ///   `index`    — spectral index code (NDVI / NDWI / EVI / SAVI / NDRE)
+  ///   `date`     — ISO-8601 date for historical imagery; omit for latest
+  static NdviTileConfig sahoolBackend({
+    required String baseUrl,
+    String? fieldId,
+    SpectralIndex index = SpectralIndex.ndvi,
+    DateTime? date,
+  }) {
+    final params = ['index=${index.code}'];
+    if (fieldId != null && fieldId.isNotEmpty) params.add('field_id=$fieldId');
+    if (date != null) params.add('date=${_formatDate(date)}');
     return NdviTileConfig(
-      urlTemplate: '$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}.png',
+      urlTemplate: '$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}?${params.join('&')}',
     );
   }
 }

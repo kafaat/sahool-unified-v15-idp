@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +30,7 @@ class FieldMapScreen extends ConsumerStatefulWidget {
 }
 
 class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
+  // ── Layer toggles ─────────────────────────────────────────────────────────
   String _selectedLayer = 'satellite';
   bool _showZones = true;
   bool _showNdvi = false;
@@ -41,16 +43,31 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   String? _selectedZoneId;
   double _currentZoom = 15.0;
 
-  // ── Real API state ───────────────────────────────────────────────────────
+  // ── Spectral index API state ──────────────────────────────────────────────
   /// Live vegetation index values loaded from the backend API.
   /// Keys match [SpectralIndex.code] (e.g. 'NDVI', 'NDWI').
   final Map<String, double> _indexValues = {};
   bool _indexLoading = false;
 
-  /// Selected date for historical NDVI timeline
-  DateTime? _selectedDate;
+  /// Error message: null = ok, non-null = shown in error banner.
+  /// Distinguishes API failure (connectivity) from empty (no satellite coverage).
+  String? _indexError;
 
-  // ─────────────────────────────────────────────────────────────────────────
+  // ── Timeline state ────────────────────────────────────────────────────────
+  /// Days back from today.  0 = live / most-recent data.
+  int _daysBack = 0;
+
+  /// Whether the timeline slider bar is visible on screen.
+  bool _timelineVisible = false;
+
+  /// Debounce timer so we don't fire an API call on every slider tick.
+  Timer? _sliderDebounce;
+
+  // ── In-memory index cache ─────────────────────────────────────────────────
+  /// Keyed by "{fieldId}:{dateKey}" to avoid redundant API calls.
+  final Map<String, Map<String, double>> _indexCache = {};
+
+  // ── Derived getters ───────────────────────────────────────────────────────
 
   /// Currently active spectral index for legend display
   SpectralIndex? get _activeIndex {
@@ -61,6 +78,20 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     if (_showNdre) return SpectralIndex.ndre;
     return null;
   }
+
+  /// Effective date: null means "live / most recent".
+  DateTime? get _effectiveDate =>
+      _daysBack == 0 ? null : DateTime.now().subtract(Duration(days: _daysBack));
+
+  /// Cache key = "{fieldId}:{YYYY-MM-DD}" or "{fieldId}:live".
+  String _cacheKey(DateTime? date) {
+    if (date == null) return '${widget.fieldId}:live';
+    final d =
+        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    return '${widget.fieldId}:$d';
+  }
+
+  // ── Map ───────────────────────────────────────────────────────────────────
 
   /// Map controller for programmatic camera control
   late final MapController _mapController;
@@ -89,6 +120,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
   @override
   void dispose() {
+    _sliderDebounce?.cancel();
     _mapController.dispose();
     super.dispose();
   }
@@ -128,66 +160,96 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     }
   }
 
-  /// Load real vegetation index values from the backend API.
+  /// Unified index loader — handles both live data and historical timeseries.
   ///
-  /// Calls [NdviServiceConnector.getIndices] which hits
-  /// `/api/v1/satellite/indices/{fieldId}` via Kong.
-  /// Values are stored in [_indexValues] keyed by uppercase index code
-  /// (e.g. 'NDVI', 'NDWI') and the widget is rebuilt.
+  /// Uses [_effectiveDate] to determine which data to fetch:
+  ///   - `null` → calls `getIndices()` for the latest multi-index snapshot
+  ///   - `DateTime` → calls `getTimeseries()` and picks the closest point
+  ///
+  /// Results are cached in [_indexCache] so date changes don't re-hit the network.
+  /// Sets [_indexError] to distinguish API failure from "no satellite coverage".
   Future<void> _loadIndexValues() async {
-    if (_indexLoading) return;
-    setState(() => _indexLoading = true);
+    final date = _effectiveDate;
+    final key = _cacheKey(date);
 
-    try {
-      final service = ref.read(ndviServiceProvider);
-      final result = await service.getIndices(widget.fieldId);
-      if (!mounted) return;
-
-      final indices = result.dataOrNull;
-      if (indices != null) {
-        final updated = <String, double>{};
-        for (final idx in indices) {
-          // Normalise to uppercase so lookups using SpectralIndex.code match.
-          // Both the API name field and SpectralIndex.code use e.g. "NDVI".
-          updated[idx.name.toUpperCase()] = idx.value;
-        }
-        setState(() {
-          _indexValues.clear();
-          _indexValues.addAll(updated);
-        });
-      }
-    } finally {
-      if (mounted) setState(() => _indexLoading = false);
+    // Cache hit – skip network round-trip
+    if (_indexCache.containsKey(key)) {
+      setState(() {
+        _indexValues
+          ..clear()
+          ..addAll(_indexCache[key]!);
+        _indexError = null;
+      });
+      return;
     }
-  }
 
-  /// Reload index values for a specific historical date.
-  Future<void> _loadIndexValuesForDate(DateTime date) async {
+    if (_indexLoading) return;
     setState(() {
-      _selectedDate = date;
       _indexLoading = true;
+      _indexError = null;
     });
+
     try {
       final service = ref.read(ndviServiceProvider);
-      // Use timeseries and pick the closest point to [date]
-      final result = await service.getTimeseries(
-        widget.fieldId,
-        startDate: date.subtract(const Duration(days: 15)),
-        endDate: date.add(const Duration(days: 15)),
-      );
-      if (!mounted) return;
 
-      final points = result.dataOrNull;
-      if (points != null && points.isNotEmpty) {
-        // Find closest to selected date
-        points.sort((a, b) =>
-            (a.date.difference(date).inDays.abs())
-                .compareTo(b.date.difference(date).inDays.abs()));
-        final closest = points.first;
-        setState(() {
-          _indexValues['NDVI'] = closest.value;
-        });
+      if (date == null) {
+        // ── Live: fetch all current indices ───────────────────────────────
+        final result = await service.getIndices(widget.fieldId);
+        if (!mounted) return;
+
+        result.when(
+          success: (indices) {
+            if (indices.isEmpty) {
+              _indexError = 'لا تتوفر بيانات قمر صناعي\nNo satellite data for this field';
+              return;
+            }
+            final updated = {
+              for (final i in indices) i.name.toUpperCase(): i.value,
+            };
+            _indexCache[key] = Map.unmodifiable(updated);
+            _indexValues
+              ..clear()
+              ..addAll(updated);
+          },
+          failure: (message, _) {
+            _indexError = 'فشل تحميل البيانات: $message\nCheck connectivity';
+          },
+        );
+      } else {
+        // ── Historical: pick closest timeseries point ─────────────────────
+        final result = await service.getTimeseries(
+          widget.fieldId,
+          startDate: date.subtract(const Duration(days: 15)),
+          endDate: date.add(const Duration(days: 15)),
+        );
+        if (!mounted) return;
+
+        result.when(
+          success: (points) {
+            if (points.isEmpty) {
+              _indexError =
+                  'لا تتوفر بيانات قمر صناعي لهذا التاريخ\nNo satellite coverage for selected date';
+              return;
+            }
+            points.sort((a, b) =>
+                a.date.difference(date).inDays.abs()
+                    .compareTo(b.date.difference(date).inDays.abs()));
+            // timeseries only returns NDVI – preserve other live values,
+            // update only NDVI for the selected date.
+            final updated = Map<String, double>.from(_indexValues);
+            updated['NDVI'] = points.first.value;
+            _indexCache[key] = Map.unmodifiable(updated);
+            _indexValues
+              ..clear()
+              ..addAll(updated);
+          },
+          failure: (message, _) {
+            _indexError = 'فشل تحميل التاريخ: $message\nCheck connectivity';
+          },
+        );
       }
+    } catch (e) {
+      if (mounted) _indexError = 'خطأ غير متوقع\n$e';
     } finally {
       if (mounted) setState(() => _indexLoading = false);
     }
@@ -203,24 +265,23 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           backgroundColor: const Color(0xFF367C2B),
           foregroundColor: Colors.white,
           actions: [
-            // Loading indicator when fetching index values
+            // Loading spinner
             if (_indexLoading)
               const Padding(
                 padding: EdgeInsets.all(12),
                 child: SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(
-                      strokeWidth: 2, color: Colors.white),
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                 ),
               ),
-            // Timeline date picker for historical NDVI
+            // Timeline toggle — opens/closes the slider bar
             IconButton(
               icon: Icon(
-                Icons.calendar_month,
-                color: _selectedDate != null ? Colors.amber : Colors.white,
+                Icons.timeline,
+                color: _timelineVisible ? Colors.amber : Colors.white,
               ),
-              onPressed: _openTimelinePicker,
+              onPressed: () => setState(() => _timelineVisible = !_timelineVisible),
               tooltip: 'الجدول الزمني',
             ),
             IconButton(
@@ -237,7 +298,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         ),
         body: Stack(
           children: [
-            // الخريطة الرئيسية
             _buildMapView(),
 
             // شريط الأدوات العائم
@@ -247,50 +307,27 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               child: _buildToolbar(),
             ),
 
-            // Timeline date indicator
-            if (_selectedDate != null)
+            // Error / no-coverage banner (above toolbar)
+            if (_indexError != null && !_indexLoading)
+              _buildErrorBanner(),
+
+            // Historical date chip (shown when not in timeline mode)
+            if (!_timelineVisible && _daysBack > 0)
               Positioned(
                 top: 12,
                 left: 0,
                 right: 0,
-                child: Center(
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.calendar_today,
-                            size: 14, color: Colors.amber),
-                        const SizedBox(width: 6),
-                        Text(
-                          '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 13),
-                        ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: () {
-                            setState(() => _selectedDate = null);
-                            _loadIndexValues(); // reload live data
-                          },
-                          child: const Icon(Icons.close,
-                              size: 14, color: Colors.white70),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+                child: Center(child: _buildDateChip()),
               ),
+
+            // Timeline slider bar
+            if (_timelineVisible)
+              _buildTimelineBar(),
 
             // معلومات المنطقة المحددة
             if (_selectedZoneId != null)
               Positioned(
-                bottom: 100,
+                bottom: _timelineVisible ? 180 : 100,
                 left: 16,
                 right: 16,
                 child: _buildZoneInfoCard(),
@@ -309,6 +346,147 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           backgroundColor: const Color(0xFF367C2B),
           icon: const Icon(Icons.medical_services),
           label: const Text('تشخيص'),
+        ),
+      ),
+    );
+  }
+
+  /// Date chip shown at top when viewing historical data without the timeline bar.
+  Widget _buildDateChip() {
+    final date = _effectiveDate!;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.7),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.calendar_today, size: 14, color: Colors.amber),
+          const SizedBox(width: 6),
+          Text(
+            '${date.day}/${date.month}/${date.year}  (منذ $_daysBack يوم)',
+            style: const TextStyle(color: Colors.white, fontSize: 13),
+          ),
+          const SizedBox(width: 8),
+          GestureDetector(
+            onTap: () {
+              setState(() => _daysBack = 0);
+              _loadIndexValues();
+            },
+            child: const Icon(Icons.close, size: 14, color: Colors.white70),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Floating timeline slider (0 = today/live … 90 = 90 days ago).
+  ///
+  /// API call is debounced to 400 ms so we don't fire on every tick.
+  Widget _buildTimelineBar() {
+    final date = _effectiveDate;
+    final label = date == null
+        ? 'اليوم (حي)'
+        : '${date.day}/${date.month}/${date.year}';
+
+    return Positioned(
+      bottom: 90,
+      left: 16,
+      right: 16,
+      child: Card(
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.timeline, size: 16, color: Color(0xFF367C2B)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'التاريخ: $label',
+                    style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                  ),
+                  const Spacer(),
+                  if (_indexLoading)
+                    const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                ],
+              ),
+              Row(
+                children: [
+                  const Text('−90', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  Expanded(
+                    child: Slider(
+                      value: _daysBack.toDouble(),
+                      min: 0,
+                      max: 90,
+                      divisions: 90,
+                      activeColor: const Color(0xFF367C2B),
+                      label: _daysBack == 0 ? 'اليوم' : '−$_daysBack يوم',
+                      onChanged: (v) => setState(() => _daysBack = v.round()),
+                      onChangeEnd: (_) {
+                        // Debounce: wait for 400 ms of inactivity before fetching
+                        _sliderDebounce?.cancel();
+                        _sliderDebounce = Timer(
+                          const Duration(milliseconds: 400),
+                          _loadIndexValues,
+                        );
+                      },
+                    ),
+                  ),
+                  const Text('اليوم', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Error / no-coverage banner displayed below the AppBar.
+  ///
+  /// Tapping the refresh icon retries [_loadIndexValues].
+  Widget _buildErrorBanner() {
+    final isNoCoverage = _indexError!.contains('لا تتوفر');
+    return Positioned(
+      top: 8,
+      left: 16,
+      right: 16,
+      child: Material(
+        elevation: 4,
+        borderRadius: BorderRadius.circular(12),
+        color: isNoCoverage ? Colors.orange.shade700 : Colors.red.shade700,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            children: [
+              Icon(
+                isNoCoverage ? Icons.cloud_off : Icons.wifi_off,
+                color: Colors.white,
+                size: 18,
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  _indexError!,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+              GestureDetector(
+                onTap: _loadIndexValues,
+                child: const Icon(Icons.refresh, color: Colors.white, size: 18),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -363,24 +541,20 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           tileProvider: SahoolTileProvider(),
         ),
 
-        // Field boundary polygon
+        // Field boundary — outline only (no fill) so raster tiles show through
         if (_fieldBoundary.isNotEmpty)
           PolygonLayer(
             polygons: [
               Polygon(
                 points: _fieldBoundary,
-                color: _showNdvi
-                    ? Colors.green.withValues(alpha: 0.3)
-                    : const Color(0xFF367C2B).withValues(alpha: 0.15),
+                color: Colors.transparent,   // raster fills the field, not a solid colour
                 borderColor: const Color(0xFF367C2B),
                 borderStrokeWidth: 3,
               ),
             ],
           ),
 
-        // Spectral index overlays (polygon coloring) and WMS raster tile
-        // Polygon overlays only shown when boundary is drawn;
-        // WMS tile overlay is always added when NDVI toggle is on.
+        // Per-index field-scoped raster WMS tiles (raster-first, no polygon fill)
         ..._buildSpectralOverlays(),
 
         // Center marker
@@ -421,31 +595,15 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
-  /// Build spectral index polygon overlays using real API values.
+  /// Build per-index field-scoped WMS raster tile overlays.
   ///
-  /// Uses [_indexValues] loaded from [NdviServiceConnector.getIndices].
-  /// Falls back to a neutral mid-range value when API data is not yet loaded.
-  /// Always adds WMS tile layer when NDVI is toggled, regardless of boundary.
+  /// Each active spectral index gets its own [NdviTileLayerWidget] with a
+  /// unique URL that includes `field_id`, `index`, and optionally `date`.
+  /// The backend is responsible for clipping tiles to the field boundary
+  /// (server-side masking) so only the field area is coloured.
+  ///
+  /// No polygon fill is applied — the raster provides per-pixel values.
   List<Widget> _buildSpectralOverlays() {
-    final overlays = <Widget>[];
-
-    // ── WMS raster tile overlay (field-agnostic, shown over whole map) ────
-    if (_showNdvi) {
-      overlays.add(
-        NdviTileLayerWidget(
-          config: NdviTileConfig.sahoolBackend(baseUrl: _ndviBaseUrl),
-          visible: true,
-        ),
-      );
-    }
-
-    // ── Polygon colour overlays (require boundary) ────────────────────────
-    if (_fieldBoundary.isEmpty) return overlays;
-
-    // Helper: get API value or fallback to mid-range
-    double valueFor(SpectralIndex idx) =>
-        _indexValues[idx.code] ?? (idx.minValue + idx.maxValue) / 2;
-
     final activeIndices = <SpectralIndex>[
       if (_showNdvi) SpectralIndex.ndvi,
       if (_showNdwi) SpectralIndex.ndwi,
@@ -454,36 +612,19 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       if (_showNdre) SpectralIndex.ndre,
     ];
 
-    for (final idx in activeIndices) {
-      final value = valueFor(idx);
-      final color = SpectralColormap.getColor(idx, value);
-      final isLive = _indexValues.containsKey(idx.code);
-      final label = isLive
-          ? '${idx.code}: ${value.toStringAsFixed(2)}'
-          : '${idx.code}: جارٍ التحميل…';
-
-      overlays.add(
-        PolygonLayer(
-          polygons: [
-            Polygon(
-              points: _fieldBoundary,
-              color: color.withValues(alpha: 0.35),
-              borderColor: color,
-              borderStrokeWidth: 2,
-              label: label,
-              labelStyle: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
-              ),
-            ),
-          ],
+    return [
+      for (final idx in activeIndices)
+        NdviTileLayerWidget(
+          key: ValueKey('tile_${idx.code}_${_daysBack}'),
+          config: NdviTileConfig.sahoolBackend(
+            baseUrl: _ndviBaseUrl,
+            fieldId: widget.fieldId,
+            index: idx,
+            date: _effectiveDate,
+          ),
+          visible: true,
         ),
-      );
-    }
-
-    return overlays;
+    ];
   }
 
   Widget _buildToolbar() {
@@ -599,6 +740,16 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   Widget _buildZoneInfoCard() {
+    // Helper: render one index value from live API data (or '—' if not loaded)
+    Widget liveIndicator(SpectralIndex idx) {
+      final v = _indexValues[idx.code];
+      return _buildIndicator(
+        idx.code,
+        v != null ? v.toStringAsFixed(2) : '—',
+        v != null ? SpectralColormap.getColor(idx, v) : Colors.grey,
+      );
+    }
+
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -634,7 +785,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                         ),
                       ),
                       Text(
-                        '5.2 هكتار',
+                        _indexValues.isEmpty ? 'جارٍ التحميل…' : 'بيانات المؤشرات الحية',
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ],
@@ -650,24 +801,18 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildIndicator('NDVI', '0.72',
-                    SpectralColormap.getColor(SpectralIndex.ndvi, 0.72)),
-                _buildIndicator('NDWI', '-0.05',
-                    SpectralColormap.getColor(SpectralIndex.ndwi, -0.05)),
-                _buildIndicator('NDRE', '0.28',
-                    SpectralColormap.getColor(SpectralIndex.ndre, 0.28)),
+                liveIndicator(SpectralIndex.ndvi),
+                liveIndicator(SpectralIndex.ndwi),
+                liveIndicator(SpectralIndex.ndre),
               ],
             ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildIndicator('EVI', '0.58',
-                    SpectralColormap.getColor(SpectralIndex.evi, 0.58)),
-                _buildIndicator('SAVI', '0.45',
-                    SpectralColormap.getColor(SpectralIndex.savi, 0.45)),
-                _buildIndicator('LAI', '3.2',
-                    SpectralColormap.getColor(SpectralIndex.lai, 3.2)),
+                liveIndicator(SpectralIndex.evi),
+                liveIndicator(SpectralIndex.savi),
+                liveIndicator(SpectralIndex.lai),
               ],
             ),
             const SizedBox(height: 16),
@@ -1009,22 +1154,5 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       'fieldId': widget.fieldId,
       'fieldName': widget.fieldName,
     });
-  }
-
-  /// Open a date picker so the user can view historical NDVI for a given date.
-  Future<void> _openTimelinePicker() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDate ?? now,
-      firstDate: DateTime(now.year - 3),
-      lastDate: now,
-      helpText: 'اختر تاريخاً لعرض بيانات المؤشرات',
-      cancelText: 'إلغاء',
-      confirmText: 'عرض',
-    );
-    if (picked != null && mounted) {
-      await _loadIndexValuesForDate(picked);
-    }
   }
 }

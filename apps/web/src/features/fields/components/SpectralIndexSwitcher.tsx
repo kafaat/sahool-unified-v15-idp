@@ -57,7 +57,7 @@ export function SpectralIndexSwitcher({
     if (newPos !== null) {
       e.preventDefault();
       tabRefs.current[newPos]?.focus();
-      onIndexChange(validIndices[newPos]);
+      onIndexChange(validIndices[newPos]!);
     }
   }
 

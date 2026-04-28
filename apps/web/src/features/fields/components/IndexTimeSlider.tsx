@@ -70,6 +70,14 @@ export function IndexTimeSlider({
   const isRtl = dir === 'rtl';
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Hooks must be declared before any early returns (Rules of Hooks).
+  const allDates = calendar ?? [];
+  const usableDates = useMemo(() => allDates.filter((d) => d.usable), [allDates]);
+  const selectedIdx = useMemo(
+    () => allDates.findIndex((d) => d.date === selectedDate),
+    [allDates, selectedDate],
+  );
+
   if (calendarLoading) {
     return (
       <div className={`animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800 h-16 ${className}`} />
@@ -84,17 +92,10 @@ export function IndexTimeSlider({
     );
   }
 
-  const allDates = calendar;
-  const usableDates = useMemo(() => (calendar ?? []).filter((d) => d.usable), [calendar]);
-  const selectedIdx = useMemo(
-    () => (allDates ?? []).findIndex((d) => d.date === selectedDate),
-    [allDates, selectedDate],
-  );
-
   function handleSliderChange(e: React.ChangeEvent<HTMLInputElement>) {
     const idx = parseInt(e.target.value, 10);
     if (!isNaN(idx) && idx >= 0 && idx < allDates.length) {
-      onDateChange(allDates[idx].date);
+      onDateChange(allDates[idx]!.date);
       // Scroll the dot into view
       const dot = containerRef.current?.querySelector(`[data-date-idx="${idx}"]`);
       dot?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });

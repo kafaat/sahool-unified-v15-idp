@@ -615,7 +615,7 @@ export const INDEX_SEMANTICS: Record<string, IndexSemantics> = {
  * هذا fallback آمن — يمنع crash عند تمرير مؤشر غير معرّف.
  */
 export function getIndexSemantics(index: string): IndexSemantics {
-  return INDEX_SEMANTICS[index.toLowerCase()] ?? INDEX_SEMANTICS.ndvi;
+  return (INDEX_SEMANTICS[index.toLowerCase()] ?? INDEX_SEMANTICS['ndvi'])!;
 }
 
 /**
@@ -639,18 +639,18 @@ export function interpolateColor(index: string, value: number): string {
   const { colorStops } = getIndexSemantics(index);
   if (!colorStops.length) return '#888888';
 
-  if (value <= colorStops[0].value) return colorStops[0].color;
-  if (value >= colorStops[colorStops.length - 1].value) return colorStops[colorStops.length - 1].color;
+  if (value <= colorStops[0]!.value) return colorStops[0]!.color;
+  if (value >= colorStops[colorStops.length - 1]!.value) return colorStops[colorStops.length - 1]!.color;
 
   for (let i = 0; i < colorStops.length - 1; i++) {
-    const lo = colorStops[i];
-    const hi = colorStops[i + 1];
+    const lo = colorStops[i]!;
+    const hi = colorStops[i + 1]!;
     if (value >= lo.value && value <= hi.value) {
       const t = (value - lo.value) / (hi.value - lo.value);
       return _blendHex(lo.color, hi.color, t);
     }
   }
-  return colorStops[0].color;
+  return colorStops[0]!.color;
 }
 
 /** Blend two hex colors by t ∈ [0,1] */

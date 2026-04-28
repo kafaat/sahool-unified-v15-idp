@@ -4669,8 +4669,17 @@ async def _fetch_single_ndvi(
 
 # Supported spectral indices for map overlay
 _INDEX_MAP_SUPPORTED = {
-    "ndvi", "ndwi", "evi", "savi", "ndre", "lai",
-    "gndvi", "ndmi", "msavi", "arvi", "vari",
+    "ndvi",
+    "ndwi",
+    "evi",
+    "savi",
+    "ndre",
+    "lai",
+    "gndvi",
+    "ndmi",
+    "msavi",
+    "arvi",
+    "vari",
 }
 
 # Sentinel Hub WMS layer names per index
@@ -4821,17 +4830,66 @@ async def get_index_map(
     target_date_obj = datetime.strptime(date_used, "%Y-%m-%d")
     day_of_year = target_date_obj.timetuple().tm_yday
     _index_sim: dict[str, float] = {
-        "ndvi": round(max(0.05, min(0.95, 0.5 + 0.28 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))), 3),
-        "ndwi": round(max(-0.4, min(0.5, 0.1 + 0.15 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.1, 0.1))), 3),
-        "evi": round(max(0.05, min(0.8, 0.35 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
-        "savi": round(max(0.05, min(0.9, 0.42 + 0.24 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))), 3),
-        "ndre": round(max(-0.2, min(0.8, 0.3 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
-        "lai": round(max(0.1, min(8.0, 2.5 + 1.8 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.3, 0.3))), 2),
-        "gndvi": round(max(0.05, min(0.85, 0.42 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
-        "ndmi": round(max(-0.5, min(0.5, 0.05 + 0.12 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))), 3),
-        "msavi": round(max(0.05, min(0.9, 0.38 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))), 3),
-        "arvi": round(max(-0.2, min(0.8, 0.32 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
-        "vari": round(max(-0.3, min(0.6, 0.15 + 0.18 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
+        "ndvi": round(
+            max(
+                0.05, min(0.95, 0.5 + 0.28 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))
+            ),
+            3,
+        ),
+        "ndwi": round(
+            max(-0.4, min(0.5, 0.1 + 0.15 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.1, 0.1))),
+            3,
+        ),
+        "evi": round(
+            max(
+                0.05, min(0.8, 0.35 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))
+            ),
+            3,
+        ),
+        "savi": round(
+            max(
+                0.05, min(0.9, 0.42 + 0.24 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))
+            ),
+            3,
+        ),
+        "ndre": round(
+            max(-0.2, min(0.8, 0.3 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))),
+            3,
+        ),
+        "lai": round(
+            max(0.1, min(8.0, 2.5 + 1.8 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.3, 0.3))), 2
+        ),
+        "gndvi": round(
+            max(
+                0.05,
+                min(0.85, 0.42 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07)),
+            ),
+            3,
+        ),
+        "ndmi": round(
+            max(
+                -0.5, min(0.5, 0.05 + 0.12 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))
+            ),
+            3,
+        ),
+        "msavi": round(
+            max(
+                0.05, min(0.9, 0.38 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))
+            ),
+            3,
+        ),
+        "arvi": round(
+            max(
+                -0.2, min(0.8, 0.32 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))
+            ),
+            3,
+        ),
+        "vari": round(
+            max(
+                -0.3, min(0.6, 0.15 + 0.18 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))
+            ),
+            3,
+        ),
     }
     index_value = _index_sim.get(index_lower, 0.5)
 

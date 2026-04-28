@@ -16,7 +16,14 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-from .types import IRRIGATION_ADJUSTMENT, SUBJECT_PREFIX, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
+from .types import (
+    IRRIGATION_ADJUSTMENT,
+    SUBJECT_PREFIX,
+    WEATHER_ALERT,
+    WEATHER_FORECAST_ISSUED,
+    get_subject,
+    get_version,
+)
 
 try:
     from shared.events.subjects import get_tenant_subject

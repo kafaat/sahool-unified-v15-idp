@@ -659,8 +659,8 @@ function _blendHex(a: string, b: string, t: number): string {
   const pb = _parseHex(b);
   const r = Math.round(pa[0] + (pb[0] - pa[0]) * t);
   const g = Math.round(pa[1] + (pb[1] - pa[1]) * t);
-  const bl = Math.round(pa[2] + (pb[2] - pa[2]) * t);
-  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${bl.toString(16).padStart(2, '0')}`;
+  const blue = Math.round(pa[2] + (pb[2] - pa[2]) * t);
+  return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
 }
 
 function _parseHex(hex: string): [number, number, number] {

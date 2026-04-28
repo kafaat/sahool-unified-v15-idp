@@ -4812,7 +4812,12 @@ async def get_index_map(
     import math as _math
     import random as _random
 
-    _random.seed(int(field_id[-3:], 36) if field_id[-3:].isalpha() else hash(field_id) % 9999)
+    _seed_str = field_id[-3:]
+    try:
+        _seed_val = int(_seed_str, 36)
+    except ValueError:
+        _seed_val = hash(field_id) % 9999
+    _random.seed(_seed_val)
     target_date_obj = datetime.strptime(date_used, "%Y-%m-%d")
     day_of_year = target_date_obj.timetuple().tm_yday
     _index_sim: dict[str, float] = {

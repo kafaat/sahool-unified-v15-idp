@@ -20,7 +20,7 @@
  *   - setSelectedDate
  */
 
-import { useId, useRef } from 'react';
+import { useId, useMemo, useRef } from 'react';
 import type { CalendarDate } from '@/features/ndvi/hooks/useIndexMap';
 
 export interface IndexTimeSliderProps {
@@ -84,9 +84,12 @@ export function IndexTimeSlider({
     );
   }
 
-  const usableDates = calendar.filter((d) => d.usable);
   const allDates = calendar;
-  const selectedIdx = allDates.findIndex((d) => d.date === selectedDate);
+  const usableDates = useMemo(() => (calendar ?? []).filter((d) => d.usable), [calendar]);
+  const selectedIdx = useMemo(
+    () => (allDates ?? []).findIndex((d) => d.date === selectedDate),
+    [allDates, selectedDate],
+  );
 
   function handleSliderChange(e: React.ChangeEvent<HTMLInputElement>) {
     const idx = parseInt(e.target.value, 10);

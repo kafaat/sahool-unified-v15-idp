@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../core/map/sahool_tile_provider.dart';
 import '../../../../core/geo/geojson.dart';
+import '../../../../core/config/env_config.dart';
 import '../../../ndvi/domain/spectral_index.dart';
 // Phase 2: import the tile layer widget so it can be used in FlutterMap children
 import '../../../ndvi/ui/ndvi_tile_layer.dart';
@@ -239,10 +240,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
         if (_activeIndex != null)
           NdviTileLayerWidget(
             config: NdviTileConfig.sahoolBackend(
-              // Build the tile URL for the active spectral index
-              // The backend /v1/index-map/{fieldId}?index={index} returns
-              // a tileUrlTemplate — here we use the WMTS-compatible path
-              baseUrl: 'https://api.sahool.app/api/v1/satellite/v1',
+              // Use EnvConfig.apiBaseUrl so this works in dev / staging / production
+              baseUrl: '${EnvConfig.apiBaseUrl}/satellite/v1',
             ),
             visible: _activeIndex != null,
           ),

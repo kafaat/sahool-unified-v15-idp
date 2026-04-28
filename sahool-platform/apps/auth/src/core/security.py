@@ -1,9 +1,8 @@
 import uuid
 import datetime
-from typing import Optional
 
 import bcrypt
-from jose import JWTError, jwt
+from jose import jwt
 
 from .config import settings
 
@@ -23,7 +22,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 # ── Tokens ────────────────────────────────────────────────────────────────────
 
 def _utcnow() -> datetime.datetime:
-    return datetime.datetime.now(datetime.timezone.utc)
+    return datetime.datetime.now(datetime.UTC)
 
 
 def create_access_token(
@@ -52,7 +51,7 @@ def create_access_token(
 
 def create_refresh_token(
     user_id: str,
-    family_id: Optional[str] = None,
+    family_id: str | None = None,
 ) -> tuple[str, str, str]:
     """Return (encoded_jwt, jti, family_id)."""
     jti = str(uuid.uuid4())

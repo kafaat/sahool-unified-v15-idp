@@ -4,7 +4,6 @@ import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status, Cookie
 from jose import JWTError
-from typing import Optional
 
 from ...core.security import (
     hash_password,
@@ -14,7 +13,7 @@ from ...core.security import (
     decode_token,
 )
 from ...core.config import settings
-from ...models.user import UserRegister, UserLogin, UserOut
+from ...models.user import UserRegister, UserLogin
 from ...models.token import TokenResponse, TokenWithUser
 from ..deps import get_current_user
 
@@ -73,7 +72,7 @@ async def register(body: UserRegister, request: Request, response: Response):
 
     # Store refresh token
     async with pool.acquire() as conn:
-        expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+        expires_at = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
             days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS
         )
         await conn.execute(
@@ -132,7 +131,7 @@ async def login(body: UserLogin, request: Request, response: Response):
     refresh_token, jti, family_id = create_refresh_token(user_id)
 
     async with pool.acquire() as conn:
-        expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+        expires_at = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
             days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS
         )
         await conn.execute(
@@ -164,7 +163,7 @@ async def login(body: UserLogin, request: Request, response: Response):
 async def refresh_token(
     request: Request,
     response: Response,
-    refresh_token: Optional[str] = Cookie(default=None),
+    refresh_token: str | None = Cookie(default=None),
 ):
     if not refresh_token:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "No refresh token")
@@ -227,7 +226,7 @@ async def refresh_token(
 
             # Issue new refresh token in same family
             new_rt, new_jti, _ = create_refresh_token(user_id, family_id=family_id)
-            expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+            expires_at = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
                 days=settings.JWT_REFRESH_TOKEN_EXPIRE_DAYS
             )
             await conn.execute(
@@ -251,7 +250,7 @@ async def refresh_token(
 async def logout(
     request: Request,
     response: Response,
-    refresh_token: Optional[str] = Cookie(default=None),
+    refresh_token: str | None = Cookie(default=None),
     current_user: dict = Depends(get_current_user),
 ):
     if refresh_token:

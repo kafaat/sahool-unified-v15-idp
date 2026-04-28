@@ -58,6 +58,16 @@ export const SERVICE_HEALTH_ENDPOINTS = {
   PROVIDERS: `${API_PREFIX}/providers/healthz`,
   AGRO_RULES: `${API_PREFIX}/agro-rules/healthz`,
   INTELLIGENCE: `${API_PREFIX}/intelligence/healthz`,
+  VISION: `${API_PREFIX}/vision/healthz`,
+  TERRAIN: `${API_PREFIX}/terrain/healthz`,
+  AUDIT: `${API_PREFIX}/audit/healthz`,
+  CARBON: `${API_PREFIX}/carbon/healthz`,
+  COPILOT: `${API_PREFIX}/copilot/healthz`,
+  SOIL: `${API_PREFIX}/soil/healthz`,
+  DRONE: `${API_PREFIX}/drones/healthz`,
+  EDGE: `${API_PREFIX}/edge/healthz`,
+  HYDROLOGY: `${API_PREFIX}/hydrology/healthz`,
+  LEVELING: `${API_PREFIX}/leveling/healthz`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -980,6 +990,36 @@ export const DISASTER_ENDPOINTS = {
   STATS: `${API_PREFIX}/disasters/stats/summary`,
   /** @since 4.3.0 - Risk profiles */
   RISKS: `${API_PREFIX}/disasters/risks`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// CRM Endpoints - نقاط إدارة علاقات المزارعين
+// Served by crm-service (port 8131, Kong-routed at /api/v1/crm).
+// ---------------------------------------------------------------------------
+
+export const CRM_ENDPOINTS = {
+  /** GET — List farmers for the current tenant */
+  FARMERS: `${API_PREFIX}/crm/farmers`,
+  /** POST — Create a new farmer record */
+  FARMER_CREATE: `${API_PREFIX}/crm/farmers`,
+  /** GET — Get a single farmer by ID */
+  FARMER_GET: `${API_PREFIX}/crm/farmers/{farmerId}`,
+  /** PATCH — Update farmer record */
+  FARMER_UPDATE: `${API_PREFIX}/crm/farmers/{farmerId}`,
+  /** DELETE — Delete farmer record */
+  FARMER_DELETE: `${API_PREFIX}/crm/farmers/{farmerId}`,
+  /** GET — List interactions for a farmer */
+  INTERACTIONS: `${API_PREFIX}/crm/interactions`,
+  /** GET — Get single interaction */
+  INTERACTION_GET: `${API_PREFIX}/crm/interactions/{interactionId}`,
+  /** POST — Create interaction record */
+  INTERACTION_CREATE: `${API_PREFIX}/crm/interactions`,
+  /** GET — List CRM segments */
+  SEGMENTS: `${API_PREFIX}/crm/segments`,
+  /** GET/POST — Farmer notes */
+  NOTES: `${API_PREFIX}/crm/farmers/{farmerId}/notes`,
+  /** GET — CRM analytics summary */
+  ANALYTICS: `${API_PREFIX}/crm/analytics`,
 } as const;
 
 export const AGRO_RULES_ENDPOINTS = {

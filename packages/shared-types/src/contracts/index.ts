@@ -119,7 +119,29 @@
 //            IndexTileType, IndexDataSource to api-responses.ts — canonical DTOs
 //            consumed identically by Web (useIndexMap) and Mobile (indexMapProvider).
 //            Purely additive; no existing exports removed.
-export const CONTRACT_VERSION = "4.21.0" as const;
+// 4.22.0 — Contract audit and gap-fill (purely additive):
+//          * SERVICE_PORTS: add AGRO_RULES (8151), DEMO_DATA (8261),
+//            CODE_REVIEW_AGENT (8145) — all referenced in endpoints /
+//            health checks but were missing from the ports map.
+//          * SERVICE_REGISTRY: add agro-rules, carbon-service,
+//            partner-auth-service, demo-data, code-review-agent entries.
+//          * SERVICE_PORT_ALIASES: add agroRules, partnerAuth,
+//            carbonService, codeReviewAgent, demoData.
+//          * SERVICE_HEALTH_ENDPOINTS: add VISION, TERRAIN, AUDIT, CARBON,
+//            COPILOT, SOIL, DRONE, EDGE, HYDROLOGY, LEVELING (were missing
+//            despite all having live kongRoutes in the registry).
+//          * CRM_ENDPOINTS (new): FARMERS, FARMER_CREATE/GET/UPDATE/DELETE,
+//            INTERACTIONS, SEGMENTS, NOTES, ANALYTICS — crm-service had a
+//            registered port + Kong route but no typed endpoint group.
+//          * ERROR_MESSAGES: add 7 missing Vision error entries:
+//            E1003 VISION_INVALID_DIMENSIONS,
+//            E1005 VISION_UNSUPPORTED_TYPE,
+//            E1007 VISION_EMPTY_IMAGE,
+//            E1009 VISION_CORRUPT_FILE,
+//            E2004 VISION_MODEL_INCOMPATIBLE,
+//            E2006 VISION_WARMUP_FAILED,
+//            E3004 VISION_BATCH_FAILED.
+export const CONTRACT_VERSION = "4.22.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

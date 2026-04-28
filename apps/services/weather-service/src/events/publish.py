@@ -16,7 +16,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-from .types import IRRIGATION_ADJUSTMENT, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
+from .types import IRRIGATION_ADJUSTMENT, SUBJECT_PREFIX, WEATHER_ALERT, WEATHER_FORECAST_ISSUED, get_subject, get_version
 
 try:
     from shared.events.subjects import get_tenant_subject
@@ -32,7 +32,7 @@ def _weather_scoped(event_type: str, tenant_id: str | None) -> str:
     if tenant_id:
         # Preserve the "alert" / "forecast.issued" / "irrigation.adjustment" action suffix.
         action = (
-            global_subject[len("sahool.weather.") :] if global_subject.startswith("sahool.weather.") else event_type
+            global_subject[len(SUBJECT_PREFIX) + 1 :] if global_subject.startswith(SUBJECT_PREFIX + ".") else event_type
         )
         return get_tenant_subject(tenant_id, "weather", action)
     logger.warning(

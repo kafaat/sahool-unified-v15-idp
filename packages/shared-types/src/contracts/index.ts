@@ -141,7 +141,31 @@
 //            E2004 VISION_MODEL_INCOMPATIBLE,
 //            E2006 VISION_WARMUP_FAILED,
 //            E3004 VISION_BATCH_FAILED.
-export const CONTRACT_VERSION = "4.22.0" as const;
+// 4.23.0 — Direct code audit — real gaps fixed:
+//          * SERVICE_PORTS: add SKILL_ROUTER (8205) — skill-router-service
+//            exists at apps/services/skill-router-service/app/config.py but
+//            was entirely absent from the contract.
+//          * SERVICE_PORTS: add TEST_HARNESS_SIDECAR (8299) — test-only
+//            sidecar (refuses production start) at
+//            apps/services/test-harness-sidecar/src/config.py.
+//          * ServiceInfo interface: make kongRoute optional; add 'worker'
+//            to the type union — agro-rules is a pure NATS consumer worker
+//            with no HTTP interface and should NOT have a kongRoute.
+//          * SERVICE_REGISTRY['agro-rules']: remove incorrect kongRoute,
+//            change type 'python' → 'worker' (actual code: worker.py + NATS).
+//          * SERVICE_REGISTRY: add 'skill-router-service' entry.
+//          * SERVICE_PORT_ALIASES: add skillRouter, testHarnessSidecar.
+//          * CRM_ENDPOINTS: complete rewrite — previous version used wrong
+//            /crm prefix (service registers routes at /api/v1/farmers,
+//            /api/v1/deals, etc. — confirmed from crm-service/src/main.py).
+//            Added missing: DEAL_CREATE, DEALS, DEAL_STAGE_UPDATE,
+//            DEALS_PIPELINE, QUERY. Removed non-existent: FARMER_DELETE
+//            (no DELETE handler), INTERACTION_GET (no GET-by-ID handler),
+//            SEGMENTS, NOTES, ANALYTICS (all were fabricated).
+//          * SKILL_ROUTER_ENDPOINTS (new): ROUTE, SKILLS — matches the
+//            actual router in skill-router-service/app/router.py.
+//          * SERVICE_HEALTH_ENDPOINTS: add SKILL_ROUTER, CRM.
+export const CONTRACT_VERSION = "4.23.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

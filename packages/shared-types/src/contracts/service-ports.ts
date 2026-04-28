@@ -200,6 +200,14 @@ export const SERVICE_PORTS = {
   MCP_SERVER: 8201,
   /** Carbon footprint (IPCC Tier 1) - البصمة الكربونية */
   CARBON_SERVICE: 8195,
+  /** Skill Router — ADR-010 skill-selection sidecar - موجّه المهارات */
+  SKILL_ROUTER: 8205,
+  /**
+   * Test harness sidecar (refuses to start in production).
+   * For development / CI seed-and-reset only.
+   * مقيّد ببيئات الاختبار
+   */
+  TEST_HARNESS_SIDECAR: 8299,
 
   // ── Applications ─────────────────────────────────────────────────────
   /** Admin portal - لوحة الإدارة */
@@ -240,10 +248,10 @@ export interface ServiceInfo {
   name: string;
   /** Service display name (AR) */
   nameAr: string;
-  /** Kong route prefix */
-  kongRoute: string;
+  /** Kong route prefix. Optional: workers and test-only sidecars have no HTTP Kong route. */
+  kongRoute?: string;
   /** Runtime type */
-  type: 'python' | 'nodejs' | 'infrastructure';
+  type: 'python' | 'nodejs' | 'infrastructure' | 'worker';
   /** Event architecture layer */
   layer: 'core' | 'acquisition' | 'intelligence' | 'decision' | 'business';
   /** Is deprecated */
@@ -900,10 +908,10 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
   'agro-rules': {
     key: 'AGRO_RULES',
     port: SERVICE_PORTS.AGRO_RULES,
-    name: 'Agro Rules Engine',
-    nameAr: 'محرك القواعد الزراعية',
-    kongRoute: '/api/v1/agro-rules',
-    type: 'python',
+    name: 'Agro Rules Engine (Worker)',
+    nameAr: 'محرك القواعد الزراعية (عامل NATS)',
+    // No kongRoute — pure NATS consumer worker with no HTTP interface
+    type: 'worker',
     layer: 'decision',
   },
   'carbon-service': {
@@ -940,6 +948,15 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
     nameAr: 'وكيل مراجعة الكود',
     kongRoute: '/api/v1/code-review-agent',
     type: 'nodejs',
+    layer: 'business',
+  },
+  'skill-router-service': {
+    key: 'SKILL_ROUTER',
+    port: SERVICE_PORTS.SKILL_ROUTER,
+    name: 'Skill Router Service',
+    nameAr: 'خدمة توجيه المهارات',
+    kongRoute: '/api/v1/skill-router',
+    type: 'python',
     layer: 'business',
   },
 };
@@ -1004,6 +1021,8 @@ export const SERVICE_PORT_ALIASES = {
   carbonService: SERVICE_PORTS.CARBON_SERVICE,
   codeReviewAgent: SERVICE_PORTS.CODE_REVIEW_AGENT,
   demoData: SERVICE_PORTS.DEMO_DATA,
+  skillRouter: SERVICE_PORTS.SKILL_ROUTER,
+  testHarnessSidecar: SERVICE_PORTS.TEST_HARNESS_SIDECAR,
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -68,6 +68,8 @@ export const SERVICE_HEALTH_ENDPOINTS = {
   EDGE: `${API_PREFIX}/edge/healthz`,
   HYDROLOGY: `${API_PREFIX}/hydrology/healthz`,
   LEVELING: `${API_PREFIX}/leveling/healthz`,
+  SKILL_ROUTER: `${API_PREFIX}/skill-router/healthz`,
+  CRM: `${API_PREFIX}/crm/healthz`,
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -994,32 +996,46 @@ export const DISASTER_ENDPOINTS = {
 
 // ---------------------------------------------------------------------------
 // CRM Endpoints - نقاط إدارة علاقات المزارعين
-// Served by crm-service (port 8131, Kong-routed at /api/v1/crm).
+// Served by crm-service (port 8131).
+// NOTE: the crm-service does NOT use a /crm prefix — routes are registered
+//       directly at /api/v1/farmers, /api/v1/deals, /api/v1/interactions,
+//       and /api/v1/query on the service itself. Kong strips /api/v1/crm
+//       and the service resolves paths relative to its own root.
 // ---------------------------------------------------------------------------
 
 export const CRM_ENDPOINTS = {
-  /** GET — List farmers for the current tenant */
-  FARMERS: `${API_PREFIX}/crm/farmers`,
+  // ── Farmers ──────────────────────────────────────────────────────────────
   /** POST — Create a new farmer record */
-  FARMER_CREATE: `${API_PREFIX}/crm/farmers`,
-  /** GET — Get a single farmer by ID */
-  FARMER_GET: `${API_PREFIX}/crm/farmers/{farmerId}`,
-  /** PATCH — Update farmer record */
-  FARMER_UPDATE: `${API_PREFIX}/crm/farmers/{farmerId}`,
-  /** DELETE — Delete farmer record */
-  FARMER_DELETE: `${API_PREFIX}/crm/farmers/{farmerId}`,
-  /** GET — List interactions for a farmer */
-  INTERACTIONS: `${API_PREFIX}/crm/interactions`,
-  /** GET — Get single interaction */
-  INTERACTION_GET: `${API_PREFIX}/crm/interactions/{interactionId}`,
-  /** POST — Create interaction record */
-  INTERACTION_CREATE: `${API_PREFIX}/crm/interactions`,
-  /** GET — List CRM segments */
-  SEGMENTS: `${API_PREFIX}/crm/segments`,
-  /** GET/POST — Farmer notes */
-  NOTES: `${API_PREFIX}/crm/farmers/{farmerId}/notes`,
-  /** GET — CRM analytics summary */
-  ANALYTICS: `${API_PREFIX}/crm/analytics`,
+  FARMER_CREATE: `${API_PREFIX}/farmers`,
+  /** GET  — List farmers for the current tenant */
+  FARMERS: `${API_PREFIX}/farmers`,
+  /** GET  — Get a single farmer by ID */
+  FARMER_GET: `${API_PREFIX}/farmers/{farmerId}`,
+  /** PATCH — Update farmer record (status, contact, profile) */
+  FARMER_UPDATE: `${API_PREFIX}/farmers/{farmerId}`,
+
+  // ── Deals (Harvest Pipeline) ──────────────────────────────────────────────
+  /** POST — Create a new harvest deal */
+  DEAL_CREATE: `${API_PREFIX}/deals`,
+  /** GET  — List deals for the current tenant */
+  DEALS: `${API_PREFIX}/deals`,
+  /** PATCH — Advance a deal to the next pipeline stage */
+  DEAL_STAGE_UPDATE: `${API_PREFIX}/deals/{dealId}/stage`,
+  /** GET  — Pipeline statistics (count + value per DealStage) */
+  DEALS_PIPELINE: `${API_PREFIX}/deals/pipeline`,
+
+  // ── Interactions ──────────────────────────────────────────────────────────
+  /** POST — Log a new farmer interaction (call, visit, WhatsApp, etc.) */
+  INTERACTION_CREATE: `${API_PREFIX}/interactions`,
+  /** GET  — List interactions (filterable by farmer_id, type, date range) */
+  INTERACTIONS: `${API_PREFIX}/interactions`,
+
+  // ── Natural-Language Query ────────────────────────────────────────────────
+  /**
+   * POST — Natural-language CRM query (SQLBot-style).
+   * Body: { "query": "show me all wheat farmers in Riyadh" }
+   */
+  QUERY: `${API_PREFIX}/query`,
 } as const;
 
 export const AGRO_RULES_ENDPOINTS = {
@@ -1028,6 +1044,27 @@ export const AGRO_RULES_ENDPOINTS = {
   TRIGGER_RULE: `${API_PREFIX}/agro-rules/rules/{ruleId}/trigger`,
   GDD: `${API_PREFIX}/agro-rules/gdd`,
   SPRAY_WINDOWS: `${API_PREFIX}/agro-rules/spray-windows`,
+} as const;
+
+// ---------------------------------------------------------------------------
+// Skill Router Endpoints - نقاط موجّه المهارات
+// Served by skill-router-service (port 8205, Kong-routed at /api/v1/skill-router).
+// ADR-010 Phase 1: routes user queries to the most relevant skill by
+// semantic scoring against the skills registry YAML index.
+// ---------------------------------------------------------------------------
+
+export const SKILL_ROUTER_ENDPOINTS = {
+  /**
+   * POST — Rank registered skills for a free-text query.
+   * Body: { "query": string }
+   * Returns: RouteResponse { top_skills: SkillMatch[], latency_ms: number }
+   */
+  ROUTE: `${API_PREFIX}/skill-router/route`,
+  /**
+   * GET — List all registered skills loaded from the YAML index.
+   * Returns: SkillEntry[]
+   */
+  SKILLS: `${API_PREFIX}/skill-router/skills`,
 } as const;
 
 // ---------------------------------------------------------------------------

@@ -291,6 +291,19 @@ export const SATELLITE_ENDPOINTS = {
   IMAGERY: `${API_PREFIX}/satellite/imagery/{fieldId}`,
   NDVI_FIELD: `${API_PREFIX}/fields/{fieldId}/ndvi`,
   NDVI_SUMMARY: `${API_PREFIX}/ndvi/summary`,
+  // Phase 2 — Agronomic Intelligence Layer
+  /** Raster/WMS map for any spectral index on a given date */
+  INDEX_MAP: `${API_PREFIX}/satellite/v1/index-map/{fieldId}`,
+  /** Cloud-quality calendar for IndexTimeSlider date coloring */
+  INDEX_CALENDAR: `${API_PREFIX}/satellite/v1/index-calendar/{fieldId}`,
+  /** Cloud cover analysis for a single date */
+  CLOUD_COVER: `${API_PREFIX}/satellite/v1/cloud-cover/{fieldId}`,
+  /** List of clear observations in a date range */
+  CLEAR_OBSERVATIONS: `${API_PREFIX}/satellite/v1/clear-observations/{fieldId}`,
+  /** NDVI time-series anomaly detection */
+  TIMESERIES_ANALYZE: `${API_PREFIX}/satellite/v1/ndvi-timeseries/analyze/{fieldId}`,
+  /** Phenology timeline for a field */
+  PHENOLOGY_TIMELINE: `${API_PREFIX}/satellite/v1/phenology/{fieldId}/timeline`,
 } as const;
 
 // ---------------------------------------------------------------------------

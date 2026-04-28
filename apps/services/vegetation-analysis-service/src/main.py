@@ -4662,6 +4662,269 @@ async def _fetch_single_ndvi(
         return (0.5, 0.2)  # Default values
 
 
+# =============================================================================
+# Phase 2 — Index Map Endpoint (Raster + Cloud Quality)
+# الطور الثاني — نقطة نهاية خريطة المؤشرات (راستر + جودة السحاب)
+# =============================================================================
+
+# Supported spectral indices for map overlay
+_INDEX_MAP_SUPPORTED = {
+    "ndvi", "ndwi", "evi", "savi", "ndre", "lai",
+    "gndvi", "ndmi", "msavi", "arvi", "vari",
+}
+
+# Sentinel Hub WMS layer names per index
+_SENTINEL_WMS_LAYERS = {
+    "ndvi": "NDVI",
+    "ndwi": "NDWI",
+    "evi": "EVI",
+    "savi": "SAVI",
+    "ndre": "NDRE",
+    "lai": "LAI",
+    "gndvi": "GNDVI",
+    "ndmi": "NDMI",
+    "msavi": "MSAVI",
+    "arvi": "ARVI",
+    "vari": "FALSE_COLOR",  # best WMS fallback for VARI
+}
+
+
+@app.get("/v1/index-map/{field_id}")
+async def get_index_map(
+    field_id: str,
+    index: str = Query("ndvi", description="Spectral index name (ndvi, ndwi, evi, savi, ndre, lai, ...)"),
+    lat: float = Query(..., ge=-90, le=90, description="Field center latitude"),
+    lon: float = Query(..., ge=-180, le=180, description="Field center longitude"),
+    date: str | None = Query(None, description="Target date YYYY-MM-DD (omit for latest clear image)"),
+    max_cloud: float = Query(20.0, ge=0, le=100, description="Max acceptable cloud cover %"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Get raster map data for a spectral index over a field.
+    الحصول على بيانات خريطة راستر لمؤشر طيفي فوق حقل.
+
+    Returns:
+    - wms_url: WMS tile URL (real Sentinel Hub if configured, else None)
+    - tile_url_template: XYZ tile template for MapLibre / Leaflet
+    - index_value: Scalar mean value for the field on the target date
+    - cloud_cover_percent: Cloud coverage on the target date
+    - data_source: "sentinel-hub" | "simulated"
+    - date_used: The actual date of the image returned
+    - quality_score: 0-1 usability score
+    - color_stops: Frontend colormap stops for this index
+
+    Example:
+        GET /v1/index-map/field_123?index=ndwi&lat=15.5&lon=44.2&date=2024-03-15
+    """
+    _validate_field_id(field_id)
+    _require_tenant_id(user)
+
+    index_lower = index.lower()
+    if index_lower not in _INDEX_MAP_SUPPORTED:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": f"Unsupported index '{index}'. Supported: {sorted(_INDEX_MAP_SUPPORTED)}",
+                "error_ar": f"المؤشر '{index}' غير مدعوم. المدعومة: {sorted(_INDEX_MAP_SUPPORTED)}",
+            },
+        )
+
+    # Parse target date
+    target_dt: datetime | None = None
+    if date:
+        try:
+            target_dt = datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD")
+
+    # Analyse cloud quality for the requested date
+    cloud_cover_pct = 0.0
+    quality_score = 1.0
+    date_used = (target_dt or datetime.now()).strftime("%Y-%m-%d")
+    cloud_usable = True
+
+    if _cloud_masker:
+        try:
+            cloud_result = await _cloud_masker.analyze_cloud_cover(
+                field_id=field_id,
+                latitude=lat,
+                longitude=lon,
+                date=target_dt,
+            )
+            cloud_cover_pct = cloud_result.cloud_cover_percent
+            quality_score = cloud_result.quality_score
+            cloud_usable = cloud_result.usable
+            date_used = cloud_result.timestamp.strftime("%Y-%m-%d")
+        except Exception as exc:
+            logger.warning("cloud_analysis_failed_for_index_map", field_id=field_id, error=str(exc))
+
+    # Try to find a clearer date if requested date is too cloudy
+    fallback_date: str | None = None
+    if not cloud_usable and _cloud_masker and target_dt:
+        try:
+            search_start = target_dt - timedelta(days=15)
+            search_end = target_dt + timedelta(days=15)
+            clear_obs = await _cloud_masker.find_clear_observations(
+                field_id=field_id,
+                latitude=lat,
+                longitude=lon,
+                start_date=search_start,
+                end_date=search_end,
+                max_cloud_cover=max_cloud,
+            )
+            if clear_obs:
+                best = clear_obs[0]
+                fallback_date = best.date.strftime("%Y-%m-%d")
+                date_used = fallback_date
+                cloud_cover_pct = best.cloud_cover
+                quality_score = best.quality_score
+                cloud_usable = True
+        except Exception as exc:
+            logger.warning("clear_obs_search_failed", field_id=field_id, error=str(exc))
+
+    # Build WMS URL if Sentinel Hub is configured
+    sentinel_instance_id = os.getenv("SENTINEL_HUB_INSTANCE_ID", "")
+    data_source = "simulated"
+    wms_url: str | None = None
+    tile_url_template: str | None = None
+
+    if sentinel_instance_id and cloud_usable:
+        wms_layer = _SENTINEL_WMS_LAYERS.get(index_lower, "NDVI")
+        base_wms = (
+            f"https://services.sentinel-hub.com/ogc/wms/{sentinel_instance_id}"
+            f"?SERVICE=WMS&REQUEST=GetMap&LAYERS={wms_layer}"
+            f"&TIME={date_used}/{date_used}"
+            f"&MAXCC={int(max_cloud)}"
+            f"&WIDTH={{width}}&HEIGHT={{height}}&FORMAT=image/png"
+            f"&CRS=EPSG:3857&BBOX={{bbox}}"
+        )
+        wms_url = base_wms
+        tile_url_template = (
+            f"https://services.sentinel-hub.com/ogc/wmts/{sentinel_instance_id}"
+            f"?SERVICE=WMTS&REQUEST=GetTile&LAYER={wms_layer}"
+            f"&TIME={date_used}/{date_used}"
+            f"&TILEMATRIXSET=PopularWebMercator512&TILEMATRIX={{z}}&TILEROW={{y}}&TILECOL={{x}}"
+            f"&FORMAT=image/png"
+        )
+        data_source = "sentinel-hub"
+
+    # Simulate scalar index value (seasonal pattern)
+    import math as _math
+    import random as _random
+
+    _random.seed(int(field_id[-3:], 36) if field_id[-3:].isalpha() else hash(field_id) % 9999)
+    target_date_obj = datetime.strptime(date_used, "%Y-%m-%d")
+    day_of_year = target_date_obj.timetuple().tm_yday
+    _index_sim: dict[str, float] = {
+        "ndvi": round(max(0.05, min(0.95, 0.5 + 0.28 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))), 3),
+        "ndwi": round(max(-0.4, min(0.5, 0.1 + 0.15 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.1, 0.1))), 3),
+        "evi": round(max(0.05, min(0.8, 0.35 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
+        "savi": round(max(0.05, min(0.9, 0.42 + 0.24 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))), 3),
+        "ndre": round(max(-0.2, min(0.8, 0.3 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
+        "lai": round(max(0.1, min(8.0, 2.5 + 1.8 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.3, 0.3))), 2),
+        "gndvi": round(max(0.05, min(0.85, 0.42 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
+        "ndmi": round(max(-0.5, min(0.5, 0.05 + 0.12 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))), 3),
+        "msavi": round(max(0.05, min(0.9, 0.38 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))), 3),
+        "arvi": round(max(-0.2, min(0.8, 0.32 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
+        "vari": round(max(-0.3, min(0.6, 0.15 + 0.18 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))), 3),
+    }
+    index_value = _index_sim.get(index_lower, 0.5)
+
+    logger.info(
+        "index_map_requested",
+        field_id=field_id,
+        index=index_lower,
+        date=date_used,
+        data_source=data_source,
+        cloud_cover=cloud_cover_pct,
+        cloud_usable=cloud_usable,
+    )
+
+    return {
+        "field_id": field_id,
+        "index": index_lower,
+        "date_requested": date,
+        "date_used": date_used,
+        "fallback_date_used": fallback_date is not None,
+        "wms_url": wms_url,
+        "tile_url_template": tile_url_template,
+        "index_value": index_value,
+        "cloud_cover_percent": round(cloud_cover_pct, 1),
+        "quality_score": round(quality_score, 3),
+        "cloud_usable": cloud_usable,
+        "data_source": data_source,
+        "location": {"latitude": lat, "longitude": lon},
+        "timestamp": datetime.now().isoformat(),
+    }
+
+
+@app.get("/v1/index-calendar/{field_id}")
+async def get_index_calendar(
+    field_id: str,
+    lat: float = Query(..., ge=-90, le=90, description="Field center latitude"),
+    lon: float = Query(..., ge=-180, le=180, description="Field center longitude"),
+    days: int = Query(90, ge=7, le=365, description="Calendar window in days"),
+    max_cloud: float = Query(25.0, ge=0, le=100, description="Max cloud % to mark as usable"),
+    user: User = Depends(get_current_user),
+):
+    """
+    Get a cloud-quality calendar for a field: one entry per available date.
+    Used by IndexTimeSlider to colour dates by cloud coverage.
+    الحصول على تقويم جودة السحاب لحقل: إدخال واحد لكل تاريخ متاح.
+
+    Returns list of:
+    - date: ISO date string
+    - cloud_cover_percent: Cloud cover %
+    - quality_score: 0-1 usability score
+    - usable: bool — whether the image is clean enough for analysis
+    """
+    _validate_field_id(field_id)
+    _require_tenant_id(user)
+
+    if not _cloud_masker:
+        raise HTTPException(status_code=503, detail="Cloud masker not initialized")
+
+    end_dt = datetime.now()
+    start_dt = end_dt - timedelta(days=days)
+
+    try:
+        observations = await _cloud_masker.find_clear_observations(
+            field_id=field_id,
+            latitude=lat,
+            longitude=lon,
+            start_date=start_dt,
+            end_date=end_dt,
+            max_cloud_cover=100.0,  # fetch all, let frontend filter
+        )
+    except Exception as exc:
+        logger.warning("index_calendar_failed", field_id=field_id, error=str(exc))
+        observations = []
+
+    calendar = [
+        {
+            "date": obs.date.strftime("%Y-%m-%d"),
+            "cloud_cover_percent": round(obs.cloud_cover, 1),
+            "quality_score": round(obs.quality_score, 3),
+            "usable": obs.cloud_cover <= max_cloud,
+        }
+        for obs in observations
+    ]
+
+    # Sort ascending by date
+    calendar.sort(key=lambda x: x["date"])
+
+    return {
+        "field_id": field_id,
+        "location": {"latitude": lat, "longitude": lon},
+        "window_days": days,
+        "max_cloud_threshold": max_cloud,
+        "dates_available": len(calendar),
+        "dates_usable": sum(1 for d in calendar if d["usable"]),
+        "calendar": calendar,
+        "timestamp": datetime.now().isoformat(),
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
 

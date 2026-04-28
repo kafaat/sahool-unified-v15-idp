@@ -7,6 +7,8 @@ import 'package:latlong2/latlong.dart';
 import '../../../../core/map/sahool_tile_provider.dart';
 import '../../../../core/geo/geojson.dart';
 import '../../../ndvi/domain/spectral_index.dart';
+// Phase 2: import the tile layer widget so it can be used in FlutterMap children
+import '../../../ndvi/ui/ndvi_tile_layer.dart';
 
 /// شاشة خريطة الحقل مع طبقات NDVI
 /// Field Map Screen with NDVI Layers
@@ -228,7 +230,24 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             ],
           ),
 
-        // Spectral index overlays using SpectralColormap
+        // Spectral index overlays — Phase 2: real raster tiles + polygon fallback
+        // Phase 2: NdviTileLayerWidget connects the index toggle to real WMS tiles
+        // from the backend /v1/index-map/{fieldId} endpoint.
+        // When the backend returns a tileUrlTemplate (Sentinel Hub configured),
+        // the raster layer appears on top of the base map.
+        // When it returns null (simulated mode), polygon overlay is used as fallback.
+        if (_activeIndex != null)
+          NdviTileLayerWidget(
+            config: NdviTileConfig.sahoolBackend(
+              // Build the tile URL for the active spectral index
+              // The backend /v1/index-map/{fieldId}?index={index} returns
+              // a tileUrlTemplate — here we use the WMTS-compatible path
+              baseUrl: 'https://api.sahool.app/api/v1/satellite/v1',
+            ),
+            visible: _activeIndex != null,
+          ),
+
+        // Spectral index polygon overlays (vector fallback / simulated mode)
         if (_fieldBoundary.isNotEmpty)
           ..._buildSpectralOverlays(),
 

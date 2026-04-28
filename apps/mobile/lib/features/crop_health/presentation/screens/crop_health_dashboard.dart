@@ -287,10 +287,14 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
     // Filter out any points whose date field cannot be parsed — fail visibly
     // rather than silently substituting DateTime.now() which would corrupt the chart.
+    // Log a warning so data-quality issues are visible in debug builds.
     final dataPoints = series
         .map((p) {
           final dt = DateTime.tryParse(p.date);
-          if (dt == null) return null;
+          if (dt == null) {
+            debugPrint('[CropHealth] Skipping NDVI point: unparseable date "${p.date}"');
+            return null;
+          }
           return HealthDataPoint(date: dt, value: p.ndvi);
         })
         .whereType<HealthDataPoint>()

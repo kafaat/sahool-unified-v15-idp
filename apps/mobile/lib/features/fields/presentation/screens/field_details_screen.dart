@@ -819,6 +819,11 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   /// multi-index correlation and an honest confidence disclaimer when trend
   /// data is unavailable (snapshot-only context).
   ///
+  /// Nitrogen fertilizer is only recommended when soil moisture is comfortably
+  /// above this threshold. Below it the NDVI drop may be caused by drought,
+  /// pests, or phenological stage rather than nitrogen deficiency.
+  static const double _nitrogenMoistureGate = 0.3;
+
   /// يستخرج التوصيات بربط مؤشرات متعددة مع إشارة واضحة بأن البيانات لحظية.
   List<_FieldRecommendation> _deriveRecommendations() {
     final recs = <_FieldRecommendation>[];
@@ -871,9 +876,9 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     // (NDWI > 0.3) لأن NDVI المنخفض قد يعكس أيضاً آفات أو أمراضاً أو مرحلة
     // نمو — وليس نقص نيتروجين بالضرورة.
     //
-    // Gate: !waterStress (ndwi >= 0.2) AND ndwi > 0.3 (comfortable moisture)
+    // Gate: !waterStress (ndwi >= 0.2) AND ndwi > _nitrogenMoistureGate (comfortable moisture)
     // so we only suggest nitrogen when water is clearly not the limiting factor.
-    final bool moistureOk = ndwi == null || ndwi > 0.3;
+    final bool moistureOk = ndwi == null || ndwi > _nitrogenMoistureGate;
     if (!waterStress && moistureOk) {
       if (ndvi != null && ndvi < 0.35) {
         recs.add(_FieldRecommendation(

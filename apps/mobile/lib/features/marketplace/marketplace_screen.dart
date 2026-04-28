@@ -78,7 +78,7 @@ class MarketplaceScreen extends ConsumerWidget {
               ? const SliverFillRemaining(
                   child: Center(child: CircularProgressIndicator()),
                 )
-              : marketState.products.isEmpty
+              : marketState.filteredProducts.isEmpty
                   ? const SliverFillRemaining(
                       child: _EmptyProductsView(),
                     )
@@ -94,10 +94,10 @@ class MarketplaceScreen extends ConsumerWidget {
                         ),
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
-                            final product = marketState.products[index];
+                            final product = marketState.filteredProducts[index];
                             return _ProductCard(product: product);
                           },
-                          childCount: marketState.products.length,
+                          childCount: marketState.filteredProducts.length,
                         ),
                       ),
                     ),
@@ -228,11 +228,11 @@ class _MarketplaceAppBar extends StatelessWidget {
 }
 
 /// شريط البحث
-class _SearchBar extends StatelessWidget {
+class _SearchBar extends ConsumerWidget {
   const _SearchBar();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: DecoratedBox(
@@ -258,6 +258,8 @@ class _SearchBar extends StatelessWidget {
               vertical: 16,
             ),
           ),
+          onChanged: (value) =>
+              ref.read(marketplaceProvider.notifier).setSearchQuery(value),
         ),
       ),
     );
@@ -290,7 +292,8 @@ class _CategoriesSection extends ConsumerWidget {
           final (category, icon, name) = categories[index];
           final isSelected = selectedCategory == category;
 
-          return GestureDetector(
+          return InkWell(
+            borderRadius: BorderRadius.circular(16),
             onTap: () {
               ref.read(marketplaceProvider.notifier).filterByCategory(
                 isSelected ? null : category,
@@ -443,7 +446,8 @@ class _FeaturedProductCard extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    GestureDetector(
+                    InkWell(
+                      borderRadius: BorderRadius.circular(10),
                       onTap: () {
                         ref.read(marketplaceProvider.notifier).addToCart(product);
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -624,7 +628,8 @@ class _ProductCard extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      GestureDetector(
+                      InkWell(
+                        borderRadius: BorderRadius.circular(10),
                         onTap: () {
                           ref.read(marketplaceProvider.notifier).addToCart(product);
                           ScaffoldMessenger.of(context).showSnackBar(

@@ -282,6 +282,7 @@ class MarketplaceState {
   final List<CartItem> cart;
   final List<Order> orders;
   final ProductCategory? selectedCategory;
+  final String searchQuery;
   final bool isLoading;
   final String? error;
 
@@ -291,6 +292,7 @@ class MarketplaceState {
     this.cart = const [],
     this.orders = const [],
     this.selectedCategory,
+    this.searchQuery = '',
     this.isLoading = false,
     this.error,
   });
@@ -302,6 +304,7 @@ class MarketplaceState {
     List<Order>? orders,
     ProductCategory? selectedCategory,
     bool clearCategory = false,
+    String? searchQuery,
     bool? isLoading,
     String? error,
   }) {
@@ -311,6 +314,7 @@ class MarketplaceState {
       cart: cart ?? this.cart,
       orders: orders ?? this.orders,
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
+      searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -324,6 +328,17 @@ class MarketplaceState {
 
   /// هل السلة فارغة؟
   bool get isCartEmpty => cart.isEmpty;
+
+  /// المنتجات بعد تطبيق البحث
+  List<Product> get filteredProducts {
+    if (searchQuery.isEmpty) return products;
+    final q = searchQuery.toLowerCase();
+    return products.where((p) =>
+        p.nameAr.toLowerCase().contains(q) ||
+        p.name.toLowerCase().contains(q) ||
+        p.categoryNameAr.contains(q) ||
+        (p.descriptionAr?.toLowerCase().contains(q) ?? false)).toList();
+  }
 }
 
 // =============================================================================
@@ -410,8 +425,19 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     loadProducts(category: category);
   }
 
-  /// إضافة إلى السلة
+  /// تحديث نص البحث وتصفية المنتجات فوراً (client-side)
+  void setSearchQuery(String query) {
+    if (!mounted) return;
+    state = state.copyWith(searchQuery: query);
+  }
+
+  /// إضافة إلى السلة مع التحقق من توفر المخزون
   void addToCart(Product product, {double quantity = 1}) {
+    if (product.stock <= 0) {
+      AppLogger.w('Attempted to add out-of-stock product: ${product.id}', tag: 'MARKETPLACE');
+      return;
+    }
+
     final existingIndex = state.cart.indexWhere(
       (item) => item.product.id == product.id,
     );
@@ -419,12 +445,12 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
     List<CartItem> newCart;
 
     if (existingIndex >= 0) {
-      // تحديث الكمية
+      // تحديث الكمية مع التحقق من المخزون
       newCart = [...state.cart];
       final existingItem = newCart[existingIndex];
-      newCart[existingIndex] = existingItem.copyWith(
-        quantity: existingItem.quantity + quantity,
-      );
+      final newQty = existingItem.quantity + quantity;
+      if (newQty > product.stock) return; // لا تتجاوز المخزون
+      newCart[existingIndex] = existingItem.copyWith(quantity: newQty);
     } else {
       // إضافة عنصر جديد
       newCart = [

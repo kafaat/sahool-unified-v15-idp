@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/providers.dart';
 import '../../domain/entities/field_entity.dart';
+import '../../../weather/presentation/providers/weather_provider.dart';
 
 /// شاشة تفاصيل الحقل
 /// Field Details Screen
@@ -24,6 +25,12 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    // Trigger weather load for this specific field
+    Future.microtask(() {
+      if (mounted) {
+        ref.read(weatherProvider.notifier).loadWeather(widget.field.id);
+      }
+    });
   }
 
   @override
@@ -432,6 +439,33 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   Widget _buildWeatherCard() {
+    final weatherState = ref.watch(weatherProvider);
+
+    final String temp;
+    final String condition;
+    final String humidity;
+    final String wind;
+
+    if (weatherState.isLoading) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    } else if (weatherState.data != null) {
+      final current = weatherState.data!.current;
+      temp = '${current.temperature.round()}°C';
+      condition = current.conditionAr;
+      humidity = '${current.humidity}%';
+      wind = '${current.windSpeed.toStringAsFixed(0)} كم/س';
+    } else {
+      temp = '—';
+      condition = 'لا توجد بيانات طقس';
+      humidity = '—';
+      wind = '—';
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -445,15 +479,15 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '28°C',
-                    style: TextStyle(
+                  Text(
+                    temp,
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    'مشمس جزئياً',
+                    condition,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ],
@@ -466,7 +500,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                   children: [
                     const Icon(Icons.water_drop, size: 16, color: Colors.blue),
                     const SizedBox(width: 4),
-                    Text('45%', style: TextStyle(color: Colors.grey[600])),
+                    Text(humidity, style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -474,7 +508,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                   children: [
                     const Icon(Icons.air, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text('12 كم/س', style: TextStyle(color: Colors.grey[600])),
+                    Text(wind, style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ],
@@ -489,32 +523,28 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          _buildActivityItem(
-            icon: Icons.water_drop,
-            color: Colors.blue,
-            title: 'تم الري',
-            subtitle: 'ري بالمحور - 45 دقيقة',
-            time: 'منذ ساعتين',
-          ),
-          const Divider(height: 1),
-          _buildActivityItem(
-            icon: Icons.eco,
-            color: Colors.green,
-            title: 'قياس NDVI',
-            subtitle: 'القيمة: 0.72',
-            time: 'أمس',
-          ),
-          const Divider(height: 1),
-          _buildActivityItem(
-            icon: Icons.task_alt,
-            color: Colors.orange,
-            title: 'مهمة مكتملة',
-            subtitle: 'تفقد الآفات',
-            time: 'منذ يومين',
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Icon(Icons.history, size: 40, color: Colors.grey[300]),
+            const SizedBox(height: 12),
+            Text(
+              'لا توجد أنشطة مسجلة',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[500],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'ستظهر هنا آخر العمليات بعد مزامنة البيانات',
+              style: TextStyle(color: Colors.grey[400], fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -633,18 +663,18 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildIndexRow('NDVI', widget.field.ndviValue ?? 0, Colors.green),
+            _buildIndexRow('NDVI', widget.field.ndviValue, Colors.green),
             const Divider(),
-            _buildIndexRow('NDWI', widget.field.ndwiValue ?? 0, Colors.blue),
+            _buildIndexRow('NDWI', widget.field.ndwiValue, Colors.blue),
             const Divider(),
-            _buildIndexRow('NDRE', 0.28, Colors.orange),
+            _buildIndexRow('NDRE', null, Colors.orange),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildIndexRow(String name, double value, Color color) {
+  Widget _buildIndexRow(String name, double? value, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -654,24 +684,27 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
           const Spacer(),
-          SizedBox(
-            width: 120,
-            child: LinearProgressIndicator(
-              value: (value + 1) / 2, // Normalize -1 to 1 range
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation(color),
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
+          if (value != null) ...[
+            SizedBox(
+              width: 120,
+              child: LinearProgressIndicator(
+                value: (value + 1) / 2, // Normalize -1 to 1 range
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation(color),
+                minHeight: 8,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            value.toStringAsFixed(2),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
+            const SizedBox(width: 12),
+            Text(
+              value.toStringAsFixed(2),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
-          ),
+          ] else
+            Text('—', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
         ],
       ),
     );
@@ -768,23 +801,31 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   Widget _buildHistoryTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color(0xFF367C2B).withValues(alpha: 0.1),
-              child: const Icon(Icons.history, color: Color(0xFF367C2B)),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.history, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              'لا يوجد سجل نشاط',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            title: Text('نشاط ${10 - index}'),
-            subtitle: Text('منذ ${index + 1} أيام'),
-            trailing: const Icon(Icons.chevron_left),
-          ),
-        );
-      },
+            const SizedBox(height: 8),
+            Text(
+              'سيظهر هنا سجل كامل بعمليات الحقل بعد مزامنة البيانات من الخادم',
+              style: TextStyle(color: Colors.grey[400], fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 

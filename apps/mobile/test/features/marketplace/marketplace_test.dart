@@ -570,6 +570,190 @@ void main() {
       // Assert
       expect(order, isNull);
     });
+
+    // ─── Stock guard ────────────────────────────────────────────────────────
+
+    test('addToCart does NOT add out-of-stock product', () {
+      // Arrange – stock = 0
+      final outOfStock = Product(
+        id: 'OOS',
+        name: 'Out of stock',
+        nameAr: 'نفد المخزون',
+        category: ProductCategory.seeds,
+        price: 10.0,
+        stock: 0,
+        unit: 'kg',
+        sellerId: 'seller-test',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025, 6, 15),
+      );
+
+      // Act
+      notifier.addToCart(outOfStock, quantity: 1);
+
+      // Assert – cart remains empty
+      expect(notifier.state.cart, isEmpty);
+    });
+
+    test('addToCart does NOT exceed available stock', () {
+      // Arrange – stock = 10
+      final limited = Product(
+        id: 'LTD',
+        name: 'Limited',
+        nameAr: 'محدود',
+        category: ProductCategory.seeds,
+        price: 10.0,
+        stock: 10,
+        unit: 'kg',
+        sellerId: 'seller-test',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025, 6, 15),
+      );
+
+      // Add 8 items (within stock)
+      notifier.addToCart(limited, quantity: 8);
+      expect(notifier.state.cart.first.quantity, 8);
+
+      // Attempt to add 5 more (would exceed stock of 10)
+      notifier.addToCart(limited, quantity: 5);
+
+      // Quantity must stay at 8 (5+8=13 > 10)
+      expect(notifier.state.cart.first.quantity, 8);
+    });
+
+    test('addToCart allows adding up to exact stock limit', () {
+      final product = Product(
+        id: 'EXACT',
+        name: 'Exact',
+        nameAr: 'بالضبط',
+        category: ProductCategory.seeds,
+        price: 5.0,
+        stock: 5,
+        unit: 'bag',
+        sellerId: 'seller-test',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025, 6, 15),
+      );
+
+      // Add exactly stock quantity
+      notifier.addToCart(product, quantity: 5);
+
+      expect(notifier.state.cart.first.quantity, 5);
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MarketplaceState.filteredProducts (Search)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  group('MarketplaceState.filteredProducts', () {
+    final wheat = Product(
+      id: 'P1',
+      name: 'Wheat Seeds',
+      nameAr: 'بذور قمح',
+      category: ProductCategory.seeds,
+      price: 100.0,
+      stock: 50.0,
+      unit: 'kg',
+      sellerId: 's1',
+      sellerType: SellerType.farmer,
+      createdAt: DateTime(2025, 1, 1),
+    );
+    final fertilizer = Product(
+      id: 'P2',
+      name: 'Urea Fertilizer',
+      nameAr: 'سماد يوريا',
+      category: ProductCategory.fertilizer,
+      price: 200.0,
+      stock: 30.0,
+      unit: 'kg',
+      sellerId: 's1',
+      sellerType: SellerType.company,
+      createdAt: DateTime(2025, 1, 2),
+    );
+    final pesticide = Product(
+      id: 'P3',
+      name: 'Pest Control',
+      nameAr: 'مبيد حشري',
+      category: ProductCategory.pesticide,
+      price: 150.0,
+      stock: 20.0,
+      unit: 'liter',
+      sellerId: 's2',
+      sellerType: SellerType.company,
+      createdAt: DateTime(2025, 1, 3),
+    );
+
+    final baseState = MarketplaceState(products: [wheat, fertilizer, pesticide]);
+
+    test('empty query returns all products', () {
+      final result = baseState.copyWith(searchQuery: '').filteredProducts;
+      expect(result, hasLength(3));
+    });
+
+    test('Arabic name search returns matching products', () {
+      final result = baseState.copyWith(searchQuery: 'قمح').filteredProducts;
+      expect(result, hasLength(1));
+      expect(result.first.id, 'P1');
+    });
+
+    test('English name search is case-insensitive', () {
+      final result = baseState.copyWith(searchQuery: 'urea').filteredProducts;
+      expect(result, hasLength(1));
+      expect(result.first.id, 'P2');
+    });
+
+    test('category Arabic name search returns matching products', () {
+      // "مبيدات" is the categoryNameAr for pesticide
+      final result = baseState.copyWith(searchQuery: 'مبيدات').filteredProducts;
+      expect(result, hasLength(1));
+      expect(result.first.id, 'P3');
+    });
+
+    test('partial match returns correct products', () {
+      final result = baseState.copyWith(searchQuery: 'سماد').filteredProducts;
+      expect(result, hasLength(1));
+      expect(result.first.id, 'P2');
+    });
+
+    test('no match returns empty list', () {
+      final result = baseState.copyWith(searchQuery: 'xyz_no_match_999').filteredProducts;
+      expect(result, isEmpty);
+    });
+
+    test('default searchQuery is empty', () {
+      const state = MarketplaceState();
+      expect(state.searchQuery, '');
+    });
+
+    test('copyWith preserves searchQuery when not provided', () {
+      const state = MarketplaceState(searchQuery: 'قمح');
+      final copied = state.copyWith(isLoading: true);
+      expect(copied.searchQuery, 'قمح');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MarketplaceNotifier.setSearchQuery
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  group('MarketplaceNotifier.setSearchQuery', () {
+    late _TestableMarketplaceNotifier notifier;
+
+    setUp(() {
+      notifier = _TestableMarketplaceNotifier(userId: 'test-user');
+    });
+
+    test('updates searchQuery in state', () {
+      notifier.setSearchQuery('قمح');
+      expect(notifier.state.searchQuery, 'قمح');
+    });
+
+    test('clearing searchQuery resets to empty string', () {
+      notifier.setSearchQuery('test');
+      notifier.setSearchQuery('');
+      expect(notifier.state.searchQuery, '');
+    });
   });
 }
 

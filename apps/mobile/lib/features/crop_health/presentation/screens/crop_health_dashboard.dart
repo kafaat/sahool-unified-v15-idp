@@ -139,26 +139,28 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         ),
 
         // قائمة الإجراءات
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final filteredActions = ref.watch(priorityFilteredActionsProvider);
-                if (index >= filteredActions.length) return null;
-
-                final action = filteredActions[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: ActionListTile(
-                    action: action,
-                    onTap: () => _showActionDetails(action),
-                  ),
-                );
-              },
-              childCount: ref.watch(priorityFilteredActionsProvider).length,
-            ),
-          ),
+        Builder(
+          builder: (context) {
+            final filteredActions = ref.watch(priorityFilteredActionsProvider);
+            return SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final action = filteredActions[index];
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: ActionListTile(
+                        action: action,
+                        onTap: () => _showActionDetails(action),
+                      ),
+                    );
+                  },
+                  childCount: filteredActions.length,
+                ),
+              ),
+            );
+          },
         ),
 
         // مساحة إضافية في الأسفل

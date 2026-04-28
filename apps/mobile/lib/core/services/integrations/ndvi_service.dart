@@ -642,7 +642,9 @@ class IndexMapResponse {
   }
 
   bool get isSimulated => dataSource == IndexDataSource.simulated;
-  bool get hasTiles => tileUrlTemplate != null && tileType == IndexTileType.xyz;
+  bool get hasTiles =>
+      (tileType == IndexTileType.xyz && tileUrlTemplate != null) ||
+      (tileType == IndexTileType.wms && wmsUrl != null);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

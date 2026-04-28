@@ -93,7 +93,7 @@ export function IndexTimeSlider({
 
   function handleSliderChange(e: React.ChangeEvent<HTMLInputElement>) {
     const idx = parseInt(e.target.value, 10);
-    if (allDates[idx]) {
+    if (!isNaN(idx) && idx >= 0 && idx < allDates.length) {
       onDateChange(allDates[idx].date);
       // Scroll the dot into view
       const dot = containerRef.current?.querySelector(`[data-date-idx="${idx}"]`);

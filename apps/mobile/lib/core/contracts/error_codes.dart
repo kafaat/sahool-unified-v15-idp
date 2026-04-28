@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/error-codes.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.21.0
+/// Contract version: 4.23.0
 library;
 
 /// Unified error codes used across all SAHOOL clients and services.
@@ -1201,6 +1201,13 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'حجم ملف الصورة كبير جداً. الحد الأقصى: 50 ميجابايت',
     retryable: false,
   ),
+  'E1003': ErrorMessage(
+    code: 'E1003',
+    httpStatus: 400,
+    en: 'Image dimensions are invalid or outside the supported range',
+    ar: 'أبعاد الصورة غير صالحة أو خارج النطاق المدعوم',
+    retryable: false,
+  ),
   'E1004': ErrorMessage(
     code: 'E1004',
     httpStatus: 400,
@@ -1208,11 +1215,25 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'عتبة الثقة يجب أن تكون بين 0 و1',
     retryable: false,
   ),
+  'E1005': ErrorMessage(
+    code: 'E1005',
+    httpStatus: 400,
+    en: 'Unsupported detection type for the requested task',
+    ar: 'نوع الكشف غير مدعوم لهذه المهمة',
+    retryable: false,
+  ),
   'E1006': ErrorMessage(
     code: 'E1006',
     httpStatus: 400,
     en: 'Invalid model variant. Valid options: n, s, m, l, x',
     ar: 'نوع النموذج غير صالح. الخيارات الصالحة: n، s، m، l، x',
+    retryable: false,
+  ),
+  'E1007': ErrorMessage(
+    code: 'E1007',
+    httpStatus: 400,
+    en: 'Uploaded image is empty or has zero size',
+    ar: 'الصورة المرفوعة فارغة أو حجمها صفر',
     retryable: false,
   ),
   'E1008': ErrorMessage(
@@ -1227,6 +1248,13 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 400,
     en: 'Invalid bounding box coordinates',
     ar: 'إحداثيات المربع المحيط غير صالحة',
+    retryable: false,
+  ),
+  'E1009': ErrorMessage(
+    code: 'E1009',
+    httpStatus: 400,
+    en: 'Image file is corrupted and cannot be processed',
+    ar: 'ملف الصورة تالف ولا يمكن معالجته',
     retryable: false,
   ),
   'E2001': ErrorMessage(
@@ -1250,6 +1278,13 @@ const Map<String, ErrorMessage> errorMessages = {
     ar: 'فشل استدلال الرؤية - يرجى المحاولة مرة أخرى',
     retryable: true,
   ),
+  'E2004': ErrorMessage(
+    code: 'E2004',
+    httpStatus: 400,
+    en: 'Model is incompatible with the requested task',
+    ar: 'النموذج غير متوافق مع المهمة المطلوبة',
+    retryable: false,
+  ),
   'E2005': ErrorMessage(
     code: 'E2005',
     httpStatus: 503,
@@ -1262,6 +1297,13 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 503,
     en: 'TensorRT optimization error in vision service',
     ar: 'خطأ في تحسين TensorRT في خدمة الرؤية',
+    retryable: true,
+  ),
+  'E2006': ErrorMessage(
+    code: 'E2006',
+    httpStatus: 503,
+    en: 'Vision model warm-up failed - service is starting up',
+    ar: 'فشل تسخين نموذج الرؤية - الخدمة قيد التشغيل',
     retryable: true,
   ),
   'E3001': ErrorMessage(
@@ -1283,6 +1325,13 @@ const Map<String, ErrorMessage> errorMessages = {
     httpStatus: 500,
     en: 'Result postprocessing failed - please try again',
     ar: 'فشلت معالجة النتائج اللاحقة - يرجى المحاولة مرة أخرى',
+    retryable: true,
+  ),
+  'E3004': ErrorMessage(
+    code: 'E3004',
+    httpStatus: 400,
+    en: 'Batch detection request failed',
+    ar: 'فشل طلب الكشف الدفعي',
     retryable: true,
   ),
   'E3005': ErrorMessage(

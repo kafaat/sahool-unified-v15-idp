@@ -248,10 +248,10 @@ export interface ServiceInfo {
   name: string;
   /** Service display name (AR) */
   nameAr: string;
-  /** Kong route prefix. Optional: workers and test-only sidecars have no HTTP Kong route. */
-  kongRoute?: string;
+  /** Kong route prefix */
+  kongRoute: string;
   /** Runtime type */
-  type: 'python' | 'nodejs' | 'infrastructure' | 'worker';
+  type: 'python' | 'nodejs' | 'infrastructure';
   /** Event architecture layer */
   layer: 'core' | 'acquisition' | 'intelligence' | 'decision' | 'business';
   /** Is deprecated */
@@ -904,15 +904,6 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
     kongRoute: '/api/v1/provider-config',
     type: 'python',
     layer: 'business',
-  },
-  'agro-rules': {
-    key: 'AGRO_RULES',
-    port: SERVICE_PORTS.AGRO_RULES,
-    name: 'Agro Rules Engine (Worker)',
-    nameAr: 'محرك القواعد الزراعية (عامل NATS)',
-    // No kongRoute—pure NATS consumer worker with no HTTP interface
-    type: 'worker',
-    layer: 'decision',
   },
   'carbon-service': {
     key: 'CARBON_SERVICE',

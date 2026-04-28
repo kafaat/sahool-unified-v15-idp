@@ -999,7 +999,10 @@ export interface IndexMapResponse {
   tileUrlTemplate: string | null;
   /**
    * WMS URL (null when tileType is "xyz" or "none").
-   * Replace {bbox} with the bounding box of the current viewport.
+   * Replace {bbox}, {width}, and {height} with the current viewport values.
+   * - {bbox}: bounding box of the current viewport
+   * - {width}: requested image width in pixels
+   * - {height}: requested image height in pixels
    */
   wmsUrl: string | null;
   /** See IndexTileType */

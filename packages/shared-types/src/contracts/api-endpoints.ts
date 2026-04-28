@@ -287,7 +287,7 @@ export const SATELLITE_ENDPOINTS = {
   INDICES: `${API_PREFIX}/satellite/v1/indices/{fieldId}`,
   SATELLITES: `${API_PREFIX}/satellite/v1/satellites`,
   HEALTH: `${API_PREFIX}/satellite/health/{fieldId}`,
-  /** @since 16.1.0 — corrected to include /v1/ prefix matching backend @app.get("/v1/phenology/{field_id}") */
+  /** @since 4.21.0 — corrected to include /v1/ prefix matching backend @app.get("/v1/phenology/{field_id}") */
   PHENOLOGY: `${API_PREFIX}/satellite/v1/phenology/{fieldId}`,
   IMAGERY: `${API_PREFIX}/satellite/imagery/{fieldId}`,
   NDVI_FIELD: `${API_PREFIX}/fields/{fieldId}/ndvi`,

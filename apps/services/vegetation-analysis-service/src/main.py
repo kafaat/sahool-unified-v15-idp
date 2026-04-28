@@ -4732,10 +4732,10 @@ async def get_index_map(
     if index_lower not in _INDEX_MAP_SUPPORTED:
         raise HTTPException(
             status_code=400,
-            detail={
-                "error": f"Unsupported index '{index}'. Supported: {sorted(_INDEX_MAP_SUPPORTED)}",
-                "error_ar": f"المؤشر '{index}' غير مدعوم. المدعومة: {sorted(_INDEX_MAP_SUPPORTED)}",
-            },
+            detail=(
+            f"Unsupported index '{index}'. Supported: {sorted(_INDEX_MAP_SUPPORTED)}"
+            f" | المؤشر '{index}' غير مدعوم. المدعومة: {sorted(_INDEX_MAP_SUPPORTED)}"
+        ),
         )
 
     # Parse target date
@@ -4826,67 +4826,67 @@ async def get_index_map(
         _seed_val = int(_seed_str, 36)
     except ValueError:
         _seed_val = hash(field_id) % 9999
-    _random.seed(_seed_val)
+    _rng = _random.Random(_seed_val)
     target_date_obj = datetime.strptime(date_used, "%Y-%m-%d")
     day_of_year = target_date_obj.timetuple().tm_yday
     _index_sim: dict[str, float] = {
         "ndvi": round(
             max(
-                0.05, min(0.95, 0.5 + 0.28 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))
+                0.05, min(0.95, 0.5 + 0.28 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.08, 0.08))
             ),
             3,
         ),
         "ndwi": round(
-            max(-0.4, min(0.5, 0.1 + 0.15 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.1, 0.1))),
+            max(-0.4, min(0.5, 0.1 + 0.15 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.1, 0.1))),
             3,
         ),
         "evi": round(
             max(
-                0.05, min(0.8, 0.35 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))
+                0.05, min(0.8, 0.35 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.07, 0.07))
             ),
             3,
         ),
         "savi": round(
             max(
-                0.05, min(0.9, 0.42 + 0.24 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))
+                0.05, min(0.9, 0.42 + 0.24 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.06, 0.06))
             ),
             3,
         ),
         "ndre": round(
-            max(-0.2, min(0.8, 0.3 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))),
+            max(-0.2, min(0.8, 0.3 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.07, 0.07))),
             3,
         ),
         "lai": round(
-            max(0.1, min(8.0, 2.5 + 1.8 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.3, 0.3))), 2
+            max(0.1, min(8.0, 2.5 + 1.8 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.3, 0.3))), 2
         ),
         "gndvi": round(
             max(
                 0.05,
-                min(0.85, 0.42 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07)),
+                min(0.85, 0.42 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.07, 0.07)),
             ),
             3,
         ),
         "ndmi": round(
             max(
-                -0.5, min(0.5, 0.05 + 0.12 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.08, 0.08))
+                -0.5, min(0.5, 0.05 + 0.12 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.08, 0.08))
             ),
             3,
         ),
         "msavi": round(
             max(
-                0.05, min(0.9, 0.38 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.06, 0.06))
+                0.05, min(0.9, 0.38 + 0.22 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.06, 0.06))
             ),
             3,
         ),
         "arvi": round(
             max(
-                -0.2, min(0.8, 0.32 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))
+                -0.2, min(0.8, 0.32 + 0.2 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.07, 0.07))
             ),
             3,
         ),
         "vari": round(
             max(
-                -0.3, min(0.6, 0.15 + 0.18 * _math.sin(2 * _math.pi * day_of_year / 365) + _random.uniform(-0.07, 0.07))
+                -0.3, min(0.6, 0.15 + 0.18 * _math.sin(2 * _math.pi * day_of_year / 365) + _rng.uniform(-0.07, 0.07))
             ),
             3,
         ),
@@ -4911,6 +4911,7 @@ async def get_index_map(
         "fallback_date_used": fallback_date is not None,
         "wms_url": wms_url,
         "tile_url_template": tile_url_template,
+        "tile_type": "xyz" if tile_url_template else ("wms" if wms_url else "none"),
         "index_value": index_value,
         "cloud_cover_percent": round(cloud_cover_pct, 1),
         "quality_score": round(quality_score, 3),

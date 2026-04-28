@@ -110,7 +110,10 @@ async function _fetchIndexMap(
       fallbackDateUsed: Boolean(d.fallback_date_used),
       tileUrlTemplate: (d.tile_url_template as string | null) ?? null,
       wmsUrl: (d.wms_url as string | null) ?? null,
-      tileType: ((d.tile_type as string) ?? 'none') as IndexMapResponse['tileType'],
+      tileType: (
+        (d.tile_type as string | null) ??
+        ((d.tile_url_template as string | null) ? 'xyz' : (d.wms_url as string | null) ? 'wms' : 'none')
+      ) as IndexMapResponse['tileType'],
       indexValue: Number(d.index_value ?? 0),
       cloudCoverPercent: Number(d.cloud_cover_percent ?? 0),
       qualityScore: Number(d.quality_score ?? 0),
@@ -212,7 +215,7 @@ interface UseRasterMapOptions {
  */
 export function useRasterMap(options: UseRasterMapOptions) {
   const { fieldId, index, lat, lon, date, maxCloud = 20, enabled = true } = options;
-  const isEnabled = enabled && !!fieldId && !!lat && !!lon;
+  const isEnabled = enabled && !!fieldId && Number.isFinite(lat) && Number.isFinite(lon);
 
   return useQuery({
     queryKey: indexMapKeys.map(fieldId, index, date),
@@ -242,7 +245,7 @@ interface UseIndexCalendarOptions {
  */
 export function useIndexCalendar(options: UseIndexCalendarOptions) {
   const { fieldId, lat, lon, days = 90, maxCloud = 25, enabled = true } = options;
-  const isEnabled = enabled && !!fieldId && !!lat && !!lon;
+  const isEnabled = enabled && !!fieldId && Number.isFinite(lat) && Number.isFinite(lon);
 
   return useQuery({
     queryKey: indexMapKeys.calendar(fieldId, days),
@@ -271,7 +274,7 @@ interface UsePhenologyStageOptions {
  */
 export function usePhenologyStage(options: UsePhenologyStageOptions) {
   const { fieldId, lat, lon, cropType, enabled = true } = options;
-  const isEnabled = enabled && !!fieldId && !!lat && !!lon;
+  const isEnabled = enabled && !!fieldId && Number.isFinite(lat) && Number.isFinite(lon);
 
   return useQuery({
     queryKey: indexMapKeys.phenology(fieldId, cropType),
@@ -339,7 +342,7 @@ export function useIndexMap(fieldId: string, options: UseIndexMapOptions): UseIn
   const [selectedIndex, setSelectedIndexState] = useState<string>(initialIndex);
   const [selectedDate, setSelectedDateState] = useState<string | undefined>(initialDate);
 
-  const isEnabled = enabled && !!fieldId && !!lat && !!lon;
+  const isEnabled = enabled && !!fieldId && Number.isFinite(lat) && Number.isFinite(lon);
   const semantics = useMemo(() => getIndexSemantics(selectedIndex), [selectedIndex]);
 
   const { data: mapData, isLoading: mapLoading, error: mapError } = useRasterMap({

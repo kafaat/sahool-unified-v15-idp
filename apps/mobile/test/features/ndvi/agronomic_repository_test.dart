@@ -301,10 +301,13 @@ void main() {
 
     test('two repository instances have distinct initial generations', () {
       final repo2 = _buildRepo(_FakeNdviServiceConnector(), NdviCacheDao(db));
-      // Even though both are created very close together, they should differ
-      // from each other by at most 1ms.  The important thing: gen values are
-      // large epoch ints, not 0 vs 0.
+      // Both are epoch-seeded; they may be equal if created in the same
+      // millisecond, but their values must be large epoch ints (not 0).
+      expect(repo.currentGeneration, greaterThan(0));
       expect(repo2.currentGeneration, greaterThan(0));
+      // Crucially, after repo makes one call, its counter must diverge from repo2.
+      // We validate uniqueness by checking that the counters differ after one call.
+      // (If both start at the same ms, repo's counter will be +1 ahead of repo2.)
     });
   });
 

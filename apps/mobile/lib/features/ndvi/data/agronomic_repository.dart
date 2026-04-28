@@ -81,19 +81,21 @@ class AgronomicRepository {
   static const Duration _historicalTtl = Duration(hours: 24);
 
   // ── Generation counter ────────────────────────────────────────────────────
-  /// Seeded from the current epoch milliseconds so that two repository
-  /// instances (e.g. after a ProviderScope recreation) never start from the
-  /// same generation value, preventing cross-instance stale-check confusion.
+  /// Monotonically increasing request counter, seeded from the current epoch
+  /// milliseconds so that two repository instances (e.g. after a ProviderScope
+  /// recreation) never start from the same value, preventing cross-instance
+  /// stale-check confusion.
   ///
-  /// Incremented on every [getIndexValues] call.  Each call captures the
-  /// generation at start; before applying results it checks the counter hasn't
-  /// advanced (see caller pattern in [FieldMapScreen._loadIndexValues]).
-  int _generation = DateTime.now().millisecondsSinceEpoch;
+  /// Incremented once at the start of every [getIndexValues] call.  Callers
+  /// capture the value *before* awaiting, then compare with [currentGeneration]
+  /// *after* the await — a mismatch means a newer call was issued and the
+  /// result should be discarded.
+  int _generationCounter = DateTime.now().millisecondsSinceEpoch;
 
-  int get currentGeneration => _generation;
+  int get currentGeneration => _generationCounter;
 
   /// Increments the generation counter and returns the new value.
-  int _nextGeneration() => ++_generation;
+  int _nextGeneration() => ++_generationCounter;
 
   // ── In-memory L1 cache ────────────────────────────────────────────────────
   /// Keyed by `"$fieldId:$dateKey"` — see [NdviCacheDao.dateKey].

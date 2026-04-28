@@ -183,6 +183,9 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
     try {
       final result = await repo.getIndexValues(widget.fieldId, date);
+      // `getIndexValues` increments the counter exactly once at entry, so the
+      // expected post-call generation is genAtStart + 1.  Any other value means
+      // a newer call was dispatched while this one was in-flight → discard.
       if (!mounted || repo.currentGeneration != genAtStart + 1) return; // stale
 
       setState(() {

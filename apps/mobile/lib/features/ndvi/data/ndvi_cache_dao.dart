@@ -51,6 +51,11 @@ class NdviCacheDao {
   ///
   /// Uppercase to make misuse (typo of a real date) harder; and to allow
   /// future migration to an enum-backed column without ambiguity.
+  ///
+  /// Usage: [dateKey] returns this constant when `date` is `null`:
+  /// ```dart
+  /// NdviCacheDao.dateKey(null) == NdviCacheDao.liveKey // true
+  /// ```
   static const String liveKey = 'LIVE';
 
   /// Canonical `date_key` column value.

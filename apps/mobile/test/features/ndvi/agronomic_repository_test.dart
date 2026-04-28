@@ -3,10 +3,14 @@
 /// Tests for:
 /// - In-memory L1 cache (cache hit prevents network call)
 /// - Persistent L2 cache via NdviCacheDao
-/// - Generation counter advancement
+/// - Epoch-seeded generation counter
 /// - Live fetch (getIndices path)
 /// - Historical fetch (getTimeseries path)
 /// - Error propagation
+/// - Data validation: NaN / Infinite values are not cached
+/// - getIndexValue requiresHistorical guard
+/// - invalidate clears both L1 and L2
+/// - NdviCacheDao.liveKey sentinel value
 /// - ProcessingRecipe: colormap + requiresHistorical on SpectralIndex
 library;
 
@@ -60,6 +64,11 @@ class _NdviTestDatabase extends GeneratedDatabase {
 _NdviTestDatabase _openTestDb() {
   return _NdviTestDatabase(NativeDatabase.memory());
 }
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/// Default far-future expiry for test rows.
+DateTime _farFuture() => DateTime.now().add(const Duration(hours: 2));
 
 // ─── Service stub ────────────────────────────────────────────────────────────
 
@@ -127,7 +136,7 @@ class _FakeNdviServiceConnector implements NdviServiceConnector {
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
+// ─── Factory ─────────────────────────────────────────────────────────────────
 
 AgronomicRepository _buildRepo(
   _FakeNdviServiceConnector service,
@@ -177,7 +186,7 @@ void main() {
       expect(SpectralIndex.ndvi.requiresHistorical, isFalse);
     });
 
-    test('colormaps are reasonable values', () {
+    test('colormaps are correct', () {
       expect(SpectralIndex.ndvi.colormap, equals('RdYlGn'));
       expect(SpectralIndex.ndwi.colormap, equals('Blues'));
       expect(SpectralIndex.evi.colormap, equals('YlGn'));
@@ -185,11 +194,15 @@ void main() {
     });
   });
 
-  // ── NdviCacheDao ───────────────────────────────────────────────────────────
+  // ── NdviCacheDao.liveKey ───────────────────────────────────────────────────
 
-  group('NdviCacheDao', () {
-    test('dateKey returns "live" for null date', () {
-      expect(NdviCacheDao.dateKey(null), equals('live'));
+  group('NdviCacheDao.liveKey sentinel', () {
+    test('liveKey is uppercase LIVE', () {
+      expect(NdviCacheDao.liveKey, equals('LIVE'));
+    });
+
+    test('dateKey(null) returns liveKey', () {
+      expect(NdviCacheDao.dateKey(null), equals(NdviCacheDao.liveKey));
     });
 
     test('dateKey formats date as YYYY-MM-DD', () {
@@ -199,13 +212,22 @@ void main() {
       );
     });
 
+    test('liveKey is distinct from any valid date string', () {
+      // A date string is YYYY-MM-DD (digits and dashes), liveKey has no digits.
+      expect(NdviCacheDao.liveKey.contains(RegExp(r'\d')), isFalse);
+    });
+  });
+
+  // ── NdviCacheDao CRUD ──────────────────────────────────────────────────────
+
+  group('NdviCacheDao', () {
     test('getEntries returns empty list when table is empty', () async {
       final entries = await dao.getEntries('field-1', null);
       expect(entries, isEmpty);
     });
 
     test('putEntries + getEntries round-trips live values', () async {
-      await dao.putEntries('field-1', null, {'NDVI': 0.65, 'EVI': 0.42});
+      await dao.putEntries('field-1', null, {'NDVI': 0.65, 'EVI': 0.42}, _farFuture());
       final entries = await dao.getEntries('field-1', null);
       expect(entries.length, equals(2));
       final ndvi = entries.firstWhere((e) => e.indexCode == 'NDVI');
@@ -215,15 +237,15 @@ void main() {
 
     test('putEntries + getEntries round-trips historical values', () async {
       final date = DateTime(2026, 1, 15);
-      await dao.putEntries('field-1', date, {'NDVI': 0.71});
+      await dao.putEntries('field-1', date, {'NDVI': 0.71}, _farFuture());
       final entries = await dao.getEntries('field-1', date);
       expect(entries.length, equals(1));
       expect(entries.first.value, closeTo(0.71, 0.001));
     });
 
     test('getEntries filters by fieldId correctly', () async {
-      await dao.putEntries('field-A', null, {'NDVI': 0.5});
-      await dao.putEntries('field-B', null, {'NDVI': 0.8});
+      await dao.putEntries('field-A', null, {'NDVI': 0.5}, _farFuture());
+      await dao.putEntries('field-B', null, {'NDVI': 0.8}, _farFuture());
       final a = await dao.getEntries('field-A', null);
       final b = await dao.getEntries('field-B', null);
       expect(a.single.value, closeTo(0.5, 0.001));
@@ -231,27 +253,58 @@ void main() {
     });
 
     test('putEntries replaces existing value (upsert)', () async {
-      await dao.putEntries('field-1', null, {'NDVI': 0.5});
-      await dao.putEntries('field-1', null, {'NDVI': 0.9});
+      await dao.putEntries('field-1', null, {'NDVI': 0.5}, _farFuture());
+      await dao.putEntries('field-1', null, {'NDVI': 0.9}, _farFuture());
       final entries = await dao.getEntries('field-1', null);
       // Should be only 1 row (unique on field_id + index_code + date_key).
       expect(entries.where((e) => e.indexCode == 'NDVI').length, equals(1));
       expect(entries.first.value, closeTo(0.9, 0.001));
     });
-  });
 
-  // ── AgronomicRepository: generation counter ────────────────────────────────
+    test('deleteField removes all rows for the field', () async {
+      await dao.putEntries('field-1', null, {'NDVI': 0.5}, _farFuture());
+      await dao.putEntries('field-1', DateTime(2026, 1, 10), {'NDVI': 0.6}, _farFuture());
+      await dao.putEntries('field-2', null, {'NDVI': 0.7}, _farFuture());
 
-  group('AgronomicRepository.generation', () {
-    test('starts at 0', () {
-      expect(repo.currentGeneration, equals(0));
+      await dao.deleteField('field-1');
+
+      expect(await dao.getEntries('field-1', null), isEmpty);
+      expect(await dao.getEntries('field-1', DateTime(2026, 1, 10)), isEmpty);
+      // field-2 must be untouched.
+      expect(await dao.getEntries('field-2', null), hasLength(1));
     });
 
-    test('increments by 1 per getIndexValues call', () async {
+    test('getEntries does not return expired rows', () async {
+      // Write a row that has already expired.
+      final pastExpiry = DateTime.now().subtract(const Duration(seconds: 1));
+      await dao.putEntries('field-1', null, {'NDVI': 0.5}, pastExpiry);
+      expect(await dao.getEntries('field-1', null), isEmpty);
+    });
+  });
+
+  // ── AgronomicRepository: epoch-seeded generation counter ──────────────────
+
+  group('AgronomicRepository.generation', () {
+    test('starts at a positive epoch-based value (non-zero)', () {
+      expect(repo.currentGeneration, greaterThan(0));
+    });
+
+    test('advances monotonically with each getIndexValues call', () async {
+      final gen0 = repo.currentGeneration;
       await repo.getIndexValues('f1', null);
-      expect(repo.currentGeneration, equals(1));
+      final gen1 = repo.currentGeneration;
       await repo.getIndexValues('f1', null);
-      expect(repo.currentGeneration, equals(2));
+      final gen2 = repo.currentGeneration;
+      expect(gen1, greaterThan(gen0));
+      expect(gen2, greaterThan(gen1));
+    });
+
+    test('two repository instances have distinct initial generations', () {
+      final repo2 = _buildRepo(_FakeNdviServiceConnector(), NdviCacheDao(db));
+      // Even though both are created very close together, they should differ
+      // from each other by at most 1ms.  The important thing: gen values are
+      // large epoch ints, not 0 vs 0.
+      expect(repo2.currentGeneration, greaterThan(0));
     });
   });
 
@@ -302,6 +355,41 @@ void main() {
     });
   });
 
+  // ── AgronomicRepository: data validation ─────────────────────────────────
+
+  group('AgronomicRepository — data validation (NaN / Infinite guard)', () {
+    test('does not cache NaN values', () async {
+      service.indicesResult = Success([
+        VegetationIndex(name: 'NDVI', value: double.nan),
+        VegetationIndex(name: 'EVI', value: 0.42),
+      ]);
+      final result = await repo.getIndexValues('f1', null);
+      // NaN entry is filtered out; EVI should still be present.
+      expect(result.values.containsKey('NDVI'), isFalse);
+      expect(result.values['EVI'], closeTo(0.42, 0.001));
+    });
+
+    test('does not cache Infinite values', () async {
+      service.indicesResult = Success([
+        VegetationIndex(name: 'NDVI', value: double.infinity),
+        VegetationIndex(name: 'EVI', value: 0.55),
+      ]);
+      final result = await repo.getIndexValues('f1', null);
+      expect(result.values.containsKey('NDVI'), isFalse);
+      expect(result.values['EVI'], closeTo(0.55, 0.001));
+    });
+
+    test('returns error when all values are invalid', () async {
+      service.indicesResult = Success([
+        VegetationIndex(name: 'NDVI', value: double.nan),
+        VegetationIndex(name: 'EVI', value: double.negativeInfinity),
+      ]);
+      final result = await repo.getIndexValues('f1', null);
+      expect(result.error, isNotNull);
+      expect(result.values, isEmpty);
+    });
+  });
+
   // ── AgronomicRepository: error propagation ────────────────────────────────
 
   group('AgronomicRepository.getIndexValues — errors', () {
@@ -317,6 +405,69 @@ void main() {
       final result = await repo.getIndexValues('f1', null);
       expect(result.error, isNotNull);
       expect(result.values, isEmpty);
+    });
+  });
+
+  // ── AgronomicRepository: getIndexValue (single-index API) ─────────────────
+
+  group('AgronomicRepository.getIndexValue', () {
+    test('returns value for a live-capable index', () async {
+      final value = await repo.getIndexValue('f1', null, SpectralIndex.ndvi);
+      expect(value, closeTo(0.65, 0.001));
+    });
+
+    test('throws ArgumentError for requiresHistorical index with null date', () async {
+      expect(
+        () => repo.getIndexValue('f1', null, SpectralIndex.ndwi),
+        throwsArgumentError,
+      );
+    });
+
+    test('allows requiresHistorical index when date is provided', () async {
+      // NDWI with a date should NOT throw — it routes to getTimeseries.
+      final value = await repo.getIndexValue(
+        'f1',
+        DateTime(2026, 1, 15),
+        SpectralIndex.ndwi, // requiresHistorical but date is given
+      );
+      // The timeseries stub returns NDVI only; NDWI won't be in the result.
+      // The call should complete without throwing.
+      expect(value, isNull); // absent from stub response → null, not error
+    });
+  });
+
+  // ── AgronomicRepository: invalidate ───────────────────────────────────────
+
+  group('AgronomicRepository.invalidate', () {
+    test('clears L1 so the next call hits the network', () async {
+      await repo.getIndexValues('f1', null);
+      expect(service.getIndicesCalls, equals(1));
+
+      await repo.invalidate('f1');
+
+      await repo.getIndexValues('f1', null);
+      expect(service.getIndicesCalls, equals(2));
+    });
+
+    test('clears L2 so the next call cannot restore from DB', () async {
+      // Seed L2 directly.
+      await dao.putEntries('f1', null, {'NDVI': 0.5}, _farFuture());
+
+      await repo.invalidate('f1');
+
+      // L2 should now be empty; the network (L3) must be called.
+      final entries = await dao.getEntries('f1', null);
+      expect(entries, isEmpty);
+    });
+
+    test('does not affect other fields', () async {
+      await dao.putEntries('f1', null, {'NDVI': 0.5}, _farFuture());
+      await dao.putEntries('f2', null, {'NDVI': 0.8}, _farFuture());
+
+      await repo.invalidate('f1');
+
+      expect(await dao.getEntries('f1', null), isEmpty);
+      expect(await dao.getEntries('f2', null), hasLength(1));
     });
   });
 

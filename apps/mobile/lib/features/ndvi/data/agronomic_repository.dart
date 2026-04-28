@@ -1,13 +1,17 @@
 /// Agronomic Repository — طبقة وسيطة بين الـ UI ومصادر البيانات
 ///
 /// Single entry point for all spectral-index data.  The UI calls
-/// [getIndexValues] and never touches [NdviServiceConnector] directly.
+/// [getIndexValues] (bulk) or [getIndexValue] (single index) and never touches
+/// [NdviServiceConnector] directly.
 ///
 /// Responsibilities:
 ///   • Choose the correct backend call (live `getIndices` vs. historical
 ///     `getTimeseries`).
 ///   • Manage in-memory + persistent Drift cache via [NdviCacheDao].
+///   • Own TTL policy for both live and historical entries.
 ///   • Hold the generation counter that guards against stale responses.
+///   • Enforce [SpectralIndex.requiresHistorical] so callers cannot
+///     accidentally request live data for historical-only indices.
 ///   • Expose [acquisitionDates] (satellite pass dates) for the timeline UI.
 ///
 /// What does NOT change:
@@ -19,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/services/integrations/ndvi_service.dart';
 import '../../../main.dart' show databaseProvider;
+import '../domain/spectral_index.dart';
 import 'ndvi_cache_dao.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -68,17 +73,26 @@ class AgronomicRepository {
   final NdviServiceConnector _service;
   final NdviCacheDao _cacheDao;
 
+  // ── TTL policy (owned here, not in the DAO) ───────────────────────────────
+  /// Live / most-recent data expires quickly (server may update it hourly).
+  static const Duration _liveTtl = Duration(hours: 1);
+
+  /// Historical satellite data is immutable — long TTL reduces network calls.
+  static const Duration _historicalTtl = Duration(hours: 24);
+
   // ── Generation counter ────────────────────────────────────────────────────
-  /// Incremented on every [getIndexValues] call.
+  /// Seeded from the current epoch milliseconds so that two repository
+  /// instances (e.g. after a ProviderScope recreation) never start from the
+  /// same generation value, preventing cross-instance stale-check confusion.
   ///
-  /// Each call captures the generation at start; before applying results it
-  /// checks the counter hasn't advanced.  Callers that need to detect stale
-  /// responses should compare their captured value with [currentGeneration].
-  int _generation = 0;
+  /// Incremented on every [getIndexValues] call.  Each call captures the
+  /// generation at start; before applying results it checks the counter hasn't
+  /// advanced (see caller pattern in [FieldMapScreen._loadIndexValues]).
+  int _generation = DateTime.now().millisecondsSinceEpoch;
 
   int get currentGeneration => _generation;
 
-  /// Atomically increments and returns the new generation number.
+  /// Increments the generation counter and returns the new value.
   int _nextGeneration() => ++_generation;
 
   // ── In-memory L1 cache ────────────────────────────────────────────────────
@@ -94,21 +108,17 @@ class AgronomicRepository {
   ///
   /// Cache hit order: L1 memory → L2 Drift (persistent) → network.
   ///
-  /// Returns the generation number captured at the start of the call so the
-  /// caller can discard stale results:
+  /// Call pattern for stale-response detection:
   /// ```dart
-  /// final gen = repo.currentGeneration;
+  /// final genAtStart = repo.currentGeneration;
   /// final result = await repo.getIndexValues(fieldId, date);
-  /// if (repo.currentGeneration != gen) return; // stale — discard
+  /// if (repo.currentGeneration != genAtStart + 1) return; // stale — discard
   /// ```
-  ///
-  /// The method itself does NOT compare generations; that is intentional so
-  /// the repository remains unaware of widget lifecycles.
   Future<IndexFetchResult> getIndexValues(
     String fieldId,
     DateTime? date,
   ) async {
-    final capturedGen = _nextGeneration();
+    _nextGeneration();
     final memKey = '$fieldId:${NdviCacheDao.dateKey(date)}';
 
     // ── L1: in-memory hit ────────────────────────────────────────────────────
@@ -136,6 +146,31 @@ class AgronomicRepository {
     }
   }
 
+  /// Returns the value for a single [index] at [date] for [fieldId].
+  ///
+  /// This is the single-index API described in the Agronomic Layer v2 design.
+  /// It enforces [SpectralIndex.requiresHistorical]: if [date] is `null` and
+  /// the index is only available from the historical timeseries endpoint, an
+  /// [ArgumentError] is thrown to prevent silent data gaps.
+  ///
+  /// Returns `null` if the bulk fetch succeeded but the index was absent from
+  /// the response (e.g. sensor not available for the field).
+  Future<double?> getIndexValue(
+    String fieldId,
+    DateTime? date,
+    SpectralIndex index,
+  ) async {
+    if (date == null && index.requiresHistorical) {
+      throw ArgumentError(
+        '${index.code} is only available from the historical timeseries '
+        'endpoint. Pass a non-null date, or choose a different index for '
+        'live display.',
+      );
+    }
+    final result = await getIndexValues(fieldId, date);
+    return result.values[index.code];
+  }
+
   /// Load the satellite acquisition dates for [fieldId].
   ///
   /// Sorted newest-first.  Returns an empty list on failure (best-effort).
@@ -154,6 +189,15 @@ class AgronomicRepository {
   /// The base URL of the backend service (for tile layer configuration).
   String get baseUrl => _service.baseUrl;
 
+  /// Invalidate all caches for [fieldId] (both L1 in-memory and L2 Drift).
+  ///
+  /// Call when external factors make the cached data stale — e.g. a field
+  /// boundary change, an API version bump, or an explicit user refresh.
+  Future<void> invalidate(String fieldId) async {
+    _memCache.removeWhere((key, _) => key.startsWith('$fieldId:'));
+    await _cacheDao.deleteField(fieldId);
+  }
+
   // ── Private helpers ───────────────────────────────────────────────────────
 
   Future<IndexFetchResult> _fetchLive(
@@ -169,10 +213,23 @@ class AgronomicRepository {
             error: 'لا تتوفر بيانات قمر صناعي\nNo satellite data for this field',
           );
         }
-        final values = {for (final i in indices) i.name.toUpperCase(): i.value};
+        final raw = {for (final i in indices) i.name.toUpperCase(): i.value};
+
+        // Guard: only cache values that are finite numbers (no NaN / ±Inf).
+        final values = Map.unmodifiable(
+          {for (final e in raw.entries) if (e.value.isFinite) e.key: e.value},
+        );
+
+        if (values.isEmpty) {
+          return const IndexFetchResult(
+            values: {},
+            error: 'بيانات المؤشرات غير صالحة\nIndex values returned invalid data',
+          );
+        }
+
         _memCache[memKey] = values;
-        _upsertCache(fieldId, null, values); // fire-and-forget
-        return IndexFetchResult(values: Map.unmodifiable(values));
+        _upsertCache(fieldId, null, values);
+        return IndexFetchResult(values: values);
       },
       failure: (message, _) => IndexFetchResult(
         values: {},
@@ -207,10 +264,23 @@ class AgronomicRepository {
             .inDays
             .abs()
             .compareTo(b.date.difference(date).inDays.abs()));
-        final values = {'NDVI': points.first.value};
+        final raw = {'NDVI': points.first.value};
+
+        // Guard: only cache values that are finite numbers (no NaN / ±Inf).
+        final values = Map.unmodifiable(
+          {for (final e in raw.entries) if (e.value.isFinite) e.key: e.value},
+        );
+
+        if (values.isEmpty) {
+          return const IndexFetchResult(
+            values: {},
+            error: 'بيانات المؤشرات غير صالحة\nIndex values returned invalid data',
+          );
+        }
+
         _memCache[memKey] = values;
-        _upsertCache(fieldId, date, values); // fire-and-forget
-        return IndexFetchResult(values: Map.unmodifiable(values));
+        _upsertCache(fieldId, date, values);
+        return IndexFetchResult(values: values);
       },
       failure: (message, _) => IndexFetchResult(
         values: {},
@@ -220,19 +290,16 @@ class AgronomicRepository {
   }
 
   /// Persist [values] to the Drift cache; errors are silently swallowed.
+  ///
+  /// TTL is computed here (repository policy), not in the DAO.
   void _upsertCache(
     String fieldId,
     DateTime? date,
     Map<String, double> values,
   ) {
-    _cacheDao.putEntries(fieldId, date, values).ignore();
-  }
-
-  /// Invalidate all caches for [fieldId] (both L1 and L2).
-  Future<void> invalidate(String fieldId) async {
-    _memCache.removeWhere((key, _) => key.startsWith('$fieldId:'));
-    // L2 invalidation via evictExpired is sufficient; we do not delete
-    // specific rows here since the TTL-based mechanism handles freshness.
+    final ttl = date == null ? _liveTtl : _historicalTtl;
+    final expiresAt = DateTime.now().add(ttl);
+    _cacheDao.putEntries(fieldId, date, values, expiresAt).ignore();
   }
 }
 

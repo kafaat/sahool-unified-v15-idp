@@ -5,9 +5,9 @@
 /// can be added without regenerating `database.g.dart`.  The actual table is
 /// created by [MigrationV8].
 ///
-/// Cache TTL policy:
-///   - Live   (date == null): 1 hour
-///   - Historical (date set): 24 hours (satellite data doesn't change)
+/// This DAO is a pure **persistence** layer.  TTL policy (when entries expire)
+/// lives in [AgronomicRepository], which passes the computed [expiresAt] to
+/// [putEntries].  The DAO itself has no opinion on how long data should be kept.
 library;
 
 import 'package:drift/drift.dart';
@@ -45,15 +45,21 @@ class NdviCacheDao {
 
   const NdviCacheDao(this._db);
 
-  // ── TTL constants ─────────────────────────────────────────────────────────
-  static const Duration _liveTtl = Duration(hours: 1);
-  static const Duration _historicalTtl = Duration(hours: 24);
-
   // ── Date key ──────────────────────────────────────────────────────────────
-  /// Canonical `date_key` column value: ISO-8601 date or `'live'` for the
-  /// live/most-recent entry (SQLite UNIQUE index can't cover NULLs reliably).
+
+  /// Sentinel `date_key` value for live / most-recent entries.
+  ///
+  /// Uppercase to make misuse (typo of a real date) harder; and to allow
+  /// future migration to an enum-backed column without ambiguity.
+  static const String liveKey = 'LIVE';
+
+  /// Canonical `date_key` column value.
+  ///
+  /// Returns [liveKey] when [date] is `null` (live/most-recent entry).
+  /// SQLite UNIQUE index cannot cover NULL values reliably, so we use a
+  /// known sentinel instead.
   static String dateKey(DateTime? date) {
-    if (date == null) return 'live';
+    if (date == null) return liveKey;
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-'
         '${date.day.toString().padLeft(2, '0')}';
   }
@@ -97,17 +103,19 @@ class NdviCacheDao {
 
   /// Upserts a batch of [values] for [fieldId] / [date].
   ///
+  /// [expiresAt] must be supplied by the caller (typically [AgronomicRepository]).
+  /// This keeps TTL policy out of the DAO and in the business logic layer.
+  ///
   /// Each call replaces any existing row for the same
   /// `(field_id, index_code, date_key)` triple.
   Future<void> putEntries(
     String fieldId,
     DateTime? date,
     Map<String, double> values,
+    DateTime expiresAt,
   ) async {
     final key = dateKey(date);
     final now = DateTime.now();
-    final ttl = date == null ? _liveTtl : _historicalTtl;
-    final expiresAt = now.add(ttl);
 
     await _db.transaction(() async {
       for (final entry in values.entries) {
@@ -126,6 +134,19 @@ class NdviCacheDao {
         );
       }
     });
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+
+  /// Deletes all cached rows for [fieldId] (both live and historical).
+  ///
+  /// Called by [AgronomicRepository.invalidate] when the field's data must
+  /// be fully re-fetched (e.g. boundary change, API version bump).
+  Future<void> deleteField(String fieldId) async {
+    await _db.customStatement(
+      'DELETE FROM ndvi_cache WHERE field_id = ?',
+      [fieldId],
+    );
   }
 
   // ── Cleanup ───────────────────────────────────────────────────────────────

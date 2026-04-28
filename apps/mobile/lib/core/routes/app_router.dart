@@ -85,6 +85,7 @@ import '../../features/reports/presentation/screens/reports_dashboard_screen.dar
 import '../../features/settings/presentation/screens/help_screen.dart';
 import '../../features/settings/presentation/screens/about_screen.dart';
 import '../../features/field/ui/field_form_screen.dart';
+import '../../features/field/ui/field_boundary_draw_screen.dart';
 import '../../features/irrigation/presentation/screens/irrigation_dashboard_screen.dart';
 
 // Features - Astronomical Calendar
@@ -586,9 +587,8 @@ class AppRouter {
         name: 'alert-details',
         builder: (context, state) {
           final alertId = state.pathParameters['id']!;
-          // Navigate to alerts screen with the specific alertId
-          // AlertsScreen can be enhanced to show details for this alert
-          return const AlertsScreen();
+          // Pass alertId via query parameter so AlertsScreen can highlight it
+          return AlertsScreen(initialAlertId: alertId);
         },
       ),
 
@@ -713,8 +713,9 @@ class AppRouter {
         name: 'pivot-sectors',
         builder: (context, state) {
           final pivotId = state.pathParameters['pivotId']!;
-          // Create a default configuration for direct navigation
-          final defaultConfig = PivotConfiguration(
+          // Use config passed via extra (from PivotDashboardScreen) or create a default
+          final passedConfig = state.extra as PivotConfiguration?;
+          final config = passedConfig ?? PivotConfiguration(
             id: pivotId,
             fieldId: 'default',
             name: 'Pivot $pivotId',
@@ -726,7 +727,7 @@ class AppRouter {
             flowRateLph: 450000,
           );
           return SectorManagementScreen(
-            pivotConfig: defaultConfig,
+            pivotConfig: config,
             onConfigUpdate: (_) {
               context.pop();
             },
@@ -768,6 +769,24 @@ class AppRouter {
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
           return FieldFormScreen(fieldId: args?['fieldId'] as String?);
+        },
+      ),
+
+      // ─────────────────────────────────────────────────────────────────────────
+      // Field Boundary Drawing Route - مسار رسم حدود الحقل على الخريطة
+      // ─────────────────────────────────────────────────────────────────────────
+      GoRoute(
+        path: '/field-boundary-draw',
+        name: 'field-boundary-draw',
+        builder: (context, state) {
+          // extra may be an existing List<LatLng> when editing boundaries
+          final existing = state.extra;
+          if (existing is List) {
+            return FieldBoundaryDrawScreen(
+              existingBoundary: List.from(existing),
+            );
+          }
+          return const FieldBoundaryDrawScreen();
         },
       ),
 

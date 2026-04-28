@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/sahool_theme.dart';
 import '../../../core/theme/organic_widgets.dart';
@@ -38,6 +40,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
   String? _selectedIrrigation;
   DateTime? _plantingDate;
   bool _hasBoundary = false;
+  List<LatLng> _boundary = [];  // حدود الحقل المرسومة فعلياً
 
   bool _isSaving = false;
 
@@ -594,9 +597,15 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                 height: kMinTouchTargetSize,
                 child: OutlinedButton.icon(
                   onPressed: () async {
-                    final result = await Navigator.pushNamed(context, '/map', arguments: {'mode': 'draw'});
-                    if (result == true) {
-                      setState(() => _hasBoundary = true);
+                    final result = await context.push<List<LatLng>>(
+                      '/field-boundary-draw',
+                      extra: _hasBoundary ? _boundary : null,
+                    );
+                    if (result != null && result.length >= 3) {
+                      setState(() {
+                        _boundary = result;
+                        _hasBoundary = true;
+                      });
                       if (mounted) AnnouncementHelper.announceComplete(context, 'تحديد الحدود');
                     }
                   },
@@ -666,11 +675,10 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
         );
       } else {
         // إنشاء حقل جديد - Create new field
-        // الحدود ستُضاف من الخريطة لاحقاً - Boundary added via map later
         await repo.createField(
           tenantId: tenantId,
           name: _nameController.text.trim(),
-          boundary: const [], // valid: empty boundary, user draws later
+          boundary: _boundary, // الحدود المرسومة فعلياً على الخريطة
           cropType: _selectedCrop,
           irrigationType: _selectedIrrigation,
           plantingDate: _plantingDate,
@@ -691,7 +699,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
       );
       // Announce success to screen readers
       AnnouncementHelper.announceComplete(context, isEditing ? 'تحديث الحقل' : 'إضافة الحقل');
-      Navigator.pop(context, true);
+      context.pop(true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -6,7 +6,10 @@ import '../domain/alert_models.dart';
 
 /// Alerts Screen - شاشة التنبيهات
 class AlertsScreen extends ConsumerStatefulWidget {
-  const AlertsScreen({super.key});
+  /// معرف التنبيه للتمييز التلقائي عبر deep link
+  final String? initialAlertId;
+
+  const AlertsScreen({super.key, this.initialAlertId});
 
   @override
   ConsumerState<AlertsScreen> createState() => _AlertsScreenState();
@@ -15,11 +18,13 @@ class AlertsScreen extends ConsumerStatefulWidget {
 class _AlertsScreenState extends ConsumerState<AlertsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  String? _highlightedAlertId;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
+    _highlightedAlertId = widget.initialAlertId;
   }
 
   @override
@@ -185,6 +190,7 @@ class _AlertsScreenState extends ConsumerState<AlertsScreen>
             alert: alert,
             onTap: () => _onAlertTap(alert),
             onDismiss: () => _onAlertDismiss(alert),
+            highlighted: alert.id == _highlightedAlertId,
           );
         },
       ),
@@ -277,11 +283,13 @@ class _AlertCard extends StatelessWidget {
   final AlertModel alert;
   final VoidCallback onTap;
   final VoidCallback onDismiss;
+  final bool highlighted;
 
   const _AlertCard({
     required this.alert,
     required this.onTap,
     required this.onDismiss,
+    this.highlighted = false,
   });
 
   @override
@@ -305,14 +313,19 @@ class _AlertCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: alert.isRead
-                ? Colors.white
-                : alert.type.color.withValues(alpha: 0.05),
+            color: highlighted
+                ? alert.type.color.withValues(alpha: 0.12)
+                : alert.isRead
+                    ? Colors.white
+                    : alert.type.color.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: alert.isRead
-                  ? Colors.grey[200]!
-                  : alert.type.color.withValues(alpha: 0.3),
+              color: highlighted
+                  ? alert.type.color
+                  : alert.isRead
+                      ? Colors.grey[200]!
+                      : alert.type.color.withValues(alpha: 0.3),
+              width: highlighted ? 2 : 1,
             ),
             boxShadow: SahoolShadows.small,
           ),

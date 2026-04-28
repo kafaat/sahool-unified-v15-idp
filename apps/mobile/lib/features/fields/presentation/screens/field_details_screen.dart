@@ -667,6 +667,8 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
             const Divider(),
             _buildIndexRow('NDWI', widget.field.ndwiValue, Colors.blue),
             const Divider(),
+            // NDRE is not yet available in FieldEntity (requires Sentinel-2 red-edge
+            // band processing). Displayed as '—' until the data pipeline is wired.
             _buildIndexRow('NDRE', null, Colors.orange),
           ],
         ),

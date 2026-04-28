@@ -591,8 +591,9 @@ void main() {
       // Act
       notifier.addToCart(outOfStock, quantity: 1);
 
-      // Assert – cart remains empty
+      // Assert – cart remains empty and error is surfaced
       expect(notifier.state.cart, isEmpty);
+      expect(notifier.state.error, isNotNull);
     });
 
     test('addToCart does NOT exceed available stock', () {
@@ -614,11 +615,12 @@ void main() {
       notifier.addToCart(limited, quantity: 8);
       expect(notifier.state.cart.first.quantity, 8);
 
-      // Attempt to add 5 more (would exceed stock of 10)
+      // Attempt to add 5 more (would exceed stock of 10) → should set error
       notifier.addToCart(limited, quantity: 5);
 
-      // Quantity must stay at 8 (5+8=13 > 10)
+      // Quantity must stay at 8 and error is surfaced
       expect(notifier.state.cart.first.quantity, 8);
+      expect(notifier.state.error, isNotNull);
     });
 
     test('addToCart allows adding up to exact stock limit', () {
@@ -753,6 +755,39 @@ void main() {
       notifier.setSearchQuery('test');
       notifier.setSearchQuery('');
       expect(notifier.state.searchQuery, '');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // MarketplaceNotifier.clearError
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  group('MarketplaceNotifier.clearError', () {
+    late _TestableMarketplaceNotifier notifier;
+
+    setUp(() {
+      notifier = _TestableMarketplaceNotifier(userId: 'test-user');
+    });
+
+    test('clearError sets error to null', () {
+      // Trigger an error via out-of-stock product
+      final oos = Product(
+        id: 'OOS2',
+        name: 'oos',
+        nameAr: 'نفد',
+        category: ProductCategory.seeds,
+        price: 1.0,
+        stock: 0,
+        unit: 'kg',
+        sellerId: 's',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025),
+      );
+      notifier.addToCart(oos);
+      expect(notifier.state.error, isNotNull);
+
+      notifier.clearError();
+      expect(notifier.state.error, isNull);
     });
   });
 }

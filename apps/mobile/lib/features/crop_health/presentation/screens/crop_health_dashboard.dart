@@ -139,8 +139,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         ),
 
         // قائمة الإجراءات
-        Builder(
-          builder: (context) {
+        Consumer(
+          builder: (context, ref, _) {
             final filteredActions = ref.watch(priorityFilteredActionsProvider);
             return SliverPadding(
               padding: const EdgeInsets.all(16),

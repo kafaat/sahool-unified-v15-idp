@@ -20,6 +20,22 @@ class MarketplaceScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final marketState = ref.watch(marketplaceProvider);
 
+    // Surface stock-guard errors as a transient snackbar
+    ref.listen<MarketplaceState>(marketplaceProvider, (previous, next) {
+      if (next.error != null && next.error != previous?.error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.error!),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+        // Clear the error so it doesn't re-fire on next build
+        ref.read(marketplaceProvider.notifier).clearError();
+      }
+    });
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: CustomScrollView(

@@ -44,8 +44,12 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
               );
         }
         // If no fields or no centroid, WeatherWidget gracefully shows "—"
-      } catch (_) {
+      } catch (e) {
         // Weather load is non-critical; failures are shown in WeatherWidget
+        Logger.w(
+          'Weather load failed on home dashboard',
+          tag: 'HOME',
+        );
       }
       Logger.info(
         'Home data loaded',

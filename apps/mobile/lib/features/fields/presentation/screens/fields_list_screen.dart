@@ -63,7 +63,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       final repo = ref.read(fieldsRepoProvider);
       final domainFields = await repo.getAllFields(tenantId);
 
-      // Map domain Field entities to FieldEntity for the UI
+      // Map domain Field entities to UI FieldEntity view-models
       setState(() {
         _fields = domainFields.map((f) {
           final ndvi = f.ndviCurrent ?? 0.0;

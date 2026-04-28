@@ -259,6 +259,58 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   }, [externalTile, tileUrlTemplate, isSimulated, indexType, fieldId]);
 
   /**
+   * Phase 3 — Render raster layer from externally-supplied tileUrlTemplate.
+   * This code path activates when the caller passes tileUrlTemplate (non-null),
+   * bypassing the legacy useNDVIMap fetch.  The XYZ template uses {z}/{x}/{y}
+   * placeholders which MapLibre resolves natively.
+   * مسار المرحلة 3: عرض طبقة بيانات من قالب عنوان URL المربع الخارجي
+   */
+  useEffect(() => {
+    const mapInstance = map.current;
+    if (!externalTile || !tileUrlTemplate || !visible) return;
+
+    const layerId = getLayerId(indexType);
+    const sourceId = getSourceId(indexType);
+
+    try {
+      if (mapInstance?.getLayer(layerId)) mapInstance.removeLayer(layerId);
+      if (mapInstance?.getSource(sourceId)) mapInstance.removeSource(sourceId);
+
+      mapInstance?.addSource(sourceId, {
+        type: 'raster',
+        tiles: [tileUrlTemplate],
+        tileSize: 256,
+      });
+
+      mapInstance?.addLayer({
+        id: layerId,
+        type: 'raster',
+        source: sourceId,
+        paint: { 'raster-opacity': opacity },
+      });
+
+      setIsLayerLoaded(true);
+      onLoadRef.current?.();
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(`Failed to add ${indexType.toUpperCase()} external tile layer`);
+      logger.error(`Error adding ${indexType} external tile layer:`, error);
+      onErrorRef.current?.(error);
+      setIsLayerLoaded(false);
+    }
+
+    return () => {
+      const m = map.current;
+      if (!m) return;
+      try {
+        if (m.getLayer(layerId)) m.removeLayer(layerId);
+        if (m.getSource(sourceId)) m.removeSource(sourceId);
+      } catch (err) {
+        logger.warn(`Error removing ${indexType} external tile layer during cleanup:`, err);
+      }
+    };
+  }, [map, externalTile, tileUrlTemplate, visible, opacity, indexType]);
+
+  /**
    * إضافة أو تحديث طبقة المؤشر على الخريطة
    * Add or update vegetation index layer on the map
    */

@@ -4720,7 +4720,6 @@ async def get_index_map(
     - data_source: "sentinel-hub" | "simulated"
     - date_used: The actual date of the image returned
     - quality_score: 0-1 usability score
-    - color_stops: Frontend colormap stops for this index
 
     Example:
         GET /v1/index-map/field_123?index=ndwi&lat=15.5&lon=44.2&date=2024-03-15
@@ -4799,23 +4798,20 @@ async def get_index_map(
 
     if sentinel_instance_id and cloud_usable:
         wms_layer = _SENTINEL_WMS_LAYERS.get(index_lower, "NDVI")
-        base_wms = (
-            f"https://services.sentinel-hub.com/ogc/wms/{sentinel_instance_id}"
-            f"?SERVICE=WMS&REQUEST=GetMap&LAYERS={wms_layer}"
-            f"&TIME={date_used}/{date_used}"
-            f"&MAXCC={int(max_cloud)}"
-            f"&WIDTH={{width}}&HEIGHT={{height}}&FORMAT=image/png"
-            f"&CRS=EPSG:3857&BBOX={{bbox}}"
-        )
-        wms_url = base_wms
+        # Prefer XYZ/WMTS tiles; set wms_url=None so the DTO invariant holds
+        # (wmsUrl is null when tileType is "xyz").
         tile_url_template = (
             f"https://services.sentinel-hub.com/ogc/wmts/{sentinel_instance_id}"
             f"?SERVICE=WMTS&REQUEST=GetTile&LAYER={wms_layer}"
             f"&TIME={date_used}/{date_used}"
-            f"&TILEMATRIXSET=PopularWebMercator512&TILEMATRIX={{z}}&TILEROW={{y}}&TILECOL={{x}}"
+            f"&TILEMATRIXSET=PopularWebMercator256&TILEMATRIX={{z}}&TILEROW={{y}}&TILECOL={{x}}"
             f"&FORMAT=image/png"
         )
-        data_source = "sentinel-hub"
+        wms_url = None  # null when tileType is "xyz" per DTO contract
+        # data_source tracks tile origin; index_value below is still simulated.
+        # Keep "simulated" until real scalar computation is available so the UI
+        # health-zone and legend are not falsely attributed to live data.
+        data_source = "simulated"
 
     # Simulate scalar index value (seasonal pattern)
     import math as _math

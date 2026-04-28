@@ -392,7 +392,7 @@ class NdviServiceConnector extends ServiceConnector {
   /// Kong strips /api/v1/satellite → backend receives /v1/phenology/{fieldId} ✅
   Future<ApiResult<PhenologyStage>> getPhenology(String fieldId) async {
     return get(
-      '/api/v1/satellite/v1/phenology/$fieldId',
+      '${getEndpoint('phenology') ?? '/api/v1/satellite/v1/phenology'}/$fieldId',
       parser: (data) => PhenologyStage.fromJson(data as Map<String, dynamic>),
     );
   }
@@ -608,11 +608,19 @@ class IndexMapResponse {
   });
 
   factory IndexMapResponse.fromJson(Map<String, dynamic> json) {
-    final tileTypeStr = json['tile_type'] as String? ?? 'none';
+    final tileUrlTemplate = json['tile_url_template'] as String?;
+    final wmsUrl = json['wms_url'] as String?;
+    // Infer tileType from URL presence when the backend omits the field,
+    // so hasTiles is not silently false for older backend versions.
+    final tileTypeStr = json['tile_type'] as String? ?? '';
     final tileType = switch (tileTypeStr) {
       'xyz' => IndexTileType.xyz,
       'wms' => IndexTileType.wms,
-      _ => IndexTileType.none,
+      _ => tileUrlTemplate != null
+          ? IndexTileType.xyz
+          : wmsUrl != null
+              ? IndexTileType.wms
+              : IndexTileType.none,
     };
 
     final dataSourceStr = json['data_source'] as String? ?? 'simulated';
@@ -628,8 +636,8 @@ class IndexMapResponse {
       dateRequested: json['date_requested'] as String?,
       dateUsed: json['date_used'] as String? ?? '',
       fallbackDateUsed: json['fallback_date_used'] as bool? ?? false,
-      tileUrlTemplate: json['tile_url_template'] as String?,
-      wmsUrl: json['wms_url'] as String?,
+      tileUrlTemplate: tileUrlTemplate,
+      wmsUrl: wmsUrl,
       tileType: tileType,
       indexValue: (json['index_value'] as num?)?.toDouble() ?? 0.0,
       cloudCoverPercent: (json['cloud_cover_percent'] as num?)?.toDouble() ?? 0.0,
@@ -642,9 +650,9 @@ class IndexMapResponse {
   }
 
   bool get isSimulated => dataSource == IndexDataSource.simulated;
-  bool get hasTiles =>
-      (tileType == IndexTileType.xyz && tileUrlTemplate != null) ||
-      (tileType == IndexTileType.wms && wmsUrl != null);
+  // Check URL presence as primary signal; tileType is secondary so a missing
+  // or unexpected tile_type value never silently hides available tiles.
+  bool get hasTiles => tileUrlTemplate != null || wmsUrl != null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

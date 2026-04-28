@@ -7,7 +7,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../core/map/sahool_tile_provider.dart';
 import '../../../../core/geo/geojson.dart';
-import '../../../../core/services/integrations/ndvi_service.dart';
+import '../../../ndvi/data/agronomic_repository.dart';
 import '../../../ndvi/domain/spectral_index.dart';
 import '../../../ndvi/ui/ndvi_tile_layer.dart';
 
@@ -44,18 +44,23 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   double _currentZoom = 15.0;
 
   // ── Spectral index API state ──────────────────────────────────────────────
-  /// Live vegetation index values loaded from the backend API.
-  /// Keys match [SpectralIndex.code] (e.g. 'NDVI', 'NDWI').
+  /// Latest known spectral-index values from [AgronomicRepository].
   final Map<String, double> _indexValues = {};
   bool _indexLoading = false;
 
   /// Error message: null = ok, non-null = shown in error banner.
-  /// Distinguishes API failure (connectivity) from empty (no satellite coverage).
   String? _indexError;
 
   // ── Timeline state ────────────────────────────────────────────────────────
-  /// Days back from today.  0 = live / most-recent data.
-  int _daysBack = 0;
+  /// Index into [_acquisitionDates].
+  ///
+  /// 0 = live / most-recent.
+  /// 1..N = `_acquisitionDates[index - 1]` (list is newest-first).
+  ///
+  /// This replaces the old linear day-offset slider, so the slider always
+  /// snaps to real acquisition dates by construction — no
+  /// `_snapToBestAcquisition` helper needed.
+  int _acquisitionIndex = 0;
 
   /// Whether the timeline slider bar is visible on screen.
   bool _timelineVisible = false;
@@ -65,28 +70,8 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
   /// Actual satellite acquisition dates for this field, sorted newest-first.
   ///
-  /// Loaded once from [NdviServiceConnector.getImagery] in [initState].
-  /// The slider snaps to the nearest acquisition date on release so the user
-  /// always navigates to real satellite passes instead of arbitrary day offsets.
+  /// Loaded once from [AgronomicRepository.loadAcquisitionDates] in [initState].
   List<DateTime> _acquisitionDates = [];
-
-  // ── Request generation counter ────────────────────────────────────────────
-  /// Incremented on every new [_loadIndexValues] call.
-  ///
-  /// Each call captures the generation at start; before applying results it
-  /// checks the counter hasn't advanced.  This discards stale responses that
-  /// arrive after the slider has already moved to a newer position, preventing
-  /// the "fast slider → wrong data applied" race condition.
-  int _loadGeneration = 0;
-
-  // ── In-memory index cache ─────────────────────────────────────────────────
-  /// Live cache: "{fieldId}:live" → Map of all current spectral index values.
-  ///
-  /// Historical cache: "{fieldId}:NDVI:{YYYY-MM-DD}" → {"NDVI": value}.
-  /// Historical entries store ONLY NDVI (the timeseries endpoint is NDVI-only);
-  /// they are merged with the live multi-index map at display time to avoid
-  /// serving stale NDWI/EVI/SAVI/NDRE values under a date-keyed cache entry.
-  final Map<String, Map<String, double>> _indexCache = {};
 
   // ── Derived getters ───────────────────────────────────────────────────────
 
@@ -101,21 +86,13 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   }
 
   /// Effective date: null means "live / most recent".
-  DateTime? get _effectiveDate =>
-      _daysBack == 0 ? null : DateTime.now().subtract(Duration(days: _daysBack));
-
-  /// Cache key for live (multi-index) entries: "{fieldId}:live"
-  String get _liveCacheKey => '${widget.fieldId}:live';
-
-  /// Cache key for a historical NDVI entry: "{fieldId}:NDVI:{YYYY-MM-DD}".
   ///
-  /// Historical entries store ONLY NDVI because the timeseries endpoint is
-  /// NDVI-specific. Using a separate key from the live entry prevents stale
-  /// NDWI / EVI / SAVI values being returned as a cache hit for a date.
-  String _historicalCacheKey(DateTime date) {
-    final d =
-        '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-    return '${widget.fieldId}:NDVI:$d';
+  /// Resolved from [_acquisitionIndex]: 0 → null (live),
+  /// 1..N → the acquisition date at that position.
+  DateTime? get _effectiveDate {
+    if (_acquisitionIndex == 0 || _acquisitionDates.isEmpty) return null;
+    final idx = (_acquisitionIndex - 1).clamp(0, _acquisitionDates.length - 1);
+    return _acquisitionDates[idx];
   }
 
   // ── Map ───────────────────────────────────────────────────────────────────
@@ -142,7 +119,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Cache baseUrl once the ProviderScope is available.
-    _ndviBaseUrl = ref.read(ndviServiceProvider).baseUrl;
+    _ndviBaseUrl = ref.read(agronomicRepositoryProvider).baseUrl;
   }
 
   @override
@@ -187,44 +164,16 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     }
   }
 
-  /// Unified index loader — handles both live data and historical timeseries.
+  /// Unified index loader — delegates to [AgronomicRepository].
   ///
-  /// Uses [_effectiveDate] to determine which data to fetch:
-  ///   - `null` → calls `getIndices()` for the latest multi-index snapshot
-  ///   - `DateTime` → calls `getTimeseries()` and picks the closest point
-  ///
-  /// Results are cached with separate key namespaces:
-  ///   - Live: [_liveCacheKey] → all indices
-  ///   - Historical: [_historicalCacheKey] → NDVI only, merged at display time
-  ///
-  /// A generation counter guards against stale responses: if the slider moves
-  /// while a request is in-flight the old response is silently discarded.
+  /// Uses [_effectiveDate] to determine whether to fetch live or historical
+  /// data.  The repository handles caching and the generation counter
+  /// internally; the UI only needs to check whether the generation has
+  /// advanced between call-start and result-arrival.
   Future<void> _loadIndexValues() async {
     final date = _effectiveDate;
-
-    // ── Increment generation — any in-flight call with an older gen is stale ──
-    final gen = ++_loadGeneration;
-
-    // ── Cache hit ─────────────────────────────────────────────────────────────
-    if (date == null && _indexCache.containsKey(_liveCacheKey)) {
-      setState(() {
-        _indexValues
-          ..clear()
-          ..addAll(_indexCache[_liveCacheKey]!);
-        _indexError = null;
-      });
-      return;
-    }
-    if (date != null) {
-      final histKey = _historicalCacheKey(date);
-      if (_indexCache.containsKey(histKey)) {
-        setState(() {
-          _indexValues['NDVI'] = _indexCache[histKey]!['NDVI']!;
-          _indexError = null;
-        });
-        return;
-      }
-    }
+    final repo = ref.read(agronomicRepositoryProvider);
+    final genAtStart = repo.currentGeneration;
 
     if (_indexLoading) return;
     setState(() {
@@ -233,116 +182,32 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     });
 
     try {
-      final service = ref.read(ndviServiceProvider);
+      final result = await repo.getIndexValues(widget.fieldId, date);
+      if (!mounted || repo.currentGeneration > genAtStart + 1) return; // stale
 
-      if (date == null) {
-        // ── Live: fetch all current indices ─────────────────────────────────
-        final result = await service.getIndices(widget.fieldId);
-        if (!mounted || gen != _loadGeneration) return; // stale — discard
-
-        result.when(
-          success: (indices) {
-            if (indices.isEmpty) {
-              _indexError = 'لا تتوفر بيانات قمر صناعي\nNo satellite data for this field';
-              return;
-            }
-            final updated = {
-              for (final i in indices) i.name.toUpperCase(): i.value,
-            };
-            _indexCache[_liveCacheKey] = Map.unmodifiable(updated);
-            _indexValues
-              ..clear()
-              ..addAll(updated);
-          },
-          failure: (message, _) {
-            _indexError = 'فشل تحميل البيانات: $message\nCheck connectivity';
-          },
-        );
-      } else {
-        // ── Historical: pick closest timeseries point ────────────────────────
-        final result = await service.getTimeseries(
-          widget.fieldId,
-          startDate: date.subtract(const Duration(days: 15)),
-          endDate: date.add(const Duration(days: 15)),
-        );
-        if (!mounted || gen != _loadGeneration) return; // stale — discard
-
-        result.when(
-          success: (points) {
-            if (points.isEmpty) {
-              _indexError =
-                  'لا تتوفر بيانات قمر صناعي لهذا التاريخ\nNo satellite coverage for selected date';
-              return;
-            }
-            points.sort((a, b) => a.date
-                .difference(date)
-                .inDays
-                .abs()
-                .compareTo(b.date.difference(date).inDays.abs()));
-            final ndviValue = points.first.value;
-            // Store NDVI-only under its own historical key (never mix with
-            // NDWI/EVI/SAVI/NDRE, which are only available from live fetch).
-            _indexCache[_historicalCacheKey(date)] =
-                Map.unmodifiable({'NDVI': ndviValue});
-            // Merge: preserve all live indices, update only NDVI for this date.
-            _indexValues['NDVI'] = ndviValue;
-          },
-          failure: (message, _) {
-            _indexError = 'فشل تحميل التاريخ: $message\nCheck connectivity';
-          },
-        );
-      }
+      setState(() {
+        _indexValues
+          ..clear()
+          ..addAll(result.values);
+        _indexError = result.error;
+      });
     } catch (e) {
-      if (mounted && gen == _loadGeneration) _indexError = 'خطأ غير متوقع\n$e';
+      if (mounted) setState(() => _indexError = 'خطأ غير متوقع\n$e');
     } finally {
-      if (mounted && gen == _loadGeneration) setState(() => _indexLoading = false);
+      if (mounted) setState(() => _indexLoading = false);
     }
   }
 
-  /// Load actual satellite acquisition dates for temporal snap.
+  /// Load actual satellite acquisition dates for the temporal slider.
   ///
-  /// Calls [NdviServiceConnector.getImagery] to retrieve the list of available
-  /// satellite passes for this field.  The result is stored in [_acquisitionDates]
-  /// (sorted newest-first) and used by [_snapToBestAcquisition] to constrain
-  /// the slider to real observation dates rather than arbitrary day offsets.
+  /// Results are stored in [_acquisitionDates] (sorted newest-first).
+  /// The slider [max] is updated to `_acquisitionDates.length` so every
+  /// step maps to a real satellite pass.
   Future<void> _loadAcquisitionDates() async {
-    final service = ref.read(ndviServiceProvider);
-    final result = await service.getImagery(widget.fieldId);
+    final repo = ref.read(agronomicRepositoryProvider);
+    final dates = await repo.loadAcquisitionDates(widget.fieldId);
     if (!mounted) return;
-
-    result.when(
-      success: (imagery) {
-        if (imagery.isEmpty) return;
-        final dates = imagery.map((i) => i.captureDate).toList()
-          ..sort((a, b) => b.compareTo(a)); // newest first
-        setState(() => _acquisitionDates = dates);
-      },
-      failure: (_, __) {
-        // Best-effort — failure is silent; slider falls back to arbitrary day offsets.
-      },
-    );
-  }
-
-  /// Snap [rawDays] to the closest actual satellite acquisition day offset.
-  ///
-  /// Returns [rawDays] unchanged when [_acquisitionDates] is empty (fallback).
-  int _snapToBestAcquisition(int rawDays) {
-    if (_acquisitionDates.isEmpty) return rawDays;
-    final now = DateTime.now();
-    // Initial sentinel: one beyond the slider's 90-day maximum so any real
-    // acquisition will immediately be closer.
-    const maxSliderDays = 90;
-    var bestDiff = maxSliderDays + 1;
-    var bestDays = rawDays;
-    for (final acq in _acquisitionDates) {
-      final daysBack = now.difference(acq).inDays.clamp(0, maxSliderDays);
-      final diff = (daysBack - rawDays).abs();
-      if (diff < bestDiff) {
-        bestDiff = diff;
-        bestDays = daysBack;
-      }
-    }
-    return bestDays;
+    setState(() => _acquisitionDates = dates);
   }
 
   @override
@@ -402,7 +267,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               _buildErrorBanner(),
 
             // Historical date chip (shown when not in timeline mode)
-            if (!_timelineVisible && _daysBack > 0)
+            if (!_timelineVisible && _acquisitionIndex > 0)
               Positioned(
                 top: 12,
                 left: 0,
@@ -456,13 +321,13 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
           const Icon(Icons.calendar_today, size: 14, color: Colors.amber),
           const SizedBox(width: 6),
           Text(
-            '${date.day}/${date.month}/${date.year}  (منذ $_daysBack يوم)',
+            '${date.day}/${date.month}/${date.year}  (#$_acquisitionIndex)',
             style: const TextStyle(color: Colors.white, fontSize: 13),
           ),
           const SizedBox(width: 8),
           GestureDetector(
             onTap: () {
-              setState(() => _daysBack = 0);
+              setState(() => _acquisitionIndex = 0);
               _loadIndexValues();
             },
             child: const Icon(Icons.close, size: 14, color: Colors.white70),
@@ -472,20 +337,22 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
-  /// Floating timeline slider (0 = today/live … 90 = 90 days ago).
+  /// Floating timeline slider.
   ///
-  /// On drag-end the slider snaps to the nearest actual satellite acquisition
-  /// date via [_snapToBestAcquisition].  The API call is debounced 400 ms.
+  /// Slider positions map 1:1 to [_acquisitionDates]:
+  ///   0 = today/live, 1..N = acquisition dates (newest-first).
+  ///
+  /// When [_acquisitionDates] is not yet loaded the slider is disabled and
+  /// shows a loading sub-label.  This replaces the old day-offset slider and
+  /// removes the need for [_snapToBestAcquisition].
   Widget _buildTimelineBar() {
     final date = _effectiveDate;
     final label = date == null
         ? 'اليوم (حي)'
         : '${date.day}/${date.month}/${date.year}';
 
-    // Sub-label: show whether this date is a real acquisition
-    final bool isRealAcquisition = _acquisitionDates.isNotEmpty &&
-        date != null &&
-        _acquisitionDates.any((d) => d.difference(date).inDays.abs() <= 1);
+    final int sliderMax = _acquisitionDates.isEmpty ? 1 : _acquisitionDates.length;
+    final bool datesLoaded = _acquisitionDates.isNotEmpty;
 
     return Positioned(
       bottom: 90,
@@ -511,20 +378,20 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
                           'التاريخ: $label',
                           style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                         ),
-                        if (date != null)
-                          Text(
-                            isRealAcquisition
-                                ? '🛰️ تاريخ مرور فعلي للقمر'
-                                : (_acquisitionDates.isEmpty
-                                    ? 'جارٍ تحميل مواعيد الاستشعار…'
-                                    : 'تقريبي — سيُضبط لأقرب مرور'),
-                            style: TextStyle(
-                              fontSize: 10,
-                              color: isRealAcquisition
-                                  ? Colors.green.shade700
-                                  : Colors.grey.shade600,
-                            ),
+                        Text(
+                          datesLoaded
+                              ? (_acquisitionIndex == 0
+                                  ? 'اليوم — بيانات حية'
+                                  : '🛰️ تاريخ مرور فعلي للقمر'
+                                )
+                              : 'جارٍ تحميل مواعيد الاستشعار…',
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: (datesLoaded && _acquisitionIndex > 0)
+                                ? Colors.green.shade700
+                                : Colors.grey.shade600,
                           ),
+                        ),
                       ],
                     ),
                   ),
@@ -538,26 +405,33 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
               ),
               Row(
                 children: [
-                  const Text('−90', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  Text(
+                    datesLoaded ? '−${_acquisitionDates.length}' : '−',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
                   Expanded(
                     child: Slider(
-                      value: _daysBack.toDouble(),
+                      value: _acquisitionIndex.toDouble(),
                       min: 0,
-                      max: 90,
-                      divisions: 90,
+                      max: sliderMax.toDouble(),
+                      divisions: sliderMax,
                       activeColor: const Color(0xFF367C2B),
-                      label: _daysBack == 0 ? 'اليوم' : '−$_daysBack يوم',
-                      onChanged: (v) => setState(() => _daysBack = v.round()),
-                      onChangeEnd: (v) {
-                        // Snap to nearest real acquisition date, then debounce fetch
-                        final snapped = _snapToBestAcquisition(v.round());
-                        if (snapped != _daysBack) setState(() => _daysBack = snapped);
-                        _sliderDebounce?.cancel();
-                        _sliderDebounce = Timer(
-                          const Duration(milliseconds: 400),
-                          _loadIndexValues,
-                        );
-                      },
+                      label: _acquisitionIndex == 0 ? 'اليوم' : '#$_acquisitionIndex',
+                      onChanged: datesLoaded
+                          ? (v) => setState(() => _acquisitionIndex = v.round())
+                          : null,
+                      onChangeEnd: datesLoaded
+                          ? (v) {
+                              if (v.round() != _acquisitionIndex) {
+                                setState(() => _acquisitionIndex = v.round());
+                              }
+                              _sliderDebounce?.cancel();
+                              _sliderDebounce = Timer(
+                                const Duration(milliseconds: 400),
+                                _loadIndexValues,
+                              );
+                            }
+                          : null,
                     ),
                   ),
                   const Text('اليوم', style: TextStyle(fontSize: 11, color: Colors.grey)),
@@ -734,7 +608,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     return [
       for (final idx in activeIndices)
         NdviTileLayerWidget(
-          key: ValueKey('tile_${idx.code}_${_daysBack}'),
+          key: ValueKey('tile_${idx.code}_${_acquisitionIndex}'),
           config: NdviTileConfig.sahoolBackend(
             baseUrl: _ndviBaseUrl,
             fieldId: widget.fieldId,

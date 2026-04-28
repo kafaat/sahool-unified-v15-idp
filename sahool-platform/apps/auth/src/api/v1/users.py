@@ -101,7 +101,7 @@ async def forgot_password(body: ForgotPassword, request: Request):
 
     raw_token = secrets.token_urlsafe(32)
     token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
-    expires_at = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+    expires_at = datetime.datetime.now(datetime.UTC) + datetime.timedelta(
         minutes=_RESET_TOKEN_TTL_MINUTES
     )
 
@@ -133,7 +133,7 @@ async def forgot_password(body: ForgotPassword, request: Request):
 @router.post("/reset-password", status_code=status.HTTP_204_NO_CONTENT)
 async def reset_password(body: ResetPassword, request: Request):
     token_hash = hashlib.sha256(body.token.encode()).hexdigest()
-    now = datetime.datetime.now(datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.UTC)
 
     pool = request.app.state.db
     async with pool.acquire() as conn:

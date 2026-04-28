@@ -1,12 +1,11 @@
 """Shared FastAPI dependencies: auth extraction, RBAC guards."""
-from fastapi import Depends, HTTPException, Request, status, Cookie
+from fastapi import Depends, HTTPException, Request, status
 from jose import JWTError
-from typing import Optional
 
 from ..core.security import decode_token
 
 
-def _extract_bearer(request: Request) -> Optional[str]:
+def _extract_bearer(request: Request) -> str | None:
     auth = request.headers.get("Authorization", "")
     if auth.startswith("Bearer "):
         return auth[7:]

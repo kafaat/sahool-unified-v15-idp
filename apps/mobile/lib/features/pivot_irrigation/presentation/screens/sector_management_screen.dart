@@ -777,8 +777,9 @@ class _SectorManagementScreenState extends State<SectorManagementScreen> {
   }
 
   void _saveChanges() {
+    // Delegate both navigation and config propagation to the caller via
+    // onConfigUpdate — avoids a double-pop with GoRouter.
     widget.onConfigUpdate(_config);
-    Navigator.pop(context);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

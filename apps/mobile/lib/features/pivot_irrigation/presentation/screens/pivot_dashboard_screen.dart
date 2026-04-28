@@ -625,15 +625,21 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     });
   }
 
-  void _openSettings() {
+  Future<void> _openSettings() async {
     final currentConfig = _configOverride ??
         ref.read(pivotDataProvider(_pivotParams)).valueOrNull?.config;
     if (currentConfig == null) return;
 
-    context.push(
+    // Await the push so we can receive the PivotConfiguration returned by
+    // SectorManagementScreen (via context.pop(updatedConfig)).
+    final updated = await context.push<PivotConfiguration>(
       '/pivot-irrigation/${widget.pivotId}/sectors',
       extra: currentConfig,
     );
+
+    if (updated != null && mounted) {
+      setState(() => _configOverride = updated);
+    }
   }
 }
 

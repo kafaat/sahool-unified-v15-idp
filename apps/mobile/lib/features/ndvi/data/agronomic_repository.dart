@@ -301,7 +301,7 @@ class AgronomicRepository {
   ) {
     final ttl = date == null ? _liveTtl : _historicalTtl;
     final expiresAt = DateTime.now().add(ttl);
-    _cacheDao.putEntries(fieldId, date, values, expiresAt).ignore();
+    _cacheDao.putEntries(fieldId, date, values, expiresAt).catchError((_) {});
   }
 }
 

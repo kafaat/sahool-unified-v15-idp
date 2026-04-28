@@ -51,6 +51,11 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   final Map<String, double> _indexValues = {};
   bool _indexLoading = false;
 
+  /// When a fetch is in-flight and the slider changes date, we cannot start a
+  /// second fetch immediately (would interleave).  Instead we record the date
+  /// that was requested and re-trigger once the in-flight fetch finishes.
+  DateTime? _pendingFetchDate;
+
   /// Error message: null = ok, non-null = shown in error banner.
   String? _indexError;
 
@@ -173,12 +178,22 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   /// data.  The repository handles caching and the generation counter
   /// internally; the UI only needs to check whether the generation has
   /// advanced between call-start and result-arrival.
+  ///
+  /// If a fetch is already in-flight, the requested date is recorded in
+  /// [_pendingFetchDate] and a follow-up fetch is triggered automatically
+  /// when the current one completes.
   Future<void> _loadIndexValues() async {
     final date = _effectiveDate;
     final repo = ref.read(agronomicRepositoryProvider);
     final genAtStart = repo.currentGeneration;
 
-    if (_indexLoading) return;
+    if (_indexLoading) {
+      // Record the most-recently-requested date; the finally block below will
+      // trigger a follow-up fetch so it is never silently dropped.
+      _pendingFetchDate = date;
+      return;
+    }
+    _pendingFetchDate = null;
     setState(() {
       _indexLoading = true;
       _indexError = null;
@@ -200,7 +215,16 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     } catch (e) {
       if (mounted) setState(() => _indexError = 'خطأ غير متوقع\n$e');
     } finally {
-      if (mounted) setState(() => _indexLoading = false);
+      if (mounted) {
+        setState(() => _indexLoading = false);
+        // Re-run if the slider moved while this fetch was in-flight.
+        // _pendingFetchDate is only non-null when a call was dropped by the
+        // early-return guard above, so this check is precise.
+        if (_pendingFetchDate != null) {
+          _pendingFetchDate = null;
+          unawaited(_loadIndexValues());
+        }
+      }
     }
   }
 

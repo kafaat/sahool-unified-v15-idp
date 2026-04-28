@@ -218,20 +218,26 @@ class GeoJson {
   /// so triangles (n < 4) can never self-intersect.
   /// Returns `true` if any two non-adjacent edges cross.
   ///
+  /// The polygon is closed internally before checking so that the closing
+  /// edge (last → first) is always included, regardless of whether the caller
+  /// passes an open or already-closed point list.
+  ///
   /// Complexity: O(n²) — acceptable for field boundaries (typically < 100 points).
   static bool hasSelfIntersection(List<LatLng> polygon) {
-    final n = polygon.length;
+    // Close the polygon so the last→first edge is always included.
+    final closed = _ensureClosedPolygon(polygon);
+    final n = closed.length;
     if (n < 4) return false; // Need ≥ 4 vertices for non-adjacent edges
 
     // Work in longitude/latitude degrees (good enough for field scale)
     for (int i = 0; i < n - 1; i++) {
       for (int j = i + 2; j < n - 1; j++) {
-        // Skip the pair (first segment, last segment) in a closed polygon —
-        // they share vertex 0 and are adjacent, not crossing.
+        // Skip the pair (first segment, last segment) — they share vertex 0
+        // and are adjacent, not crossing.
         if (i == 0 && j == n - 2) continue;
         if (_segmentsIntersect(
-          polygon[i], polygon[i + 1],
-          polygon[j], polygon[j + 1],
+          closed[i], closed[i + 1],
+          closed[j], closed[j + 1],
         )) {
           return true;
         }

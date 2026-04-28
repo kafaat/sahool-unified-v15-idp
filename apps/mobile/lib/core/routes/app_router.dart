@@ -727,8 +727,11 @@ class AppRouter {
           );
           return SectorManagementScreen(
             pivotConfig: config,
-            onConfigUpdate: (_) {
-              context.pop();
+            onConfigUpdate: (updatedConfig) {
+              // Pop and return the updated config so the dashboard can apply it
+              // to _configOverride.  SectorManagementScreen no longer pops
+              // independently, so this is the single navigation callsite.
+              context.pop(updatedConfig);
             },
           );
         },

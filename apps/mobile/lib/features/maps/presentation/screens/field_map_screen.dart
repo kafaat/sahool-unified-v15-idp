@@ -6,10 +6,12 @@ import 'package:latlong2/latlong.dart';
 
 import '../../../../core/map/sahool_tile_provider.dart';
 import '../../../../core/geo/geojson.dart';
-import '../../../../core/config/env_config.dart';
 import '../../../ndvi/domain/spectral_index.dart';
 // Phase 2: import the tile layer widget so it can be used in FlutterMap children
 import '../../../ndvi/ui/ndvi_tile_layer.dart';
+// Phase 3: indexMapProvider drives the real tile URL from /v1/index-map/{fieldId}
+import '../../../../core/services/integrations/ndvi_service.dart'
+    show IndexMapParams, indexMapProvider;
 
 /// شاشة خريطة الحقل مع طبقات NDVI
 /// Field Map Screen with NDVI Layers
@@ -231,20 +233,13 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             ],
           ),
 
-        // Spectral index overlays — Phase 2: real raster tiles + polygon fallback
-        // Phase 2: NdviTileLayerWidget connects the index toggle to real WMS tiles
-        // from the backend /v1/index-map/{fieldId} endpoint.
-        // When the backend returns a tileUrlTemplate (Sentinel Hub configured),
-        // the raster layer appears on top of the base map.
-        // When it returns null (simulated mode), polygon overlay is used as fallback.
+        // Spectral index overlays — Phase 3: real raster tiles from indexMapProvider
+        // indexMapProvider calls /v1/index-map/{fieldId} and returns the canonical
+        // IndexMapResponse with tileUrlTemplate (XYZ) or wmsUrl.
+        // When the backend is in simulated mode (no Sentinel Hub configured),
+        // IndexMapResponse.hasTiles is false and we fall back to polygon overlays.
         if (_activeIndex != null)
-          NdviTileLayerWidget(
-            config: NdviTileConfig.sahoolBackend(
-              // Use EnvConfig.apiBaseUrl so this works in dev / staging / production
-              baseUrl: '${EnvConfig.apiBaseUrl}/satellite/v1',
-            ),
-            visible: _activeIndex != null,
-          ),
+          _buildRasterTileLayer(_activeIndex!),
 
         // Spectral index polygon overlays (vector fallback / simulated mode)
         if (_fieldBoundary.isNotEmpty)
@@ -285,6 +280,46 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
             ],
           ),
       ],
+    );
+  }
+
+  /// Phase 3 — Build raster tile layer driven by [indexMapProvider].
+  ///
+  /// Watches the [indexMapProvider] for the active spectral index.
+  /// When the provider returns a valid [tileUrlTemplate] (Sentinel Hub configured),
+  /// renders real XYZ raster tiles via [NdviTileLayerWidget.fromUrl].
+  /// When the backend is in simulated mode or loading, returns an empty widget
+  /// so the polygon fallback in [_buildSpectralOverlays] is used instead.
+  Widget _buildRasterTileLayer(SpectralIndex index) {
+    final center = widget.initialCenter;
+    final lat = (center?['lat'] as num?)?.toDouble();
+    final lon = (center?['lng'] as num?)?.toDouble();
+
+    // Without coordinates we cannot call the API — fall back to polygon overlay.
+    if (lat == null || lon == null) return const SizedBox.shrink();
+
+    final params = IndexMapParams(
+      fieldId: widget.fieldId,
+      index: index.code.toLowerCase(),
+      lat: lat,
+      lon: lon,
+    );
+
+    final mapAsync = ref.watch(indexMapProvider(params));
+
+    return mapAsync.when(
+      data: (response) {
+        if (response == null || !response.hasTiles) {
+          // Simulated mode or no raster available — polygon overlay takes over.
+          return const SizedBox.shrink();
+        }
+        return NdviTileLayerWidget.fromUrl(
+          tileUrlTemplate: response.tileUrlTemplate!,
+          visible: true,
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, __) => const SizedBox.shrink(),
     );
   }
 

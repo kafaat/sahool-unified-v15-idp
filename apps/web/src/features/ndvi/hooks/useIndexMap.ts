@@ -1,20 +1,23 @@
 'use client';
 
 /**
- * Phase 2 — useIndexMap Hook
- * خطاف خريطة المؤشرات — الطور الثاني
+ * Phase 3 — useIndexMap (refactored)
+ * خطاف خريطة المؤشرات — الطور الثالث
  *
- * Unified hook that connects:
- *   - Spectral index selection (NDVI / NDWI / EVI / SAVI / NDRE / LAI …)
- *   - Date selection (drives raster reload — fixes the "timeline not connected" gap)
- *   - Cloud quality check (prevents showing cloudy images as valid data)
- *   - Raster tile URL from /v1/index-map/{fieldId}
- *   - Phenology current stage from /v1/phenology/{fieldId}
- *   - Calendar of usable dates for the IndexTimeSlider
+ * Phase 3 changes:
+ *   - IndexMapData / IndexCalendar interfaces replaced by the canonical
+ *     IndexMapResponse / IndexCalendarResponse DTOs from @sahool/shared-types.
+ *   - Decomposed into three focused sub-hooks:
+ *       useRasterMap      — fetches /v1/index-map/{fieldId}
+ *       useIndexCalendar  — fetches /v1/index-calendar/{fieldId}
+ *       usePhenologyStage — fetches /v1/phenology/{fieldId}
+ *   - useIndexMap is a thin combiner; it manages selectedIndex / selectedDate
+ *     state and delegates each query to the appropriate sub-hook.
  *
- * This hook resolves the critical gap identified in the Phase 2 audit:
- *   ❌ Before: changing the date in IndexTimeSlider did NOT reload the raster
- *   ✅  After: index + date + cloud → single source of truth for the map overlay
+ * This fixes:
+ *   ❌ Phase 2: One monolithic hook fetching raster + calendar + phenology
+ *      → anti-pattern, makes independent query invalidation impossible.
+ *   ✅ Phase 3: Each concern lives in its own hook with its own staleTime.
  */
 
 import { useCallback, useMemo, useState } from 'react';
@@ -22,43 +25,28 @@ import { useQuery } from '@tanstack/react-query';
 import { createApiClient } from '@/lib/api/factory';
 import { safeFetch } from '@/lib/api/safe-fetch';
 import { buildUrl, SATELLITE_ENDPOINTS } from '@sahool/shared-types/contracts';
+import type {
+  IndexMapResponse,
+  IndexCalendarResponse,
+  CalendarDateEntry,
+} from '@sahool/shared-types/contracts';
 import { getIndexSemantics, getHealthZone } from '../index-semantics';
 import type { IndexSemantics, HealthZone } from '../index-semantics';
 
 // =============================================================================
-// API types
+// Re-export canonical DTO aliases so existing callers don't break
 // =============================================================================
 
-export interface IndexMapData {
-  fieldId: string;
-  index: string;
-  dateRequested: string | null;
-  dateUsed: string;
-  fallbackDateUsed: boolean;
-  wmsUrl: string | null;
-  tileUrlTemplate: string | null;
-  indexValue: number;
-  cloudCoverPercent: number;
-  qualityScore: number;
-  cloudUsable: boolean;
-  dataSource: 'sentinel-hub' | 'simulated';
-  location: { latitude: number; longitude: number };
-}
+/** @alias IndexMapResponse (canonical DTO in @sahool/shared-types) */
+export type IndexMapData = IndexMapResponse;
 
-export interface CalendarDate {
-  date: string;
-  cloudCoverPercent: number;
-  qualityScore: number;
-  usable: boolean;
-}
+/** @alias CalendarDateEntry (canonical DTO in @sahool/shared-types) */
+export type CalendarDate = CalendarDateEntry;
 
-export interface IndexCalendar {
-  fieldId: string;
-  datesAvailable: number;
-  datesUsable: number;
-  calendar: CalendarDate[];
-}
+/** @alias IndexCalendarResponse (canonical DTO in @sahool/shared-types) */
+export type IndexCalendar = IndexCalendarResponse;
 
+// Phenology is service-specific, not in shared-types (no mobile equivalent yet)
 export interface PhenologyStage {
   fieldId: string;
   cropType: string;
@@ -88,84 +76,92 @@ export const indexMapKeys = {
 };
 
 // =============================================================================
-// Low-level API calls
+// Low-level API calls (private)
 // =============================================================================
 
 const _api = createApiClient();
 
-async function fetchIndexMap(
+async function _fetchIndexMap(
   fieldId: string,
   index: string,
   lat: number,
   lon: number,
   date?: string,
   maxCloud = 20,
-): Promise<IndexMapData> {
+): Promise<IndexMapResponse> {
   const base = buildUrl(SATELLITE_ENDPOINTS.INDEX_MAP, { fieldId });
-  const params = new URLSearchParams({ index, lat: String(lat), lon: String(lon), max_cloud: String(maxCloud) });
+  const params = new URLSearchParams({
+    index,
+    lat: String(lat),
+    lon: String(lon),
+    max_cloud: String(maxCloud),
+  });
   if (date) params.set('date', date);
   const url = `${base}?${params.toString()}`;
 
   return safeFetch(url, async () => {
     const res = await _api.get(url);
-    const d = res.data;
+    const d = res.data as Record<string, unknown>;
     return {
-      fieldId: d.field_id,
-      index: d.index,
-      dateRequested: d.date_requested ?? null,
-      dateUsed: d.date_used,
-      fallbackDateUsed: d.fallback_date_used ?? false,
-      wmsUrl: d.wms_url ?? null,
-      tileUrlTemplate: d.tile_url_template ?? null,
-      indexValue: d.index_value,
-      cloudCoverPercent: d.cloud_cover_percent,
-      qualityScore: d.quality_score,
-      cloudUsable: d.cloud_usable,
-      dataSource: d.data_source,
-      location: d.location,
-    } satisfies IndexMapData;
+      fieldId: String(d.field_id ?? fieldId),
+      index: String(d.index ?? index),
+      dateRequested: (d.date_requested as string | null) ?? null,
+      dateUsed: String(d.date_used ?? ''),
+      fallbackDateUsed: Boolean(d.fallback_date_used),
+      tileUrlTemplate: (d.tile_url_template as string | null) ?? null,
+      wmsUrl: (d.wms_url as string | null) ?? null,
+      tileType: ((d.tile_type as string) ?? 'none') as IndexMapResponse['tileType'],
+      indexValue: Number(d.index_value ?? 0),
+      cloudCoverPercent: Number(d.cloud_cover_percent ?? 0),
+      qualityScore: Number(d.quality_score ?? 0),
+      cloudUsable: Boolean(d.cloud_usable ?? true),
+      dataSource: ((d.data_source as string) ?? 'simulated') as IndexMapResponse['dataSource'],
+      location: (d.location as { latitude: number; longitude: number }) ?? { latitude: lat, longitude: lon },
+    } satisfies IndexMapResponse;
   });
 }
 
-async function fetchIndexCalendar(
+async function _fetchIndexCalendar(
   fieldId: string,
   lat: number,
   lon: number,
   days = 90,
   maxCloud = 25,
-): Promise<IndexCalendar> {
+): Promise<IndexCalendarResponse> {
   const base = buildUrl(SATELLITE_ENDPOINTS.INDEX_CALENDAR, { fieldId });
-  const params = new URLSearchParams({ lat: String(lat), lon: String(lon), days: String(days), max_cloud: String(maxCloud) });
+  const params = new URLSearchParams({
+    lat: String(lat),
+    lon: String(lon),
+    days: String(days),
+    max_cloud: String(maxCloud),
+  });
   const url = `${base}?${params.toString()}`;
 
   return safeFetch(url, async () => {
     const res = await _api.get(url);
-    const d = res.data;
+    const d = res.data as Record<string, unknown>;
     return {
-      fieldId: d.field_id,
-      datesAvailable: d.dates_available,
-      datesUsable: d.dates_usable,
-      calendar: (d.calendar as Array<{
-        date: string;
-        cloud_cover_percent: number;
-        quality_score: number;
-        usable: boolean;
-      }>).map((c) => ({
-        date: c.date,
-        cloudCoverPercent: c.cloud_cover_percent,
-        qualityScore: c.quality_score,
-        usable: c.usable,
-      })),
-    } satisfies IndexCalendar;
+      fieldId: String(d.field_id ?? fieldId),
+      datesAvailable: Number(d.dates_available ?? 0),
+      datesUsable: Number(d.dates_usable ?? 0),
+      calendar: ((d.calendar as Array<Record<string, unknown>>) ?? []).map((c) => ({
+        date: String(c.date ?? ''),
+        cloudCoverPercent: Number(c.cloud_cover_percent ?? 0),
+        qualityScore: Number(c.quality_score ?? 0),
+        usable: Boolean(c.usable),
+      })) satisfies CalendarDateEntry[],
+    } satisfies IndexCalendarResponse;
   });
 }
 
-async function fetchPhenology(
+async function _fetchPhenology(
   fieldId: string,
   lat: number,
   lon: number,
   cropType?: string,
 ): Promise<PhenologyStage> {
+  // Uses SATELLITE_ENDPOINTS.PHENOLOGY which in Phase 3 is /api/v1/satellite/v1/phenology/{fieldId}
+  // → Kong strips /api/v1/satellite → backend receives /v1/phenology/{fieldId} ✅
   const base = buildUrl(SATELLITE_ENDPOINTS.PHENOLOGY, { fieldId });
   const params = new URLSearchParams({ lat: String(lat), lon: String(lon) });
   if (cropType) params.set('crop_type', cropType);
@@ -173,67 +169,142 @@ async function fetchPhenology(
 
   return safeFetch(url, async () => {
     const res = await _api.get(url);
-    const d = res.data;
+    const d = res.data as Record<string, unknown>;
     return {
-      fieldId: d.field_id,
-      cropType: d.crop_type,
-      currentStage: d.current_stage,
-      currentStageAr: d.current_stage_ar ?? d.current_stage,
-      daysInStage: d.days_in_stage,
-      seasonProgressPercent: d.season_progress_percent,
-      ndviAtDetection: d.ndvi_at_detection,
-      confidence: d.confidence,
-      recommendationsAr: d.recommendations_ar ?? [],
-      recommendationsEn: d.recommendations_en ?? [],
-      estimatedHarvestDate: d.estimated_harvest_date ?? null,
+      fieldId: String(d.field_id ?? fieldId),
+      cropType: String(d.crop_type ?? ''),
+      currentStage: String(d.current_stage ?? ''),
+      currentStageAr: String(d.current_stage_ar ?? d.current_stage ?? ''),
+      daysInStage: Number(d.days_in_stage ?? 0),
+      seasonProgressPercent: Number(d.season_progress_percent ?? 0),
+      ndviAtDetection: Number(d.ndvi_at_detection ?? 0),
+      confidence: Number(d.confidence ?? 0),
+      recommendationsAr: (d.recommendations_ar as string[] | null) ?? [],
+      recommendationsEn: (d.recommendations_en as string[] | null) ?? [],
+      estimatedHarvestDate: (d.estimated_harvest_date as string | null) ?? null,
     } satisfies PhenologyStage;
   });
 }
 
 // =============================================================================
-// Main hook
+// Sub-hook 1: useRasterMap
+// =============================================================================
+
+interface UseRasterMapOptions {
+  fieldId: string;
+  index: string;
+  lat: number;
+  lon: number;
+  date?: string;
+  maxCloud?: number;
+  enabled?: boolean;
+}
+
+/**
+ * Fetches the raster tile URL for a spectral index on a given date.
+ * Refetches automatically when index or date changes.
+ */
+export function useRasterMap(options: UseRasterMapOptions) {
+  const { fieldId, index, lat, lon, date, maxCloud = 20, enabled = true } = options;
+  const isEnabled = enabled && !!fieldId && !!lat && !!lon;
+
+  return useQuery({
+    queryKey: indexMapKeys.map(fieldId, index, date),
+    queryFn: () => _fetchIndexMap(fieldId, index, lat, lon, date, maxCloud),
+    enabled: isEnabled,
+    staleTime: 1000 * 60 * 15, // 15 min — satellite passes are infrequent
+    retry: 2,
+  });
+}
+
+// =============================================================================
+// Sub-hook 2: useIndexCalendar
+// =============================================================================
+
+interface UseIndexCalendarOptions {
+  fieldId: string;
+  lat: number;
+  lon: number;
+  days?: number;
+  maxCloud?: number;
+  enabled?: boolean;
+}
+
+/**
+ * Fetches the cloud-quality calendar.
+ * Used by IndexTimeSlider to colour each date dot (green/amber/red).
+ */
+export function useIndexCalendar(options: UseIndexCalendarOptions) {
+  const { fieldId, lat, lon, days = 90, maxCloud = 25, enabled = true } = options;
+  const isEnabled = enabled && !!fieldId && !!lat && !!lon;
+
+  return useQuery({
+    queryKey: indexMapKeys.calendar(fieldId, days),
+    queryFn: () => _fetchIndexCalendar(fieldId, lat, lon, days, maxCloud),
+    enabled: isEnabled,
+    staleTime: 1000 * 60 * 60, // 1 hour — cloud data changes slowly
+    retry: 1,
+  });
+}
+
+// =============================================================================
+// Sub-hook 3: usePhenologyStage
+// =============================================================================
+
+interface UsePhenologyStageOptions {
+  fieldId: string;
+  lat: number;
+  lon: number;
+  cropType?: string;
+  enabled?: boolean;
+}
+
+/**
+ * Fetches the current phenology stage for a field.
+ * Used by PhenologyBadge to display growth stage + recommendations.
+ */
+export function usePhenologyStage(options: UsePhenologyStageOptions) {
+  const { fieldId, lat, lon, cropType, enabled = true } = options;
+  const isEnabled = enabled && !!fieldId && !!lat && !!lon;
+
+  return useQuery({
+    queryKey: indexMapKeys.phenology(fieldId, cropType),
+    queryFn: () => _fetchPhenology(fieldId, lat, lon, cropType),
+    enabled: isEnabled,
+    staleTime: 1000 * 60 * 60 * 4, // 4 hours — phenology changes daily at most
+    retry: 1,
+  });
+}
+
+// =============================================================================
+// Main combiner hook: useIndexMap
 // =============================================================================
 
 export interface UseIndexMapOptions {
-  /** Field geographic center — needed for cloud & phenology queries */
   lat: number;
   lon: number;
-  /** Initial spectral index (default: 'ndvi') */
   initialIndex?: string;
-  /** Initial date ISO string (default: latest clear image) */
   initialDate?: string;
-  /** Crop type for phenology (optional) */
   cropType?: string;
-  /** Calendar window in days (default: 90) */
   calendarDays?: number;
-  /** Max cloud % to consider an image usable (default: 20) */
   maxCloud?: number;
-  /** Disable all queries (e.g. no fieldId yet) */
   enabled?: boolean;
 }
 
 export interface UseIndexMapResult {
-  // Selected state
   selectedIndex: string;
   selectedDate: string | undefined;
-  // Setters (trigger raster reload)
   setSelectedIndex: (index: string) => void;
   setSelectedDate: (date: string | undefined) => void;
-  // Index semantics (per-index legend, thresholds, etc.)
   semantics: IndexSemantics;
-  // Current raster data
-  mapData: IndexMapData | undefined;
+  mapData: IndexMapResponse | undefined;
   mapLoading: boolean;
   mapError: Error | null;
-  // Health zone for current scalar value
   healthZone: HealthZone | null;
-  // Cloud quality calendar for IndexTimeSlider
-  calendar: IndexCalendar | undefined;
+  calendar: IndexCalendarResponse | undefined;
   calendarLoading: boolean;
-  // Phenology current stage
   phenology: PhenologyStage | undefined;
   phenologyLoading: boolean;
-  // Derived helpers
   isSimulated: boolean;
   cloudCoverPercent: number;
   tileUrlTemplate: string | null;
@@ -241,24 +312,13 @@ export interface UseIndexMapResult {
 }
 
 /**
- * useIndexMap — Phase 2 central hook for agronomic intelligence map layer.
+ * useIndexMap — thin combiner over useRasterMap + useIndexCalendar + usePhenologyStage.
  *
- * Usage:
- * ```tsx
- * const {
- *   selectedIndex, setSelectedIndex,
- *   selectedDate, setSelectedDate,
- *   semantics, healthZone,
- *   mapData, mapLoading,
- *   calendar, phenology,
- *   tileUrlTemplate, cloudCoverPercent,
- * } = useIndexMap(fieldId, { lat: 15.5, lon: 44.2, cropType: 'wheat' });
- * ```
+ * Manages index/date selection state and exposes a unified result for the
+ * map page. Each underlying query has independent caching and can be
+ * invalidated without touching the others.
  */
-export function useIndexMap(
-  fieldId: string,
-  options: UseIndexMapOptions,
-): UseIndexMapResult {
+export function useIndexMap(fieldId: string, options: UseIndexMapOptions): UseIndexMapResult {
   const {
     lat,
     lon,
@@ -270,63 +330,57 @@ export function useIndexMap(
     enabled = true,
   } = options;
 
-  const [selectedIndex, setSelectedIndex] = useState<string>(initialIndex);
-  const [selectedDate, setSelectedDate] = useState<string | undefined>(initialDate);
+  const [selectedIndex, setSelectedIndexState] = useState<string>(initialIndex);
+  const [selectedDate, setSelectedDateState] = useState<string | undefined>(initialDate);
 
   const isEnabled = enabled && !!fieldId && !!lat && !!lon;
-
-  // Per-index semantics (never null — falls back to NDVI)
   const semantics = useMemo(() => getIndexSemantics(selectedIndex), [selectedIndex]);
 
-  // Raster map query — refetches when index OR date changes
-  const {
-    data: mapData,
-    isLoading: mapLoading,
-    error: mapError,
-  } = useQuery({
-    queryKey: indexMapKeys.map(fieldId, selectedIndex, selectedDate),
-    queryFn: () => fetchIndexMap(fieldId, selectedIndex, lat, lon, selectedDate, maxCloud),
+  const { data: mapData, isLoading: mapLoading, error: mapError } = useRasterMap({
+    fieldId,
+    index: selectedIndex,
+    lat,
+    lon,
+    date: selectedDate,
+    maxCloud,
     enabled: isEnabled,
-    staleTime: 1000 * 60 * 15,
   });
 
-  // Cloud quality calendar — used by IndexTimeSlider to colour dates
-  const { data: calendar, isLoading: calendarLoading } = useQuery({
-    queryKey: indexMapKeys.calendar(fieldId, calendarDays),
-    queryFn: () => fetchIndexCalendar(fieldId, lat, lon, calendarDays, maxCloud),
+  const { data: calendar, isLoading: calendarLoading } = useIndexCalendar({
+    fieldId,
+    lat,
+    lon,
+    days: calendarDays,
+    maxCloud,
     enabled: isEnabled,
-    staleTime: 1000 * 60 * 60, // 1 hour — cloud data changes slowly
   });
 
-  // Phenology current stage
-  const { data: phenology, isLoading: phenologyLoading } = useQuery({
-    queryKey: indexMapKeys.phenology(fieldId, cropType),
-    queryFn: () => fetchPhenology(fieldId, lat, lon, cropType),
+  const { data: phenology, isLoading: phenologyLoading } = usePhenologyStage({
+    fieldId,
+    lat,
+    lon,
+    cropType,
     enabled: isEnabled,
-    staleTime: 1000 * 60 * 60 * 4, // 4 hours — phenology changes daily at most
   });
 
-  // Health zone for current scalar value
   const healthZone = useMemo(
     () => (mapData ? getHealthZone(selectedIndex, mapData.indexValue) : null),
     [selectedIndex, mapData],
   );
 
-  // Stable setters — wrapped in useCallback to avoid re-render chains
-  const handleSetIndex = useCallback((index: string) => {
-    setSelectedIndex(index.toLowerCase());
-    // Do NOT reset the date when switching index — user may want to compare same date
+  const setSelectedIndex = useCallback((index: string) => {
+    setSelectedIndexState(index.toLowerCase());
   }, []);
 
-  const handleSetDate = useCallback((date: string | undefined) => {
-    setSelectedDate(date);
+  const setSelectedDate = useCallback((date: string | undefined) => {
+    setSelectedDateState(date);
   }, []);
 
   return {
     selectedIndex,
     selectedDate,
-    setSelectedIndex: handleSetIndex,
-    setSelectedDate: handleSetDate,
+    setSelectedIndex,
+    setSelectedDate,
     semantics,
     mapData,
     mapLoading,

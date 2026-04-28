@@ -946,3 +946,96 @@ export interface SigningKeyAdminResponse {
   retiredAt?: string | null;
   publicPem: string;
 }
+
+// ---------------------------------------------------------------------------
+// Phase 3 — Agronomic Intelligence — Shared DTOs
+// These types are the canonical contract between backend, web, and mobile.
+// ---------------------------------------------------------------------------
+
+/**
+ * Tile URL format returned by /v1/index-map/{fieldId}.
+ *
+ * "xyz"  — standard XYZ slippy tiles  ({z}/{x}/{y}.png)
+ *           → use directly in TileLayer.urlTemplate
+ * "wms"  — OGC WMS with {bbox} placeholder
+ *           → must be adapted for MapLibre raster source
+ * "none" — no raster available; use polygon fallback
+ */
+export type IndexTileType = 'xyz' | 'wms' | 'none';
+
+/**
+ * Data source for the raster layer.
+ * "sentinel-hub" = real Sentinel-2 imagery (SENTINEL_HUB_INSTANCE_ID configured)
+ * "simulated"    = synthetic data (dev/sandbox mode; never use for agronomic decisions)
+ */
+export type IndexDataSource = 'sentinel-hub' | 'simulated';
+
+/**
+ * IndexMapResponse — canonical shape returned by GET /v1/index-map/{fieldId}
+ *
+ * This interface is the single source of truth consumed by:
+ *   - Web:    useIndexMap hook (apps/web/src/features/ndvi/hooks/useIndexMap.ts)
+ *   - Mobile: indexMapProvider (apps/mobile/lib/core/services/integrations/ndvi_service.dart)
+ *
+ * IMPORTANT: Never add client-specific fields here.
+ * Extend this interface only when the backend endpoint adds a new field.
+ */
+export interface IndexMapResponse {
+  /** Field identifier */
+  fieldId: string;
+  /** Spectral index code — lowercase (ndvi | ndwi | evi | savi | ndre | lai | gndvi | ndmi) */
+  index: string;
+  /** ISO date actually requested by the client (null if latest was requested) */
+  dateRequested: string | null;
+  /** ISO date actually used (may differ from dateRequested if cloud-fallback) */
+  dateUsed: string;
+  /** True when a fallback date was used because the requested date was too cloudy */
+  fallbackDateUsed: boolean;
+  /**
+   * XYZ tile URL template (null when tileType is "wms" or "none").
+   * Use {z}, {x}, {y} as placeholders.
+   * Example: "https://services.sentinel-hub.com/.../tiles/{z}/{x}/{y}"
+   */
+  tileUrlTemplate: string | null;
+  /**
+   * WMS URL (null when tileType is "xyz" or "none").
+   * Replace {bbox} with the bounding box of the current viewport.
+   */
+  wmsUrl: string | null;
+  /** See IndexTileType */
+  tileType: IndexTileType;
+  /** Scalar index value at the field centroid (for legend + health zone) */
+  indexValue: number;
+  /** Cloud cover percentage over the field (0–100) */
+  cloudCoverPercent: number;
+  /** Quality score 0–1 (1 = perfectly clear) */
+  qualityScore: number;
+  /** False when cloud cover is so high that values are unreliable */
+  cloudUsable: boolean;
+  /** See IndexDataSource */
+  dataSource: IndexDataSource;
+  /** Field geographic centroid used for the cloud + phenology queries */
+  location: { latitude: number; longitude: number };
+}
+
+/**
+ * CalendarDateEntry — one entry in the date calendar from GET /v1/index-calendar/{fieldId}
+ */
+export interface CalendarDateEntry {
+  /** ISO date string YYYY-MM-DD */
+  date: string;
+  cloudCoverPercent: number;
+  qualityScore: number;
+  /** True when cloud cover is below the configured threshold */
+  usable: boolean;
+}
+
+/**
+ * IndexCalendarResponse — full calendar from GET /v1/index-calendar/{fieldId}
+ */
+export interface IndexCalendarResponse {
+  fieldId: string;
+  datesAvailable: number;
+  datesUsable: number;
+  calendar: CalendarDateEntry[];
+}

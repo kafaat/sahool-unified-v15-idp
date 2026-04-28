@@ -53,7 +53,15 @@ class NdviTileConfig {
     );
   }
 
-  /// Local SAHOOL backend tiles
+  /// @deprecated Use [NdviTileLayerWidget.fromUrl] instead.
+  ///
+  /// The static URL `$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}` does not exist
+  /// on the backend. Real tile URLs must come from the /v1/index-map/{fieldId}
+  /// response (tileUrlTemplate field). Use [indexMapProvider] to retrieve them.
+  @Deprecated(
+    'Use NdviTileLayerWidget.fromUrl(tileUrlTemplate) driven by indexMapProvider. '
+    'Removal: v17.0.0',
+  )
   static NdviTileConfig sahoolBackend({required String baseUrl}) {
     return NdviTileConfig(
       urlTemplate: '$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}.png',
@@ -63,30 +71,47 @@ class NdviTileConfig {
 
 /// NDVI Tile Layer Widget for FlutterMap
 class NdviTileLayerWidget extends StatelessWidget {
-  final NdviTileConfig config;
+  final NdviTileConfig? config;
+
+  /// XYZ tile URL template from the backend (IndexMapResponse.tileUrlTemplate).
+  /// When provided, [config] is ignored.
+  final String? tileUrlTemplate;
+
   final bool visible;
 
+  /// Construct from a [NdviTileConfig].
   const NdviTileLayerWidget({
     super.key,
-    required this.config,
+    required NdviTileConfig this.config,
     this.visible = true,
-  });
+  }) : tileUrlTemplate = null;
+
+  /// Phase 3 — Construct directly from the tileUrlTemplate returned by
+  /// /v1/index-map/{fieldId}. This is the preferred constructor.
+  const NdviTileLayerWidget.fromUrl({
+    super.key,
+    required String this.tileUrlTemplate,
+    this.visible = true,
+  }) : config = null;
 
   @override
   Widget build(BuildContext context) {
     if (!visible) return const SizedBox.shrink();
 
+    final url = tileUrlTemplate ?? config?.urlTemplate;
+    if (url == null || url.isEmpty) return const SizedBox.shrink();
+
     return AnimatedOpacity(
-      opacity: config.opacity,
+      opacity: config?.opacity ?? 0.7,
       duration: const Duration(milliseconds: 300),
       child: TileLayer(
-        urlTemplate: config.urlTemplate,
+        urlTemplate: url,
         additionalOptions: {
-          if (config.apiKey != null) 'apiKey': config.apiKey!,
+          if (config?.apiKey != null) 'apiKey': config!.apiKey!,
         },
-        tileDimension: config.tileSize,  // Updated from deprecated tileSize
-        minZoom: config.minZoom.toDouble(),
-        maxZoom: config.maxZoom.toDouble(),
+        tileDimension: config?.tileSize ?? 256,
+        minZoom: (config?.minZoom ?? 10).toDouble(),
+        maxZoom: (config?.maxZoom ?? 18).toDouble(),
         errorTileCallback: (tile, error, stackTrace) {
           // Silent fail for missing tiles
         },

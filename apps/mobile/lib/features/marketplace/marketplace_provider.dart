@@ -451,6 +451,9 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       (item) => item.product.id == product.id,
     );
 
+    final stockErrorMsg =
+        'لا يمكن إضافة أكثر من ${product.stock.toStringAsFixed(0)} ${product.unitAr} من "${product.nameAr}"';
+
     List<CartItem> newCart;
 
     if (existingIndex >= 0) {
@@ -459,18 +462,14 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       final existingItem = newCart[existingIndex];
       final newQty = existingItem.quantity + quantity;
       if (newQty > product.stock) {
-        state = state.copyWith(
-          error: 'لا يمكن إضافة أكثر من ${product.stock.toStringAsFixed(0)} ${product.unitAr} من "${product.nameAr}"',
-        );
+        state = state.copyWith(error: stockErrorMsg);
         return false;
       }
       newCart[existingIndex] = existingItem.copyWith(quantity: newQty);
     } else {
       // إضافة عنصر جديد مع التحقق من المخزون
       if (quantity > product.stock) {
-        state = state.copyWith(
-          error: 'لا يمكن إضافة أكثر من ${product.stock.toStringAsFixed(0)} ${product.unitAr} من "${product.nameAr}"',
-        );
+        state = state.copyWith(error: stockErrorMsg);
         return false;
       }
       newCart = [
@@ -479,7 +478,7 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       ];
     }
 
-    state = state.copyWith(cart: newCart);
+    state = state.copyWith(cart: newCart, error: null);
     return true;
   }
 

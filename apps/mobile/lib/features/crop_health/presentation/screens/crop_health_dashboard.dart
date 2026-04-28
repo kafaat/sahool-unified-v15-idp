@@ -350,15 +350,19 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
   /// Window size degrades gradually with series length:
   ///   length ≥ 6  → window = 3  (full noise-dampening)
   ///   length = 4–5 → window = 2  (partial dampening)
-  ///   length = 2–3 → window = 1  (equivalent to first-vs-last)
+  ///   length = 2–3 → window = 1  (avg of first 1 vs avg of last 1,
+  ///                                mathematically equivalent to first-vs-last
+  ///                                but uses the same code path for consistency)
   ///
   /// Formula: window = (length ~/ 2).clamp(1, 3)
   ///
-  /// Using `length < 6 ? 1 : 3` would collapse abruptly to a raw
-  /// last-vs-first comparison for any series shorter than 6 points,
-  /// defeating the noise-reduction goal for medium-length series.
-  _NdviTrend _computeTrend(List<HealthDataPoint> points) {
-    if (points.length < 2) return _NdviTrend.stable;
+  /// Confidence is `(length / 10).clamp(0.0, 1.0)` — series shorter than
+  /// 10 points cannot fully resolve trend from cloud noise; the badge
+  /// displays a low-confidence notice below 0.5 (< 5 satellite passes).
+  _NdviTrendResult _computeTrend(List<HealthDataPoint> points) {
+    if (points.length < 2) {
+      return const _NdviTrendResult(_NdviTrend.stable, 0.0);
+    }
 
     double _avg(Iterable<HealthDataPoint> pts) {
       final values = pts.map((p) => p.value).toList();
@@ -370,18 +374,25 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     final startAvg = _avg(points.take(windowSize));
     final endAvg = _avg(points.reversed.take(windowSize));
 
+    // Confidence: normalized series length (10+ passes = full confidence).
+    final confidence = (points.length / 10).clamp(0.0, 1.0);
+
     final delta = endAvg - startAvg;
-    if (delta > 0.05) return _NdviTrend.improving;
-    if (delta < -0.05) return _NdviTrend.declining;
-    return _NdviTrend.stable;
+    if (delta > 0.05) return _NdviTrendResult(_NdviTrend.improving, confidence);
+    if (delta < -0.05) return _NdviTrendResult(_NdviTrend.declining, confidence);
+    return _NdviTrendResult(_NdviTrend.stable, confidence);
   }
 
-  Widget _buildTrendBadge(_NdviTrend trend) {
-    final (icon, label, color) = switch (trend) {
+  Widget _buildTrendBadge(_NdviTrendResult result) {
+    final (icon, label, color) = switch (result.direction) {
       _NdviTrend.improving => (Icons.trending_up, '↑ تحسّن', Colors.green),
       _NdviTrend.declining => (Icons.trending_down, '↓ تراجع', Colors.red),
       _NdviTrend.stable => (Icons.trending_flat, '→ مستقر', Colors.orange),
     };
+    // Show a low-confidence notice when fewer than 5 satellite passes are
+    // available (confidence < 0.5).  This prevents farmers from acting on a
+    // 2-point "trend" as if it were a statistically reliable signal.
+    final confidenceLabel = result.confidence < 0.5 ? ' (ثقة منخفضة)' : '';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -394,7 +405,10 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold)),
+          Text(
+            '$label$confidenceLabel',
+            style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold),
+          ),
         ],
       ),
     );
@@ -1131,3 +1145,19 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
 /// اتجاه تغير NDVI عبر الفترة الزمنية.
 enum _NdviTrend { improving, declining, stable }
+
+/// نتيجة تحليل الاتجاه تجمع بين الاتجاه ومستوى الثقة.
+///
+/// [confidence] is normalized to [0.0, 1.0] using `series.length / 10`:
+///   - 2 points  → 0.2 (very low)
+///   - 5 points  → 0.5 (moderate)
+///   - 10+ points → 1.0 (full confidence)
+///
+/// The UI shows a low-confidence notice when [confidence] < 0.5 (fewer than
+/// 5 satellite passes), because a 2–4-point series cannot reliably distinguish
+/// a real trend from cloud-induced noise even with window averaging.
+class _NdviTrendResult {
+  final _NdviTrend direction;
+  final double confidence;
+  const _NdviTrendResult(this.direction, this.confidence);
+}

@@ -54,3 +54,29 @@ export {
   useIndexTimeSeries,
   indicesKeys,
 } from './hooks/useNDVI';
+
+// Phase 2 — Agronomic Intelligence Layer
+// Per-index semantics (critical: NDVI ≠ NDWI ≠ LAI)
+export {
+  INDEX_SEMANTICS,
+  MAP_SUPPORTED_INDICES,
+  getIndexSemantics,
+  getHealthZone,
+  interpolateColor,
+} from './index-semantics';
+export type { IndexSemantics, HealthZone, ColorStop } from './index-semantics';
+
+// Phase 2 — Unified raster + cloud + phenology hook
+export {
+  useIndexMap,
+  indexMapKeys,
+} from './hooks/useIndexMap';
+export type {
+  IndexMapData,
+  CalendarDate,
+  IndexCalendar,
+  PhenologyStage,
+  UseIndexMapOptions,
+  UseIndexMapResult,
+} from './hooks/useIndexMap';
+

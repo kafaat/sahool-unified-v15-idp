@@ -39,7 +39,12 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Install Playwright Browsers
         working-directory: apps/web

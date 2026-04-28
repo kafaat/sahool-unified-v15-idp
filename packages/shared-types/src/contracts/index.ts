@@ -110,7 +110,16 @@
 //          * FIELD_SOIL_MOISTURE_SAR  (/satellite-monitor/fields/{fieldId}/soil-moisture-sar)
 //          * FIELD_DOWNLOAD           (/satellite-monitor/fields/{fieldId}/download)
 //          Purely additive.
-export const CONTRACT_VERSION = "4.20.0" as const;
+// 4.21.0 — Phase 3: Unified Cross-Platform Data Contract
+//          * Fix PHENOLOGY endpoint path: /satellite/phenology/ → /satellite/v1/phenology/
+//            (was returning 404 because Kong strips /api/v1/satellite but backend
+//             registers routes under /v1/phenology/{field_id} — the /v1/ prefix must
+//             appear after the Kong strip-prefix)
+//          * Add IndexMapResponse, CalendarDateEntry, IndexCalendarResponse,
+//            IndexTileType, IndexDataSource to api-responses.ts — canonical DTOs
+//            consumed identically by Web (useIndexMap) and Mobile (indexMapProvider).
+//            Purely additive; no existing exports removed.
+export const CONTRACT_VERSION = "4.21.0" as const;
 
 export * from './service-ports';
 export * from './error-codes';

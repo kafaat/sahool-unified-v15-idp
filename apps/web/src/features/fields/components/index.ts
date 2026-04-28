@@ -33,3 +33,11 @@ export {
   type NDVISettings,
   type LayerControlState,
 } from './LayerControl';
+
+// Phase 2 — Agronomic Intelligence Layer components
+export { SpectralIndexSwitcher, type SpectralIndexSwitcherProps } from './SpectralIndexSwitcher';
+export { IndexTimeSlider, type IndexTimeSliderProps } from './IndexTimeSlider';
+export { CloudCoverageBadge, type CloudCoverageBadgeProps } from './CloudCoverageBadge';
+export { PhenologyBadge, type PhenologyBadgeProps } from './PhenologyBadge';
+export { IndexLegend, type IndexLegendProps } from './IndexLegend';
+

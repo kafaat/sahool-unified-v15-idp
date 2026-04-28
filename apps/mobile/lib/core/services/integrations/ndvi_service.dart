@@ -387,9 +387,12 @@ class NdviServiceConnector extends ServiceConnector {
 
   /// Get phenology information for field
   /// الحصول على معلومات الفينولوجيا للحقل
+  ///
+  /// Path: /api/v1/satellite/v1/phenology/{fieldId}
+  /// Kong strips /api/v1/satellite → backend receives /v1/phenology/{fieldId} ✅
   Future<ApiResult<PhenologyStage>> getPhenology(String fieldId) async {
     return get(
-      '${getEndpoint('phenology') ?? '/api/v1/satellite/phenology'}/$fieldId',
+      '${getEndpoint('phenology') ?? '/api/v1/satellite/v1/phenology'}/$fieldId',
       parser: (data) => PhenologyStage.fromJson(data as Map<String, dynamic>),
     );
   }
@@ -426,6 +429,31 @@ class NdviServiceConnector extends ServiceConnector {
         'date2': date2.toIso8601String(),
       },
       parser: (data) => data as Map<String, dynamic>,
+    );
+  }
+
+  /// Phase 3 — Get raster tile URL for any spectral index on a given date.
+  ///
+  /// Path: /api/v1/satellite/v1/index-map/{fieldId}
+  /// Kong strips /api/v1/satellite → backend receives /v1/index-map/{fieldId} ✅
+  ///
+  /// Returns an [IndexMapResponse] with [tileUrlTemplate] (XYZ) or [wmsUrl].
+  /// When [IndexMapResponse.isSimulated] is true, no tiles are available and
+  /// callers should fall back to the polygon overlay.
+  Future<ApiResult<IndexMapResponse>> getIndexMap(IndexMapParams params) async {
+    final queryParams = <String, dynamic>{
+      'index': params.index,
+      'lat': params.lat,
+      'lon': params.lon,
+      'max_cloud': params.maxCloud,
+      if (params.date != null) 'date': params.date!,
+    };
+
+    return get(
+      '/api/v1/satellite/v1/index-map/${params.fieldId}',
+      queryParameters: queryParams,
+      parser: (data) =>
+          IndexMapResponse.fromJson(data as Map<String, dynamic>),
     );
   }
 }
@@ -483,3 +511,183 @@ final phenologyProvider = FutureProvider.family<PhenologyStage?, String>((ref, f
   final result = await service.getPhenology(fieldId);
   return result.dataOrNull;
 });
+
+/// Phase 3 — Index Map Provider
+///
+/// Calls /v1/index-map/{fieldId} and returns the canonical [IndexMapResponse].
+/// Keyed by [IndexMapParams] so changing the index or date automatically
+/// triggers a new fetch and provides a fresh [tileUrlTemplate].
+///
+/// Usage in a ConsumerWidget:
+/// ```dart
+/// final params = IndexMapParams(fieldId: id, index: 'ndvi', lat: 15.5, lon: 44.2);
+/// final mapData = ref.watch(indexMapProvider(params));
+/// mapData.when(
+///   data: (response) { /* use response.tileUrlTemplate */ },
+///   loading: () => const CircularProgressIndicator(),
+///   error: (e, _) => ErrorWidget(e),
+/// );
+/// ```
+final indexMapProvider =
+    FutureProvider.family<IndexMapResponse?, IndexMapParams>((ref, params) async {
+  final service = ref.watch(ndviServiceProvider);
+  final result = await service.getIndexMap(params);
+  return result.dataOrNull;
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Phase 3 — IndexMapResponse (canonical DTO matching @sahool/shared-types)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/// Tile URL type returned by /v1/index-map/{fieldId}
+enum IndexTileType {
+  /// Standard XYZ tiles — use directly in TileLayer.urlTemplate
+  xyz,
+  /// OGC WMS — requires {bbox} substitution
+  wms,
+  /// No raster available; use polygon fallback
+  none,
+}
+
+/// Data source for the raster layer.
+enum IndexDataSource {
+  /// Real Sentinel-2 imagery (SENTINEL_HUB_INSTANCE_ID is configured)
+  sentinelHub,
+  /// Synthetic data — dev/sandbox mode only
+  simulated,
+}
+
+/// IndexMapResponse — canonical DTO for GET /v1/index-map/{fieldId}
+///
+/// This is the Dart mirror of the TypeScript IndexMapResponse in
+/// packages/shared-types/src/contracts/api-responses.ts.
+///
+/// Both web (TypeScript) and mobile (Dart) must parse this shape identically.
+class IndexMapResponse {
+  final String fieldId;
+  final String index;
+  final String? dateRequested;
+  final String dateUsed;
+  final bool fallbackDateUsed;
+
+  /// XYZ tile URL template — null when tileType is wms or none.
+  /// Pass directly to flutter_map TileLayer.urlTemplate.
+  final String? tileUrlTemplate;
+
+  /// WMS URL — null when tileType is xyz or none.
+  final String? wmsUrl;
+
+  final IndexTileType tileType;
+  final double indexValue;
+  final double cloudCoverPercent;
+  final double qualityScore;
+
+  /// False when cloud cover is so high that values are unreliable.
+  final bool cloudUsable;
+
+  final IndexDataSource dataSource;
+  final double latitude;
+  final double longitude;
+
+  const IndexMapResponse({
+    required this.fieldId,
+    required this.index,
+    this.dateRequested,
+    required this.dateUsed,
+    required this.fallbackDateUsed,
+    this.tileUrlTemplate,
+    this.wmsUrl,
+    required this.tileType,
+    required this.indexValue,
+    required this.cloudCoverPercent,
+    required this.qualityScore,
+    required this.cloudUsable,
+    required this.dataSource,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory IndexMapResponse.fromJson(Map<String, dynamic> json) {
+    final tileUrlTemplate = json['tile_url_template'] as String?;
+    final wmsUrl = json['wms_url'] as String?;
+    // Infer tileType from URL presence when the backend omits the field,
+    // so hasTiles is not silently false for older backend versions.
+    final tileTypeStr = json['tile_type'] as String? ?? '';
+    final tileType = switch (tileTypeStr) {
+      'xyz' => IndexTileType.xyz,
+      'wms' => IndexTileType.wms,
+      _ => tileUrlTemplate != null
+          ? IndexTileType.xyz
+          : wmsUrl != null
+              ? IndexTileType.wms
+              : IndexTileType.none,
+    };
+
+    final dataSourceStr = json['data_source'] as String? ?? 'simulated';
+    final dataSource = dataSourceStr == 'sentinel-hub'
+        ? IndexDataSource.sentinelHub
+        : IndexDataSource.simulated;
+
+    final location = json['location'] as Map<String, dynamic>? ?? {};
+
+    return IndexMapResponse(
+      fieldId: json['field_id'] as String? ?? '',
+      index: json['index'] as String? ?? 'ndvi',
+      dateRequested: json['date_requested'] as String?,
+      dateUsed: json['date_used'] as String? ?? '',
+      fallbackDateUsed: json['fallback_date_used'] as bool? ?? false,
+      tileUrlTemplate: tileUrlTemplate,
+      wmsUrl: wmsUrl,
+      tileType: tileType,
+      indexValue: (json['index_value'] as num?)?.toDouble() ?? 0.0,
+      cloudCoverPercent: (json['cloud_cover_percent'] as num?)?.toDouble() ?? 0.0,
+      qualityScore: (json['quality_score'] as num?)?.toDouble() ?? 0.0,
+      cloudUsable: json['cloud_usable'] as bool? ?? true,
+      dataSource: dataSource,
+      latitude: (location['latitude'] as num?)?.toDouble() ?? 0.0,
+      longitude: (location['longitude'] as num?)?.toDouble() ?? 0.0,
+    );
+  }
+
+  bool get isSimulated => dataSource == IndexDataSource.simulated;
+  // Check URL presence as primary signal; tileType is secondary so a missing
+  // or unexpected tile_type value never silently hides available tiles.
+  bool get hasTiles => tileUrlTemplate != null || wmsUrl != null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Phase 3 — IndexMap params + provider
+// ═══════════════════════════════════════════════════════════════════════════════
+
+class IndexMapParams {
+  final String fieldId;
+  final String index;
+  final double lat;
+  final double lon;
+  final String? date;
+  final int maxCloud;
+
+  const IndexMapParams({
+    required this.fieldId,
+    required this.index,
+    required this.lat,
+    required this.lon,
+    this.date,
+    this.maxCloud = 20,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      other is IndexMapParams &&
+      other.fieldId == fieldId &&
+      other.index == index &&
+      other.lat == lat &&
+      other.lon == lon &&
+      other.date == date &&
+      other.maxCloud == maxCloud;
+
+  @override
+  int get hashCode =>
+      Object.hash(fieldId, index, lat, lon, date, maxCloud);
+}
+

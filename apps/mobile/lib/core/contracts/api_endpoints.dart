@@ -2,7 +2,7 @@
 /// DO NOT EDIT - Generated from packages/shared-types/src/contracts/api-endpoints.ts
 /// Run: npx tsx scripts/sync-contracts-to-dart.ts
 ///
-/// Contract version: 4.20.0
+/// Contract version: 4.21.0
 library;
 
 /// API version prefix
@@ -824,10 +824,16 @@ abstract final class SatelliteEndpoints {
   static String indices(String fieldId) => '\$apiPrefix/satellite/v1/indices/${Uri.encodeComponent(fieldId)}';
   static const String satellites = '\$apiPrefix/satellite/v1/satellites';
   static String health(String fieldId) => '\$apiPrefix/satellite/health/${Uri.encodeComponent(fieldId)}';
-  static String phenology(String fieldId) => '\$apiPrefix/satellite/phenology/${Uri.encodeComponent(fieldId)}';
+  static String phenology(String fieldId) => '\$apiPrefix/satellite/v1/phenology/${Uri.encodeComponent(fieldId)}';
   static String imagery(String fieldId) => '\$apiPrefix/satellite/imagery/${Uri.encodeComponent(fieldId)}';
   static String ndviField(String fieldId) => '\$apiPrefix/fields/${Uri.encodeComponent(fieldId)}/ndvi';
   static const String ndviSummary = '\$apiPrefix/ndvi/summary';
+  static String indexMap(String fieldId) => '\$apiPrefix/satellite/v1/index-map/${Uri.encodeComponent(fieldId)}';
+  static String indexCalendar(String fieldId) => '\$apiPrefix/satellite/v1/index-calendar/${Uri.encodeComponent(fieldId)}';
+  static String cloudCover(String fieldId) => '\$apiPrefix/satellite/v1/cloud-cover/${Uri.encodeComponent(fieldId)}';
+  static String clearObservations(String fieldId) => '\$apiPrefix/satellite/v1/clear-observations/${Uri.encodeComponent(fieldId)}';
+  static String timeseriesAnalyze(String fieldId) => '\$apiPrefix/satellite/v1/ndvi-timeseries/analyze/${Uri.encodeComponent(fieldId)}';
+  static String phenologyTimeline(String fieldId) => '\$apiPrefix/satellite/v1/phenology/${Uri.encodeComponent(fieldId)}/timeline';
 }
 
 /// satellite monitor

@@ -287,7 +287,12 @@ jobs:
           node-version: '20'
 
       - name: Install root dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Build shared packages
         run: npm run build:packages || echo "⚠️ Some packages may have failed to build"
@@ -423,7 +428,12 @@ jobs:
           node-version: '20'
 
       - name: Install root dependencies
-        run: npm install --legacy-peer-deps
+        run: |
+          for i in 1 2 3; do
+            npm install --legacy-peer-deps && break
+            echo "⚠️ npm install failed (attempt $i), retrying in $((i * 5))s..."
+            sleep $((i * 5))
+          done
 
       - name: Build shared packages
         run: npm run build:packages || echo "⚠️ Some packages may have failed to build"

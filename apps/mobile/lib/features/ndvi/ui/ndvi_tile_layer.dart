@@ -64,6 +64,15 @@ class NdviTileConfig {
   ///   `field_id` — clips the raster to the field boundary (server-side masking)
   ///   `index`    — spectral index code (NDVI / NDWI / EVI / SAVI / NDRE)
   ///   `date`     — ISO-8601 date for historical imagery; omit for latest
+  ///
+  /// @deprecated Prefer [NdviTileLayerWidget.fromUrl] driven by [indexMapProvider],
+  /// which calls `/v1/index-map/{fieldId}` and returns the canonical tile URL.
+  /// The static `$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}` path does not exist on
+  /// the live backend.  Removal: v17.0.0
+  @Deprecated(
+    'Use NdviTileLayerWidget.fromUrl(tileUrlTemplate) driven by indexMapProvider. '
+    'Removal: v17.0.0',
+  )
   static NdviTileConfig sahoolBackend({
     required String baseUrl,
     String? fieldId,
@@ -84,31 +93,77 @@ class NdviTileConfig {
 }
 
 /// NDVI Tile Layer Widget for FlutterMap
+///
+/// Phase 3: Prefer the [NdviTileLayerWidget.fromUrl] constructor which accepts
+/// a [tileUrlTemplate] obtained from [indexMapProvider]. This avoids the
+/// `NdviTileConfig.sahoolBackend` static URL hack that pointed to a
+/// non-existent endpoint.
+///
+/// ## Migration
+/// ```dart
+/// // ❌ Before (Phase 2 — wrong endpoint, never connects to real API)
+/// NdviTileLayerWidget(config: NdviTileConfig.sahoolBackend(baseUrl: base))
+///
+/// // ✅ After (Phase 3 — driven by indexMapProvider)
+/// final params = IndexMapParams(fieldId: id, index: 'ndvi', lat: lat, lon: lon);
+/// final mapAsync = ref.watch(indexMapProvider(params));
+/// mapAsync.whenData((data) {
+///   if (data != null && data.hasTiles)
+///     NdviTileLayerWidget.fromUrl(tileUrlTemplate: data.tileUrlTemplate!)
+/// });
+/// ```
 class NdviTileLayerWidget extends StatelessWidget {
-  final NdviTileConfig config;
-  final bool visible;
+  final NdviTileConfig? config;
 
+  /// XYZ tile URL template from the backend (IndexMapResponse.tileUrlTemplate).
+  /// When provided, [config] is ignored.
+  final String? tileUrlTemplate;
+
+  final bool visible;
+  final double opacity;
+
+  /// Construct from a [NdviTileConfig].
   const NdviTileLayerWidget({
     super.key,
-    required this.config,
+    required NdviTileConfig config,
     this.visible = true,
-  });
+    this.opacity = 0.7,
+  })  : config = config,
+        tileUrlTemplate = null;
+
+  /// Phase 3 — Construct directly from the tileUrlTemplate returned by
+  /// /v1/index-map/{fieldId}. This is the preferred constructor.
+  const NdviTileLayerWidget.fromUrl({
+    super.key,
+    required String tileUrlTemplate,
+    this.visible = true,
+    this.opacity = 0.7,
+  })  : config = null,
+        tileUrlTemplate = tileUrlTemplate;
 
   @override
   Widget build(BuildContext context) {
     if (!visible) return const SizedBox.shrink();
 
+    final url = tileUrlTemplate ?? config?.urlTemplate;
+    if (url == null || url.isEmpty) return const SizedBox.shrink();
+
+    final effectiveOpacity = tileUrlTemplate != null ? opacity : (config?.opacity ?? opacity);
+    final tileSize = config?.tileSize ?? 256;
+    final minZ = config?.minZoom ?? 10;
+    final maxZ = config?.maxZoom ?? 18;
+
     return AnimatedOpacity(
-      opacity: config.opacity,
+      opacity: effectiveOpacity,
       duration: const Duration(milliseconds: 300),
       child: TileLayer(
-        urlTemplate: config.urlTemplate,
+        urlTemplate: url,
         additionalOptions: {
-          if (config.apiKey != null) 'apiKey': config.apiKey!,
+          if (config?.apiKey != null) 'apiKey': config!.apiKey!,
         },
-        tileDimension: config.tileSize,  // Updated from deprecated tileSize
-        minZoom: config.minZoom.toDouble(),
-        maxZoom: config.maxZoom.toDouble(),
+        tileDimension: tileSize,
+        minZoom: minZ.toDouble(),
+        maxZoom: maxZ.toDouble(),
         errorTileCallback: (tile, error, stackTrace) {
           // Silent fail for missing tiles
         },

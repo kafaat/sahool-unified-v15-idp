@@ -39,6 +39,21 @@ export interface NdviTileLayerProps {
   /** مرجع خريطة MapLibre - MapLibre map instance reference */
   map: React.RefObject<MaplibreMap | null>;
 
+  /**
+   * Phase 3 — Tile URL template from IndexMapResponse.tileUrlTemplate.
+   * When provided, the component uses this URL directly instead of calling
+   * the legacy useNDVIMap hook.  Pass null/undefined when the API returned
+   * dataSource:"simulated" or tileType:"none" — the component will render
+   * NdviSimulatedBadge instead of a silent no-op.
+   */
+  tileUrlTemplate?: string | null;
+
+  /**
+   * Phase 3 — Set to true when IndexMapResponse.dataSource === "simulated".
+   * Drives the wording shown inside NdviSimulatedBadge.
+   */
+  isSimulated?: boolean;
+
   /** دالة تنفذ عند اكتمال التحميل - Callback when layer loads */
   onLoad?: () => void;
 
@@ -127,6 +142,46 @@ function getSourceId(indexType: VegetationIndexType): string {
 }
 
 /**
+ * NdviSimulatedBadge — Null-safety fallback for simulated / unavailable raster.
+ * مؤشر البيانات المحاكاة — عرض بديل عند غياب بيانات الصور الحقيقية
+ *
+ * Render this when `tileUrlTemplate` from the `/v1/index-map` API is `null`
+ * (i.e. `tileType === "none"` or `dataSource === "simulated"`).
+ * It warns the user that values are synthetic and must not be used for
+ * agronomic decisions.
+ *
+ * Usage:
+ * ```tsx
+ * const { tileUrlTemplate, isSimulated } = useIndexMap(fieldId, opts);
+ * if (!tileUrlTemplate) return <NdviSimulatedBadge isSimulated={isSimulated} />;
+ * ```
+ */
+export const NdviSimulatedBadge: React.FC<{
+  /** True = backend returned dataSource:"simulated"; False = raster simply not available */
+  isSimulated?: boolean;
+  className?: string;
+}> = ({ isSimulated = false, className = '' }) => (
+  <div
+    role="status"
+    aria-live="polite"
+    className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium
+      ${isSimulated
+        ? 'bg-amber-100 text-amber-800 ring-1 ring-amber-300'
+        : 'bg-gray-100 text-gray-600 ring-1 ring-gray-300'}
+      ${className}`}
+  >
+    {/* Dot indicator */}
+    <span
+      className={`h-2 w-2 rounded-full ${isSimulated ? 'bg-amber-500' : 'bg-gray-400'}`}
+      aria-hidden="true"
+    />
+    {isSimulated
+      ? 'بيانات محاكاة — غير صالحة للقرارات الزراعية'
+      : 'لا تتوفر بيانات صور حقيقية'}
+  </div>
+);
+
+/**
  * مكون طبقة NDVI للخريطة
  * NDVI Tile Layer Component
  *
@@ -140,22 +195,32 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   opacity = 0.7,
   visible = true,
   map,
+  tileUrlTemplate,
+  isSimulated = false,
   onLoad,
   onError,
 }) => {
+  // Phase 3 null-safety: when tileUrlTemplate is explicitly provided as null/undefined
+  // it means the API returned tileType:"none" or dataSource:"simulated".
+  // Fire onError once so the caller knows, then render the simulated badge.
+  // We must call the hook unconditionally to satisfy the Rules of Hooks, so
+  // we suppress the legacy fetch when a tileUrlTemplate prop is supplied.
+  const externalTile = tileUrlTemplate !== undefined; // caller owns tile URL
+
   // تنسيق التاريخ للـ API - Format date for API
   const dateString = date ? date.toISOString().split('T')[0] : undefined;
 
   // جلب بيانات خريطة المؤشر - Fetch vegetation index map data
   // Only fetch NDVI tiles when the active index is "ndvi"; other index types
   // use different data sources and should not trigger this query.
+  // Disabled when the caller supplies tileUrlTemplate (Phase 3 path).
   const { data: rawNdviMapData, error: rawError } = useNDVIMap(fieldId, dateString, {
-    enabled: indexType === 'ndvi',
+    enabled: !externalTile && indexType === 'ndvi',
   });
   // Guard against stale React Query cache: never pass NDVI data or a stale error
   // to the layer effects when the active index has already switched away from "ndvi".
-  const ndviMapData = indexType === 'ndvi' ? rawNdviMapData : undefined;
-  const error = indexType === 'ndvi' ? rawError : undefined;
+  const ndviMapData = !externalTile && indexType === 'ndvi' ? rawNdviMapData : undefined;
+  const error = !externalTile && indexType === 'ndvi' ? rawError : undefined;
 
   // تتبع حالة التحميل - Track loading state
   const [isLayerLoaded, setIsLayerLoaded] = useState(false);
@@ -166,6 +231,84 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
   onLoadRef.current = onLoad;
   const onErrorRef = useRef(onError);
   onErrorRef.current = onError;
+
+  // Phase 3 — fire onError once when the externally-supplied tile URL is null.
+  // The ref is keyed to fieldId+indexType so remounting or switching index resets it.
+  const firedNoTileError = useRef<string | null>(null);
+  useEffect(() => {
+    const key = `${fieldId}:${indexType}`;
+    if (externalTile && !tileUrlTemplate && firedNoTileError.current !== key) {
+      firedNoTileError.current = key;
+      onErrorRef.current?.(
+        new Error(
+          isSimulated
+            ? `${indexType.toUpperCase()} data is simulated — real Sentinel Hub imagery not available`
+            : `No raster tile URL available for ${indexType.toUpperCase()}`,
+        ),
+      );
+    }
+    if (tileUrlTemplate) {
+      firedNoTileError.current = null; // reset if URL becomes available later
+    }
+    // Cleanup on unmount so a fresh mount always re-fires if still null
+    return () => {
+      if (!tileUrlTemplate) {
+        firedNoTileError.current = null;
+      }
+    };
+  }, [externalTile, tileUrlTemplate, isSimulated, indexType, fieldId]);
+
+  /**
+   * Phase 3 — Render raster layer from externally-supplied tileUrlTemplate.
+   * This code path activates when the caller passes tileUrlTemplate (non-null),
+   * bypassing the legacy useNDVIMap fetch.  The XYZ template uses {z}/{x}/{y}
+   * placeholders which MapLibre resolves natively.
+   * مسار المرحلة 3: عرض طبقة بيانات من قالب عنوان URL المربع الخارجي
+   */
+  useEffect(() => {
+    const mapInstance = map.current;
+    if (!externalTile || !tileUrlTemplate || !visible) return;
+
+    const layerId = getLayerId(indexType);
+    const sourceId = getSourceId(indexType);
+
+    try {
+      if (mapInstance?.getLayer(layerId)) mapInstance.removeLayer(layerId);
+      if (mapInstance?.getSource(sourceId)) mapInstance.removeSource(sourceId);
+
+      mapInstance?.addSource(sourceId, {
+        type: 'raster',
+        tiles: [tileUrlTemplate],
+        tileSize: 256,
+      });
+
+      mapInstance?.addLayer({
+        id: layerId,
+        type: 'raster',
+        source: sourceId,
+        paint: { 'raster-opacity': opacity },
+      });
+
+      setIsLayerLoaded(true);
+      onLoadRef.current?.();
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(`Failed to add ${indexType.toUpperCase()} external tile layer`);
+      logger.error(`Error adding ${indexType} external tile layer:`, error);
+      onErrorRef.current?.(error);
+      setIsLayerLoaded(false);
+    }
+
+    return () => {
+      const m = map.current;
+      if (!m) return;
+      try {
+        if (m.getLayer(layerId)) m.removeLayer(layerId);
+        if (m.getSource(sourceId)) m.removeSource(sourceId);
+      } catch (err) {
+        logger.warn(`Error removing ${indexType} external tile layer during cleanup:`, err);
+      }
+    };
+  }, [map, externalTile, tileUrlTemplate, visible, opacity, indexType]);
 
   /**
    * إضافة أو تحديث طبقة المؤشر على الخريطة
@@ -358,10 +501,18 @@ export const NdviTileLayer: React.FC<NdviTileLayerProps> = ({
     }
   }, [error]);
 
-  // هذا المكون لا يعرض UI مباشرة
-  // This component doesn't render UI directly
+  // هذا المكون لا يعرض UI مباشرة في الوضع العادي
+  // This component doesn't render UI directly in normal mode
   // يقوم بإدارة طبقة الخريطة فقط
   // It only manages the map layer
+
+  // Phase 3 null-safety: when the caller explicitly owns the tile URL and it
+  // is absent (simulated mode or Sentinel Hub not configured), render a badge
+  // that is suitable for overlaying on the map controls area.
+  if (externalTile && !tileUrlTemplate) {
+    return <NdviSimulatedBadge isSimulated={isSimulated} className="pointer-events-none" />;
+  }
+
   return null;
 };
 

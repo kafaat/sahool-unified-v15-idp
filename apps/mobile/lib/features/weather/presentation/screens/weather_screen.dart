@@ -117,14 +117,20 @@ class _WeatherScreenState extends ConsumerState<WeatherScreen>
             ? const WeatherScreenSkeleton()
             : weatherState.error != null
                 ? _buildErrorView(weatherState.error!)
-                : TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildWeatherTab(weatherState.data!),
-                      _buildRecommendationsTab(),
-                      _buildAlertsTab(),
-                    ],
-                  ),
+                : weatherState.data == null
+                    ? const SahoolEmptyState(
+                        icon: Icons.cloud_off,
+                        titleAr: 'لا توجد بيانات طقس',
+                        messageAr: 'تعذّر تحميل بيانات الطقس لهذا الحقل',
+                      )
+                    : TabBarView(
+                        controller: _tabController,
+                        children: [
+                          _buildWeatherTab(weatherState.data!),
+                          _buildRecommendationsTab(),
+                          _buildAlertsTab(),
+                        ],
+                      ),
       ),
     );
   }

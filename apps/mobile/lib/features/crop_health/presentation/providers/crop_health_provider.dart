@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/providers.dart' show apiClientProvider;
 import '../../data/remote/crop_health_api.dart';
@@ -15,8 +17,13 @@ final selectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null
 /// Selected Zone Provider
 final selectedZoneIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
-/// Selected Date Provider
+/// Selected Date Provider (end of the observation window)
 final selectedDateProvider = StateProvider.autoDispose<DateTime>((ref) => DateTime.now());
+
+/// Selected Period in days (1 = today only, 7/30/90 for presets).
+/// When the user picks a preset the dashboard loads the timeline
+/// for [selectedDate - selectedPeriodDays … selectedDate].
+final selectedPeriodDaysProvider = StateProvider.autoDispose<int>((ref) => 1);
 
 /// حالة التشخيص
 class DiagnosisState {
@@ -212,32 +219,69 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
 
   TimelineNotifier(this._api) : super(const TimelineState());
 
+  /// Monotonically-increasing counter used for request deduplication.
+  /// When the user taps presets rapidly, each call increments this value.
+  /// A response is only applied to state when its captured ID still matches
+  /// the current value — stale responses are silently dropped.
+  int _requestId = 0;
+
+  /// Debounce timer — cancelled and restarted on every `loadTimeline` call.
+  /// The 200 ms window prevents unnecessary API calls and backend pressure
+  /// when the user taps presets in quick succession.  Only the final tap
+  /// within the window actually fires the network request.
+  Timer? _debounceTimer;
+
+  /// Duration after the last `loadTimeline` call before the API request fires.
+  static const _debounceDuration = Duration(milliseconds: 200);
+
   Future<void> loadTimeline(
     String fieldId,
     String zoneId, {
     DateTime? from,
     DateTime? to,
   }) async {
+    _debounceTimer?.cancel();
+
+    // Increment now so any already-in-flight request sees a stale ID.
+    final currentRequest = ++_requestId;
+
+    // Show the loading indicator immediately so the UI feels responsive.
     state = state.copyWith(isLoading: true, error: null);
 
     final now = DateTime.now();
     final fromDate = from ?? now.subtract(const Duration(days: 30));
     final toDate = to ?? now;
 
-    try {
-      final timeline = await _api.getTimeline(
-        fieldId,
-        zoneId,
-        from: fromDate,
-        to: toDate,
-      );
-      state = state.copyWith(isLoading: false, timeline: timeline);
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        error: 'فشل تحميل السلسلة الزمنية: ${e.toString()}',
-      );
-    }
+    // Defer the network call by 200 ms. If the user taps another preset
+    // within this window the timer is cancelled and a new one is started.
+    _debounceTimer = Timer(_debounceDuration, () async {
+      try {
+        final timeline = await _api.getTimeline(
+          fieldId,
+          zoneId,
+          from: fromDate,
+          to: toDate,
+        );
+
+        // Discard if a newer request has already been dispatched.
+        if (currentRequest != _requestId) return;
+
+        state = state.copyWith(isLoading: false, timeline: timeline);
+      } catch (e) {
+        if (currentRequest != _requestId) return;
+
+        state = state.copyWith(
+          isLoading: false,
+          error: 'فشل تحميل السلسلة الزمنية: ${e.toString()}',
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 }
 

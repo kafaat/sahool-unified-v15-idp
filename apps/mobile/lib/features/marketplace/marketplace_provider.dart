@@ -282,6 +282,7 @@ class MarketplaceState {
   final List<CartItem> cart;
   final List<Order> orders;
   final ProductCategory? selectedCategory;
+  final String searchQuery;
   final bool isLoading;
   final String? error;
 
@@ -291,6 +292,7 @@ class MarketplaceState {
     this.cart = const [],
     this.orders = const [],
     this.selectedCategory,
+    this.searchQuery = '',
     this.isLoading = false,
     this.error,
   });
@@ -302,6 +304,7 @@ class MarketplaceState {
     List<Order>? orders,
     ProductCategory? selectedCategory,
     bool clearCategory = false,
+    String? searchQuery,
     bool? isLoading,
     String? error,
   }) {
@@ -311,6 +314,7 @@ class MarketplaceState {
       cart: cart ?? this.cart,
       orders: orders ?? this.orders,
       selectedCategory: clearCategory ? null : (selectedCategory ?? this.selectedCategory),
+      searchQuery: searchQuery ?? this.searchQuery,
       isLoading: isLoading ?? this.isLoading,
       error: error,
     );
@@ -324,6 +328,17 @@ class MarketplaceState {
 
   /// هل السلة فارغة؟
   bool get isCartEmpty => cart.isEmpty;
+
+  /// المنتجات بعد تطبيق البحث
+  List<Product> get filteredProducts {
+    if (searchQuery.isEmpty) return products;
+    final q = searchQuery.toLowerCase();
+    return products.where((p) =>
+        p.nameAr.toLowerCase().contains(q) ||
+        p.name.toLowerCase().contains(q) ||
+        p.categoryNameAr.contains(q) ||
+        (p.descriptionAr?.toLowerCase().contains(q) ?? false)).toList();
+  }
 }
 
 // =============================================================================
@@ -408,6 +423,19 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   /// تصفية حسب التصنيف
   void filterByCategory(ProductCategory? category) {
     loadProducts(category: category);
+  }
+
+  /// تحديث نص البحث وتصفية المنتجات فوراً (client-side)
+  void setSearchQuery(String query) {
+    if (!mounted) return;
+    state = state.copyWith(searchQuery: query);
+  }
+
+  /// مسح رسالة الخطأ
+  void clearError() {
+    if (!mounted) return;
+    // copyWith with no error argument sets error: null, clearing it
+    state = state.copyWith();
   }
 
   /// إضافة إلى السلة مع التحقق من توفر المخزون

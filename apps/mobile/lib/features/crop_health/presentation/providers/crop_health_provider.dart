@@ -15,8 +15,13 @@ final selectedFieldIdProvider = StateProvider.autoDispose<String?>((ref) => null
 /// Selected Zone Provider
 final selectedZoneIdProvider = StateProvider.autoDispose<String?>((ref) => null);
 
-/// Selected Date Provider
+/// Selected Date Provider (end of the observation window)
 final selectedDateProvider = StateProvider.autoDispose<DateTime>((ref) => DateTime.now());
+
+/// Selected Period in days (1 = today only, 7/30/90 for presets).
+/// When the user picks a preset the dashboard loads the timeline
+/// for [selectedDate - selectedPeriodDays … selectedDate].
+final selectedPeriodDaysProvider = StateProvider.autoDispose<int>((ref) => 1);
 
 /// حالة التشخيص
 class DiagnosisState {

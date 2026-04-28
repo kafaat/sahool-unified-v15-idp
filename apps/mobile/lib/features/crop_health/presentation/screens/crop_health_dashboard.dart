@@ -10,6 +10,7 @@ import '../../domain/entities/crop_health_entities.dart';
 import '../providers/crop_health_provider.dart';
 import '../widgets/diagnosis_summary_card.dart';
 import '../widgets/action_list_tile.dart';
+import '../widgets/health_chart_widget.dart';
 import '../widgets/zone_selector.dart';
 
 /// شاشة لوحة تحكم صحة المحاصيل
@@ -34,12 +35,31 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
   void initState() {
     super.initState();
     // تحميل البيانات عند فتح الشاشة
-    Future.microtask(() {
-      ref
-          .read(diagnosisProvider.notifier)
-          .loadDiagnosis(widget.fieldId, DateTime.now());
-      ref.read(zonesProvider.notifier).loadZones(widget.fieldId);
+    Future.microtask(() async {
+      final now = DateTime.now();
+      ref.read(selectedDateProvider.notifier).state = now;
+      ref.read(selectedPeriodDaysProvider.notifier).state = 1;
+      await ref.read(diagnosisProvider.notifier).loadDiagnosis(widget.fieldId, now);
+      await ref.read(zonesProvider.notifier).loadZones(widget.fieldId);
+      _loadTimelineForCurrentPeriod();
     });
+  }
+
+  /// تحميل السلسلة الزمنية للمنطقة الأولى (أو المحددة) بناءً على الفترة الزمنية.
+  void _loadTimelineForCurrentPeriod() {
+    final zones = ref.read(zonesProvider).zones;
+    final endDate = ref.read(selectedDateProvider);
+    final periodDays = ref.read(selectedPeriodDaysProvider);
+    final startDate = endDate.subtract(Duration(days: periodDays - 1));
+    final zoneId = ref.read(selectedZoneIdProvider) ?? (zones.isNotEmpty ? zones.first.zoneId : null);
+    if (zoneId != null) {
+      ref.read(timelineProvider.notifier).loadTimeline(
+            widget.fieldId,
+            zoneId,
+            from: startDate,
+            to: endDate,
+          );
+    }
   }
 
   @override
@@ -112,16 +132,36 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
               selectedZoneId: ref.watch(selectedZoneIdProvider),
               onZoneSelected: (zoneId) {
                 ref.read(selectedZoneIdProvider.notifier).state = zoneId;
+                // إعادة تحميل السلسلة الزمنية عند تغيير المنطقة
+                final endDate = ref.read(selectedDateProvider);
+                final periodDays = ref.read(selectedPeriodDaysProvider);
+                final startDate = endDate.subtract(Duration(days: periodDays - 1));
+                ref.read(timelineProvider.notifier).loadTimeline(
+                      widget.fieldId,
+                      zoneId,
+                      from: startDate,
+                      to: endDate,
+                    );
               },
             ),
           ),
         ),
 
-        // فلتر الإجراءات
+        // أزرار الفترة الزمنية السريعة
         SliverToBoxAdapter(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
             child: _buildPeriodPresets(),
+          ),
+        ),
+
+        const SliverToBoxAdapter(child: SizedBox(height: 8)),
+
+        // رسم NDVI الزمني
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: _buildNdviTrendSection(),
           ),
         ),
 
@@ -152,6 +192,25 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         Consumer(
           builder: (context, ref, _) {
             final filteredActions = ref.watch(priorityFilteredActionsProvider);
+            if (filteredActions.isEmpty) {
+              return SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle_outline, size: 48, color: Colors.green[300]),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'لا توجد إجراءات للفترة المحددة',
+                        style: TextStyle(color: Colors.grey),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
             return SliverPadding(
               padding: const EdgeInsets.all(16),
               sliver: SliverList(
@@ -180,6 +239,121 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       ],
     );
   }
+
+  // ─── NDVI Trend Section ───────────────────────────────────────────────────
+
+  /// قسم السلسلة الزمنية لـ NDVI مع اتجاه التغير.
+  Widget _buildNdviTrendSection() {
+    final timelineState = ref.watch(timelineProvider);
+    final periodDays = ref.watch(selectedPeriodDaysProvider);
+
+    // لا يُظهر القسم عند عرض يوم واحد فقط
+    if (periodDays <= 1) return const SizedBox.shrink();
+
+    if (timelineState.isLoading) {
+      return const Card(
+        elevation: 2,
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    final series = timelineState.timeline?.series ?? [];
+    if (series.isEmpty) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: const Padding(
+          padding: EdgeInsets.all(24),
+          child: Center(
+            child: Text(
+              'لا توجد بيانات NDVI للفترة المحددة',
+              style: TextStyle(color: Colors.grey),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final dataPoints = series.map((p) {
+      final parts = p.date.split('-');
+      final dt = DateTime(
+        int.parse(parts[0]),
+        int.parse(parts[1]),
+        int.parse(parts[2]),
+      );
+      return HealthDataPoint(date: dt, value: p.ndvi);
+    }).toList();
+
+    final trend = _computeTrend(dataPoints);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(
+              'اتجاه NDVI',
+              style: Theme.of(context)
+                  .textTheme
+                  .titleMedium
+                  ?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(width: 8),
+            _buildTrendBadge(trend),
+          ],
+        ),
+        const SizedBox(height: 8),
+        HealthChartWidget(
+          dataPoints: dataPoints,
+          title: 'NDVI — ${_periodLabel(periodDays)}',
+          lineColor: const Color(0xFF367C2B),
+        ),
+      ],
+    );
+  }
+
+  /// حساب اتجاه NDVI: تحسّن / تراجع / مستقر.
+  _NdviTrend _computeTrend(List<HealthDataPoint> points) {
+    if (points.length < 2) return _NdviTrend.stable;
+    final delta = points.last.value - points.first.value;
+    if (delta > 0.05) return _NdviTrend.improving;
+    if (delta < -0.05) return _NdviTrend.declining;
+    return _NdviTrend.stable;
+  }
+
+  Widget _buildTrendBadge(_NdviTrend trend) {
+    final (icon, label, color) = switch (trend) {
+      _NdviTrend.improving => (Icons.trending_up, '↑ تحسّن', Colors.green),
+      _NdviTrend.declining => (Icons.trending_down, '↓ تراجع', Colors.red),
+      _NdviTrend.stable => (Icons.trending_flat, '→ مستقر', Colors.orange),
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 4),
+          Text(label, style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+
+  String _periodLabel(int days) => switch (days) {
+        7 => 'آخر 7 أيام',
+        30 => 'آخر 30 يوم',
+        90 => 'آخر 3 أشهر',
+        _ => 'اليوم',
+      };
 
   Widget _buildActionFilters() {
     final currentFilter = ref.watch(actionFilterProvider);
@@ -255,13 +429,15 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
   /// أزرار الفترة الزمنية السريعة (اليوم / أسبوع / شهر / 3 أشهر).
   Widget _buildPeriodPresets() {
     final selectedDate = ref.watch(selectedDateProvider);
+    final selectedPeriodDays = ref.watch(selectedPeriodDaysProvider);
     final now = DateTime.now();
 
-    final presets = <(String, DateTime)>[
-      ('اليوم', now),
-      ('أسبوع', now.subtract(const Duration(days: 7))),
-      ('شهر', now.subtract(const Duration(days: 30))),
-      ('3 أشهر', now.subtract(const Duration(days: 90))),
+    // (label, endDate, periodDays)
+    final presets = <(String, DateTime, int)>[
+      ('اليوم', now, 1),
+      ('أسبوع', now, 7),
+      ('شهر', now, 30),
+      ('3 أشهر', now, 90),
     ];
 
     return Column(
@@ -272,7 +448,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
             const Icon(Icons.history_toggle_off, size: 16, color: Color(0xFF367C2B)),
             const SizedBox(width: 6),
             Text(
-              'التاريخ: ${_formatDate(selectedDate)}',
+              selectedPeriodDays == 1
+                  ? 'التاريخ: ${_formatDate(selectedDate)}'
+                  : 'الفترة: آخر $selectedPeriodDays يوم (حتى ${_formatDate(selectedDate)})',
               style: const TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -286,8 +464,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: presets.map((preset) {
-              final (label, date) = preset;
-              final isActive = _isSameDay(selectedDate, date);
+              final (label, endDate, days) = preset;
+              final isActive = selectedPeriodDays == days;
               return Padding(
                 padding: const EdgeInsets.only(left: 8),
                 child: ChoiceChip(
@@ -300,10 +478,14 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
                     fontSize: 13,
                   ),
                   onSelected: (_) async {
-                    ref.read(selectedDateProvider.notifier).state = date;
+                    ref.read(selectedDateProvider.notifier).state = endDate;
+                    ref.read(selectedPeriodDaysProvider.notifier).state = days;
+                    // تحميل التشخيص للتاريخ المحدد
                     await ref
                         .read(diagnosisProvider.notifier)
-                        .loadDiagnosis(widget.fieldId, date);
+                        .loadDiagnosis(widget.fieldId, endDate);
+                    // تحميل السلسلة الزمنية للفترة المحددة
+                    _loadTimelineForCurrentPeriod();
                   },
                 ),
               );
@@ -313,9 +495,6 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       ],
     );
   }
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 
   String _formatDate(DateTime dt) =>
       '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
@@ -350,6 +529,7 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     final date = ref.read(selectedDateProvider);
     await ref.read(diagnosisProvider.notifier).loadDiagnosis(widget.fieldId, date);
     await ref.read(zonesProvider.notifier).loadZones(widget.fieldId);
+    _loadTimelineForCurrentPeriod();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -364,7 +544,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
 
     if (picked != null) {
       ref.read(selectedDateProvider.notifier).state = picked;
+      ref.read(selectedPeriodDaysProvider.notifier).state = 1;
       await ref.read(diagnosisProvider.notifier).loadDiagnosis(widget.fieldId, picked);
+      _loadTimelineForCurrentPeriod();
     }
   }
 
@@ -894,3 +1076,6 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     }
   }
 }
+
+/// اتجاه تغير NDVI عبر الفترة الزمنية.
+enum _NdviTrend { improving, declining, stable }

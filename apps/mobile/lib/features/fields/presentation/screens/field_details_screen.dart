@@ -815,64 +815,102 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     );
   }
 
-  /// Derives recommendations from live NDVI / NDWI / health values.
-  /// يستخرج التوصيات من قيم NDVI و NDWI والصحة الفعلية.
+  /// Derives recommendations from live NDVI / NDWI / health values with
+  /// multi-index correlation and an honest confidence disclaimer when trend
+  /// data is unavailable (snapshot-only context).
+  ///
+  /// يستخرج التوصيات بربط مؤشرات متعددة مع إشارة واضحة بأن البيانات لحظية.
   List<_FieldRecommendation> _deriveRecommendations() {
     final recs = <_FieldRecommendation>[];
     final ndvi = widget.field.ndviValue;
     final ndwi = widget.field.ndwiValue;
     final health = widget.field.healthScore;
 
-    if (ndwi != null && ndwi < 0.15) {
-      recs.add(const _FieldRecommendation(
+    // ── متعدد المؤشرات: إجهاد مائي + NDVI منخفض ──────────────────────────
+    // كلا المؤشرين يشيران معاً لأولوية الري على التسميد
+    final bool waterStress = ndwi != null && ndwi < 0.2;
+    final bool lowNdvi = ndvi != null && ndvi < 0.4;
+
+    if (waterStress && lowNdvi) {
+      recs.add(_FieldRecommendation(
         icon: Icons.water_drop,
         color: Colors.blue,
-        title: 'زيادة الري',
-        description: 'قيمة NDWI منخفضة — يُنصح بزيادة معدل الري لتجنب إجهاد مائي',
+        title: 'أولوية الري (NDWI + NDVI منخفضان)',
+        description: 'كلا المؤشرين يؤكدان إجهاداً مائياً. الري أولاً قبل التسميد'
+            '\n(NDWI: ${ndwi!.toStringAsFixed(2)} | NDVI: ${ndvi!.toStringAsFixed(2)})',
         priority: 'عاجل',
         priorityColor: Colors.red,
       ));
-    } else if (ndwi != null && ndwi < 0.3) {
-      recs.add(const _FieldRecommendation(
+    } else if (waterStress) {
+      recs.add(_FieldRecommendation(
+        icon: Icons.water_drop,
+        color: Colors.blue,
+        title: 'زيادة الري',
+        description: 'قيمة NDWI (${ndwi!.toStringAsFixed(2)}) منخفضة — إجهاد مائي محتمل.'
+            '\nيُنصح بزيادة معدل الري.',
+        priority: 'عاجل',
+        priorityColor: Colors.red,
+      ));
+    } else if (ndwi != null && ndwi < 0.35) {
+      recs.add(_FieldRecommendation(
         icon: Icons.water_drop,
         color: Colors.blueAccent,
         title: 'مراقبة الري',
-        description: 'قيمة NDWI في الحد الأدنى — راقب رطوبة التربة خلال 48 ساعة',
+        description: 'قيمة NDWI (${ndwi.toStringAsFixed(2)}) في الحد الأدنى.'
+            '\nراقب رطوبة التربة خلال 48 ساعة.',
         priority: 'متوسط',
         priorityColor: Colors.orange,
       ));
     }
 
-    if (ndvi != null && ndvi < 0.35) {
-      recs.add(const _FieldRecommendation(
-        icon: Icons.eco,
-        color: Colors.green,
-        title: 'تسميد نيتروجيني',
-        description: 'قيمة NDVI منخفضة — يُشير إلى نقص كلوروفيل؛ يُنصح بجرعة نيتروجين',
-        priority: 'مهم',
-        priorityColor: Colors.deepOrange,
-      ));
-    } else if (ndvi != null && ndvi < 0.5) {
-      recs.add(const _FieldRecommendation(
-        icon: Icons.eco,
-        color: Colors.lightGreen,
-        title: 'متابعة النمو',
-        description: 'قيمة NDVI متوسطة — استمر في برنامج التسميد الحالي وراقب التحسن',
-        priority: 'منخفض',
-        priorityColor: Colors.green,
-      ));
+    // ── NDVI بمفرده (مع غياب إجهاد مائي) → نقص نيتروجين ─────────────────
+    if (!waterStress) {
+      if (ndvi != null && ndvi < 0.35) {
+        recs.add(_FieldRecommendation(
+          icon: Icons.eco,
+          color: Colors.green,
+          title: 'تسميد نيتروجيني',
+          description: 'قيمة NDVI (${ndvi.toStringAsFixed(2)}) منخفضة دون إجهاد مائي.'
+              '\nيُشير إلى نقص كلوروفيل — يُنصح بجرعة نيتروجين.',
+          priority: 'مهم',
+          priorityColor: Colors.deepOrange,
+        ));
+      } else if (ndvi != null && ndvi < 0.5) {
+        recs.add(_FieldRecommendation(
+          icon: Icons.eco,
+          color: Colors.lightGreen,
+          title: 'متابعة النمو',
+          description: 'قيمة NDVI (${ndvi.toStringAsFixed(2)}) متوسطة.'
+              '\nاستمر في برنامج التسميد الحالي وراقب التحسن.',
+          priority: 'منخفض',
+          priorityColor: Colors.green,
+        ));
+      }
     }
 
+    // ── مؤشر الصحة العام ──────────────────────────────────────────────────
     if (health < 0.4) {
-      recs.add(const _FieldRecommendation(
+      recs.add(_FieldRecommendation(
         icon: Icons.warning_amber,
         color: Colors.red,
         title: 'صحة الحقل منخفضة',
-        description: 'مؤشر الصحة العام ضعيف — يُنصح بمعاينة ميدانية فورية لتحديد السبب',
+        description: 'مؤشر الصحة العام (${(health * 100).round()}%) ضعيف.'
+            '\nيُنصح بمعاينة ميدانية فورية لتحديد السبب.',
         priority: 'عاجل',
         priorityColor: Colors.red,
       ));
     }
+
+    // ── إشعار صدق: بيانات لحظية بدون سياق زمني ───────────────────────────
+    recs.add(const _FieldRecommendation(
+      icon: Icons.info_outline,
+      color: Colors.blueGrey,
+      title: 'ملاحظة: قراءة لحظية',
+      description: 'هذه التوصيات مبنية على آخر قياس متاح فقط.\n'
+          'لتحليل الاتجاه الزمني (↑/↓) افتح "صحة المحاصيل" واختر فترة أسبوع أو شهر.',
+      priority: 'معلومة',
+      priorityColor: Colors.blueGrey,
+    ));
 
     return recs;
   }

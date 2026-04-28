@@ -910,7 +910,7 @@ export const SERVICE_REGISTRY: Record<string, ServiceInfo> = {
     port: SERVICE_PORTS.AGRO_RULES,
     name: 'Agro Rules Engine (Worker)',
     nameAr: 'محرك القواعد الزراعية (عامل NATS)',
-    // No kongRoute — pure NATS consumer worker with no HTTP interface
+    // No kongRoute—pure NATS consumer worker with no HTTP interface
     type: 'worker',
     layer: 'decision',
   },

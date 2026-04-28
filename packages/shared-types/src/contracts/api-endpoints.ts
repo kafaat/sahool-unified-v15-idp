@@ -997,10 +997,11 @@ export const DISASTER_ENDPOINTS = {
 // ---------------------------------------------------------------------------
 // CRM Endpoints - نقاط إدارة علاقات المزارعين
 // Served by crm-service (port 8131).
-// NOTE: the crm-service does NOT use a /crm prefix — routes are registered
-//       directly at /api/v1/farmers, /api/v1/deals, /api/v1/interactions,
-//       and /api/v1/query on the service itself. Kong strips /api/v1/crm
-//       and the service resolves paths relative to its own root.
+// Route layout: the crm-service registers all routes at /api/v1/farmers,
+// /api/v1/deals, /api/v1/interactions, and /api/v1/query directly (no
+// service-level /crm sub-prefix). Kong routes external traffic at
+// /api/v1/crm/* to the service and strips that segment before forwarding,
+// so the upstream URL the service sees matches the paths below.
 // ---------------------------------------------------------------------------
 
 export const CRM_ENDPOINTS = {

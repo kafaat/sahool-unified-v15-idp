@@ -161,7 +161,8 @@
 //            Added missing: DEAL_CREATE, DEALS, DEAL_STAGE_UPDATE,
 //            DEALS_PIPELINE, QUERY. Removed non-existent: FARMER_DELETE
 //            (no DELETE handler), INTERACTION_GET (no GET-by-ID handler),
-//            SEGMENTS, NOTES, ANALYTICS (all were fabricated).
+//            SEGMENTS, NOTES, ANALYTICS (all were incorrectly defined —
+//            no matching handlers exist in crm-service/src/main.py).
 //          * SKILL_ROUTER_ENDPOINTS (new): ROUTE, SKILLS — matches the
 //            actual router in skill-router-service/app/router.py.
 //          * SERVICE_HEALTH_ENDPOINTS: add SKILL_ROUTER, CRM.

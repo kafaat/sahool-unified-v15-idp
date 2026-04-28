@@ -4,6 +4,10 @@ import 'package:latlong2/latlong.dart';
 import '../domain/ndvi_colormap.dart';
 import '../domain/spectral_index.dart';
 
+/// ISO-8601 date formatter (YYYY-MM-DD) without depending on intl package.
+String _formatDate(DateTime d) =>
+    '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+
 /// NDVI Tile Layer Configuration
 /// Supports COG (Cloud Optimized GeoTIFF) and standard XYZ tiles
 class NdviTileConfig {
@@ -53,18 +57,37 @@ class NdviTileConfig {
     );
   }
 
-  /// @deprecated Use [NdviTileLayerWidget.fromUrl] instead.
+  /// Local SAHOOL backend tiles — field-scoped and index-aware.
   ///
-  /// The static URL `$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}` does not exist
-  /// on the backend. Real tile URLs must come from the /v1/index-map/{fieldId}
-  /// response (tileUrlTemplate field). Use [indexMapProvider] to retrieve them.
+  /// The backend is expected to render per-pixel raster tiles clipped to the
+  /// field geometry identified by [fieldId].  Query parameters:
+  ///   `field_id` — clips the raster to the field boundary (server-side masking)
+  ///   `index`    — spectral index code (NDVI / NDWI / EVI / SAVI / NDRE)
+  ///   `date`     — ISO-8601 date for historical imagery; omit for latest
+  ///
+  /// @deprecated Prefer [NdviTileLayerWidget.fromUrl] driven by [indexMapProvider],
+  /// which calls `/v1/index-map/{fieldId}` and returns the canonical tile URL.
+  /// The static `$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}` path does not exist on
+  /// the live backend.  Removal: v17.0.0
   @Deprecated(
     'Use NdviTileLayerWidget.fromUrl(tileUrlTemplate) driven by indexMapProvider. '
     'Removal: v17.0.0',
   )
-  static NdviTileConfig sahoolBackend({required String baseUrl}) {
+  static NdviTileConfig sahoolBackend({
+    required String baseUrl,
+    String? fieldId,
+    SpectralIndex index = SpectralIndex.ndvi,
+    DateTime? date,
+  }) {
+    final params = [
+      'index=${Uri.encodeQueryComponent(index.code)}',
+    ];
+    if (fieldId != null && fieldId.isNotEmpty) {
+      params.add('field_id=${Uri.encodeQueryComponent(fieldId)}');
+    }
+    if (date != null) params.add('date=${_formatDate(date)}'); // ISO date, no encoding needed
     return NdviTileConfig(
-      urlTemplate: '$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}.png',
+      urlTemplate: '$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}?${params.join('&')}',
     );
   }
 }

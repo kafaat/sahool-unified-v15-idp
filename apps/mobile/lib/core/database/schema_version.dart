@@ -17,7 +17,7 @@ library;
 import 'package:drift/drift.dart';
 
 /// Current schema version of the database
-const int currentSchemaVersion = 7;
+const int currentSchemaVersion = 8;
 
 /// Minimum supported schema version for migration
 const int minimumSupportedVersion = 1;
@@ -118,6 +118,12 @@ class SchemaVersionRegistry {
       description: 'Added irrigationType, plantingDate, notes to Fields table',
       descriptionAr: 'اضافة نوع الري وتاريخ الزراعة والملاحظات لجدول الحقول',
       releaseDate: _v7ReleaseDate,
+    ),
+    SchemaVersion(
+      version: 8,
+      description: 'Added ndvi_cache table for persistent spectral-index cache',
+      descriptionAr: 'إضافة جدول ndvi_cache للكاش المستمر لقيم المؤشرات الطيفية',
+      releaseDate: DateTime(2026, 4, 28),
     ),
   ];
 

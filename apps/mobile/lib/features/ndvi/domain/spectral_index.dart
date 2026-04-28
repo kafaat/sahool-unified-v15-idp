@@ -20,6 +20,7 @@ enum SpectralIndex {
     icon: Icons.grass,
     minValue: -1.0,
     maxValue: 1.0,
+    colormap: 'RdYlGn',
   ),
   ndwi(
     code: 'NDWI',
@@ -30,6 +31,8 @@ enum SpectralIndex {
     icon: Icons.water_drop,
     minValue: -1.0,
     maxValue: 1.0,
+    colormap: 'Blues',
+    requiresHistorical: true,
   ),
   evi(
     code: 'EVI',
@@ -40,6 +43,7 @@ enum SpectralIndex {
     icon: Icons.park,
     minValue: -1.0,
     maxValue: 1.0,
+    colormap: 'YlGn',
   ),
   savi(
     code: 'SAVI',
@@ -50,6 +54,7 @@ enum SpectralIndex {
     icon: Icons.landscape,
     minValue: -1.0,
     maxValue: 1.0,
+    colormap: 'BrBG',
   ),
   ndre(
     code: 'NDRE',
@@ -60,6 +65,7 @@ enum SpectralIndex {
     icon: Icons.science,
     minValue: -1.0,
     maxValue: 1.0,
+    colormap: 'RdYlGn',
   ),
   lai(
     code: 'LAI',
@@ -70,6 +76,7 @@ enum SpectralIndex {
     icon: Icons.eco,
     minValue: 0.0,
     maxValue: 8.0,
+    colormap: 'YlGn',
   );
 
   final String code;
@@ -81,6 +88,15 @@ enum SpectralIndex {
   final double minValue;
   final double maxValue;
 
+  /// Backend colormap name used when rendering tiles (e.g. 'RdYlGn', 'Blues').
+  final String colormap;
+
+  /// Whether this index is available only from the historical timeseries endpoint.
+  ///
+  /// When `true`, requesting live multi-index data will not include this index,
+  /// so the UI should suppress it for the "live / today" slider position.
+  final bool requiresHistorical;
+
   const SpectralIndex({
     required this.code,
     required this.name,
@@ -90,6 +106,8 @@ enum SpectralIndex {
     required this.icon,
     required this.minValue,
     required this.maxValue,
+    this.colormap = 'RdYlGn',
+    this.requiresHistorical = false,
   });
 
   /// Get label based on locale

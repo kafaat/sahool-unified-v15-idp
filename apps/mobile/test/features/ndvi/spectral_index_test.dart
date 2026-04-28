@@ -41,6 +41,34 @@ void main() {
       }
     });
 
+    // ── ProcessingRecipe fields (v2) ────────────────────────────────────────
+    test('each index should have a non-empty colormap', () {
+      for (final index in SpectralIndex.values) {
+        expect(
+          index.colormap,
+          isNotEmpty,
+          reason: '${index.code} must declare a colormap',
+        );
+      }
+    });
+
+    test('requiresHistorical is false by default for most indices', () {
+      final shouldBeFalse = [
+        SpectralIndex.ndvi,
+        SpectralIndex.evi,
+        SpectralIndex.savi,
+        SpectralIndex.ndre,
+        SpectralIndex.lai,
+      ];
+      for (final idx in shouldBeFalse) {
+        expect(idx.requiresHistorical, isFalse, reason: '${idx.code} should NOT require historical');
+      }
+    });
+
+    test('NDWI requires historical (timeseries-only index)', () {
+      expect(SpectralIndex.ndwi.requiresHistorical, isTrue);
+    });
+
     test('fromCode should parse valid codes', () {
       expect(SpectralIndex.fromCode('NDVI'), equals(SpectralIndex.ndvi));
       expect(SpectralIndex.fromCode('ndwi'), equals(SpectralIndex.ndwi));

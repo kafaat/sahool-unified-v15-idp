@@ -1,9 +1,13 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 // Core
 import '../constants/navigation_constants.dart';
+import '../di/providers.dart';
+import '../iam/iam_providers.dart';
 
 // Features - Auth & Onboarding
 import '../../features/splash/ui/splash_screen.dart';
@@ -85,6 +89,7 @@ import '../../features/reports/presentation/screens/reports_dashboard_screen.dar
 import '../../features/settings/presentation/screens/help_screen.dart';
 import '../../features/settings/presentation/screens/about_screen.dart';
 import '../../features/field/ui/field_form_screen.dart';
+import '../../features/field/ui/field_boundary_draw_screen.dart';
 import '../../features/irrigation/presentation/screens/irrigation_dashboard_screen.dart';
 
 // Features - Astronomical Calendar
@@ -248,18 +253,13 @@ class AppRouter {
         path: '/field/:id',
         name: 'field-details',
         builder: (context, state) {
-          final fieldId = state.pathParameters['id'];
+          final fieldId = state.pathParameters['id']!;
           final field = state.extra as FieldEntity?;
-          if (field == null && fieldId != null) {
-            // Deep link — show field detail with ID-based loading
-            // TODO: FieldDetailsScreen currently requires a FieldEntity; consider adding
-            // a fieldId-only constructor that fetches the entity internally.
-            return const FieldsListScreen();
+          if (field != null) {
+            return FieldDetailsScreen(field: field);
           }
-          if (field == null) {
-            return const FieldsListScreen();
-          }
-          return FieldDetailsScreen(field: field);
+          // Deep link: load the field by ID from the local repository
+          return _FieldByIdScreen(fieldId: fieldId);
         },
       ),
 
@@ -586,9 +586,8 @@ class AppRouter {
         name: 'alert-details',
         builder: (context, state) {
           final alertId = state.pathParameters['id']!;
-          // Navigate to alerts screen with the specific alertId
-          // AlertsScreen can be enhanced to show details for this alert
-          return const AlertsScreen();
+          // Pass alertId via query parameter so AlertsScreen can highlight it
+          return AlertsScreen(initialAlertId: alertId);
         },
       ),
 
@@ -713,8 +712,9 @@ class AppRouter {
         name: 'pivot-sectors',
         builder: (context, state) {
           final pivotId = state.pathParameters['pivotId']!;
-          // Create a default configuration for direct navigation
-          final defaultConfig = PivotConfiguration(
+          // Use config passed via extra (from PivotDashboardScreen) or create a default
+          final passedConfig = state.extra as PivotConfiguration?;
+          final config = passedConfig ?? PivotConfiguration(
             id: pivotId,
             fieldId: 'default',
             name: 'Pivot $pivotId',
@@ -726,9 +726,12 @@ class AppRouter {
             flowRateLph: 450000,
           );
           return SectorManagementScreen(
-            pivotConfig: defaultConfig,
-            onConfigUpdate: (_) {
-              context.pop();
+            pivotConfig: config,
+            onConfigUpdate: (updatedConfig) {
+              // Pop and return the updated config so the dashboard can apply it
+              // to _configOverride.  SectorManagementScreen no longer pops
+              // independently, so this is the single navigation callsite.
+              context.pop(updatedConfig);
             },
           );
         },
@@ -768,6 +771,24 @@ class AppRouter {
         builder: (context, state) {
           final args = state.extra as Map<String, dynamic>?;
           return FieldFormScreen(fieldId: args?['fieldId'] as String?);
+        },
+      ),
+
+      // ─────────────────────────────────────────────────────────────────────────
+      // Field Boundary Drawing Route - مسار رسم حدود الحقل على الخريطة
+      // ─────────────────────────────────────────────────────────────────────────
+      GoRoute(
+        path: '/field-boundary-draw',
+        name: 'field-boundary-draw',
+        builder: (context, state) {
+          // extra is a List<LatLng>: non-empty = editing existing boundary; empty = new drawing
+          final existing = state.extra;
+          if (existing is List && (existing as List).isNotEmpty) {
+            return FieldBoundaryDrawScreen(
+              existingBoundary: List<LatLng>.from(existing),
+            );
+          }
+          return const FieldBoundaryDrawScreen();
         },
       ),
 
@@ -959,4 +980,102 @@ class AppRouter {
       ),
     ),
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Deep Link Helper Widgets
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// شاشة انتقالية تحمّل الحقل بالمعرف (Deep Link)
+///
+/// تُستخدم عندما يصل المستخدم مباشرة إلى `/field/:id`
+/// دون تمرير FieldEntity عبر extra.
+class _FieldByIdScreen extends ConsumerWidget {
+  final String fieldId;
+
+  const _FieldByIdScreen({required this.fieldId});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final tenant = ref.watch(currentTenantProvider);
+    final tenantId = tenant?.id ?? 'default';
+    final fieldsAsync = ref.watch(fieldsStreamProvider(tenantId));
+
+    return fieldsAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (err, _) => Scaffold(
+        appBar: AppBar(),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 16),
+              const Text('فشل تحميل بيانات الحقل'),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.go('/fields'),
+                child: const Text('قائمة الحقول'),
+              ),
+            ],
+          ),
+        ),
+      ),
+      data: (fields) {
+        final domainField = fields.firstWhereOrNull((f) => f.id == fieldId);
+        if (domainField == null) {
+          return Scaffold(
+            appBar: AppBar(),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.search_off, size: 48, color: Colors.grey),
+                  const SizedBox(height: 16),
+                  const Text('الحقل غير موجود'),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => context.go('/fields'),
+                    child: const Text('قائمة الحقول'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Map domain Field to FieldEntity for FieldDetailsScreen
+        final ndvi = domainField.ndviCurrent ?? 0.0;
+        double healthScore;
+        if (ndvi >= 0.6) {
+          healthScore = 0.8 + (ndvi - 0.6) * 0.5;
+        } else if (ndvi >= 0.4) {
+          healthScore = 0.5 + (ndvi - 0.4) * 1.5;
+        } else if (ndvi > 0) {
+          healthScore = ndvi;
+        } else {
+          healthScore = 0.0;
+        }
+
+        final entity = FieldEntity(
+          id: domainField.id,
+          tenantId: domainField.tenantId,
+          name: domainField.name,
+          farmId: domainField.farmId,
+          areaHectares: domainField.areaHectares,
+          cropType: domainField.cropType ?? 'غير محدد',
+          healthScore: healthScore.clamp(0.0, 1.0),
+          ndviValue: domainField.ndviCurrent,
+          irrigationType: domainField.irrigationType,
+          status: FieldStatus.fromString(domainField.status ?? 'active'),
+          createdAt: domainField.createdAt,
+          updatedAt: domainField.updatedAt,
+        );
+
+        return FieldDetailsScreen(field: entity);
+      },
+    );
+  }
 }

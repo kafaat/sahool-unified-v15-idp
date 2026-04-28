@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../../core/di/providers.dart';
 import '../../../core/iam/iam_providers.dart';
 import '../../../core/theme/sahool_theme.dart';
@@ -20,7 +21,7 @@ class FieldDashboard extends ConsumerStatefulWidget {
 
 class _FieldDashboardState extends ConsumerState<FieldDashboard> {
   void _navigateTo(BuildContext context, String route, {Map<String, dynamic>? arguments}) {
-    Navigator.pushNamed(context, route, arguments: arguments);
+    context.push(route, extra: arguments);
   }
 
   @override
@@ -73,7 +74,7 @@ class _FieldDashboardState extends ConsumerState<FieldDashboard> {
         data: (fields) => _buildDashboardContent(fields),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _navigateTo(context, '/task-create'),
+        onPressed: () => _navigateTo(context, '/tasks'),
         icon: const Icon(Icons.add),
         label: const Text('مهمة جديدة'),
       ),

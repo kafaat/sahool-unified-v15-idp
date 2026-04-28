@@ -83,7 +83,7 @@ class FieldDetailsScreen extends ConsumerWidget {
         ),
         floatingActionButton: FloatingActionButton.extended(
           onPressed: () {
-            Navigator.pushNamed(context, '/scouting');
+            context.push('/scouting');
           },
           backgroundColor: SahoolColors.harvestGold,
           icon: const Icon(Icons.add_a_photo, color: Colors.white),

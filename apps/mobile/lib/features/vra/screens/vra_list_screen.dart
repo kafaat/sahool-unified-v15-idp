@@ -3,12 +3,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../models/vra_models.dart';
 import '../providers/vra_provider.dart';
-import 'vra_create_screen.dart';
-import 'vra_detail_screen.dart';
 
 /// شاشة قائمة الوصفات
 class VRAListScreen extends ConsumerStatefulWidget {
@@ -112,12 +111,7 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => const VRACreateScreen()),
-          );
-        },
+        onPressed: () => context.push('/vra/create'),
         icon: const Icon(Icons.add),
         label: Text(isRTL ? 'وصفة جديدة' : 'New Prescription'),
       ),
@@ -229,14 +223,7 @@ class _VRAListScreenState extends ConsumerState<VRAListScreen> {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => VRADetailScreen(prescriptionId: prescription.prescriptionId),
-            ),
-          );
-        },
+      onTap: () => context.push('/vra/${prescription.prescriptionId}'),
         borderRadius: BorderRadius.circular(12),
         child: Padding(
           padding: const EdgeInsets.all(16),

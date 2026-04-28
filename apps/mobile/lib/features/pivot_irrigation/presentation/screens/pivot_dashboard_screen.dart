@@ -4,11 +4,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../domain/models/pivot_models.dart';
 import '../providers/pivot_provider.dart';
 import '../widgets/pivot_visualization.dart';
 import '../widgets/pivot_control_panel.dart';
-import 'sector_management_screen.dart';
 
 /// Main pivot irrigation dashboard
 /// لوحة تحكم الري المحوري الرئيسية
@@ -625,22 +625,21 @@ class _PivotDashboardScreenState extends ConsumerState<PivotDashboardScreen>
     });
   }
 
-  void _openSettings() {
+  Future<void> _openSettings() async {
     final currentConfig = _configOverride ??
         ref.read(pivotDataProvider(_pivotParams)).valueOrNull?.config;
     if (currentConfig == null) return;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SectorManagementScreen(
-          pivotConfig: currentConfig,
-          onConfigUpdate: (config) {
-            setState(() => _configOverride = config);
-          },
-        ),
-      ),
+    // Await the push so we can receive the PivotConfiguration returned by
+    // SectorManagementScreen (via context.pop(updatedConfig)).
+    final updated = await context.push<PivotConfiguration>(
+      '/pivot-irrigation/${widget.pivotId}/sectors',
+      extra: currentConfig,
     );
+
+    if (updated != null && mounted) {
+      setState(() => _configOverride = updated);
+    }
   }
 }
 

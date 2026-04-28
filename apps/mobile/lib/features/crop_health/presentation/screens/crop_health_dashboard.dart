@@ -249,8 +249,29 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     final timelineState = ref.watch(timelineProvider);
     final periodDays = ref.watch(selectedPeriodDaysProvider);
 
-    // لا يُظهر القسم عند عرض يوم واحد فقط
-    if (periodDays <= 1) return const SizedBox.shrink();
+    // اليوم الواحد لا يُنتج سلسلة زمنية — أظهر placeholder بدلاً من إخفاء القسم
+    // كلياً لتجنب قفزة التخطيط عند تغيير الفترة.
+    if (periodDays <= 1) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Icon(Icons.show_chart, color: Colors.grey.shade400),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'اختر فترة أسبوع أو أطول لعرض اتجاه NDVI الزمني',
+                  style: TextStyle(color: Colors.grey.shade500),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     if (timelineState.isLoading) {
       return const Card(
@@ -263,7 +284,19 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     }
 
     final series = timelineState.timeline?.series ?? [];
-    if (series.isEmpty) {
+
+    // Filter out any points whose date field cannot be parsed — fail visibly
+    // rather than silently substituting DateTime.now() which would corrupt the chart.
+    final dataPoints = series
+        .map((p) {
+          final dt = DateTime.tryParse(p.date);
+          if (dt == null) return null;
+          return HealthDataPoint(date: dt, value: p.ndvi);
+        })
+        .whereType<HealthDataPoint>()
+        .toList();
+
+    if (dataPoints.isEmpty) {
       return Card(
         elevation: 2,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -278,13 +311,6 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         ),
       );
     }
-
-    final dataPoints = series.map((p) {
-      // Use tryParse for resilience against unexpected backend formats.
-      final dt = DateTime.tryParse(p.date) ??
-          DateTime.now(); // fallback keeps chart renderable
-      return HealthDataPoint(date: dt, value: p.ndvi);
-    }).toList();
 
     final trend = _computeTrend(dataPoints);
 
@@ -307,17 +333,33 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
         const SizedBox(height: 8),
         HealthChartWidget(
           dataPoints: dataPoints,
-          title: 'NDVI — ${_periodLabel(periodDays)}',
+          title: 'NDVI — ${_periodLabel(periodDays)} (حسب البيانات المتاحة)',
           lineColor: const Color(0xFF367C2B),
         ),
       ],
     );
   }
 
-  /// حساب اتجاه NDVI: تحسّن / تراجع / مستقر.
+  /// حساب اتجاه NDVI باستخدام متوسط نقاط البداية والنهاية (3 نقاط لكل طرف)
+  /// لتقليل تأثير الضجيج على الإشارة الاتجاهية.
+  ///
+  /// Uses the average of the first 3 and last 3 points (or fewer when the
+  /// series is short) instead of a raw first-vs-last comparison, which is
+  /// easily skewed by noisy endpoints common in satellite-derived NDVI.
   _NdviTrend _computeTrend(List<HealthDataPoint> points) {
     if (points.length < 2) return _NdviTrend.stable;
-    final delta = points.last.value - points.first.value;
+
+    double _avg(Iterable<HealthDataPoint> pts) {
+      final values = pts.map((p) => p.value).toList();
+      return values.reduce((a, b) => a + b) / values.length;
+    }
+
+    // Take up to 3 from each end (fewer for very short series).
+    final windowSize = points.length < 6 ? 1 : 3;
+    final startAvg = _avg(points.take(windowSize));
+    final endAvg = _avg(points.reversed.take(windowSize));
+
+    final delta = endAvg - startAvg;
     if (delta > 0.05) return _NdviTrend.improving;
     if (delta < -0.05) return _NdviTrend.declining;
     return _NdviTrend.stable;

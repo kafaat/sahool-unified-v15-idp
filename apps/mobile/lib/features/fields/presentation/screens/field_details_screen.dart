@@ -867,7 +867,14 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     }
 
     // ── NDVI بمفرده (مع غياب إجهاد مائي) → نقص نيتروجين ─────────────────
-    if (!waterStress) {
+    // النيتروجين يُوصى به فقط عندما يكون الإجهاد المائي مستبعداً بشكل معقول
+    // (NDWI > 0.3) لأن NDVI المنخفض قد يعكس أيضاً آفات أو أمراضاً أو مرحلة
+    // نمو — وليس نقص نيتروجين بالضرورة.
+    //
+    // Gate: !waterStress (ndwi >= 0.2) AND ndwi > 0.3 (comfortable moisture)
+    // so we only suggest nitrogen when water is clearly not the limiting factor.
+    final bool moistureOk = ndwi == null || ndwi > 0.3;
+    if (!waterStress && moistureOk) {
       if (ndvi != null && ndvi < 0.35) {
         recs.add(_FieldRecommendation(
           icon: Icons.eco,
@@ -887,6 +894,20 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
               '\nاستمر في برنامج التسميد الحالي وراقب التحسن.',
           priority: 'منخفض',
           priorityColor: Colors.green,
+        ));
+      }
+    } else if (!waterStress && !moistureOk) {
+      // NDWI is between 0.2 and 0.3 — moisture is borderline; NDVI is also
+      // low. Ambiguous stress: recommend field scouting before acting.
+      if (ndvi != null && ndvi < 0.4) {
+        recs.add(_FieldRecommendation(
+          icon: Icons.search,
+          color: Colors.amber,
+          title: 'معاينة ميدانية مطلوبة',
+          description: 'NDVI (${ndvi.toStringAsFixed(2)}) منخفض و NDWI ($ndwiStr) على الحد.'
+              '\nالسبب غير محدد — قد يكون آفات أو مرض أو نقص تغذية. معاينة أولاً.',
+          priority: 'مهم',
+          priorityColor: Colors.amber.shade800,
         ));
       }
     }

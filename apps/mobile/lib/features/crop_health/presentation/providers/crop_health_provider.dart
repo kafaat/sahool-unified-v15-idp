@@ -217,12 +217,20 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
 
   TimelineNotifier(this._api) : super(const TimelineState());
 
+  /// Monotonically-increasing counter used for request deduplication.
+  /// When the user taps presets rapidly, each call increments this value.
+  /// A response is only applied to state when its captured ID still matches
+  /// the current value — stale responses are silently dropped.
+  int _requestId = 0;
+
   Future<void> loadTimeline(
     String fieldId,
     String zoneId, {
     DateTime? from,
     DateTime? to,
   }) async {
+    final currentRequest = ++_requestId;
+
     state = state.copyWith(isLoading: true, error: null);
 
     final now = DateTime.now();
@@ -236,8 +244,14 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
         from: fromDate,
         to: toDate,
       );
+
+      // Discard if a newer request has already been dispatched.
+      if (currentRequest != _requestId) return;
+
       state = state.copyWith(isLoading: false, timeline: timeline);
     } catch (e) {
+      if (currentRequest != _requestId) return;
+
       state = state.copyWith(
         isLoading: false,
         error: 'فشل تحميل السلسلة الزمنية: ${e.toString()}',

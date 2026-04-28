@@ -111,9 +111,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   /// Field boundary coordinates (loaded from field data)
   List<LatLng> _fieldBoundary = [];
 
-  /// Base URL of the NDVI backend service, cached to avoid ref.read in build.
-  String _ndviBaseUrl = '';
-
   @override
   void initState() {
     super.initState();
@@ -121,13 +118,6 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     _loadFieldBoundary();
     _loadIndexValues();
     _loadAcquisitionDates();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Cache baseUrl once the ProviderScope is available.
-    _ndviBaseUrl = ref.read(agronomicRepositoryProvider).baseUrl;
   }
 
   @override
@@ -667,8 +657,22 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
     );
   }
 
-  /// Build spectral index polygon overlays using SpectralColormap
+  /// Build spectral index polygon overlays using SpectralColormap.
+  ///
+  /// This is the **vector fallback / simulated mode** layer.  It colours the
+  /// field boundary polygon with the most-recently-fetched spectral value from
+  /// [_indexValues].  No HTTP requests are made here — the actual index values
+  /// come from [_loadIndexValues] / [AgronomicRepository].
+  ///
+  /// The raster tile layer ([_buildRasterTileLayer]) handles real XYZ tiles
+  /// when the backend has Sentinel Hub configured; this polygon layer is shown
+  /// at all times so there is always a visible colour hint even while tiles
+  /// are loading.
   List<Widget> _buildSpectralOverlays() {
+    if (_fieldBoundary.isEmpty) return const [];
+
+    final overlays = <Widget>[];
+
     final activeIndices = <SpectralIndex>[
       if (_showNdvi) SpectralIndex.ndvi,
       if (_showNdwi) SpectralIndex.ndwi,
@@ -677,19 +681,32 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       if (_showNdre) SpectralIndex.ndre,
     ];
 
-    return [
-      for (final idx in activeIndices)
-        NdviTileLayerWidget(
-          key: ValueKey('tile_${idx.code}_${_acquisitionIndex}'),
-          config: NdviTileConfig.sahoolBackend(
-            baseUrl: _ndviBaseUrl,
-            fieldId: widget.fieldId,
-            index: idx,
-            date: _effectiveDate,
-          ),
-          visible: true,
+    for (final idx in activeIndices) {
+      final v = _indexValues[idx.code];
+      if (v == null) continue; // skip until data is available
+      final color = SpectralColormap.getColor(idx, v);
+      overlays.add(
+        PolygonLayer(
+          polygons: [
+            Polygon(
+              points: _fieldBoundary,
+              color: color.withValues(alpha: 0.35),
+              borderColor: color,
+              borderStrokeWidth: 2,
+              label: '${idx.code}: ${v.toStringAsFixed(2)}',
+              labelStyle: const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
+              ),
+            ),
+          ],
         ),
-    ];
+      );
+    }
+
+    return overlays;
   }
 
   Widget _buildToolbar() {

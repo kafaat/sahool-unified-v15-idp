@@ -87,19 +87,21 @@ class NdviTileLayerWidget extends StatelessWidget {
   /// Construct from a [NdviTileConfig].
   const NdviTileLayerWidget({
     super.key,
-    required NdviTileConfig this.config,
+    required NdviTileConfig config,
     this.visible = true,
     this.enableOfflineCache = true,
-  }) : tileUrlTemplate = null;
+  })  : config = config,
+        tileUrlTemplate = null;
 
   /// Phase 3 — Construct directly from the tileUrlTemplate returned by
   /// /v1/index-map/{fieldId}. This is the preferred constructor.
   const NdviTileLayerWidget.fromUrl({
     super.key,
-    required String this.tileUrlTemplate,
+    required String tileUrlTemplate,
     this.visible = true,
     this.enableOfflineCache = true,
-  }) : config = null;
+  })  : config = null,
+        tileUrlTemplate = tileUrlTemplate;
 
   @override
   Widget build(BuildContext context) {

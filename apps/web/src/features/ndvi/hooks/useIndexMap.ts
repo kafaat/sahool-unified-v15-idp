@@ -116,7 +116,13 @@ async function _fetchIndexMap(
       qualityScore: Number(d.quality_score ?? 0),
       cloudUsable: Boolean(d.cloud_usable ?? true),
       dataSource: ((d.data_source as string) ?? 'simulated') as IndexMapResponse['dataSource'],
-      location: (d.location as { latitude: number; longitude: number }) ?? { latitude: lat, longitude: lon },
+      location: (() => {
+        const loc = d.location as Record<string, unknown> | null | undefined;
+        return {
+          latitude: typeof loc?.latitude === 'number' ? (loc.latitude as number) : lat,
+          longitude: typeof loc?.longitude === 'number' ? (loc.longitude as number) : lon,
+        };
+      })(),
     } satisfies IndexMapResponse;
   });
 }

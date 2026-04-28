@@ -183,7 +183,7 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
 
     try {
       final result = await repo.getIndexValues(widget.fieldId, date);
-      if (!mounted || repo.currentGeneration > genAtStart + 1) return; // stale
+      if (!mounted || repo.currentGeneration != genAtStart + 1) return; // stale
 
       setState(() {
         _indexValues

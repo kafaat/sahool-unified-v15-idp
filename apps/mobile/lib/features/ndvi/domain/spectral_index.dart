@@ -97,9 +97,6 @@ enum SpectralIndex {
   /// so the UI should suppress it for the "live / today" slider position.
   final bool requiresHistorical;
 
-  final String colormap;
-  final bool requiresHistorical;
-
   const SpectralIndex({
     required this.code,
     required this.name,

@@ -10,6 +10,7 @@
 /// - ProcessingRecipe: colormap + requiresHistorical on SpectralIndex
 library;
 
+// Hides isNull/isNotNull from Drift to avoid matcher conflicts with flutter_test.
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';

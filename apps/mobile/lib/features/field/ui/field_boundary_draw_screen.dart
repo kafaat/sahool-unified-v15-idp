@@ -81,8 +81,12 @@ class _FieldBoundaryDrawScreenState
           16,
         );
       }
-    } catch (_) {
-      // Silently fall back to default center
+    } catch (e) {
+      AppLogger.w(
+        'Could not get current location',
+        tag: 'FieldBoundaryDraw',
+        data: {'error': e.toString()},
+      );
     } finally {
       if (mounted) setState(() => _isLocating = false);
     }

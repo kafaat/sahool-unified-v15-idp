@@ -599,7 +599,7 @@ class _FieldFormScreenState extends ConsumerState<FieldFormScreen> {
                   onPressed: () async {
                     final result = await context.push<List<LatLng>>(
                       '/field-boundary-draw',
-                      extra: _hasBoundary ? _boundary : null,
+                      extra: _boundary.isNotEmpty ? _boundary : const <LatLng>[],
                     );
                     if (result != null && result.length >= 3) {
                       setState(() {

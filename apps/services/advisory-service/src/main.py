@@ -755,12 +755,15 @@ async def assess_disease(req: DiseaseAssessRequest, user: User = Depends(get_cur
     # Prometheus KPI — aggregated by disease category/crop/severity,
     # no tenant_id/field_id labels (high-cardinality guard).
     if _agri_metrics is not None:
-        _agri_metrics.record_disease_detection(
-            disease_type=assessment.category or "unknown",
-            crop_type=req.crop or "unknown",
-            severity=assessment.severity or "medium",
-            confidence=assessment.confidence,
-        )
+        try:
+            _agri_metrics.record_disease_detection(
+                disease_type=assessment.category or "unknown",
+                crop_type=req.crop or "unknown",
+                severity=assessment.severity or "medium",
+                confidence=assessment.confidence,
+            )
+        except Exception as _m_exc:
+            logger.warning("agri_metrics_emit_failed", metric="record_disease_detection", error=str(_m_exc))
 
     # Publish event
     # TODO: migrate remaining publishers to outbox (see /api/v1/fertilizer/plan exemplar)

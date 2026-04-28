@@ -1816,12 +1816,15 @@ async def detect_crop_diseases(
             # Prometheus KPI — aggregated by disease/crop/severity, no
             # tenant_id/field_id labels (high-cardinality guard).
             if _agri_metrics is not None:
-                _agri_metrics.record_disease_detection(
-                    disease_type=detection.disease_type.value,
-                    crop_type=body.crop_type or "unknown",
-                    severity=detection.severity.value if detection.severity else "medium",
-                    confidence=detection.confidence,
-                )
+                try:
+                    _agri_metrics.record_disease_detection(
+                        disease_type=detection.disease_type.value,
+                        crop_type=body.crop_type or "unknown",
+                        severity=detection.severity.value if detection.severity else "medium",
+                        confidence=detection.confidence,
+                    )
+                except Exception as _m_exc:
+                    logger.warning("agri_metrics_emit_failed", metric="record_disease_detection", error=str(_m_exc))
 
         # Publish health assessment event
         issues = [d.disease_type.value for d in detections]

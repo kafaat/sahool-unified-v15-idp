@@ -327,6 +327,7 @@ async def lifespan(app: FastAPI):
                                     "agri_metrics_emit_failed",
                                     metric="ndvi_calculation",
                                     error=str(metrics_exc),
+                                    exc_info=True,
                                 )
             except Exception as e:
                 logger.error("event_handler_failed", subject="ndvi.calculated", error=str(e))

@@ -138,3 +138,32 @@ f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:ge
 f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:generic-secret:299
 f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:generic-secret:300
 f2c0c27b5523565e2475d93813717889dbfcdb1a:scripts/generators/generate_infra.py:generic-secret:310
+
+# ── Phase-5 rescan FPs (commit 459ab811 — gitleaks rescan after merge) ──
+# All re-flagged lines are previously-triaged false positives; same rationale
+# as the matching 95817f86 entries above. Re-listed here so the bot can match
+# against the new commit SHA after the origin/main merge.
+
+# auth/config.py — env-var resolution, same as 95817f86 entry
+459ab811f16ec0ea8cafee7d816e22a832d177fe:apps/services/shared/auth/config.py:generic-secret:29
+
+# user-service auth.service.ts — ALLOWED_OTP_PURPOSES string tuple of identifiers
+459ab811f16ec0ea8cafee7d816e22a832d177fe:apps/services/user-service/src/auth/auth.service.ts:generic-secret:83
+
+# weather-service graph/renderer.py — DEV_GRAPH_SIGNING_SECRET sentinel with # nosec B105
+459ab811f16ec0ea8cafee7d816e22a832d177fe:apps/services/weather-service/src/graph/renderer.py:generic-secret:33
+
+# weather-service main.py — os.getenv("WEATHER_GRAPH_SIGNING_SECRET", "") env-var read
+459ab811f16ec0ea8cafee7d816e22a832d177fe:apps/services/weather-service/src/main.py:generic-secret:182
+
+# run-migrations.sh — PGPASSWORD="$POSTGRES_PASSWORD" shell-variable expansion
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/run-migrations.sh:generic-secret:41
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/run-migrations.sh:generic-secret:60
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/run-migrations.sh:generic-secret:70
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/run-migrations.sh:generic-secret:71
+
+# generate_infra.py — Helm chart field NAMES (existingSecret, adminPasswordKey, etc.)
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/generators/generate_infra.py:generic-secret:297
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/generators/generate_infra.py:generic-secret:299
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/generators/generate_infra.py:generic-secret:300
+459ab811f16ec0ea8cafee7d816e22a832d177fe:scripts/generators/generate_infra.py:generic-secret:310

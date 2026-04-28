@@ -161,6 +161,18 @@ events:
           max: 0.82
           std: 0.08
 
+  # Deprecated aliases — kept for backward compatibility with consumers that
+  # still subscribe to the pre-v2.1.0 subject names. Will be removed in
+  # catalog v3.0.0. Migrate to sahool.satellite.ndvi.computed.
+  sahool.ndvi.calculated:
+    category: satellite
+    deprecated: true
+    deprecation_note: "Renamed to sahool.satellite.ndvi.computed in v2.1.0. Remove by v3.0.0."
+    description: "DEPRECATED — use sahool.satellite.ndvi.computed / انتقل إلى sahool.satellite.ndvi.computed"
+    producers:
+      - vegetation-analysis-service
+    consumers: []
+
   sahool.satellite.ndvi.anomaly:
     category: satellite
     description: "Emitted when NDVI anomaly is detected / يُرسل عند اكتشاف شذوذ في NDVI"
@@ -183,6 +195,16 @@ events:
         current_value: 0.45
         drop_percent: 37.5
 
+  # Deprecated alias — renamed in v2.1.0. Remove by v3.0.0.
+  sahool.ndvi.anomaly_detected:
+    category: satellite
+    deprecated: true
+    deprecation_note: "Renamed to sahool.satellite.ndvi.anomaly in v2.1.0. Remove by v3.0.0."
+    description: "DEPRECATED — use sahool.satellite.ndvi.anomaly"
+    producers:
+      - vegetation-analysis-service
+    consumers: []
+
   sahool.satellite.ndvi.trend:
     category: satellite
     description: "Emitted when NDVI trend changes / يُرسل عند تغير اتجاه NDVI"
@@ -196,6 +218,16 @@ events:
     consumers:
       - alert-service
       - advisory-service
+
+  # Deprecated alias — renamed in v2.1.0. Remove by v3.0.0.
+  sahool.ndvi.trend_changed:
+    category: satellite
+    deprecated: true
+    deprecation_note: "Renamed to sahool.satellite.ndvi.trend in v2.1.0. Remove by v3.0.0."
+    description: "DEPRECATED — use sahool.satellite.ndvi.trend"
+    producers:
+      - analytics-service
+    consumers: []
 
   # ═══════════════════════════════════════════════════════════════════════════
   # ALERT EVENTS
@@ -379,6 +411,25 @@ events:
       - alert-service
       - notification-service
       - advisory-service
+
+  # Deprecated aliases — renamed in v2.1.0. Remove by v3.0.0.
+  sahool.crop_health.assessment:
+    category: crop
+    deprecated: true
+    deprecation_note: "Renamed to sahool.crop.health_assessed in v2.1.0. Remove by v3.0.0."
+    description: "DEPRECATED — use sahool.crop.health_assessed"
+    producers:
+      - crop-intelligence-service
+    consumers: []
+
+  sahool.crop_health.disease_detected:
+    category: crop
+    deprecated: true
+    deprecation_note: "Renamed to sahool.crop.disease_detected in v2.1.0. Remove by v3.0.0."
+    description: "DEPRECATED — use sahool.crop.disease_detected"
+    producers:
+      - crop-intelligence-service
+    consumers: []
 
   # ═══════════════════════════════════════════════════════════════════════════
   # YIELD EVENTS

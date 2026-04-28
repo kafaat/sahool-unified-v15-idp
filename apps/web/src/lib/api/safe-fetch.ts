@@ -221,8 +221,10 @@ export async function safeFetchWithRetry<T>(
         throw apiError;
       }
 
-      // Exponential backoff with full jitter: delay ∈ [0.5×base, 1×base] × 2^(attempt−1)
-      // Jitter prevents thundering herd when many clients retry simultaneously.
+      // Exponential backoff with full jitter: multiply base×2^(attempt-1) by a
+      // random factor in [0.5, 1.0], so actual delay ∈ [0.5×, 1.0×] the nominal
+      // backoff for that attempt. Jitter prevents thundering herd when many
+      // clients retry simultaneously.
       const delay = baseDelayMs * 2 ** (attempt - 1) * (0.5 + Math.random() * 0.5);
       logger.production(`API call failed (attempt ${attempt}/${maxAttempts}): ${endpoint}`, {
         statusCode: apiError.statusCode,

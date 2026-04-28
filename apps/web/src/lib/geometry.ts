@@ -19,6 +19,12 @@ export const MAX_POLYGON_VERTICES = 2000;
  * Cross-product values below this threshold are treated as zero (collinear)
  * to prevent false positive self-intersection reports for very small polygons
  * (e.g. field boundaries where adjacent vertices differ by < 1 mm in WGS84).
+ *
+ * Rationale: 1mm at the equator ≈ 9×10⁻⁶ degrees in both lat and lng.
+ * A cross-product of two such vectors has magnitude ≈ (9e-6)² ≈ 8e-11, well
+ * below 1e-9, so genuine 1mm-scale collinear points are correctly handled.
+ * Genuine intersections of agricultural-scale edges (> 1cm apart) produce
+ * cross-products many orders of magnitude larger and are unaffected.
  */
 const EPS = 1e-9;
 

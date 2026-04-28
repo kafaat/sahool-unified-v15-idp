@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/di/providers.dart';
+import '../../../../core/widgets/field_context_header.dart';
 import '../../domain/entities/field_entity.dart';
+import '../../../weather/presentation/providers/weather_provider.dart';
 
 /// شاشة تفاصيل الحقل
 /// Field Details Screen
@@ -24,6 +26,12 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
+    // Trigger weather load for this specific field
+    Future.microtask(() {
+      if (mounted) {
+        ref.read(weatherProvider.notifier).loadWeather(widget.field.id);
+      }
+    });
   }
 
   @override
@@ -184,6 +192,23 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                       ),
                     ],
                   ),
+
+                  const SizedBox(height: 10),
+
+                  // Data provenance timestamp
+                  Row(
+                    children: [
+                      const Icon(Icons.update, color: Colors.white70, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        'آخر تحديث: ${_formatTimestamp(widget.field.updatedAt)}',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -259,6 +284,10 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Field context banner (data provenance – who/what/when)
+          FieldContextHeader(field: widget.field),
+          const SizedBox(height: 20),
+
           // Info cards
           _buildSectionTitle('معلومات الحقل'),
           _buildInfoCard(),
@@ -432,6 +461,33 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   Widget _buildWeatherCard() {
+    final weatherState = ref.watch(weatherProvider);
+
+    final String temp;
+    final String condition;
+    final String humidity;
+    final String wind;
+
+    if (weatherState.isLoading) {
+      return const Card(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    } else if (weatherState.data != null) {
+      final current = weatherState.data!.current;
+      temp = '${current.temperature.round()}°C';
+      condition = current.conditionAr;
+      humidity = '${current.humidity}%';
+      wind = '${current.windSpeed.toStringAsFixed(0)} كم/س';
+    } else {
+      temp = '—';
+      condition = 'لا توجد بيانات طقس';
+      humidity = '—';
+      wind = '—';
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -445,15 +501,15 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    '28°C',
-                    style: TextStyle(
+                  Text(
+                    temp,
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   Text(
-                    'مشمس جزئياً',
+                    condition,
                     style: TextStyle(color: Colors.grey[600]),
                   ),
                 ],
@@ -466,7 +522,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                   children: [
                     const Icon(Icons.water_drop, size: 16, color: Colors.blue),
                     const SizedBox(width: 4),
-                    Text('45%', style: TextStyle(color: Colors.grey[600])),
+                    Text(humidity, style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -474,7 +530,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
                   children: [
                     const Icon(Icons.air, size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
-                    Text('12 كم/س', style: TextStyle(color: Colors.grey[600])),
+                    Text(wind, style: TextStyle(color: Colors.grey[600])),
                   ],
                 ),
               ],
@@ -489,32 +545,28 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Column(
-        children: [
-          _buildActivityItem(
-            icon: Icons.water_drop,
-            color: Colors.blue,
-            title: 'تم الري',
-            subtitle: 'ري بالمحور - 45 دقيقة',
-            time: 'منذ ساعتين',
-          ),
-          const Divider(height: 1),
-          _buildActivityItem(
-            icon: Icons.eco,
-            color: Colors.green,
-            title: 'قياس NDVI',
-            subtitle: 'القيمة: 0.72',
-            time: 'أمس',
-          ),
-          const Divider(height: 1),
-          _buildActivityItem(
-            icon: Icons.task_alt,
-            color: Colors.orange,
-            title: 'مهمة مكتملة',
-            subtitle: 'تفقد الآفات',
-            time: 'منذ يومين',
-          ),
-        ],
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Icon(Icons.history, size: 40, color: Colors.grey[300]),
+            const SizedBox(height: 12),
+            Text(
+              'لا توجد أنشطة مسجلة',
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[500],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'ستظهر هنا آخر العمليات بعد مزامنة البيانات',
+              style: TextStyle(color: Colors.grey[400], fontSize: 12),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -633,18 +685,20 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            _buildIndexRow('NDVI', widget.field.ndviValue ?? 0, Colors.green),
+            _buildIndexRow('NDVI', widget.field.ndviValue, Colors.green),
             const Divider(),
-            _buildIndexRow('NDWI', widget.field.ndwiValue ?? 0, Colors.blue),
+            _buildIndexRow('NDWI', widget.field.ndwiValue, Colors.blue),
             const Divider(),
-            _buildIndexRow('NDRE', 0.28, Colors.orange),
+            // NDRE is not yet available in FieldEntity (requires Sentinel-2 red-edge
+            // band processing). Displayed as '—' until the data pipeline is wired.
+            _buildIndexRow('NDRE', null, Colors.orange),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildIndexRow(String name, double value, Color color) {
+  Widget _buildIndexRow(String name, double? value, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
@@ -653,54 +707,241 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
             name,
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
+          const SizedBox(width: 8),
+          if (value != null)
+            Text(
+              _indexInterpretation(name, value),
+              style: TextStyle(fontSize: 11, color: color.withValues(alpha: 0.8)),
+            ),
           const Spacer(),
-          SizedBox(
-            width: 120,
-            child: LinearProgressIndicator(
-              value: (value + 1) / 2, // Normalize -1 to 1 range
-              backgroundColor: Colors.grey[200],
-              valueColor: AlwaysStoppedAnimation(color),
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
+          if (value != null) ...[
+            SizedBox(
+              width: 120,
+              child: LinearProgressIndicator(
+                value: (value + 1) / 2, // Normalize -1 to 1 range
+                backgroundColor: Colors.grey[200],
+                valueColor: AlwaysStoppedAnimation(color),
+                minHeight: 8,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            value.toStringAsFixed(2),
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: color,
+            const SizedBox(width: 12),
+            Text(
+              value.toStringAsFixed(2),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
             ),
-          ),
+          ] else
+            Text('—', style: TextStyle(color: Colors.grey[400], fontSize: 14)),
         ],
       ),
     );
   }
 
+  /// Returns a short agronomic interpretation for an index value.
+  /// يُعيد تفسيراً زراعياً مختصراً لقيمة المؤشر.
+  String _indexInterpretation(String name, double value) {
+    switch (name) {
+      case 'NDVI':
+        if (value >= 0.6) return '· نمو ممتاز';
+        if (value >= 0.4) return '· نمو جيد';
+        if (value >= 0.2) return '· نمو ضعيف';
+        return '· يحتاج تدخلاً';
+      case 'NDWI':
+        if (value >= 0.3) return '· مستوى مائي كافٍ';
+        if (value >= 0.15) return '· مراقبة الري';
+        return '· يحتاج ريّاً';
+      default:
+        return '';
+    }
+  }
+
+  /// Formats a DateTime as a short Arabic date+time string.
+  String _formatTimestamp(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 60) return 'منذ ${diff.inMinutes} دقيقة';
+    if (diff.inHours < 24) return 'منذ ${diff.inHours} ساعة';
+    if (diff.inDays == 1) return 'البارحة';
+    if (diff.inDays < 7) return 'منذ ${diff.inDays} أيام';
+    return '${dt.day}/${dt.month}/${dt.year}';
+  }
+
   Widget _buildRecommendationsCard() {
+    final recs = _deriveRecommendations();
+
+    if (recs.isEmpty) {
+      return Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+          child: Center(
+            child: Column(
+              children: [
+                Icon(Icons.check_circle_outline, color: Colors.green[400], size: 40),
+                const SizedBox(height: 8),
+                Text(
+                  'الحقل في حالة جيدة – لا توجد توصيات فورية',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Column(
         children: [
-          _buildRecommendationItem(
-            icon: Icons.water_drop,
-            color: Colors.blue,
-            title: 'زيادة الري',
-            description: 'قيمة NDWI منخفضة، يُنصح بزيادة معدل الري',
-            priority: 'متوسط',
-          ),
-          const Divider(height: 1),
-          _buildRecommendationItem(
-            icon: Icons.eco,
-            color: Colors.green,
-            title: 'تسميد نيتروجيني',
-            description: 'لتحسين مؤشر NDVI',
-            priority: 'منخفض',
-          ),
+          for (int i = 0; i < recs.length; i++) ...[
+            if (i > 0) const Divider(height: 1),
+            _buildRecommendationItem(
+              icon: recs[i].icon,
+              color: recs[i].color,
+              title: recs[i].title,
+              description: recs[i].description,
+              priority: recs[i].priority,
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  /// Derives recommendations from live NDVI / NDWI / health values with
+  /// multi-index correlation and an honest confidence disclaimer when trend
+  /// data is unavailable (snapshot-only context).
+  ///
+  /// Nitrogen fertilizer is only recommended when soil moisture is comfortably
+  /// above this threshold. Below it the NDVI drop may be caused by drought,
+  /// pests, or phenological stage rather than nitrogen deficiency.
+  static const double _nitrogenMoistureGate = 0.3;
+
+  /// يستخرج التوصيات بربط مؤشرات متعددة مع إشارة واضحة بأن البيانات لحظية.
+  List<_FieldRecommendation> _deriveRecommendations() {
+    final recs = <_FieldRecommendation>[];
+    final ndvi = widget.field.ndviValue;
+    final ndwi = widget.field.ndwiValue;
+    final health = widget.field.healthScore;
+
+    // ── متعدد المؤشرات: إجهاد مائي + NDVI منخفض ──────────────────────────
+    // كلا المؤشرين يشيران معاً لأولوية الري على التسميد
+    final bool waterStress = ndwi != null && ndwi < 0.2;
+    final bool lowNdvi = ndvi != null && ndvi < 0.4;
+    // Extract non-nullable locals so interpolations below are safe without '!'.
+    final String ndwiStr = ndwi?.toStringAsFixed(2) ?? '-';
+    final String ndviStr = ndvi?.toStringAsFixed(2) ?? '-';
+
+    if (waterStress && lowNdvi) {
+      recs.add(_FieldRecommendation(
+        icon: Icons.water_drop,
+        color: Colors.blue,
+        title: 'أولوية الري (NDWI + NDVI منخفضان)',
+        description: 'كلا المؤشرين يؤكدان إجهاداً مائياً. الري أولاً قبل التسميد'
+            '\n(NDWI: $ndwiStr | NDVI: $ndviStr)',
+        priority: 'عاجل',
+        priorityColor: Colors.red,
+      ));
+    } else if (waterStress) {
+      recs.add(_FieldRecommendation(
+        icon: Icons.water_drop,
+        color: Colors.blue,
+        title: 'زيادة الري',
+        description: 'قيمة NDWI ($ndwiStr) منخفضة — إجهاد مائي محتمل.'
+            '\nيُنصح بزيادة معدل الري.',
+        priority: 'عاجل',
+        priorityColor: Colors.red,
+      ));
+    } else if (ndwi != null && ndwi < 0.35) {
+      recs.add(_FieldRecommendation(
+        icon: Icons.water_drop,
+        color: Colors.blueAccent,
+        title: 'مراقبة الري',
+        description: 'قيمة NDWI ($ndwiStr) في الحد الأدنى.'
+            '\nراقب رطوبة التربة خلال 48 ساعة.',
+        priority: 'متوسط',
+        priorityColor: Colors.orange,
+      ));
+    }
+
+    // ── NDVI بمفرده (مع غياب إجهاد مائي) → نقص نيتروجين ─────────────────
+    // النيتروجين يُوصى به فقط عندما يكون الإجهاد المائي مستبعداً بشكل معقول
+    // (NDWI > 0.3) لأن NDVI المنخفض قد يعكس أيضاً آفات أو أمراضاً أو مرحلة
+    // نمو — وليس نقص نيتروجين بالضرورة.
+    //
+    // Gate: !waterStress (ndwi >= 0.2) AND ndwi > _nitrogenMoistureGate (comfortable moisture)
+    // so we only suggest nitrogen when water is clearly not the limiting factor.
+    final bool moistureOk = ndwi == null || ndwi > _nitrogenMoistureGate;
+    if (!waterStress && moistureOk) {
+      if (ndvi != null && ndvi < 0.35) {
+        recs.add(_FieldRecommendation(
+          icon: Icons.eco,
+          color: Colors.green,
+          title: 'تسميد نيتروجيني',
+          description: 'قيمة NDVI (${ndvi.toStringAsFixed(2)}) منخفضة دون إجهاد مائي.'
+              '\nيُشير إلى نقص كلوروفيل — يُنصح بجرعة نيتروجين.',
+          priority: 'مهم',
+          priorityColor: Colors.deepOrange,
+        ));
+      } else if (ndvi != null && ndvi < 0.5) {
+        recs.add(_FieldRecommendation(
+          icon: Icons.eco,
+          color: Colors.lightGreen,
+          title: 'متابعة النمو',
+          description: 'قيمة NDVI (${ndvi.toStringAsFixed(2)}) متوسطة.'
+              '\nاستمر في برنامج التسميد الحالي وراقب التحسن.',
+          priority: 'منخفض',
+          priorityColor: Colors.green,
+        ));
+      }
+    } else if (!waterStress && !moistureOk) {
+      // NDWI is between 0.2 and 0.3 — moisture is borderline; NDVI is also
+      // low. Ambiguous stress: recommend field scouting before acting.
+      if (ndvi != null && ndvi < 0.4) {
+        recs.add(_FieldRecommendation(
+          icon: Icons.search,
+          color: Colors.amber,
+          title: 'معاينة ميدانية مطلوبة',
+          description: 'NDVI (${ndvi.toStringAsFixed(2)}) منخفض و NDWI ($ndwiStr) على الحد.'
+              '\nالسبب غير محدد — قد يكون آفات أو مرض أو نقص تغذية. معاينة أولاً.',
+          priority: 'مهم',
+          priorityColor: Colors.amber.shade800,
+        ));
+      }
+    }
+
+    // ── مؤشر الصحة العام ──────────────────────────────────────────────────
+    if (health < 0.4) {
+      recs.add(_FieldRecommendation(
+        icon: Icons.warning_amber,
+        color: Colors.red,
+        title: 'صحة الحقل منخفضة',
+        description: 'مؤشر الصحة العام (${(health * 100).round()}%) ضعيف.'
+            '\nيُنصح بمعاينة ميدانية فورية لتحديد السبب.',
+        priority: 'عاجل',
+        priorityColor: Colors.red,
+      ));
+    }
+
+    // ── إشعار صدق: بيانات لحظية بدون سياق زمني ───────────────────────────
+    recs.add(const _FieldRecommendation(
+      icon: Icons.info_outline,
+      color: Colors.blueGrey,
+      title: 'ملاحظة: قراءة لحظية',
+      description: 'هذه التوصيات مبنية على آخر قياس متاح فقط.\n'
+          'لتحليل الاتجاه الزمني (↑/↓) افتح "صحة المحاصيل" واختر فترة أسبوع أو شهر.',
+      priority: 'معلومة',
+      priorityColor: Colors.blueGrey,
+    ));
+
+    return recs;
   }
 
   Widget _buildRecommendationItem({
@@ -709,6 +950,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     required String title,
     required String description,
     required String priority,
+    Color priorityColor = Colors.orange,
   }) {
     return ListTile(
       leading: Container(
@@ -725,12 +967,12 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
       trailing: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.orange.withValues(alpha: 0.1),
+          color: priorityColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
           priority,
-          style: const TextStyle(fontSize: 10, color: Colors.orange),
+          style: TextStyle(fontSize: 10, color: priorityColor),
         ),
       ),
     );
@@ -768,23 +1010,31 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   }
 
   Widget _buildHistoryTab() {
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return Card(
-          margin: const EdgeInsets.only(bottom: 8),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: const Color(0xFF367C2B).withValues(alpha: 0.1),
-              child: const Icon(Icons.history, color: Color(0xFF367C2B)),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.history, size: 64, color: Colors.grey[300]),
+            const SizedBox(height: 16),
+            Text(
+              'لا يوجد سجل نشاط',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
             ),
-            title: Text('نشاط ${10 - index}'),
-            subtitle: Text('منذ ${index + 1} أيام'),
-            trailing: const Icon(Icons.chevron_left),
-          ),
-        );
-      },
+            const SizedBox(height: 8),
+            Text(
+              'سيظهر هنا سجل كامل بعمليات الحقل بعد مزامنة البيانات من الخادم',
+              style: TextStyle(color: Colors.grey[400], fontSize: 13),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -963,4 +1213,24 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
+}
+
+/// Internal value-object for a data-derived agronomic recommendation.
+/// كائن داخلي يمثل توصية زراعية مستخرجة من البيانات الحقيقية.
+class _FieldRecommendation {
+  final IconData icon;
+  final Color color;
+  final String title;
+  final String description;
+  final String priority;
+  final Color priorityColor;
+
+  const _FieldRecommendation({
+    required this.icon,
+    required this.color,
+    required this.title,
+    required this.description,
+    required this.priority,
+    required this.priorityColor,
+  });
 }

@@ -34,8 +34,23 @@ class _HomeDashboardState extends ConsumerState<HomeDashboard> {
     Logger.debug('Loading home dashboard data', tag: 'HOME');
     Future.microtask(() async {
       await ref.read(notificationsProvider.notifier).loadNotifications();
-      // Load weather data
-      await ref.read(weatherProvider.notifier).loadWeatherByLocation(15.3694, 44.1910);
+      // Load weather using first available field's centroid instead of hardcoded coords
+      try {
+        final fields = await ref.read(dashboardFieldsProvider.future);
+        if (fields.isNotEmpty && fields.first.centroid != null) {
+          await ref.read(weatherProvider.notifier).loadWeatherByLocation(
+                fields.first.centroid!.latitude,
+                fields.first.centroid!.longitude,
+              );
+        }
+        // If no fields or no centroid, WeatherWidget gracefully shows "—"
+      } catch (e) {
+        // Weather load is non-critical; failures are shown in WeatherWidget
+        Logger.w(
+          'Weather load failed on home dashboard',
+          tag: 'HOME',
+        );
+      }
       Logger.info(
         'Home data loaded',
         messageAr: 'تم تحميل بيانات الرئيسية',

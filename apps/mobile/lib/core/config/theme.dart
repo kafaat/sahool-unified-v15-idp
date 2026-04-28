@@ -11,6 +11,11 @@ class SahoolTheme {
   static const Color primaryLight = Color(0xFF66BB6A);   // Light Green (primary-400)
   static const Color primaryDark = Color(0xFF388E3C);    // Dark Green (primary-700)
 
+  // Header / AppBar greens – used by screens that pre-date the 4CAF50 brand update.
+  // All hard-coded occurrences of #367C2B / #2D6623 should reference these.
+  static const Color headerGreen = Color(0xFF367C2B);      // AppBar / SliverAppBar background
+  static const Color headerGreenDark = Color(0xFF2D6623);  // Gradient bottom / deep shadow
+
   static const Color secondary = Color(0xFF1E88E5);     // Blue
   static const Color accent = Color(0xFFFF9800);        // Orange
 

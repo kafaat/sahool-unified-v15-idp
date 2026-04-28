@@ -33,6 +33,8 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   String _sortBy = 'name';
   bool _isGridView = false;
 
+  Timer? _searchDebounce;
+
   List<FieldEntity> _fields = [];
   bool _isLoading = true;
   String? _loadError;
@@ -41,6 +43,12 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
   void initState() {
     super.initState();
     _loadFields();
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadFields() async {
@@ -55,8 +63,7 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
       final repo = ref.read(fieldsRepoProvider);
       final domainFields = await repo.getAllFields(tenantId);
 
-      // Map domain Field entities to FieldEntity for the UI
-      final now = DateTime.now();
+      // Map domain Field entities to UI FieldEntity view-models
       setState(() {
         _fields = domainFields.map((f) {
           final ndvi = f.ndviCurrent ?? 0.0;
@@ -89,10 +96,10 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
         }).toList();
         _isLoading = false;
       });
-    } catch (e) {
+    } catch (_) {
       setState(() {
         _isLoading = false;
-        _loadError = 'فشل تحميل الحقول: $e';
+        _loadError = 'فشل تحميل الحقول. تحقق من الاتصال وأعد المحاولة.';
       });
     }
   }
@@ -159,8 +166,8 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('فشل التحديث: $e'),
+          const SnackBar(
+            content: Text('فشل التحديث. تحقق من الاتصال.'),
             backgroundColor: Colors.red,
           ),
         );
@@ -316,6 +323,16 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
     );
   }
 
+  /// Unique crop types extracted from loaded fields, excluding placeholder values.
+  /// Sorted alphabetically for a stable chip order.
+  Set<String> get _availableCropTypes {
+    return _fields
+        .map((f) => f.cropType)
+        .where((c) => c.isNotEmpty && c != 'غير محدد')
+        .toSet()
+      ..removeAll(['']); // belt-and-suspenders guard
+  }
+
   Widget _buildSearchAndFilters() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -361,22 +378,28 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                 fillColor: Colors.grey[100],
               ),
               onChanged: (value) {
-                setState(() => _searchQuery = value);
-                // Announce search results count after debounce
-                if (value.length > 2) {
-                  AnnouncementHelper.announceListUpdate(
-                    context,
-                    _filteredFields.length,
-                    'حقل',
-                  );
-                }
+                _searchDebounce?.cancel();
+                _searchDebounce = Timer(
+                  const Duration(milliseconds: 350),
+                  () {
+                    if (!mounted) return;
+                    setState(() => _searchQuery = value);
+                    if (value.length > 2) {
+                      AnnouncementHelper.announceListUpdate(
+                        context,
+                        _filteredFields.length,
+                        'حقل',
+                      );
+                    }
+                  },
+                );
               },
             ),
           ),
 
           const SizedBox(height: 12),
 
-          // Filter chips with accessibility
+          // Filter chips with accessibility – built dynamically from loaded fields
           Semantics(
             label: 'فلترة حسب نوع المحصول',
             child: SingleChildScrollView(
@@ -392,46 +415,23 @@ class _FieldsListScreenState extends ConsumerState<FieldsListScreen> {
                       AnnouncementHelper.announce(context, 'عرض كل الحقول');
                     },
                   ),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(
-                    label: 'قمح',
-                    semanticLabel: 'فلترة حسب القمح',
-                    selected: _selectedCrop == 'قمح',
-                    onSelected: (_) {
-                      setState(() => _selectedCrop = 'قمح');
-                      AnnouncementHelper.announce(context, 'فلترة حسب القمح');
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(
-                    label: 'ذرة',
-                    semanticLabel: 'فلترة حسب الذرة',
-                    selected: _selectedCrop == 'ذرة',
-                    onSelected: (_) {
-                      setState(() => _selectedCrop = 'ذرة');
-                      AnnouncementHelper.announce(context, 'فلترة حسب الذرة');
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(
-                    label: 'برسيم',
-                    semanticLabel: 'فلترة حسب البرسيم',
-                    selected: _selectedCrop == 'برسيم',
-                    onSelected: (_) {
-                      setState(() => _selectedCrop = 'برسيم');
-                      AnnouncementHelper.announce(context, 'فلترة حسب البرسيم');
-                    },
-                  ),
-                  const SizedBox(width: 8),
-                  _buildFilterChip(
-                    label: 'نخيل',
-                    semanticLabel: 'فلترة حسب النخيل',
-                    selected: _selectedCrop == 'نخيل',
-                    onSelected: (_) {
-                      setState(() => _selectedCrop = 'نخيل');
-                      AnnouncementHelper.announce(context, 'فلترة حسب النخيل');
-                    },
-                  ),
+                  ..._availableCropTypes.map((crop) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: _buildFilterChip(
+                        label: crop,
+                        semanticLabel: 'فلترة حسب $crop',
+                        selected: _selectedCrop == crop,
+                        onSelected: (_) {
+                          setState(() => _selectedCrop = _selectedCrop == crop ? null : crop);
+                          AnnouncementHelper.announce(
+                            context,
+                            _selectedCrop == null ? 'عرض كل الحقول' : 'فلترة حسب $crop',
+                          );
+                        },
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),

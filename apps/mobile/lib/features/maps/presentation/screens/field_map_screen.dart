@@ -84,6 +84,12 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
       _daysBack == 0 ? null : DateTime.now().subtract(Duration(days: _daysBack));
 
   /// Cache key = "{fieldId}:{YYYY-MM-DD}" or "{fieldId}:live".
+  ///
+  /// Note: for historical dates the timeseries endpoint only returns NDVI, so
+  /// other live index values are preserved from the previous live fetch and
+  /// only NDVI is overwritten for the selected date. This is intentional:
+  /// a full multi-index snapshot per date would require separate API calls
+  /// that are not yet exposed by the backend.
   String _cacheKey(DateTime? date) {
     if (date == null) return '${widget.fieldId}:live';
     final d =

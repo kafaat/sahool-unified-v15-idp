@@ -214,10 +214,14 @@ class GeoJson {
   /// Check whether a polygon's edges self-intersect.
   ///
   /// Uses a segment-intersection test on every pair of non-adjacent edges.
+  /// A polygon needs at least 4 vertices for two non-adjacent edges to exist,
+  /// so triangles (n < 4) can never self-intersect.
   /// Returns `true` if any two non-adjacent edges cross.
+  ///
+  /// Complexity: O(n²) — acceptable for field boundaries (typically < 100 points).
   static bool hasSelfIntersection(List<LatLng> polygon) {
     final n = polygon.length;
-    if (n < 4) return false; // Triangle can't self-intersect
+    if (n < 4) return false; // Need ≥ 4 vertices for non-adjacent edges
 
     // Work in longitude/latitude degrees (good enough for field scale)
     for (int i = 0; i < n - 1; i++) {

@@ -961,3 +961,16 @@ scrape_configs:
           description: 'LLM Orchestration & Routing'
           description_ar: 'تنسيق وتوجيه النماذج اللغوية'
     metrics_path: /metrics
+
+  # Skill Router Service - خدمة توجيه المهارات (ADR-010)
+  - job_name: 'skill-router-service'
+    static_configs:
+      - targets: ['skill-router-service:8205']
+        labels:
+          tier: 'ai-ml'
+          component: 'skill-routing'
+          service: 'skill-router-service'
+          language: 'python'
+          description: 'Skill Router — maps user queries to registered skills'
+          description_ar: 'توجيه المهارات — ربط استعلامات المستخدم بالمهارات المسجلة'
+    metrics_path: /metrics

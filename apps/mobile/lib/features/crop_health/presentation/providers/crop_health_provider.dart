@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/di/providers.dart' show apiClientProvider;
 import '../../data/remote/crop_health_api.dart';
@@ -223,40 +225,63 @@ class TimelineNotifier extends StateNotifier<TimelineState> {
   /// the current value — stale responses are silently dropped.
   int _requestId = 0;
 
+  /// Debounce timer — cancelled and restarted on every `loadTimeline` call.
+  /// The 200 ms window prevents unnecessary API calls and backend pressure
+  /// when the user taps presets in quick succession.  Only the final tap
+  /// within the window actually fires the network request.
+  Timer? _debounceTimer;
+
+  /// Duration after the last `loadTimeline` call before the API request fires.
+  static const _debounceDuration = Duration(milliseconds: 200);
+
   Future<void> loadTimeline(
     String fieldId,
     String zoneId, {
     DateTime? from,
     DateTime? to,
   }) async {
+    _debounceTimer?.cancel();
+
+    // Increment now so any already-in-flight request sees a stale ID.
     final currentRequest = ++_requestId;
 
+    // Show the loading indicator immediately so the UI feels responsive.
     state = state.copyWith(isLoading: true, error: null);
 
     final now = DateTime.now();
     final fromDate = from ?? now.subtract(const Duration(days: 30));
     final toDate = to ?? now;
 
-    try {
-      final timeline = await _api.getTimeline(
-        fieldId,
-        zoneId,
-        from: fromDate,
-        to: toDate,
-      );
+    // Defer the network call by 200 ms. If the user taps another preset
+    // within this window the timer is cancelled and a new one is started.
+    _debounceTimer = Timer(_debounceDuration, () async {
+      try {
+        final timeline = await _api.getTimeline(
+          fieldId,
+          zoneId,
+          from: fromDate,
+          to: toDate,
+        );
 
-      // Discard if a newer request has already been dispatched.
-      if (currentRequest != _requestId) return;
+        // Discard if a newer request has already been dispatched.
+        if (currentRequest != _requestId) return;
 
-      state = state.copyWith(isLoading: false, timeline: timeline);
-    } catch (e) {
-      if (currentRequest != _requestId) return;
+        state = state.copyWith(isLoading: false, timeline: timeline);
+      } catch (e) {
+        if (currentRequest != _requestId) return;
 
-      state = state.copyWith(
-        isLoading: false,
-        error: 'فشل تحميل السلسلة الزمنية: ${e.toString()}',
-      );
-    }
+        state = state.copyWith(
+          isLoading: false,
+          error: 'فشل تحميل السلسلة الزمنية: ${e.toString()}',
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
   }
 }
 

@@ -13,8 +13,8 @@ import 'package:flutter_test/flutter_test.dart';
 enum NdviTrend { improving, declining, stable }
 
 /// Mirrors `_computeTrend` in the dashboard.
-/// Uses 3-point moving average on each end (or 1-point for short series)
-/// to reduce noise sensitivity from satellite-derived NDVI.
+/// Window size degrades gradually: `(length ~/ 2).clamp(1, 3)`.
+///   length ≥ 6 → 3   length 4–5 → 2   length 2–3 → 1
 NdviTrend computeTrend(List<double> ndviSeries) {
   if (ndviSeries.length < 2) return NdviTrend.stable;
 
@@ -23,7 +23,8 @@ NdviTrend computeTrend(List<double> ndviSeries) {
     return list.reduce((a, b) => a + b) / list.length;
   }
 
-  final windowSize = ndviSeries.length < 6 ? 1 : 3;
+  // Gradual degradation — never collapses abruptly to last-vs-first.
+  final windowSize = (ndviSeries.length ~/ 2).clamp(1, 3);
   final startAvg = avg(ndviSeries.take(windowSize));
   final endAvg = avg(ndviSeries.reversed.take(windowSize));
 
@@ -122,9 +123,10 @@ void main() {
     });
   });
 
-  group('computeTrend — short series (<6 points, window=1)', () {
-    // Window collapses to 1 for series shorter than 6.
-    // Behaviour is identical to the old first-vs-last logic in these cases.
+  group('computeTrend — short series (length 2–3, window=1)', () {
+    // length=2 → window=(2~/2).clamp(1,3)=1
+    // length=3 → window=(3~/2).clamp(1,3)=1
+    // Equivalent to first-vs-last for these very short series.
 
     test('delta exactly +0.05 is stable (not improving)', () {
       expect(computeTrend([0.30, 0.35]), NdviTrend.stable);
@@ -159,28 +161,57 @@ void main() {
       // 0.5499 - 0.60 = -0.0501, just below -0.05.
       expect(computeTrend([0.60, 0.5499]), NdviTrend.declining);
     });
+  });
+
+  group('computeTrend — intermediate series (length 4–5, window=2)', () {
+    // length=4 → window=(4~/2).clamp(1,3)=2
+    // length=5 → window=(5~/2).clamp(1,3)=2
+    // Uses 2-point averages — more noise-resilient than raw first-vs-last.
+
+    test('4-point monotone increase → improving', () {
+      // startAvg=avg([0.30,0.36])=0.33, endAvg=avg([0.60,0.52])=0.56, delta=+0.23
+      expect(computeTrend([0.30, 0.36, 0.52, 0.60]), NdviTrend.improving);
+    });
+
+    test('4-point spike at start dampened: endpoint spike does not dominate', () {
+      // Raw last-first: 0.42 - 0.80 = -0.38 → declining (misleading)
+      // 2-pt avg: startAvg=avg([0.80,0.35])=0.575, endAvg=avg([0.42,0.38])=0.40
+      // delta = -0.175 → declining (correct — series IS declining after spike)
+      // This proves window=2 still catches the true trend even with 4 points.
+      expect(computeTrend([0.80, 0.35, 0.38, 0.42]), NdviTrend.declining);
+    });
+
+    test('4-point flat with noise → stable', () {
+      // startAvg=avg([0.50,0.52])=0.51, endAvg=avg([0.51,0.49])=0.50, delta=-0.01
+      expect(computeTrend([0.50, 0.52, 0.51, 0.49]), NdviTrend.stable);
+    });
 
     test('5-point monotone increase → improving', () {
-      // Series length 5 → window=1 (first vs last).
-      // first=0.30, last=0.60 → delta=+0.30 → improving.
+      // window=2: startAvg=avg([0.30,0.36])=0.33, endAvg=avg([0.60,0.52])=0.56
+      // delta = +0.23 → improving
       expect(computeTrend([0.30, 0.36, 0.42, 0.52, 0.60]), NdviTrend.improving);
+    });
+
+    test('5-point declining trend → declining', () {
+      // startAvg=avg([0.70,0.65])=0.675, endAvg=avg([0.45,0.40])=0.425, delta=-0.25
+      expect(computeTrend([0.70, 0.65, 0.55, 0.45, 0.40]), NdviTrend.declining);
     });
   });
 
   group('computeTrend — non-monotonic series (noise robustness, window=3)', () {
     // ── Series of length >= 6 uses 3-point averages ──
 
-    test('spike at end does not make declining series look improving', () {
-      // Raw last-first would be: 0.65 - 0.30 = +0.35 → improving (WRONG).
-      // 3-point avg: startAvg=(0.30+0.31+0.29)/3=0.30, endAvg=(0.32+0.31+0.65)/3=0.427
-      // delta = 0.127 → improving — both agree here because spike lifts average.
-      // The key test is the reverse: a spike at the start should not make
-      // an improving trend look declining.
-      expect(computeTrend([0.65, 0.30, 0.31, 0.35, 0.40, 0.45]), NdviTrend.improving);
+    test('spike at start dampened to stable: 3-pt avg neutralises single-point outlier', () {
+      // Series: big spike at t0, then drop, then gradual recovery.
+      // Raw first-vs-last: 0.45 - 0.65 = -0.20 → declining (misleading).
+      // 3-pt avg: startAvg=(0.65+0.30+0.31)/3=0.42, endAvg=(0.35+0.40+0.45)/3=0.40
+      // delta = -0.02 → stable — the 3-point window correctly absorbs the
+      // spike so the series is not misclassified as strongly declining.
+      expect(computeTrend([0.65, 0.30, 0.31, 0.35, 0.40, 0.45]), NdviTrend.stable);
     });
 
     test('non-monotonic series [0.3,0.5,0.35] → stable (not improving)', () {
-      // 3 points → window=1 (length < 6).
+      // length=3 → window=(3~/2).clamp(1,3)=1 → equivalent to first-vs-last.
       // start=0.30, end=0.35 → delta=+0.05 → stable (not > 0.05).
       expect(computeTrend([0.30, 0.50, 0.35]), NdviTrend.stable);
     });

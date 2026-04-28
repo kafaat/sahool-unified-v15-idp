@@ -344,12 +344,19 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     );
   }
 
-  /// حساب اتجاه NDVI باستخدام متوسط نقاط البداية والنهاية (3 نقاط لكل طرف)
+  /// حساب اتجاه NDVI باستخدام متوسط نقاط البداية والنهاية
   /// لتقليل تأثير الضجيج على الإشارة الاتجاهية.
   ///
-  /// Uses the average of the first 3 and last 3 points (or fewer when the
-  /// series is short) instead of a raw first-vs-last comparison, which is
-  /// easily skewed by noisy endpoints common in satellite-derived NDVI.
+  /// Window size degrades gradually with series length:
+  ///   length ≥ 6  → window = 3  (full noise-dampening)
+  ///   length = 4–5 → window = 2  (partial dampening)
+  ///   length = 2–3 → window = 1  (equivalent to first-vs-last)
+  ///
+  /// Formula: window = (length ~/ 2).clamp(1, 3)
+  ///
+  /// Using `length < 6 ? 1 : 3` would collapse abruptly to a raw
+  /// last-vs-first comparison for any series shorter than 6 points,
+  /// defeating the noise-reduction goal for medium-length series.
   _NdviTrend _computeTrend(List<HealthDataPoint> points) {
     if (points.length < 2) return _NdviTrend.stable;
 
@@ -358,8 +365,8 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
       return values.reduce((a, b) => a + b) / values.length;
     }
 
-    // Take up to 3 from each end (fewer for very short series).
-    final windowSize = points.length < 6 ? 1 : 3;
+    // Gradual window: half the series length, capped at 3.
+    final windowSize = (points.length ~/ 2).clamp(1, 3);
     final startAvg = _avg(points.take(windowSize));
     final endAvg = _avg(points.reversed.take(windowSize));
 

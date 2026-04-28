@@ -51,7 +51,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     final endDate = ref.read(selectedDateProvider);
     final periodDays = ref.read(selectedPeriodDaysProvider);
     final startDate = endDate.subtract(Duration(days: periodDays - 1));
-    final zoneId = ref.read(selectedZoneIdProvider) ?? (zones.isNotEmpty ? zones.first.zoneId : null);
+    // Prefer the explicitly selected zone; fall back to the first available.
+    final selectedZone = ref.read(selectedZoneIdProvider);
+    final zoneId = selectedZone ?? (zones.isNotEmpty ? zones.first.zoneId : null);
     if (zoneId != null) {
       ref.read(timelineProvider.notifier).loadTimeline(
             widget.fieldId,
@@ -278,12 +280,9 @@ class _CropHealthDashboardState extends ConsumerState<CropHealthDashboard> {
     }
 
     final dataPoints = series.map((p) {
-      final parts = p.date.split('-');
-      final dt = DateTime(
-        int.parse(parts[0]),
-        int.parse(parts[1]),
-        int.parse(parts[2]),
-      );
+      // Use tryParse for resilience against unexpected backend formats.
+      final dt = DateTime.tryParse(p.date) ??
+          DateTime.now(); // fallback keeps chart renderable
       return HealthDataPoint(date: dt, value: p.ndvi);
     }).toList();
 

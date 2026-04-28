@@ -116,10 +116,12 @@ void main() {
     });
 
     test('boundary: delta just above +0.05 is improving', () {
+      // 0.3501 - 0.30 = 0.0501, which is just above the 0.05 threshold → improving.
       expect(computeTrend([0.30, 0.3501]), NdviTrend.improving);
     });
 
     test('boundary: delta just below -0.05 is declining', () {
+      // 0.5499 - 0.60 = -0.0501, which is just below -0.05 → declining.
       expect(computeTrend([0.60, 0.5499]), NdviTrend.declining);
     });
   });

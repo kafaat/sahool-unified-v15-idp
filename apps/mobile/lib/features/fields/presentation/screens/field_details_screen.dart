@@ -830,6 +830,9 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
     // كلا المؤشرين يشيران معاً لأولوية الري على التسميد
     final bool waterStress = ndwi != null && ndwi < 0.2;
     final bool lowNdvi = ndvi != null && ndvi < 0.4;
+    // Extract non-nullable locals so interpolations below are safe without '!'.
+    final String ndwiStr = ndwi?.toStringAsFixed(2) ?? '-';
+    final String ndviStr = ndvi?.toStringAsFixed(2) ?? '-';
 
     if (waterStress && lowNdvi) {
       recs.add(_FieldRecommendation(
@@ -837,7 +840,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         color: Colors.blue,
         title: 'أولوية الري (NDWI + NDVI منخفضان)',
         description: 'كلا المؤشرين يؤكدان إجهاداً مائياً. الري أولاً قبل التسميد'
-            '\n(NDWI: ${ndwi!.toStringAsFixed(2)} | NDVI: ${ndvi!.toStringAsFixed(2)})',
+            '\n(NDWI: $ndwiStr | NDVI: $ndviStr)',
         priority: 'عاجل',
         priorityColor: Colors.red,
       ));
@@ -846,7 +849,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         icon: Icons.water_drop,
         color: Colors.blue,
         title: 'زيادة الري',
-        description: 'قيمة NDWI (${ndwi!.toStringAsFixed(2)}) منخفضة — إجهاد مائي محتمل.'
+        description: 'قيمة NDWI ($ndwiStr) منخفضة — إجهاد مائي محتمل.'
             '\nيُنصح بزيادة معدل الري.',
         priority: 'عاجل',
         priorityColor: Colors.red,
@@ -856,7 +859,7 @@ class _FieldDetailsScreenState extends ConsumerState<FieldDetailsScreen>
         icon: Icons.water_drop,
         color: Colors.blueAccent,
         title: 'مراقبة الري',
-        description: 'قيمة NDWI (${ndwi.toStringAsFixed(2)}) في الحد الأدنى.'
+        description: 'قيمة NDWI ($ndwiStr) في الحد الأدنى.'
             '\nراقب رطوبة التربة خلال 48 ساعة.',
         priority: 'متوسط',
         priorityColor: Colors.orange,

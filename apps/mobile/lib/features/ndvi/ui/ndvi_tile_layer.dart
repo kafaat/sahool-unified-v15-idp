@@ -70,9 +70,13 @@ class NdviTileConfig {
     SpectralIndex index = SpectralIndex.ndvi,
     DateTime? date,
   }) {
-    final params = ['index=${index.code}'];
-    if (fieldId != null && fieldId.isNotEmpty) params.add('field_id=$fieldId');
-    if (date != null) params.add('date=${_formatDate(date)}');
+    final params = [
+      'index=${Uri.encodeQueryComponent(index.code)}',
+    ];
+    if (fieldId != null && fieldId.isNotEmpty) {
+      params.add('field_id=${Uri.encodeQueryComponent(fieldId)}');
+    }
+    if (date != null) params.add('date=${_formatDate(date)}'); // ISO date, no encoding needed
     return NdviTileConfig(
       urlTemplate: '$baseUrl/api/v1/ndvi/tiles/{z}/{x}/{y}?${params.join('&')}',
     );

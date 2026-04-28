@@ -329,10 +329,13 @@ class _FieldMapScreenState extends ConsumerState<FieldMapScreen> {
   int _snapToBestAcquisition(int rawDays) {
     if (_acquisitionDates.isEmpty) return rawDays;
     final now = DateTime.now();
-    var bestDiff = 91; // larger than max slider range
+    // Initial sentinel: one beyond the slider's 90-day maximum so any real
+    // acquisition will immediately be closer.
+    const maxSliderDays = 90;
+    var bestDiff = maxSliderDays + 1;
     var bestDays = rawDays;
     for (final acq in _acquisitionDates) {
-      final daysBack = now.difference(acq).inDays.clamp(0, 90);
+      final daysBack = now.difference(acq).inDays.clamp(0, maxSliderDays);
       final diff = (daysBack - rawDays).abs();
       if (diff < bestDiff) {
         bestDiff = diff;

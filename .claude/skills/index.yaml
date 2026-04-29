@@ -1,6 +1,6 @@
 version: 0.2.0
 generated_by: scripts/generate_skill_registry.py
-skill_count: 36
+skill_count: 39
 skills:
 - name: advisory-evaluation
   path: .claude/skills/context-engineering/evaluation.md
@@ -689,6 +689,46 @@ skills:
   deprecated: false
   external: false
   source: SKILL.md
+- name: sahool-dashboard
+  path: .claude/skills/sahool-starter/dashboard.md
+  version: 0.1.0
+  description: Use when designing or reviewing a compact SAHOOL dashboard that summarizes farm health, alerts, NDVI, irrigation,
+    sync state, and operational tasks without importing external dashboards.
+  triggers:
+  - sahool
+  - ndvi
+  tenant_id: '*'
+  deprecated: false
+  external: false
+  source: legacy
+- name: sahool-mobile-field-flow
+  path: .claude/skills/sahool-starter/mobile-field-flow.md
+  version: 0.1.0
+  description: Use when designing or reviewing the SAHOOL mobile field workflow for offline field scouting, task capture,
+    photo notes, sync conflict handling, and farmer-facing Arabic/English labels.
+  triggers:
+  - arabic
+  - english
+  - farmer-facing
+  - sahool
+  tenant_id: '*'
+  deprecated: false
+  external: false
+  source: legacy
+- name: sahool-ndvi-report
+  path: .claude/skills/sahool-starter/ndvi-report.md
+  version: 0.1.0
+  description: Use when creating or reviewing a SAHOOL NDVI report that explains vegetation status, trend, confidence, alerts,
+    and next actions using token-backed NDVI colors and bilingual farmer-safe language.
+  triggers:
+  - token-backed
+  - farmer-safe
+  - sahool
+  - ndvi
+  tenant_id: '*'
+  deprecated: false
+  external: false
+  source: legacy
 - name: scqa-writing-framework
   path: .claude/skills/writing-content/scqa-writing-framework.md
   version: 0.1.0

@@ -70,4 +70,3 @@ Only these three starter skills are in scope:
 3. `sahool-ndvi-report`
 
 Additional skills should be proposed separately and must reuse the token guidance above.
-

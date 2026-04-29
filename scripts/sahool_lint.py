@@ -29,6 +29,7 @@ _REQUIRED_DESIGN_REFERENCES = (
     "colors.state.synced",
     "colors.domain.ndvi_high",
 )
+_REQUIRED_SCOPE_STATEMENT = "Only these three starter skills are in scope"
 _REQUIRED_SKILL_SECTIONS = ("## Scope", "## Required Inputs", "## Output Checklist", "## Do Not")
 _FORBIDDEN_IMPORT_PATTERNS = (
     (r"\bsource:\s*github\b", "GitHub-sourced skill imports"),
@@ -56,7 +57,7 @@ def check_design_doc() -> list[str]:
         for reference in _REQUIRED_DESIGN_REFERENCES
         if reference not in text
     ]
-    if "Only these three starter skills are in scope" not in text:
+    if _REQUIRED_SCOPE_STATEMENT not in text:
         findings.append(error("SAHOOL_DESIGN.md must state the three-skill starter scope"))
     return findings
 
@@ -73,6 +74,9 @@ def parse_frontmatter(text: str) -> dict[str, str]:
 
     frontmatter: dict[str, str] = {}
     for line in parts[1].splitlines():
+        line = line.strip()
+        if not line:
+            continue
         if ":" not in line:
             continue
         key, value = line.split(":", 1)

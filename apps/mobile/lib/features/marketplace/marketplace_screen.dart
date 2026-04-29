@@ -465,13 +465,15 @@ class _FeaturedProductCard extends ConsumerWidget {
                     InkWell(
                       borderRadius: BorderRadius.circular(10),
                       onTap: () {
-                        ref.read(marketplaceProvider.notifier).addToCart(product);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('تمت إضافة ${product.nameAr} للسلة'),
-                            duration: const Duration(seconds: 1),
-                          ),
-                        );
+                        final added = ref.read(marketplaceProvider.notifier).addToCart(product);
+                        if (added) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('تمت إضافة ${product.nameAr} للسلة'),
+                              duration: const Duration(seconds: 1),
+                            ),
+                          );
+                        }
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -647,14 +649,16 @@ class _ProductCard extends ConsumerWidget {
                       InkWell(
                         borderRadius: BorderRadius.circular(10),
                         onTap: () {
-                          ref.read(marketplaceProvider.notifier).addToCart(product);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('تمت إضافة ${product.nameAr} للسلة'),
-                              duration: const Duration(seconds: 1),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
+                          final added = ref.read(marketplaceProvider.notifier).addToCart(product);
+                          if (added) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('تمت إضافة ${product.nameAr} للسلة'),
+                                duration: const Duration(seconds: 1),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          }
                         },
                         child: Container(
                           padding: const EdgeInsets.all(8),

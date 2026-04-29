@@ -439,16 +439,20 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
   }
 
   /// إضافة إلى السلة مع التحقق من توفر المخزون
-  void addToCart(Product product, {double quantity = 1}) {
+  /// يُرجع true عند النجاح وfalse عند رفض الإضافة (نفد المخزون أو تجاوز الكمية المتاحة)
+  bool addToCart(Product product, {double quantity = 1}) {
     if (product.stock <= 0) {
       AppLogger.w('Attempted to add out-of-stock product: ${product.id}', tag: 'MARKETPLACE');
       state = state.copyWith(error: 'المنتج "${product.nameAr}" غير متاح حالياً (نفد المخزون)');
-      return;
+      return false;
     }
 
     final existingIndex = state.cart.indexWhere(
       (item) => item.product.id == product.id,
     );
+
+    final stockErrorMsg =
+        'لا يمكن إضافة أكثر من ${product.stock.toStringAsFixed(0)} ${product.unitAr} من "${product.nameAr}"';
 
     List<CartItem> newCart;
 
@@ -458,21 +462,24 @@ class MarketplaceNotifier extends StateNotifier<MarketplaceState> {
       final existingItem = newCart[existingIndex];
       final newQty = existingItem.quantity + quantity;
       if (newQty > product.stock) {
-        state = state.copyWith(
-          error: 'لا يمكن إضافة أكثر من ${product.stock.toStringAsFixed(0)} ${product.unitAr} من "${product.nameAr}"',
-        );
-        return;
+        state = state.copyWith(error: stockErrorMsg);
+        return false;
       }
       newCart[existingIndex] = existingItem.copyWith(quantity: newQty);
     } else {
-      // إضافة عنصر جديد
+      // إضافة عنصر جديد مع التحقق من المخزون
+      if (quantity > product.stock) {
+        state = state.copyWith(error: stockErrorMsg);
+        return false;
+      }
       newCart = [
         ...state.cart,
         CartItem(product: product, quantity: quantity),
       ];
     }
 
-    state = state.copyWith(cart: newCart);
+    state = state.copyWith(cart: newCart, error: null);
+    return true;
   }
 
   /// تحديث كمية في السلة

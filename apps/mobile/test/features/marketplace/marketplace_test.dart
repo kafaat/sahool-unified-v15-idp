@@ -589,14 +589,36 @@ void main() {
       );
 
       // Act
-      notifier.addToCart(outOfStock, quantity: 1);
+      final added = notifier.addToCart(outOfStock, quantity: 1);
 
       // Assert – cart remains empty and error is surfaced
+      expect(added, isFalse);
       expect(notifier.state.cart, isEmpty);
       expect(notifier.state.error, isNotNull);
     });
 
-    test('addToCart does NOT exceed available stock', () {
+    test('addToCart does NOT add new item exceeding available stock', () {
+      final limited = Product(
+        id: 'NEW-EXCEED',
+        name: 'New Exceed',
+        nameAr: 'تجاوز جديد',
+        category: ProductCategory.seeds,
+        price: 10.0,
+        stock: 3,
+        unit: 'kg',
+        sellerId: 'seller-test',
+        sellerType: SellerType.farmer,
+        createdAt: DateTime(2025, 6, 15),
+      );
+
+      final added = notifier.addToCart(limited, quantity: 5);
+
+      expect(added, isFalse);
+      expect(notifier.state.cart, isEmpty);
+      expect(notifier.state.error, isNotNull);
+    });
+
+    test('addToCart does NOT exceed available stock when updating existing item', () {
       // Arrange – stock = 10
       final limited = Product(
         id: 'LTD',
@@ -616,11 +638,22 @@ void main() {
       expect(notifier.state.cart.first.quantity, 8);
 
       // Attempt to add 5 more (would exceed stock of 10) → should set error
-      notifier.addToCart(limited, quantity: 5);
+      final added = notifier.addToCart(limited, quantity: 5);
 
       // Quantity must stay at 8 and error is surfaced
+      expect(added, isFalse);
       expect(notifier.state.cart.first.quantity, 8);
       expect(notifier.state.error, isNotNull);
+    });
+
+    test('addToCart returns true on successful add', () {
+      final product = _createProduct(ProductCategory.seeds, id: 'OK');
+
+      final added = notifier.addToCart(product, quantity: 1);
+
+      expect(added, isTrue);
+      expect(notifier.state.cart, hasLength(1));
+      expect(notifier.state.error, isNull);
     });
 
     test('addToCart allows adding up to exact stock limit', () {

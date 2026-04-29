@@ -1,6 +1,6 @@
 # SAHOOL Design Starter
 
-This starter extracts practical design guidance from the existing SAHOOL token sources without copying a full external project.
+This starter provides practical design guidance derived from the existing SAHOOL token sources without copying a full external project.
 
 Token sources:
 

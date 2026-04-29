@@ -39,31 +39,27 @@ _FORBIDDEN_IMPORT_PATTERNS = (
 )
 
 
-def error(message: str) -> str:
+def create_lint_error(message: str) -> str:
     return f"SAHOOL-LINT: {message}"
-
-
-def read_text(path: Path) -> str:
-    return path.read_text(encoding="utf-8")
 
 
 def check_design_doc() -> list[str]:
     if not _DESIGN_DOC.exists():
-        return [error("SAHOOL_DESIGN.md is missing")]
+        return [create_lint_error("SAHOOL_DESIGN.md is missing")]
 
-    text = read_text(_DESIGN_DOC)
+    text = _DESIGN_DOC.read_text(encoding="utf-8")
     findings = [
-        error(f"SAHOOL_DESIGN.md must reference `{reference}`")
+        create_lint_error(f"SAHOOL_DESIGN.md must reference `{reference}`")
         for reference in _REQUIRED_DESIGN_REFERENCES
         if reference not in text
     ]
     if _REQUIRED_SCOPE_STATEMENT not in text:
-        findings.append(error("SAHOOL_DESIGN.md must state the three-skill starter scope"))
+        findings.append(create_lint_error("SAHOOL_DESIGN.md must state the three-skill starter scope"))
     return findings
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:
-    """Parse the one-line key/value frontmatter used by starter skills."""
+    """Parse the YAML-style frontmatter block used by starter skills."""
 
     if not text.startswith("---\n"):
         return {}
@@ -85,37 +81,37 @@ def parse_frontmatter(text: str) -> dict[str, str]:
 
 
 def check_skill_file(path: Path, expected_name: str) -> list[str]:
-    text = read_text(path)
+    text = path.read_text(encoding="utf-8")
     findings: list[str] = []
     frontmatter = parse_frontmatter(text)
 
     if frontmatter.get("name") != expected_name:
-        findings.append(error(f"{path.relative_to(_REPO_ROOT)} must declare name `{expected_name}`"))
+        findings.append(create_lint_error(f"{path.relative_to(_REPO_ROOT)} must declare name `{expected_name}`"))
     if not frontmatter.get("description"):
-        findings.append(error(f"{path.relative_to(_REPO_ROOT)} must include a description"))
+        findings.append(create_lint_error(f"{path.relative_to(_REPO_ROOT)} must include a description"))
 
     for section in _REQUIRED_SKILL_SECTIONS:
         if section not in text:
-            findings.append(error(f"{path.relative_to(_REPO_ROOT)} missing section `{section}`"))
+            findings.append(create_lint_error(f"{path.relative_to(_REPO_ROOT)} missing section `{section}`"))
 
     for pattern, description in _FORBIDDEN_IMPORT_PATTERNS:
         if re.search(pattern, text, flags=re.IGNORECASE):
-            findings.append(error(f"{path.relative_to(_REPO_ROOT)} contains forbidden content: {description}"))
+            findings.append(create_lint_error(f"{path.relative_to(_REPO_ROOT)} contains forbidden content: {description}"))
 
     if "SAHOOL_DESIGN.md" not in text:
-        findings.append(error(f"{path.relative_to(_REPO_ROOT)} must reference SAHOOL_DESIGN.md"))
+        findings.append(create_lint_error(f"{path.relative_to(_REPO_ROOT)} must reference SAHOOL_DESIGN.md"))
 
     return findings
 
 
 def check_starter_skills() -> list[str]:
     if not _SKILLS_DIR.exists():
-        return [error(".claude/skills/sahool-starter is missing")]
+        return [create_lint_error(".claude/skills/sahool-starter is missing")]
 
     actual_files = sorted(path.relative_to(_SKILLS_DIR).as_posix() for path in _SKILLS_DIR.rglob("SKILL.md"))
     expected_files = sorted(_EXPECTED_SKILLS)
     if actual_files != expected_files:
-        return [error(f"starter skills must be exactly {expected_files}; found {actual_files}")]
+        return [create_lint_error(f"starter skills must be exactly {expected_files}; found {actual_files}")]
 
     findings: list[str] = []
     for filename, expected_name in _EXPECTED_SKILLS.items():

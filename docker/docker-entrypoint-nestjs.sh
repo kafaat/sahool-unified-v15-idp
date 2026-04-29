@@ -4,6 +4,7 @@ set -e
 # NestJS service entrypoint with Prisma migration support
 # Handles P3005 (non-empty database) by baselining existing migrations
 # Handles P3009 (failed migrations) by marking them as rolled back and retrying
+# Handles unfinished migration rows left by killed containers before deploy starts
 # Includes wait-for-db and retry logic for environments where postgres starts slowly.
 # Default DB wait is 60s; compose can override it to 120s for bulk startup.
 
@@ -96,6 +97,35 @@ handle_p3005() {
 }
 
 # ---------------------------------------------------------------------------
+# cleanup_unfinished_migrations: recover from containers killed mid-migration.
+# Prisma records started migrations in _prisma_migrations before all SQL is
+# complete. If Docker restarts the container at that point, subsequent
+# `migrate deploy` runs stop on P3009/P3018 before applying new migrations.
+# Mark unfinished rows as rolled back so Prisma can safely retry them.
+# ---------------------------------------------------------------------------
+cleanup_unfinished_migrations() {
+  echo 'Checking for unfinished Prisma migration rows...'
+  if printf '%s\n' \
+    'UPDATE "_prisma_migrations"' \
+    "SET rolled_back_at = COALESCE(rolled_back_at, NOW())," \
+    "    logs = concat_ws(E'\\n', NULLIF(logs, ''), '[entrypoint] rolled back unfinished migration before deploy')" \
+    'WHERE finished_at IS NULL AND rolled_back_at IS NULL;' \
+    | $PRISMA_CLI db execute --stdin >/tmp/prisma_cleanup.log 2>&1; then
+    cat /tmp/prisma_cleanup.log
+    return 0
+  fi
+
+  if grep -qi 'does not exist\|undefined_table\|42P01' /tmp/prisma_cleanup.log; then
+    echo 'No _prisma_migrations table yet; skipping unfinished migration cleanup.'
+    return 0
+  fi
+
+  echo 'WARNING: Could not inspect unfinished Prisma migrations; continuing to deploy.'
+  cat /tmp/prisma_cleanup.log
+  return 0
+}
+
+# ---------------------------------------------------------------------------
 # handle_p3018: a migration SQL statement failed mid-apply.
 # The migration is recorded as "started" but not finished. Mark it rolled-back
 # so that Prisma will re-attempt it on the next deploy.
@@ -103,7 +133,7 @@ handle_p3005() {
 handle_p3018() {
   echo 'Mid-migration failure detected (P3018). Attempting to resolve...'
   # Prisma error includes: Migration name: <migration_name>
-  failed_migration=$(grep -oP 'Migration name: \K\S+' /tmp/prisma_migrate.log | head -n1)
+  failed_migration=$(sed -n 's/.*Migration name: \([^[:space:]]*\).*/\1/p' /tmp/prisma_migrate.log | head -n1)
   if [ -z "$failed_migration" ]; then
     # Fallback: try backtick pattern used in other error messages
     failed_migration=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
@@ -116,7 +146,7 @@ handle_p3018() {
   # If the underlying SQL error is "already exists" the migration's work is
   # already done (objects exist from a prior run). Mark it as applied so
   # Prisma stops retrying it. Otherwise mark rolled-back so it retries.
-  if grep -qi 'already exists\|duplicate_object\|duplicate_table\|duplicate_column\|DuplicateObject' /tmp/prisma_migrate.log; then
+  if grep -Eqi 'already exists|duplicate_object|duplicate_table|duplicate_column|DuplicateObject|42P06|42P07|42701|42710|relation .* already exists|constraint .* already exists|index .* already exists|column .* already exists' /tmp/prisma_migrate.log; then
     echo "Marking migration as applied (objects already exist): $failed_migration"
     if ! $PRISMA_CLI migrate resolve --applied "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
       echo "WARNING: Could not mark '$failed_migration' as applied; falling back to rolled-back."
@@ -246,6 +276,7 @@ if [ "$SKIP_DB_INIT" = "true" ]; then
 else
   use_migration_database_url
   wait_for_db
+  cleanup_unfinished_migrations
   run_migrations
 fi
 

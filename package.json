@@ -33,6 +33,7 @@
     "build:all": "npm run build:packages && npm run build --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present",
     "lint:all": "npm run lint --workspaces --if-present",
+    "lint:sahool": "python scripts/sahool_lint.py",
     "lint:fix": "npm run lint:fix --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "vitest run && npm run test --workspace=apps/admin",

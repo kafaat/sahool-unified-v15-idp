@@ -7,8 +7,9 @@ set -e
 # Includes wait-for-db and retry logic for environments where postgres starts slowly
 
 MAX_MIGRATION_ATTEMPTS=3
-DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-30}
+DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-120}
 DB_WAIT_INTERVAL=2
+APP_DATABASE_URL=${DATABASE_URL:-}
 
 # All SAHOOL Node.js services pin Prisma ~5.22.0 in their package.json, but
 # only @prisma/client is copied into the production image — the `prisma` CLI
@@ -25,10 +26,20 @@ PRISMA_CLI="npx prisma@5.22.0"
 # between statements, which breaks Prisma's session-level advisory lock and
 # causes concurrent services to corrupt _prisma_migrations with stuck rows.
 # DATABASE_URL_DIRECT is set in docker-compose.yml for every NestJS service.
+# Keep the application DATABASE_URL intact for runtime; switch to the direct
+# URL only while running Prisma migrations below.
 # ---------------------------------------------------------------------------
-if [ -n "$DATABASE_URL_DIRECT" ]; then
-  export DATABASE_URL="$DATABASE_URL_DIRECT"
-fi
+use_migration_database_url() {
+  if [ -n "$DATABASE_URL_DIRECT" ]; then
+    export DATABASE_URL="$DATABASE_URL_DIRECT"
+  fi
+}
+
+restore_application_database_url() {
+  if [ -n "$APP_DATABASE_URL" ]; then
+    export DATABASE_URL="$APP_DATABASE_URL"
+  fi
+}
 
 # ---------------------------------------------------------------------------
 # wait_for_db: block until PostgreSQL accepts connections or timeout expires
@@ -220,8 +231,10 @@ run_migrations() {
 if [ "$SKIP_DB_INIT" = "true" ]; then
   echo 'Skipping database migrations (SKIP_DB_INIT=true)'
 else
+  use_migration_database_url
   wait_for_db
   run_migrations
 fi
 
+restore_application_database_url
 exec node dist/main.js

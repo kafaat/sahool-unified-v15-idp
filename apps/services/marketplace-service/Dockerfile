@@ -165,7 +165,7 @@ RUN chown -R node:node /app
 USER node
 
 # Health check (using curl for consistency across all services)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
     CMD curl -f http://localhost:3010/healthz || exit 1
 
 # Signal handling

@@ -369,7 +369,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 120s
     security_opt:
       - no-new-privileges:true
     deploy:
@@ -505,7 +505,7 @@ asyncio.run(main())
       interval: 60s
       timeout: 10s
       retries: 5
-      start_period: 45s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1358,7 +1358,7 @@ asyncio.run(main())
       # FIX (2026-03-13): Increased retries from 3 to 5 and start_period from 30s to 45s
       # to accommodate declarative config loading time with multiple workers
       retries: 5
-      start_period: 45s
+      start_period: 120s
     # FIX (2026-03-13): Added stop_grace_period to allow Kong to drain connections gracefully
     stop_grace_period: 15s
     restart: unless-stopped
@@ -1468,7 +1468,7 @@ asyncio.run(main())
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1520,7 +1520,7 @@ asyncio.run(main())
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1571,7 +1571,7 @@ asyncio.run(main())
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1622,7 +1622,7 @@ asyncio.run(main())
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
@@ -1770,11 +1770,11 @@ asyncio.run(main())
         condition: service_healthy
     healthcheck:
       # FIX: Use node native http instead of curl (may not exist in slim images)
-      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8115/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
+      test: [ "CMD", "node", "-e", "require('http').get('http://localhost:8115/healthz', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))" ]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 45s
+      start_period: 120s
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true

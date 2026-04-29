@@ -12,7 +12,7 @@ DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-60}
 DB_WAIT_INTERVAL=2
 ORIGINAL_DATABASE_URL=${DATABASE_URL:-}
 # POSIX ${var+x}: expands to "x" only when the variable was originally set.
-DATABASE_URL_WAS_SET=${DATABASE_URL+x}
+DATABASE_URL_SET_MARKER=${DATABASE_URL+x}
 
 # All SAHOOL Node.js services pin Prisma ~5.22.0 in their package.json, but
 # only @prisma/client is copied into the production image — the `prisma` CLI
@@ -37,13 +37,13 @@ use_migration_database_url() {
     export DATABASE_URL="$DATABASE_URL_DIRECT"
   fi
   if [ -z "${DATABASE_URL:-}" ]; then
-    echo 'ERROR: No database URL available for migrations. Set DATABASE_URL_DIRECT (preferred) or DATABASE_URL.'
+    echo 'ERROR: No database URL configured for Prisma migrations. Set DATABASE_URL_DIRECT (recommended to bypass PgBouncer) or DATABASE_URL.'
     exit 1
   fi
 }
 
 restore_application_database_url() {
-  if [ -n "$DATABASE_URL_WAS_SET" ]; then
+  if [ -n "$DATABASE_URL_SET_MARKER" ]; then
     export DATABASE_URL="$ORIGINAL_DATABASE_URL"
   else
     unset DATABASE_URL

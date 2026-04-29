@@ -111,7 +111,8 @@
     "socket.io-parser": ">=4.2.6",
     "smol-toml": ">=1.6.1",
     "yaml": ">=2.8.3",
-    "next": ">=15.5.14"
+    "next": ">=15.5.15",
+    "follow-redirects": ">=1.16.0"
   },
   "engines": {
     "node": ">=20.0.0",

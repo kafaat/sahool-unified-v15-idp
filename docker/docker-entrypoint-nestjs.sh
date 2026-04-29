@@ -12,6 +12,7 @@ DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-60}
 DB_WAIT_INTERVAL=2
 ORIGINAL_DATABASE_URL=${DATABASE_URL:-}
 # POSIX ${var+x}: expands to "x" only when the variable was originally set.
+# If DATABASE_URL was set at entrypoint start, marker="x"; if unset, marker is empty.
 DATABASE_URL_SET_MARKER=${DATABASE_URL+x}
 
 # All SAHOOL Node.js services pin Prisma ~5.22.0 in their package.json, but
@@ -48,6 +49,9 @@ restore_application_database_url() {
   else
     unset DATABASE_URL
   fi
+  # DATABASE_URL_DIRECT is only for Prisma migrations. Remove it before
+  # starting NestJS so runtime clients can only use the application pool URL.
+  unset DATABASE_URL_DIRECT
 }
 
 # ---------------------------------------------------------------------------

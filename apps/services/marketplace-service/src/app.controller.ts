@@ -27,6 +27,7 @@ import { MarketService } from "./market/market.service";
 import { FintechService } from "./fintech/fintech.service";
 import { PrismaService } from "./prisma/prisma.service";
 import { EventsService } from "./events/events.service";
+import { CacheService } from "./cache/cache.service";
 import { JwtAuthGuard } from "./auth/jwt-auth.guard";
 import { Public } from "./auth/public.decorator";
 import { SkipTenantCheck } from "./auth/tenant.guard";
@@ -49,6 +50,7 @@ export class AppController {
     private readonly fintechService: FintechService,
     private readonly prismaService: PrismaService,
     private readonly eventsService: EventsService,
+    private readonly cacheService: CacheService,
   ) {}
 
   /**
@@ -112,13 +114,17 @@ export class AppController {
       checks.database = "disconnected";
     }
 
-    // Check NATS connection
-    const natsConfigured = !!process.env.NATS_URL;
-    if (!natsConfigured) {
-      checks.nats = "not_configured";
+    // Check NATS connection (EventsService has a default NATS URL, so it is a dependency)
+    const eventsConnected = this.eventsService?.isConnected?.() ?? false;
+    checks.nats = eventsConnected ? "connected" : "disconnected";
+
+    // Check Redis cache connection when Redis is configured
+    const redisConfigured = !!process.env.REDIS_URL;
+    if (!redisConfigured) {
+      checks.redis = "not_configured";
     } else {
-      const eventsConnected = this.eventsService?.isConnected?.() ?? false;
-      checks.nats = eventsConnected ? "connected" : "disconnected";
+      const cacheHealthy = await this.cacheService.isHealthy();
+      checks.redis = cacheHealthy ? "connected" : "disconnected";
     }
 
     const allReady = Object.values(checks).every(v => v === "connected" || v === "not_configured");

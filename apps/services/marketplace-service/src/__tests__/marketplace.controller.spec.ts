@@ -15,6 +15,7 @@ import { MarketService } from "../market/market.service";
 import { FintechService } from "../fintech/fintech.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { EventsService } from "../events/events.service";
+import { CacheService } from "../cache/cache.service";
 import { ForbiddenException } from "@nestjs/common";
 
 describe("AppController (Marketplace)", () => {
@@ -71,6 +72,10 @@ describe("AppController (Marketplace)", () => {
     publish: jest.fn().mockResolvedValue(undefined),
   };
 
+  const mockCacheService = {
+    isHealthy: jest.fn().mockResolvedValue(true),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
@@ -90,6 +95,10 @@ describe("AppController (Marketplace)", () => {
         {
           provide: EventsService,
           useValue: mockEventsService,
+        },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
         },
       ],
     }).compile();

@@ -9,7 +9,8 @@ set -e
 MAX_MIGRATION_ATTEMPTS=3
 DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-120}
 DB_WAIT_INTERVAL=2
-APP_DATABASE_URL=${DATABASE_URL:-}
+RUNTIME_DATABASE_URL=${DATABASE_URL:-}
+DATABASE_URL_WAS_SET=${DATABASE_URL+x}
 
 # All SAHOOL Node.js services pin Prisma ~5.22.0 in their package.json, but
 # only @prisma/client is copied into the production image — the `prisma` CLI
@@ -33,11 +34,17 @@ use_migration_database_url() {
   if [ -n "$DATABASE_URL_DIRECT" ]; then
     export DATABASE_URL="$DATABASE_URL_DIRECT"
   fi
+  if [ -z "${DATABASE_URL:-}" ]; then
+    echo 'ERROR: DATABASE_URL or DATABASE_URL_DIRECT must be set before running Prisma migrations.'
+    exit 1
+  fi
 }
 
 restore_application_database_url() {
-  if [ -n "$APP_DATABASE_URL" ]; then
-    export DATABASE_URL="$APP_DATABASE_URL"
+  if [ "$DATABASE_URL_WAS_SET" = "x" ]; then
+    export DATABASE_URL="$RUNTIME_DATABASE_URL"
+  else
+    unset DATABASE_URL
   fi
 }
 

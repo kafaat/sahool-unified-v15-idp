@@ -7,7 +7,7 @@ set -e
 # Includes wait-for-db and retry logic for environments where postgres starts slowly
 
 MAX_MIGRATION_ATTEMPTS=3
-DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-120}
+DB_WAIT_TIMEOUT=${DB_WAIT_TIMEOUT:-60}
 DB_WAIT_INTERVAL=2
 RUNTIME_DATABASE_URL=${DATABASE_URL:-}
 DATABASE_URL_WAS_SET=${DATABASE_URL+x}
@@ -41,7 +41,7 @@ use_migration_database_url() {
 }
 
 restore_application_database_url() {
-  if [ "$DATABASE_URL_WAS_SET" = "x" ]; then
+  if [ -n "$DATABASE_URL_WAS_SET" ]; then
     export DATABASE_URL="$RUNTIME_DATABASE_URL"
   else
     unset DATABASE_URL

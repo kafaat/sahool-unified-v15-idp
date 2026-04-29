@@ -147,7 +147,7 @@ export class OAuthService {
           error instanceof Error ? error.stack : undefined,
         );
       }
-      throw oauthError("invalid_grant", "Code already used");
+      throw oauthError("invalid_grant", "Authorization code is invalid or has been used");
     }
 
     const issuedAt = new Date();

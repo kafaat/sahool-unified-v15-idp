@@ -18,17 +18,17 @@ export class AppController {
   @SkipTenantCheck()
   readyz(@Res({ passthrough: true }) res?: Response) {
     const hasDatabaseDependency = Boolean(process.env.DATABASE_URL);
-    const databaseReady = !hasDatabaseDependency; // No DB configured = no DB dependency; configured DB is not verified here.
-    if (hasDatabaseDependency) {
+    const isServiceReady = !hasDatabaseDependency; // No DB configured = no DB dependency; configured DB is not verified here.
+    if (!isServiceReady) {
       res?.status(HttpStatus.SERVICE_UNAVAILABLE);
     }
-    const status = databaseReady ? "ready" : "not_ready";
+    const status = isServiceReady ? "ready" : "not_ready";
 
     return {
       status,
       service: "yield-prediction",
       version: "16.0.0",
-      database: databaseReady,
+      database: isServiceReady,
       checks: {
         database: hasDatabaseDependency ? "configured_but_not_verified" : "not_configured",
       },

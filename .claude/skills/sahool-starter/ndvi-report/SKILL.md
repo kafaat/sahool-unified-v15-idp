@@ -22,7 +22,7 @@ Use this skill for NDVI summaries, vegetation-health reports, and farmer-facing 
 - State data freshness and confidence before recommendations.
 - Map NDVI ranges to `colors.domain.ndvi_*` from `SAHOOL_DESIGN.md`.
 - Separate observation, interpretation, recommendation, and follow-up.
-- Use warning language for stress signals without diagnosing disease from NDVI alone.
+- Use warning language for stress signals without diagnosing disease from NDVI alone; NDVI measures vegetation density and vigor, not pathogen presence.
 - Include Arabic and English summaries when farmer-facing.
 
 ## Do Not
@@ -30,4 +30,3 @@ Use this skill for NDVI summaries, vegetation-health reports, and farmer-facing 
 - Treat NDVI as a confirmed disease diagnosis.
 - Hide cloud cover, stale imagery, or missing trend data.
 - Use non-token vegetation colors.
-

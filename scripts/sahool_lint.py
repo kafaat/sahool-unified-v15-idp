@@ -37,6 +37,7 @@ _FORBIDDEN_IMPORT_PATTERNS = (
     (r"\bimport\s+project\b", "whole-project imports"),
     (r"\bclone\s+", "clone-based imports"),
 )
+_FRONTMATTER_PATTERN = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
 
 
 def create_lint_error(message: str) -> str:
@@ -61,21 +62,18 @@ def check_design_doc() -> list[str]:
 def parse_frontmatter(text: str) -> dict[str, str]:
     """Parse the YAML-style frontmatter block used by starter skills."""
 
-    if not text.startswith("---\n"):
-        return {}
-
-    parts = text.split("---", 2)
-    if len(parts) < 3:
+    match = _FRONTMATTER_PATTERN.match(text)
+    if not match:
         return {}
 
     frontmatter: dict[str, str] = {}
-    for line in parts[1].splitlines():
+    for line in match.group("body").splitlines():
         line = line.strip()
         if not line:
             continue
-        if ":" not in line:
+        key, separator, value = line.partition(":")
+        if not separator:
             continue
-        key, value = line.split(":", 1)
         frontmatter[key.strip()] = value.strip()
     return frontmatter
 

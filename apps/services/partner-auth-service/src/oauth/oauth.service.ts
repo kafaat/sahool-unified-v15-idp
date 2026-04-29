@@ -139,7 +139,14 @@ export class OAuthService {
       data: { usedAt: new Date() },
     });
     if (consumed.count !== 1) {
-      await this.cascadeRevokeByAuthCode(row.id);
+      try {
+        await this.cascadeRevokeByAuthCode(row.id);
+      } catch (error) {
+        this.logger.error(
+          `Failed to cascade revoke after auth-code replay for ${row.id}`,
+          error instanceof Error ? error.stack : undefined,
+        );
+      }
       throw oauthError("invalid_grant", "Code already used");
     }
 

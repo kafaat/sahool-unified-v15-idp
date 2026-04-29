@@ -132,11 +132,16 @@ export class OAuthService {
       }
     }
 
-    // Mark code as used (single-use)
-    await this.prisma.authCode.update({
-      where: { id: row.id },
+    // Atomically mark code as used (single-use). The usedAt:null predicate
+    // closes the race where concurrent token requests both read an unused code.
+    const consumed = await this.prisma.authCode.updateMany({
+      where: { id: row.id, usedAt: null },
       data: { usedAt: new Date() },
     });
+    if (consumed.count !== 1) {
+      await this.cascadeRevokeByAuthCode(row.id);
+      throw oauthError("invalid_grant", "Code already used");
+    }
 
     const issuedAt = new Date();
     const familyId = randomUUID();

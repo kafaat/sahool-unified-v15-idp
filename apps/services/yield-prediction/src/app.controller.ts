@@ -1,4 +1,5 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, HttpStatus, Res } from "@nestjs/common";
+import type { Response } from "express";
 import { SkipTenantCheck } from "./auth/tenant.guard";
 
 @Controller()
@@ -15,10 +16,13 @@ export class AppController {
 
   @Get("readyz")
   @SkipTenantCheck()
-  readyz() {
+  readyz(@Res({ passthrough: true }) res?: Response) {
     const dbUrl = process.env.DATABASE_URL;
     const databaseReady = dbUrl ? false : true; // No DB configured = no DB dependency; DB configured = not verified
-    const status = databaseReady ? "ok" : "degraded";
+    if (!databaseReady) {
+      res?.status(HttpStatus.SERVICE_UNAVAILABLE);
+    }
+    const status = databaseReady ? "ready" : "not_ready";
 
     return {
       status,

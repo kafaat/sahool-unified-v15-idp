@@ -19,7 +19,9 @@ import {
   Headers,
   ForbiddenException,
   UnauthorizedException,
+  Res,
 } from "@nestjs/common";
+import type { Response } from "express";
 import { Throttle } from "@nestjs/throttler";
 import { MarketService } from "./market/market.service";
 import { FintechService } from "./fintech/fintech.service";
@@ -99,7 +101,7 @@ export class AppController {
   @SkipTenantCheck()
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get("readyz")
-  async readinessCheck() {
+  async readinessCheck(@Res({ passthrough: true }) res?: Response) {
     const checks: Record<string, string> = {};
 
     // Check database connection
@@ -120,9 +122,12 @@ export class AppController {
     }
 
     const allReady = Object.values(checks).every(v => v === "connected" || v === "not_configured");
+    if (!allReady) {
+      res?.status(HttpStatus.SERVICE_UNAVAILABLE);
+    }
 
     return {
-      status: allReady ? "ready" : "degraded",
+      status: allReady ? "ready" : "not_ready",
       service: "marketplace-service",
       version: "16.0.0",
       timestamp: new Date().toISOString(),

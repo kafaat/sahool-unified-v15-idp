@@ -20,6 +20,17 @@ DB_WAIT_INTERVAL=2
 PRISMA_CLI="npx prisma@5.22.0"
 
 # ---------------------------------------------------------------------------
+# Migrations must use a direct Postgres connection (postgres:5432), NOT the
+# PgBouncer pool. PgBouncer in transaction mode reassigns server connections
+# between statements, which breaks Prisma's session-level advisory lock and
+# causes concurrent services to corrupt _prisma_migrations with stuck rows.
+# DATABASE_URL_DIRECT is set in docker-compose.yml for every NestJS service.
+# ---------------------------------------------------------------------------
+if [ -n "$DATABASE_URL_DIRECT" ]; then
+  export DATABASE_URL="$DATABASE_URL_DIRECT"
+fi
+
+# ---------------------------------------------------------------------------
 # wait_for_db: block until PostgreSQL accepts connections or timeout expires
 # ---------------------------------------------------------------------------
 wait_for_db() {
@@ -66,7 +77,7 @@ handle_p3005() {
 # so that Prisma will re-attempt it on the next deploy.
 # ---------------------------------------------------------------------------
 handle_p3018() {
-  echo 'Mid-migration failure detected (P3018). Marking failed migration as rolled back...'
+  echo 'Mid-migration failure detected (P3018). Attempting to resolve...'
   # Prisma error includes: Migration name: <migration_name>
   failed_migration=$(grep -oP 'Migration name: \K\S+' /tmp/prisma_migrate.log | head -n1)
   if [ -z "$failed_migration" ]; then
@@ -78,44 +89,70 @@ handle_p3018() {
     cat /tmp/prisma_migrate.log
     return 1
   fi
-  echo "Marking migration as rolled back: $failed_migration"
-  if ! $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
-    echo 'ERROR: Failed to mark migration as rolled back.'
-    cat /tmp/prisma_migrate.log
-    return 1
+  # If the underlying SQL error is "already exists" the migration's work is
+  # already done (objects exist from a prior run). Mark it as applied so
+  # Prisma stops retrying it. Otherwise mark rolled-back so it retries.
+  if grep -qi 'already exists\|duplicate_object\|duplicate_table\|duplicate_column\|DuplicateObject' /tmp/prisma_migrate.log; then
+    echo "Marking migration as applied (objects already exist): $failed_migration"
+    if ! $PRISMA_CLI migrate resolve --applied "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+      echo "WARNING: Could not mark '$failed_migration' as applied; falling back to rolled-back."
+      $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1 || true
+    else
+      echo "Migration '$failed_migration' marked as applied (P3018/already-exists resolved)."
+      return 0
+    fi
+  else
+    echo "Marking migration as rolled back: $failed_migration"
+    if ! $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+      echo 'ERROR: Failed to mark migration as rolled back.'
+      cat /tmp/prisma_migrate.log
+      return 1
+    fi
+    echo "Migration '$failed_migration' marked as rolled back (P3018 resolved)."
   fi
-  echo "Migration '$failed_migration' marked as rolled back (P3018 resolved)."
   return 0
 }
 
 # ---------------------------------------------------------------------------
-# handle_p3009: mark the failed migration as rolled back
+# handle_p3009: mark ALL failed migrations as rolled back in one pass
 # ---------------------------------------------------------------------------
 handle_p3009() {
-  echo 'Failed migration detected (P3009). Attempting to resolve...'
+  echo 'Failed migration detected (P3009). Attempting to resolve all failed migrations...'
   # Prisma outputs a line like:
   #   The `20250115120000_add_fields` migration started at ...
-  failed_migration=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log | head -n1)
-  if [ -z "$failed_migration" ]; then
-    echo 'ERROR: Could not extract failed migration name from P3009 error log.'
+  # Collect every failed migration name from the log (may be more than one).
+  failed_migrations=$(sed -n "s/.*The \`\([^\`]*\)\` migration.*/\1/p" /tmp/prisma_migrate.log)
+  if [ -z "$failed_migrations" ]; then
+    echo 'ERROR: Could not extract failed migration names from P3009 error log.'
     cat /tmp/prisma_migrate.log
     return 1
   fi
-  echo "Marking migration as rolled back: $failed_migration"
-  if ! $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
-    echo 'ERROR: Failed to mark migration as rolled back.'
-    cat /tmp/prisma_migrate.log
-    return 1
-  fi
-  echo "Migration '$failed_migration' marked as rolled back."
-  return 0
+  resolved=0
+  for failed_migration in $failed_migrations; do
+    echo "Marking migration as rolled back: $failed_migration"
+    if $PRISMA_CLI migrate resolve --rolled-back "$failed_migration" >>/tmp/prisma_migrate.log 2>&1; then
+      echo "Migration '$failed_migration' marked as rolled back."
+      resolved=$((resolved + 1))
+    else
+      echo "WARNING: Could not mark '$failed_migration' as rolled back (may already be resolved)."
+    fi
+  done
+  [ "$resolved" -gt 0 ] && return 0 || return 1
 }
 
 # ---------------------------------------------------------------------------
 # run_migrations: deploy with retry loop and error handling
+# P3009 resolutions use a separate counter and do NOT consume the main
+# MAX_MIGRATION_ATTEMPTS budget — there can be many phantom failed migrations
+# in the DB that need clearing one-by-one before deploy can proceed.
 # ---------------------------------------------------------------------------
 run_migrations() {
   attempt=1
+  p3009_resolutions=0
+  p3018_resolutions=0
+  MAX_P3009_RESOLUTIONS=30
+  MAX_P3018_RESOLUTIONS=30
+
   while [ "$attempt" -le "$MAX_MIGRATION_ATTEMPTS" ]; do
     echo "Migration attempt ${attempt}/${MAX_MIGRATION_ATTEMPTS}..."
     if $PRISMA_CLI migrate deploy >/tmp/prisma_migrate.log 2>&1; then
@@ -131,21 +168,33 @@ run_migrations() {
       continue
     fi
 
-    # ---- P3009: failed migration ----
+    # ---- P3009: failed migration(s) — resolve without burning the main budget ----
     if grep -q 'P3009' /tmp/prisma_migrate.log; then
+      if [ "$p3009_resolutions" -ge "$MAX_P3009_RESOLUTIONS" ]; then
+        echo "ERROR: Exceeded max P3009 resolutions (${MAX_P3009_RESOLUTIONS}). Giving up."
+        cat /tmp/prisma_migrate.log
+        exit 1
+      fi
       if ! handle_p3009; then
         exit 1
       fi
-      attempt=$((attempt + 1))
+      p3009_resolutions=$((p3009_resolutions + 1))
+      # Do NOT increment attempt — P3009 cleanup is not a failed deploy attempt
       continue
     fi
 
-    # ---- P3018: mid-migration SQL failure ----
+    # ---- P3018: mid-migration SQL failure — resolve without burning the main budget ----
     if grep -q 'P3018' /tmp/prisma_migrate.log; then
+      if [ "$p3018_resolutions" -ge "$MAX_P3018_RESOLUTIONS" ]; then
+        echo "ERROR: Exceeded max P3018 resolutions (${MAX_P3018_RESOLUTIONS}). Giving up."
+        cat /tmp/prisma_migrate.log
+        exit 1
+      fi
       if ! handle_p3018; then
         exit 1
       fi
-      attempt=$((attempt + 1))
+      p3018_resolutions=$((p3018_resolutions + 1))
+      # Do NOT increment attempt — P3018 recovery is not a failed deploy attempt
       continue
     fi
 

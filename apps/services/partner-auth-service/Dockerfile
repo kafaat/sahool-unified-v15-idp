@@ -40,7 +40,7 @@ RUN node -e "JSON.parse(require('fs').readFileSync('package.json','utf8'))" || \
 # Point @sahool/shared-types at the local build instead of the public registry,
 # then drop the lock file so npm generates a fresh one (avoids registry hang
 # caused by lock file mismatch with the patched package.json).
-RUN sed -i 's|"@sahool/shared-types": "\*"|"@sahool/shared-types": "file:../packages/shared-types"|g' package.json && \
+RUN sed -i 's|"@sahool/shared-types": "[^"]*"|"@sahool/shared-types": "file:../packages/shared-types"|g' package.json && \
     rm -f package-lock.json
 
 # Resilient install (multi-mirror fallback)

@@ -28,7 +28,7 @@ export class AppController {
       status,
       service: "yield-prediction",
       version: "16.0.0",
-      database: isServiceReady,
+      database: !hasDatabaseDependency,
       checks: {
         database: hasDatabaseDependency ? "configured_but_not_verified" : "not_configured",
       },

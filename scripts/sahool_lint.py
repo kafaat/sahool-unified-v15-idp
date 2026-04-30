@@ -21,6 +21,8 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 _DESIGN_DOC = _REPO_ROOT / "SAHOOL_DESIGN.md"
 _LOWCODE_DOC = _REPO_ROOT / "docs" / "LOW_CODE_POC.md"
 _LOWCODE_SPRINT_PLAN = _REPO_ROOT / "docs" / "LOW_CODE_BUILDER_SPRINT_PLAN.md"
+_POC_SPEC = _REPO_ROOT / "PocSpec.md"
+_LINTER_RULES = _REPO_ROOT / "sahool_linter_rules.yaml"
 _SCHEMA_REGISTRY = _REPO_ROOT / "schema-registry" / "registry.json"
 _SKILLS_DIR = _REPO_ROOT / ".claude" / "skills" / "sahool-starter"
 _GENERATED_THEME = _REPO_ROOT / "apps" / "mobile" / "lib" / "core" / "theme" / "generated" / "sahool_token_theme.dart"
@@ -47,6 +49,10 @@ _REQUIRED_SCOPE_STATEMENT = "Only these three starter skills are in scope"
 _REQUIRED_SKILL_SECTIONS = ("## Scope", "## Required Inputs", "## Output Checklist", "## Do Not")
 _REQUIRED_LOWCODE_DOC_REFERENCES = (
     "governance/design/design-tokens.yaml",
+    "scripts/generate_themes.py",
+    "scripts/openapi_form_generator.py",
+    "sahool_linter_rules.yaml",
+    "PocSpec.md",
     "api/services/vegetation-analysis-service.openapi.yaml",
     "Tenant Context",
     "RBAC",
@@ -63,12 +69,16 @@ _REQUIRED_GENERATED_FORM_REFERENCES = (
     "final Set<String> permissions;",
     "requiredPermission",
     "does not perform API calls",
+    "// TENANT_ID_REQUIRED",
+    "// PERMISSION_CHECK_REQUIRED",
 )
 _REQUIRED_GENERATED_VIEW_REFERENCES = (
     "final String tenantId;",
     "final Set<String> permissions;",
     "requiredPermission",
     "does not perform API calls",
+    "// TENANT_ID_REQUIRED",
+    "// PERMISSION_CHECK_REQUIRED",
 )
 _REQUIRED_GENERATED_TEST_REFERENCES = (
     "Tenant Context missing shows guard message",
@@ -81,6 +91,21 @@ _FORBIDDEN_IMPORT_PATTERNS = (
     (r"\bsourceType:\s*github\b", "GitHub source metadata"),
     (r"\bimport\s+project\b", "whole-project imports"),
     (r"\bclone\s+", "clone-based imports"),
+)
+_REQUIRED_POC_SPEC_REFERENCES = (
+    "scripts/generate_themes.py",
+    "scripts/openapi_form_generator.py",
+    "sahool_linter_rules.yaml",
+    "schema-registry/approved_operations/",
+    "// TENANT_ID_REQUIRED",
+    "// PERMISSION_CHECK_REQUIRED",
+)
+_REQUIRED_LINTER_RULE_REFERENCES = (
+    "no-print",
+    "no-eval",
+    "no-hardcoded-http-url",
+    "TENANT_ID_REQUIRED",
+    "PERMISSION_CHECK_REQUIRED",
 )
 _FRONTMATTER_PATTERN = re.compile(r"\A---\n(?P<body>.*?)\n---\n", re.DOTALL)
 
@@ -189,6 +214,7 @@ def check_lowcode_poc() -> list[str]:
         )
         if "package:dio/" in form_text or "package:http/" in form_text:
             findings.append(create_lint_error("generated OpenAPI Flutter form must not perform direct HTTP calls"))
+        findings.extend(check_generated_security(_GENERATED_FORM, form_text))
 
     if not _LOWCODE_SPRINT_PLAN.exists():
         findings.append(create_lint_error("docs/LOW_CODE_BUILDER_SPRINT_PLAN.md is missing"))
@@ -237,6 +263,7 @@ def check_lowcode_poc() -> list[str]:
         )
         if "package:dio/" in view_text or "package:http/" in view_text:
             findings.append(create_lint_error("generated OpenAPI Flutter view must not perform direct HTTP calls"))
+        findings.extend(check_generated_security(_GENERATED_VIEW, view_text))
 
     if not _GENERATED_FORM_TEST.exists():
         findings.append(create_lint_error("generated OpenAPI Flutter form widget test is missing"))
@@ -248,6 +275,52 @@ def check_lowcode_poc() -> list[str]:
             if reference not in test_text
         )
 
+    findings.extend(check_lowcode_security_docs())
+
+    return findings
+
+
+def check_generated_security(path: Path, text: str) -> list[str]:
+    findings: list[str] = []
+    relative_path = path.relative_to(_REPO_ROOT)
+    security_patterns = (
+        (r"\bprint\s*\(", "must not use print"),
+        (r"\beval\s*\(", "must not use eval"),
+        (r"https?://", "must not hardcode HTTP URLs"),
+        (r"package:(dio|http)/", "must not import direct HTTP packages"),
+        (r"^import 'package:(?!flutter/)", "must not import non-Flutter packages"),
+    )
+    for pattern, message in security_patterns:
+        if re.search(pattern, text, flags=re.MULTILINE):
+            findings.append(create_lint_error(f"{relative_path} {message}"))
+    return findings
+
+
+def check_lowcode_security_docs() -> list[str]:
+    findings: list[str] = []
+    if not _POC_SPEC.exists():
+        findings.append(create_lint_error("PocSpec.md is missing"))
+    else:
+        poc_spec_text = _POC_SPEC.read_text(encoding="utf-8")
+        findings.extend(
+            create_lint_error(f"PocSpec.md must reference `{reference}`")
+            for reference in _REQUIRED_POC_SPEC_REFERENCES
+            if reference not in poc_spec_text
+        )
+
+    if not _LINTER_RULES.exists():
+        findings.append(create_lint_error("sahool_linter_rules.yaml is missing"))
+    else:
+        linter_rules_text = _LINTER_RULES.read_text(encoding="utf-8")
+        findings.extend(
+            create_lint_error(f"sahool_linter_rules.yaml must reference `{reference}`")
+            for reference in _REQUIRED_LINTER_RULE_REFERENCES
+            if reference not in linter_rules_text
+        )
+        try:
+            yaml.safe_load(linter_rules_text)
+        except yaml.YAMLError as exc:
+            findings.append(create_lint_error(f"sahool_linter_rules.yaml is invalid YAML: {exc}"))
     return findings
 
 

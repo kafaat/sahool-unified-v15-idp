@@ -1,6 +1,8 @@
 // AUTO-GENERATED - DO NOT EDIT MANUALLY
 // Generated from one OpenAPI operation for the SAHOOL Low-Code PoC.
 // This widget intentionally emits form data via onSubmit; it does not perform API calls.
+// TENANT_ID_REQUIRED
+// PERMISSION_CHECK_REQUIRED
 
 import 'package:flutter/material.dart';
 
@@ -108,6 +110,7 @@ class _AnalyzeSatelliteGeometryLowCodeFormState extends State<AnalyzeSatelliteGe
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
+            // PERMISSION_CHECK_REQUIRED
             onPressed: _submit,
             icon: const Icon(Icons.check),
             label: const Text('Submit'),

@@ -12,6 +12,7 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_TOKENS = REPO_ROOT / "governance" / "design" / "design-tokens.yaml"
 DEFAULT_OUTPUT = REPO_ROOT / "apps" / "mobile" / "lib" / "core" / "theme" / "generated" / "sahool_token_theme.dart"
+ALLOWED_LOWCODE_SPACING_PX = {0.0, 4.0, 8.0, 12.0, 16.0, 24.0, 32.0, 48.0, 64.0}
 
 
 def _load_tokens(path: Path) -> dict:
@@ -56,7 +57,9 @@ def _emit_color_constants(tokens: dict) -> list[str]:
 def _emit_spacing_constants(tokens: dict) -> list[str]:
     lines: list[str] = []
     for name, value in tokens.get("spacing", {}).items():
-        lines.append(f"  static const {_constant_name('spacing', name)} = {_rem_to_px(value):.1f};")
+        spacing_px = _rem_to_px(value)
+        if spacing_px in ALLOWED_LOWCODE_SPACING_PX:
+            lines.append(f"  static const {_constant_name('spacing', name)} = {spacing_px:.1f};")
     return lines
 
 

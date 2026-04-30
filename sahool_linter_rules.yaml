@@ -1,0 +1,35 @@
+version: "0.1.0"
+name: sahool-lowcode-poc-security-gate
+description: "Static guardrails for SAHOOL generated Low-Code Flutter files."
+paths:
+  generated_flutter:
+    - apps/mobile/lib/features/lowcode/generated/*.dart
+    - apps/mobile/lib/core/theme/generated/*.dart
+required_markers:
+  tenant_context: "// TENANT_ID_REQUIRED"
+  permission_check: "// PERMISSION_CHECK_REQUIRED"
+forbidden_patterns:
+  - id: no-print
+    pattern: "\\bprint\\s*\\("
+    message: "Generated code must not use print; use platform logging outside generated UI."
+  - id: no-eval
+    pattern: "\\beval\\s*\\("
+    message: "Generated code must not evaluate dynamic code."
+  - id: no-hardcoded-http-url
+    pattern: "https?://"
+    message: "Generated code must not hardcode URLs or perform direct API wiring."
+  - id: no-direct-http-package
+    pattern: "package:(dio|http)/"
+    message: "Generated code must not import direct HTTP clients."
+  - id: no-new-package-imports
+    pattern: "^import 'package:(?!flutter/)"
+    message: "Generated Low-Code PoC widgets may only import Flutter SDK packages."
+constraints:
+  design_tokens_source: governance/design/design-tokens.yaml
+  generated_tokens_json: shared/design-system/tokens.json
+  generated_flutter_theme: apps/mobile/lib/core/theme/generated/sahool_token_theme.dart
+  allowed_spacing_px: [4, 8, 12, 16, 24, 32, 48, 64]
+  no_ui_without_tenant_context: true
+  no_screen_without_rbac: true
+  no_api_call_without_unified_response_schema: true
+  no_auto_flutter_packages: true

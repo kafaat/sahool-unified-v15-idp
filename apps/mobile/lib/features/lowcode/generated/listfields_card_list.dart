@@ -1,6 +1,8 @@
 // AUTO-GENERATED - DO NOT EDIT MANUALLY
 // Generated from one approved OpenAPI GET operation for the SAHOOL Low-Code Builder PoC.
 // This widget renders caller-provided rows only; it does not perform API calls.
+// TENANT_ID_REQUIRED
+// PERMISSION_CHECK_REQUIRED
 
 import 'package:flutter/material.dart';
 
@@ -35,6 +37,7 @@ class ListFieldsLowCodeCardList extends StatelessWidget {
           children: [
             Expanded(child: Text("List fields", style: Theme.of(context).textTheme.titleLarge)),
             IconButton(
+              // PERMISSION_CHECK_REQUIRED
               onPressed: onRefresh,
               icon: const Icon(Icons.refresh),
               tooltip: 'Refresh / تحديث',

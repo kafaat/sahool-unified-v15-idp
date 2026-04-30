@@ -157,8 +157,6 @@ def _emit_state(field: Field) -> str:
         return f"  bool _{name} = false;"
     if field.enum_values:
         first = _dart_string(field.enum_values[0])
-        if field.required:
-            return f"  String _{name} = {first};"
         return f"  String? _{name} = {first};"
     return ""
 

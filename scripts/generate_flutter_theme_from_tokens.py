@@ -76,6 +76,8 @@ def generate_theme(tokens: dict) -> str:
             "// Generated from: governance/design/design-tokens.yaml",
             "// Purpose: SAHOOL Low-Code PoC token-fed Flutter ThemeData.",
             "",
+            "import 'dart:ui' show FontFeature;",
+            "",
             "import 'package:flutter/material.dart';",
             "",
             "/// Token constants used by generated Low-Code PoC screens.",

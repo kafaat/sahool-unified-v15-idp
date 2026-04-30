@@ -16,7 +16,12 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _DESIGN_DOC = _REPO_ROOT / "SAHOOL_DESIGN.md"
+_LOWCODE_DOC = _REPO_ROOT / "docs" / "LOW_CODE_POC.md"
 _SKILLS_DIR = _REPO_ROOT / ".claude" / "skills" / "sahool-starter"
+_GENERATED_THEME = _REPO_ROOT / "apps" / "mobile" / "lib" / "core" / "theme" / "generated" / "sahool_token_theme.dart"
+_GENERATED_FORM = (
+    _REPO_ROOT / "apps" / "mobile" / "lib" / "features" / "lowcode" / "generated" / "analyzesatellitegeometry_form.dart"
+)
 _EXPECTED_SKILLS = {
     "dashboard/SKILL.md": "sahool-dashboard",
     "mobile-field-flow/SKILL.md": "sahool-mobile-field-flow",
@@ -31,6 +36,19 @@ _REQUIRED_DESIGN_REFERENCES = (
 )
 _REQUIRED_SCOPE_STATEMENT = "Only these three starter skills are in scope"
 _REQUIRED_SKILL_SECTIONS = ("## Scope", "## Required Inputs", "## Output Checklist", "## Do Not")
+_REQUIRED_LOWCODE_DOC_REFERENCES = (
+    "governance/design/design-tokens.yaml",
+    "api/services/vegetation-analysis-service.openapi.yaml",
+    "Tenant Context",
+    "RBAC",
+    "does not perform API calls",
+)
+_REQUIRED_GENERATED_FORM_REFERENCES = (
+    "final String tenantId;",
+    "final Set<String> permissions;",
+    "requiredPermission",
+    "does not perform API calls",
+)
 _FORBIDDEN_IMPORT_PATTERNS = (
     (r"\bsource:\s*github\b", "GitHub-sourced skill imports"),
     (r"\bsourceType:\s*github\b", "GitHub source metadata"),
@@ -117,8 +135,45 @@ def check_starter_skills() -> list[str]:
     return findings
 
 
+def check_lowcode_poc() -> list[str]:
+    findings: list[str] = []
+
+    if not _LOWCODE_DOC.exists():
+        findings.append(create_lint_error("docs/LOW_CODE_POC.md is missing"))
+    else:
+        text = _LOWCODE_DOC.read_text(encoding="utf-8")
+        findings.extend(
+            create_lint_error(f"docs/LOW_CODE_POC.md must reference `{reference}`")
+            for reference in _REQUIRED_LOWCODE_DOC_REFERENCES
+            if reference not in text
+        )
+
+    if not _GENERATED_THEME.exists():
+        findings.append(create_lint_error("generated Flutter token theme is missing"))
+    else:
+        theme_text = _GENERATED_THEME.read_text(encoding="utf-8")
+        if "SahoolGeneratedTheme" not in theme_text:
+            findings.append(create_lint_error("generated Flutter token theme must expose SahoolGeneratedTheme"))
+        if "governance/design/design-tokens.yaml" not in theme_text:
+            findings.append(create_lint_error("generated Flutter token theme must identify its token source"))
+
+    if not _GENERATED_FORM.exists():
+        findings.append(create_lint_error("generated OpenAPI Flutter form PoC is missing"))
+    else:
+        form_text = _GENERATED_FORM.read_text(encoding="utf-8")
+        findings.extend(
+            create_lint_error(f"generated OpenAPI Flutter form must include `{reference}`")
+            for reference in _REQUIRED_GENERATED_FORM_REFERENCES
+            if reference not in form_text
+        )
+        if "package:dio/" in form_text or "package:http/" in form_text:
+            findings.append(create_lint_error("generated OpenAPI Flutter form must not perform direct HTTP calls"))
+
+    return findings
+
+
 def main() -> int:
-    findings = [*check_design_doc(), *check_starter_skills()]
+    findings = [*check_design_doc(), *check_starter_skills(), *check_lowcode_poc()]
     if findings:
         print("\n".join(findings), file=sys.stderr)
         return 1

@@ -6,12 +6,10 @@
 import { getRequestConfig } from 'next-intl/server';
 import { locales, defaultLocale, messages, type Locale } from '@sahool/i18n';
 
-export default getRequestConfig(async ({ locale: requestedLocale }) => {
+export default getRequestConfig(async ({ locale }) => {
   // Validate that the incoming locale parameter is valid
   const validLocale = (
-    requestedLocale && locales.includes(requestedLocale as Locale)
-      ? requestedLocale
-      : defaultLocale
+    locale && locales.includes(locale as Locale) ? locale : defaultLocale
   ) as Locale;
 
   return {

@@ -21,6 +21,10 @@ from data_exporter import (
 )
 
 
+def get_safe_export_path(filename: str) -> str:
+    """Return a safe path inside the system temp directory, stripping any directory traversal."""
+    return os.path.join(tempfile.gettempdir(), os.path.basename(filename))
+
 def example_basic_csv_export():
     """
     مثال 1: تصدير بيانات الحقل بصيغة CSV
@@ -56,9 +60,9 @@ def example_basic_csv_export():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "w", encoding="utf-8") as f:
+    with open(get_safe_export_path(result.filename), "w", encoding="utf-8") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -98,9 +102,9 @@ def example_excel_multi_sheet_export():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "wb") as f:
+    with open(get_safe_export_path(result.filename), "wb") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -126,9 +130,9 @@ def example_geojson_export():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "w", encoding="utf-8") as f:
+    with open(get_safe_export_path(result.filename), "w", encoding="utf-8") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -158,9 +162,9 @@ def example_sensor_readings_export():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "wb") as f:
+    with open(get_safe_export_path(result.filename), "wb") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -187,9 +191,9 @@ def example_recommendations_export():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "wb") as f:
+    with open(get_safe_export_path(result.filename), "wb") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -224,9 +228,9 @@ def example_daily_summary_report():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "wb") as f:
+    with open(get_safe_export_path(result.filename), "wb") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -252,9 +256,9 @@ def example_weekly_analysis_report():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "wb") as f:
+    with open(get_safe_export_path(result.filename), "wb") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -281,9 +285,9 @@ def example_monthly_report():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "wb") as f:
+    with open(get_safe_export_path(result.filename), "wb") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -311,9 +315,9 @@ def example_seasonal_comparison():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "w", encoding="utf-8") as f:
+    with open(get_safe_export_path(result.filename), "w", encoding="utf-8") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 
@@ -343,9 +347,9 @@ def example_yield_forecast_report():
     print()
 
     # Save to file
-    with open(os.path.join(tempfile.gettempdir(), os.path.basename(result.filename)), "wb") as f:
+    with open(get_safe_export_path(result.filename), "wb") as f:
         f.write(result.data)
-    print(f"✓ File saved to: {os.path.join(tempfile.gettempdir(), os.path.basename(result.filename))}")
+    print(f"✓ File saved to: {get_safe_export_path(result.filename)}")
     print()
 
 

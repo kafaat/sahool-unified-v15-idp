@@ -299,7 +299,7 @@ def generate_widget(spec: dict[str, Any], path: str, method: str, operation: dic
             "          const SizedBox(height: 16),",
             *[_emit_widget(field) for field in fields],
             "          const SizedBox(height: 24),",
-          "          FilledButton.icon(",
+            "          FilledButton.icon(",
             "            // PERMISSION_CHECK_REQUIRED",
             "            onPressed: _submit,",
             "            icon: const Icon(Icons.check),",

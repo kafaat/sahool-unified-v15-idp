@@ -34,9 +34,11 @@ def _rem_to_px(value: str) -> float:
 
 
 def _constant_name(*parts: object) -> str:
-    raw = "_".join(str(part) for part in parts)
-    cleaned = raw.replace("-", "_").replace(".", "_")
-    return cleaned.lower()
+    raw_parts = [str(part).replace("-", "_").replace(".", "_") for part in parts]
+    words = [word for part in raw_parts for word in part.split("_") if word]
+    if not words:
+        raise ValueError("Cannot build Dart identifier from empty token name")
+    return words[0].lower() + "".join(word[:1].upper() + word[1:] for word in words[1:])
 
 
 def _emit_color_constants(tokens: dict) -> list[str]:
@@ -54,14 +56,14 @@ def _emit_color_constants(tokens: dict) -> list[str]:
 def _emit_spacing_constants(tokens: dict) -> list[str]:
     lines: list[str] = []
     for name, value in tokens.get("spacing", {}).items():
-        lines.append(f"  static const spacing_{name} = {_rem_to_px(value):.1f};")
+        lines.append(f"  static const {_constant_name('spacing', name)} = {_rem_to_px(value):.1f};")
     return lines
 
 
 def _emit_radius_constants(tokens: dict) -> list[str]:
     lines: list[str] = []
     for name, value in tokens.get("borderRadius", {}).items():
-        lines.append(f"  static const radius_{name} = {_rem_to_px(value):.1f};")
+        lines.append(f"  static const {_constant_name('radius', name)} = {_rem_to_px(value):.1f};")
     return lines
 
 
@@ -99,29 +101,29 @@ def generate_theme(tokens: dict) -> str:
             "    final base = ThemeData.light(useMaterial3: true);",
             "    return base.copyWith(",
             "      colorScheme: ColorScheme.fromSeed(",
-            "        seedColor: SahoolGeneratedTokens.primary_500,",
-            "        primary: SahoolGeneratedTokens.primary_500,",
-            "        secondary: SahoolGeneratedTokens.secondary_500,",
-            "        error: SahoolGeneratedTokens.error_main,",
-            "        surface: SahoolGeneratedTokens.neutral_0,",
+            "        seedColor: SahoolGeneratedTokens.primary500,",
+            "        primary: SahoolGeneratedTokens.primary500,",
+            "        secondary: SahoolGeneratedTokens.secondary500,",
+            "        error: SahoolGeneratedTokens.errorMain,",
+            "        surface: SahoolGeneratedTokens.neutral0,",
             "      ),",
             f"      fontFamily: '{primary_font}',",
             "      textTheme: base.textTheme.apply(",
             f"        fontFamily: '{primary_font}',",
-            f"        displayColor: SahoolGeneratedTokens.neutral_900,",
-            f"        bodyColor: SahoolGeneratedTokens.neutral_900,",
+            f"        displayColor: SahoolGeneratedTokens.neutral900,",
+            f"        bodyColor: SahoolGeneratedTokens.neutral900,",
             "      ),",
             "      cardTheme: CardThemeData(",
-            "        color: SahoolGeneratedTokens.neutral_0,",
+            "        color: SahoolGeneratedTokens.neutral0,",
             "        elevation: 1,",
-            "        margin: const EdgeInsets.all(SahoolGeneratedTokens.spacing_4),",
+            "        margin: const EdgeInsets.all(SahoolGeneratedTokens.spacing4),",
             "        shape: RoundedRectangleBorder(",
-            "          borderRadius: BorderRadius.circular(SahoolGeneratedTokens.radius_lg),",
+            "          borderRadius: BorderRadius.circular(SahoolGeneratedTokens.radiusLg),",
             "        ),",
             "      ),",
             "      inputDecorationTheme: InputDecorationTheme(",
             "        border: OutlineInputBorder(",
-            "          borderRadius: BorderRadius.circular(SahoolGeneratedTokens.radius_md),",
+            "          borderRadius: BorderRadius.circular(SahoolGeneratedTokens.radiusMd),",
             "        ),",
             "      ),",
             "    );",
@@ -132,17 +134,17 @@ def generate_theme(tokens: dict) -> str:
             "    return base.copyWith(",
             "      colorScheme: ColorScheme.fromSeed(",
             "        brightness: Brightness.dark,",
-            "        seedColor: SahoolGeneratedTokens.primary_300,",
-            "        primary: SahoolGeneratedTokens.primary_300,",
-            "        secondary: SahoolGeneratedTokens.secondary_300,",
-            "        error: SahoolGeneratedTokens.error_light,",
-            "        surface: SahoolGeneratedTokens.neutral_900,",
+            "        seedColor: SahoolGeneratedTokens.primary300,",
+            "        primary: SahoolGeneratedTokens.primary300,",
+            "        secondary: SahoolGeneratedTokens.secondary300,",
+            "        error: SahoolGeneratedTokens.errorLight,",
+            "        surface: SahoolGeneratedTokens.neutral900,",
             "      ),",
             f"      fontFamily: '{primary_font}',",
             "      textTheme: base.textTheme.apply(",
             f"        fontFamily: '{primary_font}',",
-            f"        displayColor: SahoolGeneratedTokens.neutral_0,",
-            f"        bodyColor: SahoolGeneratedTokens.neutral_0,",
+            f"        displayColor: SahoolGeneratedTokens.neutral0,",
+            f"        bodyColor: SahoolGeneratedTokens.neutral0,",
             "      ),",
             "    );",
             "  }",

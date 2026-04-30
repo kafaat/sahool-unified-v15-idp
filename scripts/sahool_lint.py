@@ -208,6 +208,7 @@ def check_lowcode_poc() -> list[str]:
             capture_output=True,
             check=False,
             text=True,
+            timeout=30,
         )
         if registry_check.returncode != 0:
             output = registry_check.stdout or registry_check.stderr

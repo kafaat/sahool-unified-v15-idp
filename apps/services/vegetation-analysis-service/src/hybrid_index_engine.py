@@ -410,7 +410,7 @@ class HybridIndexEngine:
                 continue
 
             # Find low-res observation on same date as high-res
-            lr_at_hr_date = next((l for l in low_res if l.date == nearest_hr.date and l.ndvi is not None), None)
+            lr_at_hr_date = next((obs for obs in low_res if obs.date == nearest_hr.date and obs.ndvi is not None), None)
 
             if lr_at_hr_date and lr_at_hr_date.ndvi is not None:
                 # STARFM formula

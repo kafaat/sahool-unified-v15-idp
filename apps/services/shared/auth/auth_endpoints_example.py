@@ -298,7 +298,7 @@ async def register(
 
     # Step 3: Create user record
     user_id = str(uuid.uuid4())
-    new_user = {
+    _new_user = {
         "id": user_id,
         "email": user_data.email,
         "full_name": user_data.full_name,

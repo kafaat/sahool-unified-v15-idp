@@ -316,7 +316,7 @@ class APIDocsGenerator:
 
                 if docstring_match:
                     docstring = docstring_match.group(1).strip()
-                    lines = [l.strip() for l in docstring.split("\n") if l.strip()]
+                    lines = [line.strip() for line in docstring.split("\n") if line.strip()]
 
                     if lines:
                         # First line is summary

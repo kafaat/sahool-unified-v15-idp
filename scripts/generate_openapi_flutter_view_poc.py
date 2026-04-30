@@ -12,6 +12,8 @@ from typing import Any
 
 import yaml
 
+from lowcode_schema_registry import NON_FILTERING_QUERY_PARAMS
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "apps" / "mobile" / "lib" / "features" / "lowcode" / "generated"
@@ -87,8 +89,7 @@ def _validate_layout(operation: dict[str, Any], layout: str) -> None:
     query_params = _query_parameter_names(operation)
     if not {"limit", "offset"}.issubset(query_params):
         raise ValueError("GET list views require limit/offset pagination in the OpenAPI spec")
-    non_filtering_params = {"limit", "offset", "page", "sort", "sortBy", "order", "orderBy"}
-    if query_params <= non_filtering_params:
+    if query_params <= NON_FILTERING_QUERY_PARAMS:
         raise ValueError("GET list views require at least one query filter in the OpenAPI spec")
     if layout == "table" and not ({"sort", "sortBy", "order", "orderBy"} & query_params):
         raise ValueError("DataTable generation requires an explicit sorting query parameter in the OpenAPI spec")

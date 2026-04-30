@@ -97,7 +97,12 @@ class _AnalyzeSatelliteGeometryLowCodeFormState extends State<AnalyzeSatelliteGe
           DropdownButtonFormField<String>(
             value: _satellite,
             decoration: const InputDecoration(labelText: "Satellite"),
-            items: [DropdownMenuItem(value: "sentinel2", child: Text("sentinel2")), DropdownMenuItem(value: "landsat8", child: Text("landsat8")), DropdownMenuItem(value: "landsat9", child: Text("landsat9")), DropdownMenuItem(value: "auto", child: Text("auto"))],
+            items: [
+              DropdownMenuItem(value: "sentinel2", child: Text("sentinel2")),
+              DropdownMenuItem(value: "landsat8", child: Text("landsat8")),
+              DropdownMenuItem(value: "landsat9", child: Text("landsat9")),
+              DropdownMenuItem(value: "auto", child: Text("auto")),
+            ],
             validator: null,
             onChanged: (value) => setState(() => _satellite = value ?? _satellite),
           ),

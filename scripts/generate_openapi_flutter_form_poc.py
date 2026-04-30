@@ -195,16 +195,18 @@ def _emit_widget(field: Field) -> str:
             ]
         )
     if field.enum_values:
-        items = ", ".join(
-            f"DropdownMenuItem(value: {_dart_string(value)}, child: Text({_dart_string(value)}))"
+        items = [
+            f"              DropdownMenuItem(value: {_dart_string(value)}, child: Text({_dart_string(value)})),"
             for value in field.enum_values
-        )
+        ]
         return "\n".join(
             [
                 "          DropdownButtonFormField<String>(",
                 f"            value: _{name},",
                 f"            decoration: const InputDecoration(labelText: {label}),",
-                f"            items: [{items}],",
+                "            items: [",
+                *items,
+                "            ],",
                 f"            validator: {_emit_validator(field)},",
                 f"            onChanged: (value) => setState(() => _{name} = value ?? _{name}),",
                 "          ),",

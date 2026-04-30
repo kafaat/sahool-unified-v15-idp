@@ -13,6 +13,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REGISTRY_PATH = REPO_ROOT / "schema-registry" / "registry.json"
+NON_FILTERING_QUERY_PARAMS = frozenset({"limit", "offset", "page", "sort", "sortBy", "order", "orderBy"})
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -86,8 +87,7 @@ def validate_registry(registry_path: Path = REGISTRY_PATH) -> list[str]:
             query_params = _query_parameter_names(operation)
             if approved_operation.get("requiresPagination") and not {"limit", "offset"}.issubset(query_params):
                 findings.append(f"approved operation lacks limit/offset pagination: {service}/{operation_id}")
-            non_filtering_params = {"limit", "offset", "page", "sort", "sortBy", "order", "orderBy"}
-            if approved_operation.get("requiresFiltering") and query_params <= non_filtering_params:
+            if approved_operation.get("requiresFiltering") and query_params <= NON_FILTERING_QUERY_PARAMS:
                 findings.append(f"approved operation lacks query filters: {service}/{operation_id}")
             if template == "list.table" and not ({"sort", "sortBy", "order", "orderBy"} & query_params):
                 findings.append(f"DataTable operation lacks sorting parameter: {service}/{operation_id}")

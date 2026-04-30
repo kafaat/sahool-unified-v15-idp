@@ -230,7 +230,9 @@ def check_lowcode_poc() -> list[str]:
         findings.append(create_lint_error("schema-registry/registry.json is missing"))
     else:
         registry_script = _REPO_ROOT.joinpath("scripts", "lowcode_schema_registry.py").resolve()
-        if not registry_script.is_relative_to(_REPO_ROOT.resolve()):
+        try:
+            registry_script.relative_to(_REPO_ROOT.resolve())
+        except ValueError:
             findings.append(create_lint_error("schema registry validator path escapes repository root"))
         else:
             try:

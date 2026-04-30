@@ -21,8 +21,12 @@ def _load_tokens(path: Path) -> dict:
 
 
 def _hex_to_color(value: str) -> str:
-    if not isinstance(value, str) or not value.startswith("#") or len(value) != 7:
-        raise ValueError(f"Expected #RRGGBB color, got {value!r}")
+    if not isinstance(value, str) or not value.startswith("#") or len(value) not in {7, 9}:
+        raise ValueError(f"Expected #RRGGBB or #RRGGBBAA color, got {value!r}")
+    if len(value) == 9:
+        red_green_blue = value[1:7].upper()
+        alpha = value[7:9].upper()
+        return f"Color(0x{alpha}{red_green_blue})"
     return f"Color(0xFF{value[1:].upper()})"
 
 

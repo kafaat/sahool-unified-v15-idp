@@ -352,6 +352,7 @@ export async function middleware(request: NextRequest) {
  * next-intl's server-side getRequestConfig() can read it on
  * subsequent requests. This replaces the cookie-setting behaviour
  * that was previously handled by next-intl/middleware.
+ * Also sets the x-next-intl-locale header required by next-intl v4+.
  */
 function setLocaleCookie(response: NextResponse, locale: (typeof locales)[number]): void {
   response.cookies.set('NEXT_LOCALE', locale, {
@@ -359,6 +360,8 @@ function setLocaleCookie(response: NextResponse, locale: (typeof locales)[number
     maxAge: 60 * 60 * 24 * 365, // 1 year
     sameSite: 'lax',
   });
+  // next-intl v4 reads the locale from this request header
+  response.headers.set('x-next-intl-locale', locale);
 }
 
 /**

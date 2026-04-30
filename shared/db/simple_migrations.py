@@ -175,7 +175,7 @@ class SimpleMigrationRunner:
                             INSERT INTO {_TRACKING_TABLE} (version, description, duration_ms)
                             VALUES ($1, $2, $3)
                             ON CONFLICT (version) DO NOTHING
-                            """,  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
+                            """,  # noqa: S608  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
                             migration.version,
                             migration.description,
                             duration_ms,
@@ -263,7 +263,7 @@ class SimpleMigrationRunner:
                     async with conn.transaction():
                         await conn.execute(migration.down)
                         await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, version is parameterized
-                            f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1",  # nosec B608
+                            f"DELETE FROM {_TRACKING_TABLE} WHERE version = $1",  # noqa: S608  # nosec B608
                             migration.version,
                         )
                     duration_ms = int((time.monotonic() - t0) * 1000)
@@ -316,7 +316,7 @@ class SimpleMigrationRunner:
     async def _get_applied_versions(self, conn: asyncpg.Connection, *, dry_run: bool = False) -> set[int]:
         """Return set of already-applied version numbers."""
         try:
-            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")  # nosec B608  # nosemgrep: asyncpg-sqli -- _TRACKING_TABLE is a module constant, not user input
+            rows = await conn.fetch(f"SELECT version FROM {_TRACKING_TABLE} ORDER BY version")  # noqa: S608  # nosec B608  # nosemgrep: asyncpg-sqli -- _TRACKING_TABLE is a module constant, not user input
             return {row["version"] for row in rows}
         except Exception:
             # Table may not exist yet (first run or dry_run before real run).

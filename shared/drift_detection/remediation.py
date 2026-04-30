@@ -353,7 +353,7 @@ class AutoRemediationEngine:
                         error=f"Command '{base_cmd}' not in allowed commands: {sorted(self._ALLOWED_COMMANDS)}",
                     )
 
-                result = subprocess.run(
+                result = subprocess.run(  # noqa: S603
                     argv,
                     shell=False,
                     capture_output=True,

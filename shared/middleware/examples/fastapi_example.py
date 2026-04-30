@@ -344,7 +344,7 @@ if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))
     uvicorn.run(
         app,
-        host="0.0.0.0",  # nosec B104 - example code
+        host="0.0.0.0",  # nosec B104 - example code  # noqa: S104  # nosec B104
         port=port,
         log_level="info",
     )

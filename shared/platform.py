@@ -597,7 +597,7 @@ class TenantRepository(Generic[T]):
                 values.append(val)
 
             where_sql = f"WHERE {' AND '.join(where_parts)}" if where_parts else ""
-            query = f"SELECT * FROM {self._table} {where_sql}"  # nosec B608 - _table is a class constant defined in subclass, not user input
+            query = f"SELECT * FROM {self._table} {where_sql}"  # noqa: S608  # nosec B608 - _table is a class constant defined in subclass, not user input
 
             rows = await conn.fetch(query, *values)
             return [self._model_class(**dict(row)) for row in rows]
@@ -605,7 +605,7 @@ class TenantRepository(Generic[T]):
     @require_context()
     async def find_one(self, id: str) -> T | None:
         async with tenant_db() as conn:
-            row = await conn.fetchrow(f"SELECT * FROM {self._table} WHERE id = $1", id)  # nosec B608 - _table is a class constant, not user input
+            row = await conn.fetchrow(f"SELECT * FROM {self._table} WHERE id = $1", id)  # noqa: S608  # nosec B608 - _table is a class constant, not user input
             return self._model_class(**dict(row)) if row else None
 
     @require_context()
@@ -625,7 +625,7 @@ class TenantRepository(Generic[T]):
                 INSERT INTO {self._table} ({", ".join(columns)})
                 VALUES ({", ".join(placeholders)})
                 RETURNING *
-            """  # nosec B608 - _table is a class constant; columns are validated by _validate_identifier
+            """  # noqa: S608  # nosec B608 - _table is a class constant; columns are validated by _validate_identifier
 
             row = await conn.fetchrow(query, *data.values())
             return self._model_class(**dict(row))
@@ -1159,7 +1159,7 @@ class TenantBackupService:
                     async with conn.transaction():
                         await conn.execute("SELECT set_config('app.current_tenant', $1, false)", tenant_id)
                         # Table name from BACKUP_TABLES constant (not user input)
-                        rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: B608  # nosec B608 - table is from BACKUP_TABLES class constant, not user input
+                        rows = await conn.fetch(f"SELECT * FROM {table}")  # noqa: S608  # nosec B608 - table is from BACKUP_TABLES class constant, not user input
                     backup_data["tables"][table] = [dict(row) for row in rows]
 
         # Compress and upload

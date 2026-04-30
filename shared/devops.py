@@ -673,8 +673,8 @@ export default function() {{
             script_file = f.name
 
         try:
-            result = subprocess.run(
-                ["k6", "run", "--out", f"json={output_file}", script_file],
+            result = subprocess.run(  # noqa: S603
+                ["k6", "run", "--out", f"json={output_file}", script_file],  # noqa: S607
                 capture_output=True,
                 text=True,
                 check=False,

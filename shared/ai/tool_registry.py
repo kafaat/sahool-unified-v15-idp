@@ -689,7 +689,7 @@ class ToolRegistry:
                 if available:
                     # Try to get version
                     try:
-                        result = subprocess.run(
+                        result = subprocess.run(  # noqa: S603  # nosec S603
                             tool.version_command.split(),
                             capture_output=True,
                             text=True,

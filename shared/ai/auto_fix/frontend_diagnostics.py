@@ -118,7 +118,7 @@ class FrontendDiagnosticRunner:
             if self.config.auto_fix:
                 cmd.append("--fix")
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603  # nosec S603
                 cmd,
                 cwd=self.working_dir,
                 capture_output=True,
@@ -172,7 +172,7 @@ class FrontendDiagnosticRunner:
         try:
             cmd = ["npx", "tsc", "--noEmit", "--pretty", "false"]
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603  # nosec S603
                 cmd,
                 cwd=full_path,
                 capture_output=True,
@@ -216,7 +216,7 @@ class FrontendDiagnosticRunner:
             if self.config.auto_fix:
                 cmd.append("--apply")
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603  # nosec S603
                 cmd,
                 cwd=self.working_dir,
                 capture_output=True,
@@ -314,7 +314,7 @@ class MobileDiagnosticRunner:
         try:
             cmd = ["flutter", "analyze", "--no-pub"]
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603  # nosec S603
                 cmd,
                 cwd=full_path,
                 capture_output=True,
@@ -371,7 +371,7 @@ class MobileDiagnosticRunner:
         try:
             cmd = ["dart", "format", "--set-exit-if-changed", "--output=none", "."]
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603  # nosec S603
                 cmd,
                 cwd=full_path,
                 capture_output=True,
@@ -414,7 +414,7 @@ class MobileDiagnosticRunner:
         try:
             cmd = ["dart", "fix", "--apply"]
 
-            result = subprocess.run(
+            result = subprocess.run(  # noqa: S603  # nosec S603
                 cmd,
                 cwd=full_path,
                 capture_output=True,

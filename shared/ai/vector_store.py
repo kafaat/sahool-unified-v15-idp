@@ -609,7 +609,7 @@ class SQLiteBackend(VectorStoreBackendBase):
         delete_docs_sql = f"""
             DELETE FROM documents
             WHERE id IN ({placeholders}) AND collection = ?
-        """  # nosec B608 - parameterized query with ? placeholders
+        """  # noqa: S608  # nosec B608 - parameterized query with ? placeholders
         cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, python.sqlalchemy.security.sqlalchemy-execute-raw-query -- parameterized query with ? placeholders; ids are UUIDs, collection is internal
             delete_docs_sql,
             (*ids, collection),
@@ -619,7 +619,7 @@ class SQLiteBackend(VectorStoreBackendBase):
         delete_fts_sql = f"""
             DELETE FROM documents_fts
             WHERE id IN ({placeholders})
-        """  # nosec B608 - parameterized query with ? placeholders
+        """  # noqa: S608  # nosec B608 - parameterized query with ? placeholders
         cursor.execute(  # nosemgrep: python.lang.security.audit.formatted-sql-query, python.sqlalchemy.security.sqlalchemy-execute-raw-query -- parameterized query with ? placeholders; ids are UUIDs
             delete_fts_sql,
             ids,

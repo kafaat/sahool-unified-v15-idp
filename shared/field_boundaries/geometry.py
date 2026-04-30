@@ -733,7 +733,7 @@ def generate_postgis_overlap_query(table1: str, table2: str, geometry_column: st
     JOIN {table2} b ON ST_Intersects(a.{g}, b.{g})
     WHERE a.id != b.id
         AND ST_Area(ST_Intersection(a.{g}, b.{g})::geography) > 1.0
-    """  # nosec B608 - table/column names are application constants, not user input
+    """  # noqa: S608  # nosec B608 - table/column names are application constants, not user input
     return sql
 
 
@@ -772,5 +772,5 @@ def generate_postgis_neighbors_query(
             OR ST_DWithin(a.{g}::geography, b.{g}::geography, $2)
         )
     ORDER BY distance_m ASC
-    """  # nosec B608 - table/column names are application constants; boundary_id and buffer_m use $1/$2 params
+    """  # noqa: S608  # nosec B608 - table/column names are application constants; boundary_id and buffer_m use $1/$2 params
     return sql

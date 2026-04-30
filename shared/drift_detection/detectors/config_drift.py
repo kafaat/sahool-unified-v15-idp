@@ -291,8 +291,8 @@ def _get_latest_git_commit_ts(file_path: Path) -> int | None:
     Returns Unix timestamp or None if git is unavailable.
     """
     try:
-        result = subprocess.run(
-            ["git", "log", "-1", "--format=%ct", "--", str(file_path)],
+        result = subprocess.run(  # noqa: S603
+            ["git", "log", "-1", "--format=%ct", "--", str(file_path)],  # noqa: S607
             capture_output=True,
             text=True,
             timeout=10,

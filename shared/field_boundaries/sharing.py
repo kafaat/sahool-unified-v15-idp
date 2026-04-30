@@ -800,7 +800,7 @@ def generate_postgis_conflict_detection_query(
     WHERE (n.overlaps AND n.overlap_area_sqm > {threshold})
         OR (NOT n.overlaps AND n.distance_m < 1.0)
     ORDER BY n.overlap_area_sqm DESC NULLS LAST;
-    """  # nosec B608 - table/column names are application constants; user values use $1/$2 params
+    """  # noqa: S608  # nosec B608 - table/column names are application constants; user values use $1/$2 params
     return sql
 
 
@@ -832,7 +832,7 @@ def generate_postgis_shared_boundaries_query(
         AND p.is_active = true
         AND (p.expires_at IS NULL OR p.expires_at > NOW())
     ORDER BY p.granted_at DESC;
-    """  # nosec B608 - table/column names are application constants; user_id uses $1 param
+    """  # noqa: S608  # nosec B608 - table/column names are application constants; user_id uses $1 param
     return sql
 
 
@@ -877,5 +877,5 @@ def generate_postgis_neighbor_notification_query(
             {buffer_m}
         )
     ORDER BY distance_m ASC;
-    """  # nosec B608 - table/column names are application constants; boundary_id uses $1 param
+    """  # noqa: S608  # nosec B608 - table/column names are application constants; boundary_id uses $1 param
     return sql

@@ -255,7 +255,7 @@ class QualityOrchestrator:
     def _tool_available(self, cmd: str) -> bool:
         """Check if a command-line tool is available."""
         try:
-            result = subprocess.run(["which", cmd], capture_output=True, text=True, timeout=5)
+            result = subprocess.run(["which", cmd], capture_output=True, text=True, timeout=5)  # noqa: S603 S607  # nosec S603 S607
             return result.returncode == 0
         except Exception:
             return False

@@ -47,7 +47,7 @@ CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8240}"]
 1. field-management-service
 2. chat-service
 3. code-review-agent
-4. community-chat
+4. chat-service
 5. crop-growth-model
 6. disaster-assessment
 7. iot-service
@@ -167,7 +167,7 @@ Result: ✅ SUCCESS (Built in ~90s)
 - ✅ apps/services/field-management-service/Dockerfile
 - ✅ apps/services/chat-service/Dockerfile
 - ✅ apps/services/code-review-agent/Dockerfile
-- ✅ apps/services/community-chat/Dockerfile
+- ✅ apps/services/chat-service/Dockerfile
 - ✅ apps/services/crop-growth-model/Dockerfile
 - ✅ apps/services/disaster-assessment/Dockerfile
 - ✅ apps/services/iot-service/Dockerfile

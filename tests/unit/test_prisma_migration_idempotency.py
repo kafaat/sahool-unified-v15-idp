@@ -15,13 +15,35 @@ def test_prisma_create_type_statements_handle_duplicate_objects() -> None:
         lines = path.read_text(encoding="utf-8").splitlines()
         for line_number, line in enumerate(lines, start=1):
             if line.lstrip().upper().startswith("CREATE TYPE"):
-                block_start = max(0, line_number - 1)
-                while block_start > 0 and "DO $$" not in lines[block_start]:
+                create_type_idx = line_number - 1  # 0-indexed
+
+                # Walk backward from the line *before* CREATE TYPE to find DO $$.
+                block_start = create_type_idx - 1
+                while block_start >= 0 and "DO $$" not in lines[block_start]:
                     block_start -= 1
-                block_end = line_number - 1
-                while block_end < len(lines) - 1 and "END $$;" not in lines[block_end]:
+
+                if block_start < 0:
+                    # No DO $$ found before this CREATE TYPE — not guarded.
+                    failures.append(f"{path}:{line_number}: {line.strip()}")
+                    continue
+
+                # Find the matching END $$; starting from *after* DO $$.
+                block_end = block_start + 1
+                while block_end < len(lines) and "END $$;" not in lines[block_end]:
                     block_end += 1
-                block = "\n".join(lines[block_start:block_end])
+
+                if block_end >= len(lines):
+                    # No matching END $$; — malformed DO block.
+                    failures.append(f"{path}:{line_number}: {line.strip()}")
+                    continue
+
+                # Verify the CREATE TYPE line is actually *inside* this DO block.
+                if not (block_start < create_type_idx < block_end):
+                    failures.append(f"{path}:{line_number}: {line.strip()}")
+                    continue
+
+                # Check the DO block contains the exception handler.
+                block = "\n".join(lines[block_start : block_end + 1])
                 if "EXCEPTION WHEN duplicate_object" not in block:
                     failures.append(f"{path}:{line_number}: {line.strip()}")
 

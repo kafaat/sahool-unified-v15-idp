@@ -5,11 +5,19 @@
 -- ═══════════════════════════════════════════════════════════════════════════════
 
 -- Step 1: Create enums
-CREATE TYPE "MessageType" AS ENUM ('TEXT', 'IMAGE', 'OFFER', 'SYSTEM');
-CREATE TYPE "ParticipantRole" AS ENUM ('BUYER', 'SELLER');
+DO $$
+BEGIN
+    CREATE TYPE "MessageType" AS ENUM ('TEXT', 'IMAGE', 'OFFER', 'SYSTEM');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+DO $$
+BEGIN
+    CREATE TYPE "ParticipantRole" AS ENUM ('BUYER', 'SELLER');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Step 2: Create conversations table
-CREATE TABLE "conversations" (
+CREATE TABLE IF NOT EXISTS "conversations" (
     "id" UUID NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "participant_ids" TEXT[],
@@ -25,7 +33,7 @@ CREATE TABLE "conversations" (
 );
 
 -- Step 3: Create messages table
-CREATE TABLE "messages" (
+CREATE TABLE IF NOT EXISTS "messages" (
     "id" UUID NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "conversation_id" TEXT NOT NULL,
@@ -44,7 +52,7 @@ CREATE TABLE "messages" (
 );
 
 -- Step 4: Create participants table
-CREATE TABLE "participants" (
+CREATE TABLE IF NOT EXISTS "participants" (
     "id" UUID NOT NULL,
     "tenant_id" TEXT NOT NULL,
     "conversation_id" TEXT NOT NULL,
@@ -61,29 +69,29 @@ CREATE TABLE "participants" (
 );
 
 -- Step 5: Create unique constraints
-CREATE UNIQUE INDEX "participants_conversation_id_user_id_key" ON "participants"("conversation_id", "user_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "participants_conversation_id_user_id_key" ON "participants"("conversation_id", "user_id");
 
 -- Step 6: Create indexes for conversations
-CREATE INDEX "idx_conversation_tenant" ON "conversations"("tenant_id");
-CREATE INDEX "idx_conversation_tenant_active" ON "conversations"("tenant_id", "is_active");
-CREATE INDEX "conversations_product_id_idx" ON "conversations"("product_id");
-CREATE INDEX "conversations_order_id_idx" ON "conversations"("order_id");
-CREATE INDEX "idx_conversation_active_updated" ON "conversations"("is_active", "last_message_at");
-CREATE INDEX "idx_conversation_active" ON "conversations"("is_active");
+CREATE INDEX IF NOT EXISTS "idx_conversation_tenant" ON "conversations"("tenant_id");
+CREATE INDEX IF NOT EXISTS "idx_conversation_tenant_active" ON "conversations"("tenant_id", "is_active");
+CREATE INDEX IF NOT EXISTS "conversations_product_id_idx" ON "conversations"("product_id");
+CREATE INDEX IF NOT EXISTS "conversations_order_id_idx" ON "conversations"("order_id");
+CREATE INDEX IF NOT EXISTS "idx_conversation_active_updated" ON "conversations"("is_active", "last_message_at");
+CREATE INDEX IF NOT EXISTS "idx_conversation_active" ON "conversations"("is_active");
 
 -- Step 7: Create indexes for messages
-CREATE INDEX "idx_message_tenant" ON "messages"("tenant_id");
-CREATE INDEX "messages_conversation_id_idx" ON "messages"("conversation_id");
-CREATE INDEX "messages_sender_id_idx" ON "messages"("sender_id");
-CREATE INDEX "messages_created_at_idx" ON "messages"("created_at");
-CREATE INDEX "messages_conversation_id_sender_id_is_read_idx" ON "messages"("conversation_id", "sender_id", "is_read");
-CREATE INDEX "messages_conversation_id_created_at_idx" ON "messages"("conversation_id", "created_at");
+CREATE INDEX IF NOT EXISTS "idx_message_tenant" ON "messages"("tenant_id");
+CREATE INDEX IF NOT EXISTS "messages_conversation_id_idx" ON "messages"("conversation_id");
+CREATE INDEX IF NOT EXISTS "messages_sender_id_idx" ON "messages"("sender_id");
+CREATE INDEX IF NOT EXISTS "messages_created_at_idx" ON "messages"("created_at");
+CREATE INDEX IF NOT EXISTS "messages_conversation_id_sender_id_is_read_idx" ON "messages"("conversation_id", "sender_id", "is_read");
+CREATE INDEX IF NOT EXISTS "messages_conversation_id_created_at_idx" ON "messages"("conversation_id", "created_at");
 
 -- Step 8: Create indexes for participants
-CREATE INDEX "idx_participant_tenant" ON "participants"("tenant_id");
-CREATE INDEX "participants_user_id_idx" ON "participants"("user_id");
-CREATE INDEX "participants_conversation_id_idx" ON "participants"("conversation_id");
-CREATE INDEX "idx_participant_user_online" ON "participants"("user_id", "is_online");
+CREATE INDEX IF NOT EXISTS "idx_participant_tenant" ON "participants"("tenant_id");
+CREATE INDEX IF NOT EXISTS "participants_user_id_idx" ON "participants"("user_id");
+CREATE INDEX IF NOT EXISTS "participants_conversation_id_idx" ON "participants"("conversation_id");
+CREATE INDEX IF NOT EXISTS "idx_participant_user_online" ON "participants"("user_id", "is_online");
 
 -- Step 9: Add foreign key constraints
 ALTER TABLE "messages" ADD CONSTRAINT "messages_conversation_id_fkey" FOREIGN KEY ("conversation_id") REFERENCES "conversations"("id") ON DELETE CASCADE ON UPDATE CASCADE;

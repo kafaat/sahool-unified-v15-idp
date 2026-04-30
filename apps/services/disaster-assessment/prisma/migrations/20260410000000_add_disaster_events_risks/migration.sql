@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS disaster_events (
     version INTEGER NOT NULL DEFAULT 1
 );
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_disaster_events_tenant
+CREATE INDEX IF NOT EXISTS CONCURRENTLY IF NOT EXISTS idx_disaster_events_tenant
     ON disaster_events (tenant_id, status, reported_at DESC);
 
 -- ─────────────────────────────────────────────────────────────────────────────
@@ -61,5 +61,5 @@ CREATE TABLE IF NOT EXISTS disaster_risks (
     computed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_disaster_risks_tenant_field
+CREATE INDEX IF NOT EXISTS CONCURRENTLY IF NOT EXISTS idx_disaster_risks_tenant_field
     ON disaster_risks (tenant_id, field_id);

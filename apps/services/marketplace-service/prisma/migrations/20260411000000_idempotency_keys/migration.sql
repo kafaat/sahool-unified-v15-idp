@@ -29,9 +29,9 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
 
 -- Most common access path: list recent keys per tenant for the cleanup
 -- job and for operator debugging.
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_idempotency_keys_tenant_created
+CREATE INDEX IF NOT EXISTS CONCURRENTLY IF NOT EXISTS idx_idempotency_keys_tenant_created
     ON idempotency_keys (tenant_id, created_at DESC);
 
 -- Secondary lookup: by operation (e.g. stats of deposits via this flow).
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_idempotency_keys_operation
+CREATE INDEX IF NOT EXISTS CONCURRENTLY IF NOT EXISTS idx_idempotency_keys_operation
     ON idempotency_keys (operation);

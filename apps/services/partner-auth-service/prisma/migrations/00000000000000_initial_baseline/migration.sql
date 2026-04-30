@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "oauth_clients" (
+CREATE TABLE IF NOT EXISTS "oauth_clients" (
     "id" UUID NOT NULL,
     "client_id" VARCHAR(128) NOT NULL,
     "client_secret_hash" VARCHAR(255) NOT NULL,
@@ -22,7 +22,7 @@ CREATE TABLE "oauth_clients" (
 );
 
 -- CreateTable
-CREATE TABLE "auth_codes" (
+CREATE TABLE IF NOT EXISTS "auth_codes" (
     "id" UUID NOT NULL,
     "code_hash" VARCHAR(255) NOT NULL,
     "client_id" UUID NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE "auth_codes" (
 );
 
 -- CreateTable
-CREATE TABLE "access_tokens" (
+CREATE TABLE IF NOT EXISTS "access_tokens" (
     "jti" VARCHAR(128) NOT NULL,
     "client_id" UUID NOT NULL,
     "user_id" VARCHAR(128) NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE "access_tokens" (
 );
 
 -- CreateTable
-CREATE TABLE "refresh_tokens" (
+CREATE TABLE IF NOT EXISTS "refresh_tokens" (
     "id" UUID NOT NULL,
     "token_hash" VARCHAR(255) NOT NULL,
     "client_id" UUID NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE "refresh_tokens" (
 );
 
 -- CreateTable
-CREATE TABLE "consent_grants" (
+CREATE TABLE IF NOT EXISTS "consent_grants" (
     "id" UUID NOT NULL,
     "client_id" UUID NOT NULL,
     "user_id" VARCHAR(128) NOT NULL,
@@ -90,7 +90,7 @@ CREATE TABLE "consent_grants" (
 );
 
 -- CreateTable
-CREATE TABLE "signing_keys" (
+CREATE TABLE IF NOT EXISTS "signing_keys" (
     "kid" VARCHAR(32) NOT NULL,
     "alg" VARCHAR(16) NOT NULL DEFAULT 'RS256',
     "public_pem" TEXT NOT NULL,
@@ -103,49 +103,49 @@ CREATE TABLE "signing_keys" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "oauth_clients_client_id_key" ON "oauth_clients"("client_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "oauth_clients_client_id_key" ON "oauth_clients"("client_id");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "oauth_clients_api_key_hash_key" ON "oauth_clients"("api_key_hash");
+CREATE UNIQUE INDEX IF NOT EXISTS "oauth_clients_api_key_hash_key" ON "oauth_clients"("api_key_hash");
 
 -- CreateIndex
-CREATE INDEX "idx_oauth_client_status" ON "oauth_clients"("status");
+CREATE INDEX IF NOT EXISTS "idx_oauth_client_status" ON "oauth_clients"("status");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "auth_codes_code_hash_key" ON "auth_codes"("code_hash");
+CREATE UNIQUE INDEX IF NOT EXISTS "auth_codes_code_hash_key" ON "auth_codes"("code_hash");
 
 -- CreateIndex
-CREATE INDEX "idx_auth_code_client_user" ON "auth_codes"("client_id", "user_id");
+CREATE INDEX IF NOT EXISTS "idx_auth_code_client_user" ON "auth_codes"("client_id", "user_id");
 
 -- CreateIndex
-CREATE INDEX "idx_auth_code_expires" ON "auth_codes"("expires_at");
+CREATE INDEX IF NOT EXISTS "idx_auth_code_expires" ON "auth_codes"("expires_at");
 
 -- CreateIndex
-CREATE INDEX "idx_access_token_client_user" ON "access_tokens"("client_id", "user_id");
+CREATE INDEX IF NOT EXISTS "idx_access_token_client_user" ON "access_tokens"("client_id", "user_id");
 
 -- CreateIndex
-CREATE INDEX "idx_access_token_expires" ON "access_tokens"("expires_at");
+CREATE INDEX IF NOT EXISTS "idx_access_token_expires" ON "access_tokens"("expires_at");
 
 -- CreateIndex
-CREATE INDEX "idx_access_token_revoked" ON "access_tokens"("revoked_at");
+CREATE INDEX IF NOT EXISTS "idx_access_token_revoked" ON "access_tokens"("revoked_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "refresh_tokens_token_hash_key" ON "refresh_tokens"("token_hash");
+CREATE UNIQUE INDEX IF NOT EXISTS "refresh_tokens_token_hash_key" ON "refresh_tokens"("token_hash");
 
 -- CreateIndex
-CREATE INDEX "idx_refresh_token_client_user" ON "refresh_tokens"("client_id", "user_id");
+CREATE INDEX IF NOT EXISTS "idx_refresh_token_client_user" ON "refresh_tokens"("client_id", "user_id");
 
 -- CreateIndex
-CREATE INDEX "idx_refresh_token_family" ON "refresh_tokens"("family_id");
+CREATE INDEX IF NOT EXISTS "idx_refresh_token_family" ON "refresh_tokens"("family_id");
 
 -- CreateIndex
-CREATE INDEX "idx_refresh_token_expires" ON "refresh_tokens"("expires_at");
+CREATE INDEX IF NOT EXISTS "idx_refresh_token_expires" ON "refresh_tokens"("expires_at");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "consent_grants_client_id_user_id_key" ON "consent_grants"("client_id", "user_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "consent_grants_client_id_user_id_key" ON "consent_grants"("client_id", "user_id");
 
 -- CreateIndex
-CREATE INDEX "idx_signing_key_retired" ON "signing_keys"("retired_at");
+CREATE INDEX IF NOT EXISTS "idx_signing_key_retired" ON "signing_keys"("retired_at");
 
 -- AddForeignKey
 ALTER TABLE "auth_codes" ADD CONSTRAINT "auth_codes_client_id_fkey" FOREIGN KEY ("client_id") REFERENCES "oauth_clients"("id") ON DELETE CASCADE ON UPDATE CASCADE;

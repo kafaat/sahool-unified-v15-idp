@@ -154,12 +154,18 @@ def _emit_table_cells(fields: list[ViewField]) -> str:
     return ", ".join(f"DataCell(Text('${{row[{_dart_string(field.name)}] ?? ''}}'))" for field in fields)
 
 
-def generate_view(path: str, operation: dict[str, Any], fields: list[ViewField], layout: str) -> str:
+def generate_view(
+    path: str,
+    operation: dict[str, Any],
+    fields: list[ViewField],
+    layout: str,
+    permission: str | None = None,
+) -> str:
     operation_id = operation.get("operationId") or f"GET_{path}"
     title = operation.get("summary") or operation_id
     class_suffix = "Table" if layout == "table" else "CardList"
     class_name = f"{_pascal_case(operation_id)}LowCode{class_suffix}"
-    permission = f"{operation_id}:read"
+    required_permission = permission or f"{operation_id}:read"
 
     if layout == "table":
         body_lines = [
@@ -209,7 +215,7 @@ def generate_view(path: str, operation: dict[str, Any], fields: list[ViewField],
             "    this.onRefresh,",
             "  });",
             "",
-            f"  static const requiredPermission = {_dart_string(permission)};",
+            f"  static const requiredPermission = {_dart_string(required_permission)};",
             "  final String tenantId;",
             "  final Set<String> permissions;",
             "  final List<Map<String, Object?>> rows;",
@@ -279,6 +285,7 @@ def main() -> int:
     parser.add_argument("--operation-id", required=True)
     parser.add_argument("--layout", choices=("card", "table"), default="card")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--permission")
     args = parser.parse_args()
 
     spec = _load_openapi(args.openapi)
@@ -290,7 +297,7 @@ def main() -> int:
     filename = f"{re.sub(r'[^a-zA-Z0-9]+', '_', args.operation_id).strip('_').lower()}_{suffix}.dart"
     output_path = args.output_dir / filename
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_view(path, operation, fields, args.layout), encoding="utf-8")
+    output_path.write_text(generate_view(path, operation, fields, args.layout, args.permission), encoding="utf-8")
     print(f"Generated {output_path.relative_to(REPO_ROOT)}")
     return 0
 

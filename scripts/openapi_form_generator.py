@@ -50,7 +50,9 @@ def _registry_spec_for_service(service: str) -> Path:
 
 def _run_generator(script: str, *args: str) -> None:
     script_path = REPO_ROOT.joinpath("scripts", script).resolve()
-    if not script_path.is_relative_to(REPO_ROOT.resolve()):
+    try:
+        script_path.relative_to(REPO_ROOT.resolve())
+    except ValueError:
         raise ValueError(f"Generator path escapes repository root: {script}")
     subprocess.run([sys.executable, str(script_path), *args], check=True, timeout=60)
 
@@ -68,6 +70,7 @@ def main() -> int:
         raise ValueError("Schema registry validation failed: " + "; ".join(findings))
 
     approved = _approved_operation(args.operation_id)
+    permission = str(approved["permission"])
     spec_path = args.openapi or _registry_spec_for_service(str(approved["service"]))
     method = _operation_method(_load_openapi(spec_path), args.operation_id)
 
@@ -82,6 +85,8 @@ def main() -> int:
             args.layout,
             "--output-dir",
             str(args.output_dir),
+            "--permission",
+            permission,
         )
     elif method in {"POST", "PUT", "PATCH"}:
         _run_generator(
@@ -92,6 +97,8 @@ def main() -> int:
             args.operation_id,
             "--output-dir",
             str(args.output_dir),
+            "--permission",
+            permission,
         )
     else:
         raise ValueError(f"Unsupported Low-Code operation method: {method}")

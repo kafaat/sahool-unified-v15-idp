@@ -24,6 +24,25 @@ def _load_openapi(path: Path) -> dict[str, Any]:
     return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
 
 
+def _registry_file_path(spec_entry: dict[str, Any], key: str, service: object, findings: list[str]) -> Path | None:
+    raw_path = spec_entry.get(key)
+    if not isinstance(raw_path, str) or not raw_path.strip():
+        findings.append(f"missing non-empty {key} path for {service}")
+        return None
+
+    path = (REPO_ROOT / raw_path).resolve()
+    try:
+        relative_path = path.relative_to(REPO_ROOT.resolve())
+    except ValueError:
+        findings.append(f"{key} path for {service} escapes repository root: {raw_path}")
+        return None
+
+    if not path.is_file():
+        findings.append(f"missing regular file for {service}: {relative_path}")
+        return None
+    return path
+
+
 def _operation_exists(spec: dict[str, Any], operation_id: str, method: str, path: str) -> bool:
     operation = spec.get("paths", {}).get(path, {}).get(method.lower())
     return isinstance(operation, dict) and operation.get("operationId") == operation_id
@@ -51,15 +70,13 @@ def validate_registry(registry_path: Path = REGISTRY_PATH) -> list[str]:
 
     for spec_entry in registry.get("specs", []):
         service = spec_entry.get("service")
-        spec_path = REPO_ROOT / spec_entry.get("spec", "")
-        approved_path = REPO_ROOT / spec_entry.get("approvedOperations", "")
-        templates_path = REPO_ROOT / spec_entry.get("templates", "")
+        entry_findings: list[str] = []
+        spec_path = _registry_file_path(spec_entry, "spec", service, entry_findings)
+        approved_path = _registry_file_path(spec_entry, "approvedOperations", service, entry_findings)
+        templates_path = _registry_file_path(spec_entry, "templates", service, entry_findings)
 
-        for path in (spec_path, approved_path, templates_path):
-            if not path.exists():
-                findings.append(f"missing file for {service}: {path.relative_to(REPO_ROOT)}")
-
-        if findings:
+        if entry_findings:
+            findings.extend(entry_findings)
             continue
 
         spec = _load_openapi(spec_path)
@@ -71,6 +88,7 @@ def validate_registry(registry_path: Path = REGISTRY_PATH) -> list[str]:
             method = str(approved_operation.get("method", "")).upper()
             path = approved_operation.get("path")
             template = approved_operation.get("template")
+            permission = approved_operation.get("permission")
             key = (str(service), str(operation_id))
 
             if key in seen:
@@ -79,6 +97,8 @@ def validate_registry(registry_path: Path = REGISTRY_PATH) -> list[str]:
 
             if template not in templates:
                 findings.append(f"unknown template for {service}/{operation_id}: {template}")
+            if not isinstance(permission, str) or not permission.strip():
+                findings.append(f"approved operation must declare permission: {service}/{operation_id}")
             if not _operation_exists(spec, str(operation_id), method, str(path)):
                 findings.append(f"approved operation not found in OpenAPI: {service}/{operation_id}")
                 continue

@@ -178,6 +178,16 @@ def _emit_validator(field: Field) -> str:
         return "null"
     if field.enum_values:
         return f"(value) => value == null ? {_dart_string(REQUIRED_MESSAGE)} : null"
+    if field.dart_type == "int":
+        return (
+            f"(value) => value == null || value.trim().isEmpty ? {_dart_string(REQUIRED_MESSAGE)} "
+            f": int.tryParse(value.trim()) == null ? {_dart_string('Enter a valid integer / أدخل عددًا صحيحًا')} : null"
+        )
+    if field.dart_type == "double":
+        return (
+            f"(value) => value == null || value.trim().isEmpty ? {_dart_string(REQUIRED_MESSAGE)} "
+            f": double.tryParse(value.trim()) == null ? {_dart_string('Enter a valid number / أدخل رقمًا صحيحًا')} : null"
+        )
     return f"(value) => value == null || value.trim().isEmpty ? {_dart_string(REQUIRED_MESSAGE)} : null"
 
 
@@ -227,11 +237,18 @@ def _emit_widget(field: Field) -> str:
     )
 
 
-def generate_widget(spec: dict[str, Any], path: str, method: str, operation: dict[str, Any], fields: list[Field]) -> str:
+def generate_widget(
+    spec: dict[str, Any],
+    path: str,
+    method: str,
+    operation: dict[str, Any],
+    fields: list[Field],
+    permission: str | None = None,
+) -> str:
     operation_id = operation.get("operationId") or f"{method}_{path}"
     class_name = f"{_pascal_case(operation_id)}LowCodeForm"
     title = operation.get("summary") or operation_id
-    permission = f"{operation_id}:write"
+    required_permission = permission or f"{operation_id}:write"
 
     return "\n".join(
         [
@@ -260,7 +277,7 @@ def generate_widget(spec: dict[str, Any], path: str, method: str, operation: dic
             "}",
             "",
             f"class _{class_name}State extends State<{class_name}> {{",
-            "  static const requiredPermission = " + _dart_string(permission) + ";",
+            "  static const requiredPermission = " + _dart_string(required_permission) + ";",
             "  final _formKey = GlobalKey<FormState>();",
             *[line for field in fields for line in (_emit_field_controller(field), _emit_state(field)) if line],
             "",
@@ -341,6 +358,7 @@ def main() -> int:
     group.add_argument("--path")
     parser.add_argument("--method", default="post")
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--permission")
     args = parser.parse_args()
 
     spec = _load_openapi(args.openapi)
@@ -357,7 +375,7 @@ def main() -> int:
     filename = f"{re.sub(r'[^a-zA-Z0-9]+', '_', operation_id).strip('_').lower()}_form.dart"
     output_path = args.output_dir / filename
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_widget(spec, path, method, operation, fields), encoding="utf-8")
+    output_path.write_text(generate_widget(spec, path, method, operation, fields, args.permission), encoding="utf-8")
     print(f"Generated {output_path.relative_to(REPO_ROOT)}")
     return 0
 

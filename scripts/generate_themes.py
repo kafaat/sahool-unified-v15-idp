@@ -41,7 +41,7 @@ def _lowcode_tokens(tokens: dict[str, Any]) -> dict[str, Any]:
     normalized["constraints"] = {
         "colors": "Only values from governance/design/design-tokens.yaml are allowed.",
         "fontFamilies": "Only typography.fonts entries are allowed.",
-        "spacingPx": sorted(int(value) for value in ALLOWED_LOWCODE_SPACING_PX if value > 0),
+        "spacingPx": sorted(int(value) for value in ALLOWED_LOWCODE_SPACING_PX),
     }
 
     spacing = normalized.get("spacing", {})

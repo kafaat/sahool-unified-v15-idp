@@ -15,7 +15,7 @@
 - القيود:
   - لا لون خارج `design-tokens.yaml`.
   - لا خط خارج `typography.fonts`.
-  - لا spacing خارج: `4, 8, 12, 16, 24, 32, 48, 64` px.
+  - لا spacing خارج: `0, 4, 8, 12, 16, 24, 32, 48, 64` px (`0` مسموح فقط كقيمة reset).
 
 ## المرحلة 2: OpenAPI UI Generation
 

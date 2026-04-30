@@ -56,7 +56,7 @@ Use the state palette consistently across web, admin, and mobile.
 
 ## Spacing, Radius, and Cards
 
-- Base spacing follows `spacing.1` through `spacing.24`.
+- Base spacing follows `spacing.1` through `spacing.16`.
 - Standard card shape uses `components.card.borderRadius = lg`, `components.card.padding = spacing.4`, and `shadows.card.default`.
 - Compact dashboard cards may use `spacing.3` internally but should retain token-based radii.
 - Alert panels use `components.alert.borderRadius = lg` and `components.alert.iconSize = icons.sizes.lg`.

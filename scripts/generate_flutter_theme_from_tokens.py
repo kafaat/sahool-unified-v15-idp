@@ -21,6 +21,8 @@ def _load_tokens(path: Path) -> dict:
 
 
 def _hex_to_color(value: str) -> str:
+    """Convert #RRGGBB or #RRGGBBAA token colors to Flutter Color literals."""
+
     if not isinstance(value, str) or not value.startswith("#") or len(value) not in {7, 9}:
         raise ValueError(f"Expected #RRGGBB or #RRGGBBAA color, got {value!r}")
     if len(value) == 9:

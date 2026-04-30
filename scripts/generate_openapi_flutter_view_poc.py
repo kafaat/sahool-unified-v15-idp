@@ -86,13 +86,14 @@ def _query_parameter_names(operation: dict[str, Any]) -> set[str]:
 
 
 def _validate_layout(operation: dict[str, Any], layout: str) -> None:
+    operation_id = operation.get("operationId", "<unknown>")
     query_params = _query_parameter_names(operation)
     if not {"limit", "offset"}.issubset(query_params):
-        raise ValueError("GET list views require limit/offset pagination in the OpenAPI spec")
+        raise ValueError(f"GET list view {operation_id} requires limit/offset pagination in the OpenAPI spec")
     if query_params <= NON_FILTERING_QUERY_PARAMS:
-        raise ValueError("GET list views require at least one query filter in the OpenAPI spec")
+        raise ValueError(f"GET list view {operation_id} requires at least one query filter in the OpenAPI spec")
     if layout == "table" and not ({"sort", "sortBy", "order", "orderBy"} & query_params):
-        raise ValueError("DataTable generation requires an explicit sorting query parameter in the OpenAPI spec")
+        raise ValueError(f"DataTable generation for {operation_id} requires an explicit sorting query parameter")
 
 
 def _pascal_case(value: str) -> str:

@@ -86,8 +86,8 @@ def validate_registry(registry_path: Path = REGISTRY_PATH) -> list[str]:
             query_params = _query_parameter_names(operation)
             if approved_operation.get("requiresPagination") and not {"limit", "offset"}.issubset(query_params):
                 findings.append(f"approved operation lacks limit/offset pagination: {service}/{operation_id}")
-            pagination_sorting_params_only = {"limit", "offset", "page", "sort", "sortBy", "order", "orderBy"}
-            if approved_operation.get("requiresFiltering") and query_params <= pagination_sorting_params_only:
+            non_filter_params = {"limit", "offset", "page", "sort", "sortBy", "order", "orderBy"}
+            if approved_operation.get("requiresFiltering") and query_params <= non_filter_params:
                 findings.append(f"approved operation lacks query filters: {service}/{operation_id}")
             if template == "list.table" and not ({"sort", "sortBy", "order", "orderBy"} & query_params):
                 findings.append(f"DataTable operation lacks sorting parameter: {service}/{operation_id}")

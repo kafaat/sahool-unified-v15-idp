@@ -26,7 +26,7 @@ class _AnalyzeSatelliteGeometryLowCodeFormState extends State<AnalyzeSatelliteGe
   final _geometryController = TextEditingController();
   final _dateController = TextEditingController();
   final _indicesController = TextEditingController();
-  String? _satellite = "sentinel2";
+  String? _satellite;
   final _cloudCoverMaxController = TextEditingController();
 
   @override

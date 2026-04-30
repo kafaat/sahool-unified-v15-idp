@@ -104,7 +104,7 @@ def _extract_fields(spec: dict[str, Any], operation: dict[str, Any]) -> list[Fie
 
     for name, raw_property_schema in properties.items():
         property_schema = _resolve_schema(spec, raw_property_schema)
-        description = property_schema.get("description") or name.replace("_", " ").replace("-", " ").title()
+        description = property_schema.get("description") or _human_label(name)
         enum_values = tuple(str(value) for value in property_schema.get("enum", []))
         fields.append(
             Field(
@@ -129,6 +129,12 @@ def _camel_case(value: str) -> str:
     return pascal[:1].lower() + pascal[1:]
 
 
+def _human_label(value: str) -> str:
+    value = re.sub(r"([a-z0-9])([A-Z])", r"\1 \2", value)
+    value = value.replace("_", " ").replace("-", " ")
+    return " ".join(part.capitalize() for part in value.split())
+
+
 def _dart_string(value: str) -> str:
     return json.dumps(value, ensure_ascii=False)
 
@@ -151,6 +157,8 @@ def _emit_state(field: Field) -> str:
         return f"  bool _{name} = false;"
     if field.enum_values:
         first = _dart_string(field.enum_values[0])
+        if field.required:
+            return f"  String _{name} = {first};"
         return f"  String? _{name} = {first};"
     return ""
 

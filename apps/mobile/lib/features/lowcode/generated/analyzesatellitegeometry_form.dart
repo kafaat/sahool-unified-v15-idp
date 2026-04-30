@@ -101,7 +101,7 @@ class _AnalyzeSatelliteGeometryLowCodeFormState extends State<AnalyzeSatelliteGe
           ),
           TextFormField(
             controller: _cloudCoverMaxController,
-            decoration: const InputDecoration(labelText: "Cloudcovermax"),
+            decoration: const InputDecoration(labelText: "Cloud Cover Max"),
             keyboardType: TextInputType.number,
             maxLines: 1,
             validator: null,

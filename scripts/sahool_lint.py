@@ -13,6 +13,8 @@ import re
 import sys
 from pathlib import Path
 
+import yaml
+
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _DESIGN_DOC = _REPO_ROOT / "SAHOOL_DESIGN.md"
@@ -84,16 +86,10 @@ def parse_frontmatter(text: str) -> dict[str, str]:
     if not match:
         return {}
 
-    frontmatter: dict[str, str] = {}
-    for line in match.group("body").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        key, separator, value = line.partition(":")
-        if not separator:
-            continue
-        frontmatter[key.strip()] = value.strip()
-    return frontmatter
+    frontmatter = yaml.safe_load(match.group("body")) or {}
+    if not isinstance(frontmatter, dict):
+        return {}
+    return {str(key): str(value) for key, value in frontmatter.items()}
 
 
 def check_skill_file(path: Path, expected_name: str) -> list[str]:

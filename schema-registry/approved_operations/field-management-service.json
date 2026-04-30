@@ -10,8 +10,7 @@
       "requiresTenantContext": true,
       "requiresUnifiedResponse": true,
       "requiresPagination": true,
-      "requiresFiltering": true,
-      "requiresSortingForDataTable": true
+      "requiresFiltering": true
     }
   ]
 }

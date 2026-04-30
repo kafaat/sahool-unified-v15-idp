@@ -87,7 +87,8 @@ def _validate_layout(operation: dict[str, Any], layout: str) -> None:
     query_params = _query_parameter_names(operation)
     if not {"limit", "offset"}.issubset(query_params):
         raise ValueError("GET list views require limit/offset pagination in the OpenAPI spec")
-    if not (query_params - {"limit", "offset", "page", "sort", "sortBy", "order", "orderBy"}):
+    non_filter_params = {"limit", "offset", "page", "sort", "sortBy", "order", "orderBy"}
+    if query_params <= non_filter_params:
         raise ValueError("GET list views require at least one query filter in the OpenAPI spec")
     if layout == "table" and not ({"sort", "sortBy", "order", "orderBy"} & query_params):
         raise ValueError("DataTable generation requires an explicit sorting query parameter in the OpenAPI spec")

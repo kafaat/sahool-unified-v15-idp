@@ -10,12 +10,11 @@ Checks the intentionally small starter surface:
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 import yaml
-
-from lowcode_schema_registry import validate_registry
 
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -204,7 +203,19 @@ def check_lowcode_poc() -> list[str]:
     if not _SCHEMA_REGISTRY.exists():
         findings.append(create_lint_error("schema-registry/registry.json is missing"))
     else:
-        findings.extend(create_lint_error(f"schema registry invalid: {finding}") for finding in validate_registry())
+        registry_check = subprocess.run(
+            [sys.executable, str(_REPO_ROOT / "scripts" / "lowcode_schema_registry.py"), "validate"],
+            capture_output=True,
+            check=False,
+            text=True,
+        )
+        if registry_check.returncode != 0:
+            output = registry_check.stdout or registry_check.stderr
+            findings.extend(
+                create_lint_error(f"schema registry invalid: {line}")
+                for line in output.splitlines()
+                if line.strip()
+            )
 
     if not _GENERATED_VIEW.exists():
         findings.append(create_lint_error("generated OpenAPI Flutter view PoC is missing"))

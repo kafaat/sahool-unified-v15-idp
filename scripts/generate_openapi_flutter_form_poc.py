@@ -179,8 +179,8 @@ def _emit_validator(field: Field) -> str:
     if not field.required or field.dart_type == "bool":
         return "null"
     if field.enum_values:
-        return "(value) => value == null ? 'Required' : null"
-    return "(value) => value == null || value.trim().isEmpty ? 'Required' : null"
+        return "(value) => value == null ? 'Required / مطلوب' : null"
+    return "(value) => value == null || value.trim().isEmpty ? 'Required / مطلوب' : null"
 
 
 def _emit_widget(field: Field) -> str:
@@ -208,7 +208,7 @@ def _emit_widget(field: Field) -> str:
                 f"            decoration: const InputDecoration(labelText: {label}),",
                 f"            items: [{items}],",
                 f"            validator: {_emit_validator(field)},",
-                f"            onChanged: (value) => setState(() => _{name} = value),",
+                f"            onChanged: (value) => setState(() => _{name} = value ?? _{name}),",
                 "          ),",
             ]
         )

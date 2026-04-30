@@ -76,7 +76,7 @@ class _AnalyzeSatelliteGeometryLowCodeFormState extends State<AnalyzeSatelliteGe
             decoration: const InputDecoration(labelText: "Geometry"),
             keyboardType: TextInputType.text,
             maxLines: 3,
-            validator: (value) => value == null || value.trim().isEmpty ? 'Required' : null,
+            validator: (value) => value == null || value.trim().isEmpty ? 'Required / مطلوب' : null,
           ),
           TextFormField(
             controller: _dateController,
@@ -97,7 +97,7 @@ class _AnalyzeSatelliteGeometryLowCodeFormState extends State<AnalyzeSatelliteGe
             decoration: const InputDecoration(labelText: "Satellite"),
             items: [DropdownMenuItem(value: "sentinel2", child: Text("sentinel2")), DropdownMenuItem(value: "landsat8", child: Text("landsat8")), DropdownMenuItem(value: "landsat9", child: Text("landsat9")), DropdownMenuItem(value: "auto", child: Text("auto"))],
             validator: null,
-            onChanged: (value) => setState(() => _satellite = value),
+            onChanged: (value) => setState(() => _satellite = value ?? _satellite),
           ),
           TextFormField(
             controller: _cloudCoverMaxController,

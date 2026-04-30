@@ -76,7 +76,7 @@ class _AnalyzeSatelliteGeometryLowCodeFormState extends State<AnalyzeSatelliteGe
             decoration: const InputDecoration(labelText: "Geometry"),
             keyboardType: TextInputType.text,
             maxLines: 3,
-            validator: (value) => value == null || value.trim().isEmpty ? 'Required / مطلوب' : null,
+            validator: (value) => value == null || value.trim().isEmpty ? "Required / مطلوب" : null,
           ),
           TextFormField(
             controller: _dateController,

@@ -15,6 +15,7 @@ import yaml
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "apps" / "mobile" / "lib" / "features" / "lowcode" / "generated"
+REQUIRED_MESSAGE = "Required / مطلوب"
 
 
 @dataclass(frozen=True)
@@ -156,9 +157,6 @@ def _emit_state(field: Field) -> str:
     if field.dart_type == "bool":
         return f"  bool _{name} = false;"
     if field.enum_values:
-        first = _dart_string(field.enum_values[0])
-        if field.required:
-            return f"  String? _{name} = {first};"
         return f"  String? _{name};"
     return ""
 
@@ -179,8 +177,8 @@ def _emit_validator(field: Field) -> str:
     if not field.required or field.dart_type == "bool":
         return "null"
     if field.enum_values:
-        return "(value) => value == null ? 'Required / مطلوب' : null"
-    return "(value) => value == null || value.trim().isEmpty ? 'Required / مطلوب' : null"
+        return f"(value) => value == null ? {_dart_string(REQUIRED_MESSAGE)} : null"
+    return f"(value) => value == null || value.trim().isEmpty ? {_dart_string(REQUIRED_MESSAGE)} : null"
 
 
 def _emit_widget(field: Field) -> str:

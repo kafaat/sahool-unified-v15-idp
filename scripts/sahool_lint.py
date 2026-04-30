@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Simple SAHOOL starter linter.
+"""Simple SAHOOL repository linter.
 
-Checks the intentionally small starter surface:
+Validates the current checked-in starter and low-code surface, including:
 - SAHOOL_DESIGN.md exists and references token sources.
 - Exactly three starter skills exist.
 - Starter skills include frontmatter, required sections, and no external imports.
+- Low-code docs, sprint plan, and PoC spec include required references.
+- Generated Flutter artifacts include required tenant, permission, and non-network markers.
+- Schema registry and generated security-rule outputs match expected constraints.
 """
 
 from __future__ import annotations

@@ -203,19 +203,27 @@ def check_lowcode_poc() -> list[str]:
     if not _SCHEMA_REGISTRY.exists():
         findings.append(create_lint_error("schema-registry/registry.json is missing"))
     else:
-        registry_check = subprocess.run(
-            [sys.executable, str(_REPO_ROOT / "scripts" / "lowcode_schema_registry.py"), "validate"],
-            capture_output=True,
-            check=False,
-            text=True,
-            timeout=30,
-        )
-        if registry_check.returncode != 0:
-            output = registry_check.stdout or registry_check.stderr
-            findings.extend(
-                create_lint_error(f"schema registry invalid: {line}")
-                for line in output.splitlines()
-                if line.strip()
+        registry_script = _REPO_ROOT.joinpath("scripts", "lowcode_schema_registry.py").resolve()
+        if not registry_script.is_relative_to(_REPO_ROOT.resolve()):
+            findings.append(create_lint_error("schema registry validator path escapes repository root"))
+        else:
+            try:
+                registry_check = subprocess.run(
+                    [sys.executable, str(registry_script), "validate"],
+                    capture_output=True,
+                    check=False,
+                    text=True,
+                    timeout=30,
+                )
+            except subprocess.TimeoutExpired:
+                findings.append(create_lint_error("schema registry validation timed out"))
+            else:
+                if registry_check.returncode != 0:
+                    output = registry_check.stdout or registry_check.stderr
+                    findings.extend(
+                        create_lint_error(f"schema registry invalid: {line}")
+                        for line in output.splitlines()
+                        if line.strip()
             )
 
     if not _GENERATED_VIEW.exists():

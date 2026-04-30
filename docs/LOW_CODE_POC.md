@@ -16,13 +16,20 @@ This PoC implements the first safe slice of the SAHOOL Low-Code direction: use e
 | --- | --- |
 | `scripts/generate_flutter_theme_from_tokens.py` | Reads design tokens and writes the generated Flutter theme. |
 | `scripts/generate_openapi_flutter_form_poc.py` | Reads one OpenAPI operation and writes a guarded Flutter form widget. |
+| `scripts/generate_openapi_flutter_view_poc.py` | Reads one approved GET operation and writes a guarded Card/DataTable view widget. |
+| `scripts/generate_flutter_widget_tests_poc.py` | Writes widget tests for the generated form guardrails. |
+| `scripts/lowcode_schema_registry.py` | Validates approved OpenAPI operations before generation. |
+| `schema-registry/registry.json` | Central registry of specs approved for Low-Code generation. |
 | `apps/mobile/lib/core/theme/generated/sahool_token_theme.dart` | Generated token-backed Flutter `ThemeData`. |
 | `apps/mobile/lib/features/lowcode/generated/analyzesatellitegeometry_form.dart` | Generated guarded form for `analyzeSatelliteGeometry`. |
+| `apps/mobile/lib/features/lowcode/generated/listfields_card_list.dart` | Generated guarded Card list for `listFields`. |
+| `apps/mobile/test/features/lowcode/generated/analyzesatellitegeometry_form_test.dart` | Generated widget test template for the form PoC. |
 
 ## Commands
 
 ```bash
 npm run lowcode:poc
+npm run lowcode:registry:check
 npm run lint:sahool
 ```
 
@@ -31,6 +38,8 @@ Run the generators separately when needed:
 ```bash
 npm run lowcode:theme
 npm run lowcode:form:poc
+npm run lowcode:view:poc
+npm run lowcode:tests:poc
 ```
 
 ## Guardrails
@@ -38,6 +47,8 @@ npm run lowcode:form:poc
 - **Tenant Context**: generated widgets require a non-empty `tenantId`.
 - **RBAC**: generated widgets require an explicit operation permission before rendering.
 - **No direct network calls**: the generated form emits a payload through `onSubmit`; API clients remain outside the generated UI.
+- **Approved operations only**: generators are tied to `schema-registry/approved_operations/`.
+- **DataTable constraint**: table generation is rejected unless the OpenAPI operation declares pagination, filtering, and sorting query parameters.
 - **No new Flutter packages**: the PoC uses Flutter SDK widgets only.
 - **Token-only styling**: generated theme values come from `governance/design/design-tokens.yaml`.
 

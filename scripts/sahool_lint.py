@@ -15,14 +15,22 @@ from pathlib import Path
 
 import yaml
 
+from lowcode_schema_registry import validate_registry
+
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
 _DESIGN_DOC = _REPO_ROOT / "SAHOOL_DESIGN.md"
 _LOWCODE_DOC = _REPO_ROOT / "docs" / "LOW_CODE_POC.md"
+_LOWCODE_SPRINT_PLAN = _REPO_ROOT / "docs" / "LOW_CODE_BUILDER_SPRINT_PLAN.md"
+_SCHEMA_REGISTRY = _REPO_ROOT / "schema-registry" / "registry.json"
 _SKILLS_DIR = _REPO_ROOT / ".claude" / "skills" / "sahool-starter"
 _GENERATED_THEME = _REPO_ROOT / "apps" / "mobile" / "lib" / "core" / "theme" / "generated" / "sahool_token_theme.dart"
 _GENERATED_FORM = (
     _REPO_ROOT / "apps" / "mobile" / "lib" / "features" / "lowcode" / "generated" / "analyzesatellitegeometry_form.dart"
+)
+_GENERATED_VIEW = _REPO_ROOT / "apps" / "mobile" / "lib" / "features" / "lowcode" / "generated" / "listfields_card_list.dart"
+_GENERATED_FORM_TEST = (
+    _REPO_ROOT / "apps" / "mobile" / "test" / "features" / "lowcode" / "generated" / "analyzesatellitegeometry_form_test.dart"
 )
 _EXPECTED_SKILLS = {
     "dashboard/SKILL.md": "sahool-dashboard",
@@ -45,11 +53,29 @@ _REQUIRED_LOWCODE_DOC_REFERENCES = (
     "RBAC",
     "does not perform API calls",
 )
+_REQUIRED_SPRINT_PLAN_REFERENCES = (
+    "Week 1: Widget Tests",
+    "Week 2: Schema Registry Adapter",
+    "Weeks 3-4: GET View Generation",
+    "Unified Response",
+)
 _REQUIRED_GENERATED_FORM_REFERENCES = (
     "final String tenantId;",
     "final Set<String> permissions;",
     "requiredPermission",
     "does not perform API calls",
+)
+_REQUIRED_GENERATED_VIEW_REFERENCES = (
+    "final String tenantId;",
+    "final Set<String> permissions;",
+    "requiredPermission",
+    "does not perform API calls",
+)
+_REQUIRED_GENERATED_TEST_REFERENCES = (
+    "Tenant Context missing shows guard message",
+    "Permission missing shows guard message",
+    "Required field empty shows validation error",
+    "Valid input calls onSubmit with payload",
 )
 _FORBIDDEN_IMPORT_PATTERNS = (
     (r"\bsource:\s*github\b", "GitHub-sourced skill imports"),
@@ -164,6 +190,43 @@ def check_lowcode_poc() -> list[str]:
         )
         if "package:dio/" in form_text or "package:http/" in form_text:
             findings.append(create_lint_error("generated OpenAPI Flutter form must not perform direct HTTP calls"))
+
+    if not _LOWCODE_SPRINT_PLAN.exists():
+        findings.append(create_lint_error("docs/LOW_CODE_BUILDER_SPRINT_PLAN.md is missing"))
+    else:
+        sprint_text = _LOWCODE_SPRINT_PLAN.read_text(encoding="utf-8")
+        findings.extend(
+            create_lint_error(f"docs/LOW_CODE_BUILDER_SPRINT_PLAN.md must reference `{reference}`")
+            for reference in _REQUIRED_SPRINT_PLAN_REFERENCES
+            if reference not in sprint_text
+        )
+
+    if not _SCHEMA_REGISTRY.exists():
+        findings.append(create_lint_error("schema-registry/registry.json is missing"))
+    else:
+        findings.extend(create_lint_error(f"schema registry invalid: {finding}") for finding in validate_registry())
+
+    if not _GENERATED_VIEW.exists():
+        findings.append(create_lint_error("generated OpenAPI Flutter view PoC is missing"))
+    else:
+        view_text = _GENERATED_VIEW.read_text(encoding="utf-8")
+        findings.extend(
+            create_lint_error(f"generated OpenAPI Flutter view must include `{reference}`")
+            for reference in _REQUIRED_GENERATED_VIEW_REFERENCES
+            if reference not in view_text
+        )
+        if "package:dio/" in view_text or "package:http/" in view_text:
+            findings.append(create_lint_error("generated OpenAPI Flutter view must not perform direct HTTP calls"))
+
+    if not _GENERATED_FORM_TEST.exists():
+        findings.append(create_lint_error("generated OpenAPI Flutter form widget test is missing"))
+    else:
+        test_text = _GENERATED_FORM_TEST.read_text(encoding="utf-8")
+        findings.extend(
+            create_lint_error(f"generated OpenAPI Flutter form test must include `{reference}`")
+            for reference in _REQUIRED_GENERATED_TEST_REFERENCES
+            if reference not in test_text
+        )
 
     return findings
 

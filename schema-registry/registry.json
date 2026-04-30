@@ -1,0 +1,17 @@
+{
+  "version": "0.1.0",
+  "specs": [
+    {
+      "service": "vegetation-analysis-service",
+      "spec": "api/services/vegetation-analysis-service.openapi.yaml",
+      "approvedOperations": "schema-registry/approved_operations/vegetation-analysis-service.json",
+      "templates": "schema-registry/templates/operation-templates.json"
+    },
+    {
+      "service": "field-management-service",
+      "spec": "api/services/field-management-service.openapi.yaml",
+      "approvedOperations": "schema-registry/approved_operations/field-management-service.json",
+      "templates": "schema-registry/templates/operation-templates.json"
+    }
+  ]
+}

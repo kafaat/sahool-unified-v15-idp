@@ -1,0 +1,17 @@
+{
+  "service": "field-management-service",
+  "operations": [
+    {
+      "operationId": "listFields",
+      "method": "GET",
+      "path": "/api/v1/fields",
+      "template": "list.card",
+      "permission": "listFields:read",
+      "requiresTenantContext": true,
+      "requiresUnifiedResponse": true,
+      "requiresPagination": true,
+      "requiresFiltering": true,
+      "requiresSortingForDataTable": true
+    }
+  ]
+}

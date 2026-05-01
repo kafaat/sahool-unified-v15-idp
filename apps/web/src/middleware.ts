@@ -216,7 +216,7 @@ export async function middleware(request: NextRequest) {
 
   if (isPublicRoute) {
     // Still add basic security headers for public routes
-    const response = NextResponse.next();
+    const response = nextWithLocale(request, detectedLocale);
     addSecurityHeaders(response);
     setLocaleCookie(response, detectedLocale);
     return response;
@@ -252,7 +252,7 @@ export async function middleware(request: NextRequest) {
 
   if (!isProtectedRoute) {
     // Not a protected route - allow with security headers
-    const response = NextResponse.next();
+    const response = nextWithLocale(request, detectedLocale);
     addSecurityHeaders(response);
     setLocaleCookie(response, detectedLocale);
     return response;
@@ -298,7 +298,7 @@ export async function middleware(request: NextRequest) {
   // ═══════════════════════════════════════════════════════════════════════════
   // 7. Token is valid - proceed with security headers
   // ═══════════════════════════════════════════════════════════════════════════
-  const response = NextResponse.next();
+  const response = nextWithLocale(request, detectedLocale);
 
   // Add all security headers and locale cookie
   addSecurityHeaders(response);
@@ -352,7 +352,6 @@ export async function middleware(request: NextRequest) {
  * next-intl's server-side getRequestConfig() can read it on
  * subsequent requests. This replaces the cookie-setting behaviour
  * that was previously handled by next-intl/middleware.
- * Also sets the x-next-intl-locale header required by next-intl v4+.
  */
 function setLocaleCookie(response: NextResponse, locale: (typeof locales)[number]): void {
   response.cookies.set('NEXT_LOCALE', locale, {
@@ -360,8 +359,29 @@ function setLocaleCookie(response: NextResponse, locale: (typeof locales)[number
     maxAge: 60 * 60 * 24 * 365, // 1 year
     sameSite: 'lax',
   });
-  // next-intl v4 reads the locale from this request header
-  response.headers.set('x-next-intl-locale', locale);
+}
+
+/**
+ * Build a NextResponse that forwards the detected locale to downstream
+ * server code via the x-next-intl-locale REQUEST header, which is where
+ * next-intl v4 reads it inside getRequestConfig({ requestLocale }).
+ * Setting this header on the response would not propagate to server code.
+ */
+function nextWithLocale(
+  request: NextRequest,
+  locale: (typeof locales)[number],
+  init?: Parameters<typeof NextResponse.next>[0],
+): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-next-intl-locale', locale);
+  const mergedInit: Parameters<typeof NextResponse.next>[0] = {
+    ...init,
+    request: {
+      ...init?.request,
+      headers: requestHeaders,
+    },
+  };
+  return NextResponse.next(mergedInit);
 }
 
 /**

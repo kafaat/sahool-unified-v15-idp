@@ -39,6 +39,7 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import os
+import shlex
 import shutil
 import subprocess
 import time
@@ -683,14 +684,14 @@ class ToolRegistry:
         for tool in tools_to_check:
             try:
                 # Check if command exists
-                cmd = tool.command.split()[0]
+                cmd = shlex.split(tool.command)[0]
                 available = shutil.which(cmd) is not None
 
                 if available:
                     # Try to get version
                     try:
                         result = subprocess.run(  # noqa: S603  # nosec B603
-                            tool.version_command.split(),
+                            shlex.split(tool.version_command),
                             capture_output=True,
                             text=True,
                             timeout=10,

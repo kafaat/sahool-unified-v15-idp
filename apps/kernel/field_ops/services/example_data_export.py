@@ -23,7 +23,10 @@ from data_exporter import (
 
 def get_safe_export_path(filename: str) -> str:
     """Return a safe path inside the system temp directory, stripping any directory traversal."""
-    return os.path.join(tempfile.gettempdir(), os.path.basename(filename))
+    safe_basename = os.path.basename(filename)
+    if not safe_basename:
+        raise ValueError(f"Invalid filename: {filename!r}")
+    return os.path.join(tempfile.gettempdir(), safe_basename)
 
 
 def example_basic_csv_export():

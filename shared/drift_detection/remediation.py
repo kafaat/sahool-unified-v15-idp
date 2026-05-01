@@ -353,7 +353,7 @@ class AutoRemediationEngine:
                         error=f"Command '{base_cmd}' not in allowed commands: {sorted(self._ALLOWED_COMMANDS)}",
                     )
 
-                result = subprocess.run(  # noqa: S603
+                result = subprocess.run(  # noqa: S603 -- shell=False; argv from allowlist-validated shlex.split
                     argv,
                     shell=False,
                     capture_output=True,

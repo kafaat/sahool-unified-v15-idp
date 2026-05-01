@@ -621,11 +621,11 @@ class TenantRepository(Generic[T]):
                 _validate_identifier(col)
             placeholders = [f"${i + 1}" for i in range(len(columns))]
 
-            query = f"""
+            query = f"""  # noqa: S608  # nosec B608 - _table is a class constant; columns are validated by _validate_identifier
                 INSERT INTO {self._table} ({", ".join(columns)})
                 VALUES ({", ".join(placeholders)})
                 RETURNING *
-            """  # noqa: S608  # nosec B608 - _table is a class constant; columns are validated by _validate_identifier
+            """
 
             row = await conn.fetchrow(query, *data.values())
             return self._model_class(**dict(row))

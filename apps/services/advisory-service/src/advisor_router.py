@@ -37,8 +37,10 @@ router = APIRouter(prefix="/v2", tags=["advisor-v2"])
 # Pending-decision Redis key prefix and TTL (24h).
 _PENDING_KEY_PREFIX = "advisor:pending"
 _PENDING_TTL_SECONDS = 24 * 3600
+# Bound the in-memory fallback so a long Redis outage can't exhaust memory.
+_PENDING_MEMORY_MAX = 1024
 
-# In-memory fallback for pending decisions.
+# In-memory fallback for pending decisions (insertion-ordered → drop oldest).
 _pending_memory: dict[str, dict[str, Any]] = {}
 
 # Lazily-initialised module-level singletons. Initialised inside the request
@@ -87,12 +89,13 @@ _redis_singleton: Any = None
 _redis_unavailable: bool = False
 
 
-async def _redis_client():  # type: ignore[no-untyped-def]
-    """Return a connected redis.asyncio client, or ``None`` if unavailable.
+async def _redis_client() -> Any:
+    """Return a connected ``redis.asyncio.Redis`` client, or ``None``.
 
-    The connection is created once and reused — opening a new TCP/auth
-    connection on every approve/reject/feedback call would be wasteful
-    and add unnecessary latency under load.
+    Typed ``Any`` to avoid importing ``redis`` at module load (it's an optional
+    dependency). The connection is created once and reused — opening a new
+    TCP/auth connection on every approve/reject/feedback call would be
+    wasteful and add unnecessary latency under load.
     """
     global _redis_singleton, _redis_unavailable
     if _redis_singleton is not None:
@@ -133,6 +136,13 @@ async def _save_pending(decision_id: str, decision: dict[str, Any]) -> None:
             return
         except Exception as exc:  # noqa: BLE001
             logger.warning("advisor.pending_save_failed", extra={"error": str(exc)})
+    # Bounded LRU-ish fallback: drop the oldest entry when over capacity.
+    if len(_pending_memory) >= _PENDING_MEMORY_MAX:
+        try:
+            oldest = next(iter(_pending_memory))
+            _pending_memory.pop(oldest, None)
+        except StopIteration:
+            pass
     _pending_memory[decision_id] = decision
 
 

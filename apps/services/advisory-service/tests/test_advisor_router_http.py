@@ -178,3 +178,15 @@ def test_feedback_publishes_event(client: TestClient) -> None:
     )
     assert resp.status_code == 200
     assert resp.json()["status"] == "feedback_recorded"
+
+
+def test_pending_memory_is_bounded(client: TestClient, monkeypatch) -> None:
+    """Long Redis outages must not exhaust process memory."""
+    monkeypatch.setattr(advisor_router, "_PENDING_MEMORY_MAX", 3)
+    # Generate 5 pending decisions; only the last 3 should survive.
+    for _ in range(5):
+        resp = client.post(
+            "/v2/recommend", json=_ok_payload(ndwi=0.5, nitrogen_level=0.2)
+        )
+        assert resp.status_code == 200
+    assert len(advisor_router._pending_memory) == 3

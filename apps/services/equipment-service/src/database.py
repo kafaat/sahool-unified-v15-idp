@@ -97,11 +97,7 @@ def _run_additive_migrations() -> None:
     try:
         db = SessionLocal()
         for col_name, col_type in new_columns:
-            db.execute(
-                text(
-                    f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"
-                )
-            )
+            db.execute(text(f"ALTER TABLE equipment ADD COLUMN IF NOT EXISTS {col_name} {col_type}"))
         db.commit()
         db.close()
     except Exception as e:

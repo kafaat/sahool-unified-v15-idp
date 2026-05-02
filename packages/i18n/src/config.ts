@@ -11,6 +11,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
   const validLocale = locales.includes(locale as Locale) ? (locale as Locale) : defaultLocale;
 
   return {
+    locale: validLocale,
     messages: (await import(`./locales/${validLocale}.json`)).default,
     timeZone: 'Asia/Aden',
     now: new Date(),

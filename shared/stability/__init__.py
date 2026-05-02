@@ -19,6 +19,30 @@ Version: 1.0.0
 
 from __future__ import annotations
 
+# ``retry_classifier`` depends on ``tenacity``, which is declared in
+# ``pyproject.toml`` base extras and ``requirements/testing.txt`` but is *not*
+# in ``requirements/base.txt``. Environments that install only the latter
+# would otherwise fail at ``import shared.stability``. Re-export
+# conditionally so importing this package never raises when tenacity is
+# missing — callers can detect availability via ``build_retry is not None``.
+try:
+    from .retry_classifier import (
+        DEFAULT_RETRYABLE,
+        FailureClass,
+        build_retry,
+        classify,
+        parse_retry_after,
+    )
+
+    _RETRY_CLASSIFIER_AVAILABLE = True
+except ImportError:  # pragma: no cover - exercised when tenacity is absent
+    DEFAULT_RETRYABLE = None  # type: ignore[assignment]
+    FailureClass = None  # type: ignore[assignment]
+    build_retry = None  # type: ignore[assignment]
+    classify = None  # type: ignore[assignment]
+    parse_retry_after = None  # type: ignore[assignment]
+    _RETRY_CLASSIFIER_AVAILABLE = False
+
 __version__ = "1.0.0"
 __all__ = [
     "RequestContext",
@@ -33,3 +57,12 @@ __all__ = [
     "RemediationEngine",
     "StabilityHealthCheck",
 ]
+if _RETRY_CLASSIFIER_AVAILABLE:
+    __all__ += [
+        # Retry classifier (PR-B)
+        "FailureClass",
+        "DEFAULT_RETRYABLE",
+        "classify",
+        "parse_retry_after",
+        "build_retry",
+    ]

@@ -60,6 +60,7 @@ services:
     - PUT
     - PATCH
     - DELETE
+    - OPTIONS
     strip_path: false
     protocols:
     - http
@@ -96,6 +97,7 @@ services:
     - PUT
     - PATCH
     - DELETE
+    - OPTIONS
     strip_path: false
     protocols:
     - http
@@ -124,6 +126,7 @@ services:
     - PUT
     - PATCH
     - DELETE
+    - OPTIONS
     strip_path: false
     protocols:
     - http
@@ -2454,8 +2457,13 @@ services:
     - https
 
 consumers:
+# Platform consumer: key matches the JWT `iss` claim ("sahool").
+# Secret must match JWT_SECRET_KEY used by user-service to sign tokens.
+# Kong uses this to verify all platform-issued JWTs on protected routes.
+# Note: ${JWT_SECRET_KEY} substitution does not work in jwt_secrets.secret —
+# the value is hardcoded here and must be kept in sync with JWT_SECRET_KEY in .env
 - username: sahool-platform-service
   jwt_secrets:
-  - key: sahool-platform
+  - key: sahool
     algorithm: HS256
-    secret: a536c02289731f8bdeeff26a9057ce44
+    secret: change_this_jwt_secret_min_32_characters

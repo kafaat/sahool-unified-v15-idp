@@ -168,6 +168,26 @@ def test_feedback_publishes_event(client: TestClient) -> None:
     assert resp.json()["status"] == "feedback_recorded"
 
 
+def test_feedback_tenant_mismatch_rejected(client: TestClient) -> None:
+    """Feedback on a tenant-scoped decision must fail-closed for other tenants.
+
+    Regression for cross-tenant feedback poisoning: the stored decision is
+    tenant-scoped to ``"default"`` (set by the fake user on /recommend), so a
+    direct in-memory injection mimicking a different tenant's record must be
+    rejected with 403 instead of silently publishing feedback.
+    """
+    advisor_router._pending_memory["foreign-decision"] = {
+        "tenant_id": "other-tenant",
+        "field_context": {"crop": "wheat", "region": "saudi"},
+        "action": "add_nitrogen",
+    }
+    resp = client.post(
+        "/v2/feedback",
+        json={"decision_id": "foreign-decision", "result": "improved"},
+    )
+    assert resp.status_code == 403
+
+
 def test_pending_memory_is_bounded(client: TestClient, monkeypatch) -> None:
     """Long Redis outages must not exhaust process memory."""
     monkeypatch.setattr(advisor_router, "_PENDING_MEMORY_MAX", 3)

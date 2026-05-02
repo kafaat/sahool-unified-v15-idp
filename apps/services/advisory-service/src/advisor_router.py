@@ -511,7 +511,7 @@ async def reject_decision(
 @router.post("/feedback")
 async def submit_feedback(
     body: FeedbackRequest,
-    user: Any = _current_user_dep(),  # noqa: B008, ARG001 — kept for auth & future tenant scoping
+    user: Any = _current_user_dep(),  # noqa: B008
 ) -> dict[str, Any]:
     """Record outcome of a previously-issued decision.
 
@@ -521,6 +521,11 @@ async def submit_feedback(
     """
     advisor = await _get_advisor()
     decision = await _load_pending(body.decision_id) or {}
+    # When the stored decision is tenant-scoped, fail-closed on a tenant
+    # mismatch so feedback events can't be poisoned across tenants nor used
+    # to skew the in-memory learning stats for another tenant's decision.
+    if isinstance(decision, dict) and decision.get("tenant_id"):
+        _check_tenant_match(decision, user)
     field_ctx = decision.get("field_context", {}) if isinstance(decision, dict) else {}
     await advisor.record_feedback(
         decision_id=body.decision_id,

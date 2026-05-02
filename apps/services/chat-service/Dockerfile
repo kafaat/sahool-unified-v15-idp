@@ -127,6 +127,8 @@ COPY --from=builder /workspace/chat-service/prisma ./prisma/
 # Copy it to node_modules/.prisma/client/ where @prisma/client expects it at runtime
 COPY --from=builder /workspace/chat-service/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/chat-service/node_modules/@prisma/client ./node_modules/@prisma/client/
+# Copy shared-events built by builder (file: dep can't resolve in production stage)
+COPY --from=builder /workspace/chat-service/node_modules/@sahool/shared-events ./node_modules/@sahool/shared-events/
 
 # Copy built application
 COPY --from=builder /workspace/chat-service/dist ./dist

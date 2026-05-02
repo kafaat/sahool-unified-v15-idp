@@ -9,7 +9,7 @@
 --
 -- This migration is purely additive:
 --   * CREATE TABLE IF NOT EXISTS  — safe on re-apply
---   * CREATE INDEX CONCURRENTLY IF NOT EXISTS  — no write lock
+--   * CREATE INDEX IF NOT EXISTS               — safe inside Prisma transaction
 --
 -- The corresponding Prisma model is `IdempotencyKey` in schema.prisma.
 -- Runtime access is via parameterized raw SQL in
@@ -27,11 +27,16 @@ CREATE TABLE IF NOT EXISTS idempotency_keys (
     created_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Add missing columns to pre-existing idempotency_keys table (idempotent)
+ALTER TABLE idempotency_keys ADD COLUMN IF NOT EXISTS user_id UUID;
+ALTER TABLE idempotency_keys ADD COLUMN IF NOT EXISTS operation TEXT NOT NULL DEFAULT '';
+ALTER TABLE idempotency_keys ADD COLUMN IF NOT EXISTS status_code INTEGER;
+
 -- Most common access path: list recent keys per tenant for the cleanup
 -- job and for operator debugging.
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_idempotency_keys_tenant_created
+CREATE INDEX IF NOT EXISTS idx_idempotency_keys_tenant_created
     ON idempotency_keys (tenant_id, created_at DESC);
 
 -- Secondary lookup: by operation (e.g. stats of deposits via this flow).
-CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_idempotency_keys_operation
+CREATE INDEX IF NOT EXISTS idx_idempotency_keys_operation
     ON idempotency_keys (operation);

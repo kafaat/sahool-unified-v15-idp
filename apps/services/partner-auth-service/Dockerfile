@@ -115,6 +115,8 @@ COPY --from=builder /workspace/partner-auth-service/prisma ./prisma/
 COPY --from=builder /workspace/partner-auth-service/prisma/generated/client/ ./node_modules/.prisma/client/
 COPY --from=builder /workspace/partner-auth-service/node_modules/@prisma/client ./node_modules/@prisma/client/
 COPY --from=builder /workspace/partner-auth-service/dist ./dist
+# Ensure shared-types dist is present after npm audit fix (which can drop local file: packages)
+COPY --from=builder /workspace/packages/shared-types/dist ./packages/shared-types/dist/
 
 ENV PORT=3030
 ENV NODE_ENV=production

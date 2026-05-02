@@ -59,6 +59,9 @@ _PENDING_KEY_PREFIX = "advisor:pending"
 _PENDING_TTL_SECONDS = 24 * 3600
 # Bound the in-memory fallback so a long Redis outage can't exhaust memory.
 _PENDING_MEMORY_MAX = 1024
+# Dimensionality of the deterministic fallback embedding. Matches what the
+# AdvisorEngine / CRAG vector store expect when vLLM is unreachable.
+_FALLBACK_EMBEDDING_DIM = 384
 
 # In-memory fallback for pending decisions (insertion-ordered → drop oldest).
 _pending_memory: dict[str, dict[str, Any]] = {}
@@ -303,11 +306,12 @@ async def _vllm_embedding(text: str) -> list[float]:
     except Exception as exc:  # noqa: BLE001 — fall through to deterministic fallback
         logger.warning("advisor.vllm_embedding_failed", extra={"error": str(exc)})
 
-    # Deterministic fallback — SHA-256 expanded to 384 floats in [-1, 1).
+    # Deterministic fallback — SHA-256 expanded to ``_FALLBACK_EMBEDDING_DIM``
+    # floats in [-1, 1).
     import hashlib  # noqa: PLC0415
 
     digest = hashlib.sha256(text.encode("utf-8")).digest()
-    expanded = (digest * ((384 // len(digest)) + 1))[:384]
+    expanded = (digest * ((_FALLBACK_EMBEDDING_DIM // len(digest)) + 1))[:_FALLBACK_EMBEDDING_DIM]
     return [(b - 128) / 128.0 for b in expanded]
 
 

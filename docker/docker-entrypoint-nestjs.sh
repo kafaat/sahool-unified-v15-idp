@@ -23,7 +23,13 @@ DATABASE_URL_SET_MARKER=${DATABASE_URL+x}
 # fails with P1012 ("url/directUrl no longer supported"). Pin the exact
 # version (not just the major) so migrations always run with a CLI whose
 # behavior matches the @prisma/client baked into the image.
-PRISMA_CLI="npx prisma@5.22.0"
+# Prefer the locally-installed prisma CLI (no network dependency).
+# Fall back to npx only if the local binary is absent (e.g. field-management-service).
+if [ -f /app/node_modules/.bin/prisma ]; then
+  PRISMA_CLI="node /app/node_modules/.bin/prisma"
+else
+  PRISMA_CLI="npx prisma@5.22.0"
+fi
 
 # ---------------------------------------------------------------------------
 # Migrations must use a direct Postgres connection (postgres:5432), NOT the
@@ -60,18 +66,33 @@ restore_application_database_url() {
 # ---------------------------------------------------------------------------
 wait_for_db() {
   echo "Waiting for database to be ready (timeout: ${DB_WAIT_TIMEOUT}s)..."
+  # Extract host and port from DATABASE_URL for a lightweight TCP probe.
+  # DATABASE_URL may be postgres:5432 (direct) or pgbouncer:6432 (pool).
+  # We always probe the DIRECT url so we don't need PgBouncer to be up first.
+  _probe_url="${DATABASE_URL_DIRECT:-$DATABASE_URL}"
+  # Strip scheme and credentials: postgresql://user:pass@host:port/db → host:port
+  _host_port=$(echo "$_probe_url" | sed 's|.*@||; s|/.*||')
+  _host=$(echo "$_host_port" | cut -d: -f1)
+  _port=$(echo "$_host_port" | cut -d: -f2)
+  _port=${_port:-5432}
+
   elapsed=0
   while [ "$elapsed" -lt "$DB_WAIT_TIMEOUT" ]; do
-    # Try pg_isready first (available in most postgres-client packages)
+    # pg_isready is the cleanest check; fall back to a Node.js TCP probe
+    # (no npm download needed — uses the node binary already in the image).
     if command -v pg_isready >/dev/null 2>&1; then
-      if pg_isready -d "$DATABASE_URL" -q 2>/dev/null; then
+      if pg_isready -h "$_host" -p "$_port" -q 2>/dev/null; then
         echo "Database is ready (pg_isready)."
         return 0
       fi
     else
-      # Fallback: use node to attempt a raw TCP connection via prisma
-      if printf 'SELECT 1;' | $PRISMA_CLI db execute --stdin >/dev/null 2>&1; then
-        echo "Database is ready (prisma probe)."
+      if node -e "
+var net=require('net');
+var c=net.createConnection({host:'$_host',port:$_port,timeout:2000},function(){process.exit(0);});
+c.on('error',function(){process.exit(1);});
+c.on('timeout',function(){c.destroy();process.exit(1);});
+" 2>/dev/null; then
+        echo "Database is ready (TCP probe)."
         return 0
       fi
     fi

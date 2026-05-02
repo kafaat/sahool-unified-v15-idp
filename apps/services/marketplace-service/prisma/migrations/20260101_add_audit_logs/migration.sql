@@ -46,6 +46,25 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Add missing columns to pre-existing audit_logs table (idempotent via IF NOT EXISTS)
+-- These columns exist in the migration's CREATE TABLE but may be absent on older installs.
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS actor_id VARCHAR(255);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS actor_type VARCHAR(50) NOT NULL DEFAULT 'user';
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS category VARCHAR(50);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS severity VARCHAR(50) NOT NULL DEFAULT 'info';
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_type VARCHAR(255);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS resource_id VARCHAR(255);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS correlation_id VARCHAR(255);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS session_id VARCHAR(255);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS changes JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS diff JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS metadata JSONB DEFAULT '{}'::jsonb;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS success BOOLEAN NOT NULL DEFAULT true;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS error_code VARCHAR(100);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS error_message TEXT;
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS prev_hash VARCHAR(64);
+ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS entry_hash VARCHAR(64);
+
 -- Indexes for efficient querying (created on new empty table, standard CREATE INDEX is safe here)
 -- drift:safe reason=new-table-creation table=audit_logs
 CREATE INDEX IF NOT EXISTS idx_audit_tenant_created ON audit_logs(tenant_id, created_at DESC);
@@ -64,9 +83,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger to prevent updates and deletes
-DROP TRIGGER IF EXISTS audit_logs_no_update ON audit_logs;
-CREATE TRIGGER audit_logs_no_update
+-- Trigger to prevent updates and deletes (CREATE OR REPLACE is idempotent on PG14+)
+CREATE OR REPLACE TRIGGER audit_logs_no_update
   BEFORE UPDATE OR DELETE ON audit_logs
   FOR EACH ROW
   EXECUTE FUNCTION prevent_audit_modification();

@@ -1,0 +1,20 @@
+{
+  "version": "0.1.0",
+  "templates": {
+    "form.basic": {
+      "methods": ["POST", "PUT", "PATCH"],
+      "output": "Flutter Form widget",
+      "guardrails": ["tenant-context", "rbac", "no-direct-http", "unified-response-required"]
+    },
+    "list.card": {
+      "methods": ["GET"],
+      "output": "Flutter Card list widget",
+      "guardrails": ["tenant-context", "rbac", "no-direct-http", "pagination", "filtering"]
+    },
+    "list.table": {
+      "methods": ["GET"],
+      "output": "Flutter DataTable widget",
+      "guardrails": ["tenant-context", "rbac", "no-direct-http", "pagination", "filtering", "sorting"]
+    }
+  }
+}

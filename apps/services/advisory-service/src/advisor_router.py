@@ -30,6 +30,26 @@ from .kb.knowledge_graph_client import KnowledgeGraphClient
 from .learning import LearningEngine
 from .signal_derivation import FieldContext
 
+# Canonical resilience primitives (PR-A: adaptive circuit breaker, PR-B: retry).
+# These are imported eagerly because they are pure-Python and have no heavy
+# dependencies beyond ``tenacity`` (declared in pyproject base extras).
+try:  # pragma: no cover - import-time defensive
+    from shared.ai.circuit_breaker import (
+        CircuitBreaker,
+        CircuitBreakerConfig,
+        CircuitBreakerError,
+    )
+    from shared.stability.retry_classifier import FailureClass, build_retry
+
+    _RESILIENCE_AVAILABLE = True
+except Exception:  # noqa: BLE001 — degrade gracefully if shared/ is missing
+    CircuitBreaker = None  # type: ignore[assignment]
+    CircuitBreakerConfig = None  # type: ignore[assignment]
+    CircuitBreakerError = Exception  # type: ignore[assignment,misc]
+    FailureClass = None  # type: ignore[assignment]
+    build_retry = None  # type: ignore[assignment]
+    _RESILIENCE_AVAILABLE = False
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/v2", tags=["advisor-v2"])
@@ -88,6 +108,56 @@ class FeedbackRequest(BaseModel):
 _redis_singleton: Any = None
 _redis_unavailable: bool = False
 
+# Canonical circuit breaker around Redis. When Redis flaps, the breaker trips
+# OPEN and subsequent calls fail fast (no 5s socket-timeout per request) until
+# the adaptive recovery window elapses. We never surface ``CircuitBreakerError``
+# to the caller — it always falls through to the in-memory fallback so endpoint
+# behavior is identical to the pre-PR state. The component name is *not*
+# returned in any HTTP response, only logged at debug level — preventing
+# information leakage about backend topology.
+def _build_redis_breaker() -> Any:
+    """Construct the Redis circuit breaker, or ``None`` when shared/ is absent."""
+    if not _RESILIENCE_AVAILABLE or CircuitBreaker is None:
+        return None
+    return CircuitBreaker(
+        name="advisor.redis",
+        config=CircuitBreakerConfig(
+            failure_threshold=5,
+            success_threshold=2,
+            timeout_seconds=15.0,
+            adaptive_recovery=True,
+            min_recovery_seconds=5.0,
+            max_recovery_seconds=120.0,
+        ),
+    )
+
+
+_redis_breaker: Any = _build_redis_breaker()
+
+
+async def _through_redis_breaker(op_name: str, coro_factory: Any) -> Any:
+    """Run a Redis operation through the circuit breaker.
+
+    ``coro_factory`` must be a zero-arg async callable producing the awaitable.
+    On ``CircuitBreakerError`` returns ``None`` — callers fall through to the
+    in-memory fallback. We deliberately don't include the component name in
+    any error returned to the client.
+    """
+    if _redis_breaker is None:
+        return await coro_factory()
+    try:
+        return await _redis_breaker.call(coro_factory)
+    except CircuitBreakerError:
+        # Circuit is OPEN — fail fast, fall through to in-memory.
+        logger.debug("advisor.redis_breaker_open", extra={"op": op_name})
+        return None
+    except Exception as exc:  # noqa: BLE001 — caller logs context
+        logger.warning(
+            "advisor.redis_op_failed",
+            extra={"op": op_name, "error": str(exc)},
+        )
+        return None
+
 
 async def _redis_client() -> Any:
     """Return a connected ``redis.asyncio.Redis`` client, or ``None``.
@@ -114,7 +184,16 @@ async def _redis_client() -> Any:
         return None
     try:
         client = aioredis.from_url(redis_url, decode_responses=True, socket_timeout=5)
-        await client.ping()
+        # Run the ping through the breaker so a hung redis trips it instead of
+        # blocking every caller for 5s on the socket timeout.
+        ping_result = await _through_redis_breaker("ping", client.ping)
+        if ping_result is None:
+            # Either CB OPEN, or the ping raised — close the half-built client.
+            try:
+                await client.aclose()
+            except Exception:  # noqa: BLE001
+                pass
+            return None
         _redis_singleton = client
         return client
     except Exception as exc:  # noqa: BLE001
@@ -127,15 +206,16 @@ async def _redis_client() -> Any:
 async def _save_pending(decision_id: str, decision: dict[str, Any]) -> None:
     client = await _redis_client()
     if client is not None:
-        try:
-            await client.set(
+        result = await _through_redis_breaker(
+            "set",
+            lambda: client.set(
                 f"{_PENDING_KEY_PREFIX}:{decision_id}",
                 json.dumps(decision),
                 ex=_PENDING_TTL_SECONDS,
-            )
+            ),
+        )
+        if result is not None:
             return
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("advisor.pending_save_failed", extra={"error": str(exc)})
     # Bounded LRU-ish fallback: drop the oldest entry when over capacity.
     if len(_pending_memory) >= _PENDING_MEMORY_MAX:
         try:
@@ -149,22 +229,25 @@ async def _save_pending(decision_id: str, decision: dict[str, Any]) -> None:
 async def _load_pending(decision_id: str) -> dict[str, Any] | None:
     client = await _redis_client()
     if client is not None:
-        try:
-            raw = await client.get(f"{_PENDING_KEY_PREFIX}:{decision_id}")
-            if raw:
+        raw = await _through_redis_breaker(
+            "get",
+            lambda: client.get(f"{_PENDING_KEY_PREFIX}:{decision_id}"),
+        )
+        if raw:
+            try:
                 return json.loads(raw)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("advisor.pending_load_failed", extra={"error": str(exc)})
+            except (TypeError, ValueError) as exc:
+                logger.warning("advisor.pending_decode_failed", extra={"error": str(exc)})
     return _pending_memory.get(decision_id)
 
 
 async def _delete_pending(decision_id: str) -> None:
     client = await _redis_client()
     if client is not None:
-        try:
-            await client.delete(f"{_PENDING_KEY_PREFIX}:{decision_id}")
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("advisor.pending_delete_failed", extra={"error": str(exc)})
+        await _through_redis_breaker(
+            "delete",
+            lambda: client.delete(f"{_PENDING_KEY_PREFIX}:{decision_id}"),
+        )
     _pending_memory.pop(decision_id, None)
 
 
@@ -176,21 +259,48 @@ async def _vllm_embedding(text: str) -> list[float]:
 
     The fallback uses SHA-256 to derive a stable 384-dim float vector — this
     keeps the system testable end-to-end without an embedding service.
+
+    Transient HTTP errors (connect/read timeout, 429, 5xx) are retried via the
+    canonical ``shared.stability.retry_classifier.build_retry`` helper. AUTH
+    (401/403) is never retried — defense in depth at the helper level.
     """
     import httpx  # noqa: PLC0415
 
     vllm_url = os.getenv("VLLM_BASE_URL", "http://vllm-deepseek:8270/v1")
     vllm_model = os.getenv("VLLM_EMBEDDING_MODEL", "meta-llama/Llama-3-8b-Instruct")
-    try:
+
+    async def _do_post() -> list[float] | None:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
                 f"{vllm_url}/embeddings",
                 json={"model": vllm_model, "input": text},
             )
-            if resp.status_code == 200:
-                data = resp.json()
-                return data["data"][0]["embedding"]
-    except Exception as exc:  # noqa: BLE001
+            # Trigger retry for 429/5xx; classify(HTTPStatusError) handles it.
+            resp.raise_for_status()
+            data = resp.json()
+            return data["data"][0]["embedding"]
+
+    try:
+        if _RESILIENCE_AVAILABLE and build_retry is not None:
+            retrier = build_retry(
+                failure_classes={
+                    FailureClass.NETWORK,
+                    FailureClass.TIMEOUT,
+                    FailureClass.RATE_LIMITED,
+                    FailureClass.SERVER_ERROR,
+                    FailureClass.SERVICE_UNAVAILABLE,
+                },
+                max_attempts=3,
+                multiplier=0.5,
+                max_wait=5.0,
+                asynchronous=True,
+            )
+            embedding = await retrier(_do_post)
+        else:
+            embedding = await _do_post()
+        if embedding is not None:
+            return embedding
+    except Exception as exc:  # noqa: BLE001 — fall through to deterministic fallback
         logger.warning("advisor.vllm_embedding_failed", extra={"error": str(exc)})
 
     # Deterministic fallback — SHA-256 expanded to 384 floats in [-1, 1).

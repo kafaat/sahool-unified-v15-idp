@@ -244,3 +244,153 @@ def test_learning_statistics() -> None:
     stats = engine.get_statistics()
     assert stats["unique_keys"] == 1
     assert stats["total_recorded_outcomes"] == 1
+
+
+# ---------- PR-C: resilience wiring ---------------------------------------
+#
+# These tests exercise the consumption of the canonical resilience primitives
+# from the advisor router:
+#   * shared.ai.circuit_breaker.CircuitBreaker (PR-A)
+#   * shared.stability.retry_classifier.build_retry / classify (PR-B)
+# They intentionally do NOT spin up Redis or NATS — they patch the helpers in
+# place and assert the contract.
+
+
+@pytest.mark.asyncio
+async def test_redis_breaker_open_falls_back_to_memory(monkeypatch) -> None:
+    """When the Redis circuit is OPEN, _save/_load fall through to in-memory.
+
+    The breaker must NOT surface the component name to callers — endpoints
+    keep working transparently.
+    """
+    from src import advisor_router  # noqa: PLC0415
+
+    # Force a real breaker (in case shared/ wasn't importable for some reason).
+    if not advisor_router._RESILIENCE_AVAILABLE:
+        pytest.skip("shared resilience primitives not available")
+
+    # Trip the breaker manually.
+    advisor_router._redis_breaker.trip()
+    assert advisor_router._redis_breaker.is_open
+
+    # Pretend Redis is "available" but every call would go through the breaker.
+    class _SpyClient:
+        calls = 0
+
+        async def set(self, *_a, **_kw):  # pragma: no cover - must not be called
+            _SpyClient.calls += 1
+            return True
+
+        async def get(self, *_a, **_kw):  # pragma: no cover - must not be called
+            _SpyClient.calls += 1
+            return None
+
+        async def delete(self, *_a, **_kw):  # pragma: no cover - must not be called
+            _SpyClient.calls += 1
+            return 1
+
+    async def _fake_client():
+        return _SpyClient()
+
+    monkeypatch.setattr(advisor_router, "_redis_client", _fake_client)
+    advisor_router._pending_memory.clear()
+    try:
+        await advisor_router._save_pending("d1", {"k": "v"})
+        loaded = await advisor_router._load_pending("d1")
+        assert loaded == {"k": "v"}, "should round-trip via in-memory fallback"
+        # No real Redis ops should have run while the breaker was OPEN.
+        assert _SpyClient.calls == 0
+    finally:
+        advisor_router._redis_breaker.reset()
+        advisor_router._pending_memory.clear()
+
+
+@pytest.mark.asyncio
+async def test_redis_breaker_error_not_leaked_to_response() -> None:
+    """The CircuitBreakerError type is never used as an HTTP response detail.
+
+    We assert this structurally: the helper that wraps Redis ops returns
+    ``None`` on CircuitBreakerError, never re-raising. Endpoints therefore
+    cannot accidentally surface 'advisor.redis' to the client.
+    """
+    from src import advisor_router  # noqa: PLC0415
+
+    if not advisor_router._RESILIENCE_AVAILABLE:
+        pytest.skip("shared resilience primitives not available")
+
+    advisor_router._redis_breaker.trip()
+    try:
+        async def _never_called():  # pragma: no cover - must not run
+            raise AssertionError("should not be invoked when CB is OPEN")
+
+        result = await advisor_router._through_redis_breaker("set", _never_called)
+        # Critical: returns None, does NOT raise CircuitBreakerError.
+        assert result is None
+    finally:
+        advisor_router._redis_breaker.reset()
+
+
+def test_build_retry_auth_uses_single_attempt() -> None:
+    """AUTH-only retry policy collapses to stop_after_attempt(1) (PR-B contract)."""
+    from shared.stability.retry_classifier import (  # noqa: PLC0415
+        FailureClass,
+        build_retry,
+    )
+
+    retrier = build_retry(failure_classes={FailureClass.AUTH}, max_attempts=5)
+    # AUTH is silently dropped → effective attempts = 1.
+    assert retrier.stop.max_attempt_number == 1
+
+
+@pytest.mark.asyncio
+async def test_build_retry_does_not_retry_auth_even_when_requested() -> None:
+    """Defense in depth: a 401/403 must never trigger a retry, regardless of
+    whether the caller listed AUTH in failure_classes.
+    """
+    import httpx  # noqa: PLC0415
+
+    from shared.stability.retry_classifier import (  # noqa: PLC0415
+        FailureClass,
+        build_retry,
+    )
+
+    calls = {"n": 0}
+
+    async def _raises_401():
+        calls["n"] += 1
+        request = httpx.Request("GET", "http://example.test/")
+        response = httpx.Response(401, request=request)
+        raise httpx.HTTPStatusError("unauthorized", request=request, response=response)
+
+    retrier = build_retry(
+        failure_classes={
+            FailureClass.AUTH,
+            FailureClass.NETWORK,
+            FailureClass.TIMEOUT,
+        },
+        max_attempts=5,
+        asynchronous=True,
+    )
+
+    with pytest.raises(httpx.HTTPStatusError):
+        await retrier(_raises_401)
+    assert calls["n"] == 1, "AUTH must never be retried"
+
+
+@pytest.mark.asyncio
+async def test_build_retry_exhausts_on_persistent_network_failure() -> None:
+    """Retries up to max_attempts on a retryable failure class, then re-raises."""
+    import httpx  # noqa: PLC0415
+
+    from shared.stability.retry_classifier import build_retry  # noqa: PLC0415
+
+    calls = {"n": 0}
+
+    async def _always_fails():
+        calls["n"] += 1
+        raise httpx.ConnectError("boom")
+
+    retrier = build_retry(max_attempts=3, multiplier=0.001, max_wait=0.01, asynchronous=True)
+    with pytest.raises(httpx.ConnectError):
+        await retrier(_always_fails)
+    assert calls["n"] == 3

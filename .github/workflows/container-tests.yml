@@ -932,3 +932,56 @@ jobs:
           name: test-summary
           path: test-summary.json
           retention-days: 90
+
+  # Job 7: Upload empty SARIFs for deprecated/archived services
+  # These services were removed from the build-and-test matrix but their code
+  # scanning categories still exist on the main branch baseline. Uploading empty
+  # SARIFs tells GitHub code scanning "we checked and found nothing" so it can
+  # still compute a PR diff for these categories.
+  deprecated-sarif-cleanup:
+    name: Deprecated Service SARIF Cleanup
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: always()
+    steps:
+      - name: Generate empty SARIFs for archived services
+        run: |
+          EMPTY_SARIF='{"version":"2.1.0","$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","runs":[{"tool":{"driver":{"name":"Trivy","version":"0.69.3","rules":[]}},"results":[]}]}'
+          for svc in agro-advisor community-chat field-chat weather-core yield-engine; do
+            echo "$EMPTY_SARIF" > "trivy-${svc}.sarif"
+          done
+
+      - name: Upload trivy-agro-advisor SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: trivy-agro-advisor.sarif
+          category: trivy-agro-advisor
+
+      - name: Upload trivy-community-chat SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: trivy-community-chat.sarif
+          category: trivy-community-chat
+
+      - name: Upload trivy-field-chat SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: trivy-field-chat.sarif
+          category: trivy-field-chat
+
+      - name: Upload trivy-weather-core SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: trivy-weather-core.sarif
+          category: trivy-weather-core
+
+      - name: Upload trivy-yield-engine SARIF
+        uses: github/codeql-action/upload-sarif@v4
+        continue-on-error: true
+        with:
+          sarif_file: trivy-yield-engine.sarif
+          category: trivy-yield-engine

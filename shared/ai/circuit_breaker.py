@@ -209,10 +209,14 @@ class CircuitBreaker:
             # still respect the adaptive bounds.
             adaptive = cfg.timeout_seconds
         else:
-            # Scale base timeout by the ratio of recent failure cadence to the
-            # configured base. Use a simple multiplicative model rather than a
-            # learned policy: predictable, debuggable, no hidden state.
-            adaptive = cfg.timeout_seconds * (ewma / cfg.timeout_seconds)
+            # Use the EWMA of inter-failure intervals directly as the recovery
+            # signal: rapid repeated failures → short EWMA → faster probes;
+            # rare isolated failures → long EWMA → slower probes. The value is
+            # then clamped to ``[min_recovery_seconds, max_recovery_seconds]``
+            # below, so ``timeout_seconds`` is not a scaling factor here. This
+            # also avoids a latent ZeroDivisionError if a caller (legitimately
+            # or by misconfiguration) sets ``timeout_seconds=0``.
+            adaptive = ewma
 
         clamped = max(cfg.min_recovery_seconds, min(cfg.max_recovery_seconds, adaptive))
         self._stats.last_adaptive_recovery_seconds = clamped

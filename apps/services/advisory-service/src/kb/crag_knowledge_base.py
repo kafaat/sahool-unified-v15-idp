@@ -66,10 +66,20 @@ class CragKnowledgeBase:
         self.client = QdrantClient(host=qdrant_host, port=qdrant_port)
         self.default_collection = collection
         self.collections = list(KNOWN_COLLECTIONS)
-        self._ensure_collections()
+        # NOTE: presence-check is deliberately *not* called here. The Qdrant
+        # client's ``get_collections()`` is a blocking network call, and this
+        # constructor runs inside the async request path (see
+        # ``advisor_router._get_advisor``). Stalling the event loop on first
+        # request would defeat the resilience work. Callers should invoke
+        # :meth:`ensure_collections` from an async context (e.g. via
+        # ``asyncio.to_thread``) at startup or right after construction.
 
-    def _ensure_collections(self) -> None:
-        """Warn (don't fail) if any expected collection is missing."""
+    def ensure_collections(self) -> None:
+        """Warn (don't fail) if any expected collection is missing.
+
+        Synchronous: call from a worker thread (``asyncio.to_thread``) when
+        invoked from an async context, so the event loop is not blocked.
+        """
         try:
             existing = {c.name for c in self.client.get_collections().collections}
             missing = [c for c in self.collections if c not in existing]

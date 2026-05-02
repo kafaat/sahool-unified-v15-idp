@@ -11,7 +11,7 @@ implementation back this with Redis or a postgres table.
 from __future__ import annotations
 
 import logging
-from collections import defaultdict
+from collections import defaultdict, deque
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -29,7 +29,13 @@ class LearningEngine:
 
     def __init__(self, memory_size: int = 10_000) -> None:
         self.memory_size = memory_size
-        self.outcomes: dict[tuple[str, str, str], list[str]] = defaultdict(list)
+        # Use a bounded deque per key: ``maxlen`` evicts the oldest entry on
+        # overflow in O(1), avoiding the O(n) ``del bucket[: ...]`` slice that
+        # the previous list-based implementation paid on every record after
+        # the bucket was full.
+        self.outcomes: dict[tuple[str, str, str], deque[str]] = defaultdict(
+            lambda: deque(maxlen=memory_size)
+        )
 
     def record_outcome(self, feedback: dict[str, Any]) -> None:
         """Persist a single outcome.
@@ -47,11 +53,9 @@ class LearningEngine:
             logger.warning("learning.invalid_result", extra={"result": result})
             result = RESULT_NO_CHANGE
 
-        bucket = self.outcomes[key]
-        bucket.append(result)
-        # Bounded memory — drop oldest when over capacity.
-        if len(bucket) > self.memory_size:
-            del bucket[: len(bucket) - self.memory_size]
+        # Bounded by ``maxlen`` set in the deque factory; oldest entry is
+        # evicted automatically when the deque is at capacity.
+        self.outcomes[key].append(result)
 
         logger.debug("learning.recorded", extra={"key": key, "result": result})
 

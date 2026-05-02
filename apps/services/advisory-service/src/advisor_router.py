@@ -12,6 +12,7 @@ TTL when available; otherwise an in-memory map is used (single-instance only).
 
 from __future__ import annotations
 
+import asyncio
 import json
 import logging
 import os
@@ -68,10 +69,14 @@ _pending_memory: dict[str, dict[str, Any]] = {}
 
 # Lazily-initialised module-level singletons. Initialised inside the request
 # handler the first time it runs, so we don't have to touch the existing
-# ``main.py`` lifespan.
+# ``main.py`` lifespan. ``_advisor_init_lock`` serialises the first-touch
+# initialisation so concurrent requests don't construct duplicate
+# ``KnowledgeGraphClient`` / ``FeedbackPublisher`` instances (which would
+# leak NATS connections and HTTP pools from the losing racers).
 _advisor: AdvisorEngine | None = None
 _feedback: FeedbackPublisher | None = None
 _kg_client: KnowledgeGraphClient | None = None
+_advisor_init_lock = asyncio.Lock()
 
 
 # ---------- Request models -------------------------------------------------
@@ -181,6 +186,13 @@ async def _redis_client() -> Any:
     if not redis_url:
         _redis_unavailable = True
         return None
+    # Short-circuit when the breaker is OPEN: building a fresh aioredis
+    # client and immediately closing it on every approve/reject/feedback
+    # call during an outage adds churn without value. The breaker will
+    # transition to HALF_OPEN after the (adaptive) recovery window, at
+    # which point we resume probing.
+    if _redis_breaker is not None and _redis_breaker.is_open:
+        return None
     try:
         import redis.asyncio as aioredis  # noqa: PLC0415
     except ImportError:
@@ -273,8 +285,16 @@ async def _vllm_embedding(text: str) -> list[float]:
     vllm_url = os.getenv("VLLM_BASE_URL", "http://vllm-deepseek:8270/v1")
     vllm_model = os.getenv("VLLM_EMBEDDING_MODEL", "meta-llama/Llama-3-8b-Instruct")
 
-    async def _do_post() -> list[float] | None:
-        async with httpx.AsyncClient(timeout=30.0) as client:
+    # Build a single AsyncClient per ``_vllm_embedding`` invocation and reuse
+    # it across all retry attempts. Constructing a fresh client + connection
+    # pool inside ``_do_post`` (which build_retry calls per attempt) added
+    # measurable connection setup overhead on this hot path during transient
+    # failures. Keeping it call-scoped avoids cross-invocation lifecycle
+    # concerns (no need for a shutdown hook) while still preventing the
+    # per-attempt churn.
+    async with httpx.AsyncClient(timeout=30.0) as client:
+
+        async def _do_post() -> list[float] | None:
             resp = await client.post(
                 f"{vllm_url}/embeddings",
                 json={"model": vllm_model, "input": text},
@@ -284,28 +304,28 @@ async def _vllm_embedding(text: str) -> list[float]:
             data = resp.json()
             return data["data"][0]["embedding"]
 
-    try:
-        if _RESILIENCE_AVAILABLE and build_retry is not None:
-            retrier = build_retry(
-                failure_classes={
-                    FailureClass.NETWORK,
-                    FailureClass.TIMEOUT,
-                    FailureClass.RATE_LIMITED,
-                    FailureClass.SERVER_ERROR,
-                    FailureClass.SERVICE_UNAVAILABLE,
-                },
-                max_attempts=3,
-                multiplier=0.5,
-                max_wait=5.0,
-                asynchronous=True,
-            )
-            embedding = await retrier(_do_post)
-        else:
-            embedding = await _do_post()
-        if embedding is not None:
-            return embedding
-    except Exception as exc:  # noqa: BLE001 — fall through to deterministic fallback
-        logger.warning("advisor.vllm_embedding_failed", extra={"error": str(exc)})
+        try:
+            if _RESILIENCE_AVAILABLE and build_retry is not None:
+                retrier = build_retry(
+                    failure_classes={
+                        FailureClass.NETWORK,
+                        FailureClass.TIMEOUT,
+                        FailureClass.RATE_LIMITED,
+                        FailureClass.SERVER_ERROR,
+                        FailureClass.SERVICE_UNAVAILABLE,
+                    },
+                    max_attempts=3,
+                    multiplier=0.5,
+                    max_wait=5.0,
+                    asynchronous=True,
+                )
+                embedding = await retrier(_do_post)
+            else:
+                embedding = await _do_post()
+            if embedding is not None:
+                return embedding
+        except Exception as exc:  # noqa: BLE001 — fall through to deterministic fallback
+            logger.warning("advisor.vllm_embedding_failed", extra={"error": str(exc)})
 
     # Deterministic fallback — SHA-256 expanded to ``_FALLBACK_EMBEDDING_DIM``
     # floats in [-1, 1).
@@ -320,36 +340,52 @@ async def _vllm_embedding(text: str) -> list[float]:
 
 
 async def _get_advisor() -> AdvisorEngine:
-    """Lazily construct the singleton :class:`AdvisorEngine`."""
+    """Lazily construct the singleton :class:`AdvisorEngine`.
+
+    Concurrency-safe: the first request acquires ``_advisor_init_lock`` and
+    builds all collaborators; subsequent waiters re-check the singleton on
+    re-entry and return the already-built instance, avoiding duplicate
+    ``KnowledgeGraphClient`` / ``FeedbackPublisher`` (and the extra NATS
+    connections that would leak with them).
+    """
     global _advisor, _feedback, _kg_client
     if _advisor is not None:
         return _advisor
 
-    kg_url = os.getenv("KNOWLEDGE_GRAPH_URL", "http://knowledge-graph:8140/api/v1")
-    qdrant_host = os.getenv("QDRANT_HOST", "qdrant")
-    qdrant_port = int(os.getenv("QDRANT_PORT", "6333"))
-    nats_url = os.getenv("NATS_URL", "nats://nats:4222")
+    async with _advisor_init_lock:
+        # Double-checked: another waiter may have completed init while we
+        # were blocked on the lock.
+        if _advisor is not None:
+            return _advisor
 
-    _kg_client = KnowledgeGraphClient(base_url=kg_url)
+        kg_url = os.getenv("KNOWLEDGE_GRAPH_URL", "http://knowledge-graph:8140/api/v1")
+        qdrant_host = os.getenv("QDRANT_HOST", "qdrant")
+        qdrant_port = int(os.getenv("QDRANT_PORT", "6333"))
+        nats_url = os.getenv("NATS_URL", "nats://nats:4222")
 
-    crag_kb: CragKnowledgeBase | None = None
-    try:
-        crag_kb = CragKnowledgeBase(qdrant_host=qdrant_host, qdrant_port=qdrant_port)
-    except Exception as exc:  # noqa: BLE001 — degrade gracefully without Qdrant
-        logger.warning("advisor.crag_unavailable", extra={"error": str(exc)})
+        _kg_client = KnowledgeGraphClient(base_url=kg_url)
 
-    _feedback = FeedbackPublisher(nats_url=nats_url)
-    await _feedback.connect()
+        crag_kb: CragKnowledgeBase | None = None
+        try:
+            crag_kb = CragKnowledgeBase(qdrant_host=qdrant_host, qdrant_port=qdrant_port)
+            # Run the blocking presence-check in a worker thread so the
+            # event loop is not stalled by the synchronous Qdrant call.
+            await asyncio.to_thread(crag_kb.ensure_collections)
+        except Exception as exc:  # noqa: BLE001 — degrade gracefully without Qdrant
+            logger.warning("advisor.crag_unavailable", extra={"error": str(exc)})
 
-    _advisor = AdvisorEngine(
-        kg_client=_kg_client,
-        crag_kb=crag_kb,
-        governance=GovernanceEngine(),
-        learning=LearningEngine(),
-        feedback=_feedback,
-        embedding_func=_vllm_embedding,
-    )
-    return _advisor
+        _feedback = FeedbackPublisher(nats_url=nats_url)
+        await _feedback.connect()
+
+        _advisor = AdvisorEngine(
+            kg_client=_kg_client,
+            crag_kb=crag_kb,
+            governance=GovernanceEngine(),
+            learning=LearningEngine(),
+            feedback=_feedback,
+            embedding_func=_vllm_embedding,
+        )
+        return _advisor
 
 
 # ---------- Auth dependency -----------------------------------------------
@@ -418,8 +454,20 @@ async def recommend(
 
 
 def _check_tenant_match(decision: dict[str, Any], user: Any) -> None:
+    """Enforce tenant scoping on a stored decision.
+
+    Fail-closed: if the decision was tenant-scoped at creation
+    (``tenant_id`` set on ``/recommend``) but the authenticated user does
+    not present a ``tenant_id``, reject the request rather than silently
+    allowing cross-tenant approve/reject. This closes a gap where an
+    anonymous fallback (or a mis-configured token) could otherwise act on
+    another tenant's pending decision.
+    """
     expected = decision.get("tenant_id")
     actual = getattr(user, "tenant_id", None) or (user.get("tenant_id") if isinstance(user, dict) else None)
+    if expected and not actual:
+        # Expected scope present, caller has none → cross-tenant attempt.
+        raise HTTPException(status_code=403, detail="tenant mismatch")
     if expected and actual and expected != actual:
         raise HTTPException(status_code=403, detail="tenant mismatch")
 

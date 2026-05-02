@@ -756,7 +756,7 @@ def generate_postgis_conflict_detection_query(
     threshold = overlap_threshold_sqm
     # SECURITY: Use parameterized placeholders ($1, $2) for user-provided values
     # Table/column names are application constants, not user input
-    sql = f"""  # noqa: S608  # nosec B608 - table/column names are application constants; user values use $1/$2 params
+    sql = f"""
     WITH target AS (
         SELECT id, field_id, owner_id, {g}
         FROM {table}
@@ -800,7 +800,7 @@ def generate_postgis_conflict_detection_query(
     WHERE (n.overlaps AND n.overlap_area_sqm > {threshold})
         OR (NOT n.overlaps AND n.distance_m < 1.0)
     ORDER BY n.overlap_area_sqm DESC NULLS LAST;
-    """
+    """  # noqa: S608  # nosec B608 - table/column names are application constants; user values use $1/$2 params
     return sql
 
 
@@ -812,7 +812,7 @@ def generate_postgis_shared_boundaries_query(
     إنشاء استعلام PostGIS للحصول على جميع الحدود المشتركة مع مستخدم.
     """
     # SECURITY: Use parameterized placeholder ($1) for user_id to prevent SQL injection
-    sql = f"""  # noqa: S608  # nosec B608 - table/column names are application constants; user_id uses $1 param
+    sql = f"""
     SELECT
         b.id,
         b.field_id,
@@ -832,7 +832,7 @@ def generate_postgis_shared_boundaries_query(
         AND p.is_active = true
         AND (p.expires_at IS NULL OR p.expires_at > NOW())
     ORDER BY p.granted_at DESC;
-    """
+    """  # noqa: S608  # nosec B608 - table/column names are application constants; user_id uses $1 param
     return sql
 
 
@@ -860,7 +860,7 @@ def generate_postgis_neighbor_notification_query(
     tbl = boundaries_table
     _bid = boundary_id
     # SECURITY: Use parameterized placeholder ($1) for boundary_id
-    sql = f"""  # noqa: S608  # nosec B608 - table/column names are application constants; boundary_id uses $1 param
+    sql = f"""
     SELECT DISTINCT
         b.owner_id,
         b.field_id,
@@ -877,5 +877,5 @@ def generate_postgis_neighbor_notification_query(
             {buffer_m}
         )
     ORDER BY distance_m ASC;
-    """
+    """  # noqa: S608  # nosec B608 - table/column names are application constants; boundary_id uses $1 param
     return sql

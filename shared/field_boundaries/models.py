@@ -317,7 +317,7 @@ class FieldBoundary(BaseModel):
 
         geometry_geojson = _json.dumps(self.geometry.model_dump())
 
-        sql = f"""  # noqa: S608  # nosec B608 - table_name is an application constant per caller contract
+        sql = f"""
         INSERT INTO {table_name} (
             id, field_id, tenant_id, owner_id, name, name_ar,
             boundary_type, status, geometry, area_hectares,
@@ -329,7 +329,7 @@ class FieldBoundary(BaseModel):
             $11, $12,
             $13, $14
         );
-        """
+        """  # noqa: S608  # nosec B608 - table_name is an application constant per caller contract
 
         params = [
             self.id,

@@ -171,11 +171,11 @@ class SimpleMigrationRunner:
                         await conn.execute(migration.up)
                         duration_ms = int((time.monotonic() - t0) * 1000)
                         await conn.execute(  # nosemgrep: python.sqlalchemy.security.sqlalchemy-execute-raw-query, asyncpg-sqli -- table name is module constant, values are parameterized
-                            f"""  # noqa: S608  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
+                            f"""
                             INSERT INTO {_TRACKING_TABLE} (version, description, duration_ms)
                             VALUES ($1, $2, $3)
                             ON CONFLICT (version) DO NOTHING
-                            """,
+                            """,  # noqa: S608  # nosec B608 - _TRACKING_TABLE is a module constant, not user input
                             migration.version,
                             migration.description,
                             duration_ms,

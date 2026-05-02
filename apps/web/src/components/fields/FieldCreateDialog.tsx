@@ -110,9 +110,25 @@ const IRRIGATION_OPTIONS = [
 // ---------------------------------------------------------------------------
 
 /**
- * Approximate polygon area in hectares using the spherical-excess (shoelace
- * on equirectangular projection) formula. Accurate enough for sub-1000 ha
- * fields in the Yemen latitude band.
+ * Approximate polygon area in hectares.
+ *
+ * Algorithm: shoelace formula applied to coordinates projected onto a local
+ * equirectangular (plate-carrée) plane centred on the polygon's mean
+ * latitude. Conversion uses 1° latitude ≈ 111_320 m and 1° longitude ≈
+ * 111_320 · cos(meanLat) m.
+ *
+ * @param polygon - GeoJSON Polygon with rings in `[longitude, latitude]`
+ *   order (decimal degrees, WGS84). The first ring is treated as the outer
+ *   boundary; inner rings (holes) are ignored.
+ * @returns Area in hectares, or `null` if the polygon is invalid (no rings,
+ *   <4 points, or a missing coordinate).
+ *
+ * Accuracy notes:
+ *   - Designed for fields up to ~1000 ha in Yemen's latitude band
+ *     (~13–18°N), where the equirectangular distortion is < 0.5%.
+ *   - Degrades at high latitudes (use a proper ellipsoidal calculation —
+ *     e.g. `@turf/area` — for fields outside ±60°).
+ *   - Does not account for terrain (planar projection only).
  */
 function approxAreaHectares(polygon: GeoJSON.Polygon | null): number | null {
   if (!polygon || polygon.coordinates.length === 0) return null;
@@ -219,6 +235,11 @@ export default function FieldCreateDialog({
         ring.map(([lng, lat]) => [lng, lat] as [number, number]),
       );
 
+      // Bind through the FieldBoundary interface so any future required
+      // properties (e.g. a `crs` field) cause a compile error here instead
+      // of silently being omitted from the API payload.
+      const fieldBoundary: FieldBoundary = { type: 'Polygon', coordinates: coords };
+
       const data: FieldCreateData = {
         name: trimmed,
         nameAr: trimmed,
@@ -229,7 +250,7 @@ export default function FieldCreateDialog({
           : computedArea
           ? Math.round(computedArea * 100) / 100
           : undefined,
-        boundary: { type: 'Polygon', coordinates: coords },
+        boundary: fieldBoundary,
       };
 
       try {
@@ -397,14 +418,18 @@ export default function FieldCreateDialog({
                 <input
                   id="field-name"
                   type="text"
-                  // dir="auto" lets the browser pick LTR/RTL per character set
-                  // (Arabic input flows RTL, Latin input flows LTR) without
-                  // duplicating the input.
+                  // dir="auto" lets the browser pick LTR/RTL per the first
+                  // strong directional character. Note: pure-Arabic and
+                  // pure-Latin input render correctly; mixed-script input
+                  // (e.g. "Field 5 الشمالي") will follow the leading
+                  // character's direction. The aria-describedby below makes
+                  // this behaviour explicit for screen-reader users.
                   dir="auto"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="مثال: حقل القمح الشمالي / North Wheat Field"
                   autoComplete="off"
+                  aria-describedby="field-name-help"
                   className={clsx(
                     'w-full px-3.5 py-2.5 rounded-xl border text-sm',
                     'bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100',
@@ -413,6 +438,15 @@ export default function FieldCreateDialog({
                     'placeholder:text-gray-400 dark:placeholder:text-gray-500',
                   )}
                 />
+                <p
+                  id="field-name-help"
+                  className="mt-1 text-xs text-gray-500 dark:text-gray-400"
+                >
+                  يمكن إدخال الاسم بالعربية أو الإنجليزية
+                  <span className="ms-1 text-gray-400">
+                    | Enter the name in Arabic or English
+                  </span>
+                </p>
               </div>
 
               {/* Crop + Irrigation */}

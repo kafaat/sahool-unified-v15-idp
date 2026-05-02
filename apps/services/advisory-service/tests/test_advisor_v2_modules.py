@@ -175,6 +175,26 @@ def test_governance_evaluate_does_not_mutate_input() -> None:
     assert original == snapshot
 
 
+def test_governance_approve_does_not_mutate_input() -> None:
+    engine = GovernanceEngine()
+    pending = engine.evaluate({"action": "add_nitrogen", "risk_score": 0.4})
+    snapshot = dict(pending)
+    approved = engine.approve(pending, approved_by="x", modified_action="add_potassium")
+    assert pending == snapshot  # original untouched
+    assert approved is not pending
+    assert approved["action"] == "add_potassium"
+
+
+def test_governance_reject_does_not_mutate_input() -> None:
+    engine = GovernanceEngine()
+    pending = engine.evaluate({"action": "add_nitrogen", "risk_score": 0.4})
+    snapshot = dict(pending)
+    rejected = engine.reject(pending, rejected_by="x", reason="test")
+    assert pending == snapshot
+    assert rejected is not pending
+    assert rejected["status"] == DecisionStatus.REJECTED.value
+
+
 # ---------- learning -------------------------------------------------------
 
 

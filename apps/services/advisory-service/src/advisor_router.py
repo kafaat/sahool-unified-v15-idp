@@ -309,7 +309,7 @@ async def reject_decision(
 @router.post("/feedback")
 async def submit_feedback(
     body: FeedbackRequest,
-    user: Any = _current_user_dep(),  # noqa: B008  # noqa: ARG001
+    user: Any = _current_user_dep(),  # noqa: B008, ARG001 — kept for auth & future tenant scoping
 ) -> dict[str, Any]:
     """Record outcome of a previously-issued decision.
 

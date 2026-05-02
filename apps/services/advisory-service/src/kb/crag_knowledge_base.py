@@ -18,6 +18,9 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 # CRAG decision thresholds — module-level so tests can patch them.
+# Heuristics inspired by Yan et al., "Corrective Retrieval Augmented Generation"
+# (arXiv:2401.15884): high (>= .70) → trust top hits, mid (>= .40) → widen
+# search to recover relevant context, low → fall back to a general collection.
 CRAG_CORRECT_THRESHOLD = 0.7
 CRAG_AMBIGUOUS_THRESHOLD = 0.4
 

@@ -82,21 +82,42 @@ class FeedbackRequest(BaseModel):
 # ---------- Pending decision storage --------------------------------------
 
 
+# Cached Redis client (created on first use, reused thereafter).
+_redis_singleton: Any = None
+_redis_unavailable: bool = False
+
+
 async def _redis_client():  # type: ignore[no-untyped-def]
-    """Return a connected redis.asyncio client, or ``None`` if unavailable."""
+    """Return a connected redis.asyncio client, or ``None`` if unavailable.
+
+    The connection is created once and reused — opening a new TCP/auth
+    connection on every approve/reject/feedback call would be wasteful
+    and add unnecessary latency under load.
+    """
+    global _redis_singleton, _redis_unavailable
+    if _redis_singleton is not None:
+        return _redis_singleton
+    if _redis_unavailable:
+        return None
+
     redis_url = os.getenv("REDIS_URL")
     if not redis_url:
+        _redis_unavailable = True
         return None
     try:
         import redis.asyncio as aioredis  # noqa: PLC0415
     except ImportError:
+        _redis_unavailable = True
         return None
     try:
         client = aioredis.from_url(redis_url, decode_responses=True, socket_timeout=5)
         await client.ping()
+        _redis_singleton = client
         return client
     except Exception as exc:  # noqa: BLE001
         logger.warning("advisor.redis_unavailable", extra={"error": str(exc)})
+        # Don't permanently disable — Redis may come back; just don't return a
+        # broken client right now. Next call will retry.
         return None
 
 
@@ -209,21 +230,41 @@ async def _get_advisor() -> AdvisorEngine:
 # ---------- Auth dependency -----------------------------------------------
 
 
-def _current_user_dep() -> Any:
-    """Resolve the shared ``get_current_user`` dependency lazily.
+async def _resolve_current_user() -> Any:
+    """Resolve the current user via shared auth, or return an anonymous stub.
 
-    Importing it at module load time would couple this router to the
-    shared auth machinery in test environments where it isn't installed.
+    Implemented as a *real* async dependency function (not a closure built at
+    module-load time) so tests can override it with
+    ``app.dependency_overrides[_resolve_current_user] = ...``.
+    """
+    try:
+        from shared.auth.dependencies import get_current_user  # noqa: PLC0415
+    except Exception:  # noqa: BLE001 — shared auth not available in this env
+        return {"id": "anonymous", "tenant_id": "default"}
+
+    # ``get_current_user`` is itself a FastAPI dependency that expects to be
+    # resolved by the framework (it inspects the ``Authorization`` header via
+    # ``Depends(security)``). Calling it directly here would bypass that
+    # plumbing, so instead we raise to let the user wire it as ``Depends``.
+    # In practice tests should override ``_resolve_current_user`` directly.
+    raise RuntimeError(
+        "_resolve_current_user must be overridden when shared.auth is present"
+    )
+
+
+def _current_user_dep() -> Any:
+    """Build a FastAPI ``Depends(...)`` that resolves the current user.
+
+    Prefers ``shared.auth.dependencies.get_current_user`` when importable
+    (so JWT auth is enforced in production); falls back to
+    ``_resolve_current_user`` (which is monkeypatchable in tests).
     """
     try:
         from shared.auth.dependencies import get_current_user  # noqa: PLC0415
 
         return Depends(get_current_user)
     except Exception:  # noqa: BLE001
-        async def _no_auth() -> dict[str, Any]:
-            return {"id": "anonymous", "tenant_id": "default"}
-
-        return Depends(_no_auth)
+        return Depends(_resolve_current_user)
 
 
 # ---------- Endpoints ------------------------------------------------------
@@ -335,7 +376,7 @@ async def submit_feedback(
 
 async def shutdown_advisor() -> None:
     """Best-effort teardown — invoked by main.py at shutdown."""
-    global _advisor, _feedback, _kg_client
+    global _advisor, _feedback, _kg_client, _redis_singleton, _redis_unavailable
     if _kg_client is not None:
         try:
             await _kg_client.close()
@@ -346,6 +387,13 @@ async def shutdown_advisor() -> None:
             await _feedback.close()
         except Exception:  # noqa: BLE001
             pass
+    if _redis_singleton is not None:
+        try:
+            await _redis_singleton.aclose()
+        except Exception:  # noqa: BLE001
+            pass
     _advisor = None
     _feedback = None
     _kg_client = None
+    _redis_singleton = None
+    _redis_unavailable = False

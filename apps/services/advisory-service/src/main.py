@@ -640,9 +640,23 @@ try:
 
     app.include_router(_advisor_v2_router)
 
-    @app.on_event("shutdown")
-    async def _shutdown_advisor_v2_hook() -> None:  # pragma: no cover - hook
-        await _shutdown_advisor_v2()
+    # Hook the v2 shutdown into the existing lifespan rather than using the
+    # deprecated `@app.on_event("shutdown")` (which emits a DeprecationWarning
+    # when an app is constructed with a `lifespan=` context manager).
+    _orig_lifespan_ctx = app.router.lifespan_context
+
+    @asynccontextmanager
+    async def _wrapped_lifespan(app):  # type: ignore[no-redef]
+        async with _orig_lifespan_ctx(app):
+            try:
+                yield
+            finally:
+                try:
+                    await _shutdown_advisor_v2()
+                except Exception as _e:  # noqa: BLE001 — best-effort cleanup
+                    logger.warning("advisor_v2_shutdown_failed", error=str(_e))
+
+    app.router.lifespan_context = _wrapped_lifespan
 
 except Exception as _exc:  # noqa: BLE001
     logger.warning("advisor_v2_router_unavailable", error=str(_exc))

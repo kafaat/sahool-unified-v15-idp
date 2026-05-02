@@ -33,9 +33,7 @@ class LearningEngine:
         # overflow in O(1), avoiding the O(n) ``del bucket[: ...]`` slice that
         # the previous list-based implementation paid on every record after
         # the bucket was full.
-        self.outcomes: dict[tuple[str, str, str], deque[str]] = defaultdict(
-            lambda: deque(maxlen=memory_size)
-        )
+        self.outcomes: dict[tuple[str, str, str], deque[str]] = defaultdict(lambda: deque(maxlen=memory_size))
 
     def record_outcome(self, feedback: dict[str, Any]) -> None:
         """Persist a single outcome.
